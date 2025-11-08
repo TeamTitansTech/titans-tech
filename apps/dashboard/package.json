@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -12,7 +12,9 @@
     "next": "16.0.1",
     "next-intl": "^4.5.0",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "zod": "^4.1.12",
+    "@titans-tech/shared": "*"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

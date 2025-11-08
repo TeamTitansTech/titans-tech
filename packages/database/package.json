@@ -1,5 +1,5 @@
 {
-  "name": "@titans-tech/database",
+  "name": "@titans-tech/db",
   "version": "0.0.0",
   "private": true,
   "main": "./dist/index.js",
