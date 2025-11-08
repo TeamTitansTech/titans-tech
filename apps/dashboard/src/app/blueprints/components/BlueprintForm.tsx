@@ -13,6 +13,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { createBlueprint } from '@/data/services/blueprints.api';
+import { useLazyQuery } from '@/hooks/useLazyQuery';
+import { INSPECTION_SECTION_SLUGS } from '@/constants/inspection-sections';
 
 type FieldType = 'string' | 'int' | 'enum';
 
@@ -23,17 +26,17 @@ interface Field {
   fieldOptions?: string[];
 }
 
-const AVAILABLE_SECTIONS = ['bearing_clearance'] as const;
+const AVAILABLE_SECTIONS = INSPECTION_SECTION_SLUGS;
 
 export function BlueprintForm() {
   const t = useTranslations('blueprints');
   const tSections = useTranslations('sections');
   const [name, setName] = useState('');
-  const [selectedSections, setSelectedSections] = useState<string[]>(['bearing_clearance']);
+  const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [fields, setFields] = useState<Field[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [response, setResponse] = useState<string>('');
-  const [error, setError] = useState<string>('');
+  const [newOptionValues, setNewOptionValues] = useState<Record<number, string>>({});
+
+  const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
 
   const toggleSection = (section: string) => {
     setSelectedSections((prev) =>
@@ -82,7 +85,6 @@ export function BlueprintForm() {
     const newFields = [...fields];
     newFields[index] = { ...newFields[index], [key]: value };
 
-    // Auto-generate slug when fieldName changes
     if (key === 'fieldName' && typeof value === 'string') {
       const existingSlugs = newFields
         .map((f, i) => (i !== index ? f.fieldSlug : ''))
@@ -90,62 +92,64 @@ export function BlueprintForm() {
       newFields[index].fieldSlug = generateSlug(value, existingSlugs);
     }
 
+    if (key === 'fieldType' && value === 'enum' && !newFields[index].fieldOptions) {
+      newFields[index].fieldOptions = [];
+    }
+
     setFields(newFields);
+  };
+
+  const addOption = (fieldIndex: number) => {
+    const newValue = newOptionValues[fieldIndex]?.trim();
+    if (!newValue) return;
+
+    const newFields = [...fields];
+    const currentOptions = newFields[fieldIndex].fieldOptions || [];
+
+    if (!currentOptions.includes(newValue)) {
+      newFields[fieldIndex].fieldOptions = [...currentOptions, newValue];
+      setFields(newFields);
+    }
+
+    setNewOptionValues((prev) => ({ ...prev, [fieldIndex]: '' }));
+  };
+
+  const removeOption = (fieldIndex: number, optionIndex: number) => {
+    const newFields = [...fields];
+    const currentOptions = newFields[fieldIndex].fieldOptions || [];
+    newFields[fieldIndex].fieldOptions = currentOptions.filter((_, i) => i !== optionIndex);
+    setFields(newFields);
+  };
+
+  const updateNewOptionValue = (fieldIndex: number, value: string) => {
+    setNewOptionValues((prev) => ({ ...prev, [fieldIndex]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setResponse('');
-    setError('');
 
-    try {
-      const payload = {
-        name,
-        sections: selectedSections,
-        fields: fields.map((field) => {
-          const baseField = {
-            fieldName: field.fieldName,
-            fieldSlug: field.fieldSlug,
-            fieldType: field.fieldType,
+    const payload = {
+      name,
+      sections: selectedSections,
+      fields: fields.map((field) => {
+        const baseField = {
+          fieldName: field.fieldName,
+          fieldSlug: field.fieldSlug,
+          fieldType: field.fieldType,
+        };
+
+        if (field.fieldType === 'enum' && field.fieldOptions) {
+          return {
+            ...baseField,
+            fieldOptions: field.fieldOptions.filter(Boolean),
           };
+        }
 
-          if (field.fieldType === 'enum' && field.fieldOptions) {
-            return {
-              ...baseField,
-              fieldOptions: field.fieldOptions.filter(Boolean),
-            };
-          }
+        return baseField;
+      }),
+    };
 
-          return baseField;
-        }),
-      };
-
-      console.log('Sending payload:', JSON.stringify(payload, null, 2));
-
-      const res = await fetch('http://localhost:3001/blueprints', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(`HTTP ${res.status}: ${res.statusText}`);
-        setResponse(JSON.stringify(data, null, 2));
-      } else {
-        setResponse(JSON.stringify(data, null, 2));
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setError(errorMessage);
-      console.error('Error details:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    await submitBlueprint(payload);
   };
 
   return (
@@ -247,15 +251,6 @@ export function BlueprintForm() {
                           </div>
 
                           <div className="space-y-2">
-                            <Label>{t('form.fields.fieldSlug.label')}</Label>
-                            <div className="flex h-9 w-full items-center rounded-md bg-muted px-3 py-2 text-sm">
-                              <code className="text-muted-foreground">
-                                {field.fieldSlug || t('form.fields.fieldSlug.placeholder')}
-                              </code>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
                             <Label htmlFor={`field-type-${index}`}>
                               {t('form.fields.fieldType.label')}
                             </Label>
@@ -268,7 +263,7 @@ export function BlueprintForm() {
                               <SelectTrigger id={`field-type-${index}`}>
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="bg-white">
                                 <SelectItem value="string">
                                   {t('form.fields.fieldType.string')}
                                 </SelectItem>
@@ -283,24 +278,60 @@ export function BlueprintForm() {
                           </div>
 
                           {field.fieldType === 'enum' && (
-                            <div className="space-y-2">
-                              <Label htmlFor={`field-options-${index}`}>
-                                {t('form.fields.fieldOptions.label')}
-                              </Label>
-                              <Input
-                                id={`field-options-${index}`}
-                                type="text"
-                                value={field.fieldOptions?.join(', ') || ''}
-                                onChange={(e) =>
-                                  updateField(
-                                    index,
-                                    'fieldOptions',
-                                    e.target.value.split(',').map((s) => s.trim()),
-                                  )
-                                }
-                                required={field.fieldType === 'enum'}
-                                placeholder={t('form.fields.fieldOptions.placeholder')}
-                              />
+                            <div className="space-y-2 md:col-span-2">
+                              <Label>{t('form.fields.fieldOptions.label')}</Label>
+
+                              {field.fieldOptions && field.fieldOptions.length > 0 && (
+                                <div className="flex flex-wrap gap-2">
+                                  {field.fieldOptions.map((option, optionIndex) => (
+                                    <div
+                                      key={optionIndex}
+                                      className="flex items-center gap-1 bg-muted rounded-md px-3 py-1"
+                                    >
+                                      <span className="text-sm">{option}</span>
+                                      <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => removeOption(index, optionIndex)}
+                                        className="h-5 w-5 p-0 hover:bg-destructive/10 hover:text-destructive"
+                                      >
+                                        ×
+                                      </Button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="flex gap-2">
+                                <Input
+                                  type="text"
+                                  value={newOptionValues[index] || ''}
+                                  onChange={(e) => updateNewOptionValue(index, e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      addOption(index);
+                                    }
+                                  }}
+                                  placeholder={t('form.fields.fieldOptions.placeholder')}
+                                  className="flex-1"
+                                />
+                                <Button
+                                  type="button"
+                                  onClick={() => addOption(index)}
+                                  variant="outline"
+                                  size="sm"
+                                >
+                                  {t('form.fields.addButton')}
+                                </Button>
+                              </div>
+
+                              {field.fieldOptions?.length === 0 && (
+                                <p className="text-sm text-destructive">
+                                  {t('form.fields.fieldOptions.required')}
+                                </p>
+                              )}
                             </div>
                           )}
                         </div>
@@ -316,19 +347,27 @@ export function BlueprintForm() {
             </Button>
           </form>
 
-          {error && (
+          {result?.errors && result.errors.length > 0 && (
             <div className="mt-6 rounded-md border border-destructive bg-destructive/10 p-4">
               <h3 className="text-lg font-semibold mb-2 text-destructive">
                 {t('form.error.title')}
               </h3>
-              <p className="text-sm text-destructive">{error}</p>
+              <ul className="list-disc list-inside space-y-1">
+                {result.errors.map((error, index) => (
+                  <li key={index} className="text-sm text-destructive">
+                    {error}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
-          {response && (
+          {result?.data && (
             <div className="mt-6 space-y-2">
               <h3 className="text-lg font-semibold">{t('form.response.title')}</h3>
-              <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm">{response}</pre>
+              <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm">
+                {JSON.stringify(result.data, null, 2)}
+              </pre>
             </div>
           )}
         </CardContent>

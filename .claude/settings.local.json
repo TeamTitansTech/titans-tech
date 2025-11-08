@@ -4,7 +4,11 @@
       "Bash(cat:*)",
       "Bash(npx shadcn@latest init:*)",
       "Bash(npx shadcn@latest:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(npx prisma migrate dev:*)",
+      "Bash(npx prisma migrate:*)",
+      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"yes\" npx prisma migrate reset:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

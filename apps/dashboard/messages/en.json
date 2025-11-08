@@ -5,18 +5,18 @@
   },
   "sections": {
     "bearing_clearance": "Bearing Clearance",
-    "engine_specs": "Engine Specs",
-    "hydraulic_system": "Hydraulic System",
-    "electrical_system": "Electrical System",
-    "maintenance": "Maintenance"
+    "slide": "Slide",
+    "gibs": "Gibs",
+    "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
+    "clutch": "Clutch",
+    "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag"
   },
   "blueprints": {
     "title": "Create Model",
     "form": {
       "name": {
         "label": "Blueprint Name",
-        "placeholder": "e.g., Heavy Machinery Blueprint",
-        "required": "Blueprint Name *"
+        "placeholder": "e.g., Heavy Machinery Blueprint"
       },
       "sections": {
         "label": "Sections *"
@@ -30,10 +30,6 @@
           "label": "Field Name",
           "placeholder": "e.g., Serial Number"
         },
-        "fieldSlug": {
-          "label": "Field Slug",
-          "placeholder": "e.g., serial_number"
-        },
         "fieldType": {
           "label": "Field Type",
           "string": "String",
@@ -41,12 +37,44 @@
           "enum": "Enum"
         },
         "fieldOptions": {
-          "label": "Options (comma-separated)",
-          "placeholder": "e.g., Type A, Type B, Type C"
+          "label": "Options",
+          "placeholder": "e.g., Type A",
+          "required": "At least one option is required for enum fields"
         }
       },
       "submit": {
         "idle": "Create Blueprint",
+        "loading": "Sending..."
+      },
+      "error": {
+        "title": "Error:"
+      },
+      "response": {
+        "title": "Response:"
+      }
+    }
+  },
+  "machines": {
+    "title": "Create Machine",
+    "form": {
+      "blueprint": {
+        "label": "Blueprint",
+        "placeholder": "Select a blueprint",
+        "loading": "Loading blueprints..."
+      },
+      "name": {
+        "label": "Machine Name",
+        "placeholder": "e.g., Machine #002"
+      },
+      "fields": {
+        "label": "Fields",
+        "placeholder": "Enter value",
+        "selectPlaceholder": "Select an option",
+        "slug": "Slug"
+      },
+      "selectBlueprintPrompt": "Select a blueprint to get started",
+      "submit": {
+        "idle": "Create Machine",
         "loading": "Sending..."
       },
       "error": {

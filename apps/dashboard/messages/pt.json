@@ -4,15 +4,19 @@
     "description": "Aplicação do Painel de Administração"
   },
   "sections": {
-    "bearing_clearance": "Bearing Clearance"
+    "bearing_clearance": "BEARING CLEARANCE",
+    "slide": "SLIDE",
+    "gibs": "GIBS",
+    "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRICATION / HYDRAULICS / PRESSURE SWITCHES / OIL & FILTER",
+    "clutch": "CLUTCH",
+    "counterbalance_cylinder_airbag": "COUNTERBALANCE CYLINDER / AIRBAG"
   },
   "blueprints": {
     "title": "Criar Modelo",
     "form": {
       "name": {
         "label": "Nome",
-        "placeholder": "DACH",
-        "required": "Nome"
+        "placeholder": "DACH"
       },
       "sections": {
         "label": "Áreas de inspeção"
@@ -26,9 +30,6 @@
           "label": "Nome do Campo",
           "placeholder": "ex: Número de Série"
         },
-        "fieldSlug": {
-          "label": "Slug"
-        },
         "fieldType": {
           "label": "Tipo do Campo",
           "string": "Texto",
@@ -36,12 +37,44 @@
           "enum": "Enumeração"
         },
         "fieldOptions": {
-          "label": "Opções (separadas por vírgula)",
-          "placeholder": "ex: Tipo A, Tipo B, Tipo C"
+          "label": "Opções",
+          "placeholder": "ex: Tipo A",
+          "required": "Pelo menos uma opção é necessária para campos de enumeração"
         }
       },
       "submit": {
-        "idle": "Criar Blueprint",
+        "idle": "Criar Modelo",
+        "loading": "Enviando..."
+      },
+      "error": {
+        "title": "Erro:"
+      },
+      "response": {
+        "title": "Resposta:"
+      }
+    }
+  },
+  "machines": {
+    "title": "Criar Máquina",
+    "form": {
+      "blueprint": {
+        "label": "Modelo",
+        "placeholder": "Selecione um modelo",
+        "loading": "Carregando modelos..."
+      },
+      "name": {
+        "label": "Nome da Máquina",
+        "placeholder": "ex: Máquina #002"
+      },
+      "fields": {
+        "label": "Campos",
+        "placeholder": "Digite o valor",
+        "selectPlaceholder": "Selecione uma opção",
+        "slug": "Slug"
+      },
+      "selectBlueprintPrompt": "Selecione um modelo para começar",
+      "submit": {
+        "idle": "Criar Máquina",
         "loading": "Enviando..."
       },
       "error": {
