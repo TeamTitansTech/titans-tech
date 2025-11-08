@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@titans-tech/database';
+import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateBlueprintDto } from './dto/create-blueprint.dto';
 

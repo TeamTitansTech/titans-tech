@@ -6,7 +6,7 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { InspectionSection } from '@titans-tech/database';
+import { InspectionSection } from '@titans-tech/db';
 
 class BlueprintFieldDto {
   @IsString()

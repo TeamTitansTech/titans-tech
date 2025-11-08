@@ -2,8 +2,8 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../../../node_modules/.prisma/client"
+  provider = "prisma-client"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -31,13 +31,13 @@ enum InspectionSection {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  email       String   @unique
-  password    String
-  role        UserRole @default(USER)
-  name        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      UserRole @default(USER)
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   permissions UserPermission[]
   companies   UserCompany[]
@@ -48,7 +48,7 @@ model User {
 model UserPermission {
   id         String   @id @default(cuid())
   userId     String
-  permission String   // "ALL" for now
+  permission String // "ALL" for now
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

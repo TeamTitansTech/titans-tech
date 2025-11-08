@@ -1,20 +1,20 @@
+import 'dotenv/config';
+
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
+import { appEnv } from './config/env';
+import { AllExceptionsFilter, ZodErrorFilter } from './errors/error.filter';
 
 async function bootstrap() {
+  if (appEnv.NODE_ENV === 'development') {
+    console.log(
+      `Running in development mode on port http://localhost:${appEnv.PORT}`,
+    );
+  }
+
   const app = await NestFactory.create(AppModule);
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
-
-  app.enableCors();
-
-  await app.listen(process.env.PORT ?? 3000);
+  app.useGlobalFilters(new ZodErrorFilter());
+  app.useGlobalFilters(new AllExceptionsFilter());
+  await app.listen(appEnv.PORT);
 }
 bootstrap();

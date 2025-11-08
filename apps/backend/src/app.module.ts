@@ -4,9 +4,9 @@ import { AppService } from './app.service';
 import { BlueprintsModule } from './blueprints/blueprints.module';
 import { MachinesModule } from './machines/machines.module';
 import { InspectionsModule } from './inspections/inspections.module';
-
+import { SharedModule } from './modules/shared/shared.module';
 @Module({
-  imports: [BlueprintsModule, MachinesModule, InspectionsModule],
+  imports: [SharedModule, BlueprintsModule, MachinesModule, InspectionsModule],
   controllers: [AppController],
   providers: [AppService],
 })

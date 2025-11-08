@@ -8,7 +8,7 @@ import {
   IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { MatingPartType } from '@titans-tech/database';
+import { MatingPartType } from '@titans-tech/db';
 
 class BearingClearanceDto {
   @IsNumber()
