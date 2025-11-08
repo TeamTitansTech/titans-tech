@@ -20,8 +20,8 @@ export const loginSysAdmin = async (credentials: LoginCredentials) => {
 };
 
 export const updateSysAdminPassword = async (data: UpdatePasswordDto) => {
-  return await responseHandler<void>('/auth/admin/password', {
-    method: 'PATCH',
+  return await responseHandler<void>('/auth/admin/update-password', {
+    method: 'POST',
     body: data,
   });
 };

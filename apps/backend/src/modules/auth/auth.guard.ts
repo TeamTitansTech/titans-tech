@@ -86,6 +86,12 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
+    if (isAdmin) {
+      throw new ForbiddenException(
+        'Access denied: Only system administrators can access this resource',
+      );
+    }
+
     const userPayload = payload;
     const branchId = request.params?.branchId;
     const companyId = request.params?.companyId;

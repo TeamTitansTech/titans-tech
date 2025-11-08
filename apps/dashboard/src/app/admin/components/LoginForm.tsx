@@ -2,12 +2,14 @@
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { loginSysAdmin } from '@/data/services/auth.api';
 import { setCookie } from '@/lib/cookies';
+import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { FormEvent, useState } from 'react';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { execute, isLoading, result } = useLazyQuery(loginSysAdmin);
+  const { setSysAdminUser } = useSysAdmin();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -15,6 +17,7 @@ export default function LoginForm() {
 
     if (response?.data?.accessToken) {
       await setCookie('auth_token', response.data.accessToken);
+      setSysAdminUser(response.data.user);
     }
   };
 
@@ -44,7 +47,6 @@ export default function LoginForm() {
           </label>
           <input
             id="password"
-            type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

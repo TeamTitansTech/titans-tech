@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../shared/prisma.service';
 import { LoginDto } from './dto/login.dto';
@@ -21,13 +21,13 @@ export class SysAdminService {
     });
 
     if (!sysAdmin) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new ForbiddenException('Invalid credentials');
     }
 
     const isPasswordValid = await bcrypt.compare(password, sysAdmin.password);
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new ForbiddenException('Invalid credentials');
     }
 
     const payload: SysAdminJwtPayload = {
@@ -49,7 +49,7 @@ export class SysAdminService {
     });
 
     if (!sysAdmin) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new ForbiddenException('Invalid credentials');
     }
 
     const isCurrentPasswordValid = sysAdmin.isUsingDefaultPassword
@@ -57,14 +57,16 @@ export class SysAdminService {
       : await bcrypt.compare(data.currentPassword, sysAdmin.password);
 
     if (!isCurrentPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new ForbiddenException('Invalid credentials');
     }
 
     const hashedPassword = await bcrypt.hash(data.password, 10);
 
-    await this.prisma.sysAdmin.update({
+    const updatedSysAdmin = await this.prisma.sysAdmin.update({
       where: { id: userId },
       data: { password: hashedPassword, isUsingDefaultPassword: false },
     });
+
+    return new SysAdminResponseDto(updatedSysAdmin);
   }
 }
