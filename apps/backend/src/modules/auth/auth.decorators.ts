@@ -19,7 +19,7 @@ export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
  * Decorator to specify required branch permission for a route
  * This will check if the user has the specified permission in the branch
  * Routes with :branchId parameter will validate the user is part of the branch and has the permission
- * Routes without :branchId but with :companyId will only allow company admins
+ * Routes without :branchId but with x-company-id header will only allow company admins
  *
  * @param permission - The permission required from UserBranch schema
  * @example

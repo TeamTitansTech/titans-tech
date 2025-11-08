@@ -15,7 +15,13 @@ import {
   IS_ADMIN_KEY,
 } from './auth.decorators';
 import { appEnv } from '../../config/env';
-import { isSysAdmin, JwtPayload, UserJwtPayload } from '../../types/request';
+import {
+  isRegularUser,
+  isSysAdmin,
+  JwtPayload,
+  ReqWithAuthUser,
+  UserJwtPayload,
+} from '../../types/request';
 import { PrismaService } from '../shared/prisma.service';
 
 @Injectable()
@@ -69,7 +75,10 @@ export class AuthGuard implements CanActivate {
       });
 
       // Assigning payload to request object for access in route handlers
-      (request as any)['user'] = payload;
+      (request as ReqWithAuthUser)['user'] = payload;
+
+      (request as ReqWithAuthUser)['companyId'] =
+        this.extractCompanyIdFromTokenOrHeader(request, payload);
     } catch {
       throw new UnauthorizedException('Invalid token');
     }
@@ -94,11 +103,17 @@ export class AuthGuard implements CanActivate {
 
     const userPayload = payload;
     const branchId = request.params?.branchId;
-    const companyId = request.params?.companyId;
+    const companyId = this.extractCompanyIdFromTokenOrHeader(
+      request,
+      userPayload,
+    );
+
+    if (companyId && !branchId && !requiredPermission) {
+      return this.validateCompanyAccess(userPayload);
+    }
 
     this.validateCorrectRouteConfiguration({
       branchId,
-      companyId,
       requiredPermission,
     });
 
@@ -111,10 +126,9 @@ export class AuthGuard implements CanActivate {
     }
 
     if (companyId) {
-      return this.validateCompanyAccess(userPayload, companyId);
+      return this.validateCompanyAccess(userPayload);
     }
 
-    // TODO: Define default access behavior (e.g., allow all authenticated users)
     return false;
   }
 
@@ -131,19 +145,12 @@ export class AuthGuard implements CanActivate {
   ): Promise<boolean> {
     // Verify the branch exists and get its company
     const branch = await this.prisma.companyBranch.findUnique({
-      where: { id: branchId },
+      where: { id: branchId, companyId: payload.companyId },
       select: { companyId: true },
     });
 
     if (!branch) {
       throw new ForbiddenException('Branch not found');
-    }
-
-    // Check if user belongs to the same company
-    if (payload.companyId !== branch.companyId) {
-      throw new ForbiddenException(
-        'Access denied: User not part of this company',
-      );
     }
 
     // If user is company admin, grant access
@@ -178,14 +185,7 @@ export class AuthGuard implements CanActivate {
 
   private async validateCompanyAccess(
     payload: UserJwtPayload,
-    companyId: string,
   ): Promise<boolean> {
-    if (payload.companyId !== companyId) {
-      throw new ForbiddenException(
-        'Access denied: User not part of this company',
-      );
-    }
-
     if (!payload.isCompanyAdmin) {
       throw new ForbiddenException(
         'Access denied: Only company administrators can access this resource',
@@ -198,32 +198,43 @@ export class AuthGuard implements CanActivate {
   /**
    * These errors should only occur at development time
    *
-   * If a route has :branchId or :companyId parameter but no permission metadata,
+   * If a route has :branchId parameter but no permission metadata,
    * it indicates a misconfiguration in the route decorators (we forgot to add BranchPermission decorator)
    *
-   * If a route requires a permission but has no :branchId or :companyId parameter,
+   * If a route requires a permission but has no :branchId parameter,
    * it indicates a misconfiguration as well (we added BranchPermission decorator to a route without context)
    */
   private validateCorrectRouteConfiguration(args: {
     branchId?: string;
-    companyId?: string;
     requiredPermission: BranchPermissionType | undefined;
   }) {
-    if (!args.requiredPermission && (args.branchId || args.companyId)) {
+    if (!args.requiredPermission && args.branchId) {
       throw new ForbiddenException(
         'Access denied: Missing required permission',
       );
     }
 
-    if (args.requiredPermission && (!args.branchId || !args.companyId)) {
-      throw new ForbiddenException(
-        'Access denied: No branch or company context provided',
-      );
+    if (args.requiredPermission && !args.branchId) {
+      throw new ForbiddenException('Access denied: No branch context provided');
     }
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
+  }
+
+  private extractCompanyIdFromTokenOrHeader(
+    request: Request,
+    payload: JwtPayload,
+  ) {
+    const companyIdFromToken = isRegularUser(payload)
+      ? payload.companyId
+      : undefined;
+
+    const companyId =
+      companyIdFromToken ??
+      (request.headers['x-company-id'] as string | undefined);
+    return companyId ?? '';
   }
 }
