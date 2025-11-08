@@ -5,6 +5,9 @@ on:
     branches: ['main', 'develop']
   pull_request:
     branches: ['main', 'develop']
+  schedule:
+    # Run daily security checks at 2 AM UTC
+    - cron: '0 2 * * *'
 
 jobs:
   setup:
@@ -145,6 +148,68 @@ jobs:
       - name: Check Prisma schema format
         run: cd packages/database && npx prisma format --check
 
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: false
+
+      - name: Generate audit report
+        if: failure()
+        run: npm audit --json > audit-report.json
+
+      - name: Upload audit report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-report
+          path: audit-report.json
+          retention-days: 30
+
+  secret-scanning:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          comment-summary-in-pr: true
+
   node-version:
     name: Node Version Check
     runs-on: ubuntu-latest
@@ -172,7 +237,7 @@ jobs:
   ci-success:
     name: CI Success
     runs-on: ubuntu-latest
-    needs: [lint, format, type-check, build, prisma, node-version]
+    needs: [lint, format, type-check, build, prisma, security-audit, secret-scanning, node-version]
     if: always()
     steps:
       - name: Check all jobs
