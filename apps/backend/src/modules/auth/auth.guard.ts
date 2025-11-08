@@ -8,7 +8,11 @@ import {
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
-import { BRANCH_PERMISSION_KEY, BranchPermissionType } from './auth.decorators';
+import {
+  IS_PUBLIC_KEY,
+  BRANCH_PERMISSION_KEY,
+  BranchPermissionType,
+} from './auth.decorators';
 import { appEnv } from '../../config/env';
 import { isSysAdmin, JwtPayload, UserJwtPayload } from '../../types/request';
 import { PrismaService } from '../shared/prisma.service';
@@ -22,6 +26,15 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (isPublic) {
+      return true;
+    }
+
     // Extract and verify JWT token
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
@@ -80,9 +93,8 @@ export class AuthGuard implements CanActivate {
       return this.validateCompanyAccess(userPayload, companyId);
     }
 
-    // If no permission is required and no specific context, allow access
-    // eg. auth routes like login, etc.
-    return true;
+    // TODO: Define default access behavior (e.g., allow all authenticated users)
+    return false;
   }
 
   /**
