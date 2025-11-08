@@ -90,9 +90,9 @@ model UserCompany {
 model Blueprint {
   id        String              @id @default(cuid())
   name      String
-  fields    Json                // Array of { fieldName, fieldSlug, fieldType, fieldOptions? }
+  fields    Json // Array of { fieldName, fieldSlug, fieldType, fieldOptions? }
   sections  InspectionSection[] // Array of inspection sections
-  deletedAt DateTime?           // Soft delete to preserve historical data
+  deletedAt DateTime? // Soft delete to preserve historical data
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
 
@@ -108,7 +108,7 @@ model Machine {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  blueprint   Blueprint          @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  blueprint   Blueprint           @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
   fields      MachineField[]
   inspections MachineInspection[]
 
@@ -134,11 +134,11 @@ model MachineInspection {
   machineId     String
   date          DateTime
   isMaintenance Boolean  @default(false)
-  performedBy   String?  // Optional: userId of who performed the inspection
+  performedBy   String? // Optional: userId of who performed the inspection
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  machine                Machine                              @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  machine                Machine                             @relation(fields: [machineId], references: [id], onDelete: Cascade)
   bearingClearanceChecks MachineInspectionBearingClearance[]
 
   @@map("machine_inspections")
@@ -161,40 +161,40 @@ model BearingClearance {
   id String @id @default(cuid())
 
   // Outer measurements - all Decimal with 4 precision (all required)
-  totalClearance_RH                   Decimal @db.Decimal(10, 4)
-  totalClearance_LH                   Decimal @db.Decimal(10, 4)
-  mainBearings_RH                     Decimal @db.Decimal(10, 4)
-  mainBearings_LH                     Decimal @db.Decimal(10, 4)
-  upperConnectionBearings_RH          Decimal @db.Decimal(10, 4)
-  upperConnectionBearings_LH          Decimal @db.Decimal(10, 4)
-  wristPinToMatingPart_RH             Decimal @db.Decimal(10, 4)
-  wristPinToMatingPart_LH             Decimal @db.Decimal(10, 4)
-  wristPinToBushing_RH                Decimal @db.Decimal(10, 4)
-  wristPinToBushing_LH                Decimal @db.Decimal(10, 4)
-  slide_adj_nut_to_screw_sleeve_RH    Decimal @db.Decimal(10, 4)
-  slide_adj_nut_to_screw_sleeve_LH    Decimal @db.Decimal(10, 4)
-  extra_double_lockOpen_RH            Decimal @db.Decimal(10, 4)
-  extra_double_lockOpen_LH            Decimal @db.Decimal(10, 4)
-  ball_box_area_RH                    Decimal @db.Decimal(10, 4)
-  ball_box_area_LH                    Decimal @db.Decimal(10, 4)
+  totalClearance_RH                Decimal @db.Decimal(10, 4)
+  totalClearance_LH                Decimal @db.Decimal(10, 4)
+  mainBearings_RH                  Decimal @db.Decimal(10, 4)
+  mainBearings_LH                  Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_RH       Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_LH       Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_RH          Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_LH          Decimal @db.Decimal(10, 4)
+  wristPinToBushing_RH             Decimal @db.Decimal(10, 4)
+  wristPinToBushing_LH             Decimal @db.Decimal(10, 4)
+  slide_adj_nut_to_screw_sleeve_RH Decimal @db.Decimal(10, 4)
+  slide_adj_nut_to_screw_sleeve_LH Decimal @db.Decimal(10, 4)
+  extra_double_lockOpen_RH         Decimal @db.Decimal(10, 4)
+  extra_double_lockOpen_LH         Decimal @db.Decimal(10, 4)
+  ball_box_area_RH                 Decimal @db.Decimal(10, 4)
+  ball_box_area_LH                 Decimal @db.Decimal(10, 4)
 
   // Inner measurements (all required)
-  innerTotalClearance_RH              Decimal @db.Decimal(10, 4)
-  innerTotalClearance_LH              Decimal @db.Decimal(10, 4)
-  innerMainBearings_RH                Decimal @db.Decimal(10, 4)
-  innerMainBearings_LH                Decimal @db.Decimal(10, 4)
-  innerUpperConnectionBearings_RH     Decimal @db.Decimal(10, 4)
-  innerUpperConnectionBearings_LH     Decimal @db.Decimal(10, 4)
-  innerWristPinToMatingPart_RH        Decimal @db.Decimal(10, 4)
-  innerWristPinToMatingPart_LH        Decimal @db.Decimal(10, 4)
-  innerWristPinToBushing_RH           Decimal @db.Decimal(10, 4)
-  innerWristPinToBushing_LH           Decimal @db.Decimal(10, 4)
+  innerTotalClearance_RH                Decimal @db.Decimal(10, 4)
+  innerTotalClearance_LH                Decimal @db.Decimal(10, 4)
+  innerMainBearings_RH                  Decimal @db.Decimal(10, 4)
+  innerMainBearings_LH                  Decimal @db.Decimal(10, 4)
+  innerUpperConnectionBearings_RH       Decimal @db.Decimal(10, 4)
+  innerUpperConnectionBearings_LH       Decimal @db.Decimal(10, 4)
+  innerWristPinToMatingPart_RH          Decimal @db.Decimal(10, 4)
+  innerWristPinToMatingPart_LH          Decimal @db.Decimal(10, 4)
+  innerWristPinToBushing_RH             Decimal @db.Decimal(10, 4)
+  innerWristPinToBushing_LH             Decimal @db.Decimal(10, 4)
   innerSlide_adj_nut_to_screw_sleeve_RH Decimal @db.Decimal(10, 4)
   innerSlide_adj_nut_to_screw_sleeve_LH Decimal @db.Decimal(10, 4)
-  innerExtra_double_lockOpen_RH       Decimal @db.Decimal(10, 4)
-  innerExtra_double_lockOpen_LH       Decimal @db.Decimal(10, 4)
-  innerBall_box_area_RH               Decimal @db.Decimal(10, 4)
-  innerBall_box_area_LH               Decimal @db.Decimal(10, 4)
+  innerExtra_double_lockOpen_RH         Decimal @db.Decimal(10, 4)
+  innerExtra_double_lockOpen_LH         Decimal @db.Decimal(10, 4)
+  innerBall_box_area_RH                 Decimal @db.Decimal(10, 4)
+  innerBall_box_area_LH                 Decimal @db.Decimal(10, 4)
 
   // Additional fields (required)
   combined_with String
