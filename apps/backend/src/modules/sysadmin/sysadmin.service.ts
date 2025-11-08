@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../shared/prisma.service';
 import { LoginDto } from './dto/login.dto';
-import { SysAdminResponseDto } from './dto/sysadmin-response.dto';
+import { SysAdminResponseDto } from '@titans-tech/shared';
 import { SysAdminJwtPayload } from '../../types/request';
 import * as bcrypt from 'bcrypt';
 
