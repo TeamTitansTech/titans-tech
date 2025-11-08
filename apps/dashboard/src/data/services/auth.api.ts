@@ -13,7 +13,7 @@ export interface LoginResponse {
 }
 
 export const loginSysAdmin = async (credentials: LoginCredentials) => {
-  return await responseHandler<LoginResponse>('/auth/login', {
+  return await responseHandler<LoginResponse>('/auth/admin/login', {
     method: 'POST',
     body: credentials,
   });

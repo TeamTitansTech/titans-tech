@@ -10,7 +10,7 @@ import { LoginDto, LoginSchema } from './dto/login.dto';
 import { Public } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 
-@Controller('auth')
+@Controller('auth/admin')
 @UseInterceptors(ClassSerializerInterceptor)
 export class SysAdminController {
   constructor(private readonly sysAdminService: SysAdminService) {}
