@@ -8,11 +8,16 @@ export class BlueprintsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createBlueprintDto: CreateBlueprintDto) {
+    // Convert section strings to InspectionSection enum values (uppercase)
+    const sections = createBlueprintDto.sections.map((section) =>
+      typeof section === 'string' ? section.toUpperCase() : section,
+    ) as any[];
+
     const blueprint = await this.prisma.blueprint.create({
       data: {
         name: createBlueprintDto.name,
         fields: createBlueprintDto.fields as unknown as Prisma.InputJsonValue,
-        sections: createBlueprintDto.sections,
+        sections: sections,
       },
     });
 

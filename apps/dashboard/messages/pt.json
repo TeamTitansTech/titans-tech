@@ -2,5 +2,54 @@
   "dashboard": {
     "title": "Painel Titans Tech",
     "description": "Aplicação do Painel de Administração"
+  },
+  "sections": {
+    "bearing_clearance": "Bearing Clearance"
+  },
+  "blueprints": {
+    "title": "Criar Modelo",
+    "form": {
+      "name": {
+        "label": "Nome",
+        "placeholder": "DACH",
+        "required": "Nome"
+      },
+      "sections": {
+        "label": "Áreas de inspeção"
+      },
+      "fields": {
+        "label": "Campos *",
+        "addButton": "+ Adicionar Campo",
+        "fieldNumber": "Campo {number}",
+        "removeButton": "Remover",
+        "fieldName": {
+          "label": "Nome do Campo",
+          "placeholder": "ex: Número de Série"
+        },
+        "fieldSlug": {
+          "label": "Slug"
+        },
+        "fieldType": {
+          "label": "Tipo do Campo",
+          "string": "Texto",
+          "int": "Inteiro",
+          "enum": "Enumeração"
+        },
+        "fieldOptions": {
+          "label": "Opções (separadas por vírgula)",
+          "placeholder": "ex: Tipo A, Tipo B, Tipo C"
+        }
+      },
+      "submit": {
+        "idle": "Criar Blueprint",
+        "loading": "Enviando..."
+      },
+      "error": {
+        "title": "Erro:"
+      },
+      "response": {
+        "title": "Resposta:"
+      }
+    }
   }
 }

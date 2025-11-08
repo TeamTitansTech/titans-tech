@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(npx shadcn@latest init:*)",
+      "Bash(npx shadcn@latest:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

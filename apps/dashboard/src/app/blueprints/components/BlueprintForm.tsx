@@ -1,6 +1,18 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 type FieldType = 'string' | 'int' | 'enum';
 
@@ -11,30 +23,45 @@ interface Field {
   fieldOptions?: string[];
 }
 
+const AVAILABLE_SECTIONS = ['bearing_clearance'] as const;
+
 export function BlueprintForm() {
-  const [name, setName] = useState('Heavy Machinery Blueprint');
-  const [sections, setSections] = useState('bearing_clearance');
-  const [fields, setFields] = useState<Field[]>([
-    {
-      fieldName: 'Serial Number',
-      fieldSlug: 'serial_number',
-      fieldType: 'string',
-    },
-    {
-      fieldName: 'Model Year',
-      fieldSlug: 'model_year',
-      fieldType: 'int',
-    },
-    {
-      fieldName: 'Machine Type',
-      fieldSlug: 'machine_type',
-      fieldType: 'enum',
-      fieldOptions: ['Type A', 'Type B', 'Type C'],
-    },
-  ]);
+  const t = useTranslations('blueprints');
+  const tSections = useTranslations('sections');
+  const [name, setName] = useState('');
+  const [selectedSections, setSelectedSections] = useState<string[]>(['bearing_clearance']);
+  const [fields, setFields] = useState<Field[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<string>('');
   const [error, setError] = useState<string>('');
+
+  const toggleSection = (section: string) => {
+    setSelectedSections((prev) =>
+      prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section],
+    );
+  };
+
+  const generateSlug = (name: string, existingSlugs: string[]): string => {
+    // Convert to lowercase and replace spaces/special chars with underscores
+    const baseSlug = name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+
+    if (!baseSlug) return '';
+
+    // Check for duplicates and append number if needed
+    let slug = baseSlug;
+    let counter = 1;
+    while (existingSlugs.includes(slug)) {
+      slug = `${baseSlug}_${counter}`;
+      counter++;
+    }
+
+    return slug;
+  };
 
   const addField = () => {
     setFields([
@@ -54,6 +81,15 @@ export function BlueprintForm() {
   const updateField = (index: number, key: keyof Field, value: string | string[]) => {
     const newFields = [...fields];
     newFields[index] = { ...newFields[index], [key]: value };
+
+    // Auto-generate slug when fieldName changes
+    if (key === 'fieldName' && typeof value === 'string') {
+      const existingSlugs = newFields
+        .map((f, i) => (i !== index ? f.fieldSlug : ''))
+        .filter(Boolean);
+      newFields[index].fieldSlug = generateSlug(value, existingSlugs);
+    }
+
     setFields(newFields);
   };
 
@@ -66,10 +102,7 @@ export function BlueprintForm() {
     try {
       const payload = {
         name,
-        sections: sections
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean),
+        sections: selectedSections,
         fields: fields.map((field) => {
           const baseField = {
             fieldName: field.fieldName,
@@ -90,7 +123,7 @@ export function BlueprintForm() {
 
       console.log('Sending payload:', JSON.stringify(payload, null, 2));
 
-      const res = await fetch('http://localhost:3000/blueprints', {
+      const res = await fetch('http://localhost:3001/blueprints', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -117,181 +150,189 @@ export function BlueprintForm() {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-6">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Create Blueprint</h2>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Blueprint Name *
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="e.g., Heavy Machinery Blueprint"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="sections"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
-            >
-              Sections (comma-separated) *
-            </label>
-            <input
-              id="sections"
-              type="text"
-              value={sections}
-              onChange={(e) => setSections(e.target.value)}
-              required
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="e.g., bearing_clearance, engine_specs"
-            />
-          </div>
-
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Fields *
-              </label>
-              <button
-                type="button"
-                onClick={addField}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors text-sm"
-              >
-                + Add Field
-              </button>
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">{t('form.name.label')}</Label>
+              </div>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder={t('form.name.placeholder')}
+              />
             </div>
 
             <div className="space-y-4">
-              {fields.map((field, index) => (
-                <div
-                  key={index}
-                  className="p-4 border border-gray-200 dark:border-gray-600 rounded-md space-y-3"
-                >
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Field {index + 1}
-                    </span>
-                    {fields.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => removeField(index)}
-                        className="text-red-600 hover:text-red-700 text-sm"
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
+              <div>
+                <Label>{t('form.sections.label')}</Label>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {AVAILABLE_SECTIONS.map((section) => {
+                  const isSelected = selectedSections.includes(section);
+                  return (
+                    <Button
+                      key={section}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleSection(section)}
+                      className={`transition-all ${
+                        isSelected
+                          ? 'bg-blue-900 text-white font-bold hover:bg-blue-800 hover:text-white border-blue-900 dark:bg-blue-950 dark:border-blue-950 dark:hover:bg-blue-900 dark:hover:text-white'
+                          : ''
+                      }`}
+                    >
+                      {tSections(section)}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                        Field Name
-                      </label>
-                      <input
-                        type="text"
-                        value={field.fieldName}
-                        onChange={(e) => updateField(index, 'fieldName', e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-700 dark:text-white"
-                        placeholder="e.g., Serial Number"
-                      />
-                    </div>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <Label>{t('form.fields.label')}</Label>
+                <Button type="button" onClick={addField} variant="outline" size="sm">
+                  {t('form.fields.addButton')}
+                </Button>
+              </div>
 
-                    <div>
-                      <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                        Field Slug
-                      </label>
-                      <input
-                        type="text"
-                        value={field.fieldSlug}
-                        onChange={(e) => updateField(index, 'fieldSlug', e.target.value)}
-                        required
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-700 dark:text-white"
-                        placeholder="e.g., serial_number"
-                      />
-                    </div>
+              <div className="space-y-4">
+                {fields.map((field, index) => (
+                  <Card key={index}>
+                    <CardContent className="pt-6">
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">
+                            {t('form.fields.fieldNumber', { number: index + 1 })}
+                          </span>
+                          {fields.length > 1 && (
+                            <Button
+                              type="button"
+                              onClick={() => removeField(index)}
+                              variant="ghost"
+                              size="sm"
+                              className="text-destructive hover:text-destructive"
+                            >
+                              {t('form.fields.removeButton')}
+                            </Button>
+                          )}
+                        </div>
 
-                    <div>
-                      <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                        Field Type
-                      </label>
-                      <select
-                        value={field.fieldType}
-                        onChange={(e) =>
-                          updateField(index, 'fieldType', e.target.value as FieldType)
-                        }
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-700 dark:text-white"
-                      >
-                        <option value="string">String</option>
-                        <option value="int">Integer</option>
-                        <option value="enum">Enum</option>
-                      </select>
-                    </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor={`field-name-${index}`}>
+                              {t('form.fields.fieldName.label')}
+                            </Label>
+                            <div className="flex-row flex-1">
+                              <div>
+                                <Input
+                                  id={`field-name-${index}`}
+                                  type="text"
+                                  value={field.fieldName}
+                                  onChange={(e) => updateField(index, 'fieldName', e.target.value)}
+                                  required
+                                  placeholder={t('form.fields.fieldName.placeholder')}
+                                />
+                              </div>
+                            </div>
+                          </div>
 
-                    {field.fieldType === 'enum' && (
-                      <div>
-                        <label className="block text-xs text-gray-600 dark:text-gray-400 mb-1">
-                          Options (comma-separated)
-                        </label>
-                        <input
-                          type="text"
-                          value={field.fieldOptions?.join(', ') || ''}
-                          onChange={(e) =>
-                            updateField(
-                              index,
-                              'fieldOptions',
-                              e.target.value.split(',').map((s) => s.trim()),
-                            )
-                          }
-                          required={field.fieldType === 'enum'}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm dark:bg-gray-700 dark:text-white"
-                          placeholder="e.g., Type A, Type B, Type C"
-                        />
+                          <div className="space-y-2">
+                            <Label>{t('form.fields.fieldSlug.label')}</Label>
+                            <div className="flex h-9 w-full items-center rounded-md bg-muted px-3 py-2 text-sm">
+                              <code className="text-muted-foreground">
+                                {field.fieldSlug || t('form.fields.fieldSlug.placeholder')}
+                              </code>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor={`field-type-${index}`}>
+                              {t('form.fields.fieldType.label')}
+                            </Label>
+                            <Select
+                              value={field.fieldType}
+                              onValueChange={(value) =>
+                                updateField(index, 'fieldType', value as FieldType)
+                              }
+                            >
+                              <SelectTrigger id={`field-type-${index}`}>
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="string">
+                                  {t('form.fields.fieldType.string')}
+                                </SelectItem>
+                                <SelectItem value="int">
+                                  {t('form.fields.fieldType.int')}
+                                </SelectItem>
+                                <SelectItem value="enum">
+                                  {t('form.fields.fieldType.enum')}
+                                </SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {field.fieldType === 'enum' && (
+                            <div className="space-y-2">
+                              <Label htmlFor={`field-options-${index}`}>
+                                {t('form.fields.fieldOptions.label')}
+                              </Label>
+                              <Input
+                                id={`field-options-${index}`}
+                                type="text"
+                                value={field.fieldOptions?.join(', ') || ''}
+                                onChange={(e) =>
+                                  updateField(
+                                    index,
+                                    'fieldOptions',
+                                    e.target.value.split(',').map((s) => s.trim()),
+                                  )
+                                }
+                                required={field.fieldType === 'enum'}
+                                placeholder={t('form.fields.fieldOptions.placeholder')}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors font-medium"
-          >
-            {isLoading ? 'Sending...' : 'Create Blueprint'}
-          </button>
-        </form>
+            <Button type="submit" disabled={isLoading} className="w-full">
+              {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
+            </Button>
+          </form>
 
-        {error && (
-          <div className="mt-6">
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
-              <h3 className="text-lg font-semibold mb-2 text-red-800 dark:text-red-400">Error:</h3>
-              <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          {error && (
+            <div className="mt-6 rounded-md border border-destructive bg-destructive/10 p-4">
+              <h3 className="text-lg font-semibold mb-2 text-destructive">
+                {t('form.error.title')}
+              </h3>
+              <p className="text-sm text-destructive">{error}</p>
             </div>
-          </div>
-        )}
+          )}
 
-        {response && (
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">Response:</h3>
-            <pre className="bg-gray-100 dark:bg-gray-900 p-4 rounded-md overflow-x-auto text-sm text-gray-800 dark:text-gray-200">
-              {response}
-            </pre>
-          </div>
-        )}
-      </div>
+          {response && (
+            <div className="mt-6 space-y-2">
+              <h3 className="text-lg font-semibold">{t('form.response.title')}</h3>
+              <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm">{response}</pre>
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }

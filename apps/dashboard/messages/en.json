@@ -2,5 +2,59 @@
   "dashboard": {
     "title": "Titans Tech Dashboard",
     "description": "Admin Dashboard Application"
+  },
+  "sections": {
+    "bearing_clearance": "Bearing Clearance",
+    "engine_specs": "Engine Specs",
+    "hydraulic_system": "Hydraulic System",
+    "electrical_system": "Electrical System",
+    "maintenance": "Maintenance"
+  },
+  "blueprints": {
+    "title": "Create Model",
+    "form": {
+      "name": {
+        "label": "Blueprint Name",
+        "placeholder": "e.g., Heavy Machinery Blueprint",
+        "required": "Blueprint Name *"
+      },
+      "sections": {
+        "label": "Sections *"
+      },
+      "fields": {
+        "label": "Fields *",
+        "addButton": "+ Add Field",
+        "fieldNumber": "Field {number}",
+        "removeButton": "Remove",
+        "fieldName": {
+          "label": "Field Name",
+          "placeholder": "e.g., Serial Number"
+        },
+        "fieldSlug": {
+          "label": "Field Slug",
+          "placeholder": "e.g., serial_number"
+        },
+        "fieldType": {
+          "label": "Field Type",
+          "string": "String",
+          "int": "Integer",
+          "enum": "Enum"
+        },
+        "fieldOptions": {
+          "label": "Options (comma-separated)",
+          "placeholder": "e.g., Type A, Type B, Type C"
+        }
+      },
+      "submit": {
+        "idle": "Create Blueprint",
+        "loading": "Sending..."
+      },
+      "error": {
+        "title": "Error:"
+      },
+      "response": {
+        "title": "Response:"
+      }
+    }
   }
 }
