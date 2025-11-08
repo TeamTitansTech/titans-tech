@@ -1,1 +1,1 @@
-// Placeholder for request DTOs
+export * from './password.dto';

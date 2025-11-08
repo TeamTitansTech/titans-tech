@@ -12,6 +12,7 @@ import {
   IS_PUBLIC_KEY,
   BRANCH_PERMISSION_KEY,
   BranchPermissionType,
+  IS_ADMIN_KEY,
 } from './auth.decorators';
 import { appEnv } from '../../config/env';
 import { isSysAdmin, JwtPayload, UserJwtPayload } from '../../types/request';
@@ -30,6 +31,25 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
+    const requiredPermission =
+      this.reflector.getAllAndOverride<BranchPermissionType>(
+        BRANCH_PERMISSION_KEY,
+        [context.getHandler(), context.getClass()],
+      );
+
+    const isAdmin = this.reflector.getAllAndOverride<boolean>(IS_ADMIN_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (!isAdmin && !requiredPermission && !isPublic) {
+      if (appEnv.NODE_ENV == 'development') {
+        throw new ForbiddenException(
+          'Access denied: No access metadata defined for this route',
+        );
+      }
+      throw new ForbiddenException('Access denied');
+    }
 
     if (isPublic) {
       return true;
@@ -69,11 +89,6 @@ export class AuthGuard implements CanActivate {
     const userPayload = payload;
     const branchId = request.params?.branchId;
     const companyId = request.params?.companyId;
-    const requiredPermission =
-      this.reflector.getAllAndOverride<BranchPermissionType>(
-        BRANCH_PERMISSION_KEY,
-        [context.getHandler(), context.getClass()],
-      );
 
     this.validateCorrectRouteConfiguration({
       branchId,

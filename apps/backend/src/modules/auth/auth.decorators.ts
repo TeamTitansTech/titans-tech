@@ -2,6 +2,7 @@ import { SetMetadata } from '@nestjs/common';
 
 export const IS_PUBLIC_KEY = 'isPublic';
 export const BRANCH_PERMISSION_KEY = 'branchPermission';
+export const IS_ADMIN_KEY = 'isAdmin';
 
 export type BranchPermissionType =
   | 'createUser'
@@ -10,14 +11,8 @@ export type BranchPermissionType =
   | 'changeUserPermissions'
   | 'assignUserToBranch';
 
-/**
- * Decorator to mark a route as public (no authentication required)
- * Use this for routes like login that should be accessible without a token
- * @example
- * @Public()
- * @Post('login')
- * login() { ... }
- */
+export const Admin = () => SetMetadata(IS_ADMIN_KEY, true);
+
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 /**

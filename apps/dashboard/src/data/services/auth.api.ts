@@ -1,6 +1,6 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import { SysAdminResponseDto } from '@titans-tech/shared';
+import { SysAdminResponseDto, UpdatePasswordDto } from '@titans-tech/shared';
 
 export interface LoginCredentials {
   email: string;
@@ -16,5 +16,12 @@ export const loginSysAdmin = async (credentials: LoginCredentials) => {
   return await responseHandler<LoginResponse>('/auth/admin/login', {
     method: 'POST',
     body: credentials,
+  });
+};
+
+export const updateSysAdminPassword = async (data: UpdatePasswordDto) => {
+  return await responseHandler<void>('/auth/admin/password', {
+    method: 'PATCH',
+    body: data,
   });
 };
