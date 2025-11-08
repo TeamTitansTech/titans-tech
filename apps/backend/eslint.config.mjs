@@ -42,6 +42,18 @@ export default tseslint.config(
           message:
             "Direct access to process.env is not allowed. Use appEnv from 'src/config/env' instead.",
         },
+        {
+          selector:
+            "NewExpression[callee.name='Error']",
+          message:
+            "Direct use of 'throw new Error' is not allowed. Use custom error classes from 'src/errors' instead.",
+        },
+        {
+          selector:
+            "ThrowStatement > CallExpression[callee.name='Error']",
+          message:
+            "Direct use of 'throw Error' is not allowed. Use custom error classes from 'src/errors' instead.",
+        },
       ],
     },
   },

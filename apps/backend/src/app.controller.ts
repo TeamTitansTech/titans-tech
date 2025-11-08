@@ -15,6 +15,7 @@ export class AppController {
 
   @Get('error')
   getError() {
+    // eslint-disable-next-line no-restricted-syntax
     throw Error('This is a test error');
   }
 
