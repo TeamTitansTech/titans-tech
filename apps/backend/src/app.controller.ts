@@ -57,7 +57,7 @@ export class AppController {
           field2: z.number(),
         }),
       ),
-    )
+    ) // eslint-disable-next-line @typescript-eslint/no-unused-vars
     _query: {
       field1: string;
       field2: number;
