@@ -13,7 +13,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "db:generate": "prisma generate",
+    "dev": "tsc --watch",
+    "db:generate": "prisma generate && tsc",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
