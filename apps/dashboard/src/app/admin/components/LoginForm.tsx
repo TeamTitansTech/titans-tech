@@ -1,6 +1,6 @@
 'use client';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { loginSysAdmin } from '@/data/services/sysAdmin.api';
+import { loginSysAdmin } from '@/data/services/sysadmin.api';
 import { setCookie } from '@/lib/cookies';
 import { FormEvent, useState } from 'react';
 
