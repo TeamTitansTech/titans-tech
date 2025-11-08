@@ -1,6 +1,7 @@
 'use client';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { loginSysAdmin } from '@/data/services/sysAdmin.api';
+import { setCookie } from '@/lib/cookies';
 import { FormEvent, useState } from 'react';
 
 export default function LoginForm() {
@@ -10,7 +11,11 @@ export default function LoginForm() {
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    await execute({ email, password });
+    const response = await execute({ email, password });
+
+    if (response?.data?.accessToken) {
+      await setCookie('auth_token', response.data.accessToken);
+    }
   };
 
   return (
