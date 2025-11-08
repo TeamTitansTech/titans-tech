@@ -9,9 +9,9 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { BRANCH_PERMISSION_KEY, BranchPermissionType } from './auth.decorators';
-import { appEnv } from '../config/env';
-import { isSysAdmin, JwtPayload, UserJwtPayload } from '../types/request';
-import { PrismaService } from '../modules/shared/prisma.service';
+import { appEnv } from '../../config/env';
+import { isSysAdmin, JwtPayload, UserJwtPayload } from '../../types/request';
+import { PrismaService } from '../shared/prisma.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
