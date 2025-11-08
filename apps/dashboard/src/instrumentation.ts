@@ -8,7 +8,10 @@ export async function register() {
 
   if (envValidationResult.error) {
     const errorMessages = z.prettifyError(envValidationResult.error);
-    console.info('❌ Environment variable validation failed:\n', errorMessages);
+    console.info(
+      '❌ Environment variable validation failed, did you forget to create a .env file from .env.example?\n',
+      errorMessages,
+    );
     throw new Error(errorMessages);
   }
 
