@@ -1,0 +1,22 @@
+{
+  "name": "@titans-tech/shared",
+  "version": "0.0.0",
+  "devDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@titans-tech/db": "*",
+    "zod": "^4.1.12"
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "type:check": "tsc --noEmit",
+    "build": "tsc"
+  },
+  "exports": {
+    ".": {
+      "default": "./dist/index.js",
+      "types": "./index.ts"
+    }
+  }
+}

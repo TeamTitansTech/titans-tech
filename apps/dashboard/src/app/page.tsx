@@ -1,4 +1,5 @@
 import { getHelloWorld } from '@/data/services/example.api';
+import Link from 'next/link';
 
 export default async function Home() {
   const result = await getHelloWorld();
@@ -8,6 +9,9 @@ export default async function Home() {
         <h1 className="text-4xl font-bold mb-4">{'title'}</h1>
         <p className="text-xl text-gray-600">{'description'}</p>
         <div>{result.data?.message}</div>
+        <Link href="/home" className="text-blue-500 hover:underline">
+          HOME
+        </Link>
       </div>
     </main>
   );
