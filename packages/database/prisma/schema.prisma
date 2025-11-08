@@ -11,11 +11,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum UserRole {
-  ADMIN
-  USER
-}
-
 enum MatingPartType {
   BUSHING
   CONNECTION
@@ -30,31 +25,15 @@ enum InspectionSection {
   SAFETY_CHECK
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  role      UserRole @default(USER)
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model SysAdmin {
+  id                     String   @id @default(cuid())
+  email                  String   @unique
+  password               String
+  isUsingDefaultPassword Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
-  permissions UserPermission[]
-  companies   UserCompany[]
-
-  @@map("users")
-}
-
-model UserPermission {
-  id         String   @id @default(cuid())
-  userId     String
-  permission String // "ALL" for now
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_permissions")
+  @@map("sys_admins")
 }
 
 model Company {
@@ -65,23 +44,59 @@ model Company {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  users UserCompany[]
+  branches CompanyBranch[]
+  users    User[]
 
   @@map("companies")
 }
 
-model UserCompany {
+model CompanyBranch {
   id        String   @id @default(cuid())
-  userId    String
-  companyId String
+  name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company   Company      @relation(fields: [companyId], references: [id])
+  companyId String
+  users     UserBranch[]
 
-  @@unique([userId, companyId])
-  @@map("user_companies")
+  @@map("company_branches")
+}
+
+model User {
+  id                     String  @id @default(cuid())
+  name                   String?
+  email                  String  @unique
+  password               String
+  isCompanyAdmin         Boolean @default(false)
+  isUsingDefaultPassword Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company   Company      @relation(fields: [companyId], references: [id])
+  companyId String
+  branches  UserBranch[]
+
+  @@map("users")
+}
+
+model UserBranch {
+  user      User          @relation(fields: [userId], references: [id])
+  userId    String
+  branch    CompanyBranch @relation(fields: [branchId], references: [id])
+  branchId  String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  createUser            Boolean @default(false)
+  updateUser            Boolean @default(false)
+  deleteUser            Boolean @default(false)
+  changeUserPermissions Boolean @default(false)
+  assignUserToBranch    Boolean @default(false)
+
+  @@id([userId, branchId])
+  @@map("user_branches")
 }
 
 // Machine Management Models
@@ -89,9 +104,9 @@ model UserCompany {
 model Blueprint {
   id        String              @id @default(cuid())
   name      String
-  fields    Json                // Array of { fieldName, fieldSlug, fieldType, fieldOptions? }
+  fields    Json // Array of { fieldName, fieldSlug, fieldType, fieldOptions? }
   sections  InspectionSection[] // Array of inspection sections
-  deletedAt DateTime?           // Soft delete to preserve historical data
+  deletedAt DateTime? // Soft delete to preserve historical data
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
 
@@ -107,7 +122,7 @@ model Machine {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  blueprint   Blueprint          @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  blueprint   Blueprint           @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
   fields      MachineField[]
   inspections MachineInspection[]
 
@@ -133,11 +148,11 @@ model MachineInspection {
   machineId     String
   date          DateTime
   isMaintenance Boolean  @default(false)
-  performedBy   String?  // Optional: userId of who performed the inspection
+  performedBy   String? // Optional: userId of who performed the inspection
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  machine                Machine                              @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  machine                Machine                             @relation(fields: [machineId], references: [id], onDelete: Cascade)
   bearingClearanceChecks MachineInspectionBearingClearance[]
 
   @@map("machine_inspections")
@@ -160,40 +175,40 @@ model BearingClearance {
   id String @id @default(cuid())
 
   // Outer measurements - all Decimal with 4 precision (all required)
-  totalClearance_RH                   Decimal @db.Decimal(10, 4)
-  totalClearance_LH                   Decimal @db.Decimal(10, 4)
-  mainBearings_RH                     Decimal @db.Decimal(10, 4)
-  mainBearings_LH                     Decimal @db.Decimal(10, 4)
-  upperConnectionBearings_RH          Decimal @db.Decimal(10, 4)
-  upperConnectionBearings_LH          Decimal @db.Decimal(10, 4)
-  wristPinToMatingPart_RH             Decimal @db.Decimal(10, 4)
-  wristPinToMatingPart_LH             Decimal @db.Decimal(10, 4)
-  wristPinToBushing_RH                Decimal @db.Decimal(10, 4)
-  wristPinToBushing_LH                Decimal @db.Decimal(10, 4)
-  slide_adj_nut_to_screw_sleeve_RH    Decimal @db.Decimal(10, 4)
-  slide_adj_nut_to_screw_sleeve_LH    Decimal @db.Decimal(10, 4)
-  extra_double_lockOpen_RH            Decimal @db.Decimal(10, 4)
-  extra_double_lockOpen_LH            Decimal @db.Decimal(10, 4)
-  ball_box_area_RH                    Decimal @db.Decimal(10, 4)
-  ball_box_area_LH                    Decimal @db.Decimal(10, 4)
+  totalClearance_RH                Decimal @db.Decimal(10, 4)
+  totalClearance_LH                Decimal @db.Decimal(10, 4)
+  mainBearings_RH                  Decimal @db.Decimal(10, 4)
+  mainBearings_LH                  Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_RH       Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_LH       Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_RH          Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_LH          Decimal @db.Decimal(10, 4)
+  wristPinToBushing_RH             Decimal @db.Decimal(10, 4)
+  wristPinToBushing_LH             Decimal @db.Decimal(10, 4)
+  slide_adj_nut_to_screw_sleeve_RH Decimal @db.Decimal(10, 4)
+  slide_adj_nut_to_screw_sleeve_LH Decimal @db.Decimal(10, 4)
+  extra_double_lockOpen_RH         Decimal @db.Decimal(10, 4)
+  extra_double_lockOpen_LH         Decimal @db.Decimal(10, 4)
+  ball_box_area_RH                 Decimal @db.Decimal(10, 4)
+  ball_box_area_LH                 Decimal @db.Decimal(10, 4)
 
   // Inner measurements (all required)
-  innerTotalClearance_RH              Decimal @db.Decimal(10, 4)
-  innerTotalClearance_LH              Decimal @db.Decimal(10, 4)
-  innerMainBearings_RH                Decimal @db.Decimal(10, 4)
-  innerMainBearings_LH                Decimal @db.Decimal(10, 4)
-  innerUpperConnectionBearings_RH     Decimal @db.Decimal(10, 4)
-  innerUpperConnectionBearings_LH     Decimal @db.Decimal(10, 4)
-  innerWristPinToMatingPart_RH        Decimal @db.Decimal(10, 4)
-  innerWristPinToMatingPart_LH        Decimal @db.Decimal(10, 4)
-  innerWristPinToBushing_RH           Decimal @db.Decimal(10, 4)
-  innerWristPinToBushing_LH           Decimal @db.Decimal(10, 4)
+  innerTotalClearance_RH                Decimal @db.Decimal(10, 4)
+  innerTotalClearance_LH                Decimal @db.Decimal(10, 4)
+  innerMainBearings_RH                  Decimal @db.Decimal(10, 4)
+  innerMainBearings_LH                  Decimal @db.Decimal(10, 4)
+  innerUpperConnectionBearings_RH       Decimal @db.Decimal(10, 4)
+  innerUpperConnectionBearings_LH       Decimal @db.Decimal(10, 4)
+  innerWristPinToMatingPart_RH          Decimal @db.Decimal(10, 4)
+  innerWristPinToMatingPart_LH          Decimal @db.Decimal(10, 4)
+  innerWristPinToBushing_RH             Decimal @db.Decimal(10, 4)
+  innerWristPinToBushing_LH             Decimal @db.Decimal(10, 4)
   innerSlide_adj_nut_to_screw_sleeve_RH Decimal @db.Decimal(10, 4)
   innerSlide_adj_nut_to_screw_sleeve_LH Decimal @db.Decimal(10, 4)
-  innerExtra_double_lockOpen_RH       Decimal @db.Decimal(10, 4)
-  innerExtra_double_lockOpen_LH       Decimal @db.Decimal(10, 4)
-  innerBall_box_area_RH               Decimal @db.Decimal(10, 4)
-  innerBall_box_area_LH               Decimal @db.Decimal(10, 4)
+  innerExtra_double_lockOpen_RH         Decimal @db.Decimal(10, 4)
+  innerExtra_double_lockOpen_LH         Decimal @db.Decimal(10, 4)
+  innerBall_box_area_RH                 Decimal @db.Decimal(10, 4)
+  innerBall_box_area_LH                 Decimal @db.Decimal(10, 4)
 
   // Additional fields (required)
   combined_with String
