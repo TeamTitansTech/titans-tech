@@ -16,6 +16,20 @@ enum UserRole {
   USER
 }
 
+enum MatingPartType {
+  BUSHING
+  CONNECTION
+  NUT_SCREW_SLEEVE
+}
+
+enum InspectionSection {
+  BEARING_CLEARANCE
+  HYDRAULIC_CHECK
+  ELECTRICAL_CHECK
+  MECHANICAL_INSPECTION
+  SAFETY_CHECK
+}
+
 model User {
   id          String   @id @default(cuid())
   email       String   @unique
@@ -68,4 +82,128 @@ model UserCompany {
 
   @@unique([userId, companyId])
   @@map("user_companies")
+}
+
+// Machine Management Models
+
+model Blueprint {
+  id        String              @id @default(cuid())
+  name      String
+  fields    Json                // Array of { fieldName, fieldSlug, fieldType, fieldOptions? }
+  sections  InspectionSection[] // Array of inspection sections
+  deletedAt DateTime?           // Soft delete to preserve historical data
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+
+  machines Machine[]
+
+  @@map("blueprints")
+}
+
+model Machine {
+  id          String   @id @default(cuid())
+  blueprintId String
+  name        String // Machine name/identifier
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  blueprint   Blueprint          @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  fields      MachineField[]
+  inspections MachineInspection[]
+
+  @@map("machines")
+}
+
+model MachineField {
+  id        String   @id @default(cuid())
+  machineId String
+  fieldSlug String
+  value     String // Store as string, convert based on fieldType from blueprint
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@unique([machineId, fieldSlug])
+  @@map("machine_fields")
+}
+
+model MachineInspection {
+  id            String   @id @default(cuid())
+  machineId     String
+  date          DateTime
+  isMaintenance Boolean  @default(false)
+  performedBy   String?  // Optional: userId of who performed the inspection
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  machine                Machine                              @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  bearingClearanceChecks MachineInspectionBearingClearance[]
+
+  @@map("machine_inspections")
+}
+
+model MachineInspectionBearingClearance {
+  id                  String  @id @default(cuid())
+  machineInspectionId String
+  beforeId            String?
+  afterId             String?
+
+  machineInspection MachineInspection @relation(fields: [machineInspectionId], references: [id], onDelete: Cascade)
+  before            BearingClearance? @relation("BeforeMeasurement", fields: [beforeId], references: [id], onDelete: SetNull)
+  after             BearingClearance? @relation("AfterMeasurement", fields: [afterId], references: [id], onDelete: SetNull)
+
+  @@map("machine_inspection_bearing_clearance")
+}
+
+model BearingClearance {
+  id String @id @default(cuid())
+
+  // Outer measurements - all Decimal with 4 precision (all required)
+  totalClearance_RH                   Decimal @db.Decimal(10, 4)
+  totalClearance_LH                   Decimal @db.Decimal(10, 4)
+  mainBearings_RH                     Decimal @db.Decimal(10, 4)
+  mainBearings_LH                     Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_RH          Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_LH          Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_RH             Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_LH             Decimal @db.Decimal(10, 4)
+  wristPinToBushing_RH                Decimal @db.Decimal(10, 4)
+  wristPinToBushing_LH                Decimal @db.Decimal(10, 4)
+  slide_adj_nut_to_screw_sleeve_RH    Decimal @db.Decimal(10, 4)
+  slide_adj_nut_to_screw_sleeve_LH    Decimal @db.Decimal(10, 4)
+  extra_double_lockOpen_RH            Decimal @db.Decimal(10, 4)
+  extra_double_lockOpen_LH            Decimal @db.Decimal(10, 4)
+  ball_box_area_RH                    Decimal @db.Decimal(10, 4)
+  ball_box_area_LH                    Decimal @db.Decimal(10, 4)
+
+  // Inner measurements (all required)
+  innerTotalClearance_RH              Decimal @db.Decimal(10, 4)
+  innerTotalClearance_LH              Decimal @db.Decimal(10, 4)
+  innerMainBearings_RH                Decimal @db.Decimal(10, 4)
+  innerMainBearings_LH                Decimal @db.Decimal(10, 4)
+  innerUpperConnectionBearings_RH     Decimal @db.Decimal(10, 4)
+  innerUpperConnectionBearings_LH     Decimal @db.Decimal(10, 4)
+  innerWristPinToMatingPart_RH        Decimal @db.Decimal(10, 4)
+  innerWristPinToMatingPart_LH        Decimal @db.Decimal(10, 4)
+  innerWristPinToBushing_RH           Decimal @db.Decimal(10, 4)
+  innerWristPinToBushing_LH           Decimal @db.Decimal(10, 4)
+  innerSlide_adj_nut_to_screw_sleeve_RH Decimal @db.Decimal(10, 4)
+  innerSlide_adj_nut_to_screw_sleeve_LH Decimal @db.Decimal(10, 4)
+  innerExtra_double_lockOpen_RH       Decimal @db.Decimal(10, 4)
+  innerExtra_double_lockOpen_LH       Decimal @db.Decimal(10, 4)
+  innerBall_box_area_RH               Decimal @db.Decimal(10, 4)
+  innerBall_box_area_LH               Decimal @db.Decimal(10, 4)
+
+  // Additional fields (required)
+  combined_with String
+  mating_part   MatingPartType
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  beforeInspections MachineInspectionBearingClearance[] @relation("BeforeMeasurement")
+  afterInspections  MachineInspectionBearingClearance[] @relation("AfterMeasurement")
+
+  @@map("bearing_clearances")
 }

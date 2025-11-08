@@ -1,4 +1,4 @@
-import { PrismaClient, UserRole } from '@prisma/client';
+import { PrismaClient, UserRole, InspectionSection } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -37,6 +37,37 @@ async function main() {
   });
 
   console.log(`Created/Updated permission for admin user: ${permission.id}`);
+
+  // Create example blueprint for bearing clearance inspection
+  const blueprint = await prisma.blueprint.upsert({
+    where: { id: 'default-bearing-clearance-blueprint' },
+    update: {},
+    create: {
+      id: 'default-bearing-clearance-blueprint',
+      name: 'Standard Bearing Clearance Inspection',
+      sections: [InspectionSection.BEARING_CLEARANCE],
+      fields: [
+        {
+          fieldName: 'Serial Number',
+          fieldSlug: 'serial_number',
+          fieldType: 'string',
+        },
+        {
+          fieldName: 'Model Year',
+          fieldSlug: 'model_year',
+          fieldType: 'int',
+        },
+        {
+          fieldName: 'Machine Type',
+          fieldSlug: 'machine_type',
+          fieldType: 'enum',
+          fieldOptions: ['Type A', 'Type B', 'Type C'],
+        },
+      ],
+    },
+  });
+
+  console.log(`Created/Updated blueprint with id: ${blueprint.id}`);
 
   console.log('Seeding finished.');
 }
