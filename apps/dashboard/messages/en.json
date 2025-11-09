@@ -1,4 +1,23 @@
 {
+  "common": {
+    "companyName": "InspectPro",
+    "companySubtitle": "Admin Portal"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "models": "Models",
+    "clients": "Clients",
+    "allMachines": "All Machines",
+    "services": "Services",
+    "settings": "Settings"
+  },
+  "header": {
+    "toggleSidebar": "Toggle Sidebar",
+    "searchPlaceholder": "Search machines, models...",
+    "notifications": "Notifications",
+    "userProfile": "User Profile",
+    "logout": "Logout"
+  },
   "dashboard": {
     "title": "Titans Tech Dashboard",
     "description": "Admin Dashboard Application"
@@ -11,8 +30,15 @@
     "clutch": "Clutch",
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag"
   },
-  "blueprints": {
+  "models": {
     "title": "Create Model",
+    "pageTitle": "Models",
+    "pageDescription": "Manage machine templates and specifications",
+    "newButton": "New Model",
+    "emptyState": "No models found. Create your first model to get started.",
+    "noDescription": "No description",
+    "errorLoading": "Error loading models",
+    "description": "Create a new machine model",
     "form": {
       "name": {
         "label": "Blueprint Name",

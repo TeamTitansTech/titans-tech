@@ -1,4 +1,23 @@
 {
+  "common": {
+    "companyName": "InspectPro",
+    "companySubtitle": "Portal Admin"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "models": "Modelos",
+    "clients": "Clientes",
+    "allMachines": "Todas as Máquinas",
+    "services": "Serviços",
+    "settings": "Configurações"
+  },
+  "header": {
+    "toggleSidebar": "Alternar Barra Lateral",
+    "searchPlaceholder": "Buscar máquinas, modelos...",
+    "notifications": "Notificações",
+    "userProfile": "Perfil do Usuário",
+    "logout": "Sair"
+  },
   "dashboard": {
     "title": "Painel Titans Tech",
     "description": "Aplicação do Painel de Administração"
@@ -11,14 +30,14 @@
     "clutch": "CLUTCH",
     "counterbalance_cylinder_airbag": "COUNTERBALANCE CYLINDER / AIRBAG"
   },
-  "blueprints": {
+  "models": {
     "title": "Criar Modelo",
-    "pageTitle": "Blueprints",
+    "pageTitle": "Modelos",
     "pageDescription": "Gerenciar templates e especificações de máquinas",
-    "newButton": "Novo Blueprint",
-    "emptyState": "Nenhum blueprint encontrado. Crie seu primeiro blueprint para começar.",
+    "newButton": "Novo Modelo",
+    "emptyState": "Nenhum modelo encontrado. Crie seu primeiro modelo para começar.",
     "noDescription": "Sem descrição",
-    "errorLoading": "Erro ao carregar blueprints",
+    "errorLoading": "Erro ao carregar modelos",
     "description": "Crie um novo modelo de máquina",
     "form": {
       "basicInfo": {

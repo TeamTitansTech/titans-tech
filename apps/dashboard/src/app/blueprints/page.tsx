@@ -3,7 +3,7 @@ import { BlueprintsPageClient } from './components/BlueprintsPageClient';
 import { getBlueprints } from '@/data/services/blueprints.api';
 
 export default async function BlueprintsPage() {
-  const t = await getTranslations('blueprints');
+  const t = await getTranslations('models');
   const response = await getBlueprints();
 
   if (response.errors) {
