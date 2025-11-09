@@ -1,13 +1,24 @@
 'use client';
 
-import { PanelLeft, Search, Bell, UserCircle, LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { PanelLeft, Search, Bell, UserCircle, LogOut, Settings } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
+import { SettingsModal } from './SettingsModal';
 
 export function AppHeader() {
   const { toggleSidebar } = useSidebar();
   const t = useTranslations('header');
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white">
@@ -45,25 +56,43 @@ export function AppHeader() {
             <TooltipContent>{t('notifications')}</TooltipContent>
           </Tooltip>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 text-gray-600 hover:text-orange-500 transition-all duration-200">
                 <UserCircle className="h-5 w-5" />
               </button>
-            </TooltipTrigger>
-            <TooltipContent>{t('userProfile')}</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-red-100 text-gray-600 hover:text-red-500 transition-all duration-200">
-                <LogOut className="h-5 w-5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>{t('logout')}</TooltipContent>
-          </Tooltip>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">Admin User</p>
+                  <p className="text-xs leading-none text-muted-foreground">
+                    admin@inspectpro.com
+                  </p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setIsSettingsModalOpen(true)}
+                className="cursor-pointer hover:bg-orange-100 hover:text-orange-500"
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                <span>{t('settings')}</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer hover:bg-red-100 hover:text-red-500">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>{t('logout')}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
+
+      <SettingsModal
+        isOpen={isSettingsModalOpen}
+        onClose={() => setIsSettingsModalOpen(false)}
+      />
     </header>
   );
 }

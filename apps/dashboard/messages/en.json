@@ -16,7 +16,19 @@
     "searchPlaceholder": "Search machines, models...",
     "notifications": "Notifications",
     "userProfile": "User Profile",
+    "settings": "Settings",
     "logout": "Logout"
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your application preferences and settings",
+    "language": {
+      "title": "Language & Region",
+      "label": "Select Language",
+      "description": "Choose your preferred language for the interface"
+    },
+    "close": "Close",
+    "applying": "Applying changes..."
   },
   "dashboard": {
     "title": "Titans Tech Dashboard",
