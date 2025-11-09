@@ -287,16 +287,16 @@ model SlideData {
   id String @id @default(cuid())
 
   // Parallelism measurements (3 positions)
-  parallelism         ParallelismType
-  hasBeenAdjusted     Boolean         @default(false)
-  position1           Decimal         @db.Decimal(10, 4)
-  position2           Decimal         @db.Decimal(10, 4)
-  position3           Decimal         @db.Decimal(10, 4)
-  unit                MeasurementUnit
-  shutheightChecked   Boolean         @default(false)
-  actualSH            String?
-  overloadsOnMonitor  String?
-  indicatorReading    String?
+  parallelism        ParallelismType
+  hasBeenAdjusted    Boolean         @default(false)
+  position1          Decimal         @db.Decimal(10, 4)
+  position2          Decimal         @db.Decimal(10, 4)
+  position3          Decimal         @db.Decimal(10, 4)
+  unit               MeasurementUnit
+  shutheightChecked  Boolean         @default(false)
+  actualSH           String?
+  overloadsOnMonitor String?
+  indicatorReading   String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
