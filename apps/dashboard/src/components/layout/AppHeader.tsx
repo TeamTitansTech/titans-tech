@@ -14,13 +14,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
 import { SettingsModal } from './SettingsModal';
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme } from 'next-themes';
 
 export function AppHeader() {
   const { toggleSidebar } = useSidebar();
   const t = useTranslations('header');
-  const { theme, toggleTheme, mounted } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background dark:bg-card">
@@ -65,8 +69,8 @@ export function AppHeader() {
                 className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200"
                 aria-label={t('toggleTheme')}
               >
-                {mounted &&
-                  (theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />)}
+                <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               </button>
             </TooltipTrigger>
             <TooltipContent>{t('toggleTheme')}</TooltipContent>
