@@ -18,7 +18,8 @@
       "Bash(docker exec:*)",
       "Bash(tree:*)",
       "Bash(test:*)",
-      "Bash(npm:*)"
+      "Bash(npm:*)",
+      "Bash(npx eslint --fix)"
     ],
     "deny": [],
     "ask": []

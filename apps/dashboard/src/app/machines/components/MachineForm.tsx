@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,12 +41,22 @@ export function MachineForm() {
   const t = useTranslations('machines');
   const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
   const [selectedBlueprintId, setSelectedBlueprintId] = useState<string>('');
-  const [selectedBlueprint, setSelectedBlueprint] = useState<Blueprint | null>(null);
   const [machineName, setMachineName] = useState('');
   const [fieldValues, setFieldValues] = useState<Record<string, string | number>>({});
+  const [lastBlueprintId, setLastBlueprintId] = useState<string>('');
   const [isLoadingBlueprints, setIsLoadingBlueprints] = useState(true);
 
   const { execute: submitMachine, isLoading, result } = useLazyQuery(createMachine);
+
+  const selectedBlueprint = useMemo(() => {
+    if (!selectedBlueprintId) return null;
+    return blueprints.find((bp) => bp.id === selectedBlueprintId) || null;
+  }, [selectedBlueprintId, blueprints]);
+
+  if (selectedBlueprintId !== lastBlueprintId) {
+    setLastBlueprintId(selectedBlueprintId);
+    setFieldValues({});
+  }
 
   useEffect(() => {
     const loadBlueprints = async () => {
@@ -60,17 +70,6 @@ export function MachineForm() {
 
     loadBlueprints();
   }, []);
-
-  useEffect(() => {
-    if (selectedBlueprintId) {
-      const blueprint = blueprints.find((bp) => bp.id === selectedBlueprintId);
-      setSelectedBlueprint(blueprint || null);
-      setFieldValues({});
-    } else {
-      setSelectedBlueprint(null);
-      setFieldValues({});
-    }
-  }, [selectedBlueprintId, blueprints]);
 
   const updateFieldValue = (fieldSlug: string, value: string | number) => {
     setFieldValues((prev) => ({
