@@ -63,3 +63,45 @@ export const removeUserFromBranch = async (args: { branchId: string; userId: str
     },
   );
 };
+
+export const setUserPermissions = async (args: {
+  branchId: string;
+  userId: string;
+  permissions: Record<string, boolean>;
+}) => {
+  return await responseHandler<UserResponseDto>(
+    `/company-branches/${args.branchId}/users/${args.userId}/permissions`,
+    {
+      method: 'PATCH',
+      body: args.permissions,
+    },
+  );
+};
+
+export const setCompanyAdmin = async (args: {
+  branchId: string;
+  userId: string;
+  isCompanyAdmin: boolean;
+}) => {
+  return await responseHandler<UserResponseDto>(
+    `/company-branches/${args.branchId}/users/${args.userId}/company-admin`,
+    {
+      method: 'PATCH',
+      body: { isCompanyAdmin: args.isCompanyAdmin },
+    },
+  );
+};
+
+export const setCompanyManager = async (args: {
+  branchId: string;
+  userId: string;
+  isCompanyManager: boolean;
+}) => {
+  return await responseHandler<UserResponseDto>(
+    `/company-branches/${args.branchId}/users/${args.userId}/company-manager`,
+    {
+      method: 'PATCH',
+      body: { isCompanyManager: args.isCompanyManager },
+    },
+  );
+};

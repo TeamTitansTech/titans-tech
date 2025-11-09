@@ -97,7 +97,6 @@ export default function UsersManager({ selectedCompany }: Props) {
         data: {
           name,
           email,
-          isCompanyAdmin,
         },
       });
 

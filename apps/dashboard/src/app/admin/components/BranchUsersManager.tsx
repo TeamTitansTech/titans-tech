@@ -1,12 +1,18 @@
 'use client';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { addUserToBranch, removeUserFromBranch } from '@/data/services/company-branches.api';
+import {
+  addUserToBranch,
+  removeUserFromBranch,
+  setCompanyAdmin,
+  setCompanyManager,
+} from '@/data/services/company-branches.api';
 import { getAllUsers } from '@/data/services/users.api';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useState, useEffect } from 'react';
 import { Company } from '@/data/services/companies.api';
 import { CompanyBranch } from '@/data/services/company-branches.api';
 import { UserResponseDto } from '@titans-tech/shared';
+import UserPermissionsManager from './UserPermissionsManager';
 
 interface Props {
   selectedCompany: Company | null;
@@ -19,11 +25,16 @@ export default function BranchUsersManager({ selectedCompany, selectedBranch, on
   const [branchUsers, setBranchUsers] = useState<UserResponseDto[]>([]);
   const [availableUsers, setAvailableUsers] = useState<UserResponseDto[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string>('');
+  const [permissionsUser, setPermissionsUser] = useState<UserResponseDto | null>(null);
 
   const { execute: executeGetUsers, isLoading: isLoadingUsers } = useLazyQuery(getAllUsers);
   const { execute: executeAddUser, isLoading: isAddingUser } = useLazyQuery(addUserToBranch);
   const { execute: executeRemoveUser, isLoading: isRemovingUser } =
     useLazyQuery(removeUserFromBranch);
+  const { execute: executeSetCompanyAdmin, isLoading: isSettingAdmin } =
+    useLazyQuery(setCompanyAdmin);
+  const { execute: executeSetCompanyManager, isLoading: isSettingManager } =
+    useLazyQuery(setCompanyManager);
 
   const loadUsers = async () => {
     if (!selectedCompany || !selectedBranch) return;
@@ -81,11 +92,51 @@ export default function BranchUsersManager({ selectedCompany, selectedBranch, on
     }
   };
 
+  const handleToggleCompanyAdmin = async (user: UserResponseDto) => {
+    if (!selectedBranch) return;
+    const newStatus = !user.isCompanyAdmin;
+    const message = newStatus
+      ? `Are you sure you want to make ${user.name || user.email} a Company Admin?`
+      : `Are you sure you want to remove Company Admin status from ${user.name || user.email}?`;
+
+    if (!confirm(message)) return;
+
+    const response = await executeSetCompanyAdmin({
+      branchId: selectedBranch.id,
+      userId: user.id,
+      isCompanyAdmin: newStatus,
+    });
+
+    if (response?.data) {
+      await loadUsers();
+    }
+  };
+
+  const handleToggleCompanyManager = async (user: UserResponseDto) => {
+    if (!selectedBranch) return;
+    const newStatus = !user.isCompanyManager;
+    const message = newStatus
+      ? `Are you sure you want to make ${user.name || user.email} a Company Manager?`
+      : `Are you sure you want to remove Company Manager status from ${user.name || user.email}?`;
+
+    if (!confirm(message)) return;
+
+    const response = await executeSetCompanyManager({
+      branchId: selectedBranch.id,
+      userId: user.id,
+      isCompanyManager: newStatus,
+    });
+
+    if (response?.data) {
+      await loadUsers();
+    }
+  };
+
   if (!sysAdminUser || !selectedCompany || !selectedBranch) {
     return null;
   }
 
-  const isLoading = isAddingUser || isRemovingUser;
+  const isLoading = isAddingUser || isRemovingUser || isSettingAdmin || isSettingManager;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black ">
@@ -153,24 +204,55 @@ export default function BranchUsersManager({ selectedCompany, selectedBranch, on
                       <td className="px-4 py-3 text-sm">{user.name || '-'}</td>
                       <td className="px-4 py-3 text-sm">{user.email}</td>
                       <td className="px-4 py-3 text-sm">
-                        {user.isCompanyAdmin ? (
-                          <span className="inline-flex rounded  px-2 py-1 text-xs font-medium text-purple-800">
-                            Company Admin
-                          </span>
-                        ) : (
-                          <span className="inline-flex rounded  px-2 py-1 text-xs font-medium text-blue-800">
-                            User
-                          </span>
-                        )}
+                        <div className="flex flex-wrap gap-1">
+                          {user.isCompanyAdmin && (
+                            <span className="inline-flex rounded bg-purple-100 px-2 py-1 text-xs font-medium text-purple-800">
+                              Company Admin
+                            </span>
+                          )}
+                          {user.isCompanyManager && (
+                            <span className="inline-flex rounded bg-indigo-100 px-2 py-1 text-xs font-medium text-indigo-800">
+                              Company Manager
+                            </span>
+                          )}
+                          {!user.isCompanyAdmin && !user.isCompanyManager && (
+                            <span className="inline-flex rounded bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">
+                              User
+                            </span>
+                          )}
+                        </div>
                       </td>
-                      <td className="px-4 py-3 text-right">
-                        <button
-                          onClick={() => handleRemoveUser(user.id)}
-                          disabled={isLoading}
-                          className="text-sm text-red-600 hover:underline disabled:text-gray-400"
-                        >
-                          Remove
-                        </button>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            onClick={() => setPermissionsUser(user)}
+                            disabled={isLoading}
+                            className="text-xs text-blue-600 hover:underline disabled:text-gray-400"
+                          >
+                            Permissions
+                          </button>
+                          <button
+                            onClick={() => handleToggleCompanyManager(user)}
+                            disabled={isLoading}
+                            className="text-xs text-indigo-600 hover:underline disabled:text-gray-400"
+                          >
+                            {user.isCompanyManager ? 'Remove Manager' : 'Make Manager'}
+                          </button>
+                          <button
+                            onClick={() => handleToggleCompanyAdmin(user)}
+                            disabled={isLoading}
+                            className="text-xs text-purple-600 hover:underline disabled:text-gray-400"
+                          >
+                            {user.isCompanyAdmin ? 'Remove Admin' : 'Make Admin'}
+                          </button>
+                          <button
+                            onClick={() => handleRemoveUser(user.id)}
+                            disabled={isLoading}
+                            className="text-xs text-red-600 hover:underline disabled:text-gray-400"
+                          >
+                            Remove
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -190,6 +272,15 @@ export default function BranchUsersManager({ selectedCompany, selectedBranch, on
           </button>
         </div>
       </div>
+
+      {permissionsUser && (
+        <UserPermissionsManager
+          user={permissionsUser}
+          branchId={selectedBranch.id}
+          onClose={() => setPermissionsUser(null)}
+          onUpdate={loadUsers}
+        />
+      )}
     </div>
   );
 }
