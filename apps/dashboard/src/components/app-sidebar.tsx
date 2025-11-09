@@ -9,10 +9,12 @@ import {
   User,
   Settings,
   ClipboardList,
+  Shield,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { useSysAdmin } from '@/contexts/SysAdminContext';
 
 import {
   Sidebar,
@@ -29,9 +31,50 @@ import {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const t = useTranslations();
+  const { sysAdminUser } = useSysAdmin();
 
-  // This is the data structure for the sidebar
-  const data = {
+  const isAdmin = !!sysAdminUser;
+
+  // Admin navigation
+  const adminData = {
+    company: {
+      name: 'Admin Portal',
+      subtitle: 'System Administration',
+      logo: Shield,
+    },
+    navMain: [
+      {
+        title: t('navigation.dashboard'),
+        icon: LayoutDashboard,
+        url: '/admin/dashboard',
+      },
+      {
+        title: t('navigation.models'),
+        icon: FolderKanban,
+        url: '/admin/blueprints',
+      },
+      {
+        title: 'Companies',
+        icon: Users,
+        url: '/admin/companies',
+      },
+      {
+        title: t('navigation.allMachines'),
+        icon: Wrench,
+        url: '/admin/machines',
+      },
+    ],
+    navUtility: [
+      {
+        title: t('navigation.settings'),
+        icon: Settings,
+        url: '/admin/settings',
+      },
+    ],
+  };
+
+  // Client navigation
+  const clientData = {
     company: {
       name: t('common.companyName'),
       subtitle: t('common.companySubtitle'),
@@ -73,10 +116,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ],
   };
 
+  const data = isAdmin ? adminData : clientData;
+  const dashboardUrl = isAdmin ? '/admin/dashboard' : '/home';
+
   return (
     <Sidebar collapsible="offcanvas" className="shadow-lg" {...props}>
       <SidebarHeader className="p-5 border-b border-slate-700/50">
-        <Link href="/home" className="flex items-center gap-3">
+        <Link href={dashboardUrl} className="flex items-center gap-3">
           <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-orange-500 text-white shrink-0">
             <data.company.logo className="size-6" />
           </div>
@@ -89,7 +135,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </Link>
       </SidebarHeader>
       <SidebarContent className="px-2 py-6">
-        {/* Main Navigation */}
         <SidebarGroup className="px-0">
           <SidebarMenu className="space-y-2.5">
             {data.navMain.map((item) => {
@@ -117,7 +162,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         </SidebarGroup>
 
-        {/* Utility Navigation (Settings) */}
         <SidebarGroup className="px-0 mt-6">
           <SidebarMenu>
             {data.navUtility.map((item) => {

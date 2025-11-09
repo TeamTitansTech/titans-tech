@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { PanelLeft, Search, Bell, UserCircle, LogOut, Settings, Moon, Sun } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -15,15 +16,28 @@ import {
 import { useTranslations } from 'next-intl';
 import { SettingsModal } from './SettingsModal';
 import { useTheme } from 'next-themes';
+import { logout } from '@/data/services/auth.api';
+import { useSysAdmin } from '@/contexts/SysAdminContext';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
 
 export function AppHeader() {
+  const router = useRouter();
   const { toggleSidebar } = useSidebar();
   const t = useTranslations('header');
   const { theme, setTheme } = useTheme();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const { setSysAdminUser } = useSysAdmin();
+  const { setCompanyUser } = useCompanyUser();
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setSysAdminUser(null);
+    setCompanyUser(null);
+    router.push('/login');
   };
 
   return (
@@ -98,7 +112,10 @@ export function AppHeader() {
                 <span>{t('settings')}</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer hover:bg-red-100 hover:text-red-500">
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="cursor-pointer hover:bg-red-100 hover:text-red-500"
+              >
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>{t('logout')}</span>
               </DropdownMenuItem>

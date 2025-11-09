@@ -33,7 +33,17 @@
   },
   "dashboard": {
     "title": "Painel Titans Tech",
-    "description": "Aplicação do Painel de Administração"
+    "description": "Aplicação do Painel de Administração",
+    "admin": {
+      "title": "Admin Portal",
+      "description": "Manage companies, machines, and models",
+      "stats": {
+        "totalModels": "Total Models",
+        "activeCompanies": "Active Companies",
+        "machines": "Machines",
+        "pendingServices": "Pending Services"
+      }
+    }
   },
   "sections": {
     "bearing_clearance": "BEARING CLEARANCE",
@@ -256,6 +266,7 @@
   "login": {
     "title": "Bem-vindo de volta",
     "description": "Faça login para acessar seu painel",
+    "clientDescription": "Faça login para acessar sua conta",
     "subtitle": "Plataforma de Gestão e Inspeção de Máquinas Industriais",
     "form": {
       "email": {
@@ -267,7 +278,8 @@
         "placeholder": "••••••••"
       },
       "forgotPassword": "Esqueceu a senha?",
-      "submit": "Entrar"
+      "submit": "Entrar",
+      "submitting": "Entrando..."
     }
   }
 }

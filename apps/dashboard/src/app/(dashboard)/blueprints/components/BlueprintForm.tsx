@@ -123,6 +123,11 @@ export function BlueprintForm() {
     setNewOptionValues((prev) => ({ ...prev, [fieldIndex]: value }));
   };
 
+  const hasInvalidEnumFields = fields.some(
+    (field) =>
+      field.fieldType === 'enum' && (!field.fieldOptions || field.fieldOptions.length === 0),
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -340,7 +345,7 @@ export function BlueprintForm() {
               </div>
             </div>
 
-            <Button type="submit" disabled={isLoading} className="w-full">
+            <Button type="submit" disabled={isLoading || hasInvalidEnumFields} className="w-full">
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
             </Button>
           </form>

@@ -143,6 +143,11 @@ export const BlueprintCreationModal = ({
     setNewOptionValues((prev) => ({ ...prev, [fieldIndex]: value }));
   };
 
+  const hasInvalidEnumFields = fields.some(
+    (field) =>
+      field.fieldType === 'enum' && (!field.fieldOptions || field.fieldOptions.length === 0),
+  );
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -406,7 +411,7 @@ export const BlueprintCreationModal = ({
             </Button>
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || hasInvalidEnumFields}
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
