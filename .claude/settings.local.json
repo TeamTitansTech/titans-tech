@@ -14,7 +14,9 @@
       "Bash(npm prune:*)",
       "Bash(find:*)",
       "Bash(npm run lint)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "Bash(docker exec:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

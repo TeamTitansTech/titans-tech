@@ -19,6 +19,7 @@ interface Machine {
   fields: MachineField[];
   createdAt: string;
   updatedAt: string;
+  blueprint?: Blueprint;
 }
 
 interface BlueprintField {
@@ -45,6 +46,12 @@ export const getBlueprints = async () => {
 
 export const getMachines = async () => {
   return await responseHandler<Machine[]>('/machines', {
+    method: 'GET',
+  });
+};
+
+export const getMachineById = async (id: string) => {
+  return await responseHandler<Machine>(`/machines/${id}`, {
     method: 'GET',
   });
 };
