@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Dialog,
@@ -110,6 +110,117 @@ const defaultBearingData: BearingClearanceData = {
   mating_part: MatingPartType.BUSHING,
 };
 
+interface RenderBearingFieldsProps {
+  data: BearingClearanceData;
+  updateFn: (field: keyof BearingClearanceData, value: string | number) => void;
+  errors: Record<string, string>;
+  handleBlur: (field: keyof BearingClearanceData) => void;
+}
+
+function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBearingFieldsProps) {
+  const t = useTranslations('inspections');
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h4 className="font-semibold mb-3">{t('form.bearingClearance.outer')}</h4>
+        <div className="grid grid-cols-2 gap-4">
+          {OUTER_FIELDS.map((field) => (
+            <div key={field}>
+              <Label htmlFor={field} className="text-xs">
+                {t(`form.bearingClearance.fields.${field}`)}
+              </Label>
+              <Input
+                id={field}
+                type="number"
+                step="0.0001"
+                min="0"
+                max="999999.9999"
+                value={data[field as keyof BearingClearanceData]}
+                onChange={(e) => updateFn(field as keyof BearingClearanceData, Number(e.target.value))}
+                onBlur={() => handleBlur(field as keyof BearingClearanceData)}
+                className={`mt-1 ${errors[field] ? 'border-red-500' : ''}`}
+                required
+              />
+              {errors[field] && (
+                <p className="text-xs text-red-500 mt-1">{errors[field]}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h4 className="font-semibold mb-3">{t('form.bearingClearance.inner')}</h4>
+        <div className="grid grid-cols-2 gap-4">
+          {INNER_FIELDS.map((field) => (
+            <div key={field}>
+              <Label htmlFor={field} className="text-xs">
+                {t(`form.bearingClearance.fields.${field.replace('inner', '')}`)}
+              </Label>
+              <Input
+                id={field}
+                type="number"
+                step="0.0001"
+                min="0"
+                max="999999.9999"
+                value={data[field as keyof BearingClearanceData]}
+                onChange={(e) => updateFn(field as keyof BearingClearanceData, Number(e.target.value))}
+                onBlur={() => handleBlur(field as keyof BearingClearanceData)}
+                className={`mt-1 ${errors[field] ? 'border-red-500' : ''}`}
+                required
+              />
+              {errors[field] && (
+                <p className="text-xs text-red-500 mt-1">{errors[field]}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="combined_with">{t('form.bearingClearance.combined_with.label')}</Label>
+          <Input
+            id="combined_with"
+            value={data.combined_with}
+            onChange={(e) => updateFn('combined_with', e.target.value)}
+            onBlur={() => handleBlur('combined_with')}
+            placeholder={t('form.bearingClearance.combined_with.placeholder')}
+            className={`mt-1 ${errors.combined_with ? 'border-red-500' : ''}`}
+            required
+          />
+          {errors.combined_with && (
+            <p className="text-xs text-red-500 mt-1">{errors.combined_with}</p>
+          )}
+        </div>
+        <div>
+          <Label htmlFor="mating_part">{t('form.bearingClearance.mating_part.label')}</Label>
+          <Select
+            value={data.mating_part}
+            onValueChange={(value) => updateFn('mating_part', value as MatingPartType)}
+          >
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={MatingPartType.BUSHING}>
+                {t('form.bearingClearance.mating_part.bushing')}
+              </SelectItem>
+              <SelectItem value={MatingPartType.CONNECTION}>
+                {t('form.bearingClearance.mating_part.connection')}
+              </SelectItem>
+              <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
+                {t('form.bearingClearance.mating_part.nut_screw_sleeve')}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function InspectionCreationModal({
   machineId,
   open,
@@ -126,12 +237,121 @@ export function InspectionCreationModal({
   const [includeBefore, setIncludeBefore] = useState(true);
   const [includeAfter, setIncludeAfter] = useState(false);
 
+  const [beforeErrors, setBeforeErrors] = useState<Record<string, string>>({});
+  const [afterErrors, setAfterErrors] = useState<Record<string, string>>({});
+  const [dateError, setDateError] = useState<string>('');
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!open) {
+      // Reset all form fields
+      setDate(new Date().toISOString().split('T')[0]);
+      setIsMaintenance(false);
+      setPerformedBy('');
+      setBeforeData(defaultBearingData);
+      setAfterData(defaultBearingData);
+      setIncludeBefore(true);
+      setIncludeAfter(false);
+      setBeforeErrors({});
+      setAfterErrors({});
+      setDateError('');
+    }
+  }, [open]);
+
   const updateBeforeField = (field: keyof BearingClearanceData, value: string | number) => {
     setBeforeData((prev) => ({ ...prev, [field]: value }));
+    setBeforeErrors((prev) => ({ ...prev, [field]: '' }));
   };
 
   const updateAfterField = (field: keyof BearingClearanceData, value: string | number) => {
     setAfterData((prev) => ({ ...prev, [field]: value }));
+    setAfterErrors((prev) => ({ ...prev, [field]: '' }));
+  };
+
+  const validateField = (field: keyof BearingClearanceData, value: string | number): string => {
+    const MAX_DECIMAL = 999999.9999;
+    const MIN_DECIMAL = 0;
+
+    if (field === 'combined_with') {
+      if (!value || String(value).trim() === '') {
+        return t('form.error.required');
+      }
+      return '';
+    }
+
+    if (field === 'mating_part') {
+      if (!value) {
+        return t('form.error.required');
+      }
+      return '';
+    }
+
+    const numValue = Number(value);
+    if (isNaN(numValue)) {
+      return t('form.error.invalidNumber');
+    }
+    if (numValue < MIN_DECIMAL) {
+      return t('form.error.minValue', { min: MIN_DECIMAL });
+    }
+    if (numValue > MAX_DECIMAL) {
+      return t('form.error.maxValue', { max: MAX_DECIMAL });
+    }
+
+    return '';
+  };
+
+  const validateBearingData = (data: BearingClearanceData): string[] => {
+    const errors: string[] = [];
+    const MAX_DECIMAL = 999999.9999;
+    const MIN_DECIMAL = 0;
+
+    const numericFields = [
+      ...OUTER_FIELDS,
+      ...INNER_FIELDS,
+    ] as (keyof BearingClearanceData)[];
+
+    numericFields.forEach((field) => {
+      const value = Number(data[field]);
+      if (isNaN(value)) {
+        errors.push(t(`form.bearingClearance.fields.${field}`) + ': ' + t('form.error.invalidNumber'));
+      } else if (value < MIN_DECIMAL) {
+        errors.push(t(`form.bearingClearance.fields.${field}`) + ': ' + t('form.error.minValue', { min: MIN_DECIMAL }));
+      } else if (value > MAX_DECIMAL) {
+        errors.push(t(`form.bearingClearance.fields.${field}`) + ': ' + t('form.error.maxValue', { max: MAX_DECIMAL }));
+      }
+    });
+
+    if (!data.combined_with || data.combined_with.trim() === '') {
+      errors.push(t('form.bearingClearance.combined_with.label') + ': ' + t('form.error.required'));
+    }
+
+    if (!data.mating_part) {
+      errors.push(t('form.bearingClearance.mating_part.label') + ': ' + t('form.error.required'));
+    }
+
+    return errors;
+  };
+
+  const handleBlurBefore = (field: keyof BearingClearanceData) => {
+    const error = validateField(field, beforeData[field]);
+    setBeforeErrors((prev) => ({ ...prev, [field]: error }));
+  };
+
+  const handleBlurAfter = (field: keyof BearingClearanceData) => {
+    const error = validateField(field, afterData[field]);
+    setAfterErrors((prev) => ({ ...prev, [field]: error }));
+  };
+
+  const handleDateBlur = () => {
+    const selectedDate = new Date(date);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    if (selectedDate > today) {
+      setDateError(t('form.error.futureDate'));
+    } else {
+      setDateError('');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -139,6 +359,38 @@ export function InspectionCreationModal({
     setIsSubmitting(true);
 
     try {
+      const selectedDate = new Date(date);
+      const today = new Date();
+      today.setHours(23, 59, 59, 999);
+
+      if (selectedDate > today) {
+        toast.error(t('form.error.futureDate'));
+        setIsSubmitting(false);
+        return;
+      }
+
+      const validationErrors: string[] = [];
+
+      if (includeBefore) {
+        const beforeErrors = validateBearingData(beforeData);
+        if (beforeErrors.length > 0) {
+          validationErrors.push(...beforeErrors.map(err => `[${t('form.bearingClearance.before')}] ${err}`));
+        }
+      }
+
+      if (includeAfter) {
+        const afterErrors = validateBearingData(afterData);
+        if (afterErrors.length > 0) {
+          validationErrors.push(...afterErrors.map(err => `[${t('form.bearingClearance.after')}] ${err}`));
+        }
+      }
+
+      if (validationErrors.length > 0) {
+        toast.error(validationErrors.join('\n'));
+        setIsSubmitting(false);
+        return;
+      }
+
       const payload: CreateInspectionPayload = {
         machineId,
         date: new Date(date).toISOString(),
@@ -167,89 +419,6 @@ export function InspectionCreationModal({
     }
   };
 
-  const renderBearingFields = (
-    data: BearingClearanceData,
-    updateFn: (field: keyof BearingClearanceData, value: string | number) => void
-  ) => (
-    <div className="space-y-6">
-      <div>
-        <h4 className="font-semibold mb-3">{t('form.bearingClearance.outer')}</h4>
-        <div className="grid grid-cols-2 gap-4">
-          {OUTER_FIELDS.map((field) => (
-            <div key={field}>
-              <Label htmlFor={field} className="text-xs">
-                {t(`form.bearingClearance.fields.${field}`)}
-              </Label>
-              <Input
-                id={field}
-                type="number"
-                step="0.0001"
-                value={data[field as keyof BearingClearanceData]}
-                onChange={(e) => updateFn(field as keyof BearingClearanceData, Number(e.target.value))}
-                className="mt-1"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <h4 className="font-semibold mb-3">{t('form.bearingClearance.inner')}</h4>
-        <div className="grid grid-cols-2 gap-4">
-          {INNER_FIELDS.map((field) => (
-            <div key={field}>
-              <Label htmlFor={field} className="text-xs">
-                {t(`form.bearingClearance.fields.${field.replace('inner', '')}`)}
-              </Label>
-              <Input
-                id={field}
-                type="number"
-                step="0.0001"
-                value={data[field as keyof BearingClearanceData]}
-                onChange={(e) => updateFn(field as keyof BearingClearanceData, Number(e.target.value))}
-                className="mt-1"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="combined_with">{t('form.bearingClearance.combined_with.label')}</Label>
-          <Input
-            id="combined_with"
-            value={data.combined_with}
-            onChange={(e) => updateFn('combined_with', e.target.value)}
-            placeholder={t('form.bearingClearance.combined_with.placeholder')}
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <Label htmlFor="mating_part">{t('form.bearingClearance.mating_part.label')}</Label>
-          <Select
-            value={data.mating_part}
-            onValueChange={(value) => updateFn('mating_part', value as MatingPartType)}
-          >
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={MatingPartType.BUSHING}>
-                {t('form.bearingClearance.mating_part.bushing')}
-              </SelectItem>
-              <SelectItem value={MatingPartType.CONNECTION}>
-                {t('form.bearingClearance.mating_part.connection')}
-              </SelectItem>
-              <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                {t('form.bearingClearance.mating_part.nut_screw_sleeve')}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-    </div>
-  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -267,10 +436,18 @@ export function InspectionCreationModal({
                 id="date"
                 type="date"
                 value={date}
-                onChange={(e) => setDate(e.target.value)}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                  setDateError('');
+                }}
+                onBlur={handleDateBlur}
+                max={new Date().toISOString().split('T')[0]}
                 required
-                className="mt-1"
+                className={`mt-1 ${dateError ? 'border-red-500' : ''}`}
               />
+              {dateError && (
+                <p className="text-xs text-red-500 mt-1">{dateError}</p>
+              )}
             </div>
             <div>
               <Label htmlFor="performedBy">{t('form.performedBy.label')}</Label>
@@ -332,11 +509,21 @@ export function InspectionCreationModal({
               </TabsList>
 
               <TabsContent value="before" className="mt-4">
-                {renderBearingFields(beforeData, updateBeforeField)}
+                <RenderBearingFields
+                  data={beforeData}
+                  updateFn={updateBeforeField}
+                  errors={beforeErrors}
+                  handleBlur={handleBlurBefore}
+                />
               </TabsContent>
 
               <TabsContent value="after" className="mt-4">
-                {renderBearingFields(afterData, updateAfterField)}
+                <RenderBearingFields
+                  data={afterData}
+                  updateFn={updateAfterField}
+                  errors={afterErrors}
+                  handleBlur={handleBlurAfter}
+                />
               </TabsContent>
             </Tabs>
           </div>

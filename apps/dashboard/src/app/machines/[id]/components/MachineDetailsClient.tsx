@@ -14,7 +14,6 @@ import {
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { InspectionCreationModal } from './InspectionCreationModal';
-import { ServiceHistory } from './ServiceHistory';
 
 interface MachineField {
   fieldSlug: string;
@@ -73,7 +72,7 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
   };
 
   return (
-    <div className="space-y-6 p-4">
+    <>
       <div>
         <Link href="/machines" className="w-full flex items-center">
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -150,13 +149,11 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
         </Card>
       </div>
 
-      <ServiceHistory machineId={machine.id} />
-
       <InspectionCreationModal
         machineId={machine.id}
         open={isInspectionModalOpen}
         onOpenChange={setIsInspectionModalOpen}
       />
-    </div>
+    </>
   );
 }

@@ -242,7 +242,12 @@
         "loading": "Criando..."
       },
       "error": {
-        "title": "Erro:"
+        "title": "Erro:",
+        "required": "Este campo é obrigatório",
+        "invalidNumber": "Deve ser um número válido",
+        "minValue": "Valor mínimo é {min}",
+        "maxValue": "Valor máximo é {max}",
+        "futureDate": "A data não pode ser futura"
       }
     }
   },

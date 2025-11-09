@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { getMachineById } from '@/data/services/machines.api';
 import { MachineDetailsClient } from './components/MachineDetailsClient';
+import { ServiceHistory } from './components/ServiceHistory';
 import { notFound } from 'next/navigation';
 
 interface MachineDetailPageProps {
@@ -33,5 +34,10 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     notFound();
   }
 
-  return <MachineDetailsClient machine={response.data} />;
+  return (
+    <div className="space-y-6 p-4">
+      <MachineDetailsClient machine={response.data} />
+      <ServiceHistory machineId={id} />
+    </div>
+  );
 }

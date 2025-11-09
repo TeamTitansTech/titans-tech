@@ -1,22 +1,31 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wrench } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
+import type { Inspection } from '@/data/types/inspections.types';
 
 interface ServiceHistoryProps {
   machineId: string;
 }
 
 export async function ServiceHistory({ machineId }: ServiceHistoryProps) {
-  const t = useTranslations('machines');
+  const t = await getTranslations('machines');
 
-  const response = await getInspectionsByMachine(machineId);
+  let inspections: Inspection[] = [];
 
-  if (response.errors) {
-    console.error('❌ Erros ao buscar inspeções:', response.errors);
+  try {
+    const response = await getInspectionsByMachine(machineId);
+
+    if (response.errors) {
+      console.error('❌ Erros ao buscar inspeções:', response.errors);
+      inspections = [];
+    } else {
+      inspections = response.data || [];
+    }
+  } catch (error) {
+    console.error('❌ Erro ao buscar inspeções:', error);
+    inspections = [];
   }
-
-  const inspections = response.data || [];
 
   if (inspections.length === 0) {
     return (

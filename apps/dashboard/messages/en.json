@@ -235,7 +235,12 @@
         "loading": "Creating..."
       },
       "error": {
-        "title": "Error:"
+        "title": "Error:",
+        "required": "This field is required",
+        "invalidNumber": "Must be a valid number",
+        "minValue": "Minimum value is {min}",
+        "maxValue": "Maximum value is {max}",
+        "futureDate": "Date cannot be in the future"
       }
     }
   }

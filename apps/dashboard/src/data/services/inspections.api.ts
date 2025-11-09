@@ -1,5 +1,5 @@
 'use server';
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, revalidatePath } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
 import type {
   CreateInspectionPayload,
@@ -13,7 +13,10 @@ export const createInspection = async (payload: CreateInspectionPayload) => {
   });
 
   if (!response.errors) {
-    revalidateTag(`inspections-${payload.machineId}`, 'default');
+
+    revalidateTag(`inspections-${payload.machineId}`, 'max');
+
+    revalidatePath(`/machines/${payload.machineId}`);
   }
 
   return response;
