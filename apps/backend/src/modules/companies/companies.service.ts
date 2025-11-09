@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
 import { CreateCompanyDto, UpdateCompanyDto } from '@titans-tech/shared';
+import { FieldsErr } from '../../errors/err';
 
 @Injectable()
 export class CompaniesService {
@@ -23,6 +24,8 @@ export class CompaniesService {
   }
 
   async create(createCompanyDto: CreateCompanyDto) {
+    await this.validateSlugUniqueness(createCompanyDto.slug);
+
     return this.prisma.company.create({
       data: createCompanyDto,
     });
@@ -35,6 +38,10 @@ export class CompaniesService {
 
     if (!company) {
       throw new NotFoundException('Company not found');
+    }
+
+    if (updateCompanyDto.slug) {
+      await this.validateSlugUniqueness(updateCompanyDto.slug, id);
     }
 
     return this.prisma.company.update({
@@ -56,5 +63,15 @@ export class CompaniesService {
       where: { id },
     });
     return { success: true };
+  }
+
+  private async validateSlugUniqueness(slug: string, excludeId?: string) {
+    const existingCompany = await this.prisma.company.findUnique({
+      where: { slug },
+    });
+
+    if (existingCompany && existingCompany.id !== excludeId) {
+      throw FieldsErr({ slug: 'This slug is already in use' });
+    }
   }
 }

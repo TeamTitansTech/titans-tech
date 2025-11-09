@@ -83,6 +83,7 @@ export default function CompaniesManager({ onSelectCompany }: Props) {
       const response = await executeCreate({
         data: {
           name,
+          slug,
           logo: logo || undefined,
           brandColor: brandColor || undefined,
         },
@@ -97,6 +98,7 @@ export default function CompaniesManager({ onSelectCompany }: Props) {
         companyId: editingCompany.id,
         data: {
           name,
+          slug,
           logo: logo || undefined,
           brandColor: brandColor || undefined,
         },
@@ -164,32 +166,16 @@ export default function CompaniesManager({ onSelectCompany }: Props) {
               />
             </div>
 
-            {isCreating && (
-              <div className="flex flex-col gap-1">
-                <label htmlFor="slug" className="font-medium">
-                  Slug *
-                </label>
-                <input
-                  id="slug"
-                  type="text"
-                  value={slug}
-                  onChange={(e) => setSlug(e.target.value)}
-                  required
-                  disabled={isFormLoading}
-                  className="rounded border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100"
-                />
-              </div>
-            )}
-
             <div className="flex flex-col gap-1">
-              <label htmlFor="logo" className="font-medium">
-                Logo URL
+              <label htmlFor="slug" className="font-medium">
+                Slug *
               </label>
               <input
-                id="logo"
+                id="slug"
                 type="text"
-                value={logo}
-                onChange={(e) => setLogo(e.target.value)}
+                value={slug}
+                onChange={(e) => setSlug(e.target.value)}
+                required
                 disabled={isFormLoading}
                 className="rounded border border-gray-300 px-3 py-2 text-sm disabled:bg-gray-100"
               />

@@ -21,7 +21,7 @@ import {
   CreateCompanyBranchSchema,
 } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
-import { Admin, BranchPermission } from '../auth/auth.decorators';
+import { Admin, BranchPermission, CompanyAdmin } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
 import { CompanyBranchesService } from '../company-branches/company-branches.service';
 
@@ -55,7 +55,7 @@ export class CompaniesController {
   }
 
   @Patch(':companyId')
-  @BranchPermission('updateBranches')
+  @CompanyAdmin()
   update(
     @Param('companyId') companyId: string,
     @Body(new ZodValidationPipe(UpdateCompanySchema))
