@@ -27,6 +27,7 @@ import {
 } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
 import { CompanyBranchesService } from '../company-branches/company-branches.service';
+import { LoginDto, LoginSchema } from '../sysadmin/dto/login.dto';
 
 @Controller('companies')
 export class CompaniesController {
@@ -40,6 +41,19 @@ export class CompaniesController {
   @Get()
   findAll() {
     return this.companiesService.findAll();
+  }
+
+  @Public()
+  @Post(':companyId/login')
+  loginUser(
+    @Param('companyId') companyId: string,
+    @Body(new ZodValidationPipe(LoginSchema)) loginDto: LoginDto,
+  ) {
+    return this.usersService.login(
+      loginDto.email,
+      loginDto.password,
+      companyId,
+    );
   }
 
   @Public()

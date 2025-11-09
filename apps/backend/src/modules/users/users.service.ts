@@ -26,9 +26,12 @@ export class UsersService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
+  async login(email: string, password: string, companyId: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email,
+        companyId,
+      },
       include: {
         branches: {
           include: {

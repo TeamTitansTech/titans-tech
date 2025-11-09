@@ -1,6 +1,6 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import { CreateCompanyDto, UpdateCompanyDto } from '@titans-tech/shared';
+import { CreateCompanyDto, UpdateCompanyDto, UserResponseDto } from '@titans-tech/shared';
 
 export interface Company {
   id: string;
@@ -9,6 +9,21 @@ export interface Company {
   logo?: string | null;
   brandColor?: string | null;
 }
+
+export interface LoginResponse {
+  accessToken: string;
+  user: UserResponseDto;
+}
+
+export const loginUser = async (args: { companyId: string; email: string; password: string }) => {
+  return await responseHandler<LoginResponse>(`/companies/${args.companyId}/login`, {
+    method: 'POST',
+    body: {
+      email: args.email,
+      password: args.password,
+    },
+  });
+};
 
 export const getCompanyPublicInfo = async (args: { companySlug: string }) => {
   return await responseHandler<Company>(`/companies/${args.companySlug}/public-info`, {
