@@ -51,6 +51,12 @@ export async function responseHandler<T>(
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      if (process.env.NODE_ENV === 'development') {
+        console.error('API Error:', `${method} -- ${path}`, {
+          status: response.status,
+          errorData,
+        });
+      }
 
       // Handle 401 Unauthorized - Invalid or missing token
       if (response.status === 401) {
@@ -82,6 +88,9 @@ export async function responseHandler<T>(
     }
 
     const data = await response.json();
+    if (process.env.NODE_ENV === 'development') {
+      console.debug('API Response Data:', `${method} -- ${path}`, data);
+    }
     return { data, errors: null, rawErrors: null };
   } catch (error) {
     console.error('Error connecting to API', error);

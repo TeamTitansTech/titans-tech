@@ -23,14 +23,17 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:create-sys-admin": "tsx scripts/create-sys-admin.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
-    "bcryptjs": "^2.4.3"
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3"
   },
   "devDependencies": {
     "@titans-tech/tsconfig": "*",
+    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "prisma": "^6.0.0",
     "tsx": "^4.19.0",
