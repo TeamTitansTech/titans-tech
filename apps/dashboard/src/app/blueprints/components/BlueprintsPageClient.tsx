@@ -25,7 +25,7 @@ interface BlueprintsPageClientProps {
 export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-  const t = useTranslations('blueprints');
+  const t = useTranslations('models');
 
   const handleSuccess = () => {
     router.refresh();

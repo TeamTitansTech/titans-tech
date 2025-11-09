@@ -19,7 +19,9 @@
       "Bash(tree:*)",
       "Bash(test:*)",
       "Bash(npm:*)",
-      "Bash(npx eslint --fix)"
+      "Bash(npx eslint --fix)",
+      "Bash(npx tsc:*)",
+      "Bash(turbo run:*)"
     ],
     "deny": [],
     "ask": []

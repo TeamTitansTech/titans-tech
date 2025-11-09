@@ -29,9 +29,8 @@ export const INSPECTION_SECTION_CONFIG = {
 
 export const INSPECTION_SECTIONS = Object.values(InspectionSection);
 
-export const INSPECTION_SECTION_SLUGS = Object.values(INSPECTION_SECTION_CONFIG).map(
-  (config) => config.slug,
-);
+// INSPECTION_SECTION_SLUGS is now exported from inspection-sections.client.ts
+// to avoid Prisma client dependencies in client-side code
 
 export function getInspectionSectionFromSlug(slug: string): InspectionSection | undefined {
   const entry = Object.entries(INSPECTION_SECTION_CONFIG).find(
