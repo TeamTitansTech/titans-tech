@@ -10,6 +10,7 @@ import {
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { FormEvent, useState, useEffect } from 'react';
 import { Company } from '@/data/services/companies.api';
+import BranchUsersManager from './BranchUsersManager';
 
 interface Props {
   selectedCompany: Company | null;
@@ -21,6 +22,7 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
   const [editingBranch, setEditingBranch] = useState<CompanyBranch | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isCreatingMode, setIsCreatingMode] = useState(false);
+  const [managingUsersBranch, setManagingUsersBranch] = useState<CompanyBranch | null>(null);
 
   // Form state
   const [name, setName] = useState('');
@@ -84,7 +86,6 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
       }
     } else if (editingBranch) {
       const response = await executeUpdate({
-        companyId: selectedCompany.id,
         branchId: editingBranch.id,
         data: { name },
       });
@@ -103,7 +104,6 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
     }
 
     const response = await executeDelete({
-      companyId: selectedCompany.id,
       branchId,
     });
     if (response !== null) {
@@ -209,6 +209,13 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <button
+                      onClick={() => setManagingUsersBranch(branch)}
+                      disabled={isDeleting}
+                      className="mr-2 text-sm text-green-600 hover:underline disabled:text-gray-400"
+                    >
+                      Manage Users
+                    </button>
+                    <button
                       onClick={() => handleEditClick(branch)}
                       disabled={isDeleting}
                       className="mr-2 text-sm text-blue-600 hover:underline disabled:text-gray-400"
@@ -229,6 +236,14 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
           </table>
         )}
       </div>
+
+      {managingUsersBranch && (
+        <BranchUsersManager
+          selectedCompany={selectedCompany}
+          selectedBranch={managingUsersBranch}
+          onClose={() => setManagingUsersBranch(null)}
+        />
+      )}
     </div>
   );
 }

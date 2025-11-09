@@ -300,4 +300,98 @@ export class UsersService {
 
     return new UserResponseDto(updatedUser);
   }
+
+  async addUserToBranch(branchId: string, userId: string) {
+    const branch = await this.prisma.companyBranch.findUnique({
+      where: { id: branchId },
+    });
+
+    if (!branch) {
+      throw new NotFoundException('Branch not found');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.companyId !== branch.companyId) {
+      throw new ForbiddenException(
+        'User does not belong to the same company as the branch',
+      );
+    }
+
+    const existingUserBranch = await this.prisma.userBranch.findUnique({
+      where: {
+        userId_branchId: {
+          userId,
+          branchId,
+        },
+      },
+    });
+
+    if (existingUserBranch) {
+      throw new ForbiddenException('User is already assigned to this branch');
+    }
+
+    await this.prisma.userBranch.create({
+      data: {
+        userId,
+        branchId,
+      },
+    });
+
+    const updatedUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        branches: {
+          include: {
+            branch: true,
+          },
+        },
+      },
+    });
+
+    return new UserResponseDto(updatedUser);
+  }
+
+  async removeUserFromBranch(branchId: string, userId: string) {
+    const userBranch = await this.prisma.userBranch.findUnique({
+      where: {
+        userId_branchId: {
+          userId,
+          branchId,
+        },
+      },
+    });
+
+    if (!userBranch) {
+      throw new NotFoundException('User is not assigned to this branch');
+    }
+
+    await this.prisma.userBranch.delete({
+      where: {
+        userId_branchId: {
+          userId,
+          branchId,
+        },
+      },
+    });
+
+    const updatedUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        branches: {
+          include: {
+            branch: true,
+          },
+        },
+      },
+    });
+
+    return new UserResponseDto(updatedUser);
+  }
 }

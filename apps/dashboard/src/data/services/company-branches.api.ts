@@ -1,6 +1,10 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import { CreateCompanyBranchDto, UpdateCompanyBranchDto } from '@titans-tech/shared';
+import {
+  CreateCompanyBranchDto,
+  UpdateCompanyBranchDto,
+  UserResponseDto,
+} from '@titans-tech/shared';
 
 export interface CompanyBranch {
   id: string;
@@ -40,4 +44,22 @@ export const deleteBranch = async (args: { branchId: string }) => {
   return await responseHandler<void>(`/company-branches/${args.branchId}`, {
     method: 'DELETE',
   });
+};
+
+export const addUserToBranch = async (args: { branchId: string; userId: string }) => {
+  return await responseHandler<UserResponseDto>(
+    `/company-branches/${args.branchId}/users/${args.userId}`,
+    {
+      method: 'POST',
+    },
+  );
+};
+
+export const removeUserFromBranch = async (args: { branchId: string; userId: string }) => {
+  return await responseHandler<UserResponseDto>(
+    `/company-branches/${args.branchId}/users/${args.userId}`,
+    {
+      method: 'DELETE',
+    },
+  );
 };

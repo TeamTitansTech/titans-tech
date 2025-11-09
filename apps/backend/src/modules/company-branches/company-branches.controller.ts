@@ -56,4 +56,22 @@ export class CompanyBranchesController {
   ) {
     return this.usersService.createWithBranch(branchId, createUserDto);
   }
+
+  @BranchPermission('assignUserToBranch')
+  @Post(':branchId/users/:userId')
+  addUserToBranch(
+    @Param('branchId') branchId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.usersService.addUserToBranch(branchId, userId);
+  }
+
+  @BranchPermission('assignUserToBranch')
+  @Delete(':branchId/users/:userId')
+  removeUserFromBranch(
+    @Param('branchId') branchId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.usersService.removeUserFromBranch(branchId, userId);
+  }
 }
