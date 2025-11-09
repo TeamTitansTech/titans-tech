@@ -145,7 +145,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
             <SelectTrigger id={`field-${field.fieldSlug}`}>
               <SelectValue placeholder={t('form.fields.selectPlaceholder')} />
             </SelectTrigger>
-            <SelectContent className="bg-white">
+            <SelectContent>
               {field.fieldOptions?.map((option) => (
                 <SelectItem key={option} value={option}>
                   {option}
@@ -172,17 +172,17 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col">
+      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col bg-background">
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <DialogHeader className="p-6 pb-4 shrink-0">
-            <DialogTitle className="text-2xl">{t('title')}</DialogTitle>
-            <DialogDescription>{t('description')}</DialogDescription>
+          <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
+            <DialogTitle className="text-2xl text-foreground">{t('title')}</DialogTitle>
+            <DialogDescription className="text-muted-foreground">{t('description')}</DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 space-y-6 min-h-0 scrollbar-thin">
+          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
             <section className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold">{t('form.blueprint.label')}</h3>
+                <h3 className="text-lg font-semibold text-foreground">{t('form.blueprint.label')}</h3>
               </div>
 
               {isLoadingBlueprints ? (
@@ -198,19 +198,19 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
                         key={blueprint.id}
                         className={`cursor-pointer transition-all hover:shadow-md ${
                           isSelected
-                            ? 'ring-2 ring-primary border-primary bg-primary/5'
-                            : 'hover:border-primary/50'
+                            ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-500/10'
+                            : 'hover:border-orange-500/50'
                         }`}
                         onClick={() => handleBlueprintSelect(blueprint.id)}
                       >
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between">
                             <div className="flex items-start gap-3 flex-1">
-                              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                                <Boxes className="w-5 h-5 text-accent" />
+                              <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
+                                <Boxes className="w-5 h-5 text-orange-500" />
                               </div>
                               <div className="flex-1">
-                                <h4 className="font-semibold text-sm">{blueprint.name}</h4>
+                                <h4 className="font-semibold text-sm text-foreground">{blueprint.name}</h4>
                                 <p className="text-xs text-muted-foreground mt-1">
                                   {blueprint.sections.length} {t('sectionsCount')} •{' '}
                                   {blueprint.fields.length} {t('fieldsCount')}
@@ -218,7 +218,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
                               </div>
                             </div>
                             {isSelected && (
-                              <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                              <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
                                 <Check className="w-3 h-3 text-white" />
                               </div>
                             )}
@@ -262,7 +262,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
                             <Label htmlFor={`field-${field.fieldSlug}`}>{field.fieldName}</Label>
                             {renderFieldInput(field)}
                             <p className="text-xs text-muted-foreground">
-                              {t('form.fields.slug')}: <code>{field.fieldSlug}</code>
+                              {t('form.fields.slug')}: <code className="text-muted-foreground">{field.fieldSlug}</code>
                             </p>
                           </div>
                         </CardContent>
@@ -295,16 +295,20 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
             )}
           </div>
 
-          <div className="border-t p-6 flex justify-end gap-3 shrink-0">
+          <div className="border-t border-border p-6 flex justify-end gap-3 shrink-0 bg-background">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="hover:bg-action-orange hover:text-white hover:border-action-orange"
+              className="text-foreground border-border hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all"
             >
               {t('form.cancel')}
             </Button>
-            <Button type="submit" disabled={isLoading || !selectedBlueprint}>
+            <Button
+              type="submit"
+              disabled={isLoading || !selectedBlueprint}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
             </Button>
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PanelLeft, Search, Bell, UserCircle, LogOut, Settings } from 'lucide-react';
+import { PanelLeft, Search, Bell, UserCircle, LogOut, Settings, Moon, Sun } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -14,20 +14,22 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
 import { SettingsModal } from './SettingsModal';
+import { useTheme } from '@/hooks/useTheme';
 
 export function AppHeader() {
   const { toggleSidebar } = useSidebar();
   const t = useTranslations('header');
+  const { theme, toggleTheme, mounted } = useTheme();
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white">
+    <header className="sticky top-0 z-50 w-full border-b bg-background dark:bg-card">
       <div className="flex h-16 items-center gap-4 px-6">
         <Tooltip>
           <TooltipTrigger asChild>
             <button
               onClick={toggleSidebar}
-              className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 text-gray-600 hover:text-orange-500 transition-all duration-200"
+              className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200"
             >
               <PanelLeft className="h-5 w-5" />
             </button>
@@ -37,11 +39,11 @@ export function AppHeader() {
 
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="search"
               placeholder={t('searchPlaceholder')}
-              className="w-full h-10 pl-10 pr-4 rounded-md border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200"
+              className="w-full h-10 pl-10 pr-4 rounded-md border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder:text-muted-foreground"
             />
           </div>
         </div>
@@ -49,16 +51,33 @@ export function AppHeader() {
         <div className="flex items-center gap-2 ml-auto">
           <Tooltip>
             <TooltipTrigger asChild>
-              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 text-gray-600 hover:text-orange-500 transition-all duration-200">
+              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200">
                 <Bell className="h-5 w-5" />
               </button>
             </TooltipTrigger>
             <TooltipContent>{t('notifications')}</TooltipContent>
           </Tooltip>
 
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={toggleTheme}
+                className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200"
+                aria-label={t('toggleTheme')}
+              >
+                {mounted && (theme === 'dark' ? (
+                  <Sun className="h-5 w-5" />
+                ) : (
+                  <Moon className="h-5 w-5" />
+                ))}
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{t('toggleTheme')}</TooltipContent>
+          </Tooltip>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 text-gray-600 hover:text-orange-500 transition-all duration-200">
+              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200">
                 <UserCircle className="h-5 w-5" />
               </button>
             </DropdownMenuTrigger>

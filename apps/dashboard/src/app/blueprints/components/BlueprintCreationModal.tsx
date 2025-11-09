@@ -182,17 +182,20 @@ export const BlueprintCreationModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col">
+      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col bg-background">
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <DialogHeader className="p-6 pb-4 shrink-0">
-            <DialogTitle className="text-2xl">{t('title')}</DialogTitle>
-            <DialogDescription>{t('description')}</DialogDescription>
+          {/* Header with proper border */}
+          <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
+            <DialogTitle className="text-2xl text-foreground">{t('title')}</DialogTitle>
+            <DialogDescription className="text-muted-foreground">{t('description')}</DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 space-y-6 min-h-0 scrollbar-thin">
+          {/* Scrollable content area */}
+          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
+            {/* Basic Info Section */}
             <section className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-4">{t('form.basicInfo.title')}</h3>
+                <h3 className="text-lg font-semibold mb-4 text-foreground">{t('form.basicInfo.title')}</h3>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">{t('form.name.label')} *</Label>
@@ -211,9 +214,10 @@ export const BlueprintCreationModal = ({
 
             <Separator />
 
+            {/* Sections */}
             <section className="space-y-4">
               <div>
-                <h3 className=" mb-4">{t('form.sections.label')}</h3>
+                <h3 className="text-lg font-semibold mb-4 text-foreground">{t('form.sections.label')}</h3>
                 <div className="flex flex-wrap gap-2">
                   {AVAILABLE_SECTIONS.map((section) => {
                     const isSelected = selectedSections.includes(section);
@@ -226,8 +230,8 @@ export const BlueprintCreationModal = ({
                         onClick={() => toggleSection(section)}
                         className={
                           isSelected
-                            ? 'bg-primary text-primary-foreground font-bold hover:bg-primary/90 border-primary transition-all'
-                            : 'transition-all'
+                            ? 'bg-orange-500 text-white font-bold hover:bg-orange-600 border-orange-500 transition-all'
+                            : 'text-foreground border-border hover:bg-orange-100 hover:text-orange-500 hover:border-orange-500 dark:hover:bg-orange-500/20 dark:hover:text-white transition-all'
                         }
                       >
                         {tSections(section)}
@@ -240,28 +244,29 @@ export const BlueprintCreationModal = ({
 
             <Separator />
 
+            {/* Fields */}
             <section className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold">{t('form.fields.label')}</h3>
+                <h3 className="text-lg font-semibold text-foreground">{t('form.fields.label')}</h3>
                 <Button
                   type="button"
                   onClick={addField}
                   variant="outline"
                   size="sm"
-                  className="hover:bg-action-orange hover:text-white hover:border-action-orange"
+                  className="text-foreground border-border hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   {t('form.fields.addButton')}
                 </Button>
               </div>
 
-              <div className="space-y-4 pb-6">
+              <div className="space-y-4">
                 {fields.map((field, index) => (
                   <Card key={index}>
                     <CardContent className="pt-6">
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium">
+                          <span className="text-sm font-medium text-foreground">
                             {t('form.fields.fieldNumber', { number: index + 1 })}
                           </span>
                           {fields.length > 0 && (
@@ -270,7 +275,7 @@ export const BlueprintCreationModal = ({
                               onClick={() => removeField(index)}
                               variant="ghost"
                               size="sm"
-                              className="hover:bg-action-orange hover:text-white"
+                              className="hover:bg-orange-500 hover:text-white transition-all"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -309,9 +314,7 @@ export const BlueprintCreationModal = ({
                                 <SelectItem value="string">
                                   {t('form.fields.fieldType.string')}
                                 </SelectItem>
-                                <SelectItem value="int">
-                                  {t('form.fields.fieldType.int')}
-                                </SelectItem>
+                                <SelectItem value="int">{t('form.fields.fieldType.int')}</SelectItem>
                                 <SelectItem value="enum">
                                   {t('form.fields.fieldType.enum')}
                                 </SelectItem>
@@ -330,7 +333,7 @@ export const BlueprintCreationModal = ({
                                       key={optionIndex}
                                       className="flex items-center gap-1 bg-muted rounded-md px-3 py-1"
                                     >
-                                      <span className="text-sm">{option}</span>
+                                      <span className="text-sm text-foreground">{option}</span>
                                       <Button
                                         type="button"
                                         variant="ghost"
@@ -384,8 +387,9 @@ export const BlueprintCreationModal = ({
               </div>
             </section>
 
+            {/* Error Display */}
             {result?.errors && result.errors.length > 0 && (
-              <div className="rounded-md border border-destructive bg-destructive/10 p-4 mb-6">
+              <div className="rounded-md border border-destructive bg-destructive/10 p-4">
                 <h3 className="text-lg font-semibold mb-2 text-destructive">
                   {t('form.error.title')}
                 </h3>
@@ -400,16 +404,21 @@ export const BlueprintCreationModal = ({
             )}
           </div>
 
-          <div className="border-t p-6 flex justify-end gap-3 shrink-0">
+          {/* Footer with proper border and background */}
+          <div className="border-t border-border p-6 flex justify-end gap-3 shrink-0 bg-background">
             <Button
               type="button"
               variant="outline"
               onClick={onClose}
-              className="hover:bg-action-orange hover:text-white hover:border-action-orange"
+              className="text-foreground border-border hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all"
             >
               {t('form.cancel')}
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="bg-orange-500 hover:bg-orange-600 text-white"
+            >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
             </Button>
           </div>

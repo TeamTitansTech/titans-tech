@@ -261,7 +261,7 @@ export function BlueprintForm() {
                               <SelectTrigger id={`field-type-${index}`}>
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent className="bg-white">
+                              <SelectContent className="bg-popover">
                                 <SelectItem value="string">
                                   {t('form.fields.fieldType.string')}
                                 </SelectItem>

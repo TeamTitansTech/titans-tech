@@ -61,26 +61,26 @@
 }
 
 .dark {
-  --background: 210 20% 98.04%; /* rgb(249, 250, 251) */
-  --foreground: 215 25% 15%;
+  --background: 222 47% 11%; /* Dark navy background */
+  --foreground: 210 20% 98%;
 
-  --card: 0 0% 100%;
-  --card-foreground: 215 25% 15%;
+  --card: 217 33% 17%; /* Slightly lighter than background */
+  --card-foreground: 210 20% 98%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 215 25% 15%;
+  --popover: 217 33% 17%;
+  --popover-foreground: 210 20% 98%;
 
-  /* Industrial blue - primary brand */
-  --primary: 215 70% 25%;
+  /* Industrial blue - primary brand (brighter in dark) */
+  --primary: 215 80% 50%;
   --primary-foreground: 0 0% 98%;
 
   /* Steel gray - secondary */
-  --secondary: 210 10% 50%;
+  --secondary: 217 25% 23%;
   --secondary-foreground: 0 0% 98%;
 
   /* Muted backgrounds */
-  --muted: 210 15% 95%;
-  --muted-foreground: 215 15% 40%;
+  --muted: 217 25% 20%;
+  --muted-foreground: 215 20% 70%;
 
   /* Safety orange - accent for actions */
   --accent: 24 95% 53%; /* rgb(249, 116, 21) */
@@ -95,26 +95,26 @@
 
   /* Warning status */
   --warning: 38 92% 50%;
-  --warning-foreground: 0 0% 98%;
+  --warning-foreground: 0 0% 10%;
 
-  --border: 210 20% 88%;
-  --input: 210 20% 88%;
-  --ring: 215 70% 25%;
+  --border: 217 25% 25%;
+  --input: 217 25% 25%;
+  --ring: 24 95% 53%; /* Orange ring */
 
   --radius: 0.5rem;
 
   /* Action orange - for interactive hovers */
   --action-orange: 24 95% 53%; /* rgb(249, 116, 21) */
 
-  /* Sidebar - navy blue matching reference */
-  --sidebar: 217 33% 17%; /* #1e293b - navy blue */
-  --sidebar-background: 217 33% 17%;
+  /* Sidebar - darker in dark mode */
+  --sidebar: 222 47% 8%; /* Darker than background */
+  --sidebar-background: 222 47% 8%;
   --sidebar-foreground: 215 20% 90%;
   --sidebar-primary: 24 95% 53%; /* Orange for active state */
   --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 217 25% 23%;
+  --sidebar-accent: 217 25% 15%;
   --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 217 20% 28%;
+  --sidebar-border: 217 20% 20%;
   --sidebar-ring: 24 95% 53%; /* Orange ring */
 }
 

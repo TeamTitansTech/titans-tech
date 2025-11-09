@@ -122,7 +122,7 @@ export function MachineForm() {
             <SelectTrigger id={`field-${field.fieldSlug}`}>
               <SelectValue placeholder={t('form.fields.selectPlaceholder')} />
             </SelectTrigger>
-            <SelectContent className="bg-white">
+            <SelectContent className="bg-popover">
               {field.fieldOptions?.map((option) => (
                 <SelectItem key={option} value={option}>
                   {option}
@@ -174,7 +174,7 @@ export function MachineForm() {
                     }
                   />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent className="bg-popover">
                   {blueprints.map((blueprint) => (
                     <SelectItem key={blueprint.id} value={blueprint.id}>
                       {blueprint.name}
