@@ -8,7 +8,12 @@ interface StatCardProps {
   iconColor?: string;
 }
 
-export function StatCard({ title, value, icon: Icon, iconColor = 'text-orange-500' }: StatCardProps) {
+export function StatCard({
+  title,
+  value,
+  icon: Icon,
+  iconColor = 'text-orange-500',
+}: StatCardProps) {
   return (
     <Card className="border-border hover:shadow-md transition-shadow">
       <CardContent className="p-6">

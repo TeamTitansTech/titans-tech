@@ -69,7 +69,6 @@ export function LoginForm({
 
   return (
     <div className="flex min-h-screen">
-      {/* Left Side - Brand/Image */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-30"
@@ -87,7 +86,6 @@ export function LoginForm({
         </div>
       </div>
 
-      {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center lg:hidden mb-8">
