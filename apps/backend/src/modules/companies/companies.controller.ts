@@ -13,8 +13,6 @@ import {
   CreateCompanySchema,
   UpdateCompanyDto,
   UpdateCompanySchema,
-  SysAdminCreateUserDto,
-  SysAdminCreateUserSchema,
   UpdateUserDto,
   UpdateUserSchema,
   CreateCompanyBranchDto,
@@ -68,16 +66,6 @@ export class CompaniesController {
   @Delete(':companyId')
   remove(@Param('companyId') companyId: string) {
     return this.companiesService.remove(companyId);
-  }
-
-  @Admin()
-  @Post(':companyId/users')
-  createUser(
-    @Param('companyId') companyId: string,
-    @Body(new ZodValidationPipe(SysAdminCreateUserSchema))
-    createUserDto: SysAdminCreateUserDto,
-  ) {
-    return this.usersService.sysAdminCreateUser(companyId, createUserDto);
   }
 
   @BranchPermission('readUsers')

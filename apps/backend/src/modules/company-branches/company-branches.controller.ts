@@ -20,11 +20,13 @@ import {
   SetCompanyAdminSchema,
   SetCompanyManagerDto,
   SetCompanyManagerSchema,
+  SysAdminCreateUserDto,
+  SysAdminCreateUserSchema,
 } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, BranchPermission, CompanyAdmin } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
-import { ReqWithAuthUser } from '../../types/request';
+import { isSysAdmin, ReqWithAuthUser } from '../../types/request';
 
 @Controller('company-branches')
 export class CompanyBranchesController {
@@ -59,10 +61,16 @@ export class CompanyBranchesController {
   @Post(':branchId/users')
   createUser(
     @Param('branchId') branchId: string,
-    @Body(new ZodValidationPipe(CreateUserSchema))
-    createUserDto: CreateUserDto,
+    @Body()
+    createUserDto: CreateUserDto | SysAdminCreateUserDto,
+    @Request() req: ReqWithAuthUser,
   ) {
-    return this.usersService.createWithBranch(branchId, createUserDto);
+    if (isSysAdmin(req.user)) {
+      const sysAdminDto = SysAdminCreateUserSchema.parse(createUserDto);
+      return this.usersService.sysAdminCreateUser(branchId, sysAdminDto);
+    }
+    const userDto = CreateUserSchema.parse(createUserDto);
+    return this.usersService.createWithBranch(branchId, userDto);
   }
 
   @BranchPermission('assignUsersToBranches')

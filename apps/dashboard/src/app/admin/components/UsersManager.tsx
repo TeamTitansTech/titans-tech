@@ -1,6 +1,7 @@
 'use client';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { getAllUsers, createUser, updateUser, deleteUser } from '@/data/services/users.api';
+import { getAllBranches, CompanyBranch } from '@/data/services/company-branches.api';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { FormEvent, useState, useEffect } from 'react';
 import { Company } from '@/data/services/companies.api';
@@ -13,6 +14,7 @@ interface Props {
 export default function UsersManager({ selectedCompany }: Props) {
   const { sysAdminUser } = useSysAdmin();
   const [users, setUsers] = useState<UserResponseDto[]>([]);
+  const [branches, setBranches] = useState<CompanyBranch[]>([]);
   const [editingUser, setEditingUser] = useState<UserResponseDto | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [isCreatingMode, setIsCreatingMode] = useState(false);
@@ -20,9 +22,12 @@ export default function UsersManager({ selectedCompany }: Props) {
   // Form state
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [selectedBranchId, setSelectedBranchId] = useState('');
   const [isCompanyAdmin, setIsCompanyAdmin] = useState(false);
 
   const { execute: executeGetAll, isLoading: isLoadingList } = useLazyQuery(getAllUsers);
+  const { execute: executeGetBranches, isLoading: isLoadingBranches } =
+    useLazyQuery(getAllBranches);
   const { execute: executeCreate, isLoading: isCreating } = useLazyQuery(createUser);
   const { execute: executeUpdate, isLoading: isUpdating } = useLazyQuery(updateUser);
   const { execute: executeDelete, isLoading: isDeleting } = useLazyQuery(deleteUser);
@@ -35,11 +40,21 @@ export default function UsersManager({ selectedCompany }: Props) {
     }
   };
 
+  const loadBranches = async () => {
+    if (!selectedCompany) return;
+    const response = await executeGetBranches({ companyId: selectedCompany.id });
+    if (response?.data) {
+      setBranches(response.data);
+    }
+  };
+
   useEffect(() => {
     if (sysAdminUser && selectedCompany) {
       void loadUsers();
+      void loadBranches();
     } else {
       setUsers([]);
+      setBranches([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sysAdminUser, selectedCompany]);
@@ -50,6 +65,7 @@ export default function UsersManager({ selectedCompany }: Props) {
     setEditingUser(null);
     setName('');
     setEmail('');
+    setSelectedBranchId('');
     setIsCompanyAdmin(false);
   };
 
@@ -59,6 +75,7 @@ export default function UsersManager({ selectedCompany }: Props) {
     setEditingUser(user);
     setName(user.name || '');
     setEmail(user.email);
+    setSelectedBranchId('');
     setIsCompanyAdmin(user.isCompanyAdmin);
   };
 
@@ -68,6 +85,7 @@ export default function UsersManager({ selectedCompany }: Props) {
     setEditingUser(null);
     setName('');
     setEmail('');
+    setSelectedBranchId('');
     setIsCompanyAdmin(false);
   };
 
@@ -76,8 +94,13 @@ export default function UsersManager({ selectedCompany }: Props) {
     if (!selectedCompany) return;
 
     if (isCreatingMode) {
+      if (!selectedBranchId) {
+        alert('Please select a branch');
+        return;
+      }
+
       const response = await executeCreate({
-        companyId: selectedCompany.id,
+        branchId: selectedBranchId,
         data: {
           name,
           email,
@@ -155,6 +178,30 @@ export default function UsersManager({ selectedCompany }: Props) {
             {isCreatingMode ? 'Create New User' : 'Edit User'}
           </h3>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            {isCreatingMode && (
+              <div className="flex flex-col gap-1">
+                <label htmlFor="branch" className="font-medium">
+                  Branch *
+                </label>
+                <select
+                  id="branch"
+                  value={selectedBranchId}
+                  onChange={(e) => setSelectedBranchId(e.target.value)}
+                  required
+                  disabled={isFormLoading || isLoadingBranches}
+                  className="rounded border border-gray-300 px-3 py-2 disabled:bg-gray-100"
+                >
+                  <option value="">Select a branch</option>
+                  {branches.map((branch) => (
+                    <option key={branch.id} value={branch.id}>
+                      {branch.name}
+                      {branch.isMainBranch && ' (Main)'}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <div className="flex flex-col gap-1">
               <label htmlFor="email" className="font-medium">
                 Email *
@@ -183,18 +230,21 @@ export default function UsersManager({ selectedCompany }: Props) {
               />
             </div>
 
-            <div className="flex items-center gap-2">
-              <input
-                id="isCompanyAdmin"
-                type="checkbox"
-                checked={isCompanyAdmin}
-                onChange={(e) => setIsCompanyAdmin(e.target.checked)}
-                className="h-4 w-4"
-              />
-              <label htmlFor="isCompanyAdmin" className="font-medium">
-                Company Admin
-              </label>
-            </div>
+            {isCreatingMode && (
+              <div className="flex items-center gap-2">
+                <input
+                  id="isCompanyAdmin"
+                  type="checkbox"
+                  checked={isCompanyAdmin}
+                  onChange={(e) => setIsCompanyAdmin(e.target.checked)}
+                  disabled={isFormLoading}
+                  className="h-4 w-4"
+                />
+                <label htmlFor="isCompanyAdmin" className="font-medium">
+                  Company Admin
+                </label>
+              </div>
+            )}
 
             <div className="flex gap-2">
               <button

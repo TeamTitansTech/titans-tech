@@ -119,12 +119,20 @@ export class UsersService {
   }
 
   async sysAdminCreateUser(
-    companyId: string,
+    branchId: string,
     createUserDto: SysAdminCreateUserDto,
   ) {
     const existingUser = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
     });
+
+    const branch = await this.prisma.companyBranch.findUnique({
+      where: { id: branchId },
+    });
+
+    if (!branch) {
+      throw new NotFoundException('Branch not found');
+    }
 
     if (existingUser) {
       throw FieldsErr({ email: 'Email already in use' });
@@ -132,25 +140,43 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    const user = await this.prisma.user.create({
-      data: {
-        email: createUserDto.email,
-        name: createUserDto.name,
-        isCompanyAdmin: createUserDto.isCompanyAdmin ?? false,
-        password: hashedPassword,
-        isUsingDefaultPassword: true,
-        companyId,
-      },
-      include: {
-        branches: {
-          include: {
-            branch: true,
+    const result = await this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email: createUserDto.email,
+          name: createUserDto.name,
+          isCompanyAdmin: createUserDto.isCompanyAdmin ?? false,
+          password: hashedPassword,
+          isUsingDefaultPassword: true,
+          companyId: branch.companyId,
+        },
+        include: {
+          branches: {
+            include: {
+              branch: true,
+            },
           },
         },
-      },
-    });
+      });
+      await tx.userBranch.create({
+        data: {
+          userId: user.id,
+          branchId,
+        },
+      });
 
-    return new UserResponseDto(user);
+      return tx.user.findUnique({
+        where: { id: user.id },
+        include: {
+          branches: {
+            include: {
+              branch: true,
+            },
+          },
+        },
+      });
+    });
+    return new UserResponseDto(result);
   }
 
   async createWithBranch(branchId: string, createUserDto: CreateUserDto) {

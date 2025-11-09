@@ -1,6 +1,11 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import { SysAdminCreateUserDto, UpdateUserDto, UserResponseDto } from '@titans-tech/shared';
+import {
+  CreateUserDto,
+  SysAdminCreateUserDto,
+  UpdateUserDto,
+  UserResponseDto,
+} from '@titans-tech/shared';
 
 export const getAllUsers = async (args: { companyId: string }) => {
   return await responseHandler<UserResponseDto[]>(`/companies/${args.companyId}/users`, {
@@ -8,8 +13,11 @@ export const getAllUsers = async (args: { companyId: string }) => {
   });
 };
 
-export const createUser = async (args: { companyId: string; data: SysAdminCreateUserDto }) => {
-  return await responseHandler<UserResponseDto>(`/companies/${args.companyId}/users`, {
+export const createUser = async (args: {
+  branchId: string;
+  data: SysAdminCreateUserDto | CreateUserDto;
+}) => {
+  return await responseHandler<UserResponseDto>(`/company-branches/${args.branchId}/users`, {
     method: 'POST',
     body: args.data,
   });
