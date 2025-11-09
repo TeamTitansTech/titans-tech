@@ -4,6 +4,7 @@ import LoginForm from './components/LoginForm';
 import UpdatePassword from './components/UpdatePassword';
 import CompaniesManager from './components/CompaniesManager';
 import CompanyBranchesManager from './components/CompanyBranchesManager';
+import UsersManager from './components/UsersManager';
 import { useState } from 'react';
 import { Company } from '@/data/services/companies.api';
 
@@ -24,6 +25,7 @@ export default function AdminPage() {
             >
               ← Back to Companies
             </button>
+            <UsersManager selectedCompany={selectedCompany} />
             <CompanyBranchesManager selectedCompany={selectedCompany} />
           </div>
         )}
