@@ -85,8 +85,8 @@ export async function ServiceHistory({ machineId }: ServiceHistoryProps) {
                 <span
                   className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${
                     isCompleted
-                      ? 'bg-green-500 text-white'
-                      : 'bg-blue-500 text-white'
+                      ? 'bg-green-600 text-white dark:bg-green-500'
+                      : 'bg-blue-600 text-white dark:bg-blue-500'
                   }`}
                 >
                   {isCompleted ? t('completed') : t('inProgress')}

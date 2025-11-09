@@ -176,13 +176,17 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
         <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
           <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
             <DialogTitle className="text-2xl text-foreground">{t('title')}</DialogTitle>
-            <DialogDescription className="text-muted-foreground">{t('description')}</DialogDescription>
+            <DialogDescription className="text-muted-foreground">
+              {t('description')}
+            </DialogDescription>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
             <section className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-foreground">{t('form.blueprint.label')}</h3>
+                <h3 className="text-lg font-semibold text-foreground">
+                  {t('form.blueprint.label')}
+                </h3>
               </div>
 
               {isLoadingBlueprints ? (
@@ -210,7 +214,9 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
                                 <Boxes className="w-5 h-5 text-orange-500" />
                               </div>
                               <div className="flex-1">
-                                <h4 className="font-semibold text-sm text-foreground">{blueprint.name}</h4>
+                                <h4 className="font-semibold text-sm text-foreground">
+                                  {blueprint.name}
+                                </h4>
                                 <p className="text-xs text-muted-foreground mt-1">
                                   {blueprint.sections.length} {t('sectionsCount')} •{' '}
                                   {blueprint.fields.length} {t('fieldsCount')}
@@ -262,7 +268,8 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
                             <Label htmlFor={`field-${field.fieldSlug}`}>{field.fieldName}</Label>
                             {renderFieldInput(field)}
                             <p className="text-xs text-muted-foreground">
-                              {t('form.fields.slug')}: <code className="text-muted-foreground">{field.fieldSlug}</code>
+                              {t('form.fields.slug')}:{' '}
+                              <code className="text-muted-foreground">{field.fieldSlug}</code>
                             </p>
                           </div>
                         </CardContent>
@@ -296,18 +303,13 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
           </div>
 
           <div className="border-t border-border p-6 flex justify-end gap-3 shrink-0 bg-background">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={onClose}
-              className="text-foreground border-border hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all"
-            >
+            <Button type="button" variant="outline" onClick={onClose}>
               {t('form.cancel')}
             </Button>
             <Button
               type="submit"
               disabled={isLoading || !selectedBlueprint}
-              className="bg-orange-500 hover:bg-orange-600 text-white"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
             </Button>

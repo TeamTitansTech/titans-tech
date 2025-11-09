@@ -137,14 +137,14 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
                 min="0"
                 max="999999.9999"
                 value={data[field as keyof BearingClearanceData]}
-                onChange={(e) => updateFn(field as keyof BearingClearanceData, Number(e.target.value))}
+                onChange={(e) =>
+                  updateFn(field as keyof BearingClearanceData, Number(e.target.value))
+                }
                 onBlur={() => handleBlur(field as keyof BearingClearanceData)}
-                className={`mt-1 ${errors[field] ? 'border-red-500' : ''}`}
+                className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
                 required
               />
-              {errors[field] && (
-                <p className="text-xs text-red-500 mt-1">{errors[field]}</p>
-              )}
+              {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
             </div>
           ))}
         </div>
@@ -165,14 +165,14 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
                 min="0"
                 max="999999.9999"
                 value={data[field as keyof BearingClearanceData]}
-                onChange={(e) => updateFn(field as keyof BearingClearanceData, Number(e.target.value))}
+                onChange={(e) =>
+                  updateFn(field as keyof BearingClearanceData, Number(e.target.value))
+                }
                 onBlur={() => handleBlur(field as keyof BearingClearanceData)}
-                className={`mt-1 ${errors[field] ? 'border-red-500' : ''}`}
+                className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
                 required
               />
-              {errors[field] && (
-                <p className="text-xs text-red-500 mt-1">{errors[field]}</p>
-              )}
+              {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
             </div>
           ))}
         </div>
@@ -187,11 +187,11 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
             onChange={(e) => updateFn('combined_with', e.target.value)}
             onBlur={() => handleBlur('combined_with')}
             placeholder={t('form.bearingClearance.combined_with.placeholder')}
-            className={`mt-1 ${errors.combined_with ? 'border-red-500' : ''}`}
+            className={`mt-1 ${errors.combined_with ? 'border-destructive' : ''}`}
             required
           />
           {errors.combined_with && (
-            <p className="text-xs text-red-500 mt-1">{errors.combined_with}</p>
+            <p className="text-xs text-destructive mt-1">{errors.combined_with}</p>
           )}
         </div>
         <div>
@@ -234,8 +234,6 @@ export function InspectionCreationModal({
   const [performedBy, setPerformedBy] = useState('');
   const [beforeData, setBeforeData] = useState<BearingClearanceData>(defaultBearingData);
   const [afterData, setAfterData] = useState<BearingClearanceData>(defaultBearingData);
-  const [includeBefore, setIncludeBefore] = useState(true);
-  const [includeAfter, setIncludeAfter] = useState(false);
 
   const [beforeErrors, setBeforeErrors] = useState<Record<string, string>>({});
   const [afterErrors, setAfterErrors] = useState<Record<string, string>>({});
@@ -250,8 +248,6 @@ export function InspectionCreationModal({
       setPerformedBy('');
       setBeforeData(defaultBearingData);
       setAfterData(defaultBearingData);
-      setIncludeBefore(true);
-      setIncludeAfter(false);
       setBeforeErrors({});
       setAfterErrors({});
       setDateError('');
@@ -305,19 +301,26 @@ export function InspectionCreationModal({
     const MAX_DECIMAL = 999999.9999;
     const MIN_DECIMAL = 0;
 
-    const numericFields = [
-      ...OUTER_FIELDS,
-      ...INNER_FIELDS,
-    ] as (keyof BearingClearanceData)[];
+    const numericFields = [...OUTER_FIELDS, ...INNER_FIELDS] as (keyof BearingClearanceData)[];
 
     numericFields.forEach((field) => {
       const value = Number(data[field]);
       if (isNaN(value)) {
-        errors.push(t(`form.bearingClearance.fields.${field}`) + ': ' + t('form.error.invalidNumber'));
+        errors.push(
+          t(`form.bearingClearance.fields.${field}`) + ': ' + t('form.error.invalidNumber'),
+        );
       } else if (value < MIN_DECIMAL) {
-        errors.push(t(`form.bearingClearance.fields.${field}`) + ': ' + t('form.error.minValue', { min: MIN_DECIMAL }));
+        errors.push(
+          t(`form.bearingClearance.fields.${field}`) +
+            ': ' +
+            t('form.error.minValue', { min: MIN_DECIMAL }),
+        );
       } else if (value > MAX_DECIMAL) {
-        errors.push(t(`form.bearingClearance.fields.${field}`) + ': ' + t('form.error.maxValue', { max: MAX_DECIMAL }));
+        errors.push(
+          t(`form.bearingClearance.fields.${field}`) +
+            ': ' +
+            t('form.error.maxValue', { max: MAX_DECIMAL }),
+        );
       }
     });
 
@@ -371,18 +374,20 @@ export function InspectionCreationModal({
 
       const validationErrors: string[] = [];
 
-      if (includeBefore) {
+      if (isMaintenance) {
         const beforeErrors = validateBearingData(beforeData);
         if (beforeErrors.length > 0) {
-          validationErrors.push(...beforeErrors.map(err => `[${t('form.bearingClearance.before')}] ${err}`));
+          validationErrors.push(
+            ...beforeErrors.map((err) => `[${t('form.bearingClearance.before')}] ${err}`),
+          );
         }
       }
 
-      if (includeAfter) {
-        const afterErrors = validateBearingData(afterData);
-        if (afterErrors.length > 0) {
-          validationErrors.push(...afterErrors.map(err => `[${t('form.bearingClearance.after')}] ${err}`));
-        }
+      const afterErrors = validateBearingData(afterData);
+      if (afterErrors.length > 0) {
+        validationErrors.push(
+          ...afterErrors.map((err) => `[${t('form.bearingClearance.after')}] ${err}`),
+        );
       }
 
       if (validationErrors.length > 0) {
@@ -396,12 +401,11 @@ export function InspectionCreationModal({
         date: new Date(date).toISOString(),
         isMaintenance,
         performedBy: performedBy || undefined,
-        bearingClearance: (includeBefore || includeAfter) ? {
-          before: includeBefore ? beforeData : undefined,
-          after: includeAfter ? afterData : undefined,
-        } : undefined,
+        bearingClearance: {
+          before: isMaintenance ? beforeData : undefined,
+          after: afterData,
+        },
       };
-
 
       const response = await createInspection(payload);
 
@@ -418,7 +422,6 @@ export function InspectionCreationModal({
       setIsSubmitting(false);
     }
   };
-
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -443,11 +446,9 @@ export function InspectionCreationModal({
                 onBlur={handleDateBlur}
                 max={new Date().toISOString().split('T')[0]}
                 required
-                className={`mt-1 ${dateError ? 'border-red-500' : ''}`}
+                className={`mt-1 ${dateError ? 'border-destructive' : ''}`}
               />
-              {dateError && (
-                <p className="text-xs text-red-500 mt-1">{dateError}</p>
-              )}
+              {dateError && <p className="text-xs text-destructive mt-1">{dateError}</p>}
             </div>
             <div>
               <Label htmlFor="performedBy">{t('form.performedBy.label')}</Label>
@@ -475,57 +476,41 @@ export function InspectionCreationModal({
           <div>
             <h3 className="text-lg font-semibold mb-4">{t('form.bearingClearance.title')}</h3>
 
-            <div className="flex gap-4 mb-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="includeBefore"
-                  checked={includeBefore}
-                  onCheckedChange={(checked: boolean) => setIncludeBefore(checked)}
-                />
-                <Label htmlFor="includeBefore" className="cursor-pointer">
-                  {t('form.bearingClearance.before')}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="includeAfter"
-                  checked={includeAfter}
-                  onCheckedChange={(checked: boolean) => setIncludeAfter(checked)}
-                />
-                <Label htmlFor="includeAfter" className="cursor-pointer">
-                  {t('form.bearingClearance.after')}
-                </Label>
-              </div>
-            </div>
+            {isMaintenance ? (
+              <Tabs defaultValue="before" className="w-full">
+                <TabsList>
+                  <TabsTrigger value="before">{t('form.bearingClearance.before')}</TabsTrigger>
+                  <TabsTrigger value="after">{t('form.bearingClearance.after')}</TabsTrigger>
+                </TabsList>
 
-            <Tabs defaultValue="before" className="w-full">
-              <TabsList>
-                <TabsTrigger value="before" disabled={!includeBefore}>
-                  {t('form.bearingClearance.before')}
-                </TabsTrigger>
-                <TabsTrigger value="after" disabled={!includeAfter}>
-                  {t('form.bearingClearance.after')}
-                </TabsTrigger>
-              </TabsList>
+                <TabsContent value="before" className="mt-4">
+                  <RenderBearingFields
+                    data={beforeData}
+                    updateFn={updateBeforeField}
+                    errors={beforeErrors}
+                    handleBlur={handleBlurBefore}
+                  />
+                </TabsContent>
 
-              <TabsContent value="before" className="mt-4">
-                <RenderBearingFields
-                  data={beforeData}
-                  updateFn={updateBeforeField}
-                  errors={beforeErrors}
-                  handleBlur={handleBlurBefore}
-                />
-              </TabsContent>
-
-              <TabsContent value="after" className="mt-4">
+                <TabsContent value="after" className="mt-4">
+                  <RenderBearingFields
+                    data={afterData}
+                    updateFn={updateAfterField}
+                    errors={afterErrors}
+                    handleBlur={handleBlurAfter}
+                  />
+                </TabsContent>
+              </Tabs>
+            ) : (
+              <div className="mt-4">
                 <RenderBearingFields
                   data={afterData}
                   updateFn={updateAfterField}
                   errors={afterErrors}
                   handleBlur={handleBlurAfter}
                 />
-              </TabsContent>
-            </Tabs>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-3 pt-4">

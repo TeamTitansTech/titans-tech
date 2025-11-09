@@ -115,6 +115,8 @@
       "offline": "Desligada"
     },
     "location": "Localização",
+    "client": "Cliente",
+    "model": "Modelo",
     "viewDetails": "Ver Detalhes",
     "createdSuccessfully": "Máquina criada com sucesso",
     "sectionsCount": "seções",
