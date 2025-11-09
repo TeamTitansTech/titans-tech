@@ -1,12 +1,20 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Plus, Download, Wrench, Calendar } from 'lucide-react';
+import {
+  ArrowLeft,
+  Plus, Download,
+  Wrench,
+  Calendar,
+  ClipboardCheck
+} from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { InspectionCreationModal } from './InspectionCreationModal';
+import { ServiceHistory } from './ServiceHistory';
 
 interface MachineField {
   fieldSlug: string;
@@ -43,36 +51,9 @@ interface MachineDetailsClientProps {
   machine: Machine;
 }
 
-// Mock service history data
-const mockServiceHistory = [
-  {
-    id: '1',
-    type: 'Routine Inspection',
-    technician: 'John Smith',
-    date: '2024-01-15',
-    status: 'completed',
-  },
-  {
-    id: '2',
-    type: 'Maintenance',
-    technician: 'Sarah Johnson',
-    date: '2024-01-10',
-    status: 'completed',
-  },
-];
-
 export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
-
-  // Format the last inspection date
-  // const lastInspectionDate = new Date(machine.updatedAt).toLocaleDateString(
-  //   'pt-BR',
-  //   {
-  //     day: 'numeric',
-  //     month: 'long',
-  //     year: 'numeric',
-  //   }
-  // );
+  const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
 
   // Use useState with lazy initializer to avoid calling Date.now() during render
   const [daysSinceUpdate] = useState(() =>
@@ -85,11 +66,6 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
       : daysSinceUpdate === 1
         ? t('yesterday')
         : t('daysAgo', { days: daysSinceUpdate });
-
-  // const getFieldValue = (fieldSlug: string) => {
-  //   const field = machine.fields.find((f) => f.fieldSlug === fieldSlug);
-  //   return field?.value || '-';
-  // };
 
   const getFieldName = (fieldSlug: string) => {
     const blueprintField = machine.blueprint?.fields.find((f) => f.fieldSlug === fieldSlug);
@@ -150,6 +126,14 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
             <CardTitle>{t('actions')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
+            <Button
+              className="w-full justify-start"
+              size="lg"
+              onClick={() => setIsInspectionModalOpen(true)}
+            >
+              <ClipboardCheck className="w-5 h-5 mr-2" />
+              {t('createInspection')}
+            </Button>
             <Button className="w-full justify-start" size="lg" disabled>
               <Plus className="w-5 h-5 mr-2" />
               {t('createServiceRequest')}
@@ -166,39 +150,13 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t('serviceHistory')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {mockServiceHistory.map((entry) => (
-              <div
-                key={entry.id}
-                className="flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-0"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                    <Wrench className="w-5 h-5 text-accent" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-base">{entry.type}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {t('technician')}: {entry.technician}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(entry.date).toLocaleDateString('pt-BR')}
-                    </p>
-                  </div>
-                </div>
-                <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-500 text-white capitalize">
-                  {t('completed')}
-                </span>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <ServiceHistory machineId={machine.id} />
+
+      <InspectionCreationModal
+        machineId={machine.id}
+        open={isInspectionModalOpen}
+        onOpenChange={setIsInspectionModalOpen}
+      />
     </div>
   );
 }

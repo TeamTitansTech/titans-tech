@@ -101,6 +101,7 @@
     "newButton": "New Machine",
     "emptyState": "No machines found. Create your first machine to get started.",
     "noBlueprint": "No blueprint",
+    "noBlueprintAssigned": "No blueprint assigned",
     "errorLoading": "Error loading machines",
     "description": "Create a new machine",
     "status": {
@@ -114,6 +115,24 @@
     "createdSuccessfully": "Machine created successfully",
     "sectionsCount": "sections",
     "fieldsCount": "fields",
+    "operational": "Operational",
+    "machineSpecifications": "Machine Specifications",
+    "noFieldsConfigured": "No fields configured",
+    "today": "today",
+    "yesterday": "yesterday",
+    "daysAgo": "{days} days ago",
+    "actions": "Actions",
+    "createServiceRequest": "Create Service Request",
+    "createInspection": "Create Inspection",
+    "viewMaintenanceLog": "View Maintenance Log",
+    "downloadReports": "Download Reports",
+    "serviceHistory": "Service History",
+    "technician": "Technician",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "noInspectionsFound": "No inspections found",
+    "maintenanceInspection": "Maintenance",
+    "routineInspection": "Routine Inspection",
     "form": {
       "blueprint": {
         "label": "Blueprint",
@@ -140,6 +159,83 @@
       },
       "response": {
         "title": "Response:"
+      }
+    }
+  },
+  "inspections": {
+    "title": "Create Inspection",
+    "description": "Create a new bearing clearance inspection",
+    "createdSuccessfully": "Inspection created successfully",
+    "form": {
+      "date": {
+        "label": "Inspection Date",
+        "placeholder": "Select date"
+      },
+      "isMaintenance": {
+        "label": "Is Maintenance"
+      },
+      "performedBy": {
+        "label": "Performed By",
+        "placeholder": "Technician name"
+      },
+      "bearingClearance": {
+        "title": "Bearing Clearance Measurements",
+        "before": "Before Maintenance",
+        "after": "After Maintenance",
+        "outer": "Outer Measurements",
+        "inner": "Inner Measurements",
+        "combined_with": {
+          "label": "Combined With",
+          "placeholder": "Reference measurement"
+        },
+        "mating_part": {
+          "label": "Mating Part Type",
+          "bushing": "Bushing",
+          "connection": "Connection",
+          "nut_screw_sleeve": "Nut Screw Sleeve"
+        },
+        "fields": {
+          "TotalClearance_RH": "Total Clearance RH",
+          "TotalClearance_LH": "Total Clearance LH",
+          "totalClearance_RH": "Total Clearance RH",
+          "totalClearance_LH": "Total Clearance LH",
+          "MainBearings_RH": "Main Bearings RH",
+          "MainBearings_LH": "Main Bearings LH",
+          "mainBearings_RH": "Main Bearings RH",
+          "mainBearings_LH": "Main Bearings LH",
+          "UpperConnectionBearings_RH": "Upper Connection Bearings RH",
+          "UpperConnectionBearings_LH": "Upper Connection Bearings LH",
+          "upperConnectionBearings_RH": "Upper Connection Bearings RH",
+          "upperConnectionBearings_LH": "Upper Connection Bearings LH",
+          "WristPinToMatingPart_RH": "Wrist Pin to Mating Part RH",
+          "WristPinToMatingPart_LH": "Wrist Pin to Mating Part LH",
+          "wristPinToMatingPart_RH": "Wrist Pin to Mating Part RH",
+          "wristPinToMatingPart_LH": "Wrist Pin to Mating Part LH",
+          "WristPinToBushing_RH": "Wrist Pin to Bushing RH",
+          "WristPinToBushing_LH": "Wrist Pin to Bushing LH",
+          "wristPinToBushing_RH": "Wrist Pin to Bushing RH",
+          "wristPinToBushing_LH": "Wrist Pin to Bushing LH",
+          "Slide_adj_nut_to_screw_sleeve_RH": "Slide Adj Nut to Screw Sleeve RH",
+          "Slide_adj_nut_to_screw_sleeve_LH": "Slide Adj Nut to Screw Sleeve LH",
+          "slide_adj_nut_to_screw_sleeve_RH": "Slide Adj Nut to Screw Sleeve RH",
+          "slide_adj_nut_to_screw_sleeve_LH": "Slide Adj Nut to Screw Sleeve LH",
+          "Extra_double_lockOpen_RH": "Extra Double Lock Open RH",
+          "Extra_double_lockOpen_LH": "Extra Double Lock Open LH",
+          "extra_double_lockOpen_RH": "Extra Double Lock Open RH",
+          "extra_double_lockOpen_LH": "Extra Double Lock Open LH",
+          "Ball_box_area_RH": "Ball Box Area RH",
+          "Ball_box_area_LH": "Ball Box Area LH",
+          "ball_box_area_RH": "Ball Box Area RH",
+          "ball_box_area_LH": "Ball Box Area LH"
+        }
+      },
+      "cancel": "Cancel",
+      "submit": {
+        "idle": "Create Inspection",
+        "loading": "Creating..."
+      },
+      "error": {
+        "title": "Error:"
       }
     }
   }

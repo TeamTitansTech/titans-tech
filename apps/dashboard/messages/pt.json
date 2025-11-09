@@ -134,6 +134,11 @@
     "serviceHistory": "Histórico de Serviço",
     "technician": "Técnico",
     "completed": "Concluído",
+    "inProgress": "Em Andamento",
+    "createInspection": "Criar Vistoria",
+    "noInspectionsFound": "Nenhuma vistoria encontrada",
+    "maintenanceInspection": "Manutenção",
+    "routineInspection": "Inspeção de Rotina",
     "form": {
       "cancel": "Cancelar",
       "blueprint": {
@@ -161,6 +166,83 @@
       },
       "response": {
         "title": "Resposta:"
+      }
+    }
+  },
+  "inspections": {
+    "title": "Criar Vistoria",
+    "description": "Criar nova vistoria de bearing clearance",
+    "createdSuccessfully": "Vistoria criada com sucesso",
+    "form": {
+      "date": {
+        "label": "Data da Vistoria",
+        "placeholder": "Selecione a data"
+      },
+      "isMaintenance": {
+        "label": "É Manutenção"
+      },
+      "performedBy": {
+        "label": "Realizado Por",
+        "placeholder": "Nome do técnico"
+      },
+      "bearingClearance": {
+        "title": "Medições de Bearing Clearance",
+        "before": "Antes da Manutenção",
+        "after": "Depois da Manutenção",
+        "outer": "Medições Externas",
+        "inner": "Medições Internas",
+        "combined_with": {
+          "label": "Combinado Com",
+          "placeholder": "Medição de referência"
+        },
+        "mating_part": {
+          "label": "Tipo de Peça de Acoplamento",
+          "bushing": "Bucha",
+          "connection": "Conexão",
+          "nut_screw_sleeve": "Porca e Parafuso"
+        },
+        "fields": {
+          "TotalClearance_RH": "Folga Total RH",
+          "TotalClearance_LH": "Folga Total LH",
+          "totalClearance_RH": "Folga Total RH",
+          "totalClearance_LH": "Folga Total LH",
+          "MainBearings_RH": "Mancais Principais RH",
+          "MainBearings_LH": "Mancais Principais LH",
+          "mainBearings_RH": "Mancais Principais RH",
+          "mainBearings_LH": "Mancais Principais LH",
+          "UpperConnectionBearings_RH": "Mancais de Conexão Superior RH",
+          "UpperConnectionBearings_LH": "Mancais de Conexão Superior LH",
+          "upperConnectionBearings_RH": "Mancais de Conexão Superior RH",
+          "upperConnectionBearings_LH": "Mancais de Conexão Superior LH",
+          "WristPinToMatingPart_RH": "Pino de Pulso à Peça de Acoplamento RH",
+          "WristPinToMatingPart_LH": "Pino de Pulso à Peça de Acoplamento LH",
+          "wristPinToMatingPart_RH": "Pino de Pulso à Peça de Acoplamento RH",
+          "wristPinToMatingPart_LH": "Pino de Pulso à Peça de Acoplamento LH",
+          "WristPinToBushing_RH": "Pino de Pulso à Bucha RH",
+          "WristPinToBushing_LH": "Pino de Pulso à Bucha LH",
+          "wristPinToBushing_RH": "Pino de Pulso à Bucha RH",
+          "wristPinToBushing_LH": "Pino de Pulso à Bucha LH",
+          "Slide_adj_nut_to_screw_sleeve_RH": "Porca de Ajuste do Slide ao Parafuso RH",
+          "Slide_adj_nut_to_screw_sleeve_LH": "Porca de Ajuste do Slide ao Parafuso LH",
+          "slide_adj_nut_to_screw_sleeve_RH": "Porca de Ajuste do Slide ao Parafuso RH",
+          "slide_adj_nut_to_screw_sleeve_LH": "Porca de Ajuste do Slide ao Parafuso LH",
+          "Extra_double_lockOpen_RH": "Bloqueio Duplo Extra Aberto RH",
+          "Extra_double_lockOpen_LH": "Bloqueio Duplo Extra Aberto LH",
+          "extra_double_lockOpen_RH": "Bloqueio Duplo Extra Aberto RH",
+          "extra_double_lockOpen_LH": "Bloqueio Duplo Extra Aberto LH",
+          "Ball_box_area_RH": "Área da Caixa de Esferas RH",
+          "Ball_box_area_LH": "Área da Caixa de Esferas LH",
+          "ball_box_area_RH": "Área da Caixa de Esferas RH",
+          "ball_box_area_LH": "Área da Caixa de Esferas LH"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": {
+        "idle": "Criar Vistoria",
+        "loading": "Criando..."
+      },
+      "error": {
+        "title": "Erro:"
       }
     }
   },
