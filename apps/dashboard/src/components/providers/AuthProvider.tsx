@@ -21,30 +21,30 @@ async function getAuthToken() {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const { sysAdminUser, setSysAdminUser } = useSysAdmin();
-  const { companyUser, setCompanyUser } = useCompanyUser();
-  const pathname = usePathname();
+  // const { sysAdminUser, setSysAdminUser } = useSysAdmin();
+  // const { companyUser, setCompanyUser } = useCompanyUser();
+  // const pathname = usePathname();
 
-  useEffect(() => {
-    // Skip auth check on public routes
-    const publicRoutes = ['/login', '/admin/login', '/auth-test'];
-    if (publicRoutes.some((route) => pathname.startsWith(route))) {
-      return;
-    }
+  // useEffect(() => {
+  //   // Skip auth check on public routes
+  //   const publicRoutes = ['/login', '/admin/login', '/auth-test'];
+  //   if (publicRoutes.some((route) => pathname.startsWith(route))) {
+  //     return;
+  //   }
 
-    // Only restore context if not already set
-    if (!sysAdminUser && !companyUser) {
-      getAuthToken().then((data) => {
-        if (data) {
-          if (data.isSysAdmin) {
-            setSysAdminUser(data.user);
-          } else {
-            setCompanyUser(data.user);
-          }
-        }
-      });
-    }
-  }, [pathname, sysAdminUser, companyUser, setSysAdminUser, setCompanyUser]);
+  //   // Only restore context if not already set
+  //   if (!sysAdminUser && !companyUser) {
+  //     getAuthToken().then((data) => {
+  //       if (data) {
+  //         if (data.isSysAdmin) {
+  //           setSysAdminUser(data.user);
+  //         } else {
+  //           setCompanyUser(data.user);
+  //         }
+  //       }
+  //     });
+  //   }
+  // }, [pathname, sysAdminUser, companyUser, setSysAdminUser, setCompanyUser]);
 
   return <>{children}</>;
 }
