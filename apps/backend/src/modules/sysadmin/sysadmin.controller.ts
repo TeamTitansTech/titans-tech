@@ -5,6 +5,7 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Request,
+  Get,
 } from '@nestjs/common';
 import { SysAdminService } from './sysadmin.service';
 import { LoginDto, LoginSchema } from './dto/login.dto';
@@ -22,6 +23,12 @@ export class SysAdminController {
   @Post('login')
   async login(@Body(new ZodValidationPipe(LoginSchema)) loginDto: LoginDto) {
     return this.sysAdminService.login(loginDto);
+  }
+
+  @Admin()
+  @Get('me')
+  async getMe(@Request() req: ReqWithAuthUser) {
+    return this.sysAdminService.getMe(req.user.id);
   }
 
   @Admin()

@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { SysAdminModule } from './modules/sysadmin/sysadmin.module';
 import { CompaniesModule } from './modules/companies/companies.module';
 import { CompanyBranchesModule } from './modules/company-branches/company-branches.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CompanyBranchesModule } from './modules/company-branches/company-branch
     SysAdminModule,
     CompaniesModule,
     CompanyBranchesModule,
+    UsersModule,
     BlueprintsModule,
     MachinesModule,
     InspectionsModule,

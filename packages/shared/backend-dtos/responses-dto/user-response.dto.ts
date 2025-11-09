@@ -1,0 +1,59 @@
+import { Exclude, Type } from 'class-transformer';
+
+export class CompanyBranchDto {
+  id: string;
+  name: string;
+  companyId: string;
+  createdAt: Date;
+  updatedAt: Date;
+
+  constructor(partial: Partial<CompanyBranchDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+export class UserBranchDto {
+  userId: string;
+  branchId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  createUser: boolean;
+  updateUser: boolean;
+  deleteUser: boolean;
+  changeUserPermissions: boolean;
+  assignUserToBranch: boolean;
+
+  @Type(() => CompanyBranchDto)
+  branch: CompanyBranchDto;
+
+  constructor(partial: Partial<UserBranchDto>) {
+    Object.assign(this, partial);
+    if (partial.branch) {
+      this.branch = new CompanyBranchDto(partial.branch);
+    }
+  }
+}
+
+export class UserResponseDto {
+  id: string;
+  name: string | null;
+  email: string;
+  isCompanyAdmin: boolean;
+  isUsingDefaultPassword: boolean;
+  companyId: string;
+  createdAt: Date;
+  updatedAt: Date;
+
+  @Exclude()
+  password: string;
+
+  @Type(() => UserBranchDto)
+  branches: UserBranchDto[];
+
+  constructor(partial: Partial<UserResponseDto>) {
+    Object.assign(this, partial);
+    if (partial.branches) {
+      this.branches = partial.branches.map((branch) => new UserBranchDto(branch));
+    }
+  }
+}

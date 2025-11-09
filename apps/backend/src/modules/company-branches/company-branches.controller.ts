@@ -14,15 +14,19 @@ import {
   CreateCompanyBranchSchema,
   UpdateCompanyBranchDto,
   UpdateCompanyBranchSchema,
+  CreateUserDto,
+  CreateUserSchema,
 } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, BranchPermission } from '../auth/auth.decorators';
 import { ReqWithAuthUser } from '../../types/request';
+import { UsersService } from '../users/users.service';
 
 @Controller('company-branches')
 export class CompanyBranchesController {
   constructor(
     private readonly companyBranchesService: CompanyBranchesService,
+    private readonly usersService: UsersService,
   ) {}
 
   @Admin()
@@ -69,5 +73,20 @@ export class CompanyBranchesController {
   @Delete(':branchId')
   remove(@Param('branchId') branchId: string, @Request() req: ReqWithAuthUser) {
     return this.companyBranchesService.remove(branchId, req.companyId);
+  }
+
+  @BranchPermission('createUser')
+  @Post(':branchId/users')
+  createUser(
+    @Param('branchId') branchId: string,
+    @Body(new ZodValidationPipe(CreateUserSchema))
+    createUserDto: CreateUserDto,
+    @Request() req: ReqWithAuthUser,
+  ) {
+    return this.usersService.createWithBranch(
+      req.companyId,
+      branchId,
+      createUserDto,
+    );
   }
 }

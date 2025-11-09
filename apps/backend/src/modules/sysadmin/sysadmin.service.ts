@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../shared/prisma.service';
 import { LoginDto } from './dto/login.dto';
@@ -41,6 +45,18 @@ export class SysAdminService {
       accessToken,
       user: new SysAdminResponseDto(sysAdmin),
     };
+  }
+
+  async getMe(userId: string) {
+    const sysAdmin = await this.prisma.sysAdmin.findUnique({
+      where: { id: userId },
+    });
+
+    if (!sysAdmin) {
+      throw new NotFoundException('SysAdmin not found');
+    }
+
+    return new SysAdminResponseDto(sysAdmin);
   }
 
   async updatePassword(userId: string, data: UpdatePasswordDto) {
