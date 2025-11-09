@@ -18,7 +18,6 @@ export async function responseHandler<T>(
     method?: string;
     body?: any;
     headers?: Record<string, string>;
-    companyId?: string;
   },
 ): Promise<
   | { data: T; errors: null; rawErrors: null }
@@ -26,7 +25,7 @@ export async function responseHandler<T>(
 > {
   try {
     const token = await getCookie('auth_token');
-    const { body: requestBody, headers: customHeaders, method = 'GET', companyId } = options || {};
+    const { body: requestBody, headers: customHeaders, method = 'GET' } = options || {};
 
     const headers: Record<string, string> = {
       ...customHeaders,
@@ -40,11 +39,6 @@ export async function responseHandler<T>(
     // Add Authorization header if token is provided
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    // Add company ID header if provided
-    if (companyId) {
-      headers['x-company-id'] = companyId;
     }
 
     const response = await fetch(`${API_BASE_URL}${path}`, {

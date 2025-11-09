@@ -5,13 +5,10 @@ import {
   Body,
   Patch,
   Delete,
-  Request,
   Param,
 } from '@nestjs/common';
 import { CompanyBranchesService } from './company-branches.service';
 import {
-  CreateCompanyBranchDto,
-  CreateCompanyBranchSchema,
   UpdateCompanyBranchDto,
   UpdateCompanyBranchSchema,
   CreateUserDto,
@@ -19,7 +16,6 @@ import {
 } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, BranchPermission } from '../auth/auth.decorators';
-import { ReqWithAuthUser } from '../../types/request';
 import { UsersService } from '../users/users.service';
 
 @Controller('company-branches')
@@ -29,29 +25,10 @@ export class CompanyBranchesController {
     private readonly usersService: UsersService,
   ) {}
 
-  @Admin()
-  @Get()
-  findAll(@Request() req: ReqWithAuthUser) {
-    return this.companyBranchesService.findAll(req.companyId);
-  }
-
   @BranchPermission('read')
   @Get(':branchId')
-  findOne(
-    @Param('branchId') branchId: string,
-    @Request() req: ReqWithAuthUser,
-  ) {
-    return this.companyBranchesService.findOne(branchId, req.companyId);
-  }
-
-  @Admin()
-  @Post()
-  create(
-    @Body(new ZodValidationPipe(CreateCompanyBranchSchema))
-    createBranchDto: CreateCompanyBranchDto,
-    @Request() req: ReqWithAuthUser,
-  ) {
-    return this.companyBranchesService.create(req.companyId, createBranchDto);
+  findOne(@Param('branchId') branchId: string) {
+    return this.companyBranchesService.findOne(branchId);
   }
 
   @BranchPermission('updateUser')
@@ -60,19 +37,14 @@ export class CompanyBranchesController {
     @Param('branchId') branchId: string,
     @Body(new ZodValidationPipe(UpdateCompanyBranchSchema))
     updateBranchDto: UpdateCompanyBranchDto,
-    @Request() req: ReqWithAuthUser,
   ) {
-    return this.companyBranchesService.update(
-      branchId,
-      req.companyId,
-      updateBranchDto,
-    );
+    return this.companyBranchesService.update(branchId, updateBranchDto);
   }
 
   @Admin()
   @Delete(':branchId')
-  remove(@Param('branchId') branchId: string, @Request() req: ReqWithAuthUser) {
-    return this.companyBranchesService.remove(branchId, req.companyId);
+  remove(@Param('branchId') branchId: string) {
+    return this.companyBranchesService.remove(branchId);
   }
 
   @BranchPermission('createUser')
@@ -81,12 +53,7 @@ export class CompanyBranchesController {
     @Param('branchId') branchId: string,
     @Body(new ZodValidationPipe(CreateUserSchema))
     createUserDto: CreateUserDto,
-    @Request() req: ReqWithAuthUser,
   ) {
-    return this.usersService.createWithBranch(
-      req.companyId,
-      branchId,
-      createUserDto,
-    );
+    return this.usersService.createWithBranch(branchId, createUserDto);
   }
 }

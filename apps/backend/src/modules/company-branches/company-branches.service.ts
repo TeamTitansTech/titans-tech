@@ -15,9 +15,9 @@ export class CompanyBranchesService {
     });
   }
 
-  async findOne(id: string, companyId: string) {
-    const branch = await this.prisma.companyBranch.findFirst({
-      where: { id, companyId },
+  async findOne(id: string) {
+    const branch = await this.prisma.companyBranch.findUnique({
+      where: { id },
     });
 
     if (!branch) {
@@ -36,13 +36,9 @@ export class CompanyBranchesService {
     });
   }
 
-  async update(
-    id: string,
-    companyId: string,
-    updateBranchDto: UpdateCompanyBranchDto,
-  ) {
-    const branch = await this.prisma.companyBranch.findFirst({
-      where: { id, companyId },
+  async update(id: string, updateBranchDto: UpdateCompanyBranchDto) {
+    const branch = await this.prisma.companyBranch.findUnique({
+      where: { id },
     });
 
     if (!branch) {
@@ -55,9 +51,9 @@ export class CompanyBranchesService {
     });
   }
 
-  async remove(id: string, companyId: string) {
-    const branch = await this.prisma.companyBranch.findFirst({
-      where: { id, companyId },
+  async remove(id: string) {
+    const branch = await this.prisma.companyBranch.findUnique({
+      where: { id },
     });
 
     if (!branch) {

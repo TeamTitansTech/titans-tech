@@ -150,13 +150,9 @@ export class UsersService {
     return new UserResponseDto(user);
   }
 
-  async createWithBranch(
-    companyId: string,
-    branchId: string,
-    createUserDto: CreateUserDto,
-  ) {
-    const branch = await this.prisma.companyBranch.findFirst({
-      where: { id: branchId, companyId },
+  async createWithBranch(branchId: string, createUserDto: CreateUserDto) {
+    const branch = await this.prisma.companyBranch.findUnique({
+      where: { id: branchId },
     });
 
     if (!branch) {
@@ -181,7 +177,7 @@ export class UsersService {
           name: createUserDto.name,
           password: hashedPassword,
           isUsingDefaultPassword: true,
-          companyId,
+          companyId: branch.companyId,
         },
       });
 

@@ -18,17 +18,21 @@ import {
   SysAdminCreateUserSchema,
   UpdateUserDto,
   UpdateUserSchema,
+  CreateCompanyBranchDto,
+  CreateCompanyBranchSchema,
 } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, BranchPermission } from '../auth/auth.decorators';
 import { ReqWithAuthUser } from '../../types/request';
 import { UsersService } from '../users/users.service';
+import { CompanyBranchesService } from '../company-branches/company-branches.service';
 
 @Controller('companies')
 export class CompaniesController {
   constructor(
     private readonly companiesService: CompaniesService,
     private readonly usersService: UsersService,
+    private readonly companyBranchesService: CompanyBranchesService,
   ) {}
 
   @Admin()
@@ -38,9 +42,9 @@ export class CompaniesController {
   }
 
   @BranchPermission('read')
-  @Get('single')
-  findOne(@Request() req: ReqWithAuthUser) {
-    return this.companiesService.findOne(req.companyId);
+  @Get(':companyId')
+  findOne(@Param('companyId') companyId: string) {
+    return this.companiesService.findOne(companyId);
   }
 
   @Admin()
@@ -52,56 +56,71 @@ export class CompaniesController {
     return this.companiesService.create(createCompanyDto);
   }
 
-  @Patch('single')
+  @Patch(':companyId')
   @BranchPermission('read')
   update(
+    @Param('companyId') companyId: string,
     @Body(new ZodValidationPipe(UpdateCompanySchema))
     updateCompanyDto: UpdateCompanyDto,
-    @Request() req: ReqWithAuthUser,
   ) {
-    return this.companiesService.update(req.companyId, updateCompanyDto);
+    return this.companiesService.update(companyId, updateCompanyDto);
   }
 
   @Admin()
-  @Delete('single')
-  remove(@Request() req: ReqWithAuthUser) {
-    return this.companiesService.remove(req.companyId);
+  @Delete(':companyId')
+  remove(@Param('companyId') companyId: string) {
+    return this.companiesService.remove(companyId);
   }
 
   @Admin()
-  @Post('users')
+  @Post(':companyId/users')
   createUser(
+    @Param('companyId') companyId: string,
     @Body(new ZodValidationPipe(SysAdminCreateUserSchema))
     createUserDto: SysAdminCreateUserDto,
-    @Request() req: ReqWithAuthUser,
   ) {
-    return this.usersService.sysAdminCreateUser(req.companyId, createUserDto);
+    return this.usersService.sysAdminCreateUser(companyId, createUserDto);
   }
 
   @BranchPermission('read')
-  @Get('users')
-  findAllUsers(@Request() req: ReqWithAuthUser) {
-    return this.usersService.findAll(req.companyId);
+  @Get(':companyId/users')
+  findAllUsers(@Param('companyId') companyId: string) {
+    return this.usersService.findAll(companyId);
   }
 
   @BranchPermission('updateUser')
-  @Patch('users/:userId')
+  @Patch(':companyId/users/:userId')
   updateUser(
+    @Param('companyId') companyId: string,
     @Param('userId') userId: string,
     @Body(new ZodValidationPipe(UpdateUserSchema)) updateUserDto: UpdateUserDto,
     @Request() req: ReqWithAuthUser,
   ) {
-    return this.usersService.update(
-      userId,
-      req.companyId,
-      updateUserDto,
-      req.user,
-    );
+    return this.usersService.update(userId, companyId, updateUserDto, req.user);
   }
 
   @BranchPermission('deleteUser')
-  @Delete('users/:userId')
-  removeUser(@Param('userId') userId: string, @Request() req: ReqWithAuthUser) {
-    return this.usersService.remove(userId, req.companyId);
+  @Delete(':companyId/users/:userId')
+  removeUser(
+    @Param('companyId') companyId: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.usersService.remove(userId, companyId);
+  }
+
+  @BranchPermission('read')
+  @Get(':companyId/branches')
+  findAllBranches(@Param('companyId') companyId: string) {
+    return this.companyBranchesService.findAll(companyId);
+  }
+
+  @Admin()
+  @Post(':companyId/branches')
+  createBranch(
+    @Param('companyId') companyId: string,
+    @Body(new ZodValidationPipe(CreateCompanyBranchSchema))
+    createBranchDto: CreateCompanyBranchDto,
+  ) {
+    return this.companyBranchesService.create(companyId, createBranchDto);
   }
 }
