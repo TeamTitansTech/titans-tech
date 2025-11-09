@@ -11,7 +11,7 @@ import { UsersService } from './users.service';
 import { UpdatePasswordDto } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { UpdatePasswordSchema } from '@titans-tech/shared';
-import { BranchPermission, Public } from '../auth/auth.decorators';
+import { Authenticated, Public } from '../auth/auth.decorators';
 import { ReqWithAuthUser } from '../../types/request';
 import { LoginDto, LoginSchema } from '../sysadmin/dto/login.dto';
 
@@ -26,13 +26,13 @@ export class UsersController {
     return this.usersService.login(loginDto.email, loginDto.password);
   }
 
-  @BranchPermission('read')
+  @Authenticated()
   @Get('me')
   async getMe(@Request() req: ReqWithAuthUser) {
     return this.usersService.getMe(req.user.id);
   }
 
-  @BranchPermission('read')
+  @Authenticated()
   @Post('update-password')
   async updateOwnPassword(
     @Body(new ZodValidationPipe(UpdatePasswordSchema))

@@ -7,12 +7,14 @@ export const CreateUserSchema = z.object({
 
 export const SysAdminCreateUserSchema = CreateUserSchema.extend({
   isCompanyAdmin: z.boolean().optional().default(false),
+  isCompanyManager: z.boolean().optional().default(false),
 });
 
 export const UpdateUserSchema = z.object({
   email: z.email().optional(),
   name: z.string().min(1).optional(),
   isCompanyAdmin: z.boolean().optional(),
+  isCompanyManager: z.boolean().optional(),
 });
 
 export type SysAdminCreateUserDto = z.infer<typeof SysAdminCreateUserSchema>;

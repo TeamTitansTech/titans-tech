@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { SysAdminService } from './sysadmin.service';
 import { LoginDto, LoginSchema } from './dto/login.dto';
-import { Admin, Public } from '../auth/auth.decorators';
+import { Authenticated, Public } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { UpdatePasswordDto, UpdatePasswordSchema } from '@titans-tech/shared';
 import { ReqWithAuthUser } from 'src/types/request';
@@ -25,13 +25,13 @@ export class SysAdminController {
     return this.sysAdminService.login(loginDto);
   }
 
-  @Admin()
+  @Authenticated()
   @Get('me')
   async getMe(@Request() req: ReqWithAuthUser) {
     return this.sysAdminService.getMe(req.user.id);
   }
 
-  @Admin()
+  @Authenticated()
   @Post('update-password')
   async updatePassword(
     @Body(new ZodValidationPipe(UpdatePasswordSchema))

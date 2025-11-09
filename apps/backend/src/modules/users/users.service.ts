@@ -50,6 +50,7 @@ export class UsersService {
       id: user.id,
       companyId: user.companyId,
       isCompanyAdmin: user.isCompanyAdmin,
+      isCompanyManager: user.isCompanyManager,
       isSysAdmin: false,
     };
 
@@ -211,21 +212,26 @@ export class UsersService {
   ) {
     const existingUser = await this.prisma.user.findFirst({
       where: { id, companyId },
+      include: {
+        branches: {
+          include: {
+            branch: true,
+          },
+        },
+      },
     });
 
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
 
-    if (updateUserDto.email && updateUserDto.email !== existingUser.email) {
-      const emailInUse = await this.prisma.user.findUnique({
-        where: { email: updateUserDto.email },
-      });
-
-      if (emailInUse) {
-        throw FieldsErr({ email: 'Email already in use' });
-      }
-    }
+    this.validateCompanyAdminStatusChange(
+      updateUserDto,
+      existingUser,
+      userPayload,
+    );
+    this.validateManagerStatusRemoval(updateUserDto, existingUser, userPayload);
+    await this.validateEmailUniqueness(updateUserDto, existingUser);
 
     const updatedUser = await this.prisma.user.update({
       where: { id },
@@ -393,5 +399,58 @@ export class UsersService {
     });
 
     return new UserResponseDto(updatedUser);
+  }
+
+  private validateCompanyAdminStatusChange(
+    updateUserDto: UpdateUserDto,
+    existingUser: { isCompanyAdmin: boolean },
+    userPayload: JwtPayload,
+  ): void {
+    if (
+      updateUserDto.isCompanyAdmin !== undefined &&
+      updateUserDto.isCompanyAdmin !== existingUser.isCompanyAdmin
+    ) {
+      if (!isSysAdmin(userPayload)) {
+        throw new ForbiddenException(
+          'Only system administrators can change company admin status',
+        );
+      }
+    }
+  }
+
+  private validateManagerStatusRemoval(
+    updateUserDto: UpdateUserDto,
+    existingUser: { isCompanyManager: boolean },
+    userPayload: JwtPayload,
+  ): void {
+    if (
+      updateUserDto.isCompanyManager !== undefined &&
+      updateUserDto.isCompanyManager === false &&
+      existingUser.isCompanyManager
+    ) {
+      if (!isSysAdmin(userPayload)) {
+        const currentUser = userPayload as UserJwtPayload;
+        if (!currentUser.isCompanyAdmin) {
+          throw new ForbiddenException(
+            'Only company administrators or system administrators can remove manager status',
+          );
+        }
+      }
+    }
+  }
+
+  private async validateEmailUniqueness(
+    updateUserDto: UpdateUserDto,
+    existingUser: { email: string },
+  ): Promise<void> {
+    if (updateUserDto.email && updateUserDto.email !== existingUser.email) {
+      const emailInUse = await this.prisma.user.findUnique({
+        where: { email: updateUserDto.email },
+      });
+
+      if (emailInUse) {
+        throw FieldsErr({ email: 'Email already in use' });
+      }
+    }
   }
 }

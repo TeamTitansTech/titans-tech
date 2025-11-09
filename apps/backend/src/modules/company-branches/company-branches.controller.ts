@@ -25,13 +25,13 @@ export class CompanyBranchesController {
     private readonly usersService: UsersService,
   ) {}
 
-  @BranchPermission('read')
+  @BranchPermission('readBranches')
   @Get(':branchId')
   findOne(@Param('branchId') branchId: string) {
     return this.companyBranchesService.findOne(branchId);
   }
 
-  @BranchPermission('updateUser')
+  @BranchPermission('updateBranches')
   @Patch(':branchId')
   update(
     @Param('branchId') branchId: string,
@@ -47,7 +47,7 @@ export class CompanyBranchesController {
     return this.companyBranchesService.remove(branchId);
   }
 
-  @BranchPermission('createUser')
+  @BranchPermission('createUsers')
   @Post(':branchId/users')
   createUser(
     @Param('branchId') branchId: string,
@@ -57,7 +57,7 @@ export class CompanyBranchesController {
     return this.usersService.createWithBranch(branchId, createUserDto);
   }
 
-  @BranchPermission('assignUserToBranch')
+  @BranchPermission('assignUsersToBranches')
   @Post(':branchId/users/:userId')
   addUserToBranch(
     @Param('branchId') branchId: string,
@@ -66,7 +66,7 @@ export class CompanyBranchesController {
     return this.usersService.addUserToBranch(branchId, userId);
   }
 
-  @BranchPermission('assignUserToBranch')
+  @BranchPermission('assignUsersToBranches')
   @Delete(':branchId/users/:userId')
   removeUserFromBranch(
     @Param('branchId') branchId: string,

@@ -41,7 +41,7 @@ export class CompaniesController {
     return this.companiesService.findAll();
   }
 
-  @BranchPermission('read')
+  @BranchPermission('readBranches')
   @Get(':companyId')
   findOne(@Param('companyId') companyId: string) {
     return this.companiesService.findOne(companyId);
@@ -57,7 +57,7 @@ export class CompaniesController {
   }
 
   @Patch(':companyId')
-  @BranchPermission('read')
+  @BranchPermission('updateBranches')
   update(
     @Param('companyId') companyId: string,
     @Body(new ZodValidationPipe(UpdateCompanySchema))
@@ -82,13 +82,13 @@ export class CompaniesController {
     return this.usersService.sysAdminCreateUser(companyId, createUserDto);
   }
 
-  @BranchPermission('read')
+  @BranchPermission('readUsers')
   @Get(':companyId/users')
   findAllUsers(@Param('companyId') companyId: string) {
     return this.usersService.findAll(companyId);
   }
 
-  @BranchPermission('updateUser')
+  @BranchPermission('updateUsers')
   @Patch(':companyId/users/:userId')
   updateUser(
     @Param('companyId') companyId: string,
@@ -99,7 +99,7 @@ export class CompaniesController {
     return this.usersService.update(userId, companyId, updateUserDto, req.user);
   }
 
-  @BranchPermission('deleteUser')
+  @BranchPermission('deleteUsers')
   @Delete(':companyId/users/:userId')
   removeUser(
     @Param('companyId') companyId: string,
@@ -108,7 +108,7 @@ export class CompaniesController {
     return this.usersService.remove(userId, companyId);
   }
 
-  @BranchPermission('read')
+  @BranchPermission('readBranches')
   @Get(':companyId/branches')
   findAllBranches(@Param('companyId') companyId: string) {
     return this.companyBranchesService.findAll(companyId);

@@ -69,6 +69,7 @@ model User {
   email                  String  @unique
   password               String
   isCompanyAdmin         Boolean @default(false)
+  isCompanyManager       Boolean @default(false)
   isUsingDefaultPassword Boolean @default(true)
 
   createdAt DateTime @default(now())
@@ -89,11 +90,35 @@ model UserBranch {
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
-  createUser            Boolean @default(false)
-  updateUser            Boolean @default(false)
-  deleteUser            Boolean @default(false)
-  changeUserPermissions Boolean @default(false)
-  assignUserToBranch    Boolean @default(false)
+  // User Management Permissions
+  readUsers             Boolean @default(false)
+  createUsers           Boolean @default(false)
+  updateUsers           Boolean @default(false)
+  deleteUsers           Boolean @default(false)
+  manageUserPermissions Boolean @default(false)
+  assignUsersToBranches Boolean @default(false)
+
+  // Branch Management Permissions
+  readBranches   Boolean @default(false)
+  updateBranches Boolean @default(false)
+
+  // Blueprint Permissions
+  readBlueprints   Boolean @default(false)
+  createBlueprints Boolean @default(false)
+  updateBlueprints Boolean @default(false)
+  deleteBlueprints Boolean @default(false)
+
+  // Machine Permissions
+  readMachines   Boolean @default(false)
+  createMachines Boolean @default(false)
+  updateMachines Boolean @default(false)
+  deleteMachines Boolean @default(false)
+
+  // Inspection Permissions
+  readInspections   Boolean @default(false)
+  createInspections Boolean @default(false)
+  updateInspections Boolean @default(false)
+  deleteInspections Boolean @default(false)
 
   @@id([userId, branchId])
   @@map("user_branches")

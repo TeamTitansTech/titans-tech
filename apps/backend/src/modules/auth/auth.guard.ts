@@ -11,8 +11,11 @@ import { Request } from 'express';
 import {
   BRANCH_PERMISSION_KEY,
   BranchPermissionType,
-  IS_ADMIN_KEY,
+  IS_SYS_ADMIN_KEY,
+  IS_COMPANY_ADMIN_KEY,
+  IS_COMPANY_MANAGER_KEY,
   IS_PUBLIC_KEY,
+  IS_AUTHENTICATED_KEY,
 } from './auth.decorators';
 import { appEnv } from 'src/config/env';
 import {
@@ -42,12 +45,34 @@ export class AuthGuard implements CanActivate {
         [context.getHandler(), context.getClass()],
       );
 
-    const isAdmin = this.reflector.getAllAndOverride<boolean>(IS_ADMIN_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+    const requiresSysAdmin = this.reflector.getAllAndOverride<boolean>(
+      IS_SYS_ADMIN_KEY,
+      [context.getHandler(), context.getClass()],
+    );
 
-    if (!isAdmin && !requiredPermission && !isPublic) {
+    const requiresCompanyAdmin = this.reflector.getAllAndOverride<boolean>(
+      IS_COMPANY_ADMIN_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    const requiresCompanyManager = this.reflector.getAllAndOverride<boolean>(
+      IS_COMPANY_MANAGER_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    const isAuthenticated = this.reflector.getAllAndOverride<boolean>(
+      IS_AUTHENTICATED_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
+    if (
+      !requiresSysAdmin &&
+      !requiresCompanyAdmin &&
+      !requiresCompanyManager &&
+      !requiredPermission &&
+      !isPublic &&
+      !isAuthenticated
+    ) {
       if (appEnv.NODE_ENV == 'development') {
         throw new ForbiddenException(
           'Access denied: No access metadata defined for this route',
@@ -91,13 +116,40 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    if (isAdmin) {
+    // From this point on, we know the user is a regular user (not SysAdmin)
+    const userPayload = payload as UserJwtPayload;
+
+    // Handle @Authenticated routes - any authenticated user can access
+    if (isAuthenticated) {
+      return true;
+    }
+
+    if (requiresSysAdmin) {
       throw new ForbiddenException(
         'Access denied: Only system administrators can access this resource',
       );
     }
 
-    const userPayload = payload;
+    // Handle @CompanyAdmin routes - only CompanyAdmin can access (not Managers)
+    if (requiresCompanyAdmin) {
+      if (!userPayload.isCompanyAdmin) {
+        throw new ForbiddenException(
+          'Access denied: Only company administrators can access this resource',
+        );
+      }
+      return true;
+    }
+
+    // Handle @CompanyManager routes - CompanyManager or CompanyAdmin can access
+    if (requiresCompanyManager) {
+      if (!userPayload.isCompanyManager && !userPayload.isCompanyAdmin) {
+        throw new ForbiddenException(
+          'Access denied: Only company managers or administrators can access this resource',
+        );
+      }
+      return true;
+    }
+
     const branchId = request.params?.branchId;
     const companyId = request.params?.companyId;
 
@@ -151,8 +203,8 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    // If user is company admin, grant access
-    if (payload.isCompanyAdmin) {
+    // If user is company admin or manager, grant access
+    if (payload.isCompanyAdmin || payload.isCompanyManager) {
       return true;
     }
 
@@ -191,9 +243,9 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    if (!payload.isCompanyAdmin) {
+    if (!payload.isCompanyAdmin && !payload.isCompanyManager) {
       throw new ForbiddenException(
-        'Access denied: Only company administrators can access this resource',
+        'Access denied: Only company administrators or managers can access this resource',
       );
     }
 

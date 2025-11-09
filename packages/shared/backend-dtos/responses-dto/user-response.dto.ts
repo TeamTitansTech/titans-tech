@@ -17,11 +17,36 @@ export class UserBranchDto {
   branchId: string;
   createdAt: Date;
   updatedAt: Date;
-  createUser: boolean;
-  updateUser: boolean;
-  deleteUser: boolean;
-  changeUserPermissions: boolean;
-  assignUserToBranch: boolean;
+
+  // User Management Permissions
+  readUsers: boolean;
+  createUsers: boolean;
+  updateUsers: boolean;
+  deleteUsers: boolean;
+  manageUserPermissions: boolean;
+  assignUsersToBranches: boolean;
+
+  // Branch Management Permissions
+  readBranches: boolean;
+  updateBranches: boolean;
+
+  // Blueprint Permissions
+  readBlueprints: boolean;
+  createBlueprints: boolean;
+  updateBlueprints: boolean;
+  deleteBlueprints: boolean;
+
+  // Machine Permissions
+  readMachines: boolean;
+  createMachines: boolean;
+  updateMachines: boolean;
+  deleteMachines: boolean;
+
+  // Inspection Permissions
+  readInspections: boolean;
+  createInspections: boolean;
+  updateInspections: boolean;
+  deleteInspections: boolean;
 
   @Type(() => CompanyBranchDto)
   branch: CompanyBranchDto;
@@ -39,6 +64,7 @@ export class UserResponseDto {
   name: string | null;
   email: string;
   isCompanyAdmin: boolean;
+  isCompanyManager: boolean;
   isUsingDefaultPassword: boolean;
   companyId: string;
   createdAt: Date;
