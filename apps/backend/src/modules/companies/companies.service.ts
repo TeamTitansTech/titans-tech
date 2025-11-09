@@ -26,8 +26,22 @@ export class CompaniesService {
   async create(createCompanyDto: CreateCompanyDto) {
     await this.validateSlugUniqueness(createCompanyDto.slug);
 
-    return this.prisma.company.create({
-      data: createCompanyDto,
+    return this.prisma.$transaction(async (tx) => {
+      // Create the company
+      const company = await tx.company.create({
+        data: createCompanyDto,
+      });
+
+      // Create a main branch based on the company name
+      await tx.companyBranch.create({
+        data: {
+          name: createCompanyDto.name,
+          isMainBranch: true,
+          companyId: company.id,
+        },
+      });
+
+      return company;
     });
   }
 

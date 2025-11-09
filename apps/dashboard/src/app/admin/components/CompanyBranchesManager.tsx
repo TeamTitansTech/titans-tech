@@ -26,6 +26,7 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
 
   // Form state
   const [name, setName] = useState('');
+  const [isMainBranch, setIsMainBranch] = useState(false);
 
   const { execute: executeGetAll, isLoading: isLoadingList } = useLazyQuery(getAllBranches);
   const { execute: executeCreate, isLoading: isCreating } = useLazyQuery(createBranch);
@@ -54,6 +55,7 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
     setShowForm(true);
     setEditingBranch(null);
     setName('');
+    setIsMainBranch(false);
   };
 
   const handleEditClick = (branch: CompanyBranch) => {
@@ -61,6 +63,7 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
     setShowForm(true);
     setEditingBranch(branch);
     setName(branch.name);
+    setIsMainBranch(branch.isMainBranch);
   };
 
   const handleCancel = () => {
@@ -68,6 +71,7 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
     setIsCreatingMode(false);
     setEditingBranch(null);
     setName('');
+    setIsMainBranch(false);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -77,7 +81,7 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
     if (isCreatingMode) {
       const response = await executeCreate({
         companyId: selectedCompany.id,
-        data: { name },
+        data: { name, isMainBranch },
       });
 
       if (response?.data) {
@@ -87,7 +91,7 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
     } else if (editingBranch) {
       const response = await executeUpdate({
         branchId: editingBranch.id,
-        data: { name },
+        data: { name, isMainBranch },
       });
 
       if (response?.data) {
@@ -159,6 +163,20 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
               />
             </div>
 
+            <div className="flex items-center gap-2">
+              <input
+                id="isMainBranch"
+                type="checkbox"
+                checked={isMainBranch}
+                onChange={(e) => setIsMainBranch(e.target.checked)}
+                disabled={isFormLoading}
+                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label htmlFor="isMainBranch" className="font-medium">
+                Set as Main Branch
+              </label>
+            </div>
+
             <div className="flex gap-2">
               <button
                 type="submit"
@@ -196,6 +214,7 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
             <thead className="border-b border-gray-300 ">
               <tr>
                 <th className="px-4 py-3 text-left text-sm font-semibold">Name</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold">Main Branch</th>
                 <th className="px-4 py-3 text-left text-sm font-semibold">Created At</th>
                 <th className="px-4 py-3 text-right text-sm font-semibold">Actions</th>
               </tr>
@@ -204,6 +223,13 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
               {branches.map((branch) => (
                 <tr key={branch.id} className="border-b border-gray-200 last:border-b-0">
                   <td className="px-4 py-3 text-sm">{branch.name}</td>
+                  <td className="px-4 py-3 text-sm">
+                    {branch.isMainBranch && (
+                      <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                        Main
+                      </span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-sm text-gray-600">
                     {new Date(branch.createdAt).toLocaleDateString()}
                   </td>

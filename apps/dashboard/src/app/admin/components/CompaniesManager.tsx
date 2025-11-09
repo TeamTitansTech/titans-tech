@@ -150,6 +150,14 @@ export default function CompaniesManager({ onSelectCompany }: Props) {
           <h3 className="mb-4 text-lg font-semibold">
             {isCreatingMode ? 'Create New Company' : 'Edit Company'}
           </h3>
+          {isCreatingMode && (
+            <div className="mb-4 rounded bg-blue-50 p-3 text-sm text-blue-800">
+              <p>
+                ℹ️ A main branch with the company name will be automatically created for this
+                company.
+              </p>
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <label htmlFor="name" className="font-medium">

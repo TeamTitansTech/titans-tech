@@ -30,6 +30,18 @@ export class CompanyBranchesService {
   }
 
   async create(companyId: string, createBranchDto: CreateCompanyBranchDto) {
+    if (createBranchDto.isMainBranch) {
+      return this.prisma.$transaction(async (tx) => {
+        await this.unsetOtherMainBranches(tx, companyId);
+        return tx.companyBranch.create({
+          data: {
+            ...createBranchDto,
+            companyId,
+          },
+        });
+      });
+    }
+
     return this.prisma.companyBranch.create({
       data: {
         ...createBranchDto,
@@ -45,6 +57,16 @@ export class CompanyBranchesService {
 
     if (!branch) {
       throw new NotFoundException('Branch not found');
+    }
+
+    if (updateBranchDto.isMainBranch === true) {
+      return this.prisma.$transaction(async (tx) => {
+        await this.unsetOtherMainBranches(tx, branch.companyId, id);
+        return tx.companyBranch.update({
+          where: { id },
+          data: updateBranchDto,
+        });
+      });
     }
 
     return this.prisma.companyBranch.update({
@@ -109,5 +131,26 @@ export class CompanyBranchesService {
     });
 
     return new UserResponseDto(updatedUser);
+  }
+
+  private async unsetOtherMainBranches(
+    tx: any,
+    companyId: string,
+    excludeBranchId?: string,
+  ) {
+    await tx.companyBranch.updateMany({
+      where: {
+        companyId,
+        isMainBranch: true,
+        ...(excludeBranchId && {
+          NOT: {
+            id: excludeBranchId,
+          },
+        }),
+      },
+      data: {
+        isMainBranch: false,
+      },
+    });
   }
 }

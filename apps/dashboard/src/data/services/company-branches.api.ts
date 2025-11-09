@@ -9,6 +9,7 @@ import {
 export interface CompanyBranch {
   id: string;
   name: string;
+  isMainBranch: boolean;
   companyId: string;
   createdAt: Date;
   updatedAt: Date;
