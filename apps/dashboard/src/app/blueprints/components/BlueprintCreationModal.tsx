@@ -49,7 +49,7 @@ export const BlueprintCreationModal = ({
   onClose,
   onSuccess,
 }: BlueprintCreationModalProps) => {
-  const t = useTranslations('blueprints');
+  const t = useTranslations('models');
   const tSections = useTranslations('sections');
   const [name, setName] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
@@ -170,7 +170,7 @@ export const BlueprintCreationModal = ({
     const response = await submitBlueprint(payload);
 
     if (response.data) {
-      toast.success('Blueprint created successfully');
+      toast.success(t('createdSuccessfully'));
       setName('');
       setSelectedSections([]);
       setFields([]);

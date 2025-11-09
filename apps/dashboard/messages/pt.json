@@ -38,6 +38,7 @@
     "emptyState": "Nenhum modelo encontrado. Crie seu primeiro modelo para começar.",
     "noDescription": "Sem descrição",
     "errorLoading": "Erro ao carregar modelos",
+    "createdSuccessfully": "Modelo criado com sucesso",
     "description": "Crie um novo modelo de máquina",
     "form": {
       "basicInfo": {

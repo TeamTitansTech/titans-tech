@@ -38,6 +38,7 @@
     "emptyState": "No models found. Create your first model to get started.",
     "noDescription": "No description",
     "errorLoading": "Error loading models",
+    "createdSuccessfully": "Model created successfully",
     "description": "Create a new machine model",
     "form": {
       "name": {
