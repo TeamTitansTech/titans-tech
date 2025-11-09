@@ -81,9 +81,11 @@ export default function CompaniesManager({ onSelectCompany }: Props) {
 
     if (isCreatingMode) {
       const response = await executeCreate({
-        name,
-        logo: logo || undefined,
-        brandColor: brandColor || undefined,
+        data: {
+          name,
+          logo: logo || undefined,
+          brandColor: brandColor || undefined,
+        },
       });
 
       if (response?.data) {
@@ -91,10 +93,13 @@ export default function CompaniesManager({ onSelectCompany }: Props) {
         handleCancel();
       }
     } else if (editingCompany) {
-      const response = await executeUpdate(editingCompany.id, {
-        name,
-        logo: logo || undefined,
-        brandColor: brandColor || undefined,
+      const response = await executeUpdate({
+        companyId: editingCompany.id,
+        data: {
+          name,
+          logo: logo || undefined,
+          brandColor: brandColor || undefined,
+        },
       });
 
       if (response?.data) {
@@ -109,7 +114,7 @@ export default function CompaniesManager({ onSelectCompany }: Props) {
       return;
     }
 
-    const response = await executeDelete(companyId);
+    const response = await executeDelete({ companyId });
     if (response !== null) {
       await loadCompanies();
       if (editingCompany?.id === companyId) {

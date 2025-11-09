@@ -32,7 +32,7 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
 
   const loadBranches = async () => {
     if (!selectedCompany) return;
-    const response = await executeGetAll(selectedCompany.id);
+    const response = await executeGetAll({ companyId: selectedCompany.id });
     if (response?.data) {
       setBranches(response.data);
     }
@@ -73,14 +73,21 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
     if (!selectedCompany) return;
 
     if (isCreatingMode) {
-      const response = await executeCreate(selectedCompany.id, { name });
+      const response = await executeCreate({
+        companyId: selectedCompany.id,
+        data: { name },
+      });
 
       if (response?.data) {
         await loadBranches();
         handleCancel();
       }
     } else if (editingBranch) {
-      const response = await executeUpdate(selectedCompany.id, editingBranch.id, { name });
+      const response = await executeUpdate({
+        companyId: selectedCompany.id,
+        branchId: editingBranch.id,
+        data: { name },
+      });
 
       if (response?.data) {
         await loadBranches();
@@ -95,7 +102,10 @@ export default function CompanyBranchesManager({ selectedCompany }: Props) {
       return;
     }
 
-    const response = await executeDelete(selectedCompany.id, branchId);
+    const response = await executeDelete({
+      companyId: selectedCompany.id,
+      branchId,
+    });
     if (response !== null) {
       await loadBranches();
       if (editingBranch?.id === branchId) {

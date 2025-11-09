@@ -16,37 +16,31 @@ export const getAllCompanies = async () => {
   });
 };
 
-export const getCompany = async (companyId: string) => {
+export const getCompany = async (args?: { companyId?: string }) => {
   return await responseHandler<Company>('/companies/single', {
     method: 'GET',
-    headers: {
-      'x-company-id': companyId,
-    },
+    companyId: args?.companyId,
   });
 };
 
-export const createCompany = async (data: CreateCompanyDto) => {
+export const createCompany = async (args: { data: CreateCompanyDto }) => {
   return await responseHandler<Company>('/companies', {
     method: 'POST',
-    body: data,
+    body: args.data,
   });
 };
 
-export const updateCompany = async (companyId: string, data: UpdateCompanyDto) => {
+export const updateCompany = async (args: { companyId?: string; data: UpdateCompanyDto }) => {
   return await responseHandler<Company>('/companies/single', {
     method: 'PATCH',
-    body: data,
-    headers: {
-      'x-company-id': companyId,
-    },
+    body: args.data,
+    companyId: args.companyId,
   });
 };
 
-export const deleteCompany = async (companyId: string) => {
+export const deleteCompany = async (args?: { companyId?: string }) => {
   return await responseHandler<void>('/companies/single', {
     method: 'DELETE',
-    headers: {
-      'x-company-id': companyId,
-    },
+    companyId: args?.companyId,
   });
 };

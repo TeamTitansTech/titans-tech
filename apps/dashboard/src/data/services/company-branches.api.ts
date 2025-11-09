@@ -10,53 +10,43 @@ export interface CompanyBranch {
   updatedAt: Date;
 }
 
-export const getAllBranches = async (companyId: string) => {
+export const getAllBranches = async (args?: { companyId?: string }) => {
   return await responseHandler<CompanyBranch[]>('/company-branches', {
     method: 'GET',
-    headers: {
-      'x-company-id': companyId,
-    },
+    companyId: args?.companyId,
   });
 };
 
-export const getBranch = async (companyId: string, branchId: string) => {
-  return await responseHandler<CompanyBranch>(`/company-branches/${branchId}`, {
+export const getBranch = async (args: { companyId?: string; branchId: string }) => {
+  return await responseHandler<CompanyBranch>(`/company-branches/${args.branchId}`, {
     method: 'GET',
-    headers: {
-      'x-company-id': companyId,
-    },
+    companyId: args.companyId,
   });
 };
 
-export const createBranch = async (companyId: string, data: CreateCompanyBranchDto) => {
+export const createBranch = async (args: { companyId?: string; data: CreateCompanyBranchDto }) => {
   return await responseHandler<CompanyBranch>('/company-branches', {
     method: 'POST',
-    body: data,
-    headers: {
-      'x-company-id': companyId,
-    },
+    body: args.data,
+    companyId: args.companyId,
   });
 };
 
-export const updateBranch = async (
-  companyId: string,
-  branchId: string,
-  data: UpdateCompanyBranchDto,
-) => {
-  return await responseHandler<CompanyBranch>(`/company-branches/${branchId}`, {
+export const updateBranch = async (args: {
+  companyId?: string;
+  branchId: string;
+  data: UpdateCompanyBranchDto;
+}) => {
+  return await responseHandler<CompanyBranch>(`/company-branches/${args.branchId}`, {
     method: 'PATCH',
-    body: data,
-    headers: {
-      'x-company-id': companyId,
-    },
+    body: args.data,
+    companyId: args.companyId,
   });
 };
 
-export const deleteBranch = async (companyId: string, branchId: string) => {
-  return await responseHandler<void>(`/company-branches/${branchId}`, {
+export const deleteBranch = async (args: { companyId?: string; branchId: string }) => {
+  return await responseHandler<void>(`/company-branches/${args.branchId}`, {
     method: 'DELETE',
-    headers: {
-      'x-company-id': companyId,
-    },
+    companyId: args.companyId,
   });
 };
