@@ -10,7 +10,11 @@ import {
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { FormEvent, useState, useEffect } from 'react';
 
-export default function CompaniesManager() {
+interface Props {
+  onSelectCompany?: (company: Company | null) => void;
+}
+
+export default function CompaniesManager({ onSelectCompany }: Props) {
   const { sysAdminUser } = useSysAdmin();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
@@ -260,6 +264,14 @@ export default function CompaniesManager() {
                     )}
                   </td>
                   <td className="px-4 py-3 text-right">
+                    {onSelectCompany && (
+                      <button
+                        onClick={() => onSelectCompany(company)}
+                        className="mr-2 text-sm text-purple-600 hover:underline"
+                      >
+                        Manage Branches
+                      </button>
+                    )}
                     <button
                       onClick={() => handleEditClick(company)}
                       disabled={isDeleting}

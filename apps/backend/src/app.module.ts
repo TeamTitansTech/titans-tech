@@ -8,6 +8,7 @@ import { SharedModule } from './modules/shared/shared.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SysAdminModule } from './modules/sysadmin/sysadmin.module';
 import { CompaniesModule } from './modules/companies/companies.module';
+import { CompanyBranchesModule } from './modules/company-branches/company-branches.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
     AuthModule,
     SysAdminModule,
     CompaniesModule,
+    CompanyBranchesModule,
     BlueprintsModule,
     MachinesModule,
     InspectionsModule,

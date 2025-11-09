@@ -24,5 +24,7 @@ export function isSysAdmin(payload: JwtPayload): payload is SysAdminJwtPayload {
 
 export interface ReqWithAuthUser extends Request {
   user: JwtPayload;
+  companyIdFromHeader?: string;
   companyId: string;
+  branchId?: string;
 }
