@@ -1,6 +1,273 @@
 {
+  "common": {
+    "companyName": "InspectPro",
+    "companySubtitle": "Portal Admin"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "models": "Modelos",
+    "clients": "Clientes",
+    "allMachines": "Máquinas",
+    "services": "Serviços",
+    "settings": "Configurações"
+  },
+  "header": {
+    "toggleSidebar": "Alternar Barra Lateral",
+    "searchPlaceholder": "Buscar máquinas, modelos...",
+    "notifications": "Notificações",
+    "toggleTheme": "Alternar Modo Escuro",
+    "userProfile": "Perfil do Usuário",
+    "settings": "Configurações",
+    "logout": "Sair"
+  },
+  "settings": {
+    "title": "Configurações",
+    "description": "Gerencie suas preferências e configurações do aplicativo",
+    "language": {
+      "title": "Idioma e Região",
+      "label": "Selecionar Idioma",
+      "description": "Escolha seu idioma preferido para a interface"
+    },
+    "close": "Fechar",
+    "applying": "Aplicando alterações..."
+  },
   "dashboard": {
     "title": "Painel Titans Tech",
     "description": "Aplicação do Painel de Administração"
+  },
+  "sections": {
+    "bearing_clearance": "BEARING CLEARANCE",
+    "slide": "SLIDE",
+    "gibs": "GIBS",
+    "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRICATION / HYDRAULICS / PRESSURE SWITCHES / OIL & FILTER",
+    "clutch": "CLUTCH",
+    "counterbalance_cylinder_airbag": "COUNTERBALANCE CYLINDER / AIRBAG"
+  },
+  "models": {
+    "title": "Criar Modelo",
+    "pageTitle": "Modelos",
+    "pageDescription": "Gerenciar templates e especificações de máquinas",
+    "newButton": "Novo Modelo",
+    "emptyState": "Nenhum modelo encontrado. Crie seu primeiro modelo para começar.",
+    "noDescription": "Sem descrição",
+    "errorLoading": "Erro ao carregar modelos",
+    "createdSuccessfully": "Modelo criado com sucesso",
+    "description": "Crie um novo modelo de máquina",
+    "form": {
+      "basicInfo": {
+        "title": "Informações Básicas"
+      },
+      "cancel": "Cancelar",
+      "name": {
+        "label": "Nome",
+        "placeholder": "DACH"
+      },
+      "sections": {
+        "label": "Áreas de inspeção"
+      },
+      "fields": {
+        "label": "Campos *",
+        "addButton": "Adicionar Campo",
+        "fieldNumber": "Campo {number}",
+        "removeButton": "Remover",
+        "fieldName": {
+          "label": "Nome do Campo",
+          "placeholder": "ex: Número de Série"
+        },
+        "fieldType": {
+          "label": "Tipo do Campo",
+          "string": "Texto",
+          "int": "Inteiro",
+          "enum": "Enumeração"
+        },
+        "fieldOptions": {
+          "label": "Opções",
+          "placeholder": "ex: Tipo A",
+          "required": "Pelo menos uma opção é necessária para campos de enumeração"
+        }
+      },
+      "submit": {
+        "idle": "Criar Modelo",
+        "loading": "Enviando..."
+      },
+      "error": {
+        "title": "Erro:"
+      },
+      "response": {
+        "title": "Resposta:"
+      }
+    }
+  },
+  "machines": {
+    "title": "Criar Máquina",
+    "pageTitle": "Máquinas",
+    "pageDescription": "Gerenciar máquinas e seus campos",
+    "detailPageTitle": "Detalhes da Máquina",
+    "newButton": "Nova Máquina",
+    "emptyState": "Nenhuma máquina encontrada. Crie sua primeira máquina para começar.",
+    "noBlueprint": "Sem blueprint",
+    "noBlueprintAssigned": "Nenhum modelo atribuído",
+    "errorLoading": "Erro ao carregar máquinas",
+    "description": "Crie uma nova máquina",
+    "status": {
+      "operational": "Operacional",
+      "maintenance": "Manutenção",
+      "offline": "Desligada"
+    },
+    "location": "Localização",
+    "client": "Cliente",
+    "model": "Modelo",
+    "viewDetails": "Ver Detalhes",
+    "createdSuccessfully": "Máquina criada com sucesso",
+    "sectionsCount": "seções",
+    "fieldsCount": "campos",
+    "backToMachines": "Voltar para Máquinas",
+    "operational": "Operacional",
+    "machineSpecifications": "Especificações da Máquina",
+    "noFieldsConfigured": "Nenhum campo configurado",
+    "lastInspection": "Última Inspeção",
+    "today": "hoje",
+    "yesterday": "ontem",
+    "daysAgo": "há {days} dias",
+    "actions": "Ações",
+    "createServiceRequest": "Criar Solicitação de Serviço",
+    "viewMaintenanceLog": "Ver Histórico de Manutenção",
+    "downloadReports": "Baixar Relatórios",
+    "serviceHistory": "Histórico de Serviço",
+    "technician": "Técnico",
+    "completed": "Concluído",
+    "inProgress": "Em Andamento",
+    "createInspection": "Criar Vistoria",
+    "noInspectionsFound": "Nenhuma vistoria encontrada",
+    "maintenanceInspection": "Manutenção",
+    "routineInspection": "Inspeção de Rotina",
+    "form": {
+      "cancel": "Cancelar",
+      "blueprint": {
+        "label": "Modelo",
+        "placeholder": "Selecione um modelo",
+        "loading": "Carregando modelos..."
+      },
+      "name": {
+        "label": "Nome da Máquina",
+        "placeholder": "ex: Máquina #002"
+      },
+      "fields": {
+        "label": "Campos",
+        "placeholder": "Digite o valor",
+        "selectPlaceholder": "Selecione uma opção",
+        "slug": "Slug"
+      },
+      "selectBlueprintPrompt": "Selecione um modelo para começar",
+      "submit": {
+        "idle": "Criar Máquina",
+        "loading": "Enviando..."
+      },
+      "error": {
+        "title": "Erro:"
+      },
+      "response": {
+        "title": "Resposta:"
+      }
+    }
+  },
+  "inspections": {
+    "title": "Criar Vistoria",
+    "description": "Criar nova vistoria de bearing clearance",
+    "createdSuccessfully": "Vistoria criada com sucesso",
+    "form": {
+      "date": {
+        "label": "Data da Vistoria",
+        "placeholder": "Selecione a data"
+      },
+      "isMaintenance": {
+        "label": "É Manutenção"
+      },
+      "performedBy": {
+        "label": "Realizado Por",
+        "placeholder": "Nome do técnico"
+      },
+      "bearingClearance": {
+        "title": "Medições de Bearing Clearance",
+        "before": "Antes da Manutenção",
+        "after": "Depois da Manutenção",
+        "outer": "Medições Externas",
+        "inner": "Medições Internas",
+        "combined_with": {
+          "label": "Combinado Com",
+          "placeholder": "Medição de referência"
+        },
+        "mating_part": {
+          "label": "Tipo de Peça de Acoplamento",
+          "bushing": "Bucha",
+          "connection": "Conexão",
+          "nut_screw_sleeve": "Porca e Parafuso"
+        },
+        "fields": {
+          "TotalClearance_RH": "Folga Total RH",
+          "TotalClearance_LH": "Folga Total LH",
+          "totalClearance_RH": "Folga Total RH",
+          "totalClearance_LH": "Folga Total LH",
+          "MainBearings_RH": "Mancais Principais RH",
+          "MainBearings_LH": "Mancais Principais LH",
+          "mainBearings_RH": "Mancais Principais RH",
+          "mainBearings_LH": "Mancais Principais LH",
+          "UpperConnectionBearings_RH": "Mancais de Conexão Superior RH",
+          "UpperConnectionBearings_LH": "Mancais de Conexão Superior LH",
+          "upperConnectionBearings_RH": "Mancais de Conexão Superior RH",
+          "upperConnectionBearings_LH": "Mancais de Conexão Superior LH",
+          "WristPinToMatingPart_RH": "Pino de Pulso à Peça de Acoplamento RH",
+          "WristPinToMatingPart_LH": "Pino de Pulso à Peça de Acoplamento LH",
+          "wristPinToMatingPart_RH": "Pino de Pulso à Peça de Acoplamento RH",
+          "wristPinToMatingPart_LH": "Pino de Pulso à Peça de Acoplamento LH",
+          "WristPinToBushing_RH": "Pino de Pulso à Bucha RH",
+          "WristPinToBushing_LH": "Pino de Pulso à Bucha LH",
+          "wristPinToBushing_RH": "Pino de Pulso à Bucha RH",
+          "wristPinToBushing_LH": "Pino de Pulso à Bucha LH",
+          "Slide_adj_nut_to_screw_sleeve_RH": "Porca de Ajuste do Slide ao Parafuso RH",
+          "Slide_adj_nut_to_screw_sleeve_LH": "Porca de Ajuste do Slide ao Parafuso LH",
+          "slide_adj_nut_to_screw_sleeve_RH": "Porca de Ajuste do Slide ao Parafuso RH",
+          "slide_adj_nut_to_screw_sleeve_LH": "Porca de Ajuste do Slide ao Parafuso LH",
+          "Extra_double_lockOpen_RH": "Bloqueio Duplo Extra Aberto RH",
+          "Extra_double_lockOpen_LH": "Bloqueio Duplo Extra Aberto LH",
+          "extra_double_lockOpen_RH": "Bloqueio Duplo Extra Aberto RH",
+          "extra_double_lockOpen_LH": "Bloqueio Duplo Extra Aberto LH",
+          "Ball_box_area_RH": "Área da Caixa de Esferas RH",
+          "Ball_box_area_LH": "Área da Caixa de Esferas LH",
+          "ball_box_area_RH": "Área da Caixa de Esferas RH",
+          "ball_box_area_LH": "Área da Caixa de Esferas LH"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": {
+        "idle": "Criar Vistoria",
+        "loading": "Criando..."
+      },
+      "error": {
+        "title": "Erro:",
+        "required": "Este campo é obrigatório",
+        "invalidNumber": "Deve ser um número válido",
+        "minValue": "Valor mínimo é {min}",
+        "maxValue": "Valor máximo é {max}",
+        "futureDate": "A data não pode ser futura"
+      }
+    }
+  },
+  "login": {
+    "title": "Bem-vindo de volta",
+    "description": "Faça login para acessar seu painel",
+    "subtitle": "Plataforma de Gestão e Inspeção de Máquinas Industriais",
+    "form": {
+      "email": {
+        "label": "Endereço de Email",
+        "placeholder": "usuario@empresa.com"
+      },
+      "password": {
+        "label": "Senha",
+        "placeholder": "••••••••"
+      },
+      "forgotPassword": "Esqueceu a senha?",
+      "submit": "Entrar"
+    }
   }
 }

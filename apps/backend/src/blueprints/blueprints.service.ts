@@ -1,5 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@titans-tech/db';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
+import { Prisma, InspectionSection } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateBlueprintDto } from './dto/create-blueprint.dto';
 
@@ -8,15 +12,34 @@ export class BlueprintsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createBlueprintDto: CreateBlueprintDto) {
+    const sections = this.validateSections(createBlueprintDto.sections);
+
     const blueprint = await this.prisma.blueprint.create({
       data: {
         name: createBlueprintDto.name,
         fields: createBlueprintDto.fields as unknown as Prisma.InputJsonValue,
-        sections: createBlueprintDto.sections,
+        sections: sections,
       },
     });
 
     return blueprint;
+  }
+
+  private validateSections(sections: InspectionSection[]): InspectionSection[] {
+    const validSections = Object.values(InspectionSection);
+
+    return sections.map((section) => {
+      const normalizedSection =
+        typeof section === 'string' ? section.toUpperCase() : section;
+
+      if (!validSections.includes(normalizedSection as InspectionSection)) {
+        throw new BadRequestException(
+          `Invalid inspection section: ${section}. Valid values are: ${validSections.join(', ')}`,
+        );
+      }
+
+      return normalizedSection as InspectionSection;
+    });
   }
 
   async findAll() {
