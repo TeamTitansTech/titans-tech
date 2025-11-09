@@ -18,14 +18,15 @@ import {
   IS_AUTHENTICATED_KEY,
 } from './auth.decorators';
 import { appEnv } from 'src/config/env';
-import {
-  JwtPayload,
-  isSysAdmin,
-  UserJwtPayload,
-  ReqWithAuthUser,
-} from 'src/types/request';
+import { JwtPayload, isSysAdmin, ReqWithAuthUser } from 'src/types/request';
 import { PrismaService } from '../shared/prisma.service';
 
+type CurrentUserInfo = {
+  id: string;
+  companyId: string;
+  isCompanyAdmin: boolean;
+  isCompanyManager: boolean;
+};
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
@@ -117,7 +118,20 @@ export class AuthGuard implements CanActivate {
     }
 
     // From this point on, we know the user is a regular user (not SysAdmin)
-    const userPayload = payload as UserJwtPayload;
+
+    const currentUser: CurrentUserInfo = await this.prisma.user.findUnique({
+      where: { id: payload.id },
+      select: {
+        id: true,
+        companyId: true,
+        isCompanyAdmin: true,
+        isCompanyManager: true,
+      },
+    });
+
+    if (!currentUser) {
+      throw new UnauthorizedException('User not found');
+    }
 
     // Handle @Authenticated routes - any authenticated user can access
     if (isAuthenticated) {
@@ -132,7 +146,7 @@ export class AuthGuard implements CanActivate {
 
     // Handle @CompanyAdmin routes - only CompanyAdmin can access (not Managers)
     if (requiresCompanyAdmin) {
-      if (!userPayload.isCompanyAdmin) {
+      if (!currentUser.isCompanyAdmin) {
         throw new ForbiddenException(
           'Access denied: Only company administrators can access this resource',
         );
@@ -142,7 +156,7 @@ export class AuthGuard implements CanActivate {
 
     // Handle @CompanyManager routes - CompanyManager or CompanyAdmin can access
     if (requiresCompanyManager) {
-      if (!userPayload.isCompanyManager && !userPayload.isCompanyAdmin) {
+      if (!currentUser.isCompanyManager && !currentUser.isCompanyAdmin) {
         throw new ForbiddenException(
           'Access denied: Only company managers or administrators can access this resource',
         );
@@ -161,14 +175,14 @@ export class AuthGuard implements CanActivate {
 
     if (branchId) {
       return this.validateBranchAccess(
-        userPayload,
+        currentUser,
         branchId,
         requiredPermission,
       );
     }
 
     if (companyId) {
-      return this.validateCompanyAccess(userPayload, companyId);
+      return this.validateCompanyAccess(currentUser, companyId);
     }
 
     // TODO: Handle other cases
@@ -182,7 +196,7 @@ export class AuthGuard implements CanActivate {
    * 2. User is part of the branch AND has the required permission
    */
   private async validateBranchAccess(
-    payload: UserJwtPayload,
+    payload: CurrentUserInfo,
     branchId: string,
     requiredPermission: BranchPermissionType | undefined,
   ): Promise<boolean> {
@@ -234,7 +248,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private async validateCompanyAccess(
-    payload: UserJwtPayload,
+    payload: CurrentUserInfo,
     companyId: string,
   ): Promise<boolean> {
     if (payload.companyId !== companyId) {

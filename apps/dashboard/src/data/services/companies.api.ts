@@ -10,6 +10,12 @@ export interface Company {
   brandColor?: string | null;
 }
 
+export const getCompanyPublicInfo = async (args: { companySlug: string }) => {
+  return await responseHandler<Company>(`/companies/${args.companySlug}/public-info`, {
+    method: 'GET',
+  });
+};
+
 export const getAllCompanies = async () => {
   return await responseHandler<Company[]>('/companies', {
     method: 'GET',

@@ -23,6 +23,25 @@ export class CompaniesService {
     return company;
   }
 
+  async getCompanyPublicInfo(companySlug: string) {
+    const company = await this.prisma.company.findUnique({
+      where: { slug: companySlug },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        logo: true,
+        brandColor: true,
+      },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+
+    return company;
+  }
+
   async create(createCompanyDto: CreateCompanyDto) {
     await this.validateSlugUniqueness(createCompanyDto.slug);
 
