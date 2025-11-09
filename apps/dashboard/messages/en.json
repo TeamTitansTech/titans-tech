@@ -83,6 +83,24 @@
   },
   "machines": {
     "title": "Create Machine",
+    "pageTitle": "Machines",
+    "pageDescription": "Manage machines and their fields",
+    "newButton": "New Machine",
+    "emptyState": "No machines found. Create your first machine to get started.",
+    "noBlueprint": "No blueprint",
+    "errorLoading": "Error loading machines",
+    "description": "Create a new machine",
+    "status": {
+      "operational": "Operational",
+      "maintenance": "Maintenance",
+      "offline": "Offline"
+    },
+    "location": "Location",
+    "lastInspection": "Last inspection",
+    "viewDetails": "View Details",
+    "createdSuccessfully": "Machine created successfully",
+    "sectionsCount": "sections",
+    "fieldsCount": "fields",
     "form": {
       "blueprint": {
         "label": "Blueprint",

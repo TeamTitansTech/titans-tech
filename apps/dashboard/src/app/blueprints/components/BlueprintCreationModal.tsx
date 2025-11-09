@@ -24,7 +24,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { createBlueprint } from '@/data/services/blueprints.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { INSPECTION_SECTION_SLUGS } from '@/constants/inspection-sections';
+import { INSPECTION_SECTION_SLUGS } from '@titans-tech/db';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface BlueprintCreationModalProps {
@@ -211,7 +211,6 @@ export const BlueprintCreationModal = ({
 
             <Separator />
 
-            {/* Sections */}
             <section className="space-y-4">
               <div>
                 <h3 className=" mb-4">{t('form.sections.label')}</h3>
@@ -241,7 +240,6 @@ export const BlueprintCreationModal = ({
 
             <Separator />
 
-            {/* Fields */}
             <section className="space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">{t('form.fields.label')}</h3>
@@ -386,7 +384,6 @@ export const BlueprintCreationModal = ({
               </div>
             </section>
 
-            {/* Error Display */}
             {result?.errors && result.errors.length > 0 && (
               <div className="rounded-md border border-destructive bg-destructive/10 p-4 mb-6">
                 <h3 className="text-lg font-semibold mb-2 text-destructive">
@@ -403,7 +400,6 @@ export const BlueprintCreationModal = ({
             )}
           </div>
 
-          {/* Footer */}
           <div className="border-t p-6 flex justify-end gap-3 shrink-0">
             <Button
               type="button"

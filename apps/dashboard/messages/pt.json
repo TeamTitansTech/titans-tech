@@ -94,6 +94,17 @@
     "noBlueprint": "Sem blueprint",
     "errorLoading": "Erro ao carregar máquinas",
     "description": "Crie uma nova máquina",
+    "status": {
+      "operational": "Operacional",
+      "maintenance": "Manutenção",
+      "offline": "Desligada"
+    },
+    "location": "Localização",
+    "lastInspection": "Última inspeção",
+    "viewDetails": "Ver Detalhes",
+    "createdSuccessfully": "Máquina criada com sucesso",
+    "sectionsCount": "seções",
+    "fieldsCount": "campos",
     "form": {
       "cancel": "Cancelar",
       "blueprint": {

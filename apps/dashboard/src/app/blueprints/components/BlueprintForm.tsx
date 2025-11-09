@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createBlueprint } from '@/data/services/blueprints.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { INSPECTION_SECTION_SLUGS } from '@/constants/inspection-sections';
+import { INSPECTION_SECTION_SLUGS } from '@titans-tech/db';
 
 type FieldType = 'string' | 'int' | 'enum';
 

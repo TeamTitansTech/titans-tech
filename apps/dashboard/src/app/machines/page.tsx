@@ -6,8 +6,6 @@ export default async function MachinesPage() {
   const t = await getTranslations('machines');
   const response = await getMachines();
 
-  console.debug(response, 'response');
-
   if (response.errors) {
     return (
       <div className="space-y-6">

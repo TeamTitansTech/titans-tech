@@ -111,7 +111,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
     const response = await submitMachine(payload);
 
     if (response.data) {
-      toast.success('Machine created successfully');
+      toast.success(t('createdSuccessfully'));
       setMachineName('');
       setSelectedBlueprintId('');
       setFieldValues({});
@@ -180,7 +180,6 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 space-y-6 min-h-0 scrollbar-thin">
-            {/* Blueprint Selection */}
             <section className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold">{t('form.blueprint.label')}</h3>
@@ -213,8 +212,8 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
                               <div className="flex-1">
                                 <h4 className="font-semibold text-sm">{blueprint.name}</h4>
                                 <p className="text-xs text-muted-foreground mt-1">
-                                  {blueprint.sections.length} seções • {blueprint.fields.length}{' '}
-                                  campos
+                                  {blueprint.sections.length} {t('sectionsCount')} •{' '}
+                                  {blueprint.fields.length} {t('fieldsCount')}
                                 </p>
                               </div>
                             </div>
@@ -234,7 +233,6 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
 
             {selectedBlueprint && <Separator />}
 
-            {/* Machine Name */}
             {selectedBlueprint && (
               <>
                 <div className="space-y-4">
@@ -251,7 +249,6 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
                   />
                 </div>
 
-                {/* Dynamic Fields */}
                 <div className="space-y-4">
                   <div>
                     <Label>{t('form.fields.label')}</Label>
@@ -282,7 +279,6 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
               </div>
             )}
 
-            {/* Error Display */}
             {result?.errors && result.errors.length > 0 && (
               <div className="rounded-md border border-destructive bg-destructive/10 p-4 mb-6">
                 <h3 className="text-lg font-semibold mb-2 text-destructive">
@@ -299,7 +295,6 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
             )}
           </div>
 
-          {/* Footer */}
           <div className="border-t p-6 flex justify-end gap-3 shrink-0">
             <Button
               type="button"

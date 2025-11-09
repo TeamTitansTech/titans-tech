@@ -33,7 +33,6 @@ export const INSPECTION_SECTION_SLUGS = Object.values(INSPECTION_SECTION_CONFIG)
   (config) => config.slug,
 );
 
-// Helper function to get enum value from slug
 export function getInspectionSectionFromSlug(slug: string): InspectionSection | undefined {
   const entry = Object.entries(INSPECTION_SECTION_CONFIG).find(
     ([, config]) => config.slug === slug,
@@ -41,12 +40,10 @@ export function getInspectionSectionFromSlug(slug: string): InspectionSection | 
   return entry ? (entry[0] as InspectionSection) : undefined;
 }
 
-// Helper function to get slug from enum value
 export function getSlugFromInspectionSection(section: InspectionSection): string {
   return INSPECTION_SECTION_CONFIG[section].slug;
 }
 
-// Helper function to get display name from slug
 export function getDisplayNameFromSlug(slug: string): string | undefined {
   const entry = Object.values(INSPECTION_SECTION_CONFIG).find((config) => config.slug === slug);
   return entry?.displayName;

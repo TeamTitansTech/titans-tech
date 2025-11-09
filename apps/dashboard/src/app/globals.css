@@ -62,60 +62,60 @@
 
 .dark {
   --background: 210 20% 98.04%; /* rgb(249, 250, 251) */
-    --foreground: 215 25% 15%;
+  --foreground: 215 25% 15%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 215 25% 15%;
+  --card: 0 0% 100%;
+  --card-foreground: 215 25% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 15%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 215 25% 15%;
 
-    /* Industrial blue - primary brand */
-    --primary: 215 70% 25%;
-    --primary-foreground: 0 0% 98%;
+  /* Industrial blue - primary brand */
+  --primary: 215 70% 25%;
+  --primary-foreground: 0 0% 98%;
 
-    /* Steel gray - secondary */
-    --secondary: 210 10% 50%;
-    --secondary-foreground: 0 0% 98%;
+  /* Steel gray - secondary */
+  --secondary: 210 10% 50%;
+  --secondary-foreground: 0 0% 98%;
 
-    /* Muted backgrounds */
-    --muted: 210 15% 95%;
-    --muted-foreground: 215 15% 40%;
+  /* Muted backgrounds */
+  --muted: 210 15% 95%;
+  --muted-foreground: 215 15% 40%;
 
-    /* Safety orange - accent for actions */
-    --accent: 24 95% 53%; /* rgb(249, 116, 21) */
-    --accent-foreground: 0 0% 98%;
+  /* Safety orange - accent for actions */
+  --accent: 24 95% 53%; /* rgb(249, 116, 21) */
+  --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 98%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 98%;
 
-    /* Operational status green */
-    --success: 142 70% 45%;
-    --success-foreground: 0 0% 98%;
+  /* Operational status green */
+  --success: 142 70% 45%;
+  --success-foreground: 0 0% 98%;
 
-    /* Warning status */
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 98%;
+  /* Warning status */
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 98%;
 
-    --border: 210 20% 88%;
-    --input: 210 20% 88%;
-    --ring: 215 70% 25%;
+  --border: 210 20% 88%;
+  --input: 210 20% 88%;
+  --ring: 215 70% 25%;
 
-    --radius: 0.5rem;
+  --radius: 0.5rem;
 
-    /* Action orange - for interactive hovers */
-    --action-orange: 24 95% 53%; /* rgb(249, 116, 21) */
+  /* Action orange - for interactive hovers */
+  --action-orange: 24 95% 53%; /* rgb(249, 116, 21) */
 
-    /* Sidebar - navy blue matching reference */
-    --sidebar: 217 33% 17%; /* #1e293b - navy blue */
-    --sidebar-background: 217 33% 17%;
-    --sidebar-foreground: 215 20% 90%;
-    --sidebar-primary: 24 95% 53%; /* Orange for active state */
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 217 25% 23%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 217 20% 28%;
-    --sidebar-ring: 24 95% 53%; /* Orange ring */
+  /* Sidebar - navy blue matching reference */
+  --sidebar: 217 33% 17%; /* #1e293b - navy blue */
+  --sidebar-background: 217 33% 17%;
+  --sidebar-foreground: 215 20% 90%;
+  --sidebar-primary: 24 95% 53%; /* Orange for active state */
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 217 25% 23%;
+  --sidebar-accent-foreground: 0 0% 98%;
+  --sidebar-border: 217 20% 28%;
+  --sidebar-ring: 24 95% 53%; /* Orange ring */
 }
 
 * {
@@ -125,7 +125,8 @@
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));
-  font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  font-family:
+    ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
   font-weight: 500;
 }
-
