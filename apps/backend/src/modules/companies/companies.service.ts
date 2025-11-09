@@ -55,5 +55,6 @@ export class CompaniesService {
     await this.prisma.company.delete({
       where: { id },
     });
+    return { success: true };
   }
 }

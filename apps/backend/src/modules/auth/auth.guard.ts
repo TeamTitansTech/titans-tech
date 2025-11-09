@@ -15,13 +15,13 @@ import {
   IS_PUBLIC_KEY,
 } from './auth.decorators';
 import { appEnv } from 'src/config/env';
-import { PrismaService } from 'src/prisma.service';
 import {
   JwtPayload,
   isSysAdmin,
   UserJwtPayload,
   ReqWithAuthUser,
 } from 'src/types/request';
+import { PrismaService } from '../shared/prisma.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
