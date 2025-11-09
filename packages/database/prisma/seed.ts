@@ -68,6 +68,114 @@ async function main() {
 
   console.log(`Created/Updated blueprint with id: ${blueprint.id}`);
 
+  // Create example companies
+  const company1 = await prisma.company.upsert({
+    where: { slug: 'acme-corporation' },
+    update: {},
+    create: {
+      name: 'ACME Corporation',
+      slug: 'acme-corporation',
+      brandColor: '#3B82F6',
+    },
+  });
+
+  const company2 = await prisma.company.upsert({
+    where: { slug: 'tech-industries' },
+    update: {},
+    create: {
+      name: 'Tech Industries',
+      slug: 'tech-industries',
+      brandColor: '#10B981',
+    },
+  });
+
+  const company3 = await prisma.company.upsert({
+    where: { slug: 'global-manufacturing' },
+    update: {},
+    create: {
+      name: 'Global Manufacturing',
+      slug: 'global-manufacturing',
+      brandColor: '#F59E0B',
+    },
+  });
+
+  console.log(`Created/Updated companies:`);
+  console.log(`  - ${company1.name} (${company1.slug})`);
+  console.log(`  - ${company2.name} (${company2.slug})`);
+  console.log(`  - ${company3.name} (${company3.slug})`);
+
+  // Create branches for each company
+  await prisma.companyBranch.upsert({
+    where: { id: 'acme-main-branch' },
+    update: {},
+    create: {
+      id: 'acme-main-branch',
+      name: 'Main Office',
+      isMainBranch: true,
+      companyId: company1.id,
+    },
+  });
+
+  await prisma.companyBranch.upsert({
+    where: { id: 'acme-west-branch' },
+    update: {},
+    create: {
+      id: 'acme-west-branch',
+      name: 'West Coast Branch',
+      isMainBranch: false,
+      companyId: company1.id,
+    },
+  });
+
+  await prisma.companyBranch.upsert({
+    where: { id: 'tech-main-branch' },
+    update: {},
+    create: {
+      id: 'tech-main-branch',
+      name: 'Headquarters',
+      isMainBranch: true,
+      companyId: company2.id,
+    },
+  });
+
+  await prisma.companyBranch.upsert({
+    where: { id: 'global-main-branch' },
+    update: {},
+    create: {
+      id: 'global-main-branch',
+      name: 'Main Factory',
+      isMainBranch: true,
+      companyId: company3.id,
+    },
+  });
+
+  await prisma.companyBranch.upsert({
+    where: { id: 'global-north-branch' },
+    update: {},
+    create: {
+      id: 'global-north-branch',
+      name: 'North Plant',
+      isMainBranch: false,
+      companyId: company3.id,
+    },
+  });
+
+  await prisma.companyBranch.upsert({
+    where: { id: 'global-south-branch' },
+    update: {},
+    create: {
+      id: 'global-south-branch',
+      name: 'South Plant',
+      isMainBranch: false,
+      companyId: company3.id,
+    },
+  });
+
+  console.log(`Created/Updated company branches:`);
+  console.log(`  - ACME Corporation: 2 branches`);
+  console.log(`  - Tech Industries: 1 branch`);
+  console.log(`  - Global Manufacturing: 3 branches`);
+
   console.log('Seeding finished.');
 }
 

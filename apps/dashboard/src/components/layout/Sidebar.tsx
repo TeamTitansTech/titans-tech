@@ -2,13 +2,18 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Wrench, FolderKanban } from 'lucide-react';
+import { LayoutDashboard, Wrench, FolderKanban, Building2 } from 'lucide-react';
 
 const navigationItems = [
   {
     name: 'Dashboard',
     href: '/home',
     icon: LayoutDashboard,
+  },
+  {
+    name: 'Companies',
+    href: '/companies',
+    icon: Building2,
   },
   {
     name: 'Blueprints',

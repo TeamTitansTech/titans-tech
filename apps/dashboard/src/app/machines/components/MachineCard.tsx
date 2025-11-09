@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Wrench, ChevronRight, Calendar } from 'lucide-react';
 import Link from 'next/link';
@@ -16,10 +17,10 @@ interface MachineCardProps {
   status?: 'operational' | 'maintenance' | 'offline';
 }
 
-const statusClassNames = {
-  operational: 'bg-green-600 text-white dark:bg-green-500',
-  maintenance: 'bg-yellow-600 text-white dark:bg-yellow-500',
-  offline: 'bg-red-600 text-white dark:bg-red-500',
+const statusVariants = {
+  operational: 'success' as const,
+  maintenance: 'warning' as const,
+  offline: 'error' as const,
 };
 
 export function MachineCard({
@@ -53,11 +54,9 @@ export function MachineCard({
                 </ConditionalTooltip>
               </div>
             </div>
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 ${statusClassNames[status]}`}
-            >
+            <Badge variant={statusVariants[status]} className="shrink-0">
               {t(`status.${status}`)}
-            </span>
+            </Badge>
           </div>
 
           <div className="space-y-2 text-sm">

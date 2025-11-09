@@ -5,6 +5,7 @@
   },
   "navigation": {
     "dashboard": "Dashboard",
+    "companies": "Empresas",
     "models": "Modelos",
     "clients": "Clientes",
     "allMachines": "Máquinas",
@@ -269,5 +270,16 @@
       "forgotPassword": "Esqueceu a senha?",
       "submit": "Entrar"
     }
+  },
+  "companies": {
+    "pageTitle": "Empresas",
+    "pageDescription": "Gerenciar empresas e filiais",
+    "errorLoading": "Erro ao carregar empresas",
+    "status": {
+      "active": "Ativa",
+      "inactive": "Inativa"
+    },
+    "branch": "filial",
+    "branches": "filiais"
   }
 }

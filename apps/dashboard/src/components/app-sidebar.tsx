@@ -9,6 +9,7 @@ import {
   User,
   Settings,
   ClipboardList,
+  Building2,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -42,6 +43,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: t('navigation.dashboard'),
         icon: LayoutDashboard,
         url: '/home',
+      },
+      {
+        title: t('navigation.companies'),
+        icon: Building2,
+        url: '/companies',
       },
       {
         title: t('navigation.models'),

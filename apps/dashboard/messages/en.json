@@ -5,6 +5,7 @@
   },
   "navigation": {
     "dashboard": "Dashboard",
+    "companies": "Companies",
     "models": "Models",
     "clients": "Clients",
     "allMachines": "Machines",
@@ -243,5 +244,16 @@
         "futureDate": "Date cannot be in the future"
       }
     }
+  },
+  "companies": {
+    "pageTitle": "Companies",
+    "pageDescription": "Manage companies and branches",
+    "errorLoading": "Error loading companies",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "branch": "branch",
+    "branches": "branches"
   }
 }
