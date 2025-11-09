@@ -22,7 +22,8 @@
       "Bash(npx eslint --fix)",
       "Bash(npx tsc:*)",
       "Bash(turbo run:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
