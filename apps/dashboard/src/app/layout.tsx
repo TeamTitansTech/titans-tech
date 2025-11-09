@@ -2,9 +2,10 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
-import { AppLayout } from '@/components/layout/AppLayout';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
+import { SysAdminProvider } from '@/contexts/SysAdminContext';
+import { CompanyUserProvider } from '@/contexts/CompanyUserContext';
 import './globals.css';
 
 const geistSans = Geist({
@@ -39,8 +40,12 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <NextIntlClientProvider messages={messages}>
-            <AppLayout>{children}</AppLayout>
-            <Toaster />
+            <SysAdminProvider>
+              <CompanyUserProvider>
+                {children}
+                <Toaster />
+              </CompanyUserProvider>
+            </SysAdminProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
       </body>
