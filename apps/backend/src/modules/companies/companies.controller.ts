@@ -15,7 +15,7 @@ import {
   UpdateCompanySchema,
 } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
-import { Admin } from '../auth/auth.decorators';
+import { Admin, BranchPermission } from '../auth/auth.decorators';
 import { ReqWithAuthUser } from '../../types/request';
 
 @Controller('companies')
@@ -28,6 +28,7 @@ export class CompaniesController {
     return this.companiesService.findAll();
   }
 
+  @BranchPermission('read')
   @Get('single')
   findOne(@Request() req: ReqWithAuthUser) {
     return this.companiesService.findOne(req.companyId);
@@ -43,6 +44,7 @@ export class CompaniesController {
   }
 
   @Patch('single')
+  @BranchPermission('read')
   update(
     @Body(new ZodValidationPipe(UpdateCompanySchema))
     updateCompanyDto: UpdateCompanyDto,

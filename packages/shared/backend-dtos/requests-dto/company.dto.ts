@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const CreateCompanySchema = z.object({
   name: z.string().min(1),
-  slug: z.string().min(1),
+  //   slug: z.string().min(1),
   logo: z.string().optional(),
   brandColor: z.string().optional(),
 });

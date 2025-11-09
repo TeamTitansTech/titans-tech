@@ -5,6 +5,7 @@ export const BRANCH_PERMISSION_KEY = 'branchPermission';
 export const IS_ADMIN_KEY = 'isAdmin';
 
 export type BranchPermissionType =
+  | 'read'
   | 'createUser'
   | 'updateUser'
   | 'deleteUser'

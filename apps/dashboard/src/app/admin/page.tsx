@@ -2,6 +2,7 @@
 import { SysAdminProvider } from '@/contexts/SysAdminContext';
 import LoginForm from './components/LoginForm';
 import UpdatePassword from './components/UpdatePassword';
+import CompaniesManager from './components/CompaniesManager';
 
 export default function AdminPage() {
   return (
@@ -9,6 +10,7 @@ export default function AdminPage() {
       <div className="flex flex-col gap-8">
         <LoginForm />
         <UpdatePassword />
+        <CompaniesManager />
       </div>
     </SysAdminProvider>
   );
