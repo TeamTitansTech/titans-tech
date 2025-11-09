@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import CompaniesManager from '@/app/(dashboard)/auth-test/components/CompaniesManager';
 
 export default async function AdminCompaniesPage() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = await getTranslations('companies');
 
   return (
