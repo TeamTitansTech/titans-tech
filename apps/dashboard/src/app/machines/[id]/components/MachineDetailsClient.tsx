@@ -5,7 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
-import { ArrowLeft, Plus, Download, Wrench, ClipboardCheck, Building2, Box, MapPin, Calendar } from 'lucide-react';
+import {
+  ArrowLeft,
+  Plus,
+  Download,
+  Wrench,
+  ClipboardCheck,
+  Building2,
+  Box,
+  MapPin,
+  Calendar,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { InspectionCreationModal } from './InspectionCreationModal';
@@ -103,7 +113,9 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                   {machine.fields.map((field) => (
                     <div key={field.fieldSlug} className="space-y-1">
-                      <p className="text-sm text-muted-foreground">{getFieldName(field.fieldSlug)}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {getFieldName(field.fieldSlug)}
+                      </p>
                       <p className="text-2xl font-bold">{field.value}</p>
                     </div>
                   ))}

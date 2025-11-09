@@ -1,10 +1,7 @@
 'use server';
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import type {
-  CreateInspectionPayload,
-  Inspection,
-} from '@/data/types/inspections.types';
+import type { CreateInspectionPayload, Inspection } from '@/data/types/inspections.types';
 
 export const createInspection = async (payload: CreateInspectionPayload) => {
   const response = await responseHandler<Inspection>('/inspections', {
@@ -13,7 +10,6 @@ export const createInspection = async (payload: CreateInspectionPayload) => {
   });
 
   if (!response.errors) {
-
     revalidateTag(`inspections-${payload.machineId}`, 'max');
 
     revalidatePath(`/machines/${payload.machineId}`);
@@ -37,7 +33,7 @@ export const getInspectionById = async (id: string) => {
 export const getInspectionsByMachine = async (machineId: string) => {
   const options: {
     method?: string;
-    body?: any;
+    body?: unknown;
     headers?: Record<string, string>;
     tags?: string[];
   } = {

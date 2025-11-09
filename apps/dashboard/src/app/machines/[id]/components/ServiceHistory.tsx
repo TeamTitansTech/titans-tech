@@ -34,9 +34,7 @@ export async function ServiceHistory({ machineId }: ServiceHistoryProps) {
           <CardTitle>{t('serviceHistory')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-center py-8">
-            {t('noInspectionsFound')}
-          </p>
+          <p className="text-muted-foreground text-center py-8">{t('noInspectionsFound')}</p>
         </CardContent>
       </Card>
     );

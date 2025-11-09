@@ -33,7 +33,10 @@ export function BlueprintCard({
               <ConditionalTooltip content={name}>
                 <CardTitle className="text-lg truncate">{name}</CardTitle>
               </ConditionalTooltip>
-              <ConditionalTooltip content={description} className="text-sm text-muted-foreground line-clamp-2">
+              <ConditionalTooltip
+                content={description}
+                className="text-sm text-muted-foreground line-clamp-2"
+              >
                 {description}
               </ConditionalTooltip>
             </div>

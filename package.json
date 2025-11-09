@@ -17,7 +17,11 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "doctrine": "^2.1.0",
     "eslint": "^9.0.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-jsx-a11y": "^6.10.0",
+    "jsx-ast-utils": "^3.3.5",
     "next": "16.0.1",
     "prettier": "^3.3.0",
     "turbo": "^2.6.0",

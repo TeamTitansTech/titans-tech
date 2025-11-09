@@ -65,11 +65,8 @@ export function AppHeader() {
                 className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200"
                 aria-label={t('toggleTheme')}
               >
-                {mounted && (theme === 'dark' ? (
-                  <Sun className="h-5 w-5" />
-                ) : (
-                  <Moon className="h-5 w-5" />
-                ))}
+                {mounted &&
+                  (theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />)}
               </button>
             </TooltipTrigger>
             <TooltipContent>{t('toggleTheme')}</TooltipContent>
@@ -85,9 +82,7 @@ export function AppHeader() {
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">Admin User</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    admin@inspectpro.com
-                  </p>
+                  <p className="text-xs leading-none text-muted-foreground">admin@inspectpro.com</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -108,10 +103,7 @@ export function AppHeader() {
         </div>
       </div>
 
-      <SettingsModal
-        isOpen={isSettingsModalOpen}
-        onClose={() => setIsSettingsModalOpen(false)}
-      />
+      <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} />
     </header>
   );
 }

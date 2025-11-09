@@ -26,10 +26,12 @@ export function ConditionalTooltip({ content, children, className }: Conditional
     const THRESHOLD = 2;
 
     // Check if element is truncated (for single line with text-overflow: ellipsis)
-    const isSingleLineTruncated = contentElement.scrollWidth - contentElement.clientWidth > THRESHOLD;
+    const isSingleLineTruncated =
+      contentElement.scrollWidth - contentElement.clientWidth > THRESHOLD;
 
     // Check if element is truncated (for multi-line with line-clamp)
-    const isMultiLineTruncated = contentElement.scrollHeight - contentElement.clientHeight > THRESHOLD;
+    const isMultiLineTruncated =
+      contentElement.scrollHeight - contentElement.clientHeight > THRESHOLD;
 
     const truncated = isSingleLineTruncated || isMultiLineTruncated;
     setIsTruncated(truncated);

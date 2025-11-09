@@ -45,7 +45,10 @@ export function MachineCard({
                 <ConditionalTooltip content={name}>
                   <h3 className="font-semibold text-base truncate">{name}</h3>
                 </ConditionalTooltip>
-                <ConditionalTooltip content={blueprintName} className="text-sm text-muted-foreground truncate">
+                <ConditionalTooltip
+                  content={blueprintName}
+                  className="text-sm text-muted-foreground truncate"
+                >
                   {blueprintName}
                 </ConditionalTooltip>
               </div>
@@ -73,12 +76,7 @@ export function MachineCard({
             )}
           </div>
 
-          <Button
-            asChild
-            variant="ghost"
-            className="w-full justify-between"
-            size="sm"
-          >
+          <Button asChild variant="ghost" className="w-full justify-between" size="sm">
             <Link href={`/machines/${id}`}>
               {t('viewDetails')}
               <ChevronRight className="w-4 h-4" />

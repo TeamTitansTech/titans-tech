@@ -52,9 +52,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-2xl flex items-center gap-2">
-            {t('title')}
-          </DialogTitle>
+          <DialogTitle className="text-2xl flex items-center gap-2">{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
@@ -88,9 +86,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="text-sm text-muted-foreground">
-                {t('language.description')}
-              </p>
+              <p className="text-sm text-muted-foreground">{t('language.description')}</p>
             </div>
           </section>
 
