@@ -5,6 +5,7 @@ import type { NextRequest } from 'next/server';
 const publicRoutes = ['/login', '/admin/login', '/auth-test'];
 
 // Routes that only admins can access
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const adminRoutes = ['/admin'];
 
 export function middleware(request: NextRequest) {
