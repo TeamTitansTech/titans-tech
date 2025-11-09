@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SysAdminProvider } from '@/contexts/SysAdminContext';
 import { CompanyUserProvider } from '@/contexts/CompanyUserContext';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import './globals.css';
 
 const geistSans = Geist({
@@ -42,8 +43,10 @@ export default async function RootLayout({
           <NextIntlClientProvider messages={messages}>
             <SysAdminProvider>
               <CompanyUserProvider>
-                {children}
-                <Toaster />
+                <AuthProvider>
+                  {children}
+                  <Toaster />
+                </AuthProvider>
               </CompanyUserProvider>
             </SysAdminProvider>
           </NextIntlClientProvider>

@@ -7,7 +7,7 @@ export default function AdminLoginPage() {
   const router = useRouter();
 
   const handleSuccess = () => {
-    router.push('/home');
+    router.push('/admin/dashboard');
   };
 
   return (
