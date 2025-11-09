@@ -3,6 +3,8 @@ import { PrismaService } from '../shared/prisma.service';
 import {
   CreateCompanyBranchDto,
   UpdateCompanyBranchDto,
+  SetUserPermissionsDto,
+  UserResponseDto,
 } from '@titans-tech/shared';
 
 @Injectable()
@@ -65,5 +67,47 @@ export class CompanyBranchesService {
     });
 
     return { success: true };
+  }
+
+  async setUserPermissions(
+    branchId: string,
+    userId: string,
+    permissionsDto: SetUserPermissionsDto,
+  ) {
+    const userBranch = await this.prisma.userBranch.findUnique({
+      where: {
+        userId_branchId: {
+          userId,
+          branchId,
+        },
+      },
+    });
+
+    if (!userBranch) {
+      throw new NotFoundException('User is not assigned to this branch');
+    }
+
+    await this.prisma.userBranch.update({
+      where: {
+        userId_branchId: {
+          userId,
+          branchId,
+        },
+      },
+      data: permissionsDto,
+    });
+
+    const updatedUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        branches: {
+          include: {
+            branch: true,
+          },
+        },
+      },
+    });
+
+    return new UserResponseDto(updatedUser);
   }
 }

@@ -10,6 +10,8 @@ import {
   UpdatePasswordDto,
   SysAdminCreateUserDto,
   UserResponseDto,
+  SetCompanyAdminDto,
+  SetCompanyManagerDto,
 } from '@titans-tech/shared';
 import * as bcrypt from 'bcrypt';
 import { FieldsErr } from 'src/errors/err';
@@ -204,12 +206,7 @@ export class UsersService {
     return new UserResponseDto(result);
   }
 
-  async update(
-    id: string,
-    companyId: string,
-    updateUserDto: UpdateUserDto,
-    userPayload: JwtPayload,
-  ) {
+  async update(id: string, companyId: string, updateUserDto: UpdateUserDto) {
     const existingUser = await this.prisma.user.findFirst({
       where: { id, companyId },
       include: {
@@ -225,22 +222,11 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    this.validateCompanyAdminStatusChange(
-      updateUserDto,
-      existingUser,
-      userPayload,
-    );
-    this.validateManagerStatusRemoval(updateUserDto, existingUser, userPayload);
     await this.validateEmailUniqueness(updateUserDto, existingUser);
 
     const updatedUser = await this.prisma.user.update({
       where: { id },
-      data: {
-        ...updateUserDto,
-        isCompanyAdmin: isSysAdmin(userPayload)
-          ? updateUserDto.isCompanyAdmin
-          : undefined,
-      },
+      data: updateUserDto,
       include: {
         branches: {
           include: {
@@ -401,44 +387,6 @@ export class UsersService {
     return new UserResponseDto(updatedUser);
   }
 
-  private validateCompanyAdminStatusChange(
-    updateUserDto: UpdateUserDto,
-    existingUser: { isCompanyAdmin: boolean },
-    userPayload: JwtPayload,
-  ): void {
-    if (
-      updateUserDto.isCompanyAdmin !== undefined &&
-      updateUserDto.isCompanyAdmin !== existingUser.isCompanyAdmin
-    ) {
-      if (!isSysAdmin(userPayload)) {
-        throw new ForbiddenException(
-          'Only system administrators can change company admin status',
-        );
-      }
-    }
-  }
-
-  private validateManagerStatusRemoval(
-    updateUserDto: UpdateUserDto,
-    existingUser: { isCompanyManager: boolean },
-    userPayload: JwtPayload,
-  ): void {
-    if (
-      updateUserDto.isCompanyManager !== undefined &&
-      updateUserDto.isCompanyManager === false &&
-      existingUser.isCompanyManager
-    ) {
-      if (!isSysAdmin(userPayload)) {
-        const currentUser = userPayload as UserJwtPayload;
-        if (!currentUser.isCompanyAdmin) {
-          throw new ForbiddenException(
-            'Only company administrators or system administrators can remove manager status',
-          );
-        }
-      }
-    }
-  }
-
   private async validateEmailUniqueness(
     updateUserDto: UpdateUserDto,
     existingUser: { email: string },
@@ -452,5 +400,82 @@ export class UsersService {
         throw FieldsErr({ email: 'Email already in use' });
       }
     }
+  }
+
+  async setCompanyAdmin(
+    userId: string,
+    dto: SetCompanyAdminDto,
+    userPayload: JwtPayload,
+  ) {
+    if (!isSysAdmin(userPayload)) {
+      throw new ForbiddenException(
+        'Only system administrators can change company admin status',
+      );
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        isCompanyAdmin: dto.isCompanyAdmin,
+      },
+      include: {
+        branches: {
+          include: {
+            branch: true,
+          },
+        },
+      },
+    });
+
+    return new UserResponseDto(updatedUser);
+  }
+
+  async setCompanyManager(
+    userId: string,
+    dto: SetCompanyManagerDto,
+    userPayload: JwtPayload,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (dto.isCompanyManager === false && user.isCompanyManager) {
+      if (!isSysAdmin(userPayload)) {
+        const currentUser = userPayload as UserJwtPayload;
+        if (!currentUser.isCompanyAdmin) {
+          throw new ForbiddenException(
+            'Only company administrators or system administrators can remove manager status',
+          );
+        }
+      }
+    }
+
+    const updatedUser = await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        isCompanyManager: dto.isCompanyManager,
+      },
+      include: {
+        branches: {
+          include: {
+            branch: true,
+          },
+        },
+      },
+    });
+
+    return new UserResponseDto(updatedUser);
   }
 }

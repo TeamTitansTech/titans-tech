@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Delete,
-  Request,
   Param,
 } from '@nestjs/common';
 import { CompaniesService } from './companies.service';
@@ -23,7 +22,6 @@ import {
 } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, BranchPermission } from '../auth/auth.decorators';
-import { ReqWithAuthUser } from '../../types/request';
 import { UsersService } from '../users/users.service';
 import { CompanyBranchesService } from '../company-branches/company-branches.service';
 
@@ -94,9 +92,8 @@ export class CompaniesController {
     @Param('companyId') companyId: string,
     @Param('userId') userId: string,
     @Body(new ZodValidationPipe(UpdateUserSchema)) updateUserDto: UpdateUserDto,
-    @Request() req: ReqWithAuthUser,
   ) {
-    return this.usersService.update(userId, companyId, updateUserDto, req.user);
+    return this.usersService.update(userId, companyId, updateUserDto);
   }
 
   @BranchPermission('deleteUsers')

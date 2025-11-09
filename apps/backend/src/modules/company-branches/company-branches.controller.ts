@@ -6,6 +6,7 @@ import {
   Patch,
   Delete,
   Param,
+  Request,
 } from '@nestjs/common';
 import { CompanyBranchesService } from './company-branches.service';
 import {
@@ -13,10 +14,17 @@ import {
   UpdateCompanyBranchSchema,
   CreateUserDto,
   CreateUserSchema,
+  SetUserPermissionsDto,
+  SetUserPermissionsSchema,
+  SetCompanyAdminDto,
+  SetCompanyAdminSchema,
+  SetCompanyManagerDto,
+  SetCompanyManagerSchema,
 } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
-import { Admin, BranchPermission } from '../auth/auth.decorators';
+import { Admin, BranchPermission, CompanyAdmin } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
+import { ReqWithAuthUser } from '../../types/request';
 
 @Controller('company-branches')
 export class CompanyBranchesController {
@@ -73,5 +81,42 @@ export class CompanyBranchesController {
     @Param('userId') userId: string,
   ) {
     return this.usersService.removeUserFromBranch(branchId, userId);
+  }
+
+  @BranchPermission('manageUserPermissions')
+  @Patch(':branchId/users/:userId/permissions')
+  setUserPermissions(
+    @Param('branchId') branchId: string,
+    @Param('userId') userId: string,
+    @Body(new ZodValidationPipe(SetUserPermissionsSchema))
+    permissionsDto: SetUserPermissionsDto,
+  ) {
+    return this.companyBranchesService.setUserPermissions(
+      branchId,
+      userId,
+      permissionsDto,
+    );
+  }
+
+  @Admin()
+  @Patch(':branchId/users/:userId/company-admin')
+  setCompanyAdmin(
+    @Param('userId') userId: string,
+    @Body(new ZodValidationPipe(SetCompanyAdminSchema))
+    dto: SetCompanyAdminDto,
+    @Request() req: ReqWithAuthUser,
+  ) {
+    return this.usersService.setCompanyAdmin(userId, dto, req.user);
+  }
+
+  @CompanyAdmin()
+  @Patch(':branchId/users/:userId/company-manager')
+  setCompanyManager(
+    @Param('userId') userId: string,
+    @Body(new ZodValidationPipe(SetCompanyManagerSchema))
+    dto: SetCompanyManagerDto,
+    @Request() req: ReqWithAuthUser,
+  ) {
+    return this.usersService.setCompanyManager(userId, dto, req.user);
   }
 }
