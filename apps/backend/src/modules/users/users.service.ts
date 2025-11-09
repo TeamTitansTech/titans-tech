@@ -16,6 +16,7 @@ import { FieldsErr } from 'src/errors/err';
 import { isSysAdmin, JwtPayload, UserJwtPayload } from 'src/types/request';
 import { JwtService } from '@nestjs/jwt';
 
+const defaultPassword = 'password';
 @Injectable()
 export class UsersService {
   constructor(
@@ -126,7 +127,6 @@ export class UsersService {
       throw FieldsErr({ email: 'Email already in use' });
     }
 
-    const defaultPassword = 'password';
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
     const user = await this.prisma.user.create({
@@ -276,9 +276,10 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    const isCurrentPasswordValid = user.isUsingDefaultPassword
-      ? true
-      : await bcrypt.compare(data.currentPassword, user.password);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      user.isUsingDefaultPassword ? defaultPassword : data.currentPassword,
+      user.password,
+    );
 
     if (!isCurrentPasswordValid) {
       throw new ForbiddenException('Current password is incorrect');

@@ -10,6 +10,8 @@ import { SysAdminResponseDto, UpdatePasswordDto } from '@titans-tech/shared';
 import { SysAdminJwtPayload } from '../../types/request';
 import * as bcrypt from 'bcrypt';
 
+const DEFAULT_PASSWORD = 'password';
+
 @Injectable()
 export class SysAdminService {
   constructor(
@@ -68,9 +70,10 @@ export class SysAdminService {
       throw new ForbiddenException('Invalid credentials');
     }
 
-    const isCurrentPasswordValid = sysAdmin.isUsingDefaultPassword
-      ? true
-      : await bcrypt.compare(data.currentPassword, sysAdmin.password);
+    const isCurrentPasswordValid = await bcrypt.compare(
+      sysAdmin.isUsingDefaultPassword ? DEFAULT_PASSWORD : data.currentPassword,
+      sysAdmin.password,
+    );
 
     if (!isCurrentPasswordValid) {
       throw new ForbiddenException('Invalid credentials');
