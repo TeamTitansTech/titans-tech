@@ -1,4 +1,6 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: 210 20% 98.04%; /* rgb(249, 250, 251) */
@@ -46,15 +48,15 @@
   /* Action orange - for interactive hovers */
   --action-orange: 24 95% 53%; /* rgb(249, 116, 21) */
 
-  /* Sidebar - dark industrial */
-  --sidebar: 222 24% 13%; /* #1a1d29 - matches original sidebar */
-  --sidebar-background: 222 24% 13%;
-  --sidebar-foreground: 210 15% 85%;
+  /* Sidebar - navy blue matching reference */
+  --sidebar: 217 33% 17%; /* #1e293b - navy blue */
+  --sidebar-background: 217 33% 17%;
+  --sidebar-foreground: 215 20% 90%;
   --sidebar-primary: 24 95% 53%; /* Orange for active state */
   --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 215 20% 20%;
+  --sidebar-accent: 217 25% 23%;
   --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 215 20% 25%;
+  --sidebar-border: 217 20% 28%;
   --sidebar-ring: 24 95% 53%; /* Orange ring */
 }
 
@@ -104,15 +106,15 @@
     /* Action orange - for interactive hovers */
     --action-orange: 24 95% 53%; /* rgb(249, 116, 21) */
 
-    /* Sidebar - dark industrial */
-    --sidebar: 222 24% 13%; /* #1a1d29 - matches original sidebar */
-    --sidebar-background: 222 24% 13%;
-    --sidebar-foreground: 210 15% 85%;
+    /* Sidebar - navy blue matching reference */
+    --sidebar: 217 33% 17%; /* #1e293b - navy blue */
+    --sidebar-background: 217 33% 17%;
+    --sidebar-foreground: 215 20% 90%;
     --sidebar-primary: 24 95% 53%; /* Orange for active state */
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 215 20% 20%;
+    --sidebar-accent: 217 25% 23%;
     --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 215 20% 25%;
+    --sidebar-border: 217 20% 28%;
     --sidebar-ring: 24 95% 53%; /* Orange ring */
 }
 
@@ -127,73 +129,3 @@ body {
   font-weight: 500;
 }
 
-/* Tailwind utility classes */
-@layer utilities {
-  .bg-background {
-    background-color: hsl(var(--background));
-  }
-
-  .bg-primary {
-    background-color: hsl(var(--primary));
-  }
-
-  .text-primary-foreground {
-    color: hsl(var(--primary-foreground));
-  }
-
-  .hover\:bg-primary\/90:hover {
-    background-color: hsl(var(--primary) / 0.9);
-  }
-
-  .bg-accent {
-    background-color: hsl(var(--accent));
-  }
-
-  .bg-accent\/10 {
-    background-color: hsl(var(--accent) / 0.1);
-  }
-
-  .text-accent {
-    color: hsl(var(--accent));
-  }
-
-  .hover\:bg-action-orange:hover {
-    background-color: hsl(var(--action-orange));
-  }
-
-  .hover\:text-action-orange:hover {
-    color: hsl(var(--action-orange));
-  }
-}
-
-/* Sidebar z-index and layout fixes for Tailwind v4 compatibility */
-[data-sidebar="sidebar"] {
-  position: relative;
-  z-index: 10;
-}
-
-.group.peer[data-state] {
-  position: relative;
-  z-index: 10;
-}
-
-/* Ensure main content doesn't overlap sidebar */
-main {
-  position: relative;
-  z-index: 1;
-}
-
-/* Fix peer-based margin for sidebar inset with Tailwind v4 */
-.peer[data-state="expanded"] ~ * {
-  margin-left: var(--sidebar-width, 16rem);
-}
-
-.peer[data-state="collapsed"] ~ * {
-  margin-left: var(--sidebar-width-icon, 3rem);
-}
-
-@media (max-width: 768px) {
-  .peer ~ * {
-    margin-left: 0 !important;
-  }
-}
