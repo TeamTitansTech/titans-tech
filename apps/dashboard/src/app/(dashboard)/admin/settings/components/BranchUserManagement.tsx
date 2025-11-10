@@ -18,6 +18,7 @@ import {
 import { AddUserDialog } from './AddUserDialog';
 import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
+import { UserTableSkeleton } from './UserTableSkeleton';
 import type { UserResponseDto } from '@titans-tech/shared';
 
 interface User {
@@ -162,17 +163,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   };
 
   if (isInitialLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-base font-semibold flex items-center gap-2">
-            <Users className="h-4 w-4" />
-            {t('title')}
-          </h3>
-        </div>
-        <p className="text-sm text-muted-foreground">{t('loading')}</p>
-      </div>
-    );
+    return <UserTableSkeleton />;
   }
 
   return (
