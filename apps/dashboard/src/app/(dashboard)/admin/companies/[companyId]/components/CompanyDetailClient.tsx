@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useOptimistic } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Plus } from 'lucide-react';
@@ -19,8 +19,15 @@ export function CompanyDetailClient({ company, branches }: CompanyDetailClientPr
   const router = useRouter();
   const t = useTranslations('companies');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [optimisticBranches, addOptimisticBranch] = useOptimistic(
+    branches,
+    (state, newBranch: CompanyBranch) => [...state, newBranch],
+  );
 
-  const handleSuccess = () => {
+  const handleSuccess = (newBranch?: CompanyBranch) => {
+    if (newBranch) {
+      addOptimisticBranch(newBranch);
+    }
     router.refresh();
   };
 
@@ -40,13 +47,13 @@ export function CompanyDetailClient({ company, branches }: CompanyDetailClientPr
         </Button>
       </div>
 
-      {branches.length === 0 ? (
+      {optimisticBranches.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">{t('noBranches')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {branches.map((branch) => (
+          {optimisticBranches.map((branch) => (
             <BranchCard key={branch.id} branch={branch} companyId={company.id} />
           ))}
         </div>

@@ -8,6 +8,10 @@ export interface Company {
   name: string;
   logo?: string | null;
   brandColor?: string | null;
+  description?: string | null;
+  _count?: {
+    branches: number;
+  };
 }
 
 export const getAllCompanies = async () => {

@@ -15,19 +15,13 @@ interface BranchCardProps {
 export function BranchCard({ branch, companyId }: BranchCardProps) {
   const t = useTranslations('companies');
 
-  // Mock data for machines count - would come from API
-  const machineCount: number = branch.isMainBranch ? 5 : branch.name.includes('West') ? 3 : 2;
-  const location = branch.isMainBranch
-    ? 'Detroit, MI'
-    : branch.name.includes('West')
-      ? 'Los Angeles, CA'
-      : 'Houston, TX';
+  const machineCount = branch._count?.machines ?? 0;
+  const location = branch.location;
 
   return (
     <Card className="hover:border-primary/50 hover:shadow-md transition-all">
       <CardContent className="pt-6">
         <div className="space-y-4">
-          {/* Icon and Badge */}
           <div className="flex items-start justify-between">
             <div className="p-3 rounded-lg bg-orange-100 dark:bg-orange-900/20">
               <MapPin className="h-6 w-6 text-orange-500" />
@@ -39,13 +33,11 @@ export function BranchCard({ branch, companyId }: BranchCardProps) {
             )}
           </div>
 
-          {/* Branch Name */}
           <div>
             <h3 className="text-lg font-semibold line-clamp-1">{branch.name}</h3>
-            <p className="text-sm text-muted-foreground mt-1">{location}</p>
+            {location && <p className="text-sm text-muted-foreground mt-1">{location}</p>}
           </div>
 
-          {/* Machine Count */}
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <Wrench className="h-4 w-4" />
             <span>
@@ -53,8 +45,12 @@ export function BranchCard({ branch, companyId }: BranchCardProps) {
             </span>
           </div>
 
-          {/* View Details Button */}
-          <Button asChild variant="ghost" className="w-full justify-between" size="sm">
+          <Button
+            asChild
+            variant="outline"
+            className="w-full justify-between hover:bg-primary/5"
+            size="sm"
+          >
             <Link href={`/admin/companies/${companyId}/branches/${branch.id}`}>
               {t('viewMachines')}
               <ChevronRight className="w-4 h-4" />

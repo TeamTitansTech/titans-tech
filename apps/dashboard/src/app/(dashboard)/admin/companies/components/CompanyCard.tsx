@@ -7,11 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 interface CompanyCardProps {
-  company: Company & {
-    description?: string;
-    branchCount?: number;
-    status?: 'active' | 'inactive';
-  };
+  company: Company;
 }
 
 export function CompanyCard({ company }: CompanyCardProps) {
@@ -22,8 +18,8 @@ export function CompanyCard({ company }: CompanyCardProps) {
     router.push(`/admin/companies/${company.id}`);
   };
 
-  const status = company.status || 'active';
-  const branchCount = company.branchCount || 0;
+  const status = 'active'; // All companies are active by default
+  const branchCount = company._count?.branches ?? 0;
 
   return (
     <Card

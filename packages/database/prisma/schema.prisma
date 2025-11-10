@@ -38,13 +38,14 @@ model SysAdmin {
 }
 
 model Company {
-  id         String   @id @default(cuid())
-  name       String
-  slug       String   @unique
-  logo       String?
-  brandColor String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  logo        String?
+  brandColor  String?
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   branches CompanyBranch[]
   users    User[]
@@ -56,6 +57,7 @@ model CompanyBranch {
   id           String  @id @default(cuid())
   name         String
   isMainBranch Boolean @default(false)
+  location     String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -28,6 +28,7 @@ const companySchema = z.object({
     .regex(/^#[0-9A-Fa-f]{6}$/, 'Must be a valid hex color')
     .optional()
     .or(z.literal('')),
+  description: z.string().optional().or(z.literal('')),
 });
 
 type CompanyFormData = z.infer<typeof companySchema>;
@@ -35,7 +36,7 @@ type CompanyFormData = z.infer<typeof companySchema>;
 interface CreateCompanyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: () => void;
+  onSuccess: (newCompany?: any) => void;
 }
 
 export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCompanyDialogProps) {
@@ -45,29 +46,53 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCom
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     reset,
+    setError,
   } = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
   });
+
+  const handleDialogClose = (open: boolean) => {
+    if (!open && isDirty && !isSubmitting) {
+      if (confirm('You have unsaved changes. Are you sure you want to close?')) {
+        reset();
+        onOpenChange(false);
+      }
+    } else {
+      onOpenChange(open);
+    }
+  };
 
   const onSubmit = async (data: CompanyFormData) => {
     setIsSubmitting(true);
     const response = await createCompany({ data });
 
     if (response.errors) {
-      toast.error(t('error'));
+      const errorData = response.errors[0];
+      if (typeof errorData === 'object' && errorData !== null) {
+        Object.entries(errorData).forEach(([field, message]) => {
+          if (field in data) {
+            setError(field as keyof CompanyFormData, {
+              type: 'manual',
+              message: String(message),
+            });
+          }
+        });
+      } else {
+        toast.error(t('error'));
+      }
     } else {
       toast.success(t('success'));
       reset();
       onOpenChange(false);
-      onSuccess();
+      onSuccess(response.data);
     }
     setIsSubmitting(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
@@ -119,6 +144,19 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCom
             />
             {errors.brandColor && (
               <p className="text-sm text-destructive">{errors.brandColor.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">{t('form.description.label')}</Label>
+            <Input
+              id="description"
+              {...register('description')}
+              placeholder={t('form.description.placeholder')}
+              disabled={isSubmitting}
+            />
+            {errors.description && (
+              <p className="text-sm text-destructive">{errors.description.message}</p>
             )}
           </div>
 

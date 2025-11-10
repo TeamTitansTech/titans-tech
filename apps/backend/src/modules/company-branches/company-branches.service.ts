@@ -14,12 +14,26 @@ export class CompanyBranchesService {
   async findAll(companyId: string) {
     return this.prisma.companyBranch.findMany({
       where: { companyId },
+      include: {
+        _count: {
+          select: {
+            machines: true,
+          },
+        },
+      },
     });
   }
 
   async findOne(id: string) {
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id },
+      include: {
+        _count: {
+          select: {
+            machines: true,
+          },
+        },
+      },
     });
 
     if (!branch) {

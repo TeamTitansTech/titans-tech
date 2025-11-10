@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useOptimistic } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { CompanyCard } from './CompanyCard';
@@ -17,8 +17,15 @@ export function CompaniesPageClient({ companies }: CompaniesPageClientProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const router = useRouter();
   const t = useTranslations('companies');
+  const [optimisticCompanies, addOptimisticCompany] = useOptimistic(
+    companies,
+    (state, newCompany: Company) => [...state, newCompany],
+  );
 
-  const handleSuccess = () => {
+  const handleSuccess = (newCompany?: Company) => {
+    if (newCompany) {
+      addOptimisticCompany(newCompany);
+    }
     router.refresh();
     setIsCreateDialogOpen(false);
   };
@@ -37,13 +44,13 @@ export function CompaniesPageClient({ companies }: CompaniesPageClientProps) {
           </Button>
         </div>
 
-        {companies.length === 0 ? (
+        {optimisticCompanies.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-muted-foreground">{t('emptyState')}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {companies.map((company) => (
+            {optimisticCompanies.map((company) => (
               <CompanyCard key={company.id} company={company} />
             ))}
           </div>

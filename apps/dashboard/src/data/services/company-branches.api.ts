@@ -10,9 +10,13 @@ export interface CompanyBranch {
   id: string;
   name: string;
   isMainBranch: boolean;
+  location?: string | null;
   companyId: string;
   createdAt: Date;
   updatedAt: Date;
+  _count?: {
+    machines: number;
+  };
 }
 
 export const getAllBranches = async (args: { companyId: string }) => {
