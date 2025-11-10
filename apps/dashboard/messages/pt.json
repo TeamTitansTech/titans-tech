@@ -31,6 +31,109 @@
     "close": "Fechar",
     "applying": "Aplicando alterações..."
   },
+  "adminSettings": {
+    "pageTitle": "Configurações",
+    "pageDescription": "Gerencie configurações globais e organizacionais",
+    "generalSettings": {
+      "title": "Configurações Gerais",
+      "description": "Configure preferências globais para a plataforma",
+      "language": {
+        "label": "Idioma",
+        "placeholder": "Selecionar idioma"
+      },
+      "unitSystem": {
+        "label": "Unidade de Medida Padrão",
+        "placeholder": "Selecionar sistema de unidades",
+        "metric": "Métrico (Unidades SI)",
+        "imperial": "Unidades Imperiais"
+      },
+      "autoSaveNotice": "As configurações são salvas automaticamente quando alteradas. Este sistema de unidades será aplicado a todas as empresas, a menos que seja substituído.",
+      "saved": "Configurações salvas com sucesso"
+    },
+    "companyManagement": {
+      "title": "Gerenciamento de Empresas e Usuários",
+      "description": "Gerencie empresas, filiais e permissões de usuários",
+      "selectCompany": "Selecionar Empresa",
+      "selectCompanyPlaceholder": "Escolha uma empresa",
+      "createCompany": "Criar Empresa"
+    },
+    "branches": {
+      "title": "Filiais",
+      "loading": "Carregando filiais...",
+      "noBranches": "Nenhuma filial encontrada para esta empresa.",
+      "loadingFailed": "Falha ao carregar filiais",
+      "mainBranch": "Filial Principal",
+      "users": "usuários"
+    },
+    "createCompany": {
+      "title": "Criar Empresa",
+      "description": "Adicionar uma nova empresa à plataforma",
+      "form": {
+        "name": {
+          "label": "Nome da Empresa",
+          "placeholder": "ex., Acme Manufacturing Inc."
+        },
+        "slug": {
+          "label": "Slug da Empresa",
+          "placeholder": "ex., acme-manufacturing"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Criar Empresa",
+      "submitting": "Criando...",
+      "success": "Empresa criada com sucesso",
+      "error": "Falha ao criar empresa"
+    },
+    "errors": {
+      "loadingCompaniesFailed": "Falha ao carregar empresas"
+    },
+    "userManagement": {
+      "title": "Contas de Usuário",
+      "loading": "Carregando usuários...",
+      "loadingFailed": "Falha ao carregar usuários",
+      "noUsers": "Nenhum usuário encontrado para esta filial",
+      "addUser": "Adicionar Usuário",
+      "table": {
+        "name": "Nome",
+        "email": "Email",
+        "role": "Função",
+        "status": "Status",
+        "actions": "Ações"
+      },
+      "status": {
+        "active": "ativo",
+        "inactive": "inativo"
+      }
+    },
+    "addUserDialog": {
+      "title": "Adicionar Usuário",
+      "description": "Adicionar um novo usuário a {branchName}",
+      "form": {
+        "name": {
+          "label": "Nome Completo",
+          "placeholder": "Digite o nome completo do usuário"
+        },
+        "email": {
+          "label": "Endereço de Email",
+          "placeholder": "usuario@exemplo.com"
+        },
+        "role": {
+          "label": "Função",
+          "placeholder": "Selecione uma função",
+          "descriptions": {
+            "admin": "Admin: Acesso total",
+            "inspector": "Inspector: Pode revisar e aprovar",
+            "operator": "Operator: Pode operar máquinas",
+            "viewer": "Viewer: Somente leitura"
+          }
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Adicionar Usuário",
+      "submitting": "Adicionando...",
+      "success": "Usuário adicionado com sucesso"
+    }
+  },
   "dashboard": {
     "title": "Painel Titans Tech",
     "description": "Aplicação do Painel de Administração",
@@ -262,6 +365,21 @@
         "futureDate": "A data não pode ser futura"
       }
     }
+  },
+  "companies": {
+    "pageTitle": "Empresas",
+    "pageDescription": "Gerencie contas de empresas e suas filiais",
+    "newButton": "Nova Empresa",
+    "emptyState": "Nenhuma empresa encontrada. Crie sua primeira empresa para começar.",
+    "errorLoading": "Erro ao carregar empresas",
+    "companyNotFound": "Empresa não encontrada",
+    "branchesSubtitle": "Filiais",
+    "noBranches": "Nenhuma filial encontrada para esta empresa",
+    "branch": "filial",
+    "branches": "filiais",
+    "machine": "máquina",
+    "machines": "máquinas",
+    "mainBranch": "Filial Principal"
   },
   "login": {
     "title": "Bem-vindo de volta",

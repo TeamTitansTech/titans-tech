@@ -31,6 +31,109 @@
     "close": "Close",
     "applying": "Applying changes..."
   },
+  "adminSettings": {
+    "pageTitle": "Settings",
+    "pageDescription": "Manage global configurations and organizational settings",
+    "generalSettings": {
+      "title": "General Settings",
+      "description": "Configure global preferences for the platform",
+      "language": {
+        "label": "Language",
+        "placeholder": "Select language"
+      },
+      "unitSystem": {
+        "label": "Default Unit of Measurement",
+        "placeholder": "Select unit system",
+        "metric": "Metric (SI Units)",
+        "imperial": "Imperial Units"
+      },
+      "autoSaveNotice": "Settings are saved automatically when changed. This unit system will apply to all companies unless overridden.",
+      "saved": "Settings saved successfully"
+    },
+    "companyManagement": {
+      "title": "Company & User Management",
+      "description": "Manage companies, branches, and user permissions",
+      "selectCompany": "Select Company",
+      "selectCompanyPlaceholder": "Choose a company",
+      "createCompany": "Create Company"
+    },
+    "branches": {
+      "title": "Branches",
+      "loading": "Loading branches...",
+      "noBranches": "No branches found for this company.",
+      "loadingFailed": "Failed to load branches",
+      "mainBranch": "Main Branch",
+      "users": "users"
+    },
+    "createCompany": {
+      "title": "Create Company",
+      "description": "Add a new company to the platform",
+      "form": {
+        "name": {
+          "label": "Company Name",
+          "placeholder": "e.g., Acme Manufacturing Inc."
+        },
+        "slug": {
+          "label": "Company Slug",
+          "placeholder": "e.g., acme-manufacturing"
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Create Company",
+      "submitting": "Creating...",
+      "success": "Company created successfully",
+      "error": "Failed to create company"
+    },
+    "errors": {
+      "loadingCompaniesFailed": "Failed to load companies"
+    },
+    "userManagement": {
+      "title": "User Accounts",
+      "loading": "Loading users...",
+      "loadingFailed": "Failed to load users",
+      "noUsers": "No users found for this branch",
+      "addUser": "Add User",
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "status": {
+        "active": "active",
+        "inactive": "inactive"
+      }
+    },
+    "addUserDialog": {
+      "title": "Add User",
+      "description": "Add a new user to {branchName}",
+      "form": {
+        "name": {
+          "label": "Full Name",
+          "placeholder": "Enter user's full name"
+        },
+        "email": {
+          "label": "Email Address",
+          "placeholder": "user@example.com"
+        },
+        "role": {
+          "label": "Role",
+          "placeholder": "Select a role",
+          "descriptions": {
+            "admin": "Admin: Full access",
+            "inspector": "Inspector: Can review and approve",
+            "operator": "Operator: Can operate machines",
+            "viewer": "Viewer: Read-only"
+          }
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Add User",
+      "submitting": "Adding...",
+      "success": "User added successfully"
+    }
+  },
   "dashboard": {
     "title": "Titans Tech Dashboard",
     "description": "Admin Dashboard Application"
@@ -243,5 +346,20 @@
         "futureDate": "Date cannot be in the future"
       }
     }
+  },
+  "companies": {
+    "pageTitle": "Companies",
+    "pageDescription": "Manage company accounts and their branches",
+    "newButton": "New Company",
+    "emptyState": "No companies found. Create your first company to get started.",
+    "errorLoading": "Error loading companies",
+    "companyNotFound": "Company not found",
+    "branchesSubtitle": "Branches",
+    "noBranches": "No branches found for this company",
+    "branch": "branch",
+    "branches": "branches",
+    "machine": "machine",
+    "machines": "machines",
+    "mainBranch": "Main Branch"
   }
 }

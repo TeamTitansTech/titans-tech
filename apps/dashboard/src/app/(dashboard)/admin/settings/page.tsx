@@ -1,17 +1,5 @@
-import { getTranslations } from 'next-intl/server';
+import { AdminSettingsClient } from './components/AdminSettingsClient';
 
 export default async function AdminSettingsPage() {
-  const t = await getTranslations('settings');
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
-        <p className="text-muted-foreground mt-1">{t('pageDescription')}</p>
-      </div>
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">Admin settings page - Coming soon</p>
-      </div>
-    </div>
-  );
+  return <AdminSettingsClient />;
 }
