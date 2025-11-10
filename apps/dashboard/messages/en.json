@@ -131,7 +131,8 @@
       "cancel": "Cancel",
       "submit": "Add User",
       "submitting": "Adding...",
-      "success": "User added successfully"
+      "success": "User added successfully",
+      "error": "Failed to add user"
     }
   },
   "dashboard": {

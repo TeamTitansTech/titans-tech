@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Users, Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { AddUserDialog } from './AddUserDialog';
+import type { UserResponseDto } from '@titans-tech/shared';
 
 interface User {
   id: string;
@@ -23,6 +24,37 @@ interface User {
   email: string;
   role: string;
   status: 'active' | 'inactive';
+}
+
+// Transform UserResponseDto to UI User format
+function transformUserToUI(user: UserResponseDto, branchId: string): User {
+  // Determine role based on flags
+  let role = 'User';
+  if (user.isCompanyAdmin) {
+    role = 'Admin';
+  } else if (user.isCompanyManager) {
+    role = 'Manager';
+  } else {
+    // Check branch-specific permissions to determine role
+    const branchPermissions = user.branches?.find((b) => b.branchId === branchId);
+    if (branchPermissions) {
+      if (branchPermissions.createInspections || branchPermissions.updateInspections) {
+        role = 'Inspector';
+      } else if (branchPermissions.readMachines) {
+        role = 'Operator';
+      } else if (branchPermissions.readInspections) {
+        role = 'Viewer';
+      }
+    }
+  }
+
+  return {
+    id: user.id,
+    name: user.name || 'Unknown User',
+    email: user.email,
+    role,
+    status: user.isUsingDefaultPassword ? 'inactive' : 'active',
+  };
 }
 
 interface BranchUserManagementProps {
@@ -36,75 +68,48 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
 
-  useEffect(() => {
-    async function loadData() {
-      if (!branchId) return;
+  const loadUsers = useCallback(async () => {
+    if (!branchId) return;
 
-      setIsLoading(true);
-      try {
-        // Get branch info
-        const branchResponse = await getBranch({ branchId });
-        if (branchResponse.data) {
-          setBranchName(branchResponse.data.name);
+    setIsLoading(true);
+    try {
+      // Get branch info
+      const branchResponse = await getBranch({ branchId });
+      if (branchResponse.data) {
+        setBranchName(branchResponse.data.name);
 
-          // Get users for the company
-          const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
-          if (usersResponse.data) {
-            // Mock user data for now - in reality you'd filter by branch
-            const mockUsers: User[] = [
-              {
-                id: '1',
-                name: 'John Admin',
-                email: 'john@acme.com',
-                role: 'Admin',
-                status: 'active',
-              },
-              {
-                id: '2',
-                name: 'Sarah User',
-                email: 'sarah@acme.com',
-                role: 'Inspector',
-                status: 'active',
-              },
-              {
-                id: '3',
-                name: 'Mike Inspector',
-                email: 'mike@acme.com',
-                role: 'Operator',
-                status: 'active',
-              },
-              {
-                id: '4',
-                name: 'Emily Manager',
-                email: 'emily@acme.com',
-                role: 'Viewer',
-                status: 'active',
-              },
-              {
-                id: '5',
-                name: 'Tom Operator',
-                email: 'tom@acme.com',
-                role: 'Operator',
-                status: 'inactive',
-              },
-            ];
-            setUsers(mockUsers);
-          }
+        // Get users for the company
+        const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
+        if (usersResponse.data) {
+          // Transform and filter users for this branch
+          const transformedUsers = usersResponse.data
+            .filter((user) => {
+              // Include company admins and managers
+              if (user.isCompanyAdmin || user.isCompanyManager) {
+                return true;
+              }
+              // Include users with permissions for this branch
+              return user.branches?.some((b) => b.branchId === branchId);
+            })
+            .map((user) => transformUserToUI(user, branchId));
+
+          setUsers(transformedUsers);
         }
-      } catch (error) {
-        toast.error(t('loadingFailed'));
-      } finally {
-        setIsLoading(false);
       }
+    } catch {
+      toast.error(t('loadingFailed'));
+    } finally {
+      setIsLoading(false);
     }
-
-    loadData();
   }, [branchId, t]);
+
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   const handleAddUserSuccess = () => {
     // Reload user data after adding a new user
-    // In a real app, you'd refetch the users from the API
-    // For now, just show success toast (already handled in dialog)
+    loadUsers();
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -212,6 +217,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
       <AddUserDialog
         open={isAddUserDialogOpen}
         onOpenChange={setIsAddUserDialogOpen}
+        branchId={branchId}
         branchName={branchName}
         onSuccess={handleAddUserSuccess}
       />

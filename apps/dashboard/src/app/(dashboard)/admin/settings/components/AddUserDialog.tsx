@@ -24,6 +24,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { createUser } from '@/data/services/users.api';
+import { setUserPermissions } from '@/data/services/company-branches.api';
 
 const userSchema = z.object({
   name: z.string().min(1, 'Full name is required'),
@@ -36,6 +38,7 @@ type UserFormData = z.infer<typeof userSchema>;
 interface AddUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  branchId: string;
   branchName: string;
   onSuccess: () => void;
 }
@@ -47,7 +50,13 @@ const ROLE_DESCRIPTIONS = {
   Viewer: 'Read-only',
 };
 
-export function AddUserDialog({ open, onOpenChange, branchName, onSuccess }: AddUserDialogProps) {
+export function AddUserDialog({
+  open,
+  onOpenChange,
+  branchId,
+  branchName,
+  onSuccess,
+}: AddUserDialogProps) {
   const t = useTranslations('adminSettings.addUserDialog');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -70,17 +79,81 @@ export function AddUserDialog({ open, onOpenChange, branchName, onSuccess }: Add
   const onSubmit = async (data: UserFormData) => {
     setIsSubmitting(true);
 
-    // TODO: Call API to create user
-    // const response = await createUser({ branchId, data });
+    try {
+      // Create user with basic info
+      const response = await createUser({
+        branchId,
+        data: {
+          name: data.name,
+          email: data.email,
+          isCompanyAdmin: data.role === 'Admin',
+          isCompanyManager: false,
+        },
+      });
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!response.data) {
+        toast.error(t('error') || 'Failed to create user');
+        return;
+      }
 
-    toast.success(t('success'));
-    reset();
-    onOpenChange(false);
-    onSuccess();
-    setIsSubmitting(false);
+      // Set branch-specific permissions based on role
+      if (data.role !== 'Admin') {
+        const permissions: Record<string, boolean> = {
+          readUsers: false,
+          createUsers: false,
+          updateUsers: false,
+          deleteUsers: false,
+          manageUserPermissions: false,
+          assignUsersToBranches: false,
+          readBranches: false,
+          updateBranches: false,
+          readBlueprints: false,
+          createBlueprints: false,
+          updateBlueprints: false,
+          deleteBlueprints: false,
+          readMachines: false,
+          createMachines: false,
+          updateMachines: false,
+          deleteMachines: false,
+          readInspections: false,
+          createInspections: false,
+          updateInspections: false,
+          deleteInspections: false,
+        };
+
+        // Set permissions based on role
+        if (data.role === 'Inspector') {
+          permissions.readInspections = true;
+          permissions.createInspections = true;
+          permissions.updateInspections = true;
+          permissions.readMachines = true;
+          permissions.readBlueprints = true;
+        } else if (data.role === 'Operator') {
+          permissions.readMachines = true;
+          permissions.readInspections = true;
+          permissions.readBlueprints = true;
+        } else if (data.role === 'Viewer') {
+          permissions.readInspections = true;
+          permissions.readMachines = true;
+          permissions.readBlueprints = true;
+        }
+
+        await setUserPermissions({
+          branchId,
+          userId: response.data.id,
+          permissions,
+        });
+      }
+
+      toast.success(t('success'));
+      reset();
+      onOpenChange(false);
+      onSuccess();
+    } catch {
+      toast.error(t('error') || 'Failed to create user');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleClose = () => {
