@@ -16,7 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createCompany } from '@/data/services/companies.api';
+import { createCompany, type Company } from '@/data/services/companies.api';
 import { toast } from 'sonner';
 
 const companySchema = z.object({
@@ -36,7 +36,7 @@ type CompanyFormData = z.infer<typeof companySchema>;
 interface CreateCompanyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: (newCompany?: any) => void;
+  onSuccess: (newCompany?: Company) => void;
 }
 
 export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCompanyDialogProps) {

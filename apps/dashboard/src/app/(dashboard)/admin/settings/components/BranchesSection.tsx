@@ -26,9 +26,33 @@ export function BranchesSection({
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const loadBranches = async () => {
+  useEffect(() => {
     if (!companyId) return;
 
+    let cancelled = false;
+
+    const fetchBranches = async () => {
+      setIsLoading(true);
+      const response = await getAllBranches({ companyId });
+
+      if (cancelled) return;
+
+      if (response.errors) {
+        toast.error(t('loadingFailed'));
+      } else {
+        setBranches(response.data || []);
+      }
+      setIsLoading(false);
+    };
+
+    fetchBranches();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [companyId, t]);
+
+  const handleSuccess = async () => {
     setIsLoading(true);
     const response = await getAllBranches({ companyId });
     if (response.errors) {
@@ -37,14 +61,6 @@ export function BranchesSection({
       setBranches(response.data || []);
     }
     setIsLoading(false);
-  };
-
-  useEffect(() => {
-    loadBranches();
-  }, [companyId, t]);
-
-  const handleSuccess = () => {
-    loadBranches();
   };
 
   if (isLoading) {

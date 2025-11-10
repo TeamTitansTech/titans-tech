@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -58,23 +58,26 @@ export function EditUserDialog({
   const [companyId, setCompanyId] = useState<string>('');
 
   // Determine initial role based on user data
-  const determineRole = (userData: UserResponseDto | null): 'Manager' | 'Worker' => {
-    if (!userData) return 'Worker';
+  const determineRole = useCallback(
+    (userData: UserResponseDto | null): 'Manager' | 'Worker' => {
+      if (!userData) return 'Worker';
 
-    const branchPermissions = userData.branches?.find((b) => b.branchId === branchId);
-    if (branchPermissions) {
-      const hasManagerPermissions =
-        branchPermissions.createUsers ||
-        branchPermissions.manageUserPermissions ||
-        branchPermissions.updateBranches;
+      const branchPermissions = userData.branches?.find((b) => b.branchId === branchId);
+      if (branchPermissions) {
+        const hasManagerPermissions =
+          branchPermissions.createUsers ||
+          branchPermissions.manageUserPermissions ||
+          branchPermissions.updateBranches;
 
-      if (hasManagerPermissions) {
-        return 'Manager';
+        if (hasManagerPermissions) {
+          return 'Manager';
+        }
       }
-    }
 
-    return 'Worker';
-  };
+      return 'Worker';
+    },
+    [branchId],
+  );
 
   const {
     register,
@@ -101,7 +104,7 @@ export function EditUserDialog({
       setValue('email', user.email);
       setValue('role', determineRole(user));
     }
-  }, [user, setValue, branchId]);
+  }, [user, setValue, determineRole]);
 
   // Fetch companyId when dialog opens
   useEffect(() => {

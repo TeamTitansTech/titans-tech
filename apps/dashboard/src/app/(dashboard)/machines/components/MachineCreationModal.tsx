@@ -112,7 +112,6 @@ export function MachineCreationModal({
   useEffect(() => {
     // Load companies only for SysAdmin when companyId is not provided
     if (!isSysAdmin || companyIdProp) {
-      setIsLoadingCompanies(false);
       return;
     }
 
@@ -129,22 +128,24 @@ export function MachineCreationModal({
   }, [isSysAdmin, companyIdProp]);
 
   useEffect(() => {
-    // If branchId prop is provided, use it and skip loading branches
+    // If branchId prop is provided, skip loading branches
     if (branchId) {
-      setSelectedBranchId(branchId);
-      setIsLoadingBranches(false);
       return;
     }
 
     // Load branches when we have a company ID
-    const loadBranches = async () => {
-      if (!effectiveCompanyId) {
-        setIsLoadingBranches(false);
-        return;
-      }
+    if (!effectiveCompanyId) {
+      return;
+    }
 
+    let cancelled = false;
+
+    const loadBranches = async () => {
       setIsLoadingBranches(true);
       const response = await getAllBranches({ companyId: effectiveCompanyId });
+
+      if (cancelled) return;
+
       if (response.data) {
         setBranches(response.data);
       }
@@ -152,6 +153,10 @@ export function MachineCreationModal({
     };
 
     loadBranches();
+
+    return () => {
+      cancelled = true;
+    };
   }, [branchId, effectiveCompanyId]);
 
   const handleBlueprintSelect = (blueprintId: string) => {

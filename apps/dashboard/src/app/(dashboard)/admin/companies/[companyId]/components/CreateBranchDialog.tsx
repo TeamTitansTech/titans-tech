@@ -17,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { createBranch } from '@/data/services/company-branches.api';
+import { createBranch, type CompanyBranch } from '@/data/services/company-branches.api';
 import { toast } from 'sonner';
 
 const branchSchema = z.object({
@@ -31,7 +31,7 @@ type BranchFormData = z.infer<typeof branchSchema>;
 interface CreateBranchDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: (newBranch?: any) => void;
+  onSuccess: (newBranch?: CompanyBranch) => void;
   companyId: string;
 }
 
@@ -59,6 +59,7 @@ export function CreateBranchDialog({
     },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const isMainBranch = watch('isMainBranch');
 
   const handleDialogClose = (open: boolean) => {

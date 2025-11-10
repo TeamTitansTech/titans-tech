@@ -5,8 +5,6 @@ import { Building2, User } from 'lucide-react';
 import { type Company } from '@/data/services/companies.api';
 import { getAllUsers } from '@/data/services/users.api';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { useTranslations } from 'next-intl';
 import type { UserResponseDto } from '@titans-tech/shared';
 
 interface CompanyCardProps {
@@ -14,7 +12,6 @@ interface CompanyCardProps {
 }
 
 export function CompanyCard({ company }: CompanyCardProps) {
-  const t = useTranslations('adminSettings');
   const [companyAdmin, setCompanyAdmin] = useState<UserResponseDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
