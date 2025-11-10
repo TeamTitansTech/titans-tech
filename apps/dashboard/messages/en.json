@@ -84,6 +84,10 @@
         "brandColor": {
           "label": "Brand Color (Optional)",
           "placeholder": "#FF5733"
+        },
+        "description": {
+          "label": "Description (Optional)",
+          "placeholder": "e.g., Leading manufacturer of industrial parts"
         }
       },
       "cancel": "Cancel",
@@ -449,6 +453,10 @@
         "name": {
           "label": "Branch Name",
           "placeholder": "e.g., West Coast Branch"
+        },
+        "location": {
+          "label": "Location",
+          "placeholder": "e.g., Los Angeles, CA"
         },
         "isMainBranch": {
           "label": "Set as main branch"

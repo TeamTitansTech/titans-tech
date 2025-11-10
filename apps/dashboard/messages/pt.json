@@ -84,6 +84,10 @@
         "brandColor": {
           "label": "Cor da Marca (Opcional)",
           "placeholder": "#FF5733"
+        },
+        "description": {
+          "label": "Descrição (Opcional)",
+          "placeholder": "ex., Fabricante líder de peças industriais"
         }
       },
       "cancel": "Cancelar",
@@ -468,6 +472,10 @@
         "name": {
           "label": "Nome da Filial",
           "placeholder": "ex., Filial Costa Oeste"
+        },
+        "location": {
+          "label": "Localização",
+          "placeholder": "ex., São Paulo, SP"
         },
         "isMainBranch": {
           "label": "Definir como filial principal"
