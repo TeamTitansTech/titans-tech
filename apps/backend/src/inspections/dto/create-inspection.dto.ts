@@ -8,7 +8,11 @@ import {
   IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { MatingPartType } from '@titans-tech/db';
+import {
+  MatingPartType,
+  ParallelismType,
+  MeasurementUnit,
+} from '@titans-tech/db';
 
 class BearingClearanceDto {
   @IsNumber()
@@ -126,6 +130,65 @@ class BearingClearanceCheckDto {
   after?: BearingClearanceDto;
 }
 
+class SlideDataDto {
+  @IsEnum(ParallelismType)
+  parallelism: ParallelismType;
+
+  @IsBoolean()
+  hasBeenAdjusted: boolean;
+
+  @IsNumber()
+  position1: number;
+
+  @IsNumber()
+  position2: number;
+
+  @IsNumber()
+  position3: number;
+
+  @IsEnum(MeasurementUnit)
+  unit: MeasurementUnit;
+
+  @IsBoolean()
+  shutheightChecked: boolean;
+
+  @IsOptional()
+  @IsString()
+  actualSH?: string;
+
+  @IsOptional()
+  @IsString()
+  overloadsOnMonitor?: string;
+
+  @IsOptional()
+  @IsString()
+  indicatorReading?: string;
+}
+
+class SlideCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SlideDataDto)
+  before?: SlideDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SlideDataDto)
+  after?: SlideDataDto;
+}
+
+class SlideInspectionDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SlideCheckDto)
+  outerSlide?: SlideCheckDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SlideCheckDto)
+  innerSlide?: SlideCheckDto;
+}
+
 export class CreateInspectionDto {
   @IsString()
   machineId: string;
@@ -144,4 +207,9 @@ export class CreateInspectionDto {
   @ValidateNested()
   @Type(() => BearingClearanceCheckDto)
   bearingClearance?: BearingClearanceCheckDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SlideInspectionDto)
+  slide?: SlideInspectionDto;
 }
