@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -24,8 +24,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { createUser } from '@/data/services/users.api';
-import { setUserPermissions } from '@/data/services/company-branches.api';
+import { updateUser } from '@/data/services/users.api';
+import { setUserPermissions, getBranch } from '@/data/services/company-branches.api';
+import type { UserResponseDto } from '@titans-tech/shared';
 
 const userSchema = z.object({
   name: z.string().min(1, 'Full name is required'),
@@ -35,23 +36,45 @@ const userSchema = z.object({
 
 type UserFormData = z.infer<typeof userSchema>;
 
-interface AddUserDialogProps {
+interface EditUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  user: UserResponseDto | null;
   branchId: string;
   branchName: string;
   onSuccess: () => void;
 }
 
-export function AddUserDialog({
+export function EditUserDialog({
   open,
   onOpenChange,
+  user,
   branchId,
   branchName,
   onSuccess,
-}: AddUserDialogProps) {
-  const t = useTranslations('adminSettings.addUserDialog');
+}: EditUserDialogProps) {
+  const t = useTranslations('adminSettings.editUserDialog');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [companyId, setCompanyId] = useState<string>('');
+
+  // Determine initial role based on user data
+  const determineRole = (userData: UserResponseDto | null): 'Manager' | 'Worker' => {
+    if (!userData) return 'Worker';
+
+    const branchPermissions = userData.branches?.find((b) => b.branchId === branchId);
+    if (branchPermissions) {
+      const hasManagerPermissions =
+        branchPermissions.createUsers ||
+        branchPermissions.manageUserPermissions ||
+        branchPermissions.updateBranches;
+
+      if (hasManagerPermissions) {
+        return 'Manager';
+      }
+    }
+
+    return 'Worker';
+  };
 
   const {
     register,
@@ -63,33 +86,62 @@ export function AddUserDialog({
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
     defaultValues: {
-      role: 'Worker',
+      name: user?.name || '',
+      email: user?.email || '',
+      role: determineRole(user),
     },
   });
 
   const selectedRole = watch('role');
 
+  // Update form when user prop changes
+  useEffect(() => {
+    if (user) {
+      setValue('name', user.name || '');
+      setValue('email', user.email);
+      setValue('role', determineRole(user));
+    }
+  }, [user, setValue, branchId]);
+
+  // Fetch companyId when dialog opens
+  useEffect(() => {
+    const fetchCompanyId = async () => {
+      if (!branchId) return;
+
+      try {
+        const response = await getBranch({ branchId });
+        if (response.data) {
+          setCompanyId(response.data.companyId);
+        }
+      } catch {
+        // Silently fail
+      }
+    };
+    fetchCompanyId();
+  }, [branchId]);
+
   const onSubmit = async (data: UserFormData) => {
+    if (!user || !companyId) return;
+
     setIsSubmitting(true);
 
     try {
-      // Create user with basic info
-      const response = await createUser({
-        branchId,
+      // Update user basic info
+      const response = await updateUser({
+        companyId,
+        userId: user.id,
         data: {
           name: data.name,
           email: data.email,
-          isCompanyAdmin: false,
-          isCompanyManager: false,
         },
       });
 
       if (!response.data) {
-        toast.error(t('error') || 'Failed to create user');
+        toast.error(t('error') || 'Failed to update user');
         return;
       }
 
-      // Set branch-specific permissions based on role
+      // Update permissions based on role
       const permissions: Record<string, boolean> = {
         readUsers: false,
         createUsers: false,
@@ -113,9 +165,8 @@ export function AddUserDialog({
         deleteInspections: false,
       };
 
-      // Set permissions based on role
       if (data.role === 'Manager') {
-        // Manager: One per branch, has admin permissions for the branch
+        // Manager: Full branch permissions
         permissions.readUsers = true;
         permissions.createUsers = true;
         permissions.updateUsers = true;
@@ -137,7 +188,7 @@ export function AddUserDialog({
         permissions.updateInspections = true;
         permissions.deleteInspections = true;
       } else if (data.role === 'Worker') {
-        // Worker: Standard employee with basic operational access
+        // Worker: Basic operational permissions
         permissions.readBranches = true;
         permissions.readBlueprints = true;
         permissions.readMachines = true;
@@ -148,7 +199,7 @@ export function AddUserDialog({
 
       await setUserPermissions({
         branchId,
-        userId: response.data.id,
+        userId: user.id,
         permissions,
       });
 
@@ -157,7 +208,7 @@ export function AddUserDialog({
       onOpenChange(false);
       onSuccess();
     } catch {
-      toast.error(t('error') || 'Failed to create user');
+      toast.error(t('error') || 'Failed to update user');
     } finally {
       setIsSubmitting(false);
     }
@@ -178,11 +229,11 @@ export function AddUserDialog({
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">
+            <Label htmlFor="edit-name">
               {t('form.name.label')} <span className="text-destructive">*</span>
             </Label>
             <Input
-              id="name"
+              id="edit-name"
               {...register('name')}
               placeholder={t('form.name.placeholder')}
               disabled={isSubmitting}
@@ -191,11 +242,11 @@ export function AddUserDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">
+            <Label htmlFor="edit-email">
               {t('form.email.label')} <span className="text-destructive">*</span>
             </Label>
             <Input
-              id="email"
+              id="edit-email"
               type="email"
               {...register('email')}
               placeholder={t('form.email.placeholder')}
@@ -205,7 +256,7 @@ export function AddUserDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="role">
+            <Label htmlFor="edit-role">
               {t('form.role.label')} <span className="text-destructive">*</span>
             </Label>
             <Select
@@ -213,7 +264,7 @@ export function AddUserDialog({
               onValueChange={(value) => setValue('role', value as UserFormData['role'])}
               disabled={isSubmitting}
             >
-              <SelectTrigger id="role">
+              <SelectTrigger id="edit-role">
                 <SelectValue placeholder={t('form.role.placeholder')} />
               </SelectTrigger>
               <SelectContent>

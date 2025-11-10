@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Settings2, Building2 } from 'lucide-react';
+import { Settings2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { GeneralSettingsSection } from './GeneralSettingsSection';
 import { CompanyManagementSection } from './CompanyManagementSection';
@@ -37,18 +37,20 @@ export function AdminSettingsClient() {
   const selectedCompany = companies.find((c) => c.id === selectedCompanyId);
 
   return (
-    <div className="space-y-8 p-8">
+    <div className="space-y-6 p-8">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
-        <p className="text-muted-foreground mt-1">{t('pageDescription')}</p>
+        <p className="text-muted-foreground mt-2">{t('pageDescription')}</p>
       </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Settings2 className="h-5 w-5" />
-          <div>
-            <h2 className="text-xl font-semibold">{t('generalSettings.title')}</h2>
-            <p className="text-sm text-muted-foreground">{t('generalSettings.description')}</p>
+      <Separator />
+
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <Settings2 className="h-5 w-5 mt-0.5" />
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold">{t('generalSettings.title')}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t('generalSettings.description')}</p>
           </div>
         </div>
         <GeneralSettingsSection />
@@ -56,23 +58,13 @@ export function AdminSettingsClient() {
 
       <Separator />
 
-      <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <Building2 className="h-5 w-5" />
-          <div>
-            <h2 className="text-xl font-semibold">{t('companyManagement.title')}</h2>
-            <p className="text-sm text-muted-foreground">{t('companyManagement.description')}</p>
-          </div>
-        </div>
-
-        <CompanyManagementSection
-          companies={companies}
-          selectedCompanyId={selectedCompanyId}
-          onSelectCompany={setSelectedCompanyId}
-          isLoading={isLoadingCompanies}
-          selectedCompany={selectedCompany}
-        />
-      </div>
+      <CompanyManagementSection
+        companies={companies}
+        selectedCompanyId={selectedCompanyId}
+        onSelectCompany={setSelectedCompanyId}
+        isLoading={isLoadingCompanies}
+        selectedCompany={selectedCompany}
+      />
     </div>
   );
 }

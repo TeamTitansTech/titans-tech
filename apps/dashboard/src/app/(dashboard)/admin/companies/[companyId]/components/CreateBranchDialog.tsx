@@ -16,30 +16,31 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createCompany } from '@/data/services/companies.api';
+import { Checkbox } from '@/components/ui/checkbox';
+import { createBranch } from '@/data/services/company-branches.api';
 import { toast } from 'sonner';
 
-const companySchema = z.object({
-  name: z.string().min(1, 'Company name is required'),
-  slug: z.string().min(1, 'Company slug is required'),
-  logo: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  brandColor: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, 'Must be a valid hex color')
-    .optional()
-    .or(z.literal('')),
+const branchSchema = z.object({
+  name: z.string().min(1, 'Branch name is required'),
+  isMainBranch: z.boolean().optional(),
 });
 
-type CompanyFormData = z.infer<typeof companySchema>;
+type BranchFormData = z.infer<typeof branchSchema>;
 
-interface CreateCompanyDialogProps {
+interface CreateBranchDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
+  companyId: string;
 }
 
-export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCompanyDialogProps) {
-  const t = useTranslations('adminSettings.createCompany');
+export function CreateBranchDialog({
+  open,
+  onOpenChange,
+  onSuccess,
+  companyId,
+}: CreateBranchDialogProps) {
+  const t = useTranslations('companies.createBranch');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -47,13 +48,20 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCom
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<CompanyFormData>({
-    resolver: zodResolver(companySchema),
+    setValue,
+    watch,
+  } = useForm<BranchFormData>({
+    resolver: zodResolver(branchSchema),
+    defaultValues: {
+      isMainBranch: false,
+    },
   });
 
-  const onSubmit = async (data: CompanyFormData) => {
+  const isMainBranch = watch('isMainBranch');
+
+  const onSubmit = async (data: BranchFormData) => {
     setIsSubmitting(true);
-    const response = await createCompany({ data });
+    const response = await createBranch({ companyId, data });
 
     if (response.errors) {
       toast.error(t('error'));
@@ -86,40 +94,19 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCom
             {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="slug">{t('form.slug.label')}</Label>
-            <Input
-              id="slug"
-              {...register('slug')}
-              placeholder={t('form.slug.placeholder')}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="isMainBranch"
+              checked={isMainBranch}
+              onCheckedChange={(checked) => setValue('isMainBranch', checked as boolean)}
               disabled={isSubmitting}
             />
-            {errors.slug && <p className="text-sm text-destructive">{errors.slug.message}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="logo">{t('form.logo.label')}</Label>
-            <Input
-              id="logo"
-              {...register('logo')}
-              placeholder={t('form.logo.placeholder')}
-              disabled={isSubmitting}
-            />
-            {errors.logo && <p className="text-sm text-destructive">{errors.logo.message}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="brandColor">{t('form.brandColor.label')}</Label>
-            <Input
-              id="brandColor"
-              type="color"
-              {...register('brandColor')}
-              placeholder={t('form.brandColor.placeholder')}
-              disabled={isSubmitting}
-            />
-            {errors.brandColor && (
-              <p className="text-sm text-destructive">{errors.brandColor.message}</p>
-            )}
+            <Label
+              htmlFor="isMainBranch"
+              className="text-sm font-normal cursor-pointer leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {t('form.isMainBranch.label')}
+            </Label>
           </div>
 
           <DialogFooter>

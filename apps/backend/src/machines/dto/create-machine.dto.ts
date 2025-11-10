@@ -18,6 +18,10 @@ export class CreateMachineDto {
 
   @IsString()
   @IsNotEmpty()
+  branchId: string;
+
+  @IsString()
+  @IsNotEmpty()
   name: string;
 
   @IsArray()

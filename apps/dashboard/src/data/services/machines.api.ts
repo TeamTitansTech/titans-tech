@@ -8,6 +8,7 @@ interface MachineField {
 
 interface CreateMachinePayload {
   blueprintId: string;
+  branchId: string;
   name: string;
   fields: MachineField[];
 }
@@ -15,11 +16,17 @@ interface CreateMachinePayload {
 interface Machine {
   id: string;
   blueprintId: string;
+  branchId: string;
   name: string;
   fields: MachineField[];
   createdAt: string;
   updatedAt: string;
   blueprint?: Blueprint;
+  branch?: {
+    id: string;
+    name: string;
+    companyId: string;
+  };
 }
 
 interface BlueprintField {
@@ -46,6 +53,12 @@ export const getBlueprints = async () => {
 
 export const getMachines = async () => {
   return await responseHandler<Machine[]>('/machines', {
+    method: 'GET',
+  });
+};
+
+export const getMachinesByBranch = async (branchId: string) => {
+  return await responseHandler<Machine[]>(`/company-branches/${branchId}/machines`, {
     method: 'GET',
   });
 };

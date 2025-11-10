@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Building2 } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -17,6 +17,7 @@ import { BranchUserManagement } from './BranchUserManagement';
 import { type Company } from '@/data/services/companies.api';
 import { useState } from 'react';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface CompanyManagementSectionProps {
   companies: Company[];
@@ -39,40 +40,51 @@ export function CompanyManagementSection({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end justify-between max-w-4xl">
-        <div className="space-y-2 flex-1 w-full sm:w-auto">
-          <Label htmlFor="company-select">{t('selectCompany')}</Label>
-          <Select value={selectedCompanyId} onValueChange={onSelectCompany} disabled={isLoading}>
-            <SelectTrigger id="company-select" className="w-full sm:w-[400px]">
-              <SelectValue placeholder={t('selectCompanyPlaceholder')} />
-            </SelectTrigger>
-            <SelectContent>
-              {companies.map((company) => (
-                <SelectItem key={company.id} value={company.id}>
-                  {company.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex gap-3 flex-1 items-center">
+          <Building2 className="h-5 w-5 mt-0.5" />
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold">{t('title')}</h2>
+            <p className="text-sm text-muted-foreground mt-1">{t('description')}</p>
+          </div>
         </div>
-
         <Button onClick={() => setIsCreateDialogOpen(true)} className="shrink-0">
           <Plus className="mr-2 h-4 w-4" />
           {t('createCompany')}
         </Button>
       </div>
 
-      {selectedCompany && <CompanyCard company={selectedCompany} />}
+      <Card>
+        <CardContent className="pt-6 space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="company-select">{t('selectCompany')}</Label>
+            <Select value={selectedCompanyId} onValueChange={onSelectCompany} disabled={isLoading}>
+              <SelectTrigger id="company-select">
+                <SelectValue placeholder={t('selectCompanyPlaceholder')} />
+              </SelectTrigger>
+              <SelectContent>
+                {companies.map((company) => (
+                  <SelectItem key={company.id} value={company.id}>
+                    {company.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
-      {selectedCompanyId && (
-        <BranchesSection
-          companyId={selectedCompanyId}
-          selectedBranchId={selectedBranchId}
-          onSelectBranch={setSelectedBranchId}
-        />
-      )}
+          {selectedCompany && <CompanyCard company={selectedCompany} />}
 
-      {selectedBranchId && <BranchUserManagement branchId={selectedBranchId} />}
+          {selectedCompanyId && (
+            <BranchesSection
+              companyId={selectedCompanyId}
+              selectedBranchId={selectedBranchId}
+              onSelectBranch={setSelectedBranchId}
+            />
+          )}
+
+          {selectedBranchId && <BranchUserManagement branchId={selectedBranchId} />}
+        </CardContent>
+      </Card>
 
       <CreateCompanyDialog
         open={isCreateDialogOpen}

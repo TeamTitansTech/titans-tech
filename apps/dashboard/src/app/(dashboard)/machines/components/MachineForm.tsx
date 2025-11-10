@@ -88,8 +88,11 @@ export function MachineForm() {
       value: String(fieldValues[field.fieldSlug] || ''),
     }));
 
+    // TODO: This component needs to be updated to include branch selection
+    // For now, using an empty branchId as placeholder (this component is not currently used)
     const payload = {
       blueprintId: selectedBlueprintId,
+      branchId: '', // Placeholder - needs branch selection implementation
       name: machineName,
       fields,
     };

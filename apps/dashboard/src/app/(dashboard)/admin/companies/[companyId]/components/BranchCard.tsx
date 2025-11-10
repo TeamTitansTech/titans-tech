@@ -1,16 +1,18 @@
 'use client';
 
-import { MapPin, Wrench } from 'lucide-react';
+import { MapPin, Wrench, ChevronRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { type CompanyBranch } from '@/data/services/company-branches.api';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 interface BranchCardProps {
   branch: CompanyBranch;
   companyId: string;
 }
 
-export function BranchCard({ branch }: BranchCardProps) {
+export function BranchCard({ branch, companyId }: BranchCardProps) {
   const t = useTranslations('companies');
 
   // Mock data for machines count - would come from API
@@ -50,6 +52,14 @@ export function BranchCard({ branch }: BranchCardProps) {
               {machineCount} {machineCount === 1 ? t('machine') : t('machines')}
             </span>
           </div>
+
+          {/* View Details Button */}
+          <Button asChild variant="ghost" className="w-full justify-between" size="sm">
+            <Link href={`/admin/companies/${companyId}/branches/${branch.id}`}>
+              {t('viewMachines')}
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </Button>
         </div>
       </CardContent>
     </Card>

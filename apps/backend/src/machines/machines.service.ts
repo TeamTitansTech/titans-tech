@@ -18,10 +18,22 @@ export class MachinesService {
       );
     }
 
+    // Verify branch exists
+    const branch = await this.prisma.companyBranch.findUnique({
+      where: { id: createMachineDto.branchId },
+    });
+
+    if (!branch) {
+      throw new NotFoundException(
+        `Branch with ID ${createMachineDto.branchId} not found`,
+      );
+    }
+
     // Create machine with fields
     const machine = await this.prisma.machine.create({
       data: {
         blueprintId: createMachineDto.blueprintId,
+        branchId: createMachineDto.branchId,
         name: createMachineDto.name,
         fields: {
           create: createMachineDto.fields.map((field) => ({
@@ -32,6 +44,7 @@ export class MachinesService {
       },
       include: {
         blueprint: true,
+        branch: true,
         fields: true,
       },
     });
@@ -43,6 +56,18 @@ export class MachinesService {
     return this.prisma.machine.findMany({
       include: {
         blueprint: true,
+        branch: true,
+        fields: true,
+      },
+    });
+  }
+
+  async findByBranch(branchId: string) {
+    return this.prisma.machine.findMany({
+      where: { branchId },
+      include: {
+        blueprint: true,
+        branch: true,
         fields: true,
       },
     });
@@ -53,6 +78,7 @@ export class MachinesService {
       where: { id },
       include: {
         blueprint: true,
+        branch: true,
         fields: true,
         inspections: {
           include: {

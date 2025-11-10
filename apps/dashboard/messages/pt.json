@@ -62,7 +62,7 @@
       "loading": "Carregando filiais...",
       "noBranches": "Nenhuma filial encontrada para esta empresa.",
       "loadingFailed": "Falha ao carregar filiais",
-      "mainBranch": "Filial Principal",
+      "mainBranch": "Matriz (Filial Principal)",
       "users": "usuários"
     },
     "createCompany": {
@@ -76,6 +76,14 @@
         "slug": {
           "label": "Slug da Empresa",
           "placeholder": "ex., acme-manufacturing"
+        },
+        "logo": {
+          "label": "URL do Logo (Opcional)",
+          "placeholder": "ex., https://exemplo.com/logo.png"
+        },
+        "brandColor": {
+          "label": "Cor da Marca (Opcional)",
+          "placeholder": "#FF5733"
         }
       },
       "cancel": "Cancelar",
@@ -100,6 +108,10 @@
         "status": "Status",
         "actions": "Ações"
       },
+      "roles": {
+        "branchManager": "Gerente",
+        "employee": "Funcionário"
+      },
       "status": {
         "active": "ativo",
         "inactive": "inativo"
@@ -120,11 +132,15 @@
         "role": {
           "label": "Função",
           "placeholder": "Selecione uma função",
+          "options": {
+            "admin": "Administrador",
+            "manager": "Gerente",
+            "worker": "Funcionário"
+          },
           "descriptions": {
-            "admin": "Admin: Acesso total",
-            "inspector": "Inspector: Pode revisar e aprovar",
-            "operator": "Operator: Pode operar máquinas",
-            "viewer": "Viewer: Somente leitura"
+            "admin": "Administrador: Controle total da matriz e todas as filiais",
+            "manager": "Gerente: Controle total desta filial apenas",
+            "worker": "Funcionário: Acesso operacional padrão"
           }
         }
       },
@@ -132,7 +148,55 @@
       "submit": "Adicionar Usuário",
       "submitting": "Adicionando...",
       "success": "Usuário adicionado com sucesso",
-      "error": "Falha ao adicionar usuário"
+      "error": "Falha ao adicionar usuário",
+      "errors": {
+        "adminAlreadyExists": "Já existe um administrador da empresa. Apenas um administrador é permitido por empresa."
+      }
+    },
+    "editUserDialog": {
+      "title": "Editar Usuário",
+      "description": "Atualizar informações do usuário para {branchName}",
+      "form": {
+        "name": {
+          "label": "Nome Completo",
+          "placeholder": "Digite o nome completo do usuário"
+        },
+        "email": {
+          "label": "Endereço de Email",
+          "placeholder": "usuario@exemplo.com"
+        },
+        "role": {
+          "label": "Função",
+          "placeholder": "Selecione uma função",
+          "options": {
+            "admin": "Administrador",
+            "manager": "Gerente",
+            "worker": "Funcionário"
+          },
+          "descriptions": {
+            "admin": "Administrador: Controle total da matriz e todas as filiais",
+            "manager": "Gerente: Controle total desta filial apenas",
+            "worker": "Funcionário: Acesso operacional padrão"
+          }
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Atualizar Usuário",
+      "submitting": "Atualizando...",
+      "success": "Usuário atualizado com sucesso",
+      "error": "Falha ao atualizar usuário",
+      "errors": {
+        "adminAlreadyExists": "Já existe um administrador da empresa. Apenas um administrador é permitido por empresa."
+      }
+    },
+    "deleteUserDialog": {
+      "title": "Excluir Usuário",
+      "description": "Tem certeza que deseja excluir {userName}? Esta ação não pode ser desfeita.",
+      "cancel": "Cancelar",
+      "confirm": "Excluir",
+      "deleting": "Excluindo...",
+      "success": "Usuário excluído com sucesso",
+      "error": "Falha ao excluir usuário"
     }
   },
   "dashboard": {
@@ -257,6 +321,17 @@
     "routineInspection": "Inspeção de Rotina",
     "form": {
       "cancel": "Cancelar",
+      "company": {
+        "label": "Selecionar Empresa",
+        "description": "Escolha a qual empresa esta máquina pertence",
+        "loading": "Carregando empresas..."
+      },
+      "branch": {
+        "label": "Selecionar Filial",
+        "description": "Escolha a qual filial esta máquina pertence",
+        "loading": "Carregando filiais...",
+        "mainBranch": "Matriz (Filial Principal)"
+      },
       "blueprint": {
         "label": "Modelo",
         "placeholder": "Selecione um modelo",
@@ -272,13 +347,16 @@
         "selectPlaceholder": "Selecione uma opção",
         "slug": "Slug"
       },
+      "selectCompanyPrompt": "Selecione uma empresa para começar",
+      "selectBranchPrompt": "Selecione uma filial para começar",
       "selectBlueprintPrompt": "Selecione um modelo para começar",
       "submit": {
         "idle": "Criar Máquina",
         "loading": "Enviando..."
       },
       "error": {
-        "title": "Erro:"
+        "title": "Erro:",
+        "branchRequired": "Por favor, selecione uma filial"
       },
       "response": {
         "title": "Resposta:"
@@ -371,6 +449,7 @@
     "pageTitle": "Empresas",
     "pageDescription": "Gerencie contas de empresas e suas filiais",
     "newButton": "Nova Empresa",
+    "newBranch": "Criar Filial",
     "emptyState": "Nenhuma empresa encontrada. Crie sua primeira empresa para começar.",
     "errorLoading": "Erro ao carregar empresas",
     "companyNotFound": "Empresa não encontrada",
@@ -380,7 +459,36 @@
     "branches": "filiais",
     "machine": "máquina",
     "machines": "máquinas",
-    "mainBranch": "Filial Principal"
+    "mainBranch": "Matriz (Filial Principal)",
+    "viewMachines": "Ver Máquinas",
+    "createBranch": {
+      "title": "Criar Filial",
+      "description": "Adicionar uma nova filial a esta empresa",
+      "form": {
+        "name": {
+          "label": "Nome da Filial",
+          "placeholder": "ex., Filial Costa Oeste"
+        },
+        "isMainBranch": {
+          "label": "Definir como filial principal"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Criar Filial",
+      "submitting": "Criando...",
+      "success": "Filial criada com sucesso",
+      "error": "Falha ao criar filial"
+    }
+  },
+  "branches": {
+    "branchNotFound": "Filial não encontrada",
+    "machinesSubtitle": "Máquinas nesta filial",
+    "newMachine": "Nova Máquina",
+    "noMachines": "Nenhuma máquina nesta filial ainda",
+    "noBlueprint": "Sem modelo",
+    "blueprint": "Modelo",
+    "fields": "campos",
+    "mainBranch": "Matriz (Filial Principal)"
   },
   "login": {
     "title": "Bem-vindo de volta",

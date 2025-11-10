@@ -63,6 +63,7 @@ model CompanyBranch {
   company   Company      @relation(fields: [companyId], references: [id])
   companyId String
   users     UserBranch[]
+  machines  Machine[]
 
   @@map("company_branches")
 }
@@ -147,11 +148,13 @@ model Blueprint {
 model Machine {
   id          String   @id @default(cuid())
   blueprintId String
+  branchId    String
   name        String // Machine name/identifier
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   blueprint   Blueprint           @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  branch      CompanyBranch       @relation(fields: [branchId], references: [id], onDelete: Restrict)
   fields      MachineField[]
   inspections MachineInspection[]
 

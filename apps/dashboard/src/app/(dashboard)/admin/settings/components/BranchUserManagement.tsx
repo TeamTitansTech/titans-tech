@@ -16,6 +16,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { AddUserDialog } from './AddUserDialog';
+import { EditUserDialog } from './EditUserDialog';
+import { DeleteUserDialog } from './DeleteUserDialog';
 import type { UserResponseDto } from '@titans-tech/shared';
 
 interface User {
@@ -28,24 +30,22 @@ interface User {
 
 // Transform UserResponseDto to UI User format
 function transformUserToUI(user: UserResponseDto, branchId: string): User {
-  // Determine role based on flags
-  let role = 'User';
-  if (user.isCompanyAdmin) {
-    role = 'Admin';
-  } else if (user.isCompanyManager) {
-    role = 'Manager';
-  } else {
-    // Check branch-specific permissions to determine role
-    const branchPermissions = user.branches?.find((b) => b.branchId === branchId);
-    if (branchPermissions) {
-      if (branchPermissions.createInspections || branchPermissions.updateInspections) {
-        role = 'Inspector';
-      } else if (branchPermissions.readMachines) {
-        role = 'Operator';
-      } else if (branchPermissions.readInspections) {
-        role = 'Viewer';
-      }
+  // Determine role based on branch-specific permissions
+  let role = 'employee'; // Default: Funcionário (Worker)
+
+  // Check branch-specific permissions
+  const branchPermissions = user.branches?.find((b) => b.branchId === branchId);
+  if (branchPermissions) {
+    // Check if user has manager permissions in this branch
+    const hasManagerPermissions =
+      branchPermissions.createUsers ||
+      branchPermissions.manageUserPermissions ||
+      branchPermissions.updateBranches;
+
+    if (hasManagerPermissions) {
+      role = 'branchManager'; // Manager da filial
     }
+    // Otherwise remains 'employee' (Worker)
   }
 
   return {
@@ -64,9 +64,13 @@ interface BranchUserManagementProps {
 export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const t = useTranslations('adminSettings.userManagement');
   const [users, setUsers] = useState<User[]>([]);
+  const [usersData, setUsersData] = useState<UserResponseDto[]>([]);
   const [branchName, setBranchName] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
+  const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
 
   const loadUsers = useCallback(async () => {
     if (!branchId) return;
@@ -81,18 +85,21 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         // Get users for the company
         const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
         if (usersResponse.data) {
-          // Transform and filter users for this branch
-          const transformedUsers = usersResponse.data
-            .filter((user) => {
-              // Include company admins and managers
-              if (user.isCompanyAdmin || user.isCompanyManager) {
-                return true;
-              }
-              // Include users with permissions for this branch
-              return user.branches?.some((b) => b.branchId === branchId);
-            })
-            .map((user) => transformUserToUI(user, branchId));
+          // Filter users for this branch (exclude company admins/managers - they show in company card)
+          const filteredUsers = usersResponse.data.filter((user) => {
+            // Exclude company admins and managers - they are shown at company level
+            if (user.isCompanyAdmin || user.isCompanyManager) {
+              return false;
+            }
+            // Include only users with permissions for this branch
+            return user.branches?.some((b) => b.branchId === branchId);
+          });
 
+          // Store raw user data for edit/delete operations
+          setUsersData(filteredUsers);
+
+          // Transform for display
+          const transformedUsers = filteredUsers.map((user) => transformUserToUI(user, branchId));
           setUsers(transformedUsers);
         }
       }
@@ -112,14 +119,38 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
     loadUsers();
   };
 
+  const handleEditUser = (userId: string) => {
+    const user = usersData.find((u) => u.id === userId);
+    if (user) {
+      setSelectedUser(user);
+      setIsEditUserDialogOpen(true);
+    }
+  };
+
+  const handleDeleteUser = (userId: string) => {
+    const user = usersData.find((u) => u.id === userId);
+    if (user) {
+      setSelectedUser(user);
+      setIsDeleteUserDialogOpen(true);
+    }
+  };
+
+  const handleEditUserSuccess = () => {
+    // Reload user data after editing a user
+    loadUsers();
+  };
+
+  const handleDeleteUserSuccess = () => {
+    // Reload user data after deleting a user
+    loadUsers();
+  };
+
   const getRoleBadgeColor = (role: string) => {
     const colors: Record<string, string> = {
-      Admin: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
-      Inspector: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
-      Operator: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-      Viewer: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+      branchManager: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
+      employee: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
     };
-    return colors[role] || colors.Viewer;
+    return colors[role] || colors.employee;
   };
 
   const getStatusBadgeColor = (status: string) => {
@@ -149,7 +180,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
           <Users className="h-4 w-4" />
           {t('title')} - {branchName}
         </h3>
-        <Button size="sm" onClick={() => setIsAddUserDialogOpen(true)}>
+        <Button onClick={() => setIsAddUserDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
           {t('addUser')}
         </Button>
@@ -182,7 +213,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
                     <span
                       className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}
                     >
-                      {user.role}
+                      {t(`roles.${user.role}`)}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -194,13 +225,19 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => handleEditUser(user.id)}
+                      >
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                        onClick={() => handleDeleteUser(user.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -220,6 +257,25 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         branchId={branchId}
         branchName={branchName}
         onSuccess={handleAddUserSuccess}
+      />
+
+      {/* Edit User Dialog */}
+      <EditUserDialog
+        open={isEditUserDialogOpen}
+        onOpenChange={setIsEditUserDialogOpen}
+        user={selectedUser}
+        branchId={branchId}
+        branchName={branchName}
+        onSuccess={handleEditUserSuccess}
+      />
+
+      {/* Delete User Dialog */}
+      <DeleteUserDialog
+        open={isDeleteUserDialogOpen}
+        onOpenChange={setIsDeleteUserDialogOpen}
+        user={selectedUser}
+        branchId={branchId}
+        onSuccess={handleDeleteUserSuccess}
       />
     </div>
   );

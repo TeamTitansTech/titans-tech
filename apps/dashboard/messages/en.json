@@ -76,6 +76,14 @@
         "slug": {
           "label": "Company Slug",
           "placeholder": "e.g., acme-manufacturing"
+        },
+        "logo": {
+          "label": "Logo URL (Optional)",
+          "placeholder": "e.g., https://example.com/logo.png"
+        },
+        "brandColor": {
+          "label": "Brand Color (Optional)",
+          "placeholder": "#FF5733"
         }
       },
       "cancel": "Cancel",
@@ -100,6 +108,10 @@
         "status": "Status",
         "actions": "Actions"
       },
+      "roles": {
+        "branchManager": "Manager",
+        "employee": "Worker"
+      },
       "status": {
         "active": "active",
         "inactive": "inactive"
@@ -120,11 +132,15 @@
         "role": {
           "label": "Role",
           "placeholder": "Select a role",
+          "options": {
+            "admin": "Admin",
+            "manager": "Manager",
+            "worker": "Worker"
+          },
           "descriptions": {
-            "admin": "Admin: Full access",
-            "inspector": "Inspector: Can review and approve",
-            "operator": "Operator: Can operate machines",
-            "viewer": "Viewer: Read-only"
+            "admin": "Admin: Full control over matrix and all branches",
+            "manager": "Manager: Full control over this branch only",
+            "worker": "Worker: Standard employee with operational access"
           }
         }
       },
@@ -132,7 +148,55 @@
       "submit": "Add User",
       "submitting": "Adding...",
       "success": "User added successfully",
-      "error": "Failed to add user"
+      "error": "Failed to add user",
+      "errors": {
+        "adminAlreadyExists": "A company admin already exists. Only one admin is allowed per company."
+      }
+    },
+    "editUserDialog": {
+      "title": "Edit User",
+      "description": "Update user information for {branchName}",
+      "form": {
+        "name": {
+          "label": "Full Name",
+          "placeholder": "Enter user's full name"
+        },
+        "email": {
+          "label": "Email Address",
+          "placeholder": "user@example.com"
+        },
+        "role": {
+          "label": "Role",
+          "placeholder": "Select a role",
+          "options": {
+            "admin": "Admin",
+            "manager": "Manager",
+            "worker": "Worker"
+          },
+          "descriptions": {
+            "admin": "Admin: Full control over matrix and all branches",
+            "manager": "Manager: Full control over this branch only",
+            "worker": "Worker: Standard employee with operational access"
+          }
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Update User",
+      "submitting": "Updating...",
+      "success": "User updated successfully",
+      "error": "Failed to update user",
+      "errors": {
+        "adminAlreadyExists": "A company admin already exists. Only one admin is allowed per company."
+      }
+    },
+    "deleteUserDialog": {
+      "title": "Delete User",
+      "description": "Are you sure you want to delete {userName}? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "deleting": "Deleting...",
+      "success": "User deleted successfully",
+      "error": "Failed to delete user"
     }
   },
   "dashboard": {
@@ -238,6 +302,17 @@
     "maintenanceInspection": "Maintenance",
     "routineInspection": "Routine Inspection",
     "form": {
+      "company": {
+        "label": "Select Company",
+        "description": "Choose which company this machine belongs to",
+        "loading": "Loading companies..."
+      },
+      "branch": {
+        "label": "Select Branch",
+        "description": "Choose which branch this machine belongs to",
+        "loading": "Loading branches...",
+        "mainBranch": "Main Branch"
+      },
       "blueprint": {
         "label": "Blueprint",
         "placeholder": "Select a blueprint",
@@ -253,13 +328,16 @@
         "selectPlaceholder": "Select an option",
         "slug": "Slug"
       },
+      "selectCompanyPrompt": "Select a company to get started",
+      "selectBranchPrompt": "Select a branch to get started",
       "selectBlueprintPrompt": "Select a blueprint to get started",
       "submit": {
         "idle": "Create Machine",
         "loading": "Sending..."
       },
       "error": {
-        "title": "Error:"
+        "title": "Error:",
+        "branchRequired": "Please select a branch"
       },
       "response": {
         "title": "Response:"
@@ -352,6 +430,7 @@
     "pageTitle": "Companies",
     "pageDescription": "Manage company accounts and their branches",
     "newButton": "New Company",
+    "newBranch": "Create Branch",
     "emptyState": "No companies found. Create your first company to get started.",
     "errorLoading": "Error loading companies",
     "companyNotFound": "Company not found",
@@ -361,6 +440,35 @@
     "branches": "branches",
     "machine": "machine",
     "machines": "machines",
+    "mainBranch": "Main Branch",
+    "viewMachines": "View Machines",
+    "createBranch": {
+      "title": "Create Branch",
+      "description": "Add a new branch to this company",
+      "form": {
+        "name": {
+          "label": "Branch Name",
+          "placeholder": "e.g., West Coast Branch"
+        },
+        "isMainBranch": {
+          "label": "Set as main branch"
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Create Branch",
+      "submitting": "Creating...",
+      "success": "Branch created successfully",
+      "error": "Failed to create branch"
+    }
+  },
+  "branches": {
+    "branchNotFound": "Branch not found",
+    "machinesSubtitle": "Machines in this branch",
+    "newMachine": "New Machine",
+    "noMachines": "No machines in this branch yet",
+    "noBlueprint": "No blueprint",
+    "blueprint": "Blueprint",
+    "fields": "fields",
     "mainBranch": "Main Branch"
   }
 }

@@ -91,6 +91,26 @@ export class CompanyBranchesService {
     return { success: true };
   }
 
+  async getMachines(branchId: string) {
+    const branch = await this.prisma.companyBranch.findUnique({
+      where: { id: branchId },
+      include: {
+        machines: {
+          include: {
+            blueprint: true,
+            fields: true,
+          },
+        },
+      },
+    });
+
+    if (!branch) {
+      throw new NotFoundException('Branch not found');
+    }
+
+    return branch.machines;
+  }
+
   async setUserPermissions(
     branchId: string,
     userId: string,
