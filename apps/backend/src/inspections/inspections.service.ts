@@ -42,6 +42,32 @@ export class InspectionsService {
               },
             }
           : undefined,
+        slideChecks: createInspectionDto.slide
+          ? {
+              create: {
+                outerSlideBefore: createInspectionDto.slide.outerSlide?.before
+                  ? {
+                      create: createInspectionDto.slide.outerSlide.before,
+                    }
+                  : undefined,
+                outerSlideAfter: createInspectionDto.slide.outerSlide?.after
+                  ? {
+                      create: createInspectionDto.slide.outerSlide.after,
+                    }
+                  : undefined,
+                innerSlideBefore: createInspectionDto.slide.innerSlide?.before
+                  ? {
+                      create: createInspectionDto.slide.innerSlide.before,
+                    }
+                  : undefined,
+                innerSlideAfter: createInspectionDto.slide.innerSlide?.after
+                  ? {
+                      create: createInspectionDto.slide.innerSlide.after,
+                    }
+                  : undefined,
+              },
+            }
+          : undefined,
       },
       include: {
         machine: {
@@ -54,6 +80,14 @@ export class InspectionsService {
           include: {
             before: true,
             after: true,
+          },
+        },
+        slideChecks: {
+          include: {
+            outerSlideBefore: true,
+            outerSlideAfter: true,
+            innerSlideBefore: true,
+            innerSlideAfter: true,
           },
         },
       },
@@ -77,6 +111,14 @@ export class InspectionsService {
             after: true,
           },
         },
+        slideChecks: {
+          include: {
+            outerSlideBefore: true,
+            outerSlideAfter: true,
+            innerSlideBefore: true,
+            innerSlideAfter: true,
+          },
+        },
       },
       orderBy: {
         date: 'desc',
@@ -98,6 +140,14 @@ export class InspectionsService {
           include: {
             before: true,
             after: true,
+          },
+        },
+        slideChecks: {
+          include: {
+            outerSlideBefore: true,
+            outerSlideAfter: true,
+            innerSlideBefore: true,
+            innerSlideAfter: true,
           },
         },
       },
@@ -132,6 +182,14 @@ export class InspectionsService {
           include: {
             before: true,
             after: true,
+          },
+        },
+        slideChecks: {
+          include: {
+            outerSlideBefore: true,
+            outerSlideAfter: true,
+            innerSlideBefore: true,
+            innerSlideAfter: true,
           },
         },
       },
