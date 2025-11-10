@@ -2,6 +2,13 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { rootDomain } from './lib/utils';
+import { getCookie, setCookie } from './lib/cookies';
+
+const PUBLIC_PATHS = ['/admin', '/', '/_next', '/api', '/favicon.ico', '/globals.css'];
+const ADMIN_PUBLIC_PATHS = ['/admin'];
+const ADMIN_LOGIN_PATH = '/admin';
+const CLIENT_PUBLIC_PATHS = ['/'];
+const CLIENT_LOGIN_PATH = '/';
 
 function extractSubdomain(request: NextRequest): string | null {
   const url = request.url;
@@ -42,9 +49,24 @@ function extractSubdomain(request: NextRequest): string | null {
   return isSubdomain ? hostname.replace(`.${rootDomainFormatted}`, '') : null;
 }
 
+function isPublicPath(pathname: string, isAdmin: boolean): boolean {
+  const arr = isAdmin ? ADMIN_PUBLIC_PATHS : CLIENT_PUBLIC_PATHS;
+  return [...PUBLIC_PATHS, ...arr].some((path) => pathname === path);
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const subdomain = extractSubdomain(request);
+  const publicPath = isPublicPath(pathname, !subdomain);
+
+  const authToken = await getCookie('auth_token');
+  const isLoggedIn = Boolean(authToken);
+  await setCookie('is_sys_panel', String(!subdomain));
+
+  if (!publicPath && !isLoggedIn) {
+    const redirectPath = subdomain ? CLIENT_LOGIN_PATH : ADMIN_LOGIN_PATH;
+    return NextResponse.redirect(new URL(redirectPath, request.url));
+  }
 
   if (subdomain) {
     // Block access to admin page from subdomains
@@ -52,10 +74,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    // For the root path on a subdomain, rewrite to the subdomain page
-    if (pathname === '/') {
-      return NextResponse.rewrite(new URL(`/s/${subdomain}`, request.url));
-    }
+    return NextResponse.rewrite(new URL(`/s/${subdomain}`, request.url));
   }
 
   // On the root domain, allow normal access

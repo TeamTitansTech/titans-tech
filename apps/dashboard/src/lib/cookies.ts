@@ -13,7 +13,7 @@ export type CookieOptions = {
   domain?: string;
 };
 
-export type CookieName = 'sidebar_state' | 'auth_token';
+export type CookieName = 'sidebar_state' | 'auth_token' | 'is_sys_panel';
 
 export async function getCookie(name: CookieName): Promise<string | undefined> {
   const cookieStore = await cookies();
