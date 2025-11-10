@@ -60,7 +60,7 @@ export function DeleteUserDialog({
       });
 
       if (response.errors) {
-        toast.error(t('error') || 'Failed to delete user');
+        toast.error(t('error'));
         return;
       }
 
@@ -68,7 +68,7 @@ export function DeleteUserDialog({
       onOpenChange(false);
       onSuccess();
     } catch {
-      toast.error(t('error') || 'Failed to delete user');
+      toast.error(t('error'));
     } finally {
       setIsDeleting(false);
     }

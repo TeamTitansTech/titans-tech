@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -19,20 +19,6 @@ import { Label } from '@/components/ui/label';
 import { createCompany, type Company } from '@/data/services/companies.api';
 import { toast } from 'sonner';
 
-const companySchema = z.object({
-  name: z.string().min(1, 'Company name is required'),
-  slug: z.string().min(1, 'Company slug is required'),
-  logo: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  brandColor: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, 'Must be a valid hex color')
-    .optional()
-    .or(z.literal('')),
-  description: z.string().optional().or(z.literal('')),
-});
-
-type CompanyFormData = z.infer<typeof companySchema>;
-
 interface CreateCompanyDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -41,7 +27,27 @@ interface CreateCompanyDialogProps {
 
 export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCompanyDialogProps) {
   const t = useTranslations('adminSettings.createCompany');
+  const tCommon = useTranslations('common');
+  const tValidation = useTranslations('validation');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const companySchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, tValidation('companyNameRequired')),
+        slug: z.string().min(1, tValidation('companySlugRequired')),
+        logo: z.string().url(tValidation('invalidUrl')).optional().or(z.literal('')),
+        brandColor: z
+          .string()
+          .regex(/^#[0-9A-Fa-f]{6}$/, tValidation('invalidHexColor'))
+          .optional()
+          .or(z.literal('')),
+        description: z.string().optional().or(z.literal('')),
+      }),
+    [tValidation],
+  );
+
+  type CompanyFormData = z.infer<typeof companySchema>;
 
   const {
     register,
@@ -55,7 +61,7 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCom
 
   const handleDialogClose = (open: boolean) => {
     if (!open && isDirty && !isSubmitting) {
-      if (confirm('You have unsaved changes. Are you sure you want to close?')) {
+      if (confirm(tCommon('unsavedChanges'))) {
         reset();
         onOpenChange(false);
       }

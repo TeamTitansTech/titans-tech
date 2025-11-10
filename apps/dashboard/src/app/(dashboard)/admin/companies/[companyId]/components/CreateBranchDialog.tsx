@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,14 +20,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { createBranch, type CompanyBranch } from '@/data/services/company-branches.api';
 import { toast } from 'sonner';
 
-const branchSchema = z.object({
-  name: z.string().min(1, 'Branch name is required'),
-  isMainBranch: z.boolean().optional(),
-  location: z.string().optional().or(z.literal('')),
-});
-
-type BranchFormData = z.infer<typeof branchSchema>;
-
 interface CreateBranchDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -42,7 +34,21 @@ export function CreateBranchDialog({
   companyId,
 }: CreateBranchDialogProps) {
   const t = useTranslations('companies.createBranch');
+  const tCommon = useTranslations('common');
+  const tValidation = useTranslations('validation');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const branchSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, tValidation('branchNameRequired')),
+        isMainBranch: z.boolean().optional(),
+        location: z.string().optional().or(z.literal('')),
+      }),
+    [tValidation],
+  );
+
+  type BranchFormData = z.infer<typeof branchSchema>;
 
   const {
     register,
@@ -64,7 +70,7 @@ export function CreateBranchDialog({
 
   const handleDialogClose = (open: boolean) => {
     if (!open && isDirty && !isSubmitting) {
-      if (confirm('You have unsaved changes. Are you sure you want to close?')) {
+      if (confirm(tCommon('unsavedChanges'))) {
         reset();
         onOpenChange(false);
       }

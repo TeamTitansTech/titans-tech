@@ -1,7 +1,18 @@
 {
   "common": {
     "companyName": "InspectPro",
-    "companySubtitle": "Portal Admin"
+    "companySubtitle": "Portal Admin",
+    "unsavedChanges": "Você tem alterações não salvas. Tem certeza que deseja fechar?"
+  },
+  "validation": {
+    "required": "Este campo é obrigatório",
+    "companyNameRequired": "Nome da empresa é obrigatório",
+    "companySlugRequired": "Slug da empresa é obrigatório",
+    "invalidUrl": "Deve ser uma URL válida",
+    "invalidHexColor": "Deve ser uma cor hexadecimal válida",
+    "branchNameRequired": "Nome da filial é obrigatório",
+    "fullNameRequired": "Nome completo é obrigatório",
+    "invalidEmail": "Endereço de email inválido"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -98,6 +109,10 @@
     },
     "errors": {
       "loadingCompaniesFailed": "Falha ao carregar empresas"
+    },
+    "companyCard": {
+      "administrator": "Administrador",
+      "unknownUser": "Desconhecido"
     },
     "userManagement": {
       "title": "Contas de Usuário",

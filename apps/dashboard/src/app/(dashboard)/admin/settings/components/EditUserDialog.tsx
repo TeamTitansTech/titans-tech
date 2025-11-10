@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -28,14 +28,6 @@ import { updateUser } from '@/data/services/users.api';
 import { setUserPermissions, getBranch } from '@/data/services/company-branches.api';
 import type { UserResponseDto } from '@titans-tech/shared';
 
-const userSchema = z.object({
-  name: z.string().min(1, 'Full name is required'),
-  email: z.string().email('Invalid email address'),
-  role: z.enum(['Manager', 'Worker']),
-});
-
-type UserFormData = z.infer<typeof userSchema>;
-
 interface EditUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -54,8 +46,21 @@ export function EditUserDialog({
   onSuccess,
 }: EditUserDialogProps) {
   const t = useTranslations('adminSettings.editUserDialog');
+  const tValidation = useTranslations('validation');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [companyId, setCompanyId] = useState<string>('');
+
+  const userSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, tValidation('fullNameRequired')),
+        email: z.string().email(tValidation('invalidEmail')),
+        role: z.enum(['Manager', 'Worker']),
+      }),
+    [tValidation],
+  );
+
+  type UserFormData = z.infer<typeof userSchema>;
 
   const determineRole = useCallback(
     (userData: UserResponseDto | null): 'Manager' | 'Worker' => {
@@ -136,7 +141,7 @@ export function EditUserDialog({
       });
 
       if (!response.data) {
-        toast.error(t('error') || 'Failed to update user');
+        toast.error(t('error'));
         return;
       }
 
@@ -207,7 +212,7 @@ export function EditUserDialog({
       onOpenChange(false);
       onSuccess();
     } catch {
-      toast.error(t('error') || 'Failed to update user');
+      toast.error(t('error'));
     } finally {
       setIsSubmitting(false);
     }

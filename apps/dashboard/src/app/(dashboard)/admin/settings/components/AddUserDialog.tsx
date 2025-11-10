@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -27,14 +27,6 @@ import { toast } from 'sonner';
 import { createUser } from '@/data/services/users.api';
 import { setUserPermissions } from '@/data/services/company-branches.api';
 
-const userSchema = z.object({
-  name: z.string().min(1, 'Full name is required'),
-  email: z.string().email('Invalid email address'),
-  role: z.enum(['Manager', 'Worker']),
-});
-
-type UserFormData = z.infer<typeof userSchema>;
-
 interface AddUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -51,7 +43,20 @@ export function AddUserDialog({
   onSuccess,
 }: AddUserDialogProps) {
   const t = useTranslations('adminSettings.addUserDialog');
+  const tValidation = useTranslations('validation');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const userSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, tValidation('fullNameRequired')),
+        email: z.string().email(tValidation('invalidEmail')),
+        role: z.enum(['Manager', 'Worker']),
+      }),
+    [tValidation],
+  );
+
+  type UserFormData = z.infer<typeof userSchema>;
 
   const {
     register,
@@ -84,7 +89,7 @@ export function AddUserDialog({
       });
 
       if (!response.data) {
-        toast.error(t('error') || 'Failed to create user');
+        toast.error(t('error'));
         return;
       }
 
@@ -155,7 +160,7 @@ export function AddUserDialog({
       onOpenChange(false);
       onSuccess();
     } catch {
-      toast.error(t('error') || 'Failed to create user');
+      toast.error(t('error'));
     } finally {
       setIsSubmitting(false);
     }

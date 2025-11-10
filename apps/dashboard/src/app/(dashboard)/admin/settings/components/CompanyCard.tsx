@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Building2, User } from 'lucide-react';
 import { type Company } from '@/data/services/companies.api';
 import { getAllUsers } from '@/data/services/users.api';
@@ -12,6 +13,7 @@ interface CompanyCardProps {
 }
 
 export function CompanyCard({ company }: CompanyCardProps) {
+  const t = useTranslations('adminSettings.companyCard');
   const [companyAdmin, setCompanyAdmin] = useState<UserResponseDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -62,10 +64,12 @@ export function CompanyCard({ company }: CompanyCardProps) {
               <div className="pt-3 border-t">
                 <div className="flex items-center gap-2 mb-2">
                   <User className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-muted-foreground">Administrador</span>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    {t('administrator')}
+                  </span>
                 </div>
                 <div className="ml-6">
-                  <p className="text-sm font-medium">{companyAdmin.name || 'Unknown'}</p>
+                  <p className="text-sm font-medium">{companyAdmin.name || t('unknownUser')}</p>
                   <p className="text-xs text-muted-foreground">{companyAdmin.email}</p>
                 </div>
               </div>

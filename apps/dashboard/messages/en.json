@@ -1,7 +1,18 @@
 {
   "common": {
     "companyName": "InspectPro",
-    "companySubtitle": "Admin Portal"
+    "companySubtitle": "Admin Portal",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to close?"
+  },
+  "validation": {
+    "required": "This field is required",
+    "companyNameRequired": "Company name is required",
+    "companySlugRequired": "Company slug is required",
+    "invalidUrl": "Must be a valid URL",
+    "invalidHexColor": "Must be a valid hex color",
+    "branchNameRequired": "Branch name is required",
+    "fullNameRequired": "Full name is required",
+    "invalidEmail": "Invalid email address"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -98,6 +109,10 @@
     },
     "errors": {
       "loadingCompaniesFailed": "Failed to load companies"
+    },
+    "companyCard": {
+      "administrator": "Administrator",
+      "unknownUser": "Unknown"
     },
     "userManagement": {
       "title": "User Accounts",
