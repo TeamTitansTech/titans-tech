@@ -6,7 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
 import { SysAdminProvider } from '@/contexts/SysAdminContext';
 import { CompanyUserProvider } from '@/contexts/CompanyUserContext';
-import { AuthProvider } from '@/components/providers/AuthProvider';
+import { AuthProvider } from '@/contexts/AuthContext';
 import './globals.css';
 
 const geistSans = Geist({
