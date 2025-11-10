@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
+import { setUserLocale } from '@/actions/locale';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -24,13 +25,13 @@ export function GeneralSettingsSection() {
   const t = useTranslations('adminSettings.generalSettings');
   const locale = useLocale();
   const router = useRouter();
-  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric');
 
   const handleLanguageChange = (newLocale: string) => {
-    startTransition(() => {
-      router.replace(pathname, { locale: newLocale });
+    startTransition(async () => {
+      await setUserLocale(newLocale);
+      router.refresh();
       toast.success(t('saved'));
     });
   };

@@ -25,7 +25,6 @@ interface User {
   name: string;
   email: string;
   role: string;
-  status: 'active' | 'inactive';
 }
 
 // Transform UserResponseDto to UI User format
@@ -53,7 +52,6 @@ function transformUserToUI(user: UserResponseDto, branchId: string): User {
     name: user.name || 'Unknown User',
     email: user.email,
     role,
-    status: user.isUsingDefaultPassword ? 'inactive' : 'active',
   };
 }
 
@@ -66,49 +64,59 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const [users, setUsers] = useState<User[]>([]);
   const [usersData, setUsersData] = useState<UserResponseDto[]>([]);
   const [branchName, setBranchName] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
   const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
 
-  const loadUsers = useCallback(async () => {
-    if (!branchId) return;
+  const loadUsers = useCallback(
+    async (isRefresh = false) => {
+      if (!branchId) return;
 
-    setIsLoading(true);
-    try {
-      // Get branch info
-      const branchResponse = await getBranch({ branchId });
-      if (branchResponse.data) {
-        setBranchName(branchResponse.data.name);
-
-        // Get users for the company
-        const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
-        if (usersResponse.data) {
-          // Filter users for this branch (exclude company admins/managers - they show in company card)
-          const filteredUsers = usersResponse.data.filter((user) => {
-            // Exclude company admins and managers - they are shown at company level
-            if (user.isCompanyAdmin || user.isCompanyManager) {
-              return false;
-            }
-            // Include only users with permissions for this branch
-            return user.branches?.some((b) => b.branchId === branchId);
-          });
-
-          // Store raw user data for edit/delete operations
-          setUsersData(filteredUsers);
-
-          // Transform for display
-          const transformedUsers = filteredUsers.map((user) => transformUserToUI(user, branchId));
-          setUsers(transformedUsers);
-        }
+      if (isRefresh) {
+        setIsRefreshing(true);
+      } else {
+        setIsInitialLoading(true);
       }
-    } catch {
-      toast.error(t('loadingFailed'));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [branchId, t]);
+
+      try {
+        // Get branch info
+        const branchResponse = await getBranch({ branchId });
+        if (branchResponse.data) {
+          setBranchName(branchResponse.data.name);
+
+          // Get users for the company
+          const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
+          if (usersResponse.data) {
+            // Filter users for this branch (exclude company admins/managers - they show in company card)
+            const filteredUsers = usersResponse.data.filter((user) => {
+              // Exclude company admins and managers - they are shown at company level
+              if (user.isCompanyAdmin || user.isCompanyManager) {
+                return false;
+              }
+              // Include only users with permissions for this branch
+              return user.branches?.some((b) => b.branchId === branchId);
+            });
+
+            // Store raw user data for edit/delete operations
+            setUsersData(filteredUsers);
+
+            // Transform for display
+            const transformedUsers = filteredUsers.map((user) => transformUserToUI(user, branchId));
+            setUsers(transformedUsers);
+          }
+        }
+      } catch {
+        toast.error(t('loadingFailed'));
+      } finally {
+        setIsInitialLoading(false);
+        setIsRefreshing(false);
+      }
+    },
+    [branchId, t],
+  );
 
   useEffect(() => {
     loadUsers();
@@ -116,7 +124,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
 
   const handleAddUserSuccess = () => {
     // Reload user data after adding a new user
-    loadUsers();
+    loadUsers(true);
   };
 
   const handleEditUser = (userId: string) => {
@@ -137,12 +145,12 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
 
   const handleEditUserSuccess = () => {
     // Reload user data after editing a user
-    loadUsers();
+    loadUsers(true);
   };
 
   const handleDeleteUserSuccess = () => {
     // Reload user data after deleting a user
-    loadUsers();
+    loadUsers(true);
   };
 
   const getRoleBadgeColor = (role: string) => {
@@ -153,13 +161,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
     return colors[role] || colors.employee;
   };
 
-  const getStatusBadgeColor = (status: string) => {
-    return status === 'active'
-      ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
-      : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300';
-  };
-
-  if (isLoading) {
+  if (isInitialLoading) {
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -179,6 +181,9 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         <h3 className="text-base font-semibold flex items-center gap-2">
           <Users className="h-4 w-4" />
           {t('title')} - {branchName}
+          {isRefreshing && (
+            <span className="ml-2 text-xs text-muted-foreground animate-pulse">Updating...</span>
+          )}
         </h3>
         <Button onClick={() => setIsAddUserDialogOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
@@ -186,21 +191,22 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         </Button>
       </div>
 
-      <div className="rounded-md border">
+      <div
+        className={`rounded-md border transition-opacity ${isRefreshing ? 'opacity-60' : 'opacity-100'}`}
+      >
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>{t('table.name')}</TableHead>
               <TableHead>{t('table.email')}</TableHead>
               <TableHead>{t('table.role')}</TableHead>
-              <TableHead>{t('table.status')}</TableHead>
               <TableHead className="text-right">{t('table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground">
+                <TableCell colSpan={4} className="text-center text-muted-foreground">
                   {t('noUsers')}
                 </TableCell>
               </TableRow>
@@ -214,13 +220,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
                       className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}
                     >
                       {t(`roles.${user.role}`)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusBadgeColor(user.status)}`}
-                    >
-                      {t(`status.${user.status}`)}
                     </span>
                   </TableCell>
                   <TableCell className="text-right">

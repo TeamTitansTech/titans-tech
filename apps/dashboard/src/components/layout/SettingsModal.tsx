@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
+import { setUserLocale } from '@/actions/locale';
 import {
   Dialog,
   DialogContent,
@@ -36,14 +37,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const t = useTranslations('settings');
   const locale = useLocale();
   const router = useRouter();
-  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [selectedLocale, setSelectedLocale] = useState(locale);
 
   const handleLanguageChange = (newLocale: string) => {
     setSelectedLocale(newLocale);
-    startTransition(() => {
-      router.replace(pathname, { locale: newLocale });
+    startTransition(async () => {
+      await setUserLocale(newLocale);
+      router.refresh();
       onClose();
     });
   };
