@@ -9,6 +9,11 @@
       "require": "./dist/index.js",
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
+    },
+    "./client": {
+      "require": "./dist/client-safe.js",
+      "import": "./dist/client-safe.js",
+      "types": "./dist/client-safe.d.ts"
     }
   },
   "scripts": {
@@ -18,14 +23,18 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "db:create-sys-admin": "tsx scripts/create-sys-admin.ts",
+    "db:create-test-user": "tsx scripts/create-test-user.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
-    "bcryptjs": "^2.4.3"
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3"
   },
   "devDependencies": {
     "@titans-tech/tsconfig": "*",
+    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
     "prisma": "^6.0.0",
     "tsx": "^4.19.0",

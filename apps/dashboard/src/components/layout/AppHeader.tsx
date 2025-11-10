@@ -1,0 +1,130 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { PanelLeft, Search, Bell, UserCircle, LogOut, Settings, Moon, Sun } from 'lucide-react';
+import { useSidebar } from '@/components/ui/sidebar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { useTranslations } from 'next-intl';
+import { SettingsModal } from './SettingsModal';
+import { useTheme } from 'next-themes';
+import { logout } from '@/data/services/auth.api';
+import { useSysAdmin } from '@/contexts/SysAdminContext';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
+
+export function AppHeader() {
+  const router = useRouter();
+  const { toggleSidebar } = useSidebar();
+  const t = useTranslations('header');
+  const { theme, setTheme } = useTheme();
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const { setSysAdminUser } = useSysAdmin();
+  const { setCompanyUser } = useCompanyUser();
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setSysAdminUser(null);
+    setCompanyUser(null);
+    router.push('/login');
+  };
+
+  return (
+    <header className="sticky top-0 z-50 w-full border-b bg-background dark:bg-card">
+      <div className="flex h-16 items-center gap-4 px-6">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={toggleSidebar}
+              className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200"
+            >
+              <PanelLeft className="h-5 w-5" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>{t('toggleSidebar')}</TooltipContent>
+        </Tooltip>
+
+        <div className="flex-1 max-w-md">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="search"
+              placeholder={t('searchPlaceholder')}
+              className="w-full h-10 pl-10 pr-4 rounded-md border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder:text-muted-foreground"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 ml-auto">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200">
+                <Bell className="h-5 w-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{t('notifications')}</TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={toggleTheme}
+                className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200"
+                aria-label={t('toggleTheme')}
+              >
+                <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>{t('toggleTheme')}</TooltipContent>
+          </Tooltip>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200">
+                <UserCircle className="h-5 w-5" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">Admin User</p>
+                  <p className="text-xs leading-none text-muted-foreground">admin@inspectpro.com</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setIsSettingsModalOpen(true)}
+                className="cursor-pointer hover:bg-orange-100 hover:text-orange-500"
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                <span>{t('settings')}</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="cursor-pointer hover:bg-red-100 hover:text-red-500"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>{t('logout')}</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} />
+    </header>
+  );
+}

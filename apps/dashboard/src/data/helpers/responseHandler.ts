@@ -18,6 +18,7 @@ export async function responseHandler<T>(
     method?: string;
     body?: any;
     headers?: Record<string, string>;
+    tags?: string[];
   },
 ): Promise<
   | { data: T; errors: null; rawErrors: null }
@@ -25,7 +26,7 @@ export async function responseHandler<T>(
 > {
   try {
     const token = await getCookie('auth_token');
-    const { body: requestBody, headers: customHeaders, method = 'GET' } = options || {};
+    const { body: requestBody, headers: customHeaders, method = 'GET', tags } = options || {};
 
     const headers: Record<string, string> = {
       ...customHeaders,
@@ -45,10 +46,17 @@ export async function responseHandler<T>(
       method,
       headers,
       body: requestBody ? JSON.stringify(requestBody) : undefined,
+      next: tags ? { tags } : undefined,
     });
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      if (process.env.NODE_ENV === 'development') {
+        console.error('API Error:', `${method} -- ${path}`, {
+          status: response.status,
+          errorData,
+        });
+      }
 
       // Handle 401 Unauthorized - Invalid or missing token
       if (response.status === 401) {
@@ -80,6 +88,9 @@ export async function responseHandler<T>(
     }
 
     const data = await response.json();
+    if (process.env.NODE_ENV === 'development') {
+      console.debug('API Response Data:', `${method} -- ${path}`, data);
+    }
     return { data, errors: null, rawErrors: null };
   } catch (error) {
     console.error('Error connecting to API', error);

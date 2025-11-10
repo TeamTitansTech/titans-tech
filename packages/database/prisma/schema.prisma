@@ -12,11 +12,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum UserRole {
-  ADMIN
-  USER
-}
-
 enum MatingPartType {
   BUSHING
   CONNECTION
@@ -25,64 +20,113 @@ enum MatingPartType {
 
 enum InspectionSection {
   BEARING_CLEARANCE
-  HYDRAULIC_CHECK
-  ELECTRICAL_CHECK
-  MECHANICAL_INSPECTION
-  SAFETY_CHECK
+  SLIDE
+  GIBS
+  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER
+  CLUTCH
+  COUNTERBALANCE_CYLINDER_AIRBAG
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  role      UserRole @default(USER)
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model SysAdmin {
+  id                     String   @id @default(cuid())
+  email                  String   @unique
+  password               String
+  isUsingDefaultPassword Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
-  permissions UserPermission[]
-  companies   UserCompany[]
-
-  @@map("users")
-}
-
-model UserPermission {
-  id         String   @id @default(cuid())
-  userId     String
-  permission String // "ALL" for now
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_permissions")
+  @@map("sys_admins")
 }
 
 model Company {
   id         String   @id @default(cuid())
   name       String
+  slug       String   @unique
   logo       String?
   brandColor String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  users UserCompany[]
+  branches CompanyBranch[]
+  users    User[]
 
   @@map("companies")
 }
 
-model UserCompany {
-  id        String   @id @default(cuid())
-  userId    String
-  companyId String
+model CompanyBranch {
+  id           String  @id @default(cuid())
+  name         String
+  isMainBranch Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  company   Company      @relation(fields: [companyId], references: [id])
+  companyId String
+  users     UserBranch[]
 
-  @@unique([userId, companyId])
-  @@map("user_companies")
+  @@map("company_branches")
+}
+
+model User {
+  id                     String  @id @default(cuid())
+  name                   String?
+  email                  String  @unique
+  password               String
+  isCompanyAdmin         Boolean @default(false)
+  isCompanyManager       Boolean @default(false)
+  isUsingDefaultPassword Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company   Company      @relation(fields: [companyId], references: [id])
+  companyId String
+  branches  UserBranch[]
+
+  @@map("users")
+}
+
+model UserBranch {
+  user      User          @relation(fields: [userId], references: [id])
+  userId    String
+  branch    CompanyBranch @relation(fields: [branchId], references: [id])
+  branchId  String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // User Management Permissions
+  readUsers             Boolean @default(false)
+  createUsers           Boolean @default(false)
+  updateUsers           Boolean @default(false)
+  deleteUsers           Boolean @default(false)
+  manageUserPermissions Boolean @default(false)
+  assignUsersToBranches Boolean @default(false)
+
+  // Branch Management Permissions
+  readBranches   Boolean @default(false)
+  updateBranches Boolean @default(false)
+
+  // Blueprint Permissions
+  readBlueprints   Boolean @default(false)
+  createBlueprints Boolean @default(false)
+  updateBlueprints Boolean @default(false)
+  deleteBlueprints Boolean @default(false)
+
+  // Machine Permissions
+  readMachines   Boolean @default(false)
+  createMachines Boolean @default(false)
+  updateMachines Boolean @default(false)
+  deleteMachines Boolean @default(false)
+
+  // Inspection Permissions
+  readInspections   Boolean @default(false)
+  createInspections Boolean @default(false)
+  updateInspections Boolean @default(false)
+  deleteInspections Boolean @default(false)
+
+  @@id([userId, branchId])
+  @@map("user_branches")
 }
 
 // Machine Management Models
