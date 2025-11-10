@@ -57,7 +57,6 @@ export function EditUserDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [companyId, setCompanyId] = useState<string>('');
 
-  // Determine initial role based on user data
   const determineRole = useCallback(
     (userData: UserResponseDto | null): 'Manager' | 'Worker' => {
       if (!userData) return 'Worker';
@@ -97,7 +96,6 @@ export function EditUserDialog({
 
   const selectedRole = watch('role');
 
-  // Update form when user prop changes
   useEffect(() => {
     if (user) {
       setValue('name', user.name || '');
@@ -106,7 +104,6 @@ export function EditUserDialog({
     }
   }, [user, setValue, determineRole]);
 
-  // Fetch companyId when dialog opens
   useEffect(() => {
     const fetchCompanyId = async () => {
       if (!branchId) return;
@@ -129,7 +126,6 @@ export function EditUserDialog({
     setIsSubmitting(true);
 
     try {
-      // Update user basic info
       const response = await updateUser({
         companyId,
         userId: user.id,

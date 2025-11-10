@@ -36,7 +36,6 @@ export function DeleteUserDialog({
   const [isDeleting, setIsDeleting] = useState(false);
   const [companyId, setCompanyId] = useState<string>('');
 
-  // Fetch companyId when dialog opens
   useEffect(() => {
     const fetchCompanyId = async () => {
       if (branchId) {

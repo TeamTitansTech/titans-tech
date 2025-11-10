@@ -60,7 +60,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         <Separator className="my-2" />
 
         <div className="space-y-6 py-4">
-          {/* Language Section */}
           <section className="space-y-4">
             <div className="flex items-center gap-2">
               <Languages className="h-5 w-5 text-orange-500" />
@@ -92,9 +91,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </section>
 
           <Separator />
-
-          {/* Future sections can be added here */}
-          {/* Example: Theme, Notifications, etc. */}
         </div>
 
         <div className="flex justify-end gap-3 pt-4">

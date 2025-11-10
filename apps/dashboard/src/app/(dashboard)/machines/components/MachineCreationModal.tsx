@@ -110,7 +110,6 @@ export function MachineCreationModal({
   }, []);
 
   useEffect(() => {
-    // Load companies only for SysAdmin when companyId is not provided
     if (!isSysAdmin || companyIdProp) {
       return;
     }
@@ -128,12 +127,10 @@ export function MachineCreationModal({
   }, [isSysAdmin, companyIdProp]);
 
   useEffect(() => {
-    // If branchId prop is provided, skip loading branches
     if (branchId) {
       return;
     }
 
-    // Load branches when we have a company ID
     if (!effectiveCompanyId) {
       return;
     }
@@ -266,7 +263,6 @@ export function MachineCreationModal({
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
-            {/* Company Selection (only for SysAdmin without companyId prop) */}
             {isSysAdmin && !companyIdProp && (
               <>
                 <section className="space-y-4">
@@ -330,7 +326,6 @@ export function MachineCreationModal({
               </>
             )}
 
-            {/* Branch Selection (only if branchId not provided) */}
             {!branchId && (companyIdProp || selectedCompanyId || companyUser?.companyId) && (
               <>
                 <section className="space-y-4">
@@ -396,7 +391,6 @@ export function MachineCreationModal({
               </>
             )}
 
-            {/* Blueprint Selection */}
             {(branchId || selectedBranchId) && (
               <section className="space-y-4">
                 <div>

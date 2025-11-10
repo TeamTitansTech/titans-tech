@@ -21,7 +21,6 @@ export function CompanyCard({ company }: CompanyCardProps) {
       try {
         const response = await getAllUsers({ companyId: company.id });
         if (response.data) {
-          // Find the company administrator
           const admin = response.data.find((user) => user.isCompanyAdmin || user.isCompanyManager);
           setCompanyAdmin(admin || null);
         }
@@ -59,7 +58,6 @@ export function CompanyCard({ company }: CompanyCardProps) {
               )}
             </div>
 
-            {/* Company Administrator Section */}
             {!isLoading && companyAdmin && (
               <div className="pt-3 border-t">
                 <div className="flex items-center gap-2 mb-2">

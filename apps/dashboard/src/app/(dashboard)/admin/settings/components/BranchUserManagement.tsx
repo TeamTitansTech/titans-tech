@@ -36,14 +36,13 @@ function transformUserToUI(user: UserResponseDto, branchId: string): User {
   // Check branch-specific permissions
   const branchPermissions = user.branches?.find((b) => b.branchId === branchId);
   if (branchPermissions) {
-    // Check if user has manager permissions in this branch
     const hasManagerPermissions =
       branchPermissions.createUsers ||
       branchPermissions.manageUserPermissions ||
       branchPermissions.updateBranches;
 
     if (hasManagerPermissions) {
-      role = 'branchManager'; // Manager da filial
+      role = 'branchManager';
     }
     // Otherwise remains 'employee' (Worker)
   }
@@ -83,12 +82,10 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
       }
 
       try {
-        // Get branch info
         const branchResponse = await getBranch({ branchId });
         if (branchResponse.data) {
           setBranchName(branchResponse.data.name);
 
-          // Get users for the company
           const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
           if (usersResponse.data) {
             // Filter users for this branch (exclude company admins/managers - they show in company card)
@@ -101,10 +98,8 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
               return user.branches?.some((b) => b.branchId === branchId);
             });
 
-            // Store raw user data for edit/delete operations
             setUsersData(filteredUsers);
 
-            // Transform for display
             const transformedUsers = filteredUsers.map((user) => transformUserToUI(user, branchId));
             setUsers(transformedUsers);
           }
@@ -124,7 +119,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   }, [loadUsers]);
 
   const handleAddUserSuccess = () => {
-    // Reload user data after adding a new user
     loadUsers(true);
   };
 
@@ -145,12 +139,10 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   };
 
   const handleEditUserSuccess = () => {
-    // Reload user data after editing a user
     loadUsers(true);
   };
 
   const handleDeleteUserSuccess = () => {
-    // Reload user data after deleting a user
     loadUsers(true);
   };
 
@@ -240,7 +232,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         </Table>
       </div>
 
-      {/* Add User Dialog */}
       <AddUserDialog
         open={isAddUserDialogOpen}
         onOpenChange={setIsAddUserDialogOpen}
@@ -249,7 +240,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         onSuccess={handleAddUserSuccess}
       />
 
-      {/* Edit User Dialog */}
       <EditUserDialog
         open={isEditUserDialogOpen}
         onOpenChange={setIsEditUserDialogOpen}
@@ -259,7 +249,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         onSuccess={handleEditUserSuccess}
       />
 
-      {/* Delete User Dialog */}
       <DeleteUserDialog
         open={isDeleteUserDialogOpen}
         onOpenChange={setIsDeleteUserDialogOpen}

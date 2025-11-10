@@ -73,7 +73,6 @@ export function AddUserDialog({
     setIsSubmitting(true);
 
     try {
-      // Create user with basic info
       const response = await createUser({
         branchId,
         data: {
@@ -113,7 +112,6 @@ export function AddUserDialog({
         deleteInspections: false,
       };
 
-      // Set permissions based on role
       if (data.role === 'Manager') {
         // Manager: One per branch, has admin permissions for the branch
         permissions.readUsers = true;

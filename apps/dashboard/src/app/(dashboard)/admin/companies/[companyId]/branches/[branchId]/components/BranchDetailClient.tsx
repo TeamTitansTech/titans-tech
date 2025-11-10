@@ -39,7 +39,6 @@ export function BranchDetailClient({ branch, machines, companyId }: BranchDetail
   const t = useTranslations('branches');
   const { companyUser } = useCompanyUser();
 
-  // Check if user can create machines
   const canCreateMachines = () => {
     if (!companyUser) return false;
 
@@ -128,16 +127,6 @@ export function BranchDetailClient({ branch, machines, companyId }: BranchDetail
           ))}
         </div>
       )}
-
-      {/* TODO: Add MachineCreationModal when available */}
-      {/* {canCreateMachines() && (
-        <MachineCreationModal
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSuccess={handleSuccess}
-          branchId={branch.id}
-        />
-      )} */}
     </div>
   );
 }

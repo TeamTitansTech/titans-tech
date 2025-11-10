@@ -11,7 +11,6 @@ import {
 export function UserTableSkeleton() {
   return (
     <div className="space-y-4">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Skeleton className="h-4 w-4" />
@@ -20,7 +19,6 @@ export function UserTableSkeleton() {
         <Skeleton className="h-9 w-32" />
       </div>
 
-      {/* Table */}
       <div className="rounded-md border">
         <Table>
           <TableHeader>

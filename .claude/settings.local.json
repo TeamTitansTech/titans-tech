@@ -23,8 +23,7 @@
       "Bash(npx tsc:*)",
       "Bash(turbo run:*)",
       "Bash(curl:*)",
-      "Bash(ls:*)",
-      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"yes\" npx prisma migrate:*)"
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []

@@ -18,7 +18,6 @@ export class MachinesService {
       );
     }
 
-    // Verify branch exists
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id: createMachineDto.branchId },
     });
@@ -29,7 +28,6 @@ export class MachinesService {
       );
     }
 
-    // Create machine with fields
     const machine = await this.prisma.machine.create({
       data: {
         blueprintId: createMachineDto.blueprintId,
