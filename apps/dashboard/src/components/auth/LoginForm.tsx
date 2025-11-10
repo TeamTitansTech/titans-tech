@@ -10,23 +10,25 @@ import { loginSysAdmin, loginCompanyUser } from '@/data/services/auth.api';
 import { setCookie } from '@/lib/cookies';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { useRouter } from '@/i18n/routing';
 
-interface LoginFormProps {
+type LoginFormProps = {
   brandTitle: string;
   brandSubtitle: string;
-  brandIcon: LucideIcon;
+  brandIcon?: LucideIcon;
   loginType: 'admin' | 'client';
-  onSuccess: () => void;
-}
+  companyId?: string;
+};
 
 export function LoginForm({
   brandTitle,
   brandSubtitle,
   brandIcon: BrandIcon,
   loginType,
-  onSuccess,
+  companyId,
 }: LoginFormProps) {
   const t = useTranslations('login');
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -55,14 +57,14 @@ export function LoginForm({
       if (response?.data?.accessToken) {
         await setCookie('auth_token', response.data.accessToken);
         setSysAdminUser(response.data.user);
-        onSuccess();
+        router.replace('/admin/dashboard');
       }
-    } else {
-      const response = await executeClient({ email, password });
+    } else if (loginType === 'client' && companyId) {
+      const response = await executeClient({ email, password, companyId });
       if (response?.data?.accessToken) {
         await setCookie('auth_token', response.data.accessToken);
         setCompanyUser(response.data.user);
-        onSuccess();
+        router.replace('/home');
       }
     }
   };
@@ -79,7 +81,7 @@ export function LoginForm({
         />
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-12 text-white">
           <div className="mb-8 p-6 bg-white/10 rounded-full backdrop-blur-sm">
-            <BrandIcon className="w-16 h-16" strokeWidth={1.5} />
+            {BrandIcon && <BrandIcon className="w-16 h-16" strokeWidth={1.5} />}
           </div>
           <h1 className="text-4xl font-bold mb-4 text-center">{brandTitle}</h1>
           <p className="text-xl text-blue-100 text-center max-w-md">{brandSubtitle}</p>
@@ -90,7 +92,7 @@ export function LoginForm({
         <div className="w-full max-w-md space-y-8">
           <div className="text-center lg:hidden mb-8">
             <div className="inline-flex mb-4 p-4 bg-primary/10 rounded-full">
-              <BrandIcon className="w-12 h-12 text-primary" strokeWidth={1.5} />
+              {BrandIcon && <BrandIcon className="w-12 h-12 text-primary" strokeWidth={1.5} />}
             </div>
             <h2 className="text-2xl font-bold text-foreground">{brandTitle}</h2>
             <p className="text-muted-foreground mt-2">{brandSubtitle}</p>

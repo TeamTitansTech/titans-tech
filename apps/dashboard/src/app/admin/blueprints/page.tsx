@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { BlueprintsPageClient } from '@/app/(dashboard)/blueprints/components/BlueprintsPageClient';
+import { BlueprintsPageClient } from '@/app/s/[subdomain]/blueprints/components/BlueprintsPageClient';
 import { getBlueprints } from '@/data/services/blueprints.api';
 
 export default async function AdminBlueprintsPage() {

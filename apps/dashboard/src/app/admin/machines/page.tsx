@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { MachinesPageClient } from '@/app/(dashboard)/machines/components/MachinesPageClient';
+import { MachinesPageClient } from '@/app/s/[subdomain]/machines/components/MachinesPageClient';
 import { getMachines } from '@/data/services/machines.api';
 
 export default async function AdminMachinesPage() {

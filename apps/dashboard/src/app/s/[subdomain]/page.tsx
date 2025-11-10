@@ -1,3 +1,4 @@
+import { LoginForm } from '@/components/auth/LoginForm';
 import { getCompanyPublicInfo } from '@/data/services/companies.api';
 import { rootDomain } from '@/lib/utils';
 import { Metadata } from 'next';
@@ -30,5 +31,12 @@ export default async function Page({ params }: PageProps) {
   if (!subdomainResult.data) {
     return <div>Company not found</div>;
   }
-  return <div> {subdomainResult.data.name} Dashboard</div>;
+  return (
+    <LoginForm
+      companyId={subdomainResult.data.id}
+      brandTitle={subdomainResult.data.name}
+      brandSubtitle="Industrial Management & Inspection Platform"
+      loginType="client"
+    />
+  );
 }

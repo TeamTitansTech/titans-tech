@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import CompaniesManager from '@/app/(dashboard)/auth-test/components/CompaniesManager';
+import CompaniesManager from '@/app/s/[subdomain]/auth-test/components/CompaniesManager';
 
 export default async function AdminCompaniesPage() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { FolderKanban, Users, Wrench, ClipboardList } from 'lucide-react';
-import { StatCard } from '@/app/(dashboard)/home/components/StatCard';
+import { StatCard } from '@/app/s/[subdomain]/home/components/StatCard';
 import { getBlueprints } from '@/data/services/blueprints.api';
 import { getMachines } from '@/data/services/machines.api';
 import { getAllCompanies } from '@/data/services/companies.api';
