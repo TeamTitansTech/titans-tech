@@ -130,7 +130,6 @@ class BearingClearanceCheckDto {
   after?: BearingClearanceDto;
 }
 
-// Slide Inspection DTOs
 class SlideDataDto {
   @IsEnum(ParallelismType)
   parallelism: ParallelismType;
