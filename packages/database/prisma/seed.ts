@@ -1,41 +1,145 @@
-import { PrismaClient, InspectionSection } from '../generated/prisma/client';
+import { PrismaClient, ServiceSection } from '../generated/prisma/client';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+import * as bcrypt from 'bcrypt';
+
+// Load environment variables from the database package .env file
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('Start seeding...');
 
-  // // Hash the default password
-  // const hashedPassword = await bcrypt.hash('password', 10);
+  // Create a company with subdomain "subdomain"
+  const company = await prisma.company.upsert({
+    where: { slug: 'subdomain' },
+    update: {},
+    create: {
+      name: 'Example Company',
+      slug: 'subdomain',
+      logo: null,
+      brandColor: '#1e40af',
+    },
+  });
 
-  // // Create default admin user
-  // const adminUser = await prisma.user.upsert({
-  //   where: { email: 'admin@admin.com' },
-  //   update: {},
-  //   create: {
-  //     email: 'admin@admin.com',
-  //     password: hashedPassword,
-  //     name: 'Admin User',
-  //     role: UserRole.ADMIN,
-  //   },
-  // });
+  console.log(`Created/Updated company with slug: ${company.slug}`);
 
-  // console.log(`Created/Updated admin user with id: ${adminUser.id}`);
+  // Create main branch for the company
+  let mainBranch = await prisma.companyBranch.findFirst({
+    where: {
+      companyId: company.id,
+      name: 'Main Branch',
+    },
+  });
 
-  // // Create "ALL" permission for admin user
-  // const permission = await prisma.userPermission.upsert({
-  //   where: {
-  //     id: 'default-admin-permission',
-  //   },
-  //   update: {},
-  //   create: {
-  //     id: 'default-admin-permission',
-  //     userId: adminUser.id,
-  //     permission: 'ALL',
-  //   },
-  // });
+  if (!mainBranch) {
+    mainBranch = await prisma.companyBranch.create({
+      data: {
+        companyId: company.id,
+        name: 'Main Branch',
+        isMainBranch: true,
+      },
+    });
+  }
 
-  // console.log(`Created/Updated permission for admin user: ${permission.id}`);
+  console.log(`Created/Updated main branch with id: ${mainBranch.id}`);
+
+  // Hash the default password
+  const hashedPassword = await bcrypt.hash('password', 10);
+
+  // Create company admin user
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@example.com' },
+    update: {},
+    create: {
+      email: 'admin@example.com',
+      password: hashedPassword,
+      name: 'Admin User',
+      companyId: company.id,
+      isCompanyAdmin: true,
+      isCompanyManager: false,
+      isUsingDefaultPassword: true,
+    },
+  });
+
+  console.log(`Created/Updated admin user: ${adminUser.email}`);
+
+  // Create company manager user
+  const managerUser = await prisma.user.upsert({
+    where: { email: 'manager@example.com' },
+    update: {},
+    create: {
+      email: 'manager@example.com',
+      password: hashedPassword,
+      name: 'Manager User',
+      companyId: company.id,
+      isCompanyAdmin: false,
+      isCompanyManager: true,
+      isUsingDefaultPassword: true,
+    },
+  });
+
+  console.log(`Created/Updated manager user: ${managerUser.email}`);
+
+  // Create normal user with full permissions on main branch
+  const normalUser = await prisma.user.upsert({
+    where: { email: 'user@example.com' },
+    update: {},
+    create: {
+      email: 'user@example.com',
+      password: hashedPassword,
+      name: 'Normal User',
+      companyId: company.id,
+      isCompanyAdmin: false,
+      isCompanyManager: false,
+      isUsingDefaultPassword: true,
+    },
+  });
+
+  console.log(`Created/Updated normal user: ${normalUser.email}`);
+
+  // Assign normal user to main branch with full permissions
+  await prisma.userBranch.upsert({
+    where: {
+      userId_branchId: {
+        userId: normalUser.id,
+        branchId: mainBranch.id,
+      }
+    },
+    update: {},
+    create: {
+      userId: normalUser.id,
+      branchId: mainBranch.id,
+      // User Management Permissions
+      readUsers: true,
+      createUsers: true,
+      updateUsers: true,
+      deleteUsers: true,
+      manageUserPermissions: true,
+      assignUsersToBranches: true,
+      // Branch Management Permissions
+      readBranches: true,
+      updateBranches: true,
+      // Blueprint Permissions
+      readBlueprints: true,
+      createBlueprints: true,
+      updateBlueprints: true,
+      deleteBlueprints: true,
+      // Machine Permissions
+      readMachines: true,
+      createMachines: true,
+      updateMachines: true,
+      deleteMachines: true,
+      // Service Permissions
+      readServices: true,
+      createServices: true,
+      updateServices: true,
+      deleteServices: true,
+    },
+  });
+
+  console.log(`Assigned normal user to main branch with full permissions`);
 
   // Create example blueprint for bearing clearance inspection
   const blueprint = await prisma.blueprint.upsert({
@@ -44,7 +148,7 @@ async function main() {
     create: {
       id: 'default-bearing-clearance-blueprint',
       name: 'Standard Bearing Clearance Inspection',
-      sections: [InspectionSection.BEARING_CLEARANCE],
+      sections: [ServiceSection.BEARING_CLEARANCE],
       fields: [
         {
           fieldName: 'Serial Number',
