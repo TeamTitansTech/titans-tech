@@ -8,6 +8,7 @@ export interface DashboardStats {
 export interface StatCardProps {
   title: string;
   value: number | string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any; // LucideIcon type
   iconColor?: string;
 }

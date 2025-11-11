@@ -12,6 +12,7 @@ import { useTranslations } from 'next-intl';
 import { InspectionCreationModal } from './InspectionCreationModal';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
+import { isSysAdminPanel } from '@/lib/isSysAdminPanel';
 
 interface MachineField {
   fieldSlug: string;
@@ -65,6 +66,8 @@ const getSectionStatus = (_section: string, _machine: Machine): SectionStatus =>
   return 'unknown';
 };
 
+const isSysPanel = await isSysAdminPanel();
+
 export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
@@ -72,7 +75,7 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
 
   const handleSectionClick = (section: string) => {
     const sectionSlug = section.toLowerCase();
-    router.push(`/machines/${machine.id}/sections/${sectionSlug}`);
+    router.push(`${isSysPanel ? '/admin' : ''}/machines/${machine.id}/sections/${sectionSlug}`);
   };
 
   return (
