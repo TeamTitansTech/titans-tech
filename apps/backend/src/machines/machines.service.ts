@@ -67,7 +67,11 @@ export class MachinesService {
     });
   }
 
-  async findByBranch(branchId: string) {
+  async findByBranch(
+    branchId: string,
+  ): Promise<
+    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
+  > {
     return this.prisma.machine.findMany({
       where: { branchId },
       include: {

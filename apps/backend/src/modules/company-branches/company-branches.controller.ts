@@ -8,6 +8,7 @@ import {
   Param,
   Request,
 } from '@nestjs/common';
+import { Prisma } from '@titans-tech/db';
 import { CompanyBranchesService } from './company-branches.service';
 import {
   UpdateCompanyBranchDto,
@@ -110,7 +111,11 @@ export class CompanyBranchesController {
 
   @BranchPermission('readMachines')
   @Get(':branchId/machines')
-  getMachines(@Param('branchId') branchId: string) {
+  getMachines(
+    @Param('branchId') branchId: string,
+  ): Promise<
+    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
+  > {
     return this.companyBranchesService.getMachines(branchId);
   }
 

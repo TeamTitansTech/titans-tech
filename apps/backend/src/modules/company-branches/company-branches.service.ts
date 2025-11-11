@@ -6,6 +6,7 @@ import {
   SetUserPermissionsDto,
   UserResponseDto,
 } from '@titans-tech/shared';
+import { Prisma } from '@titans-tech/db';
 
 @Injectable()
 export class CompanyBranchesService {
@@ -105,7 +106,11 @@ export class CompanyBranchesService {
     return { success: true };
   }
 
-  async getMachines(branchId: string) {
+  async getMachines(
+    branchId: string,
+  ): Promise<
+    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
+  > {
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id: branchId },
       include: {
