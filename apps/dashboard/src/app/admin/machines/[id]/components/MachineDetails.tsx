@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
 import { Machine, MachineDetailsProps } from '@/data/types/machines.types';
-import { getCookie } from '@/lib/cookies';
+import { isSysAdminPanel } from '@/lib/isSysAdminPanel';
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
@@ -80,7 +80,7 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
 
   const handleSectionClick = async (section: string) => {
     const sectionSlug = section.toLowerCase();
-    const isSysPanel = (await getCookie('is_sys_panel')) === 'true';
+    const isSysPanel = await isSysAdminPanel();
     router.push(`${isSysPanel ? '/admin' : ''}/machines/${machine.id}/sections/${sectionSlug}`);
   };
 
