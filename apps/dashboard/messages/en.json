@@ -220,7 +220,17 @@
   },
   "dashboard": {
     "title": "Titans Tech Dashboard",
-    "description": "Admin Dashboard Application"
+    "description": "Admin Dashboard Application",
+    "admin": {
+      "title": "Admin Portal",
+      "description": "Manage companies, machines, and models",
+      "stats": {
+        "totalModels": "Total Models",
+        "activeCompanies": "Active Companies",
+        "machines": "Machines",
+        "pendingServices": "Pending Services"
+      }
+    }
   },
   "sections": {
     "bearing_clearance": "Bearing Clearance",
@@ -241,6 +251,10 @@
     "createdSuccessfully": "Model created successfully",
     "description": "Create a new machine model",
     "form": {
+      "basicInfo": {
+        "title": "Basic Information"
+      },
+      "cancel": "Cancel",
       "name": {
         "label": "Blueprint Name",
         "placeholder": "e.g., Heavy Machinery Blueprint"
@@ -285,6 +299,7 @@
     "title": "Create Machine",
     "pageTitle": "Machines",
     "pageDescription": "Manage machines and their fields",
+    "detailPageTitle": "Machine Details",
     "newButton": "New Machine",
     "emptyState": "No machines found. Create your first machine to get started.",
     "noBlueprint": "No blueprint",
@@ -302,6 +317,7 @@
     "createdSuccessfully": "Machine created successfully",
     "sectionsCount": "sections",
     "fieldsCount": "fields",
+    "backToMachines": "Back to Machines",
     "operational": "Operational",
     "machineSpecifications": "Machine Specifications",
     "noFieldsConfigured": "No fields configured",
@@ -385,6 +401,7 @@
       "createInspection": "Create Inspection"
     },
     "form": {
+      "cancel": "Cancel",
       "company": {
         "label": "Select Company",
         "description": "Choose which company this machine belongs to",
@@ -657,5 +674,24 @@
     "blueprint": "Blueprint",
     "fields": "fields",
     "mainBranch": "Main Branch"
+  },
+  "login": {
+    "title": "Welcome back",
+    "description": "Sign in to access your dashboard",
+    "clientDescription": "Sign in to access your account",
+    "subtitle": "Industrial Machine Management and Inspection Platform",
+    "form": {
+      "email": {
+        "label": "Email Address",
+        "placeholder": "user@company.com"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "••••••••"
+      },
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "submitting": "Signing in..."
+    }
   }
 }
