@@ -14,7 +14,6 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
 import {
-  ClipboardCheck,
   Calendar as CalendarIcon,
   FileDown,
   FileText,
@@ -37,7 +36,6 @@ import {
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
-import { InspectionCreationModal } from '@/app/s/[subdomain]/machines/[id]/components/InspectionCreationModal';
 import { InspectionData } from './BearingClearanceSectionWrapper';
 import { toast } from 'sonner';
 import { exportToExcel, exportToPDF, exportToWord } from '../utils/exportBearingClearance';
@@ -49,12 +47,10 @@ interface BearingClearanceSectionProps {
 }
 
 export function BearingClearanceSection({
-  machineId,
   inspections,
   machineName,
 }: BearingClearanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
-  const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
   const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
@@ -207,21 +203,21 @@ export function BearingClearanceSection({
                     variant={'outline'}
                     size="sm"
                     className={cn(
-                      'w-full justify-start text-left font-normal h-8',
+                      'w-full justify-start text-left font-normal h-8 pr-3',
                       !date && 'text-muted-foreground',
                     )}
                   >
-                    <CalendarIcon className="mr-2 h-3 w-3" />
+                    <CalendarIcon className="mr-2 h-3 w-3 shrink-0" />
                     {date?.from ? (
                       date.to ? (
-                        <span className="text-xs">
+                        <span className="text-xs truncate">
                           {format(date.from, 'dd/MM/yyyy')} - {format(date.to, 'dd/MM/yyyy')}
                         </span>
                       ) : (
-                        <span className="text-xs">{format(date.from, 'dd/MM/yyyy')}</span>
+                        <span className="text-xs truncate">{format(date.from, 'dd/MM/yyyy')}</span>
                       )
                     ) : (
-                      <span className="text-xs">{t('pickDate')}</span>
+                      <span className="text-xs truncate">{t('pickDate')}</span>
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -242,7 +238,43 @@ export function BearingClearanceSection({
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('connectionBearingClearance')}</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>{t('connectionBearingClearance')}</CardTitle>
+              <DropdownMenu
+                open={isExportDropdownOpen}
+                onOpenChange={setIsExportDropdownOpen}
+                modal={false}
+              >
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="focus-visible:ring-0 focus-visible:ring-offset-0"
+                  >
+                    <FileDown className="w-4 h-4 mr-2" />
+                    {t('exportData')}
+                    <ChevronDown className="w-4 h-4 ml-2" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="overflow-visible data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-150 data-[state=closed]:duration-100"
+                >
+                  <DropdownMenuItem onClick={handleExportPDF}>
+                    <FileText className="w-4 h-4 mr-2" />
+                    {t('exportAsPDF')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportWord}>
+                    <FileText className="w-4 h-4 mr-2" />
+                    {t('exportAsWord')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleExportExcel}>
+                    <FileSpreadsheet className="w-4 h-4 mr-2" />
+                    {t('exportAsExcel')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-center mb-6">
@@ -489,57 +521,7 @@ export function BearingClearanceSection({
             </div>
           </CardContent>
         </Card>
-
-        <div className="flex justify-end gap-3">
-          <DropdownMenu
-            open={isExportDropdownOpen}
-            onOpenChange={setIsExportDropdownOpen}
-            modal={false}
-          >
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                className="focus-visible:ring-0 focus-visible:ring-offset-0"
-              >
-                <FileDown className="w-4 h-4 mr-2" />
-                {t('exportData')}
-                <ChevronDown
-                  className={`w-4 h-4 ml-2 transition-transform duration-200 ${
-                    isExportDropdownOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="overflow-visible data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-150 data-[state=closed]:duration-100"
-            >
-              <DropdownMenuItem onClick={handleExportPDF}>
-                <FileText className="w-4 h-4 mr-2" />
-                {t('exportAsPDF')}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportWord}>
-                <FileText className="w-4 h-4 mr-2" />
-                {t('exportAsWord')}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleExportExcel}>
-                <FileSpreadsheet className="w-4 h-4 mr-2" />
-                {t('exportAsExcel')}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button onClick={() => setIsInspectionModalOpen(true)}>
-            <ClipboardCheck className="w-4 h-4 mr-2" />
-            {t('createInspection')}
-          </Button>
-        </div>
       </div>
-
-      <InspectionCreationModal
-        machineId={machineId}
-        open={isInspectionModalOpen}
-        onOpenChange={setIsInspectionModalOpen}
-      />
     </>
   );
 }
