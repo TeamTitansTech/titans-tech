@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { type ClutchData, type ClutchFormProps } from '@/data/types/services.types';
+import { type ClutchFormProps } from '@/data/types/services.types';
 
 export function ClutchForm({ data, updateFn, errors, handleBlur }: ClutchFormProps) {
   const t = useTranslations('inspections');

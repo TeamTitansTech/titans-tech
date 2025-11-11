@@ -16,14 +16,6 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
-import { Typography } from '@/components/ui/typography';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { toast } from 'sonner';
 import { updateService } from '@/data/services/services.api';
 import {
@@ -616,22 +608,22 @@ export function CompleteServiceModal({
   };
 
   const validateLubricationHydraulicsField = (
-    field: keyof LubricationHydraulicsData,
-    value: string | number | boolean | undefined,
+    _field: keyof LubricationHydraulicsData,
+    _value: string | number | boolean | undefined,
   ): string => {
     return ''; // All fields optional
   };
 
   const validateClutchField = (
-    field: keyof ClutchData,
-    value: string | number | undefined,
+    _field: keyof ClutchData,
+    _value: string | number | undefined,
   ): string => {
     return ''; // All fields optional
   };
 
   const validateCounterbalanceCylinderField = (
-    field: keyof CounterbalanceCylinderData,
-    value: string | number | undefined,
+    _field: keyof CounterbalanceCylinderData,
+    _value: string | number | undefined,
   ): string => {
     return ''; // All fields optional
   };
@@ -1064,7 +1056,9 @@ export function CompleteServiceModal({
               <Checkbox
                 id="serviceType"
                 checked={serviceType === ServiceType.MAINTENANCE}
-                onCheckedChange={(checked: boolean) => setServiceType(checked ? ServiceType.MAINTENANCE : ServiceType.INSPECTION)}
+                onCheckedChange={(checked: boolean) =>
+                  setServiceType(checked ? ServiceType.MAINTENANCE : ServiceType.INSPECTION)
+                }
               />
               <Label htmlFor="serviceType" className="cursor-pointer">
                 {t('form.isMaintenance.label')}

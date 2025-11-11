@@ -24,5 +24,11 @@ export async function ServiceHistory({ machineId, blueprintSections }: ServiceHi
     services = [];
   }
 
-  return <ServiceHistoryWrapper machineId={machineId} blueprintSections={blueprintSections} services={services} />;
+  return (
+    <ServiceHistoryWrapper
+      machineId={machineId}
+      blueprintSections={blueprintSections}
+      services={services}
+    />
+  );
 }

@@ -3,10 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  type CounterbalanceCylinderData,
-  type CounterbalanceCylinderFormProps,
-} from '@/data/types/services.types';
+import { type CounterbalanceCylinderFormProps } from '@/data/types/services.types';
 
 export function CounterbalanceCylinderForm({
   data,

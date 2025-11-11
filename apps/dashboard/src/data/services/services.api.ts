@@ -1,7 +1,11 @@
 'use server';
 import { revalidateTag, revalidatePath } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import type { CreateServicePayload, UpdateServicePayload, Service } from '@/data/types/services.types';
+import type {
+  CreateServicePayload,
+  UpdateServicePayload,
+  Service,
+} from '@/data/types/services.types';
 
 export const createService = async (payload: CreateServicePayload) => {
   const response = await responseHandler<Service>('/services', {
@@ -44,7 +48,11 @@ export const getServicesByMachine = async (machineId: string) => {
   return await responseHandler<Service[]>(`/services/machine/${machineId}`, options);
 };
 
-export const updateService = async (id: string, payload: UpdateServicePayload, machineId?: string) => {
+export const updateService = async (
+  id: string,
+  payload: UpdateServicePayload,
+  machineId?: string,
+) => {
   const response = await responseHandler<Service>(`/services/${id}`, {
     method: 'PUT',
     body: payload,

@@ -34,26 +34,6 @@ interface Blueprint {
   updatedAt: string;
 }
 
-interface BearingClearance {
-  id: string;
-  totalClearance_RH: number;
-  totalClearance_LH: number;
-  mainBearings_RH: number;
-  mainBearings_LH: number;
-  upperConnectionBearings_RH: number;
-  upperConnectionBearings_LH: number;
-  wristPinToMatingPart_RH: number;
-  wristPinToMatingPart_LH: number;
-  wristPinToBushing_RH: number;
-  wristPinToBushing_LH: number;
-}
-
-interface BearingClearanceCheck {
-  id: string;
-  before: BearingClearance | null;
-  after: BearingClearance | null;
-}
-
 interface Machine {
   id: string;
   blueprintId: string;
@@ -80,12 +60,7 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
 };
 
-const CLEARANCE_LIMITS = {
-  WARNING: 0.15,
-  ALERT: 0.2,
-};
-
-const getSectionStatus = (section: string, machine: Machine): SectionStatus => {
+const getSectionStatus = (_section: string, _machine: Machine): SectionStatus => {
   // TODO: Implement service status checking for subdomain pages
   return 'unknown';
 };

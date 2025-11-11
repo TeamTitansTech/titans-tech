@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { BlueprintsPageClient } from '@/app/s/[subdomain]/blueprints/components/BlueprintsPageClient';
+import { BlueprintsPageClient } from './components/BlueprintsPageClient';
 import { getBlueprints } from '@/data/services/blueprints.api';
 import { Typography } from '@/components/ui/typography';
 

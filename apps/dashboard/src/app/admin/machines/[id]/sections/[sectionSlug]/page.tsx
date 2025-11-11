@@ -1,5 +1,4 @@
 import { getTranslations } from 'next-intl/server';
-import { BearingClearanceSection } from './components/BearingClearanceSection';
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';

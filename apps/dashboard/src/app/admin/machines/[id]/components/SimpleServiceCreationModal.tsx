@@ -105,12 +105,8 @@ export default function SimpleServiceCreationModal({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white">
-                  <SelectItem value={ServiceType.INSPECTION}>
-                    {t('types.inspection')}
-                  </SelectItem>
-                  <SelectItem value={ServiceType.MAINTENANCE}>
-                    {t('types.maintenance')}
-                  </SelectItem>
+                  <SelectItem value={ServiceType.INSPECTION}>{t('types.inspection')}</SelectItem>
+                  <SelectItem value={ServiceType.MAINTENANCE}>{t('types.maintenance')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -11,11 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ParallelismType,
-  type SlideData,
-  type SlideFormProps,
-} from '@/data/types/services.types';
+import { ParallelismType, type SlideFormProps } from '@/data/types/services.types';
 
 export function SlideForm({ data, updateFn, errors, handleBlur, title }: SlideFormProps) {
   const t = useTranslations('inspections');

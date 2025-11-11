@@ -85,7 +85,9 @@ export default function ServiceCreationModal({
               <Checkbox
                 id="serviceType"
                 checked={serviceType === ServiceType.MAINTENANCE}
-                onCheckedChange={(checked) => setServiceType(checked ? ServiceType.MAINTENANCE : ServiceType.INSPECTION)}
+                onCheckedChange={(checked) =>
+                  setServiceType(checked ? ServiceType.MAINTENANCE : ServiceType.INSPECTION)
+                }
               />
               <Label
                 htmlFor="serviceType"

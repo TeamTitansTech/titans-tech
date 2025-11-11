@@ -15,7 +15,11 @@ interface ServiceHistoryClientProps {
   services: Service[];
 }
 
-export function ServiceHistoryClient({ machineId, blueprintSections, services }: ServiceHistoryClientProps) {
+export function ServiceHistoryClient({
+  machineId,
+  blueprintSections,
+  services,
+}: ServiceHistoryClientProps) {
   const t = useTranslations('machines');
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
 
@@ -25,11 +29,7 @@ export function ServiceHistoryClient({ machineId, blueprintSections, services }:
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle>{t('serviceHistory')}</CardTitle>
-            <Button
-              size="sm"
-              onClick={() => setIsServiceModalOpen(true)}
-              className="shrink-0"
-            >
+            <Button size="sm" onClick={() => setIsServiceModalOpen(true)} className="shrink-0">
               <Plus className="w-4 h-4 mr-2" />
               {t('newService')}
             </Button>
@@ -55,11 +55,7 @@ export function ServiceHistoryClient({ machineId, blueprintSections, services }:
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>{t('serviceHistory')}</CardTitle>
-          <Button
-            size="sm"
-            onClick={() => setIsServiceModalOpen(true)}
-            className="shrink-0"
-          >
+          <Button size="sm" onClick={() => setIsServiceModalOpen(true)} className="shrink-0">
             <Plus className="w-4 h-4 mr-2" />
             {t('newService')}
           </Button>

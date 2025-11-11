@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
 import { SettingsModal } from './SettingsModal';
+import { LanguageSwitcher } from './LanguageSwitcher';
 import { useTheme } from 'next-themes';
 import { logout } from '@/data/services/auth.api';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
@@ -75,6 +76,8 @@ export function AppHeader() {
             </TooltipTrigger>
             <TooltipContent>{t('notifications')}</TooltipContent>
           </Tooltip>
+
+          <LanguageSwitcher />
 
           <Tooltip>
             <TooltipTrigger asChild>
