@@ -43,6 +43,12 @@ export const getBlueprints = async () => {
   });
 };
 
+export const getMachines = async () => {
+  return await responseHandler<Machine[]>('/machines', {
+    method: 'GET',
+  });
+};
+
 export const createMachine = async (payload: CreateMachinePayload) => {
   return await responseHandler<Machine>('/machines', {
     method: 'POST',

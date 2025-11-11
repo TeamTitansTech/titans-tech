@@ -48,7 +48,6 @@ export function MachineForm() {
 
   const { execute: submitMachine, isLoading, result } = useLazyQuery(createMachine);
 
-  // Load blueprints on mount
   useEffect(() => {
     const loadBlueprints = async () => {
       setIsLoadingBlueprints(true);
@@ -62,7 +61,6 @@ export function MachineForm() {
     loadBlueprints();
   }, []);
 
-  // Update selected blueprint when blueprint ID changes
   useEffect(() => {
     if (selectedBlueprintId) {
       const blueprint = blueprints.find((bp) => bp.id === selectedBlueprintId);

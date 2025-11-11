@@ -13,7 +13,18 @@
   },
   "blueprints": {
     "title": "Criar Modelo",
+    "pageTitle": "Blueprints",
+    "pageDescription": "Gerenciar templates e especificações de máquinas",
+    "newButton": "Novo Blueprint",
+    "emptyState": "Nenhum blueprint encontrado. Crie seu primeiro blueprint para começar.",
+    "noDescription": "Sem descrição",
+    "errorLoading": "Erro ao carregar blueprints",
+    "description": "Crie um novo modelo de máquina",
     "form": {
+      "basicInfo": {
+        "title": "Informações Básicas"
+      },
+      "cancel": "Cancelar",
       "name": {
         "label": "Nome",
         "placeholder": "DACH"
@@ -23,7 +34,7 @@
       },
       "fields": {
         "label": "Campos *",
-        "addButton": "+ Adicionar Campo",
+        "addButton": "Adicionar Campo",
         "fieldNumber": "Campo {number}",
         "removeButton": "Remover",
         "fieldName": {
@@ -56,7 +67,15 @@
   },
   "machines": {
     "title": "Criar Máquina",
+    "pageTitle": "Máquinas",
+    "pageDescription": "Gerenciar máquinas e seus campos",
+    "newButton": "Nova Máquina",
+    "emptyState": "Nenhuma máquina encontrada. Crie sua primeira máquina para começar.",
+    "noBlueprint": "Sem blueprint",
+    "errorLoading": "Erro ao carregar máquinas",
+    "description": "Crie uma nova máquina",
     "form": {
+      "cancel": "Cancelar",
       "blueprint": {
         "label": "Modelo",
         "placeholder": "Selecione um modelo",
@@ -83,6 +102,23 @@
       "response": {
         "title": "Resposta:"
       }
+    }
+  },
+  "login": {
+    "title": "Bem-vindo de volta",
+    "description": "Faça login para acessar seu painel",
+    "subtitle": "Plataforma de Gestão e Inspeção de Máquinas Industriais",
+    "form": {
+      "email": {
+        "label": "Endereço de Email",
+        "placeholder": "usuario@empresa.com"
+      },
+      "password": {
+        "label": "Senha",
+        "placeholder": "••••••••"
+      },
+      "forgotPassword": "Esqueceu a senha?",
+      "submit": "Entrar"
     }
   }
 }

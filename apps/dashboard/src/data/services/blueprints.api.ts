@@ -21,6 +21,9 @@ interface Blueprint {
   fields: BlueprintField[];
   createdAt: string;
   updatedAt: string;
+  _count?: {
+    machines: number;
+  };
 }
 
 export const createBlueprint = async (payload: CreateBlueprintPayload) => {
@@ -28,4 +31,8 @@ export const createBlueprint = async (payload: CreateBlueprintPayload) => {
     method: 'POST',
     body: payload,
   });
+};
+
+export const getBlueprints = async () => {
+  return await responseHandler<Blueprint[]>('/blueprints');
 };

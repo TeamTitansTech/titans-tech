@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Toaster } from '@/components/ui/sonner';
 import './globals.css';
 
 const geistSans = Geist({
@@ -28,8 +30,11 @@ export default async function RootLayout({
 
   return (
     <html lang="pt">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background`}>
+        <NextIntlClientProvider messages={messages}>
+          <AppLayout>{children}</AppLayout>
+          <Toaster />
+        </NextIntlClientProvider>
       </body>
     </html>
   );
