@@ -17,10 +17,15 @@
   "navigation": {
     "dashboard": "Dashboard",
     "models": "Models",
+    "blueprints": "Blueprints",
     "clients": "Clients",
+    "companies": "Companies",
     "allMachines": "Machines",
+    "machines": "Machines",
     "services": "Services",
-    "settings": "Settings"
+    "settings": "Settings",
+    "adminPortal": "Admin Portal",
+    "systemAdministration": "System Administration"
   },
   "header": {
     "toggleSidebar": "Toggle Sidebar",

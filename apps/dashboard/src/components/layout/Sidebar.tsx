@@ -3,27 +3,29 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Wrench, FolderKanban } from 'lucide-react';
-
-const navigationItems = [
-  {
-    name: 'Dashboard',
-    href: '/home',
-    icon: LayoutDashboard,
-  },
-  {
-    name: 'Blueprints',
-    href: '/blueprints',
-    icon: FolderKanban,
-  },
-  {
-    name: 'Machines',
-    href: '/machines',
-    icon: Wrench,
-  },
-];
+import { useTranslations } from 'next-intl';
 
 export function Sidebar() {
   const pathname = usePathname();
+  const t = useTranslations();
+
+  const navigationItems = [
+    {
+      name: t('navigation.dashboard'),
+      href: '/home',
+      icon: LayoutDashboard,
+    },
+    {
+      name: t('navigation.blueprints'),
+      href: '/blueprints',
+      icon: FolderKanban,
+    },
+    {
+      name: t('navigation.machines'),
+      href: '/machines',
+      icon: Wrench,
+    },
+  ];
 
   return (
     <aside className="w-64 bg-[#1a1d29] text-white h-screen flex flex-col fixed left-0 top-0">
@@ -33,8 +35,8 @@ export function Sidebar() {
             <Wrench className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold">InspectPro</h1>
-            <p className="text-xs text-gray-400">Admin Portal</p>
+            <h1 className="text-lg font-semibold">{t('common.companyName')}</h1>
+            <p className="text-xs text-gray-400">{t('navigation.adminPortal')}</p>
           </div>
         </div>
       </div>
@@ -42,7 +44,7 @@ export function Sidebar() {
       <nav className="flex-1 py-6">
         <div className="px-4 mb-4">
           <h2 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            Navigation
+            {t('navigation.dashboard')}
           </h2>
         </div>
         <ul className="space-y-1 px-2">

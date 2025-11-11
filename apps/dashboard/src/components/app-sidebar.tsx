@@ -54,8 +54,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Admin navigation
   const adminData = {
     company: {
-      name: 'Admin Portal',
-      subtitle: 'System Administration',
+      name: t('navigation.adminPortal'),
+      subtitle: t('navigation.systemAdministration'),
       logo: Shield,
     },
     navMain: [
@@ -70,7 +70,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: '/admin/blueprints',
       },
       {
-        title: 'Companies',
+        title: t('navigation.companies'),
         icon: Users,
         url: '/admin/companies',
       },

@@ -17,10 +17,15 @@
   "navigation": {
     "dashboard": "Dashboard",
     "models": "Modelos",
+    "blueprints": "Modelos",
     "clients": "Clientes",
+    "companies": "Empresas",
     "allMachines": "Máquinas",
+    "machines": "Máquinas",
     "services": "Serviços",
-    "settings": "Configurações"
+    "settings": "Configurações",
+    "adminPortal": "Portal Administrativo",
+    "systemAdministration": "Administração do Sistema"
   },
   "header": {
     "toggleSidebar": "Alternar Barra Lateral",
@@ -222,23 +227,23 @@
     "title": "Painel Titans Tech",
     "description": "Aplicação do Painel de Administração",
     "admin": {
-      "title": "Admin Portal",
-      "description": "Manage companies, machines, and models",
+      "title": "Portal Administrativo",
+      "description": "Gerenciar empresas, máquinas e modelos",
       "stats": {
-        "totalModels": "Total Models",
-        "activeCompanies": "Active Companies",
-        "machines": "Machines",
-        "pendingServices": "Pending Services"
+        "totalModels": "Total de Modelos",
+        "activeCompanies": "Empresas Ativas",
+        "machines": "Máquinas",
+        "pendingServices": "Serviços Pendentes"
       }
     }
   },
   "sections": {
-    "bearing_clearance": "BEARING CLEARANCE",
-    "slide": "SLIDE",
-    "gibs": "GIBS",
-    "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRICATION / HYDRAULICS / PRESSURE SWITCHES / OIL & FILTER",
-    "clutch": "CLUTCH",
-    "counterbalance_cylinder_airbag": "COUNTERBALANCE CYLINDER / AIRBAG"
+    "bearing_clearance": "FOLGA DE ROLAMENTO",
+    "slide": "DESLIZAMENTO",
+    "gibs": "GUIAS",
+    "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRIFICAÇÃO / HIDRÁULICA / INTERRUPTORES DE PRESSÃO / ÓLEO E FILTRO",
+    "clutch": "EMBREAGEM",
+    "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG"
   },
   "models": {
     "title": "Criar Modelo",
