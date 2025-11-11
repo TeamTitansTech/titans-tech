@@ -20,8 +20,12 @@ export function StatCard({
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
-            <Typography variant="muted" className="font-medium">{title}</Typography>
-            <Typography variant="h1" className="text-4xl font-bold text-foreground">{value}</Typography>
+            <Typography variant="muted" className="font-medium">
+              {title}
+            </Typography>
+            <Typography variant="h1" className="text-4xl font-bold text-foreground">
+              {value}
+            </Typography>
           </div>
           <div className={`${iconColor} mt-1`}>
             <Icon className="w-8 h-8" />

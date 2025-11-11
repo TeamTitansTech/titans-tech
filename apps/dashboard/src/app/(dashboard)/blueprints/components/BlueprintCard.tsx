@@ -49,11 +49,15 @@ export function BlueprintCard({
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
               <Typography variant="muted">Machines:</Typography>
-              <Typography variant="p" className="font-semibold">{machineCount}</Typography>
+              <Typography variant="p" className="font-semibold">
+                {machineCount}
+              </Typography>
             </div>
             <div>
               <Typography variant="muted">Fields:</Typography>
-              <Typography variant="p" className="font-semibold">{fieldCount}</Typography>
+              <Typography variant="p" className="font-semibold">
+                {fieldCount}
+              </Typography>
             </div>
           </div>
           <div className="flex gap-2">

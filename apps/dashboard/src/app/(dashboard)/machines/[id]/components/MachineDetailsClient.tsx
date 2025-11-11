@@ -80,7 +80,6 @@ interface MachineDetailsClientProps {
   machine: Machine;
 }
 
-
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
   SLIDE: 'slide',
@@ -90,19 +89,15 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
 };
 
-
 const CLEARANCE_LIMITS = {
   WARNING: 0.15,
-  ALERT: 0.20,
+  ALERT: 0.2,
 };
 
-
 const getSectionStatus = (section: string, machine: Machine): SectionStatus => {
-
   if (!machine.inspections || machine.inspections.length === 0) {
     return 'unknown';
   }
-
 
   const latestInspection = machine.inspections[0];
 
@@ -112,7 +107,6 @@ const getSectionStatus = (section: string, machine: Machine): SectionStatus => {
       if (!bearingCheck || !bearingCheck.after) {
         return 'unknown';
       }
-
 
       const clearances = [
         bearingCheck.after.totalClearance_RH,
@@ -138,7 +132,6 @@ const getSectionStatus = (section: string, machine: Machine): SectionStatus => {
       }
     }
 
-
     case 'SLIDE':
     case 'GIBS':
     case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
@@ -155,7 +148,6 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
 
   const handleSectionClick = (section: string) => {
-
     const sectionSlug = section.toLowerCase();
     router.push(`/machines/${machine.id}/sections/${sectionSlug}`);
   };
@@ -169,13 +161,17 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
         <div className="flex items-center justify-between w-full min-w-0 gap-4">
           <div className="min-w-0 flex-1 overflow-hidden">
             <ConditionalTooltip content={machine.name} className="block">
-              <Typography variant="h1" className="text-3xl font-bold tracking-tight truncate">{machine.name}</Typography>
+              <Typography variant="h1" className="text-3xl font-bold tracking-tight truncate">
+                {machine.name}
+              </Typography>
             </ConditionalTooltip>
             <ConditionalTooltip
               content={machine.blueprint?.name || t('noBlueprintAssigned')}
               className="mt-1 truncate block"
             >
-              <Typography variant="muted">{machine.blueprint?.name || t('noBlueprintAssigned')}</Typography>
+              <Typography variant="muted">
+                {machine.blueprint?.name || t('noBlueprintAssigned')}
+              </Typography>
             </ConditionalTooltip>
           </div>
           <Button variant="destructive" size="sm" className="shrink-0">

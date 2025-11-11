@@ -32,7 +32,12 @@ export function SectionCard({ title, status, imageUrl, onClick }: SectionCardPro
       onClick={onClick}
     >
       <div className="absolute top-3 right-3 z-10">
-        <div className={cn('w-4 h-4 rounded-full border-2 border-white shadow-md', STATUS_COLORS[status])} />
+        <div
+          className={cn(
+            'w-4 h-4 rounded-full border-2 border-white shadow-md',
+            STATUS_COLORS[status],
+          )}
+        />
       </div>
 
       <div className="aspect-[4/3] bg-muted flex items-center justify-center relative">

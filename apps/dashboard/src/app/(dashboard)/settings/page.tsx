@@ -8,7 +8,9 @@ export default async function SettingsPage() {
     <div className="space-y-6">
       <div>
         <Typography variant="h1">{t('pageTitle')}</Typography>
-        <Typography variant="muted" className="mt-1">{t('pageDescription')}</Typography>
+        <Typography variant="muted" className="mt-1">
+          {t('pageDescription')}
+        </Typography>
       </div>
       <div className="text-center py-12">
         <Typography variant="muted">Settings page - Coming soon</Typography>

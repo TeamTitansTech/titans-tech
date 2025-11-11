@@ -44,7 +44,9 @@ export function MachineCard({
               </div>
               <div className="min-w-0 flex-1">
                 <ConditionalTooltip content={name}>
-                  <Typography variant="h3" className="truncate">{name}</Typography>
+                  <Typography variant="h3" className="truncate">
+                    {name}
+                  </Typography>
                 </ConditionalTooltip>
                 <ConditionalTooltip
                   content={blueprintName}

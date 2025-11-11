@@ -185,9 +185,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
             <section className="space-y-4">
               <div>
-                <Typography variant="h3">
-                  {t('form.blueprint.label')}
-                </Typography>
+                <Typography variant="h3">{t('form.blueprint.label')}</Typography>
               </div>
 
               {isLoadingBlueprints ? (
@@ -218,7 +216,10 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
                                 <Typography variant="h4" className="text-sm">
                                   {blueprint.name}
                                 </Typography>
-                                <Typography variant="small" className="text-xs text-muted-foreground mt-1">
+                                <Typography
+                                  variant="small"
+                                  className="text-xs text-muted-foreground mt-1"
+                                >
                                   {blueprint.sections.length} {t('sectionsCount')} •{' '}
                                   {blueprint.fields.length} {t('fieldsCount')}
                                 </Typography>
