@@ -32,9 +32,10 @@ export const loginSysAdmin = async (credentials: LoginCredentials) => {
 };
 
 export const loginCompanyUser = async (credentials: CompanyUserLoginCredentials) => {
-  return await responseHandler<CompanyUserLoginResponse>('/users/login', {
+  const { companyId, ...loginData } = credentials;
+  return await responseHandler<CompanyUserLoginResponse>(`/companies/${companyId}/login`, {
     method: 'POST',
-    body: credentials,
+    body: loginData,
   });
 };
 
