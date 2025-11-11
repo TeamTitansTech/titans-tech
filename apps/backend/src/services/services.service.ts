@@ -30,112 +30,114 @@ export class ServicesService {
         ...(createInspectionDto.status && {
           status: createInspectionDto.status,
         }),
-        performedBy: createInspectionDto.performedBy,
-        bearingClearance: createInspectionDto.bearingClearance
-          ? {
-              create: {
-                outerBefore: createInspectionDto.bearingClearance.outerBefore
-                  ? {
-                      create: createInspectionDto.bearingClearance.outerBefore,
-                    }
-                  : undefined,
-                outerData: createInspectionDto.bearingClearance.outerAfter
-                  ? {
-                      create: createInspectionDto.bearingClearance.outerAfter,
-                    }
-                  : undefined,
-                innerBefore: createInspectionDto.bearingClearance.innerBefore
-                  ? {
-                      create: createInspectionDto.bearingClearance.innerBefore,
-                    }
-                  : undefined,
-                innerData: createInspectionDto.bearingClearance.innerAfter
-                  ? {
-                      create: createInspectionDto.bearingClearance.innerAfter,
-                    }
-                  : undefined,
+        ...(createInspectionDto.performedBy && {
+          performedBy: createInspectionDto.performedBy,
+        }),
+        ...(createInspectionDto.bearingClearance && {
+          bearingClearance: {
+            create: {
+              outerBefore: createInspectionDto.bearingClearance.outerBefore
+                ? {
+                    create: createInspectionDto.bearingClearance.outerBefore,
+                  }
+                : undefined,
+              outerData: createInspectionDto.bearingClearance.outerAfter
+                ? {
+                    create: createInspectionDto.bearingClearance.outerAfter,
+                  }
+                : undefined,
+              innerBefore: createInspectionDto.bearingClearance.innerBefore
+                ? {
+                    create: createInspectionDto.bearingClearance.innerBefore,
+                  }
+                : undefined,
+              innerData: createInspectionDto.bearingClearance.innerAfter
+                ? {
+                    create: createInspectionDto.bearingClearance.innerAfter,
+                  }
+                : undefined,
+            },
+          },
+        }),
+        ...(createInspectionDto.slide && {
+          slide: {
+            create: {
+              outerBefore: createInspectionDto.slide.outerBefore
+                ? {
+                    create: createInspectionDto.slide.outerBefore,
+                  }
+                : undefined,
+              outerData: createInspectionDto.slide.outerAfter
+                ? {
+                    create: createInspectionDto.slide.outerAfter,
+                  }
+                : undefined,
+              innerBefore: createInspectionDto.slide.innerBefore
+                ? {
+                    create: createInspectionDto.slide.innerBefore,
+                  }
+                : undefined,
+              innerData: createInspectionDto.slide.innerAfter
+                ? {
+                    create: createInspectionDto.slide.innerAfter,
+                  }
+                : undefined,
+            },
+          },
+        }),
+        ...(createInspectionDto.gibs && {
+          gibs: {
+            create: {
+              outerBefore: createInspectionDto.gibs.outerBefore
+                ? {
+                    create: createInspectionDto.gibs.outerBefore,
+                  }
+                : undefined,
+              outerData: createInspectionDto.gibs.outerAfter
+                ? {
+                    create: createInspectionDto.gibs.outerAfter,
+                  }
+                : undefined,
+              innerBefore: createInspectionDto.gibs.innerBefore
+                ? {
+                    create: createInspectionDto.gibs.innerBefore,
+                  }
+                : undefined,
+              innerData: createInspectionDto.gibs.innerAfter
+                ? {
+                    create: createInspectionDto.gibs.innerAfter,
+                  }
+                : undefined,
+            },
+          },
+        }),
+        ...(createInspectionDto.lubricationHydraulics && {
+          lubricationHydraulics: {
+            create: {
+              data: {
+                create: createInspectionDto.lubricationHydraulics,
               },
-            }
-          : undefined,
-        slide: createInspectionDto.slide
-          ? {
-              create: {
-                outerBefore: createInspectionDto.slide.outerBefore
-                  ? {
-                      create: createInspectionDto.slide.outerBefore,
-                    }
-                  : undefined,
-                outerData: createInspectionDto.slide.outerAfter
-                  ? {
-                      create: createInspectionDto.slide.outerAfter,
-                    }
-                  : undefined,
-                innerBefore: createInspectionDto.slide.innerBefore
-                  ? {
-                      create: createInspectionDto.slide.innerBefore,
-                    }
-                  : undefined,
-                innerData: createInspectionDto.slide.innerAfter
-                  ? {
-                      create: createInspectionDto.slide.innerAfter,
-                    }
-                  : undefined,
+            },
+          },
+        }),
+        ...(createInspectionDto.clutch && {
+          clutch: {
+            create: {
+              data: {
+                create: createInspectionDto.clutch,
               },
-            }
-          : undefined,
-        gibs: createInspectionDto.gibs
-          ? {
-              create: {
-                outerBefore: createInspectionDto.gibs.outerBefore
-                  ? {
-                      create: createInspectionDto.gibs.outerBefore,
-                    }
-                  : undefined,
-                outerData: createInspectionDto.gibs.outerAfter
-                  ? {
-                      create: createInspectionDto.gibs.outerAfter,
-                    }
-                  : undefined,
-                innerBefore: createInspectionDto.gibs.innerBefore
-                  ? {
-                      create: createInspectionDto.gibs.innerBefore,
-                    }
-                  : undefined,
-                innerData: createInspectionDto.gibs.innerAfter
-                  ? {
-                      create: createInspectionDto.gibs.innerAfter,
-                    }
-                  : undefined,
+            },
+          },
+        }),
+        ...(createInspectionDto.counterbalanceCylinder && {
+          counterbalanceCylinderAirbag: {
+            create: {
+              outerData: {
+                create: createInspectionDto.counterbalanceCylinder,
               },
-            }
-          : undefined,
-        lubricationHydraulics: createInspectionDto.lubricationHydraulics
-          ? {
-              create: {
-                data: {
-                  create: createInspectionDto.lubricationHydraulics,
-                },
-              },
-            }
-          : undefined,
-        clutch: createInspectionDto.clutch
-          ? {
-              create: {
-                data: {
-                  create: createInspectionDto.clutch,
-                },
-              },
-            }
-          : undefined,
-        counterbalanceCylinderAirbag: createInspectionDto.counterbalanceCylinder
-          ? {
-              create: {
-                outerData: {
-                  create: createInspectionDto.counterbalanceCylinder,
-                },
-              },
-            }
-          : undefined,
+            },
+          },
+        }),
       },
       include: {
         machine: {
