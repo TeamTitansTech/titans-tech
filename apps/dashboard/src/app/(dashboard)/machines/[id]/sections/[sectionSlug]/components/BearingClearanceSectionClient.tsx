@@ -6,9 +6,23 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
-import { ClipboardCheck, Calendar as CalendarIcon } from 'lucide-react';
+import {
+  ClipboardCheck,
+  Calendar as CalendarIcon,
+  FileDown,
+  FileText,
+  FileSpreadsheet,
+  ChevronDown,
+} from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { toast } from 'sonner';
 import { InspectionCreationModal } from '../../../components/InspectionCreationModal';
 import {
   AreaChart,
@@ -26,6 +40,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import type { InspectionData } from './BearingClearanceSection';
+import { exportToPDF, exportToWord, exportToExcel } from '../utils/exportBearingClearance';
 
 interface BearingClearanceSectionClientProps {
   machineId: string;
@@ -40,6 +55,7 @@ export function BearingClearanceSectionClient({
 }: BearingClearanceSectionClientProps) {
   const t = useTranslations('machines.sectionDetails');
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -85,14 +101,55 @@ export function BearingClearanceSectionClient({
       .reverse();
   }, [filteredInspections]);
 
-  const handleResetDateRange = () => {
-    if (inspections.length > 0) {
-      const dates = inspections.map((i) => new Date(i.date));
-      setDate({
-        from: new Date(Math.min(...dates.map((d) => d.getTime()))),
-        to: new Date(Math.max(...dates.map((d) => d.getTime()))),
-      });
-    }
+  const handleExportPDF = async () => {
+    toast.promise(
+      exportToPDF(
+        machineName,
+        date,
+        filteredInspections.length,
+        latestBearingCheck ?? undefined,
+        chartData,
+      ),
+      {
+        loading: t('exportingToPDF'),
+        success: t('exportedPDFSuccess'),
+        error: t('exportPDFError'),
+      },
+    );
+  };
+
+  const handleExportWord = async () => {
+    toast.promise(
+      exportToWord(
+        machineName,
+        date,
+        filteredInspections.length,
+        latestBearingCheck ?? undefined,
+        chartData,
+      ),
+      {
+        loading: t('exportingToWord'),
+        success: t('exportedWordSuccess'),
+        error: t('exportWordError'),
+      },
+    );
+  };
+
+  const handleExportExcel = async () => {
+    toast.promise(
+      exportToExcel(
+        machineName,
+        date,
+        filteredInspections.length,
+        latestBearingCheck ?? undefined,
+        chartData,
+      ),
+      {
+        loading: t('exportingToExcel'),
+        success: t('exportedExcelSuccess'),
+        error: t('exportExcelError'),
+      },
+    );
   };
 
   return (
@@ -141,52 +198,42 @@ export function BearingClearanceSectionClient({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="date"
-                      variant={'outline'}
-                      size="sm"
-                      className={cn(
-                        'w-full justify-start text-left font-normal h-8',
-                        !date && 'text-muted-foreground',
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-3 w-3" />
-                      {date?.from ? (
-                        date.to ? (
-                          <span className="text-xs">
-                            {format(date.from, 'dd/MM/yyyy')} - {format(date.to, 'dd/MM/yyyy')}
-                          </span>
-                        ) : (
-                          <span className="text-xs">{format(date.from, 'dd/MM/yyyy')}</span>
-                        )
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="date"
+                    variant={'outline'}
+                    size="sm"
+                    className={cn(
+                      'w-full justify-start text-left font-normal h-8',
+                      !date && 'text-muted-foreground',
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3 w-3" />
+                    {date?.from ? (
+                      date.to ? (
+                        <span className="text-xs">
+                          {format(date.from, 'dd/MM/yyyy')} - {format(date.to, 'dd/MM/yyyy')}
+                        </span>
                       ) : (
-                        <span className="text-xs">{t('pickDate')}</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      defaultMonth={date?.from}
-                      selected={date}
-                      onSelect={setDate}
-                      numberOfMonths={2}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 px-2"
-                  onClick={handleResetDateRange}
-                >
-                  {t('reset')}
-                </Button>
-              </div>
+                        <span className="text-xs">{format(date.from, 'dd/MM/yyyy')}</span>
+                      )
+                    ) : (
+                      <span className="text-xs">{t('pickDate')}</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={date?.from}
+                    selected={date}
+                    onSelect={setDate}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
             </CardContent>
           </Card>
         </div>
@@ -444,7 +491,43 @@ export function BearingClearanceSectionClient({
         </Card>
 
         <div className="flex justify-end gap-3">
-          <Button variant="outline">{t('exportData')}</Button>
+          <DropdownMenu
+            open={isExportDropdownOpen}
+            onOpenChange={setIsExportDropdownOpen}
+            modal={false}
+          >
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="focus-visible:ring-0 focus-visible:ring-offset-0"
+              >
+                <FileDown className="w-4 h-4 mr-2" />
+                {t('exportData')}
+                <ChevronDown
+                  className={`w-4 h-4 ml-2 transition-transform duration-200 ${
+                    isExportDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="overflow-visible data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-150 data-[state=closed]:duration-100"
+            >
+              <DropdownMenuItem onClick={handleExportPDF}>
+                <FileText className="w-4 h-4 mr-2" />
+                {t('exportAsPDF')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportWord}>
+                <FileText className="w-4 h-4 mr-2" />
+                {t('exportAsWord')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportExcel}>
+                <FileSpreadsheet className="w-4 h-4 mr-2" />
+                {t('exportAsExcel')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button onClick={() => setIsInspectionModalOpen(true)}>
             <ClipboardCheck className="w-4 h-4 mr-2" />
             {t('createInspection')}
