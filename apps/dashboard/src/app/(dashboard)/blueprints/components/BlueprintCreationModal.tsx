@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Typography } from '@/components/ui/typography';
 import {
   Select,
   SelectContent,
@@ -199,9 +200,9 @@ export const BlueprintCreationModal = ({
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
             <section className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">
+                <Typography variant="h3" className="mb-4">
                   {t('form.basicInfo.title')}
-                </h3>
+                </Typography>
                 <div className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="name">{t('form.name.label')} *</Label>
@@ -222,9 +223,9 @@ export const BlueprintCreationModal = ({
 
             <section className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold mb-4 text-foreground">
+                <Typography variant="h3" className="mb-4">
                   {t('form.sections.label')}
-                </h3>
+                </Typography>
                 <div className="flex flex-wrap gap-2">
                   {AVAILABLE_SECTIONS.map((section) => {
                     const isSelected = selectedSections.includes(section);
@@ -253,7 +254,7 @@ export const BlueprintCreationModal = ({
 
             <section className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-foreground">{t('form.fields.label')}</h3>
+                <Typography variant="h3">{t('form.fields.label')}</Typography>
                 <Button type="button" onClick={addField} variant="outline" size="sm">
                   <Plus className="w-4 h-4 mr-2" />
                   {t('form.fields.addButton')}
@@ -266,9 +267,9 @@ export const BlueprintCreationModal = ({
                     <CardContent className="pt-6">
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium text-foreground">
+                          <Typography variant="small" className="font-medium">
                             {t('form.fields.fieldNumber', { number: index + 1 })}
-                          </span>
+                          </Typography>
                           {fields.length > 0 && (
                             <Button
                               type="button"
@@ -335,7 +336,7 @@ export const BlueprintCreationModal = ({
                                       key={optionIndex}
                                       className="flex items-center gap-1 bg-muted rounded-md px-3 py-1"
                                     >
-                                      <span className="text-sm text-foreground">{option}</span>
+                                      <Typography variant="small">{option}</Typography>
                                       <Button
                                         type="button"
                                         variant="ghost"
@@ -375,9 +376,9 @@ export const BlueprintCreationModal = ({
                               </div>
 
                               {field.fieldOptions?.length === 0 && (
-                                <p className="text-sm text-destructive">
+                                <Typography variant="small" className="text-destructive">
                                   {t('form.fields.fieldOptions.required')}
-                                </p>
+                                </Typography>
                               )}
                             </div>
                           )}
@@ -391,13 +392,15 @@ export const BlueprintCreationModal = ({
 
             {result?.errors && result.errors.length > 0 && (
               <div className="rounded-md border border-destructive bg-destructive/10 p-4">
-                <h3 className="text-lg font-semibold mb-2 text-destructive">
+                <Typography variant="h3" className="mb-2 text-destructive">
                   {t('form.error.title')}
-                </h3>
+                </Typography>
                 <ul className="list-disc list-inside space-y-1">
                   {result.errors.map((error, index) => (
-                    <li key={index} className="text-sm text-destructive">
-                      {error}
+                    <li key={index}>
+                      <Typography variant="small" className="text-destructive">
+                        {error}
+                      </Typography>
                     </li>
                   ))}
                 </ul>

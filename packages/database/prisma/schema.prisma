@@ -18,6 +18,17 @@ enum MatingPartType {
   NUT_SCREW_SLEEVE
 }
 
+enum ParallelismType {
+  DNC
+  TO_BED
+  TO_BOLSTER
+}
+
+enum MeasurementUnit {
+  INCHES
+  MM
+}
+
 enum InspectionSection {
   BEARING_CLEARANCE
   SLIDE
@@ -184,6 +195,7 @@ model MachineInspection {
 
   machine                Machine                             @relation(fields: [machineId], references: [id], onDelete: Cascade)
   bearingClearanceChecks MachineInspectionBearingClearance[]
+  slideChecks            MachineInspectionSlide[]
 
   @@map("machine_inspections")
 }
@@ -251,4 +263,49 @@ model BearingClearance {
   afterInspections  MachineInspectionBearingClearance[] @relation("AfterMeasurement")
 
   @@map("bearing_clearances")
+}
+
+// Slide Inspection Models
+
+model MachineInspectionSlide {
+  id                  String  @id @default(cuid())
+  machineInspectionId String
+  outerSlideBeforeId  String?
+  outerSlideAfterId   String?
+  innerSlideBeforeId  String?
+  innerSlideAfterId   String?
+
+  machineInspection MachineInspection @relation(fields: [machineInspectionId], references: [id], onDelete: Cascade)
+  outerSlideBefore  SlideData?        @relation("OuterSlideBefore", fields: [outerSlideBeforeId], references: [id], onDelete: SetNull)
+  outerSlideAfter   SlideData?        @relation("OuterSlideAfter", fields: [outerSlideAfterId], references: [id], onDelete: SetNull)
+  innerSlideBefore  SlideData?        @relation("InnerSlideBefore", fields: [innerSlideBeforeId], references: [id], onDelete: SetNull)
+  innerSlideAfter   SlideData?        @relation("InnerSlideAfter", fields: [innerSlideAfterId], references: [id], onDelete: SetNull)
+
+  @@map("machine_inspection_slide")
+}
+
+model SlideData {
+  id String @id @default(cuid())
+
+  // Parallelism measurements (3 positions)
+  parallelism        ParallelismType
+  hasBeenAdjusted    Boolean         @default(false)
+  position1          Decimal         @db.Decimal(10, 4)
+  position2          Decimal         @db.Decimal(10, 4)
+  position3          Decimal         @db.Decimal(10, 4)
+  unit               MeasurementUnit
+  shutheightChecked  Boolean         @default(false)
+  actualSH           String?
+  overloadsOnMonitor String?
+  indicatorReading   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerSlideBeforeInspections MachineInspectionSlide[] @relation("OuterSlideBefore")
+  outerSlideAfterInspections  MachineInspectionSlide[] @relation("OuterSlideAfter")
+  innerSlideBeforeInspections MachineInspectionSlide[] @relation("InnerSlideBefore")
+  innerSlideAfterInspections  MachineInspectionSlide[] @relation("InnerSlideAfter")
+
+  @@map("slide_data")
 }

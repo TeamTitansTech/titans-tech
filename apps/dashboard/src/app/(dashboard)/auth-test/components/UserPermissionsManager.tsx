@@ -3,6 +3,7 @@ import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { setUserPermissions } from '@/data/services/company-branches.api';
 import { useState } from 'react';
 import { UserResponseDto } from '@titans-tech/shared';
+import { Typography } from '@/components/ui/typography';
 
 interface Props {
   user: UserResponseDto;
@@ -148,11 +149,13 @@ export default function UserPermissionsManager({ user, branchId, onClose, onUpda
       <div className="max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-lg bg-white p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold">Manage Permissions</h2>
-            <p className="text-sm text-gray-600">
+            <Typography variant="h2" className="text-xl font-semibold">
+              Manage Permissions
+            </Typography>
+            <Typography variant="small" className="text-gray-600">
               {user.name || user.email} -{' '}
               {user.branches.find((ub) => ub.branch.id === branchId)?.branch.name}
-            </p>
+            </Typography>
           </div>
           <button
             onClick={onClose}
@@ -167,7 +170,9 @@ export default function UserPermissionsManager({ user, branchId, onClose, onUpda
           {Object.entries(permissionGroups).map(([groupName, groupPermissions]) => (
             <div key={groupName} className="rounded border border-gray-300 p-4">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="font-medium text-gray-900">{groupName}</h3>
+                <Typography variant="h3" className="font-medium text-gray-900">
+                  {groupName}
+                </Typography>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleSelectAll(groupPermissions.map((p) => p.key))}
