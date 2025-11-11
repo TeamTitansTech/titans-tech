@@ -1,5 +1,6 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
+import { ServiceType } from '@/data/types/services.types';
 
 interface MachineField {
   fieldSlug: string;
@@ -35,7 +36,7 @@ interface BearingClearanceCheck {
 interface MachineInspection {
   id: string;
   date: string;
-  isMaintenance: boolean;
+  type: ServiceType;
   performedBy: string;
   bearingClearanceChecks: BearingClearanceCheck | null;
 }

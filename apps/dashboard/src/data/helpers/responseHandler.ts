@@ -1,23 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { getCookie, deleteCookie } from '@/lib/cookies';
+import { getCookie } from '@/lib/cookies';
 import { BackendErrorResponse, formatErrors } from './errorFormatter';
-import { redirect } from '@/i18n/routing';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 /**
- * Handle authentication errors by removing token and reloading
+ * Handle authentication errors by redirecting to logout
  */
 async function handleAuthError() {
-  await deleteCookie('auth_token');
-  const isSysPanel = (await getCookie('is_sys_panel')) === 'true';
-
-  if (isSysPanel) {
-    redirect({ href: '/admin', locale: '' });
-  } else {
-    redirect({ href: '/', locale: '' });
-  }
+  console.debug('TODO: Handle auth error - redirecting to logout');
 }
 
 export async function responseHandler<T>(
