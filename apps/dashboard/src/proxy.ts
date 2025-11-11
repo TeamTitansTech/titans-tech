@@ -7,6 +7,9 @@ import { getCookie, setCookie } from './lib/cookies';
 const PUBLIC_PATHS = ['/admin', '/', '/_next', '/api', '/favicon.ico', '/globals.css'];
 const ADMIN_PUBLIC_PATHS = ['/admin'];
 const ADMIN_LOGIN_PATH = '/admin';
+const ADMIN_ALREADY_LOGGED_PATH = '/admin/dashboard';
+const CLIENT_ALREADY_LOGGED_PATH = '/dashboard';
+
 const CLIENT_PUBLIC_PATHS = ['/'];
 const CLIENT_LOGIN_PATH = '/';
 
@@ -62,6 +65,12 @@ export async function proxy(request: NextRequest) {
   const authToken = await getCookie('auth_token');
   const isLoggedIn = Boolean(authToken);
   await setCookie('is_sys_panel', String(!subdomain));
+  const isInLoginPath = subdomain ? pathname === CLIENT_LOGIN_PATH : pathname === ADMIN_LOGIN_PATH;
+
+  if (isLoggedIn && isInLoginPath) {
+    const redirectPath = subdomain ? CLIENT_ALREADY_LOGGED_PATH : ADMIN_ALREADY_LOGGED_PATH;
+    return NextResponse.redirect(new URL(redirectPath, request.url));
+  }
 
   if (!publicPath && !isLoggedIn) {
     const redirectPath = subdomain ? CLIENT_LOGIN_PATH : ADMIN_LOGIN_PATH;
