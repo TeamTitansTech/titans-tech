@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Plus, Wrench } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -35,7 +35,7 @@ interface BranchDetailProps {
 export function BranchDetail({ branch, machines, companyId }: BranchDetailProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useRouter();
+  const router = useInternalRouter();
   const t = useTranslations('branches');
   const { companyUser } = useCompanyUser();
 

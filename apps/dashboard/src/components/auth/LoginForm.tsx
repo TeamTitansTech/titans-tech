@@ -10,7 +10,7 @@ import { loginSysAdmin, loginCompanyUser } from '@/data/services/auth.api';
 import { setCookie } from '@/lib/cookies';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
-import { useRouter } from '@/i18n/routing';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 
 type LoginFormProps = {
   brandTitle: string;
@@ -28,7 +28,7 @@ export function LoginForm({
   companyId,
 }: LoginFormProps) {
   const t = useTranslations('login');
-  const router = useRouter();
+  const router = useInternalRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 

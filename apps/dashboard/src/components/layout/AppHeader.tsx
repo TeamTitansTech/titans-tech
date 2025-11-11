@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { PanelLeft, Search, Bell, UserCircle, LogOut, Settings, Moon, Sun } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -22,7 +22,7 @@ import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 
 export function AppHeader() {
-  const router = useRouter();
+  const router = useInternalRouter();
   const { toggleSidebar } = useSidebar();
   const t = useTranslations('header');
   const { theme, setTheme } = useTheme();

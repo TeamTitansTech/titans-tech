@@ -3,7 +3,7 @@
 import { Building2, MapPin } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { type Company } from '@/data/services/companies.api';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 
 interface CompanyCardProps {
@@ -11,7 +11,7 @@ interface CompanyCardProps {
 }
 
 export function CompanyCard({ company }: CompanyCardProps) {
-  const router = useRouter();
+  const router = useInternalRouter();
   const t = useTranslations('companies');
 
   const handleClick = () => {

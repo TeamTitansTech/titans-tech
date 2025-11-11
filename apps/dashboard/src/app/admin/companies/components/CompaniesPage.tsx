@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useOptimistic } from 'react';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { CompanyCard } from './CompanyCard';
 import { CreateCompanyDialog } from '@/app/admin/settings/components/CreateCompanyDialog';
@@ -15,7 +15,7 @@ interface CompaniesPageProps {
 
 export function CompaniesPage({ companies }: CompaniesPageProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const router = useRouter();
+  const router = useInternalRouter();
   const t = useTranslations('companies');
   const [optimisticCompanies, addOptimisticCompany] = useOptimistic(
     companies,
