@@ -16,7 +16,7 @@ interface DashboardStats {
   pendingServices: number;
 }
 
-export function AdminDashboardClient() {
+export function AdminDashboard() {
   const t = useTranslations('dashboard.admin');
   const [stats, setStats] = useState<DashboardStats>({
     totalModels: 0,

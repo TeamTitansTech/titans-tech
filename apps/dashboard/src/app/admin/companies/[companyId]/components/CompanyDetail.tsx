@@ -10,12 +10,12 @@ import { CreateBranchDialog } from './CreateBranchDialog';
 import { type Company } from '@/data/services/companies.api';
 import { type CompanyBranch } from '@/data/services/company-branches.api';
 
-interface CompanyDetailClientProps {
+interface CompanyDetailProps {
   company: Company;
   branches: CompanyBranch[];
 }
 
-export function CompanyDetailClient({ company, branches }: CompanyDetailClientProps) {
+export function CompanyDetail({ company, branches }: CompanyDetailProps) {
   const router = useRouter();
   const t = useTranslations('companies');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);

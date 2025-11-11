@@ -26,13 +26,13 @@ interface Branch {
   companyId: string;
 }
 
-interface BranchDetailClientProps {
+interface BranchDetailProps {
   branch: Branch;
   machines: Machine[];
   companyId: string;
 }
 
-export function BranchDetailClient({ branch, machines, companyId }: BranchDetailClientProps) {
+export function BranchDetail({ branch, machines, companyId }: BranchDetailProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();

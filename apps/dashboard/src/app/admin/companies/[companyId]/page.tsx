@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { CompanyDetailClient } from './components/CompanyDetailClient';
+import { CompanyDetail } from './components/CompanyDetail';
 import { getCompany } from '@/data/services/companies.api';
 import { getAllBranches } from '@/data/services/company-branches.api';
 
@@ -31,5 +31,5 @@ export default async function CompanyDetailPage({ params }: CompanyDetailPagePro
   const company = companyResponse.data;
   const branches = branchesResponse.data || [];
 
-  return <CompanyDetailClient company={company} branches={branches} />;
+  return <CompanyDetail company={company} branches={branches} />;
 }

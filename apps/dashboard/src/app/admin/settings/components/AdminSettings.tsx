@@ -8,7 +8,7 @@ import { CompanyManagementSection } from './CompanyManagementSection';
 import { getAllCompanies, type Company } from '@/data/services/companies.api';
 import { toast } from 'sonner';
 
-export function AdminSettingsClient() {
+export function AdminSettings() {
   const t = useTranslations('adminSettings');
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');

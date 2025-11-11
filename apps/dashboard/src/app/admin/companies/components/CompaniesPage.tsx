@@ -4,16 +4,16 @@ import { useState, useOptimistic } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { CompanyCard } from './CompanyCard';
-import { CreateCompanyDialog } from '@/app/(dashboard)/admin/settings/components/CreateCompanyDialog';
+import { CreateCompanyDialog } from '@/app/admin/settings/components/CreateCompanyDialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { type Company } from '@/data/services/companies.api';
 
-interface CompaniesPageClientProps {
+interface CompaniesPageProps {
   companies: Company[];
 }
 
-export function CompaniesPageClient({ companies }: CompaniesPageClientProps) {
+export function CompaniesPage({ companies }: CompaniesPageProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const router = useRouter();
   const t = useTranslations('companies');

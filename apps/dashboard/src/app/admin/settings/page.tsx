@@ -1,5 +1,5 @@
-import { AdminSettingsClient } from './components/AdminSettingsClient';
+import { AdminSettings } from './components/AdminSettings';
 
 export default async function AdminSettingsPage() {
-  return <AdminSettingsClient />;
+  return <AdminSettings />;
 }

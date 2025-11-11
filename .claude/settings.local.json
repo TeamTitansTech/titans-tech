@@ -23,7 +23,11 @@
       "Bash(npx tsc:*)",
       "Bash(turbo run:*)",
       "Bash(curl:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(git log:*)",
+      "Bash(git restore:*)",
+      "Bash(wait)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []

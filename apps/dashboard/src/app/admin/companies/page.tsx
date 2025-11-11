@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { CompaniesPageClient } from './components/CompaniesPageClient';
+import { CompaniesPage } from './components/CompaniesPage';
 import { getAllCompanies } from '@/data/services/companies.api';
 
 export default async function AdminCompaniesPage() {
@@ -24,5 +24,5 @@ export default async function AdminCompaniesPage() {
 
   const companies = response.data || [];
 
-  return <CompaniesPageClient companies={companies} />;
+  return <CompaniesPage companies={companies} />;
 }

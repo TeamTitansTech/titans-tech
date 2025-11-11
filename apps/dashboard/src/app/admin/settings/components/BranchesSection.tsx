@@ -6,7 +6,7 @@ import { MapPin, Users, Plus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getAllBranches, type CompanyBranch } from '@/data/services/company-branches.api';
-import { CreateBranchDialog } from '../../companies/[companyId]/components/CreateBranchDialog';
+import { CreateBranchDialog } from '@/app/admin/companies/[companyId]/components/CreateBranchDialog';
 import { toast } from 'sonner';
 
 interface BranchesSectionProps {
