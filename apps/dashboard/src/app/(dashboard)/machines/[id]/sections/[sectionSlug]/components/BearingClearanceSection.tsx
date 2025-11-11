@@ -6,8 +6,21 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
-import { ClipboardCheck, Calendar as CalendarIcon } from 'lucide-react';
+import {
+  ClipboardCheck,
+  Calendar as CalendarIcon,
+  FileDown,
+  FileText,
+  FileSpreadsheet,
+  ChevronDown,
+} from 'lucide-react';
 import { useState, useMemo } from 'react';
 import {
   AreaChart,
@@ -26,6 +39,8 @@ import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import { InspectionCreationModal } from '@/app/s/[subdomain]/machines/[id]/components/InspectionCreationModal';
 import { InspectionData } from './BearingClearanceSectionWrapper';
+import { toast } from 'sonner';
+import { exportToExcel, exportToPDF, exportToWord } from '../utils/exportBearingClearance';
 
 interface BearingClearanceSectionProps {
   machineId: string;
@@ -40,6 +55,7 @@ export function BearingClearanceSection({
 }: BearingClearanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -87,10 +103,61 @@ export function BearingClearanceSection({
       .reverse();
   }, [filteredInspections]);
 
+  const handleExportPDF = async () => {
+    toast.promise(
+      exportToPDF(
+        machineName,
+        date,
+        filteredInspections.length,
+        latestBearingCheck ?? undefined,
+        chartData,
+      ),
+      {
+        loading: t('exportingToPDF'),
+        success: t('exportedPDFSuccess'),
+        error: t('exportPDFError'),
+      },
+    );
+  };
+
+  const handleExportWord = async () => {
+    toast.promise(
+      exportToWord(
+        machineName,
+        date,
+        filteredInspections.length,
+        latestBearingCheck ?? undefined,
+        chartData,
+      ),
+      {
+        loading: t('exportingToWord'),
+        success: t('exportedWordSuccess'),
+        error: t('exportWordError'),
+      },
+    );
+  };
+
+  const handleExportExcel = async () => {
+    toast.promise(
+      exportToExcel(
+        machineName,
+        date,
+        filteredInspections.length,
+        latestBearingCheck ?? undefined,
+        chartData,
+      ),
+      {
+        loading: t('exportingToExcel'),
+        success: t('exportedExcelSuccess'),
+        error: t('exportExcelError'),
+      },
+    );
+  };
+
   return (
     <>
       <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -133,44 +200,42 @@ export function BearingClearanceSection({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      id="date"
-                      variant={'outline'}
-                      size="sm"
-                      className={cn(
-                        'w-full justify-start text-left font-normal h-8',
-                        !date && 'text-muted-foreground',
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-3 w-3" />
-                      {date?.from ? (
-                        date.to ? (
-                          <span className="text-xs">
-                            {format(date.from, 'dd/MM/yyyy')} - {format(date.to, 'dd/MM/yyyy')}
-                          </span>
-                        ) : (
-                          <span className="text-xs">{format(date.from, 'dd/MM/yyyy')}</span>
-                        )
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    id="date"
+                    variant={'outline'}
+                    size="sm"
+                    className={cn(
+                      'w-full justify-start text-left font-normal h-8',
+                      !date && 'text-muted-foreground',
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-3 w-3" />
+                    {date?.from ? (
+                      date.to ? (
+                        <span className="text-xs">
+                          {format(date.from, 'dd/MM/yyyy')} - {format(date.to, 'dd/MM/yyyy')}
+                        </span>
                       ) : (
-                        <span className="text-xs">{t('pickDate')}</span>
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      autoFocus
-                      mode="range"
-                      defaultMonth={date?.from}
-                      selected={date}
-                      onSelect={setDate}
-                      numberOfMonths={2}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+                        <span className="text-xs">{format(date.from, 'dd/MM/yyyy')}</span>
+                      )
+                    ) : (
+                      <span className="text-xs">{t('pickDate')}</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={date?.from}
+                    selected={date}
+                    onSelect={setDate}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
             </CardContent>
           </Card>
         </div>
@@ -184,32 +249,32 @@ export function BearingClearanceSection({
               <Typography variant="h3" className="mb-2">
                 LH / RH
               </Typography>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <Typography variant="muted" className="mb-1 text-xs sm:text-sm">
+                  <Typography variant="muted" className="mb-1">
                     MB (Main Bearings)
                   </Typography>
-                  <Typography variant="large" className="text-sm sm:text-base">
+                  <Typography variant="large">
                     {latestBearingCheck
                       ? `${Number(latestBearingCheck.mainBearings_LH).toFixed(4)} / ${Number(latestBearingCheck.mainBearings_RH).toFixed(4)}`
                       : '-'}
                   </Typography>
                 </div>
                 <div>
-                  <Typography variant="muted" className="mb-1 text-xs sm:text-sm">
+                  <Typography variant="muted" className="mb-1">
                     UCB (Upper Connection)
                   </Typography>
-                  <Typography variant="large" className="text-sm sm:text-base">
+                  <Typography variant="large">
                     {latestBearingCheck
                       ? `${Number(latestBearingCheck.upperConnectionBearings_LH).toFixed(4)} / ${Number(latestBearingCheck.upperConnectionBearings_RH).toFixed(4)}`
                       : '-'}
                   </Typography>
                 </div>
                 <div>
-                  <Typography variant="muted" className="mb-1 text-xs sm:text-sm">
+                  <Typography variant="muted" className="mb-1">
                     TC (Total Clearance)
                   </Typography>
-                  <Typography variant="large" className="text-sm sm:text-base">
+                  <Typography variant="large">
                     {latestBearingCheck
                       ? `${Number(latestBearingCheck.totalClearance_LH).toFixed(4)} / ${Number(latestBearingCheck.totalClearance_RH).toFixed(4)}`
                       : '-'}
@@ -218,8 +283,8 @@ export function BearingClearanceSection({
               </div>
             </div>
 
-            <div className="flex flex-col lg:flex-row gap-6">
-              <div className="w-full lg:w-1/3 lg:flex-shrink-0">
+            <div className="flex gap-6">
+              <div className="w-1/3 flex-shrink-0">
                 <div className="bg-muted rounded-lg p-6 space-y-4 h-full">
                   <div className="aspect-square bg-background rounded border-2 border-dashed border-border flex items-center justify-center">
                     <Typography variant="muted">{t('measurementDiagram')}</Typography>
@@ -425,11 +490,45 @@ export function BearingClearanceSection({
           </CardContent>
         </Card>
 
-        <div className="flex flex-col sm:flex-row justify-end gap-3">
-          <Button variant="outline" className="w-full sm:w-auto">
-            {t('exportData')}
-          </Button>
-          <Button onClick={() => setIsInspectionModalOpen(true)} className="w-full sm:w-auto">
+        <div className="flex justify-end gap-3">
+          <DropdownMenu
+            open={isExportDropdownOpen}
+            onOpenChange={setIsExportDropdownOpen}
+            modal={false}
+          >
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="outline"
+                className="focus-visible:ring-0 focus-visible:ring-offset-0"
+              >
+                <FileDown className="w-4 h-4 mr-2" />
+                {t('exportData')}
+                <ChevronDown
+                  className={`w-4 h-4 ml-2 transition-transform duration-200 ${
+                    isExportDropdownOpen ? 'rotate-180' : ''
+                  }`}
+                />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="overflow-visible data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-150 data-[state=closed]:duration-100"
+            >
+              <DropdownMenuItem onClick={handleExportPDF}>
+                <FileText className="w-4 h-4 mr-2" />
+                {t('exportAsPDF')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportWord}>
+                <FileText className="w-4 h-4 mr-2" />
+                {t('exportAsWord')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportExcel}>
+                <FileSpreadsheet className="w-4 h-4 mr-2" />
+                {t('exportAsExcel')}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={() => setIsInspectionModalOpen(true)}>
             <ClipboardCheck className="w-4 h-4 mr-2" />
             {t('createInspection')}
           </Button>

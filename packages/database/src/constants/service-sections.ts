@@ -33,9 +33,7 @@ export const SERVICE_SECTIONS = Object.values(ServiceSection);
 // to avoid Prisma client dependencies in client-side code
 
 export function getServiceSectionFromSlug(slug: string): ServiceSection | undefined {
-  const entry = Object.entries(SERVICE_SECTION_CONFIG).find(
-    ([, config]) => config.slug === slug,
-  );
+  const entry = Object.entries(SERVICE_SECTION_CONFIG).find(([, config]) => config.slug === slug);
   return entry ? (entry[0] as ServiceSection) : undefined;
 }
 

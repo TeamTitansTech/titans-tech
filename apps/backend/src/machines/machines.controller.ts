@@ -2,12 +2,13 @@ import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { MachinesService } from './machines.service';
 import { CreateMachineDto } from './dto/create-machine.dto';
-import { Public } from 'src/modules/auth/auth.decorators';
+import { Authenticated } from 'src/modules/auth/auth.decorators';
 
 @Controller('machines')
 export class MachinesController {
   constructor(private readonly machinesService: MachinesService) {}
-  @Public()
+
+  @Authenticated()
   @Post()
   create(
     @Body() createMachineDto: CreateMachineDto,
@@ -16,14 +17,16 @@ export class MachinesController {
   > {
     return this.machinesService.create(createMachineDto);
   }
-  @Public()
+
+  @Authenticated()
   @Get()
   findAll(): Promise<
     Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
   > {
     return this.machinesService.findAll();
   }
-  @Public()
+
+  @Authenticated()
   @Get(':id')
   findOne(@Param('id') id: string): Promise<
     Prisma.MachineGetPayload<{

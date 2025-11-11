@@ -76,10 +76,10 @@ const createTestUser = async () => {
       createMachines: true,
       updateMachines: true,
       deleteMachines: true,
-      readInspections: true,
-      createInspections: true,
-      updateInspections: true,
-      deleteInspections: true,
+      readServices: true,
+      createServices: true,
+      updateServices: true,
+      deleteServices: true,
     },
   });
 

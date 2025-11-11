@@ -1,20 +1,28 @@
 import { getTranslations } from 'next-intl/server';
-import { Typography } from '@/components/ui/typography';
-import CompaniesManager from '../auth-test/components/CompaniesManager';
+import { CompaniesPage } from './components/CompaniesPage';
+import { getAllCompanies } from '@/data/services/companies.api';
 
 export default async function AdminCompaniesPage() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const t = await getTranslations('companies');
+  const response = await getAllCompanies();
 
-  return (
-    <div className="space-y-6">
-      <div>
-        <Typography variant="h2">Companies</Typography>
-        <Typography variant="muted" className="mt-1">
-          Manage all companies in the system
-        </Typography>
+  if (response.errors) {
+    return (
+      <div className="space-y-6 p-8">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
+          <p className="text-muted-foreground mt-1">{t('pageDescription')}</p>
+        </div>
+        <div className="text-center py-12">
+          <p className="text-destructive">
+            {t('errorLoading')}: {response.errors.join(', ')}
+          </p>
+        </div>
       </div>
-      <CompaniesManager />
-    </div>
-  );
+    );
+  }
+
+  const companies = response.data || [];
+
+  return <CompaniesPage companies={companies} />;
 }

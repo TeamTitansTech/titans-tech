@@ -1,7 +1,18 @@
 {
   "common": {
     "companyName": "InspectPro",
-    "companySubtitle": "Admin Portal"
+    "companySubtitle": "Admin Portal",
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to close?"
+  },
+  "validation": {
+    "required": "This field is required",
+    "companyNameRequired": "Company name is required",
+    "companySlugRequired": "Company slug is required",
+    "invalidUrl": "Must be a valid URL",
+    "invalidHexColor": "Must be a valid hex color",
+    "branchNameRequired": "Branch name is required",
+    "fullNameRequired": "Full name is required",
+    "invalidEmail": "Invalid email address"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -31,9 +42,195 @@
     "close": "Close",
     "applying": "Applying changes..."
   },
+  "adminSettings": {
+    "pageTitle": "Settings",
+    "pageDescription": "Manage global configurations and organizational settings",
+    "generalSettings": {
+      "title": "General Settings",
+      "description": "Configure global preferences for the platform",
+      "language": {
+        "label": "Language",
+        "placeholder": "Select language"
+      },
+      "unitSystem": {
+        "label": "Default Unit of Measurement",
+        "placeholder": "Select unit system",
+        "metric": "Metric (SI Units)",
+        "imperial": "Imperial Units"
+      },
+      "autoSaveNotice": "Settings are saved automatically when changed. This unit system will apply to all companies unless overridden.",
+      "saved": "Settings saved successfully"
+    },
+    "companyManagement": {
+      "title": "Company & User Management",
+      "description": "Manage companies, branches, and user permissions",
+      "selectCompany": "Select Company",
+      "selectCompanyPlaceholder": "Choose a company",
+      "createCompany": "Create Company"
+    },
+    "branches": {
+      "title": "Branches",
+      "loading": "Loading branches...",
+      "noBranches": "No branches found for this company.",
+      "loadingFailed": "Failed to load branches",
+      "mainBranch": "Main Branch",
+      "users": "users"
+    },
+    "createCompany": {
+      "title": "Create Company",
+      "description": "Add a new company to the platform",
+      "form": {
+        "name": {
+          "label": "Company Name",
+          "placeholder": "e.g., Acme Manufacturing Inc."
+        },
+        "slug": {
+          "label": "Company Slug",
+          "placeholder": "e.g., acme-manufacturing"
+        },
+        "logo": {
+          "label": "Logo URL (Optional)",
+          "placeholder": "e.g., https://example.com/logo.png"
+        },
+        "brandColor": {
+          "label": "Brand Color (Optional)",
+          "placeholder": "#FF5733"
+        },
+        "description": {
+          "label": "Description (Optional)",
+          "placeholder": "e.g., Leading manufacturer of industrial parts"
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Create Company",
+      "submitting": "Creating...",
+      "success": "Company created successfully",
+      "error": "Failed to create company"
+    },
+    "errors": {
+      "loadingCompaniesFailed": "Failed to load companies"
+    },
+    "companyCard": {
+      "administrator": "Administrator",
+      "unknownUser": "Unknown"
+    },
+    "userManagement": {
+      "title": "User Accounts",
+      "loading": "Loading users...",
+      "loadingFailed": "Failed to load users",
+      "noUsers": "No users found for this branch",
+      "addUser": "Add User",
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "roles": {
+        "branchManager": "Manager",
+        "employee": "Worker"
+      },
+      "status": {
+        "active": "active",
+        "inactive": "inactive"
+      }
+    },
+    "addUserDialog": {
+      "title": "Add User",
+      "description": "Add a new user to {branchName}",
+      "form": {
+        "name": {
+          "label": "Full Name",
+          "placeholder": "Enter user's full name"
+        },
+        "email": {
+          "label": "Email Address",
+          "placeholder": "user@example.com"
+        },
+        "role": {
+          "label": "Role",
+          "placeholder": "Select a role",
+          "options": {
+            "admin": "Admin",
+            "manager": "Manager",
+            "worker": "Worker"
+          },
+          "descriptions": {
+            "admin": "Admin: Full control over matrix and all branches",
+            "manager": "Manager: Full control over this branch only",
+            "worker": "Worker: Standard employee with operational access"
+          }
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Add User",
+      "submitting": "Adding...",
+      "success": "User added successfully",
+      "error": "Failed to add user",
+      "errors": {
+        "adminAlreadyExists": "A company admin already exists. Only one admin is allowed per company."
+      }
+    },
+    "editUserDialog": {
+      "title": "Edit User",
+      "description": "Update user information for {branchName}",
+      "form": {
+        "name": {
+          "label": "Full Name",
+          "placeholder": "Enter user's full name"
+        },
+        "email": {
+          "label": "Email Address",
+          "placeholder": "user@example.com"
+        },
+        "role": {
+          "label": "Role",
+          "placeholder": "Select a role",
+          "options": {
+            "admin": "Admin",
+            "manager": "Manager",
+            "worker": "Worker"
+          },
+          "descriptions": {
+            "admin": "Admin: Full control over matrix and all branches",
+            "manager": "Manager: Full control over this branch only",
+            "worker": "Worker: Standard employee with operational access"
+          }
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Update User",
+      "submitting": "Updating...",
+      "success": "User updated successfully",
+      "error": "Failed to update user",
+      "errors": {
+        "adminAlreadyExists": "A company admin already exists. Only one admin is allowed per company."
+      }
+    },
+    "deleteUserDialog": {
+      "title": "Delete User",
+      "description": "Are you sure you want to delete {userName}? This action cannot be undone.",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "deleting": "Deleting...",
+      "success": "User deleted successfully",
+      "error": "Failed to delete user"
+    }
+  },
   "dashboard": {
     "title": "Titans Tech Dashboard",
-    "description": "Admin Dashboard Application"
+    "description": "Admin Dashboard Application",
+    "admin": {
+      "title": "Admin Portal",
+      "description": "Manage companies, machines, and models",
+      "stats": {
+        "totalModels": "Total Models",
+        "activeCompanies": "Active Companies",
+        "machines": "Machines",
+        "pendingServices": "Pending Services"
+      }
+    }
   },
   "sections": {
     "bearing_clearance": "Bearing Clearance",
@@ -54,6 +251,10 @@
     "createdSuccessfully": "Model created successfully",
     "description": "Create a new machine model",
     "form": {
+      "basicInfo": {
+        "title": "Basic Information"
+      },
+      "cancel": "Cancel",
       "name": {
         "label": "Blueprint Name",
         "placeholder": "e.g., Heavy Machinery Blueprint"
@@ -98,6 +299,7 @@
     "title": "Create Machine",
     "pageTitle": "Machines",
     "pageDescription": "Manage machines and their fields",
+    "detailPageTitle": "Machine Details",
     "newButton": "New Machine",
     "emptyState": "No machines found. Create your first machine to get started.",
     "noBlueprint": "No blueprint",
@@ -115,6 +317,7 @@
     "createdSuccessfully": "Machine created successfully",
     "sectionsCount": "sections",
     "fieldsCount": "fields",
+    "backToMachines": "Back to Machines",
     "operational": "Operational",
     "machineSpecifications": "Machine Specifications",
     "noFieldsConfigured": "No fields configured",
@@ -181,11 +384,35 @@
       "chartDifference": "Difference",
       "noDataAvailable": "No data available",
       "exportData": "Export Data",
+      "exportAsPDF": "Export as PDF",
+      "exportAsWord": "Export as Word",
+      "exportAsExcel": "Export as Excel",
+      "exportingToPDF": "Exporting to PDF...",
+      "exportingToWord": "Exporting to Word...",
+      "exportingToExcel": "Exporting to Excel...",
+      "exportedPDFSuccess": "PDF exported successfully",
+      "exportedWordSuccess": "Word document exported successfully",
+      "exportedExcelSuccess": "Excel file exported successfully",
+      "exportPDFError": "Failed to export PDF",
+      "exportWordError": "Failed to export Word document",
+      "exportExcelError": "Failed to export Excel file",
       "areaChart": "Area Chart",
       "barChart": "Bar Chart",
       "createInspection": "Create Inspection"
     },
     "form": {
+      "cancel": "Cancel",
+      "company": {
+        "label": "Select Company",
+        "description": "Choose which company this machine belongs to",
+        "loading": "Loading companies..."
+      },
+      "branch": {
+        "label": "Select Branch",
+        "description": "Choose which branch this machine belongs to",
+        "loading": "Loading branches...",
+        "mainBranch": "Main Branch"
+      },
       "blueprint": {
         "label": "Blueprint",
         "placeholder": "Select a blueprint",
@@ -201,13 +428,16 @@
         "selectPlaceholder": "Select an option",
         "slug": "Slug"
       },
+      "selectCompanyPrompt": "Select a company to get started",
+      "selectBranchPrompt": "Select a branch to get started",
       "selectBlueprintPrompt": "Select a blueprint to get started",
       "submit": {
         "idle": "Create Machine",
         "loading": "Sending..."
       },
       "error": {
-        "title": "Error:"
+        "title": "Error:",
+        "branchRequired": "Please select a branch"
       },
       "response": {
         "title": "Response:"
@@ -395,5 +625,73 @@
     "cancel": "Cancel",
     "creating": "Creating...",
     "createService": "Create Service"
+  },
+  "companies": {
+    "pageTitle": "Companies",
+    "pageDescription": "Manage company accounts and their branches",
+    "newButton": "New Company",
+    "newBranch": "Create Branch",
+    "emptyState": "No companies found. Create your first company to get started.",
+    "errorLoading": "Error loading companies",
+    "companyNotFound": "Company not found",
+    "branchesSubtitle": "Branches",
+    "noBranches": "No branches found for this company",
+    "branch": "branch",
+    "branches": "branches",
+    "machine": "machine",
+    "machines": "machines",
+    "mainBranch": "Main Branch",
+    "viewMachines": "View Machines",
+    "createBranch": {
+      "title": "Create Branch",
+      "description": "Add a new branch to this company",
+      "form": {
+        "name": {
+          "label": "Branch Name",
+          "placeholder": "e.g., West Coast Branch"
+        },
+        "location": {
+          "label": "Location",
+          "placeholder": "e.g., Los Angeles, CA"
+        },
+        "isMainBranch": {
+          "label": "Set as main branch"
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Create Branch",
+      "submitting": "Creating...",
+      "success": "Branch created successfully",
+      "error": "Failed to create branch"
+    }
+  },
+  "branches": {
+    "branchNotFound": "Branch not found",
+    "machinesSubtitle": "Machines in this branch",
+    "newMachine": "New Machine",
+    "noMachines": "No machines in this branch yet",
+    "noBlueprint": "No blueprint",
+    "blueprint": "Blueprint",
+    "fields": "fields",
+    "mainBranch": "Main Branch"
+  },
+  "login": {
+    "title": "Welcome back",
+    "description": "Sign in to access your dashboard",
+    "clientDescription": "Sign in to access your account",
+    "subtitle": "Industrial Machine Management and Inspection Platform",
+    "form": {
+      "email": {
+        "label": "Email Address",
+        "placeholder": "user@company.com"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "••••••••"
+      },
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign In",
+      "submitting": "Signing in..."
+    }
   }
 }

@@ -8,6 +8,7 @@ import {
   Param,
   Request,
 } from '@nestjs/common';
+import { Prisma } from '@titans-tech/db';
 import { CompanyBranchesService } from './company-branches.service';
 import {
   UpdateCompanyBranchDto,
@@ -26,6 +27,7 @@ import {
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, BranchPermission, CompanyAdmin } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
+import { MachinesService } from '../../machines/machines.service';
 import { isSysAdmin, ReqWithAuthUser } from '../../types/request';
 
 @Controller('company-branches')
@@ -33,6 +35,7 @@ export class CompanyBranchesController {
   constructor(
     private readonly companyBranchesService: CompanyBranchesService,
     private readonly usersService: UsersService,
+    private readonly machinesService: MachinesService,
   ) {}
 
   @BranchPermission('readBranches')
@@ -104,6 +107,16 @@ export class CompanyBranchesController {
       userId,
       permissionsDto,
     );
+  }
+
+  @BranchPermission('readMachines')
+  @Get(':branchId/machines')
+  getMachines(
+    @Param('branchId') branchId: string,
+  ): Promise<
+    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
+  > {
+    return this.companyBranchesService.getMachines(branchId);
   }
 
   @Admin()

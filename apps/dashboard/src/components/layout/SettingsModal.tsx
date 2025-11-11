@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, usePathname } from '@/i18n/routing';
+import { useRouter } from 'next/navigation';
+import { setUserLocale } from '@/actions/locale';
 import {
   Dialog,
   DialogContent,
@@ -36,14 +37,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const t = useTranslations('settings');
   const locale = useLocale();
   const router = useRouter();
-  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [selectedLocale, setSelectedLocale] = useState(locale);
 
   const handleLanguageChange = (newLocale: string) => {
     setSelectedLocale(newLocale);
-    startTransition(() => {
-      router.replace(pathname, { locale: newLocale });
+    startTransition(async () => {
+      await setUserLocale(newLocale);
+      router.refresh();
       onClose();
     });
   };
@@ -59,7 +60,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         <Separator className="my-2" />
 
         <div className="space-y-6 py-4">
-          {/* Language Section */}
           <section className="space-y-4">
             <div className="flex items-center gap-2">
               <Languages className="h-5 w-5 text-orange-500" />
@@ -91,9 +91,6 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
           </section>
 
           <Separator />
-
-          {/* Future sections can be added here */}
-          {/* Example: Theme, Notifications, etc. */}
         </div>
 
         <div className="flex justify-end gap-3 pt-4">

@@ -22,9 +22,13 @@ import {
 } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { getBlueprints, createMachine } from '@/data/services/machines.api';
+import { getAllBranches } from '@/data/services/company-branches.api';
+import { getAllCompanies, type Company } from '@/data/services/companies.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { toast } from 'sonner';
-import { Boxes, Check } from 'lucide-react';
+import { Boxes, Check, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 interface BlueprintField {
@@ -48,21 +52,46 @@ interface FieldValue {
   value: string | number;
 }
 
+interface Branch {
+  id: string;
+  name: string;
+  isMainBranch: boolean;
+}
+
 interface MachineCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  branchId?: string;
+  companyId?: string;
 }
 
-export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCreationModalProps) {
+export function MachineCreationModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  branchId,
+  companyId: companyIdProp,
+}: MachineCreationModalProps) {
   const t = useTranslations('machines');
+  const { companyUser } = useCompanyUser();
+  const { sysAdminUser } = useSysAdmin();
   const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>(companyIdProp || '');
+  const [selectedBranchId, setSelectedBranchId] = useState<string>(branchId || '');
   const [selectedBlueprintId, setSelectedBlueprintId] = useState<string>('');
   const [machineName, setMachineName] = useState('');
   const [fieldValues, setFieldValues] = useState<Record<string, string | number>>({});
   const [isLoadingBlueprints, setIsLoadingBlueprints] = useState(true);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(!!sysAdminUser && !companyIdProp);
+  const [isLoadingBranches, setIsLoadingBranches] = useState(!branchId);
 
   const { execute: submitMachine, isLoading, result } = useLazyQuery(createMachine);
+
+  const isSysAdmin = !!sysAdminUser;
+  const effectiveCompanyId = companyIdProp || selectedCompanyId || companyUser?.companyId;
 
   const selectedBlueprint = useMemo(() => {
     return blueprints.find((bp) => bp.id === selectedBlueprintId) ?? null;
@@ -81,6 +110,53 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
     loadBlueprints();
   }, []);
 
+  useEffect(() => {
+    if (!isSysAdmin || companyIdProp) {
+      return;
+    }
+
+    const loadCompanies = async () => {
+      setIsLoadingCompanies(true);
+      const response = await getAllCompanies();
+      if (response.data) {
+        setCompanies(response.data);
+      }
+      setIsLoadingCompanies(false);
+    };
+
+    loadCompanies();
+  }, [isSysAdmin, companyIdProp]);
+
+  useEffect(() => {
+    if (branchId) {
+      return;
+    }
+
+    if (!effectiveCompanyId) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const loadBranches = async () => {
+      setIsLoadingBranches(true);
+      const response = await getAllBranches({ companyId: effectiveCompanyId });
+
+      if (cancelled) return;
+
+      if (response.data) {
+        setBranches(response.data);
+      }
+      setIsLoadingBranches(false);
+    };
+
+    loadBranches();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [branchId, effectiveCompanyId]);
+
   const handleBlueprintSelect = (blueprintId: string) => {
     setSelectedBlueprintId(blueprintId);
     setFieldValues({});
@@ -96,7 +172,10 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedBlueprint) return;
+    if (!selectedBlueprint || !selectedBranchId) {
+      toast.error(t('form.error.branchRequired'));
+      return;
+    }
 
     const fields: FieldValue[] = selectedBlueprint.fields.map((field) => ({
       fieldSlug: field.fieldSlug,
@@ -105,6 +184,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
 
     const payload = {
       blueprintId: selectedBlueprintId,
+      branchId: selectedBranchId,
       name: machineName,
       fields,
     };
@@ -115,6 +195,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
       toast.success(t('createdSuccessfully'));
       setMachineName('');
       setSelectedBlueprintId('');
+      setSelectedBranchId(branchId || '');
       setFieldValues({});
       onSuccess?.();
       onClose();
@@ -183,61 +264,190 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
-            <section className="space-y-4">
-              <div>
-                <Typography variant="h3">{t('form.blueprint.label')}</Typography>
-              </div>
+            {isSysAdmin && !companyIdProp && (
+              <>
+                <section className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {t('form.company.label')}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('form.company.description')}
+                    </p>
+                  </div>
 
-              {isLoadingBlueprints ? (
-                <div className="text-center py-8">
-                  <Typography variant="muted">{t('form.blueprint.loading')}</Typography>
+                  {isLoadingCompanies ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      {t('form.company.loading')}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {companies.map((company) => {
+                        const isSelected = selectedCompanyId === company.id;
+                        return (
+                          <Card
+                            key={company.id}
+                            className={`cursor-pointer transition-all hover:shadow-md ${
+                              isSelected
+                                ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-500/10'
+                                : 'hover:border-orange-500/50'
+                            }`}
+                            onClick={() => setSelectedCompanyId(company.id)}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-start gap-3 flex-1">
+                                  <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
+                                    <Boxes className="w-5 h-5 text-orange-500" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <h4 className="font-semibold text-sm text-foreground">
+                                      {company.name}
+                                    </h4>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {company.slug}
+                                    </p>
+                                  </div>
+                                </div>
+                                {isSelected && (
+                                  <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
+                                    <Check className="w-3 h-3 text-white" />
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+
+                {selectedCompanyId && <Separator />}
+              </>
+            )}
+
+            {!branchId && (companyIdProp || selectedCompanyId || companyUser?.companyId) && (
+              <>
+                <section className="space-y-4">
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {t('form.branch.label')}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {t('form.branch.description')}
+                    </p>
+                  </div>
+
+                  {isLoadingBranches ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      {t('form.branch.loading')}
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {branches.map((branch) => {
+                        const isSelected = selectedBranchId === branch.id;
+                        return (
+                          <Card
+                            key={branch.id}
+                            className={`cursor-pointer transition-all hover:shadow-md ${
+                              isSelected
+                                ? 'ring-2 ring-primary border-primary bg-primary/10'
+                                : 'hover:border-primary/50'
+                            }`}
+                            onClick={() => setSelectedBranchId(branch.id)}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-start gap-3 flex-1">
+                                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                    <MapPin className="w-5 h-5 text-primary" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <h4 className="font-semibold text-sm text-foreground">
+                                      {branch.name}
+                                    </h4>
+                                    {branch.isMainBranch && (
+                                      <p className="text-xs text-muted-foreground mt-1">
+                                        {t('form.branch.mainBranch')}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                                {isSelected && (
+                                  <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                                    <Check className="w-3 h-3 text-white" />
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    </div>
+                  )}
+                </section>
+
+                {selectedBranchId && <Separator />}
+              </>
+            )}
+
+            {(branchId || selectedBranchId) && (
+              <section className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {t('form.blueprint.label')}
+                  </h3>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {blueprints.map((blueprint) => {
-                    const isSelected = selectedBlueprintId === blueprint.id;
-                    return (
-                      <Card
-                        key={blueprint.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
-                          isSelected
-                            ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-500/10'
-                            : 'hover:border-orange-500/50'
-                        }`}
-                        onClick={() => handleBlueprintSelect(blueprint.id)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-3 flex-1">
-                              <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
-                                <Boxes className="w-5 h-5 text-orange-500" />
+
+                {isLoadingBlueprints ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    {t('form.blueprint.loading')}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {blueprints.map((blueprint) => {
+                      const isSelected = selectedBlueprintId === blueprint.id;
+                      return (
+                        <Card
+                          key={blueprint.id}
+                          className={`cursor-pointer transition-all hover:shadow-md ${
+                            isSelected
+                              ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-500/10'
+                              : 'hover:border-orange-500/50'
+                          }`}
+                          onClick={() => handleBlueprintSelect(blueprint.id)}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-start gap-3 flex-1">
+                                <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
+                                  <Boxes className="w-5 h-5 text-orange-500" />
+                                </div>
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-sm text-foreground">
+                                    {blueprint.name}
+                                  </h4>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {blueprint.sections.length} {t('sectionsCount')} •{' '}
+                                    {blueprint.fields.length} {t('fieldsCount')}
+                                  </p>
+                                </div>
                               </div>
-                              <div className="flex-1">
-                                <Typography variant="h4" className="text-sm">
-                                  {blueprint.name}
-                                </Typography>
-                                <Typography
-                                  variant="small"
-                                  className="text-xs text-muted-foreground mt-1"
-                                >
-                                  {blueprint.sections.length} {t('sectionsCount')} •{' '}
-                                  {blueprint.fields.length} {t('fieldsCount')}
-                                </Typography>
-                              </div>
+                              {isSelected && (
+                                <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
+                                  <Check className="w-3 h-3 text-white" />
+                                </div>
+                              )}
                             </div>
-                            {isSelected && (
-                              <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
-                                <Check className="w-3 h-3 text-white" />
-                              </div>
-                            )}
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
-                </div>
-              )}
-            </section>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+            )}
 
             {selectedBlueprint && <Separator />}
 
@@ -282,11 +492,18 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
               </>
             )}
 
-            {!selectedBlueprint && !isLoadingBlueprints && (
-              <div className="text-center py-8">
-                <Typography variant="muted">{t('form.selectBlueprintPrompt')}</Typography>
-              </div>
-            )}
+            {!selectedBlueprint &&
+              !isLoadingBlueprints &&
+              !isLoadingBranches &&
+              !isLoadingCompanies && (
+                <div className="text-center text-muted-foreground py-8">
+                  {isSysAdmin && !companyIdProp && !selectedCompanyId
+                    ? t('form.selectCompanyPrompt')
+                    : !branchId && !selectedBranchId
+                      ? t('form.selectBranchPrompt')
+                      : t('form.selectBlueprintPrompt')}
+                </div>
+              )}
 
             {result?.errors && result.errors.length > 0 && (
               <div className="rounded-md border border-destructive bg-destructive/10 p-4 mb-6">
@@ -312,7 +529,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
             </Button>
             <Button
               type="submit"
-              disabled={isLoading || !selectedBlueprint}
+              disabled={isLoading || !selectedBlueprint || !selectedBranchId}
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}

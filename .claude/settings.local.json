@@ -25,7 +25,11 @@
       "Bash(curl:*)",
       "Bash(ls:*)",
       "Bash(npm run lint:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git log:*)",
+      "Bash(git restore:*)",
+      "Bash(wait)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []
