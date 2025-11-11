@@ -27,6 +27,7 @@ import { createBlueprint } from '@/data/services/blueprints.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { SERVICE_SECTION_SLUGS } from '@titans-tech/db/client';
 import { Card, CardContent } from '@/components/ui/card';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 interface BlueprintCreationModalProps {
   isOpen: boolean;
@@ -53,6 +54,7 @@ export const BlueprintCreationModal = ({
   const t = useTranslations('models');
   const tSections = useTranslations('sections');
   const [name, setName] = useState('');
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [fields, setFields] = useState<Field[]>([]);
   const [newOptionValues, setNewOptionValues] = useState<Record<number, string>>({});
@@ -154,6 +156,7 @@ export const BlueprintCreationModal = ({
 
     const payload = {
       name,
+      imageUrl: imageUrl || undefined,
       sections: selectedSections,
       fields: fields.map((field) => {
         const baseField = {
@@ -178,6 +181,7 @@ export const BlueprintCreationModal = ({
     if (response.data) {
       toast.success(t('createdSuccessfully'));
       setName('');
+      setImageUrl(null);
       setSelectedSections([]);
       setFields([]);
       setNewOptionValues({});
@@ -214,6 +218,18 @@ export const BlueprintCreationModal = ({
                       required
                       placeholder={t('form.name.placeholder')}
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="image">Imagem do Blueprint</Label>
+                    <ImageUpload
+                      value={imageUrl || undefined}
+                      onChange={setImageUrl}
+                      disabled={isLoading}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Opcional: Adicione uma imagem representativa do blueprint
+                    </p>
                   </div>
                 </div>
               </div>

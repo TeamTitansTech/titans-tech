@@ -6,6 +6,7 @@ import {
 import { Prisma, ServiceSection } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateBlueprintDto } from './dto/create-blueprint.dto';
+import { UpdateBlueprintDto } from './dto/update-blueprint.dto';
 
 @Injectable()
 export class BlueprintsService {
@@ -19,6 +20,7 @@ export class BlueprintsService {
     const blueprint = await this.prisma.blueprint.create({
       data: {
         name: createBlueprintDto.name,
+        imageUrl: createBlueprintDto.imageUrl,
         fields: createBlueprintDto.fields as unknown as Prisma.InputJsonValue,
         sections: sections,
       },
@@ -51,7 +53,7 @@ export class BlueprintsService {
   > {
     return this.prisma.blueprint.findMany({
       where: {
-        deletedAt: null, // Only return non-deleted blueprints
+        deletedAt: null,
       },
       include: {
         _count: {
@@ -87,6 +89,44 @@ export class BlueprintsService {
     }
 
     return blueprint;
+  }
+
+  async update(
+    id: string,
+    updateBlueprintDto: UpdateBlueprintDto,
+  ): Promise<Prisma.BlueprintGetPayload<object>> {
+    const blueprint = await this.prisma.blueprint.findUnique({
+      where: { id },
+    });
+
+    if (!blueprint || blueprint.deletedAt) {
+      throw new NotFoundException(`Blueprint with ID ${id} not found`);
+    }
+
+    const updateData: Prisma.BlueprintUpdateInput = {};
+
+    if (updateBlueprintDto.name) {
+      updateData.name = updateBlueprintDto.name;
+    }
+
+    if (updateBlueprintDto.imageUrl !== undefined) {
+      updateData.imageUrl = updateBlueprintDto.imageUrl;
+    }
+
+    if (updateBlueprintDto.fields) {
+      updateData.fields =
+        updateBlueprintDto.fields as unknown as Prisma.InputJsonValue;
+    }
+
+    if (updateBlueprintDto.sections) {
+      const sections = this.validateSections(updateBlueprintDto.sections);
+      updateData.sections = sections;
+    }
+
+    return this.prisma.blueprint.update({
+      where: { id },
+      data: updateData,
+    });
   }
 
   async softDelete(id: string): Promise<Prisma.BlueprintGetPayload<object>> {

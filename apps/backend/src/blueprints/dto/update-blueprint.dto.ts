@@ -1,7 +1,6 @@
 import {
   IsString,
   IsArray,
-  IsNotEmpty,
   ValidateNested,
   IsEnum,
   IsOptional,
@@ -12,37 +11,37 @@ import { ServiceSection } from '@titans-tech/db';
 
 class BlueprintFieldDto {
   @IsString()
-  @IsNotEmpty()
   fieldName: string;
 
   @IsString()
-  @IsNotEmpty()
   fieldSlug: string;
 
   @IsString()
-  @IsNotEmpty()
-  fieldType: string; // 'string', 'int', 'enum'
+  fieldType: string;
 
   @IsArray()
   @IsString({ each: true })
-  fieldOptions?: string[]; // Required if fieldType is 'enum'
+  @IsOptional()
+  fieldOptions?: string[];
 }
 
-export class CreateBlueprintDto {
+export class UpdateBlueprintDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  name: string;
+  name?: string;
 
   @IsOptional()
   @IsUrl()
   imageUrl?: string;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => BlueprintFieldDto)
-  fields: BlueprintFieldDto[];
+  fields?: BlueprintFieldDto[];
 
+  @IsOptional()
   @IsArray()
   @IsEnum(ServiceSection, { each: true })
-  sections: ServiceSection[];
+  sections?: ServiceSection[];
 }

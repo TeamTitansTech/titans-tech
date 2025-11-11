@@ -1,7 +1,16 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+} from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { BlueprintsService } from './blueprints.service';
 import { CreateBlueprintDto } from './dto/create-blueprint.dto';
+import { UpdateBlueprintDto } from './dto/update-blueprint.dto';
 import { Public } from 'src/modules/auth/auth.decorators';
 
 @Controller('blueprints')
@@ -34,6 +43,15 @@ export class BlueprintsController {
     }>
   > {
     return this.blueprintsService.findOne(id);
+  }
+
+  @Public()
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateBlueprintDto: UpdateBlueprintDto,
+  ): Promise<Prisma.BlueprintGetPayload<object>> {
+    return this.blueprintsService.update(id, updateBlueprintDto);
   }
 
   @Public()

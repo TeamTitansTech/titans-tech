@@ -10,6 +10,7 @@ import { SysAdminModule } from './modules/sysadmin/sysadmin.module';
 import { CompaniesModule } from './modules/companies/companies.module';
 import { CompanyBranchesModule } from './modules/company-branches/company-branches.module';
 import { UsersModule } from './modules/users/users.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UsersModule } from './modules/users/users.module';
     CompaniesModule,
     CompanyBranchesModule,
     UsersModule,
+    UploadModule,
     BlueprintsModule,
     MachinesModule,
     ServicesModule,

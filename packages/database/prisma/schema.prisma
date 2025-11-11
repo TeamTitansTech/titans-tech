@@ -157,6 +157,7 @@ model UserBranch {
 model Blueprint {
   id        String           @id @default(cuid())
   name      String
+  imageUrl  String?
   fields    Json // Array of { fieldName, fieldSlug, fieldType, fieldOptions? }
   sections  ServiceSection[] // Array of service sections
   deletedAt DateTime? // Soft delete to preserve historical data
