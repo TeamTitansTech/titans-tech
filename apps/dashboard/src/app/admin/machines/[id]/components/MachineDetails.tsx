@@ -22,6 +22,10 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
 };
 
+const SECTION_IMAGES: Record<string, string> = {
+  BEARING_CLEARANCE: '/assets/sections/bearing-clearance.svg',
+};
+
 const CLEARANCE_LIMITS = {
   WARNING: 0.15,
   ALERT: 0.2,
@@ -147,6 +151,7 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
                     key={section}
                     title={t(`sectionNames.${SECTION_I18N_KEYS[section] || 'unknown'}`)}
                     status={getSectionStatus(section, machine)}
+                    imageUrl={SECTION_IMAGES[section]}
                     onClick={() => handleSectionClick(section)}
                   />
                 ))}

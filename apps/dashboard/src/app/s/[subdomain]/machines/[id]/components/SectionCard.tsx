@@ -40,13 +40,14 @@ export function SectionCard({ title, status, imageUrl, onClick }: SectionCardPro
         />
       </div>
 
-      <div className="aspect-[4/3] bg-muted flex items-center justify-center relative">
+      <div className="aspect-[4/3] bg-muted/50 flex items-center justify-center relative px-5">
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={title}
-            fill
-            className="object-cover"
+            width={300}
+            height={225}
+            className="object-contain w-full h-auto"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
