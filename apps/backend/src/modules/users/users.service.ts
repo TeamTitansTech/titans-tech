@@ -26,9 +26,12 @@ export class UsersService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(email: string, password: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { email },
+  async login(email: string, password: string, companyId: string) {
+    const user = await this.prisma.user.findFirst({
+      where: {
+        email,
+        companyId,
+      },
       include: {
         branches: {
           include: {
@@ -51,8 +54,6 @@ export class UsersService {
     const payload: UserJwtPayload = {
       id: user.id,
       companyId: user.companyId,
-      isCompanyAdmin: user.isCompanyAdmin,
-      isCompanyManager: user.isCompanyManager,
       isSysAdmin: false,
     };
 
@@ -479,7 +480,9 @@ export class UsersService {
 
     if (dto.isCompanyManager === false && user.isCompanyManager) {
       if (!isSysAdmin(userPayload)) {
-        const currentUser = userPayload as UserJwtPayload;
+        const currentUser = await this.prisma.user.findUnique({
+          where: { id: userPayload.id },
+        });
         if (!currentUser.isCompanyAdmin) {
           throw new ForbiddenException(
             'Only company administrators or system administrators can remove manager status',

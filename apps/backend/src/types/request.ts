@@ -3,8 +3,6 @@ import { Request } from 'express';
 export interface UserJwtPayload {
   id: string;
   companyId: string;
-  isCompanyAdmin: boolean;
-  isCompanyManager: boolean;
   isSysAdmin: false;
 }
 
