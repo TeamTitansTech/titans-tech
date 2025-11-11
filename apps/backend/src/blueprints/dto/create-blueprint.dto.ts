@@ -6,7 +6,7 @@ import {
   IsEnum,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { InspectionSection } from '@titans-tech/db';
+import { ServiceSection } from '@titans-tech/db';
 
 class BlueprintFieldDto {
   @IsString()
@@ -37,6 +37,6 @@ export class CreateBlueprintDto {
   fields: BlueprintFieldDto[];
 
   @IsArray()
-  @IsEnum(InspectionSection, { each: true })
-  sections: InspectionSection[];
+  @IsEnum(ServiceSection, { each: true })
+  sections: ServiceSection[];
 }

@@ -21,7 +21,7 @@ export class ServicesService {
     }
 
     // Create the inspection
-    const inspection = await this.prisma.machineInspection.create({
+    const inspection = await this.prisma.machineService.create({
       data: {
         machineId: createInspectionDto.machineId,
         date: new Date(createInspectionDto.date),
@@ -190,7 +190,7 @@ export class ServicesService {
   }
 
   async findAll() {
-    return this.prisma.machineInspection.findMany({
+    return this.prisma.machineService.findMany({
       include: {
         machine: {
           include: {
@@ -246,7 +246,7 @@ export class ServicesService {
   }
 
   async findOne(id: string) {
-    const inspection = await this.prisma.machineInspection.findUnique({
+    const inspection = await this.prisma.machineService.findUnique({
       where: { id },
       include: {
         machine: {
@@ -314,7 +314,7 @@ export class ServicesService {
       throw new NotFoundException(`Machine with ID ${machineId} not found`);
     }
 
-    return this.prisma.machineInspection.findMany({
+    return this.prisma.machineService.findMany({
       where: { machineId },
       include: {
         machine: {
@@ -372,7 +372,7 @@ export class ServicesService {
 
   async update(id: string, updateServiceDto: UpdateServiceDto) {
     // Verify service exists
-    const existingService = await this.prisma.machineInspection.findUnique({
+    const existingService = await this.prisma.machineService.findUnique({
       where: { id },
     });
 
@@ -381,7 +381,7 @@ export class ServicesService {
     }
 
     // Update the service with all provided data
-    const updatedService = await this.prisma.machineInspection.update({
+    const updatedService = await this.prisma.machineService.update({
       where: { id },
       data: {
         ...(updateServiceDto.date && { date: new Date(updateServiceDto.date) }),

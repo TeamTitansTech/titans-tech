@@ -62,10 +62,12 @@ export class MachinesService {
         fields: true;
         services: {
           include: {
-            bearingClearanceChecks: {
+            bearingClearance: {
               include: {
-                before: true;
-                after: true;
+                outerBefore: true;
+                outerAfter: true;
+                innerBefore: true;
+                innerAfter: true;
               };
             };
           };
@@ -80,10 +82,12 @@ export class MachinesService {
         fields: true,
         services: {
           include: {
-            bearingClearanceChecks: {
+            bearingClearance: {
               include: {
-                before: true,
-                after: true,
+                outerBefore: true,
+                outerAfter: true,
+                innerBefore: true,
+                innerAfter: true,
               },
             },
           },
