@@ -16,11 +16,13 @@ npm run seed
 ## O que o seed cria
 
 ### 1. SysAdmin
+
 - **Email:** `sysadmin@titans-tech.com`
 - **Senha:** `password123`
 - **Acesso:** Painel admin em `/admin`
 
 ### 2. Empresa Exemplo (ACME Corporation)
+
 - **Nome:** ACME Corporation
 - **Slug/Subdomain:** `acme-corp`
 - **Acesso:** `http://acme-corp.localhost:3000` (dev) ou `http://acme-corp.[seu-dominio]` (prod)
@@ -28,28 +30,33 @@ npm run seed
 ### 3. Filiais
 
 #### Headquarters (Filial Principal)
+
 - Localização: New York, NY
 - Tipo: Filial principal
 
 #### West Coast Facility (Filial Secundária)
+
 - Localização: Los Angeles, CA
 - Tipo: Filial secundária
 
 ### 4. Usuários
 
 #### Company Admin
+
 - **Email:** `admin@acme-corp.com`
 - **Senha:** `password123`
 - **Permissões:** Todas as permissões na filial Headquarters
 - **Roles:** Company Admin
 
 #### Company Manager
+
 - **Email:** `manager@acme-corp.com`
 - **Senha:** `password123`
 - **Permissões:** Limitadas (sem delete) na filial Headquarters
 - **Roles:** Company Manager
 
 #### Regular User
+
 - **Email:** `user@acme-corp.com`
 - **Senha:** `password123`
 - **Permissões:** Somente leitura e criar inspeções na filial West Coast
@@ -58,16 +65,19 @@ npm run seed
 ### 5. Blueprints
 
 #### Standard Bearing Clearance Inspection
+
 - Seções: Bearing Clearance
 - Campos: Serial Number, Model Year, Machine Type
 
 #### Standard Slide Inspection
+
 - Seções: Slide
 - Campos: Serial Number, Slide Type
 
 ### 6. Máquinas Exemplo
 
 #### Press Machine #001
+
 - Filial: Headquarters
 - Blueprint: Bearing Clearance
 - Serial: SN-12345
@@ -75,6 +85,7 @@ npm run seed
 - Tipo: Press
 
 #### Stamping Machine #002
+
 - Filial: Headquarters
 - Blueprint: Bearing Clearance
 - Serial: SN-67890
@@ -82,6 +93,7 @@ npm run seed
 - Tipo: Stamping
 
 #### Slide Press #003
+
 - Filial: West Coast Facility
 - Blueprint: Slide
 - Serial: SN-11111
@@ -113,11 +125,13 @@ Agora que temos o seed funcionando, a página `/admin/auth-test` não é mais ne
 2. Mantê-la apenas para debugging específico
 
 Para remover:
+
 ```bash
 rm -rf apps/dashboard/src/app/admin/auth-test
 ```
 
 E remover da lista de rotas públicas em `apps/dashboard/src/proxy.ts`:
+
 ```typescript
 const ADMIN_PUBLIC_PATHS = ['/admin']; // Remover '/admin/auth-test'
 ```
