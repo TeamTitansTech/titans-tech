@@ -1,5 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { LucideIcon } from 'lucide-react';
+import { Typography } from '@/components/ui/typography';
 
 interface StatCardProps {
   title: string;
@@ -19,8 +20,8 @@ export function StatCard({
       <CardContent className="p-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground font-medium">{title}</p>
-            <p className="text-4xl font-bold text-foreground">{value}</p>
+            <Typography variant="muted" className="font-medium">{title}</Typography>
+            <Typography variant="h1" className="text-4xl font-bold text-foreground">{value}</Typography>
           </div>
           <div className={`${iconColor} mt-1`}>
             <Icon className="w-8 h-8" />

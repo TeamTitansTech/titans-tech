@@ -3,6 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
+import { Typography } from '@/components/ui/typography';
 import { Wrench, ChevronRight, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
@@ -43,7 +44,7 @@ export function MachineCard({
               </div>
               <div className="min-w-0 flex-1">
                 <ConditionalTooltip content={name}>
-                  <h3 className="font-semibold text-base truncate">{name}</h3>
+                  <Typography variant="h3" className="truncate">{name}</Typography>
                 </ConditionalTooltip>
                 <ConditionalTooltip
                   content={blueprintName}
@@ -60,18 +61,18 @@ export function MachineCard({
             </span>
           </div>
 
-          <div className="space-y-2 text-sm">
+          <div className="space-y-2">
             {location && (
-              <div className="text-muted-foreground">
+              <Typography variant="small" className="text-muted-foreground">
                 <span className="font-medium">{t('location')}:</span> {location}
-              </div>
+              </Typography>
             )}
             {lastInspection && (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Calendar className="w-4 h-4" />
-                <span>
+                <Typography variant="small" className="text-muted-foreground">
                   <span className="font-medium">{t('lastInspection')}:</span> {lastInspection}
-                </span>
+                </Typography>
               </div>
             )}
           </div>

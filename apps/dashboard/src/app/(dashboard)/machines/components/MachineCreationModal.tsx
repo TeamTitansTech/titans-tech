@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Typography } from '@/components/ui/typography';
 import {
   Select,
   SelectContent,
@@ -184,14 +185,14 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
             <section className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold text-foreground">
+                <Typography variant="h3">
                   {t('form.blueprint.label')}
-                </h3>
+                </Typography>
               </div>
 
               {isLoadingBlueprints ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {t('form.blueprint.loading')}
+                <div className="text-center py-8">
+                  <Typography variant="muted">{t('form.blueprint.loading')}</Typography>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -214,13 +215,13 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
                                 <Boxes className="w-5 h-5 text-orange-500" />
                               </div>
                               <div className="flex-1">
-                                <h4 className="font-semibold text-sm text-foreground">
+                                <Typography variant="h4" className="text-sm">
                                   {blueprint.name}
-                                </h4>
-                                <p className="text-xs text-muted-foreground mt-1">
+                                </Typography>
+                                <Typography variant="small" className="text-xs text-muted-foreground mt-1">
                                   {blueprint.sections.length} {t('sectionsCount')} •{' '}
                                   {blueprint.fields.length} {t('fieldsCount')}
-                                </p>
+                                </Typography>
                               </div>
                             </div>
                             {isSelected && (
@@ -267,10 +268,10 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
                           <div className="space-y-2">
                             <Label htmlFor={`field-${field.fieldSlug}`}>{field.fieldName}</Label>
                             {renderFieldInput(field)}
-                            <p className="text-xs text-muted-foreground">
+                            <Typography variant="small" className="text-xs text-muted-foreground">
                               {t('form.fields.slug')}:{' '}
                               <code className="text-muted-foreground">{field.fieldSlug}</code>
-                            </p>
+                            </Typography>
                           </div>
                         </CardContent>
                       </Card>
@@ -281,20 +282,22 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
             )}
 
             {!selectedBlueprint && !isLoadingBlueprints && (
-              <div className="text-center text-muted-foreground py-8">
-                {t('form.selectBlueprintPrompt')}
+              <div className="text-center py-8">
+                <Typography variant="muted">{t('form.selectBlueprintPrompt')}</Typography>
               </div>
             )}
 
             {result?.errors && result.errors.length > 0 && (
               <div className="rounded-md border border-destructive bg-destructive/10 p-4 mb-6">
-                <h3 className="text-lg font-semibold mb-2 text-destructive">
+                <Typography variant="h3" className="mb-2 text-destructive">
                   {t('form.error.title')}
-                </h3>
+                </Typography>
                 <ul className="list-disc list-inside space-y-1">
                   {result.errors.map((error, index) => (
-                    <li key={index} className="text-sm text-destructive">
-                      {error}
+                    <li key={index}>
+                      <Typography variant="small" className="text-destructive">
+                        {error}
+                      </Typography>
                     </li>
                   ))}
                 </ul>

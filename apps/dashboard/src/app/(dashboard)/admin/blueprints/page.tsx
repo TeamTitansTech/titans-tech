@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { BlueprintsPageClient } from '@/app/(dashboard)/blueprints/components/BlueprintsPageClient';
 import { getBlueprints } from '@/data/services/blueprints.api';
+import { Typography } from '@/components/ui/typography';
 
 export default async function AdminBlueprintsPage() {
   const t = await getTranslations('models');
@@ -10,8 +11,10 @@ export default async function AdminBlueprintsPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
-          <p className="text-muted-foreground mt-1">{t('pageDescription')}</p>
+          <Typography variant="h1">{t('pageTitle')}</Typography>
+          <Typography variant="muted" className="mt-1">
+            {t('pageDescription')}
+          </Typography>
         </div>
         <div className="text-center py-12">
           <p className="text-destructive">

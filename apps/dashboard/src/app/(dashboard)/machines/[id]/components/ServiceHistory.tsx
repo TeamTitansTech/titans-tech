@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Typography } from '@/components/ui/typography';
 import { Wrench } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
@@ -34,7 +35,7 @@ export async function ServiceHistory({ machineId }: ServiceHistoryProps) {
           <CardTitle>{t('serviceHistory')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground text-center py-8">{t('noInspectionsFound')}</p>
+          <Typography variant="muted" className="text-center py-8">{t('noInspectionsFound')}</Typography>
         </CardContent>
       </Card>
     );
@@ -61,23 +62,23 @@ export async function ServiceHistory({ machineId }: ServiceHistoryProps) {
                     <Wrench className="w-5 h-5 text-accent" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-base">
+                    <Typography variant="h4">
                       {inspection.isMaintenance
                         ? t('maintenanceInspection')
                         : t('routineInspection')}
-                    </h4>
+                    </Typography>
                     {inspection.performedBy && (
-                      <p className="text-sm text-muted-foreground">
+                      <Typography variant="small" className="text-muted-foreground">
                         {t('technician')}: {inspection.performedBy}
-                      </p>
+                      </Typography>
                     )}
-                    <p className="text-sm text-muted-foreground">
+                    <Typography variant="small" className="text-muted-foreground">
                       {inspectionDate.toLocaleDateString('pt-BR', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric',
                       })}
-                    </p>
+                    </Typography>
                   </div>
                 </div>
                 <span

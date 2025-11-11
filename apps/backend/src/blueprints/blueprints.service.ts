@@ -11,7 +11,9 @@ import { CreateBlueprintDto } from './dto/create-blueprint.dto';
 export class BlueprintsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createBlueprintDto: CreateBlueprintDto) {
+  async create(
+    createBlueprintDto: CreateBlueprintDto,
+  ): Promise<Prisma.BlueprintGetPayload<object>> {
     const sections = this.validateSections(createBlueprintDto.sections);
 
     const blueprint = await this.prisma.blueprint.create({
@@ -42,7 +44,11 @@ export class BlueprintsService {
     });
   }
 
-  async findAll() {
+  async findAll(): Promise<
+    Prisma.BlueprintGetPayload<{
+      include: { _count: { select: { machines: true } } };
+    }>[]
+  > {
     return this.prisma.blueprint.findMany({
       where: {
         deletedAt: null, // Only return non-deleted blueprints
@@ -60,7 +66,11 @@ export class BlueprintsService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<
+    Prisma.BlueprintGetPayload<{
+      include: { machines: { include: { fields: true } } };
+    }>
+  > {
     const blueprint = await this.prisma.blueprint.findUnique({
       where: { id },
       include: {
@@ -79,7 +89,7 @@ export class BlueprintsService {
     return blueprint;
   }
 
-  async softDelete(id: string) {
+  async softDelete(id: string): Promise<Prisma.BlueprintGetPayload<object>> {
     const blueprint = await this.prisma.blueprint.findUnique({
       where: { id },
     });

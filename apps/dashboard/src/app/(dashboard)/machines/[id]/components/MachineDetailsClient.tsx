@@ -1,24 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
-import {
-  ArrowLeft,
-  Plus,
-  Download,
-  Wrench,
-  ClipboardCheck,
-  Building2,
-  Box,
-  MapPin,
-  Calendar,
-} from 'lucide-react';
+import { ArrowLeft, Wrench, ClipboardCheck, Box } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { InspectionCreationModal } from './InspectionCreationModal';
+import { SectionCard, type SectionStatus } from './SectionCard';
+import { Typography } from '@/components/ui/typography';
 
 interface MachineField {
   fieldSlug: string;
@@ -41,135 +34,198 @@ interface Blueprint {
   updatedAt: string;
 }
 
+interface BearingClearance {
+  id: string;
+  totalClearance_RH: number;
+  totalClearance_LH: number;
+  mainBearings_RH: number;
+  mainBearings_LH: number;
+  upperConnectionBearings_RH: number;
+  upperConnectionBearings_LH: number;
+  wristPinToMatingPart_RH: number;
+  wristPinToMatingPart_LH: number;
+  wristPinToBushing_RH: number;
+  wristPinToBushing_LH: number;
+}
+
+interface BearingClearanceCheck {
+  id: string;
+  before: BearingClearance | null;
+  after: BearingClearance | null;
+}
+
+interface MachineInspection {
+  id: string;
+  date: string;
+  isMaintenance: boolean;
+  performedBy: string;
+  bearingClearanceChecks: BearingClearanceCheck | null;
+}
+
 interface Machine {
   id: string;
   blueprintId: string;
   name: string;
+  imageUrl?: string;
   fields: MachineField[];
   createdAt: string;
   updatedAt: string;
   blueprint?: Blueprint;
   client?: string;
   location?: string;
+  inspections?: MachineInspection[];
 }
 
 interface MachineDetailsClientProps {
   machine: Machine;
 }
 
+
+const SECTION_I18N_KEYS: Record<string, string> = {
+  BEARING_CLEARANCE: 'bearingClearance',
+  SLIDE: 'slide',
+  GIBS: 'gibs',
+  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
+  CLUTCH: 'clutch',
+  COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
+};
+
+
+const CLEARANCE_LIMITS = {
+  WARNING: 0.15,
+  ALERT: 0.20,
+};
+
+
+const getSectionStatus = (section: string, machine: Machine): SectionStatus => {
+
+  if (!machine.inspections || machine.inspections.length === 0) {
+    return 'unknown';
+  }
+
+
+  const latestInspection = machine.inspections[0];
+
+  switch (section) {
+    case 'BEARING_CLEARANCE': {
+      const bearingCheck = latestInspection.bearingClearanceChecks;
+      if (!bearingCheck || !bearingCheck.after) {
+        return 'unknown';
+      }
+
+
+      const clearances = [
+        bearingCheck.after.totalClearance_RH,
+        bearingCheck.after.totalClearance_LH,
+        bearingCheck.after.mainBearings_RH,
+        bearingCheck.after.mainBearings_LH,
+        bearingCheck.after.upperConnectionBearings_RH,
+        bearingCheck.after.upperConnectionBearings_LH,
+        bearingCheck.after.wristPinToMatingPart_RH,
+        bearingCheck.after.wristPinToMatingPart_LH,
+        bearingCheck.after.wristPinToBushing_RH,
+        bearingCheck.after.wristPinToBushing_LH,
+      ];
+
+      const maxClearance = Math.max(...clearances);
+
+      if (maxClearance >= CLEARANCE_LIMITS.ALERT) {
+        return 'alert';
+      } else if (maxClearance >= CLEARANCE_LIMITS.WARNING) {
+        return 'warning';
+      } else {
+        return 'ok';
+      }
+    }
+
+
+    case 'SLIDE':
+    case 'GIBS':
+    case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
+    case 'CLUTCH':
+    case 'COUNTERBALANCE_CYLINDER_AIRBAG':
+    default:
+      return 'ok';
+  }
+};
+
 export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
+  const router = useRouter();
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
 
-  // Use useState with lazy initializer to avoid calling Date.now() during render
-  const [daysSinceUpdate] = useState(() =>
-    Math.floor((Date.now() - new Date(machine.updatedAt).getTime()) / (1000 * 60 * 60 * 24)),
-  );
+  const handleSectionClick = (section: string) => {
 
-  const lastInspectionText =
-    daysSinceUpdate === 0
-      ? t('today')
-      : daysSinceUpdate === 1
-        ? t('yesterday')
-        : t('daysAgo', { days: daysSinceUpdate });
-
-  const getFieldName = (fieldSlug: string) => {
-    const blueprintField = machine.blueprint?.fields.find((f) => f.fieldSlug === fieldSlug);
-    return blueprintField?.fieldName || fieldSlug;
+    const sectionSlug = section.toLowerCase();
+    router.push(`/machines/${machine.id}/sections/${sectionSlug}`);
   };
 
   return (
     <>
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-6 mb-6">
         <Link href="/machines" className="shrink-0">
-          <ArrowLeft className="w-5 h-5 hover:text-orange-500 transition-colors cursor-pointer" />
+          <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
         </Link>
         <div className="flex items-center justify-between w-full min-w-0 gap-4">
           <div className="min-w-0 flex-1 overflow-hidden">
             <ConditionalTooltip content={machine.name} className="block">
-              <h1 className="text-3xl font-bold tracking-tight truncate">{machine.name}</h1>
+              <Typography variant="h1" className="text-3xl font-bold tracking-tight truncate">{machine.name}</Typography>
             </ConditionalTooltip>
             <ConditionalTooltip
               content={machine.blueprint?.name || t('noBlueprintAssigned')}
-              className="text-muted-foreground mt-1 truncate block"
+              className="mt-1 truncate block"
             >
-              {machine.blueprint?.name || t('noBlueprintAssigned')}
+              <Typography variant="muted">{machine.blueprint?.name || t('noBlueprintAssigned')}</Typography>
             </ConditionalTooltip>
           </div>
-          <span className="bg-green-600 text-white dark:bg-green-500 px-3 py-1 rounded-full text-xs font-medium shrink-0">
-            {t('operational')}
-          </span>
+          <Button variant="destructive" size="sm" className="shrink-0">
+            <Wrench className="w-4 h-4 mr-2" />
+            {t('requestUrgentService')}
+          </Button>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
-        <Card className="lg:w-2/3">
-          <CardHeader>
-            <CardTitle>{t('machineSpecifications')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {machine.fields.length > 0 ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {machine.fields.map((field) => (
-                    <div key={field.fieldSlug} className="space-y-1">
-                      <p className="text-sm text-muted-foreground">
-                        {getFieldName(field.fieldSlug)}
-                      </p>
-                      <p className="text-2xl font-bold">{field.value}</p>
-                    </div>
-                  ))}
+      <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6">
+        <Card>
+          <CardContent className="p-0">
+            <div className="aspect-[3/4] bg-muted flex items-center justify-center relative">
+              {machine.imageUrl ? (
+                <Image
+                  src={machine.imageUrl}
+                  alt={machine.name}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 400px"
+                />
+              ) : (
+                <div className="text-center p-6">
+                  <Box className="w-16 h-16 mx-auto text-muted-foreground mb-2" />
+                  <Typography variant="muted">{t('noImageAvailable')}</Typography>
                 </div>
-                <Separator className="my-6" />
-              </>
-            ) : null}
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-3 text-sm">
-                <Building2 className="w-4 h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{t('client')}:</span>
-                <span className="font-medium">{machine.client || '-'}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Box className="w-4 h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{t('model')}:</span>
-                <span className="font-medium">{machine.blueprint?.name || '-'}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <MapPin className="w-4 h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{t('location')}:</span>
-                <span className="font-medium">{machine.location || '-'}</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <Calendar className="w-4 h-4 text-muted-foreground" />
-                <span className="text-muted-foreground">{t('lastInspection')}:</span>
-                <span className="font-medium">{lastInspectionText}</span>
-              </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="lg:w-1/3">
-          <CardHeader>
-            <CardTitle>{t('actions')}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button className="w-full " size="sm" onClick={() => setIsInspectionModalOpen(true)}>
-              <ClipboardCheck className="w-4 h-4 mr-2" />
-              {t('createInspection')}
-            </Button>
-            <Button className="w-full" size="sm" disabled>
-              <Plus className="w-4 h-4 mr-2" />
-              {t('createServiceRequest')}
-            </Button>
-            <Button variant="outline" className="w-full" size="sm" disabled>
-              <Wrench className="w-4 h-4 mr-2" />
-              {t('viewMaintenanceLog')}
-            </Button>
-            <Button variant="outline" className="w-full" size="sm" disabled>
-              <Download className="w-4 h-4 mr-2" />
-              {t('downloadReports')}
-            </Button>
+        <Card>
+          <CardContent className="pt-6">
+            {machine.blueprint?.sections && machine.blueprint.sections.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {machine.blueprint.sections.map((section) => (
+                  <SectionCard
+                    key={section}
+                    title={t(`sectionNames.${SECTION_I18N_KEYS[section] || 'unknown'}`)}
+                    status={getSectionStatus(section, machine)}
+                    onClick={() => handleSectionClick(section)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12 text-muted-foreground">
+                <ClipboardCheck className="w-12 h-12 mx-auto mb-3 opacity-50" />
+                <Typography variant="p">{t('noSectionsAvailable')}</Typography>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
