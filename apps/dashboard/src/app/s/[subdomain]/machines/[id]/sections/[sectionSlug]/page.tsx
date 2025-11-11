@@ -1,11 +1,12 @@
 import { getTranslations } from 'next-intl/server';
-import { BearingClearanceSectionWrapper } from './components/BearingClearanceSectionWrapper';
+import { BearingClearanceSectionWrapper } from '@/app/(dashboard)/machines/[id]/sections/[sectionSlug]/components/BearingClearanceSectionWrapper';
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 interface SectionDetailPageProps {
   params: Promise<{
+    subdomain: string;
     id: string;
     sectionSlug: string;
   }>;
