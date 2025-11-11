@@ -8,7 +8,7 @@ export class InspectionsService {
   constructor(private prisma: PrismaService) {}
 
   async create(createInspectionDto: CreateInspectionDto): Promise<
-    Prisma.MachineInspectionGetPayload<{
+    Prisma.MachineServiceGetPayload<{
       include: {
         machine: { include: { blueprint: true; fields: true } };
         bearingClearanceChecks: { include: { before: true; after: true } };
@@ -28,7 +28,7 @@ export class InspectionsService {
     }
 
     // Create the inspection
-    const inspection = await this.prisma.machineInspection.create({
+    const inspection = await this.prisma.machineService.create({
       data: {
         machineId: createInspectionDto.machineId,
         date: new Date(createInspectionDto.date),
@@ -71,14 +71,14 @@ export class InspectionsService {
   }
 
   async findAll(): Promise<
-    Prisma.MachineInspectionGetPayload<{
+    Prisma.MachineServiceGetPayload<{
       include: {
         machine: { include: { blueprint: true; fields: true } };
         bearingClearanceChecks: { include: { before: true; after: true } };
       };
     }>[]
   > {
-    return this.prisma.machineInspection.findMany({
+    return this.prisma.machineService.findMany({
       include: {
         machine: {
           include: {
@@ -100,14 +100,14 @@ export class InspectionsService {
   }
 
   async findOne(id: string): Promise<
-    Prisma.MachineInspectionGetPayload<{
+    Prisma.MachineServiceGetPayload<{
       include: {
         machine: { include: { blueprint: true; fields: true } };
         bearingClearanceChecks: { include: { before: true; after: true } };
       };
     }>
   > {
-    const inspection = await this.prisma.machineInspection.findUnique({
+    const inspection = await this.prisma.machineService.findUnique({
       where: { id },
       include: {
         machine: {
@@ -133,7 +133,7 @@ export class InspectionsService {
   }
 
   async findByMachine(machineId: string): Promise<
-    Prisma.MachineInspectionGetPayload<{
+    Prisma.MachineServiceGetPayload<{
       include: {
         machine: { include: { blueprint: true; fields: true } };
         bearingClearanceChecks: { include: { before: true; after: true } };
@@ -148,7 +148,7 @@ export class InspectionsService {
       throw new NotFoundException(`Machine with ID ${machineId} not found`);
     }
 
-    return this.prisma.machineInspection.findMany({
+    return this.prisma.machineService.findMany({
       where: { machineId },
       include: {
         machine: {

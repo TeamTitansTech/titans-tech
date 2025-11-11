@@ -60,7 +60,7 @@ export class MachinesService {
       include: {
         blueprint: true;
         fields: true;
-        inspections: {
+        services: {
           include: {
             bearingClearanceChecks: {
               include: {
@@ -78,7 +78,7 @@ export class MachinesService {
       include: {
         blueprint: true,
         fields: true,
-        inspections: {
+        services: {
           include: {
             bearingClearanceChecks: {
               include: {
