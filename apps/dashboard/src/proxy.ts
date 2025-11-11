@@ -69,12 +69,16 @@ export async function proxy(request: NextRequest) {
   }
 
   if (subdomain) {
+    if (isLoggedIn && pathname === '/') {
+      return NextResponse.redirect(new URL('/home', request.url));
+    }
+
     // Block access to admin page from subdomains
     if (pathname.startsWith('/admin')) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    return NextResponse.rewrite(new URL(`/s/${subdomain}`, request.url));
+    return NextResponse.rewrite(new URL(`/s/${subdomain}${pathname}`, request.url));
   }
 
   // On the root domain, allow normal access

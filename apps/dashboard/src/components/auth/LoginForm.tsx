@@ -64,7 +64,7 @@ export function LoginForm({
       if (response?.data?.accessToken) {
         await setCookie('auth_token', response.data.accessToken);
         setCompanyUser(response.data.user);
-        router.replace('/home');
+        window.location.href = '/home';
       }
     }
   };
