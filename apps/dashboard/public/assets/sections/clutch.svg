@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_1" data-name="Camada 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1534.01 825.75">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #000;
+        stroke-miterlimit: 10;
+        stroke-width: 10px;
+      }
+    </style>
+  </defs>
+  <g id="Cluch_and_Brale_Clearance_CP2" data-name="Cluch and Brale Clearance CP2">
+    <circle class="cls-1" cx="732" cy="395.27" r="74.25"/>
+    <circle class="cls-1" cx="732" cy="395.27" r="136.81"/>
+    <path class="cls-1" d="M506.13,337.9v-25.12l184.5-72.38,7.12-11.25h69.25l5.75,11.25,185.25,72.38v25.12h72.38v44.62h-72.38v28.88l-114.38,96.38s-33.12,45-111.62,42-114.5-42-114.5-42l-111.38-96.38v-28.88h-72.38v-44.62h72.38Z"/>
+    <polyline class="cls-1" points="506.13 337.9 528.25 337.9 528.25 382.52 506.13 382.52"/>
+    <polyline class="cls-1" points="958 337.9 937 337.9 937 382.52 958 382.52"/>
+    <path class="cls-1" d="M584.5,282.03s9.24-84.38,147.56-84.38,148.44,84.85,148.44,84.85"/>
+    <path class="cls-1" d="M914.63,447.94c-9.02,75.05-87.12,133.7-182.13,133.7s-171.75-57.64-181.88-131.74"/>
+  </g>
+</svg>

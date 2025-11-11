@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_1" data-name="Camada 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1534.01 825.75">
+  <defs>
+    <style>
+      .cls-1 {
+        stroke-width: 10px;
+      }
+
+      .cls-1, .cls-2 {
+        fill: none;
+        stroke: #000;
+        stroke-miterlimit: 10;
+      }
+
+      .cls-2 {
+        stroke-width: 5px;
+      }
+    </style>
+  </defs>
+  <g id="Vacuum_House_Clearance_CP2" data-name="Vacuum House Clearance CP2">
+    <g>
+      <circle class="cls-1" cx="1095.16" cy="423.27" r="93.43"/>
+      <line class="cls-2" x1="1095.16" y1="175.65" x2="1095.16" y2="329.84"/>
+      <line class="cls-2" x1="1095.16" y1="516.71" x2="1095.16" y2="670.9"/>
+      <line class="cls-2" x1="1342.78" y1="423.27" x2="1188.59" y2="423.27"/>
+      <line class="cls-2" x1="1001.73" y1="423.27" x2="847.53" y2="423.27"/>
+    </g>
+    <g>
+      <circle class="cls-1" cx="437.22" cy="423.27" r="93.43"/>
+      <line class="cls-2" x1="437.22" y1="175.65" x2="437.22" y2="329.84"/>
+      <line class="cls-2" x1="437.22" y1="516.71" x2="437.22" y2="670.9"/>
+      <line class="cls-2" x1="684.85" y1="423.27" x2="530.65" y2="423.27"/>
+      <line class="cls-2" x1="343.79" y1="423.27" x2="189.6" y2="423.27"/>
+    </g>
+  </g>
+</svg>
