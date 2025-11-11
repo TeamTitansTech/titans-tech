@@ -11,7 +11,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { setLocale } from '@/app/actions/locale';
 import { useTransition } from 'react';
-import { useRouter, usePathname } from '@/i18n/routing';
+import { useRouter } from '@/i18n/routing';
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -21,7 +21,6 @@ const languages = [
 export function LanguageSwitcher() {
   const locale = useLocale();
   const router = useRouter();
-  const pathname = usePathname();
   const [_isPending, startTransition] = useTransition();
 
   const handleLanguageChange = async (newLocale: string) => {
