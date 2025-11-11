@@ -118,10 +118,9 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
       }
 
       setIsLoadingBranches(true);
-      const response = await responseHandler<Branch[]>(
-        `/companies/${selectedCompanyId}/branches`,
-        { method: 'GET' }
-      );
+      const response = await responseHandler<Branch[]>(`/companies/${selectedCompanyId}/branches`, {
+        method: 'GET',
+      });
 
       if (response.data) {
         setBranches(response.data);
