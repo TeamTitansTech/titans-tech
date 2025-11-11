@@ -24,6 +24,12 @@ const SECTION_I18N_KEYS: Record<string, string> = {
 
 const SECTION_IMAGES: Record<string, string> = {
   BEARING_CLEARANCE: '/assets/sections/bearing-clearance.svg',
+  SLIDE: '/assets/sections/slide.svg',
+  GIBS: '/assets/sections/gibs.svg',
+  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER:
+    '/assets/sections/lubrication-hydraulics.svg',
+  CLUTCH: '/assets/sections/clutch.svg',
+  COUNTERBALANCE_CYLINDER_AIRBAG: '/assets/sections/counterbalance.svg',
 };
 
 const CLEARANCE_LIMITS = {

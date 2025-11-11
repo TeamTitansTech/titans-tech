@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_1" data-name="Camada 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1534.01 825.75">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #000;
+        stroke-miterlimit: 10;
+        stroke-width: 10px;
+      }
+    </style>
+  </defs>
+  <path id="Parallelism_CP2" data-name="Parallelism CP2" class="cls-1" d="M115.99,676.11L426.71,189.86c.18-.29.5-.46.84-.46h908.9c.79,0,1.26.87.85,1.53l-304.75,486.25c-.18.29-.5.47-.85.47H116.83c-.79,0-1.27-.87-.84-1.54Z"/>
+</svg>

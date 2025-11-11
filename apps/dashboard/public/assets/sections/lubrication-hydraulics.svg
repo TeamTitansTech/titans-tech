@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Camada_1" data-name="Camada 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1534.01 704.61">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+      }
+
+      .cls-2 {
+        fill: none;
+        stroke: #fff;
+        stroke-miterlimit: 10;
+        stroke-width: 10px;
+      }
+    </style>
+  </defs>
+  <g id="Bearing_Clearance_CP2" data-name="Bearing Clearance CP2">
+    <rect class="cls-1" x="762.31" y="142.21" width="10.57" height="359.08"/>
+    <rect class="cls-1" x="762.04" y="-62.36" width="9.93" height="1524.01" transform="translate(1466.65 -67.36) rotate(90)"/>
+    <polygon class="cls-2" points="5 559.36 1529.01 559.36 1529.01 508.4 1498.19 490.62 1498.19 321.75 1385.61 208.57 1218.52 208.57 1122.53 68.73 413.85 68.73 313.12 208.57 143.65 208.57 37 321.75 37 488.25 5 504.84 5 559.36"/>
+    <circle class="cls-2" cx="178.24" cy="356.63" r="67.48"/>
+    <circle class="cls-2" cx="1356.95" cy="356.63" r="67.48"/>
+  </g>
+</svg>
