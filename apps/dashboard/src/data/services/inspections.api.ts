@@ -11,8 +11,8 @@ export const createInspection = async (payload: CreateInspectionPayload) => {
 
   if (!response.errors) {
     revalidateTag(`inspections-${payload.machineId}`, 'max');
-
     revalidatePath(`/machines/${payload.machineId}`);
+    revalidatePath(`/machines/${payload.machineId}/sections/bearing_clearance`);
   }
 
   return response;

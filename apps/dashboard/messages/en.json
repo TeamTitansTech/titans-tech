@@ -178,7 +178,9 @@
       "chartConnectionBearing": "Connection Bearing Clearance (CB)",
       "chartDifference": "Difference",
       "noDataAvailable": "No data available",
-      "exportData": "Export Data"
+      "exportData": "Export Data",
+      "areaChart": "Area Chart",
+      "barChart": "Bar Chart"
     },
     "form": {
       "blueprint": {

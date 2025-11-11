@@ -194,7 +194,9 @@
       "chartConnectionBearing": "Folga de Rolamento de Conexão (CB)",
       "chartDifference": "Diferença",
       "noDataAvailable": "Nenhum dado disponível",
-      "exportData": "Exportar Dados"
+      "exportData": "Exportar Dados",
+      "areaChart": "Gráfico de Área",
+      "barChart": "Gráfico de Barras"
     },
     "form": {
       "cancel": "Cancelar",
