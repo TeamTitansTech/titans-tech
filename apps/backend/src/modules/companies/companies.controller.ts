@@ -19,9 +19,15 @@ import {
   CreateCompanyBranchSchema,
 } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
-import { Admin, BranchPermission, CompanyAdmin } from '../auth/auth.decorators';
+import {
+  Admin,
+  BranchPermission,
+  CompanyAdmin,
+  Public,
+} from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
 import { CompanyBranchesService } from '../company-branches/company-branches.service';
+import { LoginDto, LoginSchema } from '../sysadmin/dto/login.dto';
 
 @Controller('companies')
 export class CompaniesController {
@@ -35,6 +41,25 @@ export class CompaniesController {
   @Get()
   findAll() {
     return this.companiesService.findAll();
+  }
+
+  @Public()
+  @Post(':companyId/login')
+  loginUser(
+    @Param('companyId') companyId: string,
+    @Body(new ZodValidationPipe(LoginSchema)) loginDto: LoginDto,
+  ) {
+    return this.usersService.login(
+      loginDto.email,
+      loginDto.password,
+      companyId,
+    );
+  }
+
+  @Public()
+  @Get(':companySlug/public-info')
+  findOneBySlug(@Param('companySlug') companySlug: string) {
+    return this.companiesService.getCompanyPublicInfo(companySlug);
   }
 
   @BranchPermission('readBranches')

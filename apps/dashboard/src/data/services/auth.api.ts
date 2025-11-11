@@ -25,10 +25,17 @@ export const loginSysAdmin = async (credentials: LoginCredentials) => {
   });
 };
 
-export const loginCompanyUser = async (credentials: LoginCredentials) => {
-  return await responseHandler<CompanyUserLoginResponse>('/users/login', {
+export const loginCompanyUser = async (args: {
+  companyId: string;
+  email: string;
+  password: string;
+}) => {
+  return await responseHandler<CompanyUserLoginResponse>(`/companies/${args.companyId}/login`, {
     method: 'POST',
-    body: credentials,
+    body: {
+      email: args.email,
+      password: args.password,
+    },
   });
 };
 
