@@ -11,6 +11,22 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Start seeding...');
 
+  // Hash the default password
+  const hashedPassword = await bcrypt.hash('password', 10);
+
+  // Create system admin
+  const sysAdmin = await prisma.sysAdmin.upsert({
+    where: { email: 'admin@admin.com' },
+    update: {},
+    create: {
+      email: 'admin@admin.com',
+      password: hashedPassword,
+      isUsingDefaultPassword: true,
+    },
+  });
+
+  console.log(`Created/Updated system admin: ${sysAdmin.email}`);
+
   // Create a company with subdomain "subdomain"
   const company = await prisma.company.upsert({
     where: { slug: 'subdomain' },
@@ -45,15 +61,12 @@ async function main() {
 
   console.log(`Created/Updated main branch with id: ${mainBranch.id}`);
 
-  // Hash the default password
-  const hashedPassword = await bcrypt.hash('password', 10);
-
   // Create company admin user
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@example.com' },
+    where: { email: 'admin@company.com' },
     update: {},
     create: {
-      email: 'admin@example.com',
+      email: 'admin@company.com',
       password: hashedPassword,
       name: 'Admin User',
       companyId: company.id,
@@ -67,10 +80,10 @@ async function main() {
 
   // Create company manager user
   const managerUser = await prisma.user.upsert({
-    where: { email: 'manager@example.com' },
+    where: { email: 'manager@company.com' },
     update: {},
     create: {
-      email: 'manager@example.com',
+      email: 'manager@company.com',
       password: hashedPassword,
       name: 'Manager User',
       companyId: company.id,
@@ -84,10 +97,10 @@ async function main() {
 
   // Create normal user with full permissions on main branch
   const normalUser = await prisma.user.upsert({
-    where: { email: 'user@example.com' },
+    where: { email: 'user@company.com' },
     update: {},
     create: {
-      email: 'user@example.com',
+      email: 'user@company.com',
       password: hashedPassword,
       name: 'Normal User',
       companyId: company.id,
