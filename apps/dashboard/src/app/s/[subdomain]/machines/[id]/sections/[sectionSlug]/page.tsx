@@ -23,7 +23,10 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
           <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
         </Link>
         <div className="min-w-0 flex-1">
-          <Typography variant="h2" className="capitalize border-b-0 text-xl sm:text-2xl lg:text-3xl truncate">
+          <Typography
+            variant="h2"
+            className="capitalize border-b-0 text-xl sm:text-2xl lg:text-3xl truncate"
+          >
             {sectionSlug.replace(/_/g, ' ')}
           </Typography>
         </div>
