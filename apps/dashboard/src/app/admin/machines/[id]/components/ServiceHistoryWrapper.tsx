@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
-import { Wrench, Plus } from 'lucide-react';
+import { Wrench } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import SimpleServiceCreationModal from './SimpleServiceCreationModal';
 import { CompleteServiceModal } from './CompleteServiceModal';
 import type { Service } from '@/data/types/services.types';
 
@@ -22,9 +20,19 @@ export function ServiceHistoryWrapper({
   services,
 }: ServiceHistoryWrapperProps) {
   const t = useTranslations('machines');
-  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+
+  // Filter for past services (completed or past due pending services)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const pastServices = services.filter((service) => {
+    const serviceDate = new Date(service.date);
+    serviceDate.setHours(0, 0, 0, 0);
+    // Show completed services or pending services that are past due
+    return service.status === 'COMPLETED' || serviceDate < today;
+  });
 
   const handleServiceClick = (service: Service) => {
     // Only allow clicking on pending services
@@ -34,45 +42,30 @@ export function ServiceHistoryWrapper({
     }
   };
 
-  if (services.length === 0) {
+  if (pastServices.length === 0) {
     return (
-      <>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle>{t('serviceHistory')}</CardTitle>
-            <Button size="sm" onClick={() => setIsServiceModalOpen(true)} className="shrink-0">
-              <Plus className="w-4 h-4 mr-2" />
-              {t('newService')}
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <Typography variant="muted" className="text-center py-8">
-              {t('noServicesFound')}
-            </Typography>
-          </CardContent>
-        </Card>
-        <SimpleServiceCreationModal
-          machineId={machineId}
-          open={isServiceModalOpen}
-          onOpenChange={setIsServiceModalOpen}
-        />
-      </>
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('serviceHistory')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Typography variant="muted" className="text-center py-8">
+            {t('noServicesFound')}
+          </Typography>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader>
           <CardTitle>{t('serviceHistory')}</CardTitle>
-          <Button size="sm" onClick={() => setIsServiceModalOpen(true)} className="shrink-0">
-            <Plus className="w-4 h-4 mr-2" />
-            {t('newService')}
-          </Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {services.map((service) => {
+            {pastServices.map((service) => {
               const serviceDate = new Date(service.date);
               const isCompleted = service.status === 'COMPLETED';
               const isPending = service.status === 'PENDING';
@@ -118,7 +111,7 @@ export function ServiceHistoryWrapper({
                         : 'bg-yellow-600 text-white dark:bg-yellow-500'
                     }`}
                   >
-                    {isCompleted ? t('completed') : t('inProgress')}
+                    {isCompleted ? t('done') : t('inProgress')}
                   </span>
                 </div>
               );
@@ -126,11 +119,6 @@ export function ServiceHistoryWrapper({
           </div>
         </CardContent>
       </Card>
-      <SimpleServiceCreationModal
-        machineId={machineId}
-        open={isServiceModalOpen}
-        onOpenChange={setIsServiceModalOpen}
-      />
       {selectedService && (
         <CompleteServiceModal
           machineId={machineId}

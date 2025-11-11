@@ -47,6 +47,11 @@ export interface BearingClearanceData {
   hasBeenAdjusted: boolean;
   combinedWith?: string;
   matingPart?: MatingPartType;
+  slideMotorMounts?: string;
+  powerCordHoses?: string;
+  chainsGearsSprockets?: string;
+  lockingClamps?: string;
+  notes?: string;
 }
 
 export interface BearingClearanceCheck {

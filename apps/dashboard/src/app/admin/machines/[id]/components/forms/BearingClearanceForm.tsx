@@ -3,37 +3,36 @@
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
-  MatingPartType,
   type BearingClearanceData,
   type BearingClearanceFormProps,
 } from '@/data/types/services.types';
 
-const BEARING_FIELDS = [
-  'totalClearance_RH',
-  'totalClearance_LH',
-  'mainBearings_RH',
-  'mainBearings_LH',
-  'upperConnectionBearings_RH',
-  'upperConnectionBearings_LH',
-  'wristPinToMatingPart_RH',
-  'wristPinToMatingPart_LH',
-  'wristPinToBushing_RH',
-  'wristPinToBushing_LH',
-  'slideAdjNutToScrewSleeve_RH',
-  'slideAdjNutToScrewSleeve_LH',
-  'extraDoubleLockOpen_RH',
-  'extraDoubleLockOpen_LH',
-  'ballBoxArea_RH',
-  'ballBoxArea_LH',
+const MEASUREMENT_ROWS = [
+  { key: 'totalClearance', rhField: 'totalClearance_RH', lhField: 'totalClearance_LH' },
+  { key: 'mainBearings', rhField: 'mainBearings_RH', lhField: 'mainBearings_LH' },
+  {
+    key: 'upperConnectionBearings',
+    rhField: 'upperConnectionBearings_RH',
+    lhField: 'upperConnectionBearings_LH',
+  },
+  {
+    key: 'wristPinToMatingPart',
+    rhField: 'wristPinToMatingPart_RH',
+    lhField: 'wristPinToMatingPart_LH',
+  },
+  { key: 'wristPinToBushing', rhField: 'wristPinToBushing_RH', lhField: 'wristPinToBushing_LH' },
+  {
+    key: 'slideAdjNutToScrewSleeve',
+    rhField: 'slideAdjNutToScrewSleeve_RH',
+    lhField: 'slideAdjNutToScrewSleeve_LH',
+  },
+  {
+    key: 'extraDoubleLockOpen',
+    rhField: 'extraDoubleLockOpen_RH',
+    lhField: 'extraDoubleLockOpen_LH',
+  },
+  { key: 'ballBoxArea', rhField: 'ballBoxArea_RH', lhField: 'ballBoxArea_LH' },
 ] as const;
 
 export function BearingClearanceForm({
@@ -45,87 +44,87 @@ export function BearingClearanceForm({
 }: BearingClearanceFormProps) {
   const t = useTranslations('inspections');
 
+  const calculateDifferential = (rhField: string, lhField: string): string => {
+    const rh = Number(data[rhField as keyof BearingClearanceData]) || 0;
+    const lh = Number(data[lhField as keyof BearingClearanceData]) || 0;
+    const diff = rh - lh;
+    return diff.toFixed(4);
+  };
+
   return (
     <div className="space-y-6">
       <h4 className="font-semibold text-sm">{title}</h4>
-      <div className="grid grid-cols-2 gap-4">
-        {BEARING_FIELDS.map((field) => (
-          <div key={field}>
-            <Label htmlFor={field} className="text-xs">
-              {t(`form.bearingClearance.fields.${field}`)}
-            </Label>
-            <Input
-              id={field}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={Number(data[field as keyof BearingClearanceData])}
-              onChange={(e) =>
-                updateFn(field as keyof BearingClearanceData, Number(e.target.value))
-              }
-              onBlur={() => handleBlur(field as keyof BearingClearanceData)}
-              className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
-              required
-            />
-            {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
+
+      {/* Measurements Table */}
+      <div className="space-y-4">
+        {/* Header Row */}
+        <div className="grid grid-cols-4 gap-4 border-b pb-2">
+          <div className="text-xs font-semibold">Measurement</div>
+          <div className="text-xs font-semibold text-center">LH</div>
+          <div className="text-xs font-semibold text-center">RH</div>
+          <div className="text-xs font-semibold text-center">Differential</div>
+        </div>
+
+        {/* Measurement Rows */}
+        {MEASUREMENT_ROWS.map(({ key, rhField, lhField }) => (
+          <div key={key} className="grid grid-cols-4 gap-4 items-center">
+            <div className="text-xs font-medium">
+              {t(`form.bearingClearance.fields.${key}`)}
+            </div>
+
+            {/* LH Input */}
+            <div>
+              <Input
+                id={`${lhField}-${title}`}
+                type="number"
+                step="0.0001"
+                min="0"
+                max="999999.9999"
+                value={Number(data[lhField as keyof BearingClearanceData])}
+                onChange={(e) =>
+                  updateFn(lhField as keyof BearingClearanceData, Number(e.target.value))
+                }
+                onBlur={() => handleBlur(lhField as keyof BearingClearanceData)}
+                className={`text-sm ${errors[lhField] ? 'border-destructive' : ''}`}
+                required
+              />
+              {errors[lhField] && (
+                <p className="text-xs text-destructive mt-1">{errors[lhField]}</p>
+              )}
+            </div>
+
+            {/* RH Input */}
+            <div>
+              <Input
+                id={`${rhField}-${title}`}
+                type="number"
+                step="0.0001"
+                min="0"
+                max="999999.9999"
+                value={Number(data[rhField as keyof BearingClearanceData])}
+                onChange={(e) =>
+                  updateFn(rhField as keyof BearingClearanceData, Number(e.target.value))
+                }
+                onBlur={() => handleBlur(rhField as keyof BearingClearanceData)}
+                className={`text-sm ${errors[rhField] ? 'border-destructive' : ''}`}
+                required
+              />
+              {errors[rhField] && (
+                <p className="text-xs text-destructive mt-1">{errors[rhField]}</p>
+              )}
+            </div>
+
+            {/* Differential (Read-only, Calculated) */}
+            <div>
+              <Input
+                value={calculateDifferential(rhField, lhField)}
+                readOnly
+                disabled
+                className="text-sm bg-gray-100"
+              />
+            </div>
           </div>
         ))}
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id={`hasBeenAdjusted-${title}`}
-            checked={data.hasBeenAdjusted}
-            onCheckedChange={(checked: boolean) => updateFn('hasBeenAdjusted', checked)}
-          />
-          <Label htmlFor={`hasBeenAdjusted-${title}`} className="cursor-pointer text-xs">
-            Has Been Adjusted
-          </Label>
-        </div>
-
-        <div>
-          <Label htmlFor={`combinedWith-${title}`} className="text-xs">
-            {t('form.bearingClearance.combined_with.label')}
-          </Label>
-          <Input
-            id={`combinedWith-${title}`}
-            value={data.combinedWith || ''}
-            onChange={(e) => updateFn('combinedWith', e.target.value)}
-            onBlur={() => handleBlur('combinedWith')}
-            placeholder={t('form.bearingClearance.combined_with.placeholder')}
-            className={`mt-1 ${errors.combinedWith ? 'border-destructive' : ''}`}
-          />
-          {errors.combinedWith && (
-            <p className="text-xs text-destructive mt-1">{errors.combinedWith}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor={`matingPart-${title}`} className="text-xs">
-            {t('form.bearingClearance.mating_part.label')}
-          </Label>
-          <Select
-            value={data.matingPart || MatingPartType.BUSHING}
-            onValueChange={(value) => updateFn('matingPart', value as MatingPartType)}
-          >
-            <SelectTrigger className="mt-1" id={`matingPart-${title}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value={MatingPartType.BUSHING}>
-                {t('form.bearingClearance.mating_part.bushing')}
-              </SelectItem>
-              <SelectItem value={MatingPartType.CONNECTION}>
-                {t('form.bearingClearance.mating_part.connection')}
-              </SelectItem>
-              <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                {t('form.bearingClearance.mating_part.nut_screw_sleeve')}
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
       </div>
     </div>
   );

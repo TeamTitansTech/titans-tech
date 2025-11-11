@@ -38,7 +38,15 @@ export default function SimpleServiceCreationModal({
   const t = useTranslations('services');
   const router = useInternalRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+
+  // Default to tomorrow's date so new services appear in Upcoming Services
+  const getTomorrowDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  };
+
+  const [date, setDate] = useState(getTomorrowDate());
   const [serviceType, setServiceType] = useState<ServiceType>(ServiceType.INSPECTION);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,7 +71,7 @@ export default function SimpleServiceCreationModal({
       }
 
       // Reset form and close modal
-      setDate(new Date().toISOString().split('T')[0]);
+      setDate(getTomorrowDate());
       setServiceType(ServiceType.INSPECTION);
       setIsSubmitting(false);
       onOpenChange(false);

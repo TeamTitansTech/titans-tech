@@ -266,6 +266,13 @@ model BearingClearanceData {
   combinedWith    String?
   matingPart      MatingPartType?
 
+  // Shutdown Adjustment Mechanism fields
+  slideMotorMounts     String?
+  powerCordHoses       String?
+  chainsGearsSprockets String?
+  lockingClamps        String?
+  notes                String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

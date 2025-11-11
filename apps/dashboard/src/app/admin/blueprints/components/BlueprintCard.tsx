@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
+import { Badge } from '@/components/ui/badge';
 import { Boxes, Edit, Copy, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Typography } from '@/components/ui/typography';
@@ -46,19 +47,13 @@ export function BlueprintCard({
       </CardHeader>
       <CardContent className="mt-auto">
         <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <Typography variant="muted">Machines:</Typography>
-              <Typography variant="p" className="font-semibold">
-                {machineCount}
-              </Typography>
-            </div>
-            <div>
-              <Typography variant="muted">Fields:</Typography>
-              <Typography variant="p" className="font-semibold">
-                {fieldCount}
-              </Typography>
-            </div>
+          <div className="flex gap-2">
+            <Badge variant="secondary">
+              {machineCount} {machineCount === 1 ? 'machine' : 'machines'}
+            </Badge>
+            <Badge variant="secondary">
+              {fieldCount} {fieldCount === 1 ? 'field' : 'fields'}
+            </Badge>
           </div>
           <div className="flex gap-2">
             <Button asChild variant="outline" className="flex-1" size="sm">

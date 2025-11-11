@@ -61,6 +61,11 @@ const defaultBearingData: BearingClearanceData = {
   hasBeenAdjusted: false,
   combinedWith: '',
   matingPart: MatingPartType.BUSHING,
+  slideMotorMounts: '',
+  powerCordHoses: '',
+  chainsGearsSprockets: '',
+  lockingClamps: '',
+  notes: '',
 };
 
 const defaultSlideData: SlideData = {
@@ -299,6 +304,7 @@ export function CompleteServiceModal({
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [serviceType, setServiceType] = useState<ServiceType>(ServiceType.INSPECTION);
   const [performedBy, setPerformedBy] = useState('');
+  const [includeBeforeData, setIncludeBeforeData] = useState(false);
 
   // Track which sections have been touched
   const [touchedSections, setTouchedSections] = useState<Set<string>>(new Set());
@@ -316,6 +322,18 @@ export function CompleteServiceModal({
   const [outerAfterData, setOuterAfterData] = useState<BearingClearanceData>(defaultBearingData);
   const [innerBeforeData, setInnerBeforeData] = useState<BearingClearanceData>(defaultBearingData);
   const [innerAfterData, setInnerAfterData] = useState<BearingClearanceData>(defaultBearingData);
+
+  // Shared Bearing Clearance fields (outside tabs)
+  const [sharedBearingFields, setSharedBearingFields] = useState({
+    hasBeenAdjusted: false,
+    combinedWith: '',
+    matingPart: MatingPartType.BUSHING,
+    slideMotorMounts: '',
+    powerCordHoses: '',
+    chainsGearsSprockets: '',
+    lockingClamps: '',
+    notes: '',
+  });
 
   const [outerBeforeErrors, setOuterBeforeErrors] = useState<Record<string, string>>({});
   const [outerAfterErrors, setOuterAfterErrors] = useState<Record<string, string>>({});
@@ -369,11 +387,22 @@ export function CompleteServiceModal({
       setDate(new Date().toISOString().split('T')[0]);
       setServiceType(ServiceType.INSPECTION);
       setPerformedBy('');
+      setIncludeBeforeData(false);
       setTouchedSections(new Set());
       setOuterBeforeData(defaultBearingData);
       setOuterAfterData(defaultBearingData);
       setInnerBeforeData(defaultBearingData);
       setInnerAfterData(defaultBearingData);
+      setSharedBearingFields({
+        hasBeenAdjusted: false,
+        combinedWith: '',
+        matingPart: MatingPartType.BUSHING,
+        slideMotorMounts: '',
+        powerCordHoses: '',
+        chainsGearsSprockets: '',
+        lockingClamps: '',
+        notes: '',
+      });
       setOuterBeforeErrors({});
       setOuterAfterErrors({});
       setInnerBeforeErrors({});
@@ -745,18 +774,18 @@ export function CompleteServiceModal({
         const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
         const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
 
-        if (serviceType === ServiceType.MAINTENANCE) {
-          // For maintenance: require all "before" sections
+        if (serviceType === ServiceType.MAINTENANCE && includeBeforeData) {
+          // For maintenance with "before" data: require all "before" sections
           if (!outerBeforeTouched || !innerBeforeTouched) {
             validationErrors.push(
-              'Bearing Clearance: For maintenance inspections, you must fill all "Before" sections (Outer Before and Inner Before)',
+              'Bearing Clearance: When including "Initial" measurements, you must fill all "Initial" sections (Outer Initial and Inner Initial)',
             );
           } else {
             validationErrors.push(
-              ...validateBearingClearanceData(outerBeforeData).map((e) => `Outer Before: ${e}`),
+              ...validateBearingClearanceData(outerBeforeData).map((e) => `Outer Initial: ${e}`),
             );
             validationErrors.push(
-              ...validateBearingClearanceData(innerBeforeData).map((e) => `Inner Before: ${e}`),
+              ...validateBearingClearanceData(innerBeforeData).map((e) => `Inner Initial: ${e}`),
             );
           }
         }
@@ -773,10 +802,15 @@ export function CompleteServiceModal({
           );
         }
 
-        // For routine inspection: require at least one "after" section
-        if (serviceType === ServiceType.INSPECTION && !outerAfterTouched && !innerAfterTouched) {
+        // For inspection or maintenance without "before" data: require at least one "after" section
+        if (
+          (serviceType === ServiceType.INSPECTION ||
+            (serviceType === ServiceType.MAINTENANCE && !includeBeforeData)) &&
+          !outerAfterTouched &&
+          !innerAfterTouched
+        ) {
           validationErrors.push(
-            'Bearing Clearance: For routine inspections, you must fill at least one "After" section (Outer After or Inner After)',
+            'Bearing Clearance: You must fill at least one "After Adjustment" section (Outer After or Inner After)',
           );
         }
       }
@@ -913,11 +947,25 @@ export function CompleteServiceModal({
         const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
         const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
 
+        // Apply shared fields to all bearing clearance data objects
+        const outerBeforeWithShared = outerBeforeTouched
+          ? { ...outerBeforeData, ...sharedBearingFields }
+          : undefined;
+        const outerAfterWithShared = outerAfterTouched
+          ? { ...outerAfterData, ...sharedBearingFields }
+          : undefined;
+        const innerBeforeWithShared = innerBeforeTouched
+          ? { ...innerBeforeData, ...sharedBearingFields }
+          : undefined;
+        const innerAfterWithShared = innerAfterTouched
+          ? { ...innerAfterData, ...sharedBearingFields }
+          : undefined;
+
         payload.bearingClearance = {
-          outerBefore: outerBeforeTouched ? outerBeforeData : undefined,
-          outerAfter: outerAfterTouched ? outerAfterData : undefined,
-          innerBefore: innerBeforeTouched ? innerBeforeData : undefined,
-          innerAfter: innerAfterTouched ? innerAfterData : undefined,
+          outerBefore: outerBeforeWithShared,
+          outerAfter: outerAfterWithShared,
+          innerBefore: innerBeforeWithShared,
+          innerAfter: innerAfterWithShared,
         };
       }
 
@@ -1053,18 +1101,19 @@ export function CompleteServiceModal({
               </div>
             </div>
 
-            <div className="flex items-center space-x-2 mt-4">
-              <Checkbox
-                id="serviceType"
-                checked={serviceType === ServiceType.MAINTENANCE}
-                onCheckedChange={(checked: boolean) =>
-                  setServiceType(checked ? ServiceType.MAINTENANCE : ServiceType.INSPECTION)
-                }
-              />
-              <Label htmlFor="serviceType" className="cursor-pointer">
-                {t('form.isMaintenance.label')}
-              </Label>
-            </div>
+            {/* Checkbox for maintenance to include "Before" data */}
+            {serviceType === ServiceType.MAINTENANCE && (
+              <div className="mt-4 flex items-center space-x-2">
+                <Checkbox
+                  id="includeBeforeData"
+                  checked={includeBeforeData}
+                  onCheckedChange={(checked: boolean) => setIncludeBeforeData(checked)}
+                />
+                <Label htmlFor="includeBeforeData" className="cursor-pointer text-sm">
+                  Include "Initial" measurements (before maintenance)
+                </Label>
+              </div>
+            )}
           </div>
 
           {/* Bearing Clearance Section */}
@@ -1087,71 +1136,254 @@ export function CompleteServiceModal({
                     </TabsList>
 
                     <TabsContent value="outer" className="space-y-6">
-                      <Tabs defaultValue="before" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="before">
-                            {t('form.bearingClearance.before')}
-                          </TabsTrigger>
-                          <TabsTrigger value="after">
-                            {t('form.bearingClearance.after')}
-                          </TabsTrigger>
-                        </TabsList>
+                      {/* Show before/after tabs only for maintenance with checkbox */}
+                      {serviceType === ServiceType.MAINTENANCE && includeBeforeData ? (
+                        <Tabs defaultValue="before" className="w-full">
+                          <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="before">
+                              {t('form.bearingClearance.before')}
+                            </TabsTrigger>
+                            <TabsTrigger value="after">
+                              {t('form.bearingClearance.after')}
+                            </TabsTrigger>
+                          </TabsList>
 
-                        <TabsContent value="before" className="mt-4">
-                          <BearingClearanceForm
-                            title=""
-                            data={outerBeforeData}
-                            updateFn={updateOuterBeforeField}
-                            errors={outerBeforeErrors}
-                            handleBlur={handleBlurOuterBefore}
-                          />
-                        </TabsContent>
+                          <TabsContent value="before" className="mt-4">
+                            <BearingClearanceForm
+                              title=""
+                              data={outerBeforeData}
+                              updateFn={updateOuterBeforeField}
+                              errors={outerBeforeErrors}
+                              handleBlur={handleBlurOuterBefore}
+                            />
+                          </TabsContent>
 
-                        <TabsContent value="after" className="mt-4">
-                          <BearingClearanceForm
-                            title=""
-                            data={outerAfterData}
-                            updateFn={updateOuterAfterField}
-                            errors={outerAfterErrors}
-                            handleBlur={handleBlurOuterAfter}
-                          />
-                        </TabsContent>
-                      </Tabs>
+                          <TabsContent value="after" className="mt-4">
+                            <BearingClearanceForm
+                              title=""
+                              data={outerAfterData}
+                              updateFn={updateOuterAfterField}
+                              errors={outerAfterErrors}
+                              handleBlur={handleBlurOuterAfter}
+                            />
+                          </TabsContent>
+                        </Tabs>
+                      ) : (
+                        /* For inspection or maintenance without before data, show only after */
+                        <BearingClearanceForm
+                          title=""
+                          data={outerAfterData}
+                          updateFn={updateOuterAfterField}
+                          errors={outerAfterErrors}
+                          handleBlur={handleBlurOuterAfter}
+                        />
+                      )}
                     </TabsContent>
 
                     <TabsContent value="inner" className="space-y-6">
-                      <Tabs defaultValue="before" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="before">
-                            {t('form.bearingClearance.before')}
-                          </TabsTrigger>
-                          <TabsTrigger value="after">
-                            {t('form.bearingClearance.after')}
-                          </TabsTrigger>
-                        </TabsList>
+                      {/* Show before/after tabs only for maintenance with checkbox */}
+                      {serviceType === ServiceType.MAINTENANCE && includeBeforeData ? (
+                        <Tabs defaultValue="before" className="w-full">
+                          <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="before">
+                              {t('form.bearingClearance.before')}
+                            </TabsTrigger>
+                            <TabsTrigger value="after">
+                              {t('form.bearingClearance.after')}
+                            </TabsTrigger>
+                          </TabsList>
 
-                        <TabsContent value="before" className="mt-4">
-                          <BearingClearanceForm
-                            title=""
-                            data={innerBeforeData}
-                            updateFn={updateInnerBeforeField}
-                            errors={innerBeforeErrors}
-                            handleBlur={handleBlurInnerBefore}
-                          />
-                        </TabsContent>
+                          <TabsContent value="before" className="mt-4">
+                            <BearingClearanceForm
+                              title=""
+                              data={innerBeforeData}
+                              updateFn={updateInnerBeforeField}
+                              errors={innerBeforeErrors}
+                              handleBlur={handleBlurInnerBefore}
+                            />
+                          </TabsContent>
 
-                        <TabsContent value="after" className="mt-4">
-                          <BearingClearanceForm
-                            title=""
-                            data={innerAfterData}
-                            updateFn={updateInnerAfterField}
-                            errors={innerAfterErrors}
-                            handleBlur={handleBlurInnerAfter}
-                          />
-                        </TabsContent>
-                      </Tabs>
+                          <TabsContent value="after" className="mt-4">
+                            <BearingClearanceForm
+                              title=""
+                              data={innerAfterData}
+                              updateFn={updateInnerAfterField}
+                              errors={innerAfterErrors}
+                              handleBlur={handleBlurInnerAfter}
+                            />
+                          </TabsContent>
+                        </Tabs>
+                      ) : (
+                        /* For inspection or maintenance without before data, show only after */
+                        <BearingClearanceForm
+                          title=""
+                          data={innerAfterData}
+                          updateFn={updateInnerAfterField}
+                          errors={innerAfterErrors}
+                          handleBlur={handleBlurInnerAfter}
+                        />
+                      )}
                     </TabsContent>
                   </Tabs>
+
+                  {/* Shared fields outside tabs */}
+                  <div className="space-y-6 mt-6 pt-6 border-t">
+                    {/* Additional Fields */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="hasBeenAdjusted"
+                          checked={sharedBearingFields.hasBeenAdjusted}
+                          onCheckedChange={(checked: boolean) =>
+                            setSharedBearingFields((prev) => ({ ...prev, hasBeenAdjusted: checked }))
+                          }
+                        />
+                        <Label htmlFor="hasBeenAdjusted" className="cursor-pointer text-xs">
+                          Has Been Adjusted
+                        </Label>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="combinedWith" className="text-xs">
+                          {t('form.bearingClearance.combined_with.label')}
+                        </Label>
+                        <Input
+                          id="combinedWith"
+                          value={sharedBearingFields.combinedWith}
+                          onChange={(e) =>
+                            setSharedBearingFields((prev) => ({
+                              ...prev,
+                              combinedWith: e.target.value,
+                            }))
+                          }
+                          placeholder={t('form.bearingClearance.combined_with.placeholder')}
+                          className="mt-1 text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="matingPart" className="text-xs">
+                          {t('form.bearingClearance.mating_part.label')}
+                        </Label>
+                        <select
+                          id="matingPart"
+                          value={sharedBearingFields.matingPart}
+                          onChange={(e) =>
+                            setSharedBearingFields((prev) => ({
+                              ...prev,
+                              matingPart: e.target.value as MatingPartType,
+                            }))
+                          }
+                          className="mt-1 w-full h-9 px-3 text-sm border border-gray-300 rounded-md bg-white"
+                        >
+                          <option value={MatingPartType.BUSHING}>
+                            {t('form.bearingClearance.mating_part.bushing')}
+                          </option>
+                          <option value={MatingPartType.CONNECTION}>
+                            {t('form.bearingClearance.mating_part.connection')}
+                          </option>
+                          <option value={MatingPartType.NUT_SCREW_SLEEVE}>
+                            {t('form.bearingClearance.mating_part.nut_screw_sleeve')}
+                          </option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Shutdown Adjustment Mechanism Section */}
+                    <div className="space-y-4 pt-4 border-t">
+                      <h5 className="text-sm font-semibold">Shutdown Adjustment Mechanism</h5>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="slideMotorMounts" className="text-xs">
+                            Slide Motor/Mounts
+                          </Label>
+                          <Input
+                            id="slideMotorMounts"
+                            value={sharedBearingFields.slideMotorMounts}
+                            onChange={(e) =>
+                              setSharedBearingFields((prev) => ({
+                                ...prev,
+                                slideMotorMounts: e.target.value,
+                              }))
+                            }
+                            placeholder="Enter status"
+                            className="mt-1 text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="powerCordHoses" className="text-xs">
+                            Power Cord/Hoses
+                          </Label>
+                          <Input
+                            id="powerCordHoses"
+                            value={sharedBearingFields.powerCordHoses}
+                            onChange={(e) =>
+                              setSharedBearingFields((prev) => ({
+                                ...prev,
+                                powerCordHoses: e.target.value,
+                              }))
+                            }
+                            placeholder="Enter status"
+                            className="mt-1 text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="chainsGearsSprockets" className="text-xs">
+                            Chains & Gears/Sprockets
+                          </Label>
+                          <Input
+                            id="chainsGearsSprockets"
+                            value={sharedBearingFields.chainsGearsSprockets}
+                            onChange={(e) =>
+                              setSharedBearingFields((prev) => ({
+                                ...prev,
+                                chainsGearsSprockets: e.target.value,
+                              }))
+                            }
+                            placeholder="Enter status"
+                            className="mt-1 text-sm"
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="lockingClamps" className="text-xs">
+                            Locking Clamps
+                          </Label>
+                          <Input
+                            id="lockingClamps"
+                            value={sharedBearingFields.lockingClamps}
+                            onChange={(e) =>
+                              setSharedBearingFields((prev) => ({
+                                ...prev,
+                                lockingClamps: e.target.value,
+                              }))
+                            }
+                            placeholder="Enter status"
+                            className="mt-1 text-sm"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="bearingNotes" className="text-xs">
+                          Notes
+                        </Label>
+                        <textarea
+                          id="bearingNotes"
+                          value={sharedBearingFields.notes}
+                          onChange={(e) =>
+                            setSharedBearingFields((prev) => ({ ...prev, notes: e.target.value }))
+                          }
+                          placeholder="Enter any additional notes..."
+                          className="mt-1 text-sm w-full min-h-[60px] px-3 py-2 border border-gray-300 rounded-md"
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CollapsibleContent>
             </Collapsible>
