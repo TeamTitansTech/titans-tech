@@ -3,13 +3,15 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { ArrowLeft, ClipboardCheck, Box } from 'lucide-react';
-import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
 import { Machine, MachineDetailsProps } from '@/data/types/machines.types';
+import { isSysAdminPanel } from '@/lib/isSysAdminPanel';
+import { useEffect, useState } from 'react';
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
@@ -75,17 +77,26 @@ const getSectionStatus = (section: string, machine: Machine): SectionStatus => {
 
 export function MachineDetails({ machine }: MachineDetailsProps) {
   const t = useTranslations('machines');
-  const router = useRouter();
+  const router = useInternalRouter();
+  const [isSysPanel, setIsSysPanel] = useState(false);
 
-  const handleSectionClick = (section: string) => {
+  useEffect(() => {
+    const checkPanel = async () => {
+      const isAdmin = await isSysAdminPanel();
+      setIsSysPanel(isAdmin);
+    };
+    checkPanel();
+  }, []);
+
+  const handleSectionClick = async (section: string) => {
     const sectionSlug = section.toLowerCase();
-    router.push(`/machines/${machine.id}/sections/${sectionSlug}`);
+    router.push(`${isSysPanel ? '/admin' : ''}/machines/${machine.id}/sections/${sectionSlug}`);
   };
 
   return (
     <>
       <div className="flex items-center gap-6 mb-6">
-        <Link href="/machines" className="shrink-0">
+        <Link href={`${isSysPanel ? '/admin' : ''}/machines`} className="shrink-0">
           <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
         </Link>
         <div className="flex items-center justify-between w-full min-w-0 gap-4">

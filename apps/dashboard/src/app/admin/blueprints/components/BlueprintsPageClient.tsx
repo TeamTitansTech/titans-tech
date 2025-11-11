@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { BlueprintCard } from './BlueprintCard';
 import { BlueprintCreationModal } from './BlueprintCreationModal';
@@ -25,7 +25,7 @@ interface BlueprintsPageClientProps {
 
 export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useRouter();
+  const router = useInternalRouter();
   const t = useTranslations('models');
 
   const handleSuccess = () => {

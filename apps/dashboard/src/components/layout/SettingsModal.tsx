@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { setUserLocale } from '@/actions/locale';
 import {
   Dialog,
@@ -36,7 +36,7 @@ const SUPPORTED_LOCALES = [
 export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const t = useTranslations('settings');
   const locale = useLocale();
-  const router = useRouter();
+  const router = useInternalRouter();
   const [isPending, startTransition] = useTransition();
   const [selectedLocale, setSelectedLocale] = useState(locale);
 

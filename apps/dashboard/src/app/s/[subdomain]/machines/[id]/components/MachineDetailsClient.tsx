@@ -7,11 +7,12 @@ import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { ArrowLeft, Wrench, ClipboardCheck, Box } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { InspectionCreationModal } from './InspectionCreationModal';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
+import { isSysAdminPanel } from '@/lib/isSysAdminPanel';
 
 interface MachineField {
   fieldSlug: string;
@@ -65,14 +66,16 @@ const getSectionStatus = (_section: string, _machine: Machine): SectionStatus =>
   return 'unknown';
 };
 
+const isSysPanel = await isSysAdminPanel();
+
 export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
-  const router = useRouter();
+  const router = useInternalRouter();
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
 
   const handleSectionClick = (section: string) => {
     const sectionSlug = section.toLowerCase();
-    router.push(`/machines/${machine.id}/sections/${sectionSlug}`);
+    router.push(`${isSysPanel ? '/admin' : ''}/machines/${machine.id}/sections/${sectionSlug}`);
   };
 
   return (

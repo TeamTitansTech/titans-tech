@@ -71,7 +71,7 @@ export function MachineCard({
             )}
           </div>
 
-          <Button asChild variant="ghost" className="w-full justify-between" size="sm">
+          <Button asChild variant="outline" className="w-full justify-between" size="sm">
             <Link href={`/admin/machines/${id}`}>
               {t('viewDetails')}
               <ChevronRight className="w-4 h-4" />

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useOptimistic } from 'react';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,7 @@ interface CompanyDetailProps {
 }
 
 export function CompanyDetail({ company, branches }: CompanyDetailProps) {
-  const router = useRouter();
+  const router = useInternalRouter();
   const t = useTranslations('companies');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [optimisticBranches, addOptimisticBranch] = useOptimistic(
