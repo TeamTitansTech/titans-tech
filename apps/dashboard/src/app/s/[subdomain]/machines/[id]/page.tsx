@@ -3,6 +3,7 @@ import { getMachineById } from '@/data/services/machines.api';
 import { MachineDetailsClient } from './components/MachineDetailsClient';
 import { ServiceHistory } from './components/ServiceHistory';
 import { notFound } from 'next/navigation';
+import { Typography } from '@/components/ui/typography';
 
 interface MachineDetailPageProps {
   params: Promise<{
@@ -19,7 +20,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">{t('detailPageTitle')}</h1>
+          <Typography variant="h2">{t('detailPageTitle')}</Typography>
         </div>
         <div className="text-center py-12">
           <p className="text-destructive">

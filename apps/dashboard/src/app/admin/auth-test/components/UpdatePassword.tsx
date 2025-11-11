@@ -3,6 +3,7 @@ import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { updateSysAdminPassword } from '@/data/services/auth.api';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { FormEvent, useState } from 'react';
+import { Typography } from '@/components/ui/typography';
 
 export default function UpdatePassword() {
   const { sysAdminUser, setSysAdminUser } = useSysAdmin();
@@ -37,7 +38,9 @@ export default function UpdatePassword() {
 
   return (
     <div className="mx-auto max-w-md p-5">
-      <h2 className="mb-5 text-2xl font-semibold">Update Password</h2>
+      <Typography variant="h2" className="mb-5 text-2xl font-semibold">
+        Update Password
+      </Typography>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         {!sysAdminUser.isUsingDefaultPassword && (
@@ -96,10 +99,14 @@ export default function UpdatePassword() {
       {result && (
         <div className="mt-5 rounded p-4">
           {result.data !== null ? (
-            <p className="text-sm text-green-600">✓ Password updated successfully</p>
+            <Typography variant="small" className="text-green-600">
+              ✓ Password updated successfully
+            </Typography>
           ) : (
             <div>
-              <p className="mb-2 text-sm font-semibold text-red-600">✗ Update failed</p>
+              <Typography variant="small" className="mb-2 font-semibold text-red-600">
+                ✗ Update failed
+              </Typography>
               <ul className="list-disc pl-5">
                 {result.errors?.map((error, index) => (
                   <li key={index} className="text-sm text-red-600">
