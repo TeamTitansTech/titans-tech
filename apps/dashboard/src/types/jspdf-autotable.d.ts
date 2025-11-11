@@ -1,6 +1,14 @@
-declare module 'jspdf-autotable' {
-  import { jsPDF } from 'jspdf';
+import { jsPDF } from 'jspdf';
 
+declare module 'jspdf' {
+  interface jsPDF {
+    lastAutoTable: {
+      finalY: number;
+    };
+  }
+}
+
+declare module 'jspdf-autotable' {
   type CellStyles = {
     cellPadding?: number;
     fontSize?: number;
@@ -41,12 +49,4 @@ declare module 'jspdf-autotable' {
   }
 
   export default function autoTable(doc: jsPDF, options: AutoTableOptions): void;
-
-  global {
-    interface jsPDF {
-      lastAutoTable: {
-        finalY: number;
-      };
-    }
-  }
 }

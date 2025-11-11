@@ -44,7 +44,7 @@ export function inchesToMm(inches: number): number {
  * @returns Temperature in Fahrenheit (10 decimal precision)
  */
 export function celsiusToFahrenheit(celsius: number): number {
-  return roundToPrecision((celsius * 9 / 5) + 32);
+  return roundToPrecision((celsius * 9) / 5 + 32);
 }
 
 /**
@@ -53,7 +53,7 @@ export function celsiusToFahrenheit(celsius: number): number {
  * @returns Temperature in Celsius (10 decimal precision)
  */
 export function fahrenheitToCelsius(fahrenheit: number): number {
-  return roundToPrecision((fahrenheit - 32) * 5 / 9);
+  return roundToPrecision(((fahrenheit - 32) * 5) / 9);
 }
 
 // ============================================================================
@@ -99,11 +99,7 @@ export type UnitSystem = 'si' | 'imperial';
  * @param to - Target unit
  * @returns Converted value
  */
-export function convertLength(
-  value: number,
-  from: LengthUnit,
-  to: LengthUnit
-): number {
+export function convertLength(value: number, from: LengthUnit, to: LengthUnit): number {
   if (from === to) return roundToPrecision(value);
 
   if (from === 'mm' && to === 'inches') {
@@ -123,7 +119,7 @@ export function convertLength(
 export function convertTemperature(
   value: number,
   from: TemperatureUnit,
-  to: TemperatureUnit
+  to: TemperatureUnit,
 ): number {
   if (from === to) return roundToPrecision(value);
 
@@ -141,11 +137,7 @@ export function convertTemperature(
  * @param to - Target unit
  * @returns Converted value
  */
-export function convertPressure(
-  value: number,
-  from: PressureUnit,
-  to: PressureUnit
-): number {
+export function convertPressure(value: number, from: PressureUnit, to: PressureUnit): number {
   if (from === to) return roundToPrecision(value);
 
   if (from === 'atm' && to === 'psi') {

@@ -167,8 +167,8 @@ const defaultCounterbalanceCylinderData: CounterbalanceCylinderData = {
 };
 
 // Validation helper functions
-const isDataTouched = <T extends Record<string, any>>(data: T, defaultData: T): boolean => {
-  return Object.keys(data).some((key) => {
+const isDataTouched = <T extends object>(data: T, defaultData: T): boolean => {
+  return (Object.keys(data) as Array<keyof T>).some((key) => {
     const dataValue = data[key];
     const defaultValue = defaultData[key];
 
@@ -413,8 +413,8 @@ export function CompleteServiceModal({
     field: keyof BearingClearanceData,
     value: string | number | boolean,
   ) => {
-    setOuterBeforeData((prev: BearingClearanceData) => ({ ...prev, [field]: value }));
-    setOuterBeforeErrors((prev: Record<string, string>) => ({ ...prev, [field]: '' }));
+    setOuterBeforeData((prev) => ({ ...prev, [field]: value }));
+    setOuterBeforeErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('BEARING_CLEARANCE');
   };
 
@@ -422,8 +422,8 @@ export function CompleteServiceModal({
     field: keyof BearingClearanceData,
     value: string | number | boolean,
   ) => {
-    setOuterAfterData((prev: any) => ({ ...prev, [field]: value }));
-    setOuterAfterErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setOuterAfterData((prev) => ({ ...prev, [field]: value }));
+    setOuterAfterErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('BEARING_CLEARANCE');
   };
 
@@ -431,8 +431,8 @@ export function CompleteServiceModal({
     field: keyof BearingClearanceData,
     value: string | number | boolean,
   ) => {
-    setInnerBeforeData((prev: any) => ({ ...prev, [field]: value }));
-    setInnerBeforeErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setInnerBeforeData((prev) => ({ ...prev, [field]: value }));
+    setInnerBeforeErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('BEARING_CLEARANCE');
   };
 
@@ -440,8 +440,8 @@ export function CompleteServiceModal({
     field: keyof BearingClearanceData,
     value: string | number | boolean,
   ) => {
-    setInnerAfterData((prev: any) => ({ ...prev, [field]: value }));
-    setInnerAfterErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setInnerAfterData((prev) => ({ ...prev, [field]: value }));
+    setInnerAfterErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('BEARING_CLEARANCE');
   };
 
@@ -449,14 +449,14 @@ export function CompleteServiceModal({
     field: keyof SlideData,
     value: string | number | boolean,
   ) => {
-    setSlideOuterBeforeData((prev: any) => ({ ...prev, [field]: value }));
-    setSlideOuterBeforeErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setSlideOuterBeforeData((prev) => ({ ...prev, [field]: value }));
+    setSlideOuterBeforeErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('SLIDE');
   };
 
   const updateSlideOuterAfterField = (field: keyof SlideData, value: string | number | boolean) => {
-    setSlideOuterAfterData((prev: any) => ({ ...prev, [field]: value }));
-    setSlideOuterAfterErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setSlideOuterAfterData((prev) => ({ ...prev, [field]: value }));
+    setSlideOuterAfterErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('SLIDE');
   };
 
@@ -464,14 +464,14 @@ export function CompleteServiceModal({
     field: keyof SlideData,
     value: string | number | boolean,
   ) => {
-    setSlideInnerBeforeData((prev: any) => ({ ...prev, [field]: value }));
-    setSlideInnerBeforeErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setSlideInnerBeforeData((prev) => ({ ...prev, [field]: value }));
+    setSlideInnerBeforeErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('SLIDE');
   };
 
   const updateSlideInnerAfterField = (field: keyof SlideData, value: string | number | boolean) => {
-    setSlideInnerAfterData((prev: any) => ({ ...prev, [field]: value }));
-    setSlideInnerAfterErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setSlideInnerAfterData((prev) => ({ ...prev, [field]: value }));
+    setSlideInnerAfterErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('SLIDE');
   };
 
@@ -479,8 +479,8 @@ export function CompleteServiceModal({
     field: keyof GibsData,
     value: string | number | boolean | undefined,
   ) => {
-    setGibsOuterBeforeData((prev: any) => ({ ...prev, [field]: value }));
-    setGibsOuterBeforeErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setGibsOuterBeforeData((prev) => ({ ...prev, [field]: value }));
+    setGibsOuterBeforeErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('GIBS');
   };
 
@@ -488,8 +488,8 @@ export function CompleteServiceModal({
     field: keyof GibsData,
     value: string | number | boolean | undefined,
   ) => {
-    setGibsOuterAfterData((prev: any) => ({ ...prev, [field]: value }));
-    setGibsOuterAfterErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setGibsOuterAfterData((prev) => ({ ...prev, [field]: value }));
+    setGibsOuterAfterErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('GIBS');
   };
 
@@ -497,8 +497,8 @@ export function CompleteServiceModal({
     field: keyof GibsData,
     value: string | number | boolean | undefined,
   ) => {
-    setGibsInnerBeforeData((prev: any) => ({ ...prev, [field]: value }));
-    setGibsInnerBeforeErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setGibsInnerBeforeData((prev) => ({ ...prev, [field]: value }));
+    setGibsInnerBeforeErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('GIBS');
   };
 
@@ -506,8 +506,8 @@ export function CompleteServiceModal({
     field: keyof GibsData,
     value: string | number | boolean | undefined,
   ) => {
-    setGibsInnerAfterData((prev: any) => ({ ...prev, [field]: value }));
-    setGibsInnerAfterErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setGibsInnerAfterData((prev) => ({ ...prev, [field]: value }));
+    setGibsInnerAfterErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('GIBS');
   };
 
@@ -515,14 +515,14 @@ export function CompleteServiceModal({
     field: keyof LubricationHydraulicsData,
     value: string | number | boolean | undefined,
   ) => {
-    setLubricationHydraulicsData((prev: any) => ({ ...prev, [field]: value }));
-    setLubricationHydraulicsErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setLubricationHydraulicsData((prev) => ({ ...prev, [field]: value }));
+    setLubricationHydraulicsErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER');
   };
 
   const updateClutchField = (field: keyof ClutchData, value: string | number | undefined) => {
-    setClutchData((prev: any) => ({ ...prev, [field]: value }));
-    setClutchErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setClutchData((prev) => ({ ...prev, [field]: value }));
+    setClutchErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('CLUTCH');
   };
 
@@ -530,8 +530,8 @@ export function CompleteServiceModal({
     field: keyof CounterbalanceCylinderData,
     value: string | number | undefined,
   ) => {
-    setCounterbalanceCylinderData((prev: any) => ({ ...prev, [field]: value }));
-    setCounterbalanceCylinderErrors((prev: any) => ({ ...prev, [field]: '' }));
+    setCounterbalanceCylinderData((prev) => ({ ...prev, [field]: value }));
+    setCounterbalanceCylinderErrors((prev) => ({ ...prev, [field]: '' }));
     markSectionTouched('COUNTERBALANCE_CYLINDER_AIRBAG');
   };
 
@@ -631,77 +631,77 @@ export function CompleteServiceModal({
   // Blur handlers
   const handleBlurOuterBefore = (field: keyof BearingClearanceData) => {
     const error = validateField(field, outerBeforeData[field]);
-    setOuterBeforeErrors((prev: any) => ({ ...prev, [field]: error }));
+    setOuterBeforeErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurOuterAfter = (field: keyof BearingClearanceData) => {
     const error = validateField(field, outerAfterData[field]);
-    setOuterAfterErrors((prev: any) => ({ ...prev, [field]: error }));
+    setOuterAfterErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurInnerBefore = (field: keyof BearingClearanceData) => {
     const error = validateField(field, innerBeforeData[field]);
-    setInnerBeforeErrors((prev: any) => ({ ...prev, [field]: error }));
+    setInnerBeforeErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurInnerAfter = (field: keyof BearingClearanceData) => {
     const error = validateField(field, innerAfterData[field]);
-    setInnerAfterErrors((prev: any) => ({ ...prev, [field]: error }));
+    setInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurSlideOuterBefore = (field: keyof SlideData) => {
     const error = validateSlideField(field, slideOuterBeforeData[field]);
-    setSlideOuterBeforeErrors((prev: any) => ({ ...prev, [field]: error }));
+    setSlideOuterBeforeErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurSlideOuterAfter = (field: keyof SlideData) => {
     const error = validateSlideField(field, slideOuterAfterData[field]);
-    setSlideOuterAfterErrors((prev: any) => ({ ...prev, [field]: error }));
+    setSlideOuterAfterErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurSlideInnerBefore = (field: keyof SlideData) => {
     const error = validateSlideField(field, slideInnerBeforeData[field]);
-    setSlideInnerBeforeErrors((prev: any) => ({ ...prev, [field]: error }));
+    setSlideInnerBeforeErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurSlideInnerAfter = (field: keyof SlideData) => {
     const error = validateSlideField(field, slideInnerAfterData[field]);
-    setSlideInnerAfterErrors((prev: any) => ({ ...prev, [field]: error }));
+    setSlideInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurGibsOuterBefore = (field: keyof GibsData) => {
     const error = validateGibsField(field, gibsOuterBeforeData[field]);
-    setGibsOuterBeforeErrors((prev: any) => ({ ...prev, [field]: error }));
+    setGibsOuterBeforeErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurGibsOuterAfter = (field: keyof GibsData) => {
     const error = validateGibsField(field, gibsOuterAfterData[field]);
-    setGibsOuterAfterErrors((prev: any) => ({ ...prev, [field]: error }));
+    setGibsOuterAfterErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurGibsInnerBefore = (field: keyof GibsData) => {
     const error = validateGibsField(field, gibsInnerBeforeData[field]);
-    setGibsInnerBeforeErrors((prev: any) => ({ ...prev, [field]: error }));
+    setGibsInnerBeforeErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurGibsInnerAfter = (field: keyof GibsData) => {
     const error = validateGibsField(field, gibsInnerAfterData[field]);
-    setGibsInnerAfterErrors((prev: any) => ({ ...prev, [field]: error }));
+    setGibsInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurLubricationHydraulics = (field: keyof LubricationHydraulicsData) => {
     const error = validateLubricationHydraulicsField(field, lubricationHydraulicsData[field]);
-    setLubricationHydraulicsErrors((prev: any) => ({ ...prev, [field]: error }));
+    setLubricationHydraulicsErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurClutch = (field: keyof ClutchData) => {
     const error = validateClutchField(field, clutchData[field]);
-    setClutchErrors((prev: any) => ({ ...prev, [field]: error }));
+    setClutchErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurCounterbalanceCylinder = (field: keyof CounterbalanceCylinderData) => {
     const error = validateCounterbalanceCylinderField(field, counterbalanceCylinderData[field]);
-    setCounterbalanceCylinderErrors((prev: any) => ({ ...prev, [field]: error }));
+    setCounterbalanceCylinderErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleDateBlur = () => {
