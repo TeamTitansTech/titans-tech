@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/select';
 import { ServiceType, type CreateServicePayload } from '@/data/types/services.types';
 import { createService } from '@/data/services/services.api';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 
 interface SimpleServiceCreationModalProps {
   machineId: string;
@@ -36,7 +36,7 @@ export default function SimpleServiceCreationModal({
   onOpenChange,
 }: SimpleServiceCreationModalProps) {
   const t = useTranslations('services');
-  const router = useRouter();
+  const router = useInternalRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [serviceType, setServiceType] = useState<ServiceType>(ServiceType.INSPECTION);

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { setUserLocale } from '@/actions/locale';
 import { Label } from '@/components/ui/label';
 import {
@@ -26,7 +26,7 @@ const SUPPORTED_LOCALES = [
 export function GeneralSettingsSection() {
   const t = useTranslations('adminSettings.generalSettings');
   const locale = useLocale();
-  const router = useRouter();
+  const router = useInternalRouter();
   const [isPending, startTransition] = useTransition();
   const [unitSystem, setUnitSystem] = useState<UnitSystem>('metric');
 

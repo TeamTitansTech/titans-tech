@@ -9,9 +9,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { setLocale } from '@/app/actions/locale';
+import { setLocale } from '@/lib/locale';
 import { useTransition } from 'react';
-import { useRouter } from '@/i18n/routing';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -20,7 +20,7 @@ const languages = [
 
 export function LanguageSwitcher() {
   const locale = useLocale();
-  const router = useRouter();
+  const router = useInternalRouter();
   const [_isPending, startTransition] = useTransition();
 
   const handleLanguageChange = async (newLocale: string) => {

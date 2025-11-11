@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { MachineCard } from './MachineCard';
 import { MachineCreationModal } from './MachineCreationModal';
@@ -28,7 +28,7 @@ interface MachinesPageClientProps {
 
 export function MachinesPageClient({ machines }: MachinesPageClientProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useRouter();
+  const router = useInternalRouter();
   const t = useTranslations('machines');
 
   const handleSuccess = () => {

@@ -5,7 +5,7 @@ import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { ArrowLeft, ClipboardCheck, Box } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
@@ -75,7 +75,7 @@ const getSectionStatus = (section: string, machine: Machine): SectionStatus => {
 
 export function MachineDetails({ machine }: MachineDetailsProps) {
   const t = useTranslations('machines');
-  const router = useRouter();
+  const router = useInternalRouter();
 
   const handleSectionClick = (section: string) => {
     const sectionSlug = section.toLowerCase();
