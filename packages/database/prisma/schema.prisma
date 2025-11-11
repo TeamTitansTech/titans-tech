@@ -11,6 +11,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ServiceType {
+  INSPECTION
+  MAINTENANCE
+}
+
+enum ServiceStatus {
+  PENDING
+  COMPLETED
+}
+
 enum MatingPartType {
   BUSHING
   CONNECTION
@@ -28,7 +38,7 @@ enum MeasurementUnit {
   MM
 }
 
-enum InspectionSection {
+enum ServiceSection {
   BEARING_CLEARANCE
   SLIDE
   GIBS
@@ -129,11 +139,11 @@ model UserBranch {
   updateMachines Boolean @default(false)
   deleteMachines Boolean @default(false)
 
-  // Inspection Permissions
-  readInspections   Boolean @default(false)
-  createInspections Boolean @default(false)
-  updateInspections Boolean @default(false)
-  deleteInspections Boolean @default(false)
+  // Service Permissions
+  readServices   Boolean @default(false)
+  createServices Boolean @default(false)
+  updateServices Boolean @default(false)
+  deleteServices Boolean @default(false)
 
   @@id([userId, branchId])
   @@map("user_branches")
@@ -145,7 +155,7 @@ model Blueprint {
   id        String              @id @default(cuid())
   name      String
   fields    Json // Array of { fieldName, fieldSlug, fieldType, fieldOptions? }
-  sections  InspectionSection[] // Array of inspection sections
+  sections  ServiceSection[] // Array of service sections
   deletedAt DateTime? // Soft delete to preserve historical data
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
@@ -164,7 +174,7 @@ model Machine {
 
   blueprint   Blueprint           @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
   fields      MachineField[]
-  inspections MachineInspection[]
+  services MachineService[]
 
   @@map("machines")
 }
@@ -183,39 +193,52 @@ model MachineField {
   @@map("machine_fields")
 }
 
-model MachineInspection {
-  id            String   @id @default(cuid())
-  machineId     String
-  date          DateTime
-  isMaintenance Boolean  @default(false)
-  performedBy   String? // Optional: userId of who performed the inspection
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+// Machine Service Models
 
-  machine                Machine                             @relation(fields: [machineId], references: [id], onDelete: Cascade)
-  bearingClearanceChecks MachineInspectionBearingClearance[]
-  slideChecks            MachineInspectionSlide[]
+model MachineService {
+  id          String        @id @default(cuid())
+  machineId   String
+  date        DateTime
+  type        ServiceType   @default(INSPECTION)
+  status      ServiceStatus @default(PENDING)
+  performedBy String? // Optional: userId of who performed the service
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
 
-  @@map("machine_inspections")
+  machine                          Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  bearingClearance                 MachineServiceBearingClearance[]
+  slide                            MachineServiceSlide[]
+  gibs                             MachineServiceGibs[]
+  lubricationHydraulics            MachineServiceLubricationHydraulics[]
+  clutch                           MachineServiceClutch[]
+  counterbalanceCylinderAirbag     MachineServiceCounterbalanceCylinderAirbag[]
+
+  @@map("machine_services")
 }
 
-model MachineInspectionBearingClearance {
+// BEARING_CLEARANCE Section
+
+model MachineServiceBearingClearance {
   id                  String  @id @default(cuid())
-  machineInspectionId String
-  beforeId            String?
-  afterId             String?
+  machineServiceId String
+  outerBeforeId       String?
+  outerAfterId        String?
+  innerBeforeId       String?
+  innerAfterId        String?
 
-  machineInspection MachineInspection @relation(fields: [machineInspectionId], references: [id], onDelete: Cascade)
-  before            BearingClearance? @relation("BeforeMeasurement", fields: [beforeId], references: [id], onDelete: SetNull)
-  after             BearingClearance? @relation("AfterMeasurement", fields: [afterId], references: [id], onDelete: SetNull)
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerBefore       BearingClearanceData? @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
+  outerAfter        BearingClearanceData? @relation("OuterAfterMeasurement", fields: [outerAfterId], references: [id], onDelete: SetNull)
+  innerBefore       BearingClearanceData? @relation("InnerBeforeMeasurement", fields: [innerBeforeId], references: [id], onDelete: SetNull)
+  innerAfter        BearingClearanceData? @relation("InnerAfterMeasurement", fields: [innerAfterId], references: [id], onDelete: SetNull)
 
-  @@map("machine_inspection_bearing_clearance")
+  @@map("machine_service_bearing_clearance")
 }
 
-model BearingClearance {
+model BearingClearanceData {
   id String @id @default(cuid())
 
-  // Outer measurements - all Decimal with 4 precision (all required)
+  // Measurements - all Decimal with 4 precision
   totalClearance_RH                Decimal @db.Decimal(10, 4)
   totalClearance_LH                Decimal @db.Decimal(10, 4)
   mainBearings_RH                  Decimal @db.Decimal(10, 4)
@@ -226,74 +249,59 @@ model BearingClearance {
   wristPinToMatingPart_LH          Decimal @db.Decimal(10, 4)
   wristPinToBushing_RH             Decimal @db.Decimal(10, 4)
   wristPinToBushing_LH             Decimal @db.Decimal(10, 4)
-  slide_adj_nut_to_screw_sleeve_RH Decimal @db.Decimal(10, 4)
-  slide_adj_nut_to_screw_sleeve_LH Decimal @db.Decimal(10, 4)
-  extra_double_lockOpen_RH         Decimal @db.Decimal(10, 4)
-  extra_double_lockOpen_LH         Decimal @db.Decimal(10, 4)
-  ball_box_area_RH                 Decimal @db.Decimal(10, 4)
-  ball_box_area_LH                 Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_RH      Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_LH      Decimal @db.Decimal(10, 4)
+  extraDoubleLockOpen_RH           Decimal @db.Decimal(10, 4)
+  extraDoubleLockOpen_LH           Decimal @db.Decimal(10, 4)
+  ballBoxArea_RH                   Decimal @db.Decimal(10, 4)
+  ballBoxArea_LH                   Decimal @db.Decimal(10, 4)
 
-  // Inner measurements (all required)
-  innerTotalClearance_RH                Decimal @db.Decimal(10, 4)
-  innerTotalClearance_LH                Decimal @db.Decimal(10, 4)
-  innerMainBearings_RH                  Decimal @db.Decimal(10, 4)
-  innerMainBearings_LH                  Decimal @db.Decimal(10, 4)
-  innerUpperConnectionBearings_RH       Decimal @db.Decimal(10, 4)
-  innerUpperConnectionBearings_LH       Decimal @db.Decimal(10, 4)
-  innerWristPinToMatingPart_RH          Decimal @db.Decimal(10, 4)
-  innerWristPinToMatingPart_LH          Decimal @db.Decimal(10, 4)
-  innerWristPinToBushing_RH             Decimal @db.Decimal(10, 4)
-  innerWristPinToBushing_LH             Decimal @db.Decimal(10, 4)
-  innerSlide_adj_nut_to_screw_sleeve_RH Decimal @db.Decimal(10, 4)
-  innerSlide_adj_nut_to_screw_sleeve_LH Decimal @db.Decimal(10, 4)
-  innerExtra_double_lockOpen_RH         Decimal @db.Decimal(10, 4)
-  innerExtra_double_lockOpen_LH         Decimal @db.Decimal(10, 4)
-  innerBall_box_area_RH                 Decimal @db.Decimal(10, 4)
-  innerBall_box_area_LH                 Decimal @db.Decimal(10, 4)
-
-  // Additional fields (required)
-  combined_with String
-  mating_part   MatingPartType
+  // Additional fields
+  hasBeenAdjusted Boolean @default(false)
+  combinedWith    String?
+  matingPart      MatingPartType?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  beforeInspections MachineInspectionBearingClearance[] @relation("BeforeMeasurement")
-  afterInspections  MachineInspectionBearingClearance[] @relation("AfterMeasurement")
+  outerBeforeServices MachineServiceBearingClearance[] @relation("OuterBeforeMeasurement")
+  outerAfterServices  MachineServiceBearingClearance[] @relation("OuterAfterMeasurement")
+  innerBeforeServices MachineServiceBearingClearance[] @relation("InnerBeforeMeasurement")
+  innerAfterServices  MachineServiceBearingClearance[] @relation("InnerAfterMeasurement")
 
-  @@map("bearing_clearances")
+  @@map("service_data_bearing_clearance")
 }
 
-// Slide Inspection Models
+// SLIDE Section
 
-model MachineInspectionSlide {
+model MachineServiceSlide {
   id                  String  @id @default(cuid())
-  machineInspectionId String
-  outerSlideBeforeId  String?
-  outerSlideAfterId   String?
-  innerSlideBeforeId  String?
-  innerSlideAfterId   String?
+  machineServiceId String
+  outerBeforeId       String?
+  outerAfterId        String?
+  innerBeforeId       String?
+  innerAfterId        String?
 
-  machineInspection MachineInspection @relation(fields: [machineInspectionId], references: [id], onDelete: Cascade)
-  outerSlideBefore  SlideData?        @relation("OuterSlideBefore", fields: [outerSlideBeforeId], references: [id], onDelete: SetNull)
-  outerSlideAfter   SlideData?        @relation("OuterSlideAfter", fields: [outerSlideAfterId], references: [id], onDelete: SetNull)
-  innerSlideBefore  SlideData?        @relation("InnerSlideBefore", fields: [innerSlideBeforeId], references: [id], onDelete: SetNull)
-  innerSlideAfter   SlideData?        @relation("InnerSlideAfter", fields: [innerSlideAfterId], references: [id], onDelete: SetNull)
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerBefore       SlideData?        @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
+  outerAfter        SlideData?        @relation("OuterAfterMeasurement", fields: [outerAfterId], references: [id], onDelete: SetNull)
+  innerBefore       SlideData?        @relation("InnerBeforeMeasurement", fields: [innerBeforeId], references: [id], onDelete: SetNull)
+  innerAfter        SlideData?        @relation("InnerAfterMeasurement", fields: [innerAfterId], references: [id], onDelete: SetNull)
 
-  @@map("machine_inspection_slide")
+  @@map("machine_service_slide")
 }
 
 model SlideData {
   id String @id @default(cuid())
 
-  // Parallelism measurements (3 positions)
+  // Parallelism measurements (4 positions to match CSV)
   parallelism        ParallelismType
-  hasBeenAdjusted    Boolean         @default(false)
-  position1          Decimal         @db.Decimal(10, 4)
-  position2          Decimal         @db.Decimal(10, 4)
-  position3          Decimal         @db.Decimal(10, 4)
-  unit               MeasurementUnit
-  shutheightChecked  Boolean         @default(false)
+  hasBeenAdjusted   Boolean @default(false)
+  position1         Decimal @db.Decimal(10, 4)
+  position2         Decimal @db.Decimal(10, 4)
+  position3         Decimal @db.Decimal(10, 4)
+  position4         Decimal @db.Decimal(10, 4)
+  shutheightChecked Boolean @default(false)
   actualSH           String?
   overloadsOnMonitor String?
   indicatorReading   String?
@@ -301,10 +309,238 @@ model SlideData {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  outerSlideBeforeInspections MachineInspectionSlide[] @relation("OuterSlideBefore")
-  outerSlideAfterInspections  MachineInspectionSlide[] @relation("OuterSlideAfter")
-  innerSlideBeforeInspections MachineInspectionSlide[] @relation("InnerSlideBefore")
-  innerSlideAfterInspections  MachineInspectionSlide[] @relation("InnerSlideAfter")
+  outerBeforeServices MachineServiceSlide[] @relation("OuterBeforeMeasurement")
+  outerAfterServices  MachineServiceSlide[] @relation("OuterAfterMeasurement")
+  innerBeforeServices MachineServiceSlide[] @relation("InnerBeforeMeasurement")
+  innerAfterServices  MachineServiceSlide[] @relation("InnerAfterMeasurement")
 
-  @@map("slide_data")
+  @@map("service_data_slide")
+}
+
+// GIBS Section
+
+model MachineServiceGibs {
+  id                  String  @id @default(cuid())
+  machineServiceId String
+  outerBeforeId       String?
+  outerAfterId        String?
+  innerBeforeId       String?
+  innerAfterId        String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerBefore       GibsData?         @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
+  outerAfter        GibsData?         @relation("OuterAfterMeasurement", fields: [outerAfterId], references: [id], onDelete: SetNull)
+  innerBefore       GibsData?         @relation("InnerBeforeMeasurement", fields: [innerBeforeId], references: [id], onDelete: SetNull)
+  innerAfter        GibsData?         @relation("InnerAfterMeasurement", fields: [innerAfterId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_gibs")
+}
+
+model GibsData {
+  id String @id @default(cuid())
+
+  hasBeenAdjusted Boolean @default(false)
+
+  // Front to Back measurements (16 points)
+  point1  Decimal @db.Decimal(10, 4)
+  point2  Decimal @db.Decimal(10, 4)
+  point3  Decimal @db.Decimal(10, 4)
+  point4  Decimal @db.Decimal(10, 4)
+  point5  Decimal @db.Decimal(10, 4)
+  point6  Decimal @db.Decimal(10, 4)
+  point7  Decimal @db.Decimal(10, 4)
+  point8  Decimal @db.Decimal(10, 4)
+  point9  Decimal @db.Decimal(10, 4)
+  point10 Decimal @db.Decimal(10, 4)
+  point11 Decimal @db.Decimal(10, 4)
+  point12 Decimal @db.Decimal(10, 4)
+  point13 Decimal @db.Decimal(10, 4)
+  point14 Decimal @db.Decimal(10, 4)
+  point15 Decimal @db.Decimal(10, 4)
+  point16 Decimal @db.Decimal(10, 4)
+
+  // Directional measurements
+  leftTop     Decimal? @db.Decimal(10, 4)
+  leftBottom  Decimal? @db.Decimal(10, 4)
+  rightTop    Decimal? @db.Decimal(10, 4)
+  rightBottom Decimal? @db.Decimal(10, 4)
+  frontTop    Decimal? @db.Decimal(10, 4)
+  frontBottom Decimal? @db.Decimal(10, 4)
+  backTop     Decimal? @db.Decimal(10, 4)
+  backBottom  Decimal? @db.Decimal(10, 4)
+
+  usable String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerBeforeServices MachineServiceGibs[] @relation("OuterBeforeMeasurement")
+  outerAfterServices  MachineServiceGibs[] @relation("OuterAfterMeasurement")
+  innerBeforeServices MachineServiceGibs[] @relation("InnerBeforeMeasurement")
+  innerAfterServices  MachineServiceGibs[] @relation("InnerAfterMeasurement")
+
+  @@map("service_data_gibs")
+}
+
+// LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER Section
+
+model MachineServiceLubricationHydraulics {
+  id                  String  @id @default(cuid())
+  machineServiceId String
+  dataId              String?
+
+  machineService MachineService              @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  data              LubricationHydraulicsData? @relation(fields: [dataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_lubrication_hydraulics")
+}
+
+model LubricationHydraulicsData {
+  id String @id @default(cuid())
+
+  // System pressures
+  lubePSI          Decimal? @db.Decimal(10, 2)
+  monitorflowPSI   Decimal? @db.Decimal(10, 2)
+  hydPSI           Decimal? @db.Decimal(10, 2)
+  pressSWPSI       Decimal? @db.Decimal(10, 2)
+  otherGauges      String?
+
+  // Oil information
+  changedOil       Boolean @default(false)
+  oilTemperatureF  Decimal? @db.Decimal(10, 2)
+  oilMfgType       String?
+
+  // Filter information
+  changedFilter    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  services MachineServiceLubricationHydraulics[]
+
+  @@map("service_data_lubrication_hydraulics")
+}
+
+// CLUTCH Section
+
+model MachineServiceClutch {
+  id                  String  @id @default(cuid())
+  machineServiceId String
+  dataId              String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  data              ClutchData?       @relation(fields: [dataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_clutch")
+}
+
+model ClutchData {
+  id String @id @default(cuid())
+
+  // Clutch Type and Location
+  clutchType     String?
+  clutchLocation String?
+
+  // Brake Spring Settings
+  brakeSpringBrake        Decimal? @db.Decimal(10, 4)
+  brakeSpringClutch       Decimal? @db.Decimal(10, 4)
+  brakeSpringStudBolt     String?
+
+  // Brake measurements
+  brakeAnchorClearanceFB  Decimal? @db.Decimal(10, 4)
+  brakeAnchorClearanceFTB Decimal? @db.Decimal(10, 4)
+  brakeAnchorClearanceRTB Decimal? @db.Decimal(10, 4)
+  brakeStoppingTime       Decimal? @db.Decimal(10, 2)
+  brakeLining             String?
+  brakeClearing           Decimal? @db.Decimal(10, 4)
+  brakeClearanceTotal     Decimal? @db.Decimal(10, 4)
+  brakeClearanceRear      Decimal? @db.Decimal(10, 4)
+
+  // Flywheel
+  flywheelStoppingTime    Decimal? @db.Decimal(10, 2)
+  flywheelBearings        String?
+  flywheelBrake           String?
+
+  // Clutch details
+  clutchEngagements       Int?
+  clutchLining            String?
+  clutchSeals             String?
+
+  // Gear and measurements
+  gearBacklashBefore      Decimal? @db.Decimal(10, 4)
+  gearBacklashAfter       Decimal? @db.Decimal(10, 4)
+  crankEndplayBefore      Decimal? @db.Decimal(10, 4)
+  crankEndplayAfter       Decimal? @db.Decimal(10, 4)
+
+  // Air system
+  airRegulatorPSI         Decimal? @db.Decimal(10, 2)
+  airClutchTravel         Decimal? @db.Decimal(10, 4)
+  airLineOilerSetting     String?
+
+  // Hydraulic system
+  hydClutchClearanceTotal Decimal? @db.Decimal(10, 4)
+  hydClutchClearanceRear  Decimal? @db.Decimal(10, 4)
+  hydraulicPressurePSI    Decimal? @db.Decimal(10, 2)
+  accumulatorPSI          Decimal? @db.Decimal(10, 2)
+
+  // Components condition
+  rotaryUnion             String?
+  splinesDriveRingDisc    String?
+  adjustingNutLockSecure  String?
+  separateBrakeSeals      String?
+  flexDisc                String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  services MachineServiceClutch[]
+
+  @@map("service_data_clutch")
+}
+
+// COUNTERBALANCE_CYLINDER_AIRBAG Section
+
+model MachineServiceCounterbalanceCylinderAirbag {
+  id                  String  @id @default(cuid())
+  machineServiceId String
+  outerDataId         String?
+  innerDataId         String?
+
+  machineService MachineService               @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerData         CounterbalanceCylinderAirbagData? @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerData         CounterbalanceCylinderAirbagData? @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_counterbalance_cylinder_airbag")
+}
+
+model CounterbalanceCylinderAirbagData {
+  id String @id @default(cuid())
+
+  counterbalanceType    String?
+
+  // Airbag/Piston condition
+  airbagPistonSeals     String?
+  airbagPistonSealsLeakLocation String?
+
+  // Regulator and gauges
+  regulator             String?
+  gaugePSI              Decimal? @db.Decimal(10, 2)
+
+  // Pneumatics
+  pneumaticsPlumbing    String?
+
+  // Rod condition
+  rodSeals              String?
+  rodBushing            String?
+
+  // Oil
+  oilWick               String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerServices MachineServiceCounterbalanceCylinderAirbag[] @relation("OuterData")
+  innerServices MachineServiceCounterbalanceCylinderAirbag[] @relation("InnerData")
+
+  @@map("service_data_counterbalance_cylinder_airbag")
 }

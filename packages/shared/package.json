@@ -20,6 +20,10 @@
     ".": {
       "default": "./dist/index.js",
       "types": "./index.ts"
+    },
+    "./types": {
+      "default": "./dist/types/index.js",
+      "types": "./types/index.ts"
     }
   }
 }

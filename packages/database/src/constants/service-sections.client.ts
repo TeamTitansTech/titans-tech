@@ -1,9 +1,9 @@
 /**
- * Client-safe inspection section constants
+ * Client-safe service section constants
  * This file does NOT import from Prisma and can be safely used in client components
  */
 
-export const INSPECTION_SECTION_SLUGS = [
+export const SERVICE_SECTION_SLUGS = [
   'bearing_clearance',
   'slide',
   'gibs',
@@ -12,4 +12,4 @@ export const INSPECTION_SECTION_SLUGS = [
   'counterbalance_cylinder_airbag',
 ] as const;
 
-export type InspectionSectionSlug = (typeof INSPECTION_SECTION_SLUGS)[number];
+export type ServiceSectionSlug = (typeof SERVICE_SECTION_SLUGS)[number];

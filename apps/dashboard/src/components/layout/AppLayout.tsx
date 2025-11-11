@@ -6,7 +6,7 @@ import { usePathname } from '@/i18n/routing';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const noLayoutPaths = ['/'];
+  const noLayoutPaths = ['/', '/admin'];
   if (noLayoutPaths.includes(pathname)) {
     return <>{children}</>;
   }

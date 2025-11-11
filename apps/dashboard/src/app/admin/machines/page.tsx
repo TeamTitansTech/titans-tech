@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { MachinesPageClient } from '@/app/s/[subdomain]/machines/components/MachinesPageClient';
+import { MachineListPage } from './components/MachineListPage';
 import { getMachines } from '@/data/services/machines.api';
 import { Typography } from '@/components/ui/typography';
 
@@ -27,5 +27,5 @@ export default async function AdminMachinesPage() {
 
   const machines = response.data || [];
 
-  return <MachinesPageClient machines={machines} />;
+  return <MachineListPage machines={machines} />;
 }

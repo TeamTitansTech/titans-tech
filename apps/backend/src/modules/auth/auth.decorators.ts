@@ -27,11 +27,11 @@ export type BranchPermissionType =
   | 'createMachines'
   | 'updateMachines'
   | 'deleteMachines'
-  // Inspection Permissions
-  | 'readInspections'
-  | 'createInspections'
-  | 'updateInspections'
-  | 'deleteInspections';
+  // Service Permissions
+  | 'readServices'
+  | 'createServices'
+  | 'updateServices'
+  | 'deleteServices';
 
 export const Admin = () => SetMetadata(IS_SYS_ADMIN_KEY, true);
 

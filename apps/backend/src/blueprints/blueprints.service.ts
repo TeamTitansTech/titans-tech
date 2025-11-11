@@ -3,7 +3,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { Prisma, InspectionSection } from '@titans-tech/db';
+import { Prisma, ServiceSection } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateBlueprintDto } from './dto/create-blueprint.dto';
 
@@ -27,20 +27,20 @@ export class BlueprintsService {
     return blueprint;
   }
 
-  private validateSections(sections: InspectionSection[]): InspectionSection[] {
-    const validSections = Object.values(InspectionSection);
+  private validateSections(sections: ServiceSection[]): ServiceSection[] {
+    const validSections = Object.values(ServiceSection);
 
     return sections.map((section) => {
       const normalizedSection =
         typeof section === 'string' ? section.toUpperCase() : section;
 
-      if (!validSections.includes(normalizedSection as InspectionSection)) {
+      if (!validSections.includes(normalizedSection as ServiceSection)) {
         throw new BadRequestException(
           `Invalid inspection section: ${section}. Valid values are: ${validSections.join(', ')}`,
         );
       }
 
-      return normalizedSection as InspectionSection;
+      return normalizedSection as ServiceSection;
     });
   }
 

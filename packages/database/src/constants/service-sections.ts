@@ -1,0 +1,49 @@
+import { ServiceSection } from '../../generated/prisma/client';
+
+export const SERVICE_SECTION_CONFIG = {
+  [ServiceSection.BEARING_CLEARANCE]: {
+    slug: 'bearing_clearance',
+    displayName: 'Bearing Clearance',
+  },
+  [ServiceSection.SLIDE]: {
+    slug: 'slide',
+    displayName: 'Slide',
+  },
+  [ServiceSection.GIBS]: {
+    slug: 'gibs',
+    displayName: 'Gibs',
+  },
+  [ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER]: {
+    slug: 'lubrication_hydraulics_pressure_switches_oil_filter',
+    displayName: 'Lubrication / Hydraulics / Pressure Switches / Oil & Filter',
+  },
+  [ServiceSection.CLUTCH]: {
+    slug: 'clutch',
+    displayName: 'Clutch',
+  },
+  [ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG]: {
+    slug: 'counterbalance_cylinder_airbag',
+    displayName: 'Counterbalance Cylinder / Airbag',
+  },
+} as const;
+
+export const SERVICE_SECTIONS = Object.values(ServiceSection);
+
+// SERVICE_SECTION_SLUGS is now exported from service-sections.client.ts
+// to avoid Prisma client dependencies in client-side code
+
+export function getServiceSectionFromSlug(slug: string): ServiceSection | undefined {
+  const entry = Object.entries(SERVICE_SECTION_CONFIG).find(
+    ([, config]) => config.slug === slug,
+  );
+  return entry ? (entry[0] as ServiceSection) : undefined;
+}
+
+export function getSlugFromServiceSection(section: ServiceSection): string {
+  return SERVICE_SECTION_CONFIG[section].slug;
+}
+
+export function getDisplayNameFromSlug(slug: string): string | undefined {
+  const entry = Object.values(SERVICE_SECTION_CONFIG).find((config) => config.slug === slug);
+  return entry?.displayName;
+}

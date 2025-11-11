@@ -1,6 +1,6 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import { CreateCompanyDto, UpdateCompanyDto, UserResponseDto } from '@titans-tech/shared';
+import { CreateCompanyDto, UpdateCompanyDto } from '@titans-tech/shared';
 
 export interface Company {
   id: string;
@@ -10,27 +10,6 @@ export interface Company {
   brandColor?: string | null;
 }
 
-export interface LoginResponse {
-  accessToken: string;
-  user: UserResponseDto;
-}
-
-export const loginUser = async (args: { companyId: string; email: string; password: string }) => {
-  return await responseHandler<LoginResponse>(`/companies/${args.companyId}/login`, {
-    method: 'POST',
-    body: {
-      email: args.email,
-      password: args.password,
-    },
-  });
-};
-
-export const getCompanyPublicInfo = async (args: { companySlug: string }) => {
-  return await responseHandler<Company>(`/companies/${args.companySlug}/public-info`, {
-    method: 'GET',
-  });
-};
-
 export const getAllCompanies = async () => {
   return await responseHandler<Company[]>('/companies', {
     method: 'GET',
@@ -39,6 +18,12 @@ export const getAllCompanies = async () => {
 
 export const getCompany = async (args: { companyId: string }) => {
   return await responseHandler<Company>(`/companies/${args.companyId}`, {
+    method: 'GET',
+  });
+};
+
+export const getCompanyPublicInfo = async (args: { companySlug: string }) => {
+  return await responseHandler<Company>(`/companies/public/${args.companySlug}`, {
     method: 'GET',
   });
 };

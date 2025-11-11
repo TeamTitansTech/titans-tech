@@ -33,11 +33,11 @@ interface Permissions {
   createMachines: boolean;
   updateMachines: boolean;
   deleteMachines: boolean;
-  // Inspections
-  readInspections: boolean;
-  createInspections: boolean;
-  updateInspections: boolean;
-  deleteInspections: boolean;
+  // Services
+  readServices: boolean;
+  createServices: boolean;
+  updateServices: boolean;
+  deleteServices: boolean;
 }
 
 const permissionGroups = {
@@ -65,11 +65,11 @@ const permissionGroups = {
     { key: 'updateMachines', label: 'Update Machines' },
     { key: 'deleteMachines', label: 'Delete Machines' },
   ],
-  Inspections: [
-    { key: 'readInspections', label: 'Read Inspections' },
-    { key: 'createInspections', label: 'Create Inspections' },
-    { key: 'updateInspections', label: 'Update Inspections' },
-    { key: 'deleteInspections', label: 'Delete Inspections' },
+  Services: [
+    { key: 'readServices', label: 'Read Services' },
+    { key: 'createServices', label: 'Create Services' },
+    { key: 'updateServices', label: 'Update Services' },
+    { key: 'deleteServices', label: 'Delete Services' },
   ],
 };
 
@@ -94,10 +94,10 @@ export default function UserPermissionsManager({ user, branchId, onClose, onUpda
         createMachines: branchPermissions.createMachines,
         updateMachines: branchPermissions.updateMachines,
         deleteMachines: branchPermissions.deleteMachines,
-        readInspections: branchPermissions.readInspections,
-        createInspections: branchPermissions.createInspections,
-        updateInspections: branchPermissions.updateInspections,
-        deleteInspections: branchPermissions.deleteInspections,
+        readServices: branchPermissions.readServices,
+        createServices: branchPermissions.createServices,
+        updateServices: branchPermissions.updateServices,
+        deleteServices: branchPermissions.deleteServices,
       };
     }
     return {} as Permissions;

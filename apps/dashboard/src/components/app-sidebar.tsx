@@ -33,7 +33,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const t = useTranslations();
   const { sysAdminUser } = useSysAdmin();
 
-  const isAdmin = !!sysAdminUser;
+  // Check if we're on an admin route or if sysAdminUser is set
+  const isAdmin = pathname.startsWith('/admin') || !!sysAdminUser;
 
   // Admin navigation
   const adminData = {
@@ -85,11 +86,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: t('navigation.dashboard'),
         icon: LayoutDashboard,
         url: '/home',
-      },
-      {
-        title: t('navigation.models'),
-        icon: FolderKanban,
-        url: '/blueprints',
       },
       {
         title: t('navigation.clients'),

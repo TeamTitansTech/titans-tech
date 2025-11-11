@@ -30,12 +30,14 @@ export class MachinesController {
       include: {
         blueprint: true;
         fields: true;
-        inspections: {
+        services: {
           include: {
-            bearingClearanceChecks: {
+            bearingClearance: {
               include: {
-                before: true;
-                after: true;
+                outerBefore: true;
+                outerAfter: true;
+                innerBefore: true;
+                innerAfter: true;
               };
             };
           };
