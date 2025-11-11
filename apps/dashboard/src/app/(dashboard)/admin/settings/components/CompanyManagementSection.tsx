@@ -40,22 +40,22 @@ export function CompanyManagementSection({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex gap-3 flex-1 items-center">
-          <Building2 className="h-5 w-5 mt-0.5" />
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold">{t('title')}</h2>
-            <p className="text-sm text-muted-foreground mt-1">{t('description')}</p>
-          </div>
-        </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)} className="shrink-0">
-          <Plus className="mr-2 h-4 w-4" />
-          {t('createCompany')}
-        </Button>
-      </div>
-
       <Card>
         <CardContent className="pt-6 space-y-6">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex gap-3 flex-1 items-center">
+              <Building2 className="h-5 w-5 mt-0.5" />
+              <div className="flex-1">
+                <h2 className="text-lg font-semibold">{t('title')}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{t('description')}</p>
+              </div>
+            </div>
+            <Button onClick={() => setIsCreateDialogOpen(true)} className="shrink-0">
+              <Plus className="mr-2 h-4 w-4" />
+              {t('createCompany')}
+            </Button>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="company-select">{t('selectCompany')}</Label>
             <Select value={selectedCompanyId} onValueChange={onSelectCompany} disabled={isLoading}>

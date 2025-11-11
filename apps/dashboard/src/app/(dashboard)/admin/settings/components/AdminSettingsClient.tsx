@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { Settings2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { GeneralSettingsSection } from './GeneralSettingsSection';
 import { CompanyManagementSection } from './CompanyManagementSection';
@@ -45,16 +44,7 @@ export function AdminSettingsClient() {
 
       <Separator />
 
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <Settings2 className="h-5 w-5 mt-0.5" />
-          <div className="flex-1">
-            <h2 className="text-lg font-semibold">{t('generalSettings.title')}</h2>
-            <p className="text-sm text-muted-foreground mt-1">{t('generalSettings.description')}</p>
-          </div>
-        </div>
-        <GeneralSettingsSection />
-      </div>
+      <GeneralSettingsSection />
 
       <Separator />
 

@@ -35,6 +35,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const isAdmin = !!sysAdminUser;
 
+  // Helper function to check if a navigation item is active
+  const checkIsActive = (itemUrl: string, itemTitle: string) => {
+    // Standard check: exact match or starts with the URL
+    const standardCheck = pathname === itemUrl || pathname.startsWith(`${itemUrl}/`);
+
+    // Special case for Machines tab: also highlight when viewing machine detail pages
+    if (itemTitle === t('navigation.allMachines')) {
+      // Highlight when on machine detail pages (both /machines/[id] and /admin/machines/[id])
+      if (pathname.startsWith('/machines/') || pathname === '/machines') {
+        return true;
+      }
+    }
+
+    return standardCheck;
+  };
+
   // Admin navigation
   const adminData = {
     company: {
@@ -138,7 +154,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup className="px-0">
           <SidebarMenu className="space-y-2.5">
             {data.navMain.map((item) => {
-              const isActive = pathname === item.url || pathname.startsWith(`${item.url}/`);
+              const isActive = checkIsActive(item.url, item.title);
               return (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
@@ -165,7 +181,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup className="px-0 mt-6">
           <SidebarMenu>
             {data.navUtility.map((item) => {
-              const isActive = pathname === item.url || pathname.startsWith(`${item.url}/`);
+              const isActive = checkIsActive(item.url, item.title);
               return (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
