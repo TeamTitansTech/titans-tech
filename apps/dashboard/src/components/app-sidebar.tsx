@@ -32,7 +32,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const t = useTranslations();
   const { sysAdminUser } = useSysAdmin();
 
-  const isAdmin = !!sysAdminUser;
+  // Check if we're on an admin route or if sysAdminUser is set
+  const isAdmin = pathname.startsWith('/admin') || !!sysAdminUser;
 
   // Helper function to check if a navigation item is active
   const checkIsActive = (itemUrl: string, itemTitle: string) => {
@@ -100,11 +101,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: t('navigation.dashboard'),
         icon: LayoutDashboard,
         url: '/home',
-      },
-      {
-        title: t('navigation.models'),
-        icon: FolderKanban,
-        url: '/blueprints',
       },
       {
         title: t('navigation.clients'),

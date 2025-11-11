@@ -1,9 +1,10 @@
-import { config } from 'dotenv';
-import { PrismaClient, InspectionSection } from '../generated/prisma/client';
-import * as bcrypt from 'bcryptjs';
+import { PrismaClient, ServiceSection } from '../generated/prisma/client';
+import * as dotenv from 'dotenv';
+import * as path from 'path';
+import * as bcrypt from 'bcrypt';
 
-// Load environment variables
-config();
+// Load environment variables from the database package .env file
+dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const prisma = new PrismaClient();
 
@@ -11,26 +12,43 @@ async function main() {
   console.log('Start seeding...');
 
   // Hash the default password
-  const defaultPassword = await bcrypt.hash('password123', 10);
+  const hashedPassword = await bcrypt.hash('password', 10);
 
   // ========================================
   // 1. Create SysAdmin
   // ========================================
   const sysAdmin = await prisma.sysAdmin.upsert({
-    where: { email: 'sysadmin@titans-tech.com' },
+    where: { email: 'admin@admin.com' },
     update: {},
     create: {
-      email: 'sysadmin@titans-tech.com',
-      password: defaultPassword,
+      email: 'admin@admin.com',
+      password: hashedPassword,
       isUsingDefaultPassword: true,
     },
   });
-  console.log(`✓ Created/Updated SysAdmin: ${sysAdmin.email}`);
+
+  console.log(`Created/Updated system admin: ${sysAdmin.email}`);
 
   // ========================================
-  // 2. Create Example Company
+  // 2. Create Companies
   // ========================================
+
+  // Create a company with subdomain "subdomain"
   const company = await prisma.company.upsert({
+    where: { slug: 'subdomain' },
+    update: {},
+    create: {
+      name: 'Example Company',
+      slug: 'subdomain',
+      logo: null,
+      brandColor: '#1e40af',
+    },
+  });
+
+  console.log(`Created/Updated company with slug: ${company.slug}`);
+
+  // Create ACME Corporation
+  const acmeCompany = await prisma.company.upsert({
     where: { slug: 'acme-corp' },
     update: {},
     create: {
@@ -39,12 +57,34 @@ async function main() {
       brandColor: '#3B82F6',
     },
   });
-  console.log(`✓ Created/Updated Company: ${company.name}`);
+  console.log(`Created/Updated Company: ${acmeCompany.name}`);
 
   // ========================================
   // 3. Create Company Branches
   // ========================================
-  const mainBranch = await prisma.companyBranch.upsert({
+
+  // Main branch for subdomain company
+  let mainBranch = await prisma.companyBranch.findFirst({
+    where: {
+      companyId: company.id,
+      name: 'Main Branch',
+    },
+  });
+
+  if (!mainBranch) {
+    mainBranch = await prisma.companyBranch.create({
+      data: {
+        companyId: company.id,
+        name: 'Main Branch',
+        isMainBranch: true,
+      },
+    });
+  }
+
+  console.log(`Created/Updated main branch with id: ${mainBranch.id}`);
+
+  // ACME Corp branches
+  const acmeMainBranch = await prisma.companyBranch.upsert({
     where: { id: 'acme-main-branch' },
     update: {},
     create: {
@@ -52,12 +92,12 @@ async function main() {
       name: 'Headquarters',
       isMainBranch: true,
       location: 'New York, NY',
-      companyId: company.id,
+      companyId: acmeCompany.id,
     },
   });
-  console.log(`✓ Created/Updated Main Branch: ${mainBranch.name}`);
+  console.log(`Created/Updated Main Branch: ${acmeMainBranch.name}`);
 
-  const secondaryBranch = await prisma.companyBranch.upsert({
+  const acmeSecondaryBranch = await prisma.companyBranch.upsert({
     where: { id: 'acme-secondary-branch' },
     update: {},
     create: {
@@ -65,13 +105,110 @@ async function main() {
       name: 'West Coast Facility',
       isMainBranch: false,
       location: 'Los Angeles, CA',
-      companyId: company.id,
+      companyId: acmeCompany.id,
     },
   });
-  console.log(`✓ Created/Updated Secondary Branch: ${secondaryBranch.name}`);
+  console.log(`Created/Updated Secondary Branch: ${acmeSecondaryBranch.name}`);
 
   // ========================================
-  // 4. Create Users with Different Roles
+  // 4. Create Users for Subdomain Company
+  // ========================================
+
+  // Company admin user
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@company.com' },
+    update: {},
+    create: {
+      email: 'admin@company.com',
+      password: hashedPassword,
+      name: 'Admin User',
+      companyId: company.id,
+      isCompanyAdmin: true,
+      isCompanyManager: false,
+      isUsingDefaultPassword: true,
+    },
+  });
+
+  console.log(`Created/Updated admin user: ${adminUser.email}`);
+
+  // Company manager user
+  const managerUser = await prisma.user.upsert({
+    where: { email: 'manager@company.com' },
+    update: {},
+    create: {
+      email: 'manager@company.com',
+      password: hashedPassword,
+      name: 'Manager User',
+      companyId: company.id,
+      isCompanyAdmin: false,
+      isCompanyManager: true,
+      isUsingDefaultPassword: true,
+    },
+  });
+
+  console.log(`Created/Updated manager user: ${managerUser.email}`);
+
+  // Normal user with full permissions on main branch
+  const normalUser = await prisma.user.upsert({
+    where: { email: 'user@company.com' },
+    update: {},
+    create: {
+      email: 'user@company.com',
+      password: hashedPassword,
+      name: 'Normal User',
+      companyId: company.id,
+      isCompanyAdmin: false,
+      isCompanyManager: false,
+      isUsingDefaultPassword: true,
+    },
+  });
+
+  console.log(`Created/Updated normal user: ${normalUser.email}`);
+
+  // Assign normal user to main branch with full permissions
+  await prisma.userBranch.upsert({
+    where: {
+      userId_branchId: {
+        userId: normalUser.id,
+        branchId: mainBranch.id,
+      }
+    },
+    update: {},
+    create: {
+      userId: normalUser.id,
+      branchId: mainBranch.id,
+      // User Management Permissions
+      readUsers: true,
+      createUsers: true,
+      updateUsers: true,
+      deleteUsers: true,
+      manageUserPermissions: true,
+      assignUsersToBranches: true,
+      // Branch Management Permissions
+      readBranches: true,
+      updateBranches: true,
+      // Blueprint Permissions
+      readBlueprints: true,
+      createBlueprints: true,
+      updateBlueprints: true,
+      deleteBlueprints: true,
+      // Machine Permissions
+      readMachines: true,
+      createMachines: true,
+      updateMachines: true,
+      deleteMachines: true,
+      // Service Permissions
+      readServices: true,
+      createServices: true,
+      updateServices: true,
+      deleteServices: true,
+    },
+  });
+
+  console.log(`Assigned normal user to main branch with full permissions`);
+
+  // ========================================
+  // 5. Create Users for ACME Corporation
   // ========================================
 
   // Company Admin
@@ -81,11 +218,11 @@ async function main() {
     create: {
       name: 'John Admin',
       email: 'admin@acme-corp.com',
-      password: defaultPassword,
+      password: hashedPassword,
       isCompanyAdmin: true,
       isCompanyManager: false,
       isUsingDefaultPassword: true,
-      companyId: company.id,
+      companyId: acmeCompany.id,
     },
   });
   console.log(`✓ Created/Updated Company Admin: ${companyAdmin.email}`);
@@ -97,11 +234,11 @@ async function main() {
     create: {
       name: 'Jane Manager',
       email: 'manager@acme-corp.com',
-      password: defaultPassword,
+      password: hashedPassword,
       isCompanyAdmin: false,
       isCompanyManager: true,
       isUsingDefaultPassword: true,
-      companyId: company.id,
+      companyId: acmeCompany.id,
     },
   });
   console.log(`✓ Created/Updated Company Manager: ${companyManager.email}`);
@@ -113,17 +250,17 @@ async function main() {
     create: {
       name: 'Bob User',
       email: 'user@acme-corp.com',
-      password: defaultPassword,
+      password: hashedPassword,
       isCompanyAdmin: false,
       isCompanyManager: false,
       isUsingDefaultPassword: true,
-      companyId: company.id,
+      companyId: acmeCompany.id,
     },
   });
   console.log(`✓ Created/Updated Regular User: ${regularUser.email}`);
 
   // ========================================
-  // 5. Assign Users to Branches with Permissions
+  // 6. Assign ACME Users to Branches with Permissions
   // ========================================
 
   // Admin with full permissions on main branch
@@ -131,13 +268,13 @@ async function main() {
     where: {
       userId_branchId: {
         userId: companyAdmin.id,
-        branchId: mainBranch.id,
+        branchId: acmeMainBranch.id,
       },
     },
     update: {},
     create: {
       userId: companyAdmin.id,
-      branchId: mainBranch.id,
+      branchId: acmeMainBranch.id,
       // All permissions
       readUsers: true,
       createUsers: true,
@@ -155,10 +292,10 @@ async function main() {
       createMachines: true,
       updateMachines: true,
       deleteMachines: true,
-      readInspections: true,
-      createInspections: true,
-      updateInspections: true,
-      deleteInspections: true,
+      readServices: true,
+      createServices: true,
+      updateServices: true,
+      deleteServices: true,
     },
   });
   console.log(`✓ Assigned Admin to Main Branch with full permissions`);
@@ -168,13 +305,13 @@ async function main() {
     where: {
       userId_branchId: {
         userId: companyManager.id,
-        branchId: mainBranch.id,
+        branchId: acmeMainBranch.id,
       },
     },
     update: {},
     create: {
       userId: companyManager.id,
-      branchId: mainBranch.id,
+      branchId: acmeMainBranch.id,
       // Limited permissions
       readUsers: true,
       createUsers: true,
@@ -184,9 +321,9 @@ async function main() {
       readMachines: true,
       createMachines: true,
       updateMachines: true,
-      readInspections: true,
-      createInspections: true,
-      updateInspections: true,
+      readServices: true,
+      createServices: true,
+      updateServices: true,
     },
   });
   console.log(`✓ Assigned Manager to Main Branch with limited permissions`);
@@ -196,33 +333,33 @@ async function main() {
     where: {
       userId_branchId: {
         userId: regularUser.id,
-        branchId: secondaryBranch.id,
+        branchId: acmeSecondaryBranch.id,
       },
     },
     update: {},
     create: {
       userId: regularUser.id,
-      branchId: secondaryBranch.id,
+      branchId: acmeSecondaryBranch.id,
       // Basic permissions
       readBranches: true,
       readBlueprints: true,
       readMachines: true,
-      readInspections: true,
-      createInspections: true,
+      readServices: true,
+      createServices: true,
     },
   });
   console.log(`✓ Assigned User to Secondary Branch with basic permissions`);
 
   // ========================================
-  // 6. Create Blueprints
+  // 7. Create Blueprints
   // ========================================
   const bearingBlueprint = await prisma.blueprint.upsert({
     where: { id: 'default-bearing-clearance-blueprint' },
     update: {},
     create: {
       id: 'default-bearing-clearance-blueprint',
-      name: 'Standard Bearing Clearance Inspection',
-      sections: [InspectionSection.BEARING_CLEARANCE],
+      name: 'Standard Bearing Clearance Service',
+      sections: [ServiceSection.BEARING_CLEARANCE, ServiceSection.CLUTCH, ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG, ServiceSection.GIBS, ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER, ServiceSection.SLIDE],
       fields: [
         {
           fieldName: 'Serial Number',
@@ -250,8 +387,8 @@ async function main() {
     update: {},
     create: {
       id: 'default-slide-blueprint',
-      name: 'Standard Slide Inspection',
-      sections: [InspectionSection.SLIDE],
+      name: 'Standard Slide Service',
+      sections: [ServiceSection.SLIDE],
       fields: [
         {
           fieldName: 'Serial Number',
@@ -270,7 +407,7 @@ async function main() {
   console.log(`✓ Created/Updated Slide Blueprint`);
 
   // ========================================
-  // 7. Create Example Machines
+  // 8. Create Example Machines
   // ========================================
   const machine1 = await prisma.machine.upsert({
     where: { id: 'example-machine-1' },
@@ -279,7 +416,7 @@ async function main() {
       id: 'example-machine-1',
       name: 'Press Machine #001',
       blueprintId: bearingBlueprint.id,
-      branchId: mainBranch.id,
+      branchId: acmeMainBranch.id,
       fields: {
         create: [
           { fieldSlug: 'serial_number', value: 'SN-12345' },
@@ -298,7 +435,7 @@ async function main() {
       id: 'example-machine-2',
       name: 'Stamping Machine #002',
       blueprintId: bearingBlueprint.id,
-      branchId: mainBranch.id,
+      branchId: acmeMainBranch.id,
       fields: {
         create: [
           { fieldSlug: 'serial_number', value: 'SN-67890' },
@@ -317,7 +454,7 @@ async function main() {
       id: 'example-machine-3',
       name: 'Slide Press #003',
       blueprintId: slideBlueprint.id,
-      branchId: secondaryBranch.id,
+      branchId: acmeSecondaryBranch.id,
       fields: {
         create: [
           { fieldSlug: 'serial_number', value: 'SN-11111' },
@@ -333,18 +470,27 @@ async function main() {
   console.log('========================================');
   console.log('\n📝 Default Credentials:');
   console.log('  SysAdmin:');
-  console.log('    Email: sysadmin@titans-tech.com');
-  console.log('    Password: password123');
-  console.log('\n  Company Admin:');
+  console.log('    Email: admin@admin.com');
+  console.log('    Password: password');
+  console.log('\n  Subdomain Company Admin:');
+  console.log('    Email: admin@company.com');
+  console.log('    Password: password');
+  console.log('\n  Subdomain Company Manager:');
+  console.log('    Email: manager@company.com');
+  console.log('    Password: password');
+  console.log('\n  Subdomain Company User:');
+  console.log('    Email: user@company.com');
+  console.log('    Password: password');
+  console.log('\n  ACME Company Admin:');
   console.log('    Email: admin@acme-corp.com');
-  console.log('    Password: password123');
-  console.log('\n  Company Manager:');
+  console.log('    Password: password');
+  console.log('\n  ACME Company Manager:');
   console.log('    Email: manager@acme-corp.com');
-  console.log('    Password: password123');
-  console.log('\n  Regular User:');
+  console.log('    Password: password');
+  console.log('\n  ACME Regular User:');
   console.log('    Email: user@acme-corp.com');
-  console.log('    Password: password123');
-  console.log('\n🏢 Company Subdomain: acme-corp');
+  console.log('    Password: password');
+  console.log('\n🏢 Company Subdomains: subdomain, acme-corp');
   console.log('========================================\n');
 }
 

@@ -1,0 +1,527 @@
+import {
+  IsString,
+  IsBoolean,
+  IsDateString,
+  IsOptional,
+  ValidateNested,
+  IsEnum,
+  IsNumber,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { MatingPartType, ParallelismType, ServiceType, ServiceStatus } from '@titans-tech/db';
+
+class BearingClearanceDataDto {
+  @IsNumber()
+  totalClearance_RH: number;
+
+  @IsNumber()
+  totalClearance_LH: number;
+
+  @IsNumber()
+  mainBearings_RH: number;
+
+  @IsNumber()
+  mainBearings_LH: number;
+
+  @IsNumber()
+  upperConnectionBearings_RH: number;
+
+  @IsNumber()
+  upperConnectionBearings_LH: number;
+
+  @IsNumber()
+  wristPinToMatingPart_RH: number;
+
+  @IsNumber()
+  wristPinToMatingPart_LH: number;
+
+  @IsNumber()
+  wristPinToBushing_RH: number;
+
+  @IsNumber()
+  wristPinToBushing_LH: number;
+
+  @IsNumber()
+  slideAdjNutToScrewSleeve_RH: number;
+
+  @IsNumber()
+  slideAdjNutToScrewSleeve_LH: number;
+
+  @IsNumber()
+  extraDoubleLockOpen_RH: number;
+
+  @IsNumber()
+  extraDoubleLockOpen_LH: number;
+
+  @IsNumber()
+  ballBoxArea_RH: number;
+
+  @IsNumber()
+  ballBoxArea_LH: number;
+
+  @IsBoolean()
+  hasBeenAdjusted: boolean;
+
+  @IsOptional()
+  @IsString()
+  combinedWith?: string;
+
+  @IsOptional()
+  @IsEnum(MatingPartType)
+  matingPart?: MatingPartType;
+}
+
+class BearingClearanceCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => BearingClearanceDataDto)
+  outerBefore?: BearingClearanceDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => BearingClearanceDataDto)
+  outerAfter?: BearingClearanceDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => BearingClearanceDataDto)
+  innerBefore?: BearingClearanceDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => BearingClearanceDataDto)
+  innerAfter?: BearingClearanceDataDto;
+}
+
+class SlideDataDto {
+  @IsEnum(ParallelismType)
+  parallelism: ParallelismType;
+
+  @IsBoolean()
+  hasBeenAdjusted: boolean;
+
+  @IsNumber()
+  position1: number;
+
+  @IsNumber()
+  position2: number;
+
+  @IsNumber()
+  position3: number;
+
+  @IsNumber()
+  position4: number;
+
+  @IsBoolean()
+  shutheightChecked: boolean;
+
+  @IsOptional()
+  @IsString()
+  actualSH?: string;
+
+  @IsOptional()
+  @IsString()
+  overloadsOnMonitor?: string;
+
+  @IsOptional()
+  @IsString()
+  indicatorReading?: string;
+}
+
+class SlideCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SlideDataDto)
+  outerBefore?: SlideDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SlideDataDto)
+  outerAfter?: SlideDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SlideDataDto)
+  innerBefore?: SlideDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SlideDataDto)
+  innerAfter?: SlideDataDto;
+}
+
+class GibsDataDto {
+  @IsBoolean()
+  hasBeenAdjusted: boolean;
+
+  @IsNumber()
+  point1: number;
+
+  @IsNumber()
+  point2: number;
+
+  @IsNumber()
+  point3: number;
+
+  @IsNumber()
+  point4: number;
+
+  @IsNumber()
+  point5: number;
+
+  @IsNumber()
+  point6: number;
+
+  @IsNumber()
+  point7: number;
+
+  @IsNumber()
+  point8: number;
+
+  @IsNumber()
+  point9: number;
+
+  @IsNumber()
+  point10: number;
+
+  @IsNumber()
+  point11: number;
+
+  @IsNumber()
+  point12: number;
+
+  @IsNumber()
+  point13: number;
+
+  @IsNumber()
+  point14: number;
+
+  @IsNumber()
+  point15: number;
+
+  @IsNumber()
+  point16: number;
+
+  @IsOptional()
+  @IsNumber()
+  leftTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  leftBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  rightTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  rightBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  frontTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  frontBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  backTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  backBottom?: number;
+
+  @IsOptional()
+  @IsString()
+  usable?: string;
+}
+
+class GibsCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => GibsDataDto)
+  outerBefore?: GibsDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => GibsDataDto)
+  outerAfter?: GibsDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => GibsDataDto)
+  innerBefore?: GibsDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => GibsDataDto)
+  innerAfter?: GibsDataDto;
+}
+
+class LubricationHydraulicsDataDto {
+  @IsOptional()
+  @IsNumber()
+  lubePSI?: number;
+
+  @IsOptional()
+  @IsNumber()
+  monitorflowPSI?: number;
+
+  @IsOptional()
+  @IsNumber()
+  hydPSI?: number;
+
+  @IsOptional()
+  @IsNumber()
+  pressSWPSI?: number;
+
+  @IsOptional()
+  @IsString()
+  otherGauges?: string;
+
+  @IsBoolean()
+  changedOil: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  oilTemperatureF?: number;
+
+  @IsOptional()
+  @IsString()
+  oilMfgType?: string;
+
+  @IsBoolean()
+  changedFilter: boolean;
+}
+
+class ClutchDataDto {
+  @IsOptional()
+  @IsString()
+  clutchType?: string;
+
+  @IsOptional()
+  @IsString()
+  clutchLocation?: string;
+
+  @IsOptional()
+  @IsNumber()
+  brakeSpringBrake?: number;
+
+  @IsOptional()
+  @IsNumber()
+  brakeSpringClutch?: number;
+
+  @IsOptional()
+  @IsString()
+  brakeSpringStudBolt?: string;
+
+  @IsOptional()
+  @IsNumber()
+  brakeAnchorClearanceFB?: number;
+
+  @IsOptional()
+  @IsNumber()
+  brakeAnchorClearanceFTB?: number;
+
+  @IsOptional()
+  @IsNumber()
+  brakeAnchorClearanceRTB?: number;
+
+  @IsOptional()
+  @IsNumber()
+  brakeStoppingTime?: number;
+
+  @IsOptional()
+  @IsString()
+  brakeLining?: string;
+
+  @IsOptional()
+  @IsNumber()
+  brakeClearing?: number;
+
+  @IsOptional()
+  @IsNumber()
+  brakeClearanceTotal?: number;
+
+  @IsOptional()
+  @IsNumber()
+  brakeClearanceRear?: number;
+
+  @IsOptional()
+  @IsNumber()
+  flywheelStoppingTime?: number;
+
+  @IsOptional()
+  @IsString()
+  flywheelBearings?: string;
+
+  @IsOptional()
+  @IsString()
+  flywheelBrake?: string;
+
+  @IsOptional()
+  @IsNumber()
+  clutchEngagements?: number;
+
+  @IsOptional()
+  @IsString()
+  clutchLining?: string;
+
+  @IsOptional()
+  @IsString()
+  clutchSeals?: string;
+
+  @IsOptional()
+  @IsNumber()
+  gearBacklashBefore?: number;
+
+  @IsOptional()
+  @IsNumber()
+  gearBacklashAfter?: number;
+
+  @IsOptional()
+  @IsNumber()
+  crankEndplayBefore?: number;
+
+  @IsOptional()
+  @IsNumber()
+  crankEndplayAfter?: number;
+
+  @IsOptional()
+  @IsNumber()
+  airRegulatorPSI?: number;
+
+  @IsOptional()
+  @IsNumber()
+  airClutchTravel?: number;
+
+  @IsOptional()
+  @IsString()
+  airLineOilerSetting?: string;
+
+  @IsOptional()
+  @IsNumber()
+  hydClutchClearanceTotal?: number;
+
+  @IsOptional()
+  @IsNumber()
+  hydClutchClearanceRear?: number;
+
+  @IsOptional()
+  @IsNumber()
+  hydraulicPressurePSI?: number;
+
+  @IsOptional()
+  @IsNumber()
+  accumulatorPSI?: number;
+
+  @IsOptional()
+  @IsString()
+  rotaryUnion?: string;
+
+  @IsOptional()
+  @IsString()
+  splinesDriveRingDisc?: string;
+
+  @IsOptional()
+  @IsString()
+  adjustingNutLockSecure?: string;
+
+  @IsOptional()
+  @IsString()
+  separateBrakeSeals?: string;
+
+  @IsOptional()
+  @IsString()
+  flexDisc?: string;
+}
+
+class CounterbalanceCylinderDataDto {
+  @IsOptional()
+  @IsString()
+  counterbalanceType?: string;
+
+  @IsOptional()
+  @IsString()
+  airbagPistonSeals?: string;
+
+  @IsOptional()
+  @IsString()
+  airbagPistonSealsLeakLocation?: string;
+
+  @IsOptional()
+  @IsString()
+  regulator?: string;
+
+  @IsOptional()
+  @IsNumber()
+  gaugePSI?: number;
+
+  @IsOptional()
+  @IsString()
+  pneumaticsPlumbing?: string;
+
+  @IsOptional()
+  @IsString()
+  rodSeals?: string;
+
+  @IsOptional()
+  @IsString()
+  rodBushing?: string;
+
+  @IsOptional()
+  @IsString()
+  oilWick?: string;
+}
+
+export class CreateServiceDto {
+  @IsString()
+  machineId: string;
+
+  @IsDateString()
+  date: string;
+
+  @IsEnum(ServiceType)
+  type: ServiceType;
+
+  @IsOptional()
+  @IsEnum(ServiceStatus)
+  status?: ServiceStatus;
+
+  @IsOptional()
+  @IsString()
+  performedBy?: string;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => BearingClearanceCheckDto)
+  bearingClearance?: BearingClearanceCheckDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SlideCheckDto)
+  slide?: SlideCheckDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => GibsCheckDto)
+  gibs?: GibsCheckDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LubricationHydraulicsDataDto)
+  lubricationHydraulics?: LubricationHydraulicsDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ClutchDataDto)
+  clutch?: ClutchDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CounterbalanceCylinderDataDto)
+  counterbalanceCylinder?: CounterbalanceCylinderDataDto;
+}

@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BlueprintsModule } from './blueprints/blueprints.module';
 import { MachinesModule } from './machines/machines.module';
-import { InspectionsModule } from './inspections/inspections.module';
+import { ServicesModule } from './services/services.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SysAdminModule } from './modules/sysadmin/sysadmin.module';
@@ -21,7 +21,7 @@ import { UsersModule } from './modules/users/users.module';
     UsersModule,
     BlueprintsModule,
     MachinesModule,
-    InspectionsModule,
+    ServicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

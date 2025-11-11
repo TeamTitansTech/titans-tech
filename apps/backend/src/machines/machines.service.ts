@@ -87,12 +87,14 @@ export class MachinesService {
       include: {
         blueprint: true;
         fields: true;
-        inspections: {
+        services: {
           include: {
-            bearingClearanceChecks: {
+            bearingClearance: {
               include: {
-                before: true;
-                after: true;
+                outerBefore: true;
+                outerAfter: true;
+                innerBefore: true;
+                innerAfter: true;
               };
             };
           };
@@ -106,12 +108,14 @@ export class MachinesService {
         blueprint: true,
         branch: true,
         fields: true,
-        inspections: {
+        services: {
           include: {
-            bearingClearanceChecks: {
+            bearingClearance: {
               include: {
-                before: true,
-                after: true,
+                outerBefore: true,
+                outerAfter: true,
+                innerBefore: true,
+                innerAfter: true,
               },
             },
           },

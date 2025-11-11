@@ -13,26 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Plus, Trash2 } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createBlueprint } from '@/data/services/blueprints.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { INSPECTION_SECTION_SLUGS } from '@titans-tech/db/client';
-import { Card, CardContent } from '@/components/ui/card';
-
-interface BlueprintCreationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-}
+import { SERVICE_SECTION_SLUGS } from '@titans-tech/db';
 
 type FieldType = 'string' | 'int' | 'enum';
 
@@ -43,14 +27,10 @@ interface Field {
   fieldOptions?: string[];
 }
 
-const AVAILABLE_SECTIONS = INSPECTION_SECTION_SLUGS;
+const AVAILABLE_SECTIONS = SERVICE_SECTION_SLUGS;
 
-export const BlueprintCreationModal = ({
-  isOpen,
-  onClose,
-  onSuccess,
-}: BlueprintCreationModalProps) => {
-  const t = useTranslations('models');
+export function BlueprintForm() {
+  const t = useTranslations('blueprints');
   const tSections = useTranslations('sections');
   const [name, setName] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
@@ -173,90 +153,62 @@ export const BlueprintCreationModal = ({
       }),
     };
 
-    const response = await submitBlueprint(payload);
-
-    if (response.data) {
-      toast.success(t('createdSuccessfully'));
-      setName('');
-      setSelectedSections([]);
-      setFields([]);
-      setNewOptionValues({});
-      onSuccess?.();
-      onClose();
-    }
+    await submitBlueprint(payload);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col bg-background">
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
-            <DialogTitle className="text-2xl text-foreground">{t('title')}</DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              {t('description')}
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
-            <section className="space-y-4">
+    <div className="w-full max-w-4xl mx-auto p-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('title')}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-4">
               <div>
-                <Typography variant="h3" className="mb-4">
-                  {t('form.basicInfo.title')}
-                </Typography>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">{t('form.name.label')} *</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                      placeholder={t('form.name.placeholder')}
-                    />
-                  </div>
-                </div>
+                <Label htmlFor="name">{t('form.name.label')}</Label>
               </div>
-            </section>
+              <Input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                placeholder={t('form.name.placeholder')}
+              />
+            </div>
 
-            <Separator />
-
-            <section className="space-y-4">
+            <div className="space-y-4">
               <div>
-                <Typography variant="h3" className="mb-4">
-                  {t('form.sections.label')}
-                </Typography>
-                <div className="flex flex-wrap gap-2">
-                  {AVAILABLE_SECTIONS.map((section) => {
-                    const isSelected = selectedSections.includes(section);
-                    return (
-                      <Button
-                        key={section}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleSection(section)}
-                        className={
-                          isSelected
-                            ? 'bg-orange-500 text-white font-bold hover:bg-orange-600 border-orange-500 transition-all'
-                            : 'text-foreground border-border hover:bg-orange-100 hover:text-orange-500 hover:border-orange-500 dark:hover:bg-orange-500/20 dark:hover:text-white transition-all'
-                        }
-                      >
-                        {tSections(section)}
-                      </Button>
-                    );
-                  })}
-                </div>
+                <Label>{t('form.sections.label')}</Label>
               </div>
-            </section>
+              <div className="flex flex-wrap gap-2">
+                {AVAILABLE_SECTIONS.map((section) => {
+                  const isSelected = selectedSections.includes(section);
+                  return (
+                    <Button
+                      key={section}
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleSection(section)}
+                      className={`transition-all ${
+                        isSelected
+                          ? 'bg-blue-900 text-white font-bold hover:bg-blue-800 hover:text-white border-blue-900 dark:bg-blue-950 dark:border-blue-950 dark:hover:bg-blue-900 dark:hover:text-white'
+                          : ''
+                      }`}
+                    >
+                      {tSections(section)}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
 
-            <Separator />
-
-            <section className="space-y-4">
+            <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <Typography variant="h3">{t('form.fields.label')}</Typography>
+                <Label>{t('form.fields.label')}</Label>
                 <Button type="button" onClick={addField} variant="outline" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
                   {t('form.fields.addButton')}
                 </Button>
               </div>
@@ -270,15 +222,15 @@ export const BlueprintCreationModal = ({
                           <Typography variant="small" className="font-medium">
                             {t('form.fields.fieldNumber', { number: index + 1 })}
                           </Typography>
-                          {fields.length > 0 && (
+                          {fields.length > 1 && (
                             <Button
                               type="button"
                               onClick={() => removeField(index)}
                               variant="ghost"
                               size="sm"
-                              className="hover:bg-orange-500 hover:text-white transition-all"
+                              className="text-destructive hover:text-destructive"
                             >
-                              <Trash2 className="w-4 h-4" />
+                              {t('form.fields.removeButton')}
                             </Button>
                           )}
                         </div>
@@ -288,14 +240,18 @@ export const BlueprintCreationModal = ({
                             <Label htmlFor={`field-name-${index}`}>
                               {t('form.fields.fieldName.label')}
                             </Label>
-                            <Input
-                              id={`field-name-${index}`}
-                              type="text"
-                              value={field.fieldName}
-                              onChange={(e) => updateField(index, 'fieldName', e.target.value)}
-                              required
-                              placeholder={t('form.fields.fieldName.placeholder')}
-                            />
+                            <div className="flex-row flex-1">
+                              <div>
+                                <Input
+                                  id={`field-name-${index}`}
+                                  type="text"
+                                  value={field.fieldName}
+                                  onChange={(e) => updateField(index, 'fieldName', e.target.value)}
+                                  required
+                                  placeholder={t('form.fields.fieldName.placeholder')}
+                                />
+                              </div>
+                            </div>
                           </div>
 
                           <div className="space-y-2">
@@ -311,7 +267,7 @@ export const BlueprintCreationModal = ({
                               <SelectTrigger id={`field-type-${index}`}>
                                 <SelectValue />
                               </SelectTrigger>
-                              <SelectContent>
+                              <SelectContent className="bg-popover">
                                 <SelectItem value="string">
                                   {t('form.fields.fieldType.string')}
                                 </SelectItem>
@@ -388,40 +344,40 @@ export const BlueprintCreationModal = ({
                   </Card>
                 ))}
               </div>
-            </section>
+            </div>
 
-            {result?.errors && result.errors.length > 0 && (
-              <div className="rounded-md border border-destructive bg-destructive/10 p-4">
-                <Typography variant="h3" className="mb-2 text-destructive">
-                  {t('form.error.title')}
-                </Typography>
-                <ul className="list-disc list-inside space-y-1">
-                  {result.errors.map((error, index) => (
-                    <li key={index}>
-                      <Typography variant="small" className="text-destructive">
-                        {error}
-                      </Typography>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          <div className="border-t border-border p-6 flex justify-end gap-3 shrink-0 bg-background">
-            <Button type="button" variant="outline" onClick={onClose}>
-              {t('form.cancel')}
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading || hasInvalidEnumFields}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
+            <Button type="submit" disabled={isLoading || hasInvalidEnumFields} className="w-full">
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
             </Button>
-          </div>
-        </form>
-      </DialogContent>
-    </Dialog>
+          </form>
+
+          {result?.errors && result.errors.length > 0 && (
+            <div className="mt-6 rounded-md border border-destructive bg-destructive/10 p-4">
+              <Typography variant="h3" className="mb-2 text-destructive">
+                {t('form.error.title')}
+              </Typography>
+              <ul className="list-disc list-inside space-y-1">
+                {result.errors.map((error, index) => (
+                  <li key={index}>
+                    <Typography variant="small" className="text-destructive">
+                      {error}
+                    </Typography>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {result?.data && (
+            <div className="mt-6 space-y-2">
+              <Typography variant="h3">{t('form.response.title')}</Typography>
+              <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm">
+                {JSON.stringify(result.data, null, 2)}
+              </pre>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
-};
+}
