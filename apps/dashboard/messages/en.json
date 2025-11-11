@@ -180,7 +180,8 @@
       "noDataAvailable": "No data available",
       "exportData": "Export Data",
       "areaChart": "Area Chart",
-      "barChart": "Bar Chart"
+      "barChart": "Bar Chart",
+      "createInspection": "Create Inspection"
     },
     "form": {
       "blueprint": {

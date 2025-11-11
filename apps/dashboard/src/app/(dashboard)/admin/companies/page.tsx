@@ -9,7 +9,7 @@ export default async function AdminCompaniesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Typography variant="h1">Companies</Typography>
+        <Typography variant="h2">Companies</Typography>
         <Typography variant="muted" className="mt-1">
           Manage all companies in the system
         </Typography>

@@ -1,6 +1,4 @@
-import { getMachineById } from '@/data/services/machines.api';
 import { getTranslations } from 'next-intl/server';
-import { notFound } from 'next/navigation';
 import { BearingClearanceSection } from './components/BearingClearanceSection';
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
@@ -16,13 +14,6 @@ interface SectionDetailPageProps {
 export default async function SectionDetailPage({ params }: SectionDetailPageProps) {
   const { id, sectionSlug } = await params;
   const t = await getTranslations('machines.sectionDetails');
-  const response = await getMachineById(id);
-
-  if (response.errors || !response.data) {
-    notFound();
-  }
-
-  const machine = response.data;
 
   return (
     <div className="space-y-6 p-4">
@@ -31,7 +22,6 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
           <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
         </Link>
         <div>
-          <Typography variant="muted">{machine.name}</Typography>
           <Typography variant="h2" className="capitalize border-b-0">
             {sectionSlug.replace(/_/g, ' ')}
           </Typography>

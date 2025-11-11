@@ -196,7 +196,8 @@
       "noDataAvailable": "Nenhum dado disponível",
       "exportData": "Exportar Dados",
       "areaChart": "Gráfico de Área",
-      "barChart": "Gráfico de Barras"
+      "barChart": "Gráfico de Barras",
+      "createInspection": "Criar Vistoria"
     },
     "form": {
       "cancel": "Cancelar",

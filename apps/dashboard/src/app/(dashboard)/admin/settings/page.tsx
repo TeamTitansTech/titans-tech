@@ -7,7 +7,7 @@ export default async function AdminSettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Typography variant="h1">{t('pageTitle')}</Typography>
+        <Typography variant="h2">{t('pageTitle')}</Typography>
         <Typography variant="muted" className="mt-1">
           {t('pageDescription')}
         </Typography>

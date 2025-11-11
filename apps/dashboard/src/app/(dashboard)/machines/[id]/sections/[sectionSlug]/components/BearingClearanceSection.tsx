@@ -1,4 +1,5 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
+import { getMachineById } from '@/data/services/machines.api';
 import { BearingClearanceSectionClient } from './BearingClearanceSectionClient';
 
 interface BearingClearanceSectionProps {
@@ -30,20 +31,38 @@ export interface InspectionData {
 
 export async function BearingClearanceSection({ machineId }: BearingClearanceSectionProps) {
   let inspections: InspectionData[] = [];
+  let machineName = '';
 
   try {
-    const response = await getInspectionsByMachine(machineId);
+    const [inspectionsResponse, machineResponse] = await Promise.all([
+      getInspectionsByMachine(machineId),
+      getMachineById(machineId),
+    ]);
 
-    if (response.errors) {
-      console.error('Errors fetching inspections:', response.errors);
+    if (inspectionsResponse.errors) {
+      console.error('Errors fetching inspections:', inspectionsResponse.errors);
       inspections = [];
     } else {
-      inspections = (response.data || []) as unknown as InspectionData[];
+      inspections = (inspectionsResponse.data || []) as unknown as InspectionData[];
+    }
+
+    if (machineResponse.errors) {
+      console.error('Errors fetching machine:', machineResponse.errors);
+      machineName = '';
+    } else {
+      machineName = machineResponse.data?.name || '';
     }
   } catch (error) {
-    console.error('Error fetching inspections:', error);
+    console.error('Error fetching data:', error);
     inspections = [];
+    machineName = '';
   }
 
-  return <BearingClearanceSectionClient machineId={machineId} inspections={inspections} />;
+  return (
+    <BearingClearanceSectionClient
+      machineId={machineId}
+      inspections={inspections}
+      machineName={machineName}
+    />
+  );
 }

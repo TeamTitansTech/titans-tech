@@ -161,9 +161,7 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
         <div className="flex items-center justify-between w-full min-w-0 gap-4">
           <div className="min-w-0 flex-1 overflow-hidden">
             <ConditionalTooltip content={machine.name} className="block">
-              <Typography variant="h1" className="text-3xl font-bold tracking-tight truncate">
-                {machine.name}
-              </Typography>
+              <Typography variant="h2">{machine.name}</Typography>
             </ConditionalTooltip>
             <ConditionalTooltip
               content={machine.blueprint?.name || t('noBlueprintAssigned')}

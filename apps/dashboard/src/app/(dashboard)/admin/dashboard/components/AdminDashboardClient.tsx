@@ -65,7 +65,7 @@ export function AdminDashboardClient() {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div>
-        <Typography variant="h1">{t('title')}</Typography>
+        <Typography variant="h2">{t('title')}</Typography>
         <Typography variant="muted" className="mt-1">
           {t('description')}
         </Typography>

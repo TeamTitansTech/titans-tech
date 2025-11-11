@@ -20,7 +20,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     return (
       <div className="space-y-6">
         <div>
-          <Typography variant="h1">{t('detailPageTitle')}</Typography>
+          <Typography variant="h2">{t('detailPageTitle')}</Typography>
         </div>
         <div className="text-center py-12">
           <p className="text-destructive">

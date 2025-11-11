@@ -30,11 +30,13 @@ import type { InspectionData } from './BearingClearanceSection';
 interface BearingClearanceSectionClientProps {
   machineId: string;
   inspections: InspectionData[];
+  machineName: string;
 }
 
 export function BearingClearanceSectionClient({
   machineId,
   inspections,
+  machineName,
 }: BearingClearanceSectionClientProps) {
   const t = useTranslations('machines.sectionDetails');
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
@@ -104,7 +106,7 @@ export function BearingClearanceSectionClient({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Typography variant="large">-</Typography>
+              <Typography variant="large">{machineName || '-'}</Typography>
             </CardContent>
           </Card>
 
@@ -194,47 +196,48 @@ export function BearingClearanceSectionClient({
             <CardTitle>{t('connectionBearingClearance')}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <div className="bg-muted rounded-lg p-6 space-y-4">
-                  <div className="text-center mb-6">
-                    <Typography variant="h3" className="mb-2">
-                      LH / RH
-                    </Typography>
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <Typography variant="muted" className="mb-1">
-                          MB (Main Bearings)
-                        </Typography>
-                        <Typography variant="large">
-                          {latestBearingCheck
-                            ? `${Number(latestBearingCheck.mainBearings_LH).toFixed(4)} / ${Number(latestBearingCheck.mainBearings_RH).toFixed(4)}`
-                            : '-'}
-                        </Typography>
-                      </div>
-                      <div>
-                        <Typography variant="muted" className="mb-1">
-                          UCB (Upper Connection)
-                        </Typography>
-                        <Typography variant="large">
-                          {latestBearingCheck
-                            ? `${Number(latestBearingCheck.upperConnectionBearings_LH).toFixed(4)} / ${Number(latestBearingCheck.upperConnectionBearings_RH).toFixed(4)}`
-                            : '-'}
-                        </Typography>
-                      </div>
-                      <div>
-                        <Typography variant="muted" className="mb-1">
-                          TC (Total Clearance)
-                        </Typography>
-                        <Typography variant="large">
-                          {latestBearingCheck
-                            ? `${Number(latestBearingCheck.totalClearance_LH).toFixed(4)} / ${Number(latestBearingCheck.totalClearance_RH).toFixed(4)}`
-                            : '-'}
-                        </Typography>
-                      </div>
-                    </div>
-                  </div>
+            <div className="text-center mb-6">
+              <Typography variant="h3" className="mb-2">
+                LH / RH
+              </Typography>
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <Typography variant="muted" className="mb-1">
+                    MB (Main Bearings)
+                  </Typography>
+                  <Typography variant="large">
+                    {latestBearingCheck
+                      ? `${Number(latestBearingCheck.mainBearings_LH).toFixed(4)} / ${Number(latestBearingCheck.mainBearings_RH).toFixed(4)}`
+                      : '-'}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography variant="muted" className="mb-1">
+                    UCB (Upper Connection)
+                  </Typography>
+                  <Typography variant="large">
+                    {latestBearingCheck
+                      ? `${Number(latestBearingCheck.upperConnectionBearings_LH).toFixed(4)} / ${Number(latestBearingCheck.upperConnectionBearings_RH).toFixed(4)}`
+                      : '-'}
+                  </Typography>
+                </div>
+                <div>
+                  <Typography variant="muted" className="mb-1">
+                    TC (Total Clearance)
+                  </Typography>
+                  <Typography variant="large">
+                    {latestBearingCheck
+                      ? `${Number(latestBearingCheck.totalClearance_LH).toFixed(4)} / ${Number(latestBearingCheck.totalClearance_RH).toFixed(4)}`
+                      : '-'}
+                  </Typography>
+                </div>
+              </div>
+            </div>
 
+            <div className="flex gap-6">
+              {/* Diagram section - 1/3 width */}
+              <div className="w-1/3 flex-shrink-0">
+                <div className="bg-muted rounded-lg p-6 space-y-4 h-full">
                   <div className="aspect-square bg-background rounded border-2 border-dashed border-border flex items-center justify-center">
                     <Typography variant="muted">{t('measurementDiagram')}</Typography>
                   </div>
@@ -271,7 +274,8 @@ export function BearingClearanceSectionClient({
                 </div>
               </div>
 
-              <div className="space-y-4">
+              {/* Charts section - 2/3 width */}
+              <div className="flex-1 space-y-4">
                 <Tabs defaultValue="area" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
                     <TabsTrigger value="area">{t('areaChart')}</TabsTrigger>
@@ -443,7 +447,7 @@ export function BearingClearanceSectionClient({
           <Button variant="outline">{t('exportData')}</Button>
           <Button onClick={() => setIsInspectionModalOpen(true)}>
             <ClipboardCheck className="w-4 h-4 mr-2" />
-            {t('../machines:createInspection')}
+            {t('createInspection')}
           </Button>
         </div>
       </div>

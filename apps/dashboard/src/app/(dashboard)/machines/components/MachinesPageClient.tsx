@@ -40,7 +40,7 @@ export function MachinesPageClient({ machines }: MachinesPageClientProps) {
       <div className="space-y-6 p-8">
         <div className="flex items-center justify-between">
           <div>
-            <Typography variant="h1">{t('pageTitle')}</Typography>
+            <Typography variant="h2">{t('pageTitle')}</Typography>
             <Typography variant="muted">{t('pageDescription')}</Typography>
           </div>
           <Button onClick={() => setIsModalOpen(true)}>
