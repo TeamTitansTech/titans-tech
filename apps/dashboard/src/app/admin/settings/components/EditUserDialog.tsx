@@ -163,10 +163,10 @@ export function EditUserDialog({
         createMachines: false,
         updateMachines: false,
         deleteMachines: false,
-        readInspections: false,
-        createInspections: false,
-        updateInspections: false,
-        deleteInspections: false,
+        readServices: false,
+        createServices: false,
+        updateServices: false,
+        deleteServices: false,
       };
 
       if (data.role === 'Manager') {
@@ -187,18 +187,18 @@ export function EditUserDialog({
         permissions.createMachines = true;
         permissions.updateMachines = true;
         permissions.deleteMachines = true;
-        permissions.readInspections = true;
-        permissions.createInspections = true;
-        permissions.updateInspections = true;
-        permissions.deleteInspections = true;
+        permissions.readServices = true;
+        permissions.createServices = true;
+        permissions.updateServices = true;
+        permissions.deleteServices = true;
       } else if (data.role === 'Worker') {
         // Worker: Basic operational permissions
         permissions.readBranches = true;
         permissions.readBlueprints = true;
         permissions.readMachines = true;
-        permissions.readInspections = true;
-        permissions.createInspections = true;
-        permissions.updateInspections = true;
+        permissions.readServices = true;
+        permissions.createServices = true;
+        permissions.updateServices = true;
       }
 
       await setUserPermissions({

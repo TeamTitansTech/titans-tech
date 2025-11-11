@@ -8,7 +8,12 @@ import {
   IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { MatingPartType, ParallelismType, ServiceType, ServiceStatus } from '@titans-tech/db';
+import {
+  MatingPartType,
+  ParallelismType,
+  ServiceType,
+  ServiceStatus,
+} from '@titans-tech/db';
 
 class BearingClearanceDataDto {
   @IsOptional()
