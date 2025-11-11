@@ -489,10 +489,22 @@
           "wristPinToBushing_LH": "Wrist Pin to Bushing LH",
           "slideAdjNutToScrewSleeve_RH": "Slide Adj Nut to Screw Sleeve RH",
           "slideAdjNutToScrewSleeve_LH": "Slide Adj Nut to Screw Sleeve LH",
+          "slide_adj_nut_to_screw_sleeve_RH": "Slide Adj Nut to Screw Sleeve RH",
+          "slide_adj_nut_to_screw_sleeve_LH": "Slide Adj Nut to Screw Sleeve LH",
+          "Slide_adj_nut_to_screw_sleeve_RH": "Slide Adj Nut to Screw Sleeve RH",
+          "Slide_adj_nut_to_screw_sleeve_LH": "Slide Adj Nut to Screw Sleeve LH",
           "extraDoubleLockOpen_RH": "Extra Double Lock Open RH",
           "extraDoubleLockOpen_LH": "Extra Double Lock Open LH",
+          "extra_double_lockOpen_RH": "Extra Double Lock Open RH",
+          "extra_double_lockOpen_LH": "Extra Double Lock Open LH",
+          "Extra_double_lockOpen_RH": "Extra Double Lock Open RH",
+          "Extra_double_lockOpen_LH": "Extra Double Lock Open LH",
           "ballBoxArea_RH": "Ball Box Area RH",
-          "ballBoxArea_LH": "Ball Box Area LH"
+          "ballBoxArea_LH": "Ball Box Area LH",
+          "ball_box_area_RH": "Ball Box Area RH",
+          "ball_box_area_LH": "Ball Box Area LH",
+          "Ball_box_area_RH": "Ball Box Area RH",
+          "Ball_box_area_LH": "Ball Box Area LH"
         }
       },
       "slide": {
