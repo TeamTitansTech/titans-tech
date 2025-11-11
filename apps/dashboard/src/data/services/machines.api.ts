@@ -12,6 +12,34 @@ interface CreateMachinePayload {
   fields: MachineField[];
 }
 
+interface BearingClearance {
+  id: string;
+  totalClearance_RH: number;
+  totalClearance_LH: number;
+  mainBearings_RH: number;
+  mainBearings_LH: number;
+  upperConnectionBearings_RH: number;
+  upperConnectionBearings_LH: number;
+  wristPinToMatingPart_RH: number;
+  wristPinToMatingPart_LH: number;
+  wristPinToBushing_RH: number;
+  wristPinToBushing_LH: number;
+}
+
+interface BearingClearanceCheck {
+  id: string;
+  before: BearingClearance | null;
+  after: BearingClearance | null;
+}
+
+interface MachineInspection {
+  id: string;
+  date: string;
+  isMaintenance: boolean;
+  performedBy: string;
+  bearingClearanceChecks: BearingClearanceCheck | null;
+}
+
 interface Machine {
   id: string;
   blueprintId: string;
@@ -20,6 +48,7 @@ interface Machine {
   createdAt: string;
   updatedAt: string;
   blueprint?: Blueprint;
+  inspections?: MachineInspection[];
 }
 
 interface BlueprintField {

@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Typography } from '@/components/ui/typography';
 import {
   Select,
   SelectContent,
@@ -123,7 +124,9 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="font-semibold mb-3">{t('form.bearingClearance.outer')}</h4>
+        <Typography variant="h4" className="mb-3">
+          {t('form.bearingClearance.outer')}
+        </Typography>
         <div className="grid grid-cols-2 gap-4">
           {OUTER_FIELDS.map((field) => (
             <div key={field}>
@@ -144,14 +147,20 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
                 className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
                 required
               />
-              {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
+              {errors[field] && (
+                <Typography variant="small" className="text-xs text-destructive mt-1">
+                  {errors[field]}
+                </Typography>
+              )}
             </div>
           ))}
         </div>
       </div>
 
       <div>
-        <h4 className="font-semibold mb-3">{t('form.bearingClearance.inner')}</h4>
+        <Typography variant="h4" className="mb-3">
+          {t('form.bearingClearance.inner')}
+        </Typography>
         <div className="grid grid-cols-2 gap-4">
           {INNER_FIELDS.map((field) => (
             <div key={field}>
@@ -172,7 +181,11 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
                 className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
                 required
               />
-              {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
+              {errors[field] && (
+                <Typography variant="small" className="text-xs text-destructive mt-1">
+                  {errors[field]}
+                </Typography>
+              )}
             </div>
           ))}
         </div>
@@ -191,7 +204,9 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
             required
           />
           {errors.combined_with && (
-            <p className="text-xs text-destructive mt-1">{errors.combined_with}</p>
+            <Typography variant="small" className="text-xs text-destructive mt-1">
+              {errors.combined_with}
+            </Typography>
           )}
         </div>
         <div>
@@ -448,7 +463,11 @@ export function InspectionCreationModal({
                 required
                 className={`mt-1 ${dateError ? 'border-destructive' : ''}`}
               />
-              {dateError && <p className="text-xs text-destructive mt-1">{dateError}</p>}
+              {dateError && (
+                <Typography variant="small" className="text-xs text-destructive mt-1">
+                  {dateError}
+                </Typography>
+              )}
             </div>
             <div>
               <Label htmlFor="performedBy">{t('form.performedBy.label')}</Label>
@@ -474,7 +493,9 @@ export function InspectionCreationModal({
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold mb-4">{t('form.bearingClearance.title')}</h3>
+            <Typography variant="h3" className="mb-4">
+              {t('form.bearingClearance.title')}
+            </Typography>
 
             {isMaintenance ? (
               <Tabs defaultValue="before" className="w-full">

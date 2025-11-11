@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateMachineDto } from './dto/create-machine.dto';
 
@@ -6,7 +7,11 @@ import { CreateMachineDto } from './dto/create-machine.dto';
 export class MachinesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createMachineDto: CreateMachineDto) {
+  async create(
+    createMachineDto: CreateMachineDto,
+  ): Promise<
+    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
+  > {
     // Verify blueprint exists
     const blueprint = await this.prisma.blueprint.findUnique({
       where: { id: createMachineDto.blueprintId },
@@ -39,7 +44,9 @@ export class MachinesService {
     return machine;
   }
 
-  async findAll() {
+  async findAll(): Promise<
+    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
+  > {
     return this.prisma.machine.findMany({
       include: {
         blueprint: true,
@@ -48,7 +55,24 @@ export class MachinesService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<
+    Prisma.MachineGetPayload<{
+      include: {
+        blueprint: true;
+        fields: true;
+        inspections: {
+          include: {
+            bearingClearanceChecks: {
+              include: {
+                before: true;
+                after: true;
+              };
+            };
+          };
+        };
+      };
+    }>
+  > {
     const machine = await this.prisma.machine.findUnique({
       where: { id },
       include: {

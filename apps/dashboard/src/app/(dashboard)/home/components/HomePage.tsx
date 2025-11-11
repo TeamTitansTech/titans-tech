@@ -7,6 +7,7 @@ import { getBlueprints } from '@/data/services/blueprints.api';
 import { getMachines } from '@/data/services/machines.api';
 import { getAllCompanies } from '@/data/services/companies.api';
 import { getInspections } from '@/data/services/inspections.api';
+import { Typography } from '@/components/ui/typography';
 
 interface DashboardStats {
   totalModels: number;
@@ -64,8 +65,12 @@ export function HomePage() {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div>
-        <h1 className="text-3xl font-bold text-foreground">{t('title')}</h1>
-        <p className="text-muted-foreground mt-1">{t('description')}</p>
+        <Typography variant="h1" className="text-3xl font-bold text-foreground">
+          {t('title')}
+        </Typography>
+        <Typography variant="muted" className="mt-1">
+          {t('description')}
+        </Typography>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
