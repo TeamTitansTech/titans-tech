@@ -317,7 +317,7 @@ export function BearingClearanceSection({
 
             <div className="flex gap-6">
               <div className="w-1/3 flex-shrink-0">
-                <div className="bg-muted rounded-lg p-6 space-y-4 h-full">
+                <div className="bg-muted rounded-lg p-6 space-y-4">
                   <div className="aspect-square bg-background rounded border-2 border-dashed border-border flex items-center justify-center">
                     <Typography variant="muted">{t('measurementDiagram')}</Typography>
                   </div>
