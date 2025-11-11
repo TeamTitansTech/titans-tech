@@ -13,6 +13,7 @@ import { Company } from '@/data/services/companies.api';
 import { CompanyBranch } from '@/data/services/company-branches.api';
 import { UserResponseDto } from '@titans-tech/shared';
 import UserPermissionsManager from './UserPermissionsManager';
+import { Typography } from '@/components/ui/typography';
 
 interface Props {
   selectedCompany: Company | null;
@@ -142,7 +143,9 @@ export default function BranchUsersManager({ selectedCompany, selectedBranch, on
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black ">
       <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg  p-6 shadow-xl">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Manage Users - {selectedBranch.name}</h2>
+          <Typography variant="h2" className="text-xl font-semibold">
+            Manage Users - {selectedBranch.name}
+          </Typography>
           <button
             onClick={onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -153,7 +156,9 @@ export default function BranchUsersManager({ selectedCompany, selectedBranch, on
         </div>
 
         <div className="mb-6">
-          <h3 className="mb-3 text-lg font-medium">Add User to Branch</h3>
+          <Typography variant="h3" className="mb-3 text-lg font-medium">
+            Add User to Branch
+          </Typography>
           <div className="flex gap-2">
             <select
               value={selectedUserId}
@@ -182,7 +187,9 @@ export default function BranchUsersManager({ selectedCompany, selectedBranch, on
         </div>
 
         <div>
-          <h3 className="mb-3 text-lg font-medium">Users in this Branch ({branchUsers.length})</h3>
+          <Typography variant="h3" className="mb-3 text-lg font-medium">
+            Users in this Branch ({branchUsers.length})
+          </Typography>
           <div className="rounded border border-gray-300">
             {isLoadingUsers ? (
               <div className="p-4 text-center text-gray-500">Loading users...</div>

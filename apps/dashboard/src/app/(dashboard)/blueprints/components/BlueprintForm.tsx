@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Typography } from '@/components/ui/typography';
 import {
   Select,
   SelectContent,
@@ -218,9 +219,9 @@ export function BlueprintForm() {
                     <CardContent className="pt-6">
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                          <span className="text-sm font-medium">
+                          <Typography variant="small" className="font-medium">
                             {t('form.fields.fieldNumber', { number: index + 1 })}
-                          </span>
+                          </Typography>
                           {fields.length > 1 && (
                             <Button
                               type="button"
@@ -291,7 +292,7 @@ export function BlueprintForm() {
                                       key={optionIndex}
                                       className="flex items-center gap-1 bg-muted rounded-md px-3 py-1"
                                     >
-                                      <span className="text-sm">{option}</span>
+                                      <Typography variant="small">{option}</Typography>
                                       <Button
                                         type="button"
                                         variant="ghost"
@@ -331,9 +332,9 @@ export function BlueprintForm() {
                               </div>
 
                               {field.fieldOptions?.length === 0 && (
-                                <p className="text-sm text-destructive">
+                                <Typography variant="small" className="text-destructive">
                                   {t('form.fields.fieldOptions.required')}
-                                </p>
+                                </Typography>
                               )}
                             </div>
                           )}
@@ -352,13 +353,15 @@ export function BlueprintForm() {
 
           {result?.errors && result.errors.length > 0 && (
             <div className="mt-6 rounded-md border border-destructive bg-destructive/10 p-4">
-              <h3 className="text-lg font-semibold mb-2 text-destructive">
+              <Typography variant="h3" className="mb-2 text-destructive">
                 {t('form.error.title')}
-              </h3>
+              </Typography>
               <ul className="list-disc list-inside space-y-1">
                 {result.errors.map((error, index) => (
-                  <li key={index} className="text-sm text-destructive">
-                    {error}
+                  <li key={index}>
+                    <Typography variant="small" className="text-destructive">
+                      {error}
+                    </Typography>
                   </li>
                 ))}
               </ul>
@@ -367,7 +370,7 @@ export function BlueprintForm() {
 
           {result?.data && (
             <div className="mt-6 space-y-2">
-              <h3 className="text-lg font-semibold">{t('form.response.title')}</h3>
+              <Typography variant="h3">{t('form.response.title')}</Typography>
               <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm">
                 {JSON.stringify(result.data, null, 2)}
               </pre>

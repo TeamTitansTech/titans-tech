@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Typography } from '@/components/ui/typography';
 import {
   Select,
   SelectContent,
@@ -478,10 +479,10 @@ export function MachineCreationModal({
                           <div className="space-y-2">
                             <Label htmlFor={`field-${field.fieldSlug}`}>{field.fieldName}</Label>
                             {renderFieldInput(field)}
-                            <p className="text-xs text-muted-foreground">
+                            <Typography variant="small" className="text-xs text-muted-foreground">
                               {t('form.fields.slug')}:{' '}
                               <code className="text-muted-foreground">{field.fieldSlug}</code>
-                            </p>
+                            </Typography>
                           </div>
                         </CardContent>
                       </Card>
@@ -506,13 +507,15 @@ export function MachineCreationModal({
 
             {result?.errors && result.errors.length > 0 && (
               <div className="rounded-md border border-destructive bg-destructive/10 p-4 mb-6">
-                <h3 className="text-lg font-semibold mb-2 text-destructive">
+                <Typography variant="h3" className="mb-2 text-destructive">
                   {t('form.error.title')}
-                </h3>
+                </Typography>
                 <ul className="list-disc list-inside space-y-1">
                   {result.errors.map((error, index) => (
-                    <li key={index} className="text-sm text-destructive">
-                      {error}
+                    <li key={index}>
+                      <Typography variant="small" className="text-destructive">
+                        {error}
+                      </Typography>
                     </li>
                   ))}
                 </ul>

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Typography } from '@/components/ui/typography';
 import {
   Select,
   SelectContent,
@@ -217,9 +218,9 @@ export function MachineForm() {
                           <div className="space-y-2">
                             <Label htmlFor={`field-${field.fieldSlug}`}>{field.fieldName}</Label>
                             {renderFieldInput(field)}
-                            <p className="text-xs text-muted-foreground">
+                            <Typography variant="small" className="text-xs text-muted-foreground">
                               {t('form.fields.slug')}: <code>{field.fieldSlug}</code>
-                            </p>
+                            </Typography>
                           </div>
                         </CardContent>
                       </Card>
@@ -234,21 +235,23 @@ export function MachineForm() {
             )}
 
             {!selectedBlueprint && !isLoadingBlueprints && (
-              <div className="text-center text-muted-foreground py-8">
-                {t('form.selectBlueprintPrompt')}
+              <div className="text-center py-8">
+                <Typography variant="muted">{t('form.selectBlueprintPrompt')}</Typography>
               </div>
             )}
           </form>
 
           {result?.errors && result.errors.length > 0 && (
             <div className="mt-6 rounded-md border border-destructive bg-destructive/10 p-4">
-              <h3 className="text-lg font-semibold mb-2 text-destructive">
+              <Typography variant="h3" className="mb-2 text-destructive">
                 {t('form.error.title')}
-              </h3>
+              </Typography>
               <ul className="list-disc list-inside space-y-1">
                 {result.errors.map((error, index) => (
-                  <li key={index} className="text-sm text-destructive">
-                    {error}
+                  <li key={index}>
+                    <Typography variant="small" className="text-destructive">
+                      {error}
+                    </Typography>
                   </li>
                 ))}
               </ul>
@@ -257,7 +260,7 @@ export function MachineForm() {
 
           {result?.data && (
             <div className="mt-6 space-y-2">
-              <h3 className="text-lg font-semibold">{t('form.response.title')}</h3>
+              <Typography variant="h3">{t('form.response.title')}</Typography>
               <pre className="bg-muted p-4 rounded-md overflow-x-auto text-sm">
                 {JSON.stringify(result.data, null, 2)}
               </pre>

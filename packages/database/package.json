@@ -19,6 +19,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
+    "lint": "echo 'No lint configured for database package'",
     "db:generate": "prisma generate && tsc",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",

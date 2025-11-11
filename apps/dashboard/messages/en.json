@@ -313,6 +313,7 @@
     "createInspection": "Create Inspection",
     "viewMaintenanceLog": "View Maintenance Log",
     "downloadReports": "Download Reports",
+    "requestUrgentService": "Request Urgent Service",
     "serviceHistory": "Service History",
     "technician": "Technician",
     "completed": "Completed",
@@ -320,6 +321,55 @@
     "noInspectionsFound": "No inspections found",
     "maintenanceInspection": "Maintenance",
     "routineInspection": "Routine Inspection",
+    "client": "Client",
+    "model": "Model",
+    "noImageAvailable": "No Image Available",
+    "inspectionSections": "Inspection Sections",
+    "noSectionsAvailable": "No inspection sections available for this machine type.",
+    "statusBar": {
+      "press": "Press",
+      "hotDuckLift": "Hot Duck Lift",
+      "oilSystem": "Oil System",
+      "lubeFilter": "Lube Filter",
+      "lubePump": "Lube Pump",
+      "pressSwCrankshaft": "Press SW Crankshaft"
+    },
+    "sectionNames": {
+      "bearingClearance": "Bearing Clearance - CP 2",
+      "slide": "Slide",
+      "gibs": "Gibs",
+      "lubricationHydraulics": "Lubrication / Hydraulics",
+      "clutch": "Clutch and Brake Clearance - CP 2",
+      "counterbalance": "Counterbalance Cylinder / Airbag"
+    },
+    "sectionStatus": {
+      "ok": "OK",
+      "warning": "Warning",
+      "alert": "Alert",
+      "unknown": "Unknown",
+      "noImage": "No Image"
+    },
+    "sectionDetails": {
+      "comingSoon": "Section details for \"{section}\" coming soon...",
+      "press": "Press",
+      "lastDateMeasurement": "Last Date Measurement",
+      "totalMeasurements": "Total Measurements",
+      "dateRange": "Date Range",
+      "pickDate": "Pick a date",
+      "reset": "Reset",
+      "connectionBearingClearance": "Connection Bearing Clearance",
+      "measurementDiagram": "Measurement Diagram",
+      "slideMotorMounts": "Slide Motor/Mounts",
+      "powerCordHoses": "Power Cord/Hoses",
+      "chainsGearsSprockets": "Chains & Gears/Sprockets",
+      "chartConnectionBearing": "Connection Bearing Clearance (CB)",
+      "chartDifference": "Difference",
+      "noDataAvailable": "No data available",
+      "exportData": "Export Data",
+      "areaChart": "Area Chart",
+      "barChart": "Bar Chart",
+      "createInspection": "Create Inspection"
+    },
     "form": {
       "company": {
         "label": "Select Company",

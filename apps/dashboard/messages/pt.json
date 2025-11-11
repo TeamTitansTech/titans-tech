@@ -335,9 +335,57 @@
     "completed": "Concluído",
     "inProgress": "Em Andamento",
     "createInspection": "Criar Vistoria",
+    "requestUrgentService": "Solicitar Serviço Urgente",
     "noInspectionsFound": "Nenhuma vistoria encontrada",
     "maintenanceInspection": "Manutenção",
     "routineInspection": "Inspeção de Rotina",
+    "noImageAvailable": "Sem Imagem Disponível",
+    "inspectionSections": "Seções de Inspeção",
+    "noSectionsAvailable": "Nenhuma seção de inspeção disponível para este tipo de máquina.",
+    "statusBar": {
+      "press": "Prensa",
+      "hotDuckLift": "Elevador Hot Duck",
+      "oilSystem": "Sistema de Óleo",
+      "lubeFilter": "Filtro de Lubrificação",
+      "lubePump": "Bomba de Lubrificação",
+      "pressSwCrankshaft": "Virabrequim SW da Prensa"
+    },
+    "sectionNames": {
+      "bearingClearance": "Folga de Rolamento - CP 2",
+      "slide": "Deslizamento",
+      "gibs": "Guias",
+      "lubricationHydraulics": "Lubrificação / Hidráulica",
+      "clutch": "Folga de Embreagem e Freio - CP 2",
+      "counterbalance": "Cilindro de Contrapeso / Airbag"
+    },
+    "sectionStatus": {
+      "ok": "OK",
+      "warning": "Atenção",
+      "alert": "Alerta",
+      "unknown": "Desconhecido",
+      "noImage": "Sem Imagem"
+    },
+    "sectionDetails": {
+      "comingSoon": "Detalhes da seção \"{section}\" em breve...",
+      "press": "Prensa",
+      "lastDateMeasurement": "Última Data de Medição",
+      "totalMeasurements": "Total de Medições",
+      "dateRange": "Intervalo de Datas",
+      "pickDate": "Escolher data",
+      "reset": "Resetar",
+      "connectionBearingClearance": "Folga de Rolamento de Conexão",
+      "measurementDiagram": "Diagrama de Medição",
+      "slideMotorMounts": "Motor/Montagens do Deslizamento",
+      "powerCordHoses": "Cabo de Energia/Mangueiras",
+      "chainsGearsSprockets": "Correntes e Engrenagens/Rodas Dentadas",
+      "chartConnectionBearing": "Folga de Rolamento de Conexão (CB)",
+      "chartDifference": "Diferença",
+      "noDataAvailable": "Nenhum dado disponível",
+      "exportData": "Exportar Dados",
+      "areaChart": "Gráfico de Área",
+      "barChart": "Gráfico de Barras",
+      "createInspection": "Criar Vistoria"
+    },
     "form": {
       "cancel": "Cancelar",
       "company": {

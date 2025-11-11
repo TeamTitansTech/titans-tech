@@ -4,6 +4,7 @@ import { loginSysAdmin } from '@/data/services/auth.api';
 import { setCookie } from '@/lib/cookies';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { FormEvent, useState } from 'react';
+import { Typography } from '@/components/ui/typography';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -23,7 +24,9 @@ export default function LoginForm() {
 
   return (
     <div className="mx-auto max-w-md p-5">
-      <h2 className="mb-5 text-2xl font-semibold">SysAdmin Login</h2>
+      <Typography variant="h2" className="mb-5 text-2xl font-semibold">
+        SysAdmin Login
+      </Typography>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
@@ -68,7 +71,9 @@ export default function LoginForm() {
         <div className="mt-5 rounded  p-4">
           {result.data ? (
             <div>
-              <h3 className="mb-2.5 text-lg font-semibold text-green-600">✓ Login Successful</h3>
+              <Typography variant="h3" className="mb-2.5 text-lg font-semibold text-green-600">
+                ✓ Login Successful
+              </Typography>
               <div className="text-sm">
                 <p>
                   <strong>User ID:</strong> {result.data.user.id}
@@ -90,7 +95,9 @@ export default function LoginForm() {
             </div>
           ) : (
             <div>
-              <h3 className="mb-2.5 text-lg font-semibold text-red-600">✗ Login Failed</h3>
+              <Typography variant="h3" className="mb-2.5 text-lg font-semibold text-red-600">
+                ✗ Login Failed
+              </Typography>
               <ul className="m-0 list-disc pl-5">
                 {result.errors?.map((error, index) => (
                   <li key={index} className="text-sm text-red-600">

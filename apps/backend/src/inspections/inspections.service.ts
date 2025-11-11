@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateInspectionDto } from './dto/create-inspection.dto';
 
@@ -6,7 +7,14 @@ import { CreateInspectionDto } from './dto/create-inspection.dto';
 export class InspectionsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createInspectionDto: CreateInspectionDto) {
+  async create(createInspectionDto: CreateInspectionDto): Promise<
+    Prisma.MachineInspectionGetPayload<{
+      include: {
+        machine: { include: { blueprint: true; fields: true } };
+        bearingClearanceChecks: { include: { before: true; after: true } };
+      };
+    }>
+  > {
     // Verify machine exists and get its blueprint
     const machine = await this.prisma.machine.findUnique({
       where: { id: createInspectionDto.machineId },
@@ -42,32 +50,6 @@ export class InspectionsService {
               },
             }
           : undefined,
-        slideChecks: createInspectionDto.slide
-          ? {
-              create: {
-                outerSlideBefore: createInspectionDto.slide.outerSlide?.before
-                  ? {
-                      create: createInspectionDto.slide.outerSlide.before,
-                    }
-                  : undefined,
-                outerSlideAfter: createInspectionDto.slide.outerSlide?.after
-                  ? {
-                      create: createInspectionDto.slide.outerSlide.after,
-                    }
-                  : undefined,
-                innerSlideBefore: createInspectionDto.slide.innerSlide?.before
-                  ? {
-                      create: createInspectionDto.slide.innerSlide.before,
-                    }
-                  : undefined,
-                innerSlideAfter: createInspectionDto.slide.innerSlide?.after
-                  ? {
-                      create: createInspectionDto.slide.innerSlide.after,
-                    }
-                  : undefined,
-              },
-            }
-          : undefined,
       },
       include: {
         machine: {
@@ -82,21 +64,20 @@ export class InspectionsService {
             after: true,
           },
         },
-        slideChecks: {
-          include: {
-            outerSlideBefore: true,
-            outerSlideAfter: true,
-            innerSlideBefore: true,
-            innerSlideAfter: true,
-          },
-        },
       },
     });
 
     return inspection;
   }
 
-  async findAll() {
+  async findAll(): Promise<
+    Prisma.MachineInspectionGetPayload<{
+      include: {
+        machine: { include: { blueprint: true; fields: true } };
+        bearingClearanceChecks: { include: { before: true; after: true } };
+      };
+    }>[]
+  > {
     return this.prisma.machineInspection.findMany({
       include: {
         machine: {
@@ -111,14 +92,6 @@ export class InspectionsService {
             after: true,
           },
         },
-        slideChecks: {
-          include: {
-            outerSlideBefore: true,
-            outerSlideAfter: true,
-            innerSlideBefore: true,
-            innerSlideAfter: true,
-          },
-        },
       },
       orderBy: {
         date: 'desc',
@@ -126,7 +99,14 @@ export class InspectionsService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<
+    Prisma.MachineInspectionGetPayload<{
+      include: {
+        machine: { include: { blueprint: true; fields: true } };
+        bearingClearanceChecks: { include: { before: true; after: true } };
+      };
+    }>
+  > {
     const inspection = await this.prisma.machineInspection.findUnique({
       where: { id },
       include: {
@@ -142,14 +122,6 @@ export class InspectionsService {
             after: true,
           },
         },
-        slideChecks: {
-          include: {
-            outerSlideBefore: true,
-            outerSlideAfter: true,
-            innerSlideBefore: true,
-            innerSlideAfter: true,
-          },
-        },
       },
     });
 
@@ -160,7 +132,14 @@ export class InspectionsService {
     return inspection;
   }
 
-  async findByMachine(machineId: string) {
+  async findByMachine(machineId: string): Promise<
+    Prisma.MachineInspectionGetPayload<{
+      include: {
+        machine: { include: { blueprint: true; fields: true } };
+        bearingClearanceChecks: { include: { before: true; after: true } };
+      };
+    }>[]
+  > {
     const machine = await this.prisma.machine.findUnique({
       where: { id: machineId },
     });
@@ -182,14 +161,6 @@ export class InspectionsService {
           include: {
             before: true,
             after: true,
-          },
-        },
-        slideChecks: {
-          include: {
-            outerSlideBefore: true,
-            outerSlideAfter: true,
-            innerSlideBefore: true,
-            innerSlideAfter: true,
           },
         },
       },

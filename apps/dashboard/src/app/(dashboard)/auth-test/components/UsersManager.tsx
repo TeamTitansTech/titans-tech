@@ -6,6 +6,7 @@ import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { FormEvent, useState, useEffect } from 'react';
 import { Company } from '@/data/services/companies.api';
 import { UserResponseDto } from '@titans-tech/shared';
+import { Typography } from '@/components/ui/typography';
 
 interface Props {
   selectedCompany: Company | null;
@@ -161,7 +162,9 @@ export default function UsersManager({ selectedCompany }: Props) {
   return (
     <div className="mx-auto max-w-6xl p-5">
       <div className="mb-5 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Users for {selectedCompany.name}</h2>
+        <Typography variant="h2" className="text-2xl font-semibold">
+          Users for {selectedCompany.name}
+        </Typography>
         {!showForm && (
           <button
             onClick={handleCreateClick}
@@ -174,9 +177,9 @@ export default function UsersManager({ selectedCompany }: Props) {
 
       {showForm && (
         <div className="mb-6 rounded border border-gray-300 p-4">
-          <h3 className="mb-4 text-lg font-semibold">
+          <Typography variant="h3" className="mb-4 text-lg font-semibold">
             {isCreatingMode ? 'Create New User' : 'Edit User'}
-          </h3>
+          </Typography>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {isCreatingMode && (
               <div className="flex flex-col gap-1">

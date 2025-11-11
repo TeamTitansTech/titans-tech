@@ -9,6 +9,7 @@ import {
 } from '@/data/services/companies.api';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { FormEvent, useState, useEffect } from 'react';
+import { Typography } from '@/components/ui/typography';
 
 interface Props {
   onSelectCompany?: (company: Company | null) => void;
@@ -134,7 +135,9 @@ export default function CompaniesManager({ onSelectCompany }: Props) {
   return (
     <div className="mx-auto max-w-4xl p-5">
       <div className="mb-5 flex items-center justify-between">
-        <h2 className="text-2xl font-semibold">Companies Manager</h2>
+        <Typography variant="h2" className="text-2xl font-semibold">
+          Companies Manager
+        </Typography>
         {!showForm && (
           <button
             onClick={handleCreateClick}
@@ -147,9 +150,9 @@ export default function CompaniesManager({ onSelectCompany }: Props) {
 
       {showForm && (
         <div className="mb-6 rounded border border-gray-300  p-4">
-          <h3 className="mb-4 text-lg font-semibold">
+          <Typography variant="h3" className="mb-4 text-lg font-semibold">
             {isCreatingMode ? 'Create New Company' : 'Edit Company'}
-          </h3>
+          </Typography>
           {isCreatingMode && (
             <div className="mb-4 rounded bg-blue-50 p-3 text-sm text-blue-800">
               <p>

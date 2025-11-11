@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { Typography } from '@/components/ui/typography';
 
 export default async function SettingsPage() {
   const t = await getTranslations('settings');
@@ -6,11 +7,13 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
-        <p className="text-muted-foreground mt-1">{t('pageDescription')}</p>
+        <Typography variant="h2">{t('pageTitle')}</Typography>
+        <Typography variant="muted" className="mt-1">
+          {t('pageDescription')}
+        </Typography>
       </div>
       <div className="text-center py-12">
-        <p className="text-muted-foreground">Settings page - Coming soon</p>
+        <Typography variant="muted">Settings page - Coming soon</Typography>
       </div>
     </div>
   );

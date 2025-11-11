@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Boxes, Edit, Copy, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { Typography } from '@/components/ui/typography';
 
 interface BlueprintCardProps {
   id: string;
@@ -47,12 +48,16 @@ export function BlueprintCard({
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span className="text-muted-foreground">Machines:</span>
-              <p className="font-semibold">{machineCount}</p>
+              <Typography variant="muted">Machines:</Typography>
+              <Typography variant="p" className="font-semibold">
+                {machineCount}
+              </Typography>
             </div>
             <div>
-              <span className="text-muted-foreground">Fields:</span>
-              <p className="font-semibold">{fieldCount}</p>
+              <Typography variant="muted">Fields:</Typography>
+              <Typography variant="p" className="font-semibold">
+                {fieldCount}
+              </Typography>
             </div>
           </div>
           <div className="flex gap-2">
