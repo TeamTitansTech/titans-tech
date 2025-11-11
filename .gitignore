@@ -24,6 +24,12 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
+.env.production
+
+# deployment
+nginx/ssl/*.pem
+nginx/ssl/*.crt
+nginx/ssl/*.key
 
 # turbo
 .turbo

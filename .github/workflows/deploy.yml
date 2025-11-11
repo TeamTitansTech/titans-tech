@@ -1,0 +1,138 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual deployment'
+        required: false
+        default: 'Manual deployment'
+
+jobs:
+  # Run tests before deploying
+  test:
+    name: Test & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        env:
+          npm_config_fetch_retries: 5
+          npm_config_fetch_retry_mintimeout: 20000
+          npm_config_fetch_retry_maxtimeout: 120000
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Check Prettier formatting
+        run: npx prettier --check "**/*.{ts,tsx,md,json}"
+
+      - name: Validate Prisma schema
+        run: cd packages/database && npx prisma validate
+
+      - name: Build all packages
+        run: npm run build
+        env:
+          DATABASE_URL: postgresql://user:password@localhost:5432/db
+
+  # Deploy to EC2
+  deploy:
+    name: Deploy to EC2
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://${{ secrets.DOMAIN }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SSH_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+
+      - name: Deploy to EC2
+        env:
+          SSH_HOST: ${{ secrets.EC2_HOST }}
+          SSH_USER: ${{ secrets.EC2_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no $SSH_USER@$SSH_HOST << 'ENDSSH'
+            set -e
+
+            echo "🚀 Starting deployment on EC2..."
+
+            cd /home/ubuntu/titans-tech
+
+            # Run deploy script
+            ./scripts/deploy.sh
+
+            echo "✅ Deployment completed successfully!"
+          ENDSSH
+
+      - name: Verify deployment
+        env:
+          API_URL: https://api.${{ secrets.DOMAIN }}
+          FRONTEND_URL: https://${{ secrets.DOMAIN }}
+        run: |
+          echo "Checking backend health..."
+          curl -f $API_URL/health || (echo "Backend health check failed" && exit 1)
+
+          echo "Checking frontend health..."
+          curl -f $FRONTEND_URL/api/health || (echo "Frontend health check failed" && exit 1)
+
+          echo "✅ All services are healthy!"
+
+      - name: Notify success
+        if: success()
+        run: |
+          echo "🎉 Deployment successful!"
+          echo "Frontend: https://${{ secrets.DOMAIN }}"
+          echo "Backend API: https://api.${{ secrets.DOMAIN }}"
+          echo "Commit: ${{ github.sha }}"
+
+      - name: Notify failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Check logs for details."
+          exit 1
+
+      - name: Cleanup SSH key
+        if: always()
+        run: rm -f ~/.ssh/deploy_key
+
+  # Optional: Slack/Discord notification
+  notify:
+    name: Notify Team
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send notification
+        run: |
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "✅ Deployment successful - Send notification to team"
+            # Add your Slack/Discord webhook here
+            # curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} ...
+          else
+            echo "❌ Deployment failed - Send alert to team"
+            # Add your Slack/Discord webhook here
+            # curl -X POST ${{ secrets.SLACK_WEBHOOK_URL }} ...
+          fi
