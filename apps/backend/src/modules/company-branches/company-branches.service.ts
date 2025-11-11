@@ -173,7 +173,7 @@ export class CompanyBranchesService {
   }
 
   private async unsetOtherMainBranches(
-    tx: any,
+    tx: Prisma.TransactionClient,
     companyId: string,
     excludeBranchId?: string,
   ) {

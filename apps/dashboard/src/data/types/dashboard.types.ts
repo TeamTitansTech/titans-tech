@@ -1,3 +1,5 @@
+import { LucideIcon } from 'lucide-react';
+
 export interface DashboardStats {
   totalModels: number;
   activeCompanies: number;
@@ -8,8 +10,7 @@ export interface DashboardStats {
 export interface StatCardProps {
   title: string;
   value: number | string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: any; // LucideIcon type
+  icon: LucideIcon;
   iconColor?: string;
 }
 

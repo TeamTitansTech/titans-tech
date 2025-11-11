@@ -29,7 +29,22 @@
       "Bash(git log:*)",
       "Bash(git restore:*)",
       "Bash(wait)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"yes\" npx prisma migrate:*)",
+      "Bash(node:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git pull:*)",
+      "Bash(PGPASSWORD=\"$POSTGRES_PASSWORD:-password\" psql:*)",
+      "Bash(printf:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/titans_tech?schema=public\" npx prisma migrate dev:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/titans_tech?schema=public\" npx prisma migrate resolve:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/titans_tech?schema=public\" npx prisma db push:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/titans_tech?schema=public\" printf:*)",
+      "Bash(npx prisma db push:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/titans_tech?schema=public\" npx prisma db execute:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/titans_tech?schema=public\" npx prisma generate:*)",
+      "Bash(npx prisma generate:*)"
     ],
     "deny": [],
     "ask": []

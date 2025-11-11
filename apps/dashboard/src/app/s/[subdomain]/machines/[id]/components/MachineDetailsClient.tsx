@@ -61,6 +61,10 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
 };
 
+const SECTION_IMAGES: Record<string, string> = {
+  BEARING_CLEARANCE: '/assets/sections/bearing-clearance.svg',
+};
+
 const getSectionStatus = (_section: string, _machine: Machine): SectionStatus => {
   // TODO: Implement service status checking for subdomain pages
   return 'unknown';
@@ -136,6 +140,7 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
                     key={section}
                     title={t(`sectionNames.${SECTION_I18N_KEYS[section] || 'unknown'}`)}
                     status={getSectionStatus(section, machine)}
+                    imageUrl={SECTION_IMAGES[section]}
                     onClick={() => handleSectionClick(section)}
                   />
                 ))}

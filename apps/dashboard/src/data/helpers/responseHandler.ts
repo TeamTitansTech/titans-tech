@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import { getCookie } from '@/lib/cookies';
 import { BackendErrorResponse, formatErrors } from './errorFormatter';
 
@@ -16,7 +14,7 @@ export async function responseHandler<T>(
   path: string,
   options?: {
     method?: string;
-    body?: any;
+    body?: unknown;
     headers?: Record<string, string>;
     tags?: string[];
   },
