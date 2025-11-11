@@ -148,7 +148,7 @@ async function main() {
     create: {
       id: 'default-bearing-clearance-blueprint',
       name: 'Standard Bearing Clearance Inspection',
-      sections: [ServiceSection.BEARING_CLEARANCE],
+      sections: [ServiceSection.BEARING_CLEARANCE, ServiceSection.CLUTCH, ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG, ServiceSection.GIBS, ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER, ServiceSection.SLIDE],
       fields: [
         {
           fieldName: 'Serial Number',

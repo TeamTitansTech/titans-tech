@@ -57,6 +57,12 @@ export class CompaniesController {
   }
 
   @Public()
+  @Get('public/:companySlug')
+  getPublicInfo(@Param('companySlug') companySlug: string) {
+    return this.companiesService.getCompanyPublicInfo(companySlug);
+  }
+
+  @Public()
   @Get(':companySlug/public-info')
   findOneBySlug(@Param('companySlug') companySlug: string) {
     return this.companiesService.getCompanyPublicInfo(companySlug);
