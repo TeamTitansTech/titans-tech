@@ -8,6 +8,12 @@ export interface LoginCredentials {
   password: string;
 }
 
+export interface CompanyUserLoginCredentials {
+  email: string;
+  password: string;
+  companyId: string;
+}
+
 export interface LoginResponse {
   accessToken: string;
   user: SysAdminResponseDto;
@@ -25,7 +31,7 @@ export const loginSysAdmin = async (credentials: LoginCredentials) => {
   });
 };
 
-export const loginCompanyUser = async (credentials: LoginCredentials) => {
+export const loginCompanyUser = async (credentials: CompanyUserLoginCredentials) => {
   return await responseHandler<CompanyUserLoginResponse>('/users/login', {
     method: 'POST',
     body: credentials,

@@ -54,14 +54,6 @@ interface BearingClearanceCheck {
   after: BearingClearance | null;
 }
 
-interface MachineInspection {
-  id: string;
-  date: string;
-  isMaintenance: boolean;
-  performedBy: string;
-  bearingClearanceChecks: BearingClearanceCheck | null;
-}
-
 interface Machine {
   id: string;
   blueprintId: string;
@@ -73,7 +65,6 @@ interface Machine {
   blueprint?: Blueprint;
   client?: string;
   location?: string;
-  inspections?: MachineInspection[];
 }
 
 interface MachineDetailsClientProps {
@@ -95,51 +86,8 @@ const CLEARANCE_LIMITS = {
 };
 
 const getSectionStatus = (section: string, machine: Machine): SectionStatus => {
-  if (!machine.inspections || machine.inspections.length === 0) {
-    return 'unknown';
-  }
-
-  const latestInspection = machine.inspections[0];
-
-  switch (section) {
-    case 'BEARING_CLEARANCE': {
-      const bearingCheck = latestInspection.bearingClearanceChecks;
-      if (!bearingCheck || !bearingCheck.after) {
-        return 'unknown';
-      }
-
-      const clearances = [
-        bearingCheck.after.totalClearance_RH,
-        bearingCheck.after.totalClearance_LH,
-        bearingCheck.after.mainBearings_RH,
-        bearingCheck.after.mainBearings_LH,
-        bearingCheck.after.upperConnectionBearings_RH,
-        bearingCheck.after.upperConnectionBearings_LH,
-        bearingCheck.after.wristPinToMatingPart_RH,
-        bearingCheck.after.wristPinToMatingPart_LH,
-        bearingCheck.after.wristPinToBushing_RH,
-        bearingCheck.after.wristPinToBushing_LH,
-      ];
-
-      const maxClearance = Math.max(...clearances);
-
-      if (maxClearance >= CLEARANCE_LIMITS.ALERT) {
-        return 'alert';
-      } else if (maxClearance >= CLEARANCE_LIMITS.WARNING) {
-        return 'warning';
-      } else {
-        return 'ok';
-      }
-    }
-
-    case 'SLIDE':
-    case 'GIBS':
-    case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
-    case 'CLUTCH':
-    case 'COUNTERBALANCE_CYLINDER_AIRBAG':
-    default:
-      return 'ok';
-  }
+  // TODO: Implement service status checking for subdomain pages
+  return 'unknown';
 };
 
 export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {

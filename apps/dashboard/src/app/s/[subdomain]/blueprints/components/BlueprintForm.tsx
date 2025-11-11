@@ -16,7 +16,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { createBlueprint } from '@/data/services/blueprints.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { INSPECTION_SECTION_SLUGS } from '@titans-tech/db';
+import { SERVICE_SECTION_SLUGS } from '@titans-tech/db';
 
 type FieldType = 'string' | 'int' | 'enum';
 
@@ -27,7 +27,7 @@ interface Field {
   fieldOptions?: string[];
 }
 
-const AVAILABLE_SECTIONS = INSPECTION_SECTION_SLUGS;
+const AVAILABLE_SECTIONS = SERVICE_SECTION_SLUGS;
 
 export function BlueprintForm() {
   const t = useTranslations('blueprints');

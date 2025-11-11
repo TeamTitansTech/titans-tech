@@ -42,11 +42,11 @@ export class UserBranchDto {
   updateMachines: boolean;
   deleteMachines: boolean;
 
-  // Inspection Permissions
-  readInspections: boolean;
-  createInspections: boolean;
-  updateInspections: boolean;
-  deleteInspections: boolean;
+  // Service Permissions
+  readServices: boolean;
+  createServices: boolean;
+  updateServices: boolean;
+  deleteServices: boolean;
 
   @Type(() => CompanyBranchDto)
   branch: CompanyBranchDto;

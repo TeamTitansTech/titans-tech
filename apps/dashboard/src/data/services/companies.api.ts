@@ -22,6 +22,12 @@ export const getCompany = async (args: { companyId: string }) => {
   });
 };
 
+export const getCompanyPublicInfo = async (args: { companySlug: string }) => {
+  return await responseHandler<Company>(`/companies/public/${args.companySlug}`, {
+    method: 'GET',
+  });
+};
+
 export const createCompany = async (args: { data: CreateCompanyDto }) => {
   return await responseHandler<Company>('/companies', {
     method: 'POST',

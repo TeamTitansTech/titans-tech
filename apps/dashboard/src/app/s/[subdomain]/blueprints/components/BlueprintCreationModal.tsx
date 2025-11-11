@@ -25,7 +25,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { createBlueprint } from '@/data/services/blueprints.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { INSPECTION_SECTION_SLUGS } from '@titans-tech/db/client';
+import { SERVICE_SECTION_SLUGS } from '@titans-tech/db/client';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface BlueprintCreationModalProps {
@@ -43,7 +43,7 @@ interface Field {
   fieldOptions?: string[];
 }
 
-const AVAILABLE_SECTIONS = INSPECTION_SECTION_SLUGS;
+const AVAILABLE_SECTIONS = SERVICE_SECTION_SLUGS;
 
 export const BlueprintCreationModal = ({
   isOpen,
