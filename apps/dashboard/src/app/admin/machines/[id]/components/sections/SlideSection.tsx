@@ -162,8 +162,12 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
               'Slide: For maintenance inspections, you must fill all "Before" sections (Outer Before and Inner Before)',
             );
           } else {
-            errors.push(...validateSlideData(outerBeforeData).map((e) => `Slide Outer Before: ${e}`));
-            errors.push(...validateSlideData(innerBeforeData).map((e) => `Slide Inner Before: ${e}`));
+            errors.push(
+              ...validateSlideData(outerBeforeData).map((e) => `Slide Outer Before: ${e}`),
+            );
+            errors.push(
+              ...validateSlideData(innerBeforeData).map((e) => `Slide Inner Before: ${e}`),
+            );
           }
         }
 

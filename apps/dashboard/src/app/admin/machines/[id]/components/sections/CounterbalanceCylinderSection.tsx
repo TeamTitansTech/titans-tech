@@ -19,9 +19,7 @@ export const defaultCounterbalanceCylinderData: CounterbalanceCylinderData = {
   oilWick: '',
 };
 
-export const validateCounterbalanceCylinderData = (
-  _data: CounterbalanceCylinderData,
-): string[] => {
+export const validateCounterbalanceCylinderData = (_data: CounterbalanceCylinderData): string[] => {
   // All fields are optional for this section
   return [];
 };
@@ -45,7 +43,10 @@ export const CounterbalanceCylinderSection = forwardRef<
   const [data, setData] = useState<CounterbalanceCylinderData>(defaultCounterbalanceCylinderData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const updateField = (field: keyof CounterbalanceCylinderData, value: string | number | undefined) => {
+  const updateField = (
+    field: keyof CounterbalanceCylinderData,
+    value: string | number | undefined,
+  ) => {
     setData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: '' }));
     onSectionTouched();

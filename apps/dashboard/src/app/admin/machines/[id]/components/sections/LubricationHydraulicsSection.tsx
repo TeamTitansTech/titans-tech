@@ -90,7 +90,12 @@ export const LubricationHydraulicsSection = forwardRef<
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="border border-t-0 rounded-b-lg p-6 bg-white">
-          <LubricationHydraulicsForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
+          <LubricationHydraulicsForm
+            data={data}
+            updateFn={updateField}
+            errors={errors}
+            handleBlur={handleBlur}
+          />
         </div>
       </CollapsibleContent>
     </Collapsible>
