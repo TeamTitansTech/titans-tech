@@ -22,10 +22,12 @@ import {
 } from '@/components/ui/dialog';
 import { Card, CardContent } from '@/components/ui/card';
 import { getBlueprints, createMachine } from '@/data/services/machines.api';
+import { getAllCompanies, type Company } from '@/data/services/companies.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { toast } from 'sonner';
 import { Boxes, Check } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { responseHandler } from '@/data/helpers/responseHandler';
 
 interface BlueprintField {
   fieldName: string;
@@ -43,6 +45,13 @@ interface Blueprint {
   updatedAt: string;
 }
 
+interface Branch {
+  id: string;
+  name: string;
+  isMainBranch: boolean;
+  location?: string | null;
+}
+
 interface FieldValue {
   fieldSlug: string;
   value: string | number;
@@ -56,10 +65,16 @@ interface MachineCreationModalProps {
 
 export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCreationModalProps) {
   const t = useTranslations('machines');
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [selectedBranchId, setSelectedBranchId] = useState<string>('');
   const [selectedBlueprintId, setSelectedBlueprintId] = useState<string>('');
   const [machineName, setMachineName] = useState('');
   const [fieldValues, setFieldValues] = useState<Record<string, string | number>>({});
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+  const [isLoadingBranches, setIsLoadingBranches] = useState(false);
   const [isLoadingBlueprints, setIsLoadingBlueprints] = useState(true);
 
   const { execute: submitMachine, isLoading, result } = useLazyQuery(createMachine);
@@ -68,18 +83,59 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
     return blueprints.find((bp) => bp.id === selectedBlueprintId) ?? null;
   }, [selectedBlueprintId, blueprints]);
 
+  // Load companies and blueprints on mount
   useEffect(() => {
-    const loadBlueprints = async () => {
+    const loadData = async () => {
+      setIsLoadingCompanies(true);
       setIsLoadingBlueprints(true);
-      const response = await getBlueprints();
-      if (response.data) {
-        setBlueprints(response.data);
+
+      const [companiesResponse, blueprintsResponse] = await Promise.all([
+        getAllCompanies(),
+        getBlueprints(),
+      ]);
+
+      if (companiesResponse.data) {
+        setCompanies(companiesResponse.data);
       }
+      if (blueprintsResponse.data) {
+        setBlueprints(blueprintsResponse.data);
+      }
+
+      setIsLoadingCompanies(false);
       setIsLoadingBlueprints(false);
     };
 
-    loadBlueprints();
+    loadData();
   }, []);
+
+  // Load branches when company changes
+  useEffect(() => {
+    const loadBranches = async () => {
+      if (!selectedCompanyId) {
+        setBranches([]);
+        setSelectedBranchId('');
+        return;
+      }
+
+      setIsLoadingBranches(true);
+      const response = await responseHandler<Branch[]>(
+        `/companies/${selectedCompanyId}/branches`,
+        { method: 'GET' }
+      );
+
+      if (response.data) {
+        setBranches(response.data);
+      }
+      setIsLoadingBranches(false);
+    };
+
+    loadBranches();
+  }, [selectedCompanyId]);
+
+  const handleCompanySelect = (companyId: string) => {
+    setSelectedCompanyId(companyId);
+    setSelectedBranchId('');
+  };
 
   const handleBlueprintSelect = (blueprintId: string) => {
     setSelectedBlueprintId(blueprintId);
@@ -96,7 +152,10 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedBlueprint) return;
+    if (!selectedBlueprint || !selectedBranchId) {
+      toast.error(t('form.error.branchRequired'));
+      return;
+    }
 
     const fields: FieldValue[] = selectedBlueprint.fields.map((field) => ({
       fieldSlug: field.fieldSlug,
@@ -105,6 +164,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
 
     const payload = {
       blueprintId: selectedBlueprintId,
+      branchId: selectedBranchId,
       name: machineName,
       fields,
     };
@@ -114,6 +174,8 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
     if (response.data) {
       toast.success(t('createdSuccessfully'));
       setMachineName('');
+      setSelectedCompanyId('');
+      setSelectedBranchId('');
       setSelectedBlueprintId('');
       setFieldValues({});
       onSuccess?.();
@@ -183,6 +245,69 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
+            {/* Company and Branch Selection */}
+            <section className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="company">{t('form.company.label')}</Label>
+                  <Typography variant="small" className="text-xs text-muted-foreground">
+                    {t('form.company.description')}
+                  </Typography>
+                  <Select value={selectedCompanyId} onValueChange={handleCompanySelect}>
+                    <SelectTrigger id="company">
+                      <SelectValue placeholder={t('form.selectCompanyPrompt')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isLoadingCompanies ? (
+                        <div className="p-2 text-sm text-muted-foreground">
+                          {t('form.company.loading')}
+                        </div>
+                      ) : (
+                        companies.map((company) => (
+                          <SelectItem key={company.id} value={company.id}>
+                            {company.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="branch">{t('form.branch.label')}</Label>
+                  <Typography variant="small" className="text-xs text-muted-foreground">
+                    {t('form.branch.description')}
+                  </Typography>
+                  <Select
+                    value={selectedBranchId}
+                    onValueChange={setSelectedBranchId}
+                    disabled={!selectedCompanyId || isLoadingBranches}
+                  >
+                    <SelectTrigger id="branch">
+                      <SelectValue placeholder={t('form.selectBranchPrompt')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {isLoadingBranches ? (
+                        <div className="p-2 text-sm text-muted-foreground">
+                          {t('form.branch.loading')}
+                        </div>
+                      ) : (
+                        branches.map((branch) => (
+                          <SelectItem key={branch.id} value={branch.id}>
+                            {branch.name}
+                            {branch.isMainBranch && ` (${t('form.branch.mainBranch')})`}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </section>
+
+            <Separator />
+
+            {/* Blueprint Selection */}
             <section className="space-y-4">
               <div>
                 <Typography variant="h3">{t('form.blueprint.label')}</Typography>
@@ -312,7 +437,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
             </Button>
             <Button
               type="submit"
-              disabled={isLoading || !selectedBlueprint}
+              disabled={isLoading || !selectedBlueprint || !selectedBranchId}
               className="bg-primary hover:bg-primary/90 text-primary-foreground"
             >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}

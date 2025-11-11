@@ -15,17 +15,32 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getBlueprints, createMachine } from '@/data/services/machines.api';
+import { getAllCompanies, Company } from '@/data/services/companies.api';
+import { responseHandler } from '@/data/helpers/responseHandler';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { BlueprintField, Blueprint, FieldValue } from '@/data/types/machines.types';
 
+interface Branch {
+  id: string;
+  name: string;
+  isMainBranch: boolean;
+  location?: string | null;
+}
+
 export function MachineForm() {
   const t = useTranslations('machines');
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [branches, setBranches] = useState<Branch[]>([]);
   const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
+  const [selectedBranchId, setSelectedBranchId] = useState<string>('');
   const [selectedBlueprintId, setSelectedBlueprintId] = useState<string>('');
   const [machineName, setMachineName] = useState('');
   const [fieldValues, setFieldValues] = useState<Record<string, string | number>>({});
   const [lastBlueprintId, setLastBlueprintId] = useState<string>('');
   const [isLoadingBlueprints, setIsLoadingBlueprints] = useState(true);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+  const [isLoadingBranches, setIsLoadingBranches] = useState(false);
 
   const { execute: submitMachine, isLoading, result } = useLazyQuery(createMachine);
 
@@ -39,6 +54,21 @@ export function MachineForm() {
     setFieldValues({});
   }
 
+  // Load companies on mount
+  useEffect(() => {
+    const loadCompanies = async () => {
+      setIsLoadingCompanies(true);
+      const response = await getAllCompanies();
+      if (response.data) {
+        setCompanies(response.data);
+      }
+      setIsLoadingCompanies(false);
+    };
+
+    loadCompanies();
+  }, []);
+
+  // Load blueprints on mount
   useEffect(() => {
     const loadBlueprints = async () => {
       setIsLoadingBlueprints(true);
@@ -51,6 +81,29 @@ export function MachineForm() {
 
     loadBlueprints();
   }, []);
+
+  // Load branches when company changes
+  useEffect(() => {
+    const loadBranches = async () => {
+      if (!selectedCompanyId) {
+        setBranches([]);
+        setSelectedBranchId('');
+        return;
+      }
+
+      setIsLoadingBranches(true);
+      const response = await responseHandler<Branch[]>(`/companies/${selectedCompanyId}/branches`, {
+        method: 'GET',
+      });
+
+      if (response.data) {
+        setBranches(response.data);
+      }
+      setIsLoadingBranches(false);
+    };
+
+    loadBranches();
+  }, [selectedCompanyId]);
 
   const updateFieldValue = (fieldSlug: string, value: string | number) => {
     setFieldValues((prev) => ({
@@ -71,6 +124,7 @@ export function MachineForm() {
 
     const payload = {
       blueprintId: selectedBlueprintId,
+      branchId: selectedBranchId,
       name: machineName,
       fields,
     };
@@ -136,6 +190,67 @@ export function MachineForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Company Selection */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="company">{t('form.company.label')}</Label>
+              </div>
+              <Select
+                value={selectedCompanyId}
+                onValueChange={setSelectedCompanyId}
+                disabled={isLoadingCompanies}
+              >
+                <SelectTrigger id="company">
+                  <SelectValue
+                    placeholder={
+                      isLoadingCompanies ? t('form.company.loading') : t('form.company.placeholder')
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="bg-popover">
+                  {companies.map((company) => (
+                    <SelectItem key={company.id} value={company.id}>
+                      {company.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Branch Selection */}
+            {selectedCompanyId && (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="branch">{t('form.branch.label')}</Label>
+                </div>
+                <Select
+                  value={selectedBranchId}
+                  onValueChange={setSelectedBranchId}
+                  disabled={isLoadingBranches || branches.length === 0}
+                >
+                  <SelectTrigger id="branch">
+                    <SelectValue
+                      placeholder={
+                        isLoadingBranches
+                          ? t('form.branch.loading')
+                          : branches.length === 0
+                            ? t('form.branch.noBranches')
+                            : t('form.branch.placeholder')
+                      }
+                    />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover">
+                    {branches.map((branch) => (
+                      <SelectItem key={branch.id} value={branch.id}>
+                        {branch.name}
+                        {branch.isMainBranch && ' (Main)'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {/* Blueprint Selection */}
             <div className="space-y-4">
               <div>
@@ -205,7 +320,7 @@ export function MachineForm() {
                   </div>
                 </div>
 
-                <Button type="submit" disabled={isLoading} className="w-full">
+                <Button type="submit" disabled={isLoading || !selectedBranchId} className="w-full">
                   {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
                 </Button>
               </>

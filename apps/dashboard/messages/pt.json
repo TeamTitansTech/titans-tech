@@ -411,7 +411,7 @@
         "label": "Selecionar Filial",
         "description": "Escolha a qual filial esta máquina pertence",
         "loading": "Carregando filiais...",
-        "mainBranch": "Matriz (Filial Principal)"
+        "mainBranch": "Matriz"
       },
       "blueprint": {
         "label": "Modelo",
