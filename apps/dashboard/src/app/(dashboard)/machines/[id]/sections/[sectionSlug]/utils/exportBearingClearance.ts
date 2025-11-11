@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 
@@ -73,10 +72,10 @@ export async function exportToPDF(
   // Add historical data table
   if (chartData.length > 0) {
     doc.setFontSize(14);
-    doc.text('Historical Data', 14, (doc as any).lastAutoTable.finalY + 10);
+    doc.text('Historical Data', 14, doc.lastAutoTable.finalY + 10);
 
     autoTable(doc, {
-      startY: (doc as any).lastAutoTable.finalY + 15,
+      startY: doc.lastAutoTable.finalY + 15,
       head: [['Date', 'CB RH', 'CB LH', 'Diff RH', 'Diff LH']],
       body: chartData.map((row) => [
         row.date,

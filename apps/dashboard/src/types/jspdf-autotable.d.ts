@@ -1,19 +1,35 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module 'jspdf-autotable' {
   import { jsPDF } from 'jspdf';
 
+  type CellStyles = {
+    cellPadding?: number;
+    fontSize?: number;
+    font?: string;
+    lineColor?: number | [number, number, number];
+    lineWidth?: number;
+    fontStyle?: 'normal' | 'bold' | 'italic' | 'bolditalic';
+    overflow?: 'linebreak' | 'ellipsize' | 'visible' | 'hidden';
+    fillColor?: number | [number, number, number] | false;
+    textColor?: number | [number, number, number];
+    halign?: 'left' | 'center' | 'right';
+    valign?: 'top' | 'middle' | 'bottom';
+    cellWidth?: 'auto' | 'wrap' | number;
+    minCellHeight?: number;
+    minCellWidth?: number;
+  };
+
   interface AutoTableOptions {
     startY?: number;
-    head?: any[][];
-    body?: any[][];
-    foot?: any[][];
+    head?: (string | number)[][];
+    body?: (string | number)[][];
+    foot?: (string | number)[][];
     theme?: 'striped' | 'grid' | 'plain';
-    styles?: any;
-    headStyles?: any;
-    bodyStyles?: any;
-    footStyles?: any;
-    alternateRowStyles?: any;
-    columnStyles?: any;
+    styles?: CellStyles;
+    headStyles?: CellStyles;
+    bodyStyles?: CellStyles;
+    footStyles?: CellStyles;
+    alternateRowStyles?: CellStyles;
+    columnStyles?: Record<string | number, CellStyles>;
     margin?: number | { top?: number; right?: number; bottom?: number; left?: number };
     showHead?: 'everyPage' | 'firstPage' | 'never';
     showFoot?: 'everyPage' | 'lastPage' | 'never';

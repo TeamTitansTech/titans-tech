@@ -227,15 +227,15 @@ model MachineServiceBearingClearance {
   id               String  @id @default(cuid())
   machineServiceId String
   outerBeforeId    String?
-  outerAfterId     String?
+  outerDataId      String?
   innerBeforeId    String?
-  innerAfterId     String?
+  innerDataId      String?
 
   machineService MachineService        @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    BearingClearanceData? @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
-  outerAfter     BearingClearanceData? @relation("OuterAfterMeasurement", fields: [outerAfterId], references: [id], onDelete: SetNull)
+  outerData      BearingClearanceData? @relation("OuterDataMeasurement", fields: [outerDataId], references: [id], onDelete: SetNull)
   innerBefore    BearingClearanceData? @relation("InnerBeforeMeasurement", fields: [innerBeforeId], references: [id], onDelete: SetNull)
-  innerAfter     BearingClearanceData? @relation("InnerAfterMeasurement", fields: [innerAfterId], references: [id], onDelete: SetNull)
+  innerData      BearingClearanceData? @relation("InnerDataMeasurement", fields: [innerDataId], references: [id], onDelete: SetNull)
 
   @@map("machine_service_bearing_clearance")
 }
@@ -270,9 +270,9 @@ model BearingClearanceData {
   updatedAt DateTime @updatedAt
 
   outerBeforeServices MachineServiceBearingClearance[] @relation("OuterBeforeMeasurement")
-  outerAfterServices  MachineServiceBearingClearance[] @relation("OuterAfterMeasurement")
+  outerDataServices   MachineServiceBearingClearance[] @relation("OuterDataMeasurement")
   innerBeforeServices MachineServiceBearingClearance[] @relation("InnerBeforeMeasurement")
-  innerAfterServices  MachineServiceBearingClearance[] @relation("InnerAfterMeasurement")
+  innerDataServices   MachineServiceBearingClearance[] @relation("InnerDataMeasurement")
 
   @@map("service_data_bearing_clearance")
 }
@@ -283,15 +283,15 @@ model MachineServiceSlide {
   id               String  @id @default(cuid())
   machineServiceId String
   outerBeforeId    String?
-  outerAfterId     String?
+  outerDataId      String?
   innerBeforeId    String?
-  innerAfterId     String?
+  innerDataId      String?
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    SlideData?     @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
-  outerAfter     SlideData?     @relation("OuterAfterMeasurement", fields: [outerAfterId], references: [id], onDelete: SetNull)
+  outerData      SlideData?     @relation("OuterDataMeasurement", fields: [outerDataId], references: [id], onDelete: SetNull)
   innerBefore    SlideData?     @relation("InnerBeforeMeasurement", fields: [innerBeforeId], references: [id], onDelete: SetNull)
-  innerAfter     SlideData?     @relation("InnerAfterMeasurement", fields: [innerAfterId], references: [id], onDelete: SetNull)
+  innerData      SlideData?     @relation("InnerDataMeasurement", fields: [innerDataId], references: [id], onDelete: SetNull)
 
   @@map("machine_service_slide")
 }
@@ -315,9 +315,9 @@ model SlideData {
   updatedAt DateTime @updatedAt
 
   outerBeforeServices MachineServiceSlide[] @relation("OuterBeforeMeasurement")
-  outerAfterServices  MachineServiceSlide[] @relation("OuterAfterMeasurement")
+  outerDataServices   MachineServiceSlide[] @relation("OuterDataMeasurement")
   innerBeforeServices MachineServiceSlide[] @relation("InnerBeforeMeasurement")
-  innerAfterServices  MachineServiceSlide[] @relation("InnerAfterMeasurement")
+  innerDataServices   MachineServiceSlide[] @relation("InnerDataMeasurement")
 
   @@map("service_data_slide")
 }
@@ -328,15 +328,15 @@ model MachineServiceGibs {
   id               String  @id @default(cuid())
   machineServiceId String
   outerBeforeId    String?
-  outerAfterId     String?
+  outerDataId      String?
   innerBeforeId    String?
-  innerAfterId     String?
+  innerDataId      String?
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    GibsData?      @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
-  outerAfter     GibsData?      @relation("OuterAfterMeasurement", fields: [outerAfterId], references: [id], onDelete: SetNull)
+  outerData      GibsData?      @relation("OuterDataMeasurement", fields: [outerDataId], references: [id], onDelete: SetNull)
   innerBefore    GibsData?      @relation("InnerBeforeMeasurement", fields: [innerBeforeId], references: [id], onDelete: SetNull)
-  innerAfter     GibsData?      @relation("InnerAfterMeasurement", fields: [innerAfterId], references: [id], onDelete: SetNull)
+  innerData      GibsData?      @relation("InnerDataMeasurement", fields: [innerDataId], references: [id], onDelete: SetNull)
 
   @@map("machine_service_gibs")
 }
@@ -380,9 +380,9 @@ model GibsData {
   updatedAt DateTime @updatedAt
 
   outerBeforeServices MachineServiceGibs[] @relation("OuterBeforeMeasurement")
-  outerAfterServices  MachineServiceGibs[] @relation("OuterAfterMeasurement")
+  outerDataServices   MachineServiceGibs[] @relation("OuterDataMeasurement")
   innerBeforeServices MachineServiceGibs[] @relation("InnerBeforeMeasurement")
-  innerAfterServices  MachineServiceGibs[] @relation("InnerAfterMeasurement")
+  innerDataServices   MachineServiceGibs[] @relation("InnerDataMeasurement")
 
   @@map("service_data_gibs")
 }

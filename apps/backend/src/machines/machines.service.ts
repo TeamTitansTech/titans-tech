@@ -113,9 +113,9 @@ export class MachinesService {
             bearingClearance: {
               include: {
                 outerBefore: true,
-                outerAfter: true,
+                outerData: true,
                 innerBefore: true,
-                innerAfter: true,
+                innerData: true,
               },
             },
           },

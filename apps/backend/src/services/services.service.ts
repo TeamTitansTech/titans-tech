@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
@@ -38,7 +39,7 @@ export class ServicesService {
                       create: createInspectionDto.bearingClearance.outerBefore,
                     }
                   : undefined,
-                outerAfter: createInspectionDto.bearingClearance.outerAfter
+                outerData: createInspectionDto.bearingClearance.outerAfter
                   ? {
                       create: createInspectionDto.bearingClearance.outerAfter,
                     }
@@ -48,7 +49,7 @@ export class ServicesService {
                       create: createInspectionDto.bearingClearance.innerBefore,
                     }
                   : undefined,
-                innerAfter: createInspectionDto.bearingClearance.innerAfter
+                innerData: createInspectionDto.bearingClearance.innerAfter
                   ? {
                       create: createInspectionDto.bearingClearance.innerAfter,
                     }
@@ -64,7 +65,7 @@ export class ServicesService {
                       create: createInspectionDto.slide.outerBefore,
                     }
                   : undefined,
-                outerAfter: createInspectionDto.slide.outerAfter
+                outerData: createInspectionDto.slide.outerAfter
                   ? {
                       create: createInspectionDto.slide.outerAfter,
                     }
@@ -74,7 +75,7 @@ export class ServicesService {
                       create: createInspectionDto.slide.innerBefore,
                     }
                   : undefined,
-                innerAfter: createInspectionDto.slide.innerAfter
+                innerData: createInspectionDto.slide.innerAfter
                   ? {
                       create: createInspectionDto.slide.innerAfter,
                     }
@@ -90,7 +91,7 @@ export class ServicesService {
                       create: createInspectionDto.gibs.outerBefore,
                     }
                   : undefined,
-                outerAfter: createInspectionDto.gibs.outerAfter
+                outerData: createInspectionDto.gibs.outerAfter
                   ? {
                       create: createInspectionDto.gibs.outerAfter,
                     }
@@ -100,7 +101,7 @@ export class ServicesService {
                       create: createInspectionDto.gibs.innerBefore,
                     }
                   : undefined,
-                innerAfter: createInspectionDto.gibs.innerAfter
+                innerData: createInspectionDto.gibs.innerAfter
                   ? {
                       create: createInspectionDto.gibs.innerAfter,
                     }
@@ -146,25 +147,25 @@ export class ServicesService {
         bearingClearance: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         slide: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         gibs: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         lubricationHydraulics: {
@@ -201,25 +202,25 @@ export class ServicesService {
         bearingClearance: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         slide: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         gibs: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         lubricationHydraulics: {
@@ -258,25 +259,25 @@ export class ServicesService {
         bearingClearance: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         slide: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         gibs: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         lubricationHydraulics: {
@@ -326,25 +327,25 @@ export class ServicesService {
         bearingClearance: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         slide: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         gibs: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         lubricationHydraulics: {
@@ -397,25 +398,25 @@ export class ServicesService {
                 outerBefore: updateServiceDto.bearingClearance.outerBefore
                   ? {
                       create: updateServiceDto.bearingClearance
-                        .outerBefore as any,
+                        .outerBefore as Prisma.BearingClearanceDataCreateWithoutOuterBeforeServicesInput,
                     }
                   : undefined,
-                outerAfter: updateServiceDto.bearingClearance.outerAfter
+                outerData: updateServiceDto.bearingClearance.outerAfter
                   ? {
                       create: updateServiceDto.bearingClearance
-                        .outerAfter as any,
+                        .outerAfter as Prisma.BearingClearanceDataCreateWithoutOuterDataServicesInput,
                     }
                   : undefined,
                 innerBefore: updateServiceDto.bearingClearance.innerBefore
                   ? {
                       create: updateServiceDto.bearingClearance
-                        .innerBefore as any,
+                        .innerBefore as Prisma.BearingClearanceDataCreateWithoutInnerBeforeServicesInput,
                     }
                   : undefined,
-                innerAfter: updateServiceDto.bearingClearance.innerAfter
+                innerData: updateServiceDto.bearingClearance.innerAfter
                   ? {
                       create: updateServiceDto.bearingClearance
-                        .innerAfter as any,
+                        .innerAfter as Prisma.BearingClearanceDataCreateWithoutInnerDataServicesInput,
                     }
                   : undefined,
               },
@@ -426,22 +427,26 @@ export class ServicesService {
               create: {
                 outerBefore: updateServiceDto.slide.outerBefore
                   ? {
-                      create: updateServiceDto.slide.outerBefore as any,
+                      create: updateServiceDto.slide
+                        .outerBefore as Prisma.SlideDataCreateWithoutOuterBeforeServicesInput,
                     }
                   : undefined,
-                outerAfter: updateServiceDto.slide.outerAfter
+                outerData: updateServiceDto.slide.outerAfter
                   ? {
-                      create: updateServiceDto.slide.outerAfter as any,
+                      create: updateServiceDto.slide
+                        .outerAfter as Prisma.SlideDataCreateWithoutOuterDataServicesInput,
                     }
                   : undefined,
                 innerBefore: updateServiceDto.slide.innerBefore
                   ? {
-                      create: updateServiceDto.slide.innerBefore as any,
+                      create: updateServiceDto.slide
+                        .innerBefore as Prisma.SlideDataCreateWithoutInnerBeforeServicesInput,
                     }
                   : undefined,
-                innerAfter: updateServiceDto.slide.innerAfter
+                innerData: updateServiceDto.slide.innerAfter
                   ? {
-                      create: updateServiceDto.slide.innerAfter as any,
+                      create: updateServiceDto.slide
+                        .innerAfter as Prisma.SlideDataCreateWithoutInnerDataServicesInput,
                     }
                   : undefined,
               },
@@ -452,22 +457,26 @@ export class ServicesService {
               create: {
                 outerBefore: updateServiceDto.gibs.outerBefore
                   ? {
-                      create: updateServiceDto.gibs.outerBefore as any,
+                      create: updateServiceDto.gibs
+                        .outerBefore as Prisma.GibsDataCreateWithoutOuterBeforeServicesInput,
                     }
                   : undefined,
-                outerAfter: updateServiceDto.gibs.outerAfter
+                outerData: updateServiceDto.gibs.outerAfter
                   ? {
-                      create: updateServiceDto.gibs.outerAfter as any,
+                      create: updateServiceDto.gibs
+                        .outerAfter as Prisma.GibsDataCreateWithoutOuterDataServicesInput,
                     }
                   : undefined,
                 innerBefore: updateServiceDto.gibs.innerBefore
                   ? {
-                      create: updateServiceDto.gibs.innerBefore as any,
+                      create: updateServiceDto.gibs
+                        .innerBefore as Prisma.GibsDataCreateWithoutInnerBeforeServicesInput,
                     }
                   : undefined,
-                innerAfter: updateServiceDto.gibs.innerAfter
+                innerData: updateServiceDto.gibs.innerAfter
                   ? {
-                      create: updateServiceDto.gibs.innerAfter as any,
+                      create: updateServiceDto.gibs
+                        .innerAfter as Prisma.GibsDataCreateWithoutInnerDataServicesInput,
                     }
                   : undefined,
               },
@@ -477,7 +486,8 @@ export class ServicesService {
           ? {
               create: {
                 data: {
-                  create: updateServiceDto.lubricationHydraulics as any,
+                  create:
+                    updateServiceDto.lubricationHydraulics as Prisma.LubricationHydraulicsDataCreateWithoutServicesInput,
                 },
               },
             }
@@ -486,7 +496,8 @@ export class ServicesService {
           ? {
               create: {
                 data: {
-                  create: updateServiceDto.clutch as any,
+                  create:
+                    updateServiceDto.clutch as Prisma.ClutchDataCreateWithoutServicesInput,
                 },
               },
             }
@@ -495,7 +506,8 @@ export class ServicesService {
           ? {
               create: {
                 outerData: {
-                  create: updateServiceDto.counterbalanceCylinder as any,
+                  create:
+                    updateServiceDto.counterbalanceCylinder as Prisma.CounterbalanceCylinderAirbagDataCreateWithoutOuterServicesInput,
                 },
               },
             }
@@ -511,25 +523,25 @@ export class ServicesService {
         bearingClearance: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         slide: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         gibs: {
           include: {
             outerBefore: true,
-            outerAfter: true,
+            outerData: true,
             innerBefore: true,
-            innerAfter: true,
+            innerData: true,
           },
         },
         lubricationHydraulics: {
