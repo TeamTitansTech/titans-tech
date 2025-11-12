@@ -40,8 +40,14 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     <div className="space-y-6 p-4">
       <MachineDetails machine={response.data} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <UpcomingServices machineId={id} blueprintSections={response.data.blueprint?.sections || []} />
-        <ServiceHistory machineId={id} blueprintSections={response.data.blueprint?.sections || []} />
+        <UpcomingServices
+          machineId={id}
+          blueprintSections={response.data.blueprint?.sections || []}
+        />
+        <ServiceHistory
+          machineId={id}
+          blueprintSections={response.data.blueprint?.sections || []}
+        />
       </div>
     </div>
   );

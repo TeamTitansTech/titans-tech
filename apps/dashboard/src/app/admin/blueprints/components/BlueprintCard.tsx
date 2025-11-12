@@ -6,7 +6,6 @@ import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Boxes, Edit, Copy, Trash2 } from 'lucide-react';
 import Link from 'next/link';
-import { Typography } from '@/components/ui/typography';
 
 interface BlueprintCardProps {
   id: string;
