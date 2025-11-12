@@ -34,7 +34,7 @@ export function SectionCard({ title, status, imageUrl, onClick }: SectionCardPro
         />
       </div>
 
-      <div className="aspect-[4/3] bg-slate-500 dark:bg-slate-600 flex items-center justify-center relative px-5">
+      <div className="aspect-[4/3] bg-gray-400 dark:bg-slate-600 flex items-center justify-center relative px-5">
         {imageUrl ? (
           <Image
             src={imageUrl}
