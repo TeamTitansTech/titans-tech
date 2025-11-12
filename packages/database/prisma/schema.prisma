@@ -33,6 +33,19 @@ enum ParallelismType {
   TO_BOLSTER
 }
 
+enum YesNoNaDncType {
+  YES
+  NO
+  NA
+  DNC
+}
+
+enum YesNoDncType {
+  YES
+  NO
+  DNC
+}
+
 enum MeasurementUnit {
   INCHES
   MM
@@ -287,6 +300,25 @@ model MachineServiceSlide {
   innerBeforeId    String?
   innerDataId      String?
 
+  // Parallelism fields
+  parallelism                ParallelismType?
+  hasParallelismBeenAdjusted YesNoNaDncType?
+
+  // Outer shutheight fields
+  outerShutheightIndicatorsChecked YesNoDncType?
+  outerOverloadsOnTonnageMonitor   String?
+  outerShutheightActualSh          String?
+  outerIndicatorReading            String?
+
+  // Inner shutheight fields
+  innerShutheightIndicatorsChecked YesNoDncType?
+  innerOverloadsOnTonnageMonitor   String?
+  innerShutheightActualSh          String?
+  innerIndicatorReading            String?
+
+  // Notes
+  notes String?
+
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    SlideData?     @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
   outerData      SlideData?     @relation("OuterDataMeasurement", fields: [outerDataId], references: [id], onDelete: SetNull)
@@ -299,17 +331,13 @@ model MachineServiceSlide {
 model SlideData {
   id String @id @default(cuid())
 
-  // Parallelism measurements (4 positions to match CSV)
-  parallelism        ParallelismType
-  hasBeenAdjusted    Boolean         @default(false)
-  position1          Decimal         @db.Decimal(10, 4)
-  position2          Decimal         @db.Decimal(10, 4)
-  position3          Decimal         @db.Decimal(10, 4)
-  position4          Decimal         @db.Decimal(10, 4)
-  shutheightChecked  Boolean         @default(false)
-  actualSH           String?
-  overloadsOnMonitor String?
-  indicatorReading   String?
+  // Parallelism measurements (6 positions)
+  position1 Decimal @db.Decimal(10, 4)
+  position2 Decimal @db.Decimal(10, 4)
+  position3 Decimal @db.Decimal(10, 4)
+  position4 Decimal @db.Decimal(10, 4)
+  position5 Decimal @db.Decimal(10, 4)
+  position6 Decimal @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

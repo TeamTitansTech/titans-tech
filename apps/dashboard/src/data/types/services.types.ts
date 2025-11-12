@@ -10,6 +10,8 @@ export {
   ServiceStatus,
   MatingPartType,
   ParallelismType,
+  YesNoNaDncType,
+  YesNoDncType,
 } from '@titans-tech/shared/types';
 
 export type {
