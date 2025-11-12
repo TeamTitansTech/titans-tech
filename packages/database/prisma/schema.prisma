@@ -467,11 +467,11 @@ model LubricationHydraulicsData {
 }
 
 model LubricationHydraulicsGauge {
-  id                         String         @id @default(cuid())
+  id                          String         @id @default(cuid())
   lubricationHydraulicsDataId String
-  system                     SystemType
-  gauge                      String?
-  psi                        PsiStatusType?
+  system                      SystemType
+  gauge                       String?
+  psi                         PsiStatusType?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
