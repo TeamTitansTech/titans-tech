@@ -7,20 +7,15 @@ WORKDIR /app
 # Install dependencies needed for Prisma
 RUN apk add --no-cache openssl libc6-compat
 
-# Copy package files
+# Copy package files and source code BEFORE installing
 COPY package*.json ./
 COPY turbo.json ./
-COPY packages/database/package*.json ./packages/database/
-COPY packages/shared/package*.json ./packages/shared/
-COPY apps/dashboard/package*.json ./apps/dashboard/
-
-# Install dependencies
-RUN npm ci --prefer-offline --no-audit
-
-# Copy source files
 COPY packages/database ./packages/database
 COPY packages/shared ./packages/shared
 COPY apps/dashboard ./apps/dashboard
+
+# Install dependencies (postinstall will generate Prisma client)
+RUN npm ci --prefer-offline --no-audit
 
 # Generate Prisma Client
 WORKDIR /app/packages/database

@@ -7,20 +7,15 @@ WORKDIR /app
 # Install dependencies needed for Prisma
 RUN apk add --no-cache openssl libc6-compat
 
-# Copy package files
+# Copy package files and source code BEFORE installing dependencies
 COPY package*.json ./
 COPY turbo.json ./
-COPY packages/database/package*.json ./packages/database/
-COPY packages/shared/package*.json ./packages/shared/
-COPY apps/backend/package*.json ./apps/backend/
-
-# Install all dependencies
-RUN npm ci --prefer-offline --no-audit
-
-
 COPY packages/database ./packages/database
 COPY packages/shared ./packages/shared
 COPY apps/backend ./apps/backend
+
+# Install all dependencies (postinstall will run and generate Prisma client)
+RUN npm ci --prefer-offline --no-audit
 
 # Generate Prisma Client
 WORKDIR /app/packages/database
@@ -42,15 +37,15 @@ WORKDIR /app
 # Install production dependencies
 RUN apk add --no-cache openssl libc6-compat curl
 
-# Copy package files
+# Copy package files and source code BEFORE installing
 COPY package*.json ./
 COPY turbo.json ./
-COPY packages/database/package*.json ./packages/database/
-COPY packages/shared/package*.json ./packages/shared/
+COPY packages/database ./packages/database
+COPY packages/shared ./packages/shared
 COPY apps/backend/package*.json ./apps/backend/
 
-# Install only production dependencies
-RUN npm ci --prefer-offline --no-audit --omit=dev
+# Install only production dependencies (skip postinstall with --ignore-scripts)
+RUN npm ci --prefer-offline --no-audit --omit=dev --ignore-scripts
 
 # Copy built artifacts from builder
 COPY --from=builder /app/packages/database/dist ./packages/database/dist

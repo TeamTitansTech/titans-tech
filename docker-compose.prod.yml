@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build:
@@ -7,6 +5,8 @@ services:
       dockerfile: apps/backend/Dockerfile
     container_name: titans-backend
     restart: unless-stopped
+    env_file:
+      - .env.production
     environment:
       - NODE_ENV=production
       - PORT=4000
@@ -38,6 +38,8 @@ services:
       dockerfile: apps/dashboard/Dockerfile
     container_name: titans-frontend
     restart: unless-stopped
+    env_file:
+      - .env.production
     environment:
       - NODE_ENV=production
       - PORT=3000
