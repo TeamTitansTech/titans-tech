@@ -42,7 +42,7 @@ interface SlideFormData {
 
 export interface SlideFormProps {
   data: SlideFormData;
-  updateFn: (field: keyof SlideFormData, value: any) => void;
+  updateFn: <K extends keyof SlideFormData>(field: K, value: SlideFormData[K]) => void;
   errors: {
     outerBefore: Record<string, string>;
     outerAfter: Record<string, string>;

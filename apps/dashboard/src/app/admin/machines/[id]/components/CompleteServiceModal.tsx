@@ -22,10 +22,6 @@ import {
   ServiceStatus,
   MatingPartType,
   type BearingClearanceData,
-  type GibsData,
-  type LubricationHydraulicsData,
-  type ClutchData,
-  type CounterbalanceCylinderData,
   type UpdateServicePayload,
   type ServiceCreationModalProps,
 } from '@/data/types/services.types';
@@ -63,97 +59,6 @@ const defaultBearingData: BearingClearanceData = {
   hasBeenAdjusted: false,
   combinedWith: '',
   matingPart: MatingPartType.BUSHING,
-};
-
-const defaultGibsData: GibsData = {
-  hasBeenAdjusted: false,
-  point1: 0,
-  point2: 0,
-  point3: 0,
-  point4: 0,
-  point5: 0,
-  point6: 0,
-  point7: 0,
-  point8: 0,
-  point9: 0,
-  point10: 0,
-  point11: 0,
-  point12: 0,
-  point13: 0,
-  point14: 0,
-  point15: 0,
-  point16: 0,
-  leftTop: undefined,
-  leftBottom: undefined,
-  rightTop: undefined,
-  rightBottom: undefined,
-  frontTop: undefined,
-  frontBottom: undefined,
-  backTop: undefined,
-  backBottom: undefined,
-  usable: '',
-};
-
-const defaultLubricationHydraulicsData: LubricationHydraulicsData = {
-  lubePSI: undefined,
-  monitorflowPSI: undefined,
-  hydPSI: undefined,
-  pressSWPSI: undefined,
-  otherGauges: '',
-  changedOil: false,
-  oilTemperatureF: undefined,
-  oilMfgType: '',
-  changedFilter: false,
-};
-
-const defaultClutchData: ClutchData = {
-  clutchType: '',
-  clutchLocation: '',
-  brakeSpringBrake: undefined,
-  brakeSpringClutch: undefined,
-  brakeSpringStudBolt: '',
-  brakeAnchorClearanceFB: undefined,
-  brakeAnchorClearanceFTB: undefined,
-  brakeAnchorClearanceRTB: undefined,
-  brakeStoppingTime: undefined,
-  brakeLining: '',
-  brakeClearing: undefined,
-  brakeClearanceTotal: undefined,
-  brakeClearanceRear: undefined,
-  flywheelStoppingTime: undefined,
-  flywheelBearings: '',
-  flywheelBrake: '',
-  clutchEngagements: undefined,
-  clutchLining: '',
-  clutchSeals: '',
-  gearBacklashBefore: undefined,
-  gearBacklashAfter: undefined,
-  crankEndplayBefore: undefined,
-  crankEndplayAfter: undefined,
-  airRegulatorPSI: undefined,
-  airClutchTravel: undefined,
-  airLineOilerSetting: '',
-  hydClutchClearanceTotal: undefined,
-  hydClutchClearanceRear: undefined,
-  hydraulicPressurePSI: undefined,
-  accumulatorPSI: undefined,
-  rotaryUnion: '',
-  splinesDriveRingDisc: '',
-  adjustingNutLockSecure: '',
-  separateBrakeSeals: '',
-  flexDisc: '',
-};
-
-const defaultCounterbalanceCylinderData: CounterbalanceCylinderData = {
-  counterbalanceType: '',
-  airbagPistonSeals: '',
-  airbagPistonSealsLeakLocation: '',
-  regulator: '',
-  gaugePSI: undefined,
-  pneumaticsPlumbing: '',
-  rodSeals: '',
-  rodBushing: '',
-  oilWick: '',
 };
 
 // Validation helper functions
@@ -264,24 +169,6 @@ export function CompleteServiceModal({
   const [innerAfterErrors, setInnerAfterErrors] = useState<Record<string, string>>({});
   const [dateError, setDateError] = useState<string>('');
 
-  // Lubrication Hydraulics state
-  const [lubricationHydraulicsData, setLubricationHydraulicsData] =
-    useState<LubricationHydraulicsData>(defaultLubricationHydraulicsData);
-  const [lubricationHydraulicsErrors, setLubricationHydraulicsErrors] = useState<
-    Record<string, string>
-  >({});
-
-  // Clutch state
-  const [clutchData, setClutchData] = useState<ClutchData>(defaultClutchData);
-  const [clutchErrors, setClutchErrors] = useState<Record<string, string>>({});
-
-  // Counterbalance Cylinder state
-  const [counterbalanceCylinderData, setCounterbalanceCylinderData] =
-    useState<CounterbalanceCylinderData>(defaultCounterbalanceCylinderData);
-  const [counterbalanceCylinderErrors, setCounterbalanceCylinderErrors] = useState<
-    Record<string, string>
-  >({});
-
   // Reset form when modal closes
   useEffect(() => {
     if (!open) {
@@ -296,21 +183,13 @@ export function CompleteServiceModal({
       setOuterAfterErrors({});
       setInnerBeforeErrors({});
       setInnerAfterErrors({});
-      setGibsOuterBeforeData(defaultGibsData);
-      setGibsOuterAfterData(defaultGibsData);
-      setGibsInnerBeforeData(defaultGibsData);
-      setGibsInnerAfterData(defaultGibsData);
-      setGibsOuterBeforeErrors({});
-      setGibsOuterAfterErrors({});
-      setGibsInnerBeforeErrors({});
-      setGibsInnerAfterErrors({});
-      setLubricationHydraulicsData(defaultLubricationHydraulicsData);
-      setLubricationHydraulicsErrors({});
-      setClutchData(defaultClutchData);
-      setClutchErrors({});
-      setCounterbalanceCylinderData(defaultCounterbalanceCylinderData);
-      setCounterbalanceCylinderErrors({});
       setDateError('');
+      // Reset section refs
+      slideRef.current?.reset();
+      gibsRef.current?.reset();
+      lubricationRef.current?.reset();
+      clutchRef.current?.reset();
+      counterbalanceRef.current?.reset();
     }
   }, [open, initialDate, initialPerformedBy]);
 
