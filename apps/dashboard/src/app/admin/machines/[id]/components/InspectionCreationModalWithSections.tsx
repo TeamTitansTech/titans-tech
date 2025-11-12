@@ -16,11 +16,7 @@ import { Typography } from '@/components/ui/typography';
 import { SelectableSectionCard } from '@/components/SelectableSectionCard';
 import type { SectionStatus } from '@/components/SelectableSectionCard';
 import { CalendarIcon, Check, ChevronDown } from 'lucide-react';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Stepper, type StepperStep, type StepBadge } from '@/components/ui/stepper';
 import {
   Table,
@@ -52,11 +48,7 @@ import {
   type BearingClearanceSectionRef,
   defaultBearingData,
 } from './sections/BearingClearanceSection';
-import {
-  SlideSection,
-  type SlideSectionRef,
-  defaultSlideData,
-} from './sections/SlideSection';
+import { SlideSection, type SlideSectionRef, defaultSlideData } from './sections/SlideSection';
 import { GibsSection, type GibsSectionRef, defaultGibsData } from './sections/GibsSection';
 import {
   LubricationHydraulicsSection,
@@ -906,13 +898,16 @@ export function InspectionCreationModalWithSections({
                               />
                             )}
 
-                            {sectionKey === 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER' && (
+                            {sectionKey ===
+                              'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER' && (
                               <LubricationHydraulicsSection
                                 ref={lubricationRef}
                                 isOpen={true}
                                 onOpenChange={() => {}}
                                 onSectionTouched={() =>
-                                  handleSectionTouched('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER')
+                                  handleSectionTouched(
+                                    'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
+                                  )
                                 }
                               />
                             )}
@@ -931,7 +926,9 @@ export function InspectionCreationModalWithSections({
                                 ref={counterbalanceRef}
                                 isOpen={true}
                                 onOpenChange={() => {}}
-                                onSectionTouched={() => handleSectionTouched('COUNTERBALANCE_CYLINDER_AIRBAG')}
+                                onSectionTouched={() =>
+                                  handleSectionTouched('COUNTERBALANCE_CYLINDER_AIRBAG')
+                                }
                               />
                             )}
                           </div>
@@ -1051,9 +1048,13 @@ export function InspectionCreationModalWithSections({
                                 {t('sectionNames.bearingClearance')}
                               </Typography>
                               {isCompleted ? (
-                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                                <span className="text-xs text-green-600 dark:text-green-400">
+                                  (Completo)
+                                </span>
                               ) : (
-                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                                <span className="text-xs text-orange-600 dark:text-orange-400">
+                                  (Incompleto)
+                                </span>
                               )}
                             </div>
                             <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
@@ -1062,7 +1063,9 @@ export function InspectionCreationModalWithSections({
                             {/* Before Measurements (only if data exists) */}
                             {hasBeforeData && (
                               <div className="border-t pt-2 mb-3">
-                                <div className="font-semibold text-muted-foreground mb-2 text-sm">Before Maintenance</div>
+                                <div className="font-semibold text-muted-foreground mb-2 text-sm">
+                                  Before Maintenance
+                                </div>
                                 <div className="grid grid-cols-2 gap-3">
                                   {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
@@ -1072,19 +1075,38 @@ export function InspectionCreationModalWithSections({
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                            Field
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            LH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            RH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                            Diff
+                                          </TableHead>
                                         </TableRow>
                                       </TableHeader>
                                       <TableBody>
                                         {outerBeforeRows.map((row, idx) => (
-                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          <TableRow
+                                            key={idx}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {row.field}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.lh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.rh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {row.differential}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
@@ -1099,19 +1121,38 @@ export function InspectionCreationModalWithSections({
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                            Field
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            LH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            RH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                            Diff
+                                          </TableHead>
                                         </TableRow>
                                       </TableHeader>
                                       <TableBody>
                                         {innerBeforeRows.map((row, idx) => (
-                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          <TableRow
+                                            key={idx}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {row.field}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.lh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.rh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {row.differential}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
@@ -1138,19 +1179,38 @@ export function InspectionCreationModalWithSections({
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                            Field
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            LH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            RH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                            Diff
+                                          </TableHead>
                                         </TableRow>
                                       </TableHeader>
                                       <TableBody>
                                         {outerAfterRows.map((row, idx) => (
-                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          <TableRow
+                                            key={idx}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {row.field}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.lh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.rh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {row.differential}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
@@ -1165,19 +1225,38 @@ export function InspectionCreationModalWithSections({
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                            Field
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            LH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            RH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                            Diff
+                                          </TableHead>
                                         </TableRow>
                                       </TableHeader>
                                       <TableBody>
                                         {innerAfterRows.map((row, idx) => (
-                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          <TableRow
+                                            key={idx}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {row.field}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.lh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.rh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {row.differential}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
@@ -1201,10 +1280,13 @@ export function InspectionCreationModalWithSections({
                                     </div>
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Combined With:</span>
+                                        <span className="text-muted-foreground">
+                                          Combined With:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.combinedWith || data?.outerBefore?.combinedWith,
+                                            data?.outerAfter?.combinedWith ||
+                                              data?.outerBefore?.combinedWith,
                                           )}
                                         </span>
                                       </div>
@@ -1212,12 +1294,15 @@ export function InspectionCreationModalWithSections({
                                         <span className="text-muted-foreground">Mating Part:</span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.matingPart || data?.outerBefore?.matingPart,
+                                            data?.outerAfter?.matingPart ||
+                                              data?.outerBefore?.matingPart,
                                           )}
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Has Been Adjusted:</span>
+                                        <span className="text-muted-foreground">
+                                          Has Been Adjusted:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
                                             data?.outerAfter?.hasBeenAdjusted ||
@@ -1235,10 +1320,13 @@ export function InspectionCreationModalWithSections({
                                     </div>
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Combined With:</span>
+                                        <span className="text-muted-foreground">
+                                          Combined With:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.innerAfter?.combinedWith || data?.innerBefore?.combinedWith,
+                                            data?.innerAfter?.combinedWith ||
+                                              data?.innerBefore?.combinedWith,
                                           )}
                                         </span>
                                       </div>
@@ -1246,12 +1334,15 @@ export function InspectionCreationModalWithSections({
                                         <span className="text-muted-foreground">Mating Part:</span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.innerAfter?.matingPart || data?.innerBefore?.matingPart,
+                                            data?.innerAfter?.matingPart ||
+                                              data?.innerBefore?.matingPart,
                                           )}
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Has Been Adjusted:</span>
+                                        <span className="text-muted-foreground">
+                                          Has Been Adjusted:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
                                             data?.innerAfter?.hasBeenAdjusted ||
@@ -1271,7 +1362,9 @@ export function InspectionCreationModalWithSections({
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Slide Motor/Mounts:</span>
+                                        <span className="text-muted-foreground">
+                                          Slide Motor/Mounts:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
                                             data?.outerAfter?.slideMotorMounts ||
@@ -1280,7 +1373,9 @@ export function InspectionCreationModalWithSections({
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Power Cord/Hoses:</span>
+                                        <span className="text-muted-foreground">
+                                          Power Cord/Hoses:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
                                             data?.outerAfter?.powerCordHoses ||
@@ -1289,7 +1384,9 @@ export function InspectionCreationModalWithSections({
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Chains & Gears/Sprockets:</span>
+                                        <span className="text-muted-foreground">
+                                          Chains & Gears/Sprockets:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
                                             data?.outerAfter?.chainsGearsSprockets ||
@@ -1298,10 +1395,13 @@ export function InspectionCreationModalWithSections({
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Locking Clamps:</span>
+                                        <span className="text-muted-foreground">
+                                          Locking Clamps:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.lockingClamps || data?.outerBefore?.lockingClamps,
+                                            data?.outerAfter?.lockingClamps ||
+                                              data?.outerBefore?.lockingClamps,
                                           )}
                                         </span>
                                       </div>
@@ -1309,7 +1409,9 @@ export function InspectionCreationModalWithSections({
                                         <div className="flex flex-col gap-1 pt-1 border-t">
                                           <span className="text-muted-foreground">Notes:</span>
                                           <span className="font-medium">
-                                            {displayValue(data?.outerAfter?.notes || data?.outerBefore?.notes)}
+                                            {displayValue(
+                                              data?.outerAfter?.notes || data?.outerBefore?.notes,
+                                            )}
                                           </span>
                                         </div>
                                       )}
@@ -1338,9 +1440,13 @@ export function InspectionCreationModalWithSections({
                                 {t('sectionNames.slide')}
                               </Typography>
                               {isCompleted ? (
-                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                                <span className="text-xs text-green-600 dark:text-green-400">
+                                  (Completo)
+                                </span>
                               ) : (
-                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                                <span className="text-xs text-orange-600 dark:text-orange-400">
+                                  (Incompleto)
+                                </span>
                               )}
                             </div>
                             <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
@@ -1349,22 +1455,43 @@ export function InspectionCreationModalWithSections({
                             {/* Before Measurements (if exists) */}
                             {((data as any).outerBefore || (data as any).innerBefore) && (
                               <div className="border-t pt-2 mb-3">
-                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">Before Maintenance</div>
+                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                                  Before Maintenance
+                                </div>
                                 <div className="border rounded-md overflow-hidden">
                                   <Table>
                                     <TableHeader>
                                       <TableRow className="bg-muted/50">
-                                        <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                        <TableHead className="h-8 text-[10px] text-center font-semibold border-r">Outer</TableHead>
-                                        <TableHead className="h-8 text-[10px] text-center font-semibold">Inner</TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                          Field
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                          Outer
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                          Inner
+                                        </TableHead>
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                      {Object.keys((data as any).outerBefore || (data as any).innerBefore || {}).map((key) => (
-                                        <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
-                                          <TableCell className="py-1.5 text-center border-r">{displayValue((data as any).outerBefore?.[key])}</TableCell>
-                                          <TableCell className="py-1.5 text-center">{displayValue((data as any).innerBefore?.[key])}</TableCell>
+                                      {Object.keys(
+                                        (data as any).outerBefore ||
+                                          (data as any).innerBefore ||
+                                          {},
+                                      ).map((key) => (
+                                        <TableRow
+                                          key={key}
+                                          className="text-[11px] hover:bg-muted/30"
+                                        >
+                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                            {formatFieldName(key)}
+                                          </TableCell>
+                                          <TableCell className="py-1.5 text-center border-r">
+                                            {displayValue((data as any).outerBefore?.[key])}
+                                          </TableCell>
+                                          <TableCell className="py-1.5 text-center">
+                                            {displayValue((data as any).innerBefore?.[key])}
+                                          </TableCell>
                                         </TableRow>
                                       ))}
                                     </TableBody>
@@ -1376,22 +1503,41 @@ export function InspectionCreationModalWithSections({
                             {/* Data Measurements (if exists) */}
                             {((data as any).outerData || (data as any).innerData) && (
                               <div className="border-t pt-2 mb-3">
-                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">Data Measurements</div>
+                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                                  Data Measurements
+                                </div>
                                 <div className="border rounded-md overflow-hidden">
                                   <Table>
                                     <TableHeader>
                                       <TableRow className="bg-muted/50">
-                                        <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                        <TableHead className="h-8 text-[10px] text-center font-semibold border-r">Outer</TableHead>
-                                        <TableHead className="h-8 text-[10px] text-center font-semibold">Inner</TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                          Field
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                          Outer
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                          Inner
+                                        </TableHead>
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                      {Object.keys((data as any).outerData || (data as any).innerData || {}).map((key) => (
-                                        <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
-                                          <TableCell className="py-1.5 text-center border-r">{displayValue((data as any).outerData?.[key])}</TableCell>
-                                          <TableCell className="py-1.5 text-center">{displayValue((data as any).innerData?.[key])}</TableCell>
+                                      {Object.keys(
+                                        (data as any).outerData || (data as any).innerData || {},
+                                      ).map((key) => (
+                                        <TableRow
+                                          key={key}
+                                          className="text-[11px] hover:bg-muted/30"
+                                        >
+                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                            {formatFieldName(key)}
+                                          </TableCell>
+                                          <TableCell className="py-1.5 text-center border-r">
+                                            {displayValue((data as any).outerData?.[key])}
+                                          </TableCell>
+                                          <TableCell className="py-1.5 text-center">
+                                            {displayValue((data as any).innerData?.[key])}
+                                          </TableCell>
                                         </TableRow>
                                       ))}
                                     </TableBody>
@@ -1401,24 +1547,42 @@ export function InspectionCreationModalWithSections({
                             )}
 
                             {/* Section-level fields table */}
-                            {Object.entries(data).filter(([_, value]) => typeof value !== 'object' || value === null).length > 0 && (
+                            {Object.entries(data).filter(
+                              ([_, value]) => typeof value !== 'object' || value === null,
+                            ).length > 0 && (
                               <div className="border-t pt-2">
-                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">Section Fields</div>
+                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                                  Section Fields
+                                </div>
                                 <div className="border rounded-md overflow-hidden">
                                   <Table>
                                     <TableHeader>
                                       <TableRow className="bg-muted/50">
-                                        <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                        <TableHead className="h-8 text-[10px] text-center font-semibold">Value</TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                          Field
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                          Value
+                                        </TableHead>
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                       {Object.entries(data)
-                                        .filter(([_, value]) => typeof value !== 'object' || value === null)
+                                        .filter(
+                                          ([_, value]) =>
+                                            typeof value !== 'object' || value === null,
+                                        )
                                         .map(([key, value]) => (
-                                          <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
-                                            <TableCell className="py-1.5 text-center">{displayValue(value)}</TableCell>
+                                          <TableRow
+                                            key={key}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {formatFieldName(key)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {displayValue(value)}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                     </TableBody>
@@ -1459,9 +1623,13 @@ export function InspectionCreationModalWithSections({
                                 {t('sectionNames.gibs')}
                               </Typography>
                               {isCompleted ? (
-                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                                <span className="text-xs text-green-600 dark:text-green-400">
+                                  (Completo)
+                                </span>
                               ) : (
-                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                                <span className="text-xs text-orange-600 dark:text-orange-400">
+                                  (Incompleto)
+                                </span>
                               )}
                             </div>
                             <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
@@ -1470,7 +1638,9 @@ export function InspectionCreationModalWithSections({
                             {/* Before Measurements (only if data exists) */}
                             {hasBeforeData && (
                               <div className="border-t pt-2 mb-3">
-                                <div className="font-semibold text-muted-foreground mb-2 text-sm">Before Maintenance</div>
+                                <div className="font-semibold text-muted-foreground mb-2 text-sm">
+                                  Before Maintenance
+                                </div>
                                 <div className="grid grid-cols-2 gap-3">
                                   {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
@@ -1480,19 +1650,38 @@ export function InspectionCreationModalWithSections({
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                            Field
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            LH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            RH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                            Diff
+                                          </TableHead>
                                         </TableRow>
                                       </TableHeader>
                                       <TableBody>
                                         {outerBeforeRows.map((row, idx) => (
-                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          <TableRow
+                                            key={idx}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {row.field}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.lh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.rh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {row.differential}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
@@ -1507,19 +1696,38 @@ export function InspectionCreationModalWithSections({
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                            Field
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            LH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            RH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                            Diff
+                                          </TableHead>
                                         </TableRow>
                                       </TableHeader>
                                       <TableBody>
                                         {innerBeforeRows.map((row, idx) => (
-                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          <TableRow
+                                            key={idx}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {row.field}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.lh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.rh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {row.differential}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
@@ -1546,19 +1754,38 @@ export function InspectionCreationModalWithSections({
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                            Field
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            LH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            RH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                            Diff
+                                          </TableHead>
                                         </TableRow>
                                       </TableHeader>
                                       <TableBody>
                                         {outerAfterRows.map((row, idx) => (
-                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          <TableRow
+                                            key={idx}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {row.field}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.lh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.rh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {row.differential}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
@@ -1573,19 +1800,38 @@ export function InspectionCreationModalWithSections({
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                            Field
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            LH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
+                                            RH
+                                          </TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                            Diff
+                                          </TableHead>
                                         </TableRow>
                                       </TableHeader>
                                       <TableBody>
                                         {innerAfterRows.map((row, idx) => (
-                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
-                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          <TableRow
+                                            key={idx}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {row.field}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.lh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue(row.rh)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {row.differential}
+                                            </TableCell>
                                           </TableRow>
                                         ))}
                                       </TableBody>
@@ -1614,9 +1860,13 @@ export function InspectionCreationModalWithSections({
                                 {t('sectionNames.lubricationHydraulics')}
                               </Typography>
                               {isCompleted ? (
-                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                                <span className="text-xs text-green-600 dark:text-green-400">
+                                  (Completo)
+                                </span>
                               ) : (
-                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                                <span className="text-xs text-orange-600 dark:text-orange-400">
+                                  (Incompleto)
+                                </span>
                               )}
                             </div>
                             <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
@@ -1627,15 +1877,23 @@ export function InspectionCreationModalWithSections({
                                 <Table>
                                   <TableHeader>
                                     <TableRow className="bg-muted/50">
-                                      <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                      <TableHead className="h-8 text-[10px] text-center font-semibold">Value</TableHead>
+                                      <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                        Field
+                                      </TableHead>
+                                      <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                        Value
+                                      </TableHead>
                                     </TableRow>
                                   </TableHeader>
                                   <TableBody>
                                     {Object.entries(data).map(([key, value]) => (
                                       <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
-                                        <TableCell className="py-1.5 text-center">{displayValue(value)}</TableCell>
+                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                          {formatFieldName(key)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(value)}
+                                        </TableCell>
                                       </TableRow>
                                     ))}
                                   </TableBody>
@@ -1662,9 +1920,13 @@ export function InspectionCreationModalWithSections({
                                 {t('sectionNames.clutch')}
                               </Typography>
                               {isCompleted ? (
-                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                                <span className="text-xs text-green-600 dark:text-green-400">
+                                  (Completo)
+                                </span>
                               ) : (
-                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                                <span className="text-xs text-orange-600 dark:text-orange-400">
+                                  (Incompleto)
+                                </span>
                               )}
                             </div>
                             <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
@@ -1675,15 +1937,23 @@ export function InspectionCreationModalWithSections({
                                 <Table>
                                   <TableHeader>
                                     <TableRow className="bg-muted/50">
-                                      <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                      <TableHead className="h-8 text-[10px] text-center font-semibold">Value</TableHead>
+                                      <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                        Field
+                                      </TableHead>
+                                      <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                        Value
+                                      </TableHead>
                                     </TableRow>
                                   </TableHeader>
                                   <TableBody>
                                     {Object.entries(data).map(([key, value]) => (
                                       <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
-                                        <TableCell className="py-1.5 text-center">{displayValue(value)}</TableCell>
+                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                          {formatFieldName(key)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(value)}
+                                        </TableCell>
                                       </TableRow>
                                     ))}
                                   </TableBody>
@@ -1710,9 +1980,13 @@ export function InspectionCreationModalWithSections({
                                 {t('sectionNames.counterbalanceCylinder')}
                               </Typography>
                               {isCompleted ? (
-                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                                <span className="text-xs text-green-600 dark:text-green-400">
+                                  (Completo)
+                                </span>
                               ) : (
-                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                                <span className="text-xs text-orange-600 dark:text-orange-400">
+                                  (Incompleto)
+                                </span>
                               )}
                             </div>
                             <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
@@ -1723,15 +1997,23 @@ export function InspectionCreationModalWithSections({
                                 <Table>
                                   <TableHeader>
                                     <TableRow className="bg-muted/50">
-                                      <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
-                                      <TableHead className="h-8 text-[10px] text-center font-semibold">Value</TableHead>
+                                      <TableHead className="h-8 text-[10px] font-semibold border-r">
+                                        Field
+                                      </TableHead>
+                                      <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                        Value
+                                      </TableHead>
                                     </TableRow>
                                   </TableHeader>
                                   <TableBody>
                                     {Object.entries(data).map(([key, value]) => (
                                       <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
-                                        <TableCell className="py-1.5 text-center">{displayValue(value)}</TableCell>
+                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                          {formatFieldName(key)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(value)}
+                                        </TableCell>
                                       </TableRow>
                                     ))}
                                   </TableBody>
