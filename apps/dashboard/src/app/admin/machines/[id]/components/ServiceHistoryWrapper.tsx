@@ -76,7 +76,7 @@ export function ServiceHistoryWrapper({
                   onClick={() => handleServiceClick(service)}
                   className={`flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-0 ${
                     isPending
-                      ? 'cursor-pointer hover:bg-slate-50 transition-colors rounded-lg p-2 -m-2'
+                      ? 'cursor-pointer hover:bg-muted transition-colors rounded-lg p-2 -m-2'
                       : ''
                   }`}
                 >

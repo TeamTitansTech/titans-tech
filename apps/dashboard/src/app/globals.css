@@ -122,6 +122,11 @@
   border-color: hsl(var(--border));
 }
 
+html {
+  /* Reserve space for scrollbar to prevent layout shift when modal opens */
+  scrollbar-gutter: stable;
+}
+
 body {
   background: hsl(var(--background));
   color: hsl(var(--foreground));

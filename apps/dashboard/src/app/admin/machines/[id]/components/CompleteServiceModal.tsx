@@ -303,7 +303,7 @@ export function CompleteServiceModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="border rounded-lg p-6 bg-slate-50">
+          <div className="border rounded-lg p-6 bg-muted/30">
             <h3 className="text-base font-semibold mb-4">Service Details</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -314,7 +314,7 @@ export function CompleteServiceModal({
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      className={`w-full justify-start text-left font-normal mt-1 ${
+                      className={`w-full justify-start text-left font-normal mt-1 !bg-transparent ${
                         dateError ? 'border-destructive' : ''
                       }`}
                     >

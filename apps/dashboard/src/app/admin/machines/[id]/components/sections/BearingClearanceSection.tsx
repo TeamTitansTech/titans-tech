@@ -335,7 +335,7 @@ export const BearingClearanceSection = forwardRef<
   return (
     <Collapsible open={isOpen} onOpenChange={onOpenChange}>
       <CollapsibleTrigger className="w-full">
-        <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
+        <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
           <h3 className="text-base font-semibold">{t('form.bearingClearance.title')}</h3>
           <ChevronDown
             className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
@@ -343,7 +343,7 @@ export const BearingClearanceSection = forwardRef<
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-white space-y-6">
+        <div className="border border-t-0 rounded-b-lg p-6 bg-card space-y-6">
           {/* Include Before Measurements Checkbox - Only for Maintenance */}
           {serviceType === ServiceType.MAINTENANCE && (
             <div className="flex items-center space-x-2 pb-4 border-b">

@@ -217,7 +217,7 @@ export function SlideForm({
     <div className="space-y-6">
       {/* Checkbox for MAINTENANCE service type */}
       {serviceType === ServiceType.MAINTENANCE && (
-        <div className="flex items-center space-x-2 p-4 bg-slate-50 rounded-lg">
+        <div className="flex items-center space-x-2 p-4 bg-muted/30 rounded-lg">
           <Checkbox
             id="include-before-measurements"
             checked={includeBeforeMeasurements}

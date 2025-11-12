@@ -329,7 +329,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     return (
       <Collapsible open={isOpen} onOpenChange={onOpenChange}>
         <CollapsibleTrigger className="w-full">
-          <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
+          <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
             <h3 className="text-base font-semibold">Gibs</h3>
             <ChevronDown
               className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
@@ -337,7 +337,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="border border-t-0 rounded-b-lg p-6 bg-white">
+          <div className="border border-t-0 rounded-b-lg p-6 bg-card">
             <Tabs defaultValue="outer" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
