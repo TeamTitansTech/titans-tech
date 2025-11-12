@@ -29,7 +29,10 @@ export class ServicesController {
   }
   @Public()
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateServiceDto: UpdateServiceDto): Promise<unknown> {
+  update(
+    @Param('id') id: string,
+    @Body() updateServiceDto: UpdateServiceDto,
+  ): Promise<unknown> {
     return this.servicesService.update(id, updateServiceDto);
   }
 }
