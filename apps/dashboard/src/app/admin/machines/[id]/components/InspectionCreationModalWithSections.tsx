@@ -732,7 +732,9 @@ export function InspectionCreationModalWithSections({
                         <Typography variant="h3" className="text-sm font-semibold">
                           {t('sectionNames.lubricationHydraulics')}
                         </Typography>
-                        {savedSections.has('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (
+                        {savedSections.has(
+                          'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
+                        ) && (
                           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700">
                             <Check className="w-3.5 h-3.5 text-green-700 dark:text-green-400" />
                             <span className="text-xs font-semibold text-green-700 dark:text-green-400">
@@ -756,7 +758,8 @@ export function InspectionCreationModalWithSections({
                     <LubricationHydraulicsSection
                       ref={lubricationRef}
                       isOpen={
-                        sectionStates['LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER'] ?? false
+                        sectionStates['LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER'] ??
+                        false
                       }
                       onOpenChange={(open) =>
                         setSectionStates((prev) => ({

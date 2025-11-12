@@ -263,102 +263,102 @@ export function CompleteServiceModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[900px] h-[700px] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
         <div className="flex-1 overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>
-            {serviceType === ServiceType.MAINTENANCE
-              ? 'Complete Maintenance'
-              : 'Complete Inspection'}
-          </DialogTitle>
-          <DialogDescription>
-            {serviceType === ServiceType.MAINTENANCE
-              ? 'Complete this maintenance service by adding measurement data'
-              : 'Complete this inspection by adding measurement data'}
-          </DialogDescription>
-        </DialogHeader>
+          <DialogHeader>
+            <DialogTitle>
+              {serviceType === ServiceType.MAINTENANCE
+                ? 'Complete Maintenance'
+                : 'Complete Inspection'}
+            </DialogTitle>
+            <DialogDescription>
+              {serviceType === ServiceType.MAINTENANCE
+                ? 'Complete this maintenance service by adding measurement data'
+                : 'Complete this inspection by adding measurement data'}
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="border rounded-lg p-6 bg-muted/30">
-            <h3 className="text-base font-semibold mb-4">Service Details</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>
-                  {serviceType === ServiceType.MAINTENANCE ? 'Service Date' : 'Inspection Date'}
-                </Label>
-                <p className="text-sm font-medium mt-1">{date ? format(date, 'PPP') : '-'}</p>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="border rounded-lg p-6 bg-muted/30">
+              <h3 className="text-base font-semibold mb-4">Service Details</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>
+                    {serviceType === ServiceType.MAINTENANCE ? 'Service Date' : 'Inspection Date'}
+                  </Label>
+                  <p className="text-sm font-medium mt-1">{date ? format(date, 'PPP') : '-'}</p>
+                </div>
+
+                <div>
+                  <Label htmlFor="performedBy">{t('form.performedBy.label')}</Label>
+                  <Input
+                    id="performedBy"
+                    placeholder={t('form.performedBy.placeholder')}
+                    value={performedBy}
+                    onChange={(e) => setPerformedBy(e.target.value)}
+                    className="mt-1"
+                  />
+                </div>
               </div>
 
-              <div>
-                <Label htmlFor="performedBy">{t('form.performedBy.label')}</Label>
-                <Input
-                  id="performedBy"
-                  placeholder={t('form.performedBy.placeholder')}
-                  value={performedBy}
-                  onChange={(e) => setPerformedBy(e.target.value)}
-                  className="mt-1"
-                />
+              <div className="mt-4">
+                <Label className="text-xs text-muted-foreground">Service Type</Label>
+                <p className="text-sm font-medium mt-1">
+                  {serviceType === ServiceType.MAINTENANCE ? 'Maintenance' : 'Inspection'}
+                </p>
               </div>
             </div>
 
-            <div className="mt-4">
-              <Label className="text-xs text-muted-foreground">Service Type</Label>
-              <p className="text-sm font-medium mt-1">
-                {serviceType === ServiceType.MAINTENANCE ? 'Maintenance' : 'Inspection'}
-              </p>
+            {blueprintSections.includes('BEARING_CLEARANCE') && (
+              <BearingClearanceSection
+                ref={bearingClearanceRef}
+                isOpen={bearingClearanceOpen}
+                onOpenChange={setBearingClearanceOpen}
+                onSectionTouched={() => markSectionTouched('BEARING_CLEARANCE')}
+                serviceType={serviceType}
+              />
+            )}
+
+            {blueprintSections.includes('SLIDE') && (
+              <SlideSection
+                ref={slideRef}
+                isOpen={slideOpen}
+                onOpenChange={setSlideOpen}
+                serviceType={serviceType}
+              />
+            )}
+
+            {blueprintSections.includes('GIBS') && (
+              <GibsSection ref={gibsRef} isOpen={gibsOpen} onOpenChange={setGibsOpen} />
+            )}
+
+            {blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (
+              <LubricationHydraulicsSection
+                ref={lubricationRef}
+                isOpen={lubricationOpen}
+                onOpenChange={setLubricationOpen}
+              />
+            )}
+
+            {blueprintSections.includes('CLUTCH') && (
+              <ClutchSection ref={clutchRef} isOpen={clutchOpen} onOpenChange={setClutchOpen} />
+            )}
+
+            {blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG') && (
+              <CounterbalanceCylinderSection
+                ref={counterbalanceRef}
+                isOpen={counterbalanceOpen}
+                onOpenChange={setCounterbalanceOpen}
+              />
+            )}
+
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                {t('form.cancel')}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? t('form.submit.loading') : t('form.submit.idle')}
+              </Button>
             </div>
-          </div>
-
-          {blueprintSections.includes('BEARING_CLEARANCE') && (
-            <BearingClearanceSection
-              ref={bearingClearanceRef}
-              isOpen={bearingClearanceOpen}
-              onOpenChange={setBearingClearanceOpen}
-              onSectionTouched={() => markSectionTouched('BEARING_CLEARANCE')}
-              serviceType={serviceType}
-            />
-          )}
-
-          {blueprintSections.includes('SLIDE') && (
-            <SlideSection
-              ref={slideRef}
-              isOpen={slideOpen}
-              onOpenChange={setSlideOpen}
-              serviceType={serviceType}
-            />
-          )}
-
-          {blueprintSections.includes('GIBS') && (
-            <GibsSection ref={gibsRef} isOpen={gibsOpen} onOpenChange={setGibsOpen} />
-          )}
-
-          {blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (
-            <LubricationHydraulicsSection
-              ref={lubricationRef}
-              isOpen={lubricationOpen}
-              onOpenChange={setLubricationOpen}
-            />
-          )}
-
-          {blueprintSections.includes('CLUTCH') && (
-            <ClutchSection ref={clutchRef} isOpen={clutchOpen} onOpenChange={setClutchOpen} />
-          )}
-
-          {blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG') && (
-            <CounterbalanceCylinderSection
-              ref={counterbalanceRef}
-              isOpen={counterbalanceOpen}
-              onOpenChange={setCounterbalanceOpen}
-            />
-          )}
-
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              {t('form.cancel')}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t('form.submit.loading') : t('form.submit.idle')}
-            </Button>
-          </div>
-        </form>
+          </form>
         </div>
       </DialogContent>
     </Dialog>

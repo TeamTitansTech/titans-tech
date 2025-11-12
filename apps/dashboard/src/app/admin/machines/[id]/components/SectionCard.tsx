@@ -16,7 +16,13 @@ const STATUS_COLORS = {
   unknown: 'bg-muted-foreground',
 } as const;
 
-export function SectionCard({ title, status, imageUrl, onClick, isLoading = false }: SectionCardProps) {
+export function SectionCard({
+  title,
+  status,
+  imageUrl,
+  onClick,
+  isLoading = false,
+}: SectionCardProps) {
   return (
     <Card
       className={cn(
