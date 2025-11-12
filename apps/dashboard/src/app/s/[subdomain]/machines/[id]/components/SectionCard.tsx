@@ -18,7 +18,7 @@ const STATUS_COLORS = {
   ok: 'bg-green-500',
   warning: 'bg-yellow-500',
   alert: 'bg-red-500',
-  unknown: 'bg-gray-400',
+  unknown: 'bg-muted-foreground',
 } as const;
 
 export function SectionCard({ title, status, imageUrl, onClick }: SectionCardProps) {
@@ -40,7 +40,7 @@ export function SectionCard({ title, status, imageUrl, onClick }: SectionCardPro
         />
       </div>
 
-      <div className="aspect-[4/3] bg-muted/50 flex items-center justify-center relative px-5">
+      <div className="aspect-[4/3] bg-slate-500 dark:bg-slate-600 flex items-center justify-center relative px-5">
         {imageUrl ? (
           <Image
             src={imageUrl}

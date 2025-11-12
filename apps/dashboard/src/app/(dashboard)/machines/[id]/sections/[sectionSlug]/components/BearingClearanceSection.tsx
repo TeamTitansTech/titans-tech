@@ -292,7 +292,7 @@ export function BearingClearanceSection({
 
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-gray-400" />
+                      <div className="w-3 h-3 rounded-full bg-muted-foreground" />
                       <Typography variant="small" className="flex-1">
                         {t('slideMotorMounts')}
                       </Typography>
@@ -301,7 +301,7 @@ export function BearingClearanceSection({
                       </Typography>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-gray-400" />
+                      <div className="w-3 h-3 rounded-full bg-muted-foreground" />
                       <Typography variant="small" className="flex-1">
                         {t('powerCordHoses')}
                       </Typography>
@@ -310,7 +310,7 @@ export function BearingClearanceSection({
                       </Typography>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-gray-400" />
+                      <div className="w-3 h-3 rounded-full bg-muted-foreground" />
                       <Typography variant="small" className="flex-1">
                         {t('chainsGearsSprockets')}
                       </Typography>

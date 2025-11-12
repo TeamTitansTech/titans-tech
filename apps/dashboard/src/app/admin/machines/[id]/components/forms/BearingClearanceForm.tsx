@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   type BearingClearanceData,
   type BearingClearanceFormProps,
@@ -47,7 +46,7 @@ export function BearingClearanceForm({
   const calculateDifferential = (rhField: string, lhField: string): string => {
     const rh = Number(data[rhField as keyof BearingClearanceData]) || 0;
     const lh = Number(data[lhField as keyof BearingClearanceData]) || 0;
-    const diff = rh - lh;
+    const diff = Math.abs(rh - lh);
     return diff.toFixed(4);
   };
 
@@ -68,9 +67,7 @@ export function BearingClearanceForm({
         {/* Measurement Rows */}
         {MEASUREMENT_ROWS.map(({ key, rhField, lhField }) => (
           <div key={key} className="grid grid-cols-4 gap-4 items-center">
-            <div className="text-xs font-medium">
-              {t(`form.bearingClearance.fields.${key}`)}
-            </div>
+            <div className="text-xs font-medium">{t(`form.bearingClearance.fields.${key}`)}</div>
 
             {/* LH Input */}
             <div>
@@ -120,7 +117,7 @@ export function BearingClearanceForm({
                 value={calculateDifferential(rhField, lhField)}
                 readOnly
                 disabled
-                className="text-sm bg-gray-100"
+                className="text-sm bg-muted"
               />
             </div>
           </div>

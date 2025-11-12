@@ -103,6 +103,9 @@ export function UpcomingServicesWrapper({
           machineId={machineId}
           blueprintSections={blueprintSections}
           serviceId={selectedService.id}
+          serviceType={selectedService.type}
+          initialDate={selectedService.date}
+          initialPerformedBy={selectedService.performedBy ?? undefined}
           open={isCompleteModalOpen}
           onOpenChange={setIsCompleteModalOpen}
         />

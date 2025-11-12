@@ -57,7 +57,7 @@ export interface BearingClearanceData {
   extraDoubleLockOpen_LH: number;
   ballBoxArea_RH: number;
   ballBoxArea_LH: number;
-  hasBeenAdjusted: boolean;
+  hasBeenAdjusted: string;
   combinedWith?: string;
   matingPart?: MatingPartType;
   slideMotorMounts?: string;
