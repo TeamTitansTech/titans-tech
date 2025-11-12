@@ -88,7 +88,7 @@ export default function SimpleServiceCreationModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="w-[450px] max-w-[95vw]">
         <DialogHeader>
           <DialogTitle>{t('createNewService')}</DialogTitle>
           <DialogDescription>{t('createServiceDescription')}</DialogDescription>

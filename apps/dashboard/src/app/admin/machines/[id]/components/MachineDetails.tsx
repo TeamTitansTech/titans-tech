@@ -89,6 +89,7 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
   const [isSysPanel, setIsSysPanel] = useState(false);
+  const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
   useEffect(() => {
     const checkPanel = async () => {
@@ -99,6 +100,7 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
   }, []);
 
   const handleSectionClick = async (section: string) => {
+    setLoadingSection(section);
     const sectionSlug = section.toLowerCase();
     router.push(`${isSysPanel ? '/admin' : ''}/machines/${machine.id}/sections/${sectionSlug}`);
   };
@@ -159,6 +161,7 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
                     status={getSectionStatus(section, machine)}
                     imageUrl={SECTION_IMAGES[section]}
                     onClick={() => handleSectionClick(section)}
+                    isLoading={loadingSection === section}
                   />
                 ))}
               </div>

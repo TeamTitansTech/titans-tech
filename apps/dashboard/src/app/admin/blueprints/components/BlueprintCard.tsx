@@ -6,6 +6,7 @@ import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Boxes, Edit, Copy, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 interface BlueprintCardProps {
   id: string;
@@ -22,6 +23,8 @@ export function BlueprintCard({
   machineCount,
   fieldCount,
 }: BlueprintCardProps) {
+  const t = useTranslations('models');
+
   return (
     <Card className="hover:shadow-lg transition-shadow flex flex-col h-full">
       <CardHeader className="pb-3">
@@ -48,17 +51,17 @@ export function BlueprintCard({
         <div className="space-y-3">
           <div className="flex gap-2">
             <Badge variant="secondary">
-              {machineCount} {machineCount === 1 ? 'machine' : 'machines'}
+              {machineCount} {machineCount === 1 ? t('machine') : t('machines')}
             </Badge>
             <Badge variant="secondary">
-              {fieldCount} {fieldCount === 1 ? 'field' : 'fields'}
+              {fieldCount} {fieldCount === 1 ? t('field') : t('fields')}
             </Badge>
           </div>
           <div className="flex gap-2">
             <Button asChild variant="outline" className="flex-1" size="sm">
               <Link href={`/admin/blueprints/${id}`}>
                 <Edit className="w-4 h-4 mr-2" />
-                Edit
+                {t('edit')}
               </Link>
             </Button>
             <Button variant="outline" size="sm">

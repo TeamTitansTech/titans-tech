@@ -7,6 +7,7 @@ import { Typography } from '@/components/ui/typography';
 import { Calendar, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import SimpleServiceCreationModal from './SimpleServiceCreationModal';
+import { InspectionCreationModalWithSections } from './InspectionCreationModalWithSections';
 import { CompleteServiceModal } from './CompleteServiceModal';
 import type { Service } from '@/data/types/services.types';
 
@@ -25,6 +26,7 @@ export function UpcomingServicesWrapper({
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
 
   // Filter for upcoming services (future dates and PENDING status)
   const today = new Date();
@@ -38,7 +40,14 @@ export function UpcomingServicesWrapper({
 
   const handleServiceClick = (service: Service) => {
     setSelectedService(service);
-    setIsCompleteModalOpen(true);
+
+    // If it's a maintenance service, open the section selection modal
+    // If it's an inspection, open the complete service modal
+    if (service.type === 'MAINTENANCE') {
+      setIsMaintenanceModalOpen(true);
+    } else {
+      setIsCompleteModalOpen(true);
+    }
   };
 
   return (
@@ -98,7 +107,18 @@ export function UpcomingServicesWrapper({
         open={isServiceModalOpen}
         onOpenChange={setIsServiceModalOpen}
       />
-      {selectedService && (
+      {selectedService && selectedService.type === 'MAINTENANCE' && (
+        <InspectionCreationModalWithSections
+          machineId={machineId}
+          open={isMaintenanceModalOpen}
+          onOpenChange={setIsMaintenanceModalOpen}
+          machineSections={blueprintSections}
+          serviceId={selectedService.id}
+          initialDate={selectedService.date}
+          initialPerformedBy={selectedService.performedBy ?? undefined}
+        />
+      )}
+      {selectedService && selectedService.type === 'INSPECTION' && (
         <CompleteServiceModal
           machineId={machineId}
           blueprintSections={blueprintSections}

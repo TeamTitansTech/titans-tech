@@ -54,9 +54,7 @@ export function BearingClearanceForm({
     <div className="space-y-6">
       <h4 className="font-semibold text-sm">{title}</h4>
 
-      {/* Measurements Table */}
       <div className="space-y-4">
-        {/* Header Row */}
         <div className="grid grid-cols-4 gap-4 border-b pb-2">
           <div className="text-xs font-semibold">Measurement</div>
           <div className="text-xs font-semibold text-center">LH</div>
@@ -64,12 +62,10 @@ export function BearingClearanceForm({
           <div className="text-xs font-semibold text-center">Differential</div>
         </div>
 
-        {/* Measurement Rows */}
         {MEASUREMENT_ROWS.map(({ key, rhField, lhField }) => (
           <div key={key} className="grid grid-cols-4 gap-4 items-center">
             <div className="text-xs font-medium">{t(`form.bearingClearance.fields.${key}`)}</div>
 
-            {/* LH Input */}
             <div>
               <Input
                 id={`${lhField}-${title}`}
@@ -90,7 +86,6 @@ export function BearingClearanceForm({
               )}
             </div>
 
-            {/* RH Input */}
             <div>
               <Input
                 id={`${rhField}-${title}`}
@@ -111,7 +106,6 @@ export function BearingClearanceForm({
               )}
             </div>
 
-            {/* Differential (Read-only, Calculated) */}
             <div>
               <Input
                 value={calculateDifferential(rhField, lhField)}

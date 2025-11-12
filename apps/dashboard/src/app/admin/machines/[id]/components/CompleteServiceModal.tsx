@@ -261,7 +261,8 @@ export function CompleteServiceModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[900px] h-[700px] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {serviceType === ServiceType.MAINTENANCE
@@ -358,6 +359,7 @@ export function CompleteServiceModal({
             </Button>
           </div>
         </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
