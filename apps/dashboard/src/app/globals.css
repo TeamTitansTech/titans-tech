@@ -125,6 +125,7 @@
 html {
   /* Reserve space for scrollbar to prevent layout shift when modal opens */
   scrollbar-gutter: stable;
+  overflow-y: scroll;
 }
 
 body {
@@ -134,4 +135,6 @@ body {
     ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
     'Noto Color Emoji';
   font-weight: 500;
+  /* Prevent scrollbar from being removed */
+  overflow-y: auto !important;
 }

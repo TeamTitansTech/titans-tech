@@ -127,9 +127,9 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6">
-        <Card>
+        <Card className="bg-muted">
           <CardContent className="p-0">
-            <div className="aspect-[3/4] bg-muted flex items-center justify-center relative">
+            <div className="aspect-[3/4] flex items-center justify-center relative">
               {machine.imageUrl ? (
                 <Image
                   src={machine.imageUrl}

@@ -11,7 +11,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -20,6 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
 import { ServiceType, type CreateServicePayload } from '@/data/types/services.types';
 import { createService } from '@/data/services/services.api';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
@@ -43,10 +46,10 @@ export default function SimpleServiceCreationModal({
   const getTomorrowDate = () => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
+    return tomorrow;
   };
 
-  const [date, setDate] = useState(getTomorrowDate());
+  const [date, setDate] = useState<Date>(getTomorrowDate());
   const [serviceType, setServiceType] = useState<ServiceType>(ServiceType.INSPECTION);
   const [error, setError] = useState<string | null>(null);
 
@@ -58,7 +61,7 @@ export default function SimpleServiceCreationModal({
     try {
       const payload: CreateServicePayload = {
         machineId,
-        date: new Date(date).toISOString(),
+        date: date.toISOString(),
         type: serviceType,
       };
 
@@ -94,13 +97,29 @@ export default function SimpleServiceCreationModal({
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="date">{t('serviceDate')}</Label>
-              <Input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, 'PPP') : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(newDate) => {
+                      if (newDate) {
+                        setDate(newDate);
+                      }
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
 
             <div className="grid gap-2">
@@ -112,7 +131,7 @@ export default function SimpleServiceCreationModal({
                 <SelectTrigger id="type">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-white">
+                <SelectContent>
                   <SelectItem value={ServiceType.INSPECTION}>{t('types.inspection')}</SelectItem>
                   <SelectItem value={ServiceType.MAINTENANCE}>{t('types.maintenance')}</SelectItem>
                 </SelectContent>

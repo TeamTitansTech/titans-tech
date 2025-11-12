@@ -12,9 +12,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { updateService } from '@/data/services/services.api';
@@ -83,15 +80,12 @@ export function CompleteServiceModal({
   const clutchRef = useRef<ClutchSectionRef>(null);
   const counterbalanceRef = useRef<CounterbalanceCylinderSectionRef>(null);
 
-  const [dateError, setDateError] = useState<string>('');
-
   // Reset form when modal closes
   useEffect(() => {
     if (!open) {
       setDate(initialDate ? new Date(initialDate) : new Date());
       setPerformedBy(initialPerformedBy || '');
       setTouchedSections(new Set());
-      setDateError('');
       // Reset section refs
       bearingClearanceRef.current?.reset();
       slideRef.current?.reset();
@@ -107,32 +101,11 @@ export function CompleteServiceModal({
     setTouchedSections((prev) => new Set(prev).add(section));
   };
 
-  const validateDate = (selectedDate: Date) => {
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
-
-    if (selectedDate > today) {
-      setDateError(t('form.error.futureDate'));
-    } else {
-      setDateError('');
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Validate date
-      const today = new Date();
-      today.setHours(23, 59, 59, 999);
-
-      if (date > today) {
-        toast.error(t('form.error.futureDate'));
-        setIsSubmitting(false);
-        return;
-      }
-
       const validationErrors: string[] = [];
 
       // Bearing Clearance validation
@@ -307,36 +280,10 @@ export function CompleteServiceModal({
             <h3 className="text-base font-semibold mb-4">Service Details</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="date">
+                <Label>
                   {serviceType === ServiceType.MAINTENANCE ? 'Service Date' : 'Inspection Date'}
                 </Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={`w-full justify-start text-left font-normal mt-1 !bg-transparent ${
-                        dateError ? 'border-destructive' : ''
-                      }`}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, 'PPP') : <span>Pick a date</span>}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={(newDate) => {
-                        if (newDate) {
-                          setDate(newDate);
-                          validateDate(newDate);
-                        }
-                      }}
-                      disabled={(date) => date > new Date()}
-                    />
-                  </PopoverContent>
-                </Popover>
-                {dateError && <p className="text-sm text-destructive mt-1">{dateError}</p>}
+                <p className="text-sm font-medium mt-1">{date ? format(date, 'PPP') : '-'}</p>
               </div>
 
               <div>
