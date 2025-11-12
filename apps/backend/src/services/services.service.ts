@@ -62,26 +62,70 @@ export class ServicesService {
         ...(createInspectionDto.slide && {
           slide: {
             create: {
-              outerBefore: createInspectionDto.slide.outerBefore
-                ? {
-                    create: createInspectionDto.slide.outerBefore,
-                  }
-                : undefined,
-              outerData: createInspectionDto.slide.outerAfter
-                ? {
-                    create: createInspectionDto.slide.outerAfter,
-                  }
-                : undefined,
-              innerBefore: createInspectionDto.slide.innerBefore
-                ? {
-                    create: createInspectionDto.slide.innerBefore,
-                  }
-                : undefined,
-              innerData: createInspectionDto.slide.innerAfter
-                ? {
-                    create: createInspectionDto.slide.innerAfter,
-                  }
-                : undefined,
+              ...(createInspectionDto.slide.outerBefore && {
+                outerBefore: {
+                  create: createInspectionDto.slide.outerBefore,
+                },
+              }),
+              ...(createInspectionDto.slide.outerData && {
+                outerData: {
+                  create: createInspectionDto.slide.outerData,
+                },
+              }),
+              ...(createInspectionDto.slide.innerBefore && {
+                innerBefore: {
+                  create: createInspectionDto.slide.innerBefore,
+                },
+              }),
+              ...(createInspectionDto.slide.innerData && {
+                innerData: {
+                  create: createInspectionDto.slide.innerData,
+                },
+              }),
+              ...(createInspectionDto.slide.parallelism && {
+                parallelism: createInspectionDto.slide.parallelism,
+              }),
+              ...(createInspectionDto.slide.hasParallelismBeenAdjusted && {
+                hasParallelismBeenAdjusted:
+                  createInspectionDto.slide.hasParallelismBeenAdjusted,
+              }),
+              ...(createInspectionDto.slide
+                .outerShutheightIndicatorsChecked && {
+                outerShutheightIndicatorsChecked:
+                  createInspectionDto.slide.outerShutheightIndicatorsChecked,
+              }),
+              ...(createInspectionDto.slide.outerOverloadsOnTonnageMonitor && {
+                outerOverloadsOnTonnageMonitor:
+                  createInspectionDto.slide.outerOverloadsOnTonnageMonitor,
+              }),
+              ...(createInspectionDto.slide.outerShutheightActualSh && {
+                outerShutheightActualSh:
+                  createInspectionDto.slide.outerShutheightActualSh,
+              }),
+              ...(createInspectionDto.slide.outerIndicatorReading && {
+                outerIndicatorReading:
+                  createInspectionDto.slide.outerIndicatorReading,
+              }),
+              ...(createInspectionDto.slide
+                .innerShutheightIndicatorsChecked && {
+                innerShutheightIndicatorsChecked:
+                  createInspectionDto.slide.innerShutheightIndicatorsChecked,
+              }),
+              ...(createInspectionDto.slide.innerOverloadsOnTonnageMonitor && {
+                innerOverloadsOnTonnageMonitor:
+                  createInspectionDto.slide.innerOverloadsOnTonnageMonitor,
+              }),
+              ...(createInspectionDto.slide.innerShutheightActualSh && {
+                innerShutheightActualSh:
+                  createInspectionDto.slide.innerShutheightActualSh,
+              }),
+              ...(createInspectionDto.slide.innerIndicatorReading && {
+                innerIndicatorReading:
+                  createInspectionDto.slide.innerIndicatorReading,
+              }),
+              ...(createInspectionDto.slide.notes && {
+                notes: createInspectionDto.slide.notes,
+              }),
             },
           },
         }),

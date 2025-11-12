@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Dialog,
@@ -13,7 +12,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
@@ -23,22 +21,23 @@ import {
   ServiceType,
   ServiceStatus,
   MatingPartType,
-  ParallelismType,
   type BearingClearanceData,
-  type SlideData,
-  type GibsData,
-  type LubricationHydraulicsData,
-  type ClutchData,
-  type CounterbalanceCylinderData,
   type UpdateServicePayload,
   type ServiceCreationModalProps,
 } from '@/data/types/services.types';
 import { BearingClearanceForm } from './forms/BearingClearanceForm';
-import { SlideForm } from './forms/SlideForm';
-import { GibsForm } from './forms/GibsForm';
-import { LubricationHydraulicsForm } from './forms/LubricationHydraulicsForm';
-import { ClutchForm } from './forms/ClutchForm';
-import { CounterbalanceCylinderForm } from './forms/CounterbalanceCylinderForm';
+import { SlideSection, type SlideSectionRef } from './sections/SlideSection';
+import { GibsSection, type GibsSectionRef } from './sections/GibsSection';
+import {
+  LubricationHydraulicsSection,
+  type LubricationHydraulicsSectionRef,
+} from './sections/LubricationHydraulicsSection';
+import { ClutchSection, type ClutchSectionRef } from './sections/ClutchSection';
+import {
+  CounterbalanceCylinderSection,
+  type CounterbalanceCylinderSectionRef,
+} from './sections/CounterbalanceCylinderSection';
+import { Checkbox } from '@radix-ui/react-checkbox';
 
 // Default data structures
 const defaultBearingData: BearingClearanceData = {
@@ -66,110 +65,6 @@ const defaultBearingData: BearingClearanceData = {
   chainsGearsSprockets: '',
   lockingClamps: '',
   notes: '',
-};
-
-const defaultSlideData: SlideData = {
-  parallelism: ParallelismType.DNC,
-  hasBeenAdjusted: false,
-  position1: 0,
-  position2: 0,
-  position3: 0,
-  position4: 0,
-  shutheightChecked: false,
-  actualSH: '',
-  overloadsOnMonitor: '',
-  indicatorReading: '',
-};
-
-const defaultGibsData: GibsData = {
-  hasBeenAdjusted: false,
-  point1: 0,
-  point2: 0,
-  point3: 0,
-  point4: 0,
-  point5: 0,
-  point6: 0,
-  point7: 0,
-  point8: 0,
-  point9: 0,
-  point10: 0,
-  point11: 0,
-  point12: 0,
-  point13: 0,
-  point14: 0,
-  point15: 0,
-  point16: 0,
-  leftTop: undefined,
-  leftBottom: undefined,
-  rightTop: undefined,
-  rightBottom: undefined,
-  frontTop: undefined,
-  frontBottom: undefined,
-  backTop: undefined,
-  backBottom: undefined,
-  usable: '',
-};
-
-const defaultLubricationHydraulicsData: LubricationHydraulicsData = {
-  lubePSI: undefined,
-  monitorflowPSI: undefined,
-  hydPSI: undefined,
-  pressSWPSI: undefined,
-  otherGauges: '',
-  changedOil: false,
-  oilTemperatureF: undefined,
-  oilMfgType: '',
-  changedFilter: false,
-};
-
-const defaultClutchData: ClutchData = {
-  clutchType: '',
-  clutchLocation: '',
-  brakeSpringBrake: undefined,
-  brakeSpringClutch: undefined,
-  brakeSpringStudBolt: '',
-  brakeAnchorClearanceFB: undefined,
-  brakeAnchorClearanceFTB: undefined,
-  brakeAnchorClearanceRTB: undefined,
-  brakeStoppingTime: undefined,
-  brakeLining: '',
-  brakeClearing: undefined,
-  brakeClearanceTotal: undefined,
-  brakeClearanceRear: undefined,
-  flywheelStoppingTime: undefined,
-  flywheelBearings: '',
-  flywheelBrake: '',
-  clutchEngagements: undefined,
-  clutchLining: '',
-  clutchSeals: '',
-  gearBacklashBefore: undefined,
-  gearBacklashAfter: undefined,
-  crankEndplayBefore: undefined,
-  crankEndplayAfter: undefined,
-  airRegulatorPSI: undefined,
-  airClutchTravel: undefined,
-  airLineOilerSetting: '',
-  hydClutchClearanceTotal: undefined,
-  hydClutchClearanceRear: undefined,
-  hydraulicPressurePSI: undefined,
-  accumulatorPSI: undefined,
-  rotaryUnion: '',
-  splinesDriveRingDisc: '',
-  adjustingNutLockSecure: '',
-  separateBrakeSeals: '',
-  flexDisc: '',
-};
-
-const defaultCounterbalanceCylinderData: CounterbalanceCylinderData = {
-  counterbalanceType: '',
-  airbagPistonSeals: '',
-  airbagPistonSealsLeakLocation: '',
-  regulator: '',
-  gaugePSI: undefined,
-  pneumaticsPlumbing: '',
-  rodSeals: '',
-  rodBushing: '',
-  oilWick: '',
 };
 
 // Validation helper functions
@@ -226,74 +121,20 @@ const validateBearingClearanceData = (data: BearingClearanceData): string[] => {
   return errors;
 };
 
-const validateSlideData = (data: SlideData): string[] => {
-  const errors: string[] = [];
-  const requiredFields: (keyof SlideData)[] = ['position1', 'position2', 'position3', 'position4'];
-
-  requiredFields.forEach((field) => {
-    const value = data[field];
-    if (typeof value !== 'number' || isNaN(value)) {
-      errors.push(`${String(field)} is required and must be a valid number`);
-    }
-  });
-
-  return errors;
-};
-
-const validateGibsData = (data: GibsData): string[] => {
-  const errors: string[] = [];
-  const requiredFields: (keyof GibsData)[] = [
-    'point1',
-    'point2',
-    'point3',
-    'point4',
-    'point5',
-    'point6',
-    'point7',
-    'point8',
-    'point9',
-    'point10',
-    'point11',
-    'point12',
-    'point13',
-    'point14',
-    'point15',
-    'point16',
-  ];
-
-  requiredFields.forEach((field) => {
-    const value = data[field];
-    if (typeof value !== 'number' || isNaN(value)) {
-      errors.push(`${String(field)} is required and must be a valid number`);
-    }
-  });
-
-  return errors;
-};
-
-const validateLubricationHydraulicsData = (_data: LubricationHydraulicsData): string[] => {
-  // All fields are optional for this section
-  return [];
-};
-
-const validateClutchData = (_data: ClutchData): string[] => {
-  // All fields are optional for this section
-  return [];
-};
-
-const validateCounterbalanceCylinderData = (_data: CounterbalanceCylinderData): string[] => {
-  // All fields are optional for this section
-  return [];
-};
-
 interface CompleteServiceModalProps extends ServiceCreationModalProps {
   serviceId: string; // ID of the service to complete
+  serviceType: ServiceType; // Type of the service being completed
+  initialDate?: string; // Initial date from the service
+  initialPerformedBy?: string; // Initial performedBy from the service
 }
 
 export function CompleteServiceModal({
   machineId,
   blueprintSections,
   serviceId,
+  serviceType,
+  initialDate,
+  initialPerformedBy,
   open,
   onOpenChange,
 }: CompleteServiceModalProps) {
@@ -301,10 +142,9 @@ export function CompleteServiceModal({
   const t = useTranslations('inspections');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-  const [serviceType, setServiceType] = useState<ServiceType>(ServiceType.INSPECTION);
-  const [performedBy, setPerformedBy] = useState('');
   const [includeBeforeData, setIncludeBeforeData] = useState(false);
+  const [date, setDate] = useState(initialDate || new Date().toISOString().split('T')[0]);
+  const [performedBy, setPerformedBy] = useState(initialPerformedBy || '');
 
   // Track which sections have been touched
   const [touchedSections, setTouchedSections] = useState<Set<string>>(new Set());
@@ -316,6 +156,13 @@ export function CompleteServiceModal({
   const [lubricationOpen, setLubricationOpen] = useState(false);
   const [clutchOpen, setClutchOpen] = useState(false);
   const [counterbalanceOpen, setCounterbalanceOpen] = useState(false);
+
+  // Section refs
+  const slideRef = useRef<SlideSectionRef>(null);
+  const gibsRef = useRef<GibsSectionRef>(null);
+  const lubricationRef = useRef<LubricationHydraulicsSectionRef>(null);
+  const clutchRef = useRef<ClutchSectionRef>(null);
+  const counterbalanceRef = useRef<CounterbalanceCylinderSectionRef>(null);
 
   // Bearing Clearance state
   const [outerBeforeData, setOuterBeforeData] = useState<BearingClearanceData>(defaultBearingData);
@@ -341,53 +188,12 @@ export function CompleteServiceModal({
   const [innerAfterErrors, setInnerAfterErrors] = useState<Record<string, string>>({});
   const [dateError, setDateError] = useState<string>('');
 
-  // Slide state
-  const [slideOuterBeforeData, setSlideOuterBeforeData] = useState<SlideData>(defaultSlideData);
-  const [slideOuterAfterData, setSlideOuterAfterData] = useState<SlideData>(defaultSlideData);
-  const [slideInnerBeforeData, setSlideInnerBeforeData] = useState<SlideData>(defaultSlideData);
-  const [slideInnerAfterData, setSlideInnerAfterData] = useState<SlideData>(defaultSlideData);
-
-  const [slideOuterBeforeErrors, setSlideOuterBeforeErrors] = useState<Record<string, string>>({});
-  const [slideOuterAfterErrors, setSlideOuterAfterErrors] = useState<Record<string, string>>({});
-  const [slideInnerBeforeErrors, setSlideInnerBeforeErrors] = useState<Record<string, string>>({});
-  const [slideInnerAfterErrors, setSlideInnerAfterErrors] = useState<Record<string, string>>({});
-
-  // Gibs state
-  const [gibsOuterBeforeData, setGibsOuterBeforeData] = useState<GibsData>(defaultGibsData);
-  const [gibsOuterAfterData, setGibsOuterAfterData] = useState<GibsData>(defaultGibsData);
-  const [gibsInnerBeforeData, setGibsInnerBeforeData] = useState<GibsData>(defaultGibsData);
-  const [gibsInnerAfterData, setGibsInnerAfterData] = useState<GibsData>(defaultGibsData);
-
-  const [gibsOuterBeforeErrors, setGibsOuterBeforeErrors] = useState<Record<string, string>>({});
-  const [gibsOuterAfterErrors, setGibsOuterAfterErrors] = useState<Record<string, string>>({});
-  const [gibsInnerBeforeErrors, setGibsInnerBeforeErrors] = useState<Record<string, string>>({});
-  const [gibsInnerAfterErrors, setGibsInnerAfterErrors] = useState<Record<string, string>>({});
-
-  // Lubrication Hydraulics state
-  const [lubricationHydraulicsData, setLubricationHydraulicsData] =
-    useState<LubricationHydraulicsData>(defaultLubricationHydraulicsData);
-  const [lubricationHydraulicsErrors, setLubricationHydraulicsErrors] = useState<
-    Record<string, string>
-  >({});
-
-  // Clutch state
-  const [clutchData, setClutchData] = useState<ClutchData>(defaultClutchData);
-  const [clutchErrors, setClutchErrors] = useState<Record<string, string>>({});
-
-  // Counterbalance Cylinder state
-  const [counterbalanceCylinderData, setCounterbalanceCylinderData] =
-    useState<CounterbalanceCylinderData>(defaultCounterbalanceCylinderData);
-  const [counterbalanceCylinderErrors, setCounterbalanceCylinderErrors] = useState<
-    Record<string, string>
-  >({});
-
   // Reset form when modal closes
   useEffect(() => {
     if (!open) {
-      setDate(new Date().toISOString().split('T')[0]);
-      setServiceType(ServiceType.INSPECTION);
-      setPerformedBy('');
       setIncludeBeforeData(false);
+      setDate(initialDate || new Date().toISOString().split('T')[0]);
+      setPerformedBy(initialPerformedBy || '');
       setTouchedSections(new Set());
       setOuterBeforeData(defaultBearingData);
       setOuterAfterData(defaultBearingData);
@@ -407,31 +213,15 @@ export function CompleteServiceModal({
       setOuterAfterErrors({});
       setInnerBeforeErrors({});
       setInnerAfterErrors({});
-      setSlideOuterBeforeData(defaultSlideData);
-      setSlideOuterAfterData(defaultSlideData);
-      setSlideInnerBeforeData(defaultSlideData);
-      setSlideInnerAfterData(defaultSlideData);
-      setSlideOuterBeforeErrors({});
-      setSlideOuterAfterErrors({});
-      setSlideInnerBeforeErrors({});
-      setSlideInnerAfterErrors({});
-      setGibsOuterBeforeData(defaultGibsData);
-      setGibsOuterAfterData(defaultGibsData);
-      setGibsInnerBeforeData(defaultGibsData);
-      setGibsInnerAfterData(defaultGibsData);
-      setGibsOuterBeforeErrors({});
-      setGibsOuterAfterErrors({});
-      setGibsInnerBeforeErrors({});
-      setGibsInnerAfterErrors({});
-      setLubricationHydraulicsData(defaultLubricationHydraulicsData);
-      setLubricationHydraulicsErrors({});
-      setClutchData(defaultClutchData);
-      setClutchErrors({});
-      setCounterbalanceCylinderData(defaultCounterbalanceCylinderData);
-      setCounterbalanceCylinderErrors({});
       setDateError('');
+      // Reset section refs
+      slideRef.current?.reset();
+      gibsRef.current?.reset();
+      lubricationRef.current?.reset();
+      clutchRef.current?.reset();
+      counterbalanceRef.current?.reset();
     }
-  }, [open]);
+  }, [open, initialDate, initialPerformedBy]);
 
   // Mark section as touched when user interacts with it
   const markSectionTouched = (section: string) => {
@@ -475,96 +265,6 @@ export function CompleteServiceModal({
     markSectionTouched('BEARING_CLEARANCE');
   };
 
-  const updateSlideOuterBeforeField = (
-    field: keyof SlideData,
-    value: string | number | boolean,
-  ) => {
-    setSlideOuterBeforeData((prev) => ({ ...prev, [field]: value }));
-    setSlideOuterBeforeErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('SLIDE');
-  };
-
-  const updateSlideOuterAfterField = (field: keyof SlideData, value: string | number | boolean) => {
-    setSlideOuterAfterData((prev) => ({ ...prev, [field]: value }));
-    setSlideOuterAfterErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('SLIDE');
-  };
-
-  const updateSlideInnerBeforeField = (
-    field: keyof SlideData,
-    value: string | number | boolean,
-  ) => {
-    setSlideInnerBeforeData((prev) => ({ ...prev, [field]: value }));
-    setSlideInnerBeforeErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('SLIDE');
-  };
-
-  const updateSlideInnerAfterField = (field: keyof SlideData, value: string | number | boolean) => {
-    setSlideInnerAfterData((prev) => ({ ...prev, [field]: value }));
-    setSlideInnerAfterErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('SLIDE');
-  };
-
-  const updateGibsOuterBeforeField = (
-    field: keyof GibsData,
-    value: string | number | boolean | undefined,
-  ) => {
-    setGibsOuterBeforeData((prev) => ({ ...prev, [field]: value }));
-    setGibsOuterBeforeErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('GIBS');
-  };
-
-  const updateGibsOuterAfterField = (
-    field: keyof GibsData,
-    value: string | number | boolean | undefined,
-  ) => {
-    setGibsOuterAfterData((prev) => ({ ...prev, [field]: value }));
-    setGibsOuterAfterErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('GIBS');
-  };
-
-  const updateGibsInnerBeforeField = (
-    field: keyof GibsData,
-    value: string | number | boolean | undefined,
-  ) => {
-    setGibsInnerBeforeData((prev) => ({ ...prev, [field]: value }));
-    setGibsInnerBeforeErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('GIBS');
-  };
-
-  const updateGibsInnerAfterField = (
-    field: keyof GibsData,
-    value: string | number | boolean | undefined,
-  ) => {
-    setGibsInnerAfterData((prev) => ({ ...prev, [field]: value }));
-    setGibsInnerAfterErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('GIBS');
-  };
-
-  const updateLubricationHydraulicsField = (
-    field: keyof LubricationHydraulicsData,
-    value: string | number | boolean | undefined,
-  ) => {
-    setLubricationHydraulicsData((prev) => ({ ...prev, [field]: value }));
-    setLubricationHydraulicsErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER');
-  };
-
-  const updateClutchField = (field: keyof ClutchData, value: string | number | undefined) => {
-    setClutchData((prev) => ({ ...prev, [field]: value }));
-    setClutchErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('CLUTCH');
-  };
-
-  const updateCounterbalanceCylinderField = (
-    field: keyof CounterbalanceCylinderData,
-    value: string | number | undefined,
-  ) => {
-    setCounterbalanceCylinderData((prev) => ({ ...prev, [field]: value }));
-    setCounterbalanceCylinderErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('COUNTERBALANCE_CYLINDER_AIRBAG');
-  };
-
   // Validation on blur (basic field validation)
   const validateField = (
     field: keyof BearingClearanceData,
@@ -580,82 +280,6 @@ export function CompleteServiceModal({
     }
 
     return '';
-  };
-
-  const validateSlideField = (
-    field: keyof SlideData,
-    value: string | number | boolean | undefined,
-  ): string => {
-    if (
-      field === 'hasBeenAdjusted' ||
-      field === 'shutheightChecked' ||
-      field === 'parallelism' ||
-      field === 'actualSH' ||
-      field === 'overloadsOnMonitor' ||
-      field === 'indicatorReading'
-    ) {
-      return '';
-    }
-
-    const numValue = Number(value);
-    if (isNaN(numValue)) {
-      return t('form.error.invalidNumber');
-    }
-
-    return '';
-  };
-
-  const validateGibsField = (
-    field: keyof GibsData,
-    value: string | number | boolean | undefined,
-  ): string => {
-    if (field === 'hasBeenAdjusted' || field === 'usable') {
-      return '';
-    }
-
-    // Optional directional measurements
-    if (
-      [
-        'leftTop',
-        'leftBottom',
-        'rightTop',
-        'rightBottom',
-        'frontTop',
-        'frontBottom',
-        'backTop',
-        'backBottom',
-      ].includes(String(field))
-    ) {
-      if (value === undefined || value === '') return '';
-    }
-
-    const numValue = Number(value);
-    if (isNaN(numValue)) {
-      return t('form.error.invalidNumber');
-    }
-
-    return '';
-  };
-
-  const validateLubricationHydraulicsField = (
-    _field: keyof LubricationHydraulicsData,
-    _value: string | number | boolean | undefined,
-  ): string => {
-    return ''; // All fields optional
-  };
-
-  const validateClutchField = (
-    _field: keyof ClutchData,
-    _value: string | number | undefined,
-  ): string => {
-    return ''; // All fields optional
-  };
-
-  const validateCounterbalanceCylinderField = (
-    _field: keyof CounterbalanceCylinderData,
-    _value: string | number | undefined,
-  ): string => {
-    return ''; // All fields optional
   };
 
   // Blur handlers
@@ -677,61 +301,6 @@ export function CompleteServiceModal({
   const handleBlurInnerAfter = (field: keyof BearingClearanceData) => {
     const error = validateField(field, innerAfterData[field]);
     setInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurSlideOuterBefore = (field: keyof SlideData) => {
-    const error = validateSlideField(field, slideOuterBeforeData[field]);
-    setSlideOuterBeforeErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurSlideOuterAfter = (field: keyof SlideData) => {
-    const error = validateSlideField(field, slideOuterAfterData[field]);
-    setSlideOuterAfterErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurSlideInnerBefore = (field: keyof SlideData) => {
-    const error = validateSlideField(field, slideInnerBeforeData[field]);
-    setSlideInnerBeforeErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurSlideInnerAfter = (field: keyof SlideData) => {
-    const error = validateSlideField(field, slideInnerAfterData[field]);
-    setSlideInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurGibsOuterBefore = (field: keyof GibsData) => {
-    const error = validateGibsField(field, gibsOuterBeforeData[field]);
-    setGibsOuterBeforeErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurGibsOuterAfter = (field: keyof GibsData) => {
-    const error = validateGibsField(field, gibsOuterAfterData[field]);
-    setGibsOuterAfterErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurGibsInnerBefore = (field: keyof GibsData) => {
-    const error = validateGibsField(field, gibsInnerBeforeData[field]);
-    setGibsInnerBeforeErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurGibsInnerAfter = (field: keyof GibsData) => {
-    const error = validateGibsField(field, gibsInnerAfterData[field]);
-    setGibsInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurLubricationHydraulics = (field: keyof LubricationHydraulicsData) => {
-    const error = validateLubricationHydraulicsField(field, lubricationHydraulicsData[field]);
-    setLubricationHydraulicsErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurClutch = (field: keyof ClutchData) => {
-    const error = validateClutchField(field, clutchData[field]);
-    setClutchErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurCounterbalanceCylinder = (field: keyof CounterbalanceCylinderData) => {
-    const error = validateCounterbalanceCylinderField(field, counterbalanceCylinderData[field]);
-    setCounterbalanceCylinderErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleDateBlur = () => {
@@ -815,112 +384,43 @@ export function CompleteServiceModal({
         }
       }
 
-      if (touchedSections.has('SLIDE') && blueprintSections.includes('SLIDE')) {
-        const outerBeforeTouched = isDataTouched(slideOuterBeforeData, defaultSlideData);
-        const outerAfterTouched = isDataTouched(slideOuterAfterData, defaultSlideData);
-        const innerBeforeTouched = isDataTouched(slideInnerBeforeData, defaultSlideData);
-        const innerAfterTouched = isDataTouched(slideInnerAfterData, defaultSlideData);
+      // Slide validation is now handled in the validateAndGetData method
 
-        if (serviceType === ServiceType.MAINTENANCE) {
-          if (!outerBeforeTouched || !innerBeforeTouched) {
-            validationErrors.push(
-              'Slide: For maintenance inspections, you must fill all "Before" sections (Outer Before and Inner Before)',
-            );
-          } else {
-            validationErrors.push(
-              ...validateSlideData(slideOuterBeforeData).map((e) => `Slide Outer Before: ${e}`),
-            );
-            validationErrors.push(
-              ...validateSlideData(slideInnerBeforeData).map((e) => `Slide Inner Before: ${e}`),
-            );
-          }
-        }
-
-        if (outerAfterTouched) {
-          validationErrors.push(
-            ...validateSlideData(slideOuterAfterData).map((e) => `Slide Outer After: ${e}`),
-          );
-        }
-        if (innerAfterTouched) {
-          validationErrors.push(
-            ...validateSlideData(slideInnerAfterData).map((e) => `Slide Inner After: ${e}`),
-          );
-        }
-
-        if (serviceType === ServiceType.INSPECTION && !outerAfterTouched && !innerAfterTouched) {
-          validationErrors.push(
-            'Slide: For routine inspections, you must fill at least one "After" section (Outer After or Inner After)',
-          );
+      // Gibs validation
+      if (blueprintSections.includes('GIBS') && gibsRef.current?.isTouched()) {
+        const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+        if (!gibsResult.isValid) {
+          validationErrors.push(...gibsResult.errors);
         }
       }
 
-      if (touchedSections.has('GIBS') && blueprintSections.includes('GIBS')) {
-        const outerBeforeTouched = isDataTouched(gibsOuterBeforeData, defaultGibsData);
-        const outerAfterTouched = isDataTouched(gibsOuterAfterData, defaultGibsData);
-        const innerBeforeTouched = isDataTouched(gibsInnerBeforeData, defaultGibsData);
-        const innerAfterTouched = isDataTouched(gibsInnerAfterData, defaultGibsData);
-
-        if (serviceType === ServiceType.MAINTENANCE) {
-          if (!outerBeforeTouched || !innerBeforeTouched) {
-            validationErrors.push(
-              'Gibs: For maintenance inspections, you must fill all "Before" sections (Outer Before and Inner Before)',
-            );
-          } else {
-            validationErrors.push(
-              ...validateGibsData(gibsOuterBeforeData).map((e) => `Gibs Outer Before: ${e}`),
-            );
-            validationErrors.push(
-              ...validateGibsData(gibsInnerBeforeData).map((e) => `Gibs Inner Before: ${e}`),
-            );
-          }
-        }
-
-        if (outerAfterTouched) {
-          validationErrors.push(
-            ...validateGibsData(gibsOuterAfterData).map((e) => `Gibs Outer After: ${e}`),
-          );
-        }
-        if (innerAfterTouched) {
-          validationErrors.push(
-            ...validateGibsData(gibsInnerAfterData).map((e) => `Gibs Inner After: ${e}`),
-          );
-        }
-
-        if (serviceType === ServiceType.INSPECTION && !outerAfterTouched && !innerAfterTouched) {
-          validationErrors.push(
-            'Gibs: For routine inspections, you must fill at least one "After" section (Outer After or Inner After)',
-          );
-        }
-      }
-
-      // Single-form sections (Lubrication, Clutch, Counterbalance)
+      // Lubrication Hydraulics validation
       if (
-        touchedSections.has('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') &&
-        blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER')
+        blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') &&
+        lubricationRef.current?.isTouched()
       ) {
-        const touched = isDataTouched(lubricationHydraulicsData, defaultLubricationHydraulicsData);
-        if (touched) {
-          validationErrors.push(...validateLubricationHydraulicsData(lubricationHydraulicsData));
+        const lubricationResult = lubricationRef.current.validateAndGetData(serviceType);
+        if (!lubricationResult.isValid) {
+          validationErrors.push(...lubricationResult.errors);
         }
       }
 
-      if (touchedSections.has('CLUTCH') && blueprintSections.includes('CLUTCH')) {
-        const touched = isDataTouched(clutchData, defaultClutchData);
-        if (touched) {
-          validationErrors.push(...validateClutchData(clutchData));
+      // Clutch validation
+      if (blueprintSections.includes('CLUTCH') && clutchRef.current?.isTouched()) {
+        const clutchResult = clutchRef.current.validateAndGetData(serviceType);
+        if (!clutchResult.isValid) {
+          validationErrors.push(...clutchResult.errors);
         }
       }
 
+      // Counterbalance Cylinder validation
       if (
-        touchedSections.has('COUNTERBALANCE_CYLINDER_AIRBAG') &&
-        blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG')
+        blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG') &&
+        counterbalanceRef.current?.isTouched()
       ) {
-        const touched = isDataTouched(
-          counterbalanceCylinderData,
-          defaultCounterbalanceCylinderData,
-        );
-        if (touched) {
-          validationErrors.push(...validateCounterbalanceCylinderData(counterbalanceCylinderData));
+        const counterbalanceResult = counterbalanceRef.current.validateAndGetData(serviceType);
+        if (!counterbalanceResult.isValid) {
+          validationErrors.push(...counterbalanceResult.errors);
         }
       }
 
@@ -970,65 +470,50 @@ export function CompleteServiceModal({
       }
 
       // Only add slide if section was touched
-      if (touchedSections.has('SLIDE') && blueprintSections.includes('SLIDE')) {
-        const outerBeforeTouched = isDataTouched(slideOuterBeforeData, defaultSlideData);
-        const outerAfterTouched = isDataTouched(slideOuterAfterData, defaultSlideData);
-        const innerBeforeTouched = isDataTouched(slideInnerBeforeData, defaultSlideData);
-        const innerAfterTouched = isDataTouched(slideInnerAfterData, defaultSlideData);
-
-        payload.slide = {
-          outerBefore: outerBeforeTouched ? slideOuterBeforeData : undefined,
-          outerAfter: outerAfterTouched ? slideOuterAfterData : undefined,
-          innerBefore: innerBeforeTouched ? slideInnerBeforeData : undefined,
-          innerAfter: innerAfterTouched ? slideInnerAfterData : undefined,
-        };
-      }
-
-      // Only add gibs if section was touched
-      if (touchedSections.has('GIBS') && blueprintSections.includes('GIBS')) {
-        const outerBeforeTouched = isDataTouched(gibsOuterBeforeData, defaultGibsData);
-        const outerAfterTouched = isDataTouched(gibsOuterAfterData, defaultGibsData);
-        const innerBeforeTouched = isDataTouched(gibsInnerBeforeData, defaultGibsData);
-        const innerAfterTouched = isDataTouched(gibsInnerAfterData, defaultGibsData);
-
-        payload.gibs = {
-          outerBefore: outerBeforeTouched ? gibsOuterBeforeData : undefined,
-          outerAfter: outerAfterTouched ? gibsOuterAfterData : undefined,
-          innerBefore: innerBeforeTouched ? gibsInnerBeforeData : undefined,
-          innerAfter: innerAfterTouched ? gibsInnerAfterData : undefined,
-        };
-      }
-
-      // Only add lubrication hydraulics if section was touched
-      if (
-        touchedSections.has('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') &&
-        blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER')
-      ) {
-        const touched = isDataTouched(lubricationHydraulicsData, defaultLubricationHydraulicsData);
-        if (touched) {
-          payload.lubricationHydraulics = lubricationHydraulicsData;
+      if (blueprintSections.includes('SLIDE') && slideRef.current?.isTouched()) {
+        const slideResult = slideRef.current.validateAndGetData(serviceType);
+        if (!slideResult.isValid) {
+          validationErrors.push(...slideResult.errors);
+        } else if (slideResult.data) {
+          payload.slide = slideResult.data;
         }
       }
 
-      // Only add clutch if section was touched
-      if (touchedSections.has('CLUTCH') && blueprintSections.includes('CLUTCH')) {
-        const touched = isDataTouched(clutchData, defaultClutchData);
-        if (touched) {
-          payload.clutch = clutchData;
+      // Add gibs data if validated successfully
+      if (blueprintSections.includes('GIBS') && gibsRef.current?.isTouched()) {
+        const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+        if (gibsResult.isValid && gibsResult.data) {
+          payload.gibs = gibsResult.data;
         }
       }
 
-      // Only add counterbalance cylinder if section was touched
+      // Add lubrication hydraulics data if validated successfully
       if (
-        touchedSections.has('COUNTERBALANCE_CYLINDER_AIRBAG') &&
-        blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG')
+        blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') &&
+        lubricationRef.current?.isTouched()
       ) {
-        const touched = isDataTouched(
-          counterbalanceCylinderData,
-          defaultCounterbalanceCylinderData,
-        );
-        if (touched) {
-          payload.counterbalanceCylinder = counterbalanceCylinderData;
+        const lubricationResult = lubricationRef.current.validateAndGetData(serviceType);
+        if (lubricationResult.isValid && lubricationResult.data) {
+          payload.lubricationHydraulics = lubricationResult.data;
+        }
+      }
+
+      // Add clutch data if validated successfully
+      if (blueprintSections.includes('CLUTCH') && clutchRef.current?.isTouched()) {
+        const clutchResult = clutchRef.current.validateAndGetData(serviceType);
+        if (clutchResult.isValid && clutchResult.data) {
+          payload.clutch = clutchResult.data;
+        }
+      }
+
+      // Add counterbalance cylinder data if validated successfully
+      if (
+        blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG') &&
+        counterbalanceRef.current?.isTouched()
+      ) {
+        const counterbalanceResult = counterbalanceRef.current.validateAndGetData(serviceType);
+        if (counterbalanceResult.isValid && counterbalanceResult.data) {
+          payload.counterbalanceCylinder = counterbalanceResult.data;
         }
       }
 
@@ -1101,19 +586,12 @@ export function CompleteServiceModal({
               </div>
             </div>
 
-            {/* Checkbox for maintenance to include "Before" data */}
-            {serviceType === ServiceType.MAINTENANCE && (
-              <div className="mt-4 flex items-center space-x-2">
-                <Checkbox
-                  id="includeBeforeData"
-                  checked={includeBeforeData}
-                  onCheckedChange={(checked: boolean) => setIncludeBeforeData(checked)}
-                />
-                <Label htmlFor="includeBeforeData" className="cursor-pointer text-sm">
-                  Include "Initial" measurements (before maintenance)
-                </Label>
-              </div>
-            )}
+            <div className="mt-4">
+              <Label className="text-xs text-muted-foreground">Service Type</Label>
+              <p className="text-sm font-medium mt-1">
+                {serviceType === ServiceType.MAINTENANCE ? 'Maintenance' : 'Inspection'}
+              </p>
+            </div>
           </div>
 
           {/* Bearing Clearance Section */}
@@ -1235,7 +713,10 @@ export function CompleteServiceModal({
                           id="hasBeenAdjusted"
                           checked={sharedBearingFields.hasBeenAdjusted}
                           onCheckedChange={(checked: boolean) =>
-                            setSharedBearingFields((prev) => ({ ...prev, hasBeenAdjusted: checked }))
+                            setSharedBearingFields((prev) => ({
+                              ...prev,
+                              hasBeenAdjusted: checked,
+                            }))
                           }
                         />
                         <Label htmlFor="hasBeenAdjusted" className="cursor-pointer text-xs">
@@ -1391,260 +872,40 @@ export function CompleteServiceModal({
 
           {/* Slide Section */}
           {blueprintSections.includes('SLIDE') && (
-            <Collapsible open={slideOpen} onOpenChange={setSlideOpen}>
-              <CollapsibleTrigger className="w-full">
-                <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
-                  <h3 className="text-base font-semibold">Slide</h3>
-                  <ChevronDown
-                    className={`h-5 w-5 transition-transform ${slideOpen ? 'transform rotate-180' : ''}`}
-                  />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="border border-t-0 rounded-b-lg p-6 bg-white">
-                  <Tabs defaultValue="outer" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-4">
-                      <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
-                      <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="outer" className="space-y-6">
-                      <Tabs defaultValue="before" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                          <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="before" className="mt-4">
-                          <SlideForm
-                            data={slideOuterBeforeData}
-                            updateFn={updateSlideOuterBeforeField}
-                            errors={slideOuterBeforeErrors}
-                            handleBlur={handleBlurSlideOuterBefore}
-                            title="Outer Before"
-                          />
-                        </TabsContent>
-
-                        <TabsContent value="after" className="mt-4">
-                          <SlideForm
-                            data={slideOuterAfterData}
-                            updateFn={updateSlideOuterAfterField}
-                            errors={slideOuterAfterErrors}
-                            handleBlur={handleBlurSlideOuterAfter}
-                            title="Outer After"
-                          />
-                        </TabsContent>
-                      </Tabs>
-                    </TabsContent>
-
-                    <TabsContent value="inner" className="space-y-6">
-                      <Tabs defaultValue="before" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                          <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="before" className="mt-4">
-                          <SlideForm
-                            data={slideInnerBeforeData}
-                            updateFn={updateSlideInnerBeforeField}
-                            errors={slideInnerBeforeErrors}
-                            handleBlur={handleBlurSlideInnerBefore}
-                            title="Inner Before"
-                          />
-                        </TabsContent>
-
-                        <TabsContent value="after" className="mt-4">
-                          <SlideForm
-                            data={slideInnerAfterData}
-                            updateFn={updateSlideInnerAfterField}
-                            errors={slideInnerAfterErrors}
-                            handleBlur={handleBlurSlideInnerAfter}
-                            title="Inner After"
-                          />
-                        </TabsContent>
-                      </Tabs>
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+            <SlideSection
+              ref={slideRef}
+              isOpen={slideOpen}
+              onOpenChange={setSlideOpen}
+              serviceType={serviceType}
+            />
           )}
 
           {/* Gibs Section */}
           {blueprintSections.includes('GIBS') && (
-            <Collapsible open={gibsOpen} onOpenChange={setGibsOpen}>
-              <CollapsibleTrigger className="w-full">
-                <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
-                  <h3 className="text-base font-semibold">Gibs</h3>
-                  <ChevronDown
-                    className={`h-5 w-5 transition-transform ${gibsOpen ? 'transform rotate-180' : ''}`}
-                  />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="border border-t-0 rounded-b-lg p-6 bg-white">
-                  <Tabs defaultValue="outer" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-4">
-                      <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
-                      <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="outer" className="space-y-6">
-                      <Tabs defaultValue="before" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                          <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="before" className="mt-4">
-                          <GibsForm
-                            data={gibsOuterBeforeData}
-                            updateFn={updateGibsOuterBeforeField}
-                            errors={gibsOuterBeforeErrors}
-                            handleBlur={handleBlurGibsOuterBefore}
-                            title="Outer Before"
-                          />
-                        </TabsContent>
-
-                        <TabsContent value="after" className="mt-4">
-                          <GibsForm
-                            data={gibsOuterAfterData}
-                            updateFn={updateGibsOuterAfterField}
-                            errors={gibsOuterAfterErrors}
-                            handleBlur={handleBlurGibsOuterAfter}
-                            title="Outer After"
-                          />
-                        </TabsContent>
-                      </Tabs>
-                    </TabsContent>
-
-                    <TabsContent value="inner" className="space-y-6">
-                      <Tabs defaultValue="before" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                          <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="before" className="mt-4">
-                          <GibsForm
-                            data={gibsInnerBeforeData}
-                            updateFn={updateGibsInnerBeforeField}
-                            errors={gibsInnerBeforeErrors}
-                            handleBlur={handleBlurGibsInnerBefore}
-                            title="Inner Before"
-                          />
-                        </TabsContent>
-
-                        <TabsContent value="after" className="mt-4">
-                          <GibsForm
-                            data={gibsInnerAfterData}
-                            updateFn={updateGibsInnerAfterField}
-                            errors={gibsInnerAfterErrors}
-                            handleBlur={handleBlurGibsInnerAfter}
-                            title="Inner After"
-                          />
-                        </TabsContent>
-                      </Tabs>
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+            <GibsSection ref={gibsRef} isOpen={gibsOpen} onOpenChange={setGibsOpen} />
           )}
 
           {/* Lubrication Hydraulics Section */}
           {blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (
-            <Collapsible open={lubricationOpen} onOpenChange={setLubricationOpen}>
-              <CollapsibleTrigger className="w-full">
-                <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
-                  <h3 className="text-base font-semibold">
-                    Lubrication / Hydraulics / Pressure Switches / Oil & Filter
-                  </h3>
-                  <ChevronDown
-                    className={`h-5 w-5 transition-transform ${lubricationOpen ? 'transform rotate-180' : ''}`}
-                  />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="border border-t-0 rounded-b-lg p-6 bg-white">
-                  <LubricationHydraulicsForm
-                    data={lubricationHydraulicsData}
-                    updateFn={updateLubricationHydraulicsField}
-                    errors={lubricationHydraulicsErrors}
-                    handleBlur={handleBlurLubricationHydraulics}
-                  />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+            <LubricationHydraulicsSection
+              ref={lubricationRef}
+              isOpen={lubricationOpen}
+              onOpenChange={setLubricationOpen}
+            />
           )}
 
           {/* Clutch Section */}
           {blueprintSections.includes('CLUTCH') && (
-            <Collapsible open={clutchOpen} onOpenChange={setClutchOpen}>
-              <CollapsibleTrigger className="w-full">
-                <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
-                  <h3 className="text-base font-semibold">Clutch</h3>
-                  <ChevronDown
-                    className={`h-5 w-5 transition-transform ${clutchOpen ? 'transform rotate-180' : ''}`}
-                  />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="border border-t-0 rounded-b-lg p-6 bg-white">
-                  <ClutchForm
-                    data={clutchData}
-                    updateFn={updateClutchField}
-                    errors={clutchErrors}
-                    handleBlur={handleBlurClutch}
-                  />
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+            <ClutchSection ref={clutchRef} isOpen={clutchOpen} onOpenChange={setClutchOpen} />
           )}
 
           {/* Counterbalance Cylinder Section */}
           {blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG') && (
-            <Collapsible open={counterbalanceOpen} onOpenChange={setCounterbalanceOpen}>
-              <CollapsibleTrigger className="w-full">
-                <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
-                  <h3 className="text-base font-semibold">Counterbalance Cylinder / Airbag</h3>
-                  <ChevronDown
-                    className={`h-5 w-5 transition-transform ${counterbalanceOpen ? 'transform rotate-180' : ''}`}
-                  />
-                </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="border border-t-0 rounded-b-lg p-6 bg-white">
-                  <Tabs defaultValue="outer" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-4">
-                      <TabsTrigger value="outer">Outer Data</TabsTrigger>
-                      <TabsTrigger value="inner">Inner Data</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="outer" className="space-y-6">
-                      <CounterbalanceCylinderForm
-                        data={counterbalanceCylinderData}
-                        updateFn={updateCounterbalanceCylinderField}
-                        errors={counterbalanceCylinderErrors}
-                        handleBlur={handleBlurCounterbalanceCylinder}
-                        title="Outer"
-                      />
-                    </TabsContent>
-
-                    <TabsContent value="inner" className="space-y-6">
-                      <CounterbalanceCylinderForm
-                        data={counterbalanceCylinderData}
-                        updateFn={updateCounterbalanceCylinderField}
-                        errors={counterbalanceCylinderErrors}
-                        handleBlur={handleBlurCounterbalanceCylinder}
-                        title="Inner"
-                      />
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
+            <CounterbalanceCylinderSection
+              ref={counterbalanceRef}
+              isOpen={counterbalanceOpen}
+              onOpenChange={setCounterbalanceOpen}
+            />
           )}
 
           {/* Form Actions */}

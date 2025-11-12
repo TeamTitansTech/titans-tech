@@ -28,12 +28,18 @@ export interface CounterbalanceCylinderSectionRef {
   getData: () => CounterbalanceCylinderData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
+  isTouched: () => boolean;
+  validateAndGetData: (serviceType: ServiceType) => {
+    isValid: boolean;
+    errors: string[];
+    data?: CounterbalanceCylinderData;
+  };
 }
 
 interface CounterbalanceCylinderSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSectionTouched: () => void;
+  onSectionTouched?: () => void;
 }
 
 export const CounterbalanceCylinderSection = forwardRef<
@@ -49,7 +55,7 @@ export const CounterbalanceCylinderSection = forwardRef<
   ) => {
     setData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: '' }));
-    onSectionTouched();
+    onSectionTouched?.();
   };
 
   const handleBlur = (_field: keyof CounterbalanceCylinderData) => {
@@ -57,6 +63,36 @@ export const CounterbalanceCylinderSection = forwardRef<
   };
 
   useImperativeHandle(ref, () => ({
+    isTouched: (): boolean => {
+      return isDataTouched(data, defaultCounterbalanceCylinderData);
+    },
+
+    validateAndGetData: (
+      _serviceType: ServiceType,
+    ): { isValid: boolean; errors: string[]; data?: CounterbalanceCylinderData } => {
+      const touched = isDataTouched(data, defaultCounterbalanceCylinderData);
+
+      if (!touched) {
+        return { isValid: true, errors: [] };
+      }
+
+      const validationErrors = validateCounterbalanceCylinderData(data);
+      const isValid = validationErrors.length === 0;
+
+      if (isValid) {
+        return {
+          isValid: true,
+          errors: [],
+          data,
+        };
+      }
+
+      return {
+        isValid: false,
+        errors: validationErrors,
+      };
+    },
+
     getData: (): CounterbalanceCylinderData | undefined => {
       const touched = isDataTouched(data, defaultCounterbalanceCylinderData);
       return touched ? data : undefined;

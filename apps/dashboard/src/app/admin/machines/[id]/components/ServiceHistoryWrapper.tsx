@@ -124,6 +124,9 @@ export function ServiceHistoryWrapper({
           machineId={machineId}
           blueprintSections={blueprintSections}
           serviceId={selectedService.id}
+          serviceType={selectedService.type}
+          initialDate={selectedService.date}
+          initialPerformedBy={selectedService.performedBy}
           open={isCompleteModalOpen}
           onOpenChange={setIsCompleteModalOpen}
         />

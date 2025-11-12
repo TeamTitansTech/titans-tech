@@ -54,12 +54,18 @@ export interface ClutchSectionRef {
   getData: () => ClutchData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
+  isTouched: () => boolean;
+  validateAndGetData: (serviceType: ServiceType) => {
+    isValid: boolean;
+    errors: string[];
+    data?: ClutchData;
+  };
 }
 
 interface ClutchSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSectionTouched: () => void;
+  onSectionTouched?: () => void;
 }
 
 export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
@@ -70,7 +76,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     const updateField = (field: keyof ClutchData, value: string | number | undefined) => {
       setData((prev) => ({ ...prev, [field]: value }));
       setErrors((prev) => ({ ...prev, [field]: '' }));
-      onSectionTouched();
+      onSectionTouched?.();
     };
 
     const handleBlur = (_field: keyof ClutchData) => {
@@ -78,6 +84,36 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     };
 
     useImperativeHandle(ref, () => ({
+      isTouched: (): boolean => {
+        return isDataTouched(data, defaultClutchData);
+      },
+
+      validateAndGetData: (
+        _serviceType: ServiceType,
+      ): { isValid: boolean; errors: string[]; data?: ClutchData } => {
+        const touched = isDataTouched(data, defaultClutchData);
+
+        if (!touched) {
+          return { isValid: true, errors: [] };
+        }
+
+        const validationErrors = validateClutchData(data);
+        const isValid = validationErrors.length === 0;
+
+        if (isValid) {
+          return {
+            isValid: true,
+            errors: [],
+            data,
+          };
+        }
+
+        return {
+          isValid: false,
+          errors: validationErrors,
+        };
+      },
+
       getData: (): ClutchData | undefined => {
         const touched = isDataTouched(data, defaultClutchData);
         return touched ? data : undefined;

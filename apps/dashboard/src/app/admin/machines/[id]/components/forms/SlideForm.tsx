@@ -1,9 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -11,188 +13,377 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ParallelismType, type SlideFormProps } from '@/data/types/services.types';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  type SlideData,
+  ServiceType,
+  ParallelismType,
+  YesNoNaDncType,
+  YesNoDncType,
+} from '@/data/types/services.types';
 
-export function SlideForm({ data, updateFn, errors, handleBlur, title }: SlideFormProps) {
+interface SlideFormData {
+  outerBeforeData: SlideData;
+  outerAfterData: SlideData;
+  innerBeforeData: SlideData;
+  innerAfterData: SlideData;
+  parallelism: ParallelismType;
+  hasParallelismBeenAdjusted: YesNoNaDncType;
+  outerShutheightIndicatorsChecked: YesNoDncType;
+  outerOverloadsOnTonnageMonitor: string;
+  outerShutheightActualSh: string;
+  outerIndicatorReading: string;
+  innerShutheightIndicatorsChecked: YesNoDncType;
+  innerOverloadsOnTonnageMonitor: string;
+  innerShutheightActualSh: string;
+  innerIndicatorReading: string;
+  notes: string;
+}
+
+export interface SlideFormProps {
+  data: SlideFormData;
+  updateFn: <K extends keyof SlideFormData>(field: K, value: SlideFormData[K]) => void;
+  errors: {
+    outerBefore: Record<string, string>;
+    outerAfter: Record<string, string>;
+    innerBefore: Record<string, string>;
+    innerAfter: Record<string, string>;
+  };
+  handleBlur: (
+    section: 'outerBefore' | 'outerAfter' | 'innerBefore' | 'innerAfter',
+    field: keyof SlideData,
+  ) => void;
+  serviceType: ServiceType;
+  onSectionTouched?: () => void;
+}
+
+function PositionFields({
+  data,
+  updateFn,
+  errors,
+  handleBlur,
+  title,
+}: {
+  data: SlideData;
+  updateFn: (field: keyof SlideData, value: number) => void;
+  errors: Record<string, string>;
+  handleBlur: (field: keyof SlideData) => void;
+  title: string;
+}) {
   const t = useTranslations('inspections');
 
   return (
-    <div className="space-y-6">
-      <h4 className="font-semibold text-sm">{title}</h4>
+    <div className="space-y-4">
+      <h5 className="font-medium text-sm">{title}</h5>
+      <div className="grid grid-cols-3 gap-4">
+        {(
+          ['position1', 'position2', 'position3', 'position4', 'position5', 'position6'] as const
+        ).map((field) => (
+          <div key={field}>
+            <Label htmlFor={`${field}-${title}`} className="text-xs">
+              {t(`form.slide.${field}`)}
+            </Label>
+            <Input
+              id={`${field}-${title}`}
+              type="number"
+              step="0.0001"
+              min="0"
+              max="999999.9999"
+              value={data[field]}
+              onChange={(e) => updateFn(field, Number(e.target.value))}
+              onBlur={() => handleBlur(field)}
+              className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
+              required
+            />
+            {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
+function ShutheightFields({
+  type,
+  data,
+  handleFieldUpdate,
+}: {
+  type: 'outer' | 'inner';
+  data: SlideFormData;
+  handleFieldUpdate: (field: keyof SlideFormData, value: string | YesNoDncType) => void;
+}) {
+  const isOuter = type === 'outer';
+  const indicatorsField = isOuter
+    ? 'outerShutheightIndicatorsChecked'
+    : 'innerShutheightIndicatorsChecked';
+  const overloadsField = isOuter
+    ? 'outerOverloadsOnTonnageMonitor'
+    : 'innerOverloadsOnTonnageMonitor';
+  const actualShField = isOuter ? 'outerShutheightActualSh' : 'innerShutheightActualSh';
+  const indicatorReadingField = isOuter ? 'outerIndicatorReading' : 'innerIndicatorReading';
+
+  const indicatorsValue = data[indicatorsField] as YesNoDncType;
+  const overloadsValue = data[overloadsField] as string;
+  const actualShValue = data[actualShField] as string;
+  const indicatorReadingValue = data[indicatorReadingField] as string;
+
+  return (
+    <div className="space-y-4 mt-6 pt-6 border-t">
+      <h5 className="font-medium text-sm">Shutheight Information</h5>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor={`parallelism-${title}`} className="text-xs">
-            {t('form.slide.parallelism')}
+          <Label htmlFor={indicatorsField} className="text-xs">
+            Indicators Checked?
           </Label>
           <Select
-            value={data.parallelism}
-            onValueChange={(value) => updateFn('parallelism', value as ParallelismType)}
+            value={indicatorsValue}
+            onValueChange={(value) => handleFieldUpdate(indicatorsField, value as YesNoDncType)}
           >
-            <SelectTrigger className="mt-1" id={`parallelism-${title}`}>
+            <SelectTrigger id={indicatorsField} className="mt-1">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value={ParallelismType.DNC}>
-                {t('form.slide.parallelismType.DNC')}
-              </SelectItem>
-              <SelectItem value={ParallelismType.TO_BED}>
-                {t('form.slide.parallelismType.TO_BED')}
-              </SelectItem>
-              <SelectItem value={ParallelismType.TO_BOLSTER}>
-                {t('form.slide.parallelismType.TO_BOLSTER')}
-              </SelectItem>
+            <SelectContent>
+              <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
+              <SelectItem value={YesNoDncType.NO}>No</SelectItem>
+              <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
-        <div className="flex items-center space-x-2 mt-6">
+        <div>
+          <Label htmlFor={overloadsField} className="text-xs">
+            Overloads on Tonnage Monitor
+          </Label>
+          <Input
+            id={overloadsField}
+            type="text"
+            value={overloadsValue}
+            onChange={(e) => handleFieldUpdate(overloadsField, e.target.value)}
+            className="mt-1"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor={actualShField} className="text-xs">
+            Actual SH
+          </Label>
+          <Input
+            id={actualShField}
+            type="text"
+            value={actualShValue}
+            onChange={(e) => handleFieldUpdate(actualShField, e.target.value)}
+            className="mt-1"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor={indicatorReadingField} className="text-xs">
+            Indicator Reading
+          </Label>
+          <Input
+            id={indicatorReadingField}
+            type="text"
+            value={indicatorReadingValue}
+            onChange={(e) => handleFieldUpdate(indicatorReadingField, e.target.value)}
+            className="mt-1"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function SlideForm({
+  data,
+  updateFn,
+  errors,
+  handleBlur,
+  serviceType,
+  onSectionTouched,
+}: SlideFormProps) {
+  const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
+
+  const handleFieldUpdate = (
+    field: keyof SlideFormData,
+    value: SlideData | ParallelismType | YesNoNaDncType | YesNoDncType | string,
+  ) => {
+    updateFn(field, value);
+    onSectionTouched?.();
+  };
+
+  console.log({ serviceType });
+
+  return (
+    <div className="space-y-6">
+      {/* Checkbox for MAINTENANCE service type */}
+      {serviceType === ServiceType.MAINTENANCE && (
+        <div className="flex items-center space-x-2 p-4 bg-slate-50 rounded-lg">
           <Checkbox
-            id={`hasBeenAdjusted-${title}`}
-            checked={data.hasBeenAdjusted}
-            onCheckedChange={(checked: boolean) => updateFn('hasBeenAdjusted', checked)}
+            id="include-before-measurements"
+            checked={includeBeforeMeasurements}
+            onCheckedChange={(checked) => {
+              setIncludeBeforeMeasurements(checked === true);
+              onSectionTouched?.();
+            }}
           />
-          <Label htmlFor={`hasBeenAdjusted-${title}`} className="cursor-pointer text-xs">
-            {t('form.slide.hasBeenAdjusted')}
+          <Label
+            htmlFor="include-before-measurements"
+            className="text-sm font-medium leading-none cursor-pointer"
+          >
+            Include measurements before maintenance
           </Label>
         </div>
+      )}
+
+      {/* Before Maintenance Section */}
+      {includeBeforeMeasurements && (
+        <div className="space-y-4">
+          <h3 className="text-lg font-bold border-b pb-2">Before Maintenance</h3>
+
+          <Tabs defaultValue="outer" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="outer">Outer</TabsTrigger>
+              <TabsTrigger value="inner">Inner</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="outer" className="space-y-6">
+              <PositionFields
+                data={data.outerBeforeData}
+                updateFn={(field, value) => {
+                  const newData = { ...data.outerBeforeData, [field]: value };
+                  handleFieldUpdate('outerBeforeData', newData);
+                }}
+                errors={errors.outerBefore}
+                handleBlur={(field) => handleBlur('outerBefore', field)}
+                title="Position Measurements"
+              />
+
+              <ShutheightFields type="outer" data={data} handleFieldUpdate={handleFieldUpdate} />
+            </TabsContent>
+
+            <TabsContent value="inner" className="space-y-6">
+              <PositionFields
+                data={data.innerBeforeData}
+                updateFn={(field, value) => {
+                  const newData = { ...data.innerBeforeData, [field]: value };
+                  handleFieldUpdate('innerBeforeData', newData);
+                }}
+                errors={errors.innerBefore}
+                handleBlur={(field) => handleBlur('innerBefore', field)}
+                title="Position Measurements"
+              />
+
+              <ShutheightFields type="inner" data={data} handleFieldUpdate={handleFieldUpdate} />
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
+
+      {/* After Maintenance Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-bold border-b pb-2">
+          {includeBeforeMeasurements ? 'After Maintenance' : 'Measurements'}
+        </h3>
+
+        <Tabs defaultValue="outer" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="outer">Outer</TabsTrigger>
+            <TabsTrigger value="inner">Inner</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="outer" className="space-y-6">
+            <PositionFields
+              data={data.outerAfterData}
+              updateFn={(field, value) => {
+                const newData = { ...data.outerAfterData, [field]: value };
+                handleFieldUpdate('outerAfterData', newData);
+              }}
+              errors={errors.outerAfter}
+              handleBlur={(field) => handleBlur('outerAfter', field)}
+              title="Position Measurements"
+            />
+
+            <ShutheightFields type="outer" data={data} handleFieldUpdate={handleFieldUpdate} />
+          </TabsContent>
+
+          <TabsContent value="inner" className="space-y-6">
+            <PositionFields
+              data={data.innerAfterData}
+              updateFn={(field, value) => {
+                const newData = { ...data.innerAfterData, [field]: value };
+                handleFieldUpdate('innerAfterData', newData);
+              }}
+              errors={errors.innerAfter}
+              handleBlur={(field) => handleBlur('outerAfter', field)}
+              title="Position Measurements"
+            />
+
+            <ShutheightFields type="inner" data={data} handleFieldUpdate={handleFieldUpdate} />
+          </TabsContent>
+        </Tabs>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
-        <div>
-          <Label htmlFor={`position1-${title}`} className="text-xs">
-            {t('form.slide.position1')}
-          </Label>
-          <Input
-            id={`position1-${title}`}
-            type="number"
-            step="0.0001"
-            min="0"
-            max="999999.9999"
-            value={data.position1}
-            onChange={(e) => updateFn('position1', Number(e.target.value))}
-            onBlur={() => handleBlur('position1')}
-            className={`mt-1 ${errors.position1 ? 'border-destructive' : ''}`}
-            required
-          />
-          {errors.position1 && <p className="text-xs text-destructive mt-1">{errors.position1}</p>}
+      {/* Parent-level fields */}
+      <div className="space-y-6 border-t pt-6">
+        <h4 className="font-semibold text-sm">Additional Information</h4>
+
+        {/* Parallelism */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="parallelism" className="text-xs">
+              Parallelism
+            </Label>
+            <Select
+              value={data.parallelism}
+              onValueChange={(value) => handleFieldUpdate('parallelism', value as ParallelismType)}
+            >
+              <SelectTrigger id="parallelism" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ParallelismType.DNC}>DNC</SelectItem>
+                <SelectItem value={ParallelismType.TO_BED}>To Bed</SelectItem>
+                <SelectItem value={ParallelismType.TO_BOLSTER}>To Bolster</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="hasParallelismBeenAdjusted" className="text-xs">
+              Has Parallelism Been Adjusted?
+            </Label>
+            <Select
+              value={data.hasParallelismBeenAdjusted}
+              onValueChange={(value) =>
+                handleFieldUpdate('hasParallelismBeenAdjusted', value as YesNoNaDncType)
+              }
+            >
+              <SelectTrigger id="hasParallelismBeenAdjusted" className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={YesNoNaDncType.YES}>Yes</SelectItem>
+                <SelectItem value={YesNoNaDncType.NO}>No</SelectItem>
+                <SelectItem value={YesNoNaDncType.NA}>N/A</SelectItem>
+                <SelectItem value={YesNoNaDncType.DNC}>DNC</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
+        {/* Notes */}
         <div>
-          <Label htmlFor={`position2-${title}`} className="text-xs">
-            {t('form.slide.position2')}
+          <Label htmlFor="notes" className="text-xs">
+            Notes
           </Label>
-          <Input
-            id={`position2-${title}`}
-            type="number"
-            step="0.0001"
-            min="0"
-            max="999999.9999"
-            value={data.position2}
-            onChange={(e) => updateFn('position2', Number(e.target.value))}
-            onBlur={() => handleBlur('position2')}
-            className={`mt-1 ${errors.position2 ? 'border-destructive' : ''}`}
-            required
+          <Textarea
+            id="notes"
+            value={data.notes}
+            onChange={(e) => handleFieldUpdate('notes', e.target.value)}
+            className="mt-1"
+            rows={4}
           />
-          {errors.position2 && <p className="text-xs text-destructive mt-1">{errors.position2}</p>}
         </div>
-
-        <div>
-          <Label htmlFor={`position3-${title}`} className="text-xs">
-            {t('form.slide.position3')}
-          </Label>
-          <Input
-            id={`position3-${title}`}
-            type="number"
-            step="0.0001"
-            min="0"
-            max="999999.9999"
-            value={data.position3}
-            onChange={(e) => updateFn('position3', Number(e.target.value))}
-            onBlur={() => handleBlur('position3')}
-            className={`mt-1 ${errors.position3 ? 'border-destructive' : ''}`}
-            required
-          />
-          {errors.position3 && <p className="text-xs text-destructive mt-1">{errors.position3}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor={`position4-${title}`} className="text-xs">
-            {t('form.slide.position4')}
-          </Label>
-          <Input
-            id={`position4-${title}`}
-            type="number"
-            step="0.0001"
-            min="0"
-            max="999999.9999"
-            value={data.position4}
-            onChange={(e) => updateFn('position4', Number(e.target.value))}
-            onBlur={() => handleBlur('position4')}
-            className={`mt-1 ${errors.position4 ? 'border-destructive' : ''}`}
-            required
-          />
-          {errors.position4 && <p className="text-xs text-destructive mt-1">{errors.position4}</p>}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor={`actualSH-${title}`} className="text-xs">
-            {t('form.slide.actualSH')}
-          </Label>
-          <Input
-            id={`actualSH-${title}`}
-            value={data.actualSH || ''}
-            onChange={(e) => updateFn('actualSH', e.target.value)}
-            onBlur={() => handleBlur('actualSH')}
-            className={`mt-1 ${errors.actualSH ? 'border-destructive' : ''}`}
-          />
-          {errors.actualSH && <p className="text-xs text-destructive mt-1">{errors.actualSH}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor={`overloadsOnMonitor-${title}`} className="text-xs">
-            {t('form.slide.overloadsOnMonitor')}
-          </Label>
-          <Input
-            id={`overloadsOnMonitor-${title}`}
-            value={data.overloadsOnMonitor || ''}
-            onChange={(e) => updateFn('overloadsOnMonitor', e.target.value)}
-            onBlur={() => handleBlur('overloadsOnMonitor')}
-            className={`mt-1 ${errors.overloadsOnMonitor ? 'border-destructive' : ''}`}
-          />
-          {errors.overloadsOnMonitor && (
-            <p className="text-xs text-destructive mt-1">{errors.overloadsOnMonitor}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor={`indicatorReading-${title}`} className="text-xs">
-            {t('form.slide.indicatorReading')}
-          </Label>
-          <Input
-            id={`indicatorReading-${title}`}
-            value={data.indicatorReading || ''}
-            onChange={(e) => updateFn('indicatorReading', e.target.value)}
-            onBlur={() => handleBlur('indicatorReading')}
-            className={`mt-1 ${errors.indicatorReading ? 'border-destructive' : ''}`}
-          />
-          {errors.indicatorReading && (
-            <p className="text-xs text-destructive mt-1">{errors.indicatorReading}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id={`shutheightChecked-${title}`}
-          checked={data.shutheightChecked}
-          onCheckedChange={(checked: boolean) => updateFn('shutheightChecked', checked)}
-        />
-        <Label htmlFor={`shutheightChecked-${title}`} className="cursor-pointer text-xs">
-          {t('form.slide.shutheightChecked')}
-        </Label>
       </div>
     </div>
   );

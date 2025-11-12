@@ -1,29 +1,37 @@
 'use client';
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
-import { type SlideData, ParallelismType, ServiceType } from '@/data/types/services.types';
+import {
+  type SlideData,
+  ServiceType,
+  ParallelismType,
+  YesNoNaDncType,
+  YesNoDncType,
+} from '@/data/types/services.types';
 import { SlideForm } from '../forms/SlideForm';
 import { isDataTouched } from './utils';
 
 export const defaultSlideData: SlideData = {
-  parallelism: ParallelismType.DNC,
-  hasBeenAdjusted: false,
   position1: 0,
   position2: 0,
   position3: 0,
   position4: 0,
-  shutheightChecked: false,
-  actualSH: '',
-  overloadsOnMonitor: '',
-  indicatorReading: '',
+  position5: 0,
+  position6: 0,
 };
 
 export const validateSlideData = (data: SlideData): string[] => {
   const errors: string[] = [];
-  const requiredFields: (keyof SlideData)[] = ['position1', 'position2', 'position3', 'position4'];
+  const requiredFields: (keyof SlideData)[] = [
+    'position1',
+    'position2',
+    'position3',
+    'position4',
+    'position5',
+    'position6',
+  ];
 
   requiredFields.forEach((field) => {
     const value = data[field];
@@ -37,165 +45,296 @@ export const validateSlideData = (data: SlideData): string[] => {
 
 export interface SlideSectionData {
   outerBefore?: SlideData;
-  outerAfter?: SlideData;
+  outerData?: SlideData;
   innerBefore?: SlideData;
-  innerAfter?: SlideData;
+  innerData?: SlideData;
+  parallelism?: ParallelismType;
+  hasParallelismBeenAdjusted?: YesNoNaDncType;
+  outerShutheightIndicatorsChecked?: YesNoDncType;
+  outerOverloadsOnTonnageMonitor?: string;
+  outerShutheightActualSh?: string;
+  outerIndicatorReading?: string;
+  innerShutheightIndicatorsChecked?: YesNoDncType;
+  innerOverloadsOnTonnageMonitor?: string;
+  innerShutheightActualSh?: string;
+  innerIndicatorReading?: string;
+  notes?: string;
 }
 
 export interface SlideSectionRef {
   getData: () => SlideSectionData;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
+  isTouched: () => boolean;
+  validateAndGetData: (serviceType: ServiceType) => {
+    isValid: boolean;
+    errors: string[];
+    data?: SlideSectionData;
+  };
 }
 
 interface SlideSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSectionTouched: () => void;
+  onSectionTouched?: () => void;
+  serviceType: ServiceType;
 }
 
 export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
-  ({ isOpen, onOpenChange, onSectionTouched }, ref) => {
-    const [outerBeforeData, setOuterBeforeData] = useState<SlideData>(defaultSlideData);
-    const [outerAfterData, setOuterAfterData] = useState<SlideData>(defaultSlideData);
-    const [innerBeforeData, setInnerBeforeData] = useState<SlideData>(defaultSlideData);
-    const [innerAfterData, setInnerAfterData] = useState<SlideData>(defaultSlideData);
+  ({ isOpen, onOpenChange, onSectionTouched, serviceType }, ref) => {
+    // All slide data in a single state object
+    const [formData, setFormData] = useState({
+      outerBeforeData: defaultSlideData,
+      outerAfterData: defaultSlideData,
+      innerBeforeData: defaultSlideData,
+      innerAfterData: defaultSlideData,
+      parallelism: ParallelismType.DNC,
+      hasParallelismBeenAdjusted: YesNoNaDncType.DNC,
+      outerShutheightIndicatorsChecked: YesNoDncType.DNC,
+      outerOverloadsOnTonnageMonitor: '',
+      outerShutheightActualSh: '',
+      outerIndicatorReading: '',
+      innerShutheightIndicatorsChecked: YesNoDncType.DNC,
+      innerOverloadsOnTonnageMonitor: '',
+      innerShutheightActualSh: '',
+      innerIndicatorReading: '',
+      notes: '',
+    });
 
-    const [outerBeforeErrors, setOuterBeforeErrors] = useState<Record<string, string>>({});
-    const [outerAfterErrors, setOuterAfterErrors] = useState<Record<string, string>>({});
-    const [innerBeforeErrors, setInnerBeforeErrors] = useState<Record<string, string>>({});
-    const [innerAfterErrors, setInnerAfterErrors] = useState<Record<string, string>>({});
+    const [errors, setErrors] = useState({
+      outerBefore: {} as Record<string, string>,
+      outerAfter: {} as Record<string, string>,
+      innerBefore: {} as Record<string, string>,
+      innerAfter: {} as Record<string, string>,
+    });
 
-    const updateOuterBeforeField = (field: keyof SlideData, value: string | number | boolean) => {
-      setOuterBeforeData((prev) => ({ ...prev, [field]: value }));
-      setOuterBeforeErrors((prev) => ({ ...prev, [field]: '' }));
-      onSectionTouched();
+    // Generic update function for any field in formData
+    const updateField = <K extends keyof typeof formData>(
+      field: K,
+      value: (typeof formData)[K],
+    ) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
     };
 
-    const updateOuterAfterField = (field: keyof SlideData, value: string | number | boolean) => {
-      setOuterAfterData((prev) => ({ ...prev, [field]: value }));
-      setOuterAfterErrors((prev) => ({ ...prev, [field]: '' }));
-      onSectionTouched();
-    };
-
-    const updateInnerBeforeField = (field: keyof SlideData, value: string | number | boolean) => {
-      setInnerBeforeData((prev) => ({ ...prev, [field]: value }));
-      setInnerBeforeErrors((prev) => ({ ...prev, [field]: '' }));
-      onSectionTouched();
-    };
-
-    const updateInnerAfterField = (field: keyof SlideData, value: string | number | boolean) => {
-      setInnerAfterData((prev) => ({ ...prev, [field]: value }));
-      setInnerAfterErrors((prev) => ({ ...prev, [field]: '' }));
-      onSectionTouched();
-    };
-
-    const validateField = (
-      field: keyof SlideData,
-      value: string | number | boolean | undefined,
-    ): string => {
-      if (
-        field === 'hasBeenAdjusted' ||
-        field === 'shutheightChecked' ||
-        field === 'parallelism' ||
-        field === 'actualSH' ||
-        field === 'overloadsOnMonitor' ||
-        field === 'indicatorReading'
-      ) {
-        return '';
-      }
-
+    // Validate individual field
+    const validateField = (value: number | undefined): string => {
       const numValue = Number(value);
       if (isNaN(numValue)) {
         return 'Invalid number';
       }
-
       return '';
     };
 
-    const handleBlurOuterBefore = (field: keyof SlideData) => {
-      const error = validateField(field, outerBeforeData[field]);
-      setOuterBeforeErrors((prev) => ({ ...prev, [field]: error }));
-    };
+    // Handle blur for position fields to validate
+    const handleBlur = (
+      section: 'outerBefore' | 'outerAfter' | 'innerBefore' | 'innerAfter',
+      field: keyof SlideData,
+    ) => {
+      let dataToValidate: SlideData;
+      switch (section) {
+        case 'outerBefore':
+          dataToValidate = formData.outerBeforeData;
+          break;
+        case 'outerAfter':
+          dataToValidate = formData.outerAfterData;
+          break;
+        case 'innerBefore':
+          dataToValidate = formData.innerBeforeData;
+          break;
+        case 'innerAfter':
+          dataToValidate = formData.innerAfterData;
+          break;
+      }
 
-    const handleBlurOuterAfter = (field: keyof SlideData) => {
-      const error = validateField(field, outerAfterData[field]);
-      setOuterAfterErrors((prev) => ({ ...prev, [field]: error }));
-    };
-
-    const handleBlurInnerBefore = (field: keyof SlideData) => {
-      const error = validateField(field, innerBeforeData[field]);
-      setInnerBeforeErrors((prev) => ({ ...prev, [field]: error }));
-    };
-
-    const handleBlurInnerAfter = (field: keyof SlideData) => {
-      const error = validateField(field, innerAfterData[field]);
-      setInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
+      const error = validateField(dataToValidate[field]);
+      setErrors((prev) => ({
+        ...prev,
+        [section]: { ...prev[section], [field]: error },
+      }));
     };
 
     useImperativeHandle(ref, () => ({
-      getData: (): SlideSectionData => {
-        const outerBeforeTouched = isDataTouched(outerBeforeData, defaultSlideData);
-        const outerAfterTouched = isDataTouched(outerAfterData, defaultSlideData);
-        const innerBeforeTouched = isDataTouched(innerBeforeData, defaultSlideData);
-        const innerAfterTouched = isDataTouched(innerAfterData, defaultSlideData);
+      isTouched: (): boolean => {
+        const outerBeforeTouched = isDataTouched(formData.outerBeforeData, defaultSlideData);
+        const outerDataTouched = isDataTouched(formData.outerAfterData, defaultSlideData);
+        const innerBeforeTouched = isDataTouched(formData.innerBeforeData, defaultSlideData);
+        const innerDataTouched = isDataTouched(formData.innerAfterData, defaultSlideData);
 
-        return {
-          outerBefore: outerBeforeTouched ? outerBeforeData : undefined,
-          outerAfter: outerAfterTouched ? outerAfterData : undefined,
-          innerBefore: innerBeforeTouched ? innerBeforeData : undefined,
-          innerAfter: innerAfterTouched ? innerAfterData : undefined,
-        };
+        // Check if any data has been touched
+        return outerBeforeTouched || outerDataTouched || innerBeforeTouched || innerDataTouched;
       },
 
-      validate: (serviceType: ServiceType): string[] => {
-        const errors: string[] = [];
+      validateAndGetData: (
+        serviceType: ServiceType,
+      ): { isValid: boolean; errors: string[]; data?: SlideSectionData } => {
+        const validationErrors: string[] = [];
 
-        const outerBeforeTouched = isDataTouched(outerBeforeData, defaultSlideData);
-        const outerAfterTouched = isDataTouched(outerAfterData, defaultSlideData);
-        const innerBeforeTouched = isDataTouched(innerBeforeData, defaultSlideData);
-        const innerAfterTouched = isDataTouched(innerAfterData, defaultSlideData);
+        const outerBeforeTouched = isDataTouched(formData.outerBeforeData, defaultSlideData);
+        const outerDataTouched = isDataTouched(formData.outerAfterData, defaultSlideData);
+        const innerBeforeTouched = isDataTouched(formData.innerBeforeData, defaultSlideData);
+        const innerDataTouched = isDataTouched(formData.innerAfterData, defaultSlideData);
 
-        if (serviceType === ServiceType.MAINTENANCE) {
+        // For maintenance, check if before measurements are included
+        if (serviceType === ServiceType.MAINTENANCE && (outerBeforeTouched || innerBeforeTouched)) {
           if (!outerBeforeTouched || !innerBeforeTouched) {
-            errors.push(
-              'Slide: For maintenance inspections, you must fill all "Before" sections (Outer Before and Inner Before)',
+            validationErrors.push(
+              'Slide: When "Include measurements before maintenance" is checked, you must fill all "Before" sections (Outer Before and Inner Before)',
             );
           } else {
-            errors.push(
-              ...validateSlideData(outerBeforeData).map((e) => `Slide Outer Before: ${e}`),
+            validationErrors.push(
+              ...validateSlideData(formData.outerBeforeData).map((e) => `Slide Outer Before: ${e}`),
             );
-            errors.push(
-              ...validateSlideData(innerBeforeData).map((e) => `Slide Inner Before: ${e}`),
+            validationErrors.push(
+              ...validateSlideData(formData.innerBeforeData).map((e) => `Slide Inner Before: ${e}`),
             );
           }
         }
 
-        if (outerAfterTouched) {
-          errors.push(...validateSlideData(outerAfterData).map((e) => `Slide Outer After: ${e}`));
+        // Validate current/after data if touched
+        if (outerDataTouched) {
+          validationErrors.push(
+            ...validateSlideData(formData.outerAfterData).map((e) => `Slide Outer: ${e}`),
+          );
         }
-        if (innerAfterTouched) {
-          errors.push(...validateSlideData(innerAfterData).map((e) => `Slide Inner After: ${e}`));
-        }
-
-        if (serviceType === ServiceType.INSPECTION && !outerAfterTouched && !innerAfterTouched) {
-          errors.push(
-            'Slide: For routine inspections, you must fill at least one "After" section (Outer After or Inner After)',
+        if (innerDataTouched) {
+          validationErrors.push(
+            ...validateSlideData(formData.innerAfterData).map((e) => `Slide Inner: ${e}`),
           );
         }
 
-        return errors;
+        // For inspections and maintenance, require at least one section to be filled
+        if (!outerDataTouched && !innerDataTouched) {
+          validationErrors.push('Slide: You must fill at least one section (Outer or Inner)');
+        }
+
+        const isValid = validationErrors.length === 0;
+
+        // Only return data if valid
+        if (isValid) {
+          return {
+            isValid: true,
+            errors: [],
+            data: {
+              outerBefore: outerBeforeTouched ? formData.outerBeforeData : undefined,
+              outerData: outerDataTouched ? formData.outerAfterData : undefined,
+              innerBefore: innerBeforeTouched ? formData.innerBeforeData : undefined,
+              innerData: innerDataTouched ? formData.innerAfterData : undefined,
+              parallelism: formData.parallelism,
+              hasParallelismBeenAdjusted: formData.hasParallelismBeenAdjusted,
+              outerShutheightIndicatorsChecked: formData.outerShutheightIndicatorsChecked,
+              outerOverloadsOnTonnageMonitor: formData.outerOverloadsOnTonnageMonitor || undefined,
+              outerShutheightActualSh: formData.outerShutheightActualSh || undefined,
+              outerIndicatorReading: formData.outerIndicatorReading || undefined,
+              innerShutheightIndicatorsChecked: formData.innerShutheightIndicatorsChecked,
+              innerOverloadsOnTonnageMonitor: formData.innerOverloadsOnTonnageMonitor || undefined,
+              innerShutheightActualSh: formData.innerShutheightActualSh || undefined,
+              innerIndicatorReading: formData.innerIndicatorReading || undefined,
+              notes: formData.notes || undefined,
+            },
+          };
+        }
+
+        return {
+          isValid: false,
+          errors: validationErrors,
+        };
+      },
+
+      getData: (): SlideSectionData => {
+        const outerBeforeTouched = isDataTouched(formData.outerBeforeData, defaultSlideData);
+        const outerDataTouched = isDataTouched(formData.outerAfterData, defaultSlideData);
+        const innerBeforeTouched = isDataTouched(formData.innerBeforeData, defaultSlideData);
+        const innerDataTouched = isDataTouched(formData.innerAfterData, defaultSlideData);
+
+        return {
+          outerBefore: outerBeforeTouched ? formData.outerBeforeData : undefined,
+          outerData: outerDataTouched ? formData.outerAfterData : undefined,
+          innerBefore: innerBeforeTouched ? formData.innerBeforeData : undefined,
+          innerData: innerDataTouched ? formData.innerAfterData : undefined,
+          parallelism: formData.parallelism,
+          hasParallelismBeenAdjusted: formData.hasParallelismBeenAdjusted,
+          outerShutheightIndicatorsChecked: formData.outerShutheightIndicatorsChecked,
+          outerOverloadsOnTonnageMonitor: formData.outerOverloadsOnTonnageMonitor || undefined,
+          outerShutheightActualSh: formData.outerShutheightActualSh || undefined,
+          outerIndicatorReading: formData.outerIndicatorReading || undefined,
+          innerShutheightIndicatorsChecked: formData.innerShutheightIndicatorsChecked,
+          innerOverloadsOnTonnageMonitor: formData.innerOverloadsOnTonnageMonitor || undefined,
+          innerShutheightActualSh: formData.innerShutheightActualSh || undefined,
+          innerIndicatorReading: formData.innerIndicatorReading || undefined,
+          notes: formData.notes || undefined,
+        };
+      },
+
+      validate: (serviceType: ServiceType): string[] => {
+        const validationErrors: string[] = [];
+
+        const outerBeforeTouched = isDataTouched(formData.outerBeforeData, defaultSlideData);
+        const outerDataTouched = isDataTouched(formData.outerAfterData, defaultSlideData);
+        const innerBeforeTouched = isDataTouched(formData.innerBeforeData, defaultSlideData);
+        const innerDataTouched = isDataTouched(formData.innerAfterData, defaultSlideData);
+
+        // For maintenance, check if before measurements are included (this would need to be tracked)
+        // Since SlideForm handles the checkbox internally, we'll check if before data is touched
+        if (serviceType === ServiceType.MAINTENANCE && (outerBeforeTouched || innerBeforeTouched)) {
+          // If any before data is touched, both must be filled
+          if (!outerBeforeTouched || !innerBeforeTouched) {
+            validationErrors.push(
+              'Slide: When "Include measurements before maintenance" is checked, you must fill all "Before" sections (Outer Before and Inner Before)',
+            );
+          } else {
+            validationErrors.push(
+              ...validateSlideData(formData.outerBeforeData).map((e) => `Slide Outer Before: ${e}`),
+            );
+            validationErrors.push(
+              ...validateSlideData(formData.innerBeforeData).map((e) => `Slide Inner Before: ${e}`),
+            );
+          }
+        }
+
+        // Validate current/after data if touched
+        if (outerDataTouched) {
+          validationErrors.push(
+            ...validateSlideData(formData.outerAfterData).map((e) => `Slide Outer: ${e}`),
+          );
+        }
+        if (innerDataTouched) {
+          validationErrors.push(
+            ...validateSlideData(formData.innerAfterData).map((e) => `Slide Inner: ${e}`),
+          );
+        }
+
+        // For inspections and maintenance, require at least one section to be filled
+        if (!outerDataTouched && !innerDataTouched) {
+          validationErrors.push('Slide: You must fill at least one section (Outer or Inner)');
+        }
+
+        return validationErrors;
       },
 
       reset: () => {
-        setOuterBeforeData(defaultSlideData);
-        setOuterAfterData(defaultSlideData);
-        setInnerBeforeData(defaultSlideData);
-        setInnerAfterData(defaultSlideData);
-        setOuterBeforeErrors({});
-        setOuterAfterErrors({});
-        setInnerBeforeErrors({});
-        setInnerAfterErrors({});
+        setFormData({
+          outerBeforeData: defaultSlideData,
+          outerAfterData: defaultSlideData,
+          innerBeforeData: defaultSlideData,
+          innerAfterData: defaultSlideData,
+          parallelism: ParallelismType.DNC,
+          hasParallelismBeenAdjusted: YesNoNaDncType.DNC,
+          outerShutheightIndicatorsChecked: YesNoDncType.DNC,
+          outerOverloadsOnTonnageMonitor: '',
+          outerShutheightActualSh: '',
+          outerIndicatorReading: '',
+          innerShutheightIndicatorsChecked: YesNoDncType.DNC,
+          innerOverloadsOnTonnageMonitor: '',
+          innerShutheightActualSh: '',
+          innerIndicatorReading: '',
+          notes: '',
+        });
+        setErrors({
+          outerBefore: {},
+          outerAfter: {},
+          innerBefore: {},
+          innerAfter: {},
+        });
       },
     }));
 
@@ -211,70 +350,14 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="border border-t-0 rounded-b-lg p-6 bg-white">
-            <Tabs defaultValue="outer" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
-                <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="outer" className="space-y-6">
-                <Tabs defaultValue="before" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                    <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="before" className="mt-4">
-                    <SlideForm
-                      data={outerBeforeData}
-                      updateFn={updateOuterBeforeField}
-                      errors={outerBeforeErrors}
-                      handleBlur={handleBlurOuterBefore}
-                      title="Outer Before"
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="after" className="mt-4">
-                    <SlideForm
-                      data={outerAfterData}
-                      updateFn={updateOuterAfterField}
-                      errors={outerAfterErrors}
-                      handleBlur={handleBlurOuterAfter}
-                      title="Outer After"
-                    />
-                  </TabsContent>
-                </Tabs>
-              </TabsContent>
-
-              <TabsContent value="inner" className="space-y-6">
-                <Tabs defaultValue="before" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                    <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="before" className="mt-4">
-                    <SlideForm
-                      data={innerBeforeData}
-                      updateFn={updateInnerBeforeField}
-                      errors={innerBeforeErrors}
-                      handleBlur={handleBlurInnerBefore}
-                      title="Inner Before"
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="after" className="mt-4">
-                    <SlideForm
-                      data={innerAfterData}
-                      updateFn={updateInnerAfterField}
-                      errors={innerAfterErrors}
-                      handleBlur={handleBlurInnerAfter}
-                      title="Inner After"
-                    />
-                  </TabsContent>
-                </Tabs>
-              </TabsContent>
-            </Tabs>
+            <SlideForm
+              data={formData}
+              updateFn={updateField}
+              errors={errors}
+              handleBlur={handleBlur}
+              serviceType={serviceType}
+              onSectionTouched={onSectionTouched}
+            />
           </div>
         </CollapsibleContent>
       </Collapsible>
