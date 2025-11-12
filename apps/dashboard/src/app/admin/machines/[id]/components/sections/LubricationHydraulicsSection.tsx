@@ -28,12 +28,18 @@ export interface LubricationHydraulicsSectionRef {
   getData: () => LubricationHydraulicsData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
+  isTouched: () => boolean;
+  validateAndGetData: (serviceType: ServiceType) => {
+    isValid: boolean;
+    errors: string[];
+    data?: LubricationHydraulicsData;
+  };
 }
 
 interface LubricationHydraulicsSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSectionTouched: () => void;
+  onSectionTouched?: () => void;
 }
 
 export const LubricationHydraulicsSection = forwardRef<
@@ -49,7 +55,7 @@ export const LubricationHydraulicsSection = forwardRef<
   ) => {
     setData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: '' }));
-    onSectionTouched();
+    onSectionTouched?.();
   };
 
   const handleBlur = (_field: keyof LubricationHydraulicsData) => {
@@ -57,6 +63,36 @@ export const LubricationHydraulicsSection = forwardRef<
   };
 
   useImperativeHandle(ref, () => ({
+    isTouched: (): boolean => {
+      return isDataTouched(data, defaultLubricationHydraulicsData);
+    },
+
+    validateAndGetData: (
+      _serviceType: ServiceType,
+    ): { isValid: boolean; errors: string[]; data?: LubricationHydraulicsData } => {
+      const touched = isDataTouched(data, defaultLubricationHydraulicsData);
+
+      if (!touched) {
+        return { isValid: true, errors: [] };
+      }
+
+      const validationErrors = validateLubricationHydraulicsData(data);
+      const isValid = validationErrors.length === 0;
+
+      if (isValid) {
+        return {
+          isValid: true,
+          errors: [],
+          data,
+        };
+      }
+
+      return {
+        isValid: false,
+        errors: validationErrors,
+      };
+    },
+
     getData: (): LubricationHydraulicsData | undefined => {
       const touched = isDataTouched(data, defaultLubricationHydraulicsData);
       return touched ? data : undefined;

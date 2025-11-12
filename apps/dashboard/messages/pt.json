@@ -358,11 +358,11 @@
       "pressSwCrankshaft": "Virabrequim SW da Prensa"
     },
     "sectionNames": {
-      "bearingClearance": "Folga de Rolamento - CP 2",
+      "bearingClearance": "Folga de Rolamento",
       "slide": "Deslizamento",
       "gibs": "Guias",
       "lubricationHydraulics": "Lubrificação / Hidráulica",
-      "clutch": "Folga de Embreagem e Freio - CP 2",
+      "clutch": "Folga de Embreagem e Freio",
       "counterbalance": "Cilindro de Contrapeso / Airbag"
     },
     "sectionStatus": {

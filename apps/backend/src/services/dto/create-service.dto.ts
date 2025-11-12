@@ -13,6 +13,8 @@ import {
   ParallelismType,
   ServiceType,
   ServiceStatus,
+  YesNoNaDncType,
+  YesNoDncType,
 } from '@titans-tech/db';
 
 class BearingClearanceDataDto {
@@ -99,12 +101,6 @@ class BearingClearanceCheckDto {
 }
 
 class SlideDataDto {
-  @IsEnum(ParallelismType)
-  parallelism: ParallelismType;
-
-  @IsBoolean()
-  hasBeenAdjusted: boolean;
-
   @IsNumber()
   position1: number;
 
@@ -117,20 +113,11 @@ class SlideDataDto {
   @IsNumber()
   position4: number;
 
-  @IsBoolean()
-  shutheightChecked: boolean;
+  @IsNumber()
+  position5: number;
 
-  @IsOptional()
-  @IsString()
-  actualSH?: string;
-
-  @IsOptional()
-  @IsString()
-  overloadsOnMonitor?: string;
-
-  @IsOptional()
-  @IsString()
-  indicatorReading?: string;
+  @IsNumber()
+  position6: number;
 }
 
 class SlideCheckDto {
@@ -142,7 +129,7 @@ class SlideCheckDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => SlideDataDto)
-  outerAfter?: SlideDataDto;
+  outerData?: SlideDataDto;
 
   @IsOptional()
   @ValidateNested()
@@ -152,7 +139,51 @@ class SlideCheckDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => SlideDataDto)
-  innerAfter?: SlideDataDto;
+  innerData?: SlideDataDto;
+
+  @IsOptional()
+  @IsEnum(ParallelismType)
+  parallelism?: ParallelismType;
+
+  @IsOptional()
+  @IsEnum(YesNoNaDncType)
+  hasParallelismBeenAdjusted?: YesNoNaDncType;
+
+  @IsOptional()
+  @IsEnum(YesNoDncType)
+  outerShutheightIndicatorsChecked?: YesNoDncType;
+
+  @IsOptional()
+  @IsString()
+  outerOverloadsOnTonnageMonitor?: string;
+
+  @IsOptional()
+  @IsString()
+  outerShutheightActualSh?: string;
+
+  @IsOptional()
+  @IsString()
+  outerIndicatorReading?: string;
+
+  @IsOptional()
+  @IsEnum(YesNoDncType)
+  innerShutheightIndicatorsChecked?: YesNoDncType;
+
+  @IsOptional()
+  @IsString()
+  innerOverloadsOnTonnageMonitor?: string;
+
+  @IsOptional()
+  @IsString()
+  innerShutheightActualSh?: string;
+
+  @IsOptional()
+  @IsString()
+  innerIndicatorReading?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }
 
 class GibsDataDto {
