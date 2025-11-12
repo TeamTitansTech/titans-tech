@@ -301,8 +301,8 @@ model MachineServiceSlide {
   innerDataId      String?
 
   // Parallelism fields
-  parallelism                  ParallelismType?
-  hasParallelismBeenAdjusted   YesNoNaDncType?
+  parallelism                ParallelismType?
+  hasParallelismBeenAdjusted YesNoNaDncType?
 
   // Outer shutheight fields
   outerShutheightIndicatorsChecked YesNoDncType?
