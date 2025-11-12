@@ -70,34 +70,90 @@ function PositionFields({
   handleBlur: (field: keyof SlideData) => void;
   title: string;
 }) {
-  const t = useTranslations('inspections');
+  const t = useTranslations('inspections.form.slide');
+
+  // Calculate max deviation: MAX - MIN of positions 1-5 if more than 1 value exists
+  const calculateMaxDeviation = (): string => {
+    const positions = [
+      data.position1,
+      data.position2,
+      data.position3,
+      data.position4,
+      data.position5,
+    ];
+    const validValues = positions.filter(
+      (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
+    );
+
+    if (validValues.length > 1) {
+      const max = Math.max(...validValues);
+      const min = Math.min(...validValues);
+      return (max - min).toFixed(4);
+    }
+    return '';
+  };
 
   return (
     <div className="space-y-4">
       <h5 className="font-medium text-sm">{title}</h5>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-4 gap-1">
         {(
-          ['position1', 'position2', 'position3', 'position4', 'position5', 'position6'] as const
-        ).map((field) => (
-          <div key={field}>
-            <Label htmlFor={`${field}-${title}`} className="text-xs">
-              {t(`form.slide.${field}`)}
-            </Label>
-            <Input
-              id={`${field}-${title}`}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={data[field]}
-              onChange={(e) => updateFn(field, Number(e.target.value))}
-              onBlur={() => handleBlur(field)}
-              className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
-              required
-            />
-            {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
-          </div>
-        ))}
+          [
+            'position1',
+            'position2',
+            'position3',
+            'deviationLabel',
+            'position4',
+            'position5',
+            'position6',
+            'maxDeviation',
+          ] as const
+        ).map((field) => {
+          if (field === 'deviationLabel') {
+            return (
+              <div key="deviationLabel" className="flex items-end">
+                <Input
+                  type="text"
+                  value={t('maxDeviation')}
+                  disabled
+                  className="mt-1 bg-muted text-center font-medium"
+                  readOnly
+                />
+              </div>
+            );
+          }
+          if (field === 'maxDeviation') {
+            return (
+              <div key="maxDeviation" className="flex items-end">
+                <Input
+                  type="text"
+                  value={calculateMaxDeviation()}
+                  disabled
+                  className="mt-1 bg-muted text-center font-medium"
+                  readOnly
+                />
+              </div>
+            );
+          }
+
+          return (
+            <div key={field}>
+              <Input
+                id={`${field}-${title}`}
+                type="number"
+                step="0.0001"
+                min="0"
+                max="999999.9999"
+                value={data[field]}
+                onChange={(e) => updateFn(field, Number(e.target.value))}
+                onBlur={() => handleBlur(field)}
+                className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
+                required
+              />
+              {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -112,6 +168,7 @@ function ShutheightFields({
   data: SlideFormData;
   handleFieldUpdate: (field: keyof SlideFormData, value: string | YesNoDncType) => void;
 }) {
+  const t = useTranslations('inspections.form.slide');
   const isOuter = type === 'outer';
   const indicatorsField = isOuter
     ? 'outerShutheightIndicatorsChecked'
@@ -128,12 +185,12 @@ function ShutheightFields({
   const indicatorReadingValue = data[indicatorReadingField] as string;
 
   return (
-    <div className="space-y-4 mt-6 pt-6 border-t">
-      <h5 className="font-medium text-sm">Shutheight Information</h5>
+    <div className="space-y-4 mt-6">
+      <h5 className="font-medium text-sm">{t('shutheightInformation')}</h5>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor={indicatorsField} className="text-xs">
-            Indicators Checked?
+            {t('indicatorsChecked')}
           </Label>
           <Select
             value={indicatorsValue}
@@ -152,7 +209,7 @@ function ShutheightFields({
 
         <div>
           <Label htmlFor={overloadsField} className="text-xs">
-            Overloads on Tonnage Monitor
+            {t('overloadsOnTonnageMonitor')}
           </Label>
           <Input
             id={overloadsField}
@@ -165,7 +222,7 @@ function ShutheightFields({
 
         <div>
           <Label htmlFor={actualShField} className="text-xs">
-            Actual SH
+            {t('actualSH')}
           </Label>
           <Input
             id={actualShField}
@@ -178,7 +235,7 @@ function ShutheightFields({
 
         <div>
           <Label htmlFor={indicatorReadingField} className="text-xs">
-            Indicator Reading
+            {t('indicatorReading')}
           </Label>
           <Input
             id={indicatorReadingField}
@@ -201,6 +258,7 @@ export function SlideForm({
   serviceType,
   onSectionTouched,
 }: SlideFormProps) {
+  const t = useTranslations('inspections.form.slide');
   const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
 
   const handleFieldUpdate = (
@@ -230,20 +288,20 @@ export function SlideForm({
             htmlFor="include-before-measurements"
             className="text-sm font-medium leading-none cursor-pointer"
           >
-            Include measurements before maintenance
+            {t('includeMeasurementsBeforeMaintenance')}
           </Label>
         </div>
       )}
 
-      {/* Before Maintenance Section */}
+      {/* {t('beforeMaintenance')} Section */}
       {includeBeforeMeasurements && (
         <div className="space-y-4">
-          <h3 className="text-lg font-bold border-b pb-2">Before Maintenance</h3>
+          <h3 className="text-lg font-bold border-b pb-2">{t('beforeMaintenance')}</h3>
 
           <Tabs defaultValue="outer" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="outer">Outer</TabsTrigger>
-              <TabsTrigger value="inner">Inner</TabsTrigger>
+              <TabsTrigger value="outer">{t('outer')}</TabsTrigger>
+              <TabsTrigger value="inner">{t('inner')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="outer" className="space-y-6">
@@ -255,7 +313,7 @@ export function SlideForm({
                 }}
                 errors={errors.outerBefore}
                 handleBlur={(field) => handleBlur('outerBefore', field)}
-                title="Position Measurements"
+                title={t('positionMeasurements')}
               />
 
               <ShutheightFields type="outer" data={data} handleFieldUpdate={handleFieldUpdate} />
@@ -270,7 +328,7 @@ export function SlideForm({
                 }}
                 errors={errors.innerBefore}
                 handleBlur={(field) => handleBlur('innerBefore', field)}
-                title="Position Measurements"
+                title={t('positionMeasurements')}
               />
 
               <ShutheightFields type="inner" data={data} handleFieldUpdate={handleFieldUpdate} />
@@ -279,16 +337,16 @@ export function SlideForm({
         </div>
       )}
 
-      {/* After Maintenance Section */}
+      {/* {t('afterMaintenance')} Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-bold border-b pb-2">
-          {includeBeforeMeasurements ? 'After Maintenance' : 'Measurements'}
+          {includeBeforeMeasurements ? t('afterMaintenance') : t('measurements')}
         </h3>
 
         <Tabs defaultValue="outer" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="outer">Outer</TabsTrigger>
-            <TabsTrigger value="inner">Inner</TabsTrigger>
+            <TabsTrigger value="outer">{t('outer')}</TabsTrigger>
+            <TabsTrigger value="inner">{t('inner')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="outer" className="space-y-6">
@@ -300,7 +358,7 @@ export function SlideForm({
               }}
               errors={errors.outerAfter}
               handleBlur={(field) => handleBlur('outerAfter', field)}
-              title="Position Measurements"
+              title={t('positionMeasurements')}
             />
 
             <ShutheightFields type="outer" data={data} handleFieldUpdate={handleFieldUpdate} />
@@ -315,7 +373,7 @@ export function SlideForm({
               }}
               errors={errors.innerAfter}
               handleBlur={(field) => handleBlur('outerAfter', field)}
-              title="Position Measurements"
+              title={t('positionMeasurements')}
             />
 
             <ShutheightFields type="inner" data={data} handleFieldUpdate={handleFieldUpdate} />
@@ -325,7 +383,7 @@ export function SlideForm({
 
       {/* Parent-level fields */}
       <div className="space-y-6 border-t pt-6">
-        <h4 className="font-semibold text-sm">Additional Information</h4>
+        <h4 className="font-semibold text-sm">{t('additionalInformation')}</h4>
 
         {/* Parallelism */}
         <div className="grid grid-cols-2 gap-4">
@@ -350,7 +408,7 @@ export function SlideForm({
 
           <div>
             <Label htmlFor="hasParallelismBeenAdjusted" className="text-xs">
-              Has Parallelism Been Adjusted?
+              {t('hasParallelismBeenAdjusted')}
             </Label>
             <Select
               value={data.hasParallelismBeenAdjusted}
