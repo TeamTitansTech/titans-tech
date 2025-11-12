@@ -15,7 +15,21 @@ import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/ui/typography';
 import { SelectableSectionCard } from '@/components/SelectableSectionCard';
 import type { SectionStatus } from '@/components/SelectableSectionCard';
-import { ChevronLeft, CalendarIcon, Check, Save } from 'lucide-react';
+import { CalendarIcon, Check, ChevronDown } from 'lucide-react';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { Stepper, type StepperStep, type StepBadge } from '@/components/ui/stepper';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import {
   ServiceType,
   ServiceStatus,
@@ -36,17 +50,24 @@ import { format } from 'date-fns';
 import {
   BearingClearanceSection,
   type BearingClearanceSectionRef,
+  defaultBearingData,
 } from './sections/BearingClearanceSection';
-import { SlideSection, type SlideSectionRef } from './sections/SlideSection';
-import { GibsSection, type GibsSectionRef } from './sections/GibsSection';
+import {
+  SlideSection,
+  type SlideSectionRef,
+  defaultSlideData,
+} from './sections/SlideSection';
+import { GibsSection, type GibsSectionRef, defaultGibsData } from './sections/GibsSection';
 import {
   LubricationHydraulicsSection,
   type LubricationHydraulicsSectionRef,
+  defaultLubricationHydraulicsData,
 } from './sections/LubricationHydraulicsSection';
-import { ClutchSection, type ClutchSectionRef } from './sections/ClutchSection';
+import { ClutchSection, type ClutchSectionRef, defaultClutchData } from './sections/ClutchSection';
 import {
   CounterbalanceCylinderSection,
   type CounterbalanceCylinderSectionRef,
+  defaultCounterbalanceCylinderData,
 } from './sections/CounterbalanceCylinderSection';
 
 interface InspectionCreationModalWithSectionsProps {
@@ -107,8 +128,10 @@ export function InspectionCreationModalWithSections({
 
   const isCompletingService = !!serviceId;
 
-  // Multi-step state
-  const [currentStep, setCurrentStep] = useState<'selection' | 'details'>('selection');
+  // Multi-step state with stepper support
+  type StepType = 'selection' | 'details' | 'sections' | 'summary';
+  const [currentStep, setCurrentStep] = useState<StepType>('selection');
+  const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(0);
 
   // Section selection state
   const [selectedSections, setSelectedSections] = useState<Set<string>>(new Set());
@@ -141,35 +164,24 @@ export function InspectionCreationModalWithSections({
   const clutchRef = useRef<ClutchSectionRef>(null);
   const counterbalanceRef = useRef<CounterbalanceCylinderSectionRef>(null);
 
-  // Collapsible section states (first selected section open by default)
-  const [sectionStates, setSectionStates] = useState<Record<string, boolean>>({});
+  // Track which sections have been completed (validated)
+  const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
 
-  // Track which sections have been saved successfully
-  const [savedSections, setSavedSections] = useState<Set<string>>(new Set());
-
-  // Initialize section states when sections are selected
-  useEffect(() => {
-    if (currentStep === 'details' && selectedSections.size > 0) {
-      const states: Record<string, boolean> = {};
-      const sectionsArray = Array.from(selectedSections);
-      sectionsArray.forEach((section, index) => {
-        states[section] = index === 0; // First section open by default
-      });
-      setSectionStates(states);
-    }
-  }, [currentStep, selectedSections]);
+  // Track bearing clearance sub-states for badges
+  const [bearingBeforeSelected, setBearingBeforeSelected] = useState(false);
 
   // Reset when modal closes
   useEffect(() => {
     if (!open) {
       setCurrentStep('selection');
+      setCurrentSectionIndex(0);
       setSelectedSections(new Set());
       setDate(getInitialDate());
       setServiceType(isCompletingService ? ServiceType.MAINTENANCE : ServiceType.INSPECTION);
       setPerformedBy(initialPerformedBy || '');
       setError(null);
-      setSectionStates({});
-      setSavedSections(new Set());
+      setCompletedSections(new Set());
+      setBearingBeforeSelected(false);
       // Reset section refs
       bearingClearanceRef.current?.reset();
       slideRef.current?.reset();
@@ -178,7 +190,7 @@ export function InspectionCreationModalWithSections({
       clutchRef.current?.reset();
       counterbalanceRef.current?.reset();
     }
-  }, [open]);
+  }, [open, initialPerformedBy, isCompletingService, getInitialDate]);
 
   const toggleSection = (sectionKey: string) => {
     setSelectedSections((prev) => {
@@ -199,82 +211,213 @@ export function InspectionCreationModalWithSections({
     setCurrentStep('details');
   };
 
-  const handleBackToSelection = () => {
-    setCurrentStep('selection');
+  // Get selected sections as array for stepper
+  const getSelectedSectionsArray = () => {
+    return Array.from(selectedSections);
   };
 
-  // Handle saving individual section data
-  const handleSaveSection = (sectionKey: string) => {
-    const validationErrors: string[] = [];
+  // Generate stepper steps
+  const getStepperSteps = (): StepperStep[] => {
+    const steps: StepperStep[] = [];
+    const sectionsArray = getSelectedSectionsArray();
 
-    // Validate based on section type
+    // Add service details step
+    const detailsCompleted = currentStep === 'sections' || currentStep === 'summary';
+    steps.push({
+      key: 'details',
+      label: 'Detalhes',
+      status: currentStep === 'details' ? 'current' : detailsCompleted ? 'completed' : 'pending',
+      isClickable: true,
+    });
+
+    // Add section steps
+    sectionsArray.forEach((sectionKey, index) => {
+      const section = SECTION_DETAILS[sectionKey as keyof typeof SECTION_DETAILS];
+      if (!section) return;
+
+      const isCompleted = completedSections.has(sectionKey);
+      const isCurrent = currentStep === 'sections' && currentSectionIndex === index;
+
+      // Add badges for bearing clearance
+      const badges: StepBadge[] = [];
+      if (sectionKey === 'BEARING_CLEARANCE' && isCompleted) {
+        if (bearingBeforeSelected) {
+          badges.push({ label: 'Before', variant: 'info' });
+        }
+      }
+
+      steps.push({
+        key: sectionKey,
+        label: t(`sectionNames.${section.i18nKey}`),
+        status: isCompleted ? 'completed' : isCurrent ? 'current' : 'pending',
+        badges: badges.length > 0 ? badges : undefined,
+        isClickable: true,
+      });
+    });
+
+    // Add summary step
+    steps.push({
+      key: 'summary',
+      label: 'Resumo',
+      status: currentStep === 'summary' ? 'current' : 'pending',
+      isClickable: completedSections.size === sectionsArray.length,
+    });
+
+    return steps;
+  };
+
+  // Handle step click navigation
+  const handleStepClick = (stepIndex: number) => {
+    const sectionsArray = getSelectedSectionsArray();
+    if (stepIndex === 0) {
+      // Navigate to details step
+      setCurrentStep('details');
+    } else if (stepIndex === sectionsArray.length + 1) {
+      // Navigate to summary step (last step)
+      if (completedSections.size === sectionsArray.length) {
+        setCurrentStep('summary');
+      }
+    } else {
+      // Navigate to section step
+      const sectionIndex = stepIndex - 1;
+      if (sectionIndex < sectionsArray.length) {
+        setCurrentStep('sections');
+        setCurrentSectionIndex(sectionIndex);
+      }
+    }
+  };
+
+  // Navigate to next step
+  const handleNext = (e?: React.MouseEvent) => {
+    // Prevent any form submission
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    if (currentStep === 'details') {
+      // Move to first section
+      setCurrentStep('sections');
+      setCurrentSectionIndex(0);
+    } else if (currentStep === 'sections') {
+      // Validate current section before proceeding
+      const sectionsArray = getSelectedSectionsArray();
+      const currentSectionKey = sectionsArray[currentSectionIndex];
+
+      const validationErrors = validateSection(currentSectionKey);
+      if (validationErrors.length > 0) {
+        toast.error(validationErrors.join('\n\n'));
+        return;
+      }
+
+      // Mark section as completed
+      setCompletedSections((prev) => new Set(prev).add(currentSectionKey));
+
+      // Update bearing clearance badges if applicable
+      if (currentSectionKey === 'BEARING_CLEARANCE' && bearingClearanceRef.current) {
+        const data = bearingClearanceRef.current.getData();
+        setBearingBeforeSelected(!!(data.outerBefore || data.innerBefore));
+      }
+
+      // Move to next section or go to summary
+      if (currentSectionIndex < sectionsArray.length - 1) {
+        setCurrentSectionIndex(currentSectionIndex + 1);
+      } else {
+        // All sections completed, move to summary
+        setCurrentStep('summary');
+      }
+    }
+  };
+
+  // Navigate to previous step
+  const handlePrevious = () => {
+    if (currentStep === 'summary') {
+      // Go back to last section
+      const sectionsArray = getSelectedSectionsArray();
+      setCurrentStep('sections');
+      setCurrentSectionIndex(sectionsArray.length - 1);
+    } else if (currentStep === 'sections' && currentSectionIndex > 0) {
+      setCurrentSectionIndex(currentSectionIndex - 1);
+    } else if (currentStep === 'sections' && currentSectionIndex === 0) {
+      setCurrentStep('details');
+    }
+  };
+
+  // Handle section touched (for re-editing detection)
+  const handleSectionTouched = (sectionKey: string) => {
+    // If section was previously completed, remove it from completed sections
+    // This will make the green checkmark disappear until user saves again
+    if (completedSections.has(sectionKey)) {
+      setCompletedSections((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(sectionKey);
+        return newSet;
+      });
+    }
+  };
+
+  // Validate a specific section
+  const validateSection = (sectionKey: string): string[] => {
+    const errors: string[] = [];
+
     switch (sectionKey) {
       case 'BEARING_CLEARANCE':
         if (bearingClearanceRef.current) {
-          const errors = bearingClearanceRef.current.validate(serviceType);
-          validationErrors.push(...errors);
+          errors.push(...bearingClearanceRef.current.validate(serviceType));
         }
         break;
 
       case 'SLIDE':
         if (slideRef.current?.isTouched()) {
           const result = slideRef.current.validateAndGetData(serviceType);
-          if (!result.isValid) {
-            validationErrors.push(...result.errors);
-          }
+          if (!result.isValid) errors.push(...result.errors);
         }
         break;
 
       case 'GIBS':
         if (gibsRef.current?.isTouched()) {
           const result = gibsRef.current.validateAndGetData(serviceType);
-          if (!result.isValid) {
-            validationErrors.push(...result.errors);
-          }
+          if (!result.isValid) errors.push(...result.errors);
         }
         break;
 
       case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
         if (lubricationRef.current?.isTouched()) {
           const result = lubricationRef.current.validateAndGetData(serviceType);
-          if (!result.isValid) {
-            validationErrors.push(...result.errors);
-          }
+          if (!result.isValid) errors.push(...result.errors);
         }
         break;
 
       case 'CLUTCH':
         if (clutchRef.current?.isTouched()) {
           const result = clutchRef.current.validateAndGetData(serviceType);
-          if (!result.isValid) {
-            validationErrors.push(...result.errors);
-          }
+          if (!result.isValid) errors.push(...result.errors);
         }
         break;
 
       case 'COUNTERBALANCE_CYLINDER_AIRBAG':
         if (counterbalanceRef.current?.isTouched()) {
           const result = counterbalanceRef.current.validateAndGetData(serviceType);
-          if (!result.isValid) {
-            validationErrors.push(...result.errors);
-          }
+          if (!result.isValid) errors.push(...result.errors);
         }
         break;
     }
 
-    if (validationErrors.length > 0) {
-      toast.error(validationErrors.join('\n\n'));
-      return;
-    }
-
-    // Mark section as saved
-    setSavedSections((prev) => new Set(prev).add(sectionKey));
-    toast.success('Dados salvos com sucesso');
+    return errors;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setError(null);
+
+    // Only allow submission from summary step when completing service
+    if (isCompletingService && serviceId) {
+      if (currentStep !== 'summary') {
+        // Not on summary step, prevent submission
+        console.warn('Attempted to submit from non-summary step:', currentStep);
+        return;
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -444,6 +587,94 @@ export function InspectionCreationModalWithSections({
     }
   };
 
+  // Helper function to format field names
+  const formatFieldName = (key: string): string => {
+    return key
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/_/g, ' ')
+      .trim()
+      .split(' ')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  // Helper function to display value or "-" for empty
+  const displayValue = (value: any): string => {
+    if (value === null || value === undefined || value === '') {
+      return '-';
+    }
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
+    return String(value);
+  };
+
+  // Helper function to extract bearing measurement rows
+  const extractBearingRows = (data: any) => {
+    if (!data) return [];
+
+    const rows: { field: string; lh: any; rh: any; differential: string }[] = [];
+    const processedFields = new Set<string>();
+
+    // Fields to skip (non-measurement fields)
+    const skipFields = [
+      'hasBeenAdjusted',
+      'combinedWith',
+      'matingPart',
+      'slideMotorMounts',
+      'powerCordHoses',
+      'chainsGearsSprockets',
+      'lockingClamps',
+      'notes',
+    ];
+
+    Object.keys(data).forEach((key) => {
+      // Skip non-measurement fields
+      if (skipFields.includes(key)) {
+        return;
+      }
+
+      // Extract field name without _RH or _LH suffix
+      const baseField = key.replace(/_RH$|_LH$/, '');
+
+      if (!processedFields.has(baseField)) {
+        processedFields.add(baseField);
+        const lhValue = data[`${baseField}_LH`];
+        const rhValue = data[`${baseField}_RH`];
+
+        // Calculate differential
+        let differential = '-';
+        if (typeof lhValue === 'number' && typeof rhValue === 'number') {
+          differential = String(Math.abs(rhValue - lhValue));
+        }
+
+        rows.push({
+          field: formatFieldName(baseField),
+          lh: lhValue,
+          rh: rhValue,
+          differential,
+        });
+      }
+    });
+
+    return rows;
+  };
+
+  // Helper function to check if data has actual values (not just defaults)
+  const hasActualData = (data: any): boolean => {
+    if (!data) return false;
+
+    // Check if any field has a value (including zero, which is valid)
+    return Object.entries(data).some(([key, value]) => {
+      if (key === 'hasBeenAdjusted' || key === 'combinedWith' || key === 'matingPart') {
+        // Check if these string fields have non-empty values
+        return value !== '' && value !== null && value !== undefined;
+      }
+      // For numeric fields, check if they exist (0 is a valid value)
+      return typeof value === 'number' && !isNaN(value);
+    });
+  };
+
   // Mock function to get section status - replace with actual logic
   const getSectionStatus = (sectionKey: string): SectionStatus => {
     // This should check the latest inspection data for this section
@@ -453,7 +684,7 @@ export function InspectionCreationModalWithSections({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[1200px] h-[700px] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
+      <DialogContent className="w-[1200px] h-[85vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {isCompletingService
@@ -514,70 +745,64 @@ export function InspectionCreationModalWithSections({
               </Button>
             </div>
           </div>
-        ) : (
-          // Step 2: Service Details (Date & Type)
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-6 py-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleBackToSelection}
-                className="gap-2"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Voltar para seleção
-              </Button>
-            </div>
+        ) : currentStep === 'details' ? (
+          // Step 2: Service Details (Date & PerformedBy)
+          <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+            {/* Stepper */}
+            {isCompletingService && (
+              <div className="px-4 pb-2 pt-2">
+                <Stepper steps={getStepperSteps()} onStepClick={handleStepClick} />
+              </div>
+            )}
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="date">
-                  {isCompletingService ? 'Data da realização' : tServices('serviceDate')}
-                </Label>
-                <div className="flex items-center gap-2 mt-1 p-3 border rounded-md bg-muted/50">
-                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm">{date ? format(date, 'PPP') : '-'}</span>
+            <div className="flex-1 overflow-y-auto px-4 space-y-6 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="date">
+                    {isCompletingService ? 'Data da realização' : tServices('serviceDate')}
+                  </Label>
+                  <div className="flex items-center gap-2 mt-1 p-3 border rounded-md bg-muted/50">
+                    <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{date ? format(date, 'PPP') : '-'}</span>
+                  </div>
                 </div>
+
+                {isCompletingService ? (
+                  <div>
+                    <Label htmlFor="performedBy">Realizado por</Label>
+                    <Input
+                      id="performedBy"
+                      type="text"
+                      value={performedBy}
+                      onChange={(e) => setPerformedBy(e.target.value)}
+                      placeholder="Nome do técnico"
+                      className="mt-1"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <Label htmlFor="type">{tServices('serviceType')}</Label>
+                    <Select
+                      value={serviceType}
+                      onValueChange={(value) => setServiceType(value as ServiceType)}
+                    >
+                      <SelectTrigger id="type" className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={ServiceType.INSPECTION}>
+                          {tServices('types.inspection')}
+                        </SelectItem>
+                        <SelectItem value={ServiceType.MAINTENANCE}>
+                          {tServices('types.maintenance')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
 
-              {isCompletingService ? (
-                <div>
-                  <Label htmlFor="performedBy">Realizado por</Label>
-                  <Input
-                    id="performedBy"
-                    type="text"
-                    value={performedBy}
-                    onChange={(e) => setPerformedBy(e.target.value)}
-                    placeholder="Nome do técnico"
-                    className="mt-1"
-                  />
-                </div>
-              ) : (
-                <div>
-                  <Label htmlFor="type">{tServices('serviceType')}</Label>
-                  <Select
-                    value={serviceType}
-                    onValueChange={(value) => setServiceType(value as ServiceType)}
-                  >
-                    <SelectTrigger id="type" className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ServiceType.INSPECTION}>
-                        {tServices('types.inspection')}
-                      </SelectItem>
-                      <SelectItem value={ServiceType.MAINTENANCE}>
-                        {tServices('types.maintenance')}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-            </div>
-
-            {/* Display selected sections summary */}
-            {!isCompletingService && (
+              {/* Display selected sections summary */}
               <div className="border rounded-lg p-4">
                 <Typography variant="h4" className="mb-3">
                   Áreas selecionadas
@@ -598,284 +823,948 @@ export function InspectionCreationModalWithSections({
                   })}
                 </div>
               </div>
-            )}
 
-            {/* Section Forms - Only show when completing service */}
-            {isCompletingService && (
-              <div className="space-y-4">
-                {selectedSections.has('BEARING_CLEARANCE') && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between p-4 bg-muted/30 border-b">
-                      <div className="flex items-center gap-3">
-                        <Typography variant="h3" className="text-sm font-semibold">
-                          {t('sectionNames.bearingClearance')}
-                        </Typography>
-                        {savedSections.has('BEARING_CLEARANCE') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700">
-                            <Check className="w-3.5 h-3.5 text-green-700 dark:text-green-400" />
-                            <span className="text-xs font-semibold text-green-700 dark:text-green-400">
-                              Salvo
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleSaveSection('BEARING_CLEARANCE')}
-                      >
-                        <Save className="w-3 h-3 mr-2" />
-                        Salvar Dados
-                      </Button>
-                    </div>
-                    <BearingClearanceSection
-                      ref={bearingClearanceRef}
-                      isOpen={sectionStates['BEARING_CLEARANCE'] ?? false}
-                      onOpenChange={(open) =>
-                        setSectionStates((prev) => ({
-                          ...prev,
-                          BEARING_CLEARANCE: open,
-                        }))
-                      }
-                      onSectionTouched={() => {}}
-                      serviceType={serviceType}
-                    />
-                  </div>
-                )}
+              {error && (
+                <div className="text-sm text-destructive border border-destructive rounded-md p-2">
+                  {error}
+                </div>
+              )}
+            </div>
 
-                {selectedSections.has('SLIDE') && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between p-4 bg-muted/30 border-b">
-                      <div className="flex items-center gap-3">
-                        <Typography variant="h3" className="text-sm font-semibold">
-                          {t('sectionNames.slide')}
-                        </Typography>
-                        {savedSections.has('SLIDE') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700">
-                            <Check className="w-3.5 h-3.5 text-green-700 dark:text-green-400" />
-                            <span className="text-xs font-semibold text-green-700 dark:text-green-400">
-                              Salvo
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleSaveSection('SLIDE')}
-                      >
-                        <Save className="w-3 h-3 mr-2" />
-                        Salvar Dados
-                      </Button>
-                    </div>
-                    <SlideSection
-                      ref={slideRef}
-                      isOpen={sectionStates['SLIDE'] ?? false}
-                      onOpenChange={(open) =>
-                        setSectionStates((prev) => ({
-                          ...prev,
-                          SLIDE: open,
-                        }))
-                      }
-                      onSectionTouched={() => {}}
-                      serviceType={serviceType}
-                    />
-                  </div>
-                )}
-
-                {selectedSections.has('GIBS') && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between p-4 bg-muted/30 border-b">
-                      <div className="flex items-center gap-3">
-                        <Typography variant="h3" className="text-sm font-semibold">
-                          {t('sectionNames.gibs')}
-                        </Typography>
-                        {savedSections.has('GIBS') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700">
-                            <Check className="w-3.5 h-3.5 text-green-700 dark:text-green-400" />
-                            <span className="text-xs font-semibold text-green-700 dark:text-green-400">
-                              Salvo
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleSaveSection('GIBS')}
-                      >
-                        <Save className="w-3 h-3 mr-2" />
-                        Salvar Dados
-                      </Button>
-                    </div>
-                    <GibsSection
-                      ref={gibsRef}
-                      isOpen={sectionStates['GIBS'] ?? false}
-                      onOpenChange={(open) =>
-                        setSectionStates((prev) => ({
-                          ...prev,
-                          GIBS: open,
-                        }))
-                      }
-                      onSectionTouched={() => {}}
-                    />
-                  </div>
-                )}
-
-                {selectedSections.has('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between p-4 bg-muted/30 border-b">
-                      <div className="flex items-center gap-3">
-                        <Typography variant="h3" className="text-sm font-semibold">
-                          {t('sectionNames.lubricationHydraulics')}
-                        </Typography>
-                        {savedSections.has(
-                          'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
-                        ) && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700">
-                            <Check className="w-3.5 h-3.5 text-green-700 dark:text-green-400" />
-                            <span className="text-xs font-semibold text-green-700 dark:text-green-400">
-                              Salvo
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() =>
-                          handleSaveSection('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER')
-                        }
-                      >
-                        <Save className="w-3 h-3 mr-2" />
-                        Salvar Dados
-                      </Button>
-                    </div>
-                    <LubricationHydraulicsSection
-                      ref={lubricationRef}
-                      isOpen={
-                        sectionStates['LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER'] ??
-                        false
-                      }
-                      onOpenChange={(open) =>
-                        setSectionStates((prev) => ({
-                          ...prev,
-                          LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: open,
-                        }))
-                      }
-                      onSectionTouched={() => {}}
-                    />
-                  </div>
-                )}
-
-                {selectedSections.has('CLUTCH') && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between p-4 bg-muted/30 border-b">
-                      <div className="flex items-center gap-3">
-                        <Typography variant="h3" className="text-sm font-semibold">
-                          {t('sectionNames.clutch')}
-                        </Typography>
-                        {savedSections.has('CLUTCH') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700">
-                            <Check className="w-3.5 h-3.5 text-green-700 dark:text-green-400" />
-                            <span className="text-xs font-semibold text-green-700 dark:text-green-400">
-                              Salvo
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleSaveSection('CLUTCH')}
-                      >
-                        <Save className="w-3 h-3 mr-2" />
-                        Salvar Dados
-                      </Button>
-                    </div>
-                    <ClutchSection
-                      ref={clutchRef}
-                      isOpen={sectionStates['CLUTCH'] ?? false}
-                      onOpenChange={(open) =>
-                        setSectionStates((prev) => ({
-                          ...prev,
-                          CLUTCH: open,
-                        }))
-                      }
-                      onSectionTouched={() => {}}
-                    />
-                  </div>
-                )}
-
-                {selectedSections.has('COUNTERBALANCE_CYLINDER_AIRBAG') && (
-                  <div className="border rounded-lg overflow-hidden">
-                    <div className="flex items-center justify-between p-4 bg-muted/30 border-b">
-                      <div className="flex items-center gap-3">
-                        <Typography variant="h3" className="text-sm font-semibold">
-                          {t('sectionNames.counterbalance')}
-                        </Typography>
-                        {savedSections.has('COUNTERBALANCE_CYLINDER_AIRBAG') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700">
-                            <Check className="w-3.5 h-3.5 text-green-700 dark:text-green-400" />
-                            <span className="text-xs font-semibold text-green-700 dark:text-green-400">
-                              Salvo
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleSaveSection('COUNTERBALANCE_CYLINDER_AIRBAG')}
-                      >
-                        <Save className="w-3 h-3 mr-2" />
-                        Salvar Dados
-                      </Button>
-                    </div>
-                    <CounterbalanceCylinderSection
-                      ref={counterbalanceRef}
-                      isOpen={sectionStates['COUNTERBALANCE_CYLINDER_AIRBAG'] ?? false}
-                      onOpenChange={(open) =>
-                        setSectionStates((prev) => ({
-                          ...prev,
-                          COUNTERBALANCE_CYLINDER_AIRBAG: open,
-                        }))
-                      }
-                      onSectionTouched={() => {}}
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {error && (
-              <div className="text-sm text-destructive border border-destructive rounded-md p-2">
-                {error}
-              </div>
-            )}
-
-            <div className="flex justify-end gap-3 pt-6 border-t">
-              <Button type="button" variant="outline" onClick={handleBackToSelection}>
+            <div className="flex justify-between gap-3 pt-4 px-4 border-t">
+              <Button type="button" variant="outline" onClick={() => setCurrentStep('selection')}>
                 Voltar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isCompletingService
-                  ? isSubmitting
-                    ? 'Concluindo...'
-                    : 'Concluir Manutenção'
-                  : isSubmitting
-                    ? tServices('creating')
-                    : tServices('createService')}
+              {isCompletingService ? (
+                <Button type="button" onClick={handleNext}>
+                  Continuar
+                </Button>
+              ) : (
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? tServices('creating') : tServices('createService')}
+                </Button>
+              )}
+            </div>
+          </form>
+        ) : currentStep === 'sections' ? (
+          // Step 3: Section Forms (One at a time with stepper)
+          <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+            {/* Stepper */}
+            <div className="px-4 pb-2">
+              <Stepper steps={getStepperSteps()} onStepClick={handleStepClick} />
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-4 py-2">
+              {/* Render all selected sections but only show the current one */}
+              {(() => {
+                const sectionsArray = getSelectedSectionsArray();
+                const currentSectionKey = sectionsArray[currentSectionIndex];
+
+                return (
+                  <>
+                    {sectionsArray.map((sectionKey) => {
+                      const section = SECTION_DETAILS[sectionKey as keyof typeof SECTION_DETAILS];
+                      if (!section) return null;
+
+                      const isCurrentSection = sectionKey === currentSectionKey;
+
+                      return (
+                        <div
+                          key={sectionKey}
+                          className="space-y-4"
+                          style={{ display: isCurrentSection ? 'block' : 'none' }}
+                        >
+                          <Typography variant="h3" className="text-lg font-semibold">
+                            {t(`sectionNames.${section.i18nKey}`)}
+                          </Typography>
+
+                          <div className="border rounded-lg">
+                            {sectionKey === 'BEARING_CLEARANCE' && (
+                              <BearingClearanceSection
+                                ref={bearingClearanceRef}
+                                onSectionTouched={() => handleSectionTouched('BEARING_CLEARANCE')}
+                                serviceType={serviceType}
+                              />
+                            )}
+
+                            {sectionKey === 'SLIDE' && (
+                              <SlideSection
+                                ref={slideRef}
+                                isOpen={true}
+                                onOpenChange={() => {}}
+                                onSectionTouched={() => handleSectionTouched('SLIDE')}
+                                serviceType={serviceType}
+                              />
+                            )}
+
+                            {sectionKey === 'GIBS' && (
+                              <GibsSection
+                                ref={gibsRef}
+                                isOpen={true}
+                                onOpenChange={() => {}}
+                                onSectionTouched={() => handleSectionTouched('GIBS')}
+                              />
+                            )}
+
+                            {sectionKey === 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER' && (
+                              <LubricationHydraulicsSection
+                                ref={lubricationRef}
+                                isOpen={true}
+                                onOpenChange={() => {}}
+                                onSectionTouched={() =>
+                                  handleSectionTouched('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER')
+                                }
+                              />
+                            )}
+
+                            {sectionKey === 'CLUTCH' && (
+                              <ClutchSection
+                                ref={clutchRef}
+                                isOpen={true}
+                                onOpenChange={() => {}}
+                                onSectionTouched={() => handleSectionTouched('CLUTCH')}
+                              />
+                            )}
+
+                            {sectionKey === 'COUNTERBALANCE_CYLINDER_AIRBAG' && (
+                              <CounterbalanceCylinderSection
+                                ref={counterbalanceRef}
+                                isOpen={true}
+                                onOpenChange={() => {}}
+                                onSectionTouched={() => handleSectionTouched('COUNTERBALANCE_CYLINDER_AIRBAG')}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </>
+                );
+              })()}
+
+              {error && (
+                <div className="text-sm text-destructive border border-destructive rounded-md p-2 mt-4">
+                  {error}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-between gap-3 pt-4 px-4 border-t">
+              <Button type="button" variant="outline" onClick={handlePrevious}>
+                Anterior
+              </Button>
+              <Button type="button" onClick={handleNext}>
+                Salvar e Continuar
               </Button>
             </div>
           </form>
-        )}
+        ) : currentStep === 'summary' ? (
+          // Step 4: Summary/Review
+          <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+            {/* Stepper */}
+            <div className="px-4 pb-2">
+              <Stepper steps={getStepperSteps()} onStepClick={handleStepClick} />
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-4 py-4">
+              <Typography variant="h3" className="text-lg font-semibold mb-4">
+                Resumo da Manutenção
+              </Typography>
+
+              {/* Service Details Summary */}
+              <div className="border rounded-lg p-4 mb-4">
+                <Typography variant="h4" className="font-semibold mb-3">
+                  Detalhes do Serviço
+                </Typography>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Data da realização</Label>
+                    <div className="text-sm font-medium">{date ? format(date, 'PPP') : '-'}</div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-muted-foreground">Realizado por</Label>
+                    <div className="text-sm font-medium">{performedBy || '-'}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sections Summary */}
+              <div className="border rounded-lg p-4 mb-4">
+                <Typography variant="h4" className="font-semibold mb-3">
+                  Áreas Preenchidas
+                </Typography>
+                <div className="space-y-2">
+                  {Array.from(completedSections).map((sectionKey) => {
+                    const section = SECTION_DETAILS[sectionKey as keyof typeof SECTION_DETAILS];
+                    if (!section) return null;
+                    return (
+                      <div
+                        key={sectionKey}
+                        className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-md"
+                      >
+                        <Check className="w-4 h-4" />
+                        <span className="text-sm font-medium">
+                          {t(`sectionNames.${section.i18nKey}`)}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Detailed Data Review */}
+              <div className="space-y-3">
+                <Typography variant="h4" className="font-semibold">
+                  Dados Preenchidos
+                </Typography>
+
+                {/* Loop through ALL selected sections, not just completed */}
+                {Array.from(selectedSections).map((sectionKey) => {
+                  const section = SECTION_DETAILS[sectionKey as keyof typeof SECTION_DETAILS];
+                  if (!section) return null;
+
+                  const isCompleted = completedSections.has(sectionKey);
+
+                  // Render Bearing Clearance Section
+                  if (sectionKey === 'BEARING_CLEARANCE') {
+                    const data = bearingClearanceRef.current?.getData();
+
+                    // Check if we have before data
+                    const hasBeforeData =
+                      (data?.outerBefore && hasActualData(data.outerBefore)) ||
+                      (data?.innerBefore && hasActualData(data.innerBefore));
+                    const hasAfterData =
+                      (data?.outerAfter && hasActualData(data.outerAfter)) ||
+                      (data?.innerAfter && hasActualData(data.innerAfter));
+
+                    const outerBeforeRows = extractBearingRows(data?.outerBefore);
+                    const innerBeforeRows = extractBearingRows(data?.innerBefore);
+                    const outerAfterRows = extractBearingRows(data?.outerAfter);
+                    const innerAfterRows = extractBearingRows(data?.innerAfter);
+
+                    return (
+                      <Collapsible key={sectionKey} defaultOpen={isCompleted}>
+                        <div className="border rounded-lg">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Typography variant="h4" className="font-semibold text-sm">
+                                {t('sectionNames.bearingClearance')}
+                              </Typography>
+                              {isCompleted ? (
+                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                              ) : (
+                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                              )}
+                            </div>
+                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="p-3 pt-0 text-xs">
+                            {/* Before Measurements (only if data exists) */}
+                            {hasBeforeData && (
+                              <div className="border-t pt-2 mb-3">
+                                <div className="font-semibold text-muted-foreground mb-2 text-sm">Before Maintenance</div>
+                                <div className="grid grid-cols-2 gap-3">
+                                  {/* Outer Table */}
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Outer
+                                    </div>
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow className="bg-muted/50">
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {outerBeforeRows.map((row, idx) => (
+                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+
+                                  {/* Inner Table */}
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Inner
+                                    </div>
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow className="bg-muted/50">
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {innerBeforeRows.map((row, idx) => (
+                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* After Measurements */}
+                            {hasAfterData && (
+                              <div className="border-t pt-2">
+                                {hasBeforeData && (
+                                  <div className="font-semibold text-muted-foreground mb-2 text-sm">
+                                    After Maintenance
+                                  </div>
+                                )}
+                                <div className="grid grid-cols-2 gap-3">
+                                  {/* Outer Table */}
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Outer
+                                    </div>
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow className="bg-muted/50">
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {outerAfterRows.map((row, idx) => (
+                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+
+                                  {/* Inner Table */}
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Inner
+                                    </div>
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow className="bg-muted/50">
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {innerAfterRows.map((row, idx) => (
+                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Additional Fields */}
+                            {(hasBeforeData || hasAfterData) && (
+                              <div className="border-t pt-2 mt-3">
+                                <div className="font-semibold text-muted-foreground mb-2 text-sm">
+                                  Additional Information
+                                </div>
+                                <div className="grid grid-cols-2 gap-3">
+                                  {/* Outer Fields */}
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Outer
+                                    </div>
+                                    <div className="p-2 space-y-1.5 text-[11px]">
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Combined With:</span>
+                                        <span className="font-medium">
+                                          {displayValue(
+                                            data?.outerAfter?.combinedWith || data?.outerBefore?.combinedWith,
+                                          )}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Mating Part:</span>
+                                        <span className="font-medium">
+                                          {displayValue(
+                                            data?.outerAfter?.matingPart || data?.outerBefore?.matingPart,
+                                          )}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Has Been Adjusted:</span>
+                                        <span className="font-medium">
+                                          {displayValue(
+                                            data?.outerAfter?.hasBeenAdjusted ||
+                                              data?.outerBefore?.hasBeenAdjusted,
+                                          )}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Inner Fields */}
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Inner
+                                    </div>
+                                    <div className="p-2 space-y-1.5 text-[11px]">
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Combined With:</span>
+                                        <span className="font-medium">
+                                          {displayValue(
+                                            data?.innerAfter?.combinedWith || data?.innerBefore?.combinedWith,
+                                          )}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Mating Part:</span>
+                                        <span className="font-medium">
+                                          {displayValue(
+                                            data?.innerAfter?.matingPart || data?.innerBefore?.matingPart,
+                                          )}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Has Been Adjusted:</span>
+                                        <span className="font-medium">
+                                          {displayValue(
+                                            data?.innerAfter?.hasBeenAdjusted ||
+                                              data?.innerBefore?.hasBeenAdjusted,
+                                          )}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Shutdown Adjustment Mechanism */}
+                                <div className="mt-3">
+                                  <div className="font-semibold text-muted-foreground mb-2 text-xs">
+                                    Shutdown Adjustment Mechanism
+                                  </div>
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="p-2 space-y-1.5 text-[11px]">
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Slide Motor/Mounts:</span>
+                                        <span className="font-medium">
+                                          {displayValue(
+                                            data?.outerAfter?.slideMotorMounts ||
+                                              data?.outerBefore?.slideMotorMounts,
+                                          )}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Power Cord/Hoses:</span>
+                                        <span className="font-medium">
+                                          {displayValue(
+                                            data?.outerAfter?.powerCordHoses ||
+                                              data?.outerBefore?.powerCordHoses,
+                                          )}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Chains & Gears/Sprockets:</span>
+                                        <span className="font-medium">
+                                          {displayValue(
+                                            data?.outerAfter?.chainsGearsSprockets ||
+                                              data?.outerBefore?.chainsGearsSprockets,
+                                          )}
+                                        </span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span className="text-muted-foreground">Locking Clamps:</span>
+                                        <span className="font-medium">
+                                          {displayValue(
+                                            data?.outerAfter?.lockingClamps || data?.outerBefore?.lockingClamps,
+                                          )}
+                                        </span>
+                                      </div>
+                                      {(data?.outerAfter?.notes || data?.outerBefore?.notes) && (
+                                        <div className="flex flex-col gap-1 pt-1 border-t">
+                                          <span className="text-muted-foreground">Notes:</span>
+                                          <span className="font-medium">
+                                            {displayValue(data?.outerAfter?.notes || data?.outerBefore?.notes)}
+                                          </span>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+                    );
+                  }
+
+                  // Render Slide Section
+                  if (sectionKey === 'SLIDE') {
+                    const result = slideRef.current?.validateAndGetData(serviceType);
+                    const data = result?.data || defaultSlideData;
+
+                    return (
+                      <Collapsible key={sectionKey} defaultOpen={isCompleted}>
+                        <div className="border rounded-lg">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Typography variant="h4" className="font-semibold text-sm">
+                                {t('sectionNames.slide')}
+                              </Typography>
+                              {isCompleted ? (
+                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                              ) : (
+                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                              )}
+                            </div>
+                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="p-3 pt-0 text-xs">
+                            {/* Before Measurements (if exists) */}
+                            {((data as any).outerBefore || (data as any).innerBefore) && (
+                              <div className="border-t pt-2 mb-3">
+                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">Before Maintenance</div>
+                                <div className="border rounded-md overflow-hidden">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow className="bg-muted/50">
+                                        <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                        <TableHead className="h-8 text-[10px] text-center font-semibold border-r">Outer</TableHead>
+                                        <TableHead className="h-8 text-[10px] text-center font-semibold">Inner</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {Object.keys((data as any).outerBefore || (data as any).innerBefore || {}).map((key) => (
+                                        <TableRow key={key} className="text-[11px] hover:bg-muted/30">
+                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
+                                          <TableCell className="py-1.5 text-center border-r">{displayValue((data as any).outerBefore?.[key])}</TableCell>
+                                          <TableCell className="py-1.5 text-center">{displayValue((data as any).innerBefore?.[key])}</TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Data Measurements (if exists) */}
+                            {((data as any).outerData || (data as any).innerData) && (
+                              <div className="border-t pt-2 mb-3">
+                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">Data Measurements</div>
+                                <div className="border rounded-md overflow-hidden">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow className="bg-muted/50">
+                                        <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                        <TableHead className="h-8 text-[10px] text-center font-semibold border-r">Outer</TableHead>
+                                        <TableHead className="h-8 text-[10px] text-center font-semibold">Inner</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {Object.keys((data as any).outerData || (data as any).innerData || {}).map((key) => (
+                                        <TableRow key={key} className="text-[11px] hover:bg-muted/30">
+                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
+                                          <TableCell className="py-1.5 text-center border-r">{displayValue((data as any).outerData?.[key])}</TableCell>
+                                          <TableCell className="py-1.5 text-center">{displayValue((data as any).innerData?.[key])}</TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Section-level fields table */}
+                            {Object.entries(data).filter(([_, value]) => typeof value !== 'object' || value === null).length > 0 && (
+                              <div className="border-t pt-2">
+                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">Section Fields</div>
+                                <div className="border rounded-md overflow-hidden">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow className="bg-muted/50">
+                                        <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                        <TableHead className="h-8 text-[10px] text-center font-semibold">Value</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {Object.entries(data)
+                                        .filter(([_, value]) => typeof value !== 'object' || value === null)
+                                        .map(([key, value]) => (
+                                          <TableRow key={key} className="text-[11px] hover:bg-muted/30">
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
+                                            <TableCell className="py-1.5 text-center">{displayValue(value)}</TableCell>
+                                          </TableRow>
+                                        ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            )}
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+                    );
+                  }
+
+                  // Render Gibs Section
+                  if (sectionKey === 'GIBS') {
+                    const result = gibsRef.current?.validateAndGetData(serviceType);
+                    const data = result?.data;
+
+                    // Check if we have before data
+                    const hasBeforeData =
+                      (data?.outerBefore && hasActualData(data.outerBefore)) ||
+                      (data?.innerBefore && hasActualData(data.innerBefore));
+                    const hasAfterData =
+                      (data?.outerAfter && hasActualData(data.outerAfter)) ||
+                      (data?.innerAfter && hasActualData(data.innerAfter));
+
+                    const outerBeforeRows = extractBearingRows(data?.outerBefore);
+                    const innerBeforeRows = extractBearingRows(data?.innerBefore);
+                    const outerAfterRows = extractBearingRows(data?.outerAfter);
+                    const innerAfterRows = extractBearingRows(data?.innerAfter);
+
+                    return (
+                      <Collapsible key={sectionKey} defaultOpen={isCompleted}>
+                        <div className="border rounded-lg">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Typography variant="h4" className="font-semibold text-sm">
+                                {t('sectionNames.gibs')}
+                              </Typography>
+                              {isCompleted ? (
+                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                              ) : (
+                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                              )}
+                            </div>
+                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="p-3 pt-0 text-xs">
+                            {/* Before Measurements (only if data exists) */}
+                            {hasBeforeData && (
+                              <div className="border-t pt-2 mb-3">
+                                <div className="font-semibold text-muted-foreground mb-2 text-sm">Before Maintenance</div>
+                                <div className="grid grid-cols-2 gap-3">
+                                  {/* Outer Table */}
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Outer
+                                    </div>
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow className="bg-muted/50">
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {outerBeforeRows.map((row, idx) => (
+                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+
+                                  {/* Inner Table */}
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Inner
+                                    </div>
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow className="bg-muted/50">
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {innerBeforeRows.map((row, idx) => (
+                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* After Measurements */}
+                            {hasAfterData && (
+                              <div className="border-t pt-2">
+                                {hasBeforeData && (
+                                  <div className="font-semibold text-muted-foreground mb-2 text-sm">
+                                    After Maintenance
+                                  </div>
+                                )}
+                                <div className="grid grid-cols-2 gap-3">
+                                  {/* Outer Table */}
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Outer
+                                    </div>
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow className="bg-muted/50">
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {outerAfterRows.map((row, idx) => (
+                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+
+                                  {/* Inner Table */}
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Inner
+                                    </div>
+                                    <Table>
+                                      <TableHeader>
+                                        <TableRow className="bg-muted/50">
+                                          <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">LH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">RH</TableHead>
+                                          <TableHead className="h-8 text-[10px] text-center font-semibold">Diff</TableHead>
+                                        </TableRow>
+                                      </TableHeader>
+                                      <TableBody>
+                                        {innerAfterRows.map((row, idx) => (
+                                          <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">{row.field}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.lh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">{displayValue(row.rh)}</TableCell>
+                                            <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                                          </TableRow>
+                                        ))}
+                                      </TableBody>
+                                    </Table>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+                    );
+                  }
+
+                  // Render Lubrication/Hydraulics Section
+                  if (sectionKey === 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') {
+                    const result = lubricationRef.current?.validateAndGetData(serviceType);
+                    const data = result?.data || defaultLubricationHydraulicsData;
+
+                    return (
+                      <Collapsible key={sectionKey} defaultOpen={isCompleted}>
+                        <div className="border rounded-lg">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Typography variant="h4" className="font-semibold text-sm">
+                                {t('sectionNames.lubricationHydraulics')}
+                              </Typography>
+                              {isCompleted ? (
+                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                              ) : (
+                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                              )}
+                            </div>
+                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="p-3 pt-0 text-xs">
+                            <div className="border-t pt-2">
+                              <div className="border rounded-md overflow-hidden">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow className="bg-muted/50">
+                                      <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                      <TableHead className="h-8 text-[10px] text-center font-semibold">Value</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {Object.entries(data).map(([key, value]) => (
+                                      <TableRow key={key} className="text-[11px] hover:bg-muted/30">
+                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
+                                        <TableCell className="py-1.5 text-center">{displayValue(value)}</TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </div>
+                            </div>
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+                    );
+                  }
+
+                  // Render Clutch Section
+                  if (sectionKey === 'CLUTCH') {
+                    const result = clutchRef.current?.validateAndGetData(serviceType);
+                    const data = result?.data || defaultClutchData;
+
+                    return (
+                      <Collapsible key={sectionKey} defaultOpen={isCompleted}>
+                        <div className="border rounded-lg">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Typography variant="h4" className="font-semibold text-sm">
+                                {t('sectionNames.clutch')}
+                              </Typography>
+                              {isCompleted ? (
+                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                              ) : (
+                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                              )}
+                            </div>
+                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="p-3 pt-0 text-xs">
+                            <div className="border-t pt-2">
+                              <div className="border rounded-md overflow-hidden">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow className="bg-muted/50">
+                                      <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                      <TableHead className="h-8 text-[10px] text-center font-semibold">Value</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {Object.entries(data).map(([key, value]) => (
+                                      <TableRow key={key} className="text-[11px] hover:bg-muted/30">
+                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
+                                        <TableCell className="py-1.5 text-center">{displayValue(value)}</TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </div>
+                            </div>
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+                    );
+                  }
+
+                  // Render Counterbalance Cylinder Section
+                  if (sectionKey === 'COUNTERBALANCE_CYLINDER_AIRBAG') {
+                    const result = counterbalanceRef.current?.validateAndGetData(serviceType);
+                    const data = result?.data || defaultCounterbalanceCylinderData;
+
+                    return (
+                      <Collapsible key={sectionKey} defaultOpen={isCompleted}>
+                        <div className="border rounded-lg">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                            <div className="flex items-center gap-2">
+                              <Typography variant="h4" className="font-semibold text-sm">
+                                {t('sectionNames.counterbalanceCylinder')}
+                              </Typography>
+                              {isCompleted ? (
+                                <span className="text-xs text-green-600 dark:text-green-400">(Completo)</span>
+                              ) : (
+                                <span className="text-xs text-orange-600 dark:text-orange-400">(Incompleto)</span>
+                              )}
+                            </div>
+                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="p-3 pt-0 text-xs">
+                            <div className="border-t pt-2">
+                              <div className="border rounded-md overflow-hidden">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow className="bg-muted/50">
+                                      <TableHead className="h-8 text-[10px] font-semibold border-r">Field</TableHead>
+                                      <TableHead className="h-8 text-[10px] text-center font-semibold">Value</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {Object.entries(data).map(([key, value]) => (
+                                      <TableRow key={key} className="text-[11px] hover:bg-muted/30">
+                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">{formatFieldName(key)}</TableCell>
+                                        <TableCell className="py-1.5 text-center">{displayValue(value)}</TableCell>
+                                      </TableRow>
+                                    ))}
+                                  </TableBody>
+                                </Table>
+                              </div>
+                            </div>
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+                    );
+                  }
+
+                  return null;
+                })}
+              </div>
+
+              {error && (
+                <div className="text-sm text-destructive border border-destructive rounded-md p-2 mt-4">
+                  {error}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-between gap-3 pt-4 px-4 border-t">
+              <Button type="button" variant="outline" onClick={handlePrevious}>
+                Anterior
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Concluindo...' : 'Concluir Manutenção'}
+              </Button>
+            </div>
+          </form>
+        ) : null}
       </DialogContent>
     </Dialog>
   );

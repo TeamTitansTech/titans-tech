@@ -65,7 +65,6 @@ export function CompleteServiceModal({
   const [touchedSections, setTouchedSections] = useState<Set<string>>(new Set());
 
   // Collapsible section states
-  const [bearingClearanceOpen, setBearingClearanceOpen] = useState(true);
   const [slideOpen, setSlideOpen] = useState(false);
   const [gibsOpen, setGibsOpen] = useState(false);
   const [lubricationOpen, setLubricationOpen] = useState(false);
@@ -310,8 +309,6 @@ export function CompleteServiceModal({
             {blueprintSections.includes('BEARING_CLEARANCE') && (
               <BearingClearanceSection
                 ref={bearingClearanceRef}
-                isOpen={bearingClearanceOpen}
-                onOpenChange={setBearingClearanceOpen}
                 onSectionTouched={() => markSectionTouched('BEARING_CLEARANCE')}
                 serviceType={serviceType}
               />

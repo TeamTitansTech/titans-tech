@@ -92,8 +92,6 @@ export interface BearingClearanceSectionRef {
 }
 
 interface BearingClearanceSectionProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   onSectionTouched: () => void;
   serviceType: ServiceType;
 }
@@ -101,11 +99,13 @@ interface BearingClearanceSectionProps {
 export const BearingClearanceSection = forwardRef<
   BearingClearanceSectionRef,
   BearingClearanceSectionProps
->(({ isOpen, onOpenChange, onSectionTouched, serviceType }, ref) => {
+>(({ onSectionTouched, serviceType }, ref) => {
   const t = useTranslations('inspections');
 
   // State
   const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
+  const [isBeforeOpen, setIsBeforeOpen] = useState(true);
+  const [isAfterOpen, setIsAfterOpen] = useState(true);
   const [outerBeforeData, setOuterBeforeData] = useState<BearingClearanceData>(defaultBearingData);
   const [outerAfterData, setOuterAfterData] = useState<BearingClearanceData>(defaultBearingData);
   const [innerBeforeData, setInnerBeforeData] = useState<BearingClearanceData>(defaultBearingData);
@@ -333,42 +333,41 @@ export const BearingClearanceSection = forwardRef<
   }));
 
   return (
-    <Collapsible open={isOpen} onOpenChange={onOpenChange}>
-      <CollapsibleTrigger className="w-full">
-        <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
-          <h3 className="text-base font-semibold">{t('form.bearingClearance.title')}</h3>
-          <ChevronDown
-            className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
+    <div className="p-6 space-y-6">
+      {/* Include Before Measurements Checkbox - Only for Maintenance */}
+      {serviceType === ServiceType.MAINTENANCE && (
+        <div className="flex items-center space-x-2 pb-4 border-b">
+          <Checkbox
+            id="includeBeforeMeasurements"
+            checked={includeBeforeMeasurements}
+            onCheckedChange={(checked) => {
+              setIncludeBeforeMeasurements(Boolean(checked));
+              onSectionTouched();
+            }}
           />
+          <Label
+            htmlFor="includeBeforeMeasurements"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            Include Before Measurements
+          </Label>
         </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-card space-y-6">
-          {/* Include Before Measurements Checkbox - Only for Maintenance */}
-          {serviceType === ServiceType.MAINTENANCE && (
-            <div className="flex items-center space-x-2 pb-4 border-b">
-              <Checkbox
-                id="includeBeforeMeasurements"
-                checked={includeBeforeMeasurements}
-                onCheckedChange={(checked) => {
-                  setIncludeBeforeMeasurements(Boolean(checked));
-                  onSectionTouched();
-                }}
-              />
-              <Label
-                htmlFor="includeBeforeMeasurements"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Include Before Measurements
-              </Label>
-            </div>
-          )}
+      )}
 
-          {includeBeforeMeasurements ? (
-            <div className="space-y-8">
-              {/* Before Maintenance Section */}
-              <div className="space-y-4">
-                <h4 className="text-base font-semibold">Before Maintenance</h4>
+      {includeBeforeMeasurements ? (
+        <div className="space-y-8">
+          {/* Before Maintenance Section */}
+          <Collapsible open={isBeforeOpen} onOpenChange={setIsBeforeOpen}>
+            <div className="space-y-4">
+              <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                <h4 className="text-lg font-semibold">Before Maintenance</h4>
+                <ChevronDown
+                  className={`w-5 h-5 transition-transform duration-200 ${
+                    isBeforeOpen ? '' : 'rotate-180'
+                  }`}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
                 <Tabs defaultValue="outer" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
                     <TabsTrigger value="outer">Outer</TabsTrigger>
@@ -553,11 +552,25 @@ export const BearingClearanceSection = forwardRef<
                     />
                   </TabsContent>
                 </Tabs>
-              </div>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
 
-              {/* After Maintenance Section */}
-              <div className="space-y-4">
-                <h4 className="text-base font-semibold">After Maintenance</h4>
+          {/* Divider */}
+          <div className="border-t-2 border-border" />
+
+          {/* After Maintenance Section */}
+          <Collapsible open={isAfterOpen} onOpenChange={setIsAfterOpen}>
+            <div className="space-y-4">
+              <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                <h4 className="text-lg font-semibold">After Maintenance</h4>
+                <ChevronDown
+                  className={`w-5 h-5 transition-transform duration-200 ${
+                    isAfterOpen ? '' : 'rotate-180'
+                  }`}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
                 <Tabs defaultValue="outer" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
                     <TabsTrigger value="outer">Outer</TabsTrigger>
@@ -584,291 +597,285 @@ export const BearingClearanceSection = forwardRef<
                     />
                   </TabsContent>
                 </Tabs>
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
+        </div>
+      ) : (
+        <Tabs defaultValue="outer" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="outer">Outer</TabsTrigger>
+            <TabsTrigger value="inner">Inner</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="outer" className="space-y-6">
+            <div className="pt-6 border-t">
+              <div className="grid grid-cols-3 gap-6 items-end">
+                {/* Combined With */}
+                <div>
+                  <Label htmlFor="outerCombinedWith" className="text-xs font-semibold mb-2 block">
+                    Combined With
+                  </Label>
+                  <Input
+                    id="outerCombinedWith"
+                    type="text"
+                    value={outerCombinedWith}
+                    onChange={(e) => {
+                      setOuterCombinedWith(e.target.value);
+                      onSectionTouched();
+                    }}
+                    placeholder="Reference measurement"
+                    className="text-sm"
+                  />
+                </div>
+
+                {/* Mating Part Type */}
+                <div>
+                  <Label htmlFor="outerMatingPart" className="text-xs font-semibold mb-2 block">
+                    Mating Part Type
+                  </Label>
+                  <Select
+                    value={outerMatingPart}
+                    onValueChange={(value) => {
+                      setOuterMatingPart(value as MatingPartType);
+                      onSectionTouched();
+                    }}
+                  >
+                    <SelectTrigger id="outerMatingPart" className="text-sm">
+                      <SelectValue placeholder="Select mating part" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
+                      <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                      <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
+                        Nut Screw Sleeve
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Has Been Adjusted Select */}
+                <div>
+                  <Label
+                    htmlFor="outerHasBeenAdjusted"
+                    className="text-xs font-semibold mb-2 block"
+                  >
+                    Has Been Adjusted
+                  </Label>
+                  <Select
+                    value={outerHasBeenAdjusted}
+                    onValueChange={(value) => {
+                      setOuterHasBeenAdjusted(value);
+                      onSectionTouched();
+                    }}
+                  >
+                    <SelectTrigger id="outerHasBeenAdjusted" className="text-sm">
+                      <SelectValue placeholder="Select option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="N/A">N/A</SelectItem>
+                      <SelectItem value="DNC">DNC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
-          ) : (
-            <Tabs defaultValue="outer" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="outer">Outer</TabsTrigger>
-                <TabsTrigger value="inner">Inner</TabsTrigger>
-              </TabsList>
+            <BearingClearanceForm
+              title=""
+              data={outerAfterData}
+              updateFn={updateOuterAfterField}
+              errors={outerAfterErrors}
+              handleBlur={handleBlurOuterAfter}
+            />
+          </TabsContent>
 
-              <TabsContent value="outer" className="space-y-6">
-                <div className="pt-6 border-t">
-                  <div className="grid grid-cols-3 gap-6 items-end">
-                    {/* Combined With */}
-                    <div>
-                      <Label
-                        htmlFor="outerCombinedWith"
-                        className="text-xs font-semibold mb-2 block"
-                      >
-                        Combined With
-                      </Label>
-                      <Input
-                        id="outerCombinedWith"
-                        type="text"
-                        value={outerCombinedWith}
-                        onChange={(e) => {
-                          setOuterCombinedWith(e.target.value);
-                          onSectionTouched();
-                        }}
-                        placeholder="Reference measurement"
-                        className="text-sm"
-                      />
-                    </div>
-
-                    {/* Mating Part Type */}
-                    <div>
-                      <Label htmlFor="outerMatingPart" className="text-xs font-semibold mb-2 block">
-                        Mating Part Type
-                      </Label>
-                      <Select
-                        value={outerMatingPart}
-                        onValueChange={(value) => {
-                          setOuterMatingPart(value as MatingPartType);
-                          onSectionTouched();
-                        }}
-                      >
-                        <SelectTrigger id="outerMatingPart" className="text-sm">
-                          <SelectValue placeholder="Select mating part" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
-                          <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
-                          <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                            Nut Screw Sleeve
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Has Been Adjusted Select */}
-                    <div>
-                      <Label
-                        htmlFor="outerHasBeenAdjusted"
-                        className="text-xs font-semibold mb-2 block"
-                      >
-                        Has Been Adjusted
-                      </Label>
-                      <Select
-                        value={outerHasBeenAdjusted}
-                        onValueChange={(value) => {
-                          setOuterHasBeenAdjusted(value);
-                          onSectionTouched();
-                        }}
-                      >
-                        <SelectTrigger id="outerHasBeenAdjusted" className="text-sm">
-                          <SelectValue placeholder="Select option" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Yes">Yes</SelectItem>
-                          <SelectItem value="No">No</SelectItem>
-                          <SelectItem value="N/A">N/A</SelectItem>
-                          <SelectItem value="DNC">DNC</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-                <BearingClearanceForm
-                  title=""
-                  data={outerAfterData}
-                  updateFn={updateOuterAfterField}
-                  errors={outerAfterErrors}
-                  handleBlur={handleBlurOuterAfter}
-                />
-              </TabsContent>
-
-              <TabsContent value="inner" className="space-y-6">
-                <div className="pt-6 border-t">
-                  <div className="grid grid-cols-3 gap-6 items-end">
-                    {/* Combined With */}
-                    <div>
-                      <Label
-                        htmlFor="innerCombinedWith"
-                        className="text-xs font-semibold mb-2 block"
-                      >
-                        Combined With
-                      </Label>
-                      <Input
-                        id="innerCombinedWith"
-                        type="text"
-                        value={innerCombinedWith}
-                        onChange={(e) => {
-                          setInnerCombinedWith(e.target.value);
-                          onSectionTouched();
-                        }}
-                        placeholder="Reference measurement"
-                        className="text-sm"
-                      />
-                    </div>
-
-                    {/* Mating Part Type */}
-                    <div>
-                      <Label htmlFor="innerMatingPart" className="text-xs font-semibold mb-2 block">
-                        Mating Part Type
-                      </Label>
-                      <Select
-                        value={innerMatingPart}
-                        onValueChange={(value) => {
-                          setInnerMatingPart(value as MatingPartType);
-                          onSectionTouched();
-                        }}
-                      >
-                        <SelectTrigger id="innerMatingPart" className="text-sm">
-                          <SelectValue placeholder="Select mating part" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
-                          <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
-                          <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                            Nut Screw Sleeve
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Has Been Adjusted Select */}
-                    <div>
-                      <Label
-                        htmlFor="innerHasBeenAdjusted"
-                        className="text-xs font-semibold mb-2 block"
-                      >
-                        Has Been Adjusted
-                      </Label>
-                      <Select
-                        value={innerHasBeenAdjusted}
-                        onValueChange={(value) => {
-                          setInnerHasBeenAdjusted(value);
-                          onSectionTouched();
-                        }}
-                      >
-                        <SelectTrigger id="innerHasBeenAdjusted" className="text-sm">
-                          <SelectValue placeholder="Select option" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Yes">Yes</SelectItem>
-                          <SelectItem value="No">No</SelectItem>
-                          <SelectItem value="N/A">N/A</SelectItem>
-                          <SelectItem value="DNC">DNC</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-                <BearingClearanceForm
-                  title=""
-                  data={innerAfterData}
-                  updateFn={updateInnerAfterField}
-                  errors={innerAfterErrors}
-                  handleBlur={handleBlurInnerAfter}
-                />
-              </TabsContent>
-            </Tabs>
-          )}
-
-          {/* Shared Fields - Shutdown Adjustment Mechanism */}
-          <div className="space-y-6 pt-6 border-t">
-            {/* Shutdown Adjustment Mechanism */}
-            <div className="space-y-4">
-              <h5 className="text-sm font-semibold">Shutdown Adjustment Mechanism</h5>
-
-              <div className="grid grid-cols-2 gap-6">
-                {/* Slide Motor/Mounts */}
+          <TabsContent value="inner" className="space-y-6">
+            <div className="pt-6 border-t">
+              <div className="grid grid-cols-3 gap-6 items-end">
+                {/* Combined With */}
                 <div>
-                  <Label htmlFor="slideMotorMounts" className="text-xs font-medium mb-2 block">
-                    Slide Motor/Mounts
+                  <Label htmlFor="innerCombinedWith" className="text-xs font-semibold mb-2 block">
+                    Combined With
                   </Label>
                   <Input
-                    id="slideMotorMounts"
+                    id="innerCombinedWith"
                     type="text"
-                    value={slideMotorMounts}
+                    value={innerCombinedWith}
                     onChange={(e) => {
-                      setSlideMotorMounts(e.target.value);
+                      setInnerCombinedWith(e.target.value);
                       onSectionTouched();
                     }}
-                    placeholder="Enter status"
+                    placeholder="Reference measurement"
                     className="text-sm"
                   />
                 </div>
 
-                {/* Power Cord/Hoses */}
+                {/* Mating Part Type */}
                 <div>
-                  <Label htmlFor="powerCordHoses" className="text-xs font-medium mb-2 block">
-                    Power Cord/Hoses
+                  <Label htmlFor="innerMatingPart" className="text-xs font-semibold mb-2 block">
+                    Mating Part Type
                   </Label>
-                  <Input
-                    id="powerCordHoses"
-                    type="text"
-                    value={powerCordHoses}
-                    onChange={(e) => {
-                      setPowerCordHoses(e.target.value);
+                  <Select
+                    value={innerMatingPart}
+                    onValueChange={(value) => {
+                      setInnerMatingPart(value as MatingPartType);
                       onSectionTouched();
                     }}
-                    placeholder="Enter status"
-                    className="text-sm"
-                  />
+                  >
+                    <SelectTrigger id="innerMatingPart" className="text-sm">
+                      <SelectValue placeholder="Select mating part" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
+                      <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                      <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
+                        Nut Screw Sleeve
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                {/* Chains & Gears/Sprockets */}
+                {/* Has Been Adjusted Select */}
                 <div>
-                  <Label htmlFor="chainsGearsSprockets" className="text-xs font-medium mb-2 block">
-                    Chains & Gears/Sprockets
+                  <Label
+                    htmlFor="innerHasBeenAdjusted"
+                    className="text-xs font-semibold mb-2 block"
+                  >
+                    Has Been Adjusted
                   </Label>
-                  <Input
-                    id="chainsGearsSprockets"
-                    type="text"
-                    value={chainsGearsSprockets}
-                    onChange={(e) => {
-                      setChainsGearsSprockets(e.target.value);
+                  <Select
+                    value={innerHasBeenAdjusted}
+                    onValueChange={(value) => {
+                      setInnerHasBeenAdjusted(value);
                       onSectionTouched();
                     }}
-                    placeholder="Enter status"
-                    className="text-sm"
-                  />
-                </div>
-
-                {/* Locking Clamps */}
-                <div>
-                  <Label htmlFor="lockingClamps" className="text-xs font-medium mb-2 block">
-                    Locking Clamps
-                  </Label>
-                  <Input
-                    id="lockingClamps"
-                    type="text"
-                    value={lockingClamps}
-                    onChange={(e) => {
-                      setLockingClamps(e.target.value);
-                      onSectionTouched();
-                    }}
-                    placeholder="Enter status"
-                    className="text-sm"
-                  />
+                  >
+                    <SelectTrigger id="innerHasBeenAdjusted" className="text-sm">
+                      <SelectValue placeholder="Select option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="N/A">N/A</SelectItem>
+                      <SelectItem value="DNC">DNC</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
+            </div>
+            <BearingClearanceForm
+              title=""
+              data={innerAfterData}
+              updateFn={updateInnerAfterField}
+              errors={innerAfterErrors}
+              handleBlur={handleBlurInnerAfter}
+            />
+          </TabsContent>
+        </Tabs>
+      )}
 
-              {/* Notes */}
-              <div>
-                <Label htmlFor="notes" className="text-xs font-medium mb-2 block">
-                  Notes
-                </Label>
-                <Input
-                  id="notes"
-                  type="text"
-                  value={notes}
-                  onChange={(e) => {
-                    setNotes(e.target.value);
-                    onSectionTouched();
-                  }}
-                  placeholder="Enter any additional notes..."
-                  className="text-sm"
-                />
-              </div>
+      {/* Shared Fields - Shutdown Adjustment Mechanism */}
+      <div className="space-y-6 pt-6 border-t">
+        {/* Shutdown Adjustment Mechanism */}
+        <div className="space-y-4">
+          <h5 className="text-sm font-semibold">Shutdown Adjustment Mechanism</h5>
+
+          <div className="grid grid-cols-2 gap-6">
+            {/* Slide Motor/Mounts */}
+            <div>
+              <Label htmlFor="slideMotorMounts" className="text-xs font-medium mb-2 block">
+                Slide Motor/Mounts
+              </Label>
+              <Input
+                id="slideMotorMounts"
+                type="text"
+                value={slideMotorMounts}
+                onChange={(e) => {
+                  setSlideMotorMounts(e.target.value);
+                  onSectionTouched();
+                }}
+                placeholder="Enter status"
+                className="text-sm"
+              />
+            </div>
+
+            {/* Power Cord/Hoses */}
+            <div>
+              <Label htmlFor="powerCordHoses" className="text-xs font-medium mb-2 block">
+                Power Cord/Hoses
+              </Label>
+              <Input
+                id="powerCordHoses"
+                type="text"
+                value={powerCordHoses}
+                onChange={(e) => {
+                  setPowerCordHoses(e.target.value);
+                  onSectionTouched();
+                }}
+                placeholder="Enter status"
+                className="text-sm"
+              />
+            </div>
+
+            {/* Chains & Gears/Sprockets */}
+            <div>
+              <Label htmlFor="chainsGearsSprockets" className="text-xs font-medium mb-2 block">
+                Chains & Gears/Sprockets
+              </Label>
+              <Input
+                id="chainsGearsSprockets"
+                type="text"
+                value={chainsGearsSprockets}
+                onChange={(e) => {
+                  setChainsGearsSprockets(e.target.value);
+                  onSectionTouched();
+                }}
+                placeholder="Enter status"
+                className="text-sm"
+              />
+            </div>
+
+            {/* Locking Clamps */}
+            <div>
+              <Label htmlFor="lockingClamps" className="text-xs font-medium mb-2 block">
+                Locking Clamps
+              </Label>
+              <Input
+                id="lockingClamps"
+                type="text"
+                value={lockingClamps}
+                onChange={(e) => {
+                  setLockingClamps(e.target.value);
+                  onSectionTouched();
+                }}
+                placeholder="Enter status"
+                className="text-sm"
+              />
             </div>
           </div>
+
+          {/* Notes */}
+          <div>
+            <Label htmlFor="notes" className="text-xs font-medium mb-2 block">
+              Notes
+            </Label>
+            <Input
+              id="notes"
+              type="text"
+              value={notes}
+              onChange={(e) => {
+                setNotes(e.target.value);
+                onSectionTouched();
+              }}
+              placeholder="Enter any additional notes..."
+              className="text-sm"
+            />
+          </div>
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      </div>
+    </div>
   );
 });
 
