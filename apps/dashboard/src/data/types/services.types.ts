@@ -12,6 +12,8 @@ export {
   ParallelismType,
   YesNoNaDncType,
   YesNoDncType,
+  SystemType,
+  PsiStatusType,
 } from '@titans-tech/shared/types';
 
 export type {
@@ -23,6 +25,7 @@ export type {
   GibsData,
   GibsCheck,
   LubricationHydraulicsData,
+  LubricationHydraulicsGauge,
   ClutchData,
   CounterbalanceCylinderData,
   // Service entity

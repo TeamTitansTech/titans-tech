@@ -9,27 +9,27 @@ export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
   @Public()
   @Post()
-  create(@Body() createServiceDto: CreateServiceDto) {
+  create(@Body() createServiceDto: CreateServiceDto): Promise<unknown> {
     return this.servicesService.create(createServiceDto);
   }
   @Public()
   @Get()
-  findAll() {
+  findAll(): Promise<unknown> {
     return this.servicesService.findAll();
   }
   @Public()
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<unknown> {
     return this.servicesService.findOne(id);
   }
   @Public()
   @Get('machine/:machineId')
-  findByMachine(@Param('machineId') machineId: string) {
+  findByMachine(@Param('machineId') machineId: string): Promise<unknown> {
     return this.servicesService.findByMachine(machineId);
   }
   @Public()
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateServiceDto: UpdateServiceDto) {
+  update(@Param('id') id: string, @Body() updateServiceDto: UpdateServiceDto): Promise<unknown> {
     return this.servicesService.update(id, updateServiceDto);
   }
 }

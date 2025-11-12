@@ -3,20 +3,22 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
-import { type LubricationHydraulicsData, ServiceType } from '@/data/types/services.types';
+import {
+  type LubricationHydraulicsData,
+  type LubricationHydraulicsGauge,
+  ServiceType,
+  YesNoDncType,
+} from '@/data/types/services.types';
 import { LubricationHydraulicsForm } from '../forms/LubricationHydraulicsForm';
 import { isDataTouched } from './utils';
 
 export const defaultLubricationHydraulicsData: LubricationHydraulicsData = {
-  lubePSI: undefined,
-  monitorflowPSI: undefined,
-  hydPSI: undefined,
-  pressSWPSI: undefined,
-  otherGauges: '',
-  changedOil: false,
+  gauges: [] as LubricationHydraulicsGauge[],
+  changedOil: YesNoDncType.DNC,
   oilTemperatureF: undefined,
   oilMfgType: '',
-  changedFilter: false,
+  changedFilter: YesNoDncType.DNC,
+  notes: '',
 };
 
 export const validateLubricationHydraulicsData = (_data: LubricationHydraulicsData): string[] => {
@@ -51,7 +53,7 @@ export const LubricationHydraulicsSection = forwardRef<
 
   const updateField = (
     field: keyof LubricationHydraulicsData,
-    value: string | number | boolean | undefined,
+    value: string | number | boolean | YesNoDncType | LubricationHydraulicsGauge[] | undefined,
   ) => {
     setData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: '' }));

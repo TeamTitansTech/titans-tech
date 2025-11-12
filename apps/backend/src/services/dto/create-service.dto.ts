@@ -6,6 +6,7 @@ import {
   ValidateNested,
   IsEnum,
   IsNumber,
+  IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import {
@@ -15,6 +16,8 @@ import {
   ServiceStatus,
   YesNoNaDncType,
   YesNoDncType,
+  SystemType,
+  PsiStatusType,
 } from '@titans-tech/db';
 
 class BearingClearanceDataDto {
@@ -297,29 +300,27 @@ class GibsCheckDto {
   innerAfter?: GibsDataDto;
 }
 
-class LubricationHydraulicsDataDto {
-  @IsOptional()
-  @IsNumber()
-  lubePSI?: number;
-
-  @IsOptional()
-  @IsNumber()
-  monitorflowPSI?: number;
-
-  @IsOptional()
-  @IsNumber()
-  hydPSI?: number;
-
-  @IsOptional()
-  @IsNumber()
-  pressSWPSI?: number;
+class LubricationHydraulicsGaugeDto {
+  @IsEnum(SystemType)
+  system: SystemType;
 
   @IsOptional()
   @IsString()
-  otherGauges?: string;
+  gauge?: string;
 
-  @IsBoolean()
-  changedOil: boolean;
+  @IsOptional()
+  @IsEnum(PsiStatusType)
+  psi?: PsiStatusType;
+}
+
+class LubricationHydraulicsDataDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => LubricationHydraulicsGaugeDto)
+  gauges: LubricationHydraulicsGaugeDto[];
+
+  @IsEnum(YesNoDncType)
+  changedOil: YesNoDncType;
 
   @IsOptional()
   @IsNumber()
@@ -329,8 +330,12 @@ class LubricationHydraulicsDataDto {
   @IsString()
   oilMfgType?: string;
 
-  @IsBoolean()
-  changedFilter: boolean;
+  @IsEnum(YesNoDncType)
+  changedFilter: YesNoDncType;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }
 
 class ClutchDataDto {

@@ -63,7 +63,7 @@ export function ServiceHistoryWrapper({
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle>{t('serviceHistory')}</CardTitle>
           <Button size="sm" onClick={() => setIsServiceModalOpen(true)} className="shrink-0">
             <Plus className="w-4 h-4 mr-2" />
@@ -81,13 +81,13 @@ export function ServiceHistoryWrapper({
                 <div
                   key={service.id}
                   onClick={() => handleServiceClick(service)}
-                  className={`flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-0 ${
+                  className={`flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0 ${
                     isPending
                       ? 'cursor-pointer hover:bg-slate-50 transition-colors rounded-lg p-2 -m-2'
                       : ''
                   }`}
                 >
-                  <div className="flex items-start gap-3">
+                  <div className="flex items-start gap-3 p-2">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                       <Wrench className="w-5 h-5 text-accent" />
                     </div>
