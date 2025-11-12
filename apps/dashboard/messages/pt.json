@@ -538,6 +538,12 @@
         "hasParallelismBeenAdjusted": "O Paralelismo Foi Ajustado?",
         "notes": "Observações",
         "includeMeasurementsBeforeMaintenance": "Incluir medições antes da manutenção",
+        "saveData": "Salvar Dados",
+        "saving": "Salvando...",
+        "dataSaved": "Dados salvos com sucesso",
+        "validationError": "Por favor, preencha todos os campos obrigatórios",
+        "fillAllFields": "Por favor, preencha todos os campos de posição (1-6)",
+        "fillBeforeMeasurements": "Por favor, preencha todos os campos 'Antes da Manutenção' quando a caixa estiver marcada",
         "parallelismType": {
           "DNC": "DNC",
           "TO_BED": "Para Base",

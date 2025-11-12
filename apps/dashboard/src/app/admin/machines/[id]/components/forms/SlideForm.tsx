@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Check, AlertCircle } from 'lucide-react';
 import {
   type SlideData,
   ServiceType,
@@ -55,6 +57,10 @@ export interface SlideFormProps {
   ) => void;
   serviceType: ServiceType;
   onSectionTouched?: () => void;
+  includeBeforeMeasurements: boolean;
+  onIncludeBeforeMeasurementsChange: (value: boolean) => void;
+  onValidate?: (isValid: boolean, errors: string[]) => void;
+  onClose?: () => void;
 }
 
 function PositionFields({
@@ -96,64 +102,313 @@ function PositionFields({
   return (
     <div className="space-y-4">
       <h5 className="font-medium text-sm">{title}</h5>
-      <div className="grid grid-cols-4 gap-1">
-        {(
-          [
-            'position1',
-            'position2',
-            'position3',
-            'deviationLabel',
-            'position4',
-            'position5',
-            'position6',
-            'maxDeviation',
-          ] as const
-        ).map((field) => {
-          if (field === 'deviationLabel') {
-            return (
-              <div key="deviationLabel" className="flex items-end">
-                <Input
-                  type="text"
-                  value={t('maxDeviation')}
-                  disabled
-                  className="mt-1 bg-muted text-center font-medium"
-                  readOnly
-                />
-              </div>
-            );
-          }
-          if (field === 'maxDeviation') {
-            return (
-              <div key="maxDeviation" className="flex items-end">
-                <Input
-                  type="text"
-                  value={calculateMaxDeviation()}
-                  disabled
-                  className="mt-1 bg-muted text-center font-medium"
-                  readOnly
-                />
-              </div>
-            );
-          }
 
-          return (
-            <div key={field}>
-              <Input
-                id={`${field}-${title}`}
-                type="number"
-                step="0.0001"
-                min="0"
-                max="999999.9999"
-                value={data[field]}
-                onChange={(e) => updateFn(field, Number(e.target.value))}
-                onBlur={() => handleBlur(field)}
-                className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
-                required
-              />
-              {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
-            </div>
-          );
-        })}
+      {/* Big screens: 4 columns + deviation */}
+      <div className="hidden lg:grid lg:grid-cols-4 gap-2">
+        {/* Row 1: position1, position2, position3, deviation label */}
+        <div>
+          <Input
+            id={`position1-${title}`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position1}
+            onChange={(e) => updateFn('position1', Number(e.target.value))}
+            onBlur={() => handleBlur('position1')}
+            className={errors.position1 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position1 && <p className="text-xs text-destructive mt-1">{errors.position1}</p>}
+        </div>
+        <div>
+          <Input
+            id={`position2-${title}`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position2}
+            onChange={(e) => updateFn('position2', Number(e.target.value))}
+            onBlur={() => handleBlur('position2')}
+            className={errors.position2 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position2 && <p className="text-xs text-destructive mt-1">{errors.position2}</p>}
+        </div>
+        <div>
+          <Input
+            id={`position3-${title}`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position3}
+            onChange={(e) => updateFn('position3', Number(e.target.value))}
+            onBlur={() => handleBlur('position3')}
+            className={errors.position3 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position3 && <p className="text-xs text-destructive mt-1">{errors.position3}</p>}
+        </div>
+        <div>
+          <Input
+            type="text"
+            value={t('maxDeviation')}
+            disabled
+            className="bg-muted text-center font-medium"
+            readOnly
+          />
+        </div>
+
+        {/* Row 2: position4, position5, empty, deviation calc */}
+        <div>
+          <Input
+            id={`position4-${title}`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position4}
+            onChange={(e) => updateFn('position4', Number(e.target.value))}
+            onBlur={() => handleBlur('position4')}
+            className={errors.position4 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position4 && <p className="text-xs text-destructive mt-1">{errors.position4}</p>}
+        </div>
+        <div>
+          <Input
+            id={`position5-${title}`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position5}
+            onChange={(e) => updateFn('position5', Number(e.target.value))}
+            onBlur={() => handleBlur('position5')}
+            className={errors.position5 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position5 && <p className="text-xs text-destructive mt-1">{errors.position5}</p>}
+        </div>
+        <div></div>
+        <div>
+          <Input
+            type="text"
+            value={calculateMaxDeviation()}
+            disabled
+            className="bg-muted text-center font-medium"
+            readOnly
+          />
+        </div>
+      </div>
+
+      {/* Medium screens: 3 columns */}
+      <div className="hidden md:grid lg:hidden md:grid-cols-3 gap-2">
+        {/* Row 1: position1, position2, deviation label */}
+        <div>
+          <Input
+            id={`position1-${title}-md`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position1}
+            onChange={(e) => updateFn('position1', Number(e.target.value))}
+            onBlur={() => handleBlur('position1')}
+            className={errors.position1 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position1 && <p className="text-xs text-destructive mt-1">{errors.position1}</p>}
+        </div>
+        <div>
+          <Input
+            id={`position2-${title}-md`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position2}
+            onChange={(e) => updateFn('position2', Number(e.target.value))}
+            onBlur={() => handleBlur('position2')}
+            className={errors.position2 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position2 && <p className="text-xs text-destructive mt-1">{errors.position2}</p>}
+        </div>
+        <div>
+          <Input
+            type="text"
+            value={t('maxDeviation')}
+            disabled
+            className="bg-muted text-center font-medium"
+            readOnly
+          />
+        </div>
+
+        {/* Row 2: position3, position4, deviation calc */}
+        <div>
+          <Input
+            id={`position3-${title}-md`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position3}
+            onChange={(e) => updateFn('position3', Number(e.target.value))}
+            onBlur={() => handleBlur('position3')}
+            className={errors.position3 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position3 && <p className="text-xs text-destructive mt-1">{errors.position3}</p>}
+        </div>
+        <div>
+          <Input
+            id={`position4-${title}-md`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position4}
+            onChange={(e) => updateFn('position4', Number(e.target.value))}
+            onBlur={() => handleBlur('position4')}
+            className={errors.position4 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position4 && <p className="text-xs text-destructive mt-1">{errors.position4}</p>}
+        </div>
+        <div>
+          <Input
+            type="text"
+            value={calculateMaxDeviation()}
+            disabled
+            className="bg-muted text-center font-medium"
+            readOnly
+          />
+        </div>
+
+        {/* Row 3: position5 */}
+        <div>
+          <Input
+            id={`position5-${title}-md`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position5}
+            onChange={(e) => updateFn('position5', Number(e.target.value))}
+            onBlur={() => handleBlur('position5')}
+            className={errors.position5 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position5 && <p className="text-xs text-destructive mt-1">{errors.position5}</p>}
+        </div>
+      </div>
+
+      {/* Small screens: 2 columns */}
+      <div className="grid md:hidden grid-cols-2 gap-2">
+        {/* Row 1: position1, position2 */}
+        <div>
+          <Input
+            id={`position1-${title}-sm`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position1}
+            onChange={(e) => updateFn('position1', Number(e.target.value))}
+            onBlur={() => handleBlur('position1')}
+            className={errors.position1 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position1 && <p className="text-xs text-destructive mt-1">{errors.position1}</p>}
+        </div>
+        <div>
+          <Input
+            id={`position2-${title}-sm`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position2}
+            onChange={(e) => updateFn('position2', Number(e.target.value))}
+            onBlur={() => handleBlur('position2')}
+            className={errors.position2 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position2 && <p className="text-xs text-destructive mt-1">{errors.position2}</p>}
+        </div>
+
+        {/* Row 2: position3, position4 */}
+        <div>
+          <Input
+            id={`position3-${title}-sm`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position3}
+            onChange={(e) => updateFn('position3', Number(e.target.value))}
+            onBlur={() => handleBlur('position3')}
+            className={errors.position3 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position3 && <p className="text-xs text-destructive mt-1">{errors.position3}</p>}
+        </div>
+        <div>
+          <Input
+            id={`position4-${title}-sm`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position4}
+            onChange={(e) => updateFn('position4', Number(e.target.value))}
+            onBlur={() => handleBlur('position4')}
+            className={errors.position4 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position4 && <p className="text-xs text-destructive mt-1">{errors.position4}</p>}
+        </div>
+
+        {/* Row 3: position5, empty */}
+        <div>
+          <Input
+            id={`position5-${title}-sm`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position5}
+            onChange={(e) => updateFn('position5', Number(e.target.value))}
+            onBlur={() => handleBlur('position5')}
+            className={errors.position5 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position5 && <p className="text-xs text-destructive mt-1">{errors.position5}</p>}
+        </div>
+        <div></div>
+
+        {/* Row 4: deviation label, deviation calc */}
+        <div>
+          <Input
+            type="text"
+            value={t('maxDeviation')}
+            disabled
+            className="bg-muted text-center font-medium"
+            readOnly
+          />
+        </div>
+        <div>
+          <Input
+            type="text"
+            value={calculateMaxDeviation()}
+            disabled
+            className="bg-muted text-center font-medium"
+            readOnly
+          />
+        </div>
       </div>
     </div>
   );
@@ -250,6 +505,32 @@ function ShutheightFields({
   );
 }
 
+// Helper function to check if slide data has been touched
+const isDataTouched = (data: SlideData): boolean => {
+  return Object.values(data).some((val) => val !== 0);
+};
+
+// Helper function to validate slide data
+const validateSlideData = (data: SlideData): string[] => {
+  const errors: string[] = [];
+  const requiredFields: (keyof SlideData)[] = [
+    'position1',
+    'position2',
+    'position3',
+    'position4',
+    'position5',
+  ];
+
+  requiredFields.forEach((field) => {
+    const value = data[field];
+    if (typeof value !== 'number' || isNaN(value)) {
+      errors.push(`${String(field)} is required and must be a valid number`);
+    }
+  });
+
+  return errors;
+};
+
 export function SlideForm({
   data,
   updateFn,
@@ -257,9 +538,15 @@ export function SlideForm({
   handleBlur,
   serviceType,
   onSectionTouched,
+  includeBeforeMeasurements,
+  onIncludeBeforeMeasurementsChange,
+  onValidate,
+  onClose,
 }: SlideFormProps) {
   const t = useTranslations('inspections.form.slide');
-  const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [isValid, setIsValid] = useState<boolean | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleFieldUpdate = (
     field: keyof SlideFormData,
@@ -267,9 +554,89 @@ export function SlideForm({
   ) => {
     updateFn(field, value);
     onSectionTouched?.();
+    // Reset validation state when data changes
+    setIsValid(null);
+    setValidationErrors([]);
   };
 
-  console.log({ serviceType });
+  const handleValidateAndClose = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
+    setIsSaving(true);
+
+    const outerBeforeTouched = isDataTouched(data.outerBeforeData);
+    const outerAfterTouched = isDataTouched(data.outerAfterData);
+    const innerBeforeTouched = isDataTouched(data.innerBeforeData);
+    const innerAfterTouched = isDataTouched(data.innerAfterData);
+
+    const validationErrors: string[] = [];
+
+    // Validate that at least one section (outer or inner) is filled
+    if (!outerAfterTouched && !innerAfterTouched) {
+      validationErrors.push(t('validationError'));
+      setIsValid(false);
+      setValidationErrors(validationErrors);
+      setIsSaving(false);
+      onValidate?.(false, validationErrors);
+      return;
+    }
+
+    // Validate outer data if touched
+    if (outerAfterTouched) {
+      const outerErrors = validateSlideData(data.outerAfterData);
+      if (outerErrors.length > 0) {
+        validationErrors.push(...outerErrors.map((e) => `Outer: ${e}`));
+      }
+    }
+
+    // Validate inner data if touched
+    if (innerAfterTouched) {
+      const innerErrors = validateSlideData(data.innerAfterData);
+      if (innerErrors.length > 0) {
+        validationErrors.push(...innerErrors.map((e) => `Inner: ${e}`));
+      }
+    }
+
+    // Validate before measurements if checkbox is checked
+    if (includeBeforeMeasurements) {
+      if (!outerBeforeTouched && !innerBeforeTouched) {
+        validationErrors.push(t('fillBeforeMeasurements'));
+      } else {
+        if (outerBeforeTouched) {
+          const outerBeforeErrors = validateSlideData(data.outerBeforeData);
+          if (outerBeforeErrors.length > 0) {
+            validationErrors.push(...outerBeforeErrors.map((e) => `Outer Before: ${e}`));
+          }
+        }
+        if (innerBeforeTouched) {
+          const innerBeforeErrors = validateSlideData(data.innerBeforeData);
+          if (innerBeforeErrors.length > 0) {
+            validationErrors.push(...innerBeforeErrors.map((e) => `Inner Before: ${e}`));
+          }
+        }
+      }
+    }
+
+    if (validationErrors.length > 0) {
+      setIsValid(false);
+      setValidationErrors(validationErrors);
+      setIsSaving(false);
+      onValidate?.(false, validationErrors);
+      return;
+    }
+
+    // If validation passes
+    setIsValid(true);
+    setValidationErrors([]);
+    setIsSaving(false);
+    onValidate?.(true, []);
+
+    // Close the section after successful validation
+    setTimeout(() => {
+      onClose?.();
+    }, 500);
+  };
 
   return (
     <div className="space-y-6">
@@ -280,7 +647,7 @@ export function SlideForm({
             id="include-before-measurements"
             checked={includeBeforeMeasurements}
             onCheckedChange={(checked) => {
-              setIncludeBeforeMeasurements(checked === true);
+              onIncludeBeforeMeasurementsChange(checked === true);
               onSectionTouched?.();
             }}
           />
@@ -315,8 +682,6 @@ export function SlideForm({
                 handleBlur={(field) => handleBlur('outerBefore', field)}
                 title={t('positionMeasurements')}
               />
-
-              <ShutheightFields type="outer" data={data} handleFieldUpdate={handleFieldUpdate} />
             </TabsContent>
 
             <TabsContent value="inner" className="space-y-6">
@@ -330,8 +695,6 @@ export function SlideForm({
                 handleBlur={(field) => handleBlur('innerBefore', field)}
                 title={t('positionMeasurements')}
               />
-
-              <ShutheightFields type="inner" data={data} handleFieldUpdate={handleFieldUpdate} />
             </TabsContent>
           </Tabs>
         </div>
@@ -360,7 +723,6 @@ export function SlideForm({
               handleBlur={(field) => handleBlur('outerAfter', field)}
               title={t('positionMeasurements')}
             />
-
             <ShutheightFields type="outer" data={data} handleFieldUpdate={handleFieldUpdate} />
           </TabsContent>
 
@@ -375,7 +737,6 @@ export function SlideForm({
               handleBlur={(field) => handleBlur('outerAfter', field)}
               title={t('positionMeasurements')}
             />
-
             <ShutheightFields type="inner" data={data} handleFieldUpdate={handleFieldUpdate} />
           </TabsContent>
         </Tabs>
@@ -442,6 +803,48 @@ export function SlideForm({
             rows={4}
           />
         </div>
+      </div>
+
+      {/* Validation Messages Display */}
+      {validationErrors.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h4 className="font-semibold text-red-900 mb-2">Validation Errors:</h4>
+              <ul className="list-disc list-inside space-y-1 text-sm text-red-800">
+                {validationErrors.map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Message Display */}
+      {isValid === true && validationErrors.length === 0 && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <div className="flex items-start gap-2">
+            <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
+            <div>
+              <h4 className="font-semibold text-green-900">{t('dataSaved')}</h4>
+              <p className="text-sm text-green-800">Slide data has been validated successfully</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Save Button */}
+      <div className="flex justify-end pt-4 border-t">
+        <Button
+          type="button"
+          onClick={handleValidateAndClose}
+          disabled={isSaving}
+          className="min-w-[120px]"
+        >
+          {isSaving ? t('saving') : t('saveData')}
+        </Button>
       </div>
     </div>
   );

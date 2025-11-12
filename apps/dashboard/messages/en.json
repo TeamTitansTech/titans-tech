@@ -538,6 +538,12 @@
         "hasParallelismBeenAdjusted": "Has Parallelism Been Adjusted?",
         "notes": "Notes",
         "includeMeasurementsBeforeMaintenance": "Include measurements before maintenance",
+        "saveData": "Save Data",
+        "saving": "Saving...",
+        "dataSaved": "Data saved successfully",
+        "validationError": "Please fill in all required fields",
+        "fillAllFields": "Please fill in all position fields (1-6)",
+        "fillBeforeMeasurements": "Please fill in all 'Before Maintenance' fields when checkbox is checked",
         "parallelismType": {
           "DNC": "DNC",
           "TO_BED": "To Bed",

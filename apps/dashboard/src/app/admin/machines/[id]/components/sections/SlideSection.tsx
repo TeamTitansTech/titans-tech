@@ -2,7 +2,7 @@
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Check, AlertCircle } from 'lucide-react';
 import {
   type SlideData,
   ServiceType,
@@ -30,7 +30,6 @@ export const validateSlideData = (data: SlideData): string[] => {
     'position3',
     'position4',
     'position5',
-    'position6',
   ];
 
   requiredFields.forEach((field) => {
@@ -108,6 +107,9 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       innerAfter: {} as Record<string, string>,
     });
 
+    const [isValid, setIsValid] = useState<boolean | null>(null);
+    const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
+
     // Generic update function for any field in formData
     const updateField = <K extends keyof typeof formData>(
       field: K,
@@ -151,6 +153,16 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
         ...prev,
         [section]: { ...prev[section], [field]: error },
       }));
+    };
+
+    // Handle validation callback from SlideForm
+    const handleValidation = (valid: boolean, _errors: string[]) => {
+      setIsValid(valid);
+    };
+
+    // Handle close callback from SlideForm
+    const handleClose = () => {
+      onOpenChange(false);
     };
 
     useImperativeHandle(ref, () => ({
@@ -342,14 +354,18 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       <Collapsible open={isOpen} onOpenChange={onOpenChange}>
         <CollapsibleTrigger className="w-full">
           <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
-            <h3 className="text-base font-semibold">Slide</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold">Slide</h3>
+              {isValid === true && <Check className="h-5 w-5 text-green-600" />}
+              {isValid === false && <AlertCircle className="h-5 w-5 text-red-600" />}
+            </div>
             <ChevronDown
               className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
             />
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="border border-t-0 rounded-b-lg p-6 bg-white">
+          <div className="border border-t-0 rounded-b-lg p-6 bg-white space-y-6">
             <SlideForm
               data={formData}
               updateFn={updateField}
@@ -357,6 +373,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
               handleBlur={handleBlur}
               serviceType={serviceType}
               onSectionTouched={onSectionTouched}
+              includeBeforeMeasurements={includeBeforeMeasurements}
+              onIncludeBeforeMeasurementsChange={setIncludeBeforeMeasurements}
+              onValidate={handleValidation}
+              onClose={handleClose}
             />
           </div>
         </CollapsibleContent>
