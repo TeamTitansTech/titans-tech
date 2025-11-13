@@ -6,6 +6,7 @@ import { Typography } from '@/components/ui/typography';
 import { Wrench } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { CompleteServiceModal } from './CompleteServiceModal';
+import { ServiceSummaryModal } from './ServiceSummaryModal';
 import type { Service } from '@/data/types/services.types';
 
 interface ServiceHistoryWrapperProps {
@@ -22,6 +23,7 @@ export function ServiceHistoryWrapper({
   const t = useTranslations('machines');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
   // Filter for past services (completed or past due pending services)
   const today = new Date();
@@ -35,10 +37,13 @@ export function ServiceHistoryWrapper({
   });
 
   const handleServiceClick = (service: Service) => {
-    // Only allow clicking on pending services
+    setSelectedService(service);
     if (service.status === 'PENDING') {
-      setSelectedService(service);
+      // Open complete modal for pending services
       setIsCompleteModalOpen(true);
+    } else if (service.status === 'COMPLETED') {
+      // Open view modal for completed services
+      setIsViewModalOpen(true);
     }
   };
 
@@ -68,17 +73,12 @@ export function ServiceHistoryWrapper({
             {pastServices.map((service) => {
               const serviceDate = new Date(service.date);
               const isCompleted = service.status === 'COMPLETED';
-              const isPending = service.status === 'PENDING';
 
               return (
                 <div
                   key={service.id}
                   onClick={() => handleServiceClick(service)}
-                  className={`flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0 ${
-                    isPending
-                      ? 'cursor-pointer hover:bg-muted transition-colors rounded-lg p-2 -m-2'
-                      : ''
-                  }`}
+                  className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0 cursor-pointer hover:bg-muted transition-colors rounded-lg p-2 -m-2"
                 >
                   <div className="flex items-start gap-3 p-2">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
@@ -119,7 +119,7 @@ export function ServiceHistoryWrapper({
           </div>
         </CardContent>
       </Card>
-      {selectedService && (
+      {selectedService && selectedService.status === 'PENDING' && (
         <CompleteServiceModal
           machineId={machineId}
           blueprintSections={blueprintSections}
@@ -129,6 +129,13 @@ export function ServiceHistoryWrapper({
           initialPerformedBy={selectedService.performedBy}
           open={isCompleteModalOpen}
           onOpenChange={setIsCompleteModalOpen}
+        />
+      )}
+      {selectedService && selectedService.status === 'COMPLETED' && (
+        <ServiceSummaryModal
+          service={selectedService}
+          open={isViewModalOpen}
+          onOpenChange={setIsViewModalOpen}
         />
       )}
     </>
