@@ -99,7 +99,7 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
       {!isLast && (
         <div
           className="h-0.5 bg-blue-500 mx-3 sm:mx-4 lg:flex-1 w-[40px] sm:w-[50px] lg:w-auto"
-          style={{ marginTop: '16px' }}
+          style={{ marginTop: '20px' }}
         />
       )}
     </div>
