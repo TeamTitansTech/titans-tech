@@ -13,45 +13,21 @@ import {
 } from '@titans-tech/shared';
 import { AlertSeverity } from '@titans-tech/db';
 import { Decimal } from '@prisma/client/runtime/library';
+import {
+  convertThresholdToDecimal,
+  convertPartialThresholdToDecimal,
+} from './threshold.utils';
 
 @Injectable()
 export class AlertsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createThreshold(dto: CreateThresholdBearingClearanceDto) {
-    // List of all threshold fields that need Decimal conversion
-    const thresholdFields = [
-      'totalClearance_greenMin',
-      'totalClearance_yellowMin',
-      'totalClearance_redMin',
-      'mainBearings_greenMin',
-      'mainBearings_yellowMin',
-      'mainBearings_redMin',
-      'upperConnectionBearings_greenMin',
-      'upperConnectionBearings_yellowMin',
-      'upperConnectionBearings_redMin',
-      'wristPinToMatingPart_greenMin',
-      'wristPinToMatingPart_yellowMin',
-      'wristPinToMatingPart_redMin',
-      'wristPinToBushing_greenMin',
-      'wristPinToBushing_yellowMin',
-      'wristPinToBushing_redMin',
-      'slideAdjNutToScrewSleeve_greenMin',
-      'slideAdjNutToScrewSleeve_yellowMin',
-      'slideAdjNutToScrewSleeve_redMin',
-    ] as const;
-
-    // Convert all fields to Decimal
-    const data = thresholdFields.reduce(
-      (acc, field) => {
-        acc[field] = new Decimal(dto[field]);
-        return acc;
-      },
-      { blueprintId: dto.blueprintId } as any,
-    );
-
     const threshold = await this.prisma.thresholdBearingClearance.create({
-      data,
+      data: {
+        blueprintId: dto.blueprintId,
+        ...convertThresholdToDecimal(dto),
+      },
     });
 
     return new ThresholdBearingClearanceResponseDto(threshold as any);
@@ -154,13 +130,7 @@ export class AlertsService {
     }
 
     // 4. Convert to Decimal and update
-    const data: any = {};
-    Object.keys(dto).forEach((key) => {
-      const value = (dto as any)[key];
-      if (value !== undefined) {
-        data[key] = new Decimal(value);
-      }
-    });
+    const data = convertPartialThresholdToDecimal(dto);
 
     const threshold = await this.prisma.thresholdBearingClearance.update({
       where: { blueprintId },

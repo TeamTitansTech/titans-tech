@@ -7,7 +7,7 @@ import { Prisma, ServiceSection } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateBlueprintDto } from './dto/create-blueprint.dto';
 import { CreateBlueprintWithThresholdsDto } from '@titans-tech/shared';
-import { Decimal } from '@prisma/client/runtime/library';
+import { convertThresholdToDecimal } from '../modules/alerts/threshold.utils';
 
 @Injectable()
 export class BlueprintsService {
@@ -35,60 +35,7 @@ export class BlueprintsService {
         await tx.thresholdBearingClearance.create({
           data: {
             blueprintId: blueprint.id,
-            totalClearance_greenMin: new Decimal(
-              dto.thresholds.totalClearance_greenMin,
-            ),
-            totalClearance_yellowMin: new Decimal(
-              dto.thresholds.totalClearance_yellowMin,
-            ),
-            totalClearance_redMin: new Decimal(
-              dto.thresholds.totalClearance_redMin,
-            ),
-            mainBearings_greenMin: new Decimal(
-              dto.thresholds.mainBearings_greenMin,
-            ),
-            mainBearings_yellowMin: new Decimal(
-              dto.thresholds.mainBearings_yellowMin,
-            ),
-            mainBearings_redMin: new Decimal(
-              dto.thresholds.mainBearings_redMin,
-            ),
-            upperConnectionBearings_greenMin: new Decimal(
-              dto.thresholds.upperConnectionBearings_greenMin,
-            ),
-            upperConnectionBearings_yellowMin: new Decimal(
-              dto.thresholds.upperConnectionBearings_yellowMin,
-            ),
-            upperConnectionBearings_redMin: new Decimal(
-              dto.thresholds.upperConnectionBearings_redMin,
-            ),
-            wristPinToMatingPart_greenMin: new Decimal(
-              dto.thresholds.wristPinToMatingPart_greenMin,
-            ),
-            wristPinToMatingPart_yellowMin: new Decimal(
-              dto.thresholds.wristPinToMatingPart_yellowMin,
-            ),
-            wristPinToMatingPart_redMin: new Decimal(
-              dto.thresholds.wristPinToMatingPart_redMin,
-            ),
-            wristPinToBushing_greenMin: new Decimal(
-              dto.thresholds.wristPinToBushing_greenMin,
-            ),
-            wristPinToBushing_yellowMin: new Decimal(
-              dto.thresholds.wristPinToBushing_yellowMin,
-            ),
-            wristPinToBushing_redMin: new Decimal(
-              dto.thresholds.wristPinToBushing_redMin,
-            ),
-            slideAdjNutToScrewSleeve_greenMin: new Decimal(
-              dto.thresholds.slideAdjNutToScrewSleeve_greenMin,
-            ),
-            slideAdjNutToScrewSleeve_yellowMin: new Decimal(
-              dto.thresholds.slideAdjNutToScrewSleeve_yellowMin,
-            ),
-            slideAdjNutToScrewSleeve_redMin: new Decimal(
-              dto.thresholds.slideAdjNutToScrewSleeve_redMin,
-            ),
+            ...convertThresholdToDecimal(dto.thresholds),
           },
         });
       }
