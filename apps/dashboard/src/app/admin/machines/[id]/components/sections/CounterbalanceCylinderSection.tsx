@@ -26,9 +26,35 @@ export const defaultCounterbalanceCylinderData: CounterbalanceCylinderData = {
   notes: '',
 };
 
-export const validateCounterbalanceCylinderData = (_data: CounterbalanceCylinderData): string[] => {
-  // All fields are optional for this section
-  return [];
+export const validateCounterbalanceCylinderData = (data: CounterbalanceCylinderData): string[] => {
+  const errors: string[] = [];
+
+  const requiredStringFields: (keyof CounterbalanceCylinderData)[] = [
+    'counterbalanceType',
+    'airbagPistonSeals',
+    'regulator',
+    'gauge',
+    'pneumaticsPlumbing',
+    'rodSeals',
+    'rodBushing',
+    'oilWick',
+  ];
+
+  requiredStringFields.forEach((field) => {
+    const value = data[field];
+    if (!value || typeof value !== 'string') {
+      errors.push(`${String(field)} is required and must be a valid value`);
+    }
+  });
+
+  if (data.airbagPistonSeals === 'LEAKING') {
+    const leakLocation = data.airbagPistonSealsLeakLocation;
+    if (!leakLocation || typeof leakLocation !== 'string' || !leakLocation.trim()) {
+      errors.push('airbagPistonSealsLeakLocation is required when seals are LEAKING');
+    }
+  }
+
+  return errors;
 };
 
 export interface CounterbalanceCylinderSectionRef {
@@ -73,6 +99,41 @@ export const CounterbalanceCylinderSection = forwardRef<
     inner: {},
   });
 
+  const validateField = (
+    field: keyof CounterbalanceCylinderData,
+    value: string | number | undefined,
+    data: CounterbalanceCylinderData,
+  ): string => {
+    if (field === 'notes') {
+      return '';
+    }
+
+    const requiredFields: (keyof CounterbalanceCylinderData)[] = [
+      'counterbalanceType',
+      'airbagPistonSeals',
+      'regulator',
+      'gauge',
+      'pneumaticsPlumbing',
+      'rodSeals',
+      'rodBushing',
+      'oilWick',
+    ];
+
+    if (requiredFields.includes(field) && !value) {
+      return 'This field is required';
+    }
+
+    if (
+      field === 'airbagPistonSealsLeakLocation' &&
+      data.airbagPistonSeals === 'LEAKING' &&
+      !value
+    ) {
+      return 'Leak location is required when seals are leaking';
+    }
+
+    return '';
+  };
+
   const updateOuterField = (
     field: keyof CounterbalanceCylinderData,
     value: string | number | undefined,
@@ -99,8 +160,14 @@ export const CounterbalanceCylinderSection = forwardRef<
     onSectionTouched();
   };
 
-  const handleBlur = (_field: keyof CounterbalanceCylinderData) => {
-    // All fields optional
+  const handleBlurOuter = (field: keyof CounterbalanceCylinderData) => {
+    const error = validateField(field, outerData[field], outerData);
+    setErrors((prev) => ({ ...prev, outer: { ...prev.outer, [field]: error } }));
+  };
+
+  const handleBlurInner = (field: keyof CounterbalanceCylinderData) => {
+    const error = validateField(field, innerData[field], innerData);
+    setErrors((prev) => ({ ...prev, inner: { ...prev.inner, [field]: error } }));
   };
 
   useImperativeHandle(ref, () => ({
@@ -125,8 +192,12 @@ export const CounterbalanceCylinderSection = forwardRef<
         return { isValid: true, errors: [] };
       }
 
-      const outerErrors = outerTouched ? validateCounterbalanceCylinderData(outerData) : [];
-      const innerErrors = innerTouched ? validateCounterbalanceCylinderData(innerData) : [];
+      const outerErrors = outerTouched
+        ? validateCounterbalanceCylinderData(outerData).map((e) => `Outer: ${e}`)
+        : [];
+      const innerErrors = innerTouched
+        ? validateCounterbalanceCylinderData(innerData).map((e) => `Inner: ${e}`)
+        : [];
       const allErrors = [...outerErrors, ...innerErrors];
       const isValid = allErrors.length === 0;
 
@@ -165,8 +236,12 @@ export const CounterbalanceCylinderSection = forwardRef<
       const outerTouched = isDataTouched(outerData, defaultCounterbalanceCylinderData);
       const innerTouched = isDataTouched(innerData, defaultCounterbalanceCylinderData);
 
-      const outerErrors = outerTouched ? validateCounterbalanceCylinderData(outerData) : [];
-      const innerErrors = innerTouched ? validateCounterbalanceCylinderData(innerData) : [];
+      const outerErrors = outerTouched
+        ? validateCounterbalanceCylinderData(outerData).map((e) => `Outer: ${e}`)
+        : [];
+      const innerErrors = innerTouched
+        ? validateCounterbalanceCylinderData(innerData).map((e) => `Inner: ${e}`)
+        : [];
 
       return [...outerErrors, ...innerErrors];
     },
@@ -192,7 +267,7 @@ export const CounterbalanceCylinderSection = forwardRef<
             data={outerData}
             updateFn={updateOuterField}
             errors={errors.outer}
-            handleBlur={handleBlur}
+            handleBlur={handleBlurOuter}
             title=""
             hideNotes
           />
@@ -203,7 +278,7 @@ export const CounterbalanceCylinderSection = forwardRef<
             data={innerData}
             updateFn={updateInnerField}
             errors={errors.inner}
-            handleBlur={handleBlur}
+            handleBlur={handleBlurInner}
             title=""
             hideNotes
           />
