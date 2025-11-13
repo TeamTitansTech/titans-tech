@@ -1069,16 +1069,13 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
               if (sectionKey === 'COUNTERBALANCE_CYLINDER_AIRBAG') {
                 const data = completedSectionData[sectionKey];
 
-                const hasOuterData = data?.outerData && hasActualData(data.outerData);
-                const hasInnerData = data?.innerData && hasActualData(data.innerData);
-
                 return (
                   <Collapsible key={sectionKey} defaultOpen={true}>
                     <div className="border rounded-lg">
                       <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
                         <div className="flex items-center gap-2">
                           <Typography variant="h4" className="font-semibold text-sm">
-                            {t('sectionNames.counterbalanceCylinderAirbag')}
+                            {t('sectionNames.counterbalance')}
                           </Typography>
                           <span className="text-xs text-green-600 dark:text-green-400">
                             ({tServices('modal.status.complete')})
@@ -1087,67 +1084,65 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                         <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="p-3 pt-0 text-xs">
-                        {(hasOuterData || hasInnerData) && (
-                          <div className="border-t pt-2">
-                            <div className="grid grid-cols-2 gap-3">
-                              {/* Outer Data */}
+                        <div className="border-t pt-2">
+                          <div className="grid grid-cols-2 gap-3">
+                            {data?.outerData && (
                               <div className="border rounded-md overflow-hidden">
                                 <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
                                   Outer
                                 </div>
                                 <div className="p-2 space-y-1.5 text-[11px]">
-                                  {data?.outerData &&
-                                    Object.entries(data.outerData)
-                                      .filter(
-                                        ([_, value]) =>
-                                          value !== null && value !== undefined && value !== '',
-                                      )
-                                      .map(([key, value]) => (
-                                        <div key={key} className="flex justify-between">
-                                          <span className="text-muted-foreground">
-                                            {formatFieldName(key)}:
-                                          </span>
-                                          <span className="font-medium">{displayValue(value)}</span>
-                                        </div>
-                                      ))}
-                                  {!hasOuterData && (
-                                    <div className="text-center text-muted-foreground py-2">
-                                      No data
-                                    </div>
-                                  )}
+                                  {Object.entries(data.outerData)
+                                    .filter(([key]) => key !== 'notes')
+                                    .map(([key, value]) => (
+                                      <div key={key} className="flex justify-between">
+                                        <span className="text-muted-foreground">
+                                          {formatFieldName(key)}:
+                                        </span>
+                                        <span className="font-medium">{displayValue(value)}</span>
+                                      </div>
+                                    ))}
                                 </div>
                               </div>
+                            )}
 
-                              {/* Inner Data */}
+                            {data?.innerData && (
                               <div className="border rounded-md overflow-hidden">
                                 <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
                                   Inner
                                 </div>
                                 <div className="p-2 space-y-1.5 text-[11px]">
-                                  {data?.innerData &&
-                                    Object.entries(data.innerData)
-                                      .filter(
-                                        ([_, value]) =>
-                                          value !== null && value !== undefined && value !== '',
-                                      )
-                                      .map(([key, value]) => (
-                                        <div key={key} className="flex justify-between">
-                                          <span className="text-muted-foreground">
-                                            {formatFieldName(key)}:
-                                          </span>
-                                          <span className="font-medium">{displayValue(value)}</span>
-                                        </div>
-                                      ))}
-                                  {!hasInnerData && (
-                                    <div className="text-center text-muted-foreground py-2">
-                                      No data
-                                    </div>
-                                  )}
+                                  {Object.entries(data.innerData)
+                                    .filter(([key]) => key !== 'notes')
+                                    .map(([key, value]) => (
+                                      <div key={key} className="flex justify-between">
+                                        <span className="text-muted-foreground">
+                                          {formatFieldName(key)}:
+                                        </span>
+                                        <span className="font-medium">{displayValue(value)}</span>
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Notes (if exists) */}
+                          {(data?.outerData?.notes || data?.innerData?.notes) && (
+                            <div className="mt-3 border-t pt-2">
+                              <div className="font-semibold text-muted-foreground mb-2 text-xs">
+                                Notes
+                              </div>
+                              <div className="border rounded-md overflow-hidden">
+                                <div className="p-2 text-[11px]">
+                                  <span className="font-medium">
+                                    {displayValue(data?.outerData?.notes || data?.innerData?.notes)}
+                                  </span>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </CollapsibleContent>
                     </div>
                   </Collapsible>

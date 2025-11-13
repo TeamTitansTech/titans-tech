@@ -45,20 +45,26 @@ export interface CounterbalanceCylinderSectionRef {
 
 interface CounterbalanceCylinderSectionProps {
   onSectionTouched: () => void;
+  serviceType?: ServiceType;
+  initialData?: CounterbalanceCylinderCheck;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export const CounterbalanceCylinderSection = forwardRef<
   CounterbalanceCylinderSectionRef,
   CounterbalanceCylinderSectionProps
->(({ onSectionTouched }, ref) => {
+>(({ onSectionTouched, initialData }, ref) => {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
   const [outerData, setOuterData] = useState<CounterbalanceCylinderData>(
-    defaultCounterbalanceCylinderData,
+    initialData?.outerData || defaultCounterbalanceCylinderData,
   );
   const [innerData, setInnerData] = useState<CounterbalanceCylinderData>(
-    defaultCounterbalanceCylinderData,
+    initialData?.innerData || defaultCounterbalanceCylinderData,
   );
-  const [sharedNotes, setSharedNotes] = useState<string>('');
+  const [sharedNotes, setSharedNotes] = useState<string>(
+    initialData?.outerData?.notes || initialData?.innerData?.notes || '',
+  );
   const [errors, setErrors] = useState<{
     outer: Record<string, string>;
     inner: Record<string, string>;
