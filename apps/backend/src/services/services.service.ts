@@ -3,10 +3,14 @@ import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
+import { AlertsService } from '../modules/alerts/alerts.service';
 
 @Injectable()
 export class ServicesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private alertsService: AlertsService,
+  ) {}
 
   async create(createInspectionDto: CreateServiceDto) {
     // Verify machine exists and get its blueprint
@@ -564,6 +568,19 @@ export class ServicesService {
         },
       },
     });
+
+    if (updateServiceDto.bearingClearance) {
+      console.log(
+        '🚀 [SERVICES] Bearing clearance data updated, generating alerts...',
+      );
+      try {
+        await this.alertsService.generateAlertsForService(id);
+        console.log('✅ [SERVICES] Alert generation completed successfully');
+      } catch (error) {
+        console.error('❌ [SERVICES] Error generating alerts:', error);
+        console.error('Stack:', error.stack);
+      }
+    }
 
     return updatedService;
   }

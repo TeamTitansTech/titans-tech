@@ -6,25 +6,95 @@ import {
 import { Prisma, ServiceSection } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateBlueprintDto } from './dto/create-blueprint.dto';
+import { CreateBlueprintWithThresholdsDto } from '@titans-tech/shared';
+import { Decimal } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class BlueprintsService {
   constructor(private prisma: PrismaService) {}
 
   async create(
-    createBlueprintDto: CreateBlueprintDto,
+    createBlueprintDto: CreateBlueprintDto | CreateBlueprintWithThresholdsDto,
   ): Promise<Prisma.BlueprintGetPayload<object>> {
     const sections = this.validateSections(createBlueprintDto.sections);
 
-    const blueprint = await this.prisma.blueprint.create({
-      data: {
-        name: createBlueprintDto.name,
-        fields: createBlueprintDto.fields as unknown as Prisma.InputJsonValue,
-        sections: sections,
-      },
-    });
+    // Use transaction to create both Blueprint and Thresholds atomically
+    return await this.prisma.$transaction(async (tx) => {
+      // 1. Create Blueprint
+      const blueprint = await tx.blueprint.create({
+        data: {
+          name: createBlueprintDto.name,
+          fields: createBlueprintDto.fields as unknown as Prisma.InputJsonValue,
+          sections: sections,
+        },
+      });
 
-    return blueprint;
+      // 2. Create Thresholds if provided
+      const dto = createBlueprintDto as CreateBlueprintWithThresholdsDto;
+      if (dto.thresholds) {
+        await tx.thresholdBearingClearance.create({
+          data: {
+            blueprintId: blueprint.id,
+            totalClearance_greenMin: new Decimal(
+              dto.thresholds.totalClearance_greenMin,
+            ),
+            totalClearance_yellowMin: new Decimal(
+              dto.thresholds.totalClearance_yellowMin,
+            ),
+            totalClearance_redMin: new Decimal(
+              dto.thresholds.totalClearance_redMin,
+            ),
+            mainBearings_greenMin: new Decimal(
+              dto.thresholds.mainBearings_greenMin,
+            ),
+            mainBearings_yellowMin: new Decimal(
+              dto.thresholds.mainBearings_yellowMin,
+            ),
+            mainBearings_redMin: new Decimal(
+              dto.thresholds.mainBearings_redMin,
+            ),
+            upperConnectionBearings_greenMin: new Decimal(
+              dto.thresholds.upperConnectionBearings_greenMin,
+            ),
+            upperConnectionBearings_yellowMin: new Decimal(
+              dto.thresholds.upperConnectionBearings_yellowMin,
+            ),
+            upperConnectionBearings_redMin: new Decimal(
+              dto.thresholds.upperConnectionBearings_redMin,
+            ),
+            wristPinToMatingPart_greenMin: new Decimal(
+              dto.thresholds.wristPinToMatingPart_greenMin,
+            ),
+            wristPinToMatingPart_yellowMin: new Decimal(
+              dto.thresholds.wristPinToMatingPart_yellowMin,
+            ),
+            wristPinToMatingPart_redMin: new Decimal(
+              dto.thresholds.wristPinToMatingPart_redMin,
+            ),
+            wristPinToBushing_greenMin: new Decimal(
+              dto.thresholds.wristPinToBushing_greenMin,
+            ),
+            wristPinToBushing_yellowMin: new Decimal(
+              dto.thresholds.wristPinToBushing_yellowMin,
+            ),
+            wristPinToBushing_redMin: new Decimal(
+              dto.thresholds.wristPinToBushing_redMin,
+            ),
+            slideAdjNutToScrewSleeve_greenMin: new Decimal(
+              dto.thresholds.slideAdjNutToScrewSleeve_greenMin,
+            ),
+            slideAdjNutToScrewSleeve_yellowMin: new Decimal(
+              dto.thresholds.slideAdjNutToScrewSleeve_yellowMin,
+            ),
+            slideAdjNutToScrewSleeve_redMin: new Decimal(
+              dto.thresholds.slideAdjNutToScrewSleeve_redMin,
+            ),
+          },
+        });
+      }
+
+      return blueprint;
+    });
   }
 
   private validateSections(sections: ServiceSection[]): ServiceSection[] {

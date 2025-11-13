@@ -10,6 +10,7 @@ import { SysAdminModule } from './modules/sysadmin/sysadmin.module';
 import { CompaniesModule } from './modules/companies/companies.module';
 import { CompanyBranchesModule } from './modules/company-branches/company-branches.module';
 import { UsersModule } from './modules/users/users.module';
+import { AlertsModule } from './modules/alerts/alerts.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UsersModule } from './modules/users/users.module';
     BlueprintsModule,
     MachinesModule,
     ServicesModule,
+    AlertsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
