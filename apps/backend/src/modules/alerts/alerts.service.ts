@@ -353,7 +353,7 @@ export class AlertsService {
 
     return new AlertBearingClearanceResponseDto({
       ...alert,
-      // Incluir dados de bearing para o DTO
+      // Include bearing data for the DTO
       bearingData,
     } as any);
   }
