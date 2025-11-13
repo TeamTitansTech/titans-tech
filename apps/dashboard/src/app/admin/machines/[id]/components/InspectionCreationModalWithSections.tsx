@@ -165,7 +165,7 @@ export function InspectionCreationModalWithSections({
   // Track bearing clearance sub-states for badges
   const [bearingBeforeSelected, setBearingBeforeSelected] = useState(false);
 
-  // Reset when modal closes
+  // Reset when modal closes or opens
   useEffect(() => {
     if (!open) {
       setCurrentStep('selection');
@@ -185,8 +185,17 @@ export function InspectionCreationModalWithSections({
       lubricationRef.current?.reset();
       clutchRef.current?.reset();
       counterbalanceRef.current?.reset();
+    } else {
+      // When modal opens
+      if (!isCompletingService) {
+        // For inspections, automatically select all sections and go to details step
+        setSelectedSections(new Set(machineSections));
+        setCurrentStep('details');
+      }
+      // For maintenance (completing service), keep the default 'selection' step
+      // so users can choose which sections to complete
     }
-  }, [open, initialPerformedBy, isCompletingService, getInitialDate]);
+  }, [open, initialPerformedBy, isCompletingService, getInitialDate, machineSections]);
 
   const toggleSection = (sectionKey: string) => {
     setSelectedSections((prev) => {
@@ -221,7 +230,7 @@ export function InspectionCreationModalWithSections({
     const detailsCompleted = currentStep === 'sections' || currentStep === 'summary';
     steps.push({
       key: 'details',
-      label: 'Detalhes',
+      label: tServices('modal.stepper.details'),
       status: currentStep === 'details' ? 'current' : detailsCompleted ? 'completed' : 'pending',
       isClickable: true,
     });
@@ -238,7 +247,7 @@ export function InspectionCreationModalWithSections({
       const badges: StepBadge[] = [];
       if (sectionKey === 'BEARING_CLEARANCE' && isCompleted) {
         if (bearingBeforeSelected) {
-          badges.push({ label: 'Before', variant: 'info' });
+          badges.push({ label: tServices('modal.stepper.before'), variant: 'info' });
         }
       }
 
@@ -254,7 +263,7 @@ export function InspectionCreationModalWithSections({
     // Add summary step
     steps.push({
       key: 'summary',
-      label: 'Resumo',
+      label: tServices('modal.stepper.summary'),
       status: currentStep === 'summary' ? 'current' : 'pending',
       isClickable: completedSections.size === sectionsArray.length,
     });
@@ -591,14 +600,127 @@ export function InspectionCreationModalWithSections({
 
         toast.success('Manutenção concluída com sucesso');
       } else {
-        // Creating a new service
+        // Creating a new inspection - collect section data
+        const validationErrors: string[] = [];
+
+        // Bearing Clearance validation
+        if (selectedSections.has('BEARING_CLEARANCE') && bearingClearanceRef.current) {
+          const bearingErrors = bearingClearanceRef.current.validate(serviceType);
+          validationErrors.push(...bearingErrors);
+        }
+
+        // Slide validation
+        if (selectedSections.has('SLIDE') && slideRef.current?.isTouched()) {
+          const slideResult = slideRef.current.validateAndGetData(serviceType);
+          if (!slideResult.isValid) {
+            validationErrors.push(...slideResult.errors);
+          }
+        }
+
+        // Gibs validation
+        if (selectedSections.has('GIBS') && gibsRef.current?.isTouched()) {
+          const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+          if (!gibsResult.isValid) {
+            validationErrors.push(...gibsResult.errors);
+          }
+        }
+
+        // Lubrication Hydraulics validation
+        if (
+          selectedSections.has('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') &&
+          lubricationRef.current?.isTouched()
+        ) {
+          const lubricationResult = lubricationRef.current.validateAndGetData(serviceType);
+          if (!lubricationResult.isValid) {
+            validationErrors.push(...lubricationResult.errors);
+          }
+        }
+
+        // Clutch validation
+        if (selectedSections.has('CLUTCH') && clutchRef.current?.isTouched()) {
+          const clutchResult = clutchRef.current.validateAndGetData(serviceType);
+          if (!clutchResult.isValid) {
+            validationErrors.push(...clutchResult.errors);
+          }
+        }
+
+        // Counterbalance Cylinder validation
+        if (
+          selectedSections.has('COUNTERBALANCE_CYLINDER_AIRBAG') &&
+          counterbalanceRef.current?.isTouched()
+        ) {
+          const counterbalanceResult = counterbalanceRef.current.validateAndGetData(serviceType);
+          if (!counterbalanceResult.isValid) {
+            validationErrors.push(...counterbalanceResult.errors);
+          }
+        }
+
+        if (validationErrors.length > 0) {
+          toast.error(validationErrors.join('\n\n'));
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Build payload with section data
         const payload: CreateServicePayload = {
           machineId,
           date: date.toISOString(),
           type: serviceType,
-          // TODO: Add selected sections to the payload when backend supports it
-          // sections: Array.from(selectedSections),
+          status: ServiceStatus.COMPLETED,
+          performedBy: performedBy || undefined,
         };
+
+        // Add bearing clearance data if section was selected
+        if (selectedSections.has('BEARING_CLEARANCE') && bearingClearanceRef.current) {
+          const bearingData = bearingClearanceRef.current.getData();
+          payload.bearingClearance = bearingData;
+        }
+
+        // Add slide data if section was selected
+        if (selectedSections.has('SLIDE') && slideRef.current?.isTouched()) {
+          const slideResult = slideRef.current.validateAndGetData(serviceType);
+          if (slideResult.isValid && slideResult.data) {
+            payload.slide = slideResult.data;
+          }
+        }
+
+        // Add gibs data if section was selected
+        if (selectedSections.has('GIBS') && gibsRef.current?.isTouched()) {
+          const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+          if (gibsResult.isValid && gibsResult.data) {
+            payload.gibs = gibsResult.data;
+          }
+        }
+
+        // Add lubrication hydraulics data if section was selected
+        if (
+          selectedSections.has('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') &&
+          lubricationRef.current?.isTouched()
+        ) {
+          const lubricationResult = lubricationRef.current.validateAndGetData(serviceType);
+          if (lubricationResult.isValid && lubricationResult.data) {
+            payload.lubricationHydraulics = lubricationResult.data;
+          }
+        }
+
+        // Add clutch data if section was selected
+        if (selectedSections.has('CLUTCH') && clutchRef.current?.isTouched()) {
+          const clutchResult = clutchRef.current.validateAndGetData(serviceType);
+          if (clutchResult.isValid && clutchResult.data) {
+            payload.clutch = clutchResult.data;
+          }
+        }
+
+        // Add counterbalance cylinder data if section was selected
+        if (
+          selectedSections.has('COUNTERBALANCE_CYLINDER_AIRBAG') &&
+          counterbalanceRef.current?.isTouched()
+        ) {
+          const counterbalanceResult = counterbalanceRef.current.validateAndGetData(serviceType);
+          if (counterbalanceResult.isValid && counterbalanceResult.data) {
+            payload.counterbalanceCylinder = counterbalanceResult.data;
+          }
+        }
 
         const response = await createService(payload);
 
@@ -608,7 +730,7 @@ export function InspectionCreationModalWithSections({
           return;
         }
 
-        toast.success('Serviço criado com sucesso');
+        toast.success('Inspeção criada com sucesso');
       }
 
       // Reset and close
@@ -727,17 +849,17 @@ export function InspectionCreationModalWithSections({
           <DialogTitle>
             {isCompletingService
               ? currentStep === 'selection'
-                ? 'Concluir Manutenção'
-                : 'Concluir Manutenção - Detalhes'
+                ? tServices('modal.completeMaintenance')
+                : tServices('modal.completeMaintenanceDetails')
               : currentStep === 'selection'
                 ? tServices('createNewService')
                 : tServices('createNewService') + ' - ' + t('inspectionSections')}
           </DialogTitle>
           <DialogDescription>
             {currentStep === 'selection'
-              ? 'Selecione as áreas de manutenção a serem realizadas'
+              ? tServices('modal.selectMaintenanceAreas')
               : isCompletingService
-                ? 'Preencha os detalhes da manutenção realizada'
+                ? tServices('modal.fillMaintenanceDetails')
                 : tServices('createServiceDescription')}
           </DialogDescription>
         </DialogHeader>
@@ -767,7 +889,7 @@ export function InspectionCreationModalWithSections({
             <div className="mt-6 px-1 text-sm text-muted-foreground">
               {selectedSections.size > 0
                 ? `${selectedSections.size} ${selectedSections.size === 1 ? 'área selecionada' : 'áreas selecionadas'}`
-                : 'Selecione as áreas de manutenção acima para começar'}
+                : tServices('modal.selectAreasAbove')}
             </div>
 
             <div className="flex justify-end gap-3 pt-6 border-t mt-6">
@@ -787,17 +909,15 @@ export function InspectionCreationModalWithSections({
           // Step 2: Service Details (Date & PerformedBy)
           <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
             {/* Stepper */}
-            {isCompletingService && (
-              <div className="px-4 pb-2 pt-2">
-                <Stepper steps={getStepperSteps()} onStepClick={handleStepClick} />
-              </div>
-            )}
+            <div className="px-4 pb-2 pt-2">
+              <Stepper steps={getStepperSteps()} onStepClick={handleStepClick} />
+            </div>
 
             <div className="flex-1 overflow-y-auto px-4 space-y-6 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="date">
-                    {isCompletingService ? 'Data da realização' : tServices('serviceDate')}
+                    {isCompletingService ? tServices('modal.realizationDate') : tServices('serviceDate')}
                   </Label>
                   <div className="flex items-center gap-2 mt-1 h-10 px-3 py-2 border rounded-md bg-muted/50">
                     <CalendarIcon className="h-4 w-4 text-muted-foreground" />
@@ -807,13 +927,13 @@ export function InspectionCreationModalWithSections({
 
                 {isCompletingService ? (
                   <div>
-                    <Label htmlFor="performedBy">Realizado por</Label>
+                    <Label htmlFor="performedBy">{tServices('modal.performedBy')}</Label>
                     <Input
                       id="performedBy"
                       type="text"
                       value={performedBy}
                       onChange={(e) => setPerformedBy(e.target.value)}
-                      placeholder="Nome do técnico"
+                      placeholder={tServices('modal.technicianName')}
                       className="mt-1"
                     />
                   </div>
@@ -871,18 +991,14 @@ export function InspectionCreationModalWithSections({
             </div>
 
             <div className="flex justify-between gap-3 pt-4 px-4 border-t">
-              <Button type="button" variant="outline" onClick={() => setCurrentStep('selection')}>
-                Voltar
-              </Button>
-              {isCompletingService ? (
-                <Button type="button" onClick={handleNext}>
-                  Continuar
-                </Button>
-              ) : (
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? tServices('creating') : tServices('createService')}
+              {isCompletingService && (
+                <Button type="button" variant="outline" onClick={() => setCurrentStep('selection')}>
+                  Voltar
                 </Button>
               )}
+              <Button type="button" onClick={handleNext} className={!isCompletingService ? 'ml-auto' : ''}>
+                Continuar
+              </Button>
             </div>
           </form>
         ) : currentStep === 'sections' ? (
@@ -1013,7 +1129,7 @@ export function InspectionCreationModalWithSections({
 
             <div className="flex-1 overflow-y-auto px-4 py-4">
               <Typography variant="h3" className="text-lg font-semibold mb-4">
-                Resumo da Manutenção
+                {tServices('modal.maintenanceSummary')}
               </Typography>
 
               {/* Service Details Summary */}
@@ -1023,11 +1139,11 @@ export function InspectionCreationModalWithSections({
                 </Typography>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs text-muted-foreground">Data da realização</Label>
+                    <Label className="text-xs text-muted-foreground">{tServices('modal.realizationDate')}</Label>
                     <div className="text-sm font-medium">{date ? format(date, 'PPP') : '-'}</div>
                   </div>
                   <div>
-                    <Label className="text-xs text-muted-foreground">Realizado por</Label>
+                    <Label className="text-xs text-muted-foreground">{tServices('modal.performedBy')}</Label>
                     <div className="text-sm font-medium">{performedBy || '-'}</div>
                   </div>
                 </div>
@@ -1097,11 +1213,11 @@ export function InspectionCreationModalWithSections({
                               </Typography>
                               {isCompleted ? (
                                 <span className="text-xs text-green-600 dark:text-green-400">
-                                  (Completo)
+                                  ({tServices('modal.status.complete')})
                                 </span>
                               ) : (
                                 <span className="text-xs text-orange-600 dark:text-orange-400">
-                                  (Incompleto)
+                                  ({tServices('modal.status.incomplete')})
                                 </span>
                               )}
                             </div>
@@ -1112,7 +1228,7 @@ export function InspectionCreationModalWithSections({
                             {hasBeforeData && (
                               <div className="border-t pt-2 mb-3">
                                 <div className="font-semibold text-muted-foreground mb-2 text-sm">
-                                  Before Maintenance
+                                  {tServices('modal.sections.beforeMaintenance')}
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                   {/* Outer Table */}
@@ -1215,7 +1331,7 @@ export function InspectionCreationModalWithSections({
                               <div className="border-t pt-2">
                                 {hasBeforeData && (
                                   <div className="font-semibold text-muted-foreground mb-2 text-sm">
-                                    After Maintenance
+                                    {tServices('modal.sections.afterMaintenance')}
                                   </div>
                                 )}
                                 <div className="grid grid-cols-2 gap-3">
@@ -1488,11 +1604,11 @@ export function InspectionCreationModalWithSections({
                               </Typography>
                               {isCompleted ? (
                                 <span className="text-xs text-green-600 dark:text-green-400">
-                                  (Completo)
+                                  ({tServices('modal.status.complete')})
                                 </span>
                               ) : (
                                 <span className="text-xs text-orange-600 dark:text-orange-400">
-                                  (Incompleto)
+                                  ({tServices('modal.status.incomplete')})
                                 </span>
                               )}
                             </div>
@@ -1503,7 +1619,7 @@ export function InspectionCreationModalWithSections({
                             {((data as any).outerBefore || (data as any).innerBefore) && (
                               <div className="border-t pt-2 mb-3">
                                 <div className="font-medium text-muted-foreground mb-2 text-[11px]">
-                                  Before Maintenance
+                                  {tServices('modal.sections.beforeMaintenance')}
                                 </div>
                                 <div className="border rounded-md overflow-hidden">
                                   <Table>
@@ -1670,11 +1786,11 @@ export function InspectionCreationModalWithSections({
                               </Typography>
                               {isCompleted ? (
                                 <span className="text-xs text-green-600 dark:text-green-400">
-                                  (Completo)
+                                  ({tServices('modal.status.complete')})
                                 </span>
                               ) : (
                                 <span className="text-xs text-orange-600 dark:text-orange-400">
-                                  (Incompleto)
+                                  ({tServices('modal.status.incomplete')})
                                 </span>
                               )}
                             </div>
@@ -1685,7 +1801,7 @@ export function InspectionCreationModalWithSections({
                             {hasBeforeData && (
                               <div className="border-t pt-2 mb-3">
                                 <div className="font-semibold text-muted-foreground mb-2 text-sm">
-                                  Before Maintenance
+                                  {tServices('modal.sections.beforeMaintenance')}
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                   {/* Outer Table */}
@@ -1788,7 +1904,7 @@ export function InspectionCreationModalWithSections({
                               <div className="border-t pt-2">
                                 {hasBeforeData && (
                                   <div className="font-semibold text-muted-foreground mb-2 text-sm">
-                                    After Maintenance
+                                    {tServices('modal.sections.afterMaintenance')}
                                   </div>
                                 )}
                                 <div className="grid grid-cols-2 gap-3">
@@ -1906,11 +2022,11 @@ export function InspectionCreationModalWithSections({
                               </Typography>
                               {isCompleted ? (
                                 <span className="text-xs text-green-600 dark:text-green-400">
-                                  (Completo)
+                                  ({tServices('modal.status.complete')})
                                 </span>
                               ) : (
                                 <span className="text-xs text-orange-600 dark:text-orange-400">
-                                  (Incompleto)
+                                  ({tServices('modal.status.incomplete')})
                                 </span>
                               )}
                             </div>
@@ -1965,11 +2081,11 @@ export function InspectionCreationModalWithSections({
                               </Typography>
                               {isCompleted ? (
                                 <span className="text-xs text-green-600 dark:text-green-400">
-                                  (Completo)
+                                  ({tServices('modal.status.complete')})
                                 </span>
                               ) : (
                                 <span className="text-xs text-orange-600 dark:text-orange-400">
-                                  (Incompleto)
+                                  ({tServices('modal.status.incomplete')})
                                 </span>
                               )}
                             </div>
@@ -2020,15 +2136,15 @@ export function InspectionCreationModalWithSections({
                           <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
-                                {t('sectionNames.counterbalanceCylinder')}
+                                {t('sectionNames.counterbalance')}
                               </Typography>
                               {isCompleted ? (
                                 <span className="text-xs text-green-600 dark:text-green-400">
-                                  (Completo)
+                                  ({tServices('modal.status.complete')})
                                 </span>
                               ) : (
                                 <span className="text-xs text-orange-600 dark:text-orange-400">
-                                  (Incompleto)
+                                  ({tServices('modal.status.incomplete')})
                                 </span>
                               )}
                             </div>
@@ -2085,7 +2201,11 @@ export function InspectionCreationModalWithSections({
                 Anterior
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Concluindo...' : 'Concluir Manutenção'}
+                {isSubmitting
+                  ? tServices('modal.completing')
+                  : isCompletingService
+                    ? tServices('modal.completeMaintenance')
+                    : tServices('createService')}
               </Button>
             </div>
           </form>

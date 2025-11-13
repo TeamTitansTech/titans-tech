@@ -656,7 +656,32 @@
     },
     "cancel": "Cancel",
     "creating": "Creating...",
-    "createService": "Create Service"
+    "createService": "Create Service",
+    "modal": {
+      "completeMaintenance": "Complete Maintenance",
+      "completeMaintenanceDetails": "Complete Maintenance - Details",
+      "selectMaintenanceAreas": "Select the maintenance areas to be performed",
+      "fillMaintenanceDetails": "Fill in the maintenance details performed",
+      "selectAreasAbove": "Select maintenance areas above to start",
+      "realizationDate": "Date of completion",
+      "performedBy": "Performed by",
+      "technicianName": "Technician name",
+      "maintenanceSummary": "Maintenance Summary",
+      "completing": "Completing...",
+      "stepper": {
+        "details": "Details",
+        "summary": "Summary",
+        "before": "Before"
+      },
+      "status": {
+        "complete": "Complete",
+        "incomplete": "Incomplete"
+      },
+      "sections": {
+        "beforeMaintenance": "Before Maintenance",
+        "afterMaintenance": "After Maintenance"
+      }
+    }
   },
   "companies": {
     "pageTitle": "Companies",

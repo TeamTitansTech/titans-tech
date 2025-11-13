@@ -710,7 +710,32 @@
     },
     "cancel": "Cancelar",
     "creating": "Criando...",
-    "createService": "Criar Serviço"
+    "createService": "Criar Serviço",
+    "modal": {
+      "completeMaintenance": "Concluir Manutenção",
+      "completeMaintenanceDetails": "Concluir Manutenção - Detalhes",
+      "selectMaintenanceAreas": "Selecione as áreas de manutenção a serem realizadas",
+      "fillMaintenanceDetails": "Preencha os detalhes da manutenção realizada",
+      "selectAreasAbove": "Selecione as áreas de manutenção acima para começar",
+      "realizationDate": "Data da realização",
+      "performedBy": "Realizado por",
+      "technicianName": "Nome do técnico",
+      "maintenanceSummary": "Resumo da Manutenção",
+      "completing": "Concluindo...",
+      "stepper": {
+        "details": "Detalhes",
+        "summary": "Resumo",
+        "before": "Before"
+      },
+      "status": {
+        "complete": "Completo",
+        "incomplete": "Incompleto"
+      },
+      "sections": {
+        "beforeMaintenance": "Before Maintenance",
+        "afterMaintenance": "After Maintenance"
+      }
+    }
   },
   "login": {
     "title": "Bem-vindo de volta",
