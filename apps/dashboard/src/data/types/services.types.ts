@@ -14,7 +14,6 @@ export {
   YesNoDncType,
   LubeHydMonitorFlowPressSwGibType,
   OkNaDncDamageType,
-  // Counterbalance Cylinder Enums
   CounterbalanceTypeEnum,
   AirbagPistonSealsType,
   RegulatorGaugeType,
