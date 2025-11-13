@@ -177,7 +177,7 @@ export class AlertsService {
   }
 
   async generateAlertsForService(machineServiceId: string) {
-    // 1. Buscar service com threshold e bearing clearance data
+    // 1. Fetch service with threshold and bearing clearance data
     const service = await this.prisma.machineService.findUnique({
       where: { id: machineServiceId },
       include: {
