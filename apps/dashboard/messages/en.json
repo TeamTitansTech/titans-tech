@@ -631,6 +631,8 @@
         "flexDisc": "Flex Disc"
       },
       "counterbalanceCylinder": {
+        "field": "Field",
+        "value": "Value",
         "counterbalanceType": "Counterbalance Type",
         "airbagConditionTitle": "Airbag/Piston Condition",
         "pistonSeals": "Piston Seals",

@@ -1376,8 +1376,7 @@ export function ServiceCompletionModal({
                               </div>
                             )}
 
-                            {/* Data Measurements (if exists) */}
-                            {((data as any).outerData || (data as any).innerData) && (
+                            {(data.outerData || data.innerData) && (
                               <div className="border-t pt-2 mb-3">
                                 <div className="font-medium text-muted-foreground mb-2 text-[11px]">
                                   Data Measurements
@@ -1841,7 +1840,7 @@ export function ServiceCompletionModal({
 
                   // Render Counterbalance Cylinder Section
                   if (sectionKey === 'COUNTERBALANCE_CYLINDER_AIRBAG') {
-                    const data = completedSectionData[sectionKey] || {};
+                    const data = completedSectionData[sectionKey];
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
@@ -1865,32 +1864,68 @@ export function ServiceCompletionModal({
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="border-t pt-2">
-                              <div className="border rounded-md overflow-hidden">
-                                <Table>
-                                  <TableHeader>
-                                    <TableRow className="bg-muted/50">
-                                      <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                        Field
-                                      </TableHead>
-                                      <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                        Value
-                                      </TableHead>
-                                    </TableRow>
-                                  </TableHeader>
-                                  <TableBody>
-                                    {Object.entries(data).map(([key, value]) => (
-                                      <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                          {formatFieldName(key)}
-                                        </TableCell>
-                                        <TableCell className="py-1.5 text-center">
-                                          {displayValue(value)}
-                                        </TableCell>
-                                      </TableRow>
-                                    ))}
-                                  </TableBody>
-                                </Table>
+                              <div className="grid grid-cols-2 gap-3">
+                                {data?.outerData && (
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Outer
+                                    </div>
+                                    <div className="p-2 space-y-1.5 text-[11px]">
+                                      {Object.entries(data.outerData)
+                                        .filter(([key]) => key !== 'notes')
+                                        .map(([key, value]) => (
+                                          <div key={key} className="flex justify-between">
+                                            <span className="text-muted-foreground">
+                                              {formatFieldName(key)}:
+                                            </span>
+                                            <span className="font-medium">
+                                              {displayValue(value)}
+                                            </span>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {data?.innerData && (
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                      Inner
+                                    </div>
+                                    <div className="p-2 space-y-1.5 text-[11px]">
+                                      {Object.entries(data.innerData)
+                                        .filter(([key]) => key !== 'notes')
+                                        .map(([key, value]) => (
+                                          <div key={key} className="flex justify-between">
+                                            <span className="text-muted-foreground">
+                                              {formatFieldName(key)}:
+                                            </span>
+                                            <span className="font-medium">
+                                              {displayValue(value)}
+                                            </span>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
+
+                              {(data?.outerData?.notes || data?.innerData?.notes) && (
+                                <div className="mt-3 border-t pt-2">
+                                  <div className="font-semibold text-muted-foreground mb-2 text-xs">
+                                    Notes
+                                  </div>
+                                  <div className="border rounded-md overflow-hidden">
+                                    <div className="p-2 text-[11px]">
+                                      <span className="font-medium">
+                                        {displayValue(
+                                          data?.outerData?.notes || data?.innerData?.notes,
+                                        )}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </CollapsibleContent>
                         </div>

@@ -1,11 +1,9 @@
 'use client';
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
   type CounterbalanceCylinderData,
@@ -46,15 +44,13 @@ export interface CounterbalanceCylinderSectionRef {
 }
 
 interface CounterbalanceCylinderSectionProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  onSectionTouched?: () => void;
+  onSectionTouched: () => void;
 }
 
 export const CounterbalanceCylinderSection = forwardRef<
   CounterbalanceCylinderSectionRef,
   CounterbalanceCylinderSectionProps
->(({ isOpen, onOpenChange, onSectionTouched }, ref) => {
+>(({ onSectionTouched }, ref) => {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
   const [outerData, setOuterData] = useState<CounterbalanceCylinderData>(
     defaultCounterbalanceCylinderData,
@@ -81,7 +77,7 @@ export const CounterbalanceCylinderSection = forwardRef<
       setOuterData((prev) => ({ ...prev, [field]: value }));
     }
     setErrors((prev) => ({ ...prev, outer: { ...prev.outer, [field]: '' } }));
-    onSectionTouched?.();
+    onSectionTouched();
   };
 
   const updateInnerField = (
@@ -94,7 +90,7 @@ export const CounterbalanceCylinderSection = forwardRef<
       setInnerData((prev) => ({ ...prev, [field]: value }));
     }
     setErrors((prev) => ({ ...prev, inner: { ...prev.inner, [field]: '' } }));
-    onSectionTouched?.();
+    onSectionTouched();
   };
 
   const handleBlur = (_field: keyof CounterbalanceCylinderData) => {
@@ -178,62 +174,53 @@ export const CounterbalanceCylinderSection = forwardRef<
   }));
 
   return (
-    <Collapsible open={isOpen} onOpenChange={onOpenChange}>
-      <CollapsibleTrigger className="w-full">
-        <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
-          <h3 className="text-base font-semibold">Counterbalance Cylinder / Airbag</h3>
-          <ChevronDown
-            className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
-          />
-        </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-white">
-          <Tabs defaultValue="outer" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="outer">{t('outer')}</TabsTrigger>
-              <TabsTrigger value="inner">{t('inner')}</TabsTrigger>
-            </TabsList>
-            <TabsContent value="outer" className="space-y-4 pt-4">
-              <CounterbalanceCylinderForm
-                data={outerData}
-                updateFn={updateOuterField}
-                errors={errors.outer}
-                handleBlur={handleBlur}
-                title={t('outer')}
-                hideNotes
-              />
-            </TabsContent>
-            <TabsContent value="inner" className="space-y-4 pt-4">
-              <CounterbalanceCylinderForm
-                data={innerData}
-                updateFn={updateInnerField}
-                errors={errors.inner}
-                handleBlur={handleBlur}
-                title={t('inner')}
-                hideNotes
-              />
-            </TabsContent>
-          </Tabs>
+    <div className="p-6 space-y-6">
+      <Tabs defaultValue="outer" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="outer">{t('outer')}</TabsTrigger>
+          <TabsTrigger value="inner">{t('inner')}</TabsTrigger>
+        </TabsList>
 
-          <div className="mt-6 pt-6 border-t">
-            <Label htmlFor="shared-notes" className="text-xs">
-              {t('notes')}
-            </Label>
-            <Textarea
-              id="shared-notes"
-              value={sharedNotes}
-              onChange={(e) => {
-                setSharedNotes(e.target.value);
-                onSectionTouched?.();
-              }}
-              className="mt-1"
-              rows={3}
-            />
-          </div>
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
+        <TabsContent value="outer" className="space-y-6">
+          <CounterbalanceCylinderForm
+            data={outerData}
+            updateFn={updateOuterField}
+            errors={errors.outer}
+            handleBlur={handleBlur}
+            title=""
+            hideNotes
+          />
+        </TabsContent>
+
+        <TabsContent value="inner" className="space-y-6">
+          <CounterbalanceCylinderForm
+            data={innerData}
+            updateFn={updateInnerField}
+            errors={errors.inner}
+            handleBlur={handleBlur}
+            title=""
+            hideNotes
+          />
+        </TabsContent>
+      </Tabs>
+
+      <div className="pt-6 border-t">
+        <Label htmlFor="shared-notes" className="text-xs font-medium mb-2 block">
+          {t('notes')}
+        </Label>
+        <Textarea
+          id="shared-notes"
+          value={sharedNotes}
+          onChange={(e) => {
+            setSharedNotes(e.target.value);
+            onSectionTouched();
+          }}
+          placeholder={t('notes')}
+          className="text-sm"
+          rows={3}
+        />
+      </div>
+    </div>
   );
 });
 

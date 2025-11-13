@@ -648,6 +648,8 @@
         "flexDisc": "Disco Flexível"
       },
       "counterbalanceCylinder": {
+        "field": "Campo",
+        "value": "Valor",
         "counterbalanceType": "Tipo de Contrapeso",
         "airbagConditionTitle": "Condição do Airbag/Pistão",
         "pistonSeals": "Vedações do Pistão",
