@@ -300,7 +300,7 @@ model AlertBearingClearance {
   slideAdjNutToScrewSleeve_differential Decimal      @db.Decimal(10, 4)
   slideAdjNutToScrewSleeve_severity    AlertSeverity
 
-  // Snapshot opcional dos thresholds usados no cálculo (para auditoria)
+  // Optional snapshot of thresholds used in calculation (for auditing)
   thresholdSnapshot Json?
 
   createdAt DateTime @default(now())
