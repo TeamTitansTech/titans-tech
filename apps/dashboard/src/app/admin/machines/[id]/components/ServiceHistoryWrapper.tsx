@@ -78,7 +78,7 @@ export function ServiceHistoryWrapper({
                 <div
                   key={service.id}
                   onClick={() => handleServiceClick(service)}
-                  className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-0 cursor-pointer hover:bg-muted transition-colors rounded-lg p-2 -m-2"
+                  className="flex items-center justify-between border-b pb-4 last:border-b-0 last:pb-4 cursor-pointer hover:bg-muted transition-colors rounded-lg p-2"
                 >
                   <div className="flex items-start gap-3 p-2">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">

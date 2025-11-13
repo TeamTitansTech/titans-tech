@@ -94,12 +94,15 @@ export default function SimpleServiceCreationModal({
           <DialogDescription>{t('createServiceDescription')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
+          <div className="grid gap-6 py-4">
+            <div className="grid gap-4">
               <Label htmlFor="date">{t('serviceDate')}</Label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start text-left font-normal">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal bg-transparent"
+                  >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date ? format(date, 'PPP') : <span>Pick a date</span>}
                   </Button>
@@ -113,13 +116,12 @@ export default function SimpleServiceCreationModal({
                         setDate(newDate);
                       }
                     }}
-                    initialFocus
                   />
                 </PopoverContent>
               </Popover>
             </div>
 
-            <div className="grid gap-2">
+            <div className="grid gap-4">
               <Label htmlFor="type">{t('serviceType')}</Label>
               <Select
                 value={serviceType}
@@ -142,7 +144,7 @@ export default function SimpleServiceCreationModal({
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-y-3">
             <Button
               type="button"
               variant="outline"

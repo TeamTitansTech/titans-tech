@@ -59,7 +59,7 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
 
       <div>
         <h4 className="font-semibold text-sm mb-4">{t('form.gibs.frontToBackTitle')}</h4>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {POINT_FIELDS.map((field) => (
             <div key={field}>
               <Label htmlFor={`${field}-${title}`} className="text-xs">
@@ -85,7 +85,7 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
 
       <div>
         <h4 className="font-semibold text-sm mb-4">{t('form.gibs.directionalTitle')}</h4>
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
             <Label htmlFor={`leftTop-${title}`} className="text-xs">
               {t('form.gibs.leftTop')}
