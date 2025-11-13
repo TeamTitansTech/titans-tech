@@ -56,10 +56,10 @@ export function BearingClearanceForm({
 
       <div className="space-y-4">
         <div className="grid grid-cols-4 gap-4 border-b pb-2">
-          <div className="text-xs font-semibold">Measurement</div>
-          <div className="text-xs font-semibold text-center">LH</div>
-          <div className="text-xs font-semibold text-center">RH</div>
-          <div className="text-xs font-semibold text-center">Differential</div>
+          <div className="text-xs font-semibold">{t('form.common.measurement')}</div>
+          <div className="text-xs font-semibold text-center">{t('form.common.lh')}</div>
+          <div className="text-xs font-semibold text-center">{t('form.common.rh')}</div>
+          <div className="text-xs font-semibold text-center">{t('form.common.differential')}</div>
         </div>
 
         {MEASUREMENT_ROWS.map(({ key, rhField, lhField }) => (

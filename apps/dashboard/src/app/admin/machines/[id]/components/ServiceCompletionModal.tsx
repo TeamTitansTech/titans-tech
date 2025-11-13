@@ -79,21 +79,28 @@ export function ServiceCompletionModal({
 
   const isCompletingService = !!serviceId;
   const isInspection = serviceType === ServiceType.INSPECTION;
-  const isMaintenance = serviceType === ServiceType.MAINTENANCE;
 
   // Multi-step state with stepper support
   type StepType = 'selection' | 'details' | 'sections' | 'summary';
-  // For inspections, start at 'details' step with all sections pre-selected
-  // For maintenance, start at 'selection' step to choose sections
+
+  // Determine if we should skip section selection step
+  // Skip ONLY for inspections (inspections always include all sections)
+  // Maintenance services (new or completing) should show selection step
+  const shouldSkipSelection = isInspection;
+
+  // For inspections, start at 'details' step (skip selection)
+  // For maintenance (new or completing), start at 'selection' step
   const [currentStep, setCurrentStep] = useState<StepType>(
-    isInspection ? 'details' : isMaintenance ? 'selection' : 'details',
+    shouldSkipSelection ? 'details' : 'selection',
   );
   const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(0);
 
   // Section selection state
-  // For inspections, pre-select all sections; for maintenance, start with empty set
+  // For inspections: pre-select all sections (always)
+  // For completing maintenance: pre-select all sections (but user can still see selection)
+  // For new maintenance: start with empty set
   const [selectedSections, setSelectedSections] = useState<Set<string>>(
-    isInspection ? new Set(machineSections) : isMaintenance ? new Set() : new Set(machineSections),
+    isInspection || isCompletingService ? new Set(machineSections) : new Set(),
   );
 
   // Service details
@@ -136,14 +143,10 @@ export function ServiceCompletionModal({
     if (!open) {
       // Reset to initial state based on service type
       // eslint-disable-next-line react-hooks/set-state-in-effect
-      setCurrentStep(isInspection ? 'details' : isMaintenance ? 'selection' : 'details');
+      setCurrentStep(shouldSkipSelection ? 'details' : 'selection');
       setCurrentSectionIndex(0);
       setSelectedSections(
-        isInspection
-          ? new Set(machineSections)
-          : isMaintenance
-            ? new Set()
-            : new Set(machineSections),
+        isInspection || isCompletingService ? new Set(machineSections) : new Set(),
       );
       setDate(getInitialDate());
       setSelectedServiceType(serviceType || ServiceType.INSPECTION);
@@ -158,10 +161,11 @@ export function ServiceCompletionModal({
     open,
     initialPerformedBy,
     isInspection,
-    isMaintenance,
+    isCompletingService,
     serviceType,
     getInitialDate,
     machineSections,
+    shouldSkipSelection,
   ]);
 
   const toggleSection = (sectionKey: string) => {
@@ -415,9 +419,11 @@ export function ServiceCompletionModal({
           return;
         }
 
-        toast.success('Manutenção concluída com sucesso');
+        toast.success(
+          isInspection ? 'Inspeção concluída com sucesso' : 'Manutenção concluída com sucesso',
+        );
       } else {
-        // Creating a new inspection - collect section data
+        // Creating a new service - collect section data
         const validationErrors: string[] = [];
 
         // Validate all selected sections (skip untouched optional sections)
@@ -460,7 +466,11 @@ export function ServiceCompletionModal({
           return;
         }
 
-        toast.success('Inspeção criada com sucesso');
+        toast.success(
+          currentServiceType === ServiceType.INSPECTION
+            ? 'Inspeção criada com sucesso'
+            : 'Manutenção criada com sucesso',
+        );
       }
 
       // Reset and close
@@ -578,9 +588,13 @@ export function ServiceCompletionModal({
         <DialogHeader>
           <DialogTitle>
             {isCompletingService
-              ? currentStep === 'selection'
-                ? tServices('modal.completeMaintenance')
-                : tServices('modal.completeMaintenanceDetails')
+              ? isInspection
+                ? currentStep === 'selection'
+                  ? tServices('modal.completeInspection')
+                  : tServices('modal.completeInspectionDetails')
+                : currentStep === 'selection'
+                  ? tServices('modal.completeMaintenance')
+                  : tServices('modal.completeMaintenanceDetails')
               : currentStep === 'selection'
                 ? tServices('createNewService')
                 : tServices('createNewService') + ' - ' + t('inspectionSections')}
@@ -589,7 +603,9 @@ export function ServiceCompletionModal({
             {currentStep === 'selection'
               ? tServices('modal.selectMaintenanceAreas')
               : isCompletingService
-                ? tServices('modal.fillMaintenanceDetails')
+                ? isInspection
+                  ? tServices('modal.fillInspectionDetails')
+                  : tServices('modal.fillMaintenanceDetails')
                 : tServices('createServiceDescription')}
           </DialogDescription>
         </DialogHeader>
@@ -722,7 +738,7 @@ export function ServiceCompletionModal({
             </div>
 
             <div className="flex justify-between gap-3 pt-4 px-4 border-t">
-              {isCompletingService && (
+              {!shouldSkipSelection && (
                 <Button type="button" variant="outline" onClick={() => setCurrentStep('selection')}>
                   Voltar
                 </Button>
@@ -730,7 +746,7 @@ export function ServiceCompletionModal({
               <Button
                 type="button"
                 onClick={handleNext}
-                className={!isCompletingService ? 'ml-auto' : ''}
+                className={shouldSkipSelection ? 'ml-auto' : ''}
               >
                 Continuar
               </Button>
@@ -820,7 +836,9 @@ export function ServiceCompletionModal({
 
             <div className="flex-1 overflow-y-auto px-4 py-4">
               <Typography variant="h3" className="text-lg font-semibold mb-4">
-                {tServices('modal.maintenanceSummary')}
+                {isInspection
+                  ? tServices('modal.inspectionSummary')
+                  : tServices('modal.maintenanceSummary')}
               </Typography>
 
               {/* Service Details Summary */}
@@ -1899,7 +1917,9 @@ export function ServiceCompletionModal({
                 {isSubmitting
                   ? tServices('modal.completing')
                   : isCompletingService
-                    ? tServices('modal.completeMaintenance')
+                    ? isInspection
+                      ? tServices('modal.completeInspection')
+                      : tServices('modal.completeMaintenance')
                     : tServices('createService')}
               </Button>
             </div>

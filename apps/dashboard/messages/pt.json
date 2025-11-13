@@ -670,6 +670,76 @@
         "minValue": "Valor mínimo é {min}",
         "maxValue": "Valor máximo é {max}",
         "futureDate": "A data não pode ser futura"
+      },
+      "common": {
+        "measurement": "Medição",
+        "lh": "LH",
+        "rh": "RH",
+        "differential": "Diferencial",
+        "outer": "Externo",
+        "inner": "Interno",
+        "notes": "Notas",
+        "selectOption": "Selecione uma opção",
+        "selectStatus": "Selecione o status",
+        "selectMatingPart": "Selecione a peça de acoplamento",
+        "referenceMeasurement": "Medição de referência",
+        "additionalNotes": "Digite notas adicionais..."
+      },
+      "bearingClearanceSection": {
+        "includeBeforeMeasurements": "Incluir Medições Anteriores",
+        "beforeMaintenance": "Antes da Manutenção",
+        "afterMaintenance": "Após a Manutenção",
+        "hasBeenAdjusted": "Foi Ajustado",
+        "combinedWith": "Combinado Com",
+        "matingPartType": "Tipo de Peça de Acoplamento",
+        "shutdownAdjustmentMechanism": "Mecanismo de Ajuste de Desligamento",
+        "slideMotorMounts": "Motor/Montagens do Deslizamento",
+        "powerCordHoses": "Cabo de Energia/Mangueiras",
+        "chainsGearsSprockets": "Correntes e Engrenagens/Rodas Dentadas",
+        "lockingClamps": "Grampos de Travamento",
+        "validation": {
+          "fieldRequired": "{field} é obrigatório e deve ser um número válido",
+          "beforeSectionsRequired": "Folga de Rolamento: Quando \"Incluir Medições Anteriores\" está habilitado para manutenção, você deve preencher todas as seções \"Antes\" (Externo Antes e Interno Antes)",
+          "outerBefore": "Externo Antes",
+          "innerBefore": "Interno Antes",
+          "outerData": "Dados Externos",
+          "innerData": "Dados Internos",
+          "atLeastOneSectionRequired": "Folga de Rolamento: Você deve preencher pelo menos uma seção de medição (Dados Externos ou Dados Internos)",
+          "hasBeenAdjustedRequired": "Folga de Rolamento: O campo \"Foi Ajustado\" é obrigatório"
+        }
+      },
+      "enums": {
+        "yesNoNaDnc": {
+          "yes": "Sim",
+          "no": "Não",
+          "na": "N/A",
+          "dnc": "DNC"
+        },
+        "conditionOkNaDncBrokenWorn": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "broken": "Quebrado",
+          "worn": "Desgastado"
+        },
+        "conditionOkNaDncBrokenLoose": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "broken": "Quebrado",
+          "loose": "Solto"
+        },
+        "conditionOkNaDncDamaged": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "damaged": "Danificado"
+        },
+        "matingPartType": {
+          "bushing": "Bucha",
+          "connection": "Conexão",
+          "nutScrewSleeve": "Porca e Parafuso"
+        }
       }
     }
   },
@@ -737,13 +807,17 @@
     "modal": {
       "completeMaintenance": "Concluir Manutenção",
       "completeMaintenanceDetails": "Concluir Manutenção - Detalhes",
+      "completeInspection": "Concluir Inspeção",
+      "completeInspectionDetails": "Concluir Inspeção - Detalhes",
       "selectMaintenanceAreas": "Selecione as áreas de manutenção a serem realizadas",
       "fillMaintenanceDetails": "Preencha os detalhes da manutenção realizada",
+      "fillInspectionDetails": "Preencha os detalhes da inspeção realizada",
       "selectAreasAbove": "Selecione as áreas de manutenção acima para começar",
       "realizationDate": "Data da realização",
       "performedBy": "Realizado por",
       "technicianName": "Nome do técnico",
       "maintenanceSummary": "Resumo da Manutenção",
+      "inspectionSummary": "Resumo da Inspeção",
       "completing": "Concluindo...",
       "stepper": {
         "details": "Detalhes",

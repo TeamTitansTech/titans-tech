@@ -518,7 +518,7 @@ export const BearingClearanceSection = forwardRef<
             htmlFor="includeBeforeMeasurements"
             className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
-            Include Before Measurements
+            {t('form.bearingClearanceSection.includeBeforeMeasurements')}
           </Label>
         </div>
       )}
@@ -529,7 +529,9 @@ export const BearingClearanceSection = forwardRef<
           <Collapsible open={isBeforeOpen} onOpenChange={setIsBeforeOpen}>
             <div className="space-y-4">
               <CollapsibleTrigger className="flex items-center justify-between w-full group">
-                <h4 className="text-lg font-semibold">Before Maintenance</h4>
+                <h4 className="text-lg font-semibold">
+                  {t('form.bearingClearanceSection.beforeMaintenance')}
+                </h4>
                 <ChevronDown
                   className={`w-5 h-5 transition-transform duration-200 ${
                     isBeforeOpen ? '' : 'rotate-180'
@@ -543,7 +545,7 @@ export const BearingClearanceSection = forwardRef<
                     htmlFor="hasBeenAdjustedBefore"
                     className="text-xs font-semibold mb-2 block"
                   >
-                    Has Been Adjusted
+                    {t('form.bearingClearanceSection.hasBeenAdjusted')}
                   </Label>
                   <Select
                     value={hasBeenAdjusted}
@@ -553,21 +555,21 @@ export const BearingClearanceSection = forwardRef<
                     }}
                   >
                     <SelectTrigger id="hasBeenAdjustedBefore" className="text-sm w-full max-w-xs">
-                      <SelectValue placeholder="Select option" />
+                      <SelectValue placeholder={t('form.common.selectOption')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="YES">Yes</SelectItem>
-                      <SelectItem value="NO">No</SelectItem>
-                      <SelectItem value="NA">N/A</SelectItem>
-                      <SelectItem value="DNC">DNC</SelectItem>
+                      <SelectItem value="YES">{t('form.enums.yesNoNaDnc.yes')}</SelectItem>
+                      <SelectItem value="NO">{t('form.enums.yesNoNaDnc.no')}</SelectItem>
+                      <SelectItem value="NA">{t('form.enums.yesNoNaDnc.na')}</SelectItem>
+                      <SelectItem value="DNC">{t('form.enums.yesNoNaDnc.dnc')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <Tabs defaultValue="outer" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
-                    <TabsTrigger value="outer">Outer</TabsTrigger>
-                    <TabsTrigger value="inner">Inner</TabsTrigger>
+                    <TabsTrigger value="outer">{t('form.common.outer')}</TabsTrigger>
+                    <TabsTrigger value="inner">{t('form.common.inner')}</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="outer" className="space-y-6">
@@ -579,7 +581,7 @@ export const BearingClearanceSection = forwardRef<
                             htmlFor="outerCombinedWith"
                             className="text-xs font-semibold mb-2 block"
                           >
-                            Combined With
+                            {t('form.bearingClearanceSection.combinedWith')}
                           </Label>
                           <Input
                             id="outerCombinedWith"
@@ -589,7 +591,7 @@ export const BearingClearanceSection = forwardRef<
                               setOuterCombinedWith(e.target.value);
                               onSectionTouched();
                             }}
-                            placeholder="Reference measurement"
+                            placeholder={t('form.common.referenceMeasurement')}
                             className="text-sm"
                           />
                         </div>
@@ -600,7 +602,7 @@ export const BearingClearanceSection = forwardRef<
                             htmlFor="outerMatingPart"
                             className="text-xs font-semibold mb-2 block"
                           >
-                            Mating Part Type
+                            {t('form.bearingClearanceSection.matingPartType')}
                           </Label>
                           <Select
                             value={outerMatingPart}
@@ -610,13 +612,17 @@ export const BearingClearanceSection = forwardRef<
                             }}
                           >
                             <SelectTrigger id="outerMatingPart" className="text-sm">
-                              <SelectValue placeholder="Select mating part" />
+                              <SelectValue placeholder={t('form.common.selectMatingPart')} />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
-                              <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                              <SelectItem value={MatingPartType.BUSHING}>
+                                {t('form.enums.matingPartType.bushing')}
+                              </SelectItem>
+                              <SelectItem value={MatingPartType.CONNECTION}>
+                                {t('form.enums.matingPartType.connection')}
+                              </SelectItem>
                               <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                                Nut Screw Sleeve
+                                {t('form.enums.matingPartType.nutScrewSleeve')}
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -641,7 +647,7 @@ export const BearingClearanceSection = forwardRef<
                             htmlFor="innerCombinedWith"
                             className="text-xs font-semibold mb-2 block"
                           >
-                            Combined With
+                            {t('form.bearingClearanceSection.combinedWith')}
                           </Label>
                           <Input
                             id="innerCombinedWith"
@@ -651,7 +657,7 @@ export const BearingClearanceSection = forwardRef<
                               setInnerCombinedWith(e.target.value);
                               onSectionTouched();
                             }}
-                            placeholder="Reference measurement"
+                            placeholder={t('form.common.referenceMeasurement')}
                             className="text-sm"
                           />
                         </div>
@@ -662,7 +668,7 @@ export const BearingClearanceSection = forwardRef<
                             htmlFor="innerMatingPart"
                             className="text-xs font-semibold mb-2 block"
                           >
-                            Mating Part Type
+                            {t('form.bearingClearanceSection.matingPartType')}
                           </Label>
                           <Select
                             value={innerMatingPart}
@@ -672,13 +678,17 @@ export const BearingClearanceSection = forwardRef<
                             }}
                           >
                             <SelectTrigger id="innerMatingPart" className="text-sm">
-                              <SelectValue placeholder="Select mating part" />
+                              <SelectValue placeholder={t('form.common.selectMatingPart')} />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
-                              <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                              <SelectItem value={MatingPartType.BUSHING}>
+                                {t('form.enums.matingPartType.bushing')}
+                              </SelectItem>
+                              <SelectItem value={MatingPartType.CONNECTION}>
+                                {t('form.enums.matingPartType.connection')}
+                              </SelectItem>
                               <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                                Nut Screw Sleeve
+                                {t('form.enums.matingPartType.nutScrewSleeve')}
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -705,7 +715,9 @@ export const BearingClearanceSection = forwardRef<
           <Collapsible open={isAfterOpen} onOpenChange={setIsAfterOpen}>
             <div className="space-y-4">
               <CollapsibleTrigger className="flex items-center justify-between w-full group">
-                <h4 className="text-lg font-semibold">After Maintenance</h4>
+                <h4 className="text-lg font-semibold">
+                  {t('form.bearingClearanceSection.afterMaintenance')}
+                </h4>
                 <ChevronDown
                   className={`w-5 h-5 transition-transform duration-200 ${
                     isAfterOpen ? '' : 'rotate-180'
@@ -719,7 +731,7 @@ export const BearingClearanceSection = forwardRef<
                     htmlFor="hasBeenAdjustedAfter"
                     className="text-xs font-semibold mb-2 block"
                   >
-                    Has Been Adjusted
+                    {t('form.bearingClearanceSection.hasBeenAdjusted')}
                   </Label>
                   <Select
                     value={hasBeenAdjusted}
@@ -729,21 +741,21 @@ export const BearingClearanceSection = forwardRef<
                     }}
                   >
                     <SelectTrigger id="hasBeenAdjustedAfter" className="text-sm w-full max-w-xs">
-                      <SelectValue placeholder="Select option" />
+                      <SelectValue placeholder={t('form.common.selectOption')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="YES">Yes</SelectItem>
-                      <SelectItem value="NO">No</SelectItem>
-                      <SelectItem value="NA">N/A</SelectItem>
-                      <SelectItem value="DNC">DNC</SelectItem>
+                      <SelectItem value="YES">{t('form.enums.yesNoNaDnc.yes')}</SelectItem>
+                      <SelectItem value="NO">{t('form.enums.yesNoNaDnc.no')}</SelectItem>
+                      <SelectItem value="NA">{t('form.enums.yesNoNaDnc.na')}</SelectItem>
+                      <SelectItem value="DNC">{t('form.enums.yesNoNaDnc.dnc')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <Tabs defaultValue="outer" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
-                    <TabsTrigger value="outer">Outer</TabsTrigger>
-                    <TabsTrigger value="inner">Inner</TabsTrigger>
+                    <TabsTrigger value="outer">{t('form.common.outer')}</TabsTrigger>
+                    <TabsTrigger value="inner">{t('form.common.inner')}</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="outer" className="space-y-6">
@@ -755,7 +767,7 @@ export const BearingClearanceSection = forwardRef<
                             htmlFor="outerCombinedWithAfter"
                             className="text-xs font-semibold mb-2 block"
                           >
-                            Combined With
+                            {t('form.bearingClearanceSection.combinedWith')}
                           </Label>
                           <Input
                             id="outerCombinedWithAfter"
@@ -765,7 +777,7 @@ export const BearingClearanceSection = forwardRef<
                               setOuterCombinedWith(e.target.value);
                               onSectionTouched();
                             }}
-                            placeholder="Reference measurement"
+                            placeholder={t('form.common.referenceMeasurement')}
                             className="text-sm"
                           />
                         </div>
@@ -776,7 +788,7 @@ export const BearingClearanceSection = forwardRef<
                             htmlFor="outerMatingPartAfter"
                             className="text-xs font-semibold mb-2 block"
                           >
-                            Mating Part Type
+                            {t('form.bearingClearanceSection.matingPartType')}
                           </Label>
                           <Select
                             value={outerMatingPart}
@@ -786,13 +798,17 @@ export const BearingClearanceSection = forwardRef<
                             }}
                           >
                             <SelectTrigger id="outerMatingPartAfter" className="text-sm">
-                              <SelectValue placeholder="Select mating part" />
+                              <SelectValue placeholder={t('form.common.selectMatingPart')} />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
-                              <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                              <SelectItem value={MatingPartType.BUSHING}>
+                                {t('form.enums.matingPartType.bushing')}
+                              </SelectItem>
+                              <SelectItem value={MatingPartType.CONNECTION}>
+                                {t('form.enums.matingPartType.connection')}
+                              </SelectItem>
                               <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                                Nut Screw Sleeve
+                                {t('form.enums.matingPartType.nutScrewSleeve')}
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -817,7 +833,7 @@ export const BearingClearanceSection = forwardRef<
                             htmlFor="innerCombinedWithAfter"
                             className="text-xs font-semibold mb-2 block"
                           >
-                            Combined With
+                            {t('form.bearingClearanceSection.combinedWith')}
                           </Label>
                           <Input
                             id="innerCombinedWithAfter"
@@ -827,7 +843,7 @@ export const BearingClearanceSection = forwardRef<
                               setInnerCombinedWith(e.target.value);
                               onSectionTouched();
                             }}
-                            placeholder="Reference measurement"
+                            placeholder={t('form.common.referenceMeasurement')}
                             className="text-sm"
                           />
                         </div>
@@ -838,7 +854,7 @@ export const BearingClearanceSection = forwardRef<
                             htmlFor="innerMatingPartAfter"
                             className="text-xs font-semibold mb-2 block"
                           >
-                            Mating Part Type
+                            {t('form.bearingClearanceSection.matingPartType')}
                           </Label>
                           <Select
                             value={innerMatingPart}
@@ -848,13 +864,17 @@ export const BearingClearanceSection = forwardRef<
                             }}
                           >
                             <SelectTrigger id="innerMatingPartAfter" className="text-sm">
-                              <SelectValue placeholder="Select mating part" />
+                              <SelectValue placeholder={t('form.common.selectMatingPart')} />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
-                              <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                              <SelectItem value={MatingPartType.BUSHING}>
+                                {t('form.enums.matingPartType.bushing')}
+                              </SelectItem>
+                              <SelectItem value={MatingPartType.CONNECTION}>
+                                {t('form.enums.matingPartType.connection')}
+                              </SelectItem>
                               <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                                Nut Screw Sleeve
+                                {t('form.enums.matingPartType.nutScrewSleeve')}
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -879,7 +899,7 @@ export const BearingClearanceSection = forwardRef<
           {/* Has Been Adjusted - Shared Field */}
           <div className="mb-6">
             <Label htmlFor="hasBeenAdjustedRegular" className="text-xs font-semibold mb-2 block">
-              Has Been Adjusted
+              {t('form.bearingClearanceSection.hasBeenAdjusted')}
             </Label>
             <Select
               value={hasBeenAdjusted}
@@ -889,21 +909,21 @@ export const BearingClearanceSection = forwardRef<
               }}
             >
               <SelectTrigger id="hasBeenAdjustedRegular" className="text-sm w-full max-w-xs">
-                <SelectValue placeholder="Select option" />
+                <SelectValue placeholder={t('form.common.selectOption')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="YES">Yes</SelectItem>
-                <SelectItem value="NO">No</SelectItem>
-                <SelectItem value="NA">N/A</SelectItem>
-                <SelectItem value="DNC">DNC</SelectItem>
+                <SelectItem value="YES">{t('form.enums.yesNoNaDnc.yes')}</SelectItem>
+                <SelectItem value="NO">{t('form.enums.yesNoNaDnc.no')}</SelectItem>
+                <SelectItem value="NA">{t('form.enums.yesNoNaDnc.na')}</SelectItem>
+                <SelectItem value="DNC">{t('form.enums.yesNoNaDnc.dnc')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <Tabs defaultValue="outer" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="outer">Outer</TabsTrigger>
-              <TabsTrigger value="inner">Inner</TabsTrigger>
+              <TabsTrigger value="outer">{t('form.common.outer')}</TabsTrigger>
+              <TabsTrigger value="inner">{t('form.common.inner')}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="outer" className="space-y-6">
@@ -912,7 +932,7 @@ export const BearingClearanceSection = forwardRef<
                   {/* Combined With */}
                   <div>
                     <Label htmlFor="outerCombinedWith" className="text-xs font-semibold mb-2 block">
-                      Combined With
+                      {t('form.bearingClearanceSection.combinedWith')}
                     </Label>
                     <Input
                       id="outerCombinedWith"
@@ -922,7 +942,7 @@ export const BearingClearanceSection = forwardRef<
                         setOuterCombinedWith(e.target.value);
                         onSectionTouched();
                       }}
-                      placeholder="Reference measurement"
+                      placeholder={t('form.common.referenceMeasurement')}
                       className="text-sm"
                     />
                   </div>
@@ -930,7 +950,7 @@ export const BearingClearanceSection = forwardRef<
                   {/* Mating Part Type */}
                   <div>
                     <Label htmlFor="outerMatingPart" className="text-xs font-semibold mb-2 block">
-                      Mating Part Type
+                      {t('form.bearingClearanceSection.matingPartType')}
                     </Label>
                     <Select
                       value={outerMatingPart}
@@ -940,13 +960,17 @@ export const BearingClearanceSection = forwardRef<
                       }}
                     >
                       <SelectTrigger id="outerMatingPart" className="text-sm">
-                        <SelectValue placeholder="Select mating part" />
+                        <SelectValue placeholder={t('form.common.selectMatingPart')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
-                        <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                        <SelectItem value={MatingPartType.BUSHING}>
+                          {t('form.enums.matingPartType.bushing')}
+                        </SelectItem>
+                        <SelectItem value={MatingPartType.CONNECTION}>
+                          {t('form.enums.matingPartType.connection')}
+                        </SelectItem>
                         <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                          Nut Screw Sleeve
+                          {t('form.enums.matingPartType.nutScrewSleeve')}
                         </SelectItem>
                       </SelectContent>
                     </Select>
@@ -968,7 +992,7 @@ export const BearingClearanceSection = forwardRef<
                   {/* Combined With */}
                   <div>
                     <Label htmlFor="innerCombinedWith" className="text-xs font-semibold mb-2 block">
-                      Combined With
+                      {t('form.bearingClearanceSection.combinedWith')}
                     </Label>
                     <Input
                       id="innerCombinedWith"
@@ -978,7 +1002,7 @@ export const BearingClearanceSection = forwardRef<
                         setInnerCombinedWith(e.target.value);
                         onSectionTouched();
                       }}
-                      placeholder="Reference measurement"
+                      placeholder={t('form.common.referenceMeasurement')}
                       className="text-sm"
                     />
                   </div>
@@ -986,7 +1010,7 @@ export const BearingClearanceSection = forwardRef<
                   {/* Mating Part Type */}
                   <div>
                     <Label htmlFor="innerMatingPart" className="text-xs font-semibold mb-2 block">
-                      Mating Part Type
+                      {t('form.bearingClearanceSection.matingPartType')}
                     </Label>
                     <Select
                       value={innerMatingPart}
@@ -996,13 +1020,17 @@ export const BearingClearanceSection = forwardRef<
                       }}
                     >
                       <SelectTrigger id="innerMatingPart" className="text-sm">
-                        <SelectValue placeholder="Select mating part" />
+                        <SelectValue placeholder={t('form.common.selectMatingPart')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
-                        <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                        <SelectItem value={MatingPartType.BUSHING}>
+                          {t('form.enums.matingPartType.bushing')}
+                        </SelectItem>
+                        <SelectItem value={MatingPartType.CONNECTION}>
+                          {t('form.enums.matingPartType.connection')}
+                        </SelectItem>
                         <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                          Nut Screw Sleeve
+                          {t('form.enums.matingPartType.nutScrewSleeve')}
                         </SelectItem>
                       </SelectContent>
                     </Select>
@@ -1025,13 +1053,15 @@ export const BearingClearanceSection = forwardRef<
       <div className="space-y-6 pt-6 border-t">
         {/* Shutdown Adjustment Mechanism */}
         <div className="space-y-4">
-          <h5 className="text-sm font-semibold">Shutdown Adjustment Mechanism</h5>
+          <h5 className="text-sm font-semibold">
+            {t('form.bearingClearanceSection.shutdownAdjustmentMechanism')}
+          </h5>
 
           <div className="grid grid-cols-2 gap-6">
             {/* Slide Motor/Mounts */}
             <div>
               <Label htmlFor="slideMotorMounts" className="text-xs font-medium mb-2 block">
-                Slide Motor/Mounts
+                {t('form.bearingClearanceSection.slideMotorMounts')}
               </Label>
               <Select
                 value={slideMotorMounts}
@@ -1041,14 +1071,24 @@ export const BearingClearanceSection = forwardRef<
                 }}
               >
                 <SelectTrigger className="text-sm">
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder={t('form.common.selectStatus')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ConditionOkNaDncBrokenWornType.OK}>OK</SelectItem>
-                  <SelectItem value={ConditionOkNaDncBrokenWornType.NA}>N/A</SelectItem>
-                  <SelectItem value={ConditionOkNaDncBrokenWornType.DNC}>DNC</SelectItem>
-                  <SelectItem value={ConditionOkNaDncBrokenWornType.BROKEN}>Broken</SelectItem>
-                  <SelectItem value={ConditionOkNaDncBrokenWornType.WORN}>Worn</SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenWornType.OK}>
+                    {t('form.enums.conditionOkNaDncBrokenWorn.ok')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenWornType.NA}>
+                    {t('form.enums.conditionOkNaDncBrokenWorn.na')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenWornType.DNC}>
+                    {t('form.enums.conditionOkNaDncBrokenWorn.dnc')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenWornType.BROKEN}>
+                    {t('form.enums.conditionOkNaDncBrokenWorn.broken')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenWornType.WORN}>
+                    {t('form.enums.conditionOkNaDncBrokenWorn.worn')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1056,7 +1096,7 @@ export const BearingClearanceSection = forwardRef<
             {/* Power Cord/Hoses */}
             <div>
               <Label htmlFor="powerCordHoses" className="text-xs font-medium mb-2 block">
-                Power Cord/Hoses
+                {t('form.bearingClearanceSection.powerCordHoses')}
               </Label>
               <Select
                 value={powerCordHoses}
@@ -1066,13 +1106,21 @@ export const BearingClearanceSection = forwardRef<
                 }}
               >
                 <SelectTrigger className="text-sm">
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder={t('form.common.selectStatus')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ConditionOkNaDncDamagedType.OK}>OK</SelectItem>
-                  <SelectItem value={ConditionOkNaDncDamagedType.NA}>N/A</SelectItem>
-                  <SelectItem value={ConditionOkNaDncDamagedType.DNC}>DNC</SelectItem>
-                  <SelectItem value={ConditionOkNaDncDamagedType.DAMAGED}>Damaged</SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.OK}>
+                    {t('form.enums.conditionOkNaDncDamaged.ok')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.NA}>
+                    {t('form.enums.conditionOkNaDncDamaged.na')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.DNC}>
+                    {t('form.enums.conditionOkNaDncDamaged.dnc')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.DAMAGED}>
+                    {t('form.enums.conditionOkNaDncDamaged.damaged')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1080,7 +1128,7 @@ export const BearingClearanceSection = forwardRef<
             {/* Chains & Gears/Sprockets */}
             <div>
               <Label htmlFor="chainsGearsSprockets" className="text-xs font-medium mb-2 block">
-                Chains & Gears/Sprockets
+                {t('form.bearingClearanceSection.chainsGearsSprockets')}
               </Label>
               <Select
                 value={chainsGearsSprockets}
@@ -1090,14 +1138,24 @@ export const BearingClearanceSection = forwardRef<
                 }}
               >
                 <SelectTrigger className="text-sm">
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder={t('form.common.selectStatus')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ConditionOkNaDncBrokenLooseType.OK}>OK</SelectItem>
-                  <SelectItem value={ConditionOkNaDncBrokenLooseType.NA}>N/A</SelectItem>
-                  <SelectItem value={ConditionOkNaDncBrokenLooseType.DNC}>DNC</SelectItem>
-                  <SelectItem value={ConditionOkNaDncBrokenLooseType.BROKEN}>Broken</SelectItem>
-                  <SelectItem value={ConditionOkNaDncBrokenLooseType.LOOSE}>Loose</SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenLooseType.OK}>
+                    {t('form.enums.conditionOkNaDncBrokenLoose.ok')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenLooseType.NA}>
+                    {t('form.enums.conditionOkNaDncBrokenLoose.na')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenLooseType.DNC}>
+                    {t('form.enums.conditionOkNaDncBrokenLoose.dnc')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenLooseType.BROKEN}>
+                    {t('form.enums.conditionOkNaDncBrokenLoose.broken')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenLooseType.LOOSE}>
+                    {t('form.enums.conditionOkNaDncBrokenLoose.loose')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1105,7 +1163,7 @@ export const BearingClearanceSection = forwardRef<
             {/* Locking Clamps */}
             <div>
               <Label htmlFor="lockingClamps" className="text-xs font-medium mb-2 block">
-                Locking Clamps
+                {t('form.bearingClearanceSection.lockingClamps')}
               </Label>
               <Select
                 value={lockingClamps}
@@ -1115,13 +1173,21 @@ export const BearingClearanceSection = forwardRef<
                 }}
               >
                 <SelectTrigger className="text-sm">
-                  <SelectValue placeholder="Select status" />
+                  <SelectValue placeholder={t('form.common.selectStatus')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={ConditionOkNaDncDamagedType.OK}>OK</SelectItem>
-                  <SelectItem value={ConditionOkNaDncDamagedType.NA}>N/A</SelectItem>
-                  <SelectItem value={ConditionOkNaDncDamagedType.DNC}>DNC</SelectItem>
-                  <SelectItem value={ConditionOkNaDncDamagedType.DAMAGED}>Damaged</SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.OK}>
+                    {t('form.enums.conditionOkNaDncDamaged.ok')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.NA}>
+                    {t('form.enums.conditionOkNaDncDamaged.na')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.DNC}>
+                    {t('form.enums.conditionOkNaDncDamaged.dnc')}
+                  </SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.DAMAGED}>
+                    {t('form.enums.conditionOkNaDncDamaged.damaged')}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -1130,7 +1196,7 @@ export const BearingClearanceSection = forwardRef<
           {/* Notes */}
           <div>
             <Label htmlFor="notes" className="text-xs font-medium mb-2 block">
-              Notes
+              {t('form.common.notes')}
             </Label>
             <Input
               id="notes"
@@ -1140,7 +1206,7 @@ export const BearingClearanceSection = forwardRef<
                 setNotes(e.target.value);
                 onSectionTouched();
               }}
-              placeholder="Enter any additional notes..."
+              placeholder={t('form.common.additionalNotes')}
               className="text-sm"
             />
           </div>
