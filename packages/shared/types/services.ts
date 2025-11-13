@@ -47,11 +47,41 @@ export enum LubeHydMonitorFlowPressSwGibType {
   GIB = 'GIB',
 }
 
-export enum OkNaDncDamageType {
+export enum ConditionOkNaDncBrokenWornType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  BROKEN = 'BROKEN',
+  WORN = 'WORN',
+}
+
+export enum ConditionOkNaDncBrokenLooseType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  BROKEN = 'BROKEN',
+  LOOSE = 'LOOSE',
+}
+
+export enum ConditionOkNaDncDamagedType {
   OK = 'OK',
   NA = 'NA',
   DNC = 'DNC',
   DAMAGED = 'DAMAGED',
+}
+
+export enum SystemType {
+  LUBE = 'LUBE',
+  HYD = 'HYD',
+  MONITORFLOW = 'MONITORFLOW',
+  PRESS_SW = 'PRESS_SW',
+  GIB = 'GIB',
+}
+
+export enum OkNaDncDamageType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
 }
 
 export enum CounterbalanceTypeEnum {
@@ -120,9 +150,14 @@ export interface BearingClearanceData {
   extraDoubleLockOpen_LH: number;
   ballBoxArea_RH: number;
   ballBoxArea_LH: number;
-  hasBeenAdjusted: boolean;
+  hasBeenAdjusted: YesNoNaDncType;
   combinedWith?: string;
   matingPart?: MatingPartType;
+  slideMotorMounts?: ConditionOkNaDncBrokenWornType;
+  powerCordHoses?: ConditionOkNaDncDamagedType;
+  chainsGearsSprockets?: ConditionOkNaDncBrokenLooseType;
+  lockingClamps?: ConditionOkNaDncDamagedType;
+  notes?: string;
 }
 
 export interface BearingClearanceCheck {
@@ -162,7 +197,7 @@ export interface SlideCheck {
 
 // Gibs Data
 export interface GibsData {
-  hasBeenAdjusted: boolean;
+  hasBeenAdjusted: YesNoDncType;
   point1: number;
   point2: number;
   point3: number;

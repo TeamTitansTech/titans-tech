@@ -21,4 +21,5 @@ export interface SectionCardProps {
   status: SectionStatus;
   imageUrl?: string;
   onClick?: () => void;
+  isLoading?: boolean;
 }

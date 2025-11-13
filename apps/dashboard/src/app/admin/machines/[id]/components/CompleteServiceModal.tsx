@@ -12,20 +12,19 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
+import { format } from 'date-fns';
 import { toast } from 'sonner';
 import { updateService } from '@/data/services/services.api';
 import {
   ServiceType,
   ServiceStatus,
-  MatingPartType,
-  type BearingClearanceData,
   type UpdateServicePayload,
   type ServiceCreationModalProps,
 } from '@/data/types/services.types';
-import { BearingClearanceForm } from './forms/BearingClearanceForm';
+import {
+  BearingClearanceSection,
+  type BearingClearanceSectionRef,
+} from './sections/BearingClearanceSection';
 import { SlideSection, type SlideSectionRef } from './sections/SlideSection';
 import { GibsSection, type GibsSectionRef } from './sections/GibsSection';
 import {
@@ -37,83 +36,6 @@ import {
   CounterbalanceCylinderSection,
   type CounterbalanceCylinderSectionRef,
 } from './sections/CounterbalanceCylinderSection';
-
-// Default data structures
-const defaultBearingData: BearingClearanceData = {
-  totalClearance_RH: 0,
-  totalClearance_LH: 0,
-  mainBearings_RH: 0,
-  mainBearings_LH: 0,
-  upperConnectionBearings_RH: 0,
-  upperConnectionBearings_LH: 0,
-  wristPinToMatingPart_RH: 0,
-  wristPinToMatingPart_LH: 0,
-  wristPinToBushing_RH: 0,
-  wristPinToBushing_LH: 0,
-  slideAdjNutToScrewSleeve_RH: 0,
-  slideAdjNutToScrewSleeve_LH: 0,
-  extraDoubleLockOpen_RH: 0,
-  extraDoubleLockOpen_LH: 0,
-  ballBoxArea_RH: 0,
-  ballBoxArea_LH: 0,
-  hasBeenAdjusted: false,
-  combinedWith: '',
-  matingPart: MatingPartType.BUSHING,
-};
-
-// Validation helper functions
-const isDataTouched = <T extends object>(data: T, defaultData: T): boolean => {
-  return (Object.keys(data) as Array<keyof T>).some((key) => {
-    const dataValue = data[key];
-    const defaultValue = defaultData[key];
-
-    // Check if value differs from default
-    if (typeof dataValue === 'number' && typeof defaultValue === 'number') {
-      return dataValue !== defaultValue;
-    }
-    if (typeof dataValue === 'string' && typeof defaultValue === 'string') {
-      return dataValue.trim() !== defaultValue.trim();
-    }
-    if (typeof dataValue === 'boolean' && typeof defaultValue === 'boolean') {
-      return dataValue !== defaultValue;
-    }
-    if (dataValue === undefined || dataValue === null) {
-      return defaultValue !== undefined && defaultValue !== null;
-    }
-    return dataValue !== defaultValue;
-  });
-};
-
-const validateBearingClearanceData = (data: BearingClearanceData): string[] => {
-  const errors: string[] = [];
-  const requiredNumericFields: (keyof BearingClearanceData)[] = [
-    'totalClearance_RH',
-    'totalClearance_LH',
-    'mainBearings_RH',
-    'mainBearings_LH',
-    'upperConnectionBearings_RH',
-    'upperConnectionBearings_LH',
-    'wristPinToMatingPart_RH',
-    'wristPinToMatingPart_LH',
-    'wristPinToBushing_RH',
-    'wristPinToBushing_LH',
-    'slideAdjNutToScrewSleeve_RH',
-    'slideAdjNutToScrewSleeve_LH',
-    'extraDoubleLockOpen_RH',
-    'extraDoubleLockOpen_LH',
-    'ballBoxArea_RH',
-    'ballBoxArea_LH',
-  ];
-
-  requiredNumericFields.forEach((field) => {
-    const value = data[field];
-    if (typeof value !== 'number' || isNaN(value)) {
-      errors.push(`${String(field)} is required and must be a valid number`);
-    }
-  });
-
-  return errors;
-};
 
 interface CompleteServiceModalProps extends ServiceCreationModalProps {
   serviceId: string; // ID of the service to complete
@@ -136,14 +58,13 @@ export function CompleteServiceModal({
   const t = useTranslations('inspections');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [date, setDate] = useState(initialDate || new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState<Date>(initialDate ? new Date(initialDate) : new Date());
   const [performedBy, setPerformedBy] = useState(initialPerformedBy || '');
 
   // Track which sections have been touched
   const [touchedSections, setTouchedSections] = useState<Set<string>>(new Set());
 
   // Collapsible section states
-  const [bearingClearanceOpen, setBearingClearanceOpen] = useState(true);
   const [slideOpen, setSlideOpen] = useState(false);
   const [gibsOpen, setGibsOpen] = useState(false);
   const [lubricationOpen, setLubricationOpen] = useState(false);
@@ -151,40 +72,21 @@ export function CompleteServiceModal({
   const [counterbalanceOpen, setCounterbalanceOpen] = useState(false);
 
   // Section refs
+  const bearingClearanceRef = useRef<BearingClearanceSectionRef>(null);
   const slideRef = useRef<SlideSectionRef>(null);
   const gibsRef = useRef<GibsSectionRef>(null);
   const lubricationRef = useRef<LubricationHydraulicsSectionRef>(null);
   const clutchRef = useRef<ClutchSectionRef>(null);
   const counterbalanceRef = useRef<CounterbalanceCylinderSectionRef>(null);
 
-  // Bearing Clearance state
-  const [outerBeforeData, setOuterBeforeData] = useState<BearingClearanceData>(defaultBearingData);
-  const [outerAfterData, setOuterAfterData] = useState<BearingClearanceData>(defaultBearingData);
-  const [innerBeforeData, setInnerBeforeData] = useState<BearingClearanceData>(defaultBearingData);
-  const [innerAfterData, setInnerAfterData] = useState<BearingClearanceData>(defaultBearingData);
-
-  const [outerBeforeErrors, setOuterBeforeErrors] = useState<Record<string, string>>({});
-  const [outerAfterErrors, setOuterAfterErrors] = useState<Record<string, string>>({});
-  const [innerBeforeErrors, setInnerBeforeErrors] = useState<Record<string, string>>({});
-  const [innerAfterErrors, setInnerAfterErrors] = useState<Record<string, string>>({});
-  const [dateError, setDateError] = useState<string>('');
-
   // Reset form when modal closes
   useEffect(() => {
     if (!open) {
-      setDate(initialDate || new Date().toISOString().split('T')[0]);
+      setDate(initialDate ? new Date(initialDate) : new Date());
       setPerformedBy(initialPerformedBy || '');
       setTouchedSections(new Set());
-      setOuterBeforeData(defaultBearingData);
-      setOuterAfterData(defaultBearingData);
-      setInnerBeforeData(defaultBearingData);
-      setInnerAfterData(defaultBearingData);
-      setOuterBeforeErrors({});
-      setOuterAfterErrors({});
-      setInnerBeforeErrors({});
-      setInnerAfterErrors({});
-      setDateError('');
       // Reset section refs
+      bearingClearanceRef.current?.reset();
       slideRef.current?.reset();
       gibsRef.current?.reset();
       lubricationRef.current?.reset();
@@ -198,155 +100,21 @@ export function CompleteServiceModal({
     setTouchedSections((prev) => new Set(prev).add(section));
   };
 
-  // Update functions with touch tracking
-  const updateOuterBeforeField = (
-    field: keyof BearingClearanceData,
-    value: string | number | boolean,
-  ) => {
-    setOuterBeforeData((prev) => ({ ...prev, [field]: value }));
-    setOuterBeforeErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('BEARING_CLEARANCE');
-  };
-
-  const updateOuterAfterField = (
-    field: keyof BearingClearanceData,
-    value: string | number | boolean,
-  ) => {
-    setOuterAfterData((prev) => ({ ...prev, [field]: value }));
-    setOuterAfterErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('BEARING_CLEARANCE');
-  };
-
-  const updateInnerBeforeField = (
-    field: keyof BearingClearanceData,
-    value: string | number | boolean,
-  ) => {
-    setInnerBeforeData((prev) => ({ ...prev, [field]: value }));
-    setInnerBeforeErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('BEARING_CLEARANCE');
-  };
-
-  const updateInnerAfterField = (
-    field: keyof BearingClearanceData,
-    value: string | number | boolean,
-  ) => {
-    setInnerAfterData((prev) => ({ ...prev, [field]: value }));
-    setInnerAfterErrors((prev) => ({ ...prev, [field]: '' }));
-    markSectionTouched('BEARING_CLEARANCE');
-  };
-
-  // Validation on blur (basic field validation)
-  const validateField = (
-    field: keyof BearingClearanceData,
-    value: string | number | boolean | undefined,
-  ): string => {
-    if (field === 'combinedWith' || field === 'matingPart' || field === 'hasBeenAdjusted') {
-      return '';
-    }
-
-    const numValue = Number(value);
-    if (isNaN(numValue)) {
-      return t('form.error.invalidNumber');
-    }
-
-    return '';
-  };
-
-  // Blur handlers
-  const handleBlurOuterBefore = (field: keyof BearingClearanceData) => {
-    const error = validateField(field, outerBeforeData[field]);
-    setOuterBeforeErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurOuterAfter = (field: keyof BearingClearanceData) => {
-    const error = validateField(field, outerAfterData[field]);
-    setOuterAfterErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurInnerBefore = (field: keyof BearingClearanceData) => {
-    const error = validateField(field, innerBeforeData[field]);
-    setInnerBeforeErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleBlurInnerAfter = (field: keyof BearingClearanceData) => {
-    const error = validateField(field, innerAfterData[field]);
-    setInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
-  const handleDateBlur = () => {
-    const selectedDate = new Date(date);
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
-
-    if (selectedDate > today) {
-      setDateError(t('form.error.futureDate'));
-    } else {
-      setDateError('');
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // Validate date
-      const selectedDate = new Date(date);
-      const today = new Date();
-      today.setHours(23, 59, 59, 999);
-
-      if (selectedDate > today) {
-        toast.error(t('form.error.futureDate'));
-        setIsSubmitting(false);
-        return;
-      }
-
       const validationErrors: string[] = [];
 
-      // Check if touched sections and validate accordingly
+      // Bearing Clearance validation
       if (
         touchedSections.has('BEARING_CLEARANCE') &&
-        blueprintSections.includes('BEARING_CLEARANCE')
+        blueprintSections.includes('BEARING_CLEARANCE') &&
+        bearingClearanceRef.current
       ) {
-        const outerBeforeTouched = isDataTouched(outerBeforeData, defaultBearingData);
-        const outerAfterTouched = isDataTouched(outerAfterData, defaultBearingData);
-        const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
-        const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
-
-        if (serviceType === ServiceType.MAINTENANCE) {
-          // For maintenance: require all "before" sections
-          if (!outerBeforeTouched || !innerBeforeTouched) {
-            validationErrors.push(
-              'Bearing Clearance: For maintenance inspections, you must fill all "Before" sections (Outer Before and Inner Before)',
-            );
-          } else {
-            validationErrors.push(
-              ...validateBearingClearanceData(outerBeforeData).map((e) => `Outer Before: ${e}`),
-            );
-            validationErrors.push(
-              ...validateBearingClearanceData(innerBeforeData).map((e) => `Inner Before: ${e}`),
-            );
-          }
-        }
-
-        // Always validate "after" sections if touched
-        if (outerAfterTouched) {
-          validationErrors.push(
-            ...validateBearingClearanceData(outerAfterData).map((e) => `Outer After: ${e}`),
-          );
-        }
-        if (innerAfterTouched) {
-          validationErrors.push(
-            ...validateBearingClearanceData(innerAfterData).map((e) => `Inner After: ${e}`),
-          );
-        }
-
-        // For routine inspection: require at least one "after" section
-        if (serviceType === ServiceType.INSPECTION && !outerAfterTouched && !innerAfterTouched) {
-          validationErrors.push(
-            'Bearing Clearance: For routine inspections, you must fill at least one "After" section (Outer After or Inner After)',
-          );
-        }
+        const bearingErrors = bearingClearanceRef.current.validate(serviceType);
+        validationErrors.push(...bearingErrors);
       }
 
       // Slide validation is now handled in the validateAndGetData method
@@ -397,7 +165,7 @@ export function CompleteServiceModal({
 
       // Build payload - only include touched sections
       const payload: UpdateServicePayload = {
-        date: new Date(date).toISOString(),
+        date: date.toISOString(),
         type: serviceType,
         performedBy: performedBy || undefined,
       };
@@ -405,19 +173,11 @@ export function CompleteServiceModal({
       // Only add bearing clearance if section was touched
       if (
         touchedSections.has('BEARING_CLEARANCE') &&
-        blueprintSections.includes('BEARING_CLEARANCE')
+        blueprintSections.includes('BEARING_CLEARANCE') &&
+        bearingClearanceRef.current
       ) {
-        const outerBeforeTouched = isDataTouched(outerBeforeData, defaultBearingData);
-        const outerAfterTouched = isDataTouched(outerAfterData, defaultBearingData);
-        const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
-        const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
-
-        payload.bearingClearance = {
-          outerBefore: outerBeforeTouched ? outerBeforeData : undefined,
-          outerAfter: outerAfterTouched ? outerAfterData : undefined,
-          innerBefore: innerBeforeTouched ? innerBeforeData : undefined,
-          innerAfter: innerAfterTouched ? innerAfterData : undefined,
-        };
+        const bearingData = bearingClearanceRef.current.getData();
+        payload.bearingClearance = bearingData;
       }
 
       // Only add slide if section was touched
@@ -500,189 +260,103 @@ export function CompleteServiceModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{t('title')}</DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
-        </DialogHeader>
+      <DialogContent className="w-[900px] h-[700px] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
+        <div className="flex-1 overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {serviceType === ServiceType.MAINTENANCE
+                ? 'Complete Maintenance'
+                : 'Complete Inspection'}
+            </DialogTitle>
+            <DialogDescription>
+              {serviceType === ServiceType.MAINTENANCE
+                ? 'Complete this maintenance service by adding measurement data'
+                : 'Complete this inspection by adding measurement data'}
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Inspection Details Section */}
-          <div className="border rounded-lg p-6 bg-slate-50">
-            <h3 className="text-base font-semibold mb-4">Inspection Details</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="date">{t('form.date.label')}</Label>
-                <Input
-                  type="date"
-                  id="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  onBlur={handleDateBlur}
-                  className={`mt-1 ${dateError ? 'border-destructive' : ''}`}
-                  required
-                />
-                {dateError && <p className="text-sm text-destructive mt-1">{dateError}</p>}
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="border rounded-lg p-6 bg-muted/30">
+              <h3 className="text-base font-semibold mb-4">Service Details</h3>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>
+                    {serviceType === ServiceType.MAINTENANCE ? 'Service Date' : 'Inspection Date'}
+                  </Label>
+                  <p className="text-sm font-medium mt-1">{date ? format(date, 'PPP') : '-'}</p>
+                </div>
 
-              <div>
-                <Label htmlFor="performedBy">{t('form.performedBy.label')}</Label>
-                <Input
-                  id="performedBy"
-                  placeholder={t('form.performedBy.placeholder')}
-                  value={performedBy}
-                  onChange={(e) => setPerformedBy(e.target.value)}
-                  className="mt-1"
-                />
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <Label className="text-xs text-muted-foreground">Service Type</Label>
-              <p className="text-sm font-medium mt-1">
-                {serviceType === ServiceType.MAINTENANCE ? 'Maintenance' : 'Inspection'}
-              </p>
-            </div>
-          </div>
-
-          {/* Bearing Clearance Section */}
-          {blueprintSections.includes('BEARING_CLEARANCE') && (
-            <Collapsible open={bearingClearanceOpen} onOpenChange={setBearingClearanceOpen}>
-              <CollapsibleTrigger className="w-full">
-                <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
-                  <h3 className="text-base font-semibold">{t('form.bearingClearance.title')}</h3>
-                  <ChevronDown
-                    className={`h-5 w-5 transition-transform ${bearingClearanceOpen ? 'transform rotate-180' : ''}`}
+                <div>
+                  <Label htmlFor="performedBy">{t('form.performedBy.label')}</Label>
+                  <Input
+                    id="performedBy"
+                    placeholder={t('form.performedBy.placeholder')}
+                    value={performedBy}
+                    onChange={(e) => setPerformedBy(e.target.value)}
+                    className="mt-1"
                   />
                 </div>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <div className="border border-t-0 rounded-b-lg p-6 bg-white">
-                  <Tabs defaultValue="outer" className="w-full">
-                    <TabsList className="grid w-full grid-cols-2 mb-4">
-                      <TabsTrigger value="outer">{t('form.bearingClearance.outer')}</TabsTrigger>
-                      <TabsTrigger value="inner">{t('form.bearingClearance.inner')}</TabsTrigger>
-                    </TabsList>
+              </div>
 
-                    <TabsContent value="outer" className="space-y-6">
-                      <Tabs defaultValue="before" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="before">
-                            {t('form.bearingClearance.before')}
-                          </TabsTrigger>
-                          <TabsTrigger value="after">
-                            {t('form.bearingClearance.after')}
-                          </TabsTrigger>
-                        </TabsList>
+              <div className="mt-4">
+                <Label className="text-xs text-muted-foreground">Service Type</Label>
+                <p className="text-sm font-medium mt-1">
+                  {serviceType === ServiceType.MAINTENANCE ? 'Maintenance' : 'Inspection'}
+                </p>
+              </div>
+            </div>
 
-                        <TabsContent value="before" className="mt-4">
-                          <BearingClearanceForm
-                            title=""
-                            data={outerBeforeData}
-                            updateFn={updateOuterBeforeField}
-                            errors={outerBeforeErrors}
-                            handleBlur={handleBlurOuterBefore}
-                          />
-                        </TabsContent>
+            {blueprintSections.includes('BEARING_CLEARANCE') && (
+              <BearingClearanceSection
+                ref={bearingClearanceRef}
+                onSectionTouched={() => markSectionTouched('BEARING_CLEARANCE')}
+                serviceType={serviceType}
+              />
+            )}
 
-                        <TabsContent value="after" className="mt-4">
-                          <BearingClearanceForm
-                            title=""
-                            data={outerAfterData}
-                            updateFn={updateOuterAfterField}
-                            errors={outerAfterErrors}
-                            handleBlur={handleBlurOuterAfter}
-                          />
-                        </TabsContent>
-                      </Tabs>
-                    </TabsContent>
+            {blueprintSections.includes('SLIDE') && (
+              <SlideSection
+                ref={slideRef}
+                isOpen={slideOpen}
+                onOpenChange={setSlideOpen}
+                serviceType={serviceType}
+              />
+            )}
 
-                    <TabsContent value="inner" className="space-y-6">
-                      <Tabs defaultValue="before" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2">
-                          <TabsTrigger value="before">
-                            {t('form.bearingClearance.before')}
-                          </TabsTrigger>
-                          <TabsTrigger value="after">
-                            {t('form.bearingClearance.after')}
-                          </TabsTrigger>
-                        </TabsList>
+            {blueprintSections.includes('GIBS') && (
+              <GibsSection ref={gibsRef} isOpen={gibsOpen} onOpenChange={setGibsOpen} />
+            )}
 
-                        <TabsContent value="before" className="mt-4">
-                          <BearingClearanceForm
-                            title=""
-                            data={innerBeforeData}
-                            updateFn={updateInnerBeforeField}
-                            errors={innerBeforeErrors}
-                            handleBlur={handleBlurInnerBefore}
-                          />
-                        </TabsContent>
+            {blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (
+              <LubricationHydraulicsSection
+                ref={lubricationRef}
+                isOpen={lubricationOpen}
+                onOpenChange={setLubricationOpen}
+              />
+            )}
 
-                        <TabsContent value="after" className="mt-4">
-                          <BearingClearanceForm
-                            title=""
-                            data={innerAfterData}
-                            updateFn={updateInnerAfterField}
-                            errors={innerAfterErrors}
-                            handleBlur={handleBlurInnerAfter}
-                          />
-                        </TabsContent>
-                      </Tabs>
-                    </TabsContent>
-                  </Tabs>
-                </div>
-              </CollapsibleContent>
-            </Collapsible>
-          )}
+            {blueprintSections.includes('CLUTCH') && (
+              <ClutchSection ref={clutchRef} isOpen={clutchOpen} onOpenChange={setClutchOpen} />
+            )}
 
-          {/* Slide Section */}
-          {blueprintSections.includes('SLIDE') && (
-            <SlideSection
-              ref={slideRef}
-              isOpen={slideOpen}
-              onOpenChange={setSlideOpen}
-              serviceType={serviceType}
-            />
-          )}
+            {blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG') && (
+              <CounterbalanceCylinderSection
+                ref={counterbalanceRef}
+                isOpen={counterbalanceOpen}
+                onOpenChange={setCounterbalanceOpen}
+              />
+            )}
 
-          {/* Gibs Section */}
-          {blueprintSections.includes('GIBS') && (
-            <GibsSection ref={gibsRef} isOpen={gibsOpen} onOpenChange={setGibsOpen} />
-          )}
-
-          {/* Lubrication Hydraulics Section */}
-          {blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (
-            <LubricationHydraulicsSection
-              ref={lubricationRef}
-              isOpen={lubricationOpen}
-              onOpenChange={setLubricationOpen}
-            />
-          )}
-
-          {/* Clutch Section */}
-          {blueprintSections.includes('CLUTCH') && (
-            <ClutchSection ref={clutchRef} isOpen={clutchOpen} onOpenChange={setClutchOpen} />
-          )}
-
-          {/* Counterbalance Cylinder Section */}
-          {blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG') && (
-            <CounterbalanceCylinderSection
-              ref={counterbalanceRef}
-              isOpen={counterbalanceOpen}
-              onOpenChange={setCounterbalanceOpen}
-            />
-          )}
-
-          {/* Form Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              {t('form.cancel')}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t('form.submit.loading') : t('form.submit.idle')}
-            </Button>
-          </div>
-        </form>
+            <div className="flex justify-end space-x-3 pt-4">
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                {t('form.cancel')}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? t('form.submit.loading') : t('form.submit.idle')}
+              </Button>
+            </div>
+          </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

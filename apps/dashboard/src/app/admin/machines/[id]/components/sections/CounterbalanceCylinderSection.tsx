@@ -180,7 +180,7 @@ export const CounterbalanceCylinderSection = forwardRef<
   return (
     <Collapsible open={isOpen} onOpenChange={onOpenChange}>
       <CollapsibleTrigger className="w-full">
-        <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
+        <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
           <h3 className="text-base font-semibold">Counterbalance Cylinder / Airbag</h3>
           <ChevronDown
             className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}

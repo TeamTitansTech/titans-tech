@@ -14,10 +14,14 @@ import {
   DncToBedToBolsterType,
   ServiceType,
   ServiceStatus,
+  YesNoNaDncType,
   YesNoDncType,
   LubeHydMonitorFlowPressSwGibType,
   OkNaDncDamageType,
-} from '@titans-tech/db';
+  ConditionOkNaDncBrokenWornType,
+  ConditionOkNaDncBrokenLooseType,
+  ConditionOkNaDncDamagedType,
+} from '@titans-tech/shared/types';
 
 class BearingClearanceDataDto {
   @IsOptional()
@@ -85,8 +89,8 @@ class BearingClearanceDataDto {
   ballBoxArea_LH?: number;
 
   @IsOptional()
-  @IsBoolean()
-  hasBeenAdjusted?: boolean;
+  @IsEnum(YesNoNaDncType)
+  hasBeenAdjusted?: YesNoNaDncType;
 
   @IsOptional()
   @IsString()
@@ -95,6 +99,26 @@ class BearingClearanceDataDto {
   @IsOptional()
   @IsEnum(MatingPartType)
   matingPart?: MatingPartType;
+
+  @IsOptional()
+  @IsEnum(ConditionOkNaDncBrokenWornType)
+  slideMotorMounts?: ConditionOkNaDncBrokenWornType;
+
+  @IsOptional()
+  @IsEnum(ConditionOkNaDncDamagedType)
+  powerCordHoses?: ConditionOkNaDncDamagedType;
+
+  @IsOptional()
+  @IsEnum(ConditionOkNaDncBrokenLooseType)
+  chainsGearsSprockets?: ConditionOkNaDncBrokenLooseType;
+
+  @IsOptional()
+  @IsEnum(ConditionOkNaDncDamagedType)
+  lockingClamps?: ConditionOkNaDncDamagedType;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }
 
 class BearingClearanceCheckDto {
@@ -185,8 +209,8 @@ class SlideCheckDto {
 
 class GibsDataDto {
   @IsOptional()
-  @IsBoolean()
-  hasBeenAdjusted?: boolean;
+  @IsEnum(YesNoDncType)
+  hasBeenAdjusted?: YesNoDncType;
 
   @IsOptional()
   @IsNumber()
