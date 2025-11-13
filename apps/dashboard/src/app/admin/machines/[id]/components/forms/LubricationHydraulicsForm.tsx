@@ -27,6 +27,7 @@ export function LubricationHydraulicsForm({
   handleBlur,
 }: LubricationHydraulicsFormProps) {
   const t = useTranslations('inspections');
+  const tCommon = useTranslations('common.status');
 
   const addGauge = () => {
     const newGauge: LubricationHydraulicsGauge = {
@@ -57,7 +58,7 @@ export function LubricationHydraulicsForm({
   };
 
   const getPsiLabel = (psi: OkNaDncDamageType) => {
-    return t(`form.lubricationHydraulics.psiStatus.${psi.toLowerCase()}`);
+    return tCommon(psi.toLowerCase());
   };
 
   return (
@@ -181,15 +182,9 @@ export function LubricationHydraulicsForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={YesNoDncType.YES}>
-                  {t('form.lubricationHydraulics.yesNoDnc.yes')}
-                </SelectItem>
-                <SelectItem value={YesNoDncType.NO}>
-                  {t('form.lubricationHydraulics.yesNoDnc.no')}
-                </SelectItem>
-                <SelectItem value={YesNoDncType.DNC}>
-                  {t('form.lubricationHydraulics.yesNoDnc.dnc')}
-                </SelectItem>
+                <SelectItem value={YesNoDncType.YES}>{tCommon('yes')}</SelectItem>
+                <SelectItem value={YesNoDncType.NO}>{tCommon('no')}</SelectItem>
+                <SelectItem value={YesNoDncType.DNC}>{tCommon('dnc')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -249,15 +244,9 @@ export function LubricationHydraulicsForm({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={YesNoDncType.YES}>
-                  {t('form.lubricationHydraulics.yesNoDnc.yes')}
-                </SelectItem>
-                <SelectItem value={YesNoDncType.NO}>
-                  {t('form.lubricationHydraulics.yesNoDnc.no')}
-                </SelectItem>
-                <SelectItem value={YesNoDncType.DNC}>
-                  {t('form.lubricationHydraulics.yesNoDnc.dnc')}
-                </SelectItem>
+                <SelectItem value={YesNoDncType.YES}>{tCommon('yes')}</SelectItem>
+                <SelectItem value={YesNoDncType.NO}>{tCommon('no')}</SelectItem>
+                <SelectItem value={YesNoDncType.DNC}>{tCommon('dnc')}</SelectItem>
               </SelectContent>
             </Select>
           </div>

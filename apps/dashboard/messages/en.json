@@ -2,7 +2,19 @@
   "common": {
     "companyName": "InspectPro",
     "companySubtitle": "Admin Portal",
-    "unsavedChanges": "You have unsaved changes. Are you sure you want to close?"
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to close?",
+    "status": {
+      "ok": "OK",
+      "na": "N/A",
+      "dnc": "DNC",
+      "yes": "Yes",
+      "no": "No",
+      "damaged": "Damaged",
+      "leaking": "Leaking",
+      "not_operational": "Not Operational",
+      "dark_oil": "Dark Oil",
+      "needs_replaced": "Needs Replaced"
+    }
   },
   "validation": {
     "required": "This field is required",
@@ -621,43 +633,6 @@
         "counterbalanceTypes": {
           "cylinder": "Cylinder",
           "airbag": "Airbag"
-        },
-        "airbagPistonSealsType": {
-          "ok": "OK",
-          "na": "N/A",
-          "dnc": "DNC",
-          "leaking": "Leaking"
-        },
-        "regulatorGaugeType": {
-          "ok": "OK",
-          "na": "N/A",
-          "dnc": "DNC",
-          "not_operational": "Not Operational"
-        },
-        "pneumaticsPlumbingType": {
-          "ok": "OK",
-          "na": "N/A",
-          "dnc": "DNC",
-          "not_operational": "Not Operational",
-          "leaking": "Leaking"
-        },
-        "rodSealsType": {
-          "ok": "OK",
-          "na": "N/A",
-          "dnc": "DNC",
-          "leaking": "Leaking"
-        },
-        "rodBushingType": {
-          "ok": "OK",
-          "na": "N/A",
-          "dnc": "DNC",
-          "dark_oil": "Dark Oil"
-        },
-        "oilWickType": {
-          "ok": "OK",
-          "na": "N/A",
-          "dnc": "DNC",
-          "needs_replaced": "Needs Replaced"
         }
       },
       "cancel": "Cancel",

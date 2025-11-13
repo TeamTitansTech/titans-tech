@@ -31,33 +31,34 @@ export function CounterbalanceCylinderForm({
   hideNotes = false,
 }: CounterbalanceCylinderFormProps) {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
+  const tCommon = useTranslations('common.status');
 
   const getCounterbalanceTypeLabel = (type: CounterbalanceTypeEnum) => {
     return t(`counterbalanceTypes.${type.toLowerCase()}`);
   };
 
   const getAirbagPistonSealsLabel = (type: AirbagPistonSealsType) => {
-    return t(`airbagPistonSealsType.${type.toLowerCase()}`);
+    return tCommon(type.toLowerCase());
   };
 
   const getRegulatorGaugeLabel = (type: RegulatorGaugeType) => {
-    return t(`regulatorGaugeType.${type.toLowerCase()}`);
+    return tCommon(type.toLowerCase());
   };
 
   const getPneumaticsPlumbingLabel = (type: PneumaticsPlumbingType) => {
-    return t(`pneumaticsPlumbingType.${type.toLowerCase()}`);
+    return tCommon(type.toLowerCase());
   };
 
   const getRodSealsLabel = (type: RodSealsType) => {
-    return t(`rodSealsType.${type.toLowerCase()}`);
+    return tCommon(type.toLowerCase());
   };
 
   const getRodBushingLabel = (type: RodBushingType) => {
-    return t(`rodBushingType.${type.toLowerCase()}`);
+    return tCommon(type.toLowerCase());
   };
 
   const getOilWickLabel = (type: OilWickType) => {
-    return t(`oilWickType.${type.toLowerCase()}`);
+    return tCommon(type.toLowerCase());
   };
 
   return (
