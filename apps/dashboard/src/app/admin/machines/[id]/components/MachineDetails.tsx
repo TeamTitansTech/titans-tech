@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
 import { Machine, MachineDetailsProps } from '@/data/types/machines.types';
+import { useState } from 'react';
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
