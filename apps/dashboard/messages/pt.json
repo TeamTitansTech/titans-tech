@@ -255,6 +255,11 @@
     "errorLoading": "Erro ao carregar modelos",
     "createdSuccessfully": "Modelo criado com sucesso",
     "description": "Crie um novo modelo de máquina",
+    "machine": "máquina",
+    "machines": "máquinas",
+    "field": "campo",
+    "fields": "campos",
+    "edit": "Editar",
     "form": {
       "basicInfo": {
         "title": "Informações Básicas"
@@ -338,6 +343,7 @@
     "serviceHistory": "Histórico de Serviço",
     "technician": "Técnico",
     "completed": "Concluído",
+    "done": "Concluído",
     "inProgress": "Em Andamento",
     "createInspection": "Criar Vistoria",
     "requestUrgentService": "Solicitar Serviço Urgente",
@@ -346,6 +352,10 @@
     "maintenanceService": "Manutenção",
     "inspectionService": "Inspeção",
     "newService": "Novo Serviço",
+    "upcomingServices": "Serviços Agendados",
+    "noUpcomingServices": "Nenhum serviço agendado",
+    "scheduledMaintenance": "Manutenção Agendada",
+    "scheduledInspection": "Inspeção Agendada",
     "noImageAvailable": "Sem Imagem Disponível",
     "inspectionSections": "Seções de Inspeção",
     "noSectionsAvailable": "Nenhuma seção de inspeção disponível para este tipo de máquina.",
@@ -467,8 +477,8 @@
       },
       "bearingClearance": {
         "title": "Medições de Bearing Clearance",
-        "before": "Antes da Manutenção",
-        "after": "Depois da Manutenção",
+        "before": "Inicial",
+        "after": "Após Ajuste",
         "outer": "Medições Externas",
         "inner": "Medições Internas",
         "combined_with": {
@@ -482,6 +492,14 @@
           "nut_screw_sleeve": "Porca e Parafuso"
         },
         "fields": {
+          "totalClearance": "Folga Total",
+          "mainBearings": "Mancais Principais",
+          "upperConnectionBearings": "Mancais de Conexão Superior",
+          "wristPinToMatingPart": "Pino de Pulso à Peça de Acoplamento",
+          "wristPinToBushing": "Pino de Pulso à Bucha",
+          "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide ao Parafuso",
+          "extraDoubleLockOpen": "Bloqueio Duplo Extra Aberto",
+          "ballBoxArea": "Área da Caixa de Esferas",
           "totalClearance_RH": "Folga Total RH",
           "totalClearance_LH": "Folga Total LH",
           "mainBearings_RH": "Mancais Principais RH",
@@ -519,6 +537,8 @@
         "position2": "Posição 2",
         "position3": "Posição 3",
         "position4": "Posição 4",
+        "position5": "Posição 5",
+        "position6": "Posição 6",
         "actualSH": "SH Atual",
         "overloadsOnMonitor": "Sobrecargas no Monitor",
         "indicatorReading": "Leitura do Indicador",
@@ -650,6 +670,76 @@
         "minValue": "Valor mínimo é {min}",
         "maxValue": "Valor máximo é {max}",
         "futureDate": "A data não pode ser futura"
+      },
+      "common": {
+        "measurement": "Medição",
+        "lh": "LH",
+        "rh": "RH",
+        "differential": "Diferencial",
+        "outer": "Externo",
+        "inner": "Interno",
+        "notes": "Notas",
+        "selectOption": "Selecione uma opção",
+        "selectStatus": "Selecione o status",
+        "selectMatingPart": "Selecione a peça de acoplamento",
+        "referenceMeasurement": "Medição de referência",
+        "additionalNotes": "Digite notas adicionais..."
+      },
+      "bearingClearanceSection": {
+        "includeBeforeMeasurements": "Incluir Medições Anteriores",
+        "beforeMaintenance": "Antes da Manutenção",
+        "afterMaintenance": "Após a Manutenção",
+        "hasBeenAdjusted": "Foi Ajustado",
+        "combinedWith": "Combinado Com",
+        "matingPartType": "Tipo de Peça de Acoplamento",
+        "shutdownAdjustmentMechanism": "Mecanismo de Ajuste de Desligamento",
+        "slideMotorMounts": "Motor/Montagens do Deslizamento",
+        "powerCordHoses": "Cabo de Energia/Mangueiras",
+        "chainsGearsSprockets": "Correntes e Engrenagens/Rodas Dentadas",
+        "lockingClamps": "Grampos de Travamento",
+        "validation": {
+          "fieldRequired": "{field} é obrigatório e deve ser um número válido",
+          "beforeSectionsRequired": "Folga de Rolamento: Quando \"Incluir Medições Anteriores\" está habilitado para manutenção, você deve preencher todas as seções \"Antes\" (Externo Antes e Interno Antes)",
+          "outerBefore": "Externo Antes",
+          "innerBefore": "Interno Antes",
+          "outerData": "Dados Externos",
+          "innerData": "Dados Internos",
+          "atLeastOneSectionRequired": "Folga de Rolamento: Você deve preencher pelo menos uma seção de medição (Dados Externos ou Dados Internos)",
+          "hasBeenAdjustedRequired": "Folga de Rolamento: O campo \"Foi Ajustado\" é obrigatório"
+        }
+      },
+      "enums": {
+        "yesNoNaDnc": {
+          "yes": "Sim",
+          "no": "Não",
+          "na": "N/A",
+          "dnc": "DNC"
+        },
+        "conditionOkNaDncBrokenWorn": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "broken": "Quebrado",
+          "worn": "Desgastado"
+        },
+        "conditionOkNaDncBrokenLoose": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "broken": "Quebrado",
+          "loose": "Solto"
+        },
+        "conditionOkNaDncDamaged": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "damaged": "Danificado"
+        },
+        "matingPartType": {
+          "bushing": "Bucha",
+          "connection": "Conexão",
+          "nutScrewSleeve": "Porca e Parafuso"
+        }
       }
     }
   },
@@ -713,7 +803,36 @@
     },
     "cancel": "Cancelar",
     "creating": "Criando...",
-    "createService": "Criar Serviço"
+    "createService": "Criar Serviço",
+    "modal": {
+      "completeMaintenance": "Concluir Manutenção",
+      "completeMaintenanceDetails": "Concluir Manutenção - Detalhes",
+      "completeInspection": "Concluir Inspeção",
+      "completeInspectionDetails": "Concluir Inspeção - Detalhes",
+      "selectMaintenanceAreas": "Selecione as áreas de manutenção a serem realizadas",
+      "fillMaintenanceDetails": "Preencha os detalhes da manutenção realizada",
+      "fillInspectionDetails": "Preencha os detalhes da inspeção realizada",
+      "selectAreasAbove": "Selecione as áreas de manutenção acima para começar",
+      "realizationDate": "Data da realização",
+      "performedBy": "Realizado por",
+      "technicianName": "Nome do técnico",
+      "maintenanceSummary": "Resumo da Manutenção",
+      "inspectionSummary": "Resumo da Inspeção",
+      "completing": "Concluindo...",
+      "stepper": {
+        "details": "Detalhes",
+        "summary": "Resumo",
+        "before": "Before"
+      },
+      "status": {
+        "complete": "Completo",
+        "incomplete": "Incompleto"
+      },
+      "sections": {
+        "beforeMaintenance": "Before Maintenance",
+        "afterMaintenance": "After Maintenance"
+      }
+    }
   },
   "login": {
     "title": "Bem-vindo de volta",

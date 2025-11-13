@@ -10,6 +10,7 @@ import { useTranslations } from 'next-intl';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
 import { Machine, MachineDetailsProps } from '@/data/types/machines.types';
+import { useState } from 'react';
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
@@ -86,8 +87,10 @@ const getSectionStatus = (section: string, machine: Machine): SectionStatus => {
 export function MachineDetails({ machine }: MachineDetailsProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
+  const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
   const handleSectionClick = async (section: string) => {
+    setLoadingSection(section);
     const sectionSlug = section.toLowerCase();
     router.push(`/admin/machines/${machine.id}/sections/${sectionSlug}`);
   };
@@ -116,7 +119,7 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6">
-        <Card>
+        <Card className="bg-muted">
           <CardContent className="p-0">
             <div className="relative aspect-[3/4] bg-muted flex items-center justify-center">
               {machine.imageUrl ? (
@@ -148,6 +151,7 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
                     status={getSectionStatus(section, machine)}
                     imageUrl={SECTION_IMAGES[section]}
                     onClick={() => handleSectionClick(section)}
+                    isLoading={loadingSection === section}
                   />
                 ))}
               </div>

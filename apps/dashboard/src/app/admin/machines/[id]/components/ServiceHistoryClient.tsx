@@ -7,6 +7,7 @@ import { Typography } from '@/components/ui/typography';
 import { Wrench, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import ServiceCreationModal from './ServiceCreationModal';
+import { ServiceSummaryModal } from './ServiceSummaryModal';
 import type { Service } from '@/data/types/services.types';
 
 interface ServiceHistoryClientProps {
@@ -22,6 +23,13 @@ export function ServiceHistoryClient({
 }: ServiceHistoryClientProps) {
   const t = useTranslations('machines');
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+
+  const handleServiceClick = (service: Service) => {
+    setSelectedService(service);
+    setIsViewModalOpen(true);
+  };
 
   if (services.length === 0) {
     return (
@@ -70,7 +78,8 @@ export function ServiceHistoryClient({
               return (
                 <div
                   key={service.id}
-                  className="flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-0"
+                  onClick={() => handleServiceClick(service)}
+                  className="flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-0 cursor-pointer hover:bg-muted transition-colors rounded-lg p-2 -m-2"
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
@@ -117,6 +126,13 @@ export function ServiceHistoryClient({
         open={isServiceModalOpen}
         onOpenChange={setIsServiceModalOpen}
       />
+      {selectedService && (
+        <ServiceSummaryModal
+          service={selectedService}
+          open={isViewModalOpen}
+          onOpenChange={setIsViewModalOpen}
+        />
+      )}
     </>
   );
 }

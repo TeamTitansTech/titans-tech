@@ -12,6 +12,9 @@ export {
   ParallelismType,
   YesNoNaDncType,
   YesNoDncType,
+  ConditionOkNaDncBrokenWornType,
+  ConditionOkNaDncBrokenLooseType,
+  ConditionOkNaDncDamagedType,
   SystemType,
   PsiStatusType,
 } from '@titans-tech/shared/types';

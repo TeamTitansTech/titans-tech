@@ -9,10 +9,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
-import { InspectionCreationModal } from './InspectionCreationModal';
+import { ServiceCompletionModal } from './ServiceCompletionModal';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
-import { isSysAdminPanel } from '@/lib/isSysAdminPanel';
 
 interface MachineField {
   fieldSlug: string;
@@ -76,16 +75,16 @@ const getSectionStatus = (_section: string, _machine: Machine): SectionStatus =>
   return 'unknown';
 };
 
-const isSysPanel = await isSysAdminPanel();
-
 export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+  const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
   const handleSectionClick = (section: string) => {
+    setLoadingSection(section);
     const sectionSlug = section.toLowerCase();
-    router.push(`${isSysPanel ? '/admin' : ''}/machines/${machine.id}/sections/${sectionSlug}`);
+    router.push(`/machines/${machine.id}/sections/${sectionSlug}`);
   };
 
   return (
@@ -108,7 +107,12 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
               </Typography>
             </ConditionalTooltip>
           </div>
-          <Button variant="destructive" size="sm" className="shrink-0">
+          <Button
+            variant="destructive"
+            size="sm"
+            className="shrink-0"
+            onClick={() => setIsInspectionModalOpen(true)}
+          >
             <Wrench className="w-4 h-4 mr-2" />
             {t('requestUrgentService')}
           </Button>
@@ -148,6 +152,7 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
                     status={getSectionStatus(section, machine)}
                     imageUrl={SECTION_IMAGES[section]}
                     onClick={() => handleSectionClick(section)}
+                    isLoading={loadingSection === section}
                   />
                 ))}
               </div>
@@ -161,10 +166,11 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
         </Card>
       </div>
 
-      <InspectionCreationModal
+      <ServiceCompletionModal
         machineId={machine.id}
         open={isInspectionModalOpen}
         onOpenChange={setIsInspectionModalOpen}
+        machineSections={machine.blueprint?.sections}
       />
     </>
   );
