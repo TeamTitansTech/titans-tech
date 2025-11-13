@@ -46,10 +46,9 @@ import { format } from 'date-fns';
 import {
   BearingClearanceSection,
   type BearingClearanceSectionRef,
-  defaultBearingData,
 } from './sections/BearingClearanceSection';
 import { SlideSection, type SlideSectionRef, defaultSlideData } from './sections/SlideSection';
-import { GibsSection, type GibsSectionRef, defaultGibsData } from './sections/GibsSection';
+import { GibsSection, type GibsSectionRef } from './sections/GibsSection';
 import {
   LubricationHydraulicsSection,
   type LubricationHydraulicsSectionRef,
@@ -68,6 +67,7 @@ interface InspectionCreationModalWithSectionsProps {
   onOpenChange: (open: boolean) => void;
   machineSections?: string[];
   serviceId?: string; // If provided, we're completing an existing service
+  serviceType?: ServiceType; // Type of service being completed
   initialDate?: string; // Initial date from existing service
   initialPerformedBy?: string; // Initial performedBy from existing service
 }
@@ -111,6 +111,7 @@ export function InspectionCreationModalWithSections({
   onOpenChange,
   machineSections = Object.keys(SECTION_DETAILS),
   serviceId,
+  serviceType,
   initialDate,
   initialPerformedBy,
 }: InspectionCreationModalWithSectionsProps) {
@@ -119,14 +120,23 @@ export function InspectionCreationModalWithSections({
   const router = useInternalRouter();
 
   const isCompletingService = !!serviceId;
+  const isInspection = serviceType === ServiceType.INSPECTION;
+  const isMaintenance = serviceType === ServiceType.MAINTENANCE;
 
   // Multi-step state with stepper support
   type StepType = 'selection' | 'details' | 'sections' | 'summary';
-  const [currentStep, setCurrentStep] = useState<StepType>('selection');
+  // For inspections, start at 'details' step with all sections pre-selected
+  // For maintenance, start at 'selection' step to choose sections
+  const [currentStep, setCurrentStep] = useState<StepType>(
+    isInspection ? 'details' : isMaintenance ? 'selection' : 'details',
+  );
   const [currentSectionIndex, setCurrentSectionIndex] = useState<number>(0);
 
   // Section selection state
-  const [selectedSections, setSelectedSections] = useState<Set<string>>(new Set());
+  // For inspections, pre-select all sections; for maintenance, start with empty set
+  const [selectedSections, setSelectedSections] = useState<Set<string>>(
+    isInspection ? new Set(machineSections) : isMaintenance ? new Set() : new Set(machineSections),
+  );
 
   // Service details
   const getTomorrowDate = () => {
@@ -143,7 +153,13 @@ export function InspectionCreationModalWithSections({
   };
 
   const [date, setDate] = useState<Date>(getInitialDate());
-  const [serviceType, setServiceType] = useState<ServiceType>(ServiceType.MAINTENANCE);
+  // Internal state for service type (used when creating new services)
+  // When completing an existing service, the prop serviceType is used
+  const [selectedServiceType, setSelectedServiceType] = useState<ServiceType>(
+    serviceType || ServiceType.MAINTENANCE,
+  );
+  // Use the prop serviceType if provided (completing service), otherwise use internal state (creating new)
+  const currentServiceType = serviceType || selectedServiceType;
   const [performedBy, setPerformedBy] = useState(initialPerformedBy || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -165,14 +181,22 @@ export function InspectionCreationModalWithSections({
   // Track bearing clearance sub-states for badges
   const [bearingBeforeSelected, setBearingBeforeSelected] = useState(false);
 
-  // Reset when modal closes or opens
+  // Reset when modal closes
   useEffect(() => {
     if (!open) {
-      setCurrentStep('selection');
+      // Reset to initial state based on service type
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setCurrentStep(isInspection ? 'details' : isMaintenance ? 'selection' : 'details');
       setCurrentSectionIndex(0);
-      setSelectedSections(new Set());
+      setSelectedSections(
+        isInspection
+          ? new Set(machineSections)
+          : isMaintenance
+            ? new Set()
+            : new Set(machineSections),
+      );
       setDate(getInitialDate());
-      setServiceType(isCompletingService ? ServiceType.MAINTENANCE : ServiceType.INSPECTION);
+      setSelectedServiceType(serviceType || ServiceType.INSPECTION);
       setPerformedBy(initialPerformedBy || '');
       setError(null);
       setCompletedSections(new Set());
@@ -185,17 +209,16 @@ export function InspectionCreationModalWithSections({
       lubricationRef.current?.reset();
       clutchRef.current?.reset();
       counterbalanceRef.current?.reset();
-    } else {
-      // When modal opens
-      if (!isCompletingService) {
-        // For inspections, automatically select all sections and go to details step
-        setSelectedSections(new Set(machineSections));
-        setCurrentStep('details');
-      }
-      // For maintenance (completing service), keep the default 'selection' step
-      // so users can choose which sections to complete
     }
-  }, [open, initialPerformedBy, isCompletingService, getInitialDate, machineSections]);
+  }, [
+    open,
+    initialPerformedBy,
+    isInspection,
+    isMaintenance,
+    serviceType,
+    getInitialDate,
+    machineSections,
+  ]);
 
   const toggleSection = (sectionKey: string) => {
     setSelectedSections((prev) => {
@@ -327,31 +350,31 @@ export function InspectionCreationModalWithSections({
           break;
         case 'SLIDE':
           if (slideRef.current) {
-            const result = slideRef.current.validateAndGetData(serviceType);
+            const result = slideRef.current.validateAndGetData(currentServiceType);
             sectionData = result.data;
           }
           break;
         case 'GIBS':
           if (gibsRef.current) {
-            const result = gibsRef.current.validateAndGetData(serviceType);
+            const result = gibsRef.current.validateAndGetData(currentServiceType);
             sectionData = result.data;
           }
           break;
         case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
           if (lubricationRef.current) {
-            const result = lubricationRef.current.validateAndGetData(serviceType);
+            const result = lubricationRef.current.validateAndGetData(currentServiceType);
             sectionData = result.data;
           }
           break;
         case 'CLUTCH':
           if (clutchRef.current) {
-            const result = clutchRef.current.validateAndGetData(serviceType);
+            const result = clutchRef.current.validateAndGetData(currentServiceType);
             sectionData = result.data;
           }
           break;
         case 'COUNTERBALANCE_CYLINDER_AIRBAG':
           if (counterbalanceRef.current) {
-            const result = counterbalanceRef.current.validateAndGetData(serviceType);
+            const result = counterbalanceRef.current.validateAndGetData(currentServiceType);
             sectionData = result.data;
           }
           break;
@@ -408,41 +431,41 @@ export function InspectionCreationModalWithSections({
     switch (sectionKey) {
       case 'BEARING_CLEARANCE':
         if (bearingClearanceRef.current) {
-          errors.push(...bearingClearanceRef.current.validate(serviceType));
+          errors.push(...bearingClearanceRef.current.validate(currentServiceType));
         }
         break;
 
       case 'SLIDE':
         if (slideRef.current?.isTouched()) {
-          const result = slideRef.current.validateAndGetData(serviceType);
+          const result = slideRef.current.validateAndGetData(currentServiceType);
           if (!result.isValid) errors.push(...result.errors);
         }
         break;
 
       case 'GIBS':
         if (gibsRef.current?.isTouched()) {
-          const result = gibsRef.current.validateAndGetData(serviceType);
+          const result = gibsRef.current.validateAndGetData(currentServiceType);
           if (!result.isValid) errors.push(...result.errors);
         }
         break;
 
       case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
         if (lubricationRef.current?.isTouched()) {
-          const result = lubricationRef.current.validateAndGetData(serviceType);
+          const result = lubricationRef.current.validateAndGetData(currentServiceType);
           if (!result.isValid) errors.push(...result.errors);
         }
         break;
 
       case 'CLUTCH':
         if (clutchRef.current?.isTouched()) {
-          const result = clutchRef.current.validateAndGetData(serviceType);
+          const result = clutchRef.current.validateAndGetData(currentServiceType);
           if (!result.isValid) errors.push(...result.errors);
         }
         break;
 
       case 'COUNTERBALANCE_CYLINDER_AIRBAG':
         if (counterbalanceRef.current?.isTouched()) {
-          const result = counterbalanceRef.current.validateAndGetData(serviceType);
+          const result = counterbalanceRef.current.validateAndGetData(currentServiceType);
           if (!result.isValid) errors.push(...result.errors);
         }
         break;
@@ -474,13 +497,13 @@ export function InspectionCreationModalWithSections({
 
         // Bearing Clearance validation
         if (selectedSections.has('BEARING_CLEARANCE') && bearingClearanceRef.current) {
-          const bearingErrors = bearingClearanceRef.current.validate(serviceType);
+          const bearingErrors = bearingClearanceRef.current.validate(currentServiceType);
           validationErrors.push(...bearingErrors);
         }
 
         // Slide validation
         if (selectedSections.has('SLIDE') && slideRef.current?.isTouched()) {
-          const slideResult = slideRef.current.validateAndGetData(serviceType);
+          const slideResult = slideRef.current.validateAndGetData(currentServiceType);
           if (!slideResult.isValid) {
             validationErrors.push(...slideResult.errors);
           }
@@ -488,7 +511,7 @@ export function InspectionCreationModalWithSections({
 
         // Gibs validation
         if (selectedSections.has('GIBS') && gibsRef.current?.isTouched()) {
-          const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+          const gibsResult = gibsRef.current.validateAndGetData(currentServiceType);
           if (!gibsResult.isValid) {
             validationErrors.push(...gibsResult.errors);
           }
@@ -499,7 +522,7 @@ export function InspectionCreationModalWithSections({
           selectedSections.has('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') &&
           lubricationRef.current?.isTouched()
         ) {
-          const lubricationResult = lubricationRef.current.validateAndGetData(serviceType);
+          const lubricationResult = lubricationRef.current.validateAndGetData(currentServiceType);
           if (!lubricationResult.isValid) {
             validationErrors.push(...lubricationResult.errors);
           }
@@ -507,7 +530,7 @@ export function InspectionCreationModalWithSections({
 
         // Clutch validation
         if (selectedSections.has('CLUTCH') && clutchRef.current?.isTouched()) {
-          const clutchResult = clutchRef.current.validateAndGetData(serviceType);
+          const clutchResult = clutchRef.current.validateAndGetData(currentServiceType);
           if (!clutchResult.isValid) {
             validationErrors.push(...clutchResult.errors);
           }
@@ -518,7 +541,8 @@ export function InspectionCreationModalWithSections({
           selectedSections.has('COUNTERBALANCE_CYLINDER_AIRBAG') &&
           counterbalanceRef.current?.isTouched()
         ) {
-          const counterbalanceResult = counterbalanceRef.current.validateAndGetData(serviceType);
+          const counterbalanceResult =
+            counterbalanceRef.current.validateAndGetData(currentServiceType);
           if (!counterbalanceResult.isValid) {
             validationErrors.push(...counterbalanceResult.errors);
           }
@@ -533,7 +557,7 @@ export function InspectionCreationModalWithSections({
         // Build payload with section data
         const payload: UpdateServicePayload = {
           date: date.toISOString(),
-          type: serviceType,
+          type: currentServiceType,
           status: ServiceStatus.COMPLETED,
           performedBy: performedBy || undefined,
         };
@@ -546,7 +570,7 @@ export function InspectionCreationModalWithSections({
 
         // Add slide data if section was selected
         if (selectedSections.has('SLIDE') && slideRef.current?.isTouched()) {
-          const slideResult = slideRef.current.validateAndGetData(serviceType);
+          const slideResult = slideRef.current.validateAndGetData(currentServiceType);
           if (slideResult.isValid && slideResult.data) {
             payload.slide = slideResult.data;
           }
@@ -554,7 +578,7 @@ export function InspectionCreationModalWithSections({
 
         // Add gibs data if section was selected
         if (selectedSections.has('GIBS') && gibsRef.current?.isTouched()) {
-          const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+          const gibsResult = gibsRef.current.validateAndGetData(currentServiceType);
           if (gibsResult.isValid && gibsResult.data) {
             payload.gibs = gibsResult.data;
           }
@@ -565,7 +589,7 @@ export function InspectionCreationModalWithSections({
           selectedSections.has('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') &&
           lubricationRef.current?.isTouched()
         ) {
-          const lubricationResult = lubricationRef.current.validateAndGetData(serviceType);
+          const lubricationResult = lubricationRef.current.validateAndGetData(currentServiceType);
           if (lubricationResult.isValid && lubricationResult.data) {
             payload.lubricationHydraulics = lubricationResult.data;
           }
@@ -573,7 +597,7 @@ export function InspectionCreationModalWithSections({
 
         // Add clutch data if section was selected
         if (selectedSections.has('CLUTCH') && clutchRef.current?.isTouched()) {
-          const clutchResult = clutchRef.current.validateAndGetData(serviceType);
+          const clutchResult = clutchRef.current.validateAndGetData(currentServiceType);
           if (clutchResult.isValid && clutchResult.data) {
             payload.clutch = clutchResult.data;
           }
@@ -584,7 +608,8 @@ export function InspectionCreationModalWithSections({
           selectedSections.has('COUNTERBALANCE_CYLINDER_AIRBAG') &&
           counterbalanceRef.current?.isTouched()
         ) {
-          const counterbalanceResult = counterbalanceRef.current.validateAndGetData(serviceType);
+          const counterbalanceResult =
+            counterbalanceRef.current.validateAndGetData(currentServiceType);
           if (counterbalanceResult.isValid && counterbalanceResult.data) {
             payload.counterbalanceCylinder = counterbalanceResult.data;
           }
@@ -605,13 +630,13 @@ export function InspectionCreationModalWithSections({
 
         // Bearing Clearance validation
         if (selectedSections.has('BEARING_CLEARANCE') && bearingClearanceRef.current) {
-          const bearingErrors = bearingClearanceRef.current.validate(serviceType);
+          const bearingErrors = bearingClearanceRef.current.validate(currentServiceType);
           validationErrors.push(...bearingErrors);
         }
 
         // Slide validation
         if (selectedSections.has('SLIDE') && slideRef.current?.isTouched()) {
-          const slideResult = slideRef.current.validateAndGetData(serviceType);
+          const slideResult = slideRef.current.validateAndGetData(currentServiceType);
           if (!slideResult.isValid) {
             validationErrors.push(...slideResult.errors);
           }
@@ -619,7 +644,7 @@ export function InspectionCreationModalWithSections({
 
         // Gibs validation
         if (selectedSections.has('GIBS') && gibsRef.current?.isTouched()) {
-          const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+          const gibsResult = gibsRef.current.validateAndGetData(currentServiceType);
           if (!gibsResult.isValid) {
             validationErrors.push(...gibsResult.errors);
           }
@@ -630,7 +655,7 @@ export function InspectionCreationModalWithSections({
           selectedSections.has('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') &&
           lubricationRef.current?.isTouched()
         ) {
-          const lubricationResult = lubricationRef.current.validateAndGetData(serviceType);
+          const lubricationResult = lubricationRef.current.validateAndGetData(currentServiceType);
           if (!lubricationResult.isValid) {
             validationErrors.push(...lubricationResult.errors);
           }
@@ -638,7 +663,7 @@ export function InspectionCreationModalWithSections({
 
         // Clutch validation
         if (selectedSections.has('CLUTCH') && clutchRef.current?.isTouched()) {
-          const clutchResult = clutchRef.current.validateAndGetData(serviceType);
+          const clutchResult = clutchRef.current.validateAndGetData(currentServiceType);
           if (!clutchResult.isValid) {
             validationErrors.push(...clutchResult.errors);
           }
@@ -649,7 +674,8 @@ export function InspectionCreationModalWithSections({
           selectedSections.has('COUNTERBALANCE_CYLINDER_AIRBAG') &&
           counterbalanceRef.current?.isTouched()
         ) {
-          const counterbalanceResult = counterbalanceRef.current.validateAndGetData(serviceType);
+          const counterbalanceResult =
+            counterbalanceRef.current.validateAndGetData(currentServiceType);
           if (!counterbalanceResult.isValid) {
             validationErrors.push(...counterbalanceResult.errors);
           }
@@ -665,7 +691,7 @@ export function InspectionCreationModalWithSections({
         const payload: CreateServicePayload = {
           machineId,
           date: date.toISOString(),
-          type: serviceType,
+          type: currentServiceType,
           status: ServiceStatus.COMPLETED,
           performedBy: performedBy || undefined,
         };
@@ -678,7 +704,7 @@ export function InspectionCreationModalWithSections({
 
         // Add slide data if section was selected
         if (selectedSections.has('SLIDE') && slideRef.current?.isTouched()) {
-          const slideResult = slideRef.current.validateAndGetData(serviceType);
+          const slideResult = slideRef.current.validateAndGetData(currentServiceType);
           if (slideResult.isValid && slideResult.data) {
             payload.slide = slideResult.data;
           }
@@ -686,7 +712,7 @@ export function InspectionCreationModalWithSections({
 
         // Add gibs data if section was selected
         if (selectedSections.has('GIBS') && gibsRef.current?.isTouched()) {
-          const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+          const gibsResult = gibsRef.current.validateAndGetData(currentServiceType);
           if (gibsResult.isValid && gibsResult.data) {
             payload.gibs = gibsResult.data;
           }
@@ -697,7 +723,7 @@ export function InspectionCreationModalWithSections({
           selectedSections.has('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') &&
           lubricationRef.current?.isTouched()
         ) {
-          const lubricationResult = lubricationRef.current.validateAndGetData(serviceType);
+          const lubricationResult = lubricationRef.current.validateAndGetData(currentServiceType);
           if (lubricationResult.isValid && lubricationResult.data) {
             payload.lubricationHydraulics = lubricationResult.data;
           }
@@ -705,7 +731,7 @@ export function InspectionCreationModalWithSections({
 
         // Add clutch data if section was selected
         if (selectedSections.has('CLUTCH') && clutchRef.current?.isTouched()) {
-          const clutchResult = clutchRef.current.validateAndGetData(serviceType);
+          const clutchResult = clutchRef.current.validateAndGetData(currentServiceType);
           if (clutchResult.isValid && clutchResult.data) {
             payload.clutch = clutchResult.data;
           }
@@ -716,7 +742,8 @@ export function InspectionCreationModalWithSections({
           selectedSections.has('COUNTERBALANCE_CYLINDER_AIRBAG') &&
           counterbalanceRef.current?.isTouched()
         ) {
-          const counterbalanceResult = counterbalanceRef.current.validateAndGetData(serviceType);
+          const counterbalanceResult =
+            counterbalanceRef.current.validateAndGetData(currentServiceType);
           if (counterbalanceResult.isValid && counterbalanceResult.data) {
             payload.counterbalanceCylinder = counterbalanceResult.data;
           }
@@ -735,7 +762,7 @@ export function InspectionCreationModalWithSections({
 
       // Reset and close
       setDate(getTomorrowDate());
-      setServiceType(ServiceType.MAINTENANCE);
+      setSelectedServiceType(ServiceType.MAINTENANCE);
       setPerformedBy('');
       setIsSubmitting(false);
       onOpenChange(false);
@@ -836,7 +863,7 @@ export function InspectionCreationModalWithSections({
   };
 
   // Mock function to get section status - replace with actual logic
-  const getSectionStatus = (sectionKey: string): SectionStatus => {
+  const getSectionStatus = (_sectionKey: string): SectionStatus => {
     // This should check the latest inspection data for this section
     // For now, return 'unknown' as placeholder
     return 'unknown';
@@ -917,7 +944,9 @@ export function InspectionCreationModalWithSections({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="date">
-                    {isCompletingService ? tServices('modal.realizationDate') : tServices('serviceDate')}
+                    {isCompletingService
+                      ? tServices('modal.realizationDate')
+                      : tServices('serviceDate')}
                   </Label>
                   <div className="flex items-center gap-2 mt-1 h-10 px-3 py-2 border rounded-md bg-muted/50">
                     <CalendarIcon className="h-4 w-4 text-muted-foreground" />
@@ -941,8 +970,8 @@ export function InspectionCreationModalWithSections({
                   <div>
                     <Label htmlFor="type">{tServices('serviceType')}</Label>
                     <Select
-                      value={serviceType}
-                      onValueChange={(value) => setServiceType(value as ServiceType)}
+                      value={selectedServiceType}
+                      onValueChange={(value) => setSelectedServiceType(value as ServiceType)}
                       modal={false}
                     >
                       <SelectTrigger id="type" className="mt-1">
@@ -996,7 +1025,11 @@ export function InspectionCreationModalWithSections({
                   Voltar
                 </Button>
               )}
-              <Button type="button" onClick={handleNext} className={!isCompletingService ? 'ml-auto' : ''}>
+              <Button
+                type="button"
+                onClick={handleNext}
+                className={!isCompletingService ? 'ml-auto' : ''}
+              >
                 Continuar
               </Button>
             </div>
@@ -1038,7 +1071,7 @@ export function InspectionCreationModalWithSections({
                               <BearingClearanceSection
                                 ref={bearingClearanceRef}
                                 onSectionTouched={() => handleSectionTouched('BEARING_CLEARANCE')}
-                                serviceType={serviceType}
+                                serviceType={currentServiceType}
                                 initialData={completedSectionData['BEARING_CLEARANCE']}
                               />
                             )}
@@ -1049,7 +1082,7 @@ export function InspectionCreationModalWithSections({
                                 isOpen={true}
                                 onOpenChange={() => {}}
                                 onSectionTouched={() => handleSectionTouched('SLIDE')}
-                                serviceType={serviceType}
+                                serviceType={currentServiceType}
                               />
                             )}
 
@@ -1139,11 +1172,15 @@ export function InspectionCreationModalWithSections({
                 </Typography>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-xs text-muted-foreground">{tServices('modal.realizationDate')}</Label>
+                    <Label className="text-xs text-muted-foreground">
+                      {tServices('modal.realizationDate')}
+                    </Label>
                     <div className="text-sm font-medium">{date ? format(date, 'PPP') : '-'}</div>
                   </div>
                   <div>
-                    <Label className="text-xs text-muted-foreground">{tServices('modal.performedBy')}</Label>
+                    <Label className="text-xs text-muted-foreground">
+                      {tServices('modal.performedBy')}
+                    </Label>
                     <div className="text-sm font-medium">{performedBy || '-'}</div>
                   </div>
                 </div>
@@ -2010,7 +2047,8 @@ export function InspectionCreationModalWithSections({
 
                   // Render Lubrication/Hydraulics Section
                   if (sectionKey === 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') {
-                    const data = completedSectionData[sectionKey] || defaultLubricationHydraulicsData;
+                    const data =
+                      completedSectionData[sectionKey] || defaultLubricationHydraulicsData;
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
@@ -2128,7 +2166,8 @@ export function InspectionCreationModalWithSections({
 
                   // Render Counterbalance Cylinder Section
                   if (sectionKey === 'COUNTERBALANCE_CYLINDER_AIRBAG') {
-                    const data = completedSectionData[sectionKey] || defaultCounterbalanceCylinderData;
+                    const data =
+                      completedSectionData[sectionKey] || defaultCounterbalanceCylinderData;
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
