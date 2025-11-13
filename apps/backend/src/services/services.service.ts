@@ -8,7 +8,7 @@ import { UpdateServiceDto } from './dto/update-service.dto';
 export class ServicesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createInspectionDto: CreateServiceDto) {
+  async create(createInspectionDto: CreateServiceDto): Promise<unknown> {
     // Verify machine exists and get its blueprint
     const machine = await this.prisma.machine.findUnique({
       where: { id: createInspectionDto.machineId },
@@ -159,7 +159,27 @@ export class ServicesService {
           lubricationHydraulics: {
             create: {
               data: {
-                create: createInspectionDto.lubricationHydraulics,
+                create: {
+                  changedOil:
+                    createInspectionDto.lubricationHydraulics.changedOil,
+                  oilTemperatureF:
+                    createInspectionDto.lubricationHydraulics.oilTemperatureF,
+                  oilMfgType:
+                    createInspectionDto.lubricationHydraulics.oilMfgType,
+                  changedFilter:
+                    createInspectionDto.lubricationHydraulics.changedFilter,
+                  notes: createInspectionDto.lubricationHydraulics.notes,
+                  gauges: {
+                    create:
+                      createInspectionDto.lubricationHydraulics.gauges?.map(
+                        (gauge) => ({
+                          system: gauge.system,
+                          gauge: gauge.gauge,
+                          psi: gauge.psi,
+                        }),
+                      ) || [],
+                  },
+                },
               },
             },
           },
@@ -216,7 +236,11 @@ export class ServicesService {
         },
         lubricationHydraulics: {
           include: {
-            data: true,
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
           },
         },
         clutch: {
@@ -236,7 +260,7 @@ export class ServicesService {
     return inspection;
   }
 
-  async findAll() {
+  async findAll(): Promise<unknown> {
     return this.prisma.machineService.findMany({
       include: {
         machine: {
@@ -271,7 +295,11 @@ export class ServicesService {
         },
         lubricationHydraulics: {
           include: {
-            data: true,
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
           },
         },
         clutch: {
@@ -292,7 +320,7 @@ export class ServicesService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<unknown> {
     const inspection = await this.prisma.machineService.findUnique({
       where: { id },
       include: {
@@ -328,7 +356,11 @@ export class ServicesService {
         },
         lubricationHydraulics: {
           include: {
-            data: true,
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
           },
         },
         clutch: {
@@ -352,7 +384,7 @@ export class ServicesService {
     return inspection;
   }
 
-  async findByMachine(machineId: string) {
+  async findByMachine(machineId: string): Promise<unknown> {
     const machine = await this.prisma.machine.findUnique({
       where: { id: machineId },
     });
@@ -396,7 +428,11 @@ export class ServicesService {
         },
         lubricationHydraulics: {
           include: {
-            data: true,
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
           },
         },
         clutch: {
@@ -417,7 +453,10 @@ export class ServicesService {
     });
   }
 
-  async update(id: string, updateServiceDto: UpdateServiceDto) {
+  async update(
+    id: string,
+    updateServiceDto: UpdateServiceDto,
+  ): Promise<unknown> {
     // Verify service exists
     const existingService = await this.prisma.machineService.findUnique({
       where: { id },
@@ -532,8 +571,27 @@ export class ServicesService {
           ? {
               create: {
                 data: {
-                  create:
-                    updateServiceDto.lubricationHydraulics as Prisma.LubricationHydraulicsDataCreateWithoutServicesInput,
+                  create: {
+                    changedOil:
+                      updateServiceDto.lubricationHydraulics.changedOil,
+                    oilTemperatureF:
+                      updateServiceDto.lubricationHydraulics.oilTemperatureF,
+                    oilMfgType:
+                      updateServiceDto.lubricationHydraulics.oilMfgType,
+                    changedFilter:
+                      updateServiceDto.lubricationHydraulics.changedFilter,
+                    notes: updateServiceDto.lubricationHydraulics.notes,
+                    gauges: {
+                      create:
+                        updateServiceDto.lubricationHydraulics.gauges?.map(
+                          (gauge) => ({
+                            system: gauge.system,
+                            gauge: gauge.gauge,
+                            psi: gauge.psi,
+                          }),
+                        ) || [],
+                    },
+                  },
                 },
               },
             }
@@ -592,7 +650,11 @@ export class ServicesService {
         },
         lubricationHydraulics: {
           include: {
-            data: true,
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
           },
         },
         clutch: {

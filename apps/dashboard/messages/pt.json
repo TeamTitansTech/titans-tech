@@ -566,16 +566,39 @@
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Pressões do Sistema (PSI)",
-        "lubePSI": "PSI de Lubrificação",
-        "monitorflowPSI": "PSI de Fluxo do Monitor",
-        "hydPSI": "PSI Hidráulico",
-        "pressSWPSI": "PSI do Interruptor de Pressão",
-        "otherGauges": "Outros Indicadores",
+        "addRow": "Adicionar Linha",
+        "systemLabel": "Sistema",
+        "gaugeSwitchLabel": "Gauge/Switch",
+        "psiLabel": "PSI",
+        "noSystemsAdded": "Nenhum sistema adicionado. Clique em \"Adicionar Linha\" para começar.",
+        "gaugeSwitchPlaceholder": "Gauge/Switch",
+        "selectPlaceholder": "Selecione",
+        "systems": {
+          "lube": "Lube",
+          "hyd": "Hyd",
+          "monitorflow": "Monitorflow",
+          "press_sw": "Press SW",
+          "gib": "Gib"
+        },
+        "psiStatus": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "damaged": "Damaged"
+        },
         "oilInfoTitle": "Informações do Óleo",
         "changedOil": "Óleo Trocado",
         "oilTemperatureF": "Temperatura do Óleo (°F)",
         "oilMfgType": "Fabricante/Tipo do Óleo",
-        "changedFilter": "Filtro Trocado"
+        "filterTitle": "Filtro",
+        "changedFilter": "Filtro Trocado",
+        "yesNoDnc": {
+          "yes": "Yes",
+          "no": "No",
+          "dnc": "DNC"
+        },
+        "notes": "Notes",
+        "notesPlaceholder": "Notas adicionais..."
       },
       "clutch": {
         "clutchInfoTitle": "Informações da Embreagem",

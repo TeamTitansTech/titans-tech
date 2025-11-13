@@ -67,7 +67,7 @@ export function SectionCard({
       </div>
 
       <div className="p-3 bg-secondary">
-        <Typography variant="h3" className="text-sm font-medium text-secondary-foreground truncate">
+        <Typography variant="h4" className="text-xs font-medium text-secondary-foreground truncate">
           {title}
         </Typography>
       </div>

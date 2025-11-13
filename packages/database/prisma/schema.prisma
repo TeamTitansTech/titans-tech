@@ -69,6 +69,20 @@ enum ConditionOkNaDncDamagedType {
   DAMAGED
 }
 
+enum SystemType {
+  LUBE
+  HYD
+  MONITORFLOW
+  PRESS_SW
+  GIB
+}
+
+enum PsiStatusType {
+  OK
+  NA
+  DNC
+}
+
 enum MeasurementUnit {
   INCHES
   MM
@@ -461,27 +475,39 @@ model MachineServiceLubricationHydraulics {
 model LubricationHydraulicsData {
   id String @id @default(cuid())
 
-  // System pressures
-  lubePSI        Decimal? @db.Decimal(10, 2)
-  monitorflowPSI Decimal? @db.Decimal(10, 2)
-  hydPSI         Decimal? @db.Decimal(10, 2)
-  pressSWPSI     Decimal? @db.Decimal(10, 2)
-  otherGauges    String?
-
   // Oil information
-  changedOil      Boolean  @default(false)
-  oilTemperatureF Decimal? @db.Decimal(10, 2)
+  changedOil      YesNoDncType @default(DNC)
+  oilTemperatureF Int?
   oilMfgType      String?
 
   // Filter information
-  changedFilter Boolean @default(false)
+  changedFilter YesNoDncType @default(DNC)
+
+  // Notes
+  notes String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   services MachineServiceLubricationHydraulics[]
+  gauges   LubricationHydraulicsGauge[]
 
   @@map("service_data_lubrication_hydraulics")
+}
+
+model LubricationHydraulicsGauge {
+  id                          String         @id @default(cuid())
+  lubricationHydraulicsDataId String
+  system                      SystemType
+  gauge                       String?
+  psi                         PsiStatusType?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lubricationHydraulicsData LubricationHydraulicsData @relation(fields: [lubricationHydraulicsDataId], references: [id], onDelete: Cascade)
+
+  @@map("lubrication_hydraulics_gauges")
 }
 
 // CLUTCH Section
