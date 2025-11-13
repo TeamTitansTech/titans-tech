@@ -170,8 +170,8 @@ model Blueprint {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  machines                     Machine[]
-  thresholdBearingClearance    ThresholdBearingClearance?
+  machines                  Machine[]
+  thresholdBearingClearance ThresholdBearingClearance?
 
   @@map("blueprints")
 }
@@ -277,28 +277,28 @@ model AlertBearingClearance {
   machineServiceId String @unique
 
   // Total Clearance alert - only differential and severity
-  totalClearance_differential Decimal      @db.Decimal(10, 4)
-  totalClearance_severity    AlertSeverity
+  totalClearance_differential Decimal       @db.Decimal(10, 4)
+  totalClearance_severity     AlertSeverity
 
   // Main Bearings alert - only differential and severity
-  mainBearings_differential Decimal      @db.Decimal(10, 4)
-  mainBearings_severity    AlertSeverity
+  mainBearings_differential Decimal       @db.Decimal(10, 4)
+  mainBearings_severity     AlertSeverity
 
   // Upper Connection Bearings alert - only differential and severity
-  upperConnectionBearings_differential Decimal      @db.Decimal(10, 4)
-  upperConnectionBearings_severity    AlertSeverity
+  upperConnectionBearings_differential Decimal       @db.Decimal(10, 4)
+  upperConnectionBearings_severity     AlertSeverity
 
   // Wrist Pin to Mating Part alert - only differential and severity
-  wristPinToMatingPart_differential Decimal      @db.Decimal(10, 4)
-  wristPinToMatingPart_severity    AlertSeverity
+  wristPinToMatingPart_differential Decimal       @db.Decimal(10, 4)
+  wristPinToMatingPart_severity     AlertSeverity
 
   // Wrist Pin to Bushing alert - only differential and severity
-  wristPinToBushing_differential Decimal      @db.Decimal(10, 4)
-  wristPinToBushing_severity    AlertSeverity
+  wristPinToBushing_differential Decimal       @db.Decimal(10, 4)
+  wristPinToBushing_severity     AlertSeverity
 
   // Slide Adj Nut to Screw/Sleeve alert - only differential and severity
-  slideAdjNutToScrewSleeve_differential Decimal      @db.Decimal(10, 4)
-  slideAdjNutToScrewSleeve_severity    AlertSeverity
+  slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_severity     AlertSeverity
 
   // Optional snapshot of thresholds used in calculation (for auditing)
   thresholdSnapshot Json?
