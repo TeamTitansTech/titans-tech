@@ -667,7 +667,7 @@ export function ServiceCompletionModal({
                       ? tServices('modal.realizationDate')
                       : tServices('serviceDate')}
                   </Label>
-                  <div className="flex items-center gap-2 mt-1 h-10 px-3 py-2 border rounded-md bg-muted/50">
+                  <div className="flex items-center gap-2 mt-1 h-10 px-3 py-2 border rounded-md">
                     <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">{date ? format(date, 'PPP') : '-'}</span>
                   </div>
@@ -682,7 +682,7 @@ export function ServiceCompletionModal({
                       value={performedBy}
                       onChange={(e) => setPerformedBy(e.target.value)}
                       placeholder={tServices('modal.technicianName')}
-                      className="mt-1"
+                      className="mt-1 h-10"
                     />
                   </div>
                 ) : (
