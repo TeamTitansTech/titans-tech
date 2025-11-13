@@ -3,6 +3,8 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import {
@@ -60,6 +62,7 @@ export const CounterbalanceCylinderSection = forwardRef<
   const [innerData, setInnerData] = useState<CounterbalanceCylinderData>(
     defaultCounterbalanceCylinderData,
   );
+  const [sharedNotes, setSharedNotes] = useState<string>('');
   const [errors, setErrors] = useState<{
     outer: Record<string, string>;
     inner: Record<string, string>;
@@ -72,7 +75,11 @@ export const CounterbalanceCylinderSection = forwardRef<
     field: keyof CounterbalanceCylinderData,
     value: string | number | undefined,
   ) => {
-    setOuterData((prev) => ({ ...prev, [field]: value }));
+    if (field === 'notes') {
+      setSharedNotes(value as string);
+    } else {
+      setOuterData((prev) => ({ ...prev, [field]: value }));
+    }
     setErrors((prev) => ({ ...prev, outer: { ...prev.outer, [field]: '' } }));
     onSectionTouched?.();
   };
@@ -81,7 +88,11 @@ export const CounterbalanceCylinderSection = forwardRef<
     field: keyof CounterbalanceCylinderData,
     value: string | number | undefined,
   ) => {
-    setInnerData((prev) => ({ ...prev, [field]: value }));
+    if (field === 'notes') {
+      setSharedNotes(value as string);
+    } else {
+      setInnerData((prev) => ({ ...prev, [field]: value }));
+    }
     setErrors((prev) => ({ ...prev, inner: { ...prev.inner, [field]: '' } }));
     onSectionTouched?.();
   };
@@ -94,7 +105,8 @@ export const CounterbalanceCylinderSection = forwardRef<
     isTouched: (): boolean => {
       const outerTouched = isDataTouched(outerData, defaultCounterbalanceCylinderData);
       const innerTouched = isDataTouched(innerData, defaultCounterbalanceCylinderData);
-      return outerTouched || innerTouched;
+      const notesTouched = sharedNotes.trim() !== '';
+      return outerTouched || innerTouched || notesTouched;
     },
 
     validateAndGetData: (
@@ -121,8 +133,8 @@ export const CounterbalanceCylinderSection = forwardRef<
           isValid: true,
           errors: [],
           data: {
-            outerData: outerTouched ? outerData : undefined,
-            innerData: innerTouched ? innerData : undefined,
+            outerData: outerTouched ? { ...outerData, notes: sharedNotes } : undefined,
+            innerData: innerTouched ? { ...innerData, notes: sharedNotes } : undefined,
           },
         };
       }
@@ -142,8 +154,8 @@ export const CounterbalanceCylinderSection = forwardRef<
       }
 
       return {
-        outerData: outerTouched ? outerData : undefined,
-        innerData: innerTouched ? innerData : undefined,
+        outerData: outerTouched ? { ...outerData, notes: sharedNotes } : undefined,
+        innerData: innerTouched ? { ...innerData, notes: sharedNotes } : undefined,
       };
     },
 
@@ -160,6 +172,7 @@ export const CounterbalanceCylinderSection = forwardRef<
     reset: () => {
       setOuterData(defaultCounterbalanceCylinderData);
       setInnerData(defaultCounterbalanceCylinderData);
+      setSharedNotes('');
       setErrors({ outer: {}, inner: {} });
     },
   }));
@@ -188,6 +201,7 @@ export const CounterbalanceCylinderSection = forwardRef<
                 errors={errors.outer}
                 handleBlur={handleBlur}
                 title={t('outer')}
+                hideNotes
               />
             </TabsContent>
             <TabsContent value="inner" className="space-y-4 pt-4">
@@ -197,9 +211,26 @@ export const CounterbalanceCylinderSection = forwardRef<
                 errors={errors.inner}
                 handleBlur={handleBlur}
                 title={t('inner')}
+                hideNotes
               />
             </TabsContent>
           </Tabs>
+
+          <div className="mt-6 pt-6 border-t">
+            <Label htmlFor="shared-notes" className="text-xs">
+              {t('notes')}
+            </Label>
+            <Textarea
+              id="shared-notes"
+              value={sharedNotes}
+              onChange={(e) => {
+                setSharedNotes(e.target.value);
+                onSectionTouched?.();
+              }}
+              className="mt-1"
+              rows={3}
+            />
+          </div>
         </div>
       </CollapsibleContent>
     </Collapsible>

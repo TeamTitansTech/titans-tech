@@ -28,6 +28,7 @@ export function CounterbalanceCylinderForm({
   errors,
   handleBlur,
   title,
+  hideNotes = false,
 }: CounterbalanceCylinderFormProps) {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
 
@@ -91,54 +92,51 @@ export function CounterbalanceCylinderForm({
         )}
       </div>
 
-      <div>
-        <h4 className="font-semibold text-sm mb-4">{t('airbagConditionTitle')}</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor={`airbagPistonSeals-${title}`} className="text-xs">
-              {t('pistonSeals')}
-            </Label>
-            <Select
-              value={data.airbagPistonSeals || ''}
-              onValueChange={(value) => updateFn('airbagPistonSeals', value ? value : undefined)}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor={`airbagPistonSeals-${title}`} className="text-xs">
+            {t('pistonSeals')}
+          </Label>
+          <Select
+            value={data.airbagPistonSeals || ''}
+            onValueChange={(value) => updateFn('airbagPistonSeals', value ? value : undefined)}
+          >
+            <SelectTrigger
+              id={`airbagPistonSeals-${title}`}
+              className={`mt-1 h-9 text-xs ${errors.airbagPistonSeals ? 'border-destructive' : ''}`}
+              onBlur={() => handleBlur('airbagPistonSeals')}
             >
-              <SelectTrigger
-                id={`airbagPistonSeals-${title}`}
-                className={`mt-1 h-9 text-xs ${errors.airbagPistonSeals ? 'border-destructive' : ''}`}
-                onBlur={() => handleBlur('airbagPistonSeals')}
-              >
-                <SelectValue placeholder={t('selectPlaceholder')} />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.values(AirbagPistonSealsType).map((type) => (
-                  <SelectItem key={type} value={type}>
-                    {getAirbagPistonSealsLabel(type)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.airbagPistonSeals && (
-              <p className="text-xs text-destructive mt-1">{errors.airbagPistonSeals}</p>
-            )}
-          </div>
+              <SelectValue placeholder={t('selectPlaceholder')} />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.values(AirbagPistonSealsType).map((type) => (
+                <SelectItem key={type} value={type}>
+                  {getAirbagPistonSealsLabel(type)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {errors.airbagPistonSeals && (
+            <p className="text-xs text-destructive mt-1">{errors.airbagPistonSeals}</p>
+          )}
+        </div>
 
-          <div>
-            <Label htmlFor={`airbagPistonSealsLeakLocation-${title}`} className="text-xs">
-              {t('leakLocation')}
-            </Label>
-            <Input
-              id={`airbagPistonSealsLeakLocation-${title}`}
-              value={data.airbagPistonSealsLeakLocation || ''}
-              onChange={(e) => updateFn('airbagPistonSealsLeakLocation', e.target.value)}
-              onBlur={() => handleBlur('airbagPistonSealsLeakLocation')}
-              className={`mt-1 ${errors.airbagPistonSealsLeakLocation ? 'border-destructive' : ''}`}
-            />
-            {errors.airbagPistonSealsLeakLocation && (
-              <p className="text-xs text-destructive mt-1">
-                {errors.airbagPistonSealsLeakLocation}
-              </p>
-            )}
-          </div>
+        <div>
+          <Label htmlFor={`airbagPistonSealsLeakLocation-${title}`} className="text-xs">
+            {t('leakLocation')}
+          </Label>
+          <Input
+            id={`airbagPistonSealsLeakLocation-${title}`}
+            value={data.airbagPistonSealsLeakLocation || ''}
+            onChange={(e) => updateFn('airbagPistonSealsLeakLocation', e.target.value)}
+            onBlur={() => handleBlur('airbagPistonSealsLeakLocation')}
+            className={`mt-1 ${errors.airbagPistonSealsLeakLocation ? 'border-destructive' : ''}`}
+          />
+          {errors.airbagPistonSealsLeakLocation && (
+            <p className="text-xs text-destructive mt-1">
+              {errors.airbagPistonSealsLeakLocation}
+            </p>
+          )}
         </div>
       </div>
 
@@ -306,20 +304,22 @@ export function CounterbalanceCylinderForm({
         </div>
       </div>
 
-      <div>
-        <Label htmlFor={`notes-${title}`} className="text-xs">
-          {t('notes')}
-        </Label>
-        <Textarea
-          id={`notes-${title}`}
-          value={data.notes || ''}
-          onChange={(e) => updateFn('notes', e.target.value)}
-          onBlur={() => handleBlur('notes')}
-          className={`mt-1 ${errors.notes ? 'border-destructive' : ''}`}
-          rows={3}
-        />
-        {errors.notes && <p className="text-xs text-destructive mt-1">{errors.notes}</p>}
-      </div>
+      {!hideNotes && (
+        <div>
+          <Label htmlFor={`notes-${title}`} className="text-xs">
+            {t('notes')}
+          </Label>
+          <Textarea
+            id={`notes-${title}`}
+            value={data.notes || ''}
+            onChange={(e) => updateFn('notes', e.target.value)}
+            onBlur={() => handleBlur('notes')}
+            className={`mt-1 ${errors.notes ? 'border-destructive' : ''}`}
+            rows={3}
+          />
+          {errors.notes && <p className="text-xs text-destructive mt-1">{errors.notes}</p>}
+        </div>
+      )}
     </div>
   );
 }

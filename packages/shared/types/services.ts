@@ -369,6 +369,7 @@ export interface CounterbalanceCylinderFormProps {
   errors: Record<string, string>;
   handleBlur: (field: keyof CounterbalanceCylinderData) => void;
   title: string;
+  hideNotes?: boolean;
 }
 
 export interface InspectionModalProps {
