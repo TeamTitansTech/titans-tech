@@ -380,8 +380,8 @@ export class AlertsService {
     );
 
     return {
-      RH: new Decimal(rhValue),
-      LH: new Decimal(lhValue),
+      RH,
+      LH,
       differential: new Decimal(differential),
       severity,
     };
