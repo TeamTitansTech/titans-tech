@@ -146,6 +146,13 @@ enum ServiceSection {
   COUNTERBALANCE_CYLINDER_AIRBAG
 }
 
+enum AlertSeverity {
+  GREEN
+  YELLOW
+  RED
+  NONE
+}
+
 model SysAdmin {
   id                     String   @id @default(cuid())
   email                  String   @unique
@@ -262,9 +269,52 @@ model Blueprint {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  machines Machine[]
+  machines                  Machine[]
+  thresholdBearingClearance ThresholdBearingClearance?
 
   @@map("blueprints")
+}
+
+model ThresholdBearingClearance {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Total Clearance thresholds
+  totalClearance_greenMin  Decimal @db.Decimal(10, 4)
+  totalClearance_yellowMin Decimal @db.Decimal(10, 4)
+  totalClearance_redMin    Decimal @db.Decimal(10, 4)
+
+  // Main Bearings thresholds
+  mainBearings_greenMin  Decimal @db.Decimal(10, 4)
+  mainBearings_yellowMin Decimal @db.Decimal(10, 4)
+  mainBearings_redMin    Decimal @db.Decimal(10, 4)
+
+  // Upper Connection Bearings thresholds
+  upperConnectionBearings_greenMin  Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_yellowMin Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_redMin    Decimal @db.Decimal(10, 4)
+
+  // Wrist Pin to Mating Part thresholds
+  wristPinToMatingPart_greenMin  Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_yellowMin Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_redMin    Decimal @db.Decimal(10, 4)
+
+  // Wrist Pin to Bushing thresholds
+  wristPinToBushing_greenMin  Decimal @db.Decimal(10, 4)
+  wristPinToBushing_yellowMin Decimal @db.Decimal(10, 4)
+  wristPinToBushing_redMin    Decimal @db.Decimal(10, 4)
+
+  // Slide Adj Nut to Screw/Sleeve thresholds
+  slideAdjNutToScrewSleeve_greenMin  Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_yellowMin Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_bearing_clearance")
 }
 
 model Machine {
@@ -316,8 +366,48 @@ model MachineService {
   lubricationHydraulics        MachineServiceLubricationHydraulics[]
   clutch                       MachineServiceClutch[]
   counterbalanceCylinderAirbag MachineServiceCounterbalanceCylinderAirbag[]
+  alertBearingClearance        AlertBearingClearance?
 
   @@map("machine_services")
+}
+
+model AlertBearingClearance {
+  id               String @id @default(cuid())
+  machineServiceId String @unique
+
+  // Total Clearance alert - only differential and severity
+  totalClearance_differential Decimal       @db.Decimal(10, 4)
+  totalClearance_severity     AlertSeverity
+
+  // Main Bearings alert - only differential and severity
+  mainBearings_differential Decimal       @db.Decimal(10, 4)
+  mainBearings_severity     AlertSeverity
+
+  // Upper Connection Bearings alert - only differential and severity
+  upperConnectionBearings_differential Decimal       @db.Decimal(10, 4)
+  upperConnectionBearings_severity     AlertSeverity
+
+  // Wrist Pin to Mating Part alert - only differential and severity
+  wristPinToMatingPart_differential Decimal       @db.Decimal(10, 4)
+  wristPinToMatingPart_severity     AlertSeverity
+
+  // Wrist Pin to Bushing alert - only differential and severity
+  wristPinToBushing_differential Decimal       @db.Decimal(10, 4)
+  wristPinToBushing_severity     AlertSeverity
+
+  // Slide Adj Nut to Screw/Sleeve alert - only differential and severity
+  slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_severity     AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_bearing_clearance")
 }
 
 // BEARING_CLEARANCE Section

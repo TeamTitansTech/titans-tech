@@ -6,25 +6,42 @@ import {
 import { Prisma, ServiceSection } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateBlueprintDto } from './dto/create-blueprint.dto';
+import { CreateBlueprintWithThresholdsDto } from '@titans-tech/shared';
+import { convertThresholdToDecimal } from '../modules/alerts/threshold.utils';
 
 @Injectable()
 export class BlueprintsService {
   constructor(private prisma: PrismaService) {}
 
   async create(
-    createBlueprintDto: CreateBlueprintDto,
+    createBlueprintDto: CreateBlueprintDto | CreateBlueprintWithThresholdsDto,
   ): Promise<Prisma.BlueprintGetPayload<object>> {
     const sections = this.validateSections(createBlueprintDto.sections);
 
-    const blueprint = await this.prisma.blueprint.create({
-      data: {
-        name: createBlueprintDto.name,
-        fields: createBlueprintDto.fields as unknown as Prisma.InputJsonValue,
-        sections: sections,
-      },
-    });
+    // Use transaction to create both Blueprint and Thresholds atomically
+    return await this.prisma.$transaction(async (tx) => {
+      // 1. Create Blueprint
+      const blueprint = await tx.blueprint.create({
+        data: {
+          name: createBlueprintDto.name,
+          fields: createBlueprintDto.fields as unknown as Prisma.InputJsonValue,
+          sections: sections,
+        },
+      });
 
-    return blueprint;
+      // 2. Create Thresholds if provided
+      const dto = createBlueprintDto as CreateBlueprintWithThresholdsDto;
+      if (dto.thresholds) {
+        await tx.thresholdBearingClearance.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertThresholdToDecimal(dto.thresholds),
+          },
+        });
+      }
+
+      return blueprint;
+    });
   }
 
   private validateSections(sections: ServiceSection[]): ServiceSection[] {

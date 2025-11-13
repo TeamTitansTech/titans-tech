@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 export interface StepBadge {
   label: string;
@@ -30,17 +31,21 @@ interface StepperItemProps {
 
 function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
   const isClickable = step.isClickable !== false;
+  const stepRef = useRef<HTMLDivElement>(null);
 
   return (
-    <>
-      {/* Step Circle and Label */}
-      <div className="flex flex-col items-center flex-shrink-0">
+    <div className="flex items-start flex-shrink-0 lg:flex-1 lg:last:flex-none">
+      <div
+        className="flex flex-col items-center flex-shrink-0"
+        ref={stepRef}
+        data-step-status={step.status}
+      >
         <button
           type="button"
           onClick={isClickable ? onClick : undefined}
           disabled={!isClickable}
           className={cn(
-            'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all',
+            'w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold transition-all',
             'focus:outline-none focus:ring-2 focus:ring-offset-2',
             step.status === 'pending' &&
               'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
@@ -50,12 +55,16 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
             !isClickable && 'cursor-not-allowed',
           )}
         >
-          {step.status === 'completed' ? <Check className="w-5 h-5" /> : <span>{stepNumber}</span>}
+          {step.status === 'completed' ? (
+            <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+          ) : (
+            <span>{stepNumber}</span>
+          )}
         </button>
 
         <div
           className={cn(
-            'text-xs font-medium mt-2 text-center max-w-[100px] line-clamp-2',
+            'text-[10px] sm:text-xs font-medium mt-1.5 sm:mt-2 text-center w-[70px] sm:w-[100px] line-clamp-2',
             step.status === 'pending' && 'text-gray-500 dark:text-gray-400',
             step.status === 'current' && 'text-foreground font-semibold',
             step.status === 'completed' && 'text-green-700 dark:text-green-400',
@@ -66,7 +75,7 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
 
         {/* Custom Badges */}
         {step.badges && step.badges.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1.5 justify-center">
+          <div className="flex flex-wrap gap-1 mt-1.5 justify-center max-w-[70px] sm:max-w-[100px]">
             {step.badges.map((badge, index) => (
               <div
                 key={index}
@@ -87,15 +96,40 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
       </div>
 
       {/* Connecting Line */}
-      {!isLast && <div className={cn('flex-1 h-0.5 mx-4 self-start mt-5', 'bg-blue-500')} />}
-    </>
+      {!isLast && (
+        <div
+          className="h-0.5 bg-blue-500 mx-3 sm:mx-4 lg:flex-1 w-[40px] sm:w-[50px] lg:w-auto"
+          style={{ marginTop: '20px' }}
+        />
+      )}
+    </div>
   );
 }
 
 export function Stepper({ steps, onStepClick }: StepperProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to current step when it changes
+  useEffect(() => {
+    if (containerRef.current) {
+      const currentStepElement = containerRef.current.querySelector('[data-step-status="current"]');
+      if (currentStepElement) {
+        currentStepElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center',
+        });
+      }
+    }
+  }, [steps]);
+
   return (
-    <div className="w-full py-4 px-2 bg-muted/30 rounded-lg border">
-      <div className="flex items-start">
+    <div className="w-full pt-6 pb-4 px-2 bg-muted/30 rounded-lg border relative">
+      {/* Horizontal scroll container - only scrollable on mobile */}
+      <div
+        ref={containerRef}
+        className="flex items-start overflow-x-auto lg:overflow-x-visible lg:justify-between scrollbar-none py-2"
+      >
         {steps.map((step, index) => (
           <StepperItem
             key={step.key}

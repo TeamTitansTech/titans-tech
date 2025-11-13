@@ -27,6 +27,10 @@ import { createBlueprint } from '@/data/services/blueprints.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { SERVICE_SECTION_SLUGS } from '@titans-tech/db/client';
 import { Card, CardContent } from '@/components/ui/card';
+import {
+  BearingClearanceThresholds,
+  BearingClearanceThresholdsData,
+} from '@/components/alerts/BearingClearanceThresholds';
 
 interface BlueprintCreationModalProps {
   isOpen: boolean;
@@ -56,6 +60,27 @@ export const BlueprintCreationModal = ({
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [fields, setFields] = useState<Field[]>([]);
   const [newOptionValues, setNewOptionValues] = useState<Record<number, string>>({});
+  const [thresholdsOpen, setThresholdsOpen] = useState(false);
+  const [thresholds, setThresholds] = useState<BearingClearanceThresholdsData>({
+    totalClearance_greenMin: 0,
+    totalClearance_yellowMin: 0,
+    totalClearance_redMin: 0,
+    mainBearings_greenMin: 0,
+    mainBearings_yellowMin: 0,
+    mainBearings_redMin: 0,
+    upperConnectionBearings_greenMin: 0,
+    upperConnectionBearings_yellowMin: 0,
+    upperConnectionBearings_redMin: 0,
+    wristPinToMatingPart_greenMin: 0,
+    wristPinToMatingPart_yellowMin: 0,
+    wristPinToMatingPart_redMin: 0,
+    wristPinToBushing_greenMin: 0,
+    wristPinToBushing_yellowMin: 0,
+    wristPinToBushing_redMin: 0,
+    slideAdjNutToScrewSleeve_greenMin: 0,
+    slideAdjNutToScrewSleeve_yellowMin: 0,
+    slideAdjNutToScrewSleeve_redMin: 0,
+  });
 
   const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
 
@@ -152,7 +177,9 @@ export const BlueprintCreationModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload = {
+    const hasBearingClearance = selectedSections.includes('bearing_clearance');
+
+    const payload: any = {
       name,
       sections: selectedSections,
       fields: fields.map((field) => {
@@ -172,6 +199,10 @@ export const BlueprintCreationModal = ({
         return baseField;
       }),
     };
+
+    if (hasBearingClearance) {
+      payload.thresholds = thresholds;
+    }
 
     const response = await submitBlueprint(payload);
 
@@ -389,6 +420,20 @@ export const BlueprintCreationModal = ({
                 ))}
               </div>
             </section>
+
+            {selectedSections.includes('bearing_clearance') && (
+              <>
+                <Separator />
+                <section className="space-y-4">
+                  <BearingClearanceThresholds
+                    open={thresholdsOpen}
+                    onOpenChange={setThresholdsOpen}
+                    data={thresholds}
+                    onChange={setThresholds}
+                  />
+                </section>
+              </>
+            )}
 
             {result?.errors && result.errors.length > 0 && (
               <div className="rounded-md border border-destructive bg-destructive/10 p-4">
