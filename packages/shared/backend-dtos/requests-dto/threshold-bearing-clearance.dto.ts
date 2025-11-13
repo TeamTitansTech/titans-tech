@@ -67,8 +67,37 @@ export type CreateThresholdBearingClearanceDto = z.infer<
   typeof CreateThresholdBearingClearanceSchema
 >;
 
-export const UpdateThresholdBearingClearanceSchema =
-  CreateThresholdBearingClearanceSchema.partial().omit({ blueprintId: true });
+export const UpdateThresholdBearingClearanceSchema = z.object({
+  // Total Clearance thresholds
+  totalClearance_greenMin: z.number().positive().optional(),
+  totalClearance_yellowMin: z.number().positive().optional(),
+  totalClearance_redMin: z.number().positive().optional(),
+
+  // Main Bearings thresholds
+  mainBearings_greenMin: z.number().positive().optional(),
+  mainBearings_yellowMin: z.number().positive().optional(),
+  mainBearings_redMin: z.number().positive().optional(),
+
+  // Upper Connection Bearings thresholds
+  upperConnectionBearings_greenMin: z.number().positive().optional(),
+  upperConnectionBearings_yellowMin: z.number().positive().optional(),
+  upperConnectionBearings_redMin: z.number().positive().optional(),
+
+  // Wrist Pin to Mating Part thresholds
+  wristPinToMatingPart_greenMin: z.number().positive().optional(),
+  wristPinToMatingPart_yellowMin: z.number().positive().optional(),
+  wristPinToMatingPart_redMin: z.number().positive().optional(),
+
+  // Wrist Pin to Bushing thresholds
+  wristPinToBushing_greenMin: z.number().positive().optional(),
+  wristPinToBushing_yellowMin: z.number().positive().optional(),
+  wristPinToBushing_redMin: z.number().positive().optional(),
+
+  // Slide Adj Nut to Screw/Sleeve thresholds
+  slideAdjNutToScrewSleeve_greenMin: z.number().positive().optional(),
+  slideAdjNutToScrewSleeve_yellowMin: z.number().positive().optional(),
+  slideAdjNutToScrewSleeve_redMin: z.number().positive().optional(),
+});
 
 export type UpdateThresholdBearingClearanceDto = z.infer<
   typeof UpdateThresholdBearingClearanceSchema
