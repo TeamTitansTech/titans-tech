@@ -59,6 +59,7 @@ const SECTION_DETAILS = {
 } as const;
 
 export function ServiceCompletionModal({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   machineId,
   open,
   onOpenChange,
@@ -141,7 +142,8 @@ export function ServiceCompletionModal({
   // Mock function to get section status - replace with actual logic
   const getSectionStatus = (sectionKey: string): SectionStatus => {
     // This should check the latest inspection data for this section
-    // For now, return 'unknown' as placeholder
+    // For now, return 'unknown' as placeholder;~
+    console.log(sectionKey);
     return 'unknown';
   };
 

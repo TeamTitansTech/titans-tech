@@ -12,7 +12,6 @@ import { useTranslations } from 'next-intl';
 import { ServiceCompletionModal } from './ServiceCompletionModal';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
-import { isSysAdminPanel } from '@/lib/isSysAdminPanel';
 
 interface MachineField {
   fieldSlug: string;
