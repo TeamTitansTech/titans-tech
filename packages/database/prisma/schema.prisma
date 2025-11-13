@@ -508,7 +508,7 @@ model LubricationHydraulicsData {
 }
 
 model LubricationHydraulicsGauge {
-  id                          String         @id @default(cuid())
+  id                          String                           @id @default(cuid())
   lubricationHydraulicsDataId String
   system                      LubeHydMonitorFlowPressSwGibType
   gauge                       String?
