@@ -5,7 +5,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\" && prisma format --schema=packages/database/prisma/schema.prisma",
     "postinstall": "(cd packages/database && npm run db:generate && npm run build) && npm run install:hooks",
     "install:hooks": "bash scripts/install-git-hooks.sh",
     "docker:up": "docker compose up -d",

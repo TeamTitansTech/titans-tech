@@ -338,12 +338,17 @@
     "serviceHistory": "Service History",
     "technician": "Technician",
     "completed": "Completed",
+    "done": "Done",
     "inProgress": "In Progress",
     "noInspectionsFound": "No inspections found",
     "noServicesFound": "No services found",
     "maintenanceService": "Maintenance",
     "inspectionService": "Inspection",
     "newService": "New Service",
+    "upcomingServices": "Upcoming Services",
+    "noUpcomingServices": "No upcoming services scheduled",
+    "scheduledMaintenance": "Scheduled Maintenance",
+    "scheduledInspection": "Scheduled Inspection",
     "client": "Client",
     "model": "Model",
     "noImageAvailable": "No Image Available",
@@ -467,8 +472,8 @@
       },
       "bearingClearance": {
         "title": "Bearing Clearance Measurements",
-        "before": "Before Maintenance",
-        "after": "After Maintenance",
+        "before": "Initial",
+        "after": "After Adjustment",
         "outer": "Outer Measurements",
         "inner": "Inner Measurements",
         "combined_with": {
@@ -482,6 +487,14 @@
           "nut_screw_sleeve": "Nut Screw Sleeve"
         },
         "fields": {
+          "totalClearance": "Total Clearance",
+          "mainBearings": "Main Bearings",
+          "upperConnectionBearings": "Upper Connection Bearings",
+          "wristPinToMatingPart": "Wrist Pin to Mating Part",
+          "wristPinToBushing": "Wrist Pin to Bushing",
+          "slideAdjNutToScrewSleeve": "Slide Adj Nut to Screw/Sleeve",
+          "extraDoubleLockOpen": "Extra w/Double Lock Open",
+          "ballBoxArea": "Ball Box Area",
           "totalClearance_RH": "Total Clearance RH",
           "totalClearance_LH": "Total Clearance LH",
           "mainBearings_RH": "Main Bearings RH",
@@ -662,7 +675,32 @@
     },
     "cancel": "Cancel",
     "creating": "Creating...",
-    "createService": "Create Service"
+    "createService": "Create Service",
+    "modal": {
+      "completeMaintenance": "Complete Maintenance",
+      "completeMaintenanceDetails": "Complete Maintenance - Details",
+      "selectMaintenanceAreas": "Select the maintenance areas to be performed",
+      "fillMaintenanceDetails": "Fill in the maintenance details performed",
+      "selectAreasAbove": "Select maintenance areas above to start",
+      "realizationDate": "Date of completion",
+      "performedBy": "Performed by",
+      "technicianName": "Technician name",
+      "maintenanceSummary": "Maintenance Summary",
+      "completing": "Completing...",
+      "stepper": {
+        "details": "Details",
+        "summary": "Summary",
+        "before": "Before"
+      },
+      "status": {
+        "complete": "Complete",
+        "incomplete": "Incomplete"
+      },
+      "sections": {
+        "beforeMaintenance": "Before Maintenance",
+        "afterMaintenance": "After Maintenance"
+      }
+    }
   },
   "companies": {
     "pageTitle": "Companies",

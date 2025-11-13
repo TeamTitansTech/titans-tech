@@ -37,9 +37,7 @@ export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) 
       <div className="space-y-6 p-8">
         <div className="flex items-center justify-between">
           <div>
-            <Typography variant="h1" className="text-3xl font-bold tracking-tight">
-              {t('pageTitle')}
-            </Typography>
+            <Typography variant="h2">{t('pageTitle')}</Typography>
             <Typography variant="muted">{t('pageDescription')}</Typography>
           </div>
           <Button onClick={() => setIsModalOpen(true)}>

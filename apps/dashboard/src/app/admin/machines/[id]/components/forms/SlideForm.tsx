@@ -640,9 +640,8 @@ export function SlideForm({
 
   return (
     <div className="space-y-6">
-      {/* Checkbox for MAINTENANCE service type */}
       {serviceType === ServiceType.MAINTENANCE && (
-        <div className="flex items-center space-x-2 p-4 bg-slate-50 rounded-lg">
+        <div className="flex items-center space-x-2 p-4 bg-muted/30 rounded-lg">
           <Checkbox
             id="include-before-measurements"
             checked={includeBeforeMeasurements}
@@ -660,7 +659,6 @@ export function SlideForm({
         </div>
       )}
 
-      {/* {t('beforeMaintenance')} Section */}
       {includeBeforeMeasurements && (
         <div className="space-y-4">
           <h3 className="text-lg font-bold border-b pb-2">{t('beforeMaintenance')}</h3>
@@ -700,7 +698,6 @@ export function SlideForm({
         </div>
       )}
 
-      {/* {t('afterMaintenance')} Section */}
       <div className="space-y-4">
         <h3 className="text-lg font-bold border-b pb-2">
           {includeBeforeMeasurements ? t('afterMaintenance') : t('measurements')}
@@ -742,11 +739,9 @@ export function SlideForm({
         </Tabs>
       </div>
 
-      {/* Parent-level fields */}
       <div className="space-y-6 border-t pt-6">
         <h4 className="font-semibold text-sm">{t('additionalInformation')}</h4>
 
-        {/* Parallelism */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label htmlFor="parallelism" className="text-xs">
@@ -790,7 +785,6 @@ export function SlideForm({
           </div>
         </div>
 
-        {/* Notes */}
         <div>
           <Label htmlFor="notes" className="text-xs">
             Notes

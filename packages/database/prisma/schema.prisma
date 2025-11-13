@@ -46,6 +46,43 @@ enum YesNoDncType {
   DNC
 }
 
+enum ConditionOkNaDncBrokenWornType {
+  OK
+  NA
+  DNC
+  BROKEN
+  WORN
+}
+
+enum ConditionOkNaDncBrokenLooseType {
+  OK
+  NA
+  DNC
+  BROKEN
+  LOOSE
+}
+
+enum ConditionOkNaDncDamagedType {
+  OK
+  NA
+  DNC
+  DAMAGED
+}
+
+enum SystemType {
+  LUBE
+  HYD
+  MONITORFLOW
+  PRESS_SW
+  GIB
+}
+
+enum PsiStatusType {
+  OK
+  NA
+  DNC
+}
+
 enum MeasurementUnit {
   INCHES
   MM
@@ -58,6 +95,13 @@ enum ServiceSection {
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER
   CLUTCH
   COUNTERBALANCE_CYLINDER_AIRBAG
+}
+
+enum AlertSeverity {
+  GREEN
+  YELLOW
+  RED
+  NONE
 }
 
 model SysAdmin {
@@ -176,9 +220,52 @@ model Blueprint {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  machines Machine[]
+  machines                  Machine[]
+  thresholdBearingClearance ThresholdBearingClearance?
 
   @@map("blueprints")
+}
+
+model ThresholdBearingClearance {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Total Clearance thresholds
+  totalClearance_greenMin  Decimal @db.Decimal(10, 4)
+  totalClearance_yellowMin Decimal @db.Decimal(10, 4)
+  totalClearance_redMin    Decimal @db.Decimal(10, 4)
+
+  // Main Bearings thresholds
+  mainBearings_greenMin  Decimal @db.Decimal(10, 4)
+  mainBearings_yellowMin Decimal @db.Decimal(10, 4)
+  mainBearings_redMin    Decimal @db.Decimal(10, 4)
+
+  // Upper Connection Bearings thresholds
+  upperConnectionBearings_greenMin  Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_yellowMin Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_redMin    Decimal @db.Decimal(10, 4)
+
+  // Wrist Pin to Mating Part thresholds
+  wristPinToMatingPart_greenMin  Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_yellowMin Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_redMin    Decimal @db.Decimal(10, 4)
+
+  // Wrist Pin to Bushing thresholds
+  wristPinToBushing_greenMin  Decimal @db.Decimal(10, 4)
+  wristPinToBushing_yellowMin Decimal @db.Decimal(10, 4)
+  wristPinToBushing_redMin    Decimal @db.Decimal(10, 4)
+
+  // Slide Adj Nut to Screw/Sleeve thresholds
+  slideAdjNutToScrewSleeve_greenMin  Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_yellowMin Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_bearing_clearance")
 }
 
 model Machine {
@@ -230,8 +317,48 @@ model MachineService {
   lubricationHydraulics        MachineServiceLubricationHydraulics[]
   clutch                       MachineServiceClutch[]
   counterbalanceCylinderAirbag MachineServiceCounterbalanceCylinderAirbag[]
+  alertBearingClearance        AlertBearingClearance?
 
   @@map("machine_services")
+}
+
+model AlertBearingClearance {
+  id               String @id @default(cuid())
+  machineServiceId String @unique
+
+  // Total Clearance alert - only differential and severity
+  totalClearance_differential Decimal       @db.Decimal(10, 4)
+  totalClearance_severity     AlertSeverity
+
+  // Main Bearings alert - only differential and severity
+  mainBearings_differential Decimal       @db.Decimal(10, 4)
+  mainBearings_severity     AlertSeverity
+
+  // Upper Connection Bearings alert - only differential and severity
+  upperConnectionBearings_differential Decimal       @db.Decimal(10, 4)
+  upperConnectionBearings_severity     AlertSeverity
+
+  // Wrist Pin to Mating Part alert - only differential and severity
+  wristPinToMatingPart_differential Decimal       @db.Decimal(10, 4)
+  wristPinToMatingPart_severity     AlertSeverity
+
+  // Wrist Pin to Bushing alert - only differential and severity
+  wristPinToBushing_differential Decimal       @db.Decimal(10, 4)
+  wristPinToBushing_severity     AlertSeverity
+
+  // Slide Adj Nut to Screw/Sleeve alert - only differential and severity
+  slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_severity     AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_bearing_clearance")
 }
 
 // BEARING_CLEARANCE Section
@@ -275,9 +402,16 @@ model BearingClearanceData {
   ballBoxArea_LH              Decimal @db.Decimal(10, 4)
 
   // Additional fields
-  hasBeenAdjusted Boolean         @default(false)
+  hasBeenAdjusted YesNoNaDncType?
   combinedWith    String?
   matingPart      MatingPartType?
+
+  // Shutdown Adjustment Mechanism fields
+  slideMotorMounts     ConditionOkNaDncBrokenWornType?
+  powerCordHoses       ConditionOkNaDncDamagedType?
+  chainsGearsSprockets ConditionOkNaDncBrokenLooseType?
+  lockingClamps        ConditionOkNaDncDamagedType?
+  notes                String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -372,7 +506,7 @@ model MachineServiceGibs {
 model GibsData {
   id String @id @default(cuid())
 
-  hasBeenAdjusted Boolean @default(false)
+  hasBeenAdjusted YesNoDncType?
 
   // Front to Back measurements (16 points)
   point1  Decimal @db.Decimal(10, 4)
@@ -431,27 +565,39 @@ model MachineServiceLubricationHydraulics {
 model LubricationHydraulicsData {
   id String @id @default(cuid())
 
-  // System pressures
-  lubePSI        Decimal? @db.Decimal(10, 2)
-  monitorflowPSI Decimal? @db.Decimal(10, 2)
-  hydPSI         Decimal? @db.Decimal(10, 2)
-  pressSWPSI     Decimal? @db.Decimal(10, 2)
-  otherGauges    String?
-
   // Oil information
-  changedOil      Boolean  @default(false)
-  oilTemperatureF Decimal? @db.Decimal(10, 2)
+  changedOil      YesNoDncType @default(DNC)
+  oilTemperatureF Int?
   oilMfgType      String?
 
   // Filter information
-  changedFilter Boolean @default(false)
+  changedFilter YesNoDncType @default(DNC)
+
+  // Notes
+  notes String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   services MachineServiceLubricationHydraulics[]
+  gauges   LubricationHydraulicsGauge[]
 
   @@map("service_data_lubrication_hydraulics")
+}
+
+model LubricationHydraulicsGauge {
+  id                          String         @id @default(cuid())
+  lubricationHydraulicsDataId String
+  system                      SystemType
+  gauge                       String?
+  psi                         PsiStatusType?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lubricationHydraulicsData LubricationHydraulicsData @relation(fields: [lubricationHydraulicsDataId], references: [id], onDelete: Cascade)
+
+  @@map("lubrication_hydraulics_gauges")
 }
 
 // CLUTCH Section

@@ -39,6 +39,43 @@ export enum YesNoDncType {
   DNC = 'DNC',
 }
 
+export enum ConditionOkNaDncBrokenWornType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  BROKEN = 'BROKEN',
+  WORN = 'WORN',
+}
+
+export enum ConditionOkNaDncBrokenLooseType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  BROKEN = 'BROKEN',
+  LOOSE = 'LOOSE',
+}
+
+export enum ConditionOkNaDncDamagedType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  DAMAGED = 'DAMAGED',
+}
+
+export enum SystemType {
+  LUBE = 'LUBE',
+  HYD = 'HYD',
+  MONITORFLOW = 'MONITORFLOW',
+  PRESS_SW = 'PRESS_SW',
+  GIB = 'GIB',
+}
+
+export enum PsiStatusType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+}
+
 // Bearing Clearance Data
 export interface BearingClearanceData {
   totalClearance_RH: number;
@@ -57,9 +94,14 @@ export interface BearingClearanceData {
   extraDoubleLockOpen_LH: number;
   ballBoxArea_RH: number;
   ballBoxArea_LH: number;
-  hasBeenAdjusted: boolean;
+  hasBeenAdjusted: YesNoNaDncType;
   combinedWith?: string;
   matingPart?: MatingPartType;
+  slideMotorMounts?: ConditionOkNaDncBrokenWornType;
+  powerCordHoses?: ConditionOkNaDncDamagedType;
+  chainsGearsSprockets?: ConditionOkNaDncBrokenLooseType;
+  lockingClamps?: ConditionOkNaDncDamagedType;
+  notes?: string;
 }
 
 export interface BearingClearanceCheck {
@@ -99,7 +141,7 @@ export interface SlideCheck {
 
 // Gibs Data
 export interface GibsData {
-  hasBeenAdjusted: boolean;
+  hasBeenAdjusted: YesNoDncType;
   point1: number;
   point2: number;
   point3: number;
@@ -135,16 +177,20 @@ export interface GibsCheck {
 }
 
 // Lubrication & Hydraulics Data
+export interface LubricationHydraulicsGauge {
+  id?: string;
+  system: SystemType;
+  gauge?: string;
+  psi?: PsiStatusType;
+}
+
 export interface LubricationHydraulicsData {
-  lubePSI?: number;
-  monitorflowPSI?: number;
-  hydPSI?: number;
-  pressSWPSI?: number;
-  otherGauges?: string;
-  changedOil: boolean;
+  gauges: LubricationHydraulicsGauge[];
+  changedOil: YesNoDncType;
   oilTemperatureF?: number;
   oilMfgType?: string;
-  changedFilter: boolean;
+  changedFilter: YesNoDncType;
+  notes?: string;
 }
 
 // Clutch Data
@@ -277,7 +323,7 @@ export interface LubricationHydraulicsFormProps {
   data: LubricationHydraulicsData;
   updateFn: (
     field: keyof LubricationHydraulicsData,
-    value: string | number | boolean | undefined,
+    value: string | number | boolean | YesNoDncType | LubricationHydraulicsGauge[] | undefined,
   ) => void;
   errors: Record<string, string>;
   handleBlur: (field: keyof LubricationHydraulicsData) => void;

@@ -2,21 +2,23 @@ import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { BlueprintsService } from './blueprints.service';
 import { CreateBlueprintDto } from './dto/create-blueprint.dto';
-import { Public } from 'src/modules/auth/auth.decorators';
+import { CreateBlueprintWithThresholdsDto } from '@titans-tech/shared';
+import { Admin, Authenticated } from 'src/modules/auth/auth.decorators';
 
 @Controller('blueprints')
 export class BlueprintsController {
   constructor(private readonly blueprintsService: BlueprintsService) {}
 
-  @Public()
+  @Admin()
   @Post()
   create(
-    @Body() createBlueprintDto: CreateBlueprintDto,
+    @Body()
+    createBlueprintDto: CreateBlueprintDto | CreateBlueprintWithThresholdsDto,
   ): Promise<Prisma.BlueprintGetPayload<object>> {
     return this.blueprintsService.create(createBlueprintDto);
   }
 
-  @Public()
+  @Authenticated()
   @Get()
   findAll(): Promise<
     Prisma.BlueprintGetPayload<{
@@ -26,7 +28,7 @@ export class BlueprintsController {
     return this.blueprintsService.findAll();
   }
 
-  @Public()
+  @Authenticated()
   @Get(':id')
   findOne(@Param('id') id: string): Promise<
     Prisma.BlueprintGetPayload<{
@@ -36,7 +38,7 @@ export class BlueprintsController {
     return this.blueprintsService.findOne(id);
   }
 
-  @Public()
+  @Admin()
   @Delete(':id')
   softDelete(
     @Param('id') id: string,
