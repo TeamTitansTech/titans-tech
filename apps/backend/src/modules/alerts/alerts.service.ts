@@ -365,7 +365,7 @@ export class AlertsService {
     yellowMin: Decimal,
     redMin: Decimal,
   ) {
-    // Converter para number para cálculos
+    // Convert to number for calculations
     const rhValue = RH.toNumber();
     const lhValue = LH.toNumber();
 
