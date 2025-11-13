@@ -20,7 +20,7 @@ export enum MatingPartType {
   NUT_SCREW_SLEEVE = 'NUT_SCREW_SLEEVE',
 }
 
-export enum ParallelismType {
+export enum DncToBedToBolsterType {
   DNC = 'DNC',
   TO_BED = 'TO_BED',
   TO_BOLSTER = 'TO_BOLSTER',
@@ -39,7 +39,7 @@ export enum YesNoDncType {
   DNC = 'DNC',
 }
 
-export enum SystemType {
+export enum LubeHydMonitorFlowPressSwGibType {
   LUBE = 'LUBE',
   HYD = 'HYD',
   MONITORFLOW = 'MONITORFLOW',
@@ -47,7 +47,7 @@ export enum SystemType {
   GIB = 'GIB',
 }
 
-export enum PsiStatusType {
+export enum OkNaDncDamageType {
   OK = 'OK',
   NA = 'NA',
   DNC = 'DNC',
@@ -147,7 +147,7 @@ export interface SlideCheck {
   outerData?: SlideData;
   innerBefore?: SlideData;
   innerData?: SlideData;
-  parallelism?: ParallelismType;
+  parallelism?: DncToBedToBolsterType;
   hasParallelismBeenAdjusted?: YesNoNaDncType;
   outerShutheightIndicatorsChecked?: YesNoDncType;
   outerOverloadsOnTonnageMonitor?: string;
@@ -200,9 +200,9 @@ export interface GibsCheck {
 // Lubrication & Hydraulics Data
 export interface LubricationHydraulicsGauge {
   id?: string;
-  system: SystemType;
+  system: LubeHydMonitorFlowPressSwGibType;
   gauge?: string;
-  psi?: PsiStatusType;
+  psi?: OkNaDncDamageType;
 }
 
 export interface LubricationHydraulicsData {

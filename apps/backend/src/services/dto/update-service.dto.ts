@@ -11,12 +11,12 @@ import {
 import { Type } from 'class-transformer';
 import {
   MatingPartType,
-  ParallelismType,
+  DncToBedToBolsterType,
   ServiceType,
   ServiceStatus,
   YesNoDncType,
-  SystemType,
-  PsiStatusType,
+  LubeHydMonitorFlowPressSwGibType,
+  OkNaDncDamageType,
 } from '@titans-tech/db';
 
 class BearingClearanceDataDto {
@@ -121,8 +121,8 @@ class BearingClearanceCheckDto {
 
 class SlideDataDto {
   @IsOptional()
-  @IsEnum(ParallelismType)
-  parallelism?: ParallelismType;
+  @IsEnum(DncToBedToBolsterType)
+  parallelism?: DncToBedToBolsterType;
 
   @IsOptional()
   @IsBoolean()
@@ -313,16 +313,16 @@ class GibsCheckDto {
 
 class LubricationHydraulicsGaugeDto {
   @IsOptional()
-  @IsEnum(SystemType)
-  system?: SystemType;
+  @IsEnum(LubeHydMonitorFlowPressSwGibType)
+  system?: LubeHydMonitorFlowPressSwGibType;
 
   @IsOptional()
   @IsString()
   gauge?: string;
 
   @IsOptional()
-  @IsEnum(PsiStatusType)
-  psi?: PsiStatusType;
+  @IsEnum(OkNaDncDamageType)
+  psi?: OkNaDncDamageType;
 }
 
 class LubricationHydraulicsDataDto {

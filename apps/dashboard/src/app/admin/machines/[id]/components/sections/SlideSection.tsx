@@ -6,7 +6,7 @@ import { ChevronDown } from 'lucide-react';
 import {
   type SlideData,
   ServiceType,
-  ParallelismType,
+  DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,
 } from '@/data/types/services.types';
@@ -48,7 +48,7 @@ export interface SlideSectionData {
   outerData?: SlideData;
   innerBefore?: SlideData;
   innerData?: SlideData;
-  parallelism?: ParallelismType;
+  parallelism?: DncToBedToBolsterType;
   hasParallelismBeenAdjusted?: YesNoNaDncType;
   outerShutheightIndicatorsChecked?: YesNoDncType;
   outerOverloadsOnTonnageMonitor?: string;
@@ -88,7 +88,7 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       outerAfterData: defaultSlideData,
       innerBeforeData: defaultSlideData,
       innerAfterData: defaultSlideData,
-      parallelism: ParallelismType.DNC,
+      parallelism: DncToBedToBolsterType.DNC,
       hasParallelismBeenAdjusted: YesNoNaDncType.DNC,
       outerShutheightIndicatorsChecked: YesNoDncType.DNC,
       outerOverloadsOnTonnageMonitor: '',
@@ -317,7 +317,7 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
           outerAfterData: defaultSlideData,
           innerBeforeData: defaultSlideData,
           innerAfterData: defaultSlideData,
-          parallelism: ParallelismType.DNC,
+          parallelism: DncToBedToBolsterType.DNC,
           hasParallelismBeenAdjusted: YesNoNaDncType.DNC,
           outerShutheightIndicatorsChecked: YesNoDncType.DNC,
           outerOverloadsOnTonnageMonitor: '',

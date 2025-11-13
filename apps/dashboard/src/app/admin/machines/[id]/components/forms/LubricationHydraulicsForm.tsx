@@ -14,8 +14,8 @@ import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import {
   type LubricationHydraulicsFormProps,
-  SystemType,
-  PsiStatusType,
+  LubeHydMonitorFlowPressSwGibType,
+  OkNaDncDamageType,
   YesNoDncType,
   type LubricationHydraulicsGauge,
 } from '@/data/types/services.types';
@@ -30,7 +30,7 @@ export function LubricationHydraulicsForm({
 
   const addGauge = () => {
     const newGauge: LubricationHydraulicsGauge = {
-      system: SystemType.LUBE,
+      system: LubeHydMonitorFlowPressSwGibType.LUBE,
       gauge: '',
       psi: undefined,
     };
@@ -45,18 +45,18 @@ export function LubricationHydraulicsForm({
   const updateGauge = (
     index: number,
     field: keyof LubricationHydraulicsGauge,
-    value: string | SystemType | PsiStatusType | undefined,
+    value: string | LubeHydMonitorFlowPressSwGibType | OkNaDncDamageType | undefined,
   ) => {
     const updatedGauges = [...data.gauges];
     updatedGauges[index] = { ...updatedGauges[index], [field]: value };
     updateFn('gauges', updatedGauges);
   };
 
-  const getSystemLabel = (system: SystemType) => {
+  const getSystemLabel = (system: LubeHydMonitorFlowPressSwGibType) => {
     return t(`form.lubricationHydraulics.systems.${system.toLowerCase()}`);
   };
 
-  const getPsiLabel = (psi: PsiStatusType) => {
+  const getPsiLabel = (psi: OkNaDncDamageType) => {
     return t(`form.lubricationHydraulics.psiStatus.${psi.toLowerCase()}`);
   };
 
@@ -98,13 +98,15 @@ export function LubricationHydraulicsForm({
                 <div className="col-span-3">
                   <Select
                     value={gauge.system}
-                    onValueChange={(value) => updateGauge(index, 'system', value as SystemType)}
+                    onValueChange={(value) =>
+                      updateGauge(index, 'system', value as LubeHydMonitorFlowPressSwGibType)
+                    }
                   >
                     <SelectTrigger className="h-9 text-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.values(SystemType).map((system) => (
+                      {Object.values(LubeHydMonitorFlowPressSwGibType).map((system) => (
                         <SelectItem key={system} value={system}>
                           {getSystemLabel(system)}
                         </SelectItem>
@@ -127,7 +129,7 @@ export function LubricationHydraulicsForm({
                   <Select
                     value={gauge.psi || ''}
                     onValueChange={(value) =>
-                      updateGauge(index, 'psi', value ? (value as PsiStatusType) : undefined)
+                      updateGauge(index, 'psi', value ? (value as OkNaDncDamageType) : undefined)
                     }
                   >
                     <SelectTrigger className="h-9 text-xs">
@@ -136,7 +138,7 @@ export function LubricationHydraulicsForm({
                       />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.values(PsiStatusType).map((status) => (
+                      {Object.values(OkNaDncDamageType).map((status) => (
                         <SelectItem key={status} value={status}>
                           {getPsiLabel(status)}
                         </SelectItem>

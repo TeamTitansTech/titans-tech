@@ -27,7 +27,7 @@ enum MatingPartType {
   NUT_SCREW_SLEEVE
 }
 
-enum ParallelismType {
+enum DncToBedToBolsterType {
   DNC
   TO_BED
   TO_BOLSTER
@@ -46,7 +46,7 @@ enum YesNoDncType {
   DNC
 }
 
-enum SystemType {
+enum LubeHydMonitorFlowPressSwGibType {
   LUBE
   HYD
   MONITORFLOW
@@ -54,7 +54,7 @@ enum SystemType {
   GIB
 }
 
-enum PsiStatusType {
+enum OkNaDncDamageType {
   OK
   NA
   DNC
@@ -66,26 +66,26 @@ enum MeasurementUnit {
   MM
 }
 
-enum CounterbalanceTypeEnum {
+enum CylinderAirbagType {
   CYLINDER
   AIRBAG
 }
 
-enum AirbagPistonSealsType {
+enum OkNaDncLeakingType {
   OK
   NA
   DNC
   LEAKING
 }
 
-enum RegulatorGaugeType {
+enum OkNaDncNotOperationalType {
   OK
   NA
   DNC
   NOT_OPERATIONAL
 }
 
-enum PneumaticsPlumbingType {
+enum OkNaDncNotOperationalLeakingType {
   OK
   NA
   DNC
@@ -93,21 +93,14 @@ enum PneumaticsPlumbingType {
   LEAKING
 }
 
-enum RodSealsType {
-  OK
-  NA
-  DNC
-  LEAKING
-}
-
-enum RodBushingType {
+enum OkNaDncDarkOilType {
   OK
   NA
   DNC
   DARK_OIL
 }
 
-enum OilWickType {
+enum OkNaDncNeedReplacedType {
   OK
   NA
   DNC
@@ -364,7 +357,7 @@ model MachineServiceSlide {
   innerDataId      String?
 
   // Parallelism fields
-  parallelism                ParallelismType?
+  parallelism                DncToBedToBolsterType?
   hasParallelismBeenAdjusted YesNoNaDncType?
 
   // Outer shutheight fields
@@ -517,9 +510,9 @@ model LubricationHydraulicsData {
 model LubricationHydraulicsGauge {
   id                          String         @id @default(cuid())
   lubricationHydraulicsDataId String
-  system                      SystemType
+  system                      LubeHydMonitorFlowPressSwGibType
   gauge                       String?
-  psi                         PsiStatusType?
+  psi                         OkNaDncDamageType?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -624,25 +617,25 @@ model MachineServiceCounterbalanceCylinderAirbag {
 model CounterbalanceCylinderAirbagData {
   id String @id @default(cuid())
 
-  counterbalanceType CounterbalanceTypeEnum?
+  counterbalanceType CylinderAirbagType?
 
   // Airbag/Piston condition
-  airbagPistonSeals             AirbagPistonSealsType?
+  airbagPistonSeals             OkNaDncLeakingType?
   airbagPistonSealsLeakLocation String?
 
   // Regulator and gauges
-  regulator RegulatorGaugeType?
-  gauge     RegulatorGaugeType?
+  regulator OkNaDncNotOperationalType?
+  gauge     OkNaDncNotOperationalType?
 
   // Pneumatics
-  pneumaticsPlumbing PneumaticsPlumbingType?
+  pneumaticsPlumbing OkNaDncNotOperationalLeakingType?
 
   // Rod condition
-  rodSeals   RodSealsType?
-  rodBushing RodBushingType?
+  rodSeals   OkNaDncLeakingType?
+  rodBushing OkNaDncDarkOilType?
 
   // Oil
-  oilWick OilWickType?
+  oilWick OkNaDncNeedReplacedType?
 
   // Notes
   notes String?
