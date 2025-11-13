@@ -4,12 +4,12 @@ import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
-import { type GibsData, ServiceType } from '@/data/types/services.types';
+import { type GibsData, ServiceType, YesNoDncType } from '@/data/types/services.types';
 import { GibsForm } from '../forms/GibsForm';
 import { isDataTouched } from './utils';
 
 export const defaultGibsData: GibsData = {
-  hasBeenAdjusted: false,
+  hasBeenAdjusted: YesNoDncType.NO,
   point1: 0,
   point2: 0,
   point3: 0,
@@ -79,12 +79,18 @@ export interface GibsSectionRef {
   getData: () => GibsSectionData;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
+  isTouched: () => boolean;
+  validateAndGetData: (serviceType: ServiceType) => {
+    isValid: boolean;
+    errors: string[];
+    data?: GibsSectionData;
+  };
 }
 
 interface GibsSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSectionTouched: () => void;
+  onSectionTouched?: () => void;
 }
 
 export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
@@ -105,7 +111,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     ) => {
       setOuterBeforeData((prev) => ({ ...prev, [field]: value }));
       setOuterBeforeErrors((prev) => ({ ...prev, [field]: '' }));
-      onSectionTouched();
+      onSectionTouched?.();
     };
 
     const updateOuterAfterField = (
@@ -114,7 +120,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     ) => {
       setOuterAfterData((prev) => ({ ...prev, [field]: value }));
       setOuterAfterErrors((prev) => ({ ...prev, [field]: '' }));
-      onSectionTouched();
+      onSectionTouched?.();
     };
 
     const updateInnerBeforeField = (
@@ -123,7 +129,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     ) => {
       setInnerBeforeData((prev) => ({ ...prev, [field]: value }));
       setInnerBeforeErrors((prev) => ({ ...prev, [field]: '' }));
-      onSectionTouched();
+      onSectionTouched?.();
     };
 
     const updateInnerAfterField = (
@@ -132,7 +138,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     ) => {
       setInnerAfterData((prev) => ({ ...prev, [field]: value }));
       setInnerAfterErrors((prev) => ({ ...prev, [field]: '' }));
-      onSectionTouched();
+      onSectionTouched?.();
     };
 
     const validateField = (
@@ -187,6 +193,78 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     };
 
     useImperativeHandle(ref, () => ({
+      isTouched: (): boolean => {
+        const outerBeforeTouched = isDataTouched(outerBeforeData, defaultGibsData);
+        const outerAfterTouched = isDataTouched(outerAfterData, defaultGibsData);
+        const innerBeforeTouched = isDataTouched(innerBeforeData, defaultGibsData);
+        const innerAfterTouched = isDataTouched(innerAfterData, defaultGibsData);
+
+        return outerBeforeTouched || outerAfterTouched || innerBeforeTouched || innerAfterTouched;
+      },
+
+      validateAndGetData: (
+        serviceType: ServiceType,
+      ): { isValid: boolean; errors: string[]; data?: GibsSectionData } => {
+        const validationErrors: string[] = [];
+
+        const outerBeforeTouched = isDataTouched(outerBeforeData, defaultGibsData);
+        const outerAfterTouched = isDataTouched(outerAfterData, defaultGibsData);
+        const innerBeforeTouched = isDataTouched(innerBeforeData, defaultGibsData);
+        const innerAfterTouched = isDataTouched(innerAfterData, defaultGibsData);
+
+        if (serviceType === ServiceType.MAINTENANCE) {
+          if (!outerBeforeTouched || !innerBeforeTouched) {
+            validationErrors.push(
+              'Gibs: For maintenance inspections, you must fill all "Before" sections (Outer Before and Inner Before)',
+            );
+          } else {
+            validationErrors.push(
+              ...validateGibsData(outerBeforeData).map((e) => `Gibs Outer Before: ${e}`),
+            );
+            validationErrors.push(
+              ...validateGibsData(innerBeforeData).map((e) => `Gibs Inner Before: ${e}`),
+            );
+          }
+        }
+
+        if (outerAfterTouched) {
+          validationErrors.push(
+            ...validateGibsData(outerAfterData).map((e) => `Gibs Outer After: ${e}`),
+          );
+        }
+        if (innerAfterTouched) {
+          validationErrors.push(
+            ...validateGibsData(innerAfterData).map((e) => `Gibs Inner After: ${e}`),
+          );
+        }
+
+        if (serviceType === ServiceType.INSPECTION && !outerAfterTouched && !innerAfterTouched) {
+          validationErrors.push(
+            'Gibs: For routine inspections, you must fill at least one "After" section (Outer After or Inner After)',
+          );
+        }
+
+        const isValid = validationErrors.length === 0;
+
+        if (isValid) {
+          return {
+            isValid: true,
+            errors: [],
+            data: {
+              outerBefore: outerBeforeTouched ? outerBeforeData : undefined,
+              outerAfter: outerAfterTouched ? outerAfterData : undefined,
+              innerBefore: innerBeforeTouched ? innerBeforeData : undefined,
+              innerAfter: innerAfterTouched ? innerAfterData : undefined,
+            },
+          };
+        }
+
+        return {
+          isValid: false,
+          errors: validationErrors,
+        };
+      },
+
       getData: (): GibsSectionData => {
         const outerBeforeTouched = isDataTouched(outerBeforeData, defaultGibsData);
         const outerAfterTouched = isDataTouched(outerAfterData, defaultGibsData);
@@ -251,7 +329,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     return (
       <Collapsible open={isOpen} onOpenChange={onOpenChange}>
         <CollapsibleTrigger className="w-full">
-          <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
+          <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
             <h3 className="text-base font-semibold">Gibs</h3>
             <ChevronDown
               className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
@@ -259,7 +337,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="border border-t-0 rounded-b-lg p-6 bg-white">
+          <div className="border border-t-0 rounded-b-lg p-6 bg-card">
             <Tabs defaultValue="outer" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-4">
                 <TabsTrigger value="outer">Outer Measurements</TabsTrigger>

@@ -3,8 +3,22 @@
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { type LubricationHydraulicsFormProps } from '@/data/types/services.types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Plus, Trash2 } from 'lucide-react';
+import {
+  type LubricationHydraulicsFormProps,
+  SystemType,
+  PsiStatusType,
+  YesNoDncType,
+  type LubricationHydraulicsGauge,
+} from '@/data/types/services.types';
 
 export function LubricationHydraulicsForm({
   data,
@@ -14,113 +28,138 @@ export function LubricationHydraulicsForm({
 }: LubricationHydraulicsFormProps) {
   const t = useTranslations('inspections');
 
+  const addGauge = () => {
+    const newGauge: LubricationHydraulicsGauge = {
+      system: SystemType.LUBE,
+      gauge: '',
+      psi: undefined,
+    };
+    updateFn('gauges', [...data.gauges, newGauge]);
+  };
+
+  const removeGauge = (index: number) => {
+    const updatedGauges = data.gauges.filter((_, i) => i !== index);
+    updateFn('gauges', updatedGauges);
+  };
+
+  const updateGauge = (
+    index: number,
+    field: keyof LubricationHydraulicsGauge,
+    value: string | SystemType | PsiStatusType | undefined,
+  ) => {
+    const updatedGauges = [...data.gauges];
+    updatedGauges[index] = { ...updatedGauges[index], [field]: value };
+    updateFn('gauges', updatedGauges);
+  };
+
+  const getSystemLabel = (system: SystemType) => {
+    return t(`form.lubricationHydraulics.systems.${system.toLowerCase()}`);
+  };
+
+  const getPsiLabel = (psi: PsiStatusType) => {
+    return t(`form.lubricationHydraulics.psiStatus.${psi.toLowerCase()}`);
+  };
+
   return (
     <div className="space-y-6">
       <div>
-        <h4 className="font-semibold text-sm mb-4">
-          {t('form.lubricationHydraulics.systemPressuresTitle')}
-        </h4>
-        <div className="grid grid-cols-4 gap-4">
-          <div>
-            <Label htmlFor="lubePSI" className="text-xs">
-              {t('form.lubricationHydraulics.lubePSI')}
-            </Label>
-            <Input
-              id="lubePSI"
-              type="number"
-              step="0.01"
-              min="0"
-              max="99999.99"
-              value={data.lubePSI || ''}
-              onChange={(e) =>
-                updateFn('lubePSI', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('lubePSI')}
-              className={`mt-1 ${errors.lubePSI ? 'border-destructive' : ''}`}
-            />
-            {errors.lubePSI && <p className="text-xs text-destructive mt-1">{errors.lubePSI}</p>}
-          </div>
+        <div className="flex justify-between items-center mb-4">
+          <h4 className="font-semibold text-sm">
+            {t('form.lubricationHydraulics.systemPressuresTitle')}
+          </h4>
+          <Button type="button" variant="outline" size="sm" onClick={addGauge}>
+            <Plus className="h-4 w-4 mr-2" />
+            {t('form.lubricationHydraulics.addRow')}
+          </Button>
+        </div>
 
-          <div>
-            <Label htmlFor="monitorflowPSI" className="text-xs">
-              {t('form.lubricationHydraulics.monitorflowPSI')}
-            </Label>
-            <Input
-              id="monitorflowPSI"
-              type="number"
-              step="0.01"
-              min="0"
-              max="99999.99"
-              value={data.monitorflowPSI || ''}
-              onChange={(e) =>
-                updateFn('monitorflowPSI', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('monitorflowPSI')}
-              className={`mt-1 ${errors.monitorflowPSI ? 'border-destructive' : ''}`}
-            />
-            {errors.monitorflowPSI && (
-              <p className="text-xs text-destructive mt-1">{errors.monitorflowPSI}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="hydPSI" className="text-xs">
-              {t('form.lubricationHydraulics.hydPSI')}
-            </Label>
-            <Input
-              id="hydPSI"
-              type="number"
-              step="0.01"
-              min="0"
-              max="99999.99"
-              value={data.hydPSI || ''}
-              onChange={(e) =>
-                updateFn('hydPSI', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('hydPSI')}
-              className={`mt-1 ${errors.hydPSI ? 'border-destructive' : ''}`}
-            />
-            {errors.hydPSI && <p className="text-xs text-destructive mt-1">{errors.hydPSI}</p>}
-          </div>
-
-          <div>
-            <Label htmlFor="pressSWPSI" className="text-xs">
-              {t('form.lubricationHydraulics.pressSWPSI')}
-            </Label>
-            <Input
-              id="pressSWPSI"
-              type="number"
-              step="0.01"
-              min="0"
-              max="99999.99"
-              value={data.pressSWPSI || ''}
-              onChange={(e) =>
-                updateFn('pressSWPSI', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('pressSWPSI')}
-              className={`mt-1 ${errors.pressSWPSI ? 'border-destructive' : ''}`}
-            />
-            {errors.pressSWPSI && (
-              <p className="text-xs text-destructive mt-1">{errors.pressSWPSI}</p>
-            )}
+        <div className="bg-muted/50 rounded-t-lg border border-b-0 p-3">
+          <div className="grid grid-cols-10 gap-4 font-semibold text-xs">
+            <div className="col-span-3">{t('form.lubricationHydraulics.systemLabel')}</div>
+            <div className="col-span-3">{t('form.lubricationHydraulics.gaugeSwitchLabel')}</div>
+            <div className="col-span-3">{t('form.lubricationHydraulics.psiLabel')}</div>
+            <div className="col-span-1"></div>
           </div>
         </div>
-      </div>
 
-      <div>
-        <Label htmlFor="otherGauges" className="text-xs">
-          {t('form.lubricationHydraulics.otherGauges')}
-        </Label>
-        <Input
-          id="otherGauges"
-          value={data.otherGauges || ''}
-          onChange={(e) => updateFn('otherGauges', e.target.value)}
-          onBlur={() => handleBlur('otherGauges')}
-          className={`mt-1 ${errors.otherGauges ? 'border-destructive' : ''}`}
-        />
-        {errors.otherGauges && (
-          <p className="text-xs text-destructive mt-1">{errors.otherGauges}</p>
-        )}
+        <div className="border rounded-b-lg">
+          {data.gauges.length === 0 ? (
+            <div className="p-8 text-center text-muted-foreground text-sm">
+              {t('form.lubricationHydraulics.noSystemsAdded')}
+            </div>
+          ) : (
+            data.gauges.map((gauge, index) => (
+              <div
+                key={index}
+                className={`grid grid-cols-10 gap-4 p-3 items-center ${
+                  index !== data.gauges.length - 1 ? 'border-b' : ''
+                } ${index % 2 === 0 ? 'bg-white' : 'bg-muted/20'}`}
+              >
+                <div className="col-span-3">
+                  <Select
+                    value={gauge.system}
+                    onValueChange={(value) => updateGauge(index, 'system', value as SystemType)}
+                  >
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(SystemType).map((system) => (
+                        <SelectItem key={system} value={system}>
+                          {getSystemLabel(system)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="col-span-3">
+                  <Input
+                    type="text"
+                    value={gauge.gauge || ''}
+                    onChange={(e) => updateGauge(index, 'gauge', e.target.value)}
+                    className="h-9 text-xs"
+                    placeholder={t('form.lubricationHydraulics.gaugeSwitchPlaceholder')}
+                  />
+                </div>
+
+                <div className="col-span-3">
+                  <Select
+                    value={gauge.psi || ''}
+                    onValueChange={(value) =>
+                      updateGauge(index, 'psi', value ? (value as PsiStatusType) : undefined)
+                    }
+                  >
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue
+                        placeholder={t('form.lubricationHydraulics.selectPlaceholder')}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(PsiStatusType).map((status) => (
+                        <SelectItem key={status} value={status}>
+                          {getPsiLabel(status)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="col-span-1 flex justify-end">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeGauge(index)}
+                    className="h-9 w-9 p-0 text-destructive hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
 
       <div>
@@ -128,15 +167,29 @@ export function LubricationHydraulicsForm({
           {t('form.lubricationHydraulics.oilInfoTitle')}
         </h4>
         <div className="grid grid-cols-3 gap-4">
-          <div className="flex items-center space-x-2 mt-6">
-            <Checkbox
-              id="changedOil"
-              checked={data.changedOil}
-              onCheckedChange={(checked: boolean) => updateFn('changedOil', checked)}
-            />
-            <Label htmlFor="changedOil" className="cursor-pointer text-xs">
+          <div>
+            <Label htmlFor="changedOil" className="text-xs">
               {t('form.lubricationHydraulics.changedOil')}
             </Label>
+            <Select
+              value={data.changedOil}
+              onValueChange={(value) => updateFn('changedOil', value as YesNoDncType)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={YesNoDncType.YES}>
+                  {t('form.lubricationHydraulics.yesNoDnc.yes')}
+                </SelectItem>
+                <SelectItem value={YesNoDncType.NO}>
+                  {t('form.lubricationHydraulics.yesNoDnc.no')}
+                </SelectItem>
+                <SelectItem value={YesNoDncType.DNC}>
+                  {t('form.lubricationHydraulics.yesNoDnc.dnc')}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
@@ -146,7 +199,7 @@ export function LubricationHydraulicsForm({
             <Input
               id="oilTemperatureF"
               type="number"
-              step="0.01"
+              step="1"
               value={data.oilTemperatureF || ''}
               onChange={(e) =>
                 updateFn('oilTemperatureF', e.target.value ? Number(e.target.value) : undefined)
@@ -177,15 +230,49 @@ export function LubricationHydraulicsForm({
         </div>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="changedFilter"
-          checked={data.changedFilter}
-          onCheckedChange={(checked: boolean) => updateFn('changedFilter', checked)}
-        />
-        <Label htmlFor="changedFilter" className="cursor-pointer text-xs">
-          {t('form.lubricationHydraulics.changedFilter')}
+      <div>
+        <h4 className="font-semibold text-sm mb-4">
+          {t('form.lubricationHydraulics.filterTitle')}
+        </h4>
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="changedFilter" className="text-xs">
+              {t('form.lubricationHydraulics.changedFilter')}
+            </Label>
+            <Select
+              value={data.changedFilter}
+              onValueChange={(value) => updateFn('changedFilter', value as YesNoDncType)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={YesNoDncType.YES}>
+                  {t('form.lubricationHydraulics.yesNoDnc.yes')}
+                </SelectItem>
+                <SelectItem value={YesNoDncType.NO}>
+                  {t('form.lubricationHydraulics.yesNoDnc.no')}
+                </SelectItem>
+                <SelectItem value={YesNoDncType.DNC}>
+                  {t('form.lubricationHydraulics.yesNoDnc.dnc')}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="notes" className="text-xs font-semibold">
+          {t('form.lubricationHydraulics.notes')}
         </Label>
+        <Input
+          id="notes"
+          value={data.notes || ''}
+          onChange={(e) => updateFn('notes', e.target.value)}
+          className="mt-2"
+          placeholder={t('form.lubricationHydraulics.notesPlaceholder')}
+        />
       </div>
     </div>
   );

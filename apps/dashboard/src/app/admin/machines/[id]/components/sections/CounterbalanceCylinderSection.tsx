@@ -28,12 +28,18 @@ export interface CounterbalanceCylinderSectionRef {
   getData: () => CounterbalanceCylinderData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
+  isTouched: () => boolean;
+  validateAndGetData: (serviceType: ServiceType) => {
+    isValid: boolean;
+    errors: string[];
+    data?: CounterbalanceCylinderData;
+  };
 }
 
 interface CounterbalanceCylinderSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSectionTouched: () => void;
+  onSectionTouched?: () => void;
 }
 
 export const CounterbalanceCylinderSection = forwardRef<
@@ -49,7 +55,7 @@ export const CounterbalanceCylinderSection = forwardRef<
   ) => {
     setData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: '' }));
-    onSectionTouched();
+    onSectionTouched?.();
   };
 
   const handleBlur = (_field: keyof CounterbalanceCylinderData) => {
@@ -57,6 +63,36 @@ export const CounterbalanceCylinderSection = forwardRef<
   };
 
   useImperativeHandle(ref, () => ({
+    isTouched: (): boolean => {
+      return isDataTouched(data, defaultCounterbalanceCylinderData);
+    },
+
+    validateAndGetData: (
+      _serviceType: ServiceType,
+    ): { isValid: boolean; errors: string[]; data?: CounterbalanceCylinderData } => {
+      const touched = isDataTouched(data, defaultCounterbalanceCylinderData);
+
+      if (!touched) {
+        return { isValid: true, errors: [] };
+      }
+
+      const validationErrors = validateCounterbalanceCylinderData(data);
+      const isValid = validationErrors.length === 0;
+
+      if (isValid) {
+        return {
+          isValid: true,
+          errors: [],
+          data,
+        };
+      }
+
+      return {
+        isValid: false,
+        errors: validationErrors,
+      };
+    },
+
     getData: (): CounterbalanceCylinderData | undefined => {
       const touched = isDataTouched(data, defaultCounterbalanceCylinderData);
       return touched ? data : undefined;
@@ -79,7 +115,7 @@ export const CounterbalanceCylinderSection = forwardRef<
   return (
     <Collapsible open={isOpen} onOpenChange={onOpenChange}>
       <CollapsibleTrigger className="w-full">
-        <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
+        <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
           <h3 className="text-base font-semibold">Counterbalance Cylinder / Airbag</h3>
           <ChevronDown
             className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
@@ -87,7 +123,7 @@ export const CounterbalanceCylinderSection = forwardRef<
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-white">
+        <div className="border border-t-0 rounded-b-lg p-6 bg-card">
           <CounterbalanceCylinderForm
             data={data}
             updateFn={updateField}

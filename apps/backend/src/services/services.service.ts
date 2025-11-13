@@ -12,7 +12,7 @@ export class ServicesService {
     private alertsService: AlertsService,
   ) {}
 
-  async create(createInspectionDto: CreateServiceDto) {
+  async create(createInspectionDto: CreateServiceDto): Promise<unknown> {
     // Verify machine exists and get its blueprint
     const machine = await this.prisma.machine.findUnique({
       where: { id: createInspectionDto.machineId },
@@ -66,26 +66,70 @@ export class ServicesService {
         ...(createInspectionDto.slide && {
           slide: {
             create: {
-              outerBefore: createInspectionDto.slide.outerBefore
-                ? {
-                    create: createInspectionDto.slide.outerBefore,
-                  }
-                : undefined,
-              outerData: createInspectionDto.slide.outerAfter
-                ? {
-                    create: createInspectionDto.slide.outerAfter,
-                  }
-                : undefined,
-              innerBefore: createInspectionDto.slide.innerBefore
-                ? {
-                    create: createInspectionDto.slide.innerBefore,
-                  }
-                : undefined,
-              innerData: createInspectionDto.slide.innerAfter
-                ? {
-                    create: createInspectionDto.slide.innerAfter,
-                  }
-                : undefined,
+              ...(createInspectionDto.slide.outerBefore && {
+                outerBefore: {
+                  create: createInspectionDto.slide.outerBefore,
+                },
+              }),
+              ...(createInspectionDto.slide.outerData && {
+                outerData: {
+                  create: createInspectionDto.slide.outerData,
+                },
+              }),
+              ...(createInspectionDto.slide.innerBefore && {
+                innerBefore: {
+                  create: createInspectionDto.slide.innerBefore,
+                },
+              }),
+              ...(createInspectionDto.slide.innerData && {
+                innerData: {
+                  create: createInspectionDto.slide.innerData,
+                },
+              }),
+              ...(createInspectionDto.slide.parallelism && {
+                parallelism: createInspectionDto.slide.parallelism,
+              }),
+              ...(createInspectionDto.slide.hasParallelismBeenAdjusted && {
+                hasParallelismBeenAdjusted:
+                  createInspectionDto.slide.hasParallelismBeenAdjusted,
+              }),
+              ...(createInspectionDto.slide
+                .outerShutheightIndicatorsChecked && {
+                outerShutheightIndicatorsChecked:
+                  createInspectionDto.slide.outerShutheightIndicatorsChecked,
+              }),
+              ...(createInspectionDto.slide.outerOverloadsOnTonnageMonitor && {
+                outerOverloadsOnTonnageMonitor:
+                  createInspectionDto.slide.outerOverloadsOnTonnageMonitor,
+              }),
+              ...(createInspectionDto.slide.outerShutheightActualSh && {
+                outerShutheightActualSh:
+                  createInspectionDto.slide.outerShutheightActualSh,
+              }),
+              ...(createInspectionDto.slide.outerIndicatorReading && {
+                outerIndicatorReading:
+                  createInspectionDto.slide.outerIndicatorReading,
+              }),
+              ...(createInspectionDto.slide
+                .innerShutheightIndicatorsChecked && {
+                innerShutheightIndicatorsChecked:
+                  createInspectionDto.slide.innerShutheightIndicatorsChecked,
+              }),
+              ...(createInspectionDto.slide.innerOverloadsOnTonnageMonitor && {
+                innerOverloadsOnTonnageMonitor:
+                  createInspectionDto.slide.innerOverloadsOnTonnageMonitor,
+              }),
+              ...(createInspectionDto.slide.innerShutheightActualSh && {
+                innerShutheightActualSh:
+                  createInspectionDto.slide.innerShutheightActualSh,
+              }),
+              ...(createInspectionDto.slide.innerIndicatorReading && {
+                innerIndicatorReading:
+                  createInspectionDto.slide.innerIndicatorReading,
+              }),
+              ...(createInspectionDto.slide.notes && {
+                notes: createInspectionDto.slide.notes,
+              }),
             },
           },
         }),
@@ -119,7 +163,27 @@ export class ServicesService {
           lubricationHydraulics: {
             create: {
               data: {
-                create: createInspectionDto.lubricationHydraulics,
+                create: {
+                  changedOil:
+                    createInspectionDto.lubricationHydraulics.changedOil,
+                  oilTemperatureF:
+                    createInspectionDto.lubricationHydraulics.oilTemperatureF,
+                  oilMfgType:
+                    createInspectionDto.lubricationHydraulics.oilMfgType,
+                  changedFilter:
+                    createInspectionDto.lubricationHydraulics.changedFilter,
+                  notes: createInspectionDto.lubricationHydraulics.notes,
+                  gauges: {
+                    create:
+                      createInspectionDto.lubricationHydraulics.gauges?.map(
+                        (gauge) => ({
+                          system: gauge.system,
+                          gauge: gauge.gauge,
+                          psi: gauge.psi,
+                        }),
+                      ) || [],
+                  },
+                },
               },
             },
           },
@@ -176,7 +240,11 @@ export class ServicesService {
         },
         lubricationHydraulics: {
           include: {
-            data: true,
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
           },
         },
         clutch: {
@@ -196,7 +264,7 @@ export class ServicesService {
     return inspection;
   }
 
-  async findAll() {
+  async findAll(): Promise<unknown> {
     return this.prisma.machineService.findMany({
       include: {
         machine: {
@@ -231,7 +299,11 @@ export class ServicesService {
         },
         lubricationHydraulics: {
           include: {
-            data: true,
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
           },
         },
         clutch: {
@@ -252,7 +324,7 @@ export class ServicesService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<unknown> {
     const inspection = await this.prisma.machineService.findUnique({
       where: { id },
       include: {
@@ -288,7 +360,11 @@ export class ServicesService {
         },
         lubricationHydraulics: {
           include: {
-            data: true,
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
           },
         },
         clutch: {
@@ -312,7 +388,7 @@ export class ServicesService {
     return inspection;
   }
 
-  async findByMachine(machineId: string) {
+  async findByMachine(machineId: string): Promise<unknown> {
     const machine = await this.prisma.machine.findUnique({
       where: { id: machineId },
     });
@@ -356,7 +432,11 @@ export class ServicesService {
         },
         lubricationHydraulics: {
           include: {
-            data: true,
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
           },
         },
         clutch: {
@@ -377,7 +457,10 @@ export class ServicesService {
     });
   }
 
-  async update(id: string, updateServiceDto: UpdateServiceDto) {
+  async update(
+    id: string,
+    updateServiceDto: UpdateServiceDto,
+  ): Promise<unknown> {
     // Verify service exists
     const existingService = await this.prisma.machineService.findUnique({
       where: { id },
@@ -492,8 +575,27 @@ export class ServicesService {
           ? {
               create: {
                 data: {
-                  create:
-                    updateServiceDto.lubricationHydraulics as Prisma.LubricationHydraulicsDataCreateWithoutServicesInput,
+                  create: {
+                    changedOil:
+                      updateServiceDto.lubricationHydraulics.changedOil,
+                    oilTemperatureF:
+                      updateServiceDto.lubricationHydraulics.oilTemperatureF,
+                    oilMfgType:
+                      updateServiceDto.lubricationHydraulics.oilMfgType,
+                    changedFilter:
+                      updateServiceDto.lubricationHydraulics.changedFilter,
+                    notes: updateServiceDto.lubricationHydraulics.notes,
+                    gauges: {
+                      create:
+                        updateServiceDto.lubricationHydraulics.gauges?.map(
+                          (gauge) => ({
+                            system: gauge.system,
+                            gauge: gauge.gauge,
+                            psi: gauge.psi,
+                          }),
+                        ) || [],
+                    },
+                  },
                 },
               },
             }
@@ -552,7 +654,11 @@ export class ServicesService {
         },
         lubricationHydraulics: {
           include: {
-            data: true,
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
           },
         },
         clutch: {

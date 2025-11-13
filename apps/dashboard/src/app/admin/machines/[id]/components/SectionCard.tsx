@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Typography } from '@/components/ui/typography';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
+import { Loader2 } from 'lucide-react';
 import { SectionStatus, SectionCardProps } from '@/data/types/dashboard.types';
 
 export type { SectionStatus };
@@ -12,19 +13,33 @@ const STATUS_COLORS = {
   ok: 'bg-green-500',
   warning: 'bg-yellow-500',
   alert: 'bg-red-500',
-  unknown: 'bg-gray-400',
+  unknown: 'bg-muted-foreground',
 } as const;
 
-export function SectionCard({ title, status, imageUrl, onClick }: SectionCardProps) {
+export function SectionCard({
+  title,
+  status,
+  imageUrl,
+  onClick,
+  isLoading = false,
+}: SectionCardProps) {
   return (
     <Card
       className={cn(
         'relative overflow-hidden transition-all hover:shadow-lg hover:scale-[1.02]',
         'bg-card border-border',
-        onClick && 'cursor-pointer',
+        onClick && !isLoading && 'cursor-pointer',
+        isLoading && 'opacity-75 cursor-wait',
       )}
-      onClick={onClick}
+      onClick={isLoading ? undefined : onClick}
     >
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 z-20 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+        </div>
+      )}
+
       <div className="absolute top-3 right-3 z-10">
         <div
           className={cn(
@@ -34,7 +49,7 @@ export function SectionCard({ title, status, imageUrl, onClick }: SectionCardPro
         />
       </div>
 
-      <div className="aspect-[4/3] bg-[#808080] flex items-center justify-center relative px-5">
+      <div className="aspect-[4/3] bg-gray-400 dark:bg-slate-600 flex items-center justify-center relative px-5">
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -52,7 +67,7 @@ export function SectionCard({ title, status, imageUrl, onClick }: SectionCardPro
       </div>
 
       <div className="p-3 bg-secondary">
-        <Typography variant="h3" className="text-sm font-medium text-secondary-foreground truncate">
+        <Typography variant="h4" className="text-xs font-medium text-secondary-foreground truncate">
           {title}
         </Typography>
       </div>

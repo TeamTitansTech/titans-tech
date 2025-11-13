@@ -3,20 +3,22 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
-import { type LubricationHydraulicsData, ServiceType } from '@/data/types/services.types';
+import {
+  type LubricationHydraulicsData,
+  type LubricationHydraulicsGauge,
+  ServiceType,
+  YesNoDncType,
+} from '@/data/types/services.types';
 import { LubricationHydraulicsForm } from '../forms/LubricationHydraulicsForm';
 import { isDataTouched } from './utils';
 
 export const defaultLubricationHydraulicsData: LubricationHydraulicsData = {
-  lubePSI: undefined,
-  monitorflowPSI: undefined,
-  hydPSI: undefined,
-  pressSWPSI: undefined,
-  otherGauges: '',
-  changedOil: false,
+  gauges: [] as LubricationHydraulicsGauge[],
+  changedOil: YesNoDncType.DNC,
   oilTemperatureF: undefined,
   oilMfgType: '',
-  changedFilter: false,
+  changedFilter: YesNoDncType.DNC,
+  notes: '',
 };
 
 export const validateLubricationHydraulicsData = (_data: LubricationHydraulicsData): string[] => {
@@ -28,12 +30,18 @@ export interface LubricationHydraulicsSectionRef {
   getData: () => LubricationHydraulicsData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
+  isTouched: () => boolean;
+  validateAndGetData: (serviceType: ServiceType) => {
+    isValid: boolean;
+    errors: string[];
+    data?: LubricationHydraulicsData;
+  };
 }
 
 interface LubricationHydraulicsSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSectionTouched: () => void;
+  onSectionTouched?: () => void;
 }
 
 export const LubricationHydraulicsSection = forwardRef<
@@ -45,11 +53,11 @@ export const LubricationHydraulicsSection = forwardRef<
 
   const updateField = (
     field: keyof LubricationHydraulicsData,
-    value: string | number | boolean | undefined,
+    value: string | number | boolean | YesNoDncType | LubricationHydraulicsGauge[] | undefined,
   ) => {
     setData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: '' }));
-    onSectionTouched();
+    onSectionTouched?.();
   };
 
   const handleBlur = (_field: keyof LubricationHydraulicsData) => {
@@ -57,6 +65,36 @@ export const LubricationHydraulicsSection = forwardRef<
   };
 
   useImperativeHandle(ref, () => ({
+    isTouched: (): boolean => {
+      return isDataTouched(data, defaultLubricationHydraulicsData);
+    },
+
+    validateAndGetData: (
+      _serviceType: ServiceType,
+    ): { isValid: boolean; errors: string[]; data?: LubricationHydraulicsData } => {
+      const touched = isDataTouched(data, defaultLubricationHydraulicsData);
+
+      if (!touched) {
+        return { isValid: true, errors: [] };
+      }
+
+      const validationErrors = validateLubricationHydraulicsData(data);
+      const isValid = validationErrors.length === 0;
+
+      if (isValid) {
+        return {
+          isValid: true,
+          errors: [],
+          data,
+        };
+      }
+
+      return {
+        isValid: false,
+        errors: validationErrors,
+      };
+    },
+
     getData: (): LubricationHydraulicsData | undefined => {
       const touched = isDataTouched(data, defaultLubricationHydraulicsData);
       return touched ? data : undefined;
@@ -79,7 +117,7 @@ export const LubricationHydraulicsSection = forwardRef<
   return (
     <Collapsible open={isOpen} onOpenChange={onOpenChange}>
       <CollapsibleTrigger className="w-full">
-        <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
+        <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
           <h3 className="text-base font-semibold">
             Lubrication / Hydraulics / Pressure Switches / Oil & Filter
           </h3>
@@ -89,7 +127,7 @@ export const LubricationHydraulicsSection = forwardRef<
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-white">
+        <div className="border border-t-0 rounded-b-lg p-6 bg-card">
           <LubricationHydraulicsForm
             data={data}
             updateFn={updateField}

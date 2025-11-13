@@ -3,8 +3,14 @@
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { type GibsData, type GibsFormProps } from '@/data/types/services.types';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { type GibsData, type GibsFormProps, YesNoDncType } from '@/data/types/services.types';
 
 const POINT_FIELDS = [
   'point1',
@@ -32,15 +38,23 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
     <div className="space-y-6">
       <h4 className="font-semibold text-sm">{title}</h4>
 
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id={`hasBeenAdjusted-${title}`}
-          checked={data.hasBeenAdjusted}
-          onCheckedChange={(checked: boolean) => updateFn('hasBeenAdjusted', checked)}
-        />
-        <Label htmlFor={`hasBeenAdjusted-${title}`} className="cursor-pointer text-xs">
+      <div className="space-y-2">
+        <Label htmlFor={`hasBeenAdjusted-${title}`} className="text-xs">
           {t('form.gibs.hasBeenAdjusted')}
         </Label>
+        <Select
+          value={data.hasBeenAdjusted}
+          onValueChange={(value) => updateFn('hasBeenAdjusted', value as YesNoDncType)}
+        >
+          <SelectTrigger id={`hasBeenAdjusted-${title}`} className="text-sm">
+            <SelectValue placeholder="Select option" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
+            <SelectItem value={YesNoDncType.NO}>No</SelectItem>
+            <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div>

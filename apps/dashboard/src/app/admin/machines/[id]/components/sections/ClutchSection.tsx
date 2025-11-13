@@ -54,12 +54,18 @@ export interface ClutchSectionRef {
   getData: () => ClutchData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
+  isTouched: () => boolean;
+  validateAndGetData: (serviceType: ServiceType) => {
+    isValid: boolean;
+    errors: string[];
+    data?: ClutchData;
+  };
 }
 
 interface ClutchSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSectionTouched: () => void;
+  onSectionTouched?: () => void;
 }
 
 export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
@@ -70,7 +76,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     const updateField = (field: keyof ClutchData, value: string | number | undefined) => {
       setData((prev) => ({ ...prev, [field]: value }));
       setErrors((prev) => ({ ...prev, [field]: '' }));
-      onSectionTouched();
+      onSectionTouched?.();
     };
 
     const handleBlur = (_field: keyof ClutchData) => {
@@ -78,6 +84,36 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     };
 
     useImperativeHandle(ref, () => ({
+      isTouched: (): boolean => {
+        return isDataTouched(data, defaultClutchData);
+      },
+
+      validateAndGetData: (
+        _serviceType: ServiceType,
+      ): { isValid: boolean; errors: string[]; data?: ClutchData } => {
+        const touched = isDataTouched(data, defaultClutchData);
+
+        if (!touched) {
+          return { isValid: true, errors: [] };
+        }
+
+        const validationErrors = validateClutchData(data);
+        const isValid = validationErrors.length === 0;
+
+        if (isValid) {
+          return {
+            isValid: true,
+            errors: [],
+            data,
+          };
+        }
+
+        return {
+          isValid: false,
+          errors: validationErrors,
+        };
+      },
+
       getData: (): ClutchData | undefined => {
         const touched = isDataTouched(data, defaultClutchData);
         return touched ? data : undefined;
@@ -100,7 +136,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     return (
       <Collapsible open={isOpen} onOpenChange={onOpenChange}>
         <CollapsibleTrigger className="w-full">
-          <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
+          <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
             <h3 className="text-base font-semibold">Clutch</h3>
             <ChevronDown
               className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
@@ -108,7 +144,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
           </div>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="border border-t-0 rounded-b-lg p-6 bg-white">
+          <div className="border border-t-0 rounded-b-lg p-6 bg-card">
             <ClutchForm
               data={data}
               updateFn={updateField}
