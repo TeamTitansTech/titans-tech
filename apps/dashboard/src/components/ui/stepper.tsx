@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
+import { useEffect, useRef } from 'react';
 
 export interface StepBadge {
   label: string;
@@ -30,17 +31,18 @@ interface StepperItemProps {
 
 function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
   const isClickable = step.isClickable !== false;
+  const stepRef = useRef<HTMLDivElement>(null);
 
   return (
-    <>
+    <div className="flex items-start flex-shrink-0">
       {/* Step Circle and Label */}
-      <div className="flex flex-col items-center flex-shrink-0">
+      <div ref={stepRef} className="flex flex-col items-center" data-step-status={step.status}>
         <button
           type="button"
           onClick={isClickable ? onClick : undefined}
           disabled={!isClickable}
           className={cn(
-            'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all',
+            'w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-xs sm:text-sm font-semibold transition-all',
             'focus:outline-none focus:ring-2 focus:ring-offset-2',
             step.status === 'pending' &&
               'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
@@ -50,12 +52,12 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
             !isClickable && 'cursor-not-allowed',
           )}
         >
-          {step.status === 'completed' ? <Check className="w-5 h-5" /> : <span>{stepNumber}</span>}
+          {step.status === 'completed' ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <span>{stepNumber}</span>}
         </button>
 
         <div
           className={cn(
-            'text-xs font-medium mt-2 text-center max-w-[100px] line-clamp-2',
+            'text-[10px] sm:text-xs font-medium mt-1.5 sm:mt-2 text-center max-w-[70px] sm:max-w-[100px] line-clamp-2',
             step.status === 'pending' && 'text-gray-500 dark:text-gray-400',
             step.status === 'current' && 'text-foreground font-semibold',
             step.status === 'completed' && 'text-green-700 dark:text-green-400',
@@ -86,16 +88,43 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
         )}
       </div>
 
-      {/* Connecting Line */}
-      {!isLast && <div className={cn('flex-1 h-0.5 mx-4 self-start mt-5', 'bg-blue-500')} />}
-    </>
+      {/* Connecting Line - Aligned with center of circle */}
+      {!isLast && (
+        <div className="flex items-start md:flex-1 pt-[calc(1rem-1px)] sm:pt-[calc(1.25rem-1px)]">
+          <div className="h-0.5 w-8 md:flex-1 mx-2 sm:mx-4 bg-blue-500" />
+        </div>
+      )}
+    </div>
   );
 }
 
 export function Stepper({ steps, onStepClick }: StepperProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to current step when it changes
+  useEffect(() => {
+    if (containerRef.current) {
+      const currentStepElement = containerRef.current.querySelector('[data-step-status="current"]');
+      if (currentStepElement) {
+        currentStepElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center',
+        });
+      }
+    }
+  }, [steps]);
+
   return (
-    <div className="w-full py-4 px-2 bg-muted/30 rounded-lg border">
-      <div className="flex items-start">
+    <div className="w-full pt-6 pb-4 px-2 bg-muted/30 rounded-lg border relative">
+      {/* Horizontal scroll container - only scrollable on mobile */}
+      <div
+        ref={containerRef}
+        className="flex items-start overflow-x-auto md:overflow-x-visible md:justify-between scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent pb-2"
+        style={{
+          scrollbarWidth: 'thin',
+        }}
+      >
         {steps.map((step, index) => (
           <StepperItem
             key={step.key}

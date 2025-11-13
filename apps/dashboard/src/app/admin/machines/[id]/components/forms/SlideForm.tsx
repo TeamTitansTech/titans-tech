@@ -75,7 +75,7 @@ function PositionFields({
   return (
     <div className="space-y-4">
       <h5 className="font-medium text-sm">{title}</h5>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {(
           ['position1', 'position2', 'position3', 'position4', 'position5', 'position6'] as const
         ).map((field) => (
@@ -130,7 +130,7 @@ function ShutheightFields({
   return (
     <div className="space-y-4 mt-6 pt-6 border-t">
       <h5 className="font-medium text-sm">Shutheight Information</h5>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor={indicatorsField} className="text-xs">
             Indicators Checked?
@@ -323,7 +323,7 @@ export function SlideForm({
       <div className="space-y-6 border-t pt-6">
         <h4 className="font-semibold text-sm">Additional Information</h4>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="parallelism" className="text-xs">
               Parallelism
