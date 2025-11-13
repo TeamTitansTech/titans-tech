@@ -55,64 +55,135 @@ export function BearingClearanceForm({
       <h4 className="font-semibold text-sm">{title}</h4>
 
       <div className="space-y-4">
-        <div className="grid grid-cols-4 gap-4 border-b pb-2">
+        {/* Desktop/Tablet Headers - Hidden on mobile */}
+        <div className="hidden sm:grid sm:grid-cols-4 gap-4 border-b pb-2">
           <div className="text-xs font-semibold">{t('form.common.measurement')}</div>
           <div className="text-xs font-semibold text-center">{t('form.common.lh')}</div>
           <div className="text-xs font-semibold text-center">{t('form.common.rh')}</div>
-          <div className="text-xs font-semibold text-center">{t('form.common.differential')}</div>
+          <div className="text-xs font-semibold text-center">Diff.</div>
         </div>
 
         {MEASUREMENT_ROWS.map(({ key, rhField, lhField }) => (
-          <div key={key} className="grid grid-cols-4 gap-4 items-center">
-            <div className="text-xs font-medium">{t(`form.bearingClearance.fields.${key}`)}</div>
+          <div key={key}>
+            {/* Mobile Layout - Stacked vertically */}
+            <div className="sm:hidden space-y-3 border rounded-lg p-3 bg-muted/30">
+              <div className="text-xs font-semibold text-foreground/80">
+                {t(`form.bearingClearance.fields.${key}`)}
+              </div>
 
-            <div>
-              <Input
-                id={`${lhField}-${title}`}
-                type="number"
-                step="0.0001"
-                min="0"
-                max="999999.9999"
-                value={Number(data[lhField as keyof BearingClearanceData])}
-                onChange={(e) =>
-                  updateFn(lhField as keyof BearingClearanceData, Number(e.target.value))
-                }
-                onBlur={() => handleBlur(lhField as keyof BearingClearanceData)}
-                className={`text-sm ${errors[lhField] ? 'border-destructive' : ''}`}
-                required
-              />
-              {errors[lhField] && (
-                <p className="text-xs text-destructive mt-1">{errors[lhField]}</p>
-              )}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-medium text-muted-foreground block text-center">
+                    LH
+                  </label>
+                  <Input
+                    id={`${lhField}-${title}-mobile`}
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    max="999999.9999"
+                    value={Number(data[lhField as keyof BearingClearanceData])}
+                    onChange={(e) =>
+                      updateFn(lhField as keyof BearingClearanceData, Number(e.target.value))
+                    }
+                    onBlur={() => handleBlur(lhField as keyof BearingClearanceData)}
+                    className={`text-xs h-9 ${errors[lhField] ? 'border-destructive' : ''}`}
+                    required
+                  />
+                  {errors[lhField] && (
+                    <p className="text-[10px] text-destructive mt-0.5">{errors[lhField]}</p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-medium text-muted-foreground block text-center">
+                    RH
+                  </label>
+                  <Input
+                    id={`${rhField}-${title}-mobile`}
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    max="999999.9999"
+                    value={Number(data[rhField as keyof BearingClearanceData])}
+                    onChange={(e) =>
+                      updateFn(rhField as keyof BearingClearanceData, Number(e.target.value))
+                    }
+                    onBlur={() => handleBlur(rhField as keyof BearingClearanceData)}
+                    className={`text-xs h-9 ${errors[rhField] ? 'border-destructive' : ''}`}
+                    required
+                  />
+                  {errors[rhField] && (
+                    <p className="text-[10px] text-destructive mt-0.5">{errors[rhField]}</p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[10px] font-medium text-muted-foreground block text-center">
+                    Diff
+                  </label>
+                  <Input
+                    value={calculateDifferential(rhField, lhField)}
+                    readOnly
+                    disabled
+                    className="text-xs h-9 bg-muted"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div>
-              <Input
-                id={`${rhField}-${title}`}
-                type="number"
-                step="0.0001"
-                min="0"
-                max="999999.9999"
-                value={Number(data[rhField as keyof BearingClearanceData])}
-                onChange={(e) =>
-                  updateFn(rhField as keyof BearingClearanceData, Number(e.target.value))
-                }
-                onBlur={() => handleBlur(rhField as keyof BearingClearanceData)}
-                className={`text-sm ${errors[rhField] ? 'border-destructive' : ''}`}
-                required
-              />
-              {errors[rhField] && (
-                <p className="text-xs text-destructive mt-1">{errors[rhField]}</p>
-              )}
-            </div>
+            {/* Desktop/Tablet Layout - Grid */}
+            <div className="hidden sm:grid sm:grid-cols-4 gap-4 items-center">
+              <div className="text-xs font-medium">{t(`form.bearingClearance.fields.${key}`)}</div>
 
-            <div>
-              <Input
-                value={calculateDifferential(rhField, lhField)}
-                readOnly
-                disabled
-                className="text-sm bg-muted"
-              />
+              <div>
+                <Input
+                  id={`${lhField}-${title}`}
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  max="999999.9999"
+                  value={Number(data[lhField as keyof BearingClearanceData])}
+                  onChange={(e) =>
+                    updateFn(lhField as keyof BearingClearanceData, Number(e.target.value))
+                  }
+                  onBlur={() => handleBlur(lhField as keyof BearingClearanceData)}
+                  className={`text-sm ${errors[lhField] ? 'border-destructive' : ''}`}
+                  required
+                />
+                {errors[lhField] && (
+                  <p className="text-xs text-destructive mt-1">{errors[lhField]}</p>
+                )}
+              </div>
+
+              <div>
+                <Input
+                  id={`${rhField}-${title}`}
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  max="999999.9999"
+                  value={Number(data[rhField as keyof BearingClearanceData])}
+                  onChange={(e) =>
+                    updateFn(rhField as keyof BearingClearanceData, Number(e.target.value))
+                  }
+                  onBlur={() => handleBlur(rhField as keyof BearingClearanceData)}
+                  className={`text-sm ${errors[rhField] ? 'border-destructive' : ''}`}
+                  required
+                />
+                {errors[rhField] && (
+                  <p className="text-xs text-destructive mt-1">{errors[rhField]}</p>
+                )}
+              </div>
+
+              <div>
+                <Input
+                  value={calculateDifferential(rhField, lhField)}
+                  readOnly
+                  disabled
+                  className="text-sm bg-muted"
+                />
+              </div>
             </div>
           </div>
         ))}

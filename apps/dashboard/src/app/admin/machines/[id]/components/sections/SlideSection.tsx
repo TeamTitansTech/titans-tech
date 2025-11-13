@@ -47,8 +47,10 @@ export interface SlideSectionData {
   outerData?: SlideData;
   innerBefore?: SlideData;
   innerData?: SlideData;
-  parallelism?: ParallelismType;
-  hasParallelismBeenAdjusted?: YesNoNaDncType;
+  outerParallelism?: ParallelismType;
+  outerHasParallelismBeenAdjusted?: YesNoNaDncType;
+  innerParallelism?: ParallelismType;
+  innerHasParallelismBeenAdjusted?: YesNoNaDncType;
   outerShutheightIndicatorsChecked?: YesNoDncType;
   outerOverloadsOnTonnageMonitor?: string;
   outerShutheightActualSh?: string;
@@ -87,8 +89,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       outerAfterData: defaultSlideData,
       innerBeforeData: defaultSlideData,
       innerAfterData: defaultSlideData,
-      parallelism: ParallelismType.DNC,
-      hasParallelismBeenAdjusted: YesNoNaDncType.DNC,
+      outerParallelism: ParallelismType.DNC,
+      outerHasParallelismBeenAdjusted: YesNoNaDncType.DNC,
+      innerParallelism: ParallelismType.DNC,
+      innerHasParallelismBeenAdjusted: YesNoNaDncType.DNC,
       outerShutheightIndicatorsChecked: YesNoDncType.DNC,
       outerOverloadsOnTonnageMonitor: '',
       outerShutheightActualSh: '',
@@ -155,15 +159,6 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       }));
     };
 
-    // Handle validation callback from SlideForm
-    const handleValidation = (valid: boolean, _errors: string[]) => {
-      setIsValid(valid);
-    };
-
-    // Handle close callback from SlideForm
-    const handleClose = () => {
-      onOpenChange(false);
-    };
 
     useImperativeHandle(ref, () => ({
       isTouched: (): boolean => {
@@ -231,8 +226,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
               outerData: outerDataTouched ? formData.outerAfterData : undefined,
               innerBefore: innerBeforeTouched ? formData.innerBeforeData : undefined,
               innerData: innerDataTouched ? formData.innerAfterData : undefined,
-              parallelism: formData.parallelism,
-              hasParallelismBeenAdjusted: formData.hasParallelismBeenAdjusted,
+              outerParallelism: formData.outerParallelism,
+              outerHasParallelismBeenAdjusted: formData.outerHasParallelismBeenAdjusted,
+              innerParallelism: formData.innerParallelism,
+              innerHasParallelismBeenAdjusted: formData.innerHasParallelismBeenAdjusted,
               outerShutheightIndicatorsChecked: formData.outerShutheightIndicatorsChecked,
               outerOverloadsOnTonnageMonitor: formData.outerOverloadsOnTonnageMonitor || undefined,
               outerShutheightActualSh: formData.outerShutheightActualSh || undefined,
@@ -263,8 +260,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
           outerData: outerDataTouched ? formData.outerAfterData : undefined,
           innerBefore: innerBeforeTouched ? formData.innerBeforeData : undefined,
           innerData: innerDataTouched ? formData.innerAfterData : undefined,
-          parallelism: formData.parallelism,
-          hasParallelismBeenAdjusted: formData.hasParallelismBeenAdjusted,
+          outerParallelism: formData.outerParallelism,
+          outerHasParallelismBeenAdjusted: formData.outerHasParallelismBeenAdjusted,
+          innerParallelism: formData.innerParallelism,
+          innerHasParallelismBeenAdjusted: formData.innerHasParallelismBeenAdjusted,
           outerShutheightIndicatorsChecked: formData.outerShutheightIndicatorsChecked,
           outerOverloadsOnTonnageMonitor: formData.outerOverloadsOnTonnageMonitor || undefined,
           outerShutheightActualSh: formData.outerShutheightActualSh || undefined,
@@ -329,8 +328,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
           outerAfterData: defaultSlideData,
           innerBeforeData: defaultSlideData,
           innerAfterData: defaultSlideData,
-          parallelism: ParallelismType.DNC,
-          hasParallelismBeenAdjusted: YesNoNaDncType.DNC,
+          outerParallelism: ParallelismType.DNC,
+          outerHasParallelismBeenAdjusted: YesNoNaDncType.DNC,
+          innerParallelism: ParallelismType.DNC,
+          innerHasParallelismBeenAdjusted: YesNoNaDncType.DNC,
           outerShutheightIndicatorsChecked: YesNoDncType.DNC,
           outerOverloadsOnTonnageMonitor: '',
           outerShutheightActualSh: '',
@@ -375,8 +376,6 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
               onSectionTouched={onSectionTouched}
               includeBeforeMeasurements={includeBeforeMeasurements}
               onIncludeBeforeMeasurementsChange={setIncludeBeforeMeasurements}
-              onValidate={handleValidation}
-              onClose={handleClose}
             />
           </div>
         </CollapsibleContent>

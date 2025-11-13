@@ -97,10 +97,10 @@ export function ServiceCompletionModal({
 
   // Section selection state
   // For inspections: pre-select all sections (always)
-  // For completing maintenance: pre-select all sections (but user can still see selection)
+  // For completing maintenance: start with empty set (user selects what they maintained)
   // For new maintenance: start with empty set
   const [selectedSections, setSelectedSections] = useState<Set<string>>(
-    isInspection || isCompletingService ? new Set(machineSections) : new Set(),
+    isInspection ? new Set(machineSections) : new Set(),
   );
 
   // Service details
@@ -145,9 +145,7 @@ export function ServiceCompletionModal({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentStep(shouldSkipSelection ? 'details' : 'selection');
       setCurrentSectionIndex(0);
-      setSelectedSections(
-        isInspection || isCompletingService ? new Set(machineSections) : new Set(),
-      );
+      setSelectedSections(isInspection ? new Set(machineSections) : new Set());
       setDate(getInitialDate());
       setSelectedServiceType(serviceType || ServiceType.INSPECTION);
       setPerformedBy(initialPerformedBy || '');
@@ -584,7 +582,7 @@ export function ServiceCompletionModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[1200px] h-[85vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
+      <DialogContent className="w-full md:w-[1200px] h-[86vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {isCompletingService
@@ -667,7 +665,7 @@ export function ServiceCompletionModal({
                       ? tServices('modal.realizationDate')
                       : tServices('serviceDate')}
                   </Label>
-                  <div className="flex items-center gap-2 mt-1 h-10 px-3 py-2 border rounded-md bg-muted/50">
+                  <div className="flex items-center gap-2 mt-1 h-10 px-3 py-2 border rounded-md">
                     <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">{date ? format(date, 'PPP') : '-'}</span>
                   </div>
@@ -682,7 +680,7 @@ export function ServiceCompletionModal({
                       value={performedBy}
                       onChange={(e) => setPerformedBy(e.target.value)}
                       placeholder={tServices('modal.technicianName')}
-                      className="mt-1"
+                      className="mt-1 h-10"
                     />
                   </div>
                 ) : (

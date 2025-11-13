@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,8 +13,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Check, AlertCircle } from 'lucide-react';
 import {
   type SlideData,
   ServiceType,
@@ -29,8 +26,10 @@ interface SlideFormData {
   outerAfterData: SlideData;
   innerBeforeData: SlideData;
   innerAfterData: SlideData;
-  parallelism: ParallelismType;
-  hasParallelismBeenAdjusted: YesNoNaDncType;
+  outerParallelism: ParallelismType;
+  outerHasParallelismBeenAdjusted: YesNoNaDncType;
+  innerParallelism: ParallelismType;
+  innerHasParallelismBeenAdjusted: YesNoNaDncType;
   outerShutheightIndicatorsChecked: YesNoDncType;
   outerOverloadsOnTonnageMonitor: string;
   outerShutheightActualSh: string;
@@ -59,8 +58,6 @@ export interface SlideFormProps {
   onSectionTouched?: () => void;
   includeBeforeMeasurements: boolean;
   onIncludeBeforeMeasurementsChange: (value: boolean) => void;
-  onValidate?: (isValid: boolean, errors: string[]) => void;
-  onClose?: () => void;
 }
 
 function PositionFields({
@@ -78,7 +75,7 @@ function PositionFields({
 }) {
   const t = useTranslations('inspections.form.slide');
 
-  // Calculate max deviation: MAX - MIN of positions 1-5 if more than 1 value exists
+  // Calculate max deviation: MAX - MIN of positions 1-6 if more than 1 value exists
   const calculateMaxDeviation = (): string => {
     const positions = [
       data.position1,
@@ -86,6 +83,7 @@ function PositionFields({
       data.position3,
       data.position4,
       data.position5,
+      data.position6,
     ];
     const validValues = positions.filter(
       (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
@@ -161,7 +159,7 @@ function PositionFields({
           />
         </div>
 
-        {/* Row 2: position4, position5, empty, deviation calc */}
+        {/* Row 2: position4, position5, position6, deviation calc */}
         <div>
           <Input
             id={`position4-${title}`}
@@ -192,7 +190,21 @@ function PositionFields({
           />
           {errors.position5 && <p className="text-xs text-destructive mt-1">{errors.position5}</p>}
         </div>
-        <div></div>
+        <div>
+          <Input
+            id={`position6-${title}`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position6}
+            onChange={(e) => updateFn('position6', Number(e.target.value))}
+            onBlur={() => handleBlur('position6')}
+            className={errors.position6 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position6 && <p className="text-xs text-destructive mt-1">{errors.position6}</p>}
+        </div>
         <div>
           <Input
             type="text"
@@ -288,7 +300,7 @@ function PositionFields({
           />
         </div>
 
-        {/* Row 3: position5 */}
+        {/* Row 3: position5, position6 */}
         <div>
           <Input
             id={`position5-${title}-md`}
@@ -303,6 +315,21 @@ function PositionFields({
             required
           />
           {errors.position5 && <p className="text-xs text-destructive mt-1">{errors.position5}</p>}
+        </div>
+        <div>
+          <Input
+            id={`position6-${title}-md`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position6}
+            onChange={(e) => updateFn('position6', Number(e.target.value))}
+            onBlur={() => handleBlur('position6')}
+            className={errors.position6 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position6 && <p className="text-xs text-destructive mt-1">{errors.position6}</p>}
         </div>
       </div>
 
@@ -372,7 +399,7 @@ function PositionFields({
           {errors.position4 && <p className="text-xs text-destructive mt-1">{errors.position4}</p>}
         </div>
 
-        {/* Row 3: position5, empty */}
+        {/* Row 3: position5, position6 */}
         <div>
           <Input
             id={`position5-${title}-sm`}
@@ -388,7 +415,21 @@ function PositionFields({
           />
           {errors.position5 && <p className="text-xs text-destructive mt-1">{errors.position5}</p>}
         </div>
-        <div></div>
+        <div>
+          <Input
+            id={`position6-${title}-sm`}
+            type="number"
+            step="0.0001"
+            min="0"
+            max="999999.9999"
+            value={data.position6}
+            onChange={(e) => updateFn('position6', Number(e.target.value))}
+            onBlur={() => handleBlur('position6')}
+            className={errors.position6 ? 'border-destructive' : ''}
+            required
+          />
+          {errors.position6 && <p className="text-xs text-destructive mt-1">{errors.position6}</p>}
+        </div>
 
         {/* Row 4: deviation label, deviation calc */}
         <div>
@@ -440,9 +481,9 @@ function ShutheightFields({
   const indicatorReadingValue = data[indicatorReadingField] as string;
 
   return (
-    <div className="space-y-4 mt-6">
-      <h5 className="font-medium text-sm">{t('shutheightInformation')}</h5>
-      <div className="grid grid-cols-2 gap-4">
+    <div className="space-y-4 mt-6 pt-6 border-t">
+      <h5 className="font-medium text-sm">Shutheight Information</h5>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor={indicatorsField} className="text-xs">
             {t('indicatorsChecked')}
@@ -505,32 +546,6 @@ function ShutheightFields({
   );
 }
 
-// Helper function to check if slide data has been touched
-const isDataTouched = (data: SlideData): boolean => {
-  return Object.values(data).some((val) => val !== 0);
-};
-
-// Helper function to validate slide data
-const validateSlideData = (data: SlideData): string[] => {
-  const errors: string[] = [];
-  const requiredFields: (keyof SlideData)[] = [
-    'position1',
-    'position2',
-    'position3',
-    'position4',
-    'position5',
-  ];
-
-  requiredFields.forEach((field) => {
-    const value = data[field];
-    if (typeof value !== 'number' || isNaN(value)) {
-      errors.push(`${String(field)} is required and must be a valid number`);
-    }
-  });
-
-  return errors;
-};
-
 export function SlideForm({
   data,
   updateFn,
@@ -540,13 +555,8 @@ export function SlideForm({
   onSectionTouched,
   includeBeforeMeasurements,
   onIncludeBeforeMeasurementsChange,
-  onValidate,
-  onClose,
 }: SlideFormProps) {
   const t = useTranslations('inspections.form.slide');
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [isValid, setIsValid] = useState<boolean | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
 
   const handleFieldUpdate = (
     field: keyof SlideFormData,
@@ -554,88 +564,6 @@ export function SlideForm({
   ) => {
     updateFn(field, value);
     onSectionTouched?.();
-    // Reset validation state when data changes
-    setIsValid(null);
-    setValidationErrors([]);
-  };
-
-  const handleValidateAndClose = (e?: React.MouseEvent<HTMLButtonElement>) => {
-    e?.preventDefault();
-    e?.stopPropagation();
-
-    setIsSaving(true);
-
-    const outerBeforeTouched = isDataTouched(data.outerBeforeData);
-    const outerAfterTouched = isDataTouched(data.outerAfterData);
-    const innerBeforeTouched = isDataTouched(data.innerBeforeData);
-    const innerAfterTouched = isDataTouched(data.innerAfterData);
-
-    const validationErrors: string[] = [];
-
-    // Validate that at least one section (outer or inner) is filled
-    if (!outerAfterTouched && !innerAfterTouched) {
-      validationErrors.push(t('validationError'));
-      setIsValid(false);
-      setValidationErrors(validationErrors);
-      setIsSaving(false);
-      onValidate?.(false, validationErrors);
-      return;
-    }
-
-    // Validate outer data if touched
-    if (outerAfterTouched) {
-      const outerErrors = validateSlideData(data.outerAfterData);
-      if (outerErrors.length > 0) {
-        validationErrors.push(...outerErrors.map((e) => `Outer: ${e}`));
-      }
-    }
-
-    // Validate inner data if touched
-    if (innerAfterTouched) {
-      const innerErrors = validateSlideData(data.innerAfterData);
-      if (innerErrors.length > 0) {
-        validationErrors.push(...innerErrors.map((e) => `Inner: ${e}`));
-      }
-    }
-
-    // Validate before measurements if checkbox is checked
-    if (includeBeforeMeasurements) {
-      if (!outerBeforeTouched && !innerBeforeTouched) {
-        validationErrors.push(t('fillBeforeMeasurements'));
-      } else {
-        if (outerBeforeTouched) {
-          const outerBeforeErrors = validateSlideData(data.outerBeforeData);
-          if (outerBeforeErrors.length > 0) {
-            validationErrors.push(...outerBeforeErrors.map((e) => `Outer Before: ${e}`));
-          }
-        }
-        if (innerBeforeTouched) {
-          const innerBeforeErrors = validateSlideData(data.innerBeforeData);
-          if (innerBeforeErrors.length > 0) {
-            validationErrors.push(...innerBeforeErrors.map((e) => `Inner Before: ${e}`));
-          }
-        }
-      }
-    }
-
-    if (validationErrors.length > 0) {
-      setIsValid(false);
-      setValidationErrors(validationErrors);
-      setIsSaving(false);
-      onValidate?.(false, validationErrors);
-      return;
-    }
-
-    // If validation passes
-    setIsValid(true);
-    setValidationErrors([]);
-    setIsSaving(false);
-    onValidate?.(true, []);
-
-    // Close the section after successful validation
-    setTimeout(() => {
-      onClose?.();
-    }, 500);
   };
 
   return (
@@ -710,6 +638,62 @@ export function SlideForm({
           </TabsList>
 
           <TabsContent value="outer" className="space-y-6">
+            {/* Outer Parallelism Settings - applies to all measurements */}
+            <div className="p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                  Parallelism Settings
+                </h4>
+                <span className="text-xs text-blue-600 dark:text-blue-400">
+                  Applies to all measurements
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="outerParallelism" className="text-xs">
+                    {t('parallelism')}
+                  </Label>
+                  <Select
+                    value={data.outerParallelism}
+                    onValueChange={(value) =>
+                      handleFieldUpdate('outerParallelism', value as ParallelismType)
+                    }
+                  >
+                    <SelectTrigger id="outerParallelism" className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ParallelismType.DNC}>DNC</SelectItem>
+                      <SelectItem value={ParallelismType.TO_BED}>To Bed</SelectItem>
+                      <SelectItem value={ParallelismType.TO_BOLSTER}>To Bolster</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="outerHasParallelismBeenAdjusted" className="text-xs">
+                    {t('hasParallelismBeenAdjusted')}
+                  </Label>
+                  <Select
+                    value={data.outerHasParallelismBeenAdjusted}
+                    onValueChange={(value) =>
+                      handleFieldUpdate('outerHasParallelismBeenAdjusted', value as YesNoNaDncType)
+                    }
+                  >
+                    <SelectTrigger id="outerHasParallelismBeenAdjusted" className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={YesNoNaDncType.YES}>Yes</SelectItem>
+                      <SelectItem value={YesNoNaDncType.NO}>No</SelectItem>
+                      <SelectItem value={YesNoNaDncType.NA}>N/A</SelectItem>
+                      <SelectItem value={YesNoNaDncType.DNC}>DNC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
             <PositionFields
               data={data.outerAfterData}
               updateFn={(field, value) => {
@@ -724,6 +708,62 @@ export function SlideForm({
           </TabsContent>
 
           <TabsContent value="inner" className="space-y-6">
+            {/* Inner Parallelism Settings - applies to all measurements */}
+            <div className="p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                  Parallelism Settings
+                </h4>
+                <span className="text-xs text-blue-600 dark:text-blue-400">
+                  Applies to all measurements
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="innerParallelism" className="text-xs">
+                    {t('parallelism')}
+                  </Label>
+                  <Select
+                    value={data.innerParallelism}
+                    onValueChange={(value) =>
+                      handleFieldUpdate('innerParallelism', value as ParallelismType)
+                    }
+                  >
+                    <SelectTrigger id="innerParallelism" className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={ParallelismType.DNC}>DNC</SelectItem>
+                      <SelectItem value={ParallelismType.TO_BED}>To Bed</SelectItem>
+                      <SelectItem value={ParallelismType.TO_BOLSTER}>To Bolster</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label htmlFor="innerHasParallelismBeenAdjusted" className="text-xs">
+                    {t('hasParallelismBeenAdjusted')}
+                  </Label>
+                  <Select
+                    value={data.innerHasParallelismBeenAdjusted}
+                    onValueChange={(value) =>
+                      handleFieldUpdate('innerHasParallelismBeenAdjusted', value as YesNoNaDncType)
+                    }
+                  >
+                    <SelectTrigger id="innerHasParallelismBeenAdjusted" className="mt-1">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={YesNoNaDncType.YES}>Yes</SelectItem>
+                      <SelectItem value={YesNoNaDncType.NO}>No</SelectItem>
+                      <SelectItem value={YesNoNaDncType.NA}>N/A</SelectItem>
+                      <SelectItem value={YesNoNaDncType.DNC}>DNC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </div>
+
             <PositionFields
               data={data.innerAfterData}
               updateFn={(field, value) => {
@@ -731,7 +771,7 @@ export function SlideForm({
                 handleFieldUpdate('innerAfterData', newData);
               }}
               errors={errors.innerAfter}
-              handleBlur={(field) => handleBlur('outerAfter', field)}
+              handleBlur={(field) => handleBlur('innerAfter', field)}
               title={t('positionMeasurements')}
             />
             <ShutheightFields type="inner" data={data} handleFieldUpdate={handleFieldUpdate} />
@@ -739,55 +779,10 @@ export function SlideForm({
         </Tabs>
       </div>
 
-      <div className="space-y-6 border-t pt-6">
-        <h4 className="font-semibold text-sm">{t('additionalInformation')}</h4>
-
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="parallelism" className="text-xs">
-              Parallelism
-            </Label>
-            <Select
-              value={data.parallelism}
-              onValueChange={(value) => handleFieldUpdate('parallelism', value as ParallelismType)}
-            >
-              <SelectTrigger id="parallelism" className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={ParallelismType.DNC}>DNC</SelectItem>
-                <SelectItem value={ParallelismType.TO_BED}>To Bed</SelectItem>
-                <SelectItem value={ParallelismType.TO_BOLSTER}>To Bolster</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="hasParallelismBeenAdjusted" className="text-xs">
-              {t('hasParallelismBeenAdjusted')}
-            </Label>
-            <Select
-              value={data.hasParallelismBeenAdjusted}
-              onValueChange={(value) =>
-                handleFieldUpdate('hasParallelismBeenAdjusted', value as YesNoNaDncType)
-              }
-            >
-              <SelectTrigger id="hasParallelismBeenAdjusted" className="mt-1">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={YesNoNaDncType.YES}>Yes</SelectItem>
-                <SelectItem value={YesNoNaDncType.NO}>No</SelectItem>
-                <SelectItem value={YesNoNaDncType.NA}>N/A</SelectItem>
-                <SelectItem value={YesNoNaDncType.DNC}>DNC</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
+      <div className="space-y-4 border-t pt-6">
         <div>
           <Label htmlFor="notes" className="text-xs">
-            Notes
+            {t('notes')}
           </Label>
           <Textarea
             id="notes"
@@ -797,48 +792,6 @@ export function SlideForm({
             rows={4}
           />
         </div>
-      </div>
-
-      {/* Validation Messages Display */}
-      {validationErrors.length > 0 && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
-            <div>
-              <h4 className="font-semibold text-red-900 mb-2">Validation Errors:</h4>
-              <ul className="list-disc list-inside space-y-1 text-sm text-red-800">
-                {validationErrors.map((error, index) => (
-                  <li key={index}>{error}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Success Message Display */}
-      {isValid === true && validationErrors.length === 0 && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-          <div className="flex items-start gap-2">
-            <Check className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-            <div>
-              <h4 className="font-semibold text-green-900">{t('dataSaved')}</h4>
-              <p className="text-sm text-green-800">Slide data has been validated successfully</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Save Button */}
-      <div className="flex justify-end pt-4 border-t">
-        <Button
-          type="button"
-          onClick={handleValidateAndClose}
-          disabled={isSaving}
-          className="min-w-[120px]"
-        >
-          {isSaving ? t('saving') : t('saveData')}
-        </Button>
       </div>
     </div>
   );

@@ -126,8 +126,10 @@ export interface SlideCheck {
   outerData?: SlideData;
   innerBefore?: SlideData;
   innerData?: SlideData;
-  parallelism?: ParallelismType;
-  hasParallelismBeenAdjusted?: YesNoNaDncType;
+  outerParallelism?: ParallelismType;
+  outerHasParallelismBeenAdjusted?: YesNoNaDncType;
+  innerParallelism?: ParallelismType;
+  innerHasParallelismBeenAdjusted?: YesNoNaDncType;
   outerShutheightIndicatorsChecked?: YesNoDncType;
   outerOverloadsOnTonnageMonitor?: string;
   outerShutheightActualSh?: string;

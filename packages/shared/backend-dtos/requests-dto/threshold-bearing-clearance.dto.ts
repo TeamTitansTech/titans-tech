@@ -4,10 +4,13 @@ import { ThresholdsSchema } from './blueprint.dto';
 /**
  * Schema for creating threshold bearing clearance with blueprintId
  * Reuses ThresholdsSchema from blueprint.dto to avoid duplication
+ * Uses merge() instead of extend() because ThresholdsSchema contains refinements
  */
-export const CreateThresholdBearingClearanceSchema = ThresholdsSchema.extend({
-  blueprintId: z.string().min(1),
-});
+export const CreateThresholdBearingClearanceSchema = ThresholdsSchema.merge(
+  z.object({
+    blueprintId: z.string().min(1),
+  }),
+);
 
 export type CreateThresholdBearingClearanceDto = z.infer<
   typeof CreateThresholdBearingClearanceSchema
