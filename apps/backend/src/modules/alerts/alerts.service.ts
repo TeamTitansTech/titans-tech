@@ -369,7 +369,7 @@ export class AlertsService {
     const rhValue = RH.toNumber();
     const lhValue = LH.toNumber();
 
-    // Calcular diferencial: |RH - LH| (fórmula do Excel)
+    // Calculate differential: |RH - LH| (Excel formula)
     const differential = Math.abs(rhValue - lhValue);
 
     const severity = this.determineSeverity(
