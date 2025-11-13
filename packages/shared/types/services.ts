@@ -54,6 +54,54 @@ export enum PsiStatusType {
   DAMAGED = 'DAMAGED',
 }
 
+export enum CounterbalanceTypeEnum {
+  CYLINDER = 'CYLINDER',
+  AIRBAG = 'AIRBAG',
+}
+
+export enum AirbagPistonSealsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LEAKING = 'LEAKING',
+}
+
+export enum RegulatorGaugeType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NOT_OPERATIONAL = 'NOT_OPERATIONAL',
+}
+
+export enum PneumaticsPlumbingType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NOT_OPERATIONAL = 'NOT_OPERATIONAL',
+  LEAKING = 'LEAKING',
+}
+
+export enum RodSealsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LEAKING = 'LEAKING',
+}
+
+export enum RodBushingType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  DARK_OIL = 'DARK_OIL',
+}
+
+export enum OilWickType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NEEDS_REPLACED = 'NEEDS_REPLACED',
+}
+
 // Bearing Clearance Data
 export interface BearingClearanceData {
   totalClearance_RH: number;
@@ -211,11 +259,17 @@ export interface CounterbalanceCylinderData {
   airbagPistonSeals?: string;
   airbagPistonSealsLeakLocation?: string;
   regulator?: string;
-  gaugePSI?: number;
+  gauge?: string;
   pneumaticsPlumbing?: string;
   rodSeals?: string;
   rodBushing?: string;
   oilWick?: string;
+  notes?: string;
+}
+
+export interface CounterbalanceCylinderCheck {
+  outerData?: CounterbalanceCylinderData;
+  innerData?: CounterbalanceCylinderData;
 }
 
 // Service Creation Payload (for API requests)
@@ -230,7 +284,7 @@ export interface CreateServicePayload {
   gibs?: GibsCheck;
   lubricationHydraulics?: LubricationHydraulicsData;
   clutch?: ClutchData;
-  counterbalanceCylinder?: CounterbalanceCylinderData;
+  counterbalanceCylinder?: CounterbalanceCylinderCheck;
 }
 
 export interface UpdateServicePayload {
@@ -243,7 +297,7 @@ export interface UpdateServicePayload {
   gibs?: GibsCheck;
   lubricationHydraulics?: LubricationHydraulicsData;
   clutch?: ClutchData;
-  counterbalanceCylinder?: CounterbalanceCylinderData;
+  counterbalanceCylinder?: CounterbalanceCylinderCheck;
 }
 
 // Complete Service Entity

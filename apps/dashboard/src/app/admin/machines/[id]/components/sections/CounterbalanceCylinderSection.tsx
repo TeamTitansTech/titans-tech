@@ -2,21 +2,28 @@
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronDown } from 'lucide-react';
-import { type CounterbalanceCylinderData, ServiceType } from '@/data/types/services.types';
+import { useTranslations } from 'next-intl';
+import {
+  type CounterbalanceCylinderData,
+  type CounterbalanceCylinderCheck,
+  ServiceType,
+} from '@/data/types/services.types';
 import { CounterbalanceCylinderForm } from '../forms/CounterbalanceCylinderForm';
 import { isDataTouched } from './utils';
 
 export const defaultCounterbalanceCylinderData: CounterbalanceCylinderData = {
-  counterbalanceType: '',
-  airbagPistonSeals: '',
+  counterbalanceType: undefined,
+  airbagPistonSeals: undefined,
   airbagPistonSealsLeakLocation: '',
-  regulator: '',
-  gaugePSI: undefined,
-  pneumaticsPlumbing: '',
-  rodSeals: '',
-  rodBushing: '',
-  oilWick: '',
+  regulator: undefined,
+  gauge: undefined,
+  pneumaticsPlumbing: undefined,
+  rodSeals: undefined,
+  rodBushing: undefined,
+  oilWick: undefined,
+  notes: '',
 };
 
 export const validateCounterbalanceCylinderData = (_data: CounterbalanceCylinderData): string[] => {
@@ -25,14 +32,14 @@ export const validateCounterbalanceCylinderData = (_data: CounterbalanceCylinder
 };
 
 export interface CounterbalanceCylinderSectionRef {
-  getData: () => CounterbalanceCylinderData | undefined;
+  getData: () => CounterbalanceCylinderCheck | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
   isTouched: () => boolean;
   validateAndGetData: (serviceType: ServiceType) => {
     isValid: boolean;
     errors: string[];
-    data?: CounterbalanceCylinderData;
+    data?: CounterbalanceCylinderCheck;
   };
 }
 
@@ -46,15 +53,36 @@ export const CounterbalanceCylinderSection = forwardRef<
   CounterbalanceCylinderSectionRef,
   CounterbalanceCylinderSectionProps
 >(({ isOpen, onOpenChange, onSectionTouched }, ref) => {
-  const [data, setData] = useState<CounterbalanceCylinderData>(defaultCounterbalanceCylinderData);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const t = useTranslations('inspections.form.counterbalanceCylinder');
+  const [outerData, setOuterData] = useState<CounterbalanceCylinderData>(
+    defaultCounterbalanceCylinderData,
+  );
+  const [innerData, setInnerData] = useState<CounterbalanceCylinderData>(
+    defaultCounterbalanceCylinderData,
+  );
+  const [errors, setErrors] = useState<{
+    outer: Record<string, string>;
+    inner: Record<string, string>;
+  }>({
+    outer: {},
+    inner: {},
+  });
 
-  const updateField = (
+  const updateOuterField = (
     field: keyof CounterbalanceCylinderData,
     value: string | number | undefined,
   ) => {
-    setData((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: '' }));
+    setOuterData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, outer: { ...prev.outer, [field]: '' } }));
+    onSectionTouched?.();
+  };
+
+  const updateInnerField = (
+    field: keyof CounterbalanceCylinderData,
+    value: string | number | undefined,
+  ) => {
+    setInnerData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, inner: { ...prev.inner, [field]: '' } }));
     onSectionTouched?.();
   };
 
@@ -64,51 +92,75 @@ export const CounterbalanceCylinderSection = forwardRef<
 
   useImperativeHandle(ref, () => ({
     isTouched: (): boolean => {
-      return isDataTouched(data, defaultCounterbalanceCylinderData);
+      const outerTouched = isDataTouched(outerData, defaultCounterbalanceCylinderData);
+      const innerTouched = isDataTouched(innerData, defaultCounterbalanceCylinderData);
+      return outerTouched || innerTouched;
     },
 
     validateAndGetData: (
       _serviceType: ServiceType,
-    ): { isValid: boolean; errors: string[]; data?: CounterbalanceCylinderData } => {
-      const touched = isDataTouched(data, defaultCounterbalanceCylinderData);
+    ): {
+      isValid: boolean;
+      errors: string[];
+      data?: CounterbalanceCylinderCheck;
+    } => {
+      const outerTouched = isDataTouched(outerData, defaultCounterbalanceCylinderData);
+      const innerTouched = isDataTouched(innerData, defaultCounterbalanceCylinderData);
 
-      if (!touched) {
+      if (!outerTouched && !innerTouched) {
         return { isValid: true, errors: [] };
       }
 
-      const validationErrors = validateCounterbalanceCylinderData(data);
-      const isValid = validationErrors.length === 0;
+      const outerErrors = outerTouched ? validateCounterbalanceCylinderData(outerData) : [];
+      const innerErrors = innerTouched ? validateCounterbalanceCylinderData(innerData) : [];
+      const allErrors = [...outerErrors, ...innerErrors];
+      const isValid = allErrors.length === 0;
 
       if (isValid) {
         return {
           isValid: true,
           errors: [],
-          data,
+          data: {
+            outerData: outerTouched ? outerData : undefined,
+            innerData: innerTouched ? innerData : undefined,
+          },
         };
       }
 
       return {
         isValid: false,
-        errors: validationErrors,
+        errors: allErrors,
       };
     },
 
-    getData: (): CounterbalanceCylinderData | undefined => {
-      const touched = isDataTouched(data, defaultCounterbalanceCylinderData);
-      return touched ? data : undefined;
+    getData: (): CounterbalanceCylinderCheck | undefined => {
+      const outerTouched = isDataTouched(outerData, defaultCounterbalanceCylinderData);
+      const innerTouched = isDataTouched(innerData, defaultCounterbalanceCylinderData);
+
+      if (!outerTouched && !innerTouched) {
+        return undefined;
+      }
+
+      return {
+        outerData: outerTouched ? outerData : undefined,
+        innerData: innerTouched ? innerData : undefined,
+      };
     },
 
     validate: (_serviceType: ServiceType): string[] => {
-      const touched = isDataTouched(data, defaultCounterbalanceCylinderData);
-      if (touched) {
-        return validateCounterbalanceCylinderData(data);
-      }
-      return [];
+      const outerTouched = isDataTouched(outerData, defaultCounterbalanceCylinderData);
+      const innerTouched = isDataTouched(innerData, defaultCounterbalanceCylinderData);
+
+      const outerErrors = outerTouched ? validateCounterbalanceCylinderData(outerData) : [];
+      const innerErrors = innerTouched ? validateCounterbalanceCylinderData(innerData) : [];
+
+      return [...outerErrors, ...innerErrors];
     },
 
     reset: () => {
-      setData(defaultCounterbalanceCylinderData);
-      setErrors({});
+      setOuterData(defaultCounterbalanceCylinderData);
+      setInnerData(defaultCounterbalanceCylinderData);
+      setErrors({ outer: {}, inner: {} });
     },
   }));
 
@@ -124,13 +176,30 @@ export const CounterbalanceCylinderSection = forwardRef<
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div className="border border-t-0 rounded-b-lg p-6 bg-white">
-          <CounterbalanceCylinderForm
-            data={data}
-            updateFn={updateField}
-            errors={errors}
-            handleBlur={handleBlur}
-            title=""
-          />
+          <Tabs defaultValue="outer" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="outer">{t('outer')}</TabsTrigger>
+              <TabsTrigger value="inner">{t('inner')}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="outer" className="space-y-4 pt-4">
+              <CounterbalanceCylinderForm
+                data={outerData}
+                updateFn={updateOuterField}
+                errors={errors.outer}
+                handleBlur={handleBlur}
+                title={t('outer')}
+              />
+            </TabsContent>
+            <TabsContent value="inner" className="space-y-4 pt-4">
+              <CounterbalanceCylinderForm
+                data={innerData}
+                updateFn={updateInnerField}
+                errors={errors.inner}
+                handleBlur={handleBlur}
+                title={t('inner')}
+              />
+            </TabsContent>
+          </Tabs>
         </div>
       </CollapsibleContent>
     </Collapsible>

@@ -498,8 +498,8 @@ class CounterbalanceCylinderDataDto {
   regulator?: string;
 
   @IsOptional()
-  @IsNumber()
-  gaugePSI?: number;
+  @IsString()
+  gauge?: string;
 
   @IsOptional()
   @IsString()
@@ -516,6 +516,22 @@ class CounterbalanceCylinderDataDto {
   @IsOptional()
   @IsString()
   oilWick?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+class CounterbalanceCylinderCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CounterbalanceCylinderDataDto)
+  outerData?: CounterbalanceCylinderDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CounterbalanceCylinderDataDto)
+  innerData?: CounterbalanceCylinderDataDto;
 }
 
 export class CreateServiceDto {
@@ -563,6 +579,6 @@ export class CreateServiceDto {
 
   @IsOptional()
   @ValidateNested()
-  @Type(() => CounterbalanceCylinderDataDto)
-  counterbalanceCylinder?: CounterbalanceCylinderDataDto;
+  @Type(() => CounterbalanceCylinderCheckDto)
+  counterbalanceCylinder?: CounterbalanceCylinderCheckDto;
 }

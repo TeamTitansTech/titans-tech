@@ -8,7 +8,44 @@ import { UpdateServiceDto } from './dto/update-service.dto';
 export class ServicesService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createInspectionDto: CreateServiceDto): Promise<unknown> {
+  async create(createInspectionDto: CreateServiceDto): Promise<
+    Prisma.MachineServiceGetPayload<{
+      include: {
+        machine: { include: { blueprint: true; fields: true } };
+        bearingClearance: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        slide: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        gibs: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        lubricationHydraulics: {
+          include: { data: { include: { gauges: true } } };
+        };
+        clutch: { include: { data: true } };
+        counterbalanceCylinderAirbag: {
+          include: { outerData: true; innerData: true };
+        };
+      };
+    }>
+  > {
     // Verify machine exists and get its blueprint
     const machine = await this.prisma.machine.findUnique({
       where: { id: createInspectionDto.machineId },
@@ -22,187 +59,199 @@ export class ServicesService {
     }
 
     // Create the inspection
-    const inspection = await this.prisma.machineService.create({
-      data: {
-        machineId: createInspectionDto.machineId,
-        date: new Date(createInspectionDto.date),
-        type: createInspectionDto.type,
-        ...(createInspectionDto.status && {
-          status: createInspectionDto.status,
-        }),
-        ...(createInspectionDto.performedBy && {
-          performedBy: createInspectionDto.performedBy,
-        }),
-        ...(createInspectionDto.bearingClearance && {
-          bearingClearance: {
-            create: {
-              outerBefore: createInspectionDto.bearingClearance.outerBefore
-                ? {
-                    create: createInspectionDto.bearingClearance.outerBefore,
-                  }
-                : undefined,
-              outerData: createInspectionDto.bearingClearance.outerAfter
-                ? {
-                    create: createInspectionDto.bearingClearance.outerAfter,
-                  }
-                : undefined,
-              innerBefore: createInspectionDto.bearingClearance.innerBefore
-                ? {
-                    create: createInspectionDto.bearingClearance.innerBefore,
-                  }
-                : undefined,
-              innerData: createInspectionDto.bearingClearance.innerAfter
-                ? {
-                    create: createInspectionDto.bearingClearance.innerAfter,
-                  }
-                : undefined,
-            },
-          },
-        }),
-        ...(createInspectionDto.slide && {
-          slide: {
-            create: {
-              ...(createInspectionDto.slide.outerBefore && {
-                outerBefore: {
-                  create: createInspectionDto.slide.outerBefore,
-                },
-              }),
-              ...(createInspectionDto.slide.outerData && {
-                outerData: {
-                  create: createInspectionDto.slide.outerData,
-                },
-              }),
-              ...(createInspectionDto.slide.innerBefore && {
-                innerBefore: {
-                  create: createInspectionDto.slide.innerBefore,
-                },
-              }),
-              ...(createInspectionDto.slide.innerData && {
-                innerData: {
-                  create: createInspectionDto.slide.innerData,
-                },
-              }),
-              ...(createInspectionDto.slide.parallelism && {
-                parallelism: createInspectionDto.slide.parallelism,
-              }),
-              ...(createInspectionDto.slide.hasParallelismBeenAdjusted && {
-                hasParallelismBeenAdjusted:
-                  createInspectionDto.slide.hasParallelismBeenAdjusted,
-              }),
-              ...(createInspectionDto.slide
-                .outerShutheightIndicatorsChecked && {
-                outerShutheightIndicatorsChecked:
-                  createInspectionDto.slide.outerShutheightIndicatorsChecked,
-              }),
-              ...(createInspectionDto.slide.outerOverloadsOnTonnageMonitor && {
-                outerOverloadsOnTonnageMonitor:
-                  createInspectionDto.slide.outerOverloadsOnTonnageMonitor,
-              }),
-              ...(createInspectionDto.slide.outerShutheightActualSh && {
-                outerShutheightActualSh:
-                  createInspectionDto.slide.outerShutheightActualSh,
-              }),
-              ...(createInspectionDto.slide.outerIndicatorReading && {
-                outerIndicatorReading:
-                  createInspectionDto.slide.outerIndicatorReading,
-              }),
-              ...(createInspectionDto.slide
-                .innerShutheightIndicatorsChecked && {
-                innerShutheightIndicatorsChecked:
-                  createInspectionDto.slide.innerShutheightIndicatorsChecked,
-              }),
-              ...(createInspectionDto.slide.innerOverloadsOnTonnageMonitor && {
-                innerOverloadsOnTonnageMonitor:
-                  createInspectionDto.slide.innerOverloadsOnTonnageMonitor,
-              }),
-              ...(createInspectionDto.slide.innerShutheightActualSh && {
-                innerShutheightActualSh:
-                  createInspectionDto.slide.innerShutheightActualSh,
-              }),
-              ...(createInspectionDto.slide.innerIndicatorReading && {
-                innerIndicatorReading:
-                  createInspectionDto.slide.innerIndicatorReading,
-              }),
-              ...(createInspectionDto.slide.notes && {
-                notes: createInspectionDto.slide.notes,
-              }),
-            },
-          },
-        }),
-        ...(createInspectionDto.gibs && {
-          gibs: {
-            create: {
-              outerBefore: createInspectionDto.gibs.outerBefore
-                ? {
-                    create: createInspectionDto.gibs.outerBefore,
-                  }
-                : undefined,
-              outerData: createInspectionDto.gibs.outerAfter
-                ? {
-                    create: createInspectionDto.gibs.outerAfter,
-                  }
-                : undefined,
-              innerBefore: createInspectionDto.gibs.innerBefore
-                ? {
-                    create: createInspectionDto.gibs.innerBefore,
-                  }
-                : undefined,
-              innerData: createInspectionDto.gibs.innerAfter
-                ? {
-                    create: createInspectionDto.gibs.innerAfter,
-                  }
-                : undefined,
-            },
-          },
-        }),
-        ...(createInspectionDto.lubricationHydraulics && {
-          lubricationHydraulics: {
-            create: {
-              data: {
-                create: {
-                  changedOil:
-                    createInspectionDto.lubricationHydraulics.changedOil,
-                  oilTemperatureF:
-                    createInspectionDto.lubricationHydraulics.oilTemperatureF,
-                  oilMfgType:
-                    createInspectionDto.lubricationHydraulics.oilMfgType,
-                  changedFilter:
-                    createInspectionDto.lubricationHydraulics.changedFilter,
-                  notes: createInspectionDto.lubricationHydraulics.notes,
-                  gauges: {
-                    create:
-                      createInspectionDto.lubricationHydraulics.gauges?.map(
-                        (gauge) => ({
-                          system: gauge.system,
-                          gauge: gauge.gauge,
-                          psi: gauge.psi,
-                        }),
-                      ) || [],
-                  },
-                },
-              },
-            },
-          },
-        }),
-        ...(createInspectionDto.clutch && {
-          clutch: {
-            create: {
-              data: {
-                create: createInspectionDto.clutch,
-              },
-            },
-          },
-        }),
-        ...(createInspectionDto.counterbalanceCylinder && {
-          counterbalanceCylinderAirbag: {
-            create: {
-              outerData: {
-                create: createInspectionDto.counterbalanceCylinder,
-              },
-            },
-          },
-        }),
+    const dataPayload: Prisma.MachineServiceCreateInput = {
+      machine: {
+        connect: { id: createInspectionDto.machineId },
       },
+      date: new Date(createInspectionDto.date),
+      type: createInspectionDto.type,
+      ...(createInspectionDto.status && {
+        status: createInspectionDto.status,
+      }),
+      ...(createInspectionDto.performedBy && {
+        performedBy: createInspectionDto.performedBy,
+      }),
+      ...(createInspectionDto.bearingClearance && {
+        bearingClearance: {
+          create: {
+            outerBefore: createInspectionDto.bearingClearance.outerBefore
+              ? {
+                  create: createInspectionDto.bearingClearance.outerBefore,
+                }
+              : undefined,
+            outerData: createInspectionDto.bearingClearance.outerAfter
+              ? {
+                  create: createInspectionDto.bearingClearance.outerAfter,
+                }
+              : undefined,
+            innerBefore: createInspectionDto.bearingClearance.innerBefore
+              ? {
+                  create: createInspectionDto.bearingClearance.innerBefore,
+                }
+              : undefined,
+            innerData: createInspectionDto.bearingClearance.innerAfter
+              ? {
+                  create: createInspectionDto.bearingClearance.innerAfter,
+                }
+              : undefined,
+          },
+        },
+      }),
+      ...(createInspectionDto.slide && {
+        slide: {
+          create: {
+            ...(createInspectionDto.slide.outerBefore && {
+              outerBefore: {
+                create: createInspectionDto.slide.outerBefore,
+              },
+            }),
+            ...(createInspectionDto.slide.outerData && {
+              outerData: {
+                create: createInspectionDto.slide.outerData,
+              },
+            }),
+            ...(createInspectionDto.slide.innerBefore && {
+              innerBefore: {
+                create: createInspectionDto.slide.innerBefore,
+              },
+            }),
+            ...(createInspectionDto.slide.innerData && {
+              innerData: {
+                create: createInspectionDto.slide.innerData,
+              },
+            }),
+            ...(createInspectionDto.slide.parallelism && {
+              parallelism: createInspectionDto.slide.parallelism,
+            }),
+            ...(createInspectionDto.slide.hasParallelismBeenAdjusted && {
+              hasParallelismBeenAdjusted:
+                createInspectionDto.slide.hasParallelismBeenAdjusted,
+            }),
+            ...(createInspectionDto.slide.outerShutheightIndicatorsChecked && {
+              outerShutheightIndicatorsChecked:
+                createInspectionDto.slide.outerShutheightIndicatorsChecked,
+            }),
+            ...(createInspectionDto.slide.outerOverloadsOnTonnageMonitor && {
+              outerOverloadsOnTonnageMonitor:
+                createInspectionDto.slide.outerOverloadsOnTonnageMonitor,
+            }),
+            ...(createInspectionDto.slide.outerShutheightActualSh && {
+              outerShutheightActualSh:
+                createInspectionDto.slide.outerShutheightActualSh,
+            }),
+            ...(createInspectionDto.slide.outerIndicatorReading && {
+              outerIndicatorReading:
+                createInspectionDto.slide.outerIndicatorReading,
+            }),
+            ...(createInspectionDto.slide.innerShutheightIndicatorsChecked && {
+              innerShutheightIndicatorsChecked:
+                createInspectionDto.slide.innerShutheightIndicatorsChecked,
+            }),
+            ...(createInspectionDto.slide.innerOverloadsOnTonnageMonitor && {
+              innerOverloadsOnTonnageMonitor:
+                createInspectionDto.slide.innerOverloadsOnTonnageMonitor,
+            }),
+            ...(createInspectionDto.slide.innerShutheightActualSh && {
+              innerShutheightActualSh:
+                createInspectionDto.slide.innerShutheightActualSh,
+            }),
+            ...(createInspectionDto.slide.innerIndicatorReading && {
+              innerIndicatorReading:
+                createInspectionDto.slide.innerIndicatorReading,
+            }),
+            ...(createInspectionDto.slide.notes && {
+              notes: createInspectionDto.slide.notes,
+            }),
+          },
+        },
+      }),
+      ...(createInspectionDto.gibs && {
+        gibs: {
+          create: {
+            outerBefore: createInspectionDto.gibs.outerBefore
+              ? {
+                  create: createInspectionDto.gibs.outerBefore,
+                }
+              : undefined,
+            outerData: createInspectionDto.gibs.outerAfter
+              ? {
+                  create: createInspectionDto.gibs.outerAfter,
+                }
+              : undefined,
+            innerBefore: createInspectionDto.gibs.innerBefore
+              ? {
+                  create: createInspectionDto.gibs.innerBefore,
+                }
+              : undefined,
+            innerData: createInspectionDto.gibs.innerAfter
+              ? {
+                  create: createInspectionDto.gibs.innerAfter,
+                }
+              : undefined,
+          },
+        },
+      }),
+      ...(createInspectionDto.lubricationHydraulics && {
+        lubricationHydraulics: {
+          create: {
+            data: {
+              create: {
+                changedOil:
+                  createInspectionDto.lubricationHydraulics.changedOil,
+                oilTemperatureF:
+                  createInspectionDto.lubricationHydraulics.oilTemperatureF,
+                oilMfgType:
+                  createInspectionDto.lubricationHydraulics.oilMfgType,
+                changedFilter:
+                  createInspectionDto.lubricationHydraulics.changedFilter,
+                notes: createInspectionDto.lubricationHydraulics.notes,
+                gauges: {
+                  create:
+                    createInspectionDto.lubricationHydraulics.gauges?.map(
+                      (gauge) => ({
+                        system: gauge.system,
+                        gauge: gauge.gauge,
+                        psi: gauge.psi,
+                      }),
+                    ) || [],
+                },
+              },
+            },
+          },
+        },
+      }),
+      ...(createInspectionDto.clutch && {
+        clutch: {
+          create: {
+            data: {
+              create: createInspectionDto.clutch,
+            },
+          },
+        },
+      }),
+      ...((createInspectionDto.counterbalanceCylinder?.outerData ||
+        createInspectionDto.counterbalanceCylinder?.innerData) && {
+        counterbalanceCylinderAirbag: {
+          create: {
+            ...(createInspectionDto.counterbalanceCylinder.outerData && {
+              outerData: {
+                create: createInspectionDto.counterbalanceCylinder
+                  .outerData as Prisma.CounterbalanceCylinderAirbagDataCreateWithoutOuterServicesInput,
+              },
+            }),
+            ...(createInspectionDto.counterbalanceCylinder.innerData && {
+              innerData: {
+                create: createInspectionDto.counterbalanceCylinder
+                  .innerData as Prisma.CounterbalanceCylinderAirbagDataCreateWithoutInnerServicesInput,
+              },
+            }),
+          },
+        },
+      }),
+    };
+
+    const inspection = await this.prisma.machineService.create({
+      data: dataPayload,
       include: {
         machine: {
           include: {
@@ -260,7 +309,44 @@ export class ServicesService {
     return inspection;
   }
 
-  async findAll(): Promise<unknown> {
+  async findAll(): Promise<
+    Prisma.MachineServiceGetPayload<{
+      include: {
+        machine: { include: { blueprint: true; fields: true } };
+        bearingClearance: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        slide: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        gibs: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        lubricationHydraulics: {
+          include: { data: { include: { gauges: true } } };
+        };
+        clutch: { include: { data: true } };
+        counterbalanceCylinderAirbag: {
+          include: { outerData: true; innerData: true };
+        };
+      };
+    }>[]
+  > {
     return this.prisma.machineService.findMany({
       include: {
         machine: {
@@ -320,7 +406,44 @@ export class ServicesService {
     });
   }
 
-  async findOne(id: string): Promise<unknown> {
+  async findOne(id: string): Promise<
+    Prisma.MachineServiceGetPayload<{
+      include: {
+        machine: { include: { blueprint: true; fields: true } };
+        bearingClearance: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        slide: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        gibs: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        lubricationHydraulics: {
+          include: { data: { include: { gauges: true } } };
+        };
+        clutch: { include: { data: true } };
+        counterbalanceCylinderAirbag: {
+          include: { outerData: true; innerData: true };
+        };
+      };
+    }>
+  > {
     const inspection = await this.prisma.machineService.findUnique({
       where: { id },
       include: {
@@ -384,7 +507,44 @@ export class ServicesService {
     return inspection;
   }
 
-  async findByMachine(machineId: string): Promise<unknown> {
+  async findByMachine(machineId: string): Promise<
+    Prisma.MachineServiceGetPayload<{
+      include: {
+        machine: { include: { blueprint: true; fields: true } };
+        bearingClearance: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        slide: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        gibs: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        lubricationHydraulics: {
+          include: { data: { include: { gauges: true } } };
+        };
+        clutch: { include: { data: true } };
+        counterbalanceCylinderAirbag: {
+          include: { outerData: true; innerData: true };
+        };
+      };
+    }>[]
+  > {
     const machine = await this.prisma.machine.findUnique({
       where: { id: machineId },
     });
@@ -456,7 +616,44 @@ export class ServicesService {
   async update(
     id: string,
     updateServiceDto: UpdateServiceDto,
-  ): Promise<unknown> {
+  ): Promise<
+    Prisma.MachineServiceGetPayload<{
+      include: {
+        machine: { include: { blueprint: true; fields: true } };
+        bearingClearance: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        slide: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        gibs: {
+          include: {
+            outerBefore: true;
+            outerData: true;
+            innerBefore: true;
+            innerData: true;
+          };
+        };
+        lubricationHydraulics: {
+          include: { data: { include: { gauges: true } } };
+        };
+        clutch: { include: { data: true } };
+        counterbalanceCylinderAirbag: {
+          include: { outerData: true; innerData: true };
+        };
+      };
+    }>
+  > {
     // Verify service exists
     const existingService = await this.prisma.machineService.findUnique({
       where: { id },
@@ -606,16 +803,26 @@ export class ServicesService {
               },
             }
           : undefined,
-        counterbalanceCylinderAirbag: updateServiceDto.counterbalanceCylinder
-          ? {
-              create: {
-                outerData: {
-                  create:
-                    updateServiceDto.counterbalanceCylinder as Prisma.CounterbalanceCylinderAirbagDataCreateWithoutOuterServicesInput,
+        counterbalanceCylinderAirbag:
+          updateServiceDto.counterbalanceCylinder?.outerData ||
+          updateServiceDto.counterbalanceCylinder?.innerData
+            ? {
+                create: {
+                  ...(updateServiceDto.counterbalanceCylinder.outerData && {
+                    outerData: {
+                      create: updateServiceDto.counterbalanceCylinder
+                        .outerData as Prisma.CounterbalanceCylinderAirbagDataCreateWithoutOuterServicesInput,
+                    },
+                  }),
+                  ...(updateServiceDto.counterbalanceCylinder.innerData && {
+                    innerData: {
+                      create: updateServiceDto.counterbalanceCylinder
+                        .innerData as Prisma.CounterbalanceCylinderAirbagDataCreateWithoutInnerServicesInput,
+                    },
+                  }),
                 },
-              },
-            }
-          : undefined,
+              }
+            : undefined,
       },
       include: {
         machine: {

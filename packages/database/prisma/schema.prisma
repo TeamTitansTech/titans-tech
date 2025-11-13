@@ -66,6 +66,54 @@ enum MeasurementUnit {
   MM
 }
 
+enum CounterbalanceTypeEnum {
+  CYLINDER
+  AIRBAG
+}
+
+enum AirbagPistonSealsType {
+  OK
+  NA
+  DNC
+  LEAKING
+}
+
+enum RegulatorGaugeType {
+  OK
+  NA
+  DNC
+  NOT_OPERATIONAL
+}
+
+enum PneumaticsPlumbingType {
+  OK
+  NA
+  DNC
+  NOT_OPERATIONAL
+  LEAKING
+}
+
+enum RodSealsType {
+  OK
+  NA
+  DNC
+  LEAKING
+}
+
+enum RodBushingType {
+  OK
+  NA
+  DNC
+  DARK_OIL
+}
+
+enum OilWickType {
+  OK
+  NA
+  DNC
+  NEEDS_REPLACED
+}
+
 enum ServiceSection {
   BEARING_CLEARANCE
   SLIDE
@@ -576,25 +624,28 @@ model MachineServiceCounterbalanceCylinderAirbag {
 model CounterbalanceCylinderAirbagData {
   id String @id @default(cuid())
 
-  counterbalanceType String?
+  counterbalanceType CounterbalanceTypeEnum?
 
   // Airbag/Piston condition
-  airbagPistonSeals             String?
+  airbagPistonSeals             AirbagPistonSealsType?
   airbagPistonSealsLeakLocation String?
 
   // Regulator and gauges
-  regulator String?
-  gaugePSI  Decimal? @db.Decimal(10, 2)
+  regulator RegulatorGaugeType?
+  gauge     RegulatorGaugeType?
 
   // Pneumatics
-  pneumaticsPlumbing String?
+  pneumaticsPlumbing PneumaticsPlumbingType?
 
   // Rod condition
-  rodSeals   String?
-  rodBushing String?
+  rodSeals   RodSealsType?
+  rodBushing RodBushingType?
 
   // Oil
-  oilWick String?
+  oilWick OilWickType?
+
+  // Notes
+  notes String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

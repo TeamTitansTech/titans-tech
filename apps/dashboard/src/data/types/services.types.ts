@@ -14,6 +14,14 @@ export {
   YesNoDncType,
   SystemType,
   PsiStatusType,
+  // Counterbalance Cylinder Enums
+  CounterbalanceTypeEnum,
+  AirbagPistonSealsType,
+  RegulatorGaugeType,
+  PneumaticsPlumbingType,
+  RodSealsType,
+  RodBushingType,
+  OilWickType,
 } from '@titans-tech/shared/types';
 
 export type {
@@ -28,6 +36,7 @@ export type {
   LubricationHydraulicsGauge,
   ClutchData,
   CounterbalanceCylinderData,
+  CounterbalanceCylinderCheck,
   // Service entity
   Service,
   ServiceHistoryItem,

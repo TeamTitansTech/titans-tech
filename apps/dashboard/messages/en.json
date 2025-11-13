@@ -605,15 +605,60 @@
       },
       "counterbalanceCylinder": {
         "counterbalanceType": "Counterbalance Type",
-        "gaugePSI": "Gauge PSI",
         "airbagConditionTitle": "Airbag/Piston Condition",
-        "airbagPistonSeals": "Airbag/Piston Seals",
-        "leakLocation": "Leak Location",
+        "pistonSeals": "Piston Seals",
+        "leakLocation": "If seals leaking, where?",
         "regulator": "Regulator",
+        "gauge": "Gauge",
         "pneumaticsPlumbing": "Pneumatics/Plumbing",
         "rodSeals": "Rod Seals",
         "rodBushing": "Rod Bushing",
-        "oilWick": "Oil Wick"
+        "oilWick": "Oil Wick",
+        "notes": "Notes",
+        "selectPlaceholder": "Select an option",
+        "outer": "Outer",
+        "inner": "Inner",
+        "counterbalanceTypes": {
+          "cylinder": "Cylinder",
+          "airbag": "Airbag"
+        },
+        "airbagPistonSealsType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Leaking"
+        },
+        "regulatorGaugeType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "not_operational": "Not Operational"
+        },
+        "pneumaticsPlumbingType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "not_operational": "Not Operational",
+          "leaking": "Leaking"
+        },
+        "rodSealsType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Leaking"
+        },
+        "rodBushingType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "dark_oil": "Dark Oil"
+        },
+        "oilWickType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "needs_replaced": "Needs Replaced"
+        }
       },
       "cancel": "Cancel",
       "submit": {

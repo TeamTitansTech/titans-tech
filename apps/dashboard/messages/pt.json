@@ -628,15 +628,60 @@
       },
       "counterbalanceCylinder": {
         "counterbalanceType": "Tipo de Contrapeso",
-        "gaugePSI": "PSI do Medidor",
         "airbagConditionTitle": "Condição do Airbag/Pistão",
-        "airbagPistonSeals": "Vedações do Airbag/Pistão",
-        "leakLocation": "Localização do Vazamento",
+        "pistonSeals": "Vedações do Pistão",
+        "leakLocation": "Se vedações vazando, onde?",
         "regulator": "Regulador",
+        "gauge": "Medidor",
         "pneumaticsPlumbing": "Pneumática/Encanamento",
         "rodSeals": "Vedações da Haste",
         "rodBushing": "Bucha da Haste",
-        "oilWick": "Pavio de Óleo"
+        "oilWick": "Pavio de Óleo",
+        "notes": "Notas",
+        "selectPlaceholder": "Selecione uma opção",
+        "outer": "Externo",
+        "inner": "Interno",
+        "counterbalanceTypes": {
+          "cylinder": "Cilindro",
+          "airbag": "Airbag"
+        },
+        "airbagPistonSealsType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Vazando"
+        },
+        "regulatorGaugeType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "not_operational": "Não Operacional"
+        },
+        "pneumaticsPlumbingType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "not_operational": "Não Operacional",
+          "leaking": "Vazando"
+        },
+        "rodSealsType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Vazando"
+        },
+        "rodBushingType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "dark_oil": "Óleo Escuro"
+        },
+        "oilWickType": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "needs_replaced": "Precisa Substituir"
+        }
       },
       "cancel": "Cancelar",
       "submit": {
