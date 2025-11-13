@@ -133,9 +133,7 @@ export function CounterbalanceCylinderForm({
             className={`mt-1 ${errors.airbagPistonSealsLeakLocation ? 'border-destructive' : ''}`}
           />
           {errors.airbagPistonSealsLeakLocation && (
-            <p className="text-xs text-destructive mt-1">
-              {errors.airbagPistonSealsLeakLocation}
-            </p>
+            <p className="text-xs text-destructive mt-1">{errors.airbagPistonSealsLeakLocation}</p>
           )}
         </div>
       </div>
