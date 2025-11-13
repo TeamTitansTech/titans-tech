@@ -97,10 +97,10 @@ export function ServiceCompletionModal({
 
   // Section selection state
   // For inspections: pre-select all sections (always)
-  // For completing maintenance: pre-select all sections (but user can still see selection)
+  // For completing maintenance: start with empty set (user selects what they maintained)
   // For new maintenance: start with empty set
   const [selectedSections, setSelectedSections] = useState<Set<string>>(
-    isInspection || isCompletingService ? new Set(machineSections) : new Set(),
+    isInspection ? new Set(machineSections) : new Set(),
   );
 
   // Service details
@@ -145,9 +145,7 @@ export function ServiceCompletionModal({
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentStep(shouldSkipSelection ? 'details' : 'selection');
       setCurrentSectionIndex(0);
-      setSelectedSections(
-        isInspection || isCompletingService ? new Set(machineSections) : new Set(),
-      );
+      setSelectedSections(isInspection ? new Set(machineSections) : new Set());
       setDate(getInitialDate());
       setSelectedServiceType(serviceType || ServiceType.INSPECTION);
       setPerformedBy(initialPerformedBy || '');
@@ -584,7 +582,7 @@ export function ServiceCompletionModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full md:w-[1200px] h-[85vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
+      <DialogContent className="w-full md:w-[1200px] h-[86vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle>
             {isCompletingService
@@ -612,7 +610,7 @@ export function ServiceCompletionModal({
 
         {currentStep === 'selection' ? (
           // Step 1: Section Selection
-          <div className="flex-1 overflow-y-auto py-4">
+          <div className="flex-1 overflow-y-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {machineSections.map((sectionKey) => {
                 const sectionConfig = SECTION_REGISTRY[sectionKey];
