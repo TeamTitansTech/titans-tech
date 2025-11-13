@@ -276,27 +276,27 @@ model AlertBearingClearance {
   id               String @id @default(cuid())
   machineServiceId String @unique
 
-  // Total Clearance alert - apenas differential e severity
+  // Total Clearance alert - only differential and severity
   totalClearance_differential Decimal      @db.Decimal(10, 4)
   totalClearance_severity    AlertSeverity
 
-  // Main Bearings alert - apenas differential e severity
+  // Main Bearings alert - only differential and severity
   mainBearings_differential Decimal      @db.Decimal(10, 4)
   mainBearings_severity    AlertSeverity
 
-  // Upper Connection Bearings alert - apenas differential e severity
+  // Upper Connection Bearings alert - only differential and severity
   upperConnectionBearings_differential Decimal      @db.Decimal(10, 4)
   upperConnectionBearings_severity    AlertSeverity
 
-  // Wrist Pin to Mating Part alert - apenas differential e severity
+  // Wrist Pin to Mating Part alert - only differential and severity
   wristPinToMatingPart_differential Decimal      @db.Decimal(10, 4)
   wristPinToMatingPart_severity    AlertSeverity
 
-  // Wrist Pin to Bushing alert - apenas differential e severity
+  // Wrist Pin to Bushing alert - only differential and severity
   wristPinToBushing_differential Decimal      @db.Decimal(10, 4)
   wristPinToBushing_severity    AlertSeverity
 
-  // Slide Adj Nut to Screw/Sleeve alert - apenas differential e severity
+  // Slide Adj Nut to Screw/Sleeve alert - only differential and severity
   slideAdjNutToScrewSleeve_differential Decimal      @db.Decimal(10, 4)
   slideAdjNutToScrewSleeve_severity    AlertSeverity
 
