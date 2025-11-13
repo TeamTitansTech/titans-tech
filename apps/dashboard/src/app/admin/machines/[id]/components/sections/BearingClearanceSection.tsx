@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -94,42 +94,117 @@ export interface BearingClearanceSectionRef {
 interface BearingClearanceSectionProps {
   onSectionTouched: () => void;
   serviceType: ServiceType;
+  initialData?: BearingClearanceSectionData;
 }
 
 export const BearingClearanceSection = forwardRef<
   BearingClearanceSectionRef,
   BearingClearanceSectionProps
->(({ onSectionTouched, serviceType }, ref) => {
+>(({ onSectionTouched, serviceType, initialData }, ref) => {
   const t = useTranslations('inspections');
 
   // State
-  const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
+  const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(
+    !!(initialData?.outerBefore || initialData?.innerBefore),
+  );
   const [isBeforeOpen, setIsBeforeOpen] = useState(true);
   const [isAfterOpen, setIsAfterOpen] = useState(true);
-  const [outerBeforeData, setOuterBeforeData] = useState<BearingClearanceData>(defaultBearingData);
-  const [outerAfterData, setOuterAfterData] = useState<BearingClearanceData>(defaultBearingData);
-  const [innerBeforeData, setInnerBeforeData] = useState<BearingClearanceData>(defaultBearingData);
-  const [innerAfterData, setInnerAfterData] = useState<BearingClearanceData>(defaultBearingData);
+  const [outerBeforeData, setOuterBeforeData] = useState<BearingClearanceData>(
+    initialData?.outerBefore || defaultBearingData,
+  );
+  const [outerAfterData, setOuterAfterData] = useState<BearingClearanceData>(
+    initialData?.outerAfter || defaultBearingData,
+  );
+  const [innerBeforeData, setInnerBeforeData] = useState<BearingClearanceData>(
+    initialData?.innerBefore || defaultBearingData,
+  );
+  const [innerAfterData, setInnerAfterData] = useState<BearingClearanceData>(
+    initialData?.innerAfter || defaultBearingData,
+  );
+
+  // Shared field (applies to both Outer and Inner)
+  const [hasBeenAdjusted, setHasBeenAdjusted] = useState(
+    (
+      initialData?.outerAfter ||
+      initialData?.outerBefore ||
+      initialData?.innerAfter ||
+      initialData?.innerBefore
+    )?.hasBeenAdjusted || '',
+  );
 
   // Tab-specific fields (separate for Outer and Inner)
-  const [outerHasBeenAdjusted, setOuterHasBeenAdjusted] = useState('');
-  const [outerCombinedWith, setOuterCombinedWith] = useState('');
-  const [outerMatingPart, setOuterMatingPart] = useState<MatingPartType>(MatingPartType.BUSHING);
-  const [innerHasBeenAdjusted, setInnerHasBeenAdjusted] = useState('');
-  const [innerCombinedWith, setInnerCombinedWith] = useState('');
-  const [innerMatingPart, setInnerMatingPart] = useState<MatingPartType>(MatingPartType.BUSHING);
+  const [outerCombinedWith, setOuterCombinedWith] = useState(
+    (initialData?.outerAfter || initialData?.outerBefore)?.combinedWith || '',
+  );
+  const [outerMatingPart, setOuterMatingPart] = useState<MatingPartType>(
+    (initialData?.outerAfter || initialData?.outerBefore)?.matingPart || MatingPartType.BUSHING,
+  );
+  const [innerCombinedWith, setInnerCombinedWith] = useState(
+    (initialData?.innerAfter || initialData?.innerBefore)?.combinedWith || '',
+  );
+  const [innerMatingPart, setInnerMatingPart] = useState<MatingPartType>(
+    (initialData?.innerAfter || initialData?.innerBefore)?.matingPart || MatingPartType.BUSHING,
+  );
 
   // Shared fields (Shutdown Adjustment Mechanism)
-  const [slideMotorMounts, setSlideMotorMounts] = useState('');
-  const [powerCordHoses, setPowerCordHoses] = useState('');
-  const [chainsGearsSprockets, setChainsGearsSprockets] = useState('');
-  const [lockingClamps, setLockingClamps] = useState('');
-  const [notes, setNotes] = useState('');
+  const [slideMotorMounts, setSlideMotorMounts] = useState(
+    (initialData?.outerAfter || initialData?.outerBefore)?.slideMotorMounts || '',
+  );
+  const [powerCordHoses, setPowerCordHoses] = useState(
+    (initialData?.outerAfter || initialData?.outerBefore)?.powerCordHoses || '',
+  );
+  const [chainsGearsSprockets, setChainsGearsSprockets] = useState(
+    (initialData?.outerAfter || initialData?.outerBefore)?.chainsGearsSprockets || '',
+  );
+  const [lockingClamps, setLockingClamps] = useState(
+    (initialData?.outerAfter || initialData?.outerBefore)?.lockingClamps || '',
+  );
+  const [notes, setNotes] = useState(
+    (initialData?.outerAfter || initialData?.outerBefore)?.notes || '',
+  );
 
   const [outerBeforeErrors, setOuterBeforeErrors] = useState<Record<string, string>>({});
   const [outerAfterErrors, setOuterAfterErrors] = useState<Record<string, string>>({});
   const [innerBeforeErrors, setInnerBeforeErrors] = useState<Record<string, string>>({});
   const [innerAfterErrors, setInnerAfterErrors] = useState<Record<string, string>>({});
+
+  // Sync with initialData when it changes
+  useEffect(() => {
+    if (initialData) {
+      setIncludeBeforeMeasurements(!!(initialData.outerBefore || initialData.innerBefore));
+      if (initialData.outerBefore) setOuterBeforeData(initialData.outerBefore);
+      if (initialData.outerAfter) setOuterAfterData(initialData.outerAfter);
+      if (initialData.innerBefore) setInnerBeforeData(initialData.innerBefore);
+      if (initialData.innerAfter) setInnerAfterData(initialData.innerAfter);
+
+      const anyData =
+        initialData.outerAfter ||
+        initialData.outerBefore ||
+        initialData.innerAfter ||
+        initialData.innerBefore;
+      const outerData = initialData.outerAfter || initialData.outerBefore;
+      const innerData = initialData.innerAfter || initialData.innerBefore;
+
+      if (anyData) {
+        if (anyData.hasBeenAdjusted) setHasBeenAdjusted(anyData.hasBeenAdjusted);
+        if (anyData.slideMotorMounts) setSlideMotorMounts(anyData.slideMotorMounts);
+        if (anyData.powerCordHoses) setPowerCordHoses(anyData.powerCordHoses);
+        if (anyData.chainsGearsSprockets) setChainsGearsSprockets(anyData.chainsGearsSprockets);
+        if (anyData.lockingClamps) setLockingClamps(anyData.lockingClamps);
+        if (anyData.notes) setNotes(anyData.notes);
+      }
+
+      if (outerData) {
+        if (outerData.combinedWith) setOuterCombinedWith(outerData.combinedWith);
+        if (outerData.matingPart) setOuterMatingPart(outerData.matingPart);
+      }
+
+      if (innerData) {
+        if (innerData.combinedWith) setInnerCombinedWith(innerData.combinedWith);
+        if (innerData.matingPart) setInnerMatingPart(innerData.matingPart);
+      }
+    }
+  }, [initialData]);
 
   // Update functions
   const updateOuterBeforeField = (
@@ -216,6 +291,7 @@ export const BearingClearanceSection = forwardRef<
 
       // Shared fields for all measurements
       const sharedFields = {
+        hasBeenAdjusted,
         slideMotorMounts,
         powerCordHoses,
         chainsGearsSprockets,
@@ -225,7 +301,6 @@ export const BearingClearanceSection = forwardRef<
 
       // Outer-specific fields
       const outerFields = {
-        hasBeenAdjusted: outerHasBeenAdjusted,
         combinedWith: outerCombinedWith,
         matingPart: outerMatingPart,
         ...sharedFields,
@@ -233,7 +308,6 @@ export const BearingClearanceSection = forwardRef<
 
       // Inner-specific fields
       const innerFields = {
-        hasBeenAdjusted: innerHasBeenAdjusted,
         combinedWith: innerCombinedWith,
         matingPart: innerMatingPart,
         ...sharedFields,
@@ -314,10 +388,9 @@ export const BearingClearanceSection = forwardRef<
       setOuterAfterData(defaultBearingData);
       setInnerBeforeData(defaultBearingData);
       setInnerAfterData(defaultBearingData);
-      setOuterHasBeenAdjusted('');
+      setHasBeenAdjusted('');
       setOuterCombinedWith('');
       setOuterMatingPart(MatingPartType.BUSHING);
-      setInnerHasBeenAdjusted('');
       setInnerCombinedWith('');
       setInnerMatingPart(MatingPartType.BUSHING);
       setSlideMotorMounts('');
@@ -368,6 +441,34 @@ export const BearingClearanceSection = forwardRef<
                 />
               </CollapsibleTrigger>
               <CollapsibleContent>
+                {/* Has Been Adjusted - Shared Field */}
+                <div className="mb-6 pt-4">
+                  <Label
+                    htmlFor="hasBeenAdjustedBefore"
+                    className="text-xs font-semibold mb-2 block"
+                  >
+                    Has Been Adjusted
+                  </Label>
+                  <Select
+                    value={hasBeenAdjusted}
+                    onValueChange={(value) => {
+                      setHasBeenAdjusted(value);
+                      onSectionTouched();
+                    }}
+                    modal={false}
+                  >
+                    <SelectTrigger id="hasBeenAdjustedBefore" className="text-sm w-full max-w-xs">
+                      <SelectValue placeholder="Select option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="N/A">N/A</SelectItem>
+                      <SelectItem value="DNC">DNC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <Tabs defaultValue="outer" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
                     <TabsTrigger value="outer">Outer</TabsTrigger>
@@ -376,7 +477,7 @@ export const BearingClearanceSection = forwardRef<
 
                   <TabsContent value="outer" className="space-y-6">
                     <div className="pt-6 border-t">
-                      <div className="grid grid-cols-3 gap-6 items-end">
+                      <div className="grid grid-cols-2 gap-6 items-end">
                         {/* Combined With */}
                         <div>
                           <Label
@@ -425,33 +526,6 @@ export const BearingClearanceSection = forwardRef<
                             </SelectContent>
                           </Select>
                         </div>
-
-                        {/* Has Been Adjusted Select */}
-                        <div>
-                          <Label
-                            htmlFor="outerHasBeenAdjusted"
-                            className="text-xs font-semibold mb-2 block"
-                          >
-                            Has Been Adjusted
-                          </Label>
-                          <Select
-                            value={outerHasBeenAdjusted}
-                            onValueChange={(value) => {
-                              setOuterHasBeenAdjusted(value);
-                              onSectionTouched();
-                            }}
-                          >
-                            <SelectTrigger id="outerHasBeenAdjusted" className="text-sm">
-                              <SelectValue placeholder="Select option" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Yes">Yes</SelectItem>
-                              <SelectItem value="No">No</SelectItem>
-                              <SelectItem value="N/A">N/A</SelectItem>
-                              <SelectItem value="DNC">DNC</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
                       </div>
                     </div>
                     <BearingClearanceForm
@@ -465,7 +539,7 @@ export const BearingClearanceSection = forwardRef<
 
                   <TabsContent value="inner" className="space-y-6">
                     <div className="pt-6 border-t">
-                      <div className="grid grid-cols-3 gap-6 items-end">
+                      <div className="grid grid-cols-2 gap-6 items-end">
                         {/* Combined With */}
                         <div>
                           <Label
@@ -514,33 +588,6 @@ export const BearingClearanceSection = forwardRef<
                             </SelectContent>
                           </Select>
                         </div>
-
-                        {/* Has Been Adjusted Select */}
-                        <div>
-                          <Label
-                            htmlFor="innerHasBeenAdjusted"
-                            className="text-xs font-semibold mb-2 block"
-                          >
-                            Has Been Adjusted
-                          </Label>
-                          <Select
-                            value={innerHasBeenAdjusted}
-                            onValueChange={(value) => {
-                              setInnerHasBeenAdjusted(value);
-                              onSectionTouched();
-                            }}
-                          >
-                            <SelectTrigger id="innerHasBeenAdjusted" className="text-sm">
-                              <SelectValue placeholder="Select option" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Yes">Yes</SelectItem>
-                              <SelectItem value="No">No</SelectItem>
-                              <SelectItem value="N/A">N/A</SelectItem>
-                              <SelectItem value="DNC">DNC</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
                       </div>
                     </div>
                     <BearingClearanceForm
@@ -571,6 +618,34 @@ export const BearingClearanceSection = forwardRef<
                 />
               </CollapsibleTrigger>
               <CollapsibleContent>
+                {/* Has Been Adjusted - Shared Field */}
+                <div className="mb-6 pt-4">
+                  <Label
+                    htmlFor="hasBeenAdjustedAfter"
+                    className="text-xs font-semibold mb-2 block"
+                  >
+                    Has Been Adjusted
+                  </Label>
+                  <Select
+                    value={hasBeenAdjusted}
+                    onValueChange={(value) => {
+                      setHasBeenAdjusted(value);
+                      onSectionTouched();
+                    }}
+                    modal={false}
+                  >
+                    <SelectTrigger id="hasBeenAdjustedAfter" className="text-sm w-full max-w-xs">
+                      <SelectValue placeholder="Select option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="N/A">N/A</SelectItem>
+                      <SelectItem value="DNC">DNC</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <Tabs defaultValue="outer" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 mb-4">
                     <TabsTrigger value="outer">Outer</TabsTrigger>
@@ -578,6 +653,59 @@ export const BearingClearanceSection = forwardRef<
                   </TabsList>
 
                   <TabsContent value="outer" className="space-y-6">
+                    <div className="pt-6 border-t">
+                      <div className="grid grid-cols-2 gap-6 items-end">
+                        {/* Combined With */}
+                        <div>
+                          <Label
+                            htmlFor="outerCombinedWithAfter"
+                            className="text-xs font-semibold mb-2 block"
+                          >
+                            Combined With
+                          </Label>
+                          <Input
+                            id="outerCombinedWithAfter"
+                            type="text"
+                            value={outerCombinedWith}
+                            onChange={(e) => {
+                              setOuterCombinedWith(e.target.value);
+                              onSectionTouched();
+                            }}
+                            placeholder="Reference measurement"
+                            className="text-sm"
+                          />
+                        </div>
+
+                        {/* Mating Part Type */}
+                        <div>
+                          <Label
+                            htmlFor="outerMatingPartAfter"
+                            className="text-xs font-semibold mb-2 block"
+                          >
+                            Mating Part Type
+                          </Label>
+                          <Select
+                            value={outerMatingPart}
+                            onValueChange={(value) => {
+                              setOuterMatingPart(value as MatingPartType);
+                              onSectionTouched();
+                            }}
+                            modal={false}
+                          >
+                            <SelectTrigger id="outerMatingPartAfter" className="text-sm">
+                              <SelectValue placeholder="Select mating part" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
+                              <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                              <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
+                                Nut Screw Sleeve
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
                     <BearingClearanceForm
                       title=""
                       data={outerAfterData}
@@ -588,6 +716,59 @@ export const BearingClearanceSection = forwardRef<
                   </TabsContent>
 
                   <TabsContent value="inner" className="space-y-6">
+                    <div className="pt-6 border-t">
+                      <div className="grid grid-cols-2 gap-6 items-end">
+                        {/* Combined With */}
+                        <div>
+                          <Label
+                            htmlFor="innerCombinedWithAfter"
+                            className="text-xs font-semibold mb-2 block"
+                          >
+                            Combined With
+                          </Label>
+                          <Input
+                            id="innerCombinedWithAfter"
+                            type="text"
+                            value={innerCombinedWith}
+                            onChange={(e) => {
+                              setInnerCombinedWith(e.target.value);
+                              onSectionTouched();
+                            }}
+                            placeholder="Reference measurement"
+                            className="text-sm"
+                          />
+                        </div>
+
+                        {/* Mating Part Type */}
+                        <div>
+                          <Label
+                            htmlFor="innerMatingPartAfter"
+                            className="text-xs font-semibold mb-2 block"
+                          >
+                            Mating Part Type
+                          </Label>
+                          <Select
+                            value={innerMatingPart}
+                            onValueChange={(value) => {
+                              setInnerMatingPart(value as MatingPartType);
+                              onSectionTouched();
+                            }}
+                            modal={false}
+                          >
+                            <SelectTrigger id="innerMatingPartAfter" className="text-sm">
+                              <SelectValue placeholder="Select mating part" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
+                              <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                              <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
+                                Nut Screw Sleeve
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    </div>
                     <BearingClearanceForm
                       title=""
                       data={innerAfterData}
@@ -602,178 +783,153 @@ export const BearingClearanceSection = forwardRef<
           </Collapsible>
         </div>
       ) : (
-        <Tabs defaultValue="outer" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="outer">Outer</TabsTrigger>
-            <TabsTrigger value="inner">Inner</TabsTrigger>
-          </TabsList>
+        <>
+          {/* Has Been Adjusted - Shared Field */}
+          <div className="mb-6">
+            <Label htmlFor="hasBeenAdjustedRegular" className="text-xs font-semibold mb-2 block">
+              Has Been Adjusted
+            </Label>
+            <Select
+              value={hasBeenAdjusted}
+              onValueChange={(value) => {
+                setHasBeenAdjusted(value);
+                onSectionTouched();
+              }}
+              modal={false}
+            >
+              <SelectTrigger id="hasBeenAdjustedRegular" className="text-sm w-full max-w-xs">
+                <SelectValue placeholder="Select option" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Yes">Yes</SelectItem>
+                <SelectItem value="No">No</SelectItem>
+                <SelectItem value="N/A">N/A</SelectItem>
+                <SelectItem value="DNC">DNC</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <TabsContent value="outer" className="space-y-6">
-            <div className="pt-6 border-t">
-              <div className="grid grid-cols-3 gap-6 items-end">
-                {/* Combined With */}
-                <div>
-                  <Label htmlFor="outerCombinedWith" className="text-xs font-semibold mb-2 block">
-                    Combined With
-                  </Label>
-                  <Input
-                    id="outerCombinedWith"
-                    type="text"
-                    value={outerCombinedWith}
-                    onChange={(e) => {
-                      setOuterCombinedWith(e.target.value);
-                      onSectionTouched();
-                    }}
-                    placeholder="Reference measurement"
-                    className="text-sm"
-                  />
-                </div>
+          <Tabs defaultValue="outer" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="outer">Outer</TabsTrigger>
+              <TabsTrigger value="inner">Inner</TabsTrigger>
+            </TabsList>
 
-                {/* Mating Part Type */}
-                <div>
-                  <Label htmlFor="outerMatingPart" className="text-xs font-semibold mb-2 block">
-                    Mating Part Type
-                  </Label>
-                  <Select
-                    value={outerMatingPart}
-                    onValueChange={(value) => {
-                      setOuterMatingPart(value as MatingPartType);
-                      onSectionTouched();
-                    }}
-                  >
-                    <SelectTrigger id="outerMatingPart" className="text-sm">
-                      <SelectValue placeholder="Select mating part" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
-                      <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
-                      <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                        Nut Screw Sleeve
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+            <TabsContent value="outer" className="space-y-6">
+              <div className="pt-6 border-t">
+                <div className="grid grid-cols-2 gap-6 items-end">
+                  {/* Combined With */}
+                  <div>
+                    <Label htmlFor="outerCombinedWith" className="text-xs font-semibold mb-2 block">
+                      Combined With
+                    </Label>
+                    <Input
+                      id="outerCombinedWith"
+                      type="text"
+                      value={outerCombinedWith}
+                      onChange={(e) => {
+                        setOuterCombinedWith(e.target.value);
+                        onSectionTouched();
+                      }}
+                      placeholder="Reference measurement"
+                      className="text-sm"
+                    />
+                  </div>
 
-                {/* Has Been Adjusted Select */}
-                <div>
-                  <Label
-                    htmlFor="outerHasBeenAdjusted"
-                    className="text-xs font-semibold mb-2 block"
-                  >
-                    Has Been Adjusted
-                  </Label>
-                  <Select
-                    value={outerHasBeenAdjusted}
-                    onValueChange={(value) => {
-                      setOuterHasBeenAdjusted(value);
-                      onSectionTouched();
-                    }}
-                  >
-                    <SelectTrigger id="outerHasBeenAdjusted" className="text-sm">
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Yes">Yes</SelectItem>
-                      <SelectItem value="No">No</SelectItem>
-                      <SelectItem value="N/A">N/A</SelectItem>
-                      <SelectItem value="DNC">DNC</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-            <BearingClearanceForm
-              title=""
-              data={outerAfterData}
-              updateFn={updateOuterAfterField}
-              errors={outerAfterErrors}
-              handleBlur={handleBlurOuterAfter}
-            />
-          </TabsContent>
-
-          <TabsContent value="inner" className="space-y-6">
-            <div className="pt-6 border-t">
-              <div className="grid grid-cols-3 gap-6 items-end">
-                {/* Combined With */}
-                <div>
-                  <Label htmlFor="innerCombinedWith" className="text-xs font-semibold mb-2 block">
-                    Combined With
-                  </Label>
-                  <Input
-                    id="innerCombinedWith"
-                    type="text"
-                    value={innerCombinedWith}
-                    onChange={(e) => {
-                      setInnerCombinedWith(e.target.value);
-                      onSectionTouched();
-                    }}
-                    placeholder="Reference measurement"
-                    className="text-sm"
-                  />
-                </div>
-
-                {/* Mating Part Type */}
-                <div>
-                  <Label htmlFor="innerMatingPart" className="text-xs font-semibold mb-2 block">
-                    Mating Part Type
-                  </Label>
-                  <Select
-                    value={innerMatingPart}
-                    onValueChange={(value) => {
-                      setInnerMatingPart(value as MatingPartType);
-                      onSectionTouched();
-                    }}
-                  >
-                    <SelectTrigger id="innerMatingPart" className="text-sm">
-                      <SelectValue placeholder="Select mating part" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
-                      <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
-                      <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                        Nut Screw Sleeve
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Has Been Adjusted Select */}
-                <div>
-                  <Label
-                    htmlFor="innerHasBeenAdjusted"
-                    className="text-xs font-semibold mb-2 block"
-                  >
-                    Has Been Adjusted
-                  </Label>
-                  <Select
-                    value={innerHasBeenAdjusted}
-                    onValueChange={(value) => {
-                      setInnerHasBeenAdjusted(value);
-                      onSectionTouched();
-                    }}
-                  >
-                    <SelectTrigger id="innerHasBeenAdjusted" className="text-sm">
-                      <SelectValue placeholder="Select option" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Yes">Yes</SelectItem>
-                      <SelectItem value="No">No</SelectItem>
-                      <SelectItem value="N/A">N/A</SelectItem>
-                      <SelectItem value="DNC">DNC</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {/* Mating Part Type */}
+                  <div>
+                    <Label htmlFor="outerMatingPart" className="text-xs font-semibold mb-2 block">
+                      Mating Part Type
+                    </Label>
+                    <Select
+                      value={outerMatingPart}
+                      onValueChange={(value) => {
+                        setOuterMatingPart(value as MatingPartType);
+                        onSectionTouched();
+                      }}
+                      modal={false}
+                    >
+                      <SelectTrigger id="outerMatingPart" className="text-sm">
+                        <SelectValue placeholder="Select mating part" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
+                        <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                        <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
+                          Nut Screw Sleeve
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
-            </div>
-            <BearingClearanceForm
-              title=""
-              data={innerAfterData}
-              updateFn={updateInnerAfterField}
-              errors={innerAfterErrors}
-              handleBlur={handleBlurInnerAfter}
-            />
-          </TabsContent>
-        </Tabs>
+              <BearingClearanceForm
+                title=""
+                data={outerAfterData}
+                updateFn={updateOuterAfterField}
+                errors={outerAfterErrors}
+                handleBlur={handleBlurOuterAfter}
+              />
+            </TabsContent>
+
+            <TabsContent value="inner" className="space-y-6">
+              <div className="pt-6 border-t">
+                <div className="grid grid-cols-2 gap-6 items-end">
+                  {/* Combined With */}
+                  <div>
+                    <Label htmlFor="innerCombinedWith" className="text-xs font-semibold mb-2 block">
+                      Combined With
+                    </Label>
+                    <Input
+                      id="innerCombinedWith"
+                      type="text"
+                      value={innerCombinedWith}
+                      onChange={(e) => {
+                        setInnerCombinedWith(e.target.value);
+                        onSectionTouched();
+                      }}
+                      placeholder="Reference measurement"
+                      className="text-sm"
+                    />
+                  </div>
+
+                  {/* Mating Part Type */}
+                  <div>
+                    <Label htmlFor="innerMatingPart" className="text-xs font-semibold mb-2 block">
+                      Mating Part Type
+                    </Label>
+                    <Select
+                      value={innerMatingPart}
+                      onValueChange={(value) => {
+                        setInnerMatingPart(value as MatingPartType);
+                        onSectionTouched();
+                      }}
+                      modal={false}
+                    >
+                      <SelectTrigger id="innerMatingPart" className="text-sm">
+                        <SelectValue placeholder="Select mating part" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={MatingPartType.BUSHING}>Bushing</SelectItem>
+                        <SelectItem value={MatingPartType.CONNECTION}>Connection</SelectItem>
+                        <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
+                          Nut Screw Sleeve
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+              <BearingClearanceForm
+                title=""
+                data={innerAfterData}
+                updateFn={updateInnerAfterField}
+                errors={innerAfterErrors}
+                handleBlur={handleBlurInnerAfter}
+              />
+            </TabsContent>
+          </Tabs>
+        </>
       )}
 
       {/* Shared Fields - Shutdown Adjustment Mechanism */}

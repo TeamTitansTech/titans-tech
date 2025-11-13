@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/ui/typography';
 import { SelectableSectionCard } from '@/components/SelectableSectionCard';
 import type { SectionStatus } from '@/components/SelectableSectionCard';
-import { CalendarIcon, Check, ChevronDown } from 'lucide-react';
+import { CalendarIcon, Check, ChevronUp } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Stepper, type StepperStep, type StepBadge } from '@/components/ui/stepper';
 import {
@@ -159,6 +159,9 @@ export function InspectionCreationModalWithSections({
   // Track which sections have been completed (validated)
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
 
+  // Store completed section data for summary display
+  const [completedSectionData, setCompletedSectionData] = useState<Record<string, any>>({});
+
   // Track bearing clearance sub-states for badges
   const [bearingBeforeSelected, setBearingBeforeSelected] = useState(false);
 
@@ -173,6 +176,7 @@ export function InspectionCreationModalWithSections({
       setPerformedBy(initialPerformedBy || '');
       setError(null);
       setCompletedSections(new Set());
+      setCompletedSectionData({});
       setBearingBeforeSelected(false);
       // Reset section refs
       bearingClearanceRef.current?.reset();
@@ -303,10 +307,52 @@ export function InspectionCreationModalWithSections({
       // Mark section as completed
       setCompletedSections((prev) => new Set(prev).add(currentSectionKey));
 
-      // Update bearing clearance badges if applicable
-      if (currentSectionKey === 'BEARING_CLEARANCE' && bearingClearanceRef.current) {
-        const data = bearingClearanceRef.current.getData();
-        setBearingBeforeSelected(!!(data.outerBefore || data.innerBefore));
+      // Save section data to state for summary display
+      let sectionData: any = null;
+      switch (currentSectionKey) {
+        case 'BEARING_CLEARANCE':
+          if (bearingClearanceRef.current) {
+            sectionData = bearingClearanceRef.current.getData();
+            setBearingBeforeSelected(!!(sectionData.outerBefore || sectionData.innerBefore));
+          }
+          break;
+        case 'SLIDE':
+          if (slideRef.current) {
+            const result = slideRef.current.validateAndGetData(serviceType);
+            sectionData = result.data;
+          }
+          break;
+        case 'GIBS':
+          if (gibsRef.current) {
+            const result = gibsRef.current.validateAndGetData(serviceType);
+            sectionData = result.data;
+          }
+          break;
+        case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
+          if (lubricationRef.current) {
+            const result = lubricationRef.current.validateAndGetData(serviceType);
+            sectionData = result.data;
+          }
+          break;
+        case 'CLUTCH':
+          if (clutchRef.current) {
+            const result = clutchRef.current.validateAndGetData(serviceType);
+            sectionData = result.data;
+          }
+          break;
+        case 'COUNTERBALANCE_CYLINDER_AIRBAG':
+          if (counterbalanceRef.current) {
+            const result = counterbalanceRef.current.validateAndGetData(serviceType);
+            sectionData = result.data;
+          }
+          break;
+      }
+
+      if (sectionData) {
+        setCompletedSectionData((prev) => ({
+          ...prev,
+          [currentSectionKey]: sectionData,
+        }));
       }
 
       // Move to next section or go to summary
@@ -753,7 +799,7 @@ export function InspectionCreationModalWithSections({
                   <Label htmlFor="date">
                     {isCompletingService ? 'Data da realização' : tServices('serviceDate')}
                   </Label>
-                  <div className="flex items-center gap-2 mt-1 p-3 border rounded-md bg-muted/50">
+                  <div className="flex items-center gap-2 mt-1 h-10 px-3 py-2 border rounded-md bg-muted/50">
                     <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">{date ? format(date, 'PPP') : '-'}</span>
                   </div>
@@ -777,6 +823,7 @@ export function InspectionCreationModalWithSections({
                     <Select
                       value={serviceType}
                       onValueChange={(value) => setServiceType(value as ServiceType)}
+                      modal={false}
                     >
                       <SelectTrigger id="type" className="mt-1">
                         <SelectValue />
@@ -876,6 +923,7 @@ export function InspectionCreationModalWithSections({
                                 ref={bearingClearanceRef}
                                 onSectionTouched={() => handleSectionTouched('BEARING_CLEARANCE')}
                                 serviceType={serviceType}
+                                initialData={completedSectionData['BEARING_CLEARANCE']}
                               />
                             )}
 
@@ -1024,7 +1072,7 @@ export function InspectionCreationModalWithSections({
 
                   // Render Bearing Clearance Section
                   if (sectionKey === 'BEARING_CLEARANCE') {
-                    const data = bearingClearanceRef.current?.getData();
+                    const data = completedSectionData[sectionKey];
 
                     // Check if we have before data
                     const hasBeforeData =
@@ -1057,7 +1105,7 @@ export function InspectionCreationModalWithSections({
                                 </span>
                               )}
                             </div>
-                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             {/* Before Measurements (only if data exists) */}
@@ -1428,8 +1476,7 @@ export function InspectionCreationModalWithSections({
 
                   // Render Slide Section
                   if (sectionKey === 'SLIDE') {
-                    const result = slideRef.current?.validateAndGetData(serviceType);
-                    const data = result?.data || defaultSlideData;
+                    const data = completedSectionData[sectionKey] || defaultSlideData;
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
@@ -1449,7 +1496,7 @@ export function InspectionCreationModalWithSections({
                                 </span>
                               )}
                             </div>
-                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             {/* Before Measurements (if exists) */}
@@ -1598,8 +1645,7 @@ export function InspectionCreationModalWithSections({
 
                   // Render Gibs Section
                   if (sectionKey === 'GIBS') {
-                    const result = gibsRef.current?.validateAndGetData(serviceType);
-                    const data = result?.data;
+                    const data = completedSectionData[sectionKey];
 
                     // Check if we have before data
                     const hasBeforeData =
@@ -1632,7 +1678,7 @@ export function InspectionCreationModalWithSections({
                                 </span>
                               )}
                             </div>
-                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             {/* Before Measurements (only if data exists) */}
@@ -1848,8 +1894,7 @@ export function InspectionCreationModalWithSections({
 
                   // Render Lubrication/Hydraulics Section
                   if (sectionKey === 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') {
-                    const result = lubricationRef.current?.validateAndGetData(serviceType);
-                    const data = result?.data || defaultLubricationHydraulicsData;
+                    const data = completedSectionData[sectionKey] || defaultLubricationHydraulicsData;
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
@@ -1869,7 +1914,7 @@ export function InspectionCreationModalWithSections({
                                 </span>
                               )}
                             </div>
-                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="border-t pt-2">
@@ -1908,8 +1953,7 @@ export function InspectionCreationModalWithSections({
 
                   // Render Clutch Section
                   if (sectionKey === 'CLUTCH') {
-                    const result = clutchRef.current?.validateAndGetData(serviceType);
-                    const data = result?.data || defaultClutchData;
+                    const data = completedSectionData[sectionKey] || defaultClutchData;
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
@@ -1929,7 +1973,7 @@ export function InspectionCreationModalWithSections({
                                 </span>
                               )}
                             </div>
-                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="border-t pt-2">
@@ -1968,8 +2012,7 @@ export function InspectionCreationModalWithSections({
 
                   // Render Counterbalance Cylinder Section
                   if (sectionKey === 'COUNTERBALANCE_CYLINDER_AIRBAG') {
-                    const result = counterbalanceRef.current?.validateAndGetData(serviceType);
-                    const data = result?.data || defaultCounterbalanceCylinderData;
+                    const data = completedSectionData[sectionKey] || defaultCounterbalanceCylinderData;
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
@@ -1989,7 +2032,7 @@ export function InspectionCreationModalWithSections({
                                 </span>
                               )}
                             </div>
-                            <ChevronDown className="w-4 h-4 transition-transform duration-200 ui-open:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="border-t pt-2">

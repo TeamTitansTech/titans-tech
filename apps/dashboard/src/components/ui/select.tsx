@@ -5,7 +5,14 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { cn } from '@/lib/utils';
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons';
 
-const Select = SelectPrimitive.Root;
+// Extend SelectPrimitive.Root to support modal prop
+const Select = React.forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root> & {
+    modal?: boolean;
+  }
+>(({ modal, ...props }, ref) => <SelectPrimitive.Root modal={modal} {...props} />);
+Select.displayName = 'Select';
 
 const SelectGroup = SelectPrimitive.Group;
 
