@@ -33,11 +33,11 @@ export function ThresholdRangeInput({
           </div>
 
           <div className="bg-yellow-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            {yellowMin.toFixed(3)} - {(redMin - 0.001).toFixed(3)}
+            {yellowMin.toFixed(3)} - &lt; {redMin.toFixed(3)}
           </div>
 
           <div className="bg-red-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            {redMin.toFixed(3)}+
+            ≥ {redMin.toFixed(3)}
           </div>
         </div>
       </div>
