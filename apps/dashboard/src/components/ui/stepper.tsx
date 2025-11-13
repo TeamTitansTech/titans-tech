@@ -34,9 +34,12 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
   const stepRef = useRef<HTMLDivElement>(null);
 
   return (
-    <div className="flex items-start flex-shrink-0">
-      {/* Step Circle and Label */}
-      <div ref={stepRef} className="flex flex-col items-center" data-step-status={step.status}>
+    <div className="flex items-start flex-shrink-0 lg:flex-1 lg:last:flex-none">
+      <div
+        className="flex flex-col items-center flex-shrink-0"
+        ref={stepRef}
+        data-step-status={step.status}
+      >
         <button
           type="button"
           onClick={isClickable ? onClick : undefined}
@@ -52,12 +55,16 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
             !isClickable && 'cursor-not-allowed',
           )}
         >
-          {step.status === 'completed' ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <span>{stepNumber}</span>}
+          {step.status === 'completed' ? (
+            <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+          ) : (
+            <span>{stepNumber}</span>
+          )}
         </button>
 
         <div
           className={cn(
-            'text-[10px] sm:text-xs font-medium mt-1.5 sm:mt-2 text-center max-w-[70px] sm:max-w-[100px] line-clamp-2',
+            'text-[10px] sm:text-xs font-medium mt-1.5 sm:mt-2 text-center w-[70px] sm:w-[100px] line-clamp-2',
             step.status === 'pending' && 'text-gray-500 dark:text-gray-400',
             step.status === 'current' && 'text-foreground font-semibold',
             step.status === 'completed' && 'text-green-700 dark:text-green-400',
@@ -68,7 +75,7 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
 
         {/* Custom Badges */}
         {step.badges && step.badges.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-1.5 justify-center">
+          <div className="flex flex-wrap gap-1 mt-1.5 justify-center max-w-[70px] sm:max-w-[100px]">
             {step.badges.map((badge, index) => (
               <div
                 key={index}
@@ -88,11 +95,12 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
         )}
       </div>
 
-      {/* Connecting Line - Aligned with center of circle */}
+      {/* Connecting Line */}
       {!isLast && (
-        <div className="flex items-start md:flex-1 pt-[calc(1rem-1px)] sm:pt-[calc(1.25rem-1px)]">
-          <div className="h-0.5 w-8 md:flex-1 mx-2 sm:mx-4 bg-blue-500" />
-        </div>
+        <div
+          className="h-0.5 bg-blue-500 mx-3 sm:mx-4 lg:flex-1 w-[40px] sm:w-[50px] lg:w-auto"
+          style={{ marginTop: '16px' }}
+        />
       )}
     </div>
   );
@@ -120,10 +128,7 @@ export function Stepper({ steps, onStepClick }: StepperProps) {
       {/* Horizontal scroll container - only scrollable on mobile */}
       <div
         ref={containerRef}
-        className="flex items-start overflow-x-auto md:overflow-x-visible md:justify-between scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent pb-2"
-        style={{
-          scrollbarWidth: 'thin',
-        }}
+        className="flex items-start overflow-x-auto lg:overflow-x-visible lg:justify-between scrollbar-none py-2"
       >
         {steps.map((step, index) => (
           <StepperItem
