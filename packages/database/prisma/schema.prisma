@@ -46,6 +46,29 @@ enum YesNoDncType {
   DNC
 }
 
+enum ConditionOkNaDncBrokenWornType {
+  OK
+  NA
+  DNC
+  BROKEN
+  WORN
+}
+
+enum ConditionOkNaDncBrokenLooseType {
+  OK
+  NA
+  DNC
+  BROKEN
+  LOOSE
+}
+
+enum ConditionOkNaDncDamagedType {
+  OK
+  NA
+  DNC
+  DAMAGED
+}
+
 enum MeasurementUnit {
   INCHES
   MM
@@ -275,15 +298,15 @@ model BearingClearanceData {
   ballBoxArea_LH              Decimal @db.Decimal(10, 4)
 
   // Additional fields
-  hasBeenAdjusted Boolean         @default(false)
+  hasBeenAdjusted YesNoNaDncType?
   combinedWith    String?
   matingPart      MatingPartType?
 
   // Shutdown Adjustment Mechanism fields
-  slideMotorMounts     String?
-  powerCordHoses       String?
-  chainsGearsSprockets String?
-  lockingClamps        String?
+  slideMotorMounts     ConditionOkNaDncBrokenWornType?
+  powerCordHoses       ConditionOkNaDncDamagedType?
+  chainsGearsSprockets ConditionOkNaDncBrokenLooseType?
+  lockingClamps        ConditionOkNaDncDamagedType?
   notes                String?
 
   createdAt DateTime @default(now())
@@ -379,7 +402,7 @@ model MachineServiceGibs {
 model GibsData {
   id String @id @default(cuid())
 
-  hasBeenAdjusted Boolean @default(false)
+  hasBeenAdjusted YesNoDncType?
 
   // Front to Back measurements (16 points)
   point1  Decimal @db.Decimal(10, 4)

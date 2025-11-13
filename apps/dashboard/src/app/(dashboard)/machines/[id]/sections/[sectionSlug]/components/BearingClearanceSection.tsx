@@ -491,11 +491,7 @@ export function BearingClearanceSection({
         </Card>
 
         <div className="flex justify-end gap-3">
-          <DropdownMenu
-            open={isExportDropdownOpen}
-            onOpenChange={setIsExportDropdownOpen}
-            modal={false}
-          >
+          <DropdownMenu open={isExportDropdownOpen} onOpenChange={setIsExportDropdownOpen}>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"

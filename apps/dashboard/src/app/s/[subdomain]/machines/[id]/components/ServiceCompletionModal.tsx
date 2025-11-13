@@ -18,7 +18,7 @@ import { SelectableSectionCard } from '@/components/SelectableSectionCard';
 import type { SectionStatus } from '@/components/SelectableSectionCard';
 import { ChevronLeft } from 'lucide-react';
 
-interface InspectionCreationModalWithSectionsProps {
+interface ServiceCompletionModalProps {
   machineId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -58,12 +58,12 @@ const SECTION_DETAILS = {
   },
 } as const;
 
-export function InspectionCreationModalWithSections({
+export function ServiceCompletionModal({
   machineId,
   open,
   onOpenChange,
   machineSections = Object.keys(SECTION_DETAILS),
-}: InspectionCreationModalWithSectionsProps) {
+}: ServiceCompletionModalProps) {
   const t = useTranslations('machines');
   const tInspections = useTranslations('inspections');
 

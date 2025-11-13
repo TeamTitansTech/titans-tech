@@ -7,7 +7,7 @@ import { Typography } from '@/components/ui/typography';
 import { Calendar, Plus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import SimpleServiceCreationModal from './SimpleServiceCreationModal';
-import { InspectionCreationModalWithSections } from './InspectionCreationModalWithSections';
+import { ServiceCompletionModal } from './ServiceCompletionModal';
 import type { Service } from '@/data/types/services.types';
 
 interface UpcomingServicesWrapperProps {
@@ -107,7 +107,7 @@ export function UpcomingServicesWrapper({
         onOpenChange={setIsServiceModalOpen}
       />
       {selectedService && selectedService.type === 'MAINTENANCE' && (
-        <InspectionCreationModalWithSections
+        <ServiceCompletionModal
           machineId={machineId}
           open={isMaintenanceModalOpen}
           onOpenChange={setIsMaintenanceModalOpen}
@@ -119,7 +119,7 @@ export function UpcomingServicesWrapper({
         />
       )}
       {selectedService && selectedService.type === 'INSPECTION' && (
-        <InspectionCreationModalWithSections
+        <ServiceCompletionModal
           machineId={machineId}
           open={isCompleteModalOpen}
           onOpenChange={setIsCompleteModalOpen}

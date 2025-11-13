@@ -32,7 +32,7 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
   const isClickable = step.isClickable !== false;
 
   return (
-    <div className={cn('flex items-center', !isLast && 'flex-1')}>
+    <>
       {/* Step Circle and Label */}
       <div className="flex flex-col items-center flex-shrink-0">
         <button
@@ -87,8 +87,8 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
       </div>
 
       {/* Connecting Line */}
-      {!isLast && <div className={cn('flex-1 h-0.5 mx-2 self-start mt-5', 'bg-blue-500')} />}
-    </div>
+      {!isLast && <div className={cn('flex-1 h-0.5 mx-4 self-start mt-5', 'bg-blue-500')} />}
+    </>
   );
 }
 

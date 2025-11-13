@@ -9,7 +9,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
-import { InspectionCreationModalWithSections } from './InspectionCreationModalWithSections';
+import { ServiceCompletionModal } from './ServiceCompletionModal';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
 import { isSysAdminPanel } from '@/lib/isSysAdminPanel';
@@ -167,7 +167,7 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
         </Card>
       </div>
 
-      <InspectionCreationModalWithSections
+      <ServiceCompletionModal
         machineId={machine.id}
         open={isInspectionModalOpen}
         onOpenChange={setIsInspectionModalOpen}

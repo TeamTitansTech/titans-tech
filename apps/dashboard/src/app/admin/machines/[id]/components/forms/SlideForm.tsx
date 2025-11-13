@@ -138,7 +138,6 @@ function ShutheightFields({
           <Select
             value={indicatorsValue}
             onValueChange={(value) => handleFieldUpdate(indicatorsField, value as YesNoDncType)}
-            modal={false}
           >
             <SelectTrigger id={indicatorsField} className="mt-1">
               <SelectValue />
@@ -332,7 +331,6 @@ export function SlideForm({
             <Select
               value={data.parallelism}
               onValueChange={(value) => handleFieldUpdate('parallelism', value as ParallelismType)}
-              modal={false}
             >
               <SelectTrigger id="parallelism" className="mt-1">
                 <SelectValue />
@@ -354,7 +352,6 @@ export function SlideForm({
               onValueChange={(value) =>
                 handleFieldUpdate('hasParallelismBeenAdjusted', value as YesNoNaDncType)
               }
-              modal={false}
             >
               <SelectTrigger id="hasParallelismBeenAdjusted" className="mt-1">
                 <SelectValue />

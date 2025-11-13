@@ -240,11 +240,7 @@ export function BearingClearanceSection({
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle>{t('connectionBearingClearance')}</CardTitle>
-              <DropdownMenu
-                open={isExportDropdownOpen}
-                onOpenChange={setIsExportDropdownOpen}
-                modal={false}
-              >
+              <DropdownMenu open={isExportDropdownOpen} onOpenChange={setIsExportDropdownOpen}>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -19,6 +19,10 @@ import {
   type BearingClearanceData,
   MatingPartType,
   ServiceType,
+  YesNoNaDncType,
+  ConditionOkNaDncBrokenWornType,
+  ConditionOkNaDncBrokenLooseType,
+  ConditionOkNaDncDamagedType,
 } from '@/data/types/services.types';
 import { BearingClearanceForm } from '../forms/BearingClearanceForm';
 import { isDataTouched } from './utils';
@@ -41,7 +45,7 @@ export const defaultBearingData: BearingClearanceData = {
   extraDoubleLockOpen_LH: 0,
   ballBoxArea_RH: 0,
   ballBoxArea_LH: 0,
-  hasBeenAdjusted: '',
+  hasBeenAdjusted: YesNoNaDncType.NO,
   combinedWith: '',
   matingPart: MatingPartType.BUSHING,
 };
@@ -88,7 +92,13 @@ export interface BearingClearanceSectionData {
 export interface BearingClearanceSectionRef {
   getData: () => BearingClearanceSectionData;
   validate: (serviceType: ServiceType) => string[];
+  validateAndGetData: (serviceType: ServiceType) => {
+    isValid: boolean;
+    errors: string[];
+    data?: BearingClearanceSectionData;
+  };
   reset: () => void;
+  isTouched: () => boolean;
 }
 
 interface BearingClearanceSectionProps {
@@ -123,13 +133,13 @@ export const BearingClearanceSection = forwardRef<
   );
 
   // Shared field (applies to both Outer and Inner)
-  const [hasBeenAdjusted, setHasBeenAdjusted] = useState(
+  const [hasBeenAdjusted, setHasBeenAdjusted] = useState<YesNoNaDncType | undefined>(
     (
       initialData?.outerAfter ||
       initialData?.outerBefore ||
       initialData?.innerAfter ||
       initialData?.innerBefore
-    )?.hasBeenAdjusted || '',
+    )?.hasBeenAdjusted,
   );
 
   // Tab-specific fields (separate for Outer and Inner)
@@ -147,17 +157,17 @@ export const BearingClearanceSection = forwardRef<
   );
 
   // Shared fields (Shutdown Adjustment Mechanism)
-  const [slideMotorMounts, setSlideMotorMounts] = useState(
-    (initialData?.outerAfter || initialData?.outerBefore)?.slideMotorMounts || '',
+  const [slideMotorMounts, setSlideMotorMounts] = useState<
+    ConditionOkNaDncBrokenWornType | undefined
+  >((initialData?.outerAfter || initialData?.outerBefore)?.slideMotorMounts);
+  const [powerCordHoses, setPowerCordHoses] = useState<ConditionOkNaDncDamagedType | undefined>(
+    (initialData?.outerAfter || initialData?.outerBefore)?.powerCordHoses,
   );
-  const [powerCordHoses, setPowerCordHoses] = useState(
-    (initialData?.outerAfter || initialData?.outerBefore)?.powerCordHoses || '',
-  );
-  const [chainsGearsSprockets, setChainsGearsSprockets] = useState(
-    (initialData?.outerAfter || initialData?.outerBefore)?.chainsGearsSprockets || '',
-  );
-  const [lockingClamps, setLockingClamps] = useState(
-    (initialData?.outerAfter || initialData?.outerBefore)?.lockingClamps || '',
+  const [chainsGearsSprockets, setChainsGearsSprockets] = useState<
+    ConditionOkNaDncBrokenLooseType | undefined
+  >((initialData?.outerAfter || initialData?.outerBefore)?.chainsGearsSprockets);
+  const [lockingClamps, setLockingClamps] = useState<ConditionOkNaDncDamagedType | undefined>(
+    (initialData?.outerAfter || initialData?.outerBefore)?.lockingClamps,
   );
   const [notes, setNotes] = useState(
     (initialData?.outerAfter || initialData?.outerBefore)?.notes || '',
@@ -167,44 +177,6 @@ export const BearingClearanceSection = forwardRef<
   const [outerAfterErrors, setOuterAfterErrors] = useState<Record<string, string>>({});
   const [innerBeforeErrors, setInnerBeforeErrors] = useState<Record<string, string>>({});
   const [innerAfterErrors, setInnerAfterErrors] = useState<Record<string, string>>({});
-
-  // Sync with initialData when it changes
-  useEffect(() => {
-    if (initialData) {
-      setIncludeBeforeMeasurements(!!(initialData.outerBefore || initialData.innerBefore));
-      if (initialData.outerBefore) setOuterBeforeData(initialData.outerBefore);
-      if (initialData.outerAfter) setOuterAfterData(initialData.outerAfter);
-      if (initialData.innerBefore) setInnerBeforeData(initialData.innerBefore);
-      if (initialData.innerAfter) setInnerAfterData(initialData.innerAfter);
-
-      const anyData =
-        initialData.outerAfter ||
-        initialData.outerBefore ||
-        initialData.innerAfter ||
-        initialData.innerBefore;
-      const outerData = initialData.outerAfter || initialData.outerBefore;
-      const innerData = initialData.innerAfter || initialData.innerBefore;
-
-      if (anyData) {
-        if (anyData.hasBeenAdjusted) setHasBeenAdjusted(anyData.hasBeenAdjusted);
-        if (anyData.slideMotorMounts) setSlideMotorMounts(anyData.slideMotorMounts);
-        if (anyData.powerCordHoses) setPowerCordHoses(anyData.powerCordHoses);
-        if (anyData.chainsGearsSprockets) setChainsGearsSprockets(anyData.chainsGearsSprockets);
-        if (anyData.lockingClamps) setLockingClamps(anyData.lockingClamps);
-        if (anyData.notes) setNotes(anyData.notes);
-      }
-
-      if (outerData) {
-        if (outerData.combinedWith) setOuterCombinedWith(outerData.combinedWith);
-        if (outerData.matingPart) setOuterMatingPart(outerData.matingPart);
-      }
-
-      if (innerData) {
-        if (innerData.combinedWith) setInnerCombinedWith(innerData.combinedWith);
-        if (innerData.matingPart) setInnerMatingPart(innerData.matingPart);
-      }
-    }
-  }, [initialData]);
 
   // Update functions
   const updateOuterBeforeField = (
@@ -248,7 +220,16 @@ export const BearingClearanceSection = forwardRef<
     field: keyof BearingClearanceData,
     value: string | number | boolean | undefined,
   ): string => {
-    if (field === 'combinedWith' || field === 'matingPart' || field === 'hasBeenAdjusted') {
+    if (
+      field === 'combinedWith' ||
+      field === 'matingPart' ||
+      field === 'hasBeenAdjusted' ||
+      field === 'slideMotorMounts' ||
+      field === 'powerCordHoses' ||
+      field === 'chainsGearsSprockets' ||
+      field === 'lockingClamps' ||
+      field === 'notes'
+    ) {
       return '';
     }
 
@@ -291,7 +272,7 @@ export const BearingClearanceSection = forwardRef<
 
       // Shared fields for all measurements
       const sharedFields = {
-        hasBeenAdjusted,
+        hasBeenAdjusted: hasBeenAdjusted || YesNoNaDncType.NO,
         slideMotorMounts,
         powerCordHoses,
         chainsGearsSprockets,
@@ -379,6 +360,11 @@ export const BearingClearanceSection = forwardRef<
         );
       }
 
+      // Validate required shared fields
+      if (!hasBeenAdjusted) {
+        errors.push('Bearing Clearance: "Has Been Adjusted" field is required');
+      }
+
       return errors;
     },
 
@@ -388,20 +374,130 @@ export const BearingClearanceSection = forwardRef<
       setOuterAfterData(defaultBearingData);
       setInnerBeforeData(defaultBearingData);
       setInnerAfterData(defaultBearingData);
-      setHasBeenAdjusted('');
+      setHasBeenAdjusted(undefined);
       setOuterCombinedWith('');
       setOuterMatingPart(MatingPartType.BUSHING);
       setInnerCombinedWith('');
       setInnerMatingPart(MatingPartType.BUSHING);
-      setSlideMotorMounts('');
-      setPowerCordHoses('');
-      setChainsGearsSprockets('');
-      setLockingClamps('');
+      setSlideMotorMounts(undefined);
+      setPowerCordHoses(undefined);
+      setChainsGearsSprockets(undefined);
+      setLockingClamps(undefined);
       setNotes('');
       setOuterBeforeErrors({});
       setOuterAfterErrors({});
       setInnerBeforeErrors({});
       setInnerAfterErrors({});
+    },
+
+    isTouched: (): boolean => {
+      const outerBeforeTouched = isDataTouched(outerBeforeData, defaultBearingData);
+      const outerAfterTouched = isDataTouched(outerAfterData, defaultBearingData);
+      const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
+      const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
+      return outerBeforeTouched || outerAfterTouched || innerBeforeTouched || innerAfterTouched;
+    },
+
+    validateAndGetData: (
+      serviceType: ServiceType,
+    ): { isValid: boolean; errors: string[]; data?: BearingClearanceSectionData } => {
+      const errors: string[] = [];
+      const outerBeforeTouched = isDataTouched(outerBeforeData, defaultBearingData);
+      const outerAfterTouched = isDataTouched(outerAfterData, defaultBearingData);
+      const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
+      const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
+
+      // Validate before measurements if checkbox is enabled
+      if (includeBeforeMeasurements) {
+        if (serviceType === ServiceType.MAINTENANCE) {
+          if (!outerBeforeTouched || !innerBeforeTouched) {
+            errors.push(
+              'Bearing Clearance: When "Include Before Measurements" is enabled for maintenance, you must fill all "Before" sections (Outer Before and Inner Before)',
+            );
+          } else {
+            errors.push(
+              ...validateBearingClearanceData(outerBeforeData).map((e) => `Outer Before: ${e}`),
+            );
+            errors.push(
+              ...validateBearingClearanceData(innerBeforeData).map((e) => `Inner Before: ${e}`),
+            );
+          }
+        }
+
+        if (outerBeforeTouched) {
+          errors.push(
+            ...validateBearingClearanceData(outerBeforeData).map((e) => `Outer Before: ${e}`),
+          );
+        }
+        if (innerBeforeTouched) {
+          errors.push(
+            ...validateBearingClearanceData(innerBeforeData).map((e) => `Inner Before: ${e}`),
+          );
+        }
+      }
+
+      // Validate after measurements
+      if (outerAfterTouched) {
+        errors.push(...validateBearingClearanceData(outerAfterData).map((e) => `Outer Data: ${e}`));
+      }
+      if (innerAfterTouched) {
+        errors.push(...validateBearingClearanceData(innerAfterData).map((e) => `Inner Data: ${e}`));
+      }
+
+      // Require at least one measurement set
+      if (!outerAfterTouched && !innerAfterTouched) {
+        errors.push(
+          'Bearing Clearance: You must fill at least one measurement section (Outer Data or Inner Data)',
+        );
+      }
+
+      // Validate required shared fields
+      if (!hasBeenAdjusted) {
+        errors.push('Bearing Clearance: "Has Been Adjusted" field is required');
+      }
+
+      if (errors.length > 0) {
+        return { isValid: false, errors };
+      }
+
+      // Shared fields for all measurements
+      const sharedFields = {
+        hasBeenAdjusted: hasBeenAdjusted || YesNoNaDncType.NO,
+        slideMotorMounts,
+        powerCordHoses,
+        chainsGearsSprockets,
+        lockingClamps,
+        notes,
+      };
+
+      // Outer-specific fields
+      const outerFields = {
+        combinedWith: outerCombinedWith,
+        matingPart: outerMatingPart,
+        ...sharedFields,
+      };
+
+      // Inner-specific fields
+      const innerFields = {
+        combinedWith: innerCombinedWith,
+        matingPart: innerMatingPart,
+        ...sharedFields,
+      };
+
+      const data: BearingClearanceSectionData = {
+        outerBefore:
+          includeBeforeMeasurements && outerBeforeTouched
+            ? { ...outerBeforeData, ...outerFields }
+            : undefined,
+        outerAfter: outerAfterTouched ? { ...outerAfterData, ...outerFields } : undefined,
+        innerBefore:
+          includeBeforeMeasurements && innerBeforeTouched
+            ? { ...innerBeforeData, ...innerFields }
+            : undefined,
+        innerAfter: innerAfterTouched ? { ...innerAfterData, ...innerFields } : undefined,
+      };
+
+      return { isValid: true, errors: [], data };
     },
   }));
 
@@ -452,18 +548,17 @@ export const BearingClearanceSection = forwardRef<
                   <Select
                     value={hasBeenAdjusted}
                     onValueChange={(value) => {
-                      setHasBeenAdjusted(value);
+                      setHasBeenAdjusted(value as YesNoNaDncType);
                       onSectionTouched();
                     }}
-                    modal={false}
                   >
                     <SelectTrigger id="hasBeenAdjustedBefore" className="text-sm w-full max-w-xs">
                       <SelectValue placeholder="Select option" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Yes">Yes</SelectItem>
-                      <SelectItem value="No">No</SelectItem>
-                      <SelectItem value="N/A">N/A</SelectItem>
+                      <SelectItem value="YES">Yes</SelectItem>
+                      <SelectItem value="NO">No</SelectItem>
+                      <SelectItem value="NA">N/A</SelectItem>
                       <SelectItem value="DNC">DNC</SelectItem>
                     </SelectContent>
                   </Select>
@@ -629,18 +724,17 @@ export const BearingClearanceSection = forwardRef<
                   <Select
                     value={hasBeenAdjusted}
                     onValueChange={(value) => {
-                      setHasBeenAdjusted(value);
+                      setHasBeenAdjusted(value as YesNoNaDncType);
                       onSectionTouched();
                     }}
-                    modal={false}
                   >
                     <SelectTrigger id="hasBeenAdjustedAfter" className="text-sm w-full max-w-xs">
                       <SelectValue placeholder="Select option" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Yes">Yes</SelectItem>
-                      <SelectItem value="No">No</SelectItem>
-                      <SelectItem value="N/A">N/A</SelectItem>
+                      <SelectItem value="YES">Yes</SelectItem>
+                      <SelectItem value="NO">No</SelectItem>
+                      <SelectItem value="NA">N/A</SelectItem>
                       <SelectItem value="DNC">DNC</SelectItem>
                     </SelectContent>
                   </Select>
@@ -690,7 +784,6 @@ export const BearingClearanceSection = forwardRef<
                               setOuterMatingPart(value as MatingPartType);
                               onSectionTouched();
                             }}
-                            modal={false}
                           >
                             <SelectTrigger id="outerMatingPartAfter" className="text-sm">
                               <SelectValue placeholder="Select mating part" />
@@ -753,7 +846,6 @@ export const BearingClearanceSection = forwardRef<
                               setInnerMatingPart(value as MatingPartType);
                               onSectionTouched();
                             }}
-                            modal={false}
                           >
                             <SelectTrigger id="innerMatingPartAfter" className="text-sm">
                               <SelectValue placeholder="Select mating part" />
@@ -792,18 +884,17 @@ export const BearingClearanceSection = forwardRef<
             <Select
               value={hasBeenAdjusted}
               onValueChange={(value) => {
-                setHasBeenAdjusted(value);
+                setHasBeenAdjusted(value as YesNoNaDncType);
                 onSectionTouched();
               }}
-              modal={false}
             >
               <SelectTrigger id="hasBeenAdjustedRegular" className="text-sm w-full max-w-xs">
                 <SelectValue placeholder="Select option" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Yes">Yes</SelectItem>
-                <SelectItem value="No">No</SelectItem>
-                <SelectItem value="N/A">N/A</SelectItem>
+                <SelectItem value="YES">Yes</SelectItem>
+                <SelectItem value="NO">No</SelectItem>
+                <SelectItem value="NA">N/A</SelectItem>
                 <SelectItem value="DNC">DNC</SelectItem>
               </SelectContent>
             </Select>
@@ -847,7 +938,6 @@ export const BearingClearanceSection = forwardRef<
                         setOuterMatingPart(value as MatingPartType);
                         onSectionTouched();
                       }}
-                      modal={false}
                     >
                       <SelectTrigger id="outerMatingPart" className="text-sm">
                         <SelectValue placeholder="Select mating part" />
@@ -904,7 +994,6 @@ export const BearingClearanceSection = forwardRef<
                         setInnerMatingPart(value as MatingPartType);
                         onSectionTouched();
                       }}
-                      modal={false}
                     >
                       <SelectTrigger id="innerMatingPart" className="text-sm">
                         <SelectValue placeholder="Select mating part" />
@@ -944,17 +1033,24 @@ export const BearingClearanceSection = forwardRef<
               <Label htmlFor="slideMotorMounts" className="text-xs font-medium mb-2 block">
                 Slide Motor/Mounts
               </Label>
-              <Input
-                id="slideMotorMounts"
-                type="text"
+              <Select
                 value={slideMotorMounts}
-                onChange={(e) => {
-                  setSlideMotorMounts(e.target.value);
+                onValueChange={(value) => {
+                  setSlideMotorMounts(value as ConditionOkNaDncBrokenWornType);
                   onSectionTouched();
                 }}
-                placeholder="Enter status"
-                className="text-sm"
-              />
+              >
+                <SelectTrigger className="text-sm">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ConditionOkNaDncBrokenWornType.OK}>OK</SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenWornType.NA}>N/A</SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenWornType.DNC}>DNC</SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenWornType.BROKEN}>Broken</SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenWornType.WORN}>Worn</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Power Cord/Hoses */}
@@ -962,17 +1058,23 @@ export const BearingClearanceSection = forwardRef<
               <Label htmlFor="powerCordHoses" className="text-xs font-medium mb-2 block">
                 Power Cord/Hoses
               </Label>
-              <Input
-                id="powerCordHoses"
-                type="text"
+              <Select
                 value={powerCordHoses}
-                onChange={(e) => {
-                  setPowerCordHoses(e.target.value);
+                onValueChange={(value) => {
+                  setPowerCordHoses(value as ConditionOkNaDncDamagedType);
                   onSectionTouched();
                 }}
-                placeholder="Enter status"
-                className="text-sm"
-              />
+              >
+                <SelectTrigger className="text-sm">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ConditionOkNaDncDamagedType.OK}>OK</SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.NA}>N/A</SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.DNC}>DNC</SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.DAMAGED}>Damaged</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Chains & Gears/Sprockets */}
@@ -980,17 +1082,24 @@ export const BearingClearanceSection = forwardRef<
               <Label htmlFor="chainsGearsSprockets" className="text-xs font-medium mb-2 block">
                 Chains & Gears/Sprockets
               </Label>
-              <Input
-                id="chainsGearsSprockets"
-                type="text"
+              <Select
                 value={chainsGearsSprockets}
-                onChange={(e) => {
-                  setChainsGearsSprockets(e.target.value);
+                onValueChange={(value) => {
+                  setChainsGearsSprockets(value as ConditionOkNaDncBrokenLooseType);
                   onSectionTouched();
                 }}
-                placeholder="Enter status"
-                className="text-sm"
-              />
+              >
+                <SelectTrigger className="text-sm">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ConditionOkNaDncBrokenLooseType.OK}>OK</SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenLooseType.NA}>N/A</SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenLooseType.DNC}>DNC</SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenLooseType.BROKEN}>Broken</SelectItem>
+                  <SelectItem value={ConditionOkNaDncBrokenLooseType.LOOSE}>Loose</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Locking Clamps */}
@@ -998,17 +1107,23 @@ export const BearingClearanceSection = forwardRef<
               <Label htmlFor="lockingClamps" className="text-xs font-medium mb-2 block">
                 Locking Clamps
               </Label>
-              <Input
-                id="lockingClamps"
-                type="text"
+              <Select
                 value={lockingClamps}
-                onChange={(e) => {
-                  setLockingClamps(e.target.value);
+                onValueChange={(value) => {
+                  setLockingClamps(value as ConditionOkNaDncDamagedType);
                   onSectionTouched();
                 }}
-                placeholder="Enter status"
-                className="text-sm"
-              />
+              >
+                <SelectTrigger className="text-sm">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ConditionOkNaDncDamagedType.OK}>OK</SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.NA}>N/A</SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.DNC}>DNC</SelectItem>
+                  <SelectItem value={ConditionOkNaDncDamagedType.DAMAGED}>Damaged</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

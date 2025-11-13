@@ -4,12 +4,12 @@ import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
-import { type GibsData, ServiceType } from '@/data/types/services.types';
+import { type GibsData, ServiceType, YesNoDncType } from '@/data/types/services.types';
 import { GibsForm } from '../forms/GibsForm';
 import { isDataTouched } from './utils';
 
 export const defaultGibsData: GibsData = {
-  hasBeenAdjusted: false,
+  hasBeenAdjusted: YesNoDncType.NO,
   point1: 0,
   point2: 0,
   point3: 0,
