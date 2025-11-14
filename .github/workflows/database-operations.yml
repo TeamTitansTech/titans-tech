@@ -114,7 +114,8 @@ jobs:
     needs: validate-input
     if: |
       always() &&
-      (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-staging')
+      ((github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-staging'))
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -170,7 +171,11 @@ jobs:
   migrate-production:
     name: Migrate Production Database
     runs-on: ubuntu-latest
-    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-production')
+    needs: migrate-staging
+    if: |
+      always() &&
+      ((github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.migrate-staging.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-production'))
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
