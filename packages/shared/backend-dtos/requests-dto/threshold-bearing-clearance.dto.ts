@@ -5,7 +5,7 @@ import { ThresholdsSchema } from './blueprint.dto';
  * Schema for creating threshold bearing clearance with blueprintId
  * Reuses ThresholdsSchema from blueprint.dto to avoid duplication
  */
-export const CreateThresholdBearingClearanceSchema = ThresholdsSchema.extend({
+export const CreateThresholdBearingClearanceSchema = ThresholdsSchema.safeExtend({
   blueprintId: z.string().min(1),
 });
 
