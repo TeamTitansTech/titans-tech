@@ -137,6 +137,126 @@ enum OkNaDncNeedReplacedType {
   NEEDS_REPLACED
 }
 
+enum ClutchType {
+  AFC
+  CFC
+  EFHC
+  GC
+  HC
+  MC
+  MDHC
+  MHC
+  MHCC
+}
+
+enum ClutchLocation {
+  CRANKSHAFT
+  DRIVESHAFT
+}
+
+enum BrakeSpringStudBoltType {
+  OK
+  NA
+  DNC
+  BROKEN
+  BENT_WORN
+}
+
+enum BrakeLiningType {
+  OK
+  NA
+  DNC
+  GLAZED
+  OIL_SOAKED
+  MISSING_SEGMENTS
+}
+
+enum FlywheelBearingsType {
+  OK
+  NA
+  DNC
+  NOISE
+  WOBBLE
+}
+
+enum FlywheelBrakeType {
+  OK
+  NA
+  DNC
+  LINING_WORN
+}
+
+enum RotaryUnionType {
+  OK
+  NA
+  DNC
+  AIR_LEAK
+  OIL_LEAK
+  CONCENTRICITY
+}
+
+enum ClutchLiningType {
+  OK
+  NA
+  DNC
+  GLAZED
+  OIL_SOAKED
+  MISSING_SEGMENTS
+}
+
+enum ClutchSealsType {
+  OK
+  NA
+  DNC
+  LEAKING
+  SLOW_RESPONSE
+}
+
+enum PressureUnit {
+  BAR
+  MPA
+  PSI
+}
+
+enum SplinesConditionType {
+  OK
+  NA
+  DNC
+  BROKEN
+  NOT_VISIBLE
+  WEAR_VISIBLE
+}
+
+enum AdjustingNutLockType {
+  OK
+  NA
+  DNC
+}
+
+enum AirLineOilerSettingType {
+  OK
+  NA
+  DNC
+  NEEDS_OIL
+  NEEDS_OIL_RESET
+  NEEDS_RESET
+}
+
+enum SeparateBrakeSealsType {
+  OK
+  NA
+  DNC
+  LEAKING
+}
+
+enum FlexDiscType {
+  OK
+  NA
+  DNC
+  BUCKLED
+  CRACKED
+}
+
 enum ServiceSection {
   BEARING_CLEARANCE
   SLIDE
@@ -666,57 +786,71 @@ model ClutchData {
   id String @id @default(cuid())
 
   // Clutch Type and Location
-  clutchType     String?
-  clutchLocation String?
+  clutchType     ClutchType?
+  clutchLocation ClutchLocation?
 
-  // Brake Spring Settings
-  brakeSpringBrake    Decimal? @db.Decimal(10, 4)
-  brakeSpringClutch   Decimal? @db.Decimal(10, 4)
-  brakeSpringStudBolt String?
+  // Brake Spring Settings (in inches)
+  brakeSpringBrake    Decimal?                  @db.Decimal(10, 4)
+  brakeSpringClutch   Decimal?                  @db.Decimal(10, 4)
+  brakeSpringFB       Decimal?                  @db.Decimal(10, 4)
+  brakeSpringFTB      Decimal?                  @db.Decimal(10, 4)
+  brakeSpringRTB      Decimal?                  @db.Decimal(10, 4)
+  brakeSpringStudBolt BrakeSpringStudBoltType?
 
   // Brake measurements
-  brakeAnchorClearanceFB  Decimal? @db.Decimal(10, 4)
-  brakeAnchorClearanceFTB Decimal? @db.Decimal(10, 4)
-  brakeAnchorClearanceRTB Decimal? @db.Decimal(10, 4)
-  brakeStoppingTime       Decimal? @db.Decimal(10, 2)
-  brakeLining             String?
-  brakeClearing           Decimal? @db.Decimal(10, 4)
-  brakeClearanceTotal     Decimal? @db.Decimal(10, 4)
-  brakeClearanceRear      Decimal? @db.Decimal(10, 4)
+  brakeStoppingTime   Decimal?          @db.Decimal(10, 2)
+  brakeLining         BrakeLiningType?
+  brakeClearing       Decimal?          @db.Decimal(10, 4)
+  brakeClearanceTotal Decimal?          @db.Decimal(10, 4)
+  brakeClearanceRear  Decimal?          @db.Decimal(10, 4)
 
   // Flywheel
-  flywheelStoppingTime Decimal? @db.Decimal(10, 2)
-  flywheelBearings     String?
-  flywheelBrake        String?
+  flywheelStoppingTime Decimal?              @db.Decimal(10, 2)
+  flywheelBearings     FlywheelBearingsType?
+  flywheelBrake        FlywheelBrakeType?
+
+  // Rotary Union
+  rotaryUnion RotaryUnionType?
 
   // Clutch details
   clutchEngagements Int?
-  clutchLining      String?
-  clutchSeals       String?
+  clutchLining      ClutchLiningType?
+  clutchSeals       ClutchSealsType?
 
-  // Gear and measurements
+  // Gear and measurements (*Check only if excessive noise and/or vibration is present)
   gearBacklashBefore Decimal? @db.Decimal(10, 4)
   gearBacklashAfter  Decimal? @db.Decimal(10, 4)
   crankEndplayBefore Decimal? @db.Decimal(10, 4)
   crankEndplayAfter  Decimal? @db.Decimal(10, 4)
 
   // Air system
-  airRegulatorPSI     Decimal? @db.Decimal(10, 2)
-  airClutchTravel     Decimal? @db.Decimal(10, 4)
-  airLineOilerSetting String?
+  airRegulatorValue   Decimal?                @db.Decimal(10, 2)
+  airRegulatorUnit    PressureUnit?
+  airClutchTravel     Decimal?                @db.Decimal(10, 4)
+  airLineOilerSetting AirLineOilerSettingType?
+
+  // Splines
+  splinesDriveRingDisc SplinesConditionType?
+
+  // Adjusting Nut/Lock
+  adjustingNutLockSecure AdjustingNutLockType?
 
   // Hydraulic system
-  hydClutchClearanceTotal Decimal? @db.Decimal(10, 4)
-  hydClutchClearanceRear  Decimal? @db.Decimal(10, 4)
-  hydraulicPressurePSI    Decimal? @db.Decimal(10, 2)
-  accumulatorPSI          Decimal? @db.Decimal(10, 2)
+  hydClutchClearanceTotal Decimal?       @db.Decimal(10, 4)
+  hydClutchClearanceRear  Decimal?       @db.Decimal(10, 4)
+  hydraulicPressureValue  Decimal?       @db.Decimal(10, 2)
+  hydraulicPressureUnit   PressureUnit?
+  accumulatorValue        Decimal?       @db.Decimal(10, 2)
+  accumulatorUnit         PressureUnit?
 
-  // Components condition
-  rotaryUnion            String?
-  splinesDriveRingDisc   String?
-  adjustingNutLockSecure String?
-  separateBrakeSeals     String?
-  flexDisc               String?
+  // Separate Brake Seals
+  separateBrakeSeals SeparateBrakeSealsType?
+
+  // Flex Disc
+  flexDisc FlexDiscType?
+
+  // Notes
+  notes String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
