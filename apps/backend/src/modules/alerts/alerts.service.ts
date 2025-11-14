@@ -335,39 +335,41 @@ export class AlertsService {
     yellowMin: Decimal,
     redMin: Decimal,
   ) {
-    // Convert to number for calculations
-    const rhValue = RH.toNumber();
-    const lhValue = LH.toNumber();
-
-    // Calculate differential: |RH - LH| (Excel formula)
-    const differential = Math.abs(rhValue - lhValue);
+    // Calculate differential: |RH - LH| using Decimal arithmetic for precision
+    const differential = RH.minus(LH).abs();
 
     const severity = this.determineSeverity(
       differential,
-      greenMin.toNumber(),
-      yellowMin.toNumber(),
-      redMin.toNumber(),
+      greenMin,
+      yellowMin,
+      redMin,
     );
 
     return {
       RH,
       LH,
-      differential: new Decimal(differential),
+      differential,
       severity,
     };
   }
 
   private determineSeverity(
-    differential: number,
-    greenMin: number,
-    yellowMin: number,
-    redMin: number,
+    differential: Decimal,
+    greenMin: Decimal,
+    yellowMin: Decimal,
+    redMin: Decimal,
   ): AlertSeverity {
-    if (differential >= greenMin && differential < yellowMin) {
+    if (
+      differential.greaterThanOrEqualTo(greenMin) &&
+      differential.lessThan(yellowMin)
+    ) {
       return AlertSeverity.GREEN;
-    } else if (differential >= yellowMin && differential < redMin) {
+    } else if (
+      differential.greaterThanOrEqualTo(yellowMin) &&
+      differential.lessThan(redMin)
+    ) {
       return AlertSeverity.YELLOW;
-    } else if (differential >= redMin) {
+    } else if (differential.greaterThanOrEqualTo(redMin)) {
       return AlertSeverity.RED;
     } else {
       return AlertSeverity.NONE;

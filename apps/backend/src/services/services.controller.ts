@@ -2,7 +2,8 @@ import { Controller, Get, Post, Put, Body, Param } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
-import { Public } from 'src/modules/auth/auth.decorators';
+import { Public, Authenticated } from 'src/modules/auth/auth.decorators';
+import { LatestReportResponseDto } from '@titans-tech/shared';
 
 @Controller('services')
 export class ServicesController {
@@ -34,5 +35,13 @@ export class ServicesController {
     @Body() updateServiceDto: UpdateServiceDto,
   ): Promise<unknown> {
     return this.servicesService.update(id, updateServiceDto);
+  }
+
+  @Authenticated()
+  @Get('machines/:machineId/latest-report')
+  getLatestReport(
+    @Param('machineId') machineId: string,
+  ): Promise<LatestReportResponseDto> {
+    return this.servicesService.getLatestReport(machineId);
   }
 }

@@ -5,6 +5,7 @@ import type {
   CreateServicePayload,
   UpdateServicePayload,
   Service,
+  LatestReport,
 } from '@/data/types/services.types';
 
 export const createService = async (payload: CreateServicePayload) => {
@@ -65,4 +66,21 @@ export const updateService = async (
   }
 
   return response;
+};
+
+export const getLatestReport = async (machineId: string) => {
+  const options: {
+    method?: string;
+    body?: unknown;
+    headers?: Record<string, string>;
+    tags?: string[];
+  } = {
+    method: 'GET',
+    tags: [`latest-report-${machineId}`],
+  };
+
+  return await responseHandler<LatestReport>(
+    `/services/machines/${machineId}/latest-report`,
+    options,
+  );
 };

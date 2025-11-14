@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
-import { ArrowLeft, ClipboardCheck, Box } from 'lucide-react';
+import { ArrowLeft, ClipboardCheck, Box, FileText } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
@@ -11,6 +11,10 @@ import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
 import { Machine, MachineDetailsProps } from '@/data/types/machines.types';
 import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { LatestReportModal } from './LatestReportModal';
+import { getLatestReport } from '@/data/services/services.api';
+import type { LatestReport } from '@/data/types/services.types';
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
@@ -88,11 +92,29 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
+  const [isLoadingReport, setIsLoadingReport] = useState(false);
 
   const handleSectionClick = async (section: string) => {
     setLoadingSection(section);
     const sectionSlug = section.toLowerCase();
     router.push(`/admin/machines/${machine.id}/sections/${sectionSlug}`);
+  };
+
+  const handleOpenReport = async () => {
+    setIsLoadingReport(true);
+    try {
+      const response = await getLatestReport(machine.id);
+      if (response.data) {
+        setLatestReport(response.data);
+        setIsReportModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching latest report:', error);
+    } finally {
+      setIsLoadingReport(false);
+    }
   };
 
   return (
@@ -115,6 +137,10 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
               </Typography>
             </ConditionalTooltip>
           </div>
+          <Button onClick={handleOpenReport} disabled={isLoadingReport} className="gap-2 shrink-0">
+            <FileText className="w-4 h-4" />
+            {isLoadingReport ? 'Carregando...' : 'Ver Relatório Atualizado'}
+          </Button>
         </div>
       </div>
 
@@ -164,6 +190,14 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
           </CardContent>
         </Card>
       </div>
+
+      {latestReport && (
+        <LatestReportModal
+          report={latestReport}
+          open={isReportModalOpen}
+          onOpenChange={setIsReportModalOpen}
+        />
+      )}
     </>
   );
 }
