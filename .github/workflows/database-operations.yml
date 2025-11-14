@@ -1,0 +1,296 @@
+name: Database Operations
+
+on:
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 'Database operation to perform'
+        required: true
+        type: choice
+        options:
+          - reset-staging
+          - migrate-staging
+          - migrate-production
+      confirmation:
+        description: 'Type "CONFIRM" to proceed (required for reset)'
+        required: false
+        type: string
+
+  # Automatic trigger on push to main (runs production migration)
+  push:
+    branches: ['main']
+    paths:
+      - 'packages/database/prisma/schema.prisma'
+      - 'packages/database/prisma/migrations/**'
+
+jobs:
+  validate-input:
+    name: Validate Input
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Validate reset confirmation
+        if: inputs.operation == 'reset-staging'
+        run: |
+          if [ "${{ inputs.confirmation }}" != "CONFIRM" ]; then
+            echo "❌ Error: Reset operation requires confirmation"
+            echo "Please type CONFIRM in the confirmation field"
+            exit 1
+          fi
+          echo "✅ Confirmation received for reset operation"
+
+  reset-staging:
+    name: Reset Staging Database
+    runs-on: ubuntu-latest
+    needs: validate-input
+    if: github.event_name == 'workflow_dispatch' && inputs.operation == 'reset-staging'
+    environment:
+      name: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        env:
+          npm_config_fetch_retries: 5
+          npm_config_fetch_retry_mintimeout: 20000
+          npm_config_fetch_retry_maxtimeout: 120000
+
+      - name: Show current migration status
+        run: |
+          cd packages/database
+          echo "📊 Current migration status (before reset):"
+          npx prisma migrate status || true
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_URL }}
+
+      - name: Reset staging database
+        run: |
+          cd packages/database
+          echo "⚠️  WARNING: Resetting staging database - ALL DATA WILL BE DELETED!"
+          echo "Database: ${{ secrets.STAGING_URL }}"
+
+          # Reset database (deletes all data and re-runs all migrations)
+          npx prisma migrate reset --force --skip-seed
+
+          echo "✅ Database reset completed"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_URL }}
+
+      - name: Run seed (optional)
+        run: |
+          cd packages/database
+          if [ -f "prisma/seed.ts" ]; then
+            echo "🌱 Running database seed..."
+            npm run db:seed || echo "⚠️  Seed script not configured or failed"
+          else
+            echo "ℹ️  No seed script found"
+          fi
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_URL }}
+        continue-on-error: true
+
+      - name: Verify reset
+        run: |
+          cd packages/database
+          echo "📊 Migration status after reset:"
+          npx prisma migrate status
+
+          echo ""
+          echo "✅ Staging database reset completed successfully"
+          echo "All migrations have been re-applied"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_URL }}
+
+  migrate-staging:
+    name: Migrate Staging Database
+    runs-on: ubuntu-latest
+    needs: validate-input
+    if: |
+      always() &&
+      github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-staging'
+    environment:
+      name: staging
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        env:
+          npm_config_fetch_retries: 5
+          npm_config_fetch_retry_mintimeout: 20000
+          npm_config_fetch_retry_maxtimeout: 120000
+
+      - name: Check migration status
+        run: |
+          cd packages/database
+          echo "🔍 Checking migration status..."
+          npx prisma migrate status
+
+          echo ""
+          echo "📝 Pending migrations:"
+          npx prisma migrate diff \
+            --from-schema-datamodel prisma/schema.prisma \
+            --to-schema-datasource prisma/schema.prisma \
+            --script || echo "No pending migrations"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_URL }}
+
+      - name: Deploy migrations
+        run: |
+          cd packages/database
+          echo "🚀 Deploying migrations to staging..."
+          npx prisma migrate deploy
+
+          echo "✅ Migrations deployed successfully"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_URL }}
+
+      - name: Generate Prisma Client
+        run: |
+          cd packages/database
+          npx prisma generate
+          echo "✅ Prisma Client generated"
+
+      - name: Verify migrations
+        run: |
+          cd packages/database
+          echo "📊 Final migration status:"
+          npx prisma migrate status
+
+          echo ""
+          echo "✅ Staging database is up to date"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_URL }}
+
+  migrate-production:
+    name: Migrate Production Database
+    runs-on: ubuntu-latest
+    needs: validate-input
+    if: |
+      always() &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-production'))
+    environment:
+      name: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        env:
+          npm_config_fetch_retries: 5
+          npm_config_fetch_retry_mintimeout: 20000
+          npm_config_fetch_retry_maxtimeout: 120000
+
+      - name: Create backup snapshot (optional)
+        run: |
+          echo "🗄️  Creating RDS snapshot before migration..."
+          echo "Snapshot name: migration-backup-$(date +%Y%m%d-%H%M%S)"
+
+          # Uncomment if AWS CLI is configured and you want automatic snapshots
+          # aws rds create-db-snapshot \
+          #   --db-instance-identifier titans-tech-db \
+          #   --db-snapshot-identifier migration-backup-$(date +%Y%m%d-%H%M%S) \
+          #   --region us-east-2
+
+          echo "ℹ️  Automatic snapshots are disabled. Enable in workflow if needed."
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-2
+        continue-on-error: true
+
+      - name: Check migration status
+        run: |
+          cd packages/database
+          echo "🔍 Checking production migration status..."
+          npx prisma migrate status
+
+          echo ""
+          echo "📝 Pending migrations:"
+          npx prisma migrate diff \
+            --from-schema-datamodel prisma/schema.prisma \
+            --to-schema-datasource prisma/schema.prisma \
+            --script || echo "No pending migrations"
+        env:
+          DATABASE_URL: ${{ secrets.AWS_RDS_DATABASE_URL }}
+
+      - name: Deploy migrations
+        run: |
+          cd packages/database
+          echo "🚀 Deploying migrations to PRODUCTION..."
+          npx prisma migrate deploy
+
+          echo "✅ Migrations deployed successfully"
+        env:
+          DATABASE_URL: ${{ secrets.AWS_RDS_DATABASE_URL }}
+
+      - name: Generate Prisma Client
+        run: |
+          cd packages/database
+          npx prisma generate
+          echo "✅ Prisma Client generated"
+
+      - name: Verify migrations
+        run: |
+          cd packages/database
+          echo "📊 Final migration status:"
+          npx prisma migrate status
+
+          echo ""
+          echo "✅ Production database is up to date"
+        env:
+          DATABASE_URL: ${{ secrets.AWS_RDS_DATABASE_URL }}
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🎉 Production migration completed successfully!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Timestamp: $(date)"
+          echo ""
+          echo "Next steps:"
+          echo "1. Monitor application logs for any issues"
+          echo "2. Test critical user flows"
+          echo "3. Check database performance metrics"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "❌ Production migration FAILED!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Timestamp: $(date)"
+          echo ""
+          echo "Action required:"
+          echo "1. Review error logs above"
+          echo "2. Check database connection"
+          echo "3. Verify migration files are valid"
+          echo "4. Consider restoring from snapshot if needed"
+          echo ""
+          echo "DO NOT RETRY without investigating the cause!"
+          exit 1
