@@ -194,16 +194,11 @@ function PositionFields({
           <Input
             id={`position6-${title}`}
             type="number"
-            step="0.0001"
-            min="0"
-            max="999999.9999"
-            value={data.position6}
-            onChange={(e) => updateFn('position6', Number(e.target.value))}
-            onBlur={() => handleBlur('position6')}
-            className={errors.position6 ? 'border-destructive' : ''}
-            required
+            value={0}
+            disabled
+            readOnly
+            className="bg-muted text-center cursor-not-allowed"
           />
-          {errors.position6 && <p className="text-xs text-destructive mt-1">{errors.position6}</p>}
         </div>
         <div>
           <Input
@@ -320,16 +315,11 @@ function PositionFields({
           <Input
             id={`position6-${title}-md`}
             type="number"
-            step="0.0001"
-            min="0"
-            max="999999.9999"
-            value={data.position6}
-            onChange={(e) => updateFn('position6', Number(e.target.value))}
-            onBlur={() => handleBlur('position6')}
-            className={errors.position6 ? 'border-destructive' : ''}
-            required
+            value={0}
+            disabled
+            readOnly
+            className="bg-muted text-center cursor-not-allowed"
           />
-          {errors.position6 && <p className="text-xs text-destructive mt-1">{errors.position6}</p>}
         </div>
       </div>
 
@@ -419,16 +409,11 @@ function PositionFields({
           <Input
             id={`position6-${title}-sm`}
             type="number"
-            step="0.0001"
-            min="0"
-            max="999999.9999"
-            value={data.position6}
-            onChange={(e) => updateFn('position6', Number(e.target.value))}
-            onBlur={() => handleBlur('position6')}
-            className={errors.position6 ? 'border-destructive' : ''}
-            required
+            value={0}
+            disabled
+            readOnly
+            className="bg-muted text-center cursor-not-allowed"
           />
-          {errors.position6 && <p className="text-xs text-destructive mt-1">{errors.position6}</p>}
         </div>
 
         {/* Row 4: deviation label, deviation calc */}

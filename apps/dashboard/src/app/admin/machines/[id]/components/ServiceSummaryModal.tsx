@@ -11,7 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { Label } from '@/components/ui/label';
-import { Check, ChevronUp } from 'lucide-react';
+import { Check, ChevronUp, FileSpreadsheet, FileText } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Table,
@@ -24,6 +24,7 @@ import {
 import { ServiceType, type Service } from '@/data/types/services.types';
 import { format } from 'date-fns';
 import { SECTION_REGISTRY } from './sections/registry';
+import { exportToExcel, exportToPDF } from './utils/serviceExportUtils';
 
 interface ServiceSummaryModalProps {
   service: Service;
@@ -164,6 +165,48 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
       return (max - min).toFixed(4);
     }
     return '-';
+  };
+
+  // Handle export to Excel
+  const handleExportToExcel = () => {
+    exportToExcel({
+      service,
+      completedSections,
+      completedSectionData,
+      sectionRegistry: SECTION_REGISTRY,
+      translationCallbacks: {
+        getSectionName: (key: string) => {
+          const sectionConfig = SECTION_REGISTRY[key];
+          return sectionConfig ? t(`sectionNames.${sectionConfig.metadata.i18nKey}`) : key;
+        },
+        getServiceTypeName: () => {
+          return isInspection
+            ? tServices('modal.inspectionSummary')
+            : tServices('modal.maintenanceSummary');
+        },
+      },
+    });
+  };
+
+  // Handle export to PDF
+  const handleExportToPDF = () => {
+    exportToPDF({
+      service,
+      completedSections,
+      completedSectionData,
+      sectionRegistry: SECTION_REGISTRY,
+      translationCallbacks: {
+        getSectionName: (key: string) => {
+          const sectionConfig = SECTION_REGISTRY[key];
+          return sectionConfig ? t(`sectionNames.${sectionConfig.metadata.i18nKey}`) : key;
+        },
+        getServiceTypeName: () => {
+          return isInspection
+            ? tServices('modal.inspectionSummary')
+            : tServices('modal.maintenanceSummary');
+        },
+      },
+    });
   };
 
   // Helper function to format field names
@@ -1511,7 +1554,27 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 px-4 border-t">
+        <div className="flex justify-between items-center gap-3 pt-4 px-4 border-t">
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleExportToExcel}
+              className="flex items-center gap-2"
+            >
+              <FileSpreadsheet className="w-4 h-4" />
+              Exportar Excel
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleExportToPDF}
+              className="flex items-center gap-2"
+            >
+              <FileText className="w-4 h-4" />
+              Exportar PDF
+            </Button>
+          </div>
           <Button type="button" onClick={() => onOpenChange(false)}>
             Fechar
           </Button>
