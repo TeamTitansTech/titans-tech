@@ -12,6 +12,8 @@ on:
           - reset-staging
           - migrate-staging
           - migrate-production
+          - seed-staging
+          - seed-production
       confirmation:
         description: 'Type "CONFIRM" to proceed (required for reset)'
         required: false
@@ -274,4 +276,89 @@ jobs:
           echo "4. Consider restoring from snapshot if needed"
           echo ""
           echo "DO NOT RETRY without investigating the cause!"
+          exit 1
+
+  seed-staging:
+    name: Seed Staging Database
+    runs-on: ubuntu-latest
+    needs: validate-input
+    if: |
+      always() &&
+      (github.event_name == 'workflow_dispatch' && inputs.operation == 'seed-staging')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        env:
+          npm_config_fetch_retries: 5
+          npm_config_fetch_retry_mintimeout: 20000
+          npm_config_fetch_retry_maxtimeout: 120000
+
+      - name: Run seed script
+        run: |
+          echo "🌱 Seeding staging database..."
+          cd packages/database && npm run db:seed
+          echo "✅ Staging database seeded successfully"
+        env:
+          DATABASE_URL: ${{ secrets.STAGING_URL }}
+
+  seed-production:
+    name: Seed Production Database
+    runs-on: ubuntu-latest
+    needs: validate-input
+    if: |
+      always() &&
+      (github.event_name == 'workflow_dispatch' && inputs.operation == 'seed-production')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+        env:
+          npm_config_fetch_retries: 5
+          npm_config_fetch_retry_mintimeout: 20000
+          npm_config_fetch_retry_maxtimeout: 120000
+
+      - name: Confirm production seed
+        run: |
+          echo "⚠️  WARNING: About to seed PRODUCTION database!"
+          echo "Database: AWS RDS Production"
+          echo "This will add/modify data in production"
+
+      - name: Run seed script
+        run: |
+          echo "🌱 Seeding production database..."
+          cd packages/database && npm run db:seed
+          echo "✅ Production database seeded successfully"
+        env:
+          DATABASE_URL: ${{ secrets.AWS_RDS_DATABASE_URL }}
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "🎉 Production database seeded successfully!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "❌ Production database seed FAILED!"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           exit 1
