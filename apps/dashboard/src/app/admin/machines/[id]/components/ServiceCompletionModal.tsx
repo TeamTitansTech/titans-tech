@@ -26,13 +26,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ServiceType, ServiceStatus, type CreateServicePayload } from '@/data/types/services.types';
 import {
-  ServiceType,
-  ServiceStatus,
-  type CreateServicePayload,
-  type UpdateServicePayload,
-} from '@/data/types/services.types';
-import { createService, updateService } from '@/data/services/services.api';
+  createService,
+  updateServiceSection,
+  completeService,
+  getServiceById,
+} from '@/data/services/services.api';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { toast } from 'sonner';
 import {
@@ -139,6 +139,10 @@ export function ServiceCompletionModal({
   // Store completed section data for summary display
   const [completedSectionData, setCompletedSectionData] = useState<Record<string, any>>({});
 
+  // Store the service ID for newly created services
+  const [createdServiceId, setCreatedServiceId] = useState<string | null>(null);
+  const currentServiceId = serviceId || createdServiceId;
+
   // Reset when modal closes
   useEffect(() => {
     if (!open) {
@@ -153,6 +157,7 @@ export function ServiceCompletionModal({
       setError(null);
       setCompletedSections(new Set());
       setCompletedSectionData({});
+      setCreatedServiceId(null);
       // Reset all section refs
       sectionRefs.current.forEach((ref) => ref.reset());
     }
@@ -166,6 +171,71 @@ export function ServiceCompletionModal({
     machineSections,
     shouldSkipSelection,
   ]);
+
+  // Load existing service data when opening modal with serviceId
+  // Only load when explicitly provided with serviceId prop (not createdServiceId)
+  useEffect(() => {
+    const loadServiceData = async () => {
+      // Only load if:
+      // 1. Modal is open
+      // 2. We have a serviceId prop (existing service, not newly created)
+      // 3. createdServiceId is null (not in the middle of creating a new service)
+      if (!open || !serviceId || createdServiceId) return;
+
+      try {
+        const response = await getServiceById(serviceId);
+
+        if (response.errors || !response.data) {
+          console.error('Failed to load service data:', response.errors);
+          toast.error('Failed to load service data');
+          return;
+        }
+
+        const service = response.data as any; // Service with included relations
+
+        // Extract completed sections array
+        const savedCompletedSections = Array.isArray(service.completedSections)
+          ? service.completedSections
+          : [];
+
+        // Map Prisma relation data back to section data
+        const RELATION_TO_SECTION_KEY: Record<string, string> = {
+          bearingClearance: 'BEARING_CLEARANCE',
+          slide: 'SLIDE',
+          gibs: 'GIBS',
+          lubricationHydraulics: 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
+          clutch: 'CLUTCH',
+          counterbalanceCylinderAirbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
+        };
+
+        const loadedSectionData: Record<string, any> = {};
+
+        // Extract data from each relation (arrays with single item)
+        Object.entries(RELATION_TO_SECTION_KEY).forEach(([relationKey, sectionKey]) => {
+          const relationData = service[relationKey];
+          if (relationData && Array.isArray(relationData) && relationData.length > 0) {
+            loadedSectionData[sectionKey] = relationData[0];
+          }
+        });
+
+        // Update state with loaded data
+        // Section components will automatically receive this data via initialData prop
+        setCompletedSections(new Set(savedCompletedSections));
+        setCompletedSectionData(loadedSectionData);
+
+        // Always start at details step when reopening with saved data
+        // This lets users see the full stepper with completed sections marked
+        // and navigate wherever they want
+        setCurrentStep('details');
+        setCurrentSectionIndex(0);
+      } catch (error) {
+        console.error('Error loading service data:', error);
+        toast.error('Error loading service data');
+      }
+    };
+
+    loadServiceData();
+  }, [open, serviceId, createdServiceId]);
 
   const toggleSection = (sectionKey: string) => {
     setSelectedSections((prev) => {
@@ -254,12 +324,46 @@ export function ServiceCompletionModal({
   };
 
   // Navigate to next step
-  const handleNext = (e?: React.MouseEvent) => {
+  const handleNext = async (e?: React.MouseEvent) => {
     // Prevent any form submission
     e?.preventDefault();
     e?.stopPropagation();
 
     if (currentStep === 'details') {
+      // If creating a new service, create it with PENDING status before proceeding
+      if (!currentServiceId) {
+        setIsSubmitting(true);
+        try {
+          const payload: CreateServicePayload = {
+            machineId,
+            date: date.toISOString(),
+            type: currentServiceType,
+            status: ServiceStatus.PENDING,
+            performedBy: performedBy || undefined,
+          };
+
+          const response = await createService(payload);
+
+          if (response.errors || !response.data) {
+            toast.error(
+              `Failed to create service:\n${response.errors?.join('\n') || 'Unknown error'}`,
+            );
+            setIsSubmitting(false);
+            return;
+          }
+
+          // Store the created service ID
+          setCreatedServiceId(response.data.id);
+          toast.success('Service created. Now fill in the section forms.');
+          setIsSubmitting(false);
+        } catch (error) {
+          console.error('Error creating service:', error);
+          toast.error('An unexpected error occurred while creating the service');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // Move to first section
       setCurrentStep('sections');
       setCurrentSectionIndex(0);
@@ -268,33 +372,75 @@ export function ServiceCompletionModal({
       const sectionsArray = getSelectedSectionsArray();
       const currentSectionKey = sectionsArray[currentSectionIndex];
 
+      // Client-side validation for immediate feedback
       const validationErrors = validateSection(currentSectionKey);
       if (validationErrors.length > 0) {
         toast.error(validationErrors.join('\n\n'));
         return;
       }
 
-      // Mark section as completed
-      setCompletedSections((prev) => new Set(prev).add(currentSectionKey));
-
-      // Save section data to state for summary display
+      // Get section data from ref
       const ref = sectionRefs.current.get(currentSectionKey);
-      if (ref) {
-        const result = ref.validateAndGetData(currentServiceType);
-        if (result.isValid && result.data) {
-          setCompletedSectionData((prev) => ({
-            ...prev,
-            [currentSectionKey]: result.data,
-          }));
-        }
+      if (!ref) {
+        toast.error('Section reference not found');
+        return;
       }
 
-      // Move to next section or go to summary
-      if (currentSectionIndex < sectionsArray.length - 1) {
-        setCurrentSectionIndex(currentSectionIndex + 1);
-      } else {
-        // All sections completed, move to summary
-        setCurrentStep('summary');
+      const result = ref.validateAndGetData(currentServiceType);
+      if (!result.isValid || !result.data) {
+        toast.error('Please fill in all required fields');
+        return;
+      }
+
+      // Show loading state
+      setIsSubmitting(true);
+
+      try {
+        // Save section to database
+        if (!currentServiceId) {
+          toast.error('Service ID not found. Please create the service first.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        const response = await updateServiceSection(
+          currentServiceId,
+          currentSectionKey,
+          result.data,
+          machineId,
+        );
+
+        if (response.errors) {
+          toast.error(`Failed to save section:\n${response.errors.join('\n')}`);
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Section saved successfully
+        toast.success('Section saved successfully');
+
+        // Mark section as completed
+        setCompletedSections((prev) => new Set(prev).add(currentSectionKey));
+
+        // Save section data to state for summary display
+        setCompletedSectionData((prev) => ({
+          ...prev,
+          [currentSectionKey]: result.data,
+        }));
+
+        setIsSubmitting(false);
+
+        // Move to next section or go to summary
+        if (currentSectionIndex < sectionsArray.length - 1) {
+          setCurrentSectionIndex(currentSectionIndex + 1);
+        } else {
+          // All sections completed, move to summary
+          setCurrentStep('summary');
+        }
+      } catch (error) {
+        console.error('Error saving section:', error);
+        toast.error('An unexpected error occurred while saving the section');
+        setIsSubmitting(false);
       }
     }
   };
@@ -346,141 +492,62 @@ export function ServiceCompletionModal({
   };
 
   // Map section keys to payload property names
-  const SECTION_TO_PAYLOAD_KEY: Record<
-    string,
-    keyof UpdateServicePayload | keyof CreateServicePayload
-  > = {
-    BEARING_CLEARANCE: 'bearingClearance',
-    SLIDE: 'slide',
-    GIBS: 'gibs',
-    LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
-    CLUTCH: 'clutch',
-    COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalanceCylinder',
-  };
+  // const SECTION_TO_PAYLOAD_KEY: Record<
+  //   string,
+  //   keyof UpdateServicePayload | keyof CreateServicePayload
+  // > = {
+  //   BEARING_CLEARANCE: 'bearingClearance',
+  //   SLIDE: 'slide',
+  //   GIBS: 'gibs',
+  //   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
+  //   CLUTCH: 'clutch',
+  //   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalanceCylinder',
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setError(null);
 
-    // Only allow submission from summary step when completing service
-    if (isCompletingService && serviceId) {
-      if (currentStep !== 'summary') {
-        // Not on summary step, prevent submission
-        console.warn('Attempted to submit from non-summary step:', currentStep);
-        return;
-      }
+    // Only allow submission from summary step
+    if (currentStep !== 'summary') {
+      console.warn('Attempted to submit from non-summary step:', currentStep);
+      return;
     }
 
     setIsSubmitting(true);
 
     try {
-      if (isCompletingService && serviceId) {
-        // Completing an existing maintenance service - validate and collect section data
-        const validationErrors: string[] = [];
-
-        // Validate all selected sections (skip untouched optional sections)
-        selectedSections.forEach((sectionKey) => {
-          const errors = validateSection(sectionKey, true);
-          if (errors.length > 0) {
-            validationErrors.push(...errors);
-          }
-        });
-
-        if (validationErrors.length > 0) {
-          toast.error(validationErrors.join('\n\n'));
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Build payload with section data
-        const payload: UpdateServicePayload = {
-          date: date.toISOString(),
-          type: currentServiceType,
-          status: ServiceStatus.COMPLETED,
-          performedBy: performedBy || undefined,
-        };
-
-        // Add section data from completedSectionData
-        selectedSections.forEach((sectionKey) => {
-          const payloadKey = SECTION_TO_PAYLOAD_KEY[sectionKey];
-          const sectionData = completedSectionData[sectionKey];
-          if (payloadKey && sectionData) {
-            (payload as any)[payloadKey] = sectionData;
-          }
-        });
-
-        const response = await updateService(serviceId, payload, machineId);
-
-        if (response.errors) {
-          setError(response.errors.join(', '));
-          setIsSubmitting(false);
-          return;
-        }
-
-        toast.success(
-          isInspection ? 'Inspeção concluída com sucesso' : 'Manutenção concluída com sucesso',
-        );
-      } else {
-        // Creating a new service - collect section data
-        const validationErrors: string[] = [];
-
-        // Validate all selected sections (skip untouched optional sections)
-        selectedSections.forEach((sectionKey) => {
-          const errors = validateSection(sectionKey, true);
-          if (errors.length > 0) {
-            validationErrors.push(...errors);
-          }
-        });
-
-        if (validationErrors.length > 0) {
-          toast.error(validationErrors.join('\n\n'));
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Build payload with section data
-        const payload: CreateServicePayload = {
-          machineId,
-          date: date.toISOString(),
-          type: currentServiceType,
-          status: ServiceStatus.COMPLETED,
-          performedBy: performedBy || undefined,
-        };
-
-        // Add section data from completedSectionData
-        selectedSections.forEach((sectionKey) => {
-          const payloadKey = SECTION_TO_PAYLOAD_KEY[sectionKey];
-          const sectionData = completedSectionData[sectionKey];
-          if (payloadKey && sectionData) {
-            (payload as any)[payloadKey] = sectionData;
-          }
-        });
-
-        const response = await createService(payload);
-
-        if (response.errors) {
-          setError(response.errors.join(', '));
-          setIsSubmitting(false);
-          return;
-        }
-
-        toast.success(
-          currentServiceType === ServiceType.INSPECTION
-            ? 'Inspeção criada com sucesso'
-            : 'Manutenção criada com sucesso',
-        );
+      // Validate that we have a service ID (either provided or created)
+      if (!currentServiceId) {
+        toast.error('Service ID not found');
+        setIsSubmitting(false);
+        return;
       }
+
+      // Mark service as completed
+      const response = await completeService(currentServiceId, performedBy || '', machineId);
+
+      if (response.errors) {
+        setError(response.errors.join(', '));
+        setIsSubmitting(false);
+        return;
+      }
+
+      toast.success(
+        isInspection ? 'Inspeção concluída com sucesso' : 'Manutenção concluída com sucesso',
+      );
 
       // Reset and close
       setDate(getTomorrowDate());
       setSelectedServiceType(ServiceType.MAINTENANCE);
       setPerformedBy('');
+      setCreatedServiceId(null);
       setIsSubmitting(false);
       onOpenChange(false);
       router.refresh();
     } catch (err) {
-      console.error('Error with service:', err);
+      console.error('Error completing service:', err);
       setError('An unexpected error occurred');
       setIsSubmitting(false);
     }

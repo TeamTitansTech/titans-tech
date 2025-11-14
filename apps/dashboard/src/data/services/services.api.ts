@@ -66,3 +66,104 @@ export const updateService = async (
 
   return response;
 };
+
+/**
+ * Update a specific section of a service (calls Prisma directly)
+ */
+export const updateServiceSection = async (
+  serviceId: string,
+  sectionKey: string,
+  sectionData: any,
+  machineId?: string,
+) => {
+  try {
+    // Import route handler logic
+    const { PATCH } = await import('@/app/api/services/[serviceId]/sections/[sectionKey]/route');
+
+    // Create mock request and context
+    const mockRequest = {
+      json: async () => sectionData,
+    } as any;
+
+    const mockContext = {
+      params: Promise.resolve({ serviceId, sectionKey }),
+    };
+
+    // Call the route handler
+    const response = await PATCH(mockRequest, mockContext);
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        data: null,
+        errors: data.errors || [data.error || 'Unknown error'],
+        rawErrors: data,
+      };
+    }
+
+    if (machineId) {
+      revalidateTag(`services-${machineId}`, 'max');
+      revalidatePath(`/machines/${machineId}`);
+      revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
+    }
+
+    return { data: data.data, errors: null, rawErrors: null };
+  } catch (error) {
+    console.error('Error updating section:', error);
+    return {
+      data: null,
+      errors: [error instanceof Error ? error.message : 'Connection error'],
+      rawErrors: error as any,
+    };
+  }
+};
+
+/**
+ * Mark a service as completed (calls Prisma directly)
+ */
+export const completeService = async (
+  serviceId: string,
+  performedBy: string,
+  machineId?: string,
+) => {
+  try {
+    // Import route handler logic
+    const { POST } = await import('@/app/api/services/[serviceId]/complete/route');
+
+    // Create mock request and context
+    const mockRequest = {
+      json: async () => ({ performedBy }),
+    } as any;
+
+    const mockContext = {
+      params: Promise.resolve({ serviceId }),
+    };
+
+    // Call the route handler
+    const response = await POST(mockRequest, mockContext);
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        data: null,
+        errors: data.errors || [data.error || 'Unknown error'],
+        rawErrors: data,
+      };
+    }
+
+    if (machineId) {
+      revalidateTag(`services-${machineId}`, 'max');
+      revalidatePath(`/machines/${machineId}`);
+      revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
+    }
+
+    return { data: data.data, errors: null, rawErrors: null };
+  } catch (error) {
+    console.error('Error completing service:', error);
+    return {
+      data: null,
+      errors: [error instanceof Error ? error.message : 'Connection error'],
+      rawErrors: error as any,
+    };
+  }
+};

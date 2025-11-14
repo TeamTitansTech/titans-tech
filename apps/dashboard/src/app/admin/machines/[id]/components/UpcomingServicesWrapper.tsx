@@ -68,6 +68,12 @@ export function UpcomingServicesWrapper({
             <div className="space-y-4">
               {upcomingServices.map((service) => {
                 const serviceDate = new Date(service.date);
+                // Check if service has any sections completed (in progress)
+                const serviceData = service as any;
+                const completedSections = Array.isArray(serviceData.completedSections)
+                  ? serviceData.completedSections
+                  : [];
+                const hasStarted = completedSections.length > 0;
 
                 return (
                   <div
@@ -94,6 +100,11 @@ export function UpcomingServicesWrapper({
                         </Typography>
                       </div>
                     </div>
+                    {hasStarted && (
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-600 text-white dark:bg-yellow-500">
+                        {t('inProgress')}
+                      </span>
+                    )}
                   </div>
                 );
               })}
