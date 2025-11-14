@@ -2,7 +2,6 @@
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Check, AlertCircle } from 'lucide-react';
 import {
   type SlideData,
   ServiceType,
@@ -111,7 +110,6 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       innerAfter: {} as Record<string, string>,
     });
 
-    const [isValid, setIsValid] = useState<boolean | null>(null);
     const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
 
     // Generic update function for any field in formData

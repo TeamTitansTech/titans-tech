@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
 import { type GibsData, ServiceType, YesNoDncType } from '@/data/types/services.types';
 import { GibsForm } from '../forms/GibsForm';
 import { isDataTouched } from './utils';
+import { useOuterInnerState } from '../../hooks/useOuterInnerState';
+import { SectionContainer } from '../shared/SectionContainer';
 
 export const defaultGibsData: GibsData = {
   hasBeenAdjusted: YesNoDncType.NO,
@@ -95,22 +95,33 @@ interface GibsSectionProps {
 
 export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
   ({ isOpen, onOpenChange, onSectionTouched }, ref) => {
-    const [outerBeforeData, setOuterBeforeData] = useState<GibsData>(defaultGibsData);
-    const [outerAfterData, setOuterAfterData] = useState<GibsData>(defaultGibsData);
-    const [innerBeforeData, setInnerBeforeData] = useState<GibsData>(defaultGibsData);
-    const [innerAfterData, setInnerAfterData] = useState<GibsData>(defaultGibsData);
+    // Use the outer/inner state hook
+    const {
+      outerBeforeData,
+      outerAfterData,
+      innerBeforeData,
+      innerAfterData,
+      outerBeforeErrors,
+      outerAfterErrors,
+      innerBeforeErrors,
+      innerAfterErrors,
+      updateOuterBeforeField: baseUpdateOuterBefore,
+      updateOuterAfterField: baseUpdateOuterAfter,
+      updateInnerBeforeField: baseUpdateInnerBefore,
+      updateInnerAfterField: baseUpdateInnerAfter,
+      setOuterBeforeFieldError,
+      setOuterAfterFieldError,
+      setInnerBeforeFieldError,
+      setInnerAfterFieldError,
+      reset,
+    } = useOuterInnerState<GibsData>(defaultGibsData);
 
-    const [outerBeforeErrors, setOuterBeforeErrors] = useState<Record<string, string>>({});
-    const [outerAfterErrors, setOuterAfterErrors] = useState<Record<string, string>>({});
-    const [innerBeforeErrors, setInnerBeforeErrors] = useState<Record<string, string>>({});
-    const [innerAfterErrors, setInnerAfterErrors] = useState<Record<string, string>>({});
-
+    // Wrapper functions to call onSectionTouched
     const updateOuterBeforeField = (
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
-      setOuterBeforeData((prev) => ({ ...prev, [field]: value }));
-      setOuterBeforeErrors((prev) => ({ ...prev, [field]: '' }));
+      baseUpdateOuterBefore(field, value as any);
       onSectionTouched?.();
     };
 
@@ -118,8 +129,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
-      setOuterAfterData((prev) => ({ ...prev, [field]: value }));
-      setOuterAfterErrors((prev) => ({ ...prev, [field]: '' }));
+      baseUpdateOuterAfter(field, value as any);
       onSectionTouched?.();
     };
 
@@ -127,8 +137,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
-      setInnerBeforeData((prev) => ({ ...prev, [field]: value }));
-      setInnerBeforeErrors((prev) => ({ ...prev, [field]: '' }));
+      baseUpdateInnerBefore(field, value as any);
       onSectionTouched?.();
     };
 
@@ -136,8 +145,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
-      setInnerAfterData((prev) => ({ ...prev, [field]: value }));
-      setInnerAfterErrors((prev) => ({ ...prev, [field]: '' }));
+      baseUpdateInnerAfter(field, value as any);
       onSectionTouched?.();
     };
 
@@ -174,22 +182,22 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
 
     const handleBlurOuterBefore = (field: keyof GibsData) => {
       const error = validateField(field, outerBeforeData[field]);
-      setOuterBeforeErrors((prev) => ({ ...prev, [field]: error }));
+      setOuterBeforeFieldError(field, error);
     };
 
     const handleBlurOuterAfter = (field: keyof GibsData) => {
       const error = validateField(field, outerAfterData[field]);
-      setOuterAfterErrors((prev) => ({ ...prev, [field]: error }));
+      setOuterAfterFieldError(field, error);
     };
 
     const handleBlurInnerBefore = (field: keyof GibsData) => {
       const error = validateField(field, innerBeforeData[field]);
-      setInnerBeforeErrors((prev) => ({ ...prev, [field]: error }));
+      setInnerBeforeFieldError(field, error);
     };
 
     const handleBlurInnerAfter = (field: keyof GibsData) => {
       const error = validateField(field, innerAfterData[field]);
-      setInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
+      setInnerAfterFieldError(field, error);
     };
 
     useImperativeHandle(ref, () => ({
@@ -314,97 +322,78 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
         return errors;
       },
 
-      reset: () => {
-        setOuterBeforeData(defaultGibsData);
-        setOuterAfterData(defaultGibsData);
-        setInnerBeforeData(defaultGibsData);
-        setInnerAfterData(defaultGibsData);
-        setOuterBeforeErrors({});
-        setOuterAfterErrors({});
-        setInnerBeforeErrors({});
-        setInnerAfterErrors({});
-      },
+      reset,
     }));
 
     return (
-      <Collapsible open={isOpen} onOpenChange={onOpenChange}>
-        <CollapsibleTrigger className="w-full">
-          <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
-            <h3 className="text-base font-semibold">Gibs</h3>
-            <ChevronDown
-              className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
-            />
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="border border-t-0 rounded-b-lg p-6 bg-card">
-            <Tabs defaultValue="outer" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
-                <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
-              </TabsList>
+      <SectionContainer title="Gibs" isOpen={isOpen} onOpenChange={onOpenChange}>
+        <div className="space-y-6">
+          <Tabs defaultValue="outer" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
+              <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
+            </TabsList>
 
-              <TabsContent value="outer" className="space-y-6">
-                <Tabs defaultValue="before" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                    <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                  </TabsList>
+            <TabsContent value="outer" className="space-y-6">
+              <Tabs defaultValue="before" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="before">Before Maintenance</TabsTrigger>
+                  <TabsTrigger value="after">After Maintenance</TabsTrigger>
+                </TabsList>
 
-                  <TabsContent value="before" className="mt-4">
-                    <GibsForm
-                      data={outerBeforeData}
-                      updateFn={updateOuterBeforeField}
-                      errors={outerBeforeErrors}
-                      handleBlur={handleBlurOuterBefore}
-                      title="Outer Before"
-                    />
-                  </TabsContent>
+                <TabsContent value="before" className="mt-4">
+                  <GibsForm
+                    data={outerBeforeData}
+                    updateFn={updateOuterBeforeField}
+                    errors={outerBeforeErrors}
+                    handleBlur={handleBlurOuterBefore}
+                    title="Outer Before"
+                  />
+                </TabsContent>
 
-                  <TabsContent value="after" className="mt-4">
-                    <GibsForm
-                      data={outerAfterData}
-                      updateFn={updateOuterAfterField}
-                      errors={outerAfterErrors}
-                      handleBlur={handleBlurOuterAfter}
-                      title="Outer After"
-                    />
-                  </TabsContent>
-                </Tabs>
-              </TabsContent>
+                <TabsContent value="after" className="mt-4">
+                  <GibsForm
+                    data={outerAfterData}
+                    updateFn={updateOuterAfterField}
+                    errors={outerAfterErrors}
+                    handleBlur={handleBlurOuterAfter}
+                    title="Outer After"
+                  />
+                </TabsContent>
+              </Tabs>
+            </TabsContent>
 
-              <TabsContent value="inner" className="space-y-6">
-                <Tabs defaultValue="before" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                    <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                  </TabsList>
+            <TabsContent value="inner" className="space-y-6">
+              <Tabs defaultValue="before" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="before">Before Maintenance</TabsTrigger>
+                  <TabsTrigger value="after">After Maintenance</TabsTrigger>
+                </TabsList>
 
-                  <TabsContent value="before" className="mt-4">
-                    <GibsForm
-                      data={innerBeforeData}
-                      updateFn={updateInnerBeforeField}
-                      errors={innerBeforeErrors}
-                      handleBlur={handleBlurInnerBefore}
-                      title="Inner Before"
-                    />
-                  </TabsContent>
+                <TabsContent value="before" className="mt-4">
+                  <GibsForm
+                    data={innerBeforeData}
+                    updateFn={updateInnerBeforeField}
+                    errors={innerBeforeErrors}
+                    handleBlur={handleBlurInnerBefore}
+                    title="Inner Before"
+                  />
+                </TabsContent>
 
-                  <TabsContent value="after" className="mt-4">
-                    <GibsForm
-                      data={innerAfterData}
-                      updateFn={updateInnerAfterField}
-                      errors={innerAfterErrors}
-                      handleBlur={handleBlurInnerAfter}
-                      title="Inner After"
-                    />
-                  </TabsContent>
-                </Tabs>
-              </TabsContent>
-            </Tabs>
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+                <TabsContent value="after" className="mt-4">
+                  <GibsForm
+                    data={innerAfterData}
+                    updateFn={updateInnerAfterField}
+                    errors={innerAfterErrors}
+                    handleBlur={handleBlurInnerAfter}
+                    title="Inner After"
+                  />
+                </TabsContent>
+              </Tabs>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </SectionContainer>
     );
   },
 );
