@@ -27,7 +27,7 @@ enum MatingPartType {
   NUT_SCREW_SLEEVE
 }
 
-enum ParallelismType {
+enum DncToBedToBolsterType {
   DNC
   TO_BED
   TO_BOLSTER
@@ -44,6 +44,14 @@ enum YesNoDncType {
   YES
   NO
   DNC
+}
+
+enum LubeHydMonitorFlowPressSwGibType {
+  LUBE
+  HYD
+  MONITORFLOW
+  PRESS_SW
+  GIB
 }
 
 enum ConditionOkNaDncBrokenWornType {
@@ -77,7 +85,7 @@ enum SystemType {
   GIB
 }
 
-enum PsiStatusType {
+enum OkNaDncDamageType {
   OK
   NA
   DNC
@@ -86,6 +94,47 @@ enum PsiStatusType {
 enum MeasurementUnit {
   INCHES
   MM
+}
+
+enum CylinderAirbagType {
+  CYLINDER
+  AIRBAG
+}
+
+enum OkNaDncLeakingType {
+  OK
+  NA
+  DNC
+  LEAKING
+}
+
+enum OkNaDncNotOperationalType {
+  OK
+  NA
+  DNC
+  NOT_OPERATIONAL
+}
+
+enum OkNaDncNotOperationalLeakingType {
+  OK
+  NA
+  DNC
+  NOT_OPERATIONAL
+  LEAKING
+}
+
+enum OkNaDncDarkOilType {
+  OK
+  NA
+  DNC
+  DARK_OIL
+}
+
+enum OkNaDncNeedReplacedType {
+  OK
+  NA
+  DNC
+  NEEDS_REPLACED
 }
 
 enum ServiceSection {
@@ -435,7 +484,7 @@ model MachineServiceSlide {
   innerDataId      String?
 
   // Parallelism fields
-  parallelism                ParallelismType?
+  parallelism                DncToBedToBolsterType?
   hasParallelismBeenAdjusted YesNoNaDncType?
 
   // Outer shutheight fields
@@ -586,11 +635,11 @@ model LubricationHydraulicsData {
 }
 
 model LubricationHydraulicsGauge {
-  id                          String         @id @default(cuid())
+  id                          String                           @id @default(cuid())
   lubricationHydraulicsDataId String
-  system                      SystemType
+  system                      LubeHydMonitorFlowPressSwGibType
   gauge                       String?
-  psi                         PsiStatusType?
+  psi                         OkNaDncDamageType?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -695,25 +744,28 @@ model MachineServiceCounterbalanceCylinderAirbag {
 model CounterbalanceCylinderAirbagData {
   id String @id @default(cuid())
 
-  counterbalanceType String?
+  counterbalanceType CylinderAirbagType?
 
   // Airbag/Piston condition
-  airbagPistonSeals             String?
+  airbagPistonSeals             OkNaDncLeakingType?
   airbagPistonSealsLeakLocation String?
 
   // Regulator and gauges
-  regulator String?
-  gaugePSI  Decimal? @db.Decimal(10, 2)
+  regulator OkNaDncNotOperationalType?
+  gauge     OkNaDncNotOperationalType?
 
   // Pneumatics
-  pneumaticsPlumbing String?
+  pneumaticsPlumbing OkNaDncNotOperationalLeakingType?
 
   // Rod condition
-  rodSeals   String?
-  rodBushing String?
+  rodSeals   OkNaDncLeakingType?
+  rodBushing OkNaDncDarkOilType?
 
   // Oil
-  oilWick String?
+  oilWick OkNaDncNeedReplacedType?
+
+  // Notes
+  notes String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

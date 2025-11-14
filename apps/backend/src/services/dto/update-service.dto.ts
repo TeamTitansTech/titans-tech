@@ -11,17 +11,17 @@ import {
 import { Type } from 'class-transformer';
 import {
   MatingPartType,
-  ParallelismType,
+  DncToBedToBolsterType,
   ServiceType,
   ServiceStatus,
   YesNoNaDncType,
   YesNoDncType,
+  LubeHydMonitorFlowPressSwGibType,
+  OkNaDncDamageType,
   ConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType,
   ConditionOkNaDncDamagedType,
-  SystemType,
-  PsiStatusType,
-} from '@titans-tech/db';
+} from '@titans-tech/shared/types';
 
 class BearingClearanceDataDto {
   @IsOptional()
@@ -145,8 +145,8 @@ class BearingClearanceCheckDto {
 
 class SlideDataDto {
   @IsOptional()
-  @IsEnum(ParallelismType)
-  parallelism?: ParallelismType;
+  @IsEnum(DncToBedToBolsterType)
+  parallelism?: DncToBedToBolsterType;
 
   @IsOptional()
   @IsBoolean()
@@ -337,16 +337,16 @@ class GibsCheckDto {
 
 class LubricationHydraulicsGaugeDto {
   @IsOptional()
-  @IsEnum(SystemType)
-  system?: SystemType;
+  @IsEnum(LubeHydMonitorFlowPressSwGibType)
+  system?: LubeHydMonitorFlowPressSwGibType;
 
   @IsOptional()
   @IsString()
   gauge?: string;
 
   @IsOptional()
-  @IsEnum(PsiStatusType)
-  psi?: PsiStatusType;
+  @IsEnum(OkNaDncDamageType)
+  psi?: OkNaDncDamageType;
 }
 
 class LubricationHydraulicsDataDto {
@@ -537,8 +537,8 @@ class CounterbalanceCylinderDataDto {
   regulator?: string;
 
   @IsOptional()
-  @IsNumber()
-  gaugePSI?: number;
+  @IsString()
+  gauge?: string;
 
   @IsOptional()
   @IsString()
@@ -555,6 +555,22 @@ class CounterbalanceCylinderDataDto {
   @IsOptional()
   @IsString()
   oilWick?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+class CounterbalanceCylinderCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CounterbalanceCylinderDataDto)
+  outerData?: CounterbalanceCylinderDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CounterbalanceCylinderDataDto)
+  innerData?: CounterbalanceCylinderDataDto;
 }
 
 export class UpdateServiceDto {
@@ -601,6 +617,6 @@ export class UpdateServiceDto {
 
   @IsOptional()
   @ValidateNested()
-  @Type(() => CounterbalanceCylinderDataDto)
-  counterbalanceCylinder?: CounterbalanceCylinderDataDto;
+  @Type(() => CounterbalanceCylinderCheckDto)
+  counterbalanceCylinder?: CounterbalanceCylinderCheckDto;
 }

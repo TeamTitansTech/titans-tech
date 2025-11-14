@@ -9,14 +9,22 @@ export {
   ServiceType,
   ServiceStatus,
   MatingPartType,
-  ParallelismType,
+  DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,
+  LubeHydMonitorFlowPressSwGibType,
+  OkNaDncDamageType,
+  CounterbalanceTypeEnum,
+  AirbagPistonSealsType,
+  RegulatorGaugeType,
+  PneumaticsPlumbingType,
+  RodSealsType,
+  RodBushingType,
+  OilWickType,
   ConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType,
   ConditionOkNaDncDamagedType,
   SystemType,
-  PsiStatusType,
 } from '@titans-tech/shared/types';
 
 export type {
@@ -31,6 +39,7 @@ export type {
   LubricationHydraulicsGauge,
   ClutchData,
   CounterbalanceCylinderData,
+  CounterbalanceCylinderCheck,
   // Service entity
   Service,
   ServiceHistoryItem,

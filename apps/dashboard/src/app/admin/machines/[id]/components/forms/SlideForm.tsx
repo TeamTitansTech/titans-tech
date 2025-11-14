@@ -17,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   type SlideData,
   ServiceType,
-  ParallelismType,
+  DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,
 } from '@/data/types/services.types';
@@ -27,7 +27,7 @@ interface SlideFormData {
   outerAfterData: SlideData;
   innerBeforeData: SlideData;
   innerAfterData: SlideData;
-  parallelism: ParallelismType;
+  parallelism: DncToBedToBolsterType;
   hasParallelismBeenAdjusted: YesNoNaDncType;
   outerShutheightIndicatorsChecked: YesNoDncType;
   outerOverloadsOnTonnageMonitor: string;
@@ -137,7 +137,7 @@ function ShutheightFields({
           </Label>
           <Select
             value={indicatorsValue}
-            onValueChange={(value) => handleFieldUpdate(indicatorsField, value as YesNoDncType)}
+            onValueChange={(value: YesNoDncType) => handleFieldUpdate(indicatorsField, value)}
           >
             <SelectTrigger id={indicatorsField} className="mt-1">
               <SelectValue />
@@ -205,7 +205,7 @@ export function SlideForm({
 
   const handleFieldUpdate = (
     field: keyof SlideFormData,
-    value: SlideData | ParallelismType | YesNoNaDncType | YesNoDncType | string,
+    value: SlideData | DncToBedToBolsterType | YesNoNaDncType | YesNoDncType | string,
   ) => {
     updateFn(field, value);
     onSectionTouched?.();
@@ -330,15 +330,17 @@ export function SlideForm({
             </Label>
             <Select
               value={data.parallelism}
-              onValueChange={(value) => handleFieldUpdate('parallelism', value as ParallelismType)}
+              onValueChange={(value: DncToBedToBolsterType) =>
+                handleFieldUpdate('parallelism', value)
+              }
             >
               <SelectTrigger id="parallelism" className="mt-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ParallelismType.DNC}>DNC</SelectItem>
-                <SelectItem value={ParallelismType.TO_BED}>To Bed</SelectItem>
-                <SelectItem value={ParallelismType.TO_BOLSTER}>To Bolster</SelectItem>
+                <SelectItem value={DncToBedToBolsterType.DNC}>DNC</SelectItem>
+                <SelectItem value={DncToBedToBolsterType.TO_BED}>To Bed</SelectItem>
+                <SelectItem value={DncToBedToBolsterType.TO_BOLSTER}>To Bolster</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -349,8 +351,8 @@ export function SlideForm({
             </Label>
             <Select
               value={data.hasParallelismBeenAdjusted}
-              onValueChange={(value) =>
-                handleFieldUpdate('hasParallelismBeenAdjusted', value as YesNoNaDncType)
+              onValueChange={(value: YesNoNaDncType) =>
+                handleFieldUpdate('hasParallelismBeenAdjusted', value)
               }
             >
               <SelectTrigger id="hasParallelismBeenAdjusted" className="mt-1">

@@ -20,7 +20,7 @@ export enum MatingPartType {
   NUT_SCREW_SLEEVE = 'NUT_SCREW_SLEEVE',
 }
 
-export enum ParallelismType {
+export enum DncToBedToBolsterType {
   DNC = 'DNC',
   TO_BED = 'TO_BED',
   TO_BOLSTER = 'TO_BOLSTER',
@@ -37,6 +37,14 @@ export enum YesNoDncType {
   YES = 'YES',
   NO = 'NO',
   DNC = 'DNC',
+}
+
+export enum LubeHydMonitorFlowPressSwGibType {
+  LUBE = 'LUBE',
+  HYD = 'HYD',
+  MONITORFLOW = 'MONITORFLOW',
+  PRESS_SW = 'PRESS_SW',
+  GIB = 'GIB',
 }
 
 export enum ConditionOkNaDncBrokenWornType {
@@ -70,10 +78,58 @@ export enum SystemType {
   GIB = 'GIB',
 }
 
-export enum PsiStatusType {
+export enum OkNaDncDamageType {
   OK = 'OK',
   NA = 'NA',
   DNC = 'DNC',
+}
+
+export enum CounterbalanceTypeEnum {
+  CYLINDER = 'CYLINDER',
+  AIRBAG = 'AIRBAG',
+}
+
+export enum AirbagPistonSealsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LEAKING = 'LEAKING',
+}
+
+export enum RegulatorGaugeType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NOT_OPERATIONAL = 'NOT_OPERATIONAL',
+}
+
+export enum PneumaticsPlumbingType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NOT_OPERATIONAL = 'NOT_OPERATIONAL',
+  LEAKING = 'LEAKING',
+}
+
+export enum RodSealsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LEAKING = 'LEAKING',
+}
+
+export enum RodBushingType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  DARK_OIL = 'DARK_OIL',
+}
+
+export enum OilWickType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NEEDS_REPLACED = 'NEEDS_REPLACED',
 }
 
 // Bearing Clearance Data
@@ -126,7 +182,7 @@ export interface SlideCheck {
   outerData?: SlideData;
   innerBefore?: SlideData;
   innerData?: SlideData;
-  parallelism?: ParallelismType;
+  parallelism?: DncToBedToBolsterType;
   hasParallelismBeenAdjusted?: YesNoNaDncType;
   outerShutheightIndicatorsChecked?: YesNoDncType;
   outerOverloadsOnTonnageMonitor?: string;
@@ -179,9 +235,9 @@ export interface GibsCheck {
 // Lubrication & Hydraulics Data
 export interface LubricationHydraulicsGauge {
   id?: string;
-  system: SystemType;
+  system: LubeHydMonitorFlowPressSwGibType;
   gauge?: string;
-  psi?: PsiStatusType;
+  psi?: OkNaDncDamageType;
 }
 
 export interface LubricationHydraulicsData {
@@ -238,11 +294,17 @@ export interface CounterbalanceCylinderData {
   airbagPistonSeals?: string;
   airbagPistonSealsLeakLocation?: string;
   regulator?: string;
-  gaugePSI?: number;
+  gauge?: string;
   pneumaticsPlumbing?: string;
   rodSeals?: string;
   rodBushing?: string;
   oilWick?: string;
+  notes?: string;
+}
+
+export interface CounterbalanceCylinderCheck {
+  outerData?: CounterbalanceCylinderData;
+  innerData?: CounterbalanceCylinderData;
 }
 
 // Service Creation Payload (for API requests)
@@ -257,7 +319,7 @@ export interface CreateServicePayload {
   gibs?: GibsCheck;
   lubricationHydraulics?: LubricationHydraulicsData;
   clutch?: ClutchData;
-  counterbalanceCylinder?: CounterbalanceCylinderData;
+  counterbalanceCylinder?: CounterbalanceCylinderCheck;
 }
 
 export interface UpdateServicePayload {
@@ -270,7 +332,7 @@ export interface UpdateServicePayload {
   gibs?: GibsCheck;
   lubricationHydraulics?: LubricationHydraulicsData;
   clutch?: ClutchData;
-  counterbalanceCylinder?: CounterbalanceCylinderData;
+  counterbalanceCylinder?: CounterbalanceCylinderCheck;
 }
 
 // Complete Service Entity
@@ -342,6 +404,7 @@ export interface CounterbalanceCylinderFormProps {
   errors: Record<string, string>;
   handleBlur: (field: keyof CounterbalanceCylinderData) => void;
   title: string;
+  hideNotes?: boolean;
 }
 
 export interface InspectionModalProps {
