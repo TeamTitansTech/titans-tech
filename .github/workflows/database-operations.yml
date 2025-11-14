@@ -17,7 +17,7 @@ on:
         required: false
         type: string
 
-  # Automatic trigger on push to main (runs production migration)
+  # Automatic trigger only on merge to main
   push:
     branches: ['main']
     paths:
@@ -45,8 +45,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: validate-input
     if: github.event_name == 'workflow_dispatch' && inputs.operation == 'reset-staging'
-    environment:
-      name: staging
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -66,20 +64,20 @@ jobs:
 
       - name: Show current migration status
         run: |
-          cd packages/database
+          # packages/database path not needed - prisma is in root
           echo "📊 Current migration status (before reset):"
-          npx prisma migrate status || true
+          npx prisma migrate status --schema=packages/database/prisma/schema.prisma || true
         env:
           DATABASE_URL: ${{ secrets.STAGING_URL }}
 
       - name: Reset staging database
         run: |
-          cd packages/database
+          # packages/database path not needed - prisma is in root
           echo "⚠️  WARNING: Resetting staging database - ALL DATA WILL BE DELETED!"
           echo "Database: ${{ secrets.STAGING_URL }}"
 
           # Reset database (deletes all data and re-runs all migrations)
-          npx prisma migrate reset --force --skip-seed
+          npx prisma migrate reset --schema=packages/database/prisma/schema.prisma --force --skip-seed
 
           echo "✅ Database reset completed"
         env:
@@ -87,7 +85,7 @@ jobs:
 
       - name: Run seed (optional)
         run: |
-          cd packages/database
+          # packages/database path not needed - prisma is in root
           if [ -f "prisma/seed.ts" ]; then
             echo "🌱 Running database seed..."
             npm run db:seed || echo "⚠️  Seed script not configured or failed"
@@ -100,9 +98,9 @@ jobs:
 
       - name: Verify reset
         run: |
-          cd packages/database
+          # packages/database path not needed - prisma is in root
           echo "📊 Migration status after reset:"
-          npx prisma migrate status
+          npx prisma migrate status --schema=packages/database/prisma/schema.prisma
 
           echo ""
           echo "✅ Staging database reset completed successfully"
@@ -116,9 +114,7 @@ jobs:
     needs: validate-input
     if: |
       always() &&
-      github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-staging'
-    environment:
-      name: staging
+      (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-staging')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -138,24 +134,17 @@ jobs:
 
       - name: Check migration status
         run: |
-          cd packages/database
+          # packages/database path not needed - prisma is in root
           echo "🔍 Checking migration status..."
-          npx prisma migrate status
-
-          echo ""
-          echo "📝 Pending migrations:"
-          npx prisma migrate diff \
-            --from-schema-datamodel prisma/schema.prisma \
-            --to-schema-datasource prisma/schema.prisma \
-            --script || echo "No pending migrations"
+          npx prisma migrate status --schema=packages/database/prisma/schema.prisma || true
         env:
           DATABASE_URL: ${{ secrets.STAGING_URL }}
 
       - name: Deploy migrations
         run: |
-          cd packages/database
+          # packages/database path not needed - prisma is in root
           echo "🚀 Deploying migrations to staging..."
-          npx prisma migrate deploy
+          npx prisma migrate deploy --schema=packages/database/prisma/schema.prisma
 
           echo "✅ Migrations deployed successfully"
         env:
@@ -163,15 +152,15 @@ jobs:
 
       - name: Generate Prisma Client
         run: |
-          cd packages/database
-          npx prisma generate
+          # packages/database path not needed - prisma is in root
+          npx prisma generate --schema=packages/database/prisma/schema.prisma
           echo "✅ Prisma Client generated"
 
       - name: Verify migrations
         run: |
-          cd packages/database
+          # packages/database path not needed - prisma is in root
           echo "📊 Final migration status:"
-          npx prisma migrate status
+          npx prisma migrate status --schema=packages/database/prisma/schema.prisma
 
           echo ""
           echo "✅ Staging database is up to date"
@@ -181,13 +170,7 @@ jobs:
   migrate-production:
     name: Migrate Production Database
     runs-on: ubuntu-latest
-    needs: validate-input
-    if: |
-      always() &&
-      (github.event_name == 'push' ||
-       (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-production'))
-    environment:
-      name: production
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-production')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -225,24 +208,17 @@ jobs:
 
       - name: Check migration status
         run: |
-          cd packages/database
+          # packages/database path not needed - prisma is in root
           echo "🔍 Checking production migration status..."
-          npx prisma migrate status
-
-          echo ""
-          echo "📝 Pending migrations:"
-          npx prisma migrate diff \
-            --from-schema-datamodel prisma/schema.prisma \
-            --to-schema-datasource prisma/schema.prisma \
-            --script || echo "No pending migrations"
+          npx prisma migrate status --schema=packages/database/prisma/schema.prisma || true
         env:
           DATABASE_URL: ${{ secrets.AWS_RDS_DATABASE_URL }}
 
       - name: Deploy migrations
         run: |
-          cd packages/database
+          # packages/database path not needed - prisma is in root
           echo "🚀 Deploying migrations to PRODUCTION..."
-          npx prisma migrate deploy
+          npx prisma migrate deploy --schema=packages/database/prisma/schema.prisma
 
           echo "✅ Migrations deployed successfully"
         env:
@@ -250,15 +226,15 @@ jobs:
 
       - name: Generate Prisma Client
         run: |
-          cd packages/database
-          npx prisma generate
+          # packages/database path not needed - prisma is in root
+          npx prisma generate --schema=packages/database/prisma/schema.prisma
           echo "✅ Prisma Client generated"
 
       - name: Verify migrations
         run: |
-          cd packages/database
+          # packages/database path not needed - prisma is in root
           echo "📊 Final migration status:"
-          npx prisma migrate status
+          npx prisma migrate status --schema=packages/database/prisma/schema.prisma
 
           echo ""
           echo "✅ Production database is up to date"

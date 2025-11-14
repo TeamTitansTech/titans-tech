@@ -1,1 +1,0 @@
--- Empty migration (already applied to database)
