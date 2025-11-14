@@ -526,6 +526,8 @@
         }
       },
       "slide": {
+        "parallelismConfiguration": "Parallelism Configuration",
+        "parallelismAppliesNote": "These values apply both before and after maintenance",
         "parallelism": "Parallelism",
         "hasBeenAdjusted": "Has Been Adjusted",
         "position1": "Position 1",
@@ -557,6 +559,12 @@
         "validationError": "Please fill in all required fields",
         "fillAllFields": "Please fill in all position fields (1-6)",
         "fillBeforeMeasurements": "Please fill in all 'Before Maintenance' fields when checkbox is checked",
+        "yes": "Yes",
+        "no": "No",
+        "na": "N/A",
+        "dnc": "DNC",
+        "toBed": "To Bed",
+        "toBolster": "To Bolster",
         "parallelismType": {
           "DNC": "DNC",
           "TO_BED": "To Bed",

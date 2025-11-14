@@ -132,14 +132,12 @@ export const BearingClearanceSection = forwardRef<
     initialData?.innerAfter || defaultBearingData,
   );
 
-  // Shared field (applies to both Outer and Inner)
-  const [hasBeenAdjusted, setHasBeenAdjusted] = useState<YesNoNaDncType | undefined>(
-    (
-      initialData?.outerAfter ||
-      initialData?.outerBefore ||
-      initialData?.innerAfter ||
-      initialData?.innerBefore
-    )?.hasBeenAdjusted,
+  // Separate states for before and after maintenance
+  const [beforeHasBeenAdjusted, setBeforeHasBeenAdjusted] = useState<YesNoNaDncType | undefined>(
+    (initialData?.outerBefore || initialData?.innerBefore)?.hasBeenAdjusted,
+  );
+  const [afterHasBeenAdjusted, setAfterHasBeenAdjusted] = useState<YesNoNaDncType | undefined>(
+    (initialData?.outerAfter || initialData?.innerAfter)?.hasBeenAdjusted,
   );
 
   // Tab-specific fields (separate for Outer and Inner)
@@ -270,9 +268,9 @@ export const BearingClearanceSection = forwardRef<
       const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
       const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
 
-      // Shared fields for all measurements
-      const sharedFields = {
-        hasBeenAdjusted: hasBeenAdjusted || YesNoNaDncType.NO,
+      // Shared fields for before measurements
+      const beforeSharedFields = {
+        hasBeenAdjusted: beforeHasBeenAdjusted || YesNoNaDncType.NO,
         slideMotorMounts,
         powerCordHoses,
         chainsGearsSprockets,
@@ -280,31 +278,55 @@ export const BearingClearanceSection = forwardRef<
         notes,
       };
 
-      // Outer-specific fields
-      const outerFields = {
-        combinedWith: outerCombinedWith,
-        matingPart: outerMatingPart,
-        ...sharedFields,
+      // Shared fields for after measurements
+      const afterSharedFields = {
+        hasBeenAdjusted: afterHasBeenAdjusted || YesNoNaDncType.NO,
+        slideMotorMounts,
+        powerCordHoses,
+        chainsGearsSprockets,
+        lockingClamps,
+        notes,
       };
 
-      // Inner-specific fields
-      const innerFields = {
+      // Outer-specific fields for before
+      const outerBeforeFields = {
+        combinedWith: outerCombinedWith,
+        matingPart: outerMatingPart,
+        ...beforeSharedFields,
+      };
+
+      // Outer-specific fields for after
+      const outerAfterFields = {
+        combinedWith: outerCombinedWith,
+        matingPart: outerMatingPart,
+        ...afterSharedFields,
+      };
+
+      // Inner-specific fields for before
+      const innerBeforeFields = {
         combinedWith: innerCombinedWith,
         matingPart: innerMatingPart,
-        ...sharedFields,
+        ...beforeSharedFields,
+      };
+
+      // Inner-specific fields for after
+      const innerAfterFields = {
+        combinedWith: innerCombinedWith,
+        matingPart: innerMatingPart,
+        ...afterSharedFields,
       };
 
       return {
         outerBefore:
           includeBeforeMeasurements && outerBeforeTouched
-            ? { ...outerBeforeData, ...outerFields }
+            ? { ...outerBeforeData, ...outerBeforeFields }
             : undefined,
-        outerAfter: outerAfterTouched ? { ...outerAfterData, ...outerFields } : undefined,
+        outerAfter: outerAfterTouched ? { ...outerAfterData, ...outerAfterFields } : undefined,
         innerBefore:
           includeBeforeMeasurements && innerBeforeTouched
-            ? { ...innerBeforeData, ...innerFields }
+            ? { ...innerBeforeData, ...innerBeforeFields }
             : undefined,
-        innerAfter: innerAfterTouched ? { ...innerAfterData, ...innerFields } : undefined,
+        innerAfter: innerAfterTouched ? { ...innerAfterData, ...innerAfterFields } : undefined,
       };
     },
 
@@ -361,8 +383,15 @@ export const BearingClearanceSection = forwardRef<
       }
 
       // Validate required shared fields
-      if (!hasBeenAdjusted) {
-        errors.push('Bearing Clearance: "Has Been Adjusted" field is required');
+      if (includeBeforeMeasurements && !beforeHasBeenAdjusted) {
+        errors.push(
+          'Bearing Clearance: "Has Been Adjusted" field is required for before measurements',
+        );
+      }
+      if (!afterHasBeenAdjusted) {
+        errors.push(
+          'Bearing Clearance: "Has Been Adjusted" field is required for after measurements',
+        );
       }
 
       return errors;
@@ -374,7 +403,8 @@ export const BearingClearanceSection = forwardRef<
       setOuterAfterData(defaultBearingData);
       setInnerBeforeData(defaultBearingData);
       setInnerAfterData(defaultBearingData);
-      setHasBeenAdjusted(undefined);
+      setBeforeHasBeenAdjusted(undefined);
+      setAfterHasBeenAdjusted(undefined);
       setOuterCombinedWith('');
       setOuterMatingPart(MatingPartType.BUSHING);
       setInnerCombinedWith('');
@@ -452,17 +482,24 @@ export const BearingClearanceSection = forwardRef<
       }
 
       // Validate required shared fields
-      if (!hasBeenAdjusted) {
-        errors.push('Bearing Clearance: "Has Been Adjusted" field is required');
+      if (includeBeforeMeasurements && !beforeHasBeenAdjusted) {
+        errors.push(
+          'Bearing Clearance: "Has Been Adjusted" field is required for before measurements',
+        );
+      }
+      if (!afterHasBeenAdjusted) {
+        errors.push(
+          'Bearing Clearance: "Has Been Adjusted" field is required for after measurements',
+        );
       }
 
       if (errors.length > 0) {
         return { isValid: false, errors };
       }
 
-      // Shared fields for all measurements
-      const sharedFields = {
-        hasBeenAdjusted: hasBeenAdjusted || YesNoNaDncType.NO,
+      // Shared fields for before measurements
+      const beforeSharedFields = {
+        hasBeenAdjusted: beforeHasBeenAdjusted || YesNoNaDncType.NO,
         slideMotorMounts,
         powerCordHoses,
         chainsGearsSprockets,
@@ -470,31 +507,55 @@ export const BearingClearanceSection = forwardRef<
         notes,
       };
 
-      // Outer-specific fields
-      const outerFields = {
-        combinedWith: outerCombinedWith,
-        matingPart: outerMatingPart,
-        ...sharedFields,
+      // Shared fields for after measurements
+      const afterSharedFields = {
+        hasBeenAdjusted: afterHasBeenAdjusted || YesNoNaDncType.NO,
+        slideMotorMounts,
+        powerCordHoses,
+        chainsGearsSprockets,
+        lockingClamps,
+        notes,
       };
 
-      // Inner-specific fields
-      const innerFields = {
+      // Outer-specific fields for before
+      const outerBeforeFields = {
+        combinedWith: outerCombinedWith,
+        matingPart: outerMatingPart,
+        ...beforeSharedFields,
+      };
+
+      // Outer-specific fields for after
+      const outerAfterFields = {
+        combinedWith: outerCombinedWith,
+        matingPart: outerMatingPart,
+        ...afterSharedFields,
+      };
+
+      // Inner-specific fields for before
+      const innerBeforeFields = {
         combinedWith: innerCombinedWith,
         matingPart: innerMatingPart,
-        ...sharedFields,
+        ...beforeSharedFields,
+      };
+
+      // Inner-specific fields for after
+      const innerAfterFields = {
+        combinedWith: innerCombinedWith,
+        matingPart: innerMatingPart,
+        ...afterSharedFields,
       };
 
       const data: BearingClearanceSectionData = {
         outerBefore:
           includeBeforeMeasurements && outerBeforeTouched
-            ? { ...outerBeforeData, ...outerFields }
+            ? { ...outerBeforeData, ...outerBeforeFields }
             : undefined,
-        outerAfter: outerAfterTouched ? { ...outerAfterData, ...outerFields } : undefined,
+        outerAfter: outerAfterTouched ? { ...outerAfterData, ...outerAfterFields } : undefined,
         innerBefore:
           includeBeforeMeasurements && innerBeforeTouched
-            ? { ...innerBeforeData, ...innerFields }
+            ? { ...innerBeforeData, ...innerBeforeFields }
             : undefined,
-        innerAfter: innerAfterTouched ? { ...innerAfterData, ...innerFields } : undefined,
+        innerAfter: innerAfterTouched ? { ...innerAfterData, ...innerAfterFields } : undefined,
       };
 
       return { isValid: true, errors: [], data };
@@ -539,7 +600,7 @@ export const BearingClearanceSection = forwardRef<
                 />
               </CollapsibleTrigger>
               <CollapsibleContent>
-                {/* Has Been Adjusted - Shared Field */}
+                {/* Has Been Adjusted - Before Maintenance */}
                 <div className="mb-6 pt-4">
                   <Label
                     htmlFor="hasBeenAdjustedBefore"
@@ -548,9 +609,9 @@ export const BearingClearanceSection = forwardRef<
                     {t('form.bearingClearanceSection.hasBeenAdjusted')}
                   </Label>
                   <Select
-                    value={hasBeenAdjusted}
+                    value={beforeHasBeenAdjusted}
                     onValueChange={(value) => {
-                      setHasBeenAdjusted(value as YesNoNaDncType);
+                      setBeforeHasBeenAdjusted(value as YesNoNaDncType);
                       onSectionTouched();
                     }}
                   >
@@ -725,7 +786,7 @@ export const BearingClearanceSection = forwardRef<
                 />
               </CollapsibleTrigger>
               <CollapsibleContent>
-                {/* Has Been Adjusted - Shared Field */}
+                {/* Has Been Adjusted - After Maintenance */}
                 <div className="mb-6 pt-4">
                   <Label
                     htmlFor="hasBeenAdjustedAfter"
@@ -734,9 +795,9 @@ export const BearingClearanceSection = forwardRef<
                     {t('form.bearingClearanceSection.hasBeenAdjusted')}
                   </Label>
                   <Select
-                    value={hasBeenAdjusted}
+                    value={afterHasBeenAdjusted}
                     onValueChange={(value) => {
-                      setHasBeenAdjusted(value as YesNoNaDncType);
+                      setAfterHasBeenAdjusted(value as YesNoNaDncType);
                       onSectionTouched();
                     }}
                   >
@@ -902,9 +963,9 @@ export const BearingClearanceSection = forwardRef<
               {t('form.bearingClearanceSection.hasBeenAdjusted')}
             </Label>
             <Select
-              value={hasBeenAdjusted}
+              value={afterHasBeenAdjusted}
               onValueChange={(value) => {
-                setHasBeenAdjusted(value as YesNoNaDncType);
+                setAfterHasBeenAdjusted(value as YesNoNaDncType);
                 onSectionTouched();
               }}
             >

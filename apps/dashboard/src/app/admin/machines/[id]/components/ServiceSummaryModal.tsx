@@ -34,6 +34,7 @@ interface ServiceSummaryModalProps {
 export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSummaryModalProps) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
+  const tSlide = useTranslations('inspections.form.slide');
 
   const isInspection = service.type === ServiceType.INSPECTION;
 
@@ -110,6 +111,61 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
     }
   });
 
+  // Helper function to check if a field is an ID field
+  const isIdField = (key: string): boolean => {
+    return key === 'id' || key.endsWith('Id') || key.endsWith('ID');
+  };
+
+  // Helper function to check if a field should be shown in Slide section summary
+  const isSlideFieldAllowedInSummary = (key: string): boolean => {
+    // Position fields (not allowed)
+    if (key.startsWith('position')) return false;
+
+    // Only allow specific fields
+    const allowedFields = [
+      // These fields are at the section level, not in nested objects
+      'outerParallelism',
+      'outerHasParallelismBeenAdjusted',
+      'innerParallelism',
+      'innerHasParallelismBeenAdjusted',
+      'outerShutheightIndicatorsChecked',
+      'outerOverloadsOnTonnageMonitor',
+      'outerShutheightActualSh',
+      'outerIndicatorReading',
+      'innerShutheightIndicatorsChecked',
+      'innerOverloadsOnTonnageMonitor',
+      'innerShutheightActualSh',
+      'innerIndicatorReading',
+      'notes',
+    ];
+
+    return allowedFields.includes(key);
+  };
+
+  // Helper function to calculate max deviation from slide position data
+  const calculateMaxDeviation = (data: any): string => {
+    if (!data) return '-';
+
+    const positions = [
+      data.position1,
+      data.position2,
+      data.position3,
+      data.position4,
+      data.position5,
+      data.position6,
+    ];
+    const validValues = positions.filter(
+      (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
+    );
+
+    if (validValues.length > 1) {
+      const max = Math.max(...validValues);
+      const min = Math.min(...validValues);
+      return (max - min).toFixed(4);
+    }
+    return '-';
+  };
+
   // Helper function to format field names
   const formatFieldName = (key: string): string => {
     return key
@@ -129,7 +185,33 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
     if (typeof value === 'boolean') {
       return value ? 'Yes' : 'No';
     }
-    return String(value);
+
+    // Handle enum translations
+    const stringValue = String(value);
+
+    // Translate ParallelismType values
+    if (stringValue === 'TO_BED') {
+      return tSlide('toBed');
+    }
+    if (stringValue === 'TO_BOLSTER') {
+      return tSlide('toBolster');
+    }
+    if (stringValue === 'DNC') {
+      return tSlide('dnc');
+    }
+
+    // Translate Yes/No/NA values
+    if (stringValue === 'YES') {
+      return tSlide('yes');
+    }
+    if (stringValue === 'NO') {
+      return tSlide('no');
+    }
+    if (stringValue === 'NA') {
+      return tSlide('na');
+    }
+
+    return stringValue;
   };
 
   // Helper function to extract bearing measurement rows
@@ -653,15 +735,6 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
               if (sectionKey === 'SLIDE') {
                 const data = completedSectionData[sectionKey] || {};
 
-                // Helper to check if nested object has actual values
-                const hasValues = (obj: any) =>
-                  obj && Object.values(obj).some((v) => v !== null && v !== undefined && v !== '');
-
-                const hasBeforeData =
-                  hasValues((data as any).outerBefore) || hasValues((data as any).innerBefore);
-                const hasMainData =
-                  hasValues((data as any).outerData) || hasValues((data as any).innerData);
-
                 return (
                   <Collapsible key={sectionKey} defaultOpen={true}>
                     <div className="border rounded-lg">
@@ -677,104 +750,11 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                         <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="p-3 pt-0 text-xs">
-                        {/* Before Measurements (if exists) */}
-                        {hasBeforeData && (
-                          <div className="border-t pt-2 mb-3">
-                            <div className="font-medium text-muted-foreground mb-2 text-[11px]">
-                              {tServices('modal.sections.beforeMaintenance')}
-                            </div>
-                            <div className="border rounded-md overflow-hidden">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow className="bg-muted/50">
-                                    <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                      Field
-                                    </TableHead>
-                                    <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                      Outer
-                                    </TableHead>
-                                    <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                      Inner
-                                    </TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {Object.keys(
-                                    (data as any).outerBefore || (data as any).innerBefore || {},
-                                  ).map((key) => (
-                                    <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                      <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                        {formatFieldName(key)}
-                                      </TableCell>
-                                      <TableCell className="py-1.5 text-center border-r">
-                                        {displayValue((data as any).outerBefore?.[key])}
-                                      </TableCell>
-                                      <TableCell className="py-1.5 text-center">
-                                        {displayValue((data as any).innerBefore?.[key])}
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Data Measurements (if exists) */}
-                        {hasMainData && (
-                          <div className="border-t pt-2 mb-3">
-                            <div className="font-medium text-muted-foreground mb-2 text-[11px]">
-                              Data Measurements
-                            </div>
-                            <div className="border rounded-md overflow-hidden">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow className="bg-muted/50">
-                                    <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                      Field
-                                    </TableHead>
-                                    <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                      Outer
-                                    </TableHead>
-                                    <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                      Inner
-                                    </TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {Object.keys(
-                                    (data as any).outerData || (data as any).innerData || {},
-                                  ).map((key) => (
-                                    <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                      <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                        {formatFieldName(key)}
-                                      </TableCell>
-                                      <TableCell className="py-1.5 text-center border-r">
-                                        {displayValue((data as any).outerData?.[key])}
-                                      </TableCell>
-                                      <TableCell className="py-1.5 text-center">
-                                        {displayValue((data as any).innerData?.[key])}
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Show message if no data to display */}
-                        {!hasBeforeData && !hasMainData && (
-                          <div className="border-t pt-2">
-                            <Typography variant="muted" className="text-center py-4 text-xs">
-                              Nenhum dado disponível
-                            </Typography>
-                          </div>
-                        )}
-
-                        {/* Section-level fields table */}
+                        {/* Section-level fields table - Only specific fields */}
                         {Object.entries(data).filter(
                           ([key, value]) =>
+                            !isIdField(key) &&
+                            isSlideFieldAllowedInSummary(key) &&
                             key !== 'outerData' &&
                             key !== 'innerData' &&
                             key !== 'outerBefore' &&
@@ -804,6 +784,8 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                                   {Object.entries(data)
                                     .filter(
                                       ([key, value]) =>
+                                        !isIdField(key) &&
+                                        isSlideFieldAllowedInSummary(key) &&
                                         key !== 'outerData' &&
                                         key !== 'innerData' &&
                                         key !== 'outerBefore' &&
@@ -823,6 +805,258 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                                         </TableCell>
                                       </TableRow>
                                     ))}
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Outer Before Measurements */}
+                        {data.outerBefore && (
+                          <div className="border-t pt-3 mt-3">
+                            <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                              Outer - Before Maintenance
+                            </div>
+                            <div className="border rounded-md overflow-hidden">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="bg-muted/50">
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 1
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 2
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 3
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 4
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 5
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 6
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
+                                      {tSlide('maxDeviation')}
+                                    </TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow className="text-[11px]">
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerBefore.position1)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerBefore.position2)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerBefore.position3)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerBefore.position4)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerBefore.position5)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerBefore.position6)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+                                      {calculateMaxDeviation(data.outerBefore)}
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Outer After Measurements */}
+                        {data.outerData && (
+                          <div className="border-t pt-3 mt-3">
+                            <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                              {data.outerBefore ? 'Outer - After Maintenance' : 'Outer'}
+                            </div>
+                            <div className="border rounded-md overflow-hidden">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="bg-muted/50">
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 1
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 2
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 3
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 4
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 5
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 6
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
+                                      {tSlide('maxDeviation')}
+                                    </TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow className="text-[11px]">
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerData.position1)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerData.position2)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerData.position3)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerData.position4)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerData.position5)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.outerData.position6)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+                                      {calculateMaxDeviation(data.outerData)}
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Inner Before Measurements */}
+                        {data.innerBefore && (
+                          <div className="border-t pt-3 mt-3">
+                            <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                              Inner - Before Maintenance
+                            </div>
+                            <div className="border rounded-md overflow-hidden">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="bg-muted/50">
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 1
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 2
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 3
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 4
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 5
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 6
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
+                                      {tSlide('maxDeviation')}
+                                    </TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow className="text-[11px]">
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerBefore.position1)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerBefore.position2)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerBefore.position3)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerBefore.position4)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerBefore.position5)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerBefore.position6)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+                                      {calculateMaxDeviation(data.innerBefore)}
+                                    </TableCell>
+                                  </TableRow>
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Inner After Measurements */}
+                        {data.innerData && (
+                          <div className="border-t pt-3 mt-3">
+                            <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                              {data.innerBefore ? 'Inner - After Maintenance' : 'Inner'}
+                            </div>
+                            <div className="border rounded-md overflow-hidden">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="bg-muted/50">
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 1
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 2
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 3
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 4
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 5
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                      Pos 6
+                                    </TableHead>
+                                    <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
+                                      {tSlide('maxDeviation')}
+                                    </TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  <TableRow className="text-[11px]">
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerData.position1)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerData.position2)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerData.position3)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerData.position4)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerData.position5)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(data.innerData.position6)}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+                                      {calculateMaxDeviation(data.innerData)}
+                                    </TableCell>
+                                  </TableRow>
                                 </TableBody>
                               </Table>
                             </div>

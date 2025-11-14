@@ -482,7 +482,7 @@ function ShutheightFields({
 
   return (
     <div className="space-y-4 mt-6 pt-6 border-t">
-      <h5 className="font-medium text-sm">Shutheight Information</h5>
+      <h5 className="font-medium text-sm">{t('shutheightInformation')}</h5>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor={indicatorsField} className="text-xs">
@@ -496,9 +496,9 @@ function ShutheightFields({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
-              <SelectItem value={YesNoDncType.NO}>No</SelectItem>
-              <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
+              <SelectItem value={YesNoDncType.YES}>{t('yes')}</SelectItem>
+              <SelectItem value={YesNoDncType.NO}>{t('no')}</SelectItem>
+              <SelectItem value={YesNoDncType.DNC}>{t('dnc')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -568,6 +568,117 @@ export function SlideForm({
 
   return (
     <div className="space-y-6">
+      {/* Parallelism Configuration Section */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-bold pb-2">{t('parallelismConfiguration')}</h3>
+        {/* Info Note */}
+        <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <div className="flex-shrink-0 w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold mt-0.5">
+            i
+          </div>
+          <p className="text-xs text-blue-900 dark:text-blue-100">{t('parallelismAppliesNote')}</p>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Outer/Externo Panel */}
+        <div className="border border-border rounded-lg p-4 space-y-4 bg-card">
+          <h4 className="font-semibold text-sm text-foreground">{t('outer')}</h4>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="outerParallelism" className="text-xs">
+                {t('parallelism')}
+              </Label>
+              <Select
+                value={data.outerParallelism}
+                onValueChange={(value) =>
+                  handleFieldUpdate('outerParallelism', value as ParallelismType)
+                }
+              >
+                <SelectTrigger id="outerParallelism" className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ParallelismType.DNC}>{t('dnc')}</SelectItem>
+                  <SelectItem value={ParallelismType.TO_BED}>{t('toBed')}</SelectItem>
+                  <SelectItem value={ParallelismType.TO_BOLSTER}>{t('toBolster')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="outerHasParallelismBeenAdjusted" className="text-xs">
+                {t('hasParallelismBeenAdjusted')}
+              </Label>
+              <Select
+                value={data.outerHasParallelismBeenAdjusted}
+                onValueChange={(value) =>
+                  handleFieldUpdate('outerHasParallelismBeenAdjusted', value as YesNoNaDncType)
+                }
+              >
+                <SelectTrigger id="outerHasParallelismBeenAdjusted" className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={YesNoNaDncType.YES}>{t('yes')}</SelectItem>
+                  <SelectItem value={YesNoNaDncType.NO}>{t('no')}</SelectItem>
+                  <SelectItem value={YesNoNaDncType.NA}>{t('na')}</SelectItem>
+                  <SelectItem value={YesNoNaDncType.DNC}>{t('dnc')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        {/* Inner/Interno Panel */}
+        <div className="border border-border rounded-lg p-4 space-y-4 bg-card">
+          <h4 className="font-semibold text-sm text-foreground">{t('inner')}</h4>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="innerParallelism" className="text-xs">
+                {t('parallelism')}
+              </Label>
+              <Select
+                value={data.innerParallelism}
+                onValueChange={(value) =>
+                  handleFieldUpdate('innerParallelism', value as ParallelismType)
+                }
+              >
+                <SelectTrigger id="innerParallelism" className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ParallelismType.DNC}>{t('dnc')}</SelectItem>
+                  <SelectItem value={ParallelismType.TO_BED}>{t('toBed')}</SelectItem>
+                  <SelectItem value={ParallelismType.TO_BOLSTER}>{t('toBolster')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="innerHasParallelismBeenAdjusted" className="text-xs">
+                {t('hasParallelismBeenAdjusted')}
+              </Label>
+              <Select
+                value={data.innerHasParallelismBeenAdjusted}
+                onValueChange={(value) =>
+                  handleFieldUpdate('innerHasParallelismBeenAdjusted', value as YesNoNaDncType)
+                }
+              >
+                <SelectTrigger id="innerHasParallelismBeenAdjusted" className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={YesNoNaDncType.YES}>{t('yes')}</SelectItem>
+                  <SelectItem value={YesNoNaDncType.NO}>{t('no')}</SelectItem>
+                  <SelectItem value={YesNoNaDncType.NA}>{t('na')}</SelectItem>
+                  <SelectItem value={YesNoNaDncType.DNC}>{t('dnc')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {serviceType === ServiceType.MAINTENANCE && (
         <div className="flex items-center space-x-2 p-4 bg-muted/30 rounded-lg">
           <Checkbox
@@ -589,7 +700,7 @@ export function SlideForm({
 
       {includeBeforeMeasurements && (
         <div className="space-y-4">
-          <h3 className="text-lg font-bold border-b pb-2">{t('beforeMaintenance')}</h3>
+          <h3 className="text-lg font-bold pb-2">{t('beforeMaintenance')}</h3>
 
           <Tabs defaultValue="outer" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -627,7 +738,7 @@ export function SlideForm({
       )}
 
       <div className="space-y-4">
-        <h3 className="text-lg font-bold border-b pb-2">
+        <h3 className="text-lg font-bold pb-2">
           {includeBeforeMeasurements ? t('afterMaintenance') : t('measurements')}
         </h3>
 
@@ -638,62 +749,6 @@ export function SlideForm({
           </TabsList>
 
           <TabsContent value="outer" className="space-y-6">
-            {/* Outer Parallelism Settings - applies to all measurements */}
-            <div className="p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                  Parallelism Settings
-                </h4>
-                <span className="text-xs text-blue-600 dark:text-blue-400">
-                  Applies to all measurements
-                </span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="outerParallelism" className="text-xs">
-                    {t('parallelism')}
-                  </Label>
-                  <Select
-                    value={data.outerParallelism}
-                    onValueChange={(value) =>
-                      handleFieldUpdate('outerParallelism', value as ParallelismType)
-                    }
-                  >
-                    <SelectTrigger id="outerParallelism" className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ParallelismType.DNC}>DNC</SelectItem>
-                      <SelectItem value={ParallelismType.TO_BED}>To Bed</SelectItem>
-                      <SelectItem value={ParallelismType.TO_BOLSTER}>To Bolster</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="outerHasParallelismBeenAdjusted" className="text-xs">
-                    {t('hasParallelismBeenAdjusted')}
-                  </Label>
-                  <Select
-                    value={data.outerHasParallelismBeenAdjusted}
-                    onValueChange={(value) =>
-                      handleFieldUpdate('outerHasParallelismBeenAdjusted', value as YesNoNaDncType)
-                    }
-                  >
-                    <SelectTrigger id="outerHasParallelismBeenAdjusted" className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={YesNoNaDncType.YES}>Yes</SelectItem>
-                      <SelectItem value={YesNoNaDncType.NO}>No</SelectItem>
-                      <SelectItem value={YesNoNaDncType.NA}>N/A</SelectItem>
-                      <SelectItem value={YesNoNaDncType.DNC}>DNC</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
             <PositionFields
               data={data.outerAfterData}
               updateFn={(field, value) => {
@@ -708,62 +763,6 @@ export function SlideForm({
           </TabsContent>
 
           <TabsContent value="inner" className="space-y-6">
-            {/* Inner Parallelism Settings - applies to all measurements */}
-            <div className="p-4 bg-blue-50/50 dark:bg-blue-950/20 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                  Parallelism Settings
-                </h4>
-                <span className="text-xs text-blue-600 dark:text-blue-400">
-                  Applies to all measurements
-                </span>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="innerParallelism" className="text-xs">
-                    {t('parallelism')}
-                  </Label>
-                  <Select
-                    value={data.innerParallelism}
-                    onValueChange={(value) =>
-                      handleFieldUpdate('innerParallelism', value as ParallelismType)
-                    }
-                  >
-                    <SelectTrigger id="innerParallelism" className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={ParallelismType.DNC}>DNC</SelectItem>
-                      <SelectItem value={ParallelismType.TO_BED}>To Bed</SelectItem>
-                      <SelectItem value={ParallelismType.TO_BOLSTER}>To Bolster</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="innerHasParallelismBeenAdjusted" className="text-xs">
-                    {t('hasParallelismBeenAdjusted')}
-                  </Label>
-                  <Select
-                    value={data.innerHasParallelismBeenAdjusted}
-                    onValueChange={(value) =>
-                      handleFieldUpdate('innerHasParallelismBeenAdjusted', value as YesNoNaDncType)
-                    }
-                  >
-                    <SelectTrigger id="innerHasParallelismBeenAdjusted" className="mt-1">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={YesNoNaDncType.YES}>Yes</SelectItem>
-                      <SelectItem value={YesNoNaDncType.NO}>No</SelectItem>
-                      <SelectItem value={YesNoNaDncType.NA}>N/A</SelectItem>
-                      <SelectItem value={YesNoNaDncType.DNC}>DNC</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </div>
-
             <PositionFields
               data={data.innerAfterData}
               updateFn={(field, value) => {

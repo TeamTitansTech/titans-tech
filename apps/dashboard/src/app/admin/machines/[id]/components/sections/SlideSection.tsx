@@ -159,7 +159,6 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       }));
     };
 
-
     useImperativeHandle(ref, () => ({
       isTouched: (): boolean => {
         const outerBeforeTouched = isDataTouched(formData.outerBeforeData, defaultSlideData);
@@ -353,20 +352,9 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
 
     return (
       <Collapsible open={isOpen} onOpenChange={onOpenChange}>
-        <CollapsibleTrigger className="w-full">
-          <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-semibold">Slide</h3>
-              {isValid === true && <Check className="h-5 w-5 text-green-600" />}
-              {isValid === false && <AlertCircle className="h-5 w-5 text-red-600" />}
-            </div>
-            <ChevronDown
-              className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
-            />
-          </div>
-        </CollapsibleTrigger>
+        <CollapsibleTrigger className="w-full"></CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="border border-t-0 rounded-b-lg p-6 bg-card">
+          <div className="border border-t-0 rounded-b-lg px-6 pb-6 pt-4 bg-card">
             <SlideForm
               data={formData}
               updateFn={updateField}
