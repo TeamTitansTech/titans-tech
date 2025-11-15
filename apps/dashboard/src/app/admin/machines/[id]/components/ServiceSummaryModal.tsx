@@ -103,6 +103,15 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
         }
       }
 
+      // Debug logging for bearing clearance
+      if (key === 'bearingClearance') {
+        console.log('Bearing Clearance Data:', {
+          raw: value,
+          extracted: extractedData,
+          hasDataContent: hasDataContent(extractedData),
+        });
+      }
+
       // For inspections, show all sections even if empty
       // For maintenance, only show sections with actual data
       if (isInspection || hasDataContent(extractedData)) {
@@ -416,7 +425,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                 return (
                   <Collapsible key={sectionKey} defaultOpen={true}>
                     <div className="border rounded-lg">
-                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                         <div className="flex items-center gap-2">
                           <Typography variant="h4" className="font-semibold text-sm">
                             {t('sectionNames.bearingClearance')}
@@ -425,7 +434,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                             ({tServices('modal.status.complete')})
                           </span>
                         </div>
-                        <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                        <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="p-3 pt-0 text-xs">
                         {/* Before Measurements (only if data exists) */}
@@ -781,7 +790,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                 return (
                   <Collapsible key={sectionKey} defaultOpen={true}>
                     <div className="border rounded-lg">
-                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                         <div className="flex items-center gap-2">
                           <Typography variant="h4" className="font-semibold text-sm">
                             {t('sectionNames.slide')}
@@ -790,7 +799,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                             ({tServices('modal.status.complete')})
                           </span>
                         </div>
-                        <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                        <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="p-3 pt-0 text-xs">
                         {/* Section-level fields table - Only specific fields */}
@@ -1131,7 +1140,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                 return (
                   <Collapsible key={sectionKey} defaultOpen={true}>
                     <div className="border rounded-lg">
-                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                         <div className="flex items-center gap-2">
                           <Typography variant="h4" className="font-semibold text-sm">
                             {t('sectionNames.gibs')}
@@ -1140,7 +1149,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                             ({tServices('modal.status.complete')})
                           </span>
                         </div>
-                        <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                        <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="p-3 pt-0 text-xs">
                         {/* Before Measurements (only if data exists) */}
@@ -1352,7 +1361,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                 return (
                   <Collapsible key={sectionKey} defaultOpen={true}>
                     <div className="border rounded-lg">
-                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                         <div className="flex items-center gap-2">
                           <Typography variant="h4" className="font-semibold text-sm">
                             {t('sectionNames.counterbalanceCylinderAirbag')}
@@ -1361,7 +1370,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                             ({tServices('modal.status.complete')})
                           </span>
                         </div>
-                        <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                        <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="p-3 pt-0 text-xs">
                         {(hasOuterData || hasInnerData) && (
@@ -1453,7 +1462,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
               return (
                 <Collapsible key={sectionKey} defaultOpen={true}>
                   <div className="border rounded-lg">
-                    <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                    <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                       <div className="flex items-center gap-2">
                         <Typography variant="h4" className="font-semibold text-sm">
                           {t(`sectionNames.${sectionConfig.metadata.i18nKey}`)}
@@ -1462,7 +1471,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                           ({tServices('modal.status.complete')})
                         </span>
                       </div>
-                      <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                      <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                     </CollapsibleTrigger>
                     <CollapsibleContent className="p-3 pt-0 text-xs">
                       {/* Scalar fields table */}

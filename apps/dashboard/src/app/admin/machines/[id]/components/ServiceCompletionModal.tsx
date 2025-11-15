@@ -29,6 +29,7 @@ import {
 import { ServiceType, ServiceStatus, type CreateServicePayload } from '@/data/types/services.types';
 import {
   createService,
+  updateService,
   updateServiceSection,
   completeService,
   getServiceById,
@@ -267,11 +268,26 @@ export function ServiceCompletionModal({
         setCompletedSections(new Set(savedCompletedSections));
         setCompletedSectionData(loadedSectionData);
 
-        // Populate selectedSections with the sections that were saved
-        // This makes them appear in the stepper
-        if (savedCompletedSections.length > 0) {
-          setSelectedSections(new Set(savedCompletedSections));
-          // If there are completed sections, go to details step
+        // Restore selectedSections from service data (if available)
+        const savedSelectedSections = Array.isArray(service.selectedSections)
+          ? service.selectedSections
+          : savedCompletedSections; // Fallback to completed sections for backward compatibility
+        setSelectedSections(new Set(savedSelectedSections));
+
+        // Restore the step and section index the user was on
+        if (service.currentStep && service.currentStep !== 'summary') {
+          setCurrentStep(service.currentStep as any);
+
+          // If we're on the sections step, restore the section index
+          if (service.currentStep === 'sections' && service.currentSectionKey) {
+            const sectionsArray = savedSelectedSections;
+            const sectionIndex = sectionsArray.indexOf(service.currentSectionKey);
+            setCurrentSectionIndex(sectionIndex >= 0 ? sectionIndex : 0);
+          } else {
+            setCurrentSectionIndex(0);
+          }
+        } else if (savedCompletedSections.length > 0) {
+          // If no currentStep saved or it's summary, go to details step
           // This lets users see the full stepper with completed sections marked
           setCurrentStep('details');
           setCurrentSectionIndex(0);
@@ -396,6 +412,8 @@ export function ServiceCompletionModal({
             type: currentServiceType,
             status: ServiceStatus.PENDING,
             performedBy: performedBy || undefined,
+            currentStep: 'sections',
+            selectedSections: Array.from(selectedSections),
           };
 
           const response = await createService(payload);
@@ -484,11 +502,28 @@ export function ServiceCompletionModal({
           [currentSectionKey]: result.data,
         }));
 
+        // Determine next step
+        const nextSectionIndex = currentSectionIndex + 1;
+        const isLastSection = nextSectionIndex >= sectionsArray.length;
+        const nextStep = isLastSection ? 'summary' : 'sections';
+        const nextSectionKey = isLastSection ? null : sectionsArray[nextSectionIndex];
+
+        // Update service with current progress (for resuming later)
+        await updateService(
+          currentServiceId,
+          {
+            currentStep: nextStep,
+            currentSectionKey: nextSectionKey || undefined,
+            selectedSections: Array.from(selectedSections),
+          },
+          machineId,
+        );
+
         setIsSubmitting(false);
 
         // Move to next section or go to summary
-        if (currentSectionIndex < sectionsArray.length - 1) {
-          setCurrentSectionIndex(currentSectionIndex + 1);
+        if (!isLastSection) {
+          setCurrentSectionIndex(nextSectionIndex);
         } else {
           // All sections completed, move to summary
           setCurrentStep('summary');
@@ -2300,7 +2335,16 @@ export function ServiceCompletionModal({
               <Button type="button" variant="outline" onClick={handlePrevious}>
                 Anterior
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={
+                  isSubmitting ||
+                  // Disable if not all selected sections are completed
+                  !Array.from(selectedSections).every((sectionKey) =>
+                    completedSections.has(sectionKey),
+                  )
+                }
+              >
                 {isSubmitting
                   ? tServices('modal.completing')
                   : isCompletingService

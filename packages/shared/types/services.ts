@@ -254,6 +254,9 @@ export interface CreateServicePayload {
   type: ServiceType;
   status?: ServiceStatus; // Optional: defaults to PENDING in backend
   performedBy?: string;
+  currentStep?: string; // Current step in the modal workflow
+  currentSectionKey?: string; // Current section being filled
+  selectedSections?: string[]; // Array of selected section keys
   bearingClearance?: BearingClearanceCheck;
   slide?: SlideCheck;
   gibs?: GibsCheck;
@@ -267,6 +270,9 @@ export interface UpdateServicePayload {
   type?: ServiceType;
   status?: ServiceStatus;
   performedBy?: string;
+  currentStep?: string; // Current step in the modal workflow
+  currentSectionKey?: string; // Current section being filled
+  selectedSections?: string[]; // Array of selected section keys
   bearingClearance?: BearingClearanceCheck;
   slide?: SlideCheck;
   gibs?: GibsCheck;
@@ -283,6 +289,9 @@ export interface Service {
   type: ServiceType;
   status: ServiceStatus;
   performedBy?: string;
+  currentStep?: string; // Current step in the modal workflow
+  currentSectionKey?: string; // Current section being filled
+  selectedSections?: string[]; // Array of selected section keys
   createdAt: string;
   updatedAt: string;
 }

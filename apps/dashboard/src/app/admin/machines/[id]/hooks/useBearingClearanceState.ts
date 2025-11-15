@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   type BearingClearanceData,
   MatingPartType,
@@ -156,6 +156,55 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
   const setInnerAfterFieldError = (field: keyof BearingClearanceData, error: string) => {
     setInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
   };
+
+  // Update state when initialData changes (after loading from server)
+  useEffect(() => {
+    if (initialData) {
+      // Handle field name mapping: API uses outerData/innerData, component uses outerAfter/innerAfter
+      const outerAfter = (initialData as any).outerData || initialData.outerAfter;
+      const innerAfter = (initialData as any).innerData || initialData.innerAfter;
+
+      if (initialData.outerBefore) {
+        setOuterBeforeData(initialData.outerBefore);
+        setOuterBeforeHasBeenAdjusted(initialData.outerBefore.hasBeenAdjusted);
+      }
+      if (outerAfter) {
+        setOuterAfterData(outerAfter);
+        setOuterAfterHasBeenAdjusted(outerAfter.hasBeenAdjusted);
+      }
+      if (initialData.innerBefore) {
+        setInnerBeforeData(initialData.innerBefore);
+        setInnerBeforeHasBeenAdjusted(initialData.innerBefore.hasBeenAdjusted);
+      }
+      if (innerAfter) {
+        setInnerAfterData(innerAfter);
+        setInnerAfterHasBeenAdjusted(innerAfter.hasBeenAdjusted);
+      }
+
+      // Set tab-specific fields
+      const outerData = outerAfter || initialData.outerBefore;
+      const innerData = innerAfter || initialData.innerBefore;
+
+      if (outerData) {
+        setOuterCombinedWith(outerData.combinedWith || '');
+        setOuterMatingPart(outerData.matingPart || MatingPartType.BUSHING);
+        setSlideMotorMounts(outerData.slideMotorMounts || undefined);
+        setPowerCordHoses(outerData.powerCordHoses || undefined);
+        setChainsGearsSprockets(outerData.chainsGearsSprockets || undefined);
+        setLockingClamps(outerData.lockingClamps || undefined);
+        setNotes(outerData.notes || '');
+      }
+      if (innerData) {
+        setInnerCombinedWith(innerData.combinedWith || '');
+        setInnerMatingPart(innerData.matingPart || MatingPartType.BUSHING);
+      }
+
+      // Set includeBeforeMeasurements if we have before data
+      if (initialData.outerBefore || initialData.innerBefore) {
+        setIncludeBeforeMeasurements(true);
+      }
+    }
+  }, [initialData]);
 
   // Reset function
   const reset = () => {

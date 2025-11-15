@@ -575,6 +575,18 @@ export class UpdateServiceDto {
   performedBy?: string;
 
   @IsOptional()
+  @IsString()
+  currentStep?: string;
+
+  @IsOptional()
+  @IsString()
+  currentSectionKey?: string;
+
+  @IsOptional()
+  @IsArray()
+  selectedSections?: string[];
+
+  @IsOptional()
   @ValidateNested()
   @Type(() => BearingClearanceCheckDto)
   bearingClearance?: BearingClearanceCheckDto;

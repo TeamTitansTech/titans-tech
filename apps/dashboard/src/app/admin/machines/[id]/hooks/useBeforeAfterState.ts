@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 /**
  * Hook for managing before/after maintenance state pattern
@@ -7,12 +7,25 @@ import { useState, useCallback } from 'react';
 export function useBeforeAfterState<T extends Record<string, any>>(
   initialBeforeData: T,
   initialAfterData: T,
+  loadedBeforeData?: T,
+  loadedAfterData?: T,
 ) {
-  const [beforeData, setBeforeData] = useState<T>(initialBeforeData);
-  const [afterData, setAfterData] = useState<T>(initialAfterData);
+  const [beforeData, setBeforeData] = useState<T>(loadedBeforeData || initialBeforeData);
+  const [afterData, setAfterData] = useState<T>(loadedAfterData || initialAfterData);
   const [beforeErrors, setBeforeErrors] = useState<Partial<Record<keyof T, string>>>({});
   const [afterErrors, setAfterErrors] = useState<Partial<Record<keyof T, string>>>({});
-  const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
+  const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(!!loadedBeforeData);
+
+  // Update state when loaded data changes (after loading from server)
+  useEffect(() => {
+    if (loadedBeforeData) {
+      setBeforeData(loadedBeforeData);
+      setIncludeBeforeMeasurements(true);
+    }
+    if (loadedAfterData) {
+      setAfterData(loadedAfterData);
+    }
+  }, [loadedBeforeData, loadedAfterData]);
 
   const updateBeforeField = useCallback(<K extends keyof T>(field: K, value: T[K]) => {
     setBeforeData((prev) => ({ ...prev, [field]: value }));

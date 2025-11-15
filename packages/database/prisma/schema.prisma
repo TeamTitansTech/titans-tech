@@ -309,6 +309,9 @@ model MachineService {
   performedBy        String? // Optional: userId of who performed the service
   completedSections  Json?         @default("[]") // Array of completed section keys
   lastSectionSavedAt DateTime? // Timestamp of last section save
+  currentStep        String? // Current step in the modal: 'selection', 'details', 'sections', 'summary'
+  currentSectionKey  String? // Current section being filled (e.g., 'BEARING_CLEARANCE')
+  selectedSections   Json?         @default("[]") // Array of selected section keys
   createdAt          DateTime      @default(now())
   updatedAt          DateTime      @updatedAt
 
