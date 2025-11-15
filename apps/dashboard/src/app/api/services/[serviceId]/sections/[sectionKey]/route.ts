@@ -38,9 +38,33 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       select: {
         id: true,
         completedSections: true,
-        bearingClearance: { select: { id: true } },
-        slide: { select: { id: true } },
-        gibs: { select: { id: true } },
+        bearingClearance: {
+          select: {
+            id: true,
+            outerBeforeId: true,
+            outerDataId: true,
+            innerBeforeId: true,
+            innerDataId: true,
+          },
+        },
+        slide: {
+          select: {
+            id: true,
+            outerBeforeId: true,
+            outerDataId: true,
+            innerBeforeId: true,
+            innerDataId: true,
+          },
+        },
+        gibs: {
+          select: {
+            id: true,
+            outerBeforeId: true,
+            outerDataId: true,
+            innerBeforeId: true,
+            innerDataId: true,
+          },
+        },
         lubricationHydraulics: { select: { id: true } },
         clutch: { select: { id: true } },
         counterbalanceCylinderAirbag: { select: { id: true } },
@@ -65,7 +89,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       : [...completedSections, sectionKey];
 
     // Build update data based on section type
-    let updateData: Prisma.MachineServiceUpdateInput = {
+    const updateData: Prisma.MachineServiceUpdateInput = {
       completedSections: updatedCompletedSections,
       lastSectionSavedAt: new Date(),
     };
@@ -77,14 +101,67 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
         if (existingRecord) {
           // Update existing bearing clearance record
-          await prisma.machineServiceBearingClearance.update({
-            where: { id: existingRecord.id },
-            data: await buildBearingClearanceUpdateData(sectionData),
-          });
+          // We need to handle nested updates manually
+          const updatePayload: any = {};
+
+          // For each nested field, check if we need to create, update, or connect
+          if (sectionData.outerBefore) {
+            if (existingRecord.outerBeforeId) {
+              // Update existing
+              await prisma.bearingClearanceData.update({
+                where: { id: existingRecord.outerBeforeId },
+                data: sectionData.outerBefore,
+              });
+            } else {
+              // Create new and connect
+              updatePayload.outerBefore = { create: sectionData.outerBefore };
+            }
+          }
+
+          if (sectionData.outerData) {
+            if (existingRecord.outerDataId) {
+              await prisma.bearingClearanceData.update({
+                where: { id: existingRecord.outerDataId },
+                data: sectionData.outerData,
+              });
+            } else {
+              updatePayload.outerData = { create: sectionData.outerData };
+            }
+          }
+
+          if (sectionData.innerBefore) {
+            if (existingRecord.innerBeforeId) {
+              await prisma.bearingClearanceData.update({
+                where: { id: existingRecord.innerBeforeId },
+                data: sectionData.innerBefore,
+              });
+            } else {
+              updatePayload.innerBefore = { create: sectionData.innerBefore };
+            }
+          }
+
+          if (sectionData.innerData) {
+            if (existingRecord.innerDataId) {
+              await prisma.bearingClearanceData.update({
+                where: { id: existingRecord.innerDataId },
+                data: sectionData.innerData,
+              });
+            } else {
+              updatePayload.innerData = { create: sectionData.innerData };
+            }
+          }
+
+          // Only update the bearing clearance record if we have new nested records to create
+          if (Object.keys(updatePayload).length > 0) {
+            await prisma.machineServiceBearingClearance.update({
+              where: { id: existingRecord.id },
+              data: updatePayload,
+            });
+          }
         } else {
           // Create new bearing clearance record
           updateData.bearingClearance = {
-            create: await buildBearingClearanceCreateData(sectionData),
+            create: await buildBearingClearanceUpdateData(sectionData),
           };
         }
         break;
@@ -94,9 +171,80 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         const existingRecord = existingService.slide?.[0];
 
         if (existingRecord) {
+          const updatePayload: any = {};
+
+          // Handle nested slide data
+          if (sectionData.outerBefore) {
+            if (existingRecord.outerBeforeId) {
+              await prisma.slideData.update({
+                where: { id: existingRecord.outerBeforeId },
+                data: sectionData.outerBefore,
+              });
+            } else {
+              updatePayload.outerBefore = { create: sectionData.outerBefore };
+            }
+          }
+
+          if (sectionData.outerData) {
+            if (existingRecord.outerDataId) {
+              await prisma.slideData.update({
+                where: { id: existingRecord.outerDataId },
+                data: sectionData.outerData,
+              });
+            } else {
+              updatePayload.outerData = { create: sectionData.outerData };
+            }
+          }
+
+          if (sectionData.innerBefore) {
+            if (existingRecord.innerBeforeId) {
+              await prisma.slideData.update({
+                where: { id: existingRecord.innerBeforeId },
+                data: sectionData.innerBefore,
+              });
+            } else {
+              updatePayload.innerBefore = { create: sectionData.innerBefore };
+            }
+          }
+
+          if (sectionData.innerData) {
+            if (existingRecord.innerDataId) {
+              await prisma.slideData.update({
+                where: { id: existingRecord.innerDataId },
+                data: sectionData.innerData,
+              });
+            } else {
+              updatePayload.innerData = { create: sectionData.innerData };
+            }
+          }
+
+          // Handle metadata fields
+          const metadataFields = [
+            'outerParallelism',
+            'outerHasParallelismBeenAdjusted',
+            'innerParallelism',
+            'innerHasParallelismBeenAdjusted',
+            'outerShutheightIndicatorsChecked',
+            'outerOverloadsOnTonnageMonitor',
+            'outerShutheightActualSh',
+            'outerIndicatorReading',
+            'innerShutheightIndicatorsChecked',
+            'innerOverloadsOnTonnageMonitor',
+            'innerShutheightActualSh',
+            'innerIndicatorReading',
+            'notes',
+          ];
+
+          metadataFields.forEach((field) => {
+            if (sectionData[field] !== undefined) {
+              updatePayload[field] = sectionData[field];
+            }
+          });
+
+          // Update the slide record
           await prisma.machineServiceSlide.update({
             where: { id: existingRecord.id },
-            data: await buildSlideUpdateData(sectionData),
+            data: updatePayload,
           });
         } else {
           updateData.slide = {
@@ -110,9 +258,62 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         const existingRecord = existingService.gibs?.[0];
 
         if (existingRecord) {
+          const updatePayload: any = {};
+
+          // Handle nested gibs data
+          if (sectionData.outerBefore) {
+            if (existingRecord.outerBeforeId) {
+              await prisma.gibsData.update({
+                where: { id: existingRecord.outerBeforeId },
+                data: sectionData.outerBefore,
+              });
+            } else {
+              updatePayload.outerBefore = { create: sectionData.outerBefore };
+            }
+          }
+
+          if (sectionData.outerData) {
+            if (existingRecord.outerDataId) {
+              await prisma.gibsData.update({
+                where: { id: existingRecord.outerDataId },
+                data: sectionData.outerData,
+              });
+            } else {
+              updatePayload.outerData = { create: sectionData.outerData };
+            }
+          }
+
+          if (sectionData.innerBefore) {
+            if (existingRecord.innerBeforeId) {
+              await prisma.gibsData.update({
+                where: { id: existingRecord.innerBeforeId },
+                data: sectionData.innerBefore,
+              });
+            } else {
+              updatePayload.innerBefore = { create: sectionData.innerBefore };
+            }
+          }
+
+          if (sectionData.innerData) {
+            if (existingRecord.innerDataId) {
+              await prisma.gibsData.update({
+                where: { id: existingRecord.innerDataId },
+                data: sectionData.innerData,
+              });
+            } else {
+              updatePayload.innerData = { create: sectionData.innerData };
+            }
+          }
+
+          // Handle notes if present
+          if (sectionData.notes !== undefined) {
+            updatePayload.notes = sectionData.notes;
+          }
+
+          // Update the gibs record
           await prisma.machineServiceGibs.update({
             where: { id: existingRecord.id },
-            data: await buildGibsUpdateData(sectionData),
+            data: updatePayload,
           });
         } else {
           updateData.gibs = {
@@ -176,12 +377,50 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       where: { id: serviceId },
       data: updateData,
       include: {
-        bearingClearance: true,
-        slide: true,
-        gibs: true,
-        lubricationHydraulics: true,
-        clutch: true,
-        counterbalanceCylinderAirbag: true,
+        bearingClearance: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        slide: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        lubricationHydraulics: {
+          include: {
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
+          },
+        },
+        clutch: {
+          include: {
+            data: true,
+          },
+        },
+        counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
     });
 
@@ -203,31 +442,31 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 
 // Helper functions to build update/create data for each section type
 
-async function buildBearingClearanceCreateData(data: any) {
-  const result: any = {};
+// async function buildBearingClearanceCreateData(data: any) {
+//   const result: any = {};
 
-  // Handle outerBefore
-  if (data.outerBefore) {
-    result.outerBefore = { create: data.outerBefore };
-  }
+//   // Handle outerBefore
+//   if (data.outerBefore) {
+//     result.outerBefore = { create: data.outerBefore };
+//   }
 
-  // Handle outerData
-  if (data.outerData) {
-    result.outerData = { create: data.outerData };
-  }
+//   // Handle outerData
+//   if (data.outerData) {
+//     result.outerData = { create: data.outerData };
+//   }
 
-  // Handle innerBefore
-  if (data.innerBefore) {
-    result.innerBefore = { create: data.innerBefore };
-  }
+//   // Handle innerBefore
+//   if (data.innerBefore) {
+//     result.innerBefore = { create: data.innerBefore };
+//   }
 
-  // Handle innerData
-  if (data.innerData) {
-    result.innerData = { create: data.innerData };
-  }
+//   // Handle innerData
+//   if (data.innerData) {
+//     result.innerData = { create: data.innerData };
+//   }
 
-  return result;
-}
+//   return result;
+// }
 
 async function buildBearingClearanceUpdateData(data: any) {
   const result: any = {};
@@ -318,9 +557,9 @@ async function buildSlideCreateData(data: any) {
   return result;
 }
 
-async function buildSlideUpdateData(data: any) {
-  return buildSlideCreateData(data); // Same structure for update
-}
+// async function buildSlideUpdateData(data: any) {
+//   return buildSlideCreateData(data); // Same structure for update
+// }
 
 async function buildGibsCreateData(data: any) {
   const result: any = {};
@@ -346,9 +585,9 @@ async function buildGibsCreateData(data: any) {
   return result;
 }
 
-async function buildGibsUpdateData(data: any) {
-  return buildGibsCreateData(data); // Same structure for update
-}
+// async function buildGibsUpdateData(data: any) {
+//   return buildGibsCreateData(data); // Same structure for update
+// }
 
 function buildLubricationHydraulicsCreateData(data: any) {
   return { ...data };

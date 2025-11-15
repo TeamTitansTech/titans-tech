@@ -18,12 +18,50 @@ export async function POST(request: NextRequest, context: RouteContext) {
     const service = await prisma.machineService.findUnique({
       where: { id: serviceId },
       include: {
-        bearingClearance: true,
-        slide: true,
-        gibs: true,
-        lubricationHydraulics: true,
-        clutch: true,
-        counterbalanceCylinderAirbag: true,
+        bearingClearance: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        slide: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        lubricationHydraulics: {
+          include: {
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
+          },
+        },
+        clutch: {
+          include: {
+            data: true,
+          },
+        },
+        counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
     });
 
@@ -58,12 +96,50 @@ export async function POST(request: NextRequest, context: RouteContext) {
         performedBy: performedBy || null,
       },
       include: {
-        bearingClearance: true,
-        slide: true,
-        gibs: true,
-        lubricationHydraulics: true,
-        clutch: true,
-        counterbalanceCylinderAirbag: true,
+        bearingClearance: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        slide: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        lubricationHydraulics: {
+          include: {
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
+          },
+        },
+        clutch: {
+          include: {
+            data: true,
+          },
+        },
+        counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
     });
 
