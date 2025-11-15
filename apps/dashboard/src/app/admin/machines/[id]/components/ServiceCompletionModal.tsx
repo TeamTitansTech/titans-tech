@@ -85,12 +85,13 @@ export function ServiceCompletionModal({
   type StepType = 'selection' | 'details' | 'sections' | 'summary';
 
   // Determine if we should skip section selection step
-  // Skip ONLY for inspections (inspections always include all sections)
-  // Maintenance services (new or completing) should show selection step
+  // Skip ONLY for inspections (they always include all sections)
+  // For maintenance, even with serviceId, we need to let users select sections first
+  // (unless they already have completed sections, which we'll detect when loading data)
   const shouldSkipSelection = isInspection;
 
-  // For inspections, start at 'details' step (skip selection)
-  // For maintenance (new or completing), start at 'selection' step
+  // For inspections or editing existing services, start at 'details' step
+  // For new maintenance services, start at 'selection' step
   const [currentStep, setCurrentStep] = useState<StepType>(
     shouldSkipSelection ? 'details' : 'selection',
   );
@@ -143,7 +144,14 @@ export function ServiceCompletionModal({
   const [createdServiceId, setCreatedServiceId] = useState<string | null>(null);
   const currentServiceId = serviceId || createdServiceId;
 
-  // Reset when modal closes
+  // Loading state for fetching existing service data
+  // Start as true if we have a serviceId (will load data immediately)
+  const [isLoadingServiceData, setIsLoadingServiceData] = useState(!!serviceId);
+
+  // Track if we've completed the initial data load to prevent re-showing loading screen
+  const hasLoadedInitialData = useRef(false);
+
+  // Reset when modal closes OR when serviceId changes (switching between services)
   useEffect(() => {
     if (!open) {
       // Reset to initial state based on service type
@@ -158,6 +166,8 @@ export function ServiceCompletionModal({
       setCompletedSections(new Set());
       setCompletedSectionData({});
       setCreatedServiceId(null);
+      setIsLoadingServiceData(false);
+      hasLoadedInitialData.current = false;
       // Reset all section refs
       sectionRefs.current.forEach((ref) => ref.reset());
     }
@@ -172,6 +182,37 @@ export function ServiceCompletionModal({
     shouldSkipSelection,
   ]);
 
+  // Reset and reload when serviceId changes (switching between services)
+  useEffect(() => {
+    if (!open) return;
+
+    if (serviceId) {
+      // Opening/switching to an existing service - reset and prepare to load
+      // Only reset if we haven't loaded data yet (prevents resetting after saves)
+      if (!hasLoadedInitialData.current) {
+        setIsLoadingServiceData(true);
+        hasLoadedInitialData.current = false;
+        setCompletedSections(new Set());
+        setCompletedSectionData({});
+        setSelectedSections(isInspection ? new Set(machineSections) : new Set());
+        setCreatedServiceId(null);
+        setCurrentStep(shouldSkipSelection ? 'details' : 'selection');
+        setCurrentSectionIndex(0);
+      }
+    } else {
+      // Creating a new service - reset to clean state
+      setIsLoadingServiceData(false);
+      hasLoadedInitialData.current = true; // No data to load for new service
+      setCompletedSections(new Set());
+      setCompletedSectionData({});
+      setSelectedSections(isInspection ? new Set(machineSections) : new Set());
+      setCreatedServiceId(null);
+      setCurrentStep(shouldSkipSelection ? 'details' : 'selection');
+      setCurrentSectionIndex(0);
+      sectionRefs.current.forEach((ref) => ref.reset());
+    }
+  }, [open, serviceId, isInspection, machineSections, shouldSkipSelection]);
+
   // Load existing service data when opening modal with serviceId
   // Only load when explicitly provided with serviceId prop (not createdServiceId)
   useEffect(() => {
@@ -180,7 +221,10 @@ export function ServiceCompletionModal({
       // 1. Modal is open
       // 2. We have a serviceId prop (existing service, not newly created)
       // 3. createdServiceId is null (not in the middle of creating a new service)
-      if (!open || !serviceId || createdServiceId) return;
+      // 4. We haven't already loaded the initial data (prevents reloading after saves)
+      if (!open || !serviceId || createdServiceId || hasLoadedInitialData.current) return;
+
+      setIsLoadingServiceData(true);
 
       try {
         const response = await getServiceById(serviceId);
@@ -223,14 +267,26 @@ export function ServiceCompletionModal({
         setCompletedSections(new Set(savedCompletedSections));
         setCompletedSectionData(loadedSectionData);
 
-        // Always start at details step when reopening with saved data
-        // This lets users see the full stepper with completed sections marked
-        // and navigate wherever they want
-        setCurrentStep('details');
-        setCurrentSectionIndex(0);
+        // Populate selectedSections with the sections that were saved
+        // This makes them appear in the stepper
+        if (savedCompletedSections.length > 0) {
+          setSelectedSections(new Set(savedCompletedSections));
+          // If there are completed sections, go to details step
+          // This lets users see the full stepper with completed sections marked
+          setCurrentStep('details');
+          setCurrentSectionIndex(0);
+        } else {
+          // No completed sections yet - this is a brand new service
+          // Stay at selection step (or details for inspections)
+          setCurrentStep(shouldSkipSelection ? 'details' : 'selection');
+          setCurrentSectionIndex(0);
+        }
       } catch (error) {
         console.error('Error loading service data:', error);
         toast.error('Error loading service data');
+      } finally {
+        setIsLoadingServiceData(false);
+        hasLoadedInitialData.current = true;
       }
     };
 
@@ -756,7 +812,15 @@ export function ServiceCompletionModal({
           </DialogDescription>
         </DialogHeader>
 
-        {currentStep === 'selection' ? (
+        {/* Show loading state ONLY during initial load, not after saving sections */}
+        {isLoadingServiceData && serviceId && !hasLoadedInitialData.current ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center space-y-3">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <Typography variant="muted">Carregando dados do serviço...</Typography>
+            </div>
+          </div>
+        ) : currentStep === 'selection' ? (
           // Step 1: Section Selection
           <div className="flex-1 overflow-y-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
