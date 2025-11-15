@@ -256,15 +256,35 @@ export function ServiceCompletionModal({
         const loadedSectionData: Record<string, any> = {};
 
         // Extract data from each relation (arrays with single item)
+        // Find the first record with actual nested data (not all nulls)
         Object.entries(RELATION_TO_SECTION_KEY).forEach(([relationKey, sectionKey]) => {
           const relationData = service[relationKey];
           if (relationData && Array.isArray(relationData) && relationData.length > 0) {
-            loadedSectionData[sectionKey] = relationData[0];
+            // Find first record that has non-null nested data
+            const recordWithData = relationData.find((record: any) => {
+              // Check if record has meaningful nested data
+              const hasNestedData =
+                record.outerBefore ||
+                record.outerData ||
+                record.innerBefore ||
+                record.innerData ||
+                record.data;
+              return hasNestedData;
+            });
+            // Use the record with data, or fallback to the last one
+            loadedSectionData[sectionKey] = recordWithData || relationData[relationData.length - 1];
+
+            console.log(`🔍 Loading ${sectionKey}:`, {
+              totalRecords: relationData.length,
+              foundRecordWithData: !!recordWithData,
+              usingRecord: loadedSectionData[sectionKey] ? 'with-data' : 'fallback',
+            });
           }
         });
 
         // Update state with loaded data
         // Section components will automatically receive this data via initialData prop
+        console.log('🔵 [ServiceCompletionModal] Loaded section data from DB:', loadedSectionData);
         setCompletedSections(new Set(savedCompletedSections));
         setCompletedSectionData(loadedSectionData);
 
@@ -496,10 +516,16 @@ export function ServiceCompletionModal({
         // Mark section as completed
         setCompletedSections((prev) => new Set(prev).add(currentSectionKey));
 
-        // Save section data to state for summary display
+        // Save the form data directly to state (don't try to extract from DB response)
+        // This keeps the data in memory for navigation between sections
+        console.log('🟡 [ServiceCompletionModal] Saving section data after save:', {
+          sectionKey: currentSectionKey,
+          formDataKeys: result.data ? Object.keys(result.data) : [],
+          hasFormData: !!result.data,
+        });
         setCompletedSectionData((prev) => ({
           ...prev,
-          [currentSectionKey]: result.data,
+          [currentSectionKey]: result.data, // Use form data directly
         }));
 
         // Determine next step
@@ -1013,44 +1039,52 @@ export function ServiceCompletionModal({
 
                 return (
                   <>
-                    {sectionsArray.map((sectionKey) => {
-                      const sectionConfig = SECTION_REGISTRY[sectionKey];
+                    {(() => {
+                      const sectionConfig = SECTION_REGISTRY[currentSectionKey];
                       if (!sectionConfig) return null;
 
-                      const isCurrentSection = sectionKey === currentSectionKey;
+                      const SectionComponent = sectionConfig.component;
+                      const sectionData = completedSectionData[currentSectionKey];
+                      // Create a key that changes when data is loaded to force component remount
+                      const dataHash = sectionData
+                        ? JSON.stringify(Object.keys(sectionData).sort()).substring(0, 20)
+                        : 'empty';
+                      const componentKey = `${currentSectionKey}-${dataHash}`;
+
+                      console.log('🟢 [ServiceCompletionModal] Rendering section:', {
+                        currentSectionKey,
+                        hasSectionData: !!sectionData,
+                        sectionDataKeys: sectionData ? Object.keys(sectionData) : [],
+                        sectionDataSample: sectionData
+                          ? JSON.stringify(sectionData).substring(0, 200)
+                          : null,
+                        componentKey,
+                      });
 
                       return (
-                        <div
-                          key={sectionKey}
-                          className="space-y-4"
-                          style={{ display: isCurrentSection ? 'block' : 'none' }}
-                        >
+                        <div key={componentKey} className="space-y-4">
                           <Typography variant="h3" className="text-lg font-semibold">
                             {t(`sectionNames.${sectionConfig.metadata.i18nKey}`)}
                           </Typography>
 
                           <div className="border rounded-lg">
-                            {(() => {
-                              const SectionComponent = sectionConfig.component;
-                              return (
-                                <SectionComponent
-                                  ref={(ref: SectionComponentRef | null) => {
-                                    if (ref) {
-                                      sectionRefs.current.set(sectionKey, ref);
-                                    }
-                                  }}
-                                  onSectionTouched={() => handleSectionTouched(sectionKey)}
-                                  serviceType={currentServiceType}
-                                  isOpen={true}
-                                  onOpenChange={() => {}}
-                                  initialData={completedSectionData[sectionKey]}
-                                />
-                              );
-                            })()}
+                            <SectionComponent
+                              key={componentKey}
+                              ref={(ref: SectionComponentRef | null) => {
+                                if (ref) {
+                                  sectionRefs.current.set(currentSectionKey, ref);
+                                }
+                              }}
+                              onSectionTouched={() => handleSectionTouched(currentSectionKey)}
+                              serviceType={currentServiceType}
+                              isOpen={true}
+                              onOpenChange={() => {}}
+                              initialData={sectionData}
+                            />
                           </div>
                         </div>
                       );
-                    })}
+                    })()}
                   </>
                 );
               })()}

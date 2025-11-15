@@ -159,10 +159,26 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
 
   // Update state when initialData changes (after loading from server)
   useEffect(() => {
+    console.log('🔴 [useBearingClearanceState] useEffect triggered:', {
+      hasInitialData: !!initialData,
+      initialDataKeys: initialData ? Object.keys(initialData) : [],
+    });
+
     if (initialData) {
       // Handle field name mapping: API uses outerData/innerData, component uses outerAfter/innerAfter
       const outerAfter = (initialData as any).outerData || initialData.outerAfter;
       const innerAfter = (initialData as any).innerData || initialData.innerAfter;
+
+      console.log('🔴 [useBearingClearanceState] Processing initialData:', {
+        hasOuterAfter: !!outerAfter,
+        hasInnerAfter: !!innerAfter,
+        hasOuterBefore: !!initialData.outerBefore,
+        hasInnerBefore: !!initialData.innerBefore,
+        outerAfterSample: outerAfter ? JSON.stringify(outerAfter).substring(0, 100) : null,
+        outerBeforeSample: initialData.outerBefore
+          ? JSON.stringify(initialData.outerBefore).substring(0, 100)
+          : null,
+      });
 
       if (initialData.outerBefore) {
         setOuterBeforeData(initialData.outerBefore);
