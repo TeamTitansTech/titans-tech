@@ -671,12 +671,16 @@ model SlideData {
 // GIBS Section
 
 model MachineServiceGibs {
-  id               String  @id @default(cuid())
+  id               String         @id @default(cuid())
   machineServiceId String
   outerBeforeId    String?
   outerDataId      String?
   innerBeforeId    String?
   innerDataId      String?
+
+  // Global fields
+  hasBeenAdjusted  YesNoDncType?
+  notes            String?
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    GibsData?      @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
@@ -689,8 +693,6 @@ model MachineServiceGibs {
 
 model GibsData {
   id String @id @default(cuid())
-
-  hasBeenAdjusted YesNoDncType?
 
   // Front to Back measurements (16 points)
   point1  Decimal @db.Decimal(10, 4)
@@ -719,8 +721,6 @@ model GibsData {
   frontBottom Decimal? @db.Decimal(10, 4)
   backTop     Decimal? @db.Decimal(10, 4)
   backBottom  Decimal? @db.Decimal(10, 4)
-
-  usable String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
