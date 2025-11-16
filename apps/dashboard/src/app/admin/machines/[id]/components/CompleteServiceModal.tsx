@@ -67,7 +67,6 @@ export function CompleteServiceModal({
   // Collapsible section states
   const [slideOpen, setSlideOpen] = useState(false);
   const [gibsOpen, setGibsOpen] = useState(false);
-  const [lubricationOpen, setLubricationOpen] = useState(false);
 
   // Section refs
   const bearingClearanceRef = useRef<BearingClearanceSectionRef>(null);
@@ -328,8 +327,9 @@ export function CompleteServiceModal({
             {blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (
               <LubricationHydraulicsSection
                 ref={lubricationRef}
-                isOpen={lubricationOpen}
-                onOpenChange={setLubricationOpen}
+                onSectionTouched={() =>
+                  markSectionTouched('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER')
+                }
               />
             )}
 

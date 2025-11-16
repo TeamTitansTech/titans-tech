@@ -591,6 +591,21 @@
           "DNC": "DNC",
           "TO_BED": "Para Base",
           "TO_BOLSTER": "Para Bolster"
+        },
+        "fields": {
+          "outerParallelism": "Paralelismo Externo",
+          "outerHasParallelismBeenAdjusted": "Paralelismo Externo Foi Ajustado",
+          "innerParallelism": "Paralelismo Interno",
+          "innerHasParallelismBeenAdjusted": "Paralelismo Interno Foi Ajustado",
+          "outerShutheightIndicatorsChecked": "Indicadores de Altura Externos Verificados",
+          "outerOverloadsOnTonnageMonitor": "Sobrecargas no Monitor (Externo)",
+          "outerShutheightActualSh": "SH Atual Externo",
+          "outerIndicatorReading": "Leitura do Indicador Externo",
+          "innerShutheightIndicatorsChecked": "Indicadores de Altura Internos Verificados",
+          "innerOverloadsOnTonnageMonitor": "Sobrecargas no Monitor (Interno)",
+          "innerShutheightActualSh": "SH Atual Interno",
+          "innerIndicatorReading": "Leitura do Indicador Interno",
+          "notes": "Observações"
         }
       },
       "gibs": {
@@ -682,7 +697,63 @@
         "splinesDriveRingDisc": "Estrias/Anel de Acionamento/Disco",
         "adjustingNutLockSecure": "Trava da Porca de Ajuste Segura",
         "separateBrakeSeals": "Vedações de Freio Separadas",
-        "flexDisc": "Disco Flexível"
+        "flexDisc": "Disco Flexível",
+        "fields": {
+          "clutchType": "Tipo de Embreagem",
+          "clutchLocation": "Localização da Embreagem",
+          "brakeSpringBrake": "Freio (polegadas)",
+          "brakeSpringClutch": "Embreagem (polegadas)",
+          "brakeSpringFB": "F-B (polegadas)",
+          "brakeSpringFTB": "F-TB (polegadas)",
+          "brakeSpringRTB": "R-TB (polegadas)",
+          "brakeSpringStudBolt": "Perno/Parafuso da Mola do Freio",
+          "brakeStoppingTime": "Tempo de Frenagem",
+          "brakeLining": "Revestimento do Freio",
+          "brakeClearing": "Limpeza do Freio",
+          "brakeClearanceTotal": "Folga do Freio (Total)",
+          "brakeClearanceRear": "Folga do Freio (Traseira)",
+          "flywheelStoppingTime": "Tempo de Parada do Volante",
+          "flywheelBearings": "Rolamentos do Volante",
+          "flywheelBrake": "Freio do Volante",
+          "rotaryUnion": "União Rotativa",
+          "clutchLining": "Revestimento da Embreagem",
+          "clutchSeals": "Vedações da Embreagem",
+          "clutchEngagements": "Engates da Embreagem",
+          "gearBacklashBefore": "Folga da Engrenagem (Antes)",
+          "gearBacklashAfter": "Folga da Engrenagem (Depois)",
+          "crankEndplayBefore": "Folga Final da Manivela (Antes)",
+          "crankEndplayAfter": "Folga Final da Manivela (Depois)",
+          "airRegulator": "Regulador de Ar",
+          "airClutchTravelClearance": "Curso/Folga da Embreagem de Ar",
+          "airLineOilerSetting": "Configuração do Lubrificador da Linha de Ar",
+          "splinesDriveRingDisc": "Estrias: Anel de Acionamento/Disco",
+          "adjustingNutLockSecure": "Trava da Porca de Ajuste Segura",
+          "separateBrakeSeals": "Vedações de Freio Separadas",
+          "hydClutchClearanceTotal": "Folga da Embreagem Hidráulica (Total)",
+          "hydClutchClearanceRear": "Folga da Embreagem Hidráulica (Traseira)",
+          "hydraulicPressure": "Pressão Hidráulica",
+          "accumulator": "Acumulador",
+          "flexDisc": "Disco Flexível",
+          "notes": "Observações"
+        },
+        "sections": {
+          "brakeSpringSettings": "Configurações da Mola do Freio",
+          "brakeMeasurements": "Medições do Freio",
+          "flywheel": "Volante",
+          "clutchDetails": "Detalhes da Embreagem",
+          "gearBacklashCrankEndplay": "Folga da Engrenagem e Folga Final da Manivela",
+          "airSystem": "Sistema de Ar",
+          "hydraulicSystem": "Sistema Hidráulico"
+        },
+        "placeholders": {
+          "selectType": "Selecione o tipo",
+          "selectLocation": "Selecione a localização",
+          "select": "Selecione",
+          "notes": "Adicione observações adicionais..."
+        },
+        "notes": {
+          "gearBacklashCheck": "*Verificar apenas se houver ruído excessivo e/ou vibração"
+        }
       },
       "counterbalanceCylinder": {
         "field": "Campo",
@@ -690,9 +761,12 @@
         "counterbalanceType": "Tipo de Contrapeso",
         "airbagConditionTitle": "Condição do Airbag/Pistão",
         "pistonSeals": "Vedações do Pistão",
+        "airbagPistonSeals": "Vedações do Pistão",
         "leakLocation": "Se vedações vazando, onde?",
+        "airbagPistonSealsLeakLocation": "Se vedações vazando, onde?",
         "regulator": "Regulador",
         "gauge": "Medidor",
+        "gaugePSI": "PSI do Medidor",
         "pneumaticsPlumbing": "Pneumática/Encanamento",
         "rodSeals": "Vedações da Haste",
         "rodBushing": "Bucha da Haste",
@@ -878,10 +952,60 @@
         "incomplete": "Incompleto"
       },
       "sections": {
-        "beforeMaintenance": "Before Maintenance",
-        "afterMaintenance": "After Maintenance"
+        "beforeMaintenance": "Antes da Manutenção",
+        "afterMaintenance": "Após a Manutenção"
+      },
+      "summary": {
+        "title": "Resumo da Manutenção",
+        "inspectionTitle": "Resumo da Inspeção",
+        "maintenanceDetails": "Detalhes da manutenção realizada",
+        "inspectionDetails": "Detalhes da inspeção realizada",
+        "serviceDetails": "Detalhes do Serviço",
+        "filledAreas": "Áreas Preenchidas",
+        "filledData": "Dados Preenchidos",
+        "additionalInformation": "Informações Adicionais",
+        "shutdownAdjustmentMechanism": "Mecanismo de Ajuste de Desligamento",
+        "dataMeasurements": "Medições de Dados",
+        "sectionFields": "Campos da Seção",
+        "noDataAvailable": "Nenhum dado disponível",
+        "exportExcel": "Exportar Excel",
+        "exportPDF": "Exportar PDF",
+        "gauges": "Medidores",
+        "notes": "Observações"
       }
     }
+  },
+  "table": {
+    "field": "Campo",
+    "value": "Valor",
+    "outer": "Externo",
+    "inner": "Interno",
+    "lh": "Esquerdo",
+    "rh": "Direito",
+    "diff": "Diferença",
+    "difference": "Diferença",
+    "position": "Posição",
+    "system": "Sistema",
+    "gauge": "Medidor",
+    "psi": "PSI",
+    "noImage": "Sem Imagem"
+  },
+  "measurements": {
+    "outerMeasurements": "Medições Externas",
+    "innerMeasurements": "Medições Internas",
+    "outerBeforeMaintenance": "Externo - Antes da Manutenção",
+    "outerAfterMaintenance": "Externo - Após a Manutenção",
+    "innerBeforeMaintenance": "Interno - Antes da Manutenção",
+    "innerAfterMaintenance": "Interno - Após a Manutenção"
+  },
+  "bearingFields": {
+    "combinedWith": "Combinado Com",
+    "matingPart": "Peça de Acoplamento",
+    "hasBeenAdjusted": "Foi Ajustado",
+    "slideMotorMounts": "Montagens do Motor/Slide",
+    "powerCordHoses": "Cabos de Energia/Mangueiras",
+    "chainsGearsSprockets": "Correntes e Engrenagens/Rodas Dentadas",
+    "lockingClamps": "Grampos de Travamento"
   },
   "login": {
     "title": "Bem-vindo de volta",

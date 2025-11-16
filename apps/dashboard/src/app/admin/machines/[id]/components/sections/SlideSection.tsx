@@ -78,29 +78,34 @@ interface SlideSectionProps {
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
   serviceType: ServiceType;
+  initialData?: any; // SlideCheck data from API
 }
 
 export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
-  ({ isOpen, onOpenChange, onSectionTouched, serviceType }, ref) => {
+  ({ isOpen, onOpenChange, onSectionTouched, serviceType, initialData }, ref) => {
     // All slide data in a single state object
     const [formData, setFormData] = useState({
-      outerBeforeData: defaultSlideData,
-      outerAfterData: defaultSlideData,
-      innerBeforeData: defaultSlideData,
-      innerAfterData: defaultSlideData,
-      outerParallelism: ParallelismType.DNC,
-      outerHasParallelismBeenAdjusted: YesNoNaDncType.DNC,
-      innerParallelism: ParallelismType.DNC,
-      innerHasParallelismBeenAdjusted: YesNoNaDncType.DNC,
-      outerShutheightIndicatorsChecked: YesNoDncType.DNC,
-      outerOverloadsOnTonnageMonitor: '',
-      outerShutheightActualSh: '',
-      outerIndicatorReading: '',
-      innerShutheightIndicatorsChecked: YesNoDncType.DNC,
-      innerOverloadsOnTonnageMonitor: '',
-      innerShutheightActualSh: '',
-      innerIndicatorReading: '',
-      notes: '',
+      outerBeforeData: initialData?.outerBeforeData || defaultSlideData,
+      outerAfterData: initialData?.outerAfterData || initialData?.outerData || defaultSlideData,
+      innerBeforeData: initialData?.innerBeforeData || defaultSlideData,
+      innerAfterData: initialData?.innerAfterData || initialData?.innerData || defaultSlideData,
+      outerParallelism: initialData?.outerParallelism || ParallelismType.DNC,
+      outerHasParallelismBeenAdjusted:
+        initialData?.outerHasParallelismBeenAdjusted || YesNoNaDncType.DNC,
+      innerParallelism: initialData?.innerParallelism || ParallelismType.DNC,
+      innerHasParallelismBeenAdjusted:
+        initialData?.innerHasParallelismBeenAdjusted || YesNoNaDncType.DNC,
+      outerShutheightIndicatorsChecked:
+        initialData?.outerShutheightIndicatorsChecked || YesNoDncType.DNC,
+      outerOverloadsOnTonnageMonitor: initialData?.outerOverloadsOnTonnageMonitor || '',
+      outerShutheightActualSh: initialData?.outerShutheightActualSh || '',
+      outerIndicatorReading: initialData?.outerIndicatorReading || '',
+      innerShutheightIndicatorsChecked:
+        initialData?.innerShutheightIndicatorsChecked || YesNoDncType.DNC,
+      innerOverloadsOnTonnageMonitor: initialData?.innerOverloadsOnTonnageMonitor || '',
+      innerShutheightActualSh: initialData?.innerShutheightActualSh || '',
+      innerIndicatorReading: initialData?.innerIndicatorReading || '',
+      notes: initialData?.notes || '',
     });
 
     const [errors, setErrors] = useState({
@@ -110,7 +115,9 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       innerAfter: {} as Record<string, string>,
     });
 
-    const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
+    const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(
+      !!(initialData?.outerBeforeData || initialData?.innerBeforeData),
+    );
 
     // Generic update function for any field in formData
     const updateField = <K extends keyof typeof formData>(

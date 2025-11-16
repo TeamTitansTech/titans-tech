@@ -74,11 +74,12 @@ export interface ClutchSectionRef {
 
 interface ClutchSectionProps {
   onSectionTouched?: () => void;
+  initialData?: ClutchData;
 }
 
 export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
-  ({ onSectionTouched }, ref) => {
-    const [data, setData] = useState<ClutchData>(defaultClutchData);
+  ({ onSectionTouched, initialData }, ref) => {
+    const [data, setData] = useState<ClutchData>(initialData || defaultClutchData);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const updateField = (field: keyof ClutchData, value: string | number | undefined) => {
@@ -142,8 +143,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     }));
 
     return (
-      <div className="border rounded-lg p-6 bg-card">
-        <h3 className="text-base font-semibold mb-4">Clutch</h3>
+      <div className="p-6 space-y-6">
         <ClutchForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
       </div>
     );

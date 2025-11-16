@@ -100,12 +100,13 @@ export interface BearingClearanceSectionRef {
 interface BearingClearanceSectionProps {
   onSectionTouched: () => void;
   serviceType: ServiceType;
+  initialData?: any; // Will be BearingClearanceSectionData from the hook
 }
 
 export const BearingClearanceSection = forwardRef<
   BearingClearanceSectionRef,
   BearingClearanceSectionProps
->(({ onSectionTouched, serviceType }, ref) => {
+>(({ onSectionTouched, serviceType, initialData }, ref) => {
   const t = useTranslations('inspections');
 
   // Use custom hook for state management
@@ -155,7 +156,7 @@ export const BearingClearanceSection = forwardRef<
     setInnerBeforeFieldError,
     setInnerAfterFieldError,
     reset,
-  } = useBearingClearanceState();
+  } = useBearingClearanceState({ initialData });
 
   // UI state
   const [isBeforeOpen, setIsBeforeOpen] = useState(true);

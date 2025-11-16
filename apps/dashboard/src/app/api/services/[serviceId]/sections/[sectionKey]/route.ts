@@ -65,9 +65,11 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             innerDataId: true,
           },
         },
-        lubricationHydraulics: { select: { id: true } },
+        lubricationHydraulics: { select: { id: true, dataId: true } },
         clutch: { select: { id: true, dataId: true } },
-        counterbalanceCylinderAirbag: { select: { id: true } },
+        counterbalanceCylinderAirbag: {
+          select: { id: true, outerDataId: true, innerDataId: true },
+        },
       },
     });
 
@@ -327,10 +329,39 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         const existingRecord = existingService.lubricationHydraulics?.[0];
 
         if (existingRecord) {
-          await prisma.machineServiceLubricationHydraulics.update({
-            where: { id: existingRecord.id },
-            data: buildLubricationHydraulicsUpdateData(sectionData),
-          });
+          // Update the nested LubricationHydraulicsData
+          if (existingRecord.dataId) {
+            // Update existing data and handle gauges
+            const { gauges, ...restData } = sectionData;
+
+            // Delete existing gauges and create new ones
+            await prisma.lubricationHydraulicsGauge.deleteMany({
+              where: { lubricationHydraulicsDataId: existingRecord.dataId },
+            });
+
+            await prisma.lubricationHydraulicsData.update({
+              where: { id: existingRecord.dataId },
+              data: {
+                ...restData,
+                gauges: gauges && gauges.length > 0 ? { create: gauges } : undefined,
+              },
+            });
+          } else {
+            // Create new LubricationHydraulicsData if it doesn't exist
+            const { gauges, ...restData } = sectionData;
+
+            await prisma.machineServiceLubricationHydraulics.update({
+              where: { id: existingRecord.id },
+              data: {
+                data: {
+                  create: {
+                    ...restData,
+                    gauges: gauges && gauges.length > 0 ? { create: gauges } : undefined,
+                  },
+                },
+              },
+            });
+          }
         } else {
           updateData.lubricationHydraulics = {
             create: buildLubricationHydraulicsCreateData(sectionData),
@@ -372,10 +403,39 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         const existingRecord = existingService.counterbalanceCylinderAirbag?.[0];
 
         if (existingRecord) {
-          await prisma.machineServiceCounterbalanceCylinderAirbag.update({
-            where: { id: existingRecord.id },
-            data: buildCounterbalanceUpdateData(sectionData),
-          });
+          const updatePayload: any = {};
+
+          // Handle outerData
+          if (sectionData.outerData) {
+            if (existingRecord.outerDataId) {
+              await prisma.counterbalanceCylinderAirbagData.update({
+                where: { id: existingRecord.outerDataId },
+                data: sectionData.outerData,
+              });
+            } else {
+              updatePayload.outerData = { create: sectionData.outerData };
+            }
+          }
+
+          // Handle innerData
+          if (sectionData.innerData) {
+            if (existingRecord.innerDataId) {
+              await prisma.counterbalanceCylinderAirbagData.update({
+                where: { id: existingRecord.innerDataId },
+                data: sectionData.innerData,
+              });
+            } else {
+              updatePayload.innerData = { create: sectionData.innerData };
+            }
+          }
+
+          // Update the counterbalance record if we have new data to create
+          if (Object.keys(updatePayload).length > 0) {
+            await prisma.machineServiceCounterbalanceCylinderAirbag.update({
+              where: { id: existingRecord.id },
+              data: updatePayload,
+            });
+          }
         } else {
           updateData.counterbalanceCylinderAirbag = {
             create: buildCounterbalanceCreateData(sectionData),
@@ -583,12 +643,21 @@ async function buildGibsCreateData(data: any) {
 // }
 
 function buildLubricationHydraulicsCreateData(data: any) {
-  return { ...data };
+  const { gauges, ...restData } = data;
+
+  return {
+    data: {
+      create: {
+        ...restData,
+        gauges: gauges && gauges.length > 0 ? { create: gauges } : undefined,
+      },
+    },
+  };
 }
 
-function buildLubricationHydraulicsUpdateData(data: any) {
-  return { ...data };
-}
+// function buildLubricationHydraulicsUpdateData(data: any) {
+//   return buildLubricationHydraulicsCreateData(data);
+// }
 
 function buildClutchCreateData(data: any) {
   return {
@@ -603,9 +672,19 @@ function buildClutchCreateData(data: any) {
 // }
 
 function buildCounterbalanceCreateData(data: any) {
-  return { ...data };
+  const result: any = {};
+
+  if (data.outerData) {
+    result.outerData = { create: data.outerData };
+  }
+
+  if (data.innerData) {
+    result.innerData = { create: data.innerData };
+  }
+
+  return result;
 }
 
-function buildCounterbalanceUpdateData(data: any) {
-  return { ...data };
-}
+// function buildCounterbalanceUpdateData(data: any) {
+//   return buildCounterbalanceCreateData(data);
+// }
