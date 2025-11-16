@@ -10,7 +10,6 @@ import {
 import { LubricationHydraulicsForm } from '../forms/LubricationHydraulicsForm';
 import { isDataTouched } from './utils';
 import { useSectionState } from '../../hooks/useSectionState';
-import { SectionContainer } from '../shared/SectionContainer';
 
 export const defaultLubricationHydraulicsData: LubricationHydraulicsData = {
   gauges: [] as LubricationHydraulicsGauge[],
@@ -39,15 +38,13 @@ export interface LubricationHydraulicsSectionRef {
 }
 
 interface LubricationHydraulicsSectionProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
 }
 
 export const LubricationHydraulicsSection = forwardRef<
   LubricationHydraulicsSectionRef,
   LubricationHydraulicsSectionProps
->(({ isOpen, onOpenChange, onSectionTouched }, ref) => {
+>(({ onSectionTouched }, ref) => {
   // Use the section state hook
   const {
     data,
@@ -117,18 +114,14 @@ export const LubricationHydraulicsSection = forwardRef<
   }));
 
   return (
-    <SectionContainer
-      title="Lubrication / Hydraulics / Pressure Switches / Oil & Filter"
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-    >
+    <div className="p-6 space-y-6">
       <LubricationHydraulicsForm
         data={data}
         updateFn={updateField}
         errors={errors}
         handleBlur={handleBlur}
       />
-    </SectionContainer>
+    </div>
   );
 });
 

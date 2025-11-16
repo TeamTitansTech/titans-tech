@@ -142,8 +142,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     }));
 
     return (
-      <div className="border rounded-lg p-6 bg-card">
-        <h3 className="text-base font-semibold mb-4">Clutch</h3>
+      <div className="p-6 space-y-6">
         <ClutchForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
       </div>
     );
