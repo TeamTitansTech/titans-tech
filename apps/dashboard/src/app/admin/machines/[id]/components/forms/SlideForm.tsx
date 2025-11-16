@@ -16,7 +16,7 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   type SlideData,
   ServiceType,
-  ParallelismType,
+  DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,
 } from '@/data/types/services.types';
@@ -475,7 +475,7 @@ function ShutheightFields({
           </Label>
           <Select
             value={indicatorsValue}
-            onValueChange={(value) => handleFieldUpdate(indicatorsField, value as YesNoDncType)}
+            onValueChange={(value: YesNoDncType) => handleFieldUpdate(indicatorsField, value)}
           >
             <SelectTrigger id={indicatorsField} className="mt-1">
               <SelectValue />
@@ -545,7 +545,7 @@ export function SlideForm({
 
   const handleFieldUpdate = (
     field: keyof SlideFormData,
-    value: SlideData | ParallelismType | YesNoNaDncType | YesNoDncType | string,
+    value: SlideData | DncToBedToBolsterType | YesNoNaDncType | YesNoDncType | string,
   ) => {
     updateFn(field, value);
     onSectionTouched?.();

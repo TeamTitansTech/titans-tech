@@ -68,8 +68,6 @@ export function CompleteServiceModal({
   const [slideOpen, setSlideOpen] = useState(false);
   const [gibsOpen, setGibsOpen] = useState(false);
   const [lubricationOpen, setLubricationOpen] = useState(false);
-  const [clutchOpen, setClutchOpen] = useState(false);
-  const [counterbalanceOpen, setCounterbalanceOpen] = useState(false);
 
   // Section refs
   const bearingClearanceRef = useRef<BearingClearanceSectionRef>(null);
@@ -336,14 +334,16 @@ export function CompleteServiceModal({
             )}
 
             {blueprintSections.includes('CLUTCH') && (
-              <ClutchSection ref={clutchRef} isOpen={clutchOpen} onOpenChange={setClutchOpen} />
+              <ClutchSection
+                ref={clutchRef}
+                onSectionTouched={() => markSectionTouched('CLUTCH')}
+              />
             )}
 
             {blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG') && (
               <CounterbalanceCylinderSection
                 ref={counterbalanceRef}
-                isOpen={counterbalanceOpen}
-                onOpenChange={setCounterbalanceOpen}
+                onSectionTouched={() => markSectionTouched('COUNTERBALANCE_CYLINDER_AIRBAG')}
               />
             )}
 

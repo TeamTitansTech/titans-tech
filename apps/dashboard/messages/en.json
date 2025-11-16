@@ -2,7 +2,19 @@
   "common": {
     "companyName": "InspectPro",
     "companySubtitle": "Admin Portal",
-    "unsavedChanges": "You have unsaved changes. Are you sure you want to close?"
+    "unsavedChanges": "You have unsaved changes. Are you sure you want to close?",
+    "status": {
+      "ok": "OK",
+      "na": "N/A",
+      "dnc": "DNC",
+      "yes": "Yes",
+      "no": "No",
+      "damaged": "Damaged",
+      "leaking": "Leaking",
+      "not_operational": "Not Operational",
+      "dark_oil": "Dark Oil",
+      "needs_replaced": "Needs Replaced"
+    }
   },
   "validation": {
     "required": "This field is required",
@@ -651,16 +663,26 @@
         "flexDisc": "Flex Disc"
       },
       "counterbalanceCylinder": {
+        "field": "Field",
+        "value": "Value",
         "counterbalanceType": "Counterbalance Type",
-        "gaugePSI": "Gauge PSI",
         "airbagConditionTitle": "Airbag/Piston Condition",
-        "airbagPistonSeals": "Airbag/Piston Seals",
-        "leakLocation": "Leak Location",
+        "pistonSeals": "Piston Seals",
+        "leakLocation": "If seals leaking, where?",
         "regulator": "Regulator",
+        "gauge": "Gauge",
         "pneumaticsPlumbing": "Pneumatics/Plumbing",
         "rodSeals": "Rod Seals",
         "rodBushing": "Rod Bushing",
-        "oilWick": "Oil Wick"
+        "oilWick": "Oil Wick",
+        "notes": "Notes",
+        "selectPlaceholder": "Select an option",
+        "outer": "Outer",
+        "inner": "Inner",
+        "counterbalanceTypes": {
+          "cylinder": "Cylinder",
+          "airbag": "Airbag"
+        }
       },
       "cancel": "Cancel",
       "submit": {

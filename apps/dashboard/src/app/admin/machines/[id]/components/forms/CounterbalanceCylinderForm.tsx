@@ -2,8 +2,68 @@
 
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { type CounterbalanceCylinderFormProps } from '@/data/types/services.types';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  type CounterbalanceCylinderFormProps,
+  CounterbalanceTypeEnum,
+  AirbagPistonSealsType,
+  RegulatorGaugeType,
+  PneumaticsPlumbingType,
+  RodSealsType,
+  RodBushingType,
+  OilWickType,
+} from '@/data/types/services.types';
+
+type InspectionRow =
+  | {
+      key: string;
+      field?: string;
+      type: 'select';
+      enumValues: Record<string, string>;
+      useCommon: boolean;
+    }
+  | {
+      key: string;
+      field?: string;
+      type: 'text';
+      enumValues?: never;
+      useCommon?: never;
+    };
+
+const INSPECTION_ROWS: InspectionRow[] = [
+  {
+    key: 'counterbalanceType',
+    type: 'select',
+    enumValues: CounterbalanceTypeEnum,
+    useCommon: false,
+  },
+  {
+    key: 'pistonSeals',
+    field: 'airbagPistonSeals',
+    type: 'select',
+    enumValues: AirbagPistonSealsType,
+    useCommon: true,
+  },
+  { key: 'leakLocation', field: 'airbagPistonSealsLeakLocation', type: 'text' },
+  { key: 'regulator', type: 'select', enumValues: RegulatorGaugeType, useCommon: true },
+  { key: 'gauge', type: 'select', enumValues: RegulatorGaugeType, useCommon: true },
+  {
+    key: 'pneumaticsPlumbing',
+    type: 'select',
+    enumValues: PneumaticsPlumbingType,
+    useCommon: true,
+  },
+  { key: 'rodSeals', type: 'select', enumValues: RodSealsType, useCommon: true },
+  { key: 'rodBushing', type: 'select', enumValues: RodBushingType, useCommon: true },
+  { key: 'oilWick', type: 'select', enumValues: OilWickType, useCommon: true },
+];
 
 export function CounterbalanceCylinderForm({
   data,
@@ -11,169 +71,93 @@ export function CounterbalanceCylinderForm({
   errors,
   handleBlur,
   title,
+  hideNotes = false,
 }: CounterbalanceCylinderFormProps) {
-  const t = useTranslations('inspections');
+  const t = useTranslations('inspections.form.counterbalanceCylinder');
+  const tCommon = useTranslations('common.status');
+
+  const getLabel = (type: string, useCommon: boolean, enumKey?: string) => {
+    if (useCommon) {
+      return tCommon(type.toLowerCase());
+    }
+    if (enumKey === 'counterbalanceType') {
+      return t(`counterbalanceTypes.${type.toLowerCase()}`);
+    }
+    return type;
+  };
 
   return (
     <div className="space-y-6">
       <h4 className="font-semibold text-sm">{title}</h4>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor={`counterbalanceType-${title}`} className="text-xs">
-            {t('form.counterbalanceCylinder.counterbalanceType')}
-          </Label>
-          <Input
-            id={`counterbalanceType-${title}`}
-            value={data.counterbalanceType || ''}
-            onChange={(e) => updateFn('counterbalanceType', e.target.value)}
-            onBlur={() => handleBlur('counterbalanceType')}
-            className={`mt-1 ${errors.counterbalanceType ? 'border-destructive' : ''}`}
-          />
-          {errors.counterbalanceType && (
-            <p className="text-xs text-destructive mt-1">{errors.counterbalanceType}</p>
-          )}
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4 border-b pb-2">
+          <div className="text-xs font-semibold">{t('field')}</div>
+          <div className="text-xs font-semibold">{t('value')}</div>
         </div>
 
-        <div>
-          <Label htmlFor={`gaugePSI-${title}`} className="text-xs">
-            {t('form.counterbalanceCylinder.gaugePSI')}
-          </Label>
-          <Input
-            id={`gaugePSI-${title}`}
-            type="number"
-            step="0.01"
-            min="0"
-            max="99999.99"
-            value={data.gaugePSI || ''}
-            onChange={(e) =>
-              updateFn('gaugePSI', e.target.value ? Number(e.target.value) : undefined)
-            }
-            onBlur={() => handleBlur('gaugePSI')}
-            className={`mt-1 ${errors.gaugePSI ? 'border-destructive' : ''}`}
-          />
-          {errors.gaugePSI && <p className="text-xs text-destructive mt-1">{errors.gaugePSI}</p>}
-        </div>
+        {INSPECTION_ROWS.map(({ key, field, type, enumValues, useCommon }) => {
+          const fieldName = (field || key) as keyof typeof data;
+
+          return (
+            <div key={key} className="grid grid-cols-2 gap-4 items-center">
+              <div className="text-xs font-medium">{t(key)}</div>
+
+              <div>
+                {type === 'select' && enumValues ? (
+                  <Select
+                    value={(data[fieldName] as string) || ''}
+                    onValueChange={(value) => updateFn(fieldName, value ? value : undefined)}
+                  >
+                    <SelectTrigger
+                      id={`${fieldName}-${title}`}
+                      className={`h-9 text-xs ${errors[fieldName] ? 'border-destructive' : ''}`}
+                      onBlur={() => handleBlur(fieldName)}
+                    >
+                      <SelectValue placeholder={t('selectPlaceholder')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(enumValues).map((value) => (
+                        <SelectItem key={value} value={value}>
+                          {getLabel(value, useCommon || false, key)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <Input
+                    id={`${fieldName}-${title}`}
+                    value={(data[fieldName] as string) || ''}
+                    onChange={(e) => updateFn(fieldName, e.target.value)}
+                    onBlur={() => handleBlur(fieldName)}
+                    className={`text-sm ${errors[fieldName] ? 'border-destructive' : ''}`}
+                  />
+                )}
+                {errors[fieldName] && (
+                  <p className="text-xs text-destructive mt-1">{errors[fieldName]}</p>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div>
-        <h4 className="font-semibold text-sm mb-4">
-          {t('form.counterbalanceCylinder.airbagConditionTitle')}
-        </h4>
-        <div className="grid grid-cols-2 gap-4">
+      {!hideNotes && (
+        <div className="grid grid-cols-2 gap-4 items-start pt-2">
+          <div className="text-xs font-medium">{t('notes')}</div>
           <div>
-            <Label htmlFor={`airbagPistonSeals-${title}`} className="text-xs">
-              {t('form.counterbalanceCylinder.airbagPistonSeals')}
-            </Label>
-            <Input
-              id={`airbagPistonSeals-${title}`}
-              value={data.airbagPistonSeals || ''}
-              onChange={(e) => updateFn('airbagPistonSeals', e.target.value)}
-              onBlur={() => handleBlur('airbagPistonSeals')}
-              className={`mt-1 ${errors.airbagPistonSeals ? 'border-destructive' : ''}`}
+            <Textarea
+              id={`notes-${title}`}
+              value={data.notes || ''}
+              onChange={(e) => updateFn('notes', e.target.value)}
+              onBlur={() => handleBlur('notes')}
+              className={`text-sm ${errors.notes ? 'border-destructive' : ''}`}
+              rows={3}
             />
-            {errors.airbagPistonSeals && (
-              <p className="text-xs text-destructive mt-1">{errors.airbagPistonSeals}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor={`airbagPistonSealsLeakLocation-${title}`} className="text-xs">
-              {t('form.counterbalanceCylinder.leakLocation')}
-            </Label>
-            <Input
-              id={`airbagPistonSealsLeakLocation-${title}`}
-              value={data.airbagPistonSealsLeakLocation || ''}
-              onChange={(e) => updateFn('airbagPistonSealsLeakLocation', e.target.value)}
-              onBlur={() => handleBlur('airbagPistonSealsLeakLocation')}
-              className={`mt-1 ${errors.airbagPistonSealsLeakLocation ? 'border-destructive' : ''}`}
-            />
-            {errors.airbagPistonSealsLeakLocation && (
-              <p className="text-xs text-destructive mt-1">
-                {errors.airbagPistonSealsLeakLocation}
-              </p>
-            )}
+            {errors.notes && <p className="text-xs text-destructive mt-1">{errors.notes}</p>}
           </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor={`regulator-${title}`} className="text-xs">
-            {t('form.counterbalanceCylinder.regulator')}
-          </Label>
-          <Input
-            id={`regulator-${title}`}
-            value={data.regulator || ''}
-            onChange={(e) => updateFn('regulator', e.target.value)}
-            onBlur={() => handleBlur('regulator')}
-            className={`mt-1 ${errors.regulator ? 'border-destructive' : ''}`}
-          />
-          {errors.regulator && <p className="text-xs text-destructive mt-1">{errors.regulator}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor={`pneumaticsPlumbing-${title}`} className="text-xs">
-            {t('form.counterbalanceCylinder.pneumaticsPlumbing')}
-          </Label>
-          <Input
-            id={`pneumaticsPlumbing-${title}`}
-            value={data.pneumaticsPlumbing || ''}
-            onChange={(e) => updateFn('pneumaticsPlumbing', e.target.value)}
-            onBlur={() => handleBlur('pneumaticsPlumbing')}
-            className={`mt-1 ${errors.pneumaticsPlumbing ? 'border-destructive' : ''}`}
-          />
-          {errors.pneumaticsPlumbing && (
-            <p className="text-xs text-destructive mt-1">{errors.pneumaticsPlumbing}</p>
-          )}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor={`rodSeals-${title}`} className="text-xs">
-            {t('form.counterbalanceCylinder.rodSeals')}
-          </Label>
-          <Input
-            id={`rodSeals-${title}`}
-            value={data.rodSeals || ''}
-            onChange={(e) => updateFn('rodSeals', e.target.value)}
-            onBlur={() => handleBlur('rodSeals')}
-            className={`mt-1 ${errors.rodSeals ? 'border-destructive' : ''}`}
-          />
-          {errors.rodSeals && <p className="text-xs text-destructive mt-1">{errors.rodSeals}</p>}
-        </div>
-
-        <div>
-          <Label htmlFor={`rodBushing-${title}`} className="text-xs">
-            {t('form.counterbalanceCylinder.rodBushing')}
-          </Label>
-          <Input
-            id={`rodBushing-${title}`}
-            value={data.rodBushing || ''}
-            onChange={(e) => updateFn('rodBushing', e.target.value)}
-            onBlur={() => handleBlur('rodBushing')}
-            className={`mt-1 ${errors.rodBushing ? 'border-destructive' : ''}`}
-          />
-          {errors.rodBushing && (
-            <p className="text-xs text-destructive mt-1">{errors.rodBushing}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor={`oilWick-${title}`} className="text-xs">
-            {t('form.counterbalanceCylinder.oilWick')}
-          </Label>
-          <Input
-            id={`oilWick-${title}`}
-            value={data.oilWick || ''}
-            onChange={(e) => updateFn('oilWick', e.target.value)}
-            onBlur={() => handleBlur('oilWick')}
-            className={`mt-1 ${errors.oilWick ? 'border-destructive' : ''}`}
-          />
-          {errors.oilWick && <p className="text-xs text-destructive mt-1">{errors.oilWick}</p>}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

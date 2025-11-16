@@ -2,7 +2,19 @@
   "common": {
     "companyName": "InspectPro",
     "companySubtitle": "Portal Admin",
-    "unsavedChanges": "Você tem alterações não salvas. Tem certeza que deseja fechar?"
+    "unsavedChanges": "Você tem alterações não salvas. Tem certeza que deseja fechar?",
+    "status": {
+      "ok": "OK",
+      "na": "N/A",
+      "dnc": "DNC",
+      "yes": "Sim",
+      "no": "Não",
+      "damaged": "Danificado",
+      "leaking": "Vazando",
+      "not_operational": "Não Operacional",
+      "dark_oil": "Óleo Escuro",
+      "needs_replaced": "Precisa Substituir"
+    }
   },
   "validation": {
     "required": "Este campo é obrigatório",
@@ -612,23 +624,12 @@
           "press_sw": "Press SW",
           "gib": "Gib"
         },
-        "psiStatus": {
-          "ok": "OK",
-          "na": "N/A",
-          "dnc": "DNC",
-          "damaged": "Damaged"
-        },
         "oilInfoTitle": "Informações do Óleo",
         "changedOil": "Óleo Trocado",
         "oilTemperatureF": "Temperatura do Óleo (°F)",
         "oilMfgType": "Fabricante/Tipo do Óleo",
         "filterTitle": "Filtro",
         "changedFilter": "Filtro Trocado",
-        "yesNoDnc": {
-          "yes": "Yes",
-          "no": "No",
-          "dnc": "DNC"
-        },
         "notes": "Notes",
         "notesPlaceholder": "Notas adicionais..."
       },
@@ -679,16 +680,26 @@
         "flexDisc": "Disco Flexível"
       },
       "counterbalanceCylinder": {
+        "field": "Campo",
+        "value": "Valor",
         "counterbalanceType": "Tipo de Contrapeso",
-        "gaugePSI": "PSI do Medidor",
         "airbagConditionTitle": "Condição do Airbag/Pistão",
-        "airbagPistonSeals": "Vedações do Airbag/Pistão",
-        "leakLocation": "Localização do Vazamento",
+        "pistonSeals": "Vedações do Pistão",
+        "leakLocation": "Se vedações vazando, onde?",
         "regulator": "Regulador",
+        "gauge": "Medidor",
         "pneumaticsPlumbing": "Pneumática/Encanamento",
         "rodSeals": "Vedações da Haste",
         "rodBushing": "Bucha da Haste",
-        "oilWick": "Pavio de Óleo"
+        "oilWick": "Pavio de Óleo",
+        "notes": "Notas",
+        "selectPlaceholder": "Selecione uma opção",
+        "outer": "Externo",
+        "inner": "Interno",
+        "counterbalanceTypes": {
+          "cylinder": "Cilindro",
+          "airbag": "Airbag"
+        }
       },
       "cancel": "Cancelar",
       "submit": {

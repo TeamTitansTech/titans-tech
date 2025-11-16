@@ -11,16 +11,32 @@ import { Type } from 'class-transformer';
 import {
   MatingPartType,
   ParallelismType,
+  DncToBedToBolsterType,
   ServiceType,
   ServiceStatus,
   YesNoNaDncType,
   YesNoDncType,
+  LubeHydMonitorFlowPressSwGibType,
+  OkNaDncDamageType,
   ConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType,
   ConditionOkNaDncDamagedType,
-  SystemType,
-  PsiStatusType,
-} from '@titans-tech/db';
+  ClutchType,
+  ClutchLocation,
+  BrakeSpringStudBoltType,
+  BrakeLiningType,
+  FlywheelBearingsType,
+  FlywheelBrakeType,
+  RotaryUnionType,
+  ClutchLiningType,
+  ClutchSealsType,
+  PressureUnit,
+  AirLineOilerSettingType,
+  SplinesConditionType,
+  AdjustingNutLockType,
+  SeparateBrakeSealsType,
+  FlexDiscType,
+} from '@titans-tech/shared/types';
 
 class BearingClearanceDataDto {
   @IsNumber()
@@ -168,11 +184,19 @@ class SlideCheckDto {
 
   @IsOptional()
   @IsEnum(ParallelismType)
-  parallelism?: ParallelismType;
+  outerParallelism?: ParallelismType;
 
   @IsOptional()
   @IsEnum(YesNoNaDncType)
-  hasParallelismBeenAdjusted?: YesNoNaDncType;
+  outerHasParallelismBeenAdjusted?: YesNoNaDncType;
+
+  @IsOptional()
+  @IsEnum(ParallelismType)
+  innerParallelism?: ParallelismType;
+
+  @IsOptional()
+  @IsEnum(YesNoNaDncType)
+  innerHasParallelismBeenAdjusted?: YesNoNaDncType;
 
   @IsOptional()
   @IsEnum(YesNoDncType)
@@ -323,16 +347,16 @@ class GibsCheckDto {
 }
 
 class LubricationHydraulicsGaugeDto {
-  @IsEnum(SystemType)
-  system: SystemType;
+  @IsEnum(LubeHydMonitorFlowPressSwGibType)
+  system: LubeHydMonitorFlowPressSwGibType;
 
   @IsOptional()
   @IsString()
   gauge?: string;
 
   @IsOptional()
-  @IsEnum(PsiStatusType)
-  psi?: PsiStatusType;
+  @IsEnum(OkNaDncDamageType)
+  psi?: OkNaDncDamageType;
 }
 
 class LubricationHydraulicsDataDto {
@@ -362,44 +386,36 @@ class LubricationHydraulicsDataDto {
 
 class ClutchDataDto {
   @IsOptional()
-  @IsString()
-  clutchType?: string;
+  @IsEnum(ClutchType)
+  clutchType?: ClutchType;
 
   @IsOptional()
-  @IsString()
-  clutchLocation?: string;
-
-  @IsOptional()
-  @IsNumber()
-  brakeSpringBrake?: number;
+  @IsEnum(ClutchLocation)
+  clutchLocation?: ClutchLocation;
 
   @IsOptional()
   @IsNumber()
-  brakeSpringClutch?: number;
-
-  @IsOptional()
-  @IsString()
-  brakeSpringStudBolt?: string;
+  brakeSpringFB?: number;
 
   @IsOptional()
   @IsNumber()
-  brakeAnchorClearanceFB?: number;
+  brakeSpringFTB?: number;
 
   @IsOptional()
   @IsNumber()
-  brakeAnchorClearanceFTB?: number;
+  brakeSpringRTB?: number;
 
   @IsOptional()
-  @IsNumber()
-  brakeAnchorClearanceRTB?: number;
+  @IsEnum(BrakeSpringStudBoltType)
+  brakeSpringStudBolt?: BrakeSpringStudBoltType;
 
   @IsOptional()
   @IsNumber()
   brakeStoppingTime?: number;
 
   @IsOptional()
-  @IsString()
-  brakeLining?: string;
+  @IsEnum(BrakeLiningType)
+  brakeLining?: BrakeLiningType;
 
   @IsOptional()
   @IsNumber()
@@ -418,24 +434,28 @@ class ClutchDataDto {
   flywheelStoppingTime?: number;
 
   @IsOptional()
-  @IsString()
-  flywheelBearings?: string;
+  @IsEnum(FlywheelBearingsType)
+  flywheelBearings?: FlywheelBearingsType;
 
   @IsOptional()
-  @IsString()
-  flywheelBrake?: string;
+  @IsEnum(FlywheelBrakeType)
+  flywheelBrake?: FlywheelBrakeType;
+
+  @IsOptional()
+  @IsEnum(RotaryUnionType)
+  rotaryUnion?: RotaryUnionType;
 
   @IsOptional()
   @IsNumber()
   clutchEngagements?: number;
 
   @IsOptional()
-  @IsString()
-  clutchLining?: string;
+  @IsEnum(ClutchLiningType)
+  clutchLining?: ClutchLiningType;
 
   @IsOptional()
-  @IsString()
-  clutchSeals?: string;
+  @IsEnum(ClutchSealsType)
+  clutchSeals?: ClutchSealsType;
 
   @IsOptional()
   @IsNumber()
@@ -455,15 +475,43 @@ class ClutchDataDto {
 
   @IsOptional()
   @IsNumber()
-  airRegulatorPSI?: number;
+  airRegulatorValue?: number;
+
+  @IsOptional()
+  @IsEnum(PressureUnit)
+  airRegulatorUnit?: PressureUnit;
 
   @IsOptional()
   @IsNumber()
   airClutchTravel?: number;
 
   @IsOptional()
-  @IsString()
-  airLineOilerSetting?: string;
+  @IsEnum(AirLineOilerSettingType)
+  airLineOilerSetting?: AirLineOilerSettingType;
+
+  @IsOptional()
+  @IsEnum(SplinesConditionType)
+  splinesDriveRingDisc?: SplinesConditionType;
+
+  @IsOptional()
+  @IsEnum(AdjustingNutLockType)
+  adjustingNutLockSecure?: AdjustingNutLockType;
+
+  @IsOptional()
+  @IsNumber()
+  hydraulicPressureValue?: number;
+
+  @IsOptional()
+  @IsEnum(PressureUnit)
+  hydraulicPressureUnit?: PressureUnit;
+
+  @IsOptional()
+  @IsNumber()
+  accumulatorValue?: number;
+
+  @IsOptional()
+  @IsEnum(PressureUnit)
+  accumulatorUnit?: PressureUnit;
 
   @IsOptional()
   @IsNumber()
@@ -474,32 +522,16 @@ class ClutchDataDto {
   hydClutchClearanceRear?: number;
 
   @IsOptional()
-  @IsNumber()
-  hydraulicPressurePSI?: number;
+  @IsEnum(SeparateBrakeSealsType)
+  separateBrakeSeals?: SeparateBrakeSealsType;
 
   @IsOptional()
-  @IsNumber()
-  accumulatorPSI?: number;
-
-  @IsOptional()
-  @IsString()
-  rotaryUnion?: string;
+  @IsEnum(FlexDiscType)
+  flexDisc?: FlexDiscType;
 
   @IsOptional()
   @IsString()
-  splinesDriveRingDisc?: string;
-
-  @IsOptional()
-  @IsString()
-  adjustingNutLockSecure?: string;
-
-  @IsOptional()
-  @IsString()
-  separateBrakeSeals?: string;
-
-  @IsOptional()
-  @IsString()
-  flexDisc?: string;
+  notes?: string;
 }
 
 class CounterbalanceCylinderDataDto {
@@ -520,8 +552,8 @@ class CounterbalanceCylinderDataDto {
   regulator?: string;
 
   @IsOptional()
-  @IsNumber()
-  gaugePSI?: number;
+  @IsString()
+  gauge?: string;
 
   @IsOptional()
   @IsString()
@@ -538,6 +570,22 @@ class CounterbalanceCylinderDataDto {
   @IsOptional()
   @IsString()
   oilWick?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
+class CounterbalanceCylinderCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CounterbalanceCylinderDataDto)
+  outerData?: CounterbalanceCylinderDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CounterbalanceCylinderDataDto)
+  innerData?: CounterbalanceCylinderDataDto;
 }
 
 export class CreateServiceDto {
@@ -597,6 +645,6 @@ export class CreateServiceDto {
 
   @IsOptional()
   @ValidateNested()
-  @Type(() => CounterbalanceCylinderDataDto)
-  counterbalanceCylinder?: CounterbalanceCylinderDataDto;
+  @Type(() => CounterbalanceCylinderCheckDto)
+  counterbalanceCylinder?: CounterbalanceCylinderCheckDto;
 }

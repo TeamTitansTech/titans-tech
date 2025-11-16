@@ -6,15 +6,15 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\" && prisma format --schema=packages/database/prisma/schema.prisma",
-    "postinstall": "(cd packages/database && npm run db:generate && npm run build) && npm run install:hooks",
+    "postinstall": "prisma generate --schema=packages/database/prisma/schema.prisma && npm run install:hooks",
     "install:hooks": "bash scripts/install-git-hooks.sh",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f postgres",
     "docker:restart": "docker compose restart postgres",
     "docker:clean": "docker compose down -v",
-    "db:setup": "npm run docker:up && sleep 3 && cd packages/database && npm run db:generate && npm run build && npm run db:push && npm run db:seed",
-    "db:reset": "npm run docker:up && sleep 3 && cd packages/database && npm run db:generate && npm run build && npm run db:reset && npm run db:seed"
+    "db:setup": "npm run docker:up && sleep 3 && prisma generate --schema=packages/database/prisma/schema.prisma && prisma db push --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
+    "db:reset": "npm run docker:up && sleep 3 && prisma migrate reset --force --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -25,6 +25,7 @@
     "jsx-ast-utils": "^3.3.5",
     "next": "16.0.1",
     "prettier": "^3.3.0",
+    "prisma": "^6.19.0",
     "turbo": "^2.6.0",
     "typescript": "^5.6.0"
   },
@@ -37,6 +38,7 @@
     "packages/*"
   ],
   "dependencies": {
+    "@prisma/client": "^6.19.0",
     "@radix-ui/react-icons": "^1.3.2"
   }
 }

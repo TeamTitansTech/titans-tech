@@ -26,6 +26,12 @@ export enum ParallelismType {
   TO_BOLSTER = 'TO_BOLSTER',
 }
 
+export enum DncToBedToBolsterType {
+  DNC = 'DNC',
+  TO_BED = 'TO_BED',
+  TO_BOLSTER = 'TO_BOLSTER',
+}
+
 export enum YesNoNaDncType {
   YES = 'YES',
   NO = 'NO',
@@ -37,6 +43,14 @@ export enum YesNoDncType {
   YES = 'YES',
   NO = 'NO',
   DNC = 'DNC',
+}
+
+export enum LubeHydMonitorFlowPressSwGibType {
+  LUBE = 'LUBE',
+  HYD = 'HYD',
+  MONITORFLOW = 'MONITORFLOW',
+  PRESS_SW = 'PRESS_SW',
+  GIB = 'GIB',
 }
 
 export enum ConditionOkNaDncBrokenWornType {
@@ -70,10 +84,179 @@ export enum SystemType {
   GIB = 'GIB',
 }
 
-export enum PsiStatusType {
+export enum OkNaDncDamageType {
   OK = 'OK',
   NA = 'NA',
   DNC = 'DNC',
+}
+
+export enum CounterbalanceTypeEnum {
+  CYLINDER = 'CYLINDER',
+  AIRBAG = 'AIRBAG',
+}
+
+export enum AirbagPistonSealsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LEAKING = 'LEAKING',
+}
+
+export enum RegulatorGaugeType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NOT_OPERATIONAL = 'NOT_OPERATIONAL',
+}
+
+export enum PneumaticsPlumbingType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NOT_OPERATIONAL = 'NOT_OPERATIONAL',
+  LEAKING = 'LEAKING',
+}
+
+export enum RodSealsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LEAKING = 'LEAKING',
+}
+
+export enum RodBushingType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  DARK_OIL = 'DARK_OIL',
+}
+
+export enum OilWickType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NEEDS_REPLACED = 'NEEDS_REPLACED',
+}
+
+// Clutch Enums
+export enum ClutchType {
+  AFC = 'AFC',
+  CFC = 'CFC',
+  EFHC = 'EFHC',
+  GC = 'GC',
+  HC = 'HC',
+  MC = 'MC',
+  MDHC = 'MDHC',
+  MHC = 'MHC',
+  MHCC = 'MHCC',
+}
+
+export enum ClutchLocation {
+  CRANKSHAFT = 'CRANKSHAFT',
+  DRIVESHAFT = 'DRIVESHAFT',
+}
+
+export enum BrakeSpringStudBoltType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  BROKEN = 'BROKEN',
+  BENT_WORN = 'BENT_WORN',
+}
+
+export enum BrakeLiningType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  GLAZED = 'GLAZED',
+  OIL_SOAKED = 'OIL_SOAKED',
+  MISSING_SEGMENTS = 'MISSING_SEGMENTS',
+}
+
+export enum FlywheelBearingsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NOISE = 'NOISE',
+  WOBBLE = 'WOBBLE',
+}
+
+export enum FlywheelBrakeType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LINING_WORN = 'LINING_WORN',
+}
+
+export enum RotaryUnionType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  AIR_LEAK = 'AIR_LEAK',
+  OIL_LEAK = 'OIL_LEAK',
+  CONCENTRICITY = 'CONCENTRICITY',
+}
+
+export enum ClutchLiningType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  GLAZED = 'GLAZED',
+  OIL_SOAKED = 'OIL_SOAKED',
+  MISSING_SEGMENTS = 'MISSING_SEGMENTS',
+}
+
+export enum ClutchSealsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LEAKING = 'LEAKING',
+  SLOW_RESPONSE = 'SLOW_RESPONSE',
+}
+
+export enum PressureUnit {
+  BAR = 'BAR',
+  MPA = 'MPA',
+  PSI = 'PSI',
+}
+
+export enum SplinesConditionType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  BROKEN = 'BROKEN',
+  NOT_VISIBLE = 'NOT_VISIBLE',
+  WEAR_VISIBLE = 'WEAR_VISIBLE',
+}
+
+export enum AdjustingNutLockType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+}
+
+export enum AirLineOilerSettingType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NEEDS_OIL = 'NEEDS_OIL',
+  NEEDS_OIL_RESET = 'NEEDS_OIL_RESET',
+  NEEDS_RESET = 'NEEDS_RESET',
+}
+
+export enum SeparateBrakeSealsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LEAKING = 'LEAKING',
+}
+
+export enum FlexDiscType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  BUCKLED = 'BUCKLED',
+  CRACKED = 'CRACKED',
 }
 
 // Bearing Clearance Data
@@ -181,9 +364,9 @@ export interface GibsCheck {
 // Lubrication & Hydraulics Data
 export interface LubricationHydraulicsGauge {
   id?: string;
-  system: SystemType;
+  system: LubeHydMonitorFlowPressSwGibType;
   gauge?: string;
-  psi?: PsiStatusType;
+  psi?: OkNaDncDamageType;
 }
 
 export interface LubricationHydraulicsData {
@@ -197,41 +380,72 @@ export interface LubricationHydraulicsData {
 
 // Clutch Data
 export interface ClutchData {
-  clutchType?: string;
-  clutchLocation?: string;
+  // Clutch Type and Location
+  clutchType?: ClutchType;
+  clutchLocation?: ClutchLocation;
+
+  // Brake Spring Settings (in inches)
   brakeSpringBrake?: number;
   brakeSpringClutch?: number;
-  brakeSpringStudBolt?: string;
-  brakeAnchorClearanceFB?: number;
-  brakeAnchorClearanceFTB?: number;
-  brakeAnchorClearanceRTB?: number;
+  brakeSpringFB?: number;
+  brakeSpringFTB?: number;
+  brakeSpringRTB?: number;
+  brakeSpringStudBolt?: BrakeSpringStudBoltType;
+
+  // Brake measurements
   brakeStoppingTime?: number;
-  brakeLining?: string;
+  brakeLining?: BrakeLiningType;
   brakeClearing?: number;
   brakeClearanceTotal?: number;
   brakeClearanceRear?: number;
+
+  // Flywheel
   flywheelStoppingTime?: number;
-  flywheelBearings?: string;
-  flywheelBrake?: string;
+  flywheelBearings?: FlywheelBearingsType;
+  flywheelBrake?: FlywheelBrakeType;
+
+  // Rotary Union
+  rotaryUnion?: RotaryUnionType;
+
+  // Clutch details
   clutchEngagements?: number;
-  clutchLining?: string;
-  clutchSeals?: string;
+  clutchLining?: ClutchLiningType;
+  clutchSeals?: ClutchSealsType;
+
+  // Gear and measurements (*Check only if excessive noise and/or vibration is present)
   gearBacklashBefore?: number;
   gearBacklashAfter?: number;
   crankEndplayBefore?: number;
   crankEndplayAfter?: number;
-  airRegulatorPSI?: number;
+
+  // Air system
+  airRegulatorValue?: number;
+  airRegulatorUnit?: PressureUnit;
   airClutchTravel?: number;
-  airLineOilerSetting?: string;
+  airLineOilerSetting?: AirLineOilerSettingType;
+
+  // Splines
+  splinesDriveRingDisc?: SplinesConditionType;
+
+  // Adjusting Nut/Lock
+  adjustingNutLockSecure?: AdjustingNutLockType;
+
+  // Hydraulic system
   hydClutchClearanceTotal?: number;
   hydClutchClearanceRear?: number;
-  hydraulicPressurePSI?: number;
-  accumulatorPSI?: number;
-  rotaryUnion?: string;
-  splinesDriveRingDisc?: string;
-  adjustingNutLockSecure?: string;
-  separateBrakeSeals?: string;
-  flexDisc?: string;
+  hydraulicPressureValue?: number;
+  hydraulicPressureUnit?: PressureUnit;
+  accumulatorValue?: number;
+  accumulatorUnit?: PressureUnit;
+
+  // Separate Brake Seals
+  separateBrakeSeals?: SeparateBrakeSealsType;
+
+  // Flex Disc
+  flexDisc?: FlexDiscType;
+
+  // Notes
+  notes?: string;
 }
 
 // Counterbalance Cylinder Data
@@ -240,11 +454,17 @@ export interface CounterbalanceCylinderData {
   airbagPistonSeals?: string;
   airbagPistonSealsLeakLocation?: string;
   regulator?: string;
-  gaugePSI?: number;
+  gauge?: string;
   pneumaticsPlumbing?: string;
   rodSeals?: string;
   rodBushing?: string;
   oilWick?: string;
+  notes?: string;
+}
+
+export interface CounterbalanceCylinderCheck {
+  outerData?: CounterbalanceCylinderData;
+  innerData?: CounterbalanceCylinderData;
 }
 
 // Service Creation Payload (for API requests)
@@ -262,7 +482,7 @@ export interface CreateServicePayload {
   gibs?: GibsCheck;
   lubricationHydraulics?: LubricationHydraulicsData;
   clutch?: ClutchData;
-  counterbalanceCylinder?: CounterbalanceCylinderData;
+  counterbalanceCylinder?: CounterbalanceCylinderCheck;
 }
 
 export interface UpdateServicePayload {
@@ -278,7 +498,7 @@ export interface UpdateServicePayload {
   gibs?: GibsCheck;
   lubricationHydraulics?: LubricationHydraulicsData;
   clutch?: ClutchData;
-  counterbalanceCylinder?: CounterbalanceCylinderData;
+  counterbalanceCylinder?: CounterbalanceCylinderCheck;
 }
 
 // Complete Service Entity
@@ -353,6 +573,7 @@ export interface CounterbalanceCylinderFormProps {
   errors: Record<string, string>;
   handleBlur: (field: keyof CounterbalanceCylinderData) => void;
   title: string;
+  hideNotes?: boolean;
 }
 
 export interface InspectionModalProps {

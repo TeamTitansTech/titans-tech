@@ -5,7 +5,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import {
   type SlideData,
   ServiceType,
-  ParallelismType,
+  DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,
 } from '@/data/types/services.types';
