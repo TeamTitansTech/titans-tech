@@ -574,6 +574,21 @@
           "DNC": "DNC",
           "TO_BED": "A la Base",
           "TO_BOLSTER": "Al Cabezal"
+        },
+        "fields": {
+          "outerParallelism": "Paralelismo Externo",
+          "outerHasParallelismBeenAdjusted": "Paralelismo Externo Ha Sido Ajustado",
+          "innerParallelism": "Paralelismo Interno",
+          "innerHasParallelismBeenAdjusted": "Paralelismo Interno Ha Sido Ajustado",
+          "outerShutheightIndicatorsChecked": "Indicadores de Altura Externa Verificados",
+          "outerOverloadsOnTonnageMonitor": "Sobrecargas en el Monitor (Externo)",
+          "outerShutheightActualSh": "SH Real Externo",
+          "outerIndicatorReading": "Lectura del Indicador Externo",
+          "innerShutheightIndicatorsChecked": "Indicadores de Altura Interna Verificados",
+          "innerOverloadsOnTonnageMonitor": "Sobrecargas en el Monitor (Interno)",
+          "innerShutheightActualSh": "SH Real Interno",
+          "innerIndicatorReading": "Lectura del Indicador Interno",
+          "notes": "Notas"
         }
       },
       "gibs": {
@@ -648,19 +663,88 @@
         "splinesDriveRingDisc": "Estrías/Anillo de Transmisión/Disco",
         "adjustingNutLockSecure": "Bloqueo de Tuerca de Ajuste Seguro",
         "separateBrakeSeals": "Sellos de Freno Separados",
-        "flexDisc": "Disco Flexible"
+        "flexDisc": "Disco Flexible",
+        "fields": {
+          "clutchType": "Tipo de Embrague",
+          "clutchLocation": "Ubicación del Embrague",
+          "brakeSpringBrake": "Freno (pulgadas)",
+          "brakeSpringClutch": "Embrague (pulgadas)",
+          "brakeSpringFB": "F-B (pulgadas)",
+          "brakeSpringFTB": "F-TB (pulgadas)",
+          "brakeSpringRTB": "R-TB (pulgadas)",
+          "brakeSpringStudBolt": "Perno/Tornillo del Resorte del Freno",
+          "brakeStoppingTime": "Tiempo de Frenado",
+          "brakeLining": "Revestimiento del Freno",
+          "brakeClearing": "Limpieza del Freno",
+          "brakeClearanceTotal": "Holgura del Freno (Total)",
+          "brakeClearanceRear": "Holgura del Freno (Trasera)",
+          "flywheelStoppingTime": "Tiempo de Parada del Volante",
+          "flywheelBearings": "Cojinetes del Volante",
+          "flywheelBrake": "Freno del Volante",
+          "rotaryUnion": "Unión Rotativa",
+          "clutchLining": "Revestimiento del Embrague",
+          "clutchSeals": "Sellos del Embrague",
+          "clutchEngagements": "Acoplamientos del Embrague",
+          "gearBacklashBefore": "Holgura de Engranaje (Antes)",
+          "gearBacklashAfter": "Holgura de Engranaje (Después)",
+          "crankEndplayBefore": "Juego Axial del Cigüeñal (Antes)",
+          "crankEndplayAfter": "Juego Axial del Cigüeñal (Después)",
+          "airRegulator": "Regulador de Aire",
+          "airClutchTravelClearance": "Recorrido/Holgura del Embrague de Aire",
+          "airLineOilerSetting": "Configuración del Lubricador de Línea de Aire",
+          "splinesDriveRingDisc": "Estrías: Anillo de Transmisión/Disco",
+          "adjustingNutLockSecure": "Bloqueo de Tuerca de Ajuste Seguro",
+          "separateBrakeSeals": "Sellos de Freno Separados",
+          "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico (Total)",
+          "hydClutchClearanceRear": "Holgura del Embrague Hidráulico (Trasera)",
+          "hydraulicPressure": "Presión Hidráulica",
+          "accumulator": "Acumulador",
+          "flexDisc": "Disco Flexible",
+          "notes": "Notas"
+        },
+        "sections": {
+          "brakeSpringSettings": "Configuración del Resorte del Freno",
+          "brakeMeasurements": "Mediciones del Freno",
+          "flywheel": "Volante",
+          "clutchDetails": "Detalles del Embrague",
+          "gearBacklashCrankEndplay": "Holgura de Engranaje y Juego Axial del Cigüeñal",
+          "airSystem": "Sistema de Aire",
+          "hydraulicSystem": "Sistema Hidráulico"
+        },
+        "placeholders": {
+          "selectType": "Seleccione el tipo",
+          "selectLocation": "Seleccione la ubicación",
+          "select": "Seleccione",
+          "notes": "Agregue notas adicionales..."
+        },
+        "notes": {
+          "gearBacklashCheck": "*Verificar solo si hay ruido excesivo y/o vibración"
+        }
       },
       "counterbalanceCylinder": {
+        "field": "Campo",
+        "value": "Valor",
         "counterbalanceType": "Tipo de Contrapeso",
-        "gaugePSI": "PSI del Medidor",
         "airbagConditionTitle": "Condición de Bolsa de Aire/Pistón",
+        "pistonSeals": "Sellos del Pistón",
         "airbagPistonSeals": "Sellos de Bolsa de Aire/Pistón",
-        "leakLocation": "Ubicación de Fuga",
+        "leakLocation": "Si los sellos tienen fugas, ¿dónde?",
+        "airbagPistonSealsLeakLocation": "Ubicación de Fuga de Sellos",
         "regulator": "Regulador",
+        "gauge": "Medidor",
+        "gaugePSI": "PSI del Medidor",
         "pneumaticsPlumbing": "Neumática/Plomería",
         "rodSeals": "Sellos de Varilla",
         "rodBushing": "Casquillo de Varilla",
-        "oilWick": "Mecha de Aceite"
+        "oilWick": "Mecha de Aceite",
+        "notes": "Notas",
+        "selectPlaceholder": "Seleccione una opción",
+        "outer": "Externo",
+        "inner": "Interno",
+        "counterbalanceTypes": {
+          "cylinder": "Cilindro",
+          "airbag": "Bolsa de Aire"
+        }
       },
       "cancel": "Cancelar",
       "submit": {
@@ -786,8 +870,58 @@
       "sections": {
         "beforeMaintenance": "Antes del Mantenimiento",
         "afterMaintenance": "Después del Mantenimiento"
+      },
+      "summary": {
+        "title": "Resumen del Mantenimiento",
+        "inspectionTitle": "Resumen de la Inspección",
+        "maintenanceDetails": "Detalles del mantenimiento realizado",
+        "inspectionDetails": "Detalles de la inspección realizada",
+        "serviceDetails": "Detalles del Servicio",
+        "filledAreas": "Áreas Completadas",
+        "filledData": "Datos Completados",
+        "additionalInformation": "Información Adicional",
+        "shutdownAdjustmentMechanism": "Mecanismo de Ajuste de Apagado",
+        "dataMeasurements": "Mediciones de Datos",
+        "sectionFields": "Campos de la Sección",
+        "noDataAvailable": "No hay datos disponibles",
+        "exportExcel": "Exportar Excel",
+        "exportPDF": "Exportar PDF",
+        "gauges": "Medidores",
+        "notes": "Notas"
       }
     }
+  },
+  "table": {
+    "field": "Campo",
+    "value": "Valor",
+    "outer": "Externo",
+    "inner": "Interno",
+    "lh": "IZ",
+    "rh": "DE",
+    "diff": "Dif",
+    "difference": "Diferencia",
+    "position": "Posición",
+    "system": "Sistema",
+    "gauge": "Medidor",
+    "psi": "PSI",
+    "noImage": "Sin Imagen"
+  },
+  "measurements": {
+    "outerMeasurements": "Mediciones Externas",
+    "innerMeasurements": "Mediciones Internas",
+    "outerBeforeMaintenance": "Externo - Antes del Mantenimiento",
+    "outerAfterMaintenance": "Externo - Después del Mantenimiento",
+    "innerBeforeMaintenance": "Interno - Antes del Mantenimiento",
+    "innerAfterMaintenance": "Interno - Después del Mantenimiento"
+  },
+  "bearingFields": {
+    "combinedWith": "Combinado Con",
+    "matingPart": "Pieza de Acoplamiento",
+    "hasBeenAdjusted": "Ha Sido Ajustado",
+    "slideMotorMounts": "Motor/Montajes de Corredera",
+    "powerCordHoses": "Cable de Alimentación/Mangueras",
+    "chainsGearsSprockets": "Cadenas y Engranajes/Piñones",
+    "lockingClamps": "Abrazaderas de Bloqueo"
   },
   "companies": {
     "pageTitle": "Empresas",

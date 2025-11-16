@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -31,6 +32,10 @@ import {
 } from '@titans-tech/shared/types';
 
 export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: ClutchFormProps) {
+  const tClutch = useTranslations('inspections.form.clutch.fields');
+  const tSections = useTranslations('inspections.form.clutch.sections');
+  const tPlaceholders = useTranslations('inspections.form.clutch.placeholders');
+  const tNotes = useTranslations('inspections.form.clutch.notes');
   const handleSelectChange = (field: keyof ClutchData, value: string) => {
     updateFn(field, value);
   };
@@ -44,13 +49,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="clutchType">Clutch Type</Label>
+          <Label htmlFor="clutchType">{tClutch('clutchType')}</Label>
           <Select
             value={data.clutchType || ''}
             onValueChange={(value) => handleSelectChange('clutchType', value)}
           >
             <SelectTrigger id="clutchType">
-              <SelectValue placeholder="Select type" />
+              <SelectValue placeholder={tPlaceholders('selectType')} />
             </SelectTrigger>
             <SelectContent>
               {Object.values(ClutchType).map((type) => (
@@ -63,13 +68,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="clutchLocation">Clutch Location</Label>
+          <Label htmlFor="clutchLocation">{tClutch('clutchLocation')}</Label>
           <Select
             value={data.clutchLocation || ''}
             onValueChange={(value) => handleSelectChange('clutchLocation', value)}
           >
             <SelectTrigger id="clutchLocation">
-              <SelectValue placeholder="Select location" />
+              <SelectValue placeholder={tPlaceholders('selectLocation')} />
             </SelectTrigger>
             <SelectContent>
               {Object.values(ClutchLocation).map((location) => (
@@ -83,10 +88,10 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
       </div>
 
       <div className="space-y-4">
-        <h4 className="font-semibold text-sm">Brake Spring Settings</h4>
+        <h4 className="font-semibold text-sm">{tSections('brakeSpringSettings')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="brakeSpringBrake">Brake (inches)</Label>
+            <Label htmlFor="brakeSpringBrake">{tClutch('brakeSpringBrake')}</Label>
             <Input
               id="brakeSpringBrake"
               type="number"
@@ -98,7 +103,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeSpringClutch">Clutch (inches)</Label>
+            <Label htmlFor="brakeSpringClutch">{tClutch('brakeSpringClutch')}</Label>
             <Input
               id="brakeSpringClutch"
               type="number"
@@ -110,7 +115,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeSpringFB">F-B (inches)</Label>
+            <Label htmlFor="brakeSpringFB">{tClutch('brakeSpringFB')}</Label>
             <Input
               id="brakeSpringFB"
               type="number"
@@ -122,7 +127,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeSpringFTB">F-TB (inches)</Label>
+            <Label htmlFor="brakeSpringFTB">{tClutch('brakeSpringFTB')}</Label>
             <Input
               id="brakeSpringFTB"
               type="number"
@@ -134,7 +139,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeSpringRTB">R-TB (inches)</Label>
+            <Label htmlFor="brakeSpringRTB">{tClutch('brakeSpringRTB')}</Label>
             <Input
               id="brakeSpringRTB"
               type="number"
@@ -146,13 +151,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeSpringStudBolt">Brake Spring Stud/Bolt</Label>
+            <Label htmlFor="brakeSpringStudBolt">{tClutch('brakeSpringStudBolt')}</Label>
             <Select
               value={data.brakeSpringStudBolt || ''}
               onValueChange={(value) => handleSelectChange('brakeSpringStudBolt', value)}
             >
               <SelectTrigger id="brakeSpringStudBolt">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(BrakeSpringStudBoltType).map((type) => (
@@ -167,10 +172,10 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
       </div>
 
       <div className="space-y-4">
-        <h4 className="font-semibold text-sm">Brake Measurements</h4>
+        <h4 className="font-semibold text-sm">{tSections('brakeMeasurements')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="brakeStoppingTime">Brake Stopping Time</Label>
+            <Label htmlFor="brakeStoppingTime">{tClutch('brakeStoppingTime')}</Label>
             <Input
               id="brakeStoppingTime"
               type="number"
@@ -182,13 +187,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeLining">Brake Lining</Label>
+            <Label htmlFor="brakeLining">{tClutch('brakeLining')}</Label>
             <Select
               value={data.brakeLining || ''}
               onValueChange={(value) => handleSelectChange('brakeLining', value)}
             >
               <SelectTrigger id="brakeLining">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(BrakeLiningType).map((type) => (
@@ -201,7 +206,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeClearing">Brake Clearing</Label>
+            <Label htmlFor="brakeClearing">{tClutch('brakeClearing')}</Label>
             <Input
               id="brakeClearing"
               type="number"
@@ -213,7 +218,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeClearanceTotal">Brake Clearance (Total)</Label>
+            <Label htmlFor="brakeClearanceTotal">{tClutch('brakeClearanceTotal')}</Label>
             <Input
               id="brakeClearanceTotal"
               type="number"
@@ -225,7 +230,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeClearanceRear">Brake Clearance (Rear)</Label>
+            <Label htmlFor="brakeClearanceRear">{tClutch('brakeClearanceRear')}</Label>
             <Input
               id="brakeClearanceRear"
               type="number"
@@ -239,10 +244,10 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
       </div>
 
       <div className="space-y-4">
-        <h4 className="font-semibold text-sm">Flywheel</h4>
+        <h4 className="font-semibold text-sm">{tSections('flywheel')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="flywheelStoppingTime">Flywheel Stopping Time</Label>
+            <Label htmlFor="flywheelStoppingTime">{tClutch('flywheelStoppingTime')}</Label>
             <Input
               id="flywheelStoppingTime"
               type="number"
@@ -254,13 +259,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="flywheelBearings">Flywheel Bearings</Label>
+            <Label htmlFor="flywheelBearings">{tClutch('flywheelBearings')}</Label>
             <Select
               value={data.flywheelBearings || ''}
               onValueChange={(value) => handleSelectChange('flywheelBearings', value)}
             >
               <SelectTrigger id="flywheelBearings">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(FlywheelBearingsType).map((type) => (
@@ -273,13 +278,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="flywheelBrake">Flywheel Brake</Label>
+            <Label htmlFor="flywheelBrake">{tClutch('flywheelBrake')}</Label>
             <Select
               value={data.flywheelBrake || ''}
               onValueChange={(value) => handleSelectChange('flywheelBrake', value)}
             >
               <SelectTrigger id="flywheelBrake">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(FlywheelBrakeType).map((type) => (
@@ -294,16 +299,16 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
       </div>
 
       <div className="space-y-4">
-        <h4 className="font-semibold text-sm">Clutch Details</h4>
+        <h4 className="font-semibold text-sm">{tSections('clutchDetails')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="rotaryUnion">Rotary Union</Label>
+            <Label htmlFor="rotaryUnion">{tClutch('rotaryUnion')}</Label>
             <Select
               value={data.rotaryUnion || ''}
               onValueChange={(value) => handleSelectChange('rotaryUnion', value)}
             >
               <SelectTrigger id="rotaryUnion">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(RotaryUnionType).map((type) => (
@@ -316,13 +321,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="clutchLining">Clutch Lining</Label>
+            <Label htmlFor="clutchLining">{tClutch('clutchLining')}</Label>
             <Select
               value={data.clutchLining || ''}
               onValueChange={(value) => handleSelectChange('clutchLining', value)}
             >
               <SelectTrigger id="clutchLining">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(ClutchLiningType).map((type) => (
@@ -335,13 +340,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="clutchSeals">Clutch Seals</Label>
+            <Label htmlFor="clutchSeals">{tClutch('clutchSeals')}</Label>
             <Select
               value={data.clutchSeals || ''}
               onValueChange={(value) => handleSelectChange('clutchSeals', value)}
             >
               <SelectTrigger id="clutchSeals">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(ClutchSealsType).map((type) => (
@@ -354,7 +359,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="clutchEngagements">Clutch Engagements</Label>
+            <Label htmlFor="clutchEngagements">{tClutch('clutchEngagements')}</Label>
             <Input
               id="clutchEngagements"
               type="number"
@@ -368,14 +373,12 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
 
       <div className="space-y-4">
         <h4 className="font-semibold text-sm">
-          Gear Backlash & Crank Endplay
-          <span className="text-xs text-muted-foreground ml-2">
-            *Check only if excessive noise and/or vibration is present
-          </span>
+          {tSections('gearBacklashCrankEndplay')}
+          <span className="text-xs text-muted-foreground ml-2">{tNotes('gearBacklashCheck')}</span>
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="gearBacklashBefore">Gear Backlash (Before)</Label>
+            <Label htmlFor="gearBacklashBefore">{tClutch('gearBacklashBefore')}</Label>
             <Input
               id="gearBacklashBefore"
               type="number"
@@ -387,7 +390,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="gearBacklashAfter">Gear Backlash (After)</Label>
+            <Label htmlFor="gearBacklashAfter">{tClutch('gearBacklashAfter')}</Label>
             <Input
               id="gearBacklashAfter"
               type="number"
@@ -399,7 +402,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="crankEndplayBefore">Crank Endplay (Before)</Label>
+            <Label htmlFor="crankEndplayBefore">{tClutch('crankEndplayBefore')}</Label>
             <Input
               id="crankEndplayBefore"
               type="number"
@@ -411,7 +414,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="crankEndplayAfter">Crank Endplay (After)</Label>
+            <Label htmlFor="crankEndplayAfter">{tClutch('crankEndplayAfter')}</Label>
             <Input
               id="crankEndplayAfter"
               type="number"
@@ -425,10 +428,10 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
       </div>
 
       <div className="space-y-4">
-        <h4 className="font-semibold text-sm">Air System</h4>
+        <h4 className="font-semibold text-sm">{tSections('airSystem')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="airRegulatorValue">Air Regulator</Label>
+            <Label htmlFor="airRegulatorValue">{tClutch('airRegulator')}</Label>
             <div className="flex gap-2">
               <Input
                 id="airRegulatorValue"
@@ -458,7 +461,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="airClutchTravel">Air Clutch Travel/Clearance</Label>
+            <Label htmlFor="airClutchTravel">{tClutch('airClutchTravelClearance')}</Label>
             <Input
               id="airClutchTravel"
               type="number"
@@ -470,13 +473,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="airLineOilerSetting">Air Line Oiler Setting</Label>
+            <Label htmlFor="airLineOilerSetting">{tClutch('airLineOilerSetting')}</Label>
             <Select
               value={data.airLineOilerSetting || ''}
               onValueChange={(value) => handleSelectChange('airLineOilerSetting', value)}
             >
               <SelectTrigger id="airLineOilerSetting">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(AirLineOilerSettingType).map((type) => (
@@ -489,13 +492,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="splinesDriveRingDisc">Splines: Drive Ring Disc</Label>
+            <Label htmlFor="splinesDriveRingDisc">{tClutch('splinesDriveRingDisc')}</Label>
             <Select
               value={data.splinesDriveRingDisc || ''}
               onValueChange={(value) => handleSelectChange('splinesDriveRingDisc', value)}
             >
               <SelectTrigger id="splinesDriveRingDisc">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(SplinesConditionType).map((type) => (
@@ -508,13 +511,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="adjustingNutLockSecure">Adjusting Nut/Lock Secure</Label>
+            <Label htmlFor="adjustingNutLockSecure">{tClutch('adjustingNutLockSecure')}</Label>
             <Select
               value={data.adjustingNutLockSecure || ''}
               onValueChange={(value) => handleSelectChange('adjustingNutLockSecure', value)}
             >
               <SelectTrigger id="adjustingNutLockSecure">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(AdjustingNutLockType).map((type) => (
@@ -527,13 +530,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="separateBrakeSeals">Separate Brake Seals</Label>
+            <Label htmlFor="separateBrakeSeals">{tClutch('separateBrakeSeals')}</Label>
             <Select
               value={data.separateBrakeSeals || ''}
               onValueChange={(value) => handleSelectChange('separateBrakeSeals', value)}
             >
               <SelectTrigger id="separateBrakeSeals">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(SeparateBrakeSealsType).map((type) => (
@@ -548,10 +551,10 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
       </div>
 
       <div className="space-y-4">
-        <h4 className="font-semibold text-sm">Hydraulic System</h4>
+        <h4 className="font-semibold text-sm">{tSections('hydraulicSystem')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="hydClutchClearanceTotal">Hyd Clutch Clearance (Total)</Label>
+            <Label htmlFor="hydClutchClearanceTotal">{tClutch('hydClutchClearanceTotal')}</Label>
             <Input
               id="hydClutchClearanceTotal"
               type="number"
@@ -563,7 +566,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="hydClutchClearanceRear">Hyd Clutch Clearance (Rear)</Label>
+            <Label htmlFor="hydClutchClearanceRear">{tClutch('hydClutchClearanceRear')}</Label>
             <Input
               id="hydClutchClearanceRear"
               type="number"
@@ -575,7 +578,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="hydraulicPressureValue">Hydraulic Pressure</Label>
+            <Label htmlFor="hydraulicPressureValue">{tClutch('hydraulicPressure')}</Label>
             <div className="flex gap-2">
               <Input
                 id="hydraulicPressureValue"
@@ -605,7 +608,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="accumulatorValue">Accumulator</Label>
+            <Label htmlFor="accumulatorValue">{tClutch('accumulator')}</Label>
             <div className="flex gap-2">
               <Input
                 id="accumulatorValue"
@@ -635,13 +638,13 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="flexDisc">Flex Disc</Label>
+            <Label htmlFor="flexDisc">{tClutch('flexDisc')}</Label>
             <Select
               value={data.flexDisc || ''}
               onValueChange={(value) => handleSelectChange('flexDisc', value)}
             >
               <SelectTrigger id="flexDisc">
-                <SelectValue placeholder="Select" />
+                <SelectValue placeholder={tPlaceholders('select')} />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(FlexDiscType).map((type) => (
@@ -656,14 +659,14 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="notes">Notes</Label>
+        <Label htmlFor="notes">{tClutch('notes')}</Label>
         <Textarea
           id="notes"
           value={data.notes ?? ''}
           onChange={(e) => updateFn('notes', e.target.value)}
           onBlur={() => handleBlur('notes')}
           rows={4}
-          placeholder="Add any additional notes..."
+          placeholder={tPlaceholders('notes')}
         />
       </div>
     </div>
