@@ -374,9 +374,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
       <div className="space-y-4">
         <h4 className="font-semibold text-sm">
           {tSections('gearBacklashCrankEndplay')}
-          <span className="text-xs text-muted-foreground ml-2">
-            {tNotes('gearBacklashCheck')}
-          </span>
+          <span className="text-xs text-muted-foreground ml-2">{tNotes('gearBacklashCheck')}</span>
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
