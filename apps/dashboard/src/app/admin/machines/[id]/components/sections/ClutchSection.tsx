@@ -50,17 +50,9 @@ export const defaultClutchData: ClutchData = {
 export const validateClutchData = (data: ClutchData, serviceType: ServiceType): string[] => {
   const errors: string[] = [];
 
-  // For maintenance and rebuild services, require basic clutch information
-  if (serviceType === ServiceType.MAINTENANCE || serviceType === ServiceType.REBUILD) {
-    // Require clutch type and location
-    if (!data.clutchType) {
-      errors.push('Clutch Type is required for maintenance and rebuild services');
-    }
-    if (!data.clutchLocation) {
-      errors.push('Clutch Location is required for maintenance and rebuild services');
-    }
+  if (serviceType === ServiceType.MAINTENANCE) {
+    errors.push('Clutch Type is required for maintenance and rebuild services');
 
-    // If brake spring measurements are started, require all spring fields
     const brakeSpringFields = [
       data.brakeSpringBrake,
       data.brakeSpringClutch,
@@ -149,27 +141,6 @@ export const validateClutchData = (data: ClutchData, serviceType: ServiceType): 
       !data.accumulatorUnit
     ) {
       errors.push('Accumulator - Unit is required when value is provided');
-    }
-  }
-
-  // For rebuild services, require more detailed measurements
-  if (serviceType === ServiceType.REBUILD) {
-    // Require brake measurements
-    if (!data.brakeLining) {
-      errors.push('Brake Lining condition is required for rebuild services');
-    }
-
-    // Require clutch component conditions
-    if (!data.clutchLining) {
-      errors.push('Clutch Lining condition is required for rebuild services');
-    }
-    if (!data.clutchSeals) {
-      errors.push('Clutch Seals condition is required for rebuild services');
-    }
-
-    // Require flywheel check
-    if (!data.flywheelBearings) {
-      errors.push('Flywheel Bearings condition is required for rebuild services');
     }
   }
 
@@ -303,12 +274,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     return (
       <div className="border rounded-lg p-6 bg-card">
         <h3 className="text-base font-semibold mb-4">Clutch</h3>
-        <ClutchForm
-          data={data}
-          updateFn={updateField}
-          errors={errors}
-          handleBlur={handleBlur}
-        />
+        <ClutchForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
       </div>
     );
   },
