@@ -71,6 +71,14 @@ export function ServiceCompletionModal({
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
   const tSlide = useTranslations('inspections.form.slide');
+  const tSlideFields = useTranslations('inspections.form.slide.fields');
+  const tTable = useTranslations('table');
+  const tMeasurements = useTranslations('measurements');
+  const tServicesSummary = useTranslations('services.modal.summary');
+  const tBearingFields = useTranslations('bearingFields');
+  const tBearingClearanceFields = useTranslations('inspections.form.bearingClearance.fields');
+  const tClutchFields = useTranslations('inspections.form.clutch.fields');
+  const tCounterbalanceFields = useTranslations('inspections.form.counterbalanceCylinder');
   const router = useInternalRouter();
 
   // Memoize machineSections to prevent infinite loop
@@ -687,7 +695,19 @@ export function ServiceCompletionModal({
 
   // Helper function to check if a field is an ID field
   const isIdField = (key: string): boolean => {
-    return key === 'id' || key.endsWith('Id') || key.endsWith('ID');
+    const lowerKey = key.toLowerCase();
+    return (
+      key === 'id' ||
+      key.endsWith('Id') ||
+      key.endsWith('ID') ||
+      lowerKey === 'id' ||
+      lowerKey === 'createdat' ||
+      lowerKey === 'updatedat' ||
+      key === 'createdAt' ||
+      key === 'updatedAt' ||
+      key === 'created_at' ||
+      key === 'updated_at'
+    );
   };
 
   // Helper function to check if a field should be shown in Slide section summary
@@ -750,6 +770,35 @@ export function ServiceCompletionModal({
       .join(' ');
   };
 
+  // Helper function to translate field names based on section
+  const translateFieldName = (key: string, sectionKey?: string): string => {
+    // Try to get translation based on section
+    if (sectionKey === 'BEARING_CLEARANCE') {
+      // Try bearing clearance fields first
+      const translation = tBearingClearanceFields(key);
+      if (translation !== key) return translation;
+    } else if (sectionKey === 'SLIDE') {
+      // Try slide fields
+      const translation = tSlideFields(key);
+      if (translation !== key) return translation;
+    } else if (sectionKey === 'CLUTCH') {
+      // Try clutch fields
+      const translation = tClutchFields(key);
+      if (translation !== key) return translation;
+    } else if (sectionKey === 'COUNTERBALANCE_CYLINDER_AIRBAG') {
+      // Try counterbalance fields
+      const translation = tCounterbalanceFields(key);
+      if (translation !== key) return translation;
+    } else if (sectionKey === 'GIBS') {
+      // Gibs uses similar field names to bearing clearance
+      const translation = tBearingClearanceFields(key);
+      if (translation !== key) return translation;
+    }
+
+    // Fallback to formatFieldName for fields without translations
+    return formatFieldName(key);
+  };
+
   // Helper function to display value or "-" for empty
   const displayValue = (value: any): string => {
     if (value === null || value === undefined || value === '') {
@@ -788,7 +837,7 @@ export function ServiceCompletionModal({
   };
 
   // Helper function to extract bearing measurement rows
-  const extractBearingRows = (data: any) => {
+  const extractBearingRows = (data: any, sectionKey?: string) => {
     if (!data) return [];
 
     const rows: { field: string; lh: any; rh: any; differential: string }[] = [];
@@ -827,7 +876,7 @@ export function ServiceCompletionModal({
         }
 
         rows.push({
-          field: formatFieldName(baseField),
+          field: translateFieldName(baseField, sectionKey),
           lh: lhValue,
           rh: rhValue,
           differential,
@@ -1206,10 +1255,16 @@ export function ServiceCompletionModal({
                       (data?.outerData && hasActualData(data.outerData)) ||
                       (data?.innerData && hasActualData(data.innerData));
 
-                    const outerBeforeRows = extractBearingRows(data?.outerBefore);
-                    const innerBeforeRows = extractBearingRows(data?.innerBefore);
-                    const outerAfterRows = extractBearingRows(data?.outerData);
-                    const innerAfterRows = extractBearingRows(data?.innerData);
+                    const outerBeforeRows = extractBearingRows(
+                      data?.outerBefore,
+                      'BEARING_CLEARANCE',
+                    );
+                    const innerBeforeRows = extractBearingRows(
+                      data?.innerBefore,
+                      'BEARING_CLEARANCE',
+                    );
+                    const outerAfterRows = extractBearingRows(data?.outerData, 'BEARING_CLEARANCE');
+                    const innerAfterRows = extractBearingRows(data?.innerData, 'BEARING_CLEARANCE');
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
@@ -1229,7 +1284,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             {/* Before Measurements (only if data exists) */}
@@ -1242,22 +1297,22 @@ export function ServiceCompletionModal({
                                   {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Outer
+                                      {tTable('outer')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1288,22 +1343,22 @@ export function ServiceCompletionModal({
                                   {/* Inner Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Inner
+                                      {tTable('inner')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1346,22 +1401,22 @@ export function ServiceCompletionModal({
                                   {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Outer
+                                      {tTable('outer')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1392,22 +1447,22 @@ export function ServiceCompletionModal({
                                   {/* Inner Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Inner
+                                      {tTable('inner')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1442,18 +1497,18 @@ export function ServiceCompletionModal({
                             {(hasBeforeData || hasAfterData) && (
                               <div className="border-t pt-2 mt-3">
                                 <div className="font-semibold text-muted-foreground mb-2 text-sm">
-                                  Additional Information
+                                  {tServicesSummary('additionalInformation')}
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                   {/* Outer Fields */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Outer
+                                      {tTable('outer')}
                                     </div>
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Combined With:
+                                          {tBearingFields('combinedWith')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
@@ -1463,7 +1518,9 @@ export function ServiceCompletionModal({
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Mating Part:</span>
+                                        <span className="text-muted-foreground">
+                                          {tBearingFields('matingPart')}:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
                                             data?.outerData?.matingPart ||
@@ -1473,7 +1530,7 @@ export function ServiceCompletionModal({
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Has Been Adjusted:
+                                          {tBearingFields('hasBeenAdjusted')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
@@ -1488,12 +1545,12 @@ export function ServiceCompletionModal({
                                   {/* Inner Fields */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Inner
+                                      {tTable('inner')}
                                     </div>
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Combined With:
+                                          {tBearingFields('combinedWith')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
@@ -1503,7 +1560,9 @@ export function ServiceCompletionModal({
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Mating Part:</span>
+                                        <span className="text-muted-foreground">
+                                          {tBearingFields('matingPart')}:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
                                             data?.innerData?.matingPart ||
@@ -1513,7 +1572,7 @@ export function ServiceCompletionModal({
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Has Been Adjusted:
+                                          {tBearingFields('hasBeenAdjusted')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
@@ -1529,13 +1588,13 @@ export function ServiceCompletionModal({
                                 {/* Shutdown Adjustment Mechanism */}
                                 <div className="mt-3">
                                   <div className="font-semibold text-muted-foreground mb-2 text-xs">
-                                    Shutdown Adjustment Mechanism
+                                    {tServicesSummary('shutdownAdjustmentMechanism')}
                                   </div>
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Slide Motor/Mounts:
+                                          {tBearingFields('slideMotorMounts')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
@@ -1546,7 +1605,7 @@ export function ServiceCompletionModal({
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Power Cord/Hoses:
+                                          {tBearingFields('powerCordHoses')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
@@ -1557,7 +1616,7 @@ export function ServiceCompletionModal({
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Chains & Gears/Sprockets:
+                                          {tBearingFields('chainsGearsSprockets')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
@@ -1568,7 +1627,7 @@ export function ServiceCompletionModal({
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Locking Clamps:
+                                          {tBearingFields('lockingClamps')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
@@ -1579,7 +1638,9 @@ export function ServiceCompletionModal({
                                       </div>
                                       {(data?.outerData?.notes || data?.outerBefore?.notes) && (
                                         <div className="flex flex-col gap-1 pt-1 border-t">
-                                          <span className="text-muted-foreground">Notes:</span>
+                                          <span className="text-muted-foreground">
+                                            {tServicesSummary('notes')}:
+                                          </span>
                                           <span className="font-medium">
                                             {displayValue(
                                               data?.outerData?.notes || data?.outerBefore?.notes,
@@ -1620,7 +1681,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             {/* Before Measurements (if exists) */}
@@ -1634,13 +1695,13 @@ export function ServiceCompletionModal({
                                     <TableHeader>
                                       <TableRow className="bg-muted/50">
                                         <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                          Field
+                                          {tTable('field')}
                                         </TableHead>
                                         <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                          Outer
+                                          {tTable('outer')}
                                         </TableHead>
                                         <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                          Inner
+                                          {tTable('inner')}
                                         </TableHead>
                                       </TableRow>
                                     </TableHeader>
@@ -1683,13 +1744,13 @@ export function ServiceCompletionModal({
                                     <TableHeader>
                                       <TableRow className="bg-muted/50">
                                         <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                          Field
+                                          {tTable('field')}
                                         </TableHead>
                                         <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                          Outer
+                                          {tTable('outer')}
                                         </TableHead>
                                         <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                          Inner
+                                          {tTable('inner')}
                                         </TableHead>
                                       </TableRow>
                                     </TableHeader>
@@ -1851,7 +1912,9 @@ export function ServiceCompletionModal({
                             {data.outerData && (
                               <div className="border-t pt-3 mt-3">
                                 <div className="font-medium text-muted-foreground mb-2 text-[11px]">
-                                  {data.outerBefore ? 'Outer - After Maintenance' : 'Outer'}
+                                  {data.outerBefore
+                                    ? tMeasurements('outerAfterMaintenance')
+                                    : tMeasurements('outerMeasurements')}
                                 </div>
                                 <div className="border rounded-md overflow-hidden">
                                   <Table>
@@ -1977,7 +2040,9 @@ export function ServiceCompletionModal({
                             {data.innerData && (
                               <div className="border-t pt-3 mt-3">
                                 <div className="font-medium text-muted-foreground mb-2 text-[11px]">
-                                  {data.innerBefore ? 'Inner - After Maintenance' : 'Inner'}
+                                  {data.innerBefore
+                                    ? tMeasurements('innerAfterMaintenance')
+                                    : tMeasurements('innerMeasurements')}
                                 </div>
                                 <div className="border rounded-md overflow-hidden">
                                   <Table>
@@ -2053,10 +2118,10 @@ export function ServiceCompletionModal({
                       (data?.outerData && hasActualData(data.outerAfter)) ||
                       (data?.innerData && hasActualData(data.innerAfter));
 
-                    const outerBeforeRows = extractBearingRows(data?.outerBefore);
-                    const innerBeforeRows = extractBearingRows(data?.innerBefore);
-                    const outerAfterRows = extractBearingRows(data?.outerData);
-                    const innerAfterRows = extractBearingRows(data?.innerData);
+                    const outerBeforeRows = extractBearingRows(data?.outerBefore, 'GIBS');
+                    const innerBeforeRows = extractBearingRows(data?.innerBefore, 'GIBS');
+                    const outerAfterRows = extractBearingRows(data?.outerData, 'GIBS');
+                    const innerAfterRows = extractBearingRows(data?.innerData, 'GIBS');
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
@@ -2076,7 +2141,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             {/* Before Measurements (only if data exists) */}
@@ -2089,22 +2154,22 @@ export function ServiceCompletionModal({
                                   {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Outer
+                                      {tTable('outer')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -2135,22 +2200,22 @@ export function ServiceCompletionModal({
                                   {/* Inner Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Inner
+                                      {tTable('inner')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -2193,22 +2258,22 @@ export function ServiceCompletionModal({
                                   {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Outer
+                                      {tTable('outer')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -2239,22 +2304,22 @@ export function ServiceCompletionModal({
                                   {/* Inner Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Inner
+                                      {tTable('inner')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -2312,7 +2377,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="border-t pt-2">
@@ -2371,7 +2436,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="border-t pt-2">
@@ -2435,7 +2500,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="border-t pt-2">

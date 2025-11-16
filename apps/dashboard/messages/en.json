@@ -586,6 +586,21 @@
           "DNC": "DNC",
           "TO_BED": "To Bed",
           "TO_BOLSTER": "To Bolster"
+        },
+        "fields": {
+          "outerParallelism": "Outer Parallelism",
+          "outerHasParallelismBeenAdjusted": "Outer Parallelism Has Been Adjusted",
+          "innerParallelism": "Inner Parallelism",
+          "innerHasParallelismBeenAdjusted": "Inner Parallelism Has Been Adjusted",
+          "outerShutheightIndicatorsChecked": "Outer Shutheight Indicators Checked",
+          "outerOverloadsOnTonnageMonitor": "Outer Overloads on Tonnage Monitor",
+          "outerShutheightActualSh": "Outer Actual SH",
+          "outerIndicatorReading": "Outer Indicator Reading",
+          "innerShutheightIndicatorsChecked": "Inner Shutheight Indicators Checked",
+          "innerOverloadsOnTonnageMonitor": "Inner Overloads on Tonnage Monitor",
+          "innerShutheightActualSh": "Inner Actual SH",
+          "innerIndicatorReading": "Inner Indicator Reading",
+          "notes": "Notes"
         }
       },
       "gibs": {
@@ -660,7 +675,63 @@
         "splinesDriveRingDisc": "Splines/Drive Ring/Disc",
         "adjustingNutLockSecure": "Adjusting Nut Lock Secure",
         "separateBrakeSeals": "Separate Brake Seals",
-        "flexDisc": "Flex Disc"
+        "flexDisc": "Flex Disc",
+        "fields": {
+          "clutchType": "Clutch Type",
+          "clutchLocation": "Clutch Location",
+          "brakeSpringBrake": "Brake (inches)",
+          "brakeSpringClutch": "Clutch (inches)",
+          "brakeSpringFB": "F-B (inches)",
+          "brakeSpringFTB": "F-TB (inches)",
+          "brakeSpringRTB": "R-TB (inches)",
+          "brakeSpringStudBolt": "Brake Spring Stud/Bolt",
+          "brakeStoppingTime": "Brake Stopping Time",
+          "brakeLining": "Brake Lining",
+          "brakeClearing": "Brake Clearing",
+          "brakeClearanceTotal": "Brake Clearance (Total)",
+          "brakeClearanceRear": "Brake Clearance (Rear)",
+          "flywheelStoppingTime": "Flywheel Stopping Time",
+          "flywheelBearings": "Flywheel Bearings",
+          "flywheelBrake": "Flywheel Brake",
+          "rotaryUnion": "Rotary Union",
+          "clutchLining": "Clutch Lining",
+          "clutchSeals": "Clutch Seals",
+          "clutchEngagements": "Clutch Engagements",
+          "gearBacklashBefore": "Gear Backlash (Before)",
+          "gearBacklashAfter": "Gear Backlash (After)",
+          "crankEndplayBefore": "Crank Endplay (Before)",
+          "crankEndplayAfter": "Crank Endplay (After)",
+          "airRegulator": "Air Regulator",
+          "airClutchTravelClearance": "Air Clutch Travel/Clearance",
+          "airLineOilerSetting": "Air Line Oiler Setting",
+          "splinesDriveRingDisc": "Splines: Drive Ring Disc",
+          "adjustingNutLockSecure": "Adjusting Nut/Lock Secure",
+          "separateBrakeSeals": "Separate Brake Seals",
+          "hydClutchClearanceTotal": "Hyd Clutch Clearance (Total)",
+          "hydClutchClearanceRear": "Hyd Clutch Clearance (Rear)",
+          "hydraulicPressure": "Hydraulic Pressure",
+          "accumulator": "Accumulator",
+          "flexDisc": "Flex Disc",
+          "notes": "Notes"
+        },
+        "sections": {
+          "brakeSpringSettings": "Brake Spring Settings",
+          "brakeMeasurements": "Brake Measurements",
+          "flywheel": "Flywheel",
+          "clutchDetails": "Clutch Details",
+          "gearBacklashCrankEndplay": "Gear Backlash & Crank Endplay",
+          "airSystem": "Air System",
+          "hydraulicSystem": "Hydraulic System"
+        },
+        "placeholders": {
+          "selectType": "Select type",
+          "selectLocation": "Select location",
+          "select": "Select",
+          "notes": "Add any additional notes..."
+        },
+        "notes": {
+          "gearBacklashCheck": "*Check only if excessive noise and/or vibration is present"
+        }
       },
       "counterbalanceCylinder": {
         "field": "Field",
@@ -668,9 +739,12 @@
         "counterbalanceType": "Counterbalance Type",
         "airbagConditionTitle": "Airbag/Piston Condition",
         "pistonSeals": "Piston Seals",
+        "airbagPistonSeals": "Airbag Piston Seals",
         "leakLocation": "If seals leaking, where?",
+        "airbagPistonSealsLeakLocation": "Airbag Piston Seals Leak Location",
         "regulator": "Regulator",
         "gauge": "Gauge",
+        "gaugePSI": "Gauge PSI",
         "pneumaticsPlumbing": "Pneumatics/Plumbing",
         "rodSeals": "Rod Seals",
         "rodBushing": "Rod Bushing",
@@ -734,8 +808,58 @@
       "sections": {
         "beforeMaintenance": "Before Maintenance",
         "afterMaintenance": "After Maintenance"
+      },
+      "summary": {
+        "title": "Maintenance Summary",
+        "inspectionTitle": "Inspection Summary",
+        "maintenanceDetails": "Details of maintenance performed",
+        "inspectionDetails": "Details of inspection performed",
+        "serviceDetails": "Service Details",
+        "filledAreas": "Filled Areas",
+        "filledData": "Filled Data",
+        "additionalInformation": "Additional Information",
+        "shutdownAdjustmentMechanism": "Shutdown Adjustment Mechanism",
+        "dataMeasurements": "Data Measurements",
+        "sectionFields": "Section Fields",
+        "noDataAvailable": "No data available",
+        "exportExcel": "Export Excel",
+        "exportPDF": "Export PDF",
+        "gauges": "Gauges",
+        "notes": "Notes"
       }
     }
+  },
+  "table": {
+    "field": "Field",
+    "value": "Value",
+    "outer": "Outer",
+    "inner": "Inner",
+    "lh": "LH",
+    "rh": "RH",
+    "diff": "Diff",
+    "difference": "Difference",
+    "position": "Position",
+    "system": "System",
+    "gauge": "Gauge",
+    "psi": "PSI",
+    "noImage": "No Image"
+  },
+  "measurements": {
+    "outerMeasurements": "Outer Measurements",
+    "innerMeasurements": "Inner Measurements",
+    "outerBeforeMaintenance": "Outer - Before Maintenance",
+    "outerAfterMaintenance": "Outer - After Maintenance",
+    "innerBeforeMaintenance": "Inner - Before Maintenance",
+    "innerAfterMaintenance": "Inner - After Maintenance"
+  },
+  "bearingFields": {
+    "combinedWith": "Combined With",
+    "matingPart": "Mating Part",
+    "hasBeenAdjusted": "Has Been Adjusted",
+    "slideMotorMounts": "Slide Motor/Mounts",
+    "powerCordHoses": "Power Cord/Hoses",
+    "chainsGearsSprockets": "Chains & Gears/Sprockets",
+    "lockingClamps": "Locking Clamps"
   },
   "companies": {
     "pageTitle": "Companies",
