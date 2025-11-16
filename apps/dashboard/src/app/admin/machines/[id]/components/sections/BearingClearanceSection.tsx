@@ -80,9 +80,9 @@ export const validateBearingClearanceData = (data: BearingClearanceData): string
 
 export interface BearingClearanceSectionData {
   outerBefore?: BearingClearanceData;
-  outerAfter?: BearingClearanceData;
+  outerData?: BearingClearanceData;
   innerBefore?: BearingClearanceData;
-  innerAfter?: BearingClearanceData;
+  innerData?: BearingClearanceData;
 }
 
 export interface BearingClearanceSectionRef {
@@ -100,13 +100,12 @@ export interface BearingClearanceSectionRef {
 interface BearingClearanceSectionProps {
   onSectionTouched: () => void;
   serviceType: ServiceType;
-  initialData?: BearingClearanceSectionData;
 }
 
 export const BearingClearanceSection = forwardRef<
   BearingClearanceSectionRef,
   BearingClearanceSectionProps
->(({ onSectionTouched, serviceType, initialData }, ref) => {
+>(({ onSectionTouched, serviceType }, ref) => {
   const t = useTranslations('inspections');
 
   // Use custom hook for state management
@@ -156,7 +155,7 @@ export const BearingClearanceSection = forwardRef<
     setInnerBeforeFieldError,
     setInnerAfterFieldError,
     reset,
-  } = useBearingClearanceState({ initialData });
+  } = useBearingClearanceState();
 
   // UI state
   const [isBeforeOpen, setIsBeforeOpen] = useState(true);
@@ -299,12 +298,12 @@ export const BearingClearanceSection = forwardRef<
           includeBeforeMeasurements && outerBeforeTouched
             ? { ...outerBeforeData, ...outerBeforeFields }
             : undefined,
-        outerAfter: outerAfterTouched ? { ...outerAfterData, ...outerAfterFields } : undefined,
+        outerData: outerAfterTouched ? { ...outerAfterData, ...outerAfterFields } : undefined,
         innerBefore:
           includeBeforeMeasurements && innerBeforeTouched
             ? { ...innerBeforeData, ...innerBeforeFields }
             : undefined,
-        innerAfter: innerAfterTouched ? { ...innerAfterData, ...innerAfterFields } : undefined,
+        innerData: innerAfterTouched ? { ...innerAfterData, ...innerAfterFields } : undefined,
       };
     },
 
@@ -501,12 +500,12 @@ export const BearingClearanceSection = forwardRef<
           includeBeforeMeasurements && outerBeforeTouched
             ? { ...outerBeforeData, ...outerBeforeFields }
             : undefined,
-        outerAfter: outerAfterTouched ? { ...outerAfterData, ...outerAfterFields } : undefined,
+        outerData: outerAfterTouched ? { ...outerAfterData, ...outerAfterFields } : undefined,
         innerBefore:
           includeBeforeMeasurements && innerBeforeTouched
             ? { ...innerBeforeData, ...innerBeforeFields }
             : undefined,
-        innerAfter: innerAfterTouched ? { ...innerAfterData, ...innerAfterFields } : undefined,
+        innerData: innerAfterTouched ? { ...innerAfterData, ...innerAfterFields } : undefined,
       };
 
       return { isValid: true, errors: [], data };

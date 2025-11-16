@@ -2,12 +2,7 @@ import { utils, writeFile } from 'xlsx';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
-import { type Service, ServiceType } from '@/data/types/services.types';
-
-// Helper function to check if a field is an ID field
-const isIdField = (key: string): boolean => {
-  return key === 'id' || key.endsWith('Id') || key.endsWith('ID');
-};
+import { type Service } from '@/data/types/services.types';
 
 // Helper function to format field names
 const formatFieldName = (key: string): string => {
@@ -131,7 +126,6 @@ export function exportToExcel(data: ExportData): void {
   const { service, completedSections, completedSectionData, translationCallbacks } = data;
 
   const workbook = utils.book_new();
-  const isInspection = service.type === ServiceType.INSPECTION;
 
   // Sheet 1: Service Details
   const detailsData = [
@@ -150,7 +144,7 @@ export function exportToExcel(data: ExportData): void {
   completedSections.forEach((sectionKey) => {
     const sectionData = completedSectionData[sectionKey];
     const sectionName = translationCallbacks.getSectionName(sectionKey);
-    let sheetData: any[] = [];
+    const sheetData: any[] = [];
 
     // Bearing Clearance Section
     if (sectionKey === 'BEARING_CLEARANCE') {

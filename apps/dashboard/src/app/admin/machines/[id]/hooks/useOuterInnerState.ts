@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
 /**
  * Hook for managing outer/inner + before/after state pattern
@@ -35,31 +35,8 @@ export function useOuterInnerState<T extends Record<string, any>>(
     !!(loadedData?.outerBefore || loadedData?.innerBefore),
   );
 
-  // Update state when loaded data changes (after loading from server)
-  useEffect(() => {
-    if (loadedData) {
-      if (loadedData.outerBefore) {
-        setOuterBeforeData(loadedData.outerBefore);
-      }
-      // Handle API naming: outerData instead of outerAfter
-      const outerAfter = loadedData.outerAfter || loadedData.outerData;
-      if (outerAfter) {
-        setOuterAfterData(outerAfter);
-      }
-      if (loadedData.innerBefore) {
-        setInnerBeforeData(loadedData.innerBefore);
-      }
-      // Handle API naming: innerData instead of innerAfter
-      const innerAfter = loadedData.innerAfter || loadedData.innerData;
-      if (innerAfter) {
-        setInnerAfterData(innerAfter);
-      }
-      // Set includeBeforeMeasurements if we have before data
-      if (loadedData.outerBefore || loadedData.innerBefore) {
-        setIncludeBeforeMeasurements(true);
-      }
-    }
-  }, [loadedData]);
+  // Note: State is initialized from loadedData on mount. If loadedData needs to update
+  // after initial mount, the parent component should use a key prop to force remount.
 
   // Outer Before update functions
   const updateOuterBeforeField = useCallback(<K extends keyof T>(field: K, value: T[K]) => {

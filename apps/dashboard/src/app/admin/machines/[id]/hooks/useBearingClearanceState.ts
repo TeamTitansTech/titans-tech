@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   type BearingClearanceData,
   MatingPartType,
@@ -14,6 +14,9 @@ export interface BearingClearanceSectionData {
   outerAfter?: BearingClearanceData;
   innerBefore?: BearingClearanceData;
   innerAfter?: BearingClearanceData;
+  // API uses different field names
+  outerData?: BearingClearanceData;
+  innerData?: BearingClearanceData;
 }
 
 interface UseBearingClearanceStateProps {
@@ -21,21 +24,27 @@ interface UseBearingClearanceStateProps {
 }
 
 export function useBearingClearanceState({ initialData }: UseBearingClearanceStateProps = {}) {
+  // Handle field name mapping: API uses outerData/innerData, component uses outerAfter/innerAfter
+  const outerAfterInitial = initialData?.outerData || initialData?.outerAfter;
+  const innerAfterInitial = initialData?.innerData || initialData?.innerAfter;
+
   // Include before measurements checkbox
-  const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
+  const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(
+    !!(initialData?.outerBefore || initialData?.innerBefore),
+  );
 
   // Bearing data states
   const [outerBeforeData, setOuterBeforeData] = useState<BearingClearanceData>(
     initialData?.outerBefore || defaultBearingData,
   );
   const [outerAfterData, setOuterAfterData] = useState<BearingClearanceData>(
-    initialData?.outerAfter || defaultBearingData,
+    outerAfterInitial || defaultBearingData,
   );
   const [innerBeforeData, setInnerBeforeData] = useState<BearingClearanceData>(
     initialData?.innerBefore || defaultBearingData,
   );
   const [innerAfterData, setInnerAfterData] = useState<BearingClearanceData>(
-    initialData?.innerAfter || defaultBearingData,
+    innerAfterInitial || defaultBearingData,
   );
 
   // Separate states for each tab and time period
@@ -157,70 +166,8 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
     setInnerAfterErrors((prev) => ({ ...prev, [field]: error }));
   };
 
-  // Update state when initialData changes (after loading from server)
-  useEffect(() => {
-    console.log('🔴 [useBearingClearanceState] useEffect triggered:', {
-      hasInitialData: !!initialData,
-      initialDataKeys: initialData ? Object.keys(initialData) : [],
-    });
-
-    if (initialData) {
-      // Handle field name mapping: API uses outerData/innerData, component uses outerAfter/innerAfter
-      const outerAfter = (initialData as any).outerData || initialData.outerAfter;
-      const innerAfter = (initialData as any).innerData || initialData.innerAfter;
-
-      console.log('🔴 [useBearingClearanceState] Processing initialData:', {
-        hasOuterAfter: !!outerAfter,
-        hasInnerAfter: !!innerAfter,
-        hasOuterBefore: !!initialData.outerBefore,
-        hasInnerBefore: !!initialData.innerBefore,
-        outerAfterSample: outerAfter ? JSON.stringify(outerAfter).substring(0, 100) : null,
-        outerBeforeSample: initialData.outerBefore
-          ? JSON.stringify(initialData.outerBefore).substring(0, 100)
-          : null,
-      });
-
-      if (initialData.outerBefore) {
-        setOuterBeforeData(initialData.outerBefore);
-        setOuterBeforeHasBeenAdjusted(initialData.outerBefore.hasBeenAdjusted);
-      }
-      if (outerAfter) {
-        setOuterAfterData(outerAfter);
-        setOuterAfterHasBeenAdjusted(outerAfter.hasBeenAdjusted);
-      }
-      if (initialData.innerBefore) {
-        setInnerBeforeData(initialData.innerBefore);
-        setInnerBeforeHasBeenAdjusted(initialData.innerBefore.hasBeenAdjusted);
-      }
-      if (innerAfter) {
-        setInnerAfterData(innerAfter);
-        setInnerAfterHasBeenAdjusted(innerAfter.hasBeenAdjusted);
-      }
-
-      // Set tab-specific fields
-      const outerData = outerAfter || initialData.outerBefore;
-      const innerData = innerAfter || initialData.innerBefore;
-
-      if (outerData) {
-        setOuterCombinedWith(outerData.combinedWith || '');
-        setOuterMatingPart(outerData.matingPart || MatingPartType.BUSHING);
-        setSlideMotorMounts(outerData.slideMotorMounts || undefined);
-        setPowerCordHoses(outerData.powerCordHoses || undefined);
-        setChainsGearsSprockets(outerData.chainsGearsSprockets || undefined);
-        setLockingClamps(outerData.lockingClamps || undefined);
-        setNotes(outerData.notes || '');
-      }
-      if (innerData) {
-        setInnerCombinedWith(innerData.combinedWith || '');
-        setInnerMatingPart(innerData.matingPart || MatingPartType.BUSHING);
-      }
-
-      // Set includeBeforeMeasurements if we have before data
-      if (initialData.outerBefore || initialData.innerBefore) {
-        setIncludeBeforeMeasurements(true);
-      }
-    }
-  }, [initialData]);
+  // Note: State is initialized from initialData on mount. If initialData needs to update
+  // after initial mount, the parent component should use a key prop to force remount.
 
   // Reset function
   const reset = () => {

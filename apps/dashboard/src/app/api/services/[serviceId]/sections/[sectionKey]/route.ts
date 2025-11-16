@@ -161,7 +161,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         } else {
           // Create new bearing clearance record
           updateData.bearingClearance = {
-            create: await buildBearingClearanceUpdateData(sectionData),
+            create: await buildBearingClearanceCreateData(sectionData),
           };
         }
         break;
@@ -481,47 +481,27 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 //   return result;
 // }
 
-async function buildBearingClearanceUpdateData(data: any) {
+async function buildBearingClearanceCreateData(data: any) {
   const result: any = {};
 
-  // Handle outerBefore - upsert if data exists
+  // Handle outerBefore - create if data exists
   if (data.outerBefore) {
-    result.outerBefore = {
-      upsert: {
-        create: data.outerBefore,
-        update: data.outerBefore,
-      },
-    };
+    result.outerBefore = { create: data.outerBefore };
   }
 
   // Handle outerData
   if (data.outerData) {
-    result.outerData = {
-      upsert: {
-        create: data.outerData,
-        update: data.outerData,
-      },
-    };
+    result.outerData = { create: data.outerData };
   }
 
   // Handle innerBefore
   if (data.innerBefore) {
-    result.innerBefore = {
-      upsert: {
-        create: data.innerBefore,
-        update: data.innerBefore,
-      },
-    };
+    result.innerBefore = { create: data.innerBefore };
   }
 
   // Handle innerData
   if (data.innerData) {
-    result.innerData = {
-      upsert: {
-        create: data.innerData,
-        update: data.innerData,
-      },
-    };
+    result.innerData = { create: data.innerData };
   }
 
   return result;

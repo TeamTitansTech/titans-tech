@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 
 /**
  * Hook for managing before/after maintenance state pattern
@@ -16,16 +16,8 @@ export function useBeforeAfterState<T extends Record<string, any>>(
   const [afterErrors, setAfterErrors] = useState<Partial<Record<keyof T, string>>>({});
   const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(!!loadedBeforeData);
 
-  // Update state when loaded data changes (after loading from server)
-  useEffect(() => {
-    if (loadedBeforeData) {
-      setBeforeData(loadedBeforeData);
-      setIncludeBeforeMeasurements(true);
-    }
-    if (loadedAfterData) {
-      setAfterData(loadedAfterData);
-    }
-  }, [loadedBeforeData, loadedAfterData]);
+  // Note: State is initialized from loadedData on mount. If loadedData needs to update
+  // after initial mount, the parent component should use a key prop to force remount.
 
   const updateBeforeField = useCallback(<K extends keyof T>(field: K, value: T[K]) => {
     setBeforeData((prev) => ({ ...prev, [field]: value }));

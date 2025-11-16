@@ -11,7 +11,6 @@ import { Type } from 'class-transformer';
 import {
   MatingPartType,
   ParallelismType,
-  DncToBedToBolsterType,
   ServiceType,
   ServiceStatus,
   YesNoNaDncType,

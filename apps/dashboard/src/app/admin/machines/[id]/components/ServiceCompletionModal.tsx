@@ -1201,14 +1201,15 @@ export function ServiceCompletionModal({
                     const hasBeforeData =
                       (data?.outerBefore && hasActualData(data.outerBefore)) ||
                       (data?.innerBefore && hasActualData(data.innerBefore));
+                    // API uses outerData/innerData instead of outerAfter/innerAfter
                     const hasAfterData =
-                      (data?.outerAfter && hasActualData(data.outerAfter)) ||
-                      (data?.innerAfter && hasActualData(data.innerAfter));
+                      (data?.outerData && hasActualData(data.outerData)) ||
+                      (data?.innerData && hasActualData(data.innerData));
 
                     const outerBeforeRows = extractBearingRows(data?.outerBefore);
                     const innerBeforeRows = extractBearingRows(data?.innerBefore);
-                    const outerAfterRows = extractBearingRows(data?.outerAfter);
-                    const innerAfterRows = extractBearingRows(data?.innerAfter);
+                    const outerAfterRows = extractBearingRows(data?.outerData);
+                    const innerAfterRows = extractBearingRows(data?.innerData);
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
@@ -1456,7 +1457,7 @@ export function ServiceCompletionModal({
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.combinedWith ||
+                                            data?.outerData?.combinedWith ||
                                               data?.outerBefore?.combinedWith,
                                           )}
                                         </span>
@@ -1465,7 +1466,7 @@ export function ServiceCompletionModal({
                                         <span className="text-muted-foreground">Mating Part:</span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.matingPart ||
+                                            data?.outerData?.matingPart ||
                                               data?.outerBefore?.matingPart,
                                           )}
                                         </span>
@@ -1476,7 +1477,7 @@ export function ServiceCompletionModal({
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.hasBeenAdjusted ||
+                                            data?.outerData?.hasBeenAdjusted ||
                                               data?.outerBefore?.hasBeenAdjusted,
                                           )}
                                         </span>
@@ -1496,7 +1497,7 @@ export function ServiceCompletionModal({
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.innerAfter?.combinedWith ||
+                                            data?.innerData?.combinedWith ||
                                               data?.innerBefore?.combinedWith,
                                           )}
                                         </span>
@@ -1505,7 +1506,7 @@ export function ServiceCompletionModal({
                                         <span className="text-muted-foreground">Mating Part:</span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.innerAfter?.matingPart ||
+                                            data?.innerData?.matingPart ||
                                               data?.innerBefore?.matingPart,
                                           )}
                                         </span>
@@ -1516,7 +1517,7 @@ export function ServiceCompletionModal({
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.innerAfter?.hasBeenAdjusted ||
+                                            data?.innerData?.hasBeenAdjusted ||
                                               data?.innerBefore?.hasBeenAdjusted,
                                           )}
                                         </span>
@@ -1538,7 +1539,7 @@ export function ServiceCompletionModal({
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.slideMotorMounts ||
+                                            data?.outerData?.slideMotorMounts ||
                                               data?.outerBefore?.slideMotorMounts,
                                           )}
                                         </span>
@@ -1549,7 +1550,7 @@ export function ServiceCompletionModal({
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.powerCordHoses ||
+                                            data?.outerData?.powerCordHoses ||
                                               data?.outerBefore?.powerCordHoses,
                                           )}
                                         </span>
@@ -1560,7 +1561,7 @@ export function ServiceCompletionModal({
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.chainsGearsSprockets ||
+                                            data?.outerData?.chainsGearsSprockets ||
                                               data?.outerBefore?.chainsGearsSprockets,
                                           )}
                                         </span>
@@ -1571,17 +1572,17 @@ export function ServiceCompletionModal({
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.lockingClamps ||
+                                            data?.outerData?.lockingClamps ||
                                               data?.outerBefore?.lockingClamps,
                                           )}
                                         </span>
                                       </div>
-                                      {(data?.outerAfter?.notes || data?.outerBefore?.notes) && (
+                                      {(data?.outerData?.notes || data?.outerBefore?.notes) && (
                                         <div className="flex flex-col gap-1 pt-1 border-t">
                                           <span className="text-muted-foreground">Notes:</span>
                                           <span className="font-medium">
                                             {displayValue(
-                                              data?.outerAfter?.notes || data?.outerBefore?.notes,
+                                              data?.outerData?.notes || data?.outerBefore?.notes,
                                             )}
                                           </span>
                                         </div>
@@ -2045,13 +2046,13 @@ export function ServiceCompletionModal({
                       (data?.outerBefore && hasActualData(data.outerBefore)) ||
                       (data?.innerBefore && hasActualData(data.innerBefore));
                     const hasAfterData =
-                      (data?.outerAfter && hasActualData(data.outerAfter)) ||
-                      (data?.innerAfter && hasActualData(data.innerAfter));
+                      (data?.outerData && hasActualData(data.outerAfter)) ||
+                      (data?.innerData && hasActualData(data.innerAfter));
 
                     const outerBeforeRows = extractBearingRows(data?.outerBefore);
                     const innerBeforeRows = extractBearingRows(data?.innerBefore);
-                    const outerAfterRows = extractBearingRows(data?.outerAfter);
-                    const innerAfterRows = extractBearingRows(data?.innerAfter);
+                    const outerAfterRows = extractBearingRows(data?.outerData);
+                    const innerAfterRows = extractBearingRows(data?.innerData);
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
