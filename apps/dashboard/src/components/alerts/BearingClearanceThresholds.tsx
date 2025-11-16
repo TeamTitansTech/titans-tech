@@ -3,6 +3,7 @@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 import { ThresholdRangeInput } from './ThresholdRangeInput';
+import { useTranslations } from 'next-intl';
 
 export interface BearingClearanceThresholdsData {
   totalClearance_greenMin: number;
@@ -38,6 +39,8 @@ export function BearingClearanceThresholds({
   data,
   onChange,
 }: BearingClearanceThresholdsProps) {
+  const t = useTranslations('alerts.bearingClearance');
+
   const updateField = (field: keyof BearingClearanceThresholdsData, value: number) => {
     onChange({
       ...data,
@@ -49,7 +52,7 @@ export function BearingClearanceThresholds({
     <Collapsible open={open} onOpenChange={onOpenChange}>
       <CollapsibleTrigger className="w-full">
         <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
-          <h3 className="text-base font-semibold">BEARING CLEARANCE - Alert Configuration</h3>
+          <h3 className="text-base font-semibold">{t('title')}</h3>
           <ChevronDown
             className={`h-5 w-5 transition-transform ${open ? 'transform rotate-180' : ''}`}
           />
@@ -58,7 +61,7 @@ export function BearingClearanceThresholds({
       <CollapsibleContent>
         <div className="border border-t-0 rounded-b-lg p-6 bg-white space-y-6">
           <ThresholdRangeInput
-            label="Total Clearance"
+            label={t('totalClearance')}
             greenMin={data.totalClearance_greenMin}
             yellowMin={data.totalClearance_yellowMin}
             redMin={data.totalClearance_redMin}
@@ -68,7 +71,7 @@ export function BearingClearanceThresholds({
           />
 
           <ThresholdRangeInput
-            label="Main Bearings"
+            label={t('mainBearings')}
             greenMin={data.mainBearings_greenMin}
             yellowMin={data.mainBearings_yellowMin}
             redMin={data.mainBearings_redMin}
@@ -78,7 +81,7 @@ export function BearingClearanceThresholds({
           />
 
           <ThresholdRangeInput
-            label="Upper Connection Bearings"
+            label={t('upperConnectionBearings')}
             greenMin={data.upperConnectionBearings_greenMin}
             yellowMin={data.upperConnectionBearings_yellowMin}
             redMin={data.upperConnectionBearings_redMin}
@@ -88,7 +91,7 @@ export function BearingClearanceThresholds({
           />
 
           <ThresholdRangeInput
-            label="Wrist Pin to Mating Part"
+            label={t('wristPinToMatingPart')}
             greenMin={data.wristPinToMatingPart_greenMin}
             yellowMin={data.wristPinToMatingPart_yellowMin}
             redMin={data.wristPinToMatingPart_redMin}
@@ -98,7 +101,7 @@ export function BearingClearanceThresholds({
           />
 
           <ThresholdRangeInput
-            label="Wrist Pin to Bushing"
+            label={t('wristPinToBushing')}
             greenMin={data.wristPinToBushing_greenMin}
             yellowMin={data.wristPinToBushing_yellowMin}
             redMin={data.wristPinToBushing_redMin}
@@ -108,7 +111,7 @@ export function BearingClearanceThresholds({
           />
 
           <ThresholdRangeInput
-            label="Slide Adj Nut to Screw/Sleeve"
+            label={t('slideAdjNutToScrewSleeve')}
             greenMin={data.slideAdjNutToScrewSleeve_greenMin}
             yellowMin={data.slideAdjNutToScrewSleeve_yellowMin}
             redMin={data.slideAdjNutToScrewSleeve_redMin}

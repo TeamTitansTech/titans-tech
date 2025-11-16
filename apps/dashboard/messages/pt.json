@@ -884,5 +884,61 @@
       "submit": "Entrar",
       "submitting": "Entrando..."
     }
+  },
+  "alerts": {
+    "bearingClearance": {
+      "title": "FOLGA DE ROLAMENTO - Configuração de Alerta",
+      "totalClearance": "Folga Total",
+      "mainBearings": "Mancais Principais",
+      "upperConnectionBearings": "Mancais de Conexão Superior",
+      "wristPinToMatingPart": "Pino de Pulso à Peça de Acoplamento",
+      "wristPinToBushing": "Pino de Pulso à Bucha",
+      "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide ao Parafuso/Manguito"
+    },
+    "thresholds": {
+      "greenStartMin": "Início Verde (Mín)",
+      "yellowStartMin": "Início Amarelo (Mín)",
+      "redStartMin": "Início Vermelho (Mín)"
+    }
+  },
+  "forms": {
+    "positions": {
+      "position1": "Posição 1",
+      "position2": "Posição 2",
+      "position3": "Posição 3",
+      "position4": "Posição 4",
+      "position5": "Posição 5",
+      "position6": "Posição 6",
+      "maxDeviation": "Desvio Máximo"
+    },
+    "beforeAfter": {
+      "includeBefore": "Incluir medições antes da manutenção",
+      "beforeMaintenance": "Antes da Manutenção",
+      "afterMaintenance": "Após a Manutenção"
+    }
+  },
+  "actions": {
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "savePermissions": "Salvar Permissões",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "deleting": "Excluindo...",
+    "edit": "Editar",
+    "create": "Criar",
+    "creating": "Criando...",
+    "update": "Atualizar",
+    "updating": "Atualizando...",
+    "submit": "Enviar",
+    "submitting": "Enviando...",
+    "loading": "Carregando...",
+    "close": "Fechar"
+  },
+  "messages": {
+    "noUsersFound": "Nenhum usuário encontrado. Crie um para começar.",
+    "loadingUsers": "Carregando usuários...",
+    "selectBranch": "Por favor, selecione uma filial",
+    "success": "Sucesso",
+    "error": "Erro"
   }
 }

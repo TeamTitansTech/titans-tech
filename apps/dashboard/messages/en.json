@@ -782,5 +782,61 @@
       "submit": "Sign In",
       "submitting": "Signing in..."
     }
+  },
+  "alerts": {
+    "bearingClearance": {
+      "title": "BEARING CLEARANCE - Alert Configuration",
+      "totalClearance": "Total Clearance",
+      "mainBearings": "Main Bearings",
+      "upperConnectionBearings": "Upper Connection Bearings",
+      "wristPinToMatingPart": "Wrist Pin to Mating Part",
+      "wristPinToBushing": "Wrist Pin to Bushing",
+      "slideAdjNutToScrewSleeve": "Slide Adj Nut to Screw/Sleeve"
+    },
+    "thresholds": {
+      "greenStartMin": "Green Start (Min)",
+      "yellowStartMin": "Yellow Start (Min)",
+      "redStartMin": "Red Start (Min)"
+    }
+  },
+  "forms": {
+    "positions": {
+      "position1": "Position 1",
+      "position2": "Position 2",
+      "position3": "Position 3",
+      "position4": "Position 4",
+      "position5": "Position 5",
+      "position6": "Position 6",
+      "maxDeviation": "Max Deviation"
+    },
+    "beforeAfter": {
+      "includeBefore": "Include measurements before maintenance",
+      "beforeMaintenance": "Before Maintenance",
+      "afterMaintenance": "After Maintenance"
+    }
+  },
+  "actions": {
+    "save": "Save",
+    "saving": "Saving...",
+    "savePermissions": "Save Permissions",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "edit": "Edit",
+    "create": "Create",
+    "creating": "Creating...",
+    "update": "Update",
+    "updating": "Updating...",
+    "submit": "Submit",
+    "submitting": "Submitting...",
+    "loading": "Loading...",
+    "close": "Close"
+  },
+  "messages": {
+    "noUsersFound": "No users found. Create one to get started.",
+    "loadingUsers": "Loading users...",
+    "selectBranch": "Please select a branch",
+    "success": "Success",
+    "error": "Error"
   }
 }

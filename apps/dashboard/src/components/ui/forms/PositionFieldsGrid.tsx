@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { NumericInput } from './NumericInput';
+import { useTranslations } from 'next-intl';
 
 export interface PositionFieldsGridProps {
   position1: number | string;
@@ -43,21 +44,25 @@ export function PositionFieldsGrid({
   position6,
   onPositionChange,
   maxDeviation,
-  maxDeviationLabel = 'Max Deviation',
+  maxDeviationLabel,
   positionLabels = {},
   errors = {},
   className,
   idPrefix = '',
   layout = 'lg',
 }: PositionFieldsGridProps) {
+  const t = useTranslations('forms.positions');
+
   const {
-    pos1 = 'Position 1',
-    pos2 = 'Position 2',
-    pos3 = 'Position 3',
-    pos4 = 'Position 4',
-    pos5 = 'Position 5',
-    pos6 = 'Position 6',
+    pos1 = t('position1'),
+    pos2 = t('position2'),
+    pos3 = t('position3'),
+    pos4 = t('position4'),
+    pos5 = t('position5'),
+    pos6 = t('position6'),
   } = positionLabels;
+
+  const maxDeviationLabelFinal = maxDeviationLabel || t('maxDeviation');
 
   // Large screens: 4 columns + deviation
   if (layout === 'lg') {
@@ -86,7 +91,7 @@ export function PositionFieldsGrid({
           error={errors.position3}
         />
         <div className="space-y-1">
-          <label className="text-xs font-medium block">{maxDeviationLabel}</label>
+          <label className="text-xs font-medium block">{maxDeviationLabelFinal}</label>
           <div className="h-9 flex items-center justify-center text-xs font-semibold bg-blue-50 dark:bg-blue-950 rounded-md border-2 border-blue-200 dark:border-blue-800">
             {maxDeviation || '-'}
           </div>
@@ -138,7 +143,7 @@ export function PositionFieldsGrid({
           error={errors.position2}
         />
         <div className="space-y-1">
-          <label className="text-xs font-medium block">{maxDeviationLabel}</label>
+          <label className="text-xs font-medium block">{maxDeviationLabelFinal}</label>
           <div className="h-9 flex items-center justify-center text-xs font-semibold bg-blue-50 dark:bg-blue-950 rounded-md border-2 border-blue-200 dark:border-blue-800">
             {maxDeviation || '-'}
           </div>
