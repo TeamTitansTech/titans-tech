@@ -51,7 +51,10 @@ export const validateClutchData = (data: ClutchData, serviceType: ServiceType): 
   const errors: string[] = [];
 
   if (serviceType === ServiceType.MAINTENANCE) {
-    errors.push('Clutch Type is required for maintenance and rebuild services');
+    // Only clutch type is required
+    if (!data.clutchType) {
+      errors.push('Clutch Type is required for maintenance and rebuild services');
+    }
 
     const brakeSpringFields = [
       data.brakeSpringBrake,

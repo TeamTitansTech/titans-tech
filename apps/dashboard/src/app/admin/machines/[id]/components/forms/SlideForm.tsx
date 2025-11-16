@@ -15,6 +15,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import {
   type SlideData,
+  ParallelismType,
   ServiceType,
   DncToBedToBolsterType,
   YesNoNaDncType,

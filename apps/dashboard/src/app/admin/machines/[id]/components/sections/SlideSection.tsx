@@ -4,8 +4,8 @@ import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   type SlideData,
+  ParallelismType,
   ServiceType,
-  DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,
 } from '@/data/types/services.types';
