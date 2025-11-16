@@ -20,6 +20,21 @@ import {
   ConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType,
   ConditionOkNaDncDamagedType,
+  ClutchType,
+  ClutchLocation,
+  BrakeSpringStudBoltType,
+  BrakeLiningType,
+  FlywheelBearingsType,
+  FlywheelBrakeType,
+  RotaryUnionType,
+  ClutchLiningType,
+  ClutchSealsType,
+  PressureUnit,
+  AirLineOilerSettingType,
+  SplinesConditionType,
+  AdjustingNutLockType,
+  SeparateBrakeSealsType,
+  FlexDiscType,
 } from '@titans-tech/shared/types';
 
 class BearingClearanceDataDto {
@@ -362,44 +377,36 @@ class LubricationHydraulicsDataDto {
 
 class ClutchDataDto {
   @IsOptional()
-  @IsString()
-  clutchType?: string;
+  @IsEnum(ClutchType)
+  clutchType?: ClutchType;
 
   @IsOptional()
-  @IsString()
-  clutchLocation?: string;
-
-  @IsOptional()
-  @IsNumber()
-  brakeSpringBrake?: number;
+  @IsEnum(ClutchLocation)
+  clutchLocation?: ClutchLocation;
 
   @IsOptional()
   @IsNumber()
-  brakeSpringClutch?: number;
-
-  @IsOptional()
-  @IsString()
-  brakeSpringStudBolt?: string;
+  brakeSpringFB?: number;
 
   @IsOptional()
   @IsNumber()
-  brakeAnchorClearanceFB?: number;
+  brakeSpringFTB?: number;
 
   @IsOptional()
   @IsNumber()
-  brakeAnchorClearanceFTB?: number;
+  brakeSpringRTB?: number;
 
   @IsOptional()
-  @IsNumber()
-  brakeAnchorClearanceRTB?: number;
+  @IsEnum(BrakeSpringStudBoltType)
+  brakeSpringStudBolt?: BrakeSpringStudBoltType;
 
   @IsOptional()
   @IsNumber()
   brakeStoppingTime?: number;
 
   @IsOptional()
-  @IsString()
-  brakeLining?: string;
+  @IsEnum(BrakeLiningType)
+  brakeLining?: BrakeLiningType;
 
   @IsOptional()
   @IsNumber()
@@ -418,24 +425,28 @@ class ClutchDataDto {
   flywheelStoppingTime?: number;
 
   @IsOptional()
-  @IsString()
-  flywheelBearings?: string;
+  @IsEnum(FlywheelBearingsType)
+  flywheelBearings?: FlywheelBearingsType;
 
   @IsOptional()
-  @IsString()
-  flywheelBrake?: string;
+  @IsEnum(FlywheelBrakeType)
+  flywheelBrake?: FlywheelBrakeType;
+
+  @IsOptional()
+  @IsEnum(RotaryUnionType)
+  rotaryUnion?: RotaryUnionType;
 
   @IsOptional()
   @IsNumber()
   clutchEngagements?: number;
 
   @IsOptional()
-  @IsString()
-  clutchLining?: string;
+  @IsEnum(ClutchLiningType)
+  clutchLining?: ClutchLiningType;
 
   @IsOptional()
-  @IsString()
-  clutchSeals?: string;
+  @IsEnum(ClutchSealsType)
+  clutchSeals?: ClutchSealsType;
 
   @IsOptional()
   @IsNumber()
@@ -455,15 +466,43 @@ class ClutchDataDto {
 
   @IsOptional()
   @IsNumber()
-  airRegulatorPSI?: number;
+  airRegulatorValue?: number;
+
+  @IsOptional()
+  @IsEnum(PressureUnit)
+  airRegulatorUnit?: PressureUnit;
 
   @IsOptional()
   @IsNumber()
   airClutchTravel?: number;
 
   @IsOptional()
-  @IsString()
-  airLineOilerSetting?: string;
+  @IsEnum(AirLineOilerSettingType)
+  airLineOilerSetting?: AirLineOilerSettingType;
+
+  @IsOptional()
+  @IsEnum(SplinesConditionType)
+  splinesDriveRingDisc?: SplinesConditionType;
+
+  @IsOptional()
+  @IsEnum(AdjustingNutLockType)
+  adjustingNutLockSecure?: AdjustingNutLockType;
+
+  @IsOptional()
+  @IsNumber()
+  hydraulicPressureValue?: number;
+
+  @IsOptional()
+  @IsEnum(PressureUnit)
+  hydraulicPressureUnit?: PressureUnit;
+
+  @IsOptional()
+  @IsNumber()
+  accumulatorValue?: number;
+
+  @IsOptional()
+  @IsEnum(PressureUnit)
+  accumulatorUnit?: PressureUnit;
 
   @IsOptional()
   @IsNumber()
@@ -474,32 +513,16 @@ class ClutchDataDto {
   hydClutchClearanceRear?: number;
 
   @IsOptional()
-  @IsNumber()
-  hydraulicPressurePSI?: number;
+  @IsEnum(SeparateBrakeSealsType)
+  separateBrakeSeals?: SeparateBrakeSealsType;
 
   @IsOptional()
-  @IsNumber()
-  accumulatorPSI?: number;
-
-  @IsOptional()
-  @IsString()
-  rotaryUnion?: string;
+  @IsEnum(FlexDiscType)
+  flexDisc?: FlexDiscType;
 
   @IsOptional()
   @IsString()
-  splinesDriveRingDisc?: string;
-
-  @IsOptional()
-  @IsString()
-  adjustingNutLockSecure?: string;
-
-  @IsOptional()
-  @IsString()
-  separateBrakeSeals?: string;
-
-  @IsOptional()
-  @IsString()
-  flexDisc?: string;
+  notes?: string;
 }
 
 class CounterbalanceCylinderDataDto {
