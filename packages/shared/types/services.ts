@@ -326,7 +326,6 @@ export interface SlideCheck {
 
 // Gibs Data
 export interface GibsData {
-  hasBeenAdjusted: YesNoDncType;
   point1: number;
   point2: number;
   point3: number;
@@ -351,7 +350,6 @@ export interface GibsData {
   frontBottom?: number;
   backTop?: number;
   backBottom?: number;
-  usable?: string;
 }
 
 export interface GibsCheck {
@@ -359,6 +357,8 @@ export interface GibsCheck {
   outerAfter?: GibsData;
   innerBefore?: GibsData;
   innerAfter?: GibsData;
+  hasBeenAdjusted?: YesNoDncType;
+  notes?: string;
 }
 
 // Lubrication & Hydraulics Data
@@ -544,7 +544,7 @@ export interface SlideFormProps {
 
 export interface GibsFormProps {
   data: GibsData;
-  updateFn: (field: keyof GibsData, value: string | number | boolean | undefined) => void;
+  updateFn: (field: keyof GibsData, value: string | number | undefined) => void;
   errors: Record<string, string>;
   handleBlur: (field: keyof GibsData) => void;
   title: string;

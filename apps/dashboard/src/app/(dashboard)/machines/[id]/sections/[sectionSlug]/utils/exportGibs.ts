@@ -71,10 +71,22 @@ export async function exportToPDF(
 
     // Front to Back Points
     const frontToBackData = [
-      ['Point 1-4', `${Number(latestGibsCheck.point1).toFixed(4)} / ${Number(latestGibsCheck.point2).toFixed(4)} / ${Number(latestGibsCheck.point3).toFixed(4)} / ${Number(latestGibsCheck.point4).toFixed(4)}`],
-      ['Point 5-8', `${Number(latestGibsCheck.point5).toFixed(4)} / ${Number(latestGibsCheck.point6).toFixed(4)} / ${Number(latestGibsCheck.point7).toFixed(4)} / ${Number(latestGibsCheck.point8).toFixed(4)}`],
-      ['Point 9-12', `${Number(latestGibsCheck.point9).toFixed(4)} / ${Number(latestGibsCheck.point10).toFixed(4)} / ${Number(latestGibsCheck.point11).toFixed(4)} / ${Number(latestGibsCheck.point12).toFixed(4)}`],
-      ['Point 13-16', `${Number(latestGibsCheck.point13).toFixed(4)} / ${Number(latestGibsCheck.point14).toFixed(4)} / ${Number(latestGibsCheck.point15).toFixed(4)} / ${Number(latestGibsCheck.point16).toFixed(4)}`],
+      [
+        'Point 1-4',
+        `${Number(latestGibsCheck.point1).toFixed(4)} / ${Number(latestGibsCheck.point2).toFixed(4)} / ${Number(latestGibsCheck.point3).toFixed(4)} / ${Number(latestGibsCheck.point4).toFixed(4)}`,
+      ],
+      [
+        'Point 5-8',
+        `${Number(latestGibsCheck.point5).toFixed(4)} / ${Number(latestGibsCheck.point6).toFixed(4)} / ${Number(latestGibsCheck.point7).toFixed(4)} / ${Number(latestGibsCheck.point8).toFixed(4)}`,
+      ],
+      [
+        'Point 9-12',
+        `${Number(latestGibsCheck.point9).toFixed(4)} / ${Number(latestGibsCheck.point10).toFixed(4)} / ${Number(latestGibsCheck.point11).toFixed(4)} / ${Number(latestGibsCheck.point12).toFixed(4)}`,
+      ],
+      [
+        'Point 13-16',
+        `${Number(latestGibsCheck.point13).toFixed(4)} / ${Number(latestGibsCheck.point14).toFixed(4)} / ${Number(latestGibsCheck.point15).toFixed(4)} / ${Number(latestGibsCheck.point16).toFixed(4)}`,
+      ],
     ];
 
     autoTable(doc, {
@@ -147,36 +159,30 @@ export async function exportToWord(
     await import('docx');
   const { saveAs } = await import('file-saver');
 
-  const doc = new Document({
-    sections: [
-      {
-        children: [
-          new Paragraph({
-            text: 'Gibs Measurements Report',
-            heading: 'Heading1',
-          }),
-          new Paragraph({
-            children: [new TextRun({ text: `Machine: ${machineName}`, bold: true })],
-          }),
-          new Paragraph({
-            children: [
-              new TextRun({
-                text: `Date Range: ${date?.from ? format(date.from, 'dd/MM/yyyy') : '-'} - ${date?.to ? format(date.to, 'dd/MM/yyyy') : '-'}`,
-              }),
-            ],
-          }),
-          new Paragraph({
-            children: [new TextRun({ text: `Total Measurements: ${filteredInspectionsCount}` })],
-          }),
-          new Paragraph({ text: '' }),
-          new Paragraph({
-            text: 'Latest Measurements',
-            heading: 'Heading2',
-          }),
-        ],
-      },
-    ],
-  });
+  const sectionChildren: (InstanceType<typeof Paragraph> | InstanceType<typeof Table>)[] = [
+    new Paragraph({
+      text: 'Gibs Measurements Report',
+      heading: 'Heading1',
+    }),
+    new Paragraph({
+      children: [new TextRun({ text: `Machine: ${machineName}`, bold: true })],
+    }),
+    new Paragraph({
+      children: [
+        new TextRun({
+          text: `Date Range: ${date?.from ? format(date.from, 'dd/MM/yyyy') : '-'} - ${date?.to ? format(date.to, 'dd/MM/yyyy') : '-'}`,
+        }),
+      ],
+    }),
+    new Paragraph({
+      children: [new TextRun({ text: `Total Measurements: ${filteredInspectionsCount}` })],
+    }),
+    new Paragraph({ text: '' }),
+    new Paragraph({
+      text: 'Latest Measurements',
+      heading: 'Heading2',
+    }),
+  ];
 
   if (latestGibsCheck) {
     const frontToBackRows = [
@@ -236,19 +242,17 @@ export async function exportToWord(
       }),
     ];
 
-    doc.addSection({
-      children: [
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: frontToBackRows,
-        }),
-        new Paragraph({ text: '' }),
-        new Paragraph({
-          text: 'Directional Measurements',
-          heading: 'Heading3',
-        }),
-      ],
-    });
+    sectionChildren.push(
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: frontToBackRows,
+      }),
+      new Paragraph({ text: '' }),
+      new Paragraph({
+        text: 'Directional Measurements',
+        heading: 'Heading3',
+      }),
+    );
 
     const directionalRows = [
       new TableRow({
@@ -363,14 +367,12 @@ export async function exportToWord(
       }),
     ];
 
-    doc.addSection({
-      children: [
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: directionalRows,
-        }),
-      ],
-    });
+    sectionChildren.push(
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: directionalRows,
+      }),
+    );
   }
 
   if (chartData.length > 0) {
@@ -398,20 +400,26 @@ export async function exportToWord(
       ),
     ];
 
-    doc.addSection({
-      children: [
-        new Paragraph({ text: '' }),
-        new Paragraph({
-          text: 'Historical Data',
-          heading: 'Heading2',
-        }),
-        new Table({
-          width: { size: 100, type: WidthType.PERCENTAGE },
-          rows: historicalRows,
-        }),
-      ],
-    });
+    sectionChildren.push(
+      new Paragraph({ text: '' }),
+      new Paragraph({
+        text: 'Historical Data',
+        heading: 'Heading2',
+      }),
+      new Table({
+        width: { size: 100, type: WidthType.PERCENTAGE },
+        rows: historicalRows,
+      }),
+    );
   }
+
+  const doc = new Document({
+    sections: [
+      {
+        children: sectionChildren,
+      },
+    ],
+  });
 
   const blob = await Packer.toBlob(doc);
   saveAs(blob, `gibs-measurements-${machineName}-${format(new Date(), 'yyyy-MM-dd')}.docx`);

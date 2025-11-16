@@ -608,6 +608,11 @@
         "backBottom": "Trás Inferior",
         "usable": "Utilizável"
       },
+      "gibsSection": {
+        "includeBeforeMeasurements": "Incluir Medições Anteriores",
+        "beforeMaintenance": "Antes da Manutenção",
+        "afterMaintenance": "Após a Manutenção"
+      },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Pressões do Sistema (PSI)",
         "addRow": "Adicionar Linha",
@@ -722,6 +727,7 @@
         "outer": "Externo",
         "inner": "Interno",
         "notes": "Notas",
+        "notesPlaceholder": "Digite notas adicionais...",
         "selectOption": "Selecione uma opção",
         "selectStatus": "Selecione o status",
         "selectMatingPart": "Selecione a peça de acoplamento",

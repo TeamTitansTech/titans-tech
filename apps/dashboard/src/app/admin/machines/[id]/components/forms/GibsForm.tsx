@@ -3,14 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { type GibsData, type GibsFormProps, YesNoDncType } from '@/data/types/services.types';
+import { type GibsData, type GibsFormProps } from '@/data/types/services.types';
 import Image from 'next/image';
 
 const POINT_FIELDS = [
@@ -44,109 +37,28 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
     <div className="space-y-6">
       <h4 className="font-semibold text-sm">{title}</h4>
 
-      <div className="space-y-2">
-        <Label htmlFor={`hasBeenAdjusted-${title}`} className="text-xs">
-          {t('form.gibs.hasBeenAdjusted')}
-        </Label>
-        <Select
-          value={data.hasBeenAdjusted}
-          onValueChange={(value) => updateFn('hasBeenAdjusted', value as YesNoDncType)}
-        >
-          <SelectTrigger id={`hasBeenAdjusted-${title}`} className="text-sm">
-            <SelectValue placeholder="Select option" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
-            <SelectItem value={YesNoDncType.NO}>No</SelectItem>
-            <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
       <div className="space-y-4">
         <h4 className="font-semibold text-sm">{t('form.gibs.frontToBackTitle')}</h4>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-6">
-          <div className="space-y-3">
-            {/* Always show Front to Back first (points 1-8) */}
-            <div className="bg-muted/30 rounded border p-2">
-              <Image
-                src="/assets/gibs/front-to-back.png"
-                alt="Front to Back"
-                width={230}
-                height={200}
-                className="w-full h-auto"
-                unoptimized
-              />
-              <p className="text-[10px] text-muted-foreground text-center mt-1">
-                Front to Back (1-8)
-              </p>
-            </div>
-
-            {/* Then show Left to Right (points 9-16) */}
-            <div className="bg-muted/30 rounded border p-2">
-              <Image
-                src="/assets/gibs/left-to-right.png"
-                alt="Left to Right"
-                width={230}
-                height={200}
-                className="w-full h-auto"
-                unoptimized
-              />
-              <p className="text-[10px] text-muted-foreground text-center mt-1">
-                Left to Right (9-16)
-              </p>
-            </div>
-
-            {/* Context diagrams based on type */}
-            {isOuterBefore && (
-              <div className="bg-muted/30 rounded border p-2">
-                <Image
-                  src="/assets/gibs/before-tool-instalation.png"
-                  alt="Outer Slide Before"
-                  width={230}
-                  height={200}
-                  className="w-full h-auto"
-                  unoptimized
-                />
-                <p className="text-[10px] text-muted-foreground text-center mt-1">
-                  Before Tool Installation
-                </p>
-              </div>
-            )}
-            {isOuterAfter && (
-              <>
-                <div className="bg-muted/30 rounded border p-2">
-                  <Image
-                    src="/assets/gibs/after-tool-instalation.png"
-                    alt="Outer Slide After"
-                    width={230}
-                    height={200}
-                    className="w-full h-auto"
-                    unoptimized
-                  />
-                  <p className="text-[10px] text-muted-foreground text-center mt-1">
-                    After Tool Installation
-                  </p>
-                </div>
-                <div className="bg-muted/30 rounded border p-2">
-                  <Image
-                    src="/assets/gibs/top.png"
-                    alt="Top View"
-                    width={230}
-                    height={200}
-                    className="w-full h-auto"
-                    unoptimized
-                  />
-                  <p className="text-[10px] text-muted-foreground text-center mt-1">Top View</p>
-                </div>
-              </>
-            )}
+        {/* Front to Back (1-8) */}
+        <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr] gap-6 items-start">
+          <div className="bg-muted/30 rounded border p-2">
+            <Image
+              src="/assets/gibs/front-to-back.png"
+              alt="Front to Back"
+              width={250}
+              height={220}
+              className="w-full h-auto"
+              unoptimized
+            />
+            <p className="text-[10px] text-muted-foreground text-center mt-1">
+              Front to Back (1-8)
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
-            {POINT_FIELDS.map((field) => (
-              <div key={field}>
+          <div className="grid grid-cols-8 gap-3">
+            {POINT_FIELDS.slice(0, 8).map((field) => (
+              <div key={field} className="space-y-1">
                 <Label htmlFor={`${field}-${title}`} className="text-xs">
                   {field.replace('point', '')}
                 </Label>
@@ -159,14 +71,99 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
                   value={data[field]}
                   onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
                   onBlur={() => handleBlur(field as keyof GibsData)}
-                  className={`mt-1 text-sm ${errors[field] ? 'border-destructive' : ''}`}
+                  className={`text-sm ${errors[field] ? 'border-destructive' : ''}`}
                   required
                 />
-                {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
+                {errors[field] && <p className="text-xs text-destructive">{errors[field]}</p>}
               </div>
             ))}
           </div>
         </div>
+
+        {/* Left to Right (9-16) */}
+        <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr] gap-6 items-start">
+          <div className="bg-muted/30 rounded border p-2">
+            <Image
+              src="/assets/gibs/left-to-right.png"
+              alt="Left to Right"
+              width={250}
+              height={220}
+              className="w-full h-auto"
+              unoptimized
+            />
+            <p className="text-[10px] text-muted-foreground text-center mt-1">
+              Left to Right (9-16)
+            </p>
+          </div>
+
+          <div className="grid grid-cols-8 gap-3">
+            {POINT_FIELDS.slice(8, 16).map((field) => (
+              <div key={field} className="space-y-1">
+                <Label htmlFor={`${field}-${title}`} className="text-xs">
+                  {field.replace('point', '')}
+                </Label>
+                <Input
+                  id={`${field}-${title}`}
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  max="999999.9999"
+                  value={data[field]}
+                  onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
+                  onBlur={() => handleBlur(field as keyof GibsData)}
+                  className={`text-sm ${errors[field] ? 'border-destructive' : ''}`}
+                  required
+                />
+                {errors[field] && <p className="text-xs text-destructive">{errors[field]}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Context diagrams based on type */}
+        {isOuterBefore && (
+          <div className="bg-muted/30 rounded border p-2 max-w-[280px]">
+            <Image
+              src="/assets/gibs/before-tool-instalation.png"
+              alt="Outer Slide Before"
+              width={250}
+              height={220}
+              className="w-full h-auto"
+              unoptimized
+            />
+            <p className="text-[10px] text-muted-foreground text-center mt-1">
+              Before Tool Installation
+            </p>
+          </div>
+        )}
+        {isOuterAfter && (
+          <div className="flex gap-4">
+            <div className="bg-muted/30 rounded border p-2 max-w-[280px]">
+              <Image
+                src="/assets/gibs/after-tool-instalation.png"
+                alt="Outer Slide After"
+                width={250}
+                height={220}
+                className="w-full h-auto"
+                unoptimized
+              />
+              <p className="text-[10px] text-muted-foreground text-center mt-1">
+                After Tool Installation
+              </p>
+            </div>
+            <div className="bg-muted/30 rounded border p-2 max-w-[280px]">
+              <Image
+                src="/assets/gibs/top.png"
+                alt="Top View"
+                width={250}
+                height={220}
+                className="w-full h-auto"
+                unoptimized
+              />
+              <p className="text-[10px] text-muted-foreground text-center mt-1">Top View</p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div>
@@ -340,20 +337,6 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
             )}
           </div>
         </div>
-      </div>
-
-      <div>
-        <Label htmlFor={`usable-${title}`} className="text-xs">
-          {t('form.gibs.usable')}
-        </Label>
-        <Input
-          id={`usable-${title}`}
-          value={data.usable || ''}
-          onChange={(e) => updateFn('usable', e.target.value)}
-          onBlur={() => handleBlur('usable')}
-          className={`mt-1 ${errors.usable ? 'border-destructive' : ''}`}
-        />
-        {errors.usable && <p className="text-xs text-destructive mt-1">{errors.usable}</p>}
       </div>
     </div>
   );
