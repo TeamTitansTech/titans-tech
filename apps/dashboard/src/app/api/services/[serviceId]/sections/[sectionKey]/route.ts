@@ -66,7 +66,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           },
         },
         lubricationHydraulics: { select: { id: true } },
-        clutch: { select: { id: true } },
+        clutch: { select: { id: true, dataId: true } },
         counterbalanceCylinderAirbag: { select: { id: true } },
       },
     });
@@ -343,10 +343,23 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         const existingRecord = existingService.clutch?.[0];
 
         if (existingRecord) {
-          await prisma.machineServiceClutch.update({
-            where: { id: existingRecord.id },
-            data: buildClutchUpdateData(sectionData),
-          });
+          // Update the nested ClutchData
+          if (existingRecord.dataId) {
+            await prisma.clutchData.update({
+              where: { id: existingRecord.dataId },
+              data: sectionData,
+            });
+          } else {
+            // Create new ClutchData if it doesn't exist
+            await prisma.machineServiceClutch.update({
+              where: { id: existingRecord.id },
+              data: {
+                data: {
+                  create: sectionData,
+                },
+              },
+            });
+          }
         } else {
           updateData.clutch = {
             create: buildClutchCreateData(sectionData),
@@ -598,12 +611,16 @@ function buildLubricationHydraulicsUpdateData(data: any) {
 }
 
 function buildClutchCreateData(data: any) {
-  return { ...data };
+  return {
+    data: {
+      create: { ...data },
+    },
+  };
 }
 
-function buildClutchUpdateData(data: any) {
-  return { ...data };
-}
+// function buildClutchUpdateData(data: any) {
+//   return { ...data };
+// }
 
 function buildCounterbalanceCreateData(data: any) {
   return { ...data };
