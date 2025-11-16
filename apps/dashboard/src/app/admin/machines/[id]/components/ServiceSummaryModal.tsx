@@ -97,9 +97,19 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
       if (Array.isArray(value) && value.length > 0) {
         extractedData = value[0];
 
-        // For clutch and lubricationHydraulics, extract nested data object
-        if (key === 'clutch' || key === 'lubricationHydraulics') {
-          extractedData = extractedData.data || extractedData;
+        // For clutch, lubricationHydraulics, and counterbalanceCylinder, extract nested data object
+        if (
+          key === 'clutch' ||
+          key === 'lubricationHydraulics' ||
+          key === 'counterbalanceCylinder' ||
+          key === 'counterbalanceCylinderAirbag'
+        ) {
+          // Check if there's a nested 'data' property (for clutch and lubrication)
+          if (extractedData.data) {
+            extractedData = extractedData.data;
+          }
+          // For counterbalance, the structure might have outerData/innerData at the wrapper level
+          // We'll keep the whole object but filter ID fields during rendering
         }
       }
 
@@ -1379,7 +1389,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                                 </div>
                                 <div className="p-2 space-y-1.5 text-[11px]">
                                   {Object.entries(data.outerData)
-                                    .filter(([key]) => key !== 'notes')
+                                    .filter(([key]) => !isIdField(key) && key !== 'notes')
                                     .map(([key, value]) => (
                                       <div key={key} className="flex justify-between">
                                         <span className="text-muted-foreground">
@@ -1399,7 +1409,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                                 </div>
                                 <div className="p-2 space-y-1.5 text-[11px]">
                                   {Object.entries(data.innerData)
-                                    .filter(([key]) => key !== 'notes')
+                                    .filter(([key]) => !isIdField(key) && key !== 'notes')
                                     .map(([key, value]) => (
                                       <div key={key} className="flex justify-between">
                                         <span className="text-muted-foreground">
@@ -1623,9 +1633,10 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
               // For other sections (LUBRICATION_HYDRAULICS), render a simple table
               const data = completedSectionData[sectionKey] || {};
 
-              // Filter out object/array fields (we'll handle gauges separately for lubrication)
+              // Filter out object/array fields and ID fields (we'll handle gauges separately for lubrication)
               const scalarFields = Object.entries(data).filter(
                 ([key, value]) =>
+                  !isIdField(key) &&
                   key !== 'gauges' &&
                   (typeof value !== 'object' || value === null) &&
                   value !== null &&
