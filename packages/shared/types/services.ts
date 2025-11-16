@@ -20,6 +20,12 @@ export enum MatingPartType {
   NUT_SCREW_SLEEVE = 'NUT_SCREW_SLEEVE',
 }
 
+export enum ParallelismType {
+  DNC = 'DNC',
+  TO_BED = 'TO_BED',
+  TO_BOLSTER = 'TO_BOLSTER',
+}
+
 export enum DncToBedToBolsterType {
   DNC = 'DNC',
   TO_BED = 'TO_BED',
@@ -303,8 +309,10 @@ export interface SlideCheck {
   outerData?: SlideData;
   innerBefore?: SlideData;
   innerData?: SlideData;
-  parallelism?: DncToBedToBolsterType;
-  hasParallelismBeenAdjusted?: YesNoNaDncType;
+  outerParallelism?: ParallelismType;
+  outerHasParallelismBeenAdjusted?: YesNoNaDncType;
+  innerParallelism?: ParallelismType;
+  innerHasParallelismBeenAdjusted?: YesNoNaDncType;
   outerShutheightIndicatorsChecked?: YesNoDncType;
   outerOverloadsOnTonnageMonitor?: string;
   outerShutheightActualSh?: string;
@@ -466,6 +474,9 @@ export interface CreateServicePayload {
   type: ServiceType;
   status?: ServiceStatus; // Optional: defaults to PENDING in backend
   performedBy?: string;
+  currentStep?: string; // Current step in the modal workflow
+  currentSectionKey?: string; // Current section being filled
+  selectedSections?: string[]; // Array of selected section keys
   bearingClearance?: BearingClearanceCheck;
   slide?: SlideCheck;
   gibs?: GibsCheck;
@@ -479,6 +490,9 @@ export interface UpdateServicePayload {
   type?: ServiceType;
   status?: ServiceStatus;
   performedBy?: string;
+  currentStep?: string; // Current step in the modal workflow
+  currentSectionKey?: string; // Current section being filled
+  selectedSections?: string[]; // Array of selected section keys
   bearingClearance?: BearingClearanceCheck;
   slide?: SlideCheck;
   gibs?: GibsCheck;
@@ -495,6 +509,9 @@ export interface Service {
   type: ServiceType;
   status: ServiceStatus;
   performedBy?: string;
+  currentStep?: string; // Current step in the modal workflow
+  currentSectionKey?: string; // Current section being filled
+  selectedSections?: string[]; // Array of selected section keys
   createdAt: string;
   updatedAt: string;
 }

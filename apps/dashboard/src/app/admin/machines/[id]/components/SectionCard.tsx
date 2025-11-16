@@ -56,7 +56,7 @@ export function SectionCard({
             alt={title}
             width={300}
             height={225}
-            className="object-contain w-full h-auto brightness-0 invert"
+            className="object-contain max-w-full max-h-full brightness-0 invert"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (

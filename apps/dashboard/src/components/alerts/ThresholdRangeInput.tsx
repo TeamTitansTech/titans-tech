@@ -2,6 +2,7 @@
 
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { useTranslations } from 'next-intl';
 
 interface ThresholdRangeInputProps {
   label: string;
@@ -22,6 +23,8 @@ export function ThresholdRangeInput({
   onYellowMinChange,
   onRedMinChange,
 }: ThresholdRangeInputProps) {
+  const t = useTranslations('alerts.thresholds');
+
   return (
     <div className="space-y-3">
       <Label className="text-sm font-medium">{label}</Label>
@@ -46,7 +49,7 @@ export function ThresholdRangeInput({
         <div className="space-y-1">
           <Label className="text-xs text-gray-600 flex items-center gap-1">
             <span className="w-3 h-3 bg-green-500 rounded-full" />
-            Green Start (Min)
+            {t('greenStartMin')}
           </Label>
           <Input
             type="number"
@@ -61,7 +64,7 @@ export function ThresholdRangeInput({
         <div className="space-y-1">
           <Label className="text-xs text-gray-600 flex items-center gap-1">
             <span className="w-3 h-3 bg-yellow-500 rounded-full" />
-            Yellow Start (Min)
+            {t('yellowStartMin')}
           </Label>
           <Input
             type="number"
@@ -76,7 +79,7 @@ export function ThresholdRangeInput({
         <div className="space-y-1">
           <Label className="text-xs text-gray-600 flex items-center gap-1">
             <span className="w-3 h-3 bg-red-500 rounded-full" />
-            Red Start (Min)
+            {t('redStartMin')}
           </Label>
           <Input
             type="number"

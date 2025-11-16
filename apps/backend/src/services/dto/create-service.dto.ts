@@ -10,7 +10,7 @@ import {
 import { Type } from 'class-transformer';
 import {
   MatingPartType,
-  DncToBedToBolsterType,
+  ParallelismType,
   ServiceType,
   ServiceStatus,
   YesNoNaDncType,
@@ -182,12 +182,20 @@ class SlideCheckDto {
   innerData?: SlideDataDto;
 
   @IsOptional()
-  @IsEnum(DncToBedToBolsterType)
-  parallelism?: DncToBedToBolsterType;
+  @IsEnum(ParallelismType)
+  outerParallelism?: ParallelismType;
 
   @IsOptional()
   @IsEnum(YesNoNaDncType)
-  hasParallelismBeenAdjusted?: YesNoNaDncType;
+  outerHasParallelismBeenAdjusted?: YesNoNaDncType;
+
+  @IsOptional()
+  @IsEnum(ParallelismType)
+  innerParallelism?: ParallelismType;
+
+  @IsOptional()
+  @IsEnum(YesNoNaDncType)
+  innerHasParallelismBeenAdjusted?: YesNoNaDncType;
 
   @IsOptional()
   @IsEnum(YesNoDncType)
@@ -596,6 +604,18 @@ export class CreateServiceDto {
   @IsOptional()
   @IsString()
   performedBy?: string;
+
+  @IsOptional()
+  @IsString()
+  currentStep?: string;
+
+  @IsOptional()
+  @IsString()
+  currentSectionKey?: string;
+
+  @IsOptional()
+  @IsArray()
+  selectedSections?: string[];
 
   @IsOptional()
   @ValidateNested()

@@ -4,6 +4,7 @@ import { setUserPermissions } from '@/data/services/company-branches.api';
 import { useState } from 'react';
 import { UserResponseDto } from '@titans-tech/shared';
 import { Typography } from '@/components/ui/typography';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   user: UserResponseDto;
@@ -74,6 +75,7 @@ const permissionGroups = {
 };
 
 export default function UserPermissionsManager({ user, branchId, onClose, onUpdate }: Props) {
+  const tActions = useTranslations('actions');
   const branchPermissions = user.branches.find((ub) => ub.branch.id === branchId);
   const [permissions, setPermissions] = useState<Permissions>(() => {
     if (branchPermissions) {
@@ -218,14 +220,14 @@ export default function UserPermissionsManager({ user, branchId, onClose, onUpda
             disabled={isLoading}
             className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            Cancel
+            {tActions('cancel')}
           </button>
           <button
             onClick={handleSave}
             disabled={isLoading}
             className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isLoading ? 'Saving...' : 'Save Permissions'}
+            {isLoading ? tActions('saving') : tActions('savePermissions')}
           </button>
         </div>
       </div>
