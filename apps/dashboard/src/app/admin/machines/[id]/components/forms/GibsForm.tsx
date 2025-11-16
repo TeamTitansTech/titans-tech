@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { type GibsData, type GibsFormProps, YesNoDncType } from '@/data/types/services.types';
+import Image from 'next/image';
 
 const POINT_FIELDS = [
   'point1',
@@ -33,6 +34,11 @@ const POINT_FIELDS = [
 
 export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsFormProps) {
   const t = useTranslations('inspections');
+
+  const isOuterBefore =
+    title.toLowerCase().includes('outer') && title.toLowerCase().includes('before');
+  const isOuterAfter =
+    title.toLowerCase().includes('outer') && title.toLowerCase().includes('after');
 
   return (
     <div className="space-y-6">
@@ -57,29 +63,109 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
         </Select>
       </div>
 
-      <div>
-        <h4 className="font-semibold text-sm mb-4">{t('form.gibs.frontToBackTitle')}</h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {POINT_FIELDS.map((field) => (
-            <div key={field}>
-              <Label htmlFor={`${field}-${title}`} className="text-xs">
-                {t('form.gibs.point', { number: field.replace('point', '') })}
-              </Label>
-              <Input
-                id={`${field}-${title}`}
-                type="number"
-                step="0.0001"
-                min="0"
-                max="999999.9999"
-                value={data[field]}
-                onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
-                onBlur={() => handleBlur(field as keyof GibsData)}
-                className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
-                required
+      <div className="space-y-4">
+        <h4 className="font-semibold text-sm">{t('form.gibs.frontToBackTitle')}</h4>
+
+        <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-6">
+          <div className="space-y-3">
+            {/* Always show Front to Back first (points 1-8) */}
+            <div className="bg-muted/30 rounded border p-2">
+              <Image
+                src="/assets/gibs/front-to-back.png"
+                alt="Front to Back"
+                width={230}
+                height={200}
+                className="w-full h-auto"
+                unoptimized
               />
-              {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
+              <p className="text-[10px] text-muted-foreground text-center mt-1">
+                Front to Back (1-8)
+              </p>
             </div>
-          ))}
+
+            {/* Then show Left to Right (points 9-16) */}
+            <div className="bg-muted/30 rounded border p-2">
+              <Image
+                src="/assets/gibs/left-to-right.png"
+                alt="Left to Right"
+                width={230}
+                height={200}
+                className="w-full h-auto"
+                unoptimized
+              />
+              <p className="text-[10px] text-muted-foreground text-center mt-1">
+                Left to Right (9-16)
+              </p>
+            </div>
+
+            {/* Context diagrams based on type */}
+            {isOuterBefore && (
+              <div className="bg-muted/30 rounded border p-2">
+                <Image
+                  src="/assets/gibs/before-tool-instalation.png"
+                  alt="Outer Slide Before"
+                  width={230}
+                  height={200}
+                  className="w-full h-auto"
+                  unoptimized
+                />
+                <p className="text-[10px] text-muted-foreground text-center mt-1">
+                  Before Tool Installation
+                </p>
+              </div>
+            )}
+            {isOuterAfter && (
+              <>
+                <div className="bg-muted/30 rounded border p-2">
+                  <Image
+                    src="/assets/gibs/after-tool-instalation.png"
+                    alt="Outer Slide After"
+                    width={230}
+                    height={200}
+                    className="w-full h-auto"
+                    unoptimized
+                  />
+                  <p className="text-[10px] text-muted-foreground text-center mt-1">
+                    After Tool Installation
+                  </p>
+                </div>
+                <div className="bg-muted/30 rounded border p-2">
+                  <Image
+                    src="/assets/gibs/top.png"
+                    alt="Top View"
+                    width={230}
+                    height={200}
+                    className="w-full h-auto"
+                    unoptimized
+                  />
+                  <p className="text-[10px] text-muted-foreground text-center mt-1">Top View</p>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+            {POINT_FIELDS.map((field) => (
+              <div key={field}>
+                <Label htmlFor={`${field}-${title}`} className="text-xs">
+                  {field.replace('point', '')}
+                </Label>
+                <Input
+                  id={`${field}-${title}`}
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  max="999999.9999"
+                  value={data[field]}
+                  onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
+                  onBlur={() => handleBlur(field as keyof GibsData)}
+                  className={`mt-1 text-sm ${errors[field] ? 'border-destructive' : ''}`}
+                  required
+                />
+                {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

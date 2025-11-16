@@ -338,65 +338,69 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="border border-t-0 rounded-b-lg p-6 bg-card">
-            <Tabs defaultValue="outer" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4">
-                <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
-                <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
+            <Tabs defaultValue="before-adjustment" className="w-full">
+              <TabsList className="grid w-full grid-cols-4 mb-4">
+                <TabsTrigger value="before-adjustment">Before Adjustment</TabsTrigger>
+                <TabsTrigger value="after-adjustment">After Adjustment</TabsTrigger>
+                <TabsTrigger value="outer-slide">Outer Slide</TabsTrigger>
+                <TabsTrigger value="inner-slide">Inner Slide</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="outer" className="space-y-6">
-                <Tabs defaultValue="before" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                    <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="before" className="mt-4">
-                    <GibsForm
-                      data={outerBeforeData}
-                      updateFn={updateOuterBeforeField}
-                      errors={outerBeforeErrors}
-                      handleBlur={handleBlurOuterBefore}
-                      title="Outer Before"
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="after" className="mt-4">
-                    <GibsForm
-                      data={outerAfterData}
-                      updateFn={updateOuterAfterField}
-                      errors={outerAfterErrors}
-                      handleBlur={handleBlurOuterAfter}
-                      title="Outer After"
-                    />
-                  </TabsContent>
-                </Tabs>
+              <TabsContent value="before-adjustment" className="mt-4">
+                <GibsForm
+                  data={outerBeforeData}
+                  updateFn={updateOuterBeforeField}
+                  errors={outerBeforeErrors}
+                  handleBlur={handleBlurOuterBefore}
+                  title="Before Adjustment"
+                />
               </TabsContent>
 
-              <TabsContent value="inner" className="space-y-6">
-                <Tabs defaultValue="before" className="w-full">
+              <TabsContent value="after-adjustment" className="mt-4">
+                <GibsForm
+                  data={outerAfterData}
+                  updateFn={updateOuterAfterField}
+                  errors={outerAfterErrors}
+                  handleBlur={handleBlurOuterAfter}
+                  title="After Adjustment"
+                />
+              </TabsContent>
+
+              <TabsContent value="outer-slide" className="mt-4">
+                <GibsForm
+                  data={innerBeforeData}
+                  updateFn={updateInnerBeforeField}
+                  errors={innerBeforeErrors}
+                  handleBlur={handleBlurInnerBefore}
+                  title="Outer Slide (Free Hanging after Tool Installation)"
+                />
+              </TabsContent>
+
+              <TabsContent value="inner-slide" className="space-y-6">
+                <h4 className="font-semibold text-sm mb-4">Inner Slide (Pullback Block)</h4>
+                <Tabs defaultValue="inner-before" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                    <TabsTrigger value="after">After Maintenance</TabsTrigger>
+                    <TabsTrigger value="inner-before">Before Adjustment</TabsTrigger>
+                    <TabsTrigger value="inner-after">After Adjustment</TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="before" className="mt-4">
-                    <GibsForm
-                      data={innerBeforeData}
-                      updateFn={updateInnerBeforeField}
-                      errors={innerBeforeErrors}
-                      handleBlur={handleBlurInnerBefore}
-                      title="Inner Before"
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="after" className="mt-4">
+                  <TabsContent value="inner-before" className="mt-4">
                     <GibsForm
                       data={innerAfterData}
                       updateFn={updateInnerAfterField}
                       errors={innerAfterErrors}
                       handleBlur={handleBlurInnerAfter}
-                      title="Inner After"
+                      title="Inner Slide: Before Adjustment"
+                    />
+                  </TabsContent>
+
+                  <TabsContent value="inner-after" className="mt-4">
+                    <GibsForm
+                      data={innerAfterData}
+                      updateFn={updateInnerAfterField}
+                      errors={innerAfterErrors}
+                      handleBlur={handleBlurInnerAfter}
+                      title="Inner Slide: After Adjustment"
                     />
                   </TabsContent>
                 </Tabs>
