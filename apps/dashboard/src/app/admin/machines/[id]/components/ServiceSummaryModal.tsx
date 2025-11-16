@@ -346,6 +346,11 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
     ];
 
     Object.keys(data).forEach((key) => {
+      // Skip ID and timestamp fields
+      if (isIdField(key)) {
+        return;
+      }
+
       // Skip non-measurement fields
       if (skipFields.includes(key)) {
         return;

@@ -856,6 +856,11 @@ export function ServiceCompletionModal({
     ];
 
     Object.keys(data).forEach((key) => {
+      // Skip ID and timestamp fields
+      if (isIdField(key)) {
+        return;
+      }
+
       // Skip non-measurement fields
       if (skipFields.includes(key)) {
         return;
@@ -1269,7 +1274,7 @@ export function ServiceCompletionModal({
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.bearingClearance')}
@@ -1666,7 +1671,7 @@ export function ServiceCompletionModal({
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.slide')}
@@ -2126,7 +2131,7 @@ export function ServiceCompletionModal({
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.gibs')}
@@ -2362,7 +2367,7 @@ export function ServiceCompletionModal({
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.lubricationHydraulics')}
@@ -2421,7 +2426,7 @@ export function ServiceCompletionModal({
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.clutch')}
@@ -2485,7 +2490,7 @@ export function ServiceCompletionModal({
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.counterbalance')}
