@@ -790,19 +790,19 @@ model ClutchData {
   clutchLocation ClutchLocation?
 
   // Brake Spring Settings (in inches)
-  brakeSpringBrake    Decimal?                  @db.Decimal(10, 4)
-  brakeSpringClutch   Decimal?                  @db.Decimal(10, 4)
-  brakeSpringFB       Decimal?                  @db.Decimal(10, 4)
-  brakeSpringFTB      Decimal?                  @db.Decimal(10, 4)
-  brakeSpringRTB      Decimal?                  @db.Decimal(10, 4)
+  brakeSpringBrake    Decimal?                 @db.Decimal(10, 4)
+  brakeSpringClutch   Decimal?                 @db.Decimal(10, 4)
+  brakeSpringFB       Decimal?                 @db.Decimal(10, 4)
+  brakeSpringFTB      Decimal?                 @db.Decimal(10, 4)
+  brakeSpringRTB      Decimal?                 @db.Decimal(10, 4)
   brakeSpringStudBolt BrakeSpringStudBoltType?
 
   // Brake measurements
-  brakeStoppingTime   Decimal?          @db.Decimal(10, 2)
+  brakeStoppingTime   Decimal?         @db.Decimal(10, 2)
   brakeLining         BrakeLiningType?
-  brakeClearing       Decimal?          @db.Decimal(10, 4)
-  brakeClearanceTotal Decimal?          @db.Decimal(10, 4)
-  brakeClearanceRear  Decimal?          @db.Decimal(10, 4)
+  brakeClearing       Decimal?         @db.Decimal(10, 4)
+  brakeClearanceTotal Decimal?         @db.Decimal(10, 4)
+  brakeClearanceRear  Decimal?         @db.Decimal(10, 4)
 
   // Flywheel
   flywheelStoppingTime Decimal?              @db.Decimal(10, 2)
@@ -824,9 +824,9 @@ model ClutchData {
   crankEndplayAfter  Decimal? @db.Decimal(10, 4)
 
   // Air system
-  airRegulatorValue   Decimal?                @db.Decimal(10, 2)
+  airRegulatorValue   Decimal?                 @db.Decimal(10, 2)
   airRegulatorUnit    PressureUnit?
-  airClutchTravel     Decimal?                @db.Decimal(10, 4)
+  airClutchTravel     Decimal?                 @db.Decimal(10, 4)
   airLineOilerSetting AirLineOilerSettingType?
 
   // Splines
@@ -836,11 +836,11 @@ model ClutchData {
   adjustingNutLockSecure AdjustingNutLockType?
 
   // Hydraulic system
-  hydClutchClearanceTotal Decimal?       @db.Decimal(10, 4)
-  hydClutchClearanceRear  Decimal?       @db.Decimal(10, 4)
-  hydraulicPressureValue  Decimal?       @db.Decimal(10, 2)
+  hydClutchClearanceTotal Decimal?      @db.Decimal(10, 4)
+  hydClutchClearanceRear  Decimal?      @db.Decimal(10, 4)
+  hydraulicPressureValue  Decimal?      @db.Decimal(10, 2)
   hydraulicPressureUnit   PressureUnit?
-  accumulatorValue        Decimal?       @db.Decimal(10, 2)
+  accumulatorValue        Decimal?      @db.Decimal(10, 2)
   accumulatorUnit         PressureUnit?
 
   // Separate Brake Seals
