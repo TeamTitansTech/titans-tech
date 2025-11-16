@@ -284,14 +284,19 @@ export function ServiceCompletionModal({
 
         // Update state with loaded data
         // Section components will automatically receive this data via initialData prop
-        console.log('🔵 [ServiceCompletionModal] Loaded section data from DB:', loadedSectionData);
         setCompletedSections(new Set(savedCompletedSections));
         setCompletedSectionData(loadedSectionData);
 
         // Restore selectedSections from service data (if available)
-        const savedSelectedSections = Array.isArray(service.selectedSections)
+        let savedSelectedSections = Array.isArray(service.selectedSections)
           ? service.selectedSections
           : savedCompletedSections; // Fallback to completed sections for backward compatibility
+
+        // For inspections without saved selections, auto-select all sections
+        if (isInspection && savedSelectedSections.length === 0) {
+          savedSelectedSections = machineSections;
+        }
+
         setSelectedSections(new Set(savedSelectedSections));
 
         // Restore the step and section index the user was on
@@ -327,7 +332,17 @@ export function ServiceCompletionModal({
     };
 
     loadServiceData();
-  }, [open, serviceId, createdServiceId]);
+  }, [open, serviceId, createdServiceId, isInspection, machineSections, shouldSkipSelection]);
+
+  // Auto-select all sections when service type changes to INSPECTION
+  // This handles the case when creating a new inspection (not completing an existing one)
+  useEffect(() => {
+    // Only auto-select if we're creating a new service (no serviceId prop)
+    // and the modal is open and current type is INSPECTION
+    if (!serviceId && open && currentServiceType === ServiceType.INSPECTION) {
+      setSelectedSections(new Set(machineSections));
+    }
+  }, [currentServiceType, open, serviceId, machineSections]);
 
   const toggleSection = (sectionKey: string) => {
     setSelectedSections((prev) => {
