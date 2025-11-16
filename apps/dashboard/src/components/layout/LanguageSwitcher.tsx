@@ -16,6 +16,7 @@ import { useInternalRouter } from '@/hooks/useInternalRouter';
 const languages = [
   { code: 'en', name: 'English', flag: '🇺🇸' },
   { code: 'pt', name: 'Português', flag: '🇧🇷' },
+  { code: 'es', name: 'Español', flag: '🇪🇸' },
 ];
 
 export function LanguageSwitcher() {

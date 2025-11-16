@@ -368,6 +368,11 @@
     "noUpcomingServices": "Nenhum serviço agendado",
     "scheduledMaintenance": "Manutenção Agendada",
     "scheduledInspection": "Inspeção Agendada",
+    "deleteServiceTitle": "Excluir Serviço",
+    "deleteServiceDescription": "Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "deleting": "Excluindo...",
     "noImageAvailable": "Sem Imagem Disponível",
     "inspectionSections": "Seções de Inspeção",
     "noSectionsAvailable": "Nenhuma seção de inspeção disponível para este tipo de máquina.",
@@ -543,6 +548,8 @@
         }
       },
       "slide": {
+        "parallelismConfiguration": "Configurações de Paralelismo",
+        "parallelismAppliesNote": "Estes valores se aplicam tanto antes quanto após a manutenção",
         "parallelism": "Paralelismo",
         "hasBeenAdjusted": "Foi Ajustado",
         "position1": "Posição 1",
@@ -551,10 +558,35 @@
         "position4": "Posição 4",
         "position5": "Posição 5",
         "position6": "Posição 6",
+        "maxDeviation": "Desvio Máximo",
+        "outer": "Externo",
+        "inner": "Interno",
+        "beforeMaintenance": "Antes da Manutenção",
+        "afterMaintenance": "Após a Manutenção",
+        "measurements": "Medições",
+        "positionMeasurements": "Medições de Posição",
+        "shutheightInformation": "Informações de Altura de Fechamento",
+        "indicatorsChecked": "Indicadores Verificados?",
+        "overloadsOnTonnageMonitor": "Sobrecargas no Monitor de Tonelagem",
         "actualSH": "SH Atual",
-        "overloadsOnMonitor": "Sobrecargas no Monitor",
         "indicatorReading": "Leitura do Indicador",
         "shutheightChecked": "Altura de Fechamento Verificada",
+        "additionalInformation": "Informações Adicionais",
+        "hasParallelismBeenAdjusted": "O Paralelismo Foi Ajustado?",
+        "notes": "Observações",
+        "includeMeasurementsBeforeMaintenance": "Incluir Medições Anteriores",
+        "saveData": "Salvar Dados",
+        "saving": "Salvando...",
+        "dataSaved": "Dados salvos com sucesso",
+        "validationError": "Por favor, preencha todos os campos obrigatórios",
+        "fillAllFields": "Por favor, preencha todos os campos de posição (1-6)",
+        "fillBeforeMeasurements": "Por favor, preencha todos os campos 'Antes da Manutenção' quando a caixa estiver marcada",
+        "yes": "Sim",
+        "no": "Não",
+        "na": "N/A",
+        "dnc": "DNC",
+        "toBed": "Para Base",
+        "toBolster": "Para Bolster",
         "parallelismType": {
           "DNC": "DNC",
           "TO_BED": "Para Base",
@@ -863,5 +895,61 @@
       "submit": "Entrar",
       "submitting": "Entrando..."
     }
+  },
+  "alerts": {
+    "bearingClearance": {
+      "title": "FOLGA DE ROLAMENTO - Configuração de Alerta",
+      "totalClearance": "Folga Total",
+      "mainBearings": "Mancais Principais",
+      "upperConnectionBearings": "Mancais de Conexão Superior",
+      "wristPinToMatingPart": "Pino de Pulso à Peça de Acoplamento",
+      "wristPinToBushing": "Pino de Pulso à Bucha",
+      "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide ao Parafuso/Manguito"
+    },
+    "thresholds": {
+      "greenStartMin": "Início Verde (Mín)",
+      "yellowStartMin": "Início Amarelo (Mín)",
+      "redStartMin": "Início Vermelho (Mín)"
+    }
+  },
+  "forms": {
+    "positions": {
+      "position1": "Posição 1",
+      "position2": "Posição 2",
+      "position3": "Posição 3",
+      "position4": "Posição 4",
+      "position5": "Posição 5",
+      "position6": "Posição 6",
+      "maxDeviation": "Desvio Máximo"
+    },
+    "beforeAfter": {
+      "includeBefore": "Incluir medições antes da manutenção",
+      "beforeMaintenance": "Antes da Manutenção",
+      "afterMaintenance": "Após a Manutenção"
+    }
+  },
+  "actions": {
+    "save": "Salvar",
+    "saving": "Salvando...",
+    "savePermissions": "Salvar Permissões",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "deleting": "Excluindo...",
+    "edit": "Editar",
+    "create": "Criar",
+    "creating": "Criando...",
+    "update": "Atualizar",
+    "updating": "Atualizando...",
+    "submit": "Enviar",
+    "submitting": "Enviando...",
+    "loading": "Carregando...",
+    "close": "Fechar"
+  },
+  "messages": {
+    "noUsersFound": "Nenhum usuário encontrado. Crie um para começar.",
+    "loadingUsers": "Carregando usuários...",
+    "selectBranch": "Por favor, selecione uma filial",
+    "success": "Sucesso",
+    "error": "Erro"
   }
 }

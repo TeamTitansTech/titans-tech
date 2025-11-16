@@ -27,6 +27,12 @@ enum MatingPartType {
   NUT_SCREW_SLEEVE
 }
 
+enum ParallelismType {
+  DNC
+  TO_BED
+  TO_BOLSTER
+}
+
 enum DncToBedToBolsterType {
   DNC
   TO_BED
@@ -470,14 +476,19 @@ model MachineField {
 // Machine Service Models
 
 model MachineService {
-  id          String        @id @default(cuid())
-  machineId   String
-  date        DateTime
-  type        ServiceType   @default(INSPECTION)
-  status      ServiceStatus @default(PENDING)
-  performedBy String? // Optional: userId of who performed the service
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  id                 String        @id @default(cuid())
+  machineId          String
+  date               DateTime
+  type               ServiceType   @default(INSPECTION)
+  status             ServiceStatus @default(PENDING)
+  performedBy        String? // Optional: userId of who performed the service
+  completedSections  Json?         @default("[]") // Array of completed section keys
+  lastSectionSavedAt DateTime? // Timestamp of last section save
+  currentStep        String? // Current step in the modal: 'selection', 'details', 'sections', 'summary'
+  currentSectionKey  String? // Current section being filled (e.g., 'BEARING_CLEARANCE')
+  selectedSections   Json?         @default("[]") // Array of selected section keys
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
 
   machine                      Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
   bearingClearance             MachineServiceBearingClearance[]
@@ -603,9 +614,13 @@ model MachineServiceSlide {
   innerBeforeId    String?
   innerDataId      String?
 
-  // Parallelism fields
-  parallelism                DncToBedToBolsterType?
-  hasParallelismBeenAdjusted YesNoNaDncType?
+  // Outer parallelism fields
+  outerParallelism                ParallelismType?
+  outerHasParallelismBeenAdjusted YesNoNaDncType?
+
+  // Inner parallelism fields
+  innerParallelism                ParallelismType?
+  innerHasParallelismBeenAdjusted YesNoNaDncType?
 
   // Outer shutheight fields
   outerShutheightIndicatorsChecked YesNoDncType?

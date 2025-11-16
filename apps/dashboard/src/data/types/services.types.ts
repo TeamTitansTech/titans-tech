@@ -9,6 +9,7 @@ export {
   ServiceType,
   ServiceStatus,
   MatingPartType,
+  ParallelismType,
   DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,

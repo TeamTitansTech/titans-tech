@@ -4,10 +4,22 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
-import { Calendar, Plus } from 'lucide-react';
+import { Calendar, Plus, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 import SimpleServiceCreationModal from './SimpleServiceCreationModal';
 import { ServiceCompletionModal } from './ServiceCompletionModal';
+import { deleteService } from '@/data/services/services.api';
 import type { Service } from '@/data/types/services.types';
 
 interface UpcomingServicesWrapperProps {
@@ -26,6 +38,8 @@ export function UpcomingServicesWrapper({
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Filter for upcoming services (future dates and PENDING status)
   const today = new Date();
@@ -49,6 +63,32 @@ export function UpcomingServicesWrapper({
     }
   };
 
+  const handleDeleteClick = (e: React.MouseEvent, service: Service) => {
+    e.stopPropagation(); // Prevent triggering the service click
+    setServiceToDelete(service);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!serviceToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await deleteService(serviceToDelete.id, machineId);
+
+      if (response.errors) {
+        toast.error('Failed to delete service');
+      } else {
+        toast.success('Service deleted successfully');
+        setServiceToDelete(null);
+      }
+    } catch (error) {
+      console.error('Error deleting service:', error);
+      toast.error('An unexpected error occurred');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <>
       <Card>
@@ -68,6 +108,12 @@ export function UpcomingServicesWrapper({
             <div className="space-y-4">
               {upcomingServices.map((service) => {
                 const serviceDate = new Date(service.date);
+                // Check if service has any sections completed (in progress)
+                const serviceData = service as any;
+                const completedSections = Array.isArray(serviceData.completedSections)
+                  ? serviceData.completedSections
+                  : [];
+                const hasStarted = completedSections.length > 0;
 
                 return (
                   <div
@@ -93,6 +139,21 @@ export function UpcomingServicesWrapper({
                           })}
                         </Typography>
                       </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      {hasStarted && (
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-600 text-white dark:bg-yellow-500">
+                          {t('inProgress')}
+                        </span>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={(e) => handleDeleteClick(e, service)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 );
@@ -130,6 +191,24 @@ export function UpcomingServicesWrapper({
           initialPerformedBy={selectedService.performedBy ?? undefined}
         />
       )}
+      <AlertDialog open={!!serviceToDelete} onOpenChange={() => setServiceToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('deleteServiceTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>{t('deleteServiceDescription')}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? t('deleting') : t('delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

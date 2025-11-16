@@ -1,8 +1,6 @@
 'use client';
 
-import { useState, forwardRef, useImperativeHandle } from 'react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
+import { forwardRef, useImperativeHandle } from 'react';
 import {
   type LubricationHydraulicsData,
   type LubricationHydraulicsGauge,
@@ -11,6 +9,8 @@ import {
 } from '@/data/types/services.types';
 import { LubricationHydraulicsForm } from '../forms/LubricationHydraulicsForm';
 import { isDataTouched } from './utils';
+import { useSectionState } from '../../hooks/useSectionState';
+import { SectionContainer } from '../shared/SectionContainer';
 
 export const defaultLubricationHydraulicsData: LubricationHydraulicsData = {
   gauges: [] as LubricationHydraulicsGauge[],
@@ -48,15 +48,20 @@ export const LubricationHydraulicsSection = forwardRef<
   LubricationHydraulicsSectionRef,
   LubricationHydraulicsSectionProps
 >(({ isOpen, onOpenChange, onSectionTouched }, ref) => {
-  const [data, setData] = useState<LubricationHydraulicsData>(defaultLubricationHydraulicsData);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  // Use the section state hook
+  const {
+    data,
+    errors,
+    updateField: baseUpdateField,
+    reset,
+  } = useSectionState<LubricationHydraulicsData>(defaultLubricationHydraulicsData);
 
+  // Wrapper to call onSectionTouched
   const updateField = (
     field: keyof LubricationHydraulicsData,
     value: string | number | boolean | YesNoDncType | LubricationHydraulicsGauge[] | undefined,
   ) => {
-    setData((prev) => ({ ...prev, [field]: value }));
-    setErrors((prev) => ({ ...prev, [field]: '' }));
+    baseUpdateField(field, value as any);
     onSectionTouched?.();
   };
 
@@ -108,35 +113,22 @@ export const LubricationHydraulicsSection = forwardRef<
       return [];
     },
 
-    reset: () => {
-      setData(defaultLubricationHydraulicsData);
-      setErrors({});
-    },
+    reset,
   }));
 
   return (
-    <Collapsible open={isOpen} onOpenChange={onOpenChange}>
-      <CollapsibleTrigger className="w-full">
-        <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
-          <h3 className="text-base font-semibold">
-            Lubrication / Hydraulics / Pressure Switches / Oil & Filter
-          </h3>
-          <ChevronDown
-            className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
-          />
-        </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-card">
-          <LubricationHydraulicsForm
-            data={data}
-            updateFn={updateField}
-            errors={errors}
-            handleBlur={handleBlur}
-          />
-        </div>
-      </CollapsibleContent>
-    </Collapsible>
+    <SectionContainer
+      title="Lubrication / Hydraulics / Pressure Switches / Oil & Filter"
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+    >
+      <LubricationHydraulicsForm
+        data={data}
+        updateFn={updateField}
+        errors={errors}
+        handleBlur={handleBlur}
+      />
+    </SectionContainer>
   );
 });
 
