@@ -1649,22 +1649,24 @@ export function ServiceCompletionModal({
                                         (data as any).outerBefore ||
                                           (data as any).innerBefore ||
                                           {},
-                                      ).map((key) => (
-                                        <TableRow
-                                          key={key}
-                                          className="text-[11px] hover:bg-muted/30"
-                                        >
-                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                            {formatFieldName(key)}
-                                          </TableCell>
-                                          <TableCell className="py-1.5 text-center border-r">
-                                            {displayValue((data as any).outerBefore?.[key])}
-                                          </TableCell>
-                                          <TableCell className="py-1.5 text-center">
-                                            {displayValue((data as any).innerBefore?.[key])}
-                                          </TableCell>
-                                        </TableRow>
-                                      ))}
+                                      )
+                                        .filter((key) => !isIdField(key))
+                                        .map((key) => (
+                                          <TableRow
+                                            key={key}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {formatFieldName(key)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue((data as any).outerBefore?.[key])}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {displayValue((data as any).innerBefore?.[key])}
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
                                     </TableBody>
                                   </Table>
                                 </div>
@@ -1694,22 +1696,24 @@ export function ServiceCompletionModal({
                                     <TableBody>
                                       {Object.keys(
                                         (data as any).outerData || (data as any).innerData || {},
-                                      ).map((key) => (
-                                        <TableRow
-                                          key={key}
-                                          className="text-[11px] hover:bg-muted/30"
-                                        >
-                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                            {formatFieldName(key)}
-                                          </TableCell>
-                                          <TableCell className="py-1.5 text-center border-r">
-                                            {displayValue((data as any).outerData?.[key])}
-                                          </TableCell>
-                                          <TableCell className="py-1.5 text-center">
-                                            {displayValue((data as any).innerData?.[key])}
-                                          </TableCell>
-                                        </TableRow>
-                                      ))}
+                                      )
+                                        .filter((key) => !isIdField(key))
+                                        .map((key) => (
+                                          <TableRow
+                                            key={key}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {formatFieldName(key)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue((data as any).outerData?.[key])}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {displayValue((data as any).innerData?.[key])}
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
                                     </TableBody>
                                   </Table>
                                 </div>
@@ -2384,16 +2388,21 @@ export function ServiceCompletionModal({
                                     </TableRow>
                                   </TableHeader>
                                   <TableBody>
-                                    {Object.entries(data).map(([key, value]) => (
-                                      <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                          {formatFieldName(key)}
-                                        </TableCell>
-                                        <TableCell className="py-1.5 text-center">
-                                          {displayValue(value)}
-                                        </TableCell>
-                                      </TableRow>
-                                    ))}
+                                    {Object.entries(data)
+                                      .filter(([key]) => !isIdField(key))
+                                      .map(([key, value]) => (
+                                        <TableRow
+                                          key={key}
+                                          className="text-[11px] hover:bg-muted/30"
+                                        >
+                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                            {formatFieldName(key)}
+                                          </TableCell>
+                                          <TableCell className="py-1.5 text-center">
+                                            {displayValue(value)}
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
                                   </TableBody>
                                 </Table>
                               </div>
@@ -2438,7 +2447,7 @@ export function ServiceCompletionModal({
                                     </div>
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       {Object.entries(data.outerData)
-                                        .filter(([key]) => key !== 'notes')
+                                        .filter(([key]) => !isIdField(key) && key !== 'notes')
                                         .map(([key, value]) => (
                                           <div key={key} className="flex justify-between">
                                             <span className="text-muted-foreground">
@@ -2460,7 +2469,7 @@ export function ServiceCompletionModal({
                                     </div>
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       {Object.entries(data.innerData)
-                                        .filter(([key]) => key !== 'notes')
+                                        .filter(([key]) => !isIdField(key) && key !== 'notes')
                                         .map(([key, value]) => (
                                           <div key={key} className="flex justify-between">
                                             <span className="text-muted-foreground">

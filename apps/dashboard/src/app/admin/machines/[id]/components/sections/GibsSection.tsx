@@ -91,10 +91,11 @@ interface GibsSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
+  initialData?: any; // GibsCheck data from API
 }
 
 export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
-  ({ isOpen, onOpenChange, onSectionTouched }, ref) => {
+  ({ isOpen, onOpenChange, onSectionTouched, initialData }, ref) => {
     // Use the outer/inner state hook
     const {
       outerBeforeData,
@@ -114,7 +115,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       setInnerBeforeFieldError,
       setInnerAfterFieldError,
       reset,
-    } = useOuterInnerState<GibsData>(defaultGibsData);
+    } = useOuterInnerState<GibsData>(defaultGibsData, initialData);
 
     // Wrapper functions to call onSectionTouched
     const updateOuterBeforeField = (

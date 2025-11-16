@@ -39,19 +39,20 @@ export interface LubricationHydraulicsSectionRef {
 
 interface LubricationHydraulicsSectionProps {
   onSectionTouched?: () => void;
+  initialData?: LubricationHydraulicsData;
 }
 
 export const LubricationHydraulicsSection = forwardRef<
   LubricationHydraulicsSectionRef,
   LubricationHydraulicsSectionProps
->(({ onSectionTouched }, ref) => {
+>(({ onSectionTouched, initialData }, ref) => {
   // Use the section state hook
   const {
     data,
     errors,
     updateField: baseUpdateField,
     reset,
-  } = useSectionState<LubricationHydraulicsData>(defaultLubricationHydraulicsData);
+  } = useSectionState<LubricationHydraulicsData>(initialData || defaultLubricationHydraulicsData);
 
   // Wrapper to call onSectionTouched
   const updateField = (
