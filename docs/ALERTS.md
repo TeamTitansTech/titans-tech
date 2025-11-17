@@ -266,23 +266,25 @@ async createThreshold(dto: CreateThresholdDto) {
 
 ```typescript
 // Zod Schema
-export const CreateThresholdSchema = z.object({
-  blueprintId: z.string().cuid(),
-  totalClearance_greenMin: z.string(),
-  totalClearance_yellowMin: z.string(),
-  totalClearance_redMin: z.string(),
-  // ... outros campos
-}).refine(
-  (data) => {
-    const green = parseFloat(data.totalClearance_greenMin);
-    const yellow = parseFloat(data.totalClearance_yellowMin);
-    const red = parseFloat(data.totalClearance_redMin);
-    return green < yellow && yellow < red;
-  },
-  {
-    message: 'Invalid threshold order: greenMin < yellowMin < redMin',
-  }
-);
+export const CreateThresholdSchema = z
+  .object({
+    blueprintId: z.string().cuid(),
+    totalClearance_greenMin: z.string(),
+    totalClearance_yellowMin: z.string(),
+    totalClearance_redMin: z.string(),
+    // ... outros campos
+  })
+  .refine(
+    (data) => {
+      const green = parseFloat(data.totalClearance_greenMin);
+      const yellow = parseFloat(data.totalClearance_yellowMin);
+      const red = parseFloat(data.totalClearance_redMin);
+      return green < yellow && yellow < red;
+    },
+    {
+      message: 'Invalid threshold order: greenMin < yellowMin < redMin',
+    },
+  );
 ```
 
 ## Cálculo de Severidade
@@ -294,16 +296,16 @@ Para cada campo:
 ```typescript
 function calculateSeverity(
   differential: number,
-  thresholds: { greenMin: number; yellowMin: number; redMin: number }
+  thresholds: { greenMin: number; yellowMin: number; redMin: number },
 ): AlertSeverity {
   if (differential < thresholds.greenMin) {
-    return 'NONE';  // Normal
+    return 'NONE'; // Normal
   } else if (differential < thresholds.yellowMin) {
-    return 'GREEN';  // Atenção
+    return 'GREEN'; // Atenção
   } else if (differential < thresholds.redMin) {
-    return 'YELLOW';  // Alerta
+    return 'YELLOW'; // Alerta
   } else {
-    return 'RED';  // Crítico
+    return 'RED'; // Crítico
   }
 }
 ```
@@ -561,9 +563,7 @@ export function ThresholdRangeInput({
       {/* Visualização de Zonas */}
       <div className="flex h-12 rounded overflow-hidden">
         <div className="bg-green-200 flex-1 flex items-center justify-center">
-          <span className="text-xs">
-            VERDE &lt; {yellowMin.toFixed(3)}
-          </span>
+          <span className="text-xs">VERDE &lt; {yellowMin.toFixed(3)}</span>
         </div>
         <div className="bg-yellow-200 flex-1 flex items-center justify-center">
           <span className="text-xs">
@@ -571,9 +571,7 @@ export function ThresholdRangeInput({
           </span>
         </div>
         <div className="bg-red-200 flex-1 flex items-center justify-center">
-          <span className="text-xs">
-            VERMELHO {redMin.toFixed(3)}+
-          </span>
+          <span className="text-xs">VERMELHO {redMin.toFixed(3)}+</span>
         </div>
       </div>
 

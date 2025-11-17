@@ -21,6 +21,7 @@ Guia prático para desenvolver no projeto Titans Tech.
 #### IDE: Visual Studio Code
 
 **Extensões Essenciais**:
+
 ```json
 {
   "recommendations": [
@@ -35,6 +36,7 @@ Guia prático para desenvolver no projeto Titans Tech.
 ```
 
 **Settings (`.vscode/settings.json`)**:
+
 ```json
 {
   "editor.formatOnSave": true,
@@ -43,15 +45,14 @@ Guia prático para desenvolver no projeto Titans Tech.
     "source.fixAll.eslint": true
   },
   "typescript.tsdk": "node_modules/typescript/lib",
-  "tailwindCSS.experimental.classRegex": [
-    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
-  ]
+  "tailwindCSS.experimental.classRegex": [["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]]
 }
 ```
 
 #### Terminal
 
 **Zsh com Oh My Zsh** (opcional mas recomendado):
+
 ```bash
 # Aliases úteis
 alias tt-dev="npm run dev"
@@ -286,10 +287,8 @@ export class EquipmentController {
   constructor(private readonly equipmentService: EquipmentService) {}
 
   @Post()
-  @BranchPermission('createMachines')  // Reutilizar permissão existente
-  create(
-    @Body(new ZodValidationPipe(CreateEquipmentSchema)) dto: CreateEquipmentDto
-  ) {
+  @BranchPermission('createMachines') // Reutilizar permissão existente
+  create(@Body(new ZodValidationPipe(CreateEquipmentSchema)) dto: CreateEquipmentDto) {
     return this.equipmentService.create(dto);
   }
 
@@ -587,7 +586,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Use debugger
 function handleSubmit(data: MachineDto) {
-  debugger;  // Breakpoint aqui
+  debugger; // Breakpoint aqui
   submitData(data);
 }
 ```
@@ -595,6 +594,7 @@ function handleSubmit(data: MachineDto) {
 #### Network Inspection
 
 Use Chrome DevTools Network tab para inspecionar requests:
+
 - Headers (Authorization token?)
 - Payload (dados corretos?)
 - Response (status code, body)
@@ -636,7 +636,7 @@ import { Cache } from 'cache-manager';
 export class MachinesService {
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    private prisma: PrismaService
+    private prisma: PrismaService,
   ) {}
 
   async findAll() {
@@ -716,11 +716,11 @@ const schema = z.object({
 ```typescript
 // ✅ Prisma protege automaticamente
 await prisma.user.findFirst({
-  where: { email: userInput },  // Safe
+  where: { email: userInput }, // Safe
 });
 
 // ❌ Nunca use raw queries com input do usuário
-await prisma.$executeRaw`SELECT * FROM users WHERE email = ${userInput}`;  // Unsafe!
+await prisma.$executeRaw`SELECT * FROM users WHERE email = ${userInput}`; // Unsafe!
 
 // ✅ Se precisar de raw query, use prepared statements
 await prisma.$executeRaw`SELECT * FROM users WHERE email = ${Prisma.sql([userInput])}`;
@@ -736,7 +736,7 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 @UseGuards(ThrottlerGuard)
 export class AuthController {
   @Post('login')
-  @Throttle(5, 60)  // 5 requests por 60 segundos
+  @Throttle(5, 60) // 5 requests por 60 segundos
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
@@ -784,6 +784,7 @@ NODE_ENV=production npm run start:prod
 ```
 
 **Variáveis de Ambiente Produção**:
+
 ```env
 NODE_ENV=production
 PORT=3001
@@ -802,6 +803,7 @@ npm run start
 ```
 
 **Variáveis de Ambiente Produção**:
+
 ```env
 NEXT_PUBLIC_API_URL=https://api.titanstech.com
 AUTH_JWT_SECRET=<same-as-backend>

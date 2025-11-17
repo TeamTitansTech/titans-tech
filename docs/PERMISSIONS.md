@@ -53,12 +53,14 @@ O Titans Tech implementa um sistema de permissões em **três níveis**:
 ### 1. SysAdmin (Sistema)
 
 **Características**:
+
 - Entidade separada (`SysAdmin` table)
 - Flag `isSysAdmin: true` no JWT
 - Acesso irrestrito a todas as funcionalidades
 - **NÃO** pertence a nenhuma empresa
 
 **Permissões**:
+
 - ✅ Criar/editar/deletar empresas
 - ✅ Criar/editar/deletar blueprints (globais)
 - ✅ Criar/editar/deletar filiais
@@ -67,6 +69,7 @@ O Titans Tech implementa um sistema de permissões em **três níveis**:
 - ✅ Configurar thresholds de alertas
 
 **JWT Payload**:
+
 ```json
 {
   "id": "sysadmin-cuid",
@@ -77,11 +80,13 @@ O Titans Tech implementa um sistema de permissões em **três níveis**:
 ### 2. CompanyAdmin (Empresa)
 
 **Características**:
+
 - Entidade `User` com flag `isCompanyAdmin: true`
 - Pertence a uma empresa (`companyId`)
 - Acesso total à sua empresa e filiais
 
 **Permissões**:
+
 - ✅ Gerenciar filiais da empresa
 - ✅ Criar/editar/deletar usuários da empresa
 - ✅ Atribuir permissões a usuários
@@ -91,6 +96,7 @@ O Titans Tech implementa um sistema de permissões em **três níveis**:
 - ❌ Acessar outras empresas
 
 **JWT Payload**:
+
 ```json
 {
   "id": "user-cuid",
@@ -102,12 +108,14 @@ O Titans Tech implementa um sistema de permissões em **três níveis**:
 ### 3. CompanyManager (Empresa)
 
 **Características**:
+
 - Entidade `User` com flag `isCompanyManager: true`
 - Acesso administrativo limitado
 - Pode ver relatórios consolidados
 - Permissões de filial ainda aplicam
 
 **Permissões**:
+
 - ✅ Ver dados de todas as filiais (read-only em geral)
 - ✅ Gerar relatórios consolidados
 - ⚠️ Outras ações dependem de permissões de filial
@@ -116,11 +124,13 @@ O Titans Tech implementa um sistema de permissões em **três níveis**:
 ### 4. User (Regular)
 
 **Características**:
+
 - Entidade `User` sem flags especiais
 - Acesso baseado **exclusivamente** em permissões de filial
 - Precisa estar associado a filiais via `UserBranch`
 
 **Permissões**:
+
 - ⚠️ Definidas por filial na tabela `UserBranch`
 - ❌ Sem acesso se não tiver `UserBranch` em nenhuma filial
 
@@ -132,59 +142,59 @@ Cada usuário pode ter permissões específicas **por filial**:
 
 #### 1. Usuários (6 permissões)
 
-| Permissão              | Descrição                                    |
-| ---------------------- | -------------------------------------------- |
-| `readUsers`            | Ver lista de usuários da filial              |
-| `createUsers`          | Criar novos usuários na empresa              |
-| `updateUsers`          | Editar dados de usuários                     |
-| `deleteUsers`          | Remover usuários                             |
+| Permissão                | Descrição                                  |
+| ------------------------ | ------------------------------------------ |
+| `readUsers`              | Ver lista de usuários da filial            |
+| `createUsers`            | Criar novos usuários na empresa            |
+| `updateUsers`            | Editar dados de usuários                   |
+| `deleteUsers`            | Remover usuários                           |
 | `updatePermissionsUsers` | Alterar permissões de outros usuários      |
-| `manageUsers`          | Permissão administrativa geral de usuários   |
+| `manageUsers`            | Permissão administrativa geral de usuários |
 
 #### 2. Filiais (2 permissões)
 
-| Permissão              | Descrição                                    |
-| ---------------------- | -------------------------------------------- |
-| `readBranches`         | Ver informações das filiais                  |
-| `updateBranches`       | Editar dados das filiais                     |
+| Permissão        | Descrição                   |
+| ---------------- | --------------------------- |
+| `readBranches`   | Ver informações das filiais |
+| `updateBranches` | Editar dados das filiais    |
 
 #### 3. Blueprints (4 permissões)
 
-| Permissão              | Descrição                                    |
-| ---------------------- | -------------------------------------------- |
-| `readBlueprints`       | Ver blueprints disponíveis                   |
-| `createBlueprints`     | Criar novos blueprints (apenas SysAdmin)     |
-| `updateBlueprints`     | Editar blueprints existentes (apenas SysAdmin)|
-| `deleteBlueprints`     | Deletar blueprints (apenas SysAdmin)         |
+| Permissão          | Descrição                                      |
+| ------------------ | ---------------------------------------------- |
+| `readBlueprints`   | Ver blueprints disponíveis                     |
+| `createBlueprints` | Criar novos blueprints (apenas SysAdmin)       |
+| `updateBlueprints` | Editar blueprints existentes (apenas SysAdmin) |
+| `deleteBlueprints` | Deletar blueprints (apenas SysAdmin)           |
 
 **Nota**: Blueprints são globais, então essas permissões servem mais para futuras features de blueprints privados.
 
 #### 4. Máquinas (4 permissões)
 
-| Permissão              | Descrição                                    |
-| ---------------------- | -------------------------------------------- |
-| `readMachines`         | Ver lista de máquinas da filial              |
-| `createMachines`       | Cadastrar novas máquinas                     |
-| `updateMachines`       | Editar dados de máquinas                     |
-| `deleteMachines`       | Remover máquinas                             |
+| Permissão        | Descrição                       |
+| ---------------- | ------------------------------- |
+| `readMachines`   | Ver lista de máquinas da filial |
+| `createMachines` | Cadastrar novas máquinas        |
+| `updateMachines` | Editar dados de máquinas        |
+| `deleteMachines` | Remover máquinas                |
 
 #### 5. Serviços (4 permissões)
 
-| Permissão              | Descrição                                    |
-| ---------------------- | -------------------------------------------- |
-| `readServices`         | Ver serviços de manutenção/inspeção          |
-| `createServices`       | Registrar novos serviços                     |
-| `updateServices`       | Editar serviços existentes                   |
-| `deleteServices`       | Remover registros de serviços                |
+| Permissão        | Descrição                           |
+| ---------------- | ----------------------------------- |
+| `readServices`   | Ver serviços de manutenção/inspeção |
+| `createServices` | Registrar novos serviços            |
+| `updateServices` | Editar serviços existentes          |
+| `deleteServices` | Remover registros de serviços       |
 
 #### 6. Alertas (4 permissões)
 
-| Permissão              | Descrição                                    |
-| ---------------------- | -------------------------------------------- |
-| `readAlerts`           | Ver alertas gerados                          |
-| `createAlerts`         | Gerar alertas manualmente (admin)            |
-| `updateAlerts`         | Editar configurações de alertas              |
-| `deleteAlerts`         | Remover alertas                              |
+| Permissão      | Descrição                         |
+| -------------- | --------------------------------- |
+| `readAlerts`   | Ver alertas gerados               |
+| `createAlerts` | Gerar alertas manualmente (admin) |
+| `updateAlerts` | Editar configurações de alertas   |
+| `deleteAlerts` | Remover alertas                   |
 
 ### Matriz de Permissões Padrão
 
@@ -417,7 +427,10 @@ export class AuthGuard implements CanActivate {
       throw new ForbiddenException('Admin access required');
     }
 
-    const requiresCompanyAdmin = reflector.get<boolean>('requiresCompanyAdmin', context.getHandler());
+    const requiresCompanyAdmin = reflector.get<boolean>(
+      'requiresCompanyAdmin',
+      context.getHandler(),
+    );
     if (requiresCompanyAdmin && !request.user.isSysAdmin && !request.user.isCompanyAdmin) {
       throw new ForbiddenException('Company admin access required');
     }
@@ -435,7 +448,7 @@ export class AuthGuard implements CanActivate {
   }
 
   private async validateBranchPermission(user: any, branchId: string, permission: string) {
-    if (user.isSysAdmin) return true;  // SysAdmin bypassa
+    if (user.isSysAdmin) return true; // SysAdmin bypassa
     if (user.isCompanyAdmin) {
       // CompanyAdmin tem acesso se a filial pertence à sua empresa
       const branch = await this.prisma.companyBranch.findUnique({
@@ -478,8 +491,7 @@ export const Authenticated = () => SetMetadata('isAuthenticated', true);
 export const Admin = () => SetMetadata('requiresAdmin', true);
 export const CompanyAdmin = () => SetMetadata('requiresCompanyAdmin', true);
 export const CompanyManager = () => SetMetadata('requiresCompanyManager', true);
-export const BranchPermission = (permission: string) =>
-  SetMetadata('branchPermission', permission);
+export const BranchPermission = (permission: string) => SetMetadata('branchPermission', permission);
 ```
 
 ### Uso em Controllers
@@ -495,13 +507,13 @@ export class MachinesController {
   }
 
   @Get(':id')
-  @Authenticated()  // Qualquer usuário autenticado
+  @Authenticated() // Qualquer usuário autenticado
   findOne(@Param('id') id: string) {
     return this.machinesService.findOne(id);
   }
 
   @Delete(':id')
-  @Admin()  // Apenas SysAdmin
+  @Admin() // Apenas SysAdmin
   remove(@Param('id') id: string) {
     return this.machinesService.remove(id);
   }
@@ -524,11 +536,9 @@ export function useAuth() {
 
   const hasPermission = (branchId: string, permission: string): boolean => {
     if (isSysAdmin) return true;
-    if (isCompanyAdmin) return true;  // Simplificação
+    if (isCompanyAdmin) return true; // Simplificação
 
-    const userBranch = companyUser?.userBranches.find(
-      (ub) => ub.branchId === branchId
-    );
+    const userBranch = companyUser?.userBranches.find((ub) => ub.branchId === branchId);
 
     return userBranch?.[permission] || false;
   };
@@ -661,7 +671,7 @@ async updatePermissions(
 async function checkMachineAccess(
   userId: string,
   machineId: string,
-  permission: string
+  permission: string,
 ): Promise<boolean> {
   const machine = await prisma.machine.findUnique({
     where: { id: machineId },
@@ -694,7 +704,7 @@ const permissions = {
   readMachines: true,
   createMachines: true,
   updateMachines: true,
-  deleteMachines: true,  // Técnico não precisa disso
+  deleteMachines: true, // Técnico não precisa disso
 };
 
 // ✅ Bom: Apenas o necessário

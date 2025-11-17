@@ -54,19 +54,19 @@ Este documento descreve a arquitetura completa do sistema Titans Tech, incluindo
 
 ### Stack Tecnológico
 
-| Camada       | Tecnologia      | Versão | Propósito                          |
-| ------------ | --------------- | ------ | ---------------------------------- |
-| Monorepo     | Turborepo       | 2.6.1  | Build system e caching             |
-| Backend      | NestJS          | 10.x   | Framework API                      |
-| Frontend     | Next.js         | 16.x   | Framework React com SSR            |
-| Database     | PostgreSQL      | 15.x   | Banco de dados relacional          |
-| ORM          | Prisma          | 6.x    | Type-safe database client          |
-| Auth         | JWT             | -      | Autenticação stateless             |
-| Validation   | Zod             | 3.x    | Runtime schema validation          |
-| UI           | Radix UI        | -      | Componentes acessíveis headless    |
-| Styling      | Tailwind CSS    | 3.x    | Utility-first CSS                  |
-| i18n         | next-intl       | -      | Internacionalização                |
-| Package Mgr  | npm             | 10.9.2 | Gerenciador de pacotes             |
+| Camada      | Tecnologia   | Versão | Propósito                       |
+| ----------- | ------------ | ------ | ------------------------------- |
+| Monorepo    | Turborepo    | 2.6.1  | Build system e caching          |
+| Backend     | NestJS       | 10.x   | Framework API                   |
+| Frontend    | Next.js      | 16.x   | Framework React com SSR         |
+| Database    | PostgreSQL   | 15.x   | Banco de dados relacional       |
+| ORM         | Prisma       | 6.x    | Type-safe database client       |
+| Auth        | JWT          | -      | Autenticação stateless          |
+| Validation  | Zod          | 3.x    | Runtime schema validation       |
+| UI          | Radix UI     | -      | Componentes acessíveis headless |
+| Styling     | Tailwind CSS | 3.x    | Utility-first CSS               |
+| i18n        | next-intl    | -      | Internacionalização             |
+| Package Mgr | npm          | 10.9.2 | Gerenciador de pacotes          |
 
 ## Estrutura do Monorepo
 
@@ -145,14 +145,12 @@ Utilizamos **npm workspaces** para gerenciar o monorepo:
 
 ```json
 {
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ]
+  "workspaces": ["apps/*", "packages/*"]
 }
 ```
 
 **Benefícios**:
+
 - Dependências compartilhadas são hoisted para raiz
 - Pacotes internos usam scoped names: `@titans-tech/<name>`
 - Single `package-lock.json` para todo o monorepo
@@ -198,6 +196,7 @@ Definido em `turbo.json`:
 ```
 
 **Explicação**:
+
 - `build` depende de `db:generate` executar primeiro
 - `^build` significa "build de todas as dependências"
 - `dev` nunca usa cache (modo watch)
@@ -265,6 +264,7 @@ Definido em `turbo.json`:
 #### 1. AuthModule (Global)
 
 **Responsabilidades**:
+
 - Configuração JWT
 - AuthGuard global
 - Decoradores de autorização
@@ -336,13 +336,13 @@ export class BlueprintsController {
   constructor(private readonly blueprintsService: BlueprintsService) {}
 
   @Post()
-  @Admin()  // Apenas SysAdmin pode criar blueprints
+  @Admin() // Apenas SysAdmin pode criar blueprints
   create(@Body() dto: CreateBlueprintDto) {
     return this.blueprintsService.create(dto);
   }
 
   @Get()
-  @Authenticated()  // Qualquer usuário autenticado
+  @Authenticated() // Qualquer usuário autenticado
   findAll() {
     return this.blueprintsService.findAll();
   }
@@ -374,7 +374,7 @@ export class BlueprintsService {
 
   async findAll() {
     return this.prisma.blueprint.findMany({
-      where: { deletedAt: null },  // Soft delete
+      where: { deletedAt: null }, // Soft delete
     });
   }
 }
@@ -485,9 +485,7 @@ export default function RootLayout({ children }) {
           <NextIntlClientProvider>
             <SysAdminProvider>
               <CompanyUserProvider>
-                <AuthProvider>
-                  {children}
-                </AuthProvider>
+                <AuthProvider>{children}</AuthProvider>
               </CompanyUserProvider>
             </SysAdminProvider>
           </NextIntlClientProvider>
@@ -499,6 +497,7 @@ export default function RootLayout({ children }) {
 ```
 
 **Ordem de Providers**:
+
 1. **ThemeProvider** - Gerencia tema dark/light
 2. **NextIntlClientProvider** - Internacionalização
 3. **SysAdminProvider** - Context para SysAdmin
@@ -579,10 +578,7 @@ export function useSysAdmin() {
 **Helper centralizado** (`src/data/helpers/responseHandler.ts`):
 
 ```typescript
-export async function responseHandler<T>(
-  url: string,
-  options?: RequestInit
-): Promise<T> {
+export async function responseHandler<T>(url: string, options?: RequestInit): Promise<T> {
   const token = cookies.get('access_token');
 
   const response = await fetch(`${API_URL}${url}`, {
@@ -640,27 +636,24 @@ Utilizamos **Radix UI** + **Tailwind CSS** + **CVA**:
 import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
 
-const buttonVariants = cva(
-  'inline-flex items-center justify-center rounded-md',
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive: 'bg-destructive text-destructive-foreground',
-        outline: 'border border-input hover:bg-accent',
-      },
-      size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 px-3',
-        lg: 'h-11 px-8',
-      },
+const buttonVariants = cva('inline-flex items-center justify-center rounded-md', {
+  variants: {
+    variant: {
+      default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+      destructive: 'bg-destructive text-destructive-foreground',
+      outline: 'border border-input hover:bg-accent',
     },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
+    size: {
+      default: 'h-10 px-4 py-2',
+      sm: 'h-9 px-3',
+      lg: 'h-11 px-8',
     },
-  }
-);
+  },
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+  },
+});
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -668,14 +661,8 @@ export interface ButtonProps
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, ...props }, ref) => {
-    return (
-      <button
-        className={buttonVariants({ variant, size, className })}
-        ref={ref}
-        {...props}
-      />
-    );
-  }
+    return <button className={buttonVariants({ variant, size, className })} ref={ref} {...props} />;
+  },
 );
 ```
 
@@ -959,6 +946,7 @@ npm run db:reset
 Arquivo: `packages/database/prisma/seed.ts`
 
 **Dados criados**:
+
 - 1 SysAdmin padrão
 - 1 Empresa (Acme Corporation)
 - 2 Filiais (Matriz e Filial Norte)
@@ -1032,13 +1020,13 @@ Arquivo: `packages/database/prisma/seed.ts`
 
 **24 Permissões Granulares** (em `UserBranch`):
 
-| Categoria      | Permissões                                        |
-| -------------- | ------------------------------------------------- |
-| Usuários       | read/create/update/delete/updatePermissions       |
-| Filiais        | read/update                                       |
-| Blueprints     | read/create/update/delete                         |
-| Máquinas       | read/create/update/delete                         |
-| Serviços       | read/create/update/delete                         |
+| Categoria  | Permissões                                  |
+| ---------- | ------------------------------------------- |
+| Usuários   | read/create/update/delete/updatePermissions |
+| Filiais    | read/update                                 |
+| Blueprints | read/create/update/delete                   |
+| Máquinas   | read/create/update/delete                   |
+| Serviços   | read/create/update/delete                   |
 
 **Verificação de Permissões** (AuthGuard):
 
@@ -1196,12 +1184,14 @@ User (flags em false)
 ### 1. Por que Monorepo?
 
 **Benefícios**:
+
 - Compartilhamento de código (tipos, DTOs, validações)
 - Build incremental com Turborepo
 - Versionamento sincronizado
 - Refatorações type-safe entre frontend e backend
 
 **Trade-offs**:
+
 - Complexidade inicial de setup
 - Tamanho do repositório maior
 - Deploy pode ser mais complexo
@@ -1209,6 +1199,7 @@ User (flags em false)
 ### 2. Por que NestJS?
 
 **Benefícios**:
+
 - Arquitetura modular e escalável
 - Dependency Injection nativo
 - Decorators para metaprogramming (guards, pipes, etc.)
@@ -1216,12 +1207,14 @@ User (flags em false)
 - Ecosystem maduro (Passport, TypeORM, Prisma)
 
 **Trade-offs**:
+
 - Curva de aprendizado para iniciantes
 - Boilerplate inicial maior que Express
 
 ### 3. Por que Next.js App Router?
 
 **Benefícios**:
+
 - Server Components (performance)
 - Streaming e Suspense nativos
 - Layouts aninhados
@@ -1229,12 +1222,14 @@ User (flags em false)
 - Built-in optimization (images, fonts, etc.)
 
 **Trade-offs**:
+
 - Curva de aprendizado (mudança do Pages Router)
 - Algumas libs ainda não compatíveis com Server Components
 
 ### 4. Por que Prisma?
 
 **Benefícios**:
+
 - Type-safety completa
 - Migrations versionadas
 - Schema declarativo e legível
@@ -1242,27 +1237,32 @@ User (flags em false)
 - Prisma Studio para debug
 
 **Trade-offs**:
+
 - Performance em queries muito complexas (vs SQL raw)
 - Tamanho do Prisma Client gerado
 
 ### 5. Por que Normalização de Alertas?
 
 **Design Original (Duplicado)**:
+
 - AlertBearingClearance continha RH + LH + differential + severity
 - Total: 24 colunas (12 RH + 12 LH)
 
 **Design Atual (Normalizado)**:
+
 - BearingClearanceData = fonte da verdade (RH + LH)
 - AlertBearingClearance = apenas calculados (differential + severity)
 - Total: 12 colunas no alerta
 
 **Benefícios**:
+
 - 66% redução de tamanho da tabela de alertas
 - Zero duplicação de dados
 - Single source of truth para medições
 - Consistência garantida
 
 **Trade-offs**:
+
 - Query mais complexa (JOIN necessário)
 - Latência ~10ms maior (15ms vs 5ms)
 
@@ -1271,12 +1271,14 @@ User (flags em false)
 ### 6. Por que JWT e não Sessions?
 
 **Benefícios**:
+
 - Stateless (escalabilidade horizontal)
 - Não requer armazenamento server-side
 - Pode incluir claims customizados
 - Funciona bem com múltiplos serviços
 
 **Trade-offs**:
+
 - Não pode revogar tokens (até expirar)
 - Tamanho maior em headers
 - Precisa refresh token strategy (não implementado ainda)

@@ -1671,8 +1671,8 @@ const loginResponse = await fetch('http://localhost:3001/auth/admin/login', {
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
     email: 'admin@titans.com',
-    password: 'Admin@123'
-  })
+    password: 'Admin@123',
+  }),
 });
 
 const { accessToken } = await loginResponse.json();
@@ -1680,8 +1680,8 @@ const { accessToken } = await loginResponse.json();
 // Listar máquinas
 const machinesResponse = await fetch('http://localhost:3001/machines?branchId=cm123', {
   headers: {
-    'Authorization': `Bearer ${accessToken}`
-  }
+    Authorization: `Bearer ${accessToken}`,
+  },
 });
 
 const machines = await machinesResponse.json();
