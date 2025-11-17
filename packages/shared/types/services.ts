@@ -467,6 +467,64 @@ export interface CounterbalanceCylinderCheck {
   innerData?: CounterbalanceCylinderData;
 }
 
+// Tramming Data
+export interface TrammingData {
+  // OUTER SECTION - Top Position (4 measurements)
+  outerTopTop: number;
+  outerTopBottom: number;
+  outerTopLeft: number;
+  outerTopRight: number;
+
+  // OUTER SECTION - Bottom Position (4 measurements)
+  outerBottomTop: number;
+  outerBottomBottom: number;
+  outerBottomLeft: number;
+  outerBottomRight: number;
+
+  // OUTER SECTION - Left Position (4 measurements)
+  outerLeftTop: number;
+  outerLeftBottom: number;
+  outerLeftLeft: number;
+  outerLeftRight: number;
+
+  // OUTER SECTION - Right Position (4 measurements)
+  outerRightTop: number;
+  outerRightBottom: number;
+  outerRightLeft: number;
+  outerRightRight: number;
+
+  // INNER SECTION - Top Position (4 measurements)
+  innerTopTop: number;
+  innerTopBottom: number;
+  innerTopLeft: number;
+  innerTopRight: number;
+
+  // INNER SECTION - Bottom Position (4 measurements)
+  innerBottomTop: number;
+  innerBottomBottom: number;
+  innerBottomLeft: number;
+  innerBottomRight: number;
+
+  // INNER SECTION - Left Position (4 measurements)
+  innerLeftTop: number;
+  innerLeftBottom: number;
+  innerLeftLeft: number;
+  innerLeftRight: number;
+
+  // INNER SECTION - Right Position (4 measurements)
+  innerRightTop: number;
+  innerRightBottom: number;
+  innerRightLeft: number;
+  innerRightRight: number;
+}
+
+export interface TrammingCheck {
+  outerData?: TrammingData;
+  innerData?: TrammingData;
+  slideTram?: YesNoDncType;
+  notes?: string;
+}
+
 // Service Creation Payload (for API requests)
 export interface CreateServicePayload {
   machineId: string;
@@ -483,6 +541,7 @@ export interface CreateServicePayload {
   lubricationHydraulics?: LubricationHydraulicsData;
   clutch?: ClutchData;
   counterbalanceCylinder?: CounterbalanceCylinderCheck;
+  tramming?: TrammingCheck;
 }
 
 export interface UpdateServicePayload {
@@ -499,6 +558,7 @@ export interface UpdateServicePayload {
   lubricationHydraulics?: LubricationHydraulicsData;
   clutch?: ClutchData;
   counterbalanceCylinder?: CounterbalanceCylinderCheck;
+  tramming?: TrammingCheck;
 }
 
 // Complete Service Entity
@@ -574,6 +634,14 @@ export interface CounterbalanceCylinderFormProps {
   handleBlur: (field: keyof CounterbalanceCylinderData) => void;
   title: string;
   hideNotes?: boolean;
+}
+
+export interface TrammingFormProps {
+  data: TrammingData;
+  updateFn: (field: keyof TrammingData, value: number) => void;
+  errors: Record<string, string>;
+  handleBlur: (field: keyof TrammingData) => void;
+  title: string;
 }
 
 export interface InspectionModalProps {

@@ -930,10 +930,11 @@ model CounterbalanceCylinderAirbagData {
 // TRAMMING Section
 
 model MachineServiceTramming {
-  id               String  @id @default(cuid())
+  id               String         @id @default(cuid())
   machineServiceId String
   outerDataId      String?
   innerDataId      String?
+  slideTram        YesNoDncType?
 
   // Notes
   notes String?
@@ -948,15 +949,53 @@ model MachineServiceTramming {
 model TrammingData {
   id String @id @default(cuid())
 
-  // Tramming measurements (8 points) - all in inches with 4 decimal precision
-  leftTop           Decimal @db.Decimal(10, 4)
-  leftBottom        Decimal @db.Decimal(10, 4)
-  centerOuterTop    Decimal @db.Decimal(10, 4)
-  centerOuterBottom Decimal @db.Decimal(10, 4)
-  centerInnerTop    Decimal @db.Decimal(10, 4)
-  centerInnerBottom Decimal @db.Decimal(10, 4)
-  rightTop          Decimal @db.Decimal(10, 4)
-  rightBottom       Decimal @db.Decimal(10, 4)
+  // OUTER SECTION - Top Position (4 measurements around trim pin)
+  outerTopTop    Decimal @db.Decimal(10, 4)
+  outerTopBottom Decimal @db.Decimal(10, 4)
+  outerTopLeft   Decimal @db.Decimal(10, 4)
+  outerTopRight  Decimal @db.Decimal(10, 4)
+
+  // OUTER SECTION - Bottom Position (4 measurements around trim pin)
+  outerBottomTop    Decimal @db.Decimal(10, 4)
+  outerBottomBottom Decimal @db.Decimal(10, 4)
+  outerBottomLeft   Decimal @db.Decimal(10, 4)
+  outerBottomRight  Decimal @db.Decimal(10, 4)
+
+  // OUTER SECTION - Left Position (4 measurements around trim pin)
+  outerLeftTop    Decimal @db.Decimal(10, 4)
+  outerLeftBottom Decimal @db.Decimal(10, 4)
+  outerLeftLeft   Decimal @db.Decimal(10, 4)
+  outerLeftRight  Decimal @db.Decimal(10, 4)
+
+  // OUTER SECTION - Right Position (4 measurements around trim pin)
+  outerRightTop    Decimal @db.Decimal(10, 4)
+  outerRightBottom Decimal @db.Decimal(10, 4)
+  outerRightLeft   Decimal @db.Decimal(10, 4)
+  outerRightRight  Decimal @db.Decimal(10, 4)
+
+  // INNER SECTION - Top Position (4 measurements around trim pin)
+  innerTopTop    Decimal @db.Decimal(10, 4)
+  innerTopBottom Decimal @db.Decimal(10, 4)
+  innerTopLeft   Decimal @db.Decimal(10, 4)
+  innerTopRight  Decimal @db.Decimal(10, 4)
+
+  // INNER SECTION - Bottom Position (4 measurements around trim pin)
+  innerBottomTop    Decimal @db.Decimal(10, 4)
+  innerBottomBottom Decimal @db.Decimal(10, 4)
+  innerBottomLeft   Decimal @db.Decimal(10, 4)
+  innerBottomRight  Decimal @db.Decimal(10, 4)
+
+  // INNER SECTION - Left Position (4 measurements around trim pin)
+  innerLeftTop    Decimal @db.Decimal(10, 4)
+  innerLeftBottom Decimal @db.Decimal(10, 4)
+  innerLeftLeft   Decimal @db.Decimal(10, 4)
+  innerLeftRight  Decimal @db.Decimal(10, 4)
+
+  // INNER SECTION - Right Position (4 measurements around trim pin)
+  innerRightTop    Decimal @db.Decimal(10, 4)
+  innerRightBottom Decimal @db.Decimal(10, 4)
+  innerRightLeft   Decimal @db.Decimal(10, 4)
+  innerRightRight  Decimal @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

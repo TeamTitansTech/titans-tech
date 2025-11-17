@@ -760,6 +760,27 @@
           "airbag": "Airbag"
         }
       },
+      "tramming": {
+        "slideTram": "Slide Tram",
+        "outerSection": "Outer",
+        "innerSection": "Inner",
+        "measurementPoints": "Measurement Points",
+        "inches": "inches",
+        "outerTop": "Outer Top",
+        "outerBottom": "Outer Bottom",
+        "outerLeft": "Outer Left",
+        "outerRight": "Outer Right",
+        "innerTop": "Inner Top",
+        "innerBottom": "Inner Bottom",
+        "innerLeft": "Inner Left",
+        "innerRight": "Inner Right",
+        "top": "Top",
+        "bottom": "Bottom",
+        "left": "Left",
+        "right": "Right",
+        "trimPin": "Trim Pin",
+        "notes": "Notes"
+      },
       "cancel": "Cancel",
       "submit": {
         "idle": "Create Inspection",

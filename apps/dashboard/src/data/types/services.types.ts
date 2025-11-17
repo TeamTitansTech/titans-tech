@@ -41,6 +41,8 @@ export type {
   ClutchData,
   CounterbalanceCylinderData,
   CounterbalanceCylinderCheck,
+  TrammingData,
+  TrammingCheck,
   // Service entity
   Service,
   ServiceHistoryItem,
@@ -53,6 +55,7 @@ export type {
   LubricationHydraulicsFormProps,
   ClutchFormProps,
   CounterbalanceCylinderFormProps,
+  TrammingFormProps,
   InspectionModalProps,
   ServiceCreationModalProps,
 } from '@titans-tech/shared/types';

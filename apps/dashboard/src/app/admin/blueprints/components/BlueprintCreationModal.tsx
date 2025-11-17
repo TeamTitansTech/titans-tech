@@ -49,6 +49,18 @@ interface Field {
 
 const AVAILABLE_SECTIONS = SERVICE_SECTION_SLUGS;
 
+// Client-safe slug to enum mapping
+const SLUG_TO_SECTION: Record<string, string> = {
+  bearing_clearance: 'BEARING_CLEARANCE',
+  slide: 'SLIDE',
+  gibs: 'GIBS',
+  lubrication_hydraulics_pressure_switches_oil_filter:
+    'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
+  clutch: 'CLUTCH',
+  counterbalance_cylinder_airbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
+  tramming: 'TRAMMING',
+};
+
 export const BlueprintCreationModal = ({
   isOpen,
   onClose,
@@ -181,7 +193,9 @@ export const BlueprintCreationModal = ({
 
     const payload: any = {
       name,
-      sections: selectedSections,
+      sections: selectedSections
+        .map((slug) => SLUG_TO_SECTION[slug])
+        .filter((section) => section !== undefined),
       fields: fields.map((field) => {
         const baseField = {
           fieldName: field.fieldName,

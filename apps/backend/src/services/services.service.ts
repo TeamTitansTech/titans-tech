@@ -286,6 +286,9 @@ export class ServicesService {
                   .innerData as Prisma.TrammingDataCreateWithoutInnerServicesInput,
               },
             }),
+            ...(createInspectionDto.tramming.slideTram && {
+              slideTram: createInspectionDto.tramming.slideTram,
+            }),
             ...(createInspectionDto.tramming.notes && {
               notes: createInspectionDto.tramming.notes,
             }),
@@ -920,6 +923,9 @@ export class ServicesService {
                     create: updateServiceDto.tramming
                       .innerData as Prisma.TrammingDataCreateWithoutInnerServicesInput,
                   },
+                }),
+                ...(updateServiceDto.tramming.slideTram && {
+                  slideTram: updateServiceDto.tramming.slideTram,
                 }),
                 ...(updateServiceDto.tramming.notes && {
                   notes: updateServiceDto.tramming.notes,

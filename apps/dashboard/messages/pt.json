@@ -777,6 +777,27 @@
           "airbag": "Airbag"
         }
       },
+      "tramming": {
+        "slideTram": "Tram do Slide",
+        "outerSection": "Externo",
+        "innerSection": "Interno",
+        "measurementPoints": "Pontos de Medição",
+        "inches": "polegadas",
+        "outerTop": "Superior Externo",
+        "outerBottom": "Inferior Externo",
+        "outerLeft": "Esquerdo Externo",
+        "outerRight": "Direito Externo",
+        "innerTop": "Superior Interno",
+        "innerBottom": "Inferior Interno",
+        "innerLeft": "Esquerdo Interno",
+        "innerRight": "Direito Interno",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Esquerda",
+        "right": "Direita",
+        "trimPin": "Pino de Ajuste",
+        "notes": "Notas"
+      },
       "cancel": "Cancelar",
       "submit": {
         "idle": "Criar Vistoria",

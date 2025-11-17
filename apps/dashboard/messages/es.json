@@ -748,6 +748,27 @@
           "airbag": "Bolsa de Aire"
         }
       },
+      "tramming": {
+        "slideTram": "Tram de Corredera",
+        "outerSection": "Externo",
+        "innerSection": "Interno",
+        "measurementPoints": "Puntos de Medición",
+        "inches": "pulgadas",
+        "outerTop": "Superior Externo",
+        "outerBottom": "Inferior Externo",
+        "outerLeft": "Izquierdo Externo",
+        "outerRight": "Derecho Externo",
+        "innerTop": "Superior Interno",
+        "innerBottom": "Inferior Interno",
+        "innerLeft": "Izquierdo Interno",
+        "innerRight": "Derecho Interno",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Izquierda",
+        "right": "Derecha",
+        "trimPin": "Pasador de Ajuste",
+        "notes": "Notas"
+      },
       "cancel": "Cancelar",
       "submit": {
         "idle": "Crear Inspección",

@@ -44,6 +44,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
   const tBearingClearanceFields = useTranslations('inspections.form.bearingClearance.fields');
   const tClutchFields = useTranslations('inspections.form.clutch.fields');
   const tCounterbalanceFields = useTranslations('inspections.form.counterbalanceCylinder');
+  const tTrammingFields = useTranslations('inspections.form.tramming');
   const tActions = useTranslations('actions');
 
   const isInspection = service.type === ServiceType.INSPECTION;
@@ -57,6 +58,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
     clutch: 'CLUTCH',
     counterbalanceCylinder: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     counterbalanceCylinderAirbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
+    tramming: 'TRAMMING',
   };
 
   // Helper to check if section data has actual content
@@ -282,6 +284,10 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
     } else if (sectionKey === 'GIBS') {
       // Gibs uses similar field names to bearing clearance
       const translation = tBearingClearanceFields(key);
+      if (translation !== key) return translation;
+    } else if (sectionKey === 'TRAMMING') {
+      // Try tramming fields
+      const translation = tTrammingFields(key);
       if (translation !== key) return translation;
     }
 
@@ -1515,6 +1521,105 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                                   <span className="font-medium">
                                     {displayValue(data?.outerData?.notes || data?.innerData?.notes)}
                                   </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </CollapsibleContent>
+                    </div>
+                  </Collapsible>
+                );
+              }
+
+              // Render Tramming Section
+              if (sectionKey === 'TRAMMING') {
+                const data = completedSectionData[sectionKey];
+
+                return (
+                  <Collapsible key={sectionKey} defaultOpen={true}>
+                    <div className="border rounded-lg">
+                      <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
+                        <div className="flex items-center gap-2">
+                          <Typography variant="h4" className="font-semibold text-sm">
+                            {t('sectionNames.tramming')}
+                          </Typography>
+                          <span className="text-xs text-green-600 dark:text-green-400">
+                            ({tServices('modal.status.complete')})
+                          </span>
+                        </div>
+                        <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="p-3 pt-0 text-xs">
+                        {/* Slide Tram Field */}
+                        {data?.slideTram && (
+                          <div className="border-t pt-2 mb-3">
+                            <div className="border rounded-md overflow-hidden">
+                              <div className="p-2 space-y-1.5 text-[11px]">
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">
+                                    {translateFieldName('slideTram', 'TRAMMING')}:
+                                  </span>
+                                  <span className="font-medium">{displayValue(data.slideTram)}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Outer/Inner Data Grid */}
+                        <div className="border-t pt-2">
+                          <div className="grid grid-cols-2 gap-3">
+                            {data?.outerData && (
+                              <div className="border rounded-md overflow-hidden">
+                                <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                  {tTable('outer')}
+                                </div>
+                                <div className="p-2 space-y-1.5 text-[11px]">
+                                  {Object.entries(data.outerData)
+                                    .filter(([key]) => !isIdField(key))
+                                    .map(([key, value]) => (
+                                      <div key={key} className="flex justify-between">
+                                        <span className="text-muted-foreground">
+                                          {translateFieldName(key, 'TRAMMING')}:
+                                        </span>
+                                        <span className="font-medium">{displayValue(value)}</span>
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {data?.innerData && (
+                              <div className="border rounded-md overflow-hidden">
+                                <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
+                                  {tTable('inner')}
+                                </div>
+                                <div className="p-2 space-y-1.5 text-[11px]">
+                                  {Object.entries(data.innerData)
+                                    .filter(([key]) => !isIdField(key))
+                                    .map(([key, value]) => (
+                                      <div key={key} className="flex justify-between">
+                                        <span className="text-muted-foreground">
+                                          {translateFieldName(key, 'TRAMMING')}:
+                                        </span>
+                                        <span className="font-medium">{displayValue(value)}</span>
+                                      </div>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Notes */}
+                          {data?.notes && (
+                            <div className="mt-3 border-t pt-2">
+                              <div className="font-semibold text-muted-foreground mb-2 text-xs">
+                                {tServicesSummary('notes')}
+                              </div>
+                              <div className="border rounded-md overflow-hidden">
+                                <div className="p-2 text-[11px]">
+                                  <span className="font-medium">{displayValue(data.notes)}</span>
                                 </div>
                               </div>
                             </div>
