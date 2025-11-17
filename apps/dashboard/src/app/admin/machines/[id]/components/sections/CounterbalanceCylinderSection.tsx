@@ -42,14 +42,18 @@ export const validateCounterbalanceCylinderData = (data: CounterbalanceCylinderD
 
   requiredStringFields.forEach((field) => {
     const value = data[field];
-    if (!value || typeof value !== 'string') {
+    // Only validate if field exists in data
+    if (value !== undefined && (!value || typeof value !== 'string')) {
       errors.push(`${String(field)} is required and must be a valid value`);
     }
   });
 
   if (data.airbagPistonSeals === 'LEAKING') {
     const leakLocation = data.airbagPistonSealsLeakLocation;
-    if (!leakLocation || typeof leakLocation !== 'string' || !leakLocation.trim()) {
+    if (
+      leakLocation !== undefined &&
+      (!leakLocation || typeof leakLocation !== 'string' || !leakLocation.trim())
+    ) {
       errors.push('airbagPistonSealsLeakLocation is required when seals are LEAKING');
     }
   }
@@ -82,6 +86,15 @@ export const CounterbalanceCylinderSection = forwardRef<
   CounterbalanceCylinderSectionProps
 >(({ onSectionTouched, initialData }, ref) => {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
+
+  // Store initial loaded data for "touched" detection
+  const [initialOuterData] = useState<CounterbalanceCylinderData>(
+    initialData?.outerData || defaultCounterbalanceCylinderData,
+  );
+  const [initialInnerData] = useState<CounterbalanceCylinderData>(
+    initialData?.innerData || defaultCounterbalanceCylinderData,
+  );
+
   const [outerData, setOuterData] = useState<CounterbalanceCylinderData>(
     initialData?.outerData || defaultCounterbalanceCylinderData,
   );
@@ -172,8 +185,8 @@ export const CounterbalanceCylinderSection = forwardRef<
 
   useImperativeHandle(ref, () => ({
     isTouched: (): boolean => {
-      const outerTouched = isDataTouched(outerData, defaultCounterbalanceCylinderData);
-      const innerTouched = isDataTouched(innerData, defaultCounterbalanceCylinderData);
+      const outerTouched = isDataTouched(outerData, initialOuterData);
+      const innerTouched = isDataTouched(innerData, initialInnerData);
       const notesTouched = sharedNotes.trim() !== '';
       return outerTouched || innerTouched || notesTouched;
     },
@@ -185,10 +198,15 @@ export const CounterbalanceCylinderSection = forwardRef<
       errors: string[];
       data?: CounterbalanceCylinderCheck;
     } => {
-      const outerTouched = isDataTouched(outerData, defaultCounterbalanceCylinderData);
-      const innerTouched = isDataTouched(innerData, defaultCounterbalanceCylinderData);
+      const outerTouched = isDataTouched(outerData, initialOuterData);
+      const innerTouched = isDataTouched(innerData, initialInnerData);
 
-      if (!outerTouched && !innerTouched) {
+      // Check if there's any existing data (either initial or modified)
+      const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultCounterbalanceCylinderData);
+      const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultCounterbalanceCylinderData);
+
+      // If no data at all (initial or touched), validation passes with no data
+      if (!hasOuterData && !hasInnerData) {
         return { isValid: true, errors: [] };
       }
 
@@ -206,8 +224,8 @@ export const CounterbalanceCylinderSection = forwardRef<
           isValid: true,
           errors: [],
           data: {
-            outerData: outerTouched ? { ...outerData, notes: sharedNotes } : undefined,
-            innerData: innerTouched ? { ...innerData, notes: sharedNotes } : undefined,
+            outerData: hasOuterData ? { ...(outerTouched ? outerData : initialOuterData), notes: sharedNotes } : undefined,
+            innerData: hasInnerData ? { ...(innerTouched ? innerData : initialInnerData), notes: sharedNotes } : undefined,
           },
         };
       }
@@ -219,22 +237,26 @@ export const CounterbalanceCylinderSection = forwardRef<
     },
 
     getData: (): CounterbalanceCylinderCheck | undefined => {
-      const outerTouched = isDataTouched(outerData, defaultCounterbalanceCylinderData);
-      const innerTouched = isDataTouched(innerData, defaultCounterbalanceCylinderData);
+      const outerTouched = isDataTouched(outerData, initialOuterData);
+      const innerTouched = isDataTouched(innerData, initialInnerData);
 
-      if (!outerTouched && !innerTouched) {
+      // Check if there's any existing data (either initial or modified)
+      const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultCounterbalanceCylinderData);
+      const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultCounterbalanceCylinderData);
+
+      if (!hasOuterData && !hasInnerData) {
         return undefined;
       }
 
       return {
-        outerData: outerTouched ? { ...outerData, notes: sharedNotes } : undefined,
-        innerData: innerTouched ? { ...innerData, notes: sharedNotes } : undefined,
+        outerData: hasOuterData ? { ...(outerTouched ? outerData : initialOuterData), notes: sharedNotes } : undefined,
+        innerData: hasInnerData ? { ...(innerTouched ? innerData : initialInnerData), notes: sharedNotes } : undefined,
       };
     },
 
     validate: (_serviceType: ServiceType): string[] => {
-      const outerTouched = isDataTouched(outerData, defaultCounterbalanceCylinderData);
-      const innerTouched = isDataTouched(innerData, defaultCounterbalanceCylinderData);
+      const outerTouched = isDataTouched(outerData, initialOuterData);
+      const innerTouched = isDataTouched(innerData, initialInnerData);
 
       const outerErrors = outerTouched
         ? validateCounterbalanceCylinderData(outerData).map((e) => `Outer: ${e}`)

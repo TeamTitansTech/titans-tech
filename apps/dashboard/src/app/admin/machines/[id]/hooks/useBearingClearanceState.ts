@@ -28,6 +28,20 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
   const outerAfterInitial = initialData?.outerData || initialData?.outerAfter;
   const innerAfterInitial = initialData?.innerData || initialData?.innerAfter;
 
+  // Store initial loaded data for "touched" detection (compare against this, not default)
+  const [initialOuterBeforeData] = useState<BearingClearanceData>(
+    initialData?.outerBefore || defaultBearingData,
+  );
+  const [initialOuterAfterData] = useState<BearingClearanceData>(
+    outerAfterInitial || defaultBearingData,
+  );
+  const [initialInnerBeforeData] = useState<BearingClearanceData>(
+    initialData?.innerBefore || defaultBearingData,
+  );
+  const [initialInnerAfterData] = useState<BearingClearanceData>(
+    innerAfterInitial || defaultBearingData,
+  );
+
   // Include before measurements checkbox
   const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(
     !!(initialData?.outerBefore || initialData?.innerBefore),
@@ -53,53 +67,53 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
   >(initialData?.outerBefore?.hasBeenAdjusted);
   const [outerAfterHasBeenAdjusted, setOuterAfterHasBeenAdjusted] = useState<
     YesNoNaDncType | undefined
-  >(initialData?.outerAfter?.hasBeenAdjusted);
+  >(outerAfterInitial?.hasBeenAdjusted);
   const [innerBeforeHasBeenAdjusted, setInnerBeforeHasBeenAdjusted] = useState<
     YesNoNaDncType | undefined
   >(initialData?.innerBefore?.hasBeenAdjusted);
   const [innerAfterHasBeenAdjusted, setInnerAfterHasBeenAdjusted] = useState<
     YesNoNaDncType | undefined
-  >(initialData?.innerAfter?.hasBeenAdjusted);
+  >(innerAfterInitial?.hasBeenAdjusted);
 
   // Tab-specific fields (separate for Outer and Inner)
   const [outerCombinedWith, setOuterCombinedWith] = useState(
-    (initialData?.outerAfter || initialData?.outerBefore)?.combinedWith || '',
+    (outerAfterInitial || initialData?.outerBefore)?.combinedWith || '',
   );
   const [outerMatingPart, setOuterMatingPart] = useState<MatingPartType>(
-    (initialData?.outerAfter || initialData?.outerBefore)?.matingPart || MatingPartType.BUSHING,
+    (outerAfterInitial || initialData?.outerBefore)?.matingPart || MatingPartType.BUSHING,
   );
   const [innerCombinedWith, setInnerCombinedWith] = useState(
-    (initialData?.innerAfter || initialData?.innerBefore)?.combinedWith || '',
+    (innerAfterInitial || initialData?.innerBefore)?.combinedWith || '',
   );
   const [innerMatingPart, setInnerMatingPart] = useState<MatingPartType>(
-    (initialData?.innerAfter || initialData?.innerBefore)?.matingPart || MatingPartType.BUSHING,
+    (innerAfterInitial || initialData?.innerBefore)?.matingPart || MatingPartType.BUSHING,
   );
 
   // Shared fields (Shutdown Adjustment Mechanism)
   const [slideMotorMounts, setSlideMotorMounts] = useState<
     ConditionOkNaDncBrokenWornType | undefined
   >(
-    initialData?.outerAfter?.slideMotorMounts ||
+    outerAfterInitial?.slideMotorMounts ||
       initialData?.outerBefore?.slideMotorMounts ||
       undefined,
   );
   const [powerCordHoses, setPowerCordHoses] = useState<ConditionOkNaDncDamagedType | undefined>(
-    initialData?.outerAfter?.powerCordHoses ||
+    outerAfterInitial?.powerCordHoses ||
       initialData?.outerBefore?.powerCordHoses ||
       undefined,
   );
   const [chainsGearsSprockets, setChainsGearsSprockets] = useState<
     ConditionOkNaDncBrokenLooseType | undefined
   >(
-    initialData?.outerAfter?.chainsGearsSprockets ||
+    outerAfterInitial?.chainsGearsSprockets ||
       initialData?.outerBefore?.chainsGearsSprockets ||
       undefined,
   );
   const [lockingClamps, setLockingClamps] = useState<ConditionOkNaDncDamagedType | undefined>(
-    initialData?.outerAfter?.lockingClamps || initialData?.outerBefore?.lockingClamps || undefined,
+    outerAfterInitial?.lockingClamps || initialData?.outerBefore?.lockingClamps || undefined,
   );
   const [notes, setNotes] = useState(
-    initialData?.outerAfter?.notes || initialData?.outerBefore?.notes || '',
+    outerAfterInitial?.notes || initialData?.outerBefore?.notes || '',
   );
 
   // Error states
@@ -196,6 +210,12 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
   };
 
   return {
+    // Initial loaded data (for touched detection)
+    initialOuterBeforeData,
+    initialOuterAfterData,
+    initialInnerBeforeData,
+    initialInnerAfterData,
+
     // Include before measurements
     includeBeforeMeasurements,
     setIncludeBeforeMeasurements,

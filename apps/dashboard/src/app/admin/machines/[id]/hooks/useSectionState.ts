@@ -5,6 +5,9 @@ import { useState, useCallback } from 'react';
  * @template T - The type of data being managed
  */
 export function useSectionState<T extends Record<string, any>>(initialData: T) {
+  // Store initial loaded data for "touched" detection
+  const [initialSectionData] = useState<T>(initialData);
+
   const [data, setData] = useState<T>(initialData);
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
   const [isTouched, setIsTouched] = useState(false);
@@ -35,6 +38,7 @@ export function useSectionState<T extends Record<string, any>>(initialData: T) {
   }, [initialData]);
 
   return {
+    initialSectionData,
     data,
     setData,
     errors,

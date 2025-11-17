@@ -2616,7 +2616,9 @@ export function ServiceCompletionModal({
                                   <div className="p-2 text-[11px]">
                                     <div className="flex justify-between">
                                       <span className="text-muted-foreground">Slide Tram:</span>
-                                      <span className="font-medium">{displayValue(data.slideTram)}</span>
+                                      <span className="font-medium">
+                                        {displayValue(data.slideTram)}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
@@ -2635,7 +2637,7 @@ export function ServiceCompletionModal({
                                         .map(([key, value]) => (
                                           <div key={key} className="flex justify-between">
                                             <span className="text-muted-foreground">
-                                              {getFieldLabel(key, sectionKey)}:
+                                              {translateFieldName(key, sectionKey)}:
                                             </span>
                                             <span className="font-medium">
                                               {displayValue(value)}
@@ -2657,7 +2659,7 @@ export function ServiceCompletionModal({
                                         .map(([key, value]) => (
                                           <div key={key} className="flex justify-between">
                                             <span className="text-muted-foreground">
-                                              {getFieldLabel(key, sectionKey)}:
+                                              {translateFieldName(key, sectionKey)}:
                                             </span>
                                             <span className="font-medium">
                                               {displayValue(value)}
