@@ -58,7 +58,7 @@ export const validateTrammingData = (data: TrammingData): string[] => {
 
   // Get all numeric field keys from the data (exclude any that might be undefined)
   const fieldsToValidate = Object.keys(data).filter(
-    (key) => key.startsWith('outer') || key.startsWith('inner')
+    (key) => key.startsWith('outer') || key.startsWith('inner'),
   ) as (keyof TrammingData)[];
 
   fieldsToValidate.forEach((field) => {
@@ -76,6 +76,7 @@ export interface TrammingSectionData {
   outerData?: TrammingData;
   innerData?: TrammingData;
   slideTram?: YesNoDncType;
+  unit?: 'inches' | 'mm' | 'cm';
   notes?: string;
 }
 
@@ -117,7 +118,9 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
     const [slideTram, setSlideTram] = useState<YesNoDncType>(
       initialData?.slideTram || YesNoDncType.DNC,
     );
-    const [unit, setUnit] = useState<'inches' | 'mm' | 'cm'>('inches');
+    const [unit, setUnit] = useState<'inches' | 'mm' | 'cm'>(
+      initialData?.unit || 'inches',
+    );
     const [notes, setNotes] = useState<string>(initialData?.notes || '');
     const [outerErrors, setOuterErrors] = useState<Record<string, string>>({});
     const [innerErrors, setInnerErrors] = useState<Record<string, string>>({});
@@ -206,6 +209,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
               outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
               innerData: hasInnerData ? (innerTouched ? innerData : initialInnerData) : undefined,
               slideTram: slideTram,
+              unit: unit,
               notes: notes.trim() || undefined,
             },
           };
@@ -227,6 +231,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
           outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
           innerData: hasInnerData ? (innerTouched ? innerData : initialInnerData) : undefined,
           slideTram: slideTram,
+          unit: unit,
           notes: notes.trim() || undefined,
         };
       },
@@ -261,6 +266,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
         setOuterData(defaultTrammingData);
         setInnerData(defaultTrammingData);
         setSlideTram(YesNoDncType.DNC);
+        setUnit('inches');
         setNotes('');
         setOuterErrors({});
         setInnerErrors({});

@@ -256,8 +256,10 @@ export const BearingClearanceSection = forwardRef<
       const innerAfterTouched = isDataTouched(innerAfterData, initialInnerAfterData);
 
       // Check if there's any existing data (either initial or modified)
-      const hasOuterData = outerAfterTouched || isDataTouched(initialOuterAfterData, defaultBearingData);
-      const hasInnerData = innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
+      const hasOuterData =
+        outerAfterTouched || isDataTouched(initialOuterAfterData, defaultBearingData);
+      const hasInnerData =
+        innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
 
       const sharedFields = {
         slideMotorMounts,
@@ -367,8 +369,10 @@ export const BearingClearanceSection = forwardRef<
       }
 
       // Check if there's any existing data (either initial or modified)
-      const hasOuterData = outerAfterTouched || isDataTouched(initialOuterAfterData, defaultBearingData);
-      const hasInnerData = innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
+      const hasOuterData =
+        outerAfterTouched || isDataTouched(initialOuterAfterData, defaultBearingData);
+      const hasInnerData =
+        innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
 
       // Validate at least one measurement set (either initial or new)
       if (!hasOuterData && !hasInnerData) {
@@ -452,8 +456,10 @@ export const BearingClearanceSection = forwardRef<
       }
 
       // Check if there's any existing data (either initial or modified)
-      const hasOuterData = outerAfterTouched || isDataTouched(initialOuterAfterData, defaultBearingData);
-      const hasInnerData = innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
+      const hasOuterData =
+        outerAfterTouched || isDataTouched(initialOuterAfterData, defaultBearingData);
+      const hasInnerData =
+        innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
 
       // Validate at least one measurement set (either initial or new)
       if (!hasOuterData && !hasInnerData) {

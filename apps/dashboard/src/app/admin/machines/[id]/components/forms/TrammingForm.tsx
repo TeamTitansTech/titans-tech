@@ -11,6 +11,7 @@ interface TrammingFormProps {
   updateField: (field: keyof TrammingData, value: number) => void;
   handleBlur: (field: keyof TrammingData) => void;
   title: string;
+  readOnly?: boolean;
 }
 
 interface MeasurementPoint {
@@ -23,7 +24,14 @@ interface MeasurementPoint {
   };
 }
 
-export function TrammingForm({ data, errors, updateField, handleBlur, title }: TrammingFormProps) {
+export function TrammingForm({
+  data,
+  errors,
+  updateField,
+  handleBlur,
+  title,
+  readOnly = false,
+}: TrammingFormProps) {
   const t = useTranslations('inspections.form.tramming');
 
   // Determine which fields to use based on the title (Outer vs Inner)
@@ -107,20 +115,25 @@ export function TrammingForm({ data, errors, updateField, handleBlur, title }: T
         },
       ];
 
-  const renderInput = (field: keyof TrammingData) => (
-    <Input
-      id={`${field}`}
-      type="number"
-      step="0.0001"
-      min="0"
-      max="999999.9999"
-      value={data[field]}
-      onChange={(e) => updateField(field, Number(e.target.value))}
-      onBlur={() => handleBlur(field)}
-      className={`w-20 h-8 text-sm px-2 py-1 ${errors[field] ? 'border-destructive' : ''}`}
-      required
-    />
-  );
+  const renderInput = (field: keyof TrammingData) =>
+    readOnly ? (
+      <div className="w-20 h-8 text-sm px-2 py-1 border rounded-md bg-muted/50 flex items-center justify-center font-medium">
+        {data[field]}
+      </div>
+    ) : (
+      <Input
+        id={`${field}`}
+        type="number"
+        step="0.0001"
+        min="0"
+        max="999999.9999"
+        value={data[field]}
+        onChange={(e) => updateField(field, Number(e.target.value))}
+        onBlur={() => handleBlur(field)}
+        className={`w-20 h-8 text-sm px-2 py-1 ${errors[field] ? 'border-destructive' : ''}`}
+        required
+      />
+    );
 
   const renderMeasurementPoint = (point: MeasurementPoint) => (
     <div className="flex flex-col items-center gap-1">

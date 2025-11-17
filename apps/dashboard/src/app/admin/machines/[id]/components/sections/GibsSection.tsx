@@ -253,8 +253,10 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
         }
 
         // Check if there's any existing data (either initial or modified)
-        const hasOuterData = outerAfterTouched || isDataTouched(initialOuterAfterData, defaultGibsData);
-        const hasInnerData = innerAfterTouched || isDataTouched(initialInnerAfterData, defaultGibsData);
+        const hasOuterData =
+          outerAfterTouched || isDataTouched(initialOuterAfterData, defaultGibsData);
+        const hasInnerData =
+          innerAfterTouched || isDataTouched(initialInnerAfterData, defaultGibsData);
 
         if (serviceType === ServiceType.INSPECTION && !hasOuterData && !hasInnerData) {
           validationErrors.push(
@@ -270,9 +272,17 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
             errors: [],
             data: {
               outerBefore: outerBeforeTouched ? outerBeforeData : undefined,
-              outerAfter: hasOuterData ? (outerAfterTouched ? outerAfterData : initialOuterAfterData) : undefined,
+              outerAfter: hasOuterData
+                ? outerAfterTouched
+                  ? outerAfterData
+                  : initialOuterAfterData
+                : undefined,
               innerBefore: innerBeforeTouched ? innerBeforeData : undefined,
-              innerAfter: hasInnerData ? (innerAfterTouched ? innerAfterData : initialInnerAfterData) : undefined,
+              innerAfter: hasInnerData
+                ? innerAfterTouched
+                  ? innerAfterData
+                  : initialInnerAfterData
+                : undefined,
             },
           };
         }
@@ -290,14 +300,24 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
         const innerAfterTouched = isDataTouched(innerAfterData, initialInnerAfterData);
 
         // Check if there's any existing data (either initial or modified)
-        const hasOuterData = outerAfterTouched || isDataTouched(initialOuterAfterData, defaultGibsData);
-        const hasInnerData = innerAfterTouched || isDataTouched(initialInnerAfterData, defaultGibsData);
+        const hasOuterData =
+          outerAfterTouched || isDataTouched(initialOuterAfterData, defaultGibsData);
+        const hasInnerData =
+          innerAfterTouched || isDataTouched(initialInnerAfterData, defaultGibsData);
 
         return {
           outerBefore: outerBeforeTouched ? outerBeforeData : undefined,
-          outerAfter: hasOuterData ? (outerAfterTouched ? outerAfterData : initialOuterAfterData) : undefined,
+          outerAfter: hasOuterData
+            ? outerAfterTouched
+              ? outerAfterData
+              : initialOuterAfterData
+            : undefined,
           innerBefore: innerBeforeTouched ? innerBeforeData : undefined,
-          innerAfter: hasInnerData ? (innerAfterTouched ? innerAfterData : initialInnerAfterData) : undefined,
+          innerAfter: hasInnerData
+            ? innerAfterTouched
+              ? innerAfterData
+              : initialInnerAfterData
+            : undefined,
         };
       },
 
@@ -328,8 +348,10 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
         }
 
         // Check if there's any existing data (either initial or modified)
-        const hasOuterData = outerAfterTouched || isDataTouched(initialOuterAfterData, defaultGibsData);
-        const hasInnerData = innerAfterTouched || isDataTouched(initialInnerAfterData, defaultGibsData);
+        const hasOuterData =
+          outerAfterTouched || isDataTouched(initialOuterAfterData, defaultGibsData);
+        const hasInnerData =
+          innerAfterTouched || isDataTouched(initialInnerAfterData, defaultGibsData);
 
         if (serviceType === ServiceType.INSPECTION && !hasOuterData && !hasInnerData) {
           errors.push(

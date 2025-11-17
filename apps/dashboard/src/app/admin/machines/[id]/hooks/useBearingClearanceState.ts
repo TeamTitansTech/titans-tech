@@ -92,15 +92,9 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
   // Shared fields (Shutdown Adjustment Mechanism)
   const [slideMotorMounts, setSlideMotorMounts] = useState<
     ConditionOkNaDncBrokenWornType | undefined
-  >(
-    outerAfterInitial?.slideMotorMounts ||
-      initialData?.outerBefore?.slideMotorMounts ||
-      undefined,
-  );
+  >(outerAfterInitial?.slideMotorMounts || initialData?.outerBefore?.slideMotorMounts || undefined);
   const [powerCordHoses, setPowerCordHoses] = useState<ConditionOkNaDncDamagedType | undefined>(
-    outerAfterInitial?.powerCordHoses ||
-      initialData?.outerBefore?.powerCordHoses ||
-      undefined,
+    outerAfterInitial?.powerCordHoses || initialData?.outerBefore?.powerCordHoses || undefined,
   );
   const [chainsGearsSprockets, setChainsGearsSprockets] = useState<
     ConditionOkNaDncBrokenLooseType | undefined

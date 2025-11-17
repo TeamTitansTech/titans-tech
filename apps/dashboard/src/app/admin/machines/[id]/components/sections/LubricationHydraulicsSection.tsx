@@ -77,7 +77,8 @@ export const LubricationHydraulicsSection = forwardRef<
       _serviceType: ServiceType,
     ): { isValid: boolean; errors: string[]; data?: LubricationHydraulicsData } => {
       const touched = isDataTouched(data, initialSectionData);
-      const hasData = touched || isDataTouched(initialSectionData, defaultLubricationHydraulicsData);
+      const hasData =
+        touched || isDataTouched(initialSectionData, defaultLubricationHydraulicsData);
 
       // If no data at all (initial or touched), validation passes with no data
       if (!hasData) {
@@ -103,7 +104,8 @@ export const LubricationHydraulicsSection = forwardRef<
 
     getData: (): LubricationHydraulicsData | undefined => {
       const touched = isDataTouched(data, initialSectionData);
-      const hasData = touched || isDataTouched(initialSectionData, defaultLubricationHydraulicsData);
+      const hasData =
+        touched || isDataTouched(initialSectionData, defaultLubricationHydraulicsData);
       return hasData ? (touched ? data : initialSectionData) : undefined;
     },
 

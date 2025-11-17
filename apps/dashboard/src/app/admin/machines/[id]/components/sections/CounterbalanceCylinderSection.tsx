@@ -202,8 +202,10 @@ export const CounterbalanceCylinderSection = forwardRef<
       const innerTouched = isDataTouched(innerData, initialInnerData);
 
       // Check if there's any existing data (either initial or modified)
-      const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultCounterbalanceCylinderData);
-      const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultCounterbalanceCylinderData);
+      const hasOuterData =
+        outerTouched || isDataTouched(initialOuterData, defaultCounterbalanceCylinderData);
+      const hasInnerData =
+        innerTouched || isDataTouched(initialInnerData, defaultCounterbalanceCylinderData);
 
       // If no data at all (initial or touched), validation passes with no data
       if (!hasOuterData && !hasInnerData) {
@@ -224,8 +226,12 @@ export const CounterbalanceCylinderSection = forwardRef<
           isValid: true,
           errors: [],
           data: {
-            outerData: hasOuterData ? { ...(outerTouched ? outerData : initialOuterData), notes: sharedNotes } : undefined,
-            innerData: hasInnerData ? { ...(innerTouched ? innerData : initialInnerData), notes: sharedNotes } : undefined,
+            outerData: hasOuterData
+              ? { ...(outerTouched ? outerData : initialOuterData), notes: sharedNotes }
+              : undefined,
+            innerData: hasInnerData
+              ? { ...(innerTouched ? innerData : initialInnerData), notes: sharedNotes }
+              : undefined,
           },
         };
       }
@@ -241,16 +247,22 @@ export const CounterbalanceCylinderSection = forwardRef<
       const innerTouched = isDataTouched(innerData, initialInnerData);
 
       // Check if there's any existing data (either initial or modified)
-      const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultCounterbalanceCylinderData);
-      const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultCounterbalanceCylinderData);
+      const hasOuterData =
+        outerTouched || isDataTouched(initialOuterData, defaultCounterbalanceCylinderData);
+      const hasInnerData =
+        innerTouched || isDataTouched(initialInnerData, defaultCounterbalanceCylinderData);
 
       if (!hasOuterData && !hasInnerData) {
         return undefined;
       }
 
       return {
-        outerData: hasOuterData ? { ...(outerTouched ? outerData : initialOuterData), notes: sharedNotes } : undefined,
-        innerData: hasInnerData ? { ...(innerTouched ? innerData : initialInnerData), notes: sharedNotes } : undefined,
+        outerData: hasOuterData
+          ? { ...(outerTouched ? outerData : initialOuterData), notes: sharedNotes }
+          : undefined,
+        innerData: hasInnerData
+          ? { ...(innerTouched ? innerData : initialInnerData), notes: sharedNotes }
+          : undefined,
       };
     },
 

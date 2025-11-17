@@ -930,7 +930,7 @@ model CounterbalanceCylinderAirbagData {
 // TRAMMING Section
 
 model MachineServiceTramming {
-  id               String         @id @default(cuid())
+  id               String        @id @default(cuid())
   machineServiceId String
   outerDataId      String?
   innerDataId      String?

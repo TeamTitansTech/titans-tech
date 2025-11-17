@@ -175,10 +175,22 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
 
     useImperativeHandle(ref, () => ({
       isTouched: (): boolean => {
-        const outerBeforeTouched = isDataTouched(formData.outerBeforeData, initialFormData.outerBeforeData);
-        const outerDataTouched = isDataTouched(formData.outerAfterData, initialFormData.outerAfterData);
-        const innerBeforeTouched = isDataTouched(formData.innerBeforeData, initialFormData.innerBeforeData);
-        const innerDataTouched = isDataTouched(formData.innerAfterData, initialFormData.innerAfterData);
+        const outerBeforeTouched = isDataTouched(
+          formData.outerBeforeData,
+          initialFormData.outerBeforeData,
+        );
+        const outerDataTouched = isDataTouched(
+          formData.outerAfterData,
+          initialFormData.outerAfterData,
+        );
+        const innerBeforeTouched = isDataTouched(
+          formData.innerBeforeData,
+          initialFormData.innerBeforeData,
+        );
+        const innerDataTouched = isDataTouched(
+          formData.innerAfterData,
+          initialFormData.innerAfterData,
+        );
 
         // Check if any data has been touched
         return outerBeforeTouched || outerDataTouched || innerBeforeTouched || innerDataTouched;
@@ -189,10 +201,22 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       ): { isValid: boolean; errors: string[]; data?: SlideSectionData } => {
         const validationErrors: string[] = [];
 
-        const outerBeforeTouched = isDataTouched(formData.outerBeforeData, initialFormData.outerBeforeData);
-        const outerDataTouched = isDataTouched(formData.outerAfterData, initialFormData.outerAfterData);
-        const innerBeforeTouched = isDataTouched(formData.innerBeforeData, initialFormData.innerBeforeData);
-        const innerDataTouched = isDataTouched(formData.innerAfterData, initialFormData.innerAfterData);
+        const outerBeforeTouched = isDataTouched(
+          formData.outerBeforeData,
+          initialFormData.outerBeforeData,
+        );
+        const outerDataTouched = isDataTouched(
+          formData.outerAfterData,
+          initialFormData.outerAfterData,
+        );
+        const innerBeforeTouched = isDataTouched(
+          formData.innerBeforeData,
+          initialFormData.innerBeforeData,
+        );
+        const innerDataTouched = isDataTouched(
+          formData.innerAfterData,
+          initialFormData.innerAfterData,
+        );
 
         // For maintenance, check if before measurements are included
         if (serviceType === ServiceType.MAINTENANCE && (outerBeforeTouched || innerBeforeTouched)) {
@@ -223,8 +247,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
         }
 
         // Check if there's any existing data (either initial or modified)
-        const hasOuterData = outerDataTouched || isDataTouched(initialFormData.outerAfterData, defaultSlideData);
-        const hasInnerData = innerDataTouched || isDataTouched(initialFormData.innerAfterData, defaultSlideData);
+        const hasOuterData =
+          outerDataTouched || isDataTouched(initialFormData.outerAfterData, defaultSlideData);
+        const hasInnerData =
+          innerDataTouched || isDataTouched(initialFormData.innerAfterData, defaultSlideData);
 
         // For inspections and maintenance, require at least one section to be filled (either initial or new)
         if (!hasOuterData && !hasInnerData) {
@@ -240,9 +266,17 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
             errors: [],
             data: {
               outerBefore: outerBeforeTouched ? formData.outerBeforeData : undefined,
-              outerData: hasOuterData ? (outerDataTouched ? formData.outerAfterData : initialFormData.outerAfterData) : undefined,
+              outerData: hasOuterData
+                ? outerDataTouched
+                  ? formData.outerAfterData
+                  : initialFormData.outerAfterData
+                : undefined,
               innerBefore: innerBeforeTouched ? formData.innerBeforeData : undefined,
-              innerData: hasInnerData ? (innerDataTouched ? formData.innerAfterData : initialFormData.innerAfterData) : undefined,
+              innerData: hasInnerData
+                ? innerDataTouched
+                  ? formData.innerAfterData
+                  : initialFormData.innerAfterData
+                : undefined,
               outerParallelism: formData.outerParallelism,
               outerHasParallelismBeenAdjusted: formData.outerHasParallelismBeenAdjusted,
               innerParallelism: formData.innerParallelism,
@@ -267,20 +301,42 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       },
 
       getData: (): SlideSectionData => {
-        const outerBeforeTouched = isDataTouched(formData.outerBeforeData, initialFormData.outerBeforeData);
-        const outerDataTouched = isDataTouched(formData.outerAfterData, initialFormData.outerAfterData);
-        const innerBeforeTouched = isDataTouched(formData.innerBeforeData, initialFormData.innerBeforeData);
-        const innerDataTouched = isDataTouched(formData.innerAfterData, initialFormData.innerAfterData);
+        const outerBeforeTouched = isDataTouched(
+          formData.outerBeforeData,
+          initialFormData.outerBeforeData,
+        );
+        const outerDataTouched = isDataTouched(
+          formData.outerAfterData,
+          initialFormData.outerAfterData,
+        );
+        const innerBeforeTouched = isDataTouched(
+          formData.innerBeforeData,
+          initialFormData.innerBeforeData,
+        );
+        const innerDataTouched = isDataTouched(
+          formData.innerAfterData,
+          initialFormData.innerAfterData,
+        );
 
         // Check if there's any existing data (either initial or modified)
-        const hasOuterData = outerDataTouched || isDataTouched(initialFormData.outerAfterData, defaultSlideData);
-        const hasInnerData = innerDataTouched || isDataTouched(initialFormData.innerAfterData, defaultSlideData);
+        const hasOuterData =
+          outerDataTouched || isDataTouched(initialFormData.outerAfterData, defaultSlideData);
+        const hasInnerData =
+          innerDataTouched || isDataTouched(initialFormData.innerAfterData, defaultSlideData);
 
         return {
           outerBefore: outerBeforeTouched ? formData.outerBeforeData : undefined,
-          outerData: hasOuterData ? (outerDataTouched ? formData.outerAfterData : initialFormData.outerAfterData) : undefined,
+          outerData: hasOuterData
+            ? outerDataTouched
+              ? formData.outerAfterData
+              : initialFormData.outerAfterData
+            : undefined,
           innerBefore: innerBeforeTouched ? formData.innerBeforeData : undefined,
-          innerData: hasInnerData ? (innerDataTouched ? formData.innerAfterData : initialFormData.innerAfterData) : undefined,
+          innerData: hasInnerData
+            ? innerDataTouched
+              ? formData.innerAfterData
+              : initialFormData.innerAfterData
+            : undefined,
           outerParallelism: formData.outerParallelism,
           outerHasParallelismBeenAdjusted: formData.outerHasParallelismBeenAdjusted,
           innerParallelism: formData.innerParallelism,
@@ -300,10 +356,22 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       validate: (serviceType: ServiceType): string[] => {
         const validationErrors: string[] = [];
 
-        const outerBeforeTouched = isDataTouched(formData.outerBeforeData, initialFormData.outerBeforeData);
-        const outerDataTouched = isDataTouched(formData.outerAfterData, initialFormData.outerAfterData);
-        const innerBeforeTouched = isDataTouched(formData.innerBeforeData, initialFormData.innerBeforeData);
-        const innerDataTouched = isDataTouched(formData.innerAfterData, initialFormData.innerAfterData);
+        const outerBeforeTouched = isDataTouched(
+          formData.outerBeforeData,
+          initialFormData.outerBeforeData,
+        );
+        const outerDataTouched = isDataTouched(
+          formData.outerAfterData,
+          initialFormData.outerAfterData,
+        );
+        const innerBeforeTouched = isDataTouched(
+          formData.innerBeforeData,
+          initialFormData.innerBeforeData,
+        );
+        const innerDataTouched = isDataTouched(
+          formData.innerAfterData,
+          initialFormData.innerAfterData,
+        );
 
         // For maintenance, check if before measurements are included (this would need to be tracked)
         // Since SlideForm handles the checkbox internally, we'll check if before data is touched
@@ -336,8 +404,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
         }
 
         // Check if there's any existing data (either initial or modified)
-        const hasOuterData = outerDataTouched || isDataTouched(initialFormData.outerAfterData, defaultSlideData);
-        const hasInnerData = innerDataTouched || isDataTouched(initialFormData.innerAfterData, defaultSlideData);
+        const hasOuterData =
+          outerDataTouched || isDataTouched(initialFormData.outerAfterData, defaultSlideData);
+        const hasInnerData =
+          innerDataTouched || isDataTouched(initialFormData.innerAfterData, defaultSlideData);
 
         // For inspections and maintenance, require at least one section to be filled (either initial or new)
         if (!hasOuterData && !hasInnerData) {
