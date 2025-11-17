@@ -199,7 +199,7 @@ export const deleteService = async (serviceId: string, machineId?: string) => {
 
     const mockContext = {
       params: Promise.resolve({ serviceId }),
-    };  
+    };
 
     // Call the route handler
     const response = await DELETE(mockRequest, mockContext);
