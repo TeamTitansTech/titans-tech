@@ -103,19 +103,8 @@ export function useServiceDataLoader(
     };
 
     loadServiceData();
-  }, [
-    open,
-    serviceId,
-    createdServiceId,
-    isInspection,
-    machineSections,
-    shouldSkipSelection,
-    setCompletedSections,
-    setCompletedSectionData,
-    setSelectedSections,
-    setCurrentStep,
-    setCurrentSectionIndex,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, serviceId, createdServiceId, isInspection, shouldSkipSelection, machineSections]);
 
   const reset = () => {
     hasLoadedInitialData.current = false;

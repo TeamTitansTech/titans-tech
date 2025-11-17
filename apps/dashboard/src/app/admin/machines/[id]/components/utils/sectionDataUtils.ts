@@ -91,15 +91,17 @@ export const hasActualData = (data: any): boolean => {
   });
 };
 
+import { formatFieldName } from './fieldFormatters';
+
 /**
  * Extract bearing measurement rows from data
  * @param data - The bearing data
- * @param translateFn - Function to translate field names
+ * @param sectionKey - Optional section key for context (not used currently, just for API compatibility)
  * @returns Array of bearing rows with field, lh, rh, and differential values
  */
 export const extractBearingRows = (
   data: any,
-  translateFn: (key: string) => string,
+  sectionKey?: string,
 ): { field: string; lh: any; rh: any; differential: string }[] => {
   if (!data) return [];
 
@@ -144,7 +146,7 @@ export const extractBearingRows = (
       }
 
       rows.push({
-        field: translateFn(baseField),
+        field: formatFieldName(baseField),
         lh: lhValue,
         rh: rhValue,
         differential,

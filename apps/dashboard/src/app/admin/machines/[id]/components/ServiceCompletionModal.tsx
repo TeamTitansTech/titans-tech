@@ -50,7 +50,8 @@ export function ServiceCompletionModal({
   // Memoize machineSections to prevent infinite loop
   const machineSections = useMemo(
     () => machineSectionsProp || Object.keys(SECTION_REGISTRY),
-    [machineSectionsProp],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(machineSectionsProp)],
   );
 
   const isCompletingService = !!serviceId;
@@ -134,26 +135,16 @@ export function ServiceCompletionModal({
       resetLoader();
       resetRefs();
     }
-  }, [
-    open,
-    shouldSkipSelection,
-    isInspection,
-    machineSections,
-    resetSteps,
-    resetSelection,
-    setDate,
-    resetForm,
-    resetSectionData,
-    resetLoader,
-    resetRefs,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, shouldSkipSelection, isInspection, machineSections]);
 
   // Auto-select all sections when service type changes to INSPECTION
   useEffect(() => {
     if (!serviceId && open && currentServiceType === ServiceType.INSPECTION) {
       setSelectedSections(new Set(machineSections));
     }
-  }, [currentServiceType, open, serviceId, machineSections, setSelectedSections]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentServiceType, open, serviceId, machineSections]);
 
   // Navigation handlers
   const handleProceedToDetails = () => {

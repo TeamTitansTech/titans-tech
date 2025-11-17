@@ -5,6 +5,7 @@ import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { Check } from 'lucide-react';
 import { format } from 'date-fns';
 import { SECTION_REGISTRY } from '../sections/registry';
+import { SectionSummary } from '../summary';
 
 interface SummaryStepProps {
   date: Date;
@@ -124,9 +125,8 @@ export function SummaryStep({
                 <Typography variant="h4" className="font-semibold mb-2">
                   {translations.getSectionName(sectionConfig.metadata.i18nKey)}
                 </Typography>
-                <div className="text-sm text-muted-foreground">
-                  {/* Placeholder - would render section-specific summary component here */}
-                  Data saved for this section
+                <div className="text-sm">
+                  <SectionSummary sectionKey={sectionKey} data={data} />
                 </div>
               </div>
             );
