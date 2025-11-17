@@ -1,9 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma } from '@titans-tech/db';
+import { Prisma, ServiceSection } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 import { AlertsService } from '../modules/alerts/alerts.service';
+import {
+  LatestReportResponseDto,
+  LatestBearingClearanceDto,
+} from '@titans-tech/shared';
 
 @Injectable()
 export class ServicesService {
@@ -921,5 +925,138 @@ export class ServicesService {
     }
 
     return updatedService;
+  }
+
+  /**
+   * Get the latest report for a machine showing the most recent data for each section
+   * @param machineId - The machine ID
+   * @returns LatestReportResponseDto with latest data per section
+   */
+  async getLatestReport(machineId: string): Promise<LatestReportResponseDto> {
+    // 1. Fetch machine with blueprint
+    const machine = await this.prisma.machine.findUnique({
+      where: { id: machineId },
+      include: {
+        blueprint: true,
+        branch: true,
+      },
+    });
+
+    if (!machine) {
+      throw new NotFoundException(`Machine with ID ${machineId} not found`);
+    }
+
+    // 2. Fetch all services for this machine, ordered by date DESC
+    const services = await this.prisma.machineService.findMany({
+      where: { machineId },
+      include: {
+        bearingClearance: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        slide: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        lubricationHydraulics: {
+          include: {
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
+          },
+        },
+        clutch: {
+          include: {
+            data: true,
+          },
+        },
+        counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+      },
+      orderBy: { date: 'desc' },
+    });
+
+    // 3. Process BearingClearance section
+    let bearingClearanceData: LatestBearingClearanceDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.BEARING_CLEARANCE)) {
+      // Find the most recent service with BearingClearance data
+      const latestBearingService = services.find(
+        (service) =>
+          service.bearingClearance && service.bearingClearance.length > 0,
+      );
+
+      if (latestBearingService) {
+        // Follow same logic as alerts: outerData || innerData
+        const bearingData =
+          latestBearingService.bearingClearance[0].outerData ||
+          latestBearingService.bearingClearance[0].innerData;
+
+        if (bearingData) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getAlertByService(
+              latestBearingService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+            console.log(
+              `ℹ️ [SERVICES] No alert found for service ${latestBearingService.id}`,
+            );
+          }
+
+          bearingClearanceData = new LatestBearingClearanceDto({
+            latestServiceId: latestBearingService.id,
+            latestServiceDate: latestBearingService.date,
+            serviceType: latestBearingService.type,
+            data: bearingData,
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 4. Build response
+    return new LatestReportResponseDto({
+      machineId: machine.id,
+      machineName: machine.name,
+      blueprint: {
+        id: machine.blueprint.id,
+        name: machine.blueprint.name,
+        sections: machine.blueprint.sections,
+      },
+      generatedAt: new Date(),
+      sections: {
+        BEARING_CLEARANCE: bearingClearanceData,
+        SLIDE: null,
+        GIBS: null,
+        LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null,
+        CLUTCH: null,
+        COUNTERBALANCE_CYLINDER_AIRBAG: null,
+      },
+    });
   }
 }
