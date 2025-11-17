@@ -6,25 +6,6 @@ import { Label } from '@/components/ui/label';
 import { type GibsData, type GibsFormProps } from '@/data/types/services.types';
 import Image from 'next/image';
 
-const POINT_FIELDS = [
-  'point1',
-  'point2',
-  'point3',
-  'point4',
-  'point5',
-  'point6',
-  'point7',
-  'point8',
-  'point9',
-  'point10',
-  'point11',
-  'point12',
-  'point13',
-  'point14',
-  'point15',
-  'point16',
-] as const;
-
 export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsFormProps) {
   const t = useTranslations('inspections');
 
@@ -40,9 +21,36 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
       <div className="space-y-4">
         <h4 className="font-semibold text-sm">{t('form.gibs.frontToBackTitle')}</h4>
 
-        {/* Front to Back (1-8) */}
-        <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr] gap-6 items-start">
-          <div className="bg-muted/30 rounded border p-2">
+        <div className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[1fr_280px_1fr] gap-2 sm:gap-6 items-start sm:items-center border-b pb-6">
+          <div className="flex flex-col gap-3 sm:gap-8">
+            {['point2', 'point1', 'point4', 'point3'].map((field) => (
+              <div key={field}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-1 sm:gap-2">
+                  <Label
+                    htmlFor={`${field}-${title}`}
+                    className="text-xs sm:text-base font-semibold text-right sm:order-2"
+                  >
+                    {field.replace('point', '')}
+                  </Label>
+                  <Input
+                    id={`${field}-${title}`}
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    max="999999.9999"
+                    value={data[field as keyof GibsData]}
+                    onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
+                    onBlur={() => handleBlur(field as keyof GibsData)}
+                    className={`text-xs sm:text-sm h-8 w-16 sm:w-24 sm:order-1 ${errors[field] ? 'border-destructive' : ''}`}
+                    required
+                  />
+                </div>
+                {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-muted/30 rounded border p-2 max-w-[140px] sm:max-w-[280px] mx-auto">
             <Image
               src="/assets/gibs/front-to-back.png"
               alt="Front to Back"
@@ -51,38 +59,67 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
               className="w-full h-auto"
               unoptimized
             />
-            <p className="text-[10px] text-muted-foreground text-center mt-1">
-              Front to Back (1-8)
-            </p>
           </div>
 
-          <div className="grid grid-cols-8 gap-3">
-            {POINT_FIELDS.slice(0, 8).map((field) => (
-              <div key={field} className="space-y-1">
-                <Label htmlFor={`${field}-${title}`} className="text-xs">
-                  {field.replace('point', '')}
-                </Label>
-                <Input
-                  id={`${field}-${title}`}
-                  type="number"
-                  step="0.0001"
-                  min="0"
-                  max="999999.9999"
-                  value={data[field]}
-                  onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
-                  onBlur={() => handleBlur(field as keyof GibsData)}
-                  className={`text-sm ${errors[field] ? 'border-destructive' : ''}`}
-                  required
-                />
-                {errors[field] && <p className="text-xs text-destructive">{errors[field]}</p>}
+          <div className="flex flex-col gap-3 sm:gap-8">
+            {['point6', 'point5', 'point8', 'point7'].map((field) => (
+              <div key={field}>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                  <Label
+                    htmlFor={`${field}-${title}`}
+                    className="text-xs sm:text-base font-semibold text-left"
+                  >
+                    {field.replace('point', '')}
+                  </Label>
+                  <Input
+                    id={`${field}-${title}`}
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    max="999999.9999"
+                    value={data[field as keyof GibsData]}
+                    onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
+                    onBlur={() => handleBlur(field as keyof GibsData)}
+                    className={`text-xs sm:text-sm h-8 w-16 sm:w-24 ${errors[field] ? 'border-destructive' : ''}`}
+                    required
+                  />
+                </div>
+                {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Left to Right (9-16) */}
-        <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr] gap-6 items-start">
-          <div className="bg-muted/30 rounded border p-2">
+        <div className="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[1fr_280px_1fr] gap-2 sm:gap-6 items-start sm:items-center">
+          <div className="flex flex-col gap-3 sm:gap-8">
+            {['point13', 'point9', 'point15', 'point11'].map((field) => (
+              <div key={field}>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-1 sm:gap-2">
+                  <Label
+                    htmlFor={`${field}-${title}`}
+                    className="text-xs sm:text-base font-semibold text-right sm:order-2"
+                  >
+                    {field.replace('point', '')}
+                  </Label>
+                  <Input
+                    id={`${field}-${title}`}
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    max="999999.9999"
+                    value={data[field as keyof GibsData]}
+                    onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
+                    onBlur={() => handleBlur(field as keyof GibsData)}
+                    className={`text-xs sm:text-sm h-8 w-16 sm:w-24 sm:order-1 ${errors[field] ? 'border-destructive' : ''}`}
+                    required
+                  />
+                </div>
+                {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
+              </div>
+            ))}
+          </div>
+
+          <div className="bg-muted/30 rounded border p-2 max-w-[140px] sm:max-w-[280px] mx-auto">
             <Image
               src="/assets/gibs/left-to-right.png"
               alt="Left to Right"
@@ -91,38 +128,39 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
               className="w-full h-auto"
               unoptimized
             />
-            <p className="text-[10px] text-muted-foreground text-center mt-1">
-              Left to Right (9-16)
-            </p>
           </div>
 
-          <div className="grid grid-cols-8 gap-3">
-            {POINT_FIELDS.slice(8, 16).map((field) => (
-              <div key={field} className="space-y-1">
-                <Label htmlFor={`${field}-${title}`} className="text-xs">
-                  {field.replace('point', '')}
-                </Label>
-                <Input
-                  id={`${field}-${title}`}
-                  type="number"
-                  step="0.0001"
-                  min="0"
-                  max="999999.9999"
-                  value={data[field]}
-                  onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
-                  onBlur={() => handleBlur(field as keyof GibsData)}
-                  className={`text-sm ${errors[field] ? 'border-destructive' : ''}`}
-                  required
-                />
-                {errors[field] && <p className="text-xs text-destructive">{errors[field]}</p>}
+          <div className="flex flex-col gap-3 sm:gap-8">
+            {['point14', 'point10', 'point16', 'point12'].map((field) => (
+              <div key={field}>
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                  <Label
+                    htmlFor={`${field}-${title}`}
+                    className="text-xs sm:text-base font-semibold text-left"
+                  >
+                    {field.replace('point', '')}
+                  </Label>
+                  <Input
+                    id={`${field}-${title}`}
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    max="999999.9999"
+                    value={data[field as keyof GibsData]}
+                    onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
+                    onBlur={() => handleBlur(field as keyof GibsData)}
+                    className={`text-xs sm:text-sm h-8 w-16 sm:w-24 ${errors[field] ? 'border-destructive' : ''}`}
+                    required
+                  />
+                </div>
+                {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Context diagrams based on type */}
         {isOuterBefore && (
-          <div className="bg-muted/30 rounded border p-2 max-w-[280px]">
+          <div className="bg-muted/30 rounded border p-2 max-w-[200px] sm:max-w-[280px] mx-auto sm:mx-0">
             <Image
               src="/assets/gibs/before-tool-instalation.png"
               alt="Outer Slide Before"
@@ -137,8 +175,8 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
           </div>
         )}
         {isOuterAfter && (
-          <div className="flex gap-4">
-            <div className="bg-muted/30 rounded border p-2 max-w-[280px]">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="bg-muted/30 rounded border p-2 max-w-[200px] sm:max-w-[280px] mx-auto sm:mx-0">
               <Image
                 src="/assets/gibs/after-tool-instalation.png"
                 alt="Outer Slide After"
@@ -151,7 +189,7 @@ export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsForm
                 After Tool Installation
               </p>
             </div>
-            <div className="bg-muted/30 rounded border p-2 max-w-[280px]">
+            <div className="bg-muted/30 rounded border p-2 max-w-[200px] sm:max-w-[280px] mx-auto sm:mx-0">
               <Image
                 src="/assets/gibs/top.png"
                 alt="Top View"
