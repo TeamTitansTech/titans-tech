@@ -2,11 +2,10 @@
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
 import {
   type SlideData,
+  ParallelismType,
   ServiceType,
-  DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,
 } from '@/data/types/services.types';
@@ -30,7 +29,6 @@ export const validateSlideData = (data: SlideData): string[] => {
     'position3',
     'position4',
     'position5',
-    'position6',
   ];
 
   requiredFields.forEach((field) => {
@@ -48,8 +46,10 @@ export interface SlideSectionData {
   outerData?: SlideData;
   innerBefore?: SlideData;
   innerData?: SlideData;
-  parallelism?: DncToBedToBolsterType;
-  hasParallelismBeenAdjusted?: YesNoNaDncType;
+  outerParallelism?: ParallelismType;
+  outerHasParallelismBeenAdjusted?: YesNoNaDncType;
+  innerParallelism?: ParallelismType;
+  innerHasParallelismBeenAdjusted?: YesNoNaDncType;
   outerShutheightIndicatorsChecked?: YesNoDncType;
   outerOverloadsOnTonnageMonitor?: string;
   outerShutheightActualSh?: string;
@@ -78,27 +78,34 @@ interface SlideSectionProps {
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
   serviceType: ServiceType;
+  initialData?: any; // SlideCheck data from API
 }
 
 export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
-  ({ isOpen, onOpenChange, onSectionTouched, serviceType }, ref) => {
+  ({ isOpen, onOpenChange, onSectionTouched, serviceType, initialData }, ref) => {
     // All slide data in a single state object
     const [formData, setFormData] = useState({
-      outerBeforeData: defaultSlideData,
-      outerAfterData: defaultSlideData,
-      innerBeforeData: defaultSlideData,
-      innerAfterData: defaultSlideData,
-      parallelism: DncToBedToBolsterType.DNC,
-      hasParallelismBeenAdjusted: YesNoNaDncType.DNC,
-      outerShutheightIndicatorsChecked: YesNoDncType.DNC,
-      outerOverloadsOnTonnageMonitor: '',
-      outerShutheightActualSh: '',
-      outerIndicatorReading: '',
-      innerShutheightIndicatorsChecked: YesNoDncType.DNC,
-      innerOverloadsOnTonnageMonitor: '',
-      innerShutheightActualSh: '',
-      innerIndicatorReading: '',
-      notes: '',
+      outerBeforeData: initialData?.outerBeforeData || defaultSlideData,
+      outerAfterData: initialData?.outerAfterData || initialData?.outerData || defaultSlideData,
+      innerBeforeData: initialData?.innerBeforeData || defaultSlideData,
+      innerAfterData: initialData?.innerAfterData || initialData?.innerData || defaultSlideData,
+      outerParallelism: initialData?.outerParallelism || ParallelismType.DNC,
+      outerHasParallelismBeenAdjusted:
+        initialData?.outerHasParallelismBeenAdjusted || YesNoNaDncType.DNC,
+      innerParallelism: initialData?.innerParallelism || ParallelismType.DNC,
+      innerHasParallelismBeenAdjusted:
+        initialData?.innerHasParallelismBeenAdjusted || YesNoNaDncType.DNC,
+      outerShutheightIndicatorsChecked:
+        initialData?.outerShutheightIndicatorsChecked || YesNoDncType.DNC,
+      outerOverloadsOnTonnageMonitor: initialData?.outerOverloadsOnTonnageMonitor || '',
+      outerShutheightActualSh: initialData?.outerShutheightActualSh || '',
+      outerIndicatorReading: initialData?.outerIndicatorReading || '',
+      innerShutheightIndicatorsChecked:
+        initialData?.innerShutheightIndicatorsChecked || YesNoDncType.DNC,
+      innerOverloadsOnTonnageMonitor: initialData?.innerOverloadsOnTonnageMonitor || '',
+      innerShutheightActualSh: initialData?.innerShutheightActualSh || '',
+      innerIndicatorReading: initialData?.innerIndicatorReading || '',
+      notes: initialData?.notes || '',
     });
 
     const [errors, setErrors] = useState({
@@ -107,6 +114,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       innerBefore: {} as Record<string, string>,
       innerAfter: {} as Record<string, string>,
     });
+
+    const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(
+      !!(initialData?.outerBeforeData || initialData?.innerBeforeData),
+    );
 
     // Generic update function for any field in formData
     const updateField = <K extends keyof typeof formData>(
@@ -219,8 +230,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
               outerData: outerDataTouched ? formData.outerAfterData : undefined,
               innerBefore: innerBeforeTouched ? formData.innerBeforeData : undefined,
               innerData: innerDataTouched ? formData.innerAfterData : undefined,
-              parallelism: formData.parallelism,
-              hasParallelismBeenAdjusted: formData.hasParallelismBeenAdjusted,
+              outerParallelism: formData.outerParallelism,
+              outerHasParallelismBeenAdjusted: formData.outerHasParallelismBeenAdjusted,
+              innerParallelism: formData.innerParallelism,
+              innerHasParallelismBeenAdjusted: formData.innerHasParallelismBeenAdjusted,
               outerShutheightIndicatorsChecked: formData.outerShutheightIndicatorsChecked,
               outerOverloadsOnTonnageMonitor: formData.outerOverloadsOnTonnageMonitor || undefined,
               outerShutheightActualSh: formData.outerShutheightActualSh || undefined,
@@ -251,8 +264,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
           outerData: outerDataTouched ? formData.outerAfterData : undefined,
           innerBefore: innerBeforeTouched ? formData.innerBeforeData : undefined,
           innerData: innerDataTouched ? formData.innerAfterData : undefined,
-          parallelism: formData.parallelism,
-          hasParallelismBeenAdjusted: formData.hasParallelismBeenAdjusted,
+          outerParallelism: formData.outerParallelism,
+          outerHasParallelismBeenAdjusted: formData.outerHasParallelismBeenAdjusted,
+          innerParallelism: formData.innerParallelism,
+          innerHasParallelismBeenAdjusted: formData.innerHasParallelismBeenAdjusted,
           outerShutheightIndicatorsChecked: formData.outerShutheightIndicatorsChecked,
           outerOverloadsOnTonnageMonitor: formData.outerOverloadsOnTonnageMonitor || undefined,
           outerShutheightActualSh: formData.outerShutheightActualSh || undefined,
@@ -317,8 +332,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
           outerAfterData: defaultSlideData,
           innerBeforeData: defaultSlideData,
           innerAfterData: defaultSlideData,
-          parallelism: DncToBedToBolsterType.DNC,
-          hasParallelismBeenAdjusted: YesNoNaDncType.DNC,
+          outerParallelism: ParallelismType.DNC,
+          outerHasParallelismBeenAdjusted: YesNoNaDncType.DNC,
+          innerParallelism: ParallelismType.DNC,
+          innerHasParallelismBeenAdjusted: YesNoNaDncType.DNC,
           outerShutheightIndicatorsChecked: YesNoDncType.DNC,
           outerOverloadsOnTonnageMonitor: '',
           outerShutheightActualSh: '',
@@ -340,16 +357,9 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
 
     return (
       <Collapsible open={isOpen} onOpenChange={onOpenChange}>
-        <CollapsibleTrigger className="w-full">
-          <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
-            <h3 className="text-base font-semibold">Slide</h3>
-            <ChevronDown
-              className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
-            />
-          </div>
-        </CollapsibleTrigger>
+        <CollapsibleTrigger className="w-full"></CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="border border-t-0 rounded-b-lg p-6 bg-card">
+          <div className="border border-t-0 rounded-b-lg px-6 pb-6 pt-4 bg-card">
             <SlideForm
               data={formData}
               updateFn={updateField}
@@ -357,6 +367,8 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
               handleBlur={handleBlur}
               serviceType={serviceType}
               onSectionTouched={onSectionTouched}
+              includeBeforeMeasurements={includeBeforeMeasurements}
+              onIncludeBeforeMeasurementsChange={setIncludeBeforeMeasurements}
             />
           </div>
         </CollapsibleContent>

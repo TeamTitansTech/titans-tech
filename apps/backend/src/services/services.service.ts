@@ -79,6 +79,15 @@ export class ServicesService {
       ...(createInspectionDto.performedBy && {
         performedBy: createInspectionDto.performedBy,
       }),
+      ...(createInspectionDto.currentStep && {
+        currentStep: createInspectionDto.currentStep,
+      }),
+      ...(createInspectionDto.currentSectionKey && {
+        currentSectionKey: createInspectionDto.currentSectionKey,
+      }),
+      ...(createInspectionDto.selectedSections && {
+        selectedSections: createInspectionDto.selectedSections,
+      }),
       ...(createInspectionDto.bearingClearance && {
         bearingClearance: {
           create: {
@@ -128,12 +137,19 @@ export class ServicesService {
                 create: createInspectionDto.slide.innerData,
               },
             }),
-            ...(createInspectionDto.slide.parallelism && {
-              parallelism: createInspectionDto.slide.parallelism,
+            ...(createInspectionDto.slide.outerParallelism && {
+              outerParallelism: createInspectionDto.slide.outerParallelism,
             }),
-            ...(createInspectionDto.slide.hasParallelismBeenAdjusted && {
-              hasParallelismBeenAdjusted:
-                createInspectionDto.slide.hasParallelismBeenAdjusted,
+            ...(createInspectionDto.slide.outerHasParallelismBeenAdjusted && {
+              outerHasParallelismBeenAdjusted:
+                createInspectionDto.slide.outerHasParallelismBeenAdjusted,
+            }),
+            ...(createInspectionDto.slide.innerParallelism && {
+              innerParallelism: createInspectionDto.slide.innerParallelism,
+            }),
+            ...(createInspectionDto.slide.innerHasParallelismBeenAdjusted && {
+              innerHasParallelismBeenAdjusted:
+                createInspectionDto.slide.innerHasParallelismBeenAdjusted,
             }),
             ...(createInspectionDto.slide.outerShutheightIndicatorsChecked && {
               outerShutheightIndicatorsChecked:
@@ -680,6 +696,15 @@ export class ServicesService {
         ...(updateServiceDto.status && { status: updateServiceDto.status }),
         ...(updateServiceDto.performedBy !== undefined && {
           performedBy: updateServiceDto.performedBy,
+        }),
+        ...(updateServiceDto.currentStep !== undefined && {
+          currentStep: updateServiceDto.currentStep,
+        }),
+        ...(updateServiceDto.currentSectionKey !== undefined && {
+          currentSectionKey: updateServiceDto.currentSectionKey,
+        }),
+        ...(updateServiceDto.selectedSections !== undefined && {
+          selectedSections: updateServiceDto.selectedSections,
         }),
         // Handle nested relations - create if data is provided
         bearingClearance: updateServiceDto.bearingClearance

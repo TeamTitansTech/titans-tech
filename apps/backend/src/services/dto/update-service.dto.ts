@@ -11,6 +11,7 @@ import {
 import { Type } from 'class-transformer';
 import {
   MatingPartType,
+  ParallelismType,
   DncToBedToBolsterType,
   ServiceType,
   ServiceStatus,
@@ -205,6 +206,58 @@ class SlideCheckDto {
   @ValidateNested()
   @Type(() => SlideDataDto)
   innerAfter?: SlideDataDto;
+
+  @IsOptional()
+  @IsEnum(ParallelismType)
+  outerParallelism?: ParallelismType;
+
+  @IsOptional()
+  @IsEnum(YesNoNaDncType)
+  outerHasParallelismBeenAdjusted?: YesNoNaDncType;
+
+  @IsOptional()
+  @IsEnum(ParallelismType)
+  innerParallelism?: ParallelismType;
+
+  @IsOptional()
+  @IsEnum(YesNoNaDncType)
+  innerHasParallelismBeenAdjusted?: YesNoNaDncType;
+
+  @IsOptional()
+  @IsEnum(YesNoDncType)
+  outerShutheightIndicatorsChecked?: YesNoDncType;
+
+  @IsOptional()
+  @IsString()
+  outerOverloadsOnTonnageMonitor?: string;
+
+  @IsOptional()
+  @IsString()
+  outerShutheightActualSh?: string;
+
+  @IsOptional()
+  @IsString()
+  outerIndicatorReading?: string;
+
+  @IsOptional()
+  @IsEnum(YesNoDncType)
+  innerShutheightIndicatorsChecked?: YesNoDncType;
+
+  @IsOptional()
+  @IsString()
+  innerOverloadsOnTonnageMonitor?: string;
+
+  @IsOptional()
+  @IsString()
+  innerShutheightActualSh?: string;
+
+  @IsOptional()
+  @IsString()
+  innerIndicatorReading?: string;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
 }
 
 class GibsDataDto {
@@ -589,6 +642,18 @@ export class UpdateServiceDto {
   @IsOptional()
   @IsString()
   performedBy?: string;
+
+  @IsOptional()
+  @IsString()
+  currentStep?: string;
+
+  @IsOptional()
+  @IsString()
+  currentSectionKey?: string;
+
+  @IsOptional()
+  @IsArray()
+  selectedSections?: string[];
 
   @IsOptional()
   @ValidateNested()

@@ -1,53 +1,63 @@
 'use client';
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown } from 'lucide-react';
 import { type ClutchData, ServiceType } from '@/data/types/services.types';
 import { ClutchForm } from '../forms/ClutchForm';
 import { isDataTouched } from './utils';
 
 export const defaultClutchData: ClutchData = {
-  clutchType: '',
-  clutchLocation: '',
+  clutchType: undefined,
+  clutchLocation: undefined,
   brakeSpringBrake: undefined,
   brakeSpringClutch: undefined,
-  brakeSpringStudBolt: '',
-  brakeAnchorClearanceFB: undefined,
-  brakeAnchorClearanceFTB: undefined,
-  brakeAnchorClearanceRTB: undefined,
+  brakeSpringFB: undefined,
+  brakeSpringFTB: undefined,
+  brakeSpringRTB: undefined,
+  brakeSpringStudBolt: undefined,
   brakeStoppingTime: undefined,
-  brakeLining: '',
+  brakeLining: undefined,
   brakeClearing: undefined,
   brakeClearanceTotal: undefined,
   brakeClearanceRear: undefined,
   flywheelStoppingTime: undefined,
-  flywheelBearings: '',
-  flywheelBrake: '',
+  flywheelBearings: undefined,
+  flywheelBrake: undefined,
+  rotaryUnion: undefined,
   clutchEngagements: undefined,
-  clutchLining: '',
-  clutchSeals: '',
+  clutchLining: undefined,
+  clutchSeals: undefined,
   gearBacklashBefore: undefined,
   gearBacklashAfter: undefined,
   crankEndplayBefore: undefined,
   crankEndplayAfter: undefined,
-  airRegulatorPSI: undefined,
+  airRegulatorValue: undefined,
+  airRegulatorUnit: undefined,
   airClutchTravel: undefined,
-  airLineOilerSetting: '',
+  airLineOilerSetting: undefined,
+  splinesDriveRingDisc: undefined,
+  adjustingNutLockSecure: undefined,
   hydClutchClearanceTotal: undefined,
   hydClutchClearanceRear: undefined,
-  hydraulicPressurePSI: undefined,
-  accumulatorPSI: undefined,
-  rotaryUnion: '',
-  splinesDriveRingDisc: '',
-  adjustingNutLockSecure: '',
-  separateBrakeSeals: '',
-  flexDisc: '',
+  hydraulicPressureValue: undefined,
+  hydraulicPressureUnit: undefined,
+  accumulatorValue: undefined,
+  accumulatorUnit: undefined,
+  separateBrakeSeals: undefined,
+  flexDisc: undefined,
+  notes: undefined,
 };
 
-export const validateClutchData = (_data: ClutchData): string[] => {
-  // All fields are optional for this section
-  return [];
+export const validateClutchData = (data: ClutchData, serviceType: ServiceType): string[] => {
+  const errors: string[] = [];
+
+  // Only clutch type is required for maintenance services
+  if (serviceType === ServiceType.MAINTENANCE) {
+    if (!data.clutchType) {
+      errors.push('Clutch Type is required for maintenance and rebuild services');
+    }
+  }
+
+  return errors;
 };
 
 export interface ClutchSectionRef {
@@ -63,14 +73,13 @@ export interface ClutchSectionRef {
 }
 
 interface ClutchSectionProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
+  initialData?: ClutchData;
 }
 
 export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
-  ({ isOpen, onOpenChange, onSectionTouched }, ref) => {
-    const [data, setData] = useState<ClutchData>(defaultClutchData);
+  ({ onSectionTouched, initialData }, ref) => {
+    const [data, setData] = useState<ClutchData>(initialData || defaultClutchData);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
     const updateField = (field: keyof ClutchData, value: string | number | undefined) => {
@@ -89,7 +98,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
       },
 
       validateAndGetData: (
-        _serviceType: ServiceType,
+        serviceType: ServiceType,
       ): { isValid: boolean; errors: string[]; data?: ClutchData } => {
         const touched = isDataTouched(data, defaultClutchData);
 
@@ -97,7 +106,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
           return { isValid: true, errors: [] };
         }
 
-        const validationErrors = validateClutchData(data);
+        const validationErrors = validateClutchData(data, serviceType);
         const isValid = validationErrors.length === 0;
 
         if (isValid) {
@@ -119,10 +128,10 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
         return touched ? data : undefined;
       },
 
-      validate: (_serviceType: ServiceType): string[] => {
+      validate: (serviceType: ServiceType): string[] => {
         const touched = isDataTouched(data, defaultClutchData);
         if (touched) {
-          return validateClutchData(data);
+          return validateClutchData(data, serviceType);
         }
         return [];
       },
@@ -134,26 +143,9 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     }));
 
     return (
-      <Collapsible open={isOpen} onOpenChange={onOpenChange}>
-        <CollapsibleTrigger className="w-full">
-          <div className="border rounded-lg p-4 bg-card hover:bg-muted/50 transition-colors flex items-center justify-between">
-            <h3 className="text-base font-semibold">Clutch</h3>
-            <ChevronDown
-              className={`h-5 w-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
-            />
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="border border-t-0 rounded-b-lg p-6 bg-card">
-            <ClutchForm
-              data={data}
-              updateFn={updateField}
-              errors={errors}
-              handleBlur={handleBlur}
-            />
-          </div>
-        </CollapsibleContent>
-      </Collapsible>
+      <div className="p-6 space-y-6">
+        <ClutchForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
+      </div>
     );
   },
 );

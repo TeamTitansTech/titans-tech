@@ -20,6 +20,12 @@ export enum MatingPartType {
   NUT_SCREW_SLEEVE = 'NUT_SCREW_SLEEVE',
 }
 
+export enum ParallelismType {
+  DNC = 'DNC',
+  TO_BED = 'TO_BED',
+  TO_BOLSTER = 'TO_BOLSTER',
+}
+
 export enum DncToBedToBolsterType {
   DNC = 'DNC',
   TO_BED = 'TO_BED',
@@ -132,6 +138,127 @@ export enum OilWickType {
   NEEDS_REPLACED = 'NEEDS_REPLACED',
 }
 
+// Clutch Enums
+export enum ClutchType {
+  AFC = 'AFC',
+  CFC = 'CFC',
+  EFHC = 'EFHC',
+  GC = 'GC',
+  HC = 'HC',
+  MC = 'MC',
+  MDHC = 'MDHC',
+  MHC = 'MHC',
+  MHCC = 'MHCC',
+}
+
+export enum ClutchLocation {
+  CRANKSHAFT = 'CRANKSHAFT',
+  DRIVESHAFT = 'DRIVESHAFT',
+}
+
+export enum BrakeSpringStudBoltType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  BROKEN = 'BROKEN',
+  BENT_WORN = 'BENT_WORN',
+}
+
+export enum BrakeLiningType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  GLAZED = 'GLAZED',
+  OIL_SOAKED = 'OIL_SOAKED',
+  MISSING_SEGMENTS = 'MISSING_SEGMENTS',
+}
+
+export enum FlywheelBearingsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NOISE = 'NOISE',
+  WOBBLE = 'WOBBLE',
+}
+
+export enum FlywheelBrakeType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LINING_WORN = 'LINING_WORN',
+}
+
+export enum RotaryUnionType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  AIR_LEAK = 'AIR_LEAK',
+  OIL_LEAK = 'OIL_LEAK',
+  CONCENTRICITY = 'CONCENTRICITY',
+}
+
+export enum ClutchLiningType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  GLAZED = 'GLAZED',
+  OIL_SOAKED = 'OIL_SOAKED',
+  MISSING_SEGMENTS = 'MISSING_SEGMENTS',
+}
+
+export enum ClutchSealsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LEAKING = 'LEAKING',
+  SLOW_RESPONSE = 'SLOW_RESPONSE',
+}
+
+export enum PressureUnit {
+  BAR = 'BAR',
+  MPA = 'MPA',
+  PSI = 'PSI',
+}
+
+export enum SplinesConditionType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  BROKEN = 'BROKEN',
+  NOT_VISIBLE = 'NOT_VISIBLE',
+  WEAR_VISIBLE = 'WEAR_VISIBLE',
+}
+
+export enum AdjustingNutLockType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+}
+
+export enum AirLineOilerSettingType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  NEEDS_OIL = 'NEEDS_OIL',
+  NEEDS_OIL_RESET = 'NEEDS_OIL_RESET',
+  NEEDS_RESET = 'NEEDS_RESET',
+}
+
+export enum SeparateBrakeSealsType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  LEAKING = 'LEAKING',
+}
+
+export enum FlexDiscType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  BUCKLED = 'BUCKLED',
+  CRACKED = 'CRACKED',
+}
+
 // Bearing Clearance Data
 export interface BearingClearanceData {
   totalClearance_RH: number;
@@ -182,8 +309,10 @@ export interface SlideCheck {
   outerData?: SlideData;
   innerBefore?: SlideData;
   innerData?: SlideData;
-  parallelism?: DncToBedToBolsterType;
-  hasParallelismBeenAdjusted?: YesNoNaDncType;
+  outerParallelism?: ParallelismType;
+  outerHasParallelismBeenAdjusted?: YesNoNaDncType;
+  innerParallelism?: ParallelismType;
+  innerHasParallelismBeenAdjusted?: YesNoNaDncType;
   outerShutheightIndicatorsChecked?: YesNoDncType;
   outerOverloadsOnTonnageMonitor?: string;
   outerShutheightActualSh?: string;
@@ -251,41 +380,72 @@ export interface LubricationHydraulicsData {
 
 // Clutch Data
 export interface ClutchData {
-  clutchType?: string;
-  clutchLocation?: string;
+  // Clutch Type and Location
+  clutchType?: ClutchType;
+  clutchLocation?: ClutchLocation;
+
+  // Brake Spring Settings (in inches)
   brakeSpringBrake?: number;
   brakeSpringClutch?: number;
-  brakeSpringStudBolt?: string;
-  brakeAnchorClearanceFB?: number;
-  brakeAnchorClearanceFTB?: number;
-  brakeAnchorClearanceRTB?: number;
+  brakeSpringFB?: number;
+  brakeSpringFTB?: number;
+  brakeSpringRTB?: number;
+  brakeSpringStudBolt?: BrakeSpringStudBoltType;
+
+  // Brake measurements
   brakeStoppingTime?: number;
-  brakeLining?: string;
+  brakeLining?: BrakeLiningType;
   brakeClearing?: number;
   brakeClearanceTotal?: number;
   brakeClearanceRear?: number;
+
+  // Flywheel
   flywheelStoppingTime?: number;
-  flywheelBearings?: string;
-  flywheelBrake?: string;
+  flywheelBearings?: FlywheelBearingsType;
+  flywheelBrake?: FlywheelBrakeType;
+
+  // Rotary Union
+  rotaryUnion?: RotaryUnionType;
+
+  // Clutch details
   clutchEngagements?: number;
-  clutchLining?: string;
-  clutchSeals?: string;
+  clutchLining?: ClutchLiningType;
+  clutchSeals?: ClutchSealsType;
+
+  // Gear and measurements (*Check only if excessive noise and/or vibration is present)
   gearBacklashBefore?: number;
   gearBacklashAfter?: number;
   crankEndplayBefore?: number;
   crankEndplayAfter?: number;
-  airRegulatorPSI?: number;
+
+  // Air system
+  airRegulatorValue?: number;
+  airRegulatorUnit?: PressureUnit;
   airClutchTravel?: number;
-  airLineOilerSetting?: string;
+  airLineOilerSetting?: AirLineOilerSettingType;
+
+  // Splines
+  splinesDriveRingDisc?: SplinesConditionType;
+
+  // Adjusting Nut/Lock
+  adjustingNutLockSecure?: AdjustingNutLockType;
+
+  // Hydraulic system
   hydClutchClearanceTotal?: number;
   hydClutchClearanceRear?: number;
-  hydraulicPressurePSI?: number;
-  accumulatorPSI?: number;
-  rotaryUnion?: string;
-  splinesDriveRingDisc?: string;
-  adjustingNutLockSecure?: string;
-  separateBrakeSeals?: string;
-  flexDisc?: string;
+  hydraulicPressureValue?: number;
+  hydraulicPressureUnit?: PressureUnit;
+  accumulatorValue?: number;
+  accumulatorUnit?: PressureUnit;
+
+  // Separate Brake Seals
+  separateBrakeSeals?: SeparateBrakeSealsType;
+
+  // Flex Disc
+  flexDisc?: FlexDiscType;
+
+  // Notes
+  notes?: string;
 }
 
 // Counterbalance Cylinder Data
@@ -314,6 +474,9 @@ export interface CreateServicePayload {
   type: ServiceType;
   status?: ServiceStatus; // Optional: defaults to PENDING in backend
   performedBy?: string;
+  currentStep?: string; // Current step in the modal workflow
+  currentSectionKey?: string; // Current section being filled
+  selectedSections?: string[]; // Array of selected section keys
   bearingClearance?: BearingClearanceCheck;
   slide?: SlideCheck;
   gibs?: GibsCheck;
@@ -327,6 +490,9 @@ export interface UpdateServicePayload {
   type?: ServiceType;
   status?: ServiceStatus;
   performedBy?: string;
+  currentStep?: string; // Current step in the modal workflow
+  currentSectionKey?: string; // Current section being filled
+  selectedSections?: string[]; // Array of selected section keys
   bearingClearance?: BearingClearanceCheck;
   slide?: SlideCheck;
   gibs?: GibsCheck;
@@ -343,6 +509,9 @@ export interface Service {
   type: ServiceType;
   status: ServiceStatus;
   performedBy?: string;
+  currentStep?: string; // Current step in the modal workflow
+  currentSectionKey?: string; // Current section being filled
+  selectedSections?: string[]; // Array of selected section keys
   createdAt: string;
   updatedAt: string;
 }

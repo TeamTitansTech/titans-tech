@@ -67,8 +67,6 @@ export function CompleteServiceModal({
   // Collapsible section states
   const [slideOpen, setSlideOpen] = useState(false);
   const [gibsOpen, setGibsOpen] = useState(false);
-  const [lubricationOpen, setLubricationOpen] = useState(false);
-  const [clutchOpen, setClutchOpen] = useState(false);
 
   // Section refs
   const bearingClearanceRef = useRef<BearingClearanceSectionRef>(null);
@@ -329,13 +327,17 @@ export function CompleteServiceModal({
             {blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (
               <LubricationHydraulicsSection
                 ref={lubricationRef}
-                isOpen={lubricationOpen}
-                onOpenChange={setLubricationOpen}
+                onSectionTouched={() =>
+                  markSectionTouched('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER')
+                }
               />
             )}
 
             {blueprintSections.includes('CLUTCH') && (
-              <ClutchSection ref={clutchRef} isOpen={clutchOpen} onOpenChange={setClutchOpen} />
+              <ClutchSection
+                ref={clutchRef}
+                onSectionTouched={() => markSectionTouched('CLUTCH')}
+              />
             )}
 
             {blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG') && (

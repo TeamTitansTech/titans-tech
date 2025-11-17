@@ -26,13 +26,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ServiceType, ServiceStatus, type CreateServicePayload } from '@/data/types/services.types';
 import {
-  ServiceType,
-  ServiceStatus,
-  type CreateServicePayload,
-  type UpdateServicePayload,
-} from '@/data/types/services.types';
-import { createService, updateService } from '@/data/services/services.api';
+  createService,
+  updateService,
+  updateServiceSection,
+  completeService,
+  getServiceById,
+} from '@/data/services/services.api';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { toast } from 'sonner';
 import {
@@ -69,6 +70,15 @@ export function ServiceCompletionModal({
 }: ServiceCompletionModalProps) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
+  const tSlide = useTranslations('inspections.form.slide');
+  const tSlideFields = useTranslations('inspections.form.slide.fields');
+  const tTable = useTranslations('table');
+  const tMeasurements = useTranslations('measurements');
+  const tServicesSummary = useTranslations('services.modal.summary');
+  const tBearingFields = useTranslations('bearingFields');
+  const tBearingClearanceFields = useTranslations('inspections.form.bearingClearance.fields');
+  const tClutchFields = useTranslations('inspections.form.clutch.fields');
+  const tCounterbalanceFields = useTranslations('inspections.form.counterbalanceCylinder');
   const router = useInternalRouter();
 
   // Memoize machineSections to prevent infinite loop
@@ -84,12 +94,13 @@ export function ServiceCompletionModal({
   type StepType = 'selection' | 'details' | 'sections' | 'summary';
 
   // Determine if we should skip section selection step
-  // Skip ONLY for inspections (inspections always include all sections)
-  // Maintenance services (new or completing) should show selection step
+  // Skip ONLY for inspections (they always include all sections)
+  // For maintenance, even with serviceId, we need to let users select sections first
+  // (unless they already have completed sections, which we'll detect when loading data)
   const shouldSkipSelection = isInspection;
 
-  // For inspections, start at 'details' step (skip selection)
-  // For maintenance (new or completing), start at 'selection' step
+  // For inspections or editing existing services, start at 'details' step
+  // For new maintenance services, start at 'selection' step
   const [currentStep, setCurrentStep] = useState<StepType>(
     shouldSkipSelection ? 'details' : 'selection',
   );
@@ -138,7 +149,18 @@ export function ServiceCompletionModal({
   // Store completed section data for summary display
   const [completedSectionData, setCompletedSectionData] = useState<Record<string, any>>({});
 
-  // Reset when modal closes
+  // Store the service ID for newly created services
+  const [createdServiceId, setCreatedServiceId] = useState<string | null>(null);
+  const currentServiceId = serviceId || createdServiceId;
+
+  // Loading state for fetching existing service data
+  // Start as true if we have a serviceId (will load data immediately)
+  const [isLoadingServiceData, setIsLoadingServiceData] = useState(!!serviceId);
+
+  // Track if we've completed the initial data load to prevent re-showing loading screen
+  const hasLoadedInitialData = useRef(false);
+
+  // Reset when modal closes OR when serviceId changes (switching between services)
   useEffect(() => {
     if (!open) {
       // Reset to initial state based on service type
@@ -152,6 +174,9 @@ export function ServiceCompletionModal({
       setError(null);
       setCompletedSections(new Set());
       setCompletedSectionData({});
+      setCreatedServiceId(null);
+      setIsLoadingServiceData(false);
+      hasLoadedInitialData.current = false;
       // Reset all section refs
       sectionRefs.current.forEach((ref) => ref.reset());
     }
@@ -165,6 +190,167 @@ export function ServiceCompletionModal({
     machineSections,
     shouldSkipSelection,
   ]);
+
+  // Reset and reload when serviceId changes (switching between services)
+  useEffect(() => {
+    if (!open) return;
+
+    if (serviceId) {
+      // Opening/switching to an existing service - reset and prepare to load
+      // Only reset if we haven't loaded data yet (prevents resetting after saves)
+      if (!hasLoadedInitialData.current) {
+        setIsLoadingServiceData(true);
+        hasLoadedInitialData.current = false;
+        setCompletedSections(new Set());
+        setCompletedSectionData({});
+        setSelectedSections(isInspection ? new Set(machineSections) : new Set());
+        setCreatedServiceId(null);
+        setCurrentStep(shouldSkipSelection ? 'details' : 'selection');
+        setCurrentSectionIndex(0);
+      }
+    } else {
+      // Creating a new service - reset to clean state
+      setIsLoadingServiceData(false);
+      hasLoadedInitialData.current = true; // No data to load for new service
+      setCompletedSections(new Set());
+      setCompletedSectionData({});
+      setSelectedSections(isInspection ? new Set(machineSections) : new Set());
+      setCreatedServiceId(null);
+      setCurrentStep(shouldSkipSelection ? 'details' : 'selection');
+      setCurrentSectionIndex(0);
+      sectionRefs.current.forEach((ref) => ref.reset());
+    }
+  }, [open, serviceId, isInspection, machineSections, shouldSkipSelection]);
+
+  // Load existing service data when opening modal with serviceId
+  // Only load when explicitly provided with serviceId prop (not createdServiceId)
+  useEffect(() => {
+    const loadServiceData = async () => {
+      // Only load if:
+      // 1. Modal is open
+      // 2. We have a serviceId prop (existing service, not newly created)
+      // 3. createdServiceId is null (not in the middle of creating a new service)
+      // 4. We haven't already loaded the initial data (prevents reloading after saves)
+      if (!open || !serviceId || createdServiceId || hasLoadedInitialData.current) return;
+
+      setIsLoadingServiceData(true);
+
+      try {
+        const response = await getServiceById(serviceId);
+
+        if (response.errors || !response.data) {
+          console.error('Failed to load service data:', response.errors);
+          toast.error('Failed to load service data');
+          return;
+        }
+
+        const service = response.data as any; // Service with included relations
+
+        // Extract completed sections array
+        const savedCompletedSections = Array.isArray(service.completedSections)
+          ? service.completedSections
+          : [];
+
+        // Map Prisma relation data back to section data
+        const RELATION_TO_SECTION_KEY: Record<string, string> = {
+          bearingClearance: 'BEARING_CLEARANCE',
+          slide: 'SLIDE',
+          gibs: 'GIBS',
+          lubricationHydraulics: 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
+          clutch: 'CLUTCH',
+          counterbalanceCylinderAirbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
+        };
+
+        const loadedSectionData: Record<string, any> = {};
+
+        // Extract data from each relation (arrays with single item)
+        // Find the first record with actual nested data (not all nulls)
+        Object.entries(RELATION_TO_SECTION_KEY).forEach(([relationKey, sectionKey]) => {
+          const relationData = service[relationKey];
+          if (relationData && Array.isArray(relationData) && relationData.length > 0) {
+            // Find first record that has non-null nested data
+            const recordWithData = relationData.find((record: any) => {
+              // Check if record has meaningful nested data
+              const hasNestedData =
+                record.outerBefore ||
+                record.outerData ||
+                record.innerBefore ||
+                record.innerData ||
+                record.data;
+              return hasNestedData;
+            });
+            // Use the record with data, or fallback to the last one
+            loadedSectionData[sectionKey] = recordWithData || relationData[relationData.length - 1];
+
+            console.log(`🔍 Loading ${sectionKey}:`, {
+              totalRecords: relationData.length,
+              foundRecordWithData: !!recordWithData,
+              usingRecord: loadedSectionData[sectionKey] ? 'with-data' : 'fallback',
+            });
+          }
+        });
+
+        // Update state with loaded data
+        // Section components will automatically receive this data via initialData prop
+        setCompletedSections(new Set(savedCompletedSections));
+        setCompletedSectionData(loadedSectionData);
+
+        // Restore selectedSections from service data (if available)
+        let savedSelectedSections = Array.isArray(service.selectedSections)
+          ? service.selectedSections
+          : savedCompletedSections; // Fallback to completed sections for backward compatibility
+
+        // For inspections without saved selections, auto-select all sections
+        if (isInspection && savedSelectedSections.length === 0) {
+          savedSelectedSections = machineSections;
+        }
+
+        setSelectedSections(new Set(savedSelectedSections));
+
+        // Restore the step and section index the user was on
+        if (service.currentStep && service.currentStep !== 'summary') {
+          setCurrentStep(service.currentStep as any);
+
+          // If we're on the sections step, restore the section index
+          if (service.currentStep === 'sections' && service.currentSectionKey) {
+            const sectionsArray = savedSelectedSections;
+            const sectionIndex = sectionsArray.indexOf(service.currentSectionKey);
+            setCurrentSectionIndex(sectionIndex >= 0 ? sectionIndex : 0);
+          } else {
+            setCurrentSectionIndex(0);
+          }
+        } else if (savedCompletedSections.length > 0) {
+          // If no currentStep saved or it's summary, go to details step
+          // This lets users see the full stepper with completed sections marked
+          setCurrentStep('details');
+          setCurrentSectionIndex(0);
+        } else {
+          // No completed sections yet - this is a brand new service
+          // Stay at selection step (or details for inspections)
+          setCurrentStep(shouldSkipSelection ? 'details' : 'selection');
+          setCurrentSectionIndex(0);
+        }
+      } catch (error) {
+        console.error('Error loading service data:', error);
+        toast.error('Error loading service data');
+      } finally {
+        setIsLoadingServiceData(false);
+        hasLoadedInitialData.current = true;
+      }
+    };
+
+    loadServiceData();
+  }, [open, serviceId, createdServiceId, isInspection, machineSections, shouldSkipSelection]);
+
+  // Auto-select all sections when service type changes to INSPECTION
+  // This handles the case when creating a new inspection (not completing an existing one)
+  useEffect(() => {
+    // Only auto-select if we're creating a new service (no serviceId prop)
+    // and the modal is open and current type is INSPECTION
+    if (!serviceId && open && currentServiceType === ServiceType.INSPECTION) {
+      setSelectedSections(new Set(machineSections));
+    }
+  }, [currentServiceType, open, serviceId, machineSections]);
 
   const toggleSection = (sectionKey: string) => {
     setSelectedSections((prev) => {
@@ -253,12 +439,48 @@ export function ServiceCompletionModal({
   };
 
   // Navigate to next step
-  const handleNext = (e?: React.MouseEvent) => {
+  const handleNext = async (e?: React.MouseEvent) => {
     // Prevent any form submission
     e?.preventDefault();
     e?.stopPropagation();
 
     if (currentStep === 'details') {
+      // If creating a new service, create it with PENDING status before proceeding
+      if (!currentServiceId) {
+        setIsSubmitting(true);
+        try {
+          const payload: CreateServicePayload = {
+            machineId,
+            date: date.toISOString(),
+            type: currentServiceType,
+            status: ServiceStatus.PENDING,
+            performedBy: performedBy || undefined,
+            currentStep: 'sections',
+            selectedSections: Array.from(selectedSections),
+          };
+
+          const response = await createService(payload);
+
+          if (response.errors || !response.data) {
+            toast.error(
+              `Failed to create service:\n${response.errors?.join('\n') || 'Unknown error'}`,
+            );
+            setIsSubmitting(false);
+            return;
+          }
+
+          // Store the created service ID
+          setCreatedServiceId(response.data.id);
+          toast.success('Service created. Now fill in the section forms.');
+          setIsSubmitting(false);
+        } catch (error) {
+          console.error('Error creating service:', error);
+          toast.error('An unexpected error occurred while creating the service');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       // Move to first section
       setCurrentStep('sections');
       setCurrentSectionIndex(0);
@@ -267,33 +489,98 @@ export function ServiceCompletionModal({
       const sectionsArray = getSelectedSectionsArray();
       const currentSectionKey = sectionsArray[currentSectionIndex];
 
+      // Client-side validation for immediate feedback
       const validationErrors = validateSection(currentSectionKey);
       if (validationErrors.length > 0) {
         toast.error(validationErrors.join('\n\n'));
         return;
       }
 
-      // Mark section as completed
-      setCompletedSections((prev) => new Set(prev).add(currentSectionKey));
-
-      // Save section data to state for summary display
+      // Get section data from ref
       const ref = sectionRefs.current.get(currentSectionKey);
-      if (ref) {
-        const result = ref.validateAndGetData(currentServiceType);
-        if (result.isValid && result.data) {
-          setCompletedSectionData((prev) => ({
-            ...prev,
-            [currentSectionKey]: result.data,
-          }));
-        }
+      if (!ref) {
+        toast.error('Section reference not found');
+        return;
       }
 
-      // Move to next section or go to summary
-      if (currentSectionIndex < sectionsArray.length - 1) {
-        setCurrentSectionIndex(currentSectionIndex + 1);
-      } else {
-        // All sections completed, move to summary
-        setCurrentStep('summary');
+      const result = ref.validateAndGetData(currentServiceType);
+      if (!result.isValid || !result.data) {
+        toast.error('Please fill in all required fields');
+        return;
+      }
+
+      // Show loading state
+      setIsSubmitting(true);
+
+      try {
+        // Save section to database
+        if (!currentServiceId) {
+          toast.error('Service ID not found. Please create the service first.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        const response = await updateServiceSection(
+          currentServiceId,
+          currentSectionKey,
+          result.data,
+          machineId,
+        );
+
+        if (response.errors) {
+          toast.error(`Failed to save section:\n${response.errors.join('\n')}`);
+          setIsSubmitting(false);
+          return;
+        }
+
+        // Section saved successfully
+        toast.success('Section saved successfully');
+
+        // Mark section as completed
+        setCompletedSections((prev) => new Set(prev).add(currentSectionKey));
+
+        // Save the form data directly to state (don't try to extract from DB response)
+        // This keeps the data in memory for navigation between sections
+        console.log('🟡 [ServiceCompletionModal] Saving section data after save:', {
+          sectionKey: currentSectionKey,
+          formDataKeys: result.data ? Object.keys(result.data) : [],
+          hasFormData: !!result.data,
+        });
+        setCompletedSectionData((prev) => ({
+          ...prev,
+          [currentSectionKey]: result.data, // Use form data directly
+        }));
+
+        // Determine next step
+        const nextSectionIndex = currentSectionIndex + 1;
+        const isLastSection = nextSectionIndex >= sectionsArray.length;
+        const nextStep = isLastSection ? 'summary' : 'sections';
+        const nextSectionKey = isLastSection ? null : sectionsArray[nextSectionIndex];
+
+        // Update service with current progress (for resuming later)
+        await updateService(
+          currentServiceId,
+          {
+            currentStep: nextStep,
+            currentSectionKey: nextSectionKey || undefined,
+            selectedSections: Array.from(selectedSections),
+          },
+          machineId,
+        );
+
+        setIsSubmitting(false);
+
+        // Move to next section or go to summary
+        if (!isLastSection) {
+          setCurrentSectionIndex(nextSectionIndex);
+        } else {
+          // All sections completed, move to summary
+          setCurrentStep('summary');
+        }
+      } catch (error) {
+        console.error('Error saving section:', error);
+        toast.error('An unexpected error occurred while saving the section');
+        setIsSubmitting(false);
       }
     }
   };
@@ -345,144 +632,131 @@ export function ServiceCompletionModal({
   };
 
   // Map section keys to payload property names
-  const SECTION_TO_PAYLOAD_KEY: Record<
-    string,
-    keyof UpdateServicePayload | keyof CreateServicePayload
-  > = {
-    BEARING_CLEARANCE: 'bearingClearance',
-    SLIDE: 'slide',
-    GIBS: 'gibs',
-    LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
-    CLUTCH: 'clutch',
-    COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalanceCylinder',
-  };
+  // const SECTION_TO_PAYLOAD_KEY: Record<
+  //   string,
+  //   keyof UpdateServicePayload | keyof CreateServicePayload
+  // > = {
+  //   BEARING_CLEARANCE: 'bearingClearance',
+  //   SLIDE: 'slide',
+  //   GIBS: 'gibs',
+  //   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
+  //   CLUTCH: 'clutch',
+  //   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalanceCylinder',
+  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setError(null);
 
-    // Only allow submission from summary step when completing service
-    if (isCompletingService && serviceId) {
-      if (currentStep !== 'summary') {
-        // Not on summary step, prevent submission
-        console.warn('Attempted to submit from non-summary step:', currentStep);
-        return;
-      }
+    // Only allow submission from summary step
+    if (currentStep !== 'summary') {
+      console.warn('Attempted to submit from non-summary step:', currentStep);
+      return;
     }
 
     setIsSubmitting(true);
 
     try {
-      if (isCompletingService && serviceId) {
-        // Completing an existing maintenance service - validate and collect section data
-        const validationErrors: string[] = [];
-
-        // Validate all selected sections (skip untouched optional sections)
-        selectedSections.forEach((sectionKey) => {
-          const errors = validateSection(sectionKey, true);
-          if (errors.length > 0) {
-            validationErrors.push(...errors);
-          }
-        });
-
-        if (validationErrors.length > 0) {
-          toast.error(validationErrors.join('\n\n'));
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Build payload with section data
-        const payload: UpdateServicePayload = {
-          date: date.toISOString(),
-          type: currentServiceType,
-          status: ServiceStatus.COMPLETED,
-          performedBy: performedBy || undefined,
-        };
-
-        // Add section data from completedSectionData
-        selectedSections.forEach((sectionKey) => {
-          const payloadKey = SECTION_TO_PAYLOAD_KEY[sectionKey];
-          const sectionData = completedSectionData[sectionKey];
-          if (payloadKey && sectionData) {
-            (payload as any)[payloadKey] = sectionData;
-          }
-        });
-
-        const response = await updateService(serviceId, payload, machineId);
-
-        if (response.errors) {
-          setError(response.errors.join(', '));
-          setIsSubmitting(false);
-          return;
-        }
-
-        toast.success(
-          isInspection ? 'Inspeção concluída com sucesso' : 'Manutenção concluída com sucesso',
-        );
-      } else {
-        // Creating a new service - collect section data
-        const validationErrors: string[] = [];
-
-        // Validate all selected sections (skip untouched optional sections)
-        selectedSections.forEach((sectionKey) => {
-          const errors = validateSection(sectionKey, true);
-          if (errors.length > 0) {
-            validationErrors.push(...errors);
-          }
-        });
-
-        if (validationErrors.length > 0) {
-          toast.error(validationErrors.join('\n\n'));
-          setIsSubmitting(false);
-          return;
-        }
-
-        // Build payload with section data
-        const payload: CreateServicePayload = {
-          machineId,
-          date: date.toISOString(),
-          type: currentServiceType,
-          status: ServiceStatus.COMPLETED,
-          performedBy: performedBy || undefined,
-        };
-
-        // Add section data from completedSectionData
-        selectedSections.forEach((sectionKey) => {
-          const payloadKey = SECTION_TO_PAYLOAD_KEY[sectionKey];
-          const sectionData = completedSectionData[sectionKey];
-          if (payloadKey && sectionData) {
-            (payload as any)[payloadKey] = sectionData;
-          }
-        });
-
-        const response = await createService(payload);
-
-        if (response.errors) {
-          setError(response.errors.join(', '));
-          setIsSubmitting(false);
-          return;
-        }
-
-        toast.success(
-          currentServiceType === ServiceType.INSPECTION
-            ? 'Inspeção criada com sucesso'
-            : 'Manutenção criada com sucesso',
-        );
+      // Validate that we have a service ID (either provided or created)
+      if (!currentServiceId) {
+        toast.error('Service ID not found');
+        setIsSubmitting(false);
+        return;
       }
+
+      // Mark service as completed
+      const response = await completeService(currentServiceId, performedBy || '', machineId);
+
+      if (response.errors) {
+        setError(response.errors.join(', '));
+        setIsSubmitting(false);
+        return;
+      }
+
+      toast.success(
+        isInspection ? 'Inspeção concluída com sucesso' : 'Manutenção concluída com sucesso',
+      );
 
       // Reset and close
       setDate(getTomorrowDate());
       setSelectedServiceType(ServiceType.MAINTENANCE);
       setPerformedBy('');
+      setCreatedServiceId(null);
       setIsSubmitting(false);
       onOpenChange(false);
       router.refresh();
     } catch (err) {
-      console.error('Error with service:', err);
+      console.error('Error completing service:', err);
       setError('An unexpected error occurred');
       setIsSubmitting(false);
     }
+  };
+
+  // Helper function to check if a field is an ID field
+  const isIdField = (key: string): boolean => {
+    const lowerKey = key.toLowerCase();
+    return (
+      key === 'id' ||
+      key.endsWith('Id') ||
+      key.endsWith('ID') ||
+      lowerKey === 'id' ||
+      lowerKey === 'createdat' ||
+      lowerKey === 'updatedat' ||
+      key === 'createdAt' ||
+      key === 'updatedAt' ||
+      key === 'created_at' ||
+      key === 'updated_at'
+    );
+  };
+
+  // Helper function to check if a field should be shown in Slide section summary
+  const isSlideFieldAllowedInSummary = (key: string): boolean => {
+    // Position fields (not allowed)
+    if (key.startsWith('position')) return false;
+
+    // Only allow specific fields
+    const allowedFields = [
+      'outerParallelism',
+      'outerHasParallelismBeenAdjusted',
+      'innerParallelism',
+      'innerHasParallelismBeenAdjusted',
+      'outerShutheightIndicatorsChecked',
+      'outerOverloadsOnTonnageMonitor',
+      'outerShutheightActualSh',
+      'outerIndicatorReading',
+      'innerShutheightIndicatorsChecked',
+      'innerOverloadsOnTonnageMonitor',
+      'innerShutheightActualSh',
+      'innerIndicatorReading',
+      'notes',
+    ];
+
+    return allowedFields.includes(key);
+  };
+
+  // Helper function to calculate max deviation from slide position data
+  const calculateMaxDeviation = (data: any): string => {
+    if (!data) return '-';
+
+    const positions = [
+      data.position1,
+      data.position2,
+      data.position3,
+      data.position4,
+      data.position5,
+      data.position6,
+    ];
+    const validValues = positions.filter(
+      (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
+    );
+
+    if (validValues.length > 1) {
+      const max = Math.max(...validValues);
+      const min = Math.min(...validValues);
+      return (max - min).toFixed(4);
+    }
+    return '-';
   };
 
   // Helper function to format field names
@@ -496,6 +770,35 @@ export function ServiceCompletionModal({
       .join(' ');
   };
 
+  // Helper function to translate field names based on section
+  const translateFieldName = (key: string, sectionKey?: string): string => {
+    // Try to get translation based on section
+    if (sectionKey === 'BEARING_CLEARANCE') {
+      // Try bearing clearance fields first
+      const translation = tBearingClearanceFields(key);
+      if (translation !== key) return translation;
+    } else if (sectionKey === 'SLIDE') {
+      // Try slide fields
+      const translation = tSlideFields(key);
+      if (translation !== key) return translation;
+    } else if (sectionKey === 'CLUTCH') {
+      // Try clutch fields
+      const translation = tClutchFields(key);
+      if (translation !== key) return translation;
+    } else if (sectionKey === 'COUNTERBALANCE_CYLINDER_AIRBAG') {
+      // Try counterbalance fields
+      const translation = tCounterbalanceFields(key);
+      if (translation !== key) return translation;
+    } else if (sectionKey === 'GIBS') {
+      // Gibs uses similar field names to bearing clearance
+      const translation = tBearingClearanceFields(key);
+      if (translation !== key) return translation;
+    }
+
+    // Fallback to formatFieldName for fields without translations
+    return formatFieldName(key);
+  };
+
   // Helper function to display value or "-" for empty
   const displayValue = (value: any): string => {
     if (value === null || value === undefined || value === '') {
@@ -504,11 +807,37 @@ export function ServiceCompletionModal({
     if (typeof value === 'boolean') {
       return value ? 'Yes' : 'No';
     }
-    return String(value);
+
+    // Handle enum translations
+    const stringValue = String(value);
+
+    // Translate ParallelismType values
+    if (stringValue === 'TO_BED') {
+      return tSlide('toBed');
+    }
+    if (stringValue === 'TO_BOLSTER') {
+      return tSlide('toBolster');
+    }
+    if (stringValue === 'DNC') {
+      return tSlide('dnc');
+    }
+
+    // Translate Yes/No/NA values
+    if (stringValue === 'YES') {
+      return tSlide('yes');
+    }
+    if (stringValue === 'NO') {
+      return tSlide('no');
+    }
+    if (stringValue === 'NA') {
+      return tSlide('na');
+    }
+
+    return stringValue;
   };
 
   // Helper function to extract bearing measurement rows
-  const extractBearingRows = (data: any) => {
+  const extractBearingRows = (data: any, sectionKey?: string) => {
     if (!data) return [];
 
     const rows: { field: string; lh: any; rh: any; differential: string }[] = [];
@@ -527,6 +856,11 @@ export function ServiceCompletionModal({
     ];
 
     Object.keys(data).forEach((key) => {
+      // Skip ID and timestamp fields
+      if (isIdField(key)) {
+        return;
+      }
+
       // Skip non-measurement fields
       if (skipFields.includes(key)) {
         return;
@@ -547,7 +881,7 @@ export function ServiceCompletionModal({
         }
 
         rows.push({
-          field: formatFieldName(baseField),
+          field: translateFieldName(baseField, sectionKey),
           lh: lhValue,
           rh: rhValue,
           differential,
@@ -608,7 +942,15 @@ export function ServiceCompletionModal({
           </DialogDescription>
         </DialogHeader>
 
-        {currentStep === 'selection' ? (
+        {/* Show loading state ONLY during initial load, not after saving sections */}
+        {isLoadingServiceData && serviceId && !hasLoadedInitialData.current ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center space-y-3">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <Typography variant="muted">Carregando dados do serviço...</Typography>
+            </div>
+          </div>
+        ) : currentStep === 'selection' ? (
           // Step 1: Section Selection
           <div className="flex-1 overflow-y-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -766,44 +1108,52 @@ export function ServiceCompletionModal({
 
                 return (
                   <>
-                    {sectionsArray.map((sectionKey) => {
-                      const sectionConfig = SECTION_REGISTRY[sectionKey];
+                    {(() => {
+                      const sectionConfig = SECTION_REGISTRY[currentSectionKey];
                       if (!sectionConfig) return null;
 
-                      const isCurrentSection = sectionKey === currentSectionKey;
+                      const SectionComponent = sectionConfig.component;
+                      const sectionData = completedSectionData[currentSectionKey];
+                      // Create a key that changes when data is loaded to force component remount
+                      const dataHash = sectionData
+                        ? JSON.stringify(Object.keys(sectionData).sort()).substring(0, 20)
+                        : 'empty';
+                      const componentKey = `${currentSectionKey}-${dataHash}`;
+
+                      console.log('🟢 [ServiceCompletionModal] Rendering section:', {
+                        currentSectionKey,
+                        hasSectionData: !!sectionData,
+                        sectionDataKeys: sectionData ? Object.keys(sectionData) : [],
+                        sectionDataSample: sectionData
+                          ? JSON.stringify(sectionData).substring(0, 200)
+                          : null,
+                        componentKey,
+                      });
 
                       return (
-                        <div
-                          key={sectionKey}
-                          className="space-y-4"
-                          style={{ display: isCurrentSection ? 'block' : 'none' }}
-                        >
+                        <div key={componentKey} className="space-y-4">
                           <Typography variant="h3" className="text-lg font-semibold">
                             {t(`sectionNames.${sectionConfig.metadata.i18nKey}`)}
                           </Typography>
 
                           <div className="border rounded-lg">
-                            {(() => {
-                              const SectionComponent = sectionConfig.component;
-                              return (
-                                <SectionComponent
-                                  ref={(ref: SectionComponentRef | null) => {
-                                    if (ref) {
-                                      sectionRefs.current.set(sectionKey, ref);
-                                    }
-                                  }}
-                                  onSectionTouched={() => handleSectionTouched(sectionKey)}
-                                  serviceType={currentServiceType}
-                                  isOpen={true}
-                                  onOpenChange={() => {}}
-                                  initialData={completedSectionData[sectionKey]}
-                                />
-                              );
-                            })()}
+                            <SectionComponent
+                              key={componentKey}
+                              ref={(ref: SectionComponentRef | null) => {
+                                if (ref) {
+                                  sectionRefs.current.set(currentSectionKey, ref);
+                                }
+                              }}
+                              onSectionTouched={() => handleSectionTouched(currentSectionKey)}
+                              serviceType={currentServiceType}
+                              isOpen={true}
+                              onOpenChange={() => {}}
+                              initialData={sectionData}
+                            />
                           </div>
                         </div>
                       );
-                    })}
+                    })()}
                   </>
                 );
               })()}
@@ -905,19 +1255,26 @@ export function ServiceCompletionModal({
                     const hasBeforeData =
                       (data?.outerBefore && hasActualData(data.outerBefore)) ||
                       (data?.innerBefore && hasActualData(data.innerBefore));
+                    // API uses outerData/innerData instead of outerAfter/innerAfter
                     const hasAfterData =
-                      (data?.outerAfter && hasActualData(data.outerAfter)) ||
-                      (data?.innerAfter && hasActualData(data.innerAfter));
+                      (data?.outerData && hasActualData(data.outerData)) ||
+                      (data?.innerData && hasActualData(data.innerData));
 
-                    const outerBeforeRows = extractBearingRows(data?.outerBefore);
-                    const innerBeforeRows = extractBearingRows(data?.innerBefore);
-                    const outerAfterRows = extractBearingRows(data?.outerAfter);
-                    const innerAfterRows = extractBearingRows(data?.innerAfter);
+                    const outerBeforeRows = extractBearingRows(
+                      data?.outerBefore,
+                      'BEARING_CLEARANCE',
+                    );
+                    const innerBeforeRows = extractBearingRows(
+                      data?.innerBefore,
+                      'BEARING_CLEARANCE',
+                    );
+                    const outerAfterRows = extractBearingRows(data?.outerData, 'BEARING_CLEARANCE');
+                    const innerAfterRows = extractBearingRows(data?.innerData, 'BEARING_CLEARANCE');
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.bearingClearance')}
@@ -932,7 +1289,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             {/* Before Measurements (only if data exists) */}
@@ -945,22 +1302,22 @@ export function ServiceCompletionModal({
                                   {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Outer
+                                      {tTable('outer')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -991,22 +1348,22 @@ export function ServiceCompletionModal({
                                   {/* Inner Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Inner
+                                      {tTable('inner')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1049,22 +1406,22 @@ export function ServiceCompletionModal({
                                   {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Outer
+                                      {tTable('outer')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1095,22 +1452,22 @@ export function ServiceCompletionModal({
                                   {/* Inner Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Inner
+                                      {tTable('inner')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1145,42 +1502,44 @@ export function ServiceCompletionModal({
                             {(hasBeforeData || hasAfterData) && (
                               <div className="border-t pt-2 mt-3">
                                 <div className="font-semibold text-muted-foreground mb-2 text-sm">
-                                  Additional Information
+                                  {tServicesSummary('additionalInformation')}
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
                                   {/* Outer Fields */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Outer
+                                      {tTable('outer')}
                                     </div>
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Combined With:
+                                          {tBearingFields('combinedWith')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.combinedWith ||
+                                            data?.outerData?.combinedWith ||
                                               data?.outerBefore?.combinedWith,
                                           )}
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Mating Part:</span>
+                                        <span className="text-muted-foreground">
+                                          {tBearingFields('matingPart')}:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.matingPart ||
+                                            data?.outerData?.matingPart ||
                                               data?.outerBefore?.matingPart,
                                           )}
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Has Been Adjusted:
+                                          {tBearingFields('hasBeenAdjusted')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.hasBeenAdjusted ||
+                                            data?.outerData?.hasBeenAdjusted ||
                                               data?.outerBefore?.hasBeenAdjusted,
                                           )}
                                         </span>
@@ -1191,36 +1550,38 @@ export function ServiceCompletionModal({
                                   {/* Inner Fields */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Inner
+                                      {tTable('inner')}
                                     </div>
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Combined With:
+                                          {tBearingFields('combinedWith')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.innerAfter?.combinedWith ||
+                                            data?.innerData?.combinedWith ||
                                               data?.innerBefore?.combinedWith,
                                           )}
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Mating Part:</span>
+                                        <span className="text-muted-foreground">
+                                          {tBearingFields('matingPart')}:
+                                        </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.innerAfter?.matingPart ||
+                                            data?.innerData?.matingPart ||
                                               data?.innerBefore?.matingPart,
                                           )}
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Has Been Adjusted:
+                                          {tBearingFields('hasBeenAdjusted')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.innerAfter?.hasBeenAdjusted ||
+                                            data?.innerData?.hasBeenAdjusted ||
                                               data?.innerBefore?.hasBeenAdjusted,
                                           )}
                                         </span>
@@ -1232,60 +1593,62 @@ export function ServiceCompletionModal({
                                 {/* Shutdown Adjustment Mechanism */}
                                 <div className="mt-3">
                                   <div className="font-semibold text-muted-foreground mb-2 text-xs">
-                                    Shutdown Adjustment Mechanism
+                                    {tServicesSummary('shutdownAdjustmentMechanism')}
                                   </div>
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Slide Motor/Mounts:
+                                          {tBearingFields('slideMotorMounts')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.slideMotorMounts ||
+                                            data?.outerData?.slideMotorMounts ||
                                               data?.outerBefore?.slideMotorMounts,
                                           )}
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Power Cord/Hoses:
+                                          {tBearingFields('powerCordHoses')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.powerCordHoses ||
+                                            data?.outerData?.powerCordHoses ||
                                               data?.outerBefore?.powerCordHoses,
                                           )}
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Chains & Gears/Sprockets:
+                                          {tBearingFields('chainsGearsSprockets')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.chainsGearsSprockets ||
+                                            data?.outerData?.chainsGearsSprockets ||
                                               data?.outerBefore?.chainsGearsSprockets,
                                           )}
                                         </span>
                                       </div>
                                       <div className="flex justify-between">
                                         <span className="text-muted-foreground">
-                                          Locking Clamps:
+                                          {tBearingFields('lockingClamps')}:
                                         </span>
                                         <span className="font-medium">
                                           {displayValue(
-                                            data?.outerAfter?.lockingClamps ||
+                                            data?.outerData?.lockingClamps ||
                                               data?.outerBefore?.lockingClamps,
                                           )}
                                         </span>
                                       </div>
-                                      {(data?.outerAfter?.notes || data?.outerBefore?.notes) && (
+                                      {(data?.outerData?.notes || data?.outerBefore?.notes) && (
                                         <div className="flex flex-col gap-1 pt-1 border-t">
-                                          <span className="text-muted-foreground">Notes:</span>
+                                          <span className="text-muted-foreground">
+                                            {tServicesSummary('notes')}:
+                                          </span>
                                           <span className="font-medium">
                                             {displayValue(
-                                              data?.outerAfter?.notes || data?.outerBefore?.notes,
+                                              data?.outerData?.notes || data?.outerBefore?.notes,
                                             )}
                                           </span>
                                         </div>
@@ -1308,7 +1671,7 @@ export function ServiceCompletionModal({
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.slide')}
@@ -1323,7 +1686,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             {/* Before Measurements (if exists) */}
@@ -1337,13 +1700,13 @@ export function ServiceCompletionModal({
                                     <TableHeader>
                                       <TableRow className="bg-muted/50">
                                         <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                          Field
+                                          {tTable('field')}
                                         </TableHead>
                                         <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                          Outer
+                                          {tTable('outer')}
                                         </TableHead>
                                         <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                          Inner
+                                          {tTable('inner')}
                                         </TableHead>
                                       </TableRow>
                                     </TableHeader>
@@ -1352,22 +1715,24 @@ export function ServiceCompletionModal({
                                         (data as any).outerBefore ||
                                           (data as any).innerBefore ||
                                           {},
-                                      ).map((key) => (
-                                        <TableRow
-                                          key={key}
-                                          className="text-[11px] hover:bg-muted/30"
-                                        >
-                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                            {formatFieldName(key)}
-                                          </TableCell>
-                                          <TableCell className="py-1.5 text-center border-r">
-                                            {displayValue((data as any).outerBefore?.[key])}
-                                          </TableCell>
-                                          <TableCell className="py-1.5 text-center">
-                                            {displayValue((data as any).innerBefore?.[key])}
-                                          </TableCell>
-                                        </TableRow>
-                                      ))}
+                                      )
+                                        .filter((key) => !isIdField(key))
+                                        .map((key) => (
+                                          <TableRow
+                                            key={key}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {formatFieldName(key)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue((data as any).outerBefore?.[key])}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {displayValue((data as any).innerBefore?.[key])}
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
                                     </TableBody>
                                   </Table>
                                 </div>
@@ -1384,35 +1749,37 @@ export function ServiceCompletionModal({
                                     <TableHeader>
                                       <TableRow className="bg-muted/50">
                                         <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                          Field
+                                          {tTable('field')}
                                         </TableHead>
                                         <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                          Outer
+                                          {tTable('outer')}
                                         </TableHead>
                                         <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                          Inner
+                                          {tTable('inner')}
                                         </TableHead>
                                       </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                       {Object.keys(
                                         (data as any).outerData || (data as any).innerData || {},
-                                      ).map((key) => (
-                                        <TableRow
-                                          key={key}
-                                          className="text-[11px] hover:bg-muted/30"
-                                        >
-                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                            {formatFieldName(key)}
-                                          </TableCell>
-                                          <TableCell className="py-1.5 text-center border-r">
-                                            {displayValue((data as any).outerData?.[key])}
-                                          </TableCell>
-                                          <TableCell className="py-1.5 text-center">
-                                            {displayValue((data as any).innerData?.[key])}
-                                          </TableCell>
-                                        </TableRow>
-                                      ))}
+                                      )
+                                        .filter((key) => !isIdField(key))
+                                        .map((key) => (
+                                          <TableRow
+                                            key={key}
+                                            className="text-[11px] hover:bg-muted/30"
+                                          >
+                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                              {formatFieldName(key)}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center border-r">
+                                              {displayValue((data as any).outerData?.[key])}
+                                            </TableCell>
+                                            <TableCell className="py-1.5 text-center">
+                                              {displayValue((data as any).innerData?.[key])}
+                                            </TableCell>
+                                          </TableRow>
+                                        ))}
                                     </TableBody>
                                   </Table>
                                 </div>
@@ -1421,7 +1788,17 @@ export function ServiceCompletionModal({
 
                             {/* Section-level fields table */}
                             {Object.entries(data).filter(
-                              ([_, value]) => typeof value !== 'object' || value === null,
+                              ([key, value]) =>
+                                !isIdField(key) &&
+                                isSlideFieldAllowedInSummary(key) &&
+                                key !== 'outerData' &&
+                                key !== 'innerData' &&
+                                key !== 'outerBefore' &&
+                                key !== 'innerBefore' &&
+                                (typeof value !== 'object' || value === null) &&
+                                value !== null &&
+                                value !== undefined &&
+                                value !== '',
                             ).length > 0 && (
                               <div className="border-t pt-2">
                                 <div className="font-medium text-muted-foreground mb-2 text-[11px]">
@@ -1442,8 +1819,17 @@ export function ServiceCompletionModal({
                                     <TableBody>
                                       {Object.entries(data)
                                         .filter(
-                                          ([_, value]) =>
-                                            typeof value !== 'object' || value === null,
+                                          ([key, value]) =>
+                                            !isIdField(key) &&
+                                            isSlideFieldAllowedInSummary(key) &&
+                                            key !== 'outerData' &&
+                                            key !== 'innerData' &&
+                                            key !== 'outerBefore' &&
+                                            key !== 'innerBefore' &&
+                                            (typeof value !== 'object' || value === null) &&
+                                            value !== null &&
+                                            value !== undefined &&
+                                            value !== '',
                                         )
                                         .map(([key, value]) => (
                                           <TableRow
@@ -1458,6 +1844,262 @@ export function ServiceCompletionModal({
                                             </TableCell>
                                           </TableRow>
                                         ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Outer Before Measurements */}
+                            {data.outerBefore && (
+                              <div className="border-t pt-3 mt-3">
+                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                                  Outer - Before Maintenance
+                                </div>
+                                <div className="border rounded-md overflow-hidden">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow className="bg-muted/50">
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 1
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 2
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 3
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 4
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 5
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 6
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
+                                          {tSlide('maxDeviation')}
+                                        </TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      <TableRow className="text-[11px]">
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerBefore.position1)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerBefore.position2)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerBefore.position3)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerBefore.position4)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerBefore.position5)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerBefore.position6)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+                                          {calculateMaxDeviation(data.outerBefore)}
+                                        </TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Outer After Measurements */}
+                            {data.outerData && (
+                              <div className="border-t pt-3 mt-3">
+                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                                  {data.outerBefore
+                                    ? tMeasurements('outerAfterMaintenance')
+                                    : tMeasurements('outerMeasurements')}
+                                </div>
+                                <div className="border rounded-md overflow-hidden">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow className="bg-muted/50">
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 1
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 2
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 3
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 4
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 5
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 6
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
+                                          {tSlide('maxDeviation')}
+                                        </TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      <TableRow className="text-[11px]">
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerData.position1)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerData.position2)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerData.position3)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerData.position4)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerData.position5)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.outerData.position6)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+                                          {calculateMaxDeviation(data.outerData)}
+                                        </TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Inner Before Measurements */}
+                            {data.innerBefore && (
+                              <div className="border-t pt-3 mt-3">
+                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                                  Inner - Before Maintenance
+                                </div>
+                                <div className="border rounded-md overflow-hidden">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow className="bg-muted/50">
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 1
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 2
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 3
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 4
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 5
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 6
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
+                                          {tSlide('maxDeviation')}
+                                        </TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      <TableRow className="text-[11px]">
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerBefore.position1)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerBefore.position2)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerBefore.position3)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerBefore.position4)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerBefore.position5)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerBefore.position6)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+                                          {calculateMaxDeviation(data.innerBefore)}
+                                        </TableCell>
+                                      </TableRow>
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Inner After Measurements */}
+                            {data.innerData && (
+                              <div className="border-t pt-3 mt-3">
+                                <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                                  {data.innerBefore
+                                    ? tMeasurements('innerAfterMaintenance')
+                                    : tMeasurements('innerMeasurements')}
+                                </div>
+                                <div className="border rounded-md overflow-hidden">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow className="bg-muted/50">
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 1
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 2
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 3
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 4
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 5
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center">
+                                          Pos 6
+                                        </TableHead>
+                                        <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
+                                          {tSlide('maxDeviation')}
+                                        </TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      <TableRow className="text-[11px]">
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerData.position1)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerData.position2)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerData.position3)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerData.position4)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerData.position5)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center">
+                                          {displayValue(data.innerData.position6)}
+                                        </TableCell>
+                                        <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+                                          {calculateMaxDeviation(data.innerData)}
+                                        </TableCell>
+                                      </TableRow>
                                     </TableBody>
                                   </Table>
                                 </div>
@@ -1478,18 +2120,18 @@ export function ServiceCompletionModal({
                       (data?.outerBefore && hasActualData(data.outerBefore)) ||
                       (data?.innerBefore && hasActualData(data.innerBefore));
                     const hasAfterData =
-                      (data?.outerAfter && hasActualData(data.outerAfter)) ||
-                      (data?.innerAfter && hasActualData(data.innerAfter));
+                      (data?.outerData && hasActualData(data.outerAfter)) ||
+                      (data?.innerData && hasActualData(data.innerAfter));
 
-                    const outerBeforeRows = extractBearingRows(data?.outerBefore);
-                    const innerBeforeRows = extractBearingRows(data?.innerBefore);
-                    const outerAfterRows = extractBearingRows(data?.outerAfter);
-                    const innerAfterRows = extractBearingRows(data?.innerAfter);
+                    const outerBeforeRows = extractBearingRows(data?.outerBefore, 'GIBS');
+                    const innerBeforeRows = extractBearingRows(data?.innerBefore, 'GIBS');
+                    const outerAfterRows = extractBearingRows(data?.outerData, 'GIBS');
+                    const innerAfterRows = extractBearingRows(data?.innerData, 'GIBS');
 
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.gibs')}
@@ -1504,7 +2146,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             {/* Before Measurements (only if data exists) */}
@@ -1517,22 +2159,22 @@ export function ServiceCompletionModal({
                                   {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Outer
+                                      {tTable('outer')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1563,22 +2205,22 @@ export function ServiceCompletionModal({
                                   {/* Inner Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Inner
+                                      {tTable('inner')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1621,22 +2263,22 @@ export function ServiceCompletionModal({
                                   {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Outer
+                                      {tTable('outer')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1667,22 +2309,22 @@ export function ServiceCompletionModal({
                                   {/* Inner Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      Inner
+                                      {tTable('inner')}
                                     </div>
                                     <Table>
                                       <TableHeader>
                                         <TableRow className="bg-muted/50">
                                           <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            Field
+                                            {tTable('field')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            LH
+                                            {tTable('lh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            RH
+                                            {tTable('rh')}
                                           </TableHead>
                                           <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            Diff
+                                            {tTable('diff')}
                                           </TableHead>
                                         </TableRow>
                                       </TableHeader>
@@ -1725,7 +2367,7 @@ export function ServiceCompletionModal({
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.lubricationHydraulics')}
@@ -1740,7 +2382,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="border-t pt-2">
@@ -1784,7 +2426,7 @@ export function ServiceCompletionModal({
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.clutch')}
@@ -1799,7 +2441,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="border-t pt-2">
@@ -1816,16 +2458,21 @@ export function ServiceCompletionModal({
                                     </TableRow>
                                   </TableHeader>
                                   <TableBody>
-                                    {Object.entries(data).map(([key, value]) => (
-                                      <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                                        <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                          {formatFieldName(key)}
-                                        </TableCell>
-                                        <TableCell className="py-1.5 text-center">
-                                          {displayValue(value)}
-                                        </TableCell>
-                                      </TableRow>
-                                    ))}
+                                    {Object.entries(data)
+                                      .filter(([key]) => !isIdField(key))
+                                      .map(([key, value]) => (
+                                        <TableRow
+                                          key={key}
+                                          className="text-[11px] hover:bg-muted/30"
+                                        >
+                                          <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                                            {formatFieldName(key)}
+                                          </TableCell>
+                                          <TableCell className="py-1.5 text-center">
+                                            {displayValue(value)}
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
                                   </TableBody>
                                 </Table>
                               </div>
@@ -1843,7 +2490,7 @@ export function ServiceCompletionModal({
                     return (
                       <Collapsible key={sectionKey} defaultOpen={isCompleted}>
                         <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
                             <div className="flex items-center gap-2">
                               <Typography variant="h4" className="font-semibold text-sm">
                                 {t('sectionNames.counterbalance')}
@@ -1858,7 +2505,7 @@ export function ServiceCompletionModal({
                                 </span>
                               )}
                             </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 data-[state=open]:rotate-180" />
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="border-t pt-2">
@@ -1870,7 +2517,7 @@ export function ServiceCompletionModal({
                                     </div>
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       {Object.entries(data.outerData)
-                                        .filter(([key]) => key !== 'notes')
+                                        .filter(([key]) => !isIdField(key) && key !== 'notes')
                                         .map(([key, value]) => (
                                           <div key={key} className="flex justify-between">
                                             <span className="text-muted-foreground">
@@ -1892,7 +2539,7 @@ export function ServiceCompletionModal({
                                     </div>
                                     <div className="p-2 space-y-1.5 text-[11px]">
                                       {Object.entries(data.innerData)
-                                        .filter(([key]) => key !== 'notes')
+                                        .filter(([key]) => !isIdField(key) && key !== 'notes')
                                         .map(([key, value]) => (
                                           <div key={key} className="flex justify-between">
                                             <span className="text-muted-foreground">
@@ -1946,7 +2593,16 @@ export function ServiceCompletionModal({
               <Button type="button" variant="outline" onClick={handlePrevious}>
                 Anterior
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                disabled={
+                  isSubmitting ||
+                  // Disable if not all selected sections are completed
+                  !Array.from(selectedSections).every((sectionKey) =>
+                    completedSections.has(sectionKey),
+                  )
+                }
+              >
                 {isSubmitting
                   ? tServices('modal.completing')
                   : isCompletingService

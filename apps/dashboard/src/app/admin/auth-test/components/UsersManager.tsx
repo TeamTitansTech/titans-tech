@@ -7,12 +7,15 @@ import { FormEvent, useState, useEffect } from 'react';
 import { Company } from '@/data/services/companies.api';
 import { UserResponseDto } from '@titans-tech/shared';
 import { Typography } from '@/components/ui/typography';
+import { useTranslations } from 'next-intl';
 
 interface Props {
   selectedCompany: Company | null;
 }
 
 export default function UsersManager({ selectedCompany }: Props) {
+  const tActions = useTranslations('actions');
+  const tMessages = useTranslations('messages');
   const { sysAdminUser } = useSysAdmin();
   const [users, setUsers] = useState<UserResponseDto[]>([]);
   const [branches, setBranches] = useState<CompanyBranch[]>([]);
@@ -96,7 +99,7 @@ export default function UsersManager({ selectedCompany }: Props) {
 
     if (isCreatingMode) {
       if (!selectedBranchId) {
-        alert('Please select a branch');
+        alert(tMessages('selectBranch'));
         return;
       }
 
@@ -255,14 +258,14 @@ export default function UsersManager({ selectedCompany }: Props) {
                 disabled={isFormLoading}
                 className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
               >
-                {isFormLoading ? 'Saving...' : 'Save'}
+                {isFormLoading ? tActions('saving') : tActions('save')}
               </button>
               <button
                 type="button"
                 onClick={handleCancel}
                 className="rounded bg-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-400"
               >
-                Cancel
+                {tActions('cancel')}
               </button>
             </div>
           </form>
@@ -271,11 +274,9 @@ export default function UsersManager({ selectedCompany }: Props) {
 
       <div className="overflow-x-auto rounded border border-gray-300">
         {isLoadingList ? (
-          <div className="p-8 text-center text-gray-500">Loading users...</div>
+          <div className="p-8 text-center text-gray-500">{tMessages('loadingUsers')}</div>
         ) : users.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">
-            No users found. Create one to get started.
-          </div>
+          <div className="p-8 text-center text-gray-500">{tMessages('noUsersFound')}</div>
         ) : (
           <table className="w-full">
             <thead>

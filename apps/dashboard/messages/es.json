@@ -1,0 +1,1050 @@
+{
+  "common": {
+    "companyName": "InspectPro",
+    "companySubtitle": "Portal de Administración",
+    "unsavedChanges": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "companyNameRequired": "El nombre de la empresa es obligatorio",
+    "companySlugRequired": "El identificador de la empresa es obligatorio",
+    "invalidUrl": "Debe ser una URL válida",
+    "invalidHexColor": "Debe ser un color hexadecimal válido",
+    "branchNameRequired": "El nombre de la sucursal es obligatorio",
+    "fullNameRequired": "El nombre completo es obligatorio",
+    "invalidEmail": "Dirección de correo electrónico no válida"
+  },
+  "navigation": {
+    "dashboard": "Panel",
+    "models": "Modelos",
+    "blueprints": "Plantillas",
+    "clients": "Clientes",
+    "companies": "Empresas",
+    "allMachines": "Máquinas",
+    "machines": "Máquinas",
+    "services": "Servicios",
+    "settings": "Configuración",
+    "adminPortal": "Portal de Administración",
+    "systemAdministration": "Administración del Sistema"
+  },
+  "header": {
+    "toggleSidebar": "Alternar Barra Lateral",
+    "searchPlaceholder": "Buscar máquinas, modelos...",
+    "notifications": "Notificaciones",
+    "toggleTheme": "Alternar Modo Oscuro",
+    "userProfile": "Perfil de Usuario",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión"
+  },
+  "settings": {
+    "title": "Configuración",
+    "description": "Administre sus preferencias y configuraciones de la aplicación",
+    "language": {
+      "title": "Idioma y Región",
+      "label": "Seleccionar Idioma",
+      "description": "Elija su idioma preferido para la interfaz"
+    },
+    "close": "Cerrar",
+    "applying": "Aplicando cambios..."
+  },
+  "adminSettings": {
+    "pageTitle": "Configuración",
+    "pageDescription": "Administre configuraciones globales y organizacionales",
+    "generalSettings": {
+      "title": "Configuración General",
+      "description": "Configure preferencias globales para la plataforma",
+      "language": {
+        "label": "Idioma",
+        "placeholder": "Seleccionar idioma"
+      },
+      "unitSystem": {
+        "label": "Unidad de Medida Predeterminada",
+        "placeholder": "Seleccionar sistema de unidades",
+        "metric": "Métrico (Unidades SI)",
+        "imperial": "Unidades Imperiales"
+      },
+      "autoSaveNotice": "La configuración se guarda automáticamente cuando se modifica. Este sistema de unidades se aplicará a todas las empresas a menos que se anule.",
+      "saved": "Configuración guardada exitosamente"
+    },
+    "companyManagement": {
+      "title": "Gestión de Empresas y Usuarios",
+      "description": "Administre empresas, sucursales y permisos de usuarios",
+      "selectCompany": "Seleccionar Empresa",
+      "selectCompanyPlaceholder": "Elija una empresa",
+      "createCompany": "Crear Empresa"
+    },
+    "branches": {
+      "title": "Sucursales",
+      "loading": "Cargando sucursales...",
+      "noBranches": "No se encontraron sucursales para esta empresa.",
+      "loadingFailed": "Error al cargar sucursales",
+      "mainBranch": "Sucursal Principal",
+      "users": "usuarios"
+    },
+    "createCompany": {
+      "title": "Crear Empresa",
+      "description": "Agregar una nueva empresa a la plataforma",
+      "form": {
+        "name": {
+          "label": "Nombre de la Empresa",
+          "placeholder": "ej., Acme Manufacturing Inc."
+        },
+        "slug": {
+          "label": "Identificador de la Empresa",
+          "placeholder": "ej., acme-manufacturing"
+        },
+        "logo": {
+          "label": "URL del Logotipo (Opcional)",
+          "placeholder": "ej., https://ejemplo.com/logo.png"
+        },
+        "brandColor": {
+          "label": "Color de Marca (Opcional)",
+          "placeholder": "#FF5733"
+        },
+        "description": {
+          "label": "Descripción (Opcional)",
+          "placeholder": "ej., Fabricante líder de piezas industriales"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Crear Empresa",
+      "submitting": "Creando...",
+      "success": "Empresa creada exitosamente",
+      "error": "Error al crear la empresa"
+    },
+    "errors": {
+      "loadingCompaniesFailed": "Error al cargar empresas"
+    },
+    "companyCard": {
+      "administrator": "Administrador",
+      "unknownUser": "Desconocido"
+    },
+    "userManagement": {
+      "title": "Cuentas de Usuario",
+      "loading": "Cargando usuarios...",
+      "loadingFailed": "Error al cargar usuarios",
+      "noUsers": "No se encontraron usuarios para esta sucursal",
+      "addUser": "Agregar Usuario",
+      "table": {
+        "name": "Nombre",
+        "email": "Correo Electrónico",
+        "role": "Rol",
+        "status": "Estado",
+        "actions": "Acciones"
+      },
+      "roles": {
+        "branchManager": "Gerente",
+        "employee": "Trabajador"
+      },
+      "status": {
+        "active": "activo",
+        "inactive": "inactivo"
+      }
+    },
+    "addUserDialog": {
+      "title": "Agregar Usuario",
+      "description": "Agregar un nuevo usuario a {branchName}",
+      "form": {
+        "name": {
+          "label": "Nombre Completo",
+          "placeholder": "Ingrese el nombre completo del usuario"
+        },
+        "email": {
+          "label": "Dirección de Correo Electrónico",
+          "placeholder": "usuario@ejemplo.com"
+        },
+        "role": {
+          "label": "Rol",
+          "placeholder": "Seleccione un rol",
+          "options": {
+            "admin": "Administrador",
+            "manager": "Gerente",
+            "worker": "Trabajador"
+          },
+          "descriptions": {
+            "admin": "Administrador: Control total sobre la matriz y todas las sucursales",
+            "manager": "Gerente: Control total solo sobre esta sucursal",
+            "worker": "Trabajador: Acceso operativo estándar para empleados"
+          }
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Agregar Usuario",
+      "submitting": "Agregando...",
+      "success": "Usuario agregado exitosamente",
+      "error": "Error al agregar usuario",
+      "errors": {
+        "adminAlreadyExists": "Ya existe un administrador de la empresa. Solo se permite un administrador por empresa."
+      }
+    },
+    "editUserDialog": {
+      "title": "Editar Usuario",
+      "description": "Actualizar información del usuario para {branchName}",
+      "form": {
+        "name": {
+          "label": "Nombre Completo",
+          "placeholder": "Ingrese el nombre completo del usuario"
+        },
+        "email": {
+          "label": "Dirección de Correo Electrónico",
+          "placeholder": "usuario@ejemplo.com"
+        },
+        "role": {
+          "label": "Rol",
+          "placeholder": "Seleccione un rol",
+          "options": {
+            "admin": "Administrador",
+            "manager": "Gerente",
+            "worker": "Trabajador"
+          },
+          "descriptions": {
+            "admin": "Administrador: Control total sobre la matriz y todas las sucursales",
+            "manager": "Gerente: Control total solo sobre esta sucursal",
+            "worker": "Trabajador: Acceso operativo estándar para empleados"
+          }
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Actualizar Usuario",
+      "submitting": "Actualizando...",
+      "success": "Usuario actualizado exitosamente",
+      "error": "Error al actualizar usuario",
+      "errors": {
+        "adminAlreadyExists": "Ya existe un administrador de la empresa. Solo se permite un administrador por empresa."
+      }
+    },
+    "deleteUserDialog": {
+      "title": "Eliminar Usuario",
+      "description": "¿Está seguro de que desea eliminar a {userName}? Esta acción no se puede deshacer.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar",
+      "deleting": "Eliminando...",
+      "success": "Usuario eliminado exitosamente",
+      "error": "Error al eliminar usuario"
+    }
+  },
+  "dashboard": {
+    "title": "Panel de Titans Tech",
+    "description": "Aplicación de Panel de Administración",
+    "admin": {
+      "title": "Portal de Administración",
+      "description": "Administre empresas, máquinas y modelos",
+      "stats": {
+        "totalModels": "Total de Modelos",
+        "activeCompanies": "Empresas Activas",
+        "machines": "Máquinas",
+        "pendingServices": "Servicios Pendientes"
+      }
+    }
+  },
+  "sections": {
+    "bearing_clearance": "Holgura de Cojinete",
+    "slide": "Corredera",
+    "gibs": "Guías",
+    "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
+    "clutch": "Embrague",
+    "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire"
+  },
+  "models": {
+    "title": "Crear Modelo",
+    "pageTitle": "Modelos",
+    "pageDescription": "Administre plantillas y especificaciones de máquinas",
+    "newButton": "Nuevo Modelo",
+    "emptyState": "No se encontraron modelos. Cree su primer modelo para comenzar.",
+    "noDescription": "Sin descripción",
+    "errorLoading": "Error al cargar modelos",
+    "createdSuccessfully": "Modelo creado exitosamente",
+    "description": "Crear un nuevo modelo de máquina",
+    "form": {
+      "basicInfo": {
+        "title": "Información Básica"
+      },
+      "cancel": "Cancelar",
+      "name": {
+        "label": "Nombre de la Plantilla",
+        "placeholder": "ej., Plantilla de Maquinaria Pesada"
+      },
+      "sections": {
+        "label": "Secciones *"
+      },
+      "fields": {
+        "label": "Campos *",
+        "addButton": "+ Agregar Campo",
+        "fieldNumber": "Campo {number}",
+        "removeButton": "Eliminar",
+        "fieldName": {
+          "label": "Nombre del Campo",
+          "placeholder": "ej., Número de Serie"
+        },
+        "fieldType": {
+          "label": "Tipo de Campo",
+          "string": "Texto",
+          "int": "Entero",
+          "enum": "Enumeración"
+        },
+        "fieldOptions": {
+          "label": "Opciones",
+          "placeholder": "ej., Tipo A",
+          "required": "Se requiere al menos una opción para campos de enumeración"
+        }
+      },
+      "submit": {
+        "idle": "Crear Plantilla",
+        "loading": "Enviando..."
+      },
+      "error": {
+        "title": "Error:"
+      },
+      "response": {
+        "title": "Respuesta:"
+      }
+    }
+  },
+  "machines": {
+    "title": "Crear Máquina",
+    "pageTitle": "Máquinas",
+    "pageDescription": "Administre máquinas y sus campos",
+    "detailPageTitle": "Detalles de la Máquina",
+    "newButton": "Nueva Máquina",
+    "emptyState": "No se encontraron máquinas. Cree su primera máquina para comenzar.",
+    "noBlueprint": "Sin plantilla",
+    "noBlueprintAssigned": "Sin plantilla asignada",
+    "errorLoading": "Error al cargar máquinas",
+    "description": "Crear una nueva máquina",
+    "status": {
+      "operational": "Operacional",
+      "maintenance": "Mantenimiento",
+      "offline": "Fuera de Línea"
+    },
+    "location": "Ubicación",
+    "lastInspection": "Última inspección",
+    "viewDetails": "Ver Detalles",
+    "createdSuccessfully": "Máquina creada exitosamente",
+    "sectionsCount": "secciones",
+    "fieldsCount": "campos",
+    "backToMachines": "Volver a Máquinas",
+    "operational": "Operacional",
+    "machineSpecifications": "Especificaciones de la Máquina",
+    "noFieldsConfigured": "No hay campos configurados",
+    "today": "hoy",
+    "yesterday": "ayer",
+    "daysAgo": "hace {days} días",
+    "actions": "Acciones",
+    "createServiceRequest": "Crear Solicitud de Servicio",
+    "createInspection": "Crear Inspección",
+    "viewMaintenanceLog": "Ver Registro de Mantenimiento",
+    "downloadReports": "Descargar Informes",
+    "requestUrgentService": "Solicitar Servicio Urgente",
+    "serviceHistory": "Historial de Servicio",
+    "technician": "Técnico",
+    "completed": "Completado",
+    "done": "Hecho",
+    "inProgress": "En Progreso",
+    "noInspectionsFound": "No se encontraron inspecciones",
+    "noServicesFound": "No se encontraron servicios",
+    "maintenanceService": "Mantenimiento",
+    "inspectionService": "Inspección",
+    "newService": "Nuevo Servicio",
+    "upcomingServices": "Servicios Próximos",
+    "noUpcomingServices": "No hay servicios próximos programados",
+    "scheduledMaintenance": "Mantenimiento Programado",
+    "scheduledInspection": "Inspección Programada",
+    "deleteServiceTitle": "Eliminar Servicio",
+    "deleteServiceDescription": "¿Está seguro de que desea eliminar este servicio? Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "deleting": "Eliminando...",
+    "client": "Cliente",
+    "model": "Modelo",
+    "noImageAvailable": "Sin Imagen Disponible",
+    "inspectionSections": "Secciones de Inspección",
+    "noSectionsAvailable": "No hay secciones de inspección disponibles para este tipo de máquina.",
+    "statusBar": {
+      "press": "Prensa",
+      "hotDuckLift": "Elevador Hot Duck",
+      "oilSystem": "Sistema de Aceite",
+      "lubeFilter": "Filtro de Lubricación",
+      "lubePump": "Bomba de Lubricación",
+      "pressSwCrankshaft": "Prensa SW Cigüeñal"
+    },
+    "sectionNames": {
+      "bearingClearance": "Holgura de Cojinete - CP 2",
+      "slide": "Corredera",
+      "gibs": "Guías",
+      "lubricationHydraulics": "Lubricación / Hidráulica",
+      "clutch": "Holgura de Embrague y Freno - CP 2",
+      "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire"
+    },
+    "sectionStatus": {
+      "ok": "OK",
+      "warning": "Advertencia",
+      "alert": "Alerta",
+      "unknown": "Desconocido",
+      "noImage": "Sin Imagen"
+    },
+    "sectionDetails": {
+      "comingSoon": "Detalles de la sección \"{section}\" próximamente...",
+      "press": "Prensa",
+      "lastDateMeasurement": "Última Fecha de Medición",
+      "totalMeasurements": "Total de Mediciones",
+      "dateRange": "Rango de Fechas",
+      "pickDate": "Seleccionar fecha",
+      "reset": "Restablecer",
+      "connectionBearingClearance": "Holgura de Cojinete de Conexión",
+      "measurementDiagram": "Diagrama de Medición",
+      "slideMotorMounts": "Motor/Montajes de Corredera",
+      "powerCordHoses": "Cable de Alimentación/Mangueras",
+      "chainsGearsSprockets": "Cadenas y Engranajes/Piñones",
+      "chartConnectionBearing": "Holgura de Cojinete de Conexión (CB)",
+      "chartDifference": "Diferencia",
+      "noDataAvailable": "No hay datos disponibles",
+      "exportData": "Exportar Datos",
+      "exportAsPDF": "Exportar como PDF",
+      "exportAsWord": "Exportar como Word",
+      "exportAsExcel": "Exportar como Excel",
+      "exportingToPDF": "Exportando a PDF...",
+      "exportingToWord": "Exportando a Word...",
+      "exportingToExcel": "Exportando a Excel...",
+      "exportedPDFSuccess": "PDF exportado exitosamente",
+      "exportedWordSuccess": "Documento Word exportado exitosamente",
+      "exportedExcelSuccess": "Archivo Excel exportado exitosamente",
+      "exportPDFError": "Error al exportar PDF",
+      "exportWordError": "Error al exportar documento Word",
+      "exportExcelError": "Error al exportar archivo Excel",
+      "areaChart": "Gráfico de Área",
+      "barChart": "Gráfico de Barras",
+      "createInspection": "Crear Inspección"
+    },
+    "form": {
+      "cancel": "Cancelar",
+      "company": {
+        "label": "Seleccionar Empresa",
+        "description": "Elija a qué empresa pertenece esta máquina",
+        "loading": "Cargando empresas..."
+      },
+      "branch": {
+        "label": "Seleccionar Sucursal",
+        "description": "Elija a qué sucursal pertenece esta máquina",
+        "loading": "Cargando sucursales...",
+        "mainBranch": "Sucursal Principal"
+      },
+      "blueprint": {
+        "label": "Plantilla",
+        "placeholder": "Seleccione una plantilla",
+        "loading": "Cargando plantillas..."
+      },
+      "name": {
+        "label": "Nombre de la Máquina",
+        "placeholder": "ej., Máquina #002"
+      },
+      "fields": {
+        "label": "Campos",
+        "placeholder": "Ingrese el valor",
+        "selectPlaceholder": "Seleccione una opción",
+        "slug": "Identificador"
+      },
+      "selectCompanyPrompt": "Seleccione una empresa para comenzar",
+      "selectBranchPrompt": "Seleccione una sucursal para comenzar",
+      "selectBlueprintPrompt": "Seleccione una plantilla para comenzar",
+      "submit": {
+        "idle": "Crear Máquina",
+        "loading": "Enviando..."
+      },
+      "error": {
+        "title": "Error:",
+        "branchRequired": "Por favor seleccione una sucursal"
+      },
+      "response": {
+        "title": "Respuesta:"
+      }
+    }
+  },
+  "inspections": {
+    "title": "Crear Inspección",
+    "description": "Crear una nueva inspección de holgura de cojinete",
+    "createdSuccessfully": "Inspección creada exitosamente",
+    "form": {
+      "date": {
+        "label": "Fecha de Inspección",
+        "placeholder": "Seleccionar fecha"
+      },
+      "isMaintenance": {
+        "label": "Es Mantenimiento"
+      },
+      "performedBy": {
+        "label": "Realizado Por",
+        "placeholder": "Nombre del técnico"
+      },
+      "bearingClearance": {
+        "title": "Mediciones de Holgura de Cojinete",
+        "before": "Inicial",
+        "after": "Después del Ajuste",
+        "outer": "Mediciones Externas",
+        "inner": "Mediciones Internas",
+        "combined_with": {
+          "label": "Combinado Con",
+          "placeholder": "Medición de referencia"
+        },
+        "mating_part": {
+          "label": "Tipo de Pieza de Acoplamiento",
+          "bushing": "Casquillo",
+          "connection": "Conexión",
+          "nut_screw_sleeve": "Tuerca y Tornillo"
+        },
+        "fields": {
+          "totalClearance": "Holgura Total",
+          "mainBearings": "Cojinetes Principales",
+          "upperConnectionBearings": "Cojinetes de Conexión Superior",
+          "wristPinToMatingPart": "Pasador de Muñeca a Pieza de Acoplamiento",
+          "wristPinToBushing": "Pasador de Muñeca a Casquillo",
+          "slideAdjNutToScrewSleeve": "Tuerca de Ajuste de Corredera a Tornillo/Manguito",
+          "extraDoubleLockOpen": "Extra con Bloqueo Doble Abierto",
+          "ballBoxArea": "Área de Caja de Bolas",
+          "totalClearance_RH": "Holgura Total RH",
+          "totalClearance_LH": "Holgura Total LH",
+          "mainBearings_RH": "Cojinetes Principales RH",
+          "mainBearings_LH": "Cojinetes Principales LH",
+          "upperConnectionBearings_RH": "Cojinetes de Conexión Superior RH",
+          "upperConnectionBearings_LH": "Cojinetes de Conexión Superior LH",
+          "wristPinToMatingPart_RH": "Pasador de Muñeca a Pieza de Acoplamiento RH",
+          "wristPinToMatingPart_LH": "Pasador de Muñeca a Pieza de Acoplamiento LH",
+          "wristPinToBushing_RH": "Pasador de Muñeca a Casquillo RH",
+          "wristPinToBushing_LH": "Pasador de Muñeca a Casquillo LH",
+          "slideAdjNutToScrewSleeve_RH": "Tuerca de Ajuste de Corredera a Tornillo/Manguito RH",
+          "slideAdjNutToScrewSleeve_LH": "Tuerca de Ajuste de Corredera a Tornillo/Manguito LH",
+          "slide_adj_nut_to_screw_sleeve_RH": "Tuerca de Ajuste de Corredera a Tornillo/Manguito RH",
+          "slide_adj_nut_to_screw_sleeve_LH": "Tuerca de Ajuste de Corredera a Tornillo/Manguito LH",
+          "Slide_adj_nut_to_screw_sleeve_RH": "Tuerca de Ajuste de Corredera a Tornillo/Manguito RH",
+          "Slide_adj_nut_to_screw_sleeve_LH": "Tuerca de Ajuste de Corredera a Tornillo/Manguito LH",
+          "extraDoubleLockOpen_RH": "Extra con Bloqueo Doble Abierto RH",
+          "extraDoubleLockOpen_LH": "Extra con Bloqueo Doble Abierto LH",
+          "extra_double_lockOpen_RH": "Extra con Bloqueo Doble Abierto RH",
+          "extra_double_lockOpen_LH": "Extra con Bloqueo Doble Abierto LH",
+          "Extra_double_lockOpen_RH": "Extra con Bloqueo Doble Abierto RH",
+          "Extra_double_lockOpen_LH": "Extra con Bloqueo Doble Abierto LH",
+          "ballBoxArea_RH": "Área de Caja de Bolas RH",
+          "ballBoxArea_LH": "Área de Caja de Bolas LH",
+          "ball_box_area_RH": "Área de Caja de Bolas RH",
+          "ball_box_area_LH": "Área de Caja de Bolas LH",
+          "Ball_box_area_RH": "Área de Caja de Bolas RH",
+          "Ball_box_area_LH": "Área de Caja de Bolas LH"
+        }
+      },
+      "slide": {
+        "parallelismConfiguration": "Configuración de Paralelismo",
+        "parallelismAppliesNote": "Estos valores se aplican tanto antes como después del mantenimiento",
+        "parallelism": "Paralelismo",
+        "hasBeenAdjusted": "Ha Sido Ajustado",
+        "position1": "Posición 1",
+        "position2": "Posición 2",
+        "position3": "Posición 3",
+        "position4": "Posición 4",
+        "position5": "Posición 5",
+        "position6": "Posición 6",
+        "maxDeviation": "Desviación Máxima",
+        "outer": "Externo",
+        "inner": "Interno",
+        "beforeMaintenance": "Antes del Mantenimiento",
+        "afterMaintenance": "Después del Mantenimiento",
+        "measurements": "Mediciones",
+        "positionMeasurements": "Mediciones de Posición",
+        "shutheightInformation": "Información de Altura de Cierre",
+        "indicatorsChecked": "¿Indicadores Verificados?",
+        "overloadsOnTonnageMonitor": "Sobrecargas en el Monitor de Tonelaje",
+        "actualSH": "SH Real",
+        "indicatorReading": "Lectura del Indicador",
+        "shutheightChecked": "Altura de Cierre Verificada",
+        "additionalInformation": "Información Adicional",
+        "hasParallelismBeenAdjusted": "¿Se Ha Ajustado el Paralelismo?",
+        "notes": "Notas",
+        "includeMeasurementsBeforeMaintenance": "Incluir mediciones antes del mantenimiento",
+        "saveData": "Guardar Datos",
+        "saving": "Guardando...",
+        "dataSaved": "Datos guardados exitosamente",
+        "validationError": "Por favor complete todos los campos obligatorios",
+        "fillAllFields": "Por favor complete todos los campos de posición (1-6)",
+        "fillBeforeMeasurements": "Por favor complete todos los campos 'Antes del Mantenimiento' cuando la casilla esté marcada",
+        "yes": "Sí",
+        "no": "No",
+        "na": "N/A",
+        "dnc": "DNC",
+        "toBed": "A la Base",
+        "toBolster": "Al Cabezal",
+        "parallelismType": {
+          "DNC": "DNC",
+          "TO_BED": "A la Base",
+          "TO_BOLSTER": "Al Cabezal"
+        },
+        "fields": {
+          "outerParallelism": "Paralelismo Externo",
+          "outerHasParallelismBeenAdjusted": "Paralelismo Externo Ha Sido Ajustado",
+          "innerParallelism": "Paralelismo Interno",
+          "innerHasParallelismBeenAdjusted": "Paralelismo Interno Ha Sido Ajustado",
+          "outerShutheightIndicatorsChecked": "Indicadores de Altura Externa Verificados",
+          "outerOverloadsOnTonnageMonitor": "Sobrecargas en el Monitor (Externo)",
+          "outerShutheightActualSh": "SH Real Externo",
+          "outerIndicatorReading": "Lectura del Indicador Externo",
+          "innerShutheightIndicatorsChecked": "Indicadores de Altura Interna Verificados",
+          "innerOverloadsOnTonnageMonitor": "Sobrecargas en el Monitor (Interno)",
+          "innerShutheightActualSh": "SH Real Interno",
+          "innerIndicatorReading": "Lectura del Indicador Interno",
+          "notes": "Notas"
+        }
+      },
+      "gibs": {
+        "hasBeenAdjusted": "Ha Sido Ajustado",
+        "frontToBackTitle": "Mediciones de Frente a Atrás (16 Puntos)",
+        "directionalTitle": "Mediciones Direccionales",
+        "point": "Punto {number}",
+        "leftTop": "Superior Izquierda",
+        "leftBottom": "Inferior Izquierda",
+        "rightTop": "Superior Derecha",
+        "rightBottom": "Inferior Derecha",
+        "frontTop": "Frontal Superior",
+        "frontBottom": "Frontal Inferior",
+        "backTop": "Trasera Superior",
+        "backBottom": "Trasera Inferior",
+        "usable": "Utilizable"
+      },
+      "lubricationHydraulics": {
+        "systemPressuresTitle": "Presiones del Sistema (PSI)",
+        "lubePSI": "PSI de Lubricación",
+        "monitorflowPSI": "PSI de Monitor de Flujo",
+        "hydPSI": "PSI Hidráulico",
+        "pressSWPSI": "PSI de Interruptor de Presión",
+        "otherGauges": "Otros Medidores",
+        "oilInfoTitle": "Información del Aceite",
+        "changedOil": "Aceite Cambiado",
+        "oilTemperatureF": "Temperatura del Aceite (°F)",
+        "oilMfgType": "Fabricante/Tipo de Aceite",
+        "changedFilter": "Filtro Cambiado"
+      },
+      "clutch": {
+        "clutchInfoTitle": "Información del Embrague",
+        "clutchType": "Tipo de Embrague",
+        "clutchLocation": "Ubicación del Embrague",
+        "brakeSpringTitle": "Configuración del Resorte del Freno",
+        "brakeSpringBrake": "Resorte del Freno - Freno",
+        "brakeSpringClutch": "Resorte del Freno - Embrague",
+        "brakeSpringStudBolt": "Perno/Tornillo del Resorte del Freno",
+        "brakeMeasurementsTitle": "Mediciones del Freno",
+        "brakeAnchorClearanceFB": "Holgura del Anclaje FB",
+        "brakeAnchorClearanceFTB": "Holgura del Anclaje FTB",
+        "brakeAnchorClearanceRTB": "Holgura del Anclaje RTB",
+        "brakeStoppingTime": "Tiempo de Frenado (seg)",
+        "brakeLining": "Revestimiento del Freno",
+        "brakeClearing": "Limpieza del Freno",
+        "brakeClearanceTotal": "Holgura Total",
+        "brakeClearanceRear": "Holgura Trasera",
+        "flywheelTitle": "Volante",
+        "flywheelStoppingTime": "Tiempo de Parada (seg)",
+        "flywheelBearings": "Cojinetes del Volante",
+        "flywheelBrake": "Freno del Volante",
+        "clutchDetailsTitle": "Detalles del Embrague",
+        "clutchEngagements": "Acoplamientos del Embrague",
+        "clutchLining": "Revestimiento del Embrague",
+        "clutchSeals": "Sellos del Embrague",
+        "gearCrankTitle": "Mediciones de Engranaje y Cigüeñal",
+        "gearBacklashBefore": "Holgura de Engranaje (Antes)",
+        "gearBacklashAfter": "Holgura de Engranaje (Después)",
+        "crankEndplayBefore": "Juego Axial del Cigüeñal (Antes)",
+        "crankEndplayAfter": "Juego Axial del Cigüeñal (Después)",
+        "airSystemTitle": "Sistema de Aire",
+        "airRegulatorPSI": "PSI del Regulador de Aire",
+        "airClutchTravel": "Recorrido del Embrague de Aire",
+        "airLineOilerSetting": "Configuración del Lubricador de Línea de Aire",
+        "hydraulicSystemTitle": "Sistema Hidráulico",
+        "hydClutchClearanceTotal": "Holgura Total del Embrague Hidráulico",
+        "hydClutchClearanceRear": "Holgura Trasera del Embrague Hidráulico",
+        "hydraulicPressurePSI": "PSI de Presión Hidráulica",
+        "accumulatorPSI": "PSI del Acumulador",
+        "componentConditionTitle": "Condición de Componentes",
+        "rotaryUnion": "Unión Rotativa",
+        "splinesDriveRingDisc": "Estrías/Anillo de Transmisión/Disco",
+        "adjustingNutLockSecure": "Bloqueo de Tuerca de Ajuste Seguro",
+        "separateBrakeSeals": "Sellos de Freno Separados",
+        "flexDisc": "Disco Flexible",
+        "fields": {
+          "clutchType": "Tipo de Embrague",
+          "clutchLocation": "Ubicación del Embrague",
+          "brakeSpringBrake": "Freno (pulgadas)",
+          "brakeSpringClutch": "Embrague (pulgadas)",
+          "brakeSpringFB": "F-B (pulgadas)",
+          "brakeSpringFTB": "F-TB (pulgadas)",
+          "brakeSpringRTB": "R-TB (pulgadas)",
+          "brakeSpringStudBolt": "Perno/Tornillo del Resorte del Freno",
+          "brakeStoppingTime": "Tiempo de Frenado",
+          "brakeLining": "Revestimiento del Freno",
+          "brakeClearing": "Limpieza del Freno",
+          "brakeClearanceTotal": "Holgura del Freno (Total)",
+          "brakeClearanceRear": "Holgura del Freno (Trasera)",
+          "flywheelStoppingTime": "Tiempo de Parada del Volante",
+          "flywheelBearings": "Cojinetes del Volante",
+          "flywheelBrake": "Freno del Volante",
+          "rotaryUnion": "Unión Rotativa",
+          "clutchLining": "Revestimiento del Embrague",
+          "clutchSeals": "Sellos del Embrague",
+          "clutchEngagements": "Acoplamientos del Embrague",
+          "gearBacklashBefore": "Holgura de Engranaje (Antes)",
+          "gearBacklashAfter": "Holgura de Engranaje (Después)",
+          "crankEndplayBefore": "Juego Axial del Cigüeñal (Antes)",
+          "crankEndplayAfter": "Juego Axial del Cigüeñal (Después)",
+          "airRegulator": "Regulador de Aire",
+          "airClutchTravelClearance": "Recorrido/Holgura del Embrague de Aire",
+          "airLineOilerSetting": "Configuración del Lubricador de Línea de Aire",
+          "splinesDriveRingDisc": "Estrías: Anillo de Transmisión/Disco",
+          "adjustingNutLockSecure": "Bloqueo de Tuerca de Ajuste Seguro",
+          "separateBrakeSeals": "Sellos de Freno Separados",
+          "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico (Total)",
+          "hydClutchClearanceRear": "Holgura del Embrague Hidráulico (Trasera)",
+          "hydraulicPressure": "Presión Hidráulica",
+          "accumulator": "Acumulador",
+          "flexDisc": "Disco Flexible",
+          "notes": "Notas"
+        },
+        "sections": {
+          "brakeSpringSettings": "Configuración del Resorte del Freno",
+          "brakeMeasurements": "Mediciones del Freno",
+          "flywheel": "Volante",
+          "clutchDetails": "Detalles del Embrague",
+          "gearBacklashCrankEndplay": "Holgura de Engranaje y Juego Axial del Cigüeñal",
+          "airSystem": "Sistema de Aire",
+          "hydraulicSystem": "Sistema Hidráulico"
+        },
+        "placeholders": {
+          "selectType": "Seleccione el tipo",
+          "selectLocation": "Seleccione la ubicación",
+          "select": "Seleccione",
+          "notes": "Agregue notas adicionales..."
+        },
+        "notes": {
+          "gearBacklashCheck": "*Verificar solo si hay ruido excesivo y/o vibración"
+        }
+      },
+      "counterbalanceCylinder": {
+        "field": "Campo",
+        "value": "Valor",
+        "counterbalanceType": "Tipo de Contrapeso",
+        "airbagConditionTitle": "Condición de Bolsa de Aire/Pistón",
+        "pistonSeals": "Sellos del Pistón",
+        "airbagPistonSeals": "Sellos de Bolsa de Aire/Pistón",
+        "leakLocation": "Si los sellos tienen fugas, ¿dónde?",
+        "airbagPistonSealsLeakLocation": "Ubicación de Fuga de Sellos",
+        "regulator": "Regulador",
+        "gauge": "Medidor",
+        "gaugePSI": "PSI del Medidor",
+        "pneumaticsPlumbing": "Neumática/Plomería",
+        "rodSeals": "Sellos de Varilla",
+        "rodBushing": "Casquillo de Varilla",
+        "oilWick": "Mecha de Aceite",
+        "notes": "Notas",
+        "selectPlaceholder": "Seleccione una opción",
+        "outer": "Externo",
+        "inner": "Interno",
+        "counterbalanceTypes": {
+          "cylinder": "Cilindro",
+          "airbag": "Bolsa de Aire"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": {
+        "idle": "Crear Inspección",
+        "loading": "Creando..."
+      },
+      "error": {
+        "title": "Error:",
+        "required": "Este campo es obligatorio",
+        "invalidNumber": "Debe ser un número válido",
+        "minValue": "El valor mínimo es {min}",
+        "maxValue": "El valor máximo es {max}",
+        "futureDate": "La fecha no puede estar en el futuro"
+      },
+      "common": {
+        "measurement": "Medición",
+        "lh": "LH",
+        "rh": "RH",
+        "differential": "Diferencial",
+        "outer": "Externo",
+        "inner": "Interno",
+        "notes": "Notas",
+        "selectOption": "Seleccione una opción",
+        "selectStatus": "Seleccione el estado",
+        "selectMatingPart": "Seleccione la pieza de acoplamiento",
+        "referenceMeasurement": "Medición de referencia",
+        "additionalNotes": "Ingrese notas adicionales..."
+      },
+      "bearingClearanceSection": {
+        "includeBeforeMeasurements": "Incluir Mediciones Anteriores",
+        "beforeMaintenance": "Antes del Mantenimiento",
+        "afterMaintenance": "Después del Mantenimiento",
+        "hasBeenAdjusted": "Ha Sido Ajustado",
+        "combinedWith": "Combinado Con",
+        "matingPartType": "Tipo de Pieza de Acoplamiento",
+        "shutdownAdjustmentMechanism": "Mecanismo de Ajuste de Apagado",
+        "slideMotorMounts": "Motor/Montajes de Corredera",
+        "powerCordHoses": "Cable de Alimentación/Mangueras",
+        "chainsGearsSprockets": "Cadenas y Engranajes/Piñones",
+        "lockingClamps": "Abrazaderas de Bloqueo",
+        "validation": {
+          "fieldRequired": "{field} es obligatorio y debe ser un número válido",
+          "beforeSectionsRequired": "Holgura de Cojinete: Cuando \"Incluir Mediciones Anteriores\" está habilitado para mantenimiento, debe completar todas las secciones \"Antes\" (Externo Antes e Interno Antes)",
+          "outerBefore": "Externo Antes",
+          "innerBefore": "Interno Antes",
+          "outerData": "Datos Externos",
+          "innerData": "Datos Internos",
+          "atLeastOneSectionRequired": "Holgura de Cojinete: Debe completar al menos una sección de medición (Datos Externos o Datos Internos)",
+          "hasBeenAdjustedRequired": "Holgura de Cojinete: El campo \"Ha Sido Ajustado\" es obligatorio"
+        }
+      },
+      "enums": {
+        "yesNoNaDnc": {
+          "yes": "Sí",
+          "no": "No",
+          "na": "N/A",
+          "dnc": "DNC"
+        },
+        "conditionOkNaDncBrokenWorn": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "broken": "Roto",
+          "worn": "Desgastado"
+        },
+        "conditionOkNaDncBrokenLoose": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "broken": "Roto",
+          "loose": "Suelto"
+        },
+        "conditionOkNaDncDamaged": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "damaged": "Dañado"
+        },
+        "matingPartType": {
+          "bushing": "Casquillo",
+          "connection": "Conexión",
+          "nutScrewSleeve": "Tuerca y Tornillo"
+        }
+      }
+    }
+  },
+  "services": {
+    "createNewService": "Crear Nuevo Servicio",
+    "createServiceDescription": "Complete los detalles del servicio a continuación",
+    "serviceDate": "Fecha del Servicio",
+    "serviceType": "Tipo de Servicio",
+    "types": {
+      "inspection": "Inspección",
+      "maintenance": "Mantenimiento"
+    },
+    "cancel": "Cancelar",
+    "creating": "Creando...",
+    "createService": "Crear Servicio",
+    "modal": {
+      "completeMaintenance": "Completar Mantenimiento",
+      "completeMaintenanceDetails": "Completar Mantenimiento - Detalles",
+      "completeInspection": "Completar Inspección",
+      "completeInspectionDetails": "Completar Inspección - Detalles",
+      "selectMaintenanceAreas": "Seleccione las áreas de mantenimiento a realizar",
+      "fillMaintenanceDetails": "Complete los detalles del mantenimiento realizado",
+      "fillInspectionDetails": "Complete los detalles de la inspección realizada",
+      "selectAreasAbove": "Seleccione las áreas de mantenimiento arriba para comenzar",
+      "realizationDate": "Fecha de realización",
+      "performedBy": "Realizado por",
+      "technicianName": "Nombre del técnico",
+      "maintenanceSummary": "Resumen de Mantenimiento",
+      "inspectionSummary": "Resumen de Inspección",
+      "completing": "Completando...",
+      "stepper": {
+        "details": "Detalles",
+        "summary": "Resumen",
+        "before": "Antes"
+      },
+      "status": {
+        "complete": "Completo",
+        "incomplete": "Incompleto"
+      },
+      "sections": {
+        "beforeMaintenance": "Antes del Mantenimiento",
+        "afterMaintenance": "Después del Mantenimiento"
+      },
+      "summary": {
+        "title": "Resumen del Mantenimiento",
+        "inspectionTitle": "Resumen de la Inspección",
+        "maintenanceDetails": "Detalles del mantenimiento realizado",
+        "inspectionDetails": "Detalles de la inspección realizada",
+        "serviceDetails": "Detalles del Servicio",
+        "filledAreas": "Áreas Completadas",
+        "filledData": "Datos Completados",
+        "additionalInformation": "Información Adicional",
+        "shutdownAdjustmentMechanism": "Mecanismo de Ajuste de Apagado",
+        "dataMeasurements": "Mediciones de Datos",
+        "sectionFields": "Campos de la Sección",
+        "noDataAvailable": "No hay datos disponibles",
+        "exportExcel": "Exportar Excel",
+        "exportPDF": "Exportar PDF",
+        "gauges": "Medidores",
+        "notes": "Notas"
+      }
+    }
+  },
+  "table": {
+    "field": "Campo",
+    "value": "Valor",
+    "outer": "Externo",
+    "inner": "Interno",
+    "lh": "IZ",
+    "rh": "DE",
+    "diff": "Dif",
+    "difference": "Diferencia",
+    "position": "Posición",
+    "system": "Sistema",
+    "gauge": "Medidor",
+    "psi": "PSI",
+    "noImage": "Sin Imagen"
+  },
+  "measurements": {
+    "outerMeasurements": "Mediciones Externas",
+    "innerMeasurements": "Mediciones Internas",
+    "outerBeforeMaintenance": "Externo - Antes del Mantenimiento",
+    "outerAfterMaintenance": "Externo - Después del Mantenimiento",
+    "innerBeforeMaintenance": "Interno - Antes del Mantenimiento",
+    "innerAfterMaintenance": "Interno - Después del Mantenimiento"
+  },
+  "bearingFields": {
+    "combinedWith": "Combinado Con",
+    "matingPart": "Pieza de Acoplamiento",
+    "hasBeenAdjusted": "Ha Sido Ajustado",
+    "slideMotorMounts": "Motor/Montajes de Corredera",
+    "powerCordHoses": "Cable de Alimentación/Mangueras",
+    "chainsGearsSprockets": "Cadenas y Engranajes/Piñones",
+    "lockingClamps": "Abrazaderas de Bloqueo"
+  },
+  "companies": {
+    "pageTitle": "Empresas",
+    "pageDescription": "Administre cuentas de empresas y sus sucursales",
+    "newButton": "Nueva Empresa",
+    "newBranch": "Crear Sucursal",
+    "emptyState": "No se encontraron empresas. Cree su primera empresa para comenzar.",
+    "errorLoading": "Error al cargar empresas",
+    "companyNotFound": "Empresa no encontrada",
+    "branchesSubtitle": "Sucursales",
+    "noBranches": "No se encontraron sucursales para esta empresa",
+    "branch": "sucursal",
+    "branches": "sucursales",
+    "machine": "máquina",
+    "machines": "máquinas",
+    "mainBranch": "Sucursal Principal",
+    "viewMachines": "Ver Máquinas",
+    "createBranch": {
+      "title": "Crear Sucursal",
+      "description": "Agregar una nueva sucursal a esta empresa",
+      "form": {
+        "name": {
+          "label": "Nombre de la Sucursal",
+          "placeholder": "ej., Sucursal Costa Oeste"
+        },
+        "location": {
+          "label": "Ubicación",
+          "placeholder": "ej., Los Ángeles, CA"
+        },
+        "isMainBranch": {
+          "label": "Establecer como sucursal principal"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Crear Sucursal",
+      "submitting": "Creando...",
+      "success": "Sucursal creada exitosamente",
+      "error": "Error al crear la sucursal"
+    }
+  },
+  "branches": {
+    "branchNotFound": "Sucursal no encontrada",
+    "machinesSubtitle": "Máquinas en esta sucursal",
+    "newMachine": "Nueva Máquina",
+    "noMachines": "Aún no hay máquinas en esta sucursal",
+    "noBlueprint": "Sin plantilla",
+    "blueprint": "Plantilla",
+    "fields": "campos",
+    "mainBranch": "Sucursal Principal"
+  },
+  "login": {
+    "title": "Bienvenido de nuevo",
+    "description": "Inicie sesión para acceder a su panel",
+    "clientDescription": "Inicie sesión para acceder a su cuenta",
+    "subtitle": "Plataforma de Gestión e Inspección de Máquinas Industriales",
+    "form": {
+      "email": {
+        "label": "Dirección de Correo Electrónico",
+        "placeholder": "usuario@empresa.com"
+      },
+      "password": {
+        "label": "Contraseña",
+        "placeholder": "••••••••"
+      },
+      "forgotPassword": "¿Olvidó su contraseña?",
+      "submit": "Iniciar Sesión",
+      "submitting": "Iniciando sesión..."
+    }
+  },
+  "alerts": {
+    "bearingClearance": {
+      "title": "HOLGURA DE COJINETE - Configuración de Alerta",
+      "totalClearance": "Holgura Total",
+      "mainBearings": "Cojinetes Principales",
+      "upperConnectionBearings": "Cojinetes de Conexión Superior",
+      "wristPinToMatingPart": "Pasador de Muñeca a Pieza de Acoplamiento",
+      "wristPinToBushing": "Pasador de Muñeca a Casquillo",
+      "slideAdjNutToScrewSleeve": "Tuerca de Ajuste de Corredera a Tornillo/Manguito"
+    },
+    "thresholds": {
+      "greenStartMin": "Inicio Verde (Mín)",
+      "yellowStartMin": "Inicio Amarillo (Mín)",
+      "redStartMin": "Inicio Rojo (Mín)"
+    }
+  },
+  "forms": {
+    "positions": {
+      "position1": "Posición 1",
+      "position2": "Posición 2",
+      "position3": "Posición 3",
+      "position4": "Posición 4",
+      "position5": "Posición 5",
+      "position6": "Posición 6",
+      "maxDeviation": "Desviación Máxima"
+    },
+    "beforeAfter": {
+      "includeBefore": "Incluir mediciones antes del mantenimiento",
+      "beforeMaintenance": "Antes del Mantenimiento",
+      "afterMaintenance": "Después del Mantenimiento"
+    }
+  },
+  "actions": {
+    "save": "Guardar",
+    "saving": "Guardando...",
+    "savePermissions": "Guardar Permisos",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "deleting": "Eliminando...",
+    "edit": "Editar",
+    "create": "Crear",
+    "creating": "Creando...",
+    "update": "Actualizar",
+    "updating": "Actualizando...",
+    "submit": "Enviar",
+    "submitting": "Enviando...",
+    "loading": "Cargando...",
+    "close": "Cerrar"
+  },
+  "messages": {
+    "noUsersFound": "No se encontraron usuarios. Cree uno para comenzar.",
+    "loadingUsers": "Cargando usuarios...",
+    "selectBranch": "Por favor seleccione una sucursal",
+    "success": "Éxito",
+    "error": "Error"
+  }
+}
