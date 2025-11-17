@@ -118,9 +118,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
     const [slideTram, setSlideTram] = useState<YesNoDncType>(
       initialData?.slideTram || YesNoDncType.DNC,
     );
-    const [unit, setUnit] = useState<'inches' | 'mm' | 'cm'>(
-      initialData?.unit || 'inches',
-    );
+    const [unit, setUnit] = useState<'inches' | 'mm' | 'cm'>(initialData?.unit || 'inches');
     const [notes, setNotes] = useState<string>(initialData?.notes || '');
     const [outerErrors, setOuterErrors] = useState<Record<string, string>>({});
     const [innerErrors, setInnerErrors] = useState<Record<string, string>>({});

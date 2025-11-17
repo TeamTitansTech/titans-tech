@@ -1560,7 +1560,9 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                               {data?.slideTram && (
                                 <div className="flex justify-between">
                                   <span className="text-muted-foreground">Slide Tram:</span>
-                                  <span className="font-medium">{displayValue(data.slideTram)}</span>
+                                  <span className="font-medium">
+                                    {displayValue(data.slideTram)}
+                                  </span>
                                 </div>
                               )}
                               <div className="flex justify-between">
