@@ -626,6 +626,56 @@ class CounterbalanceCylinderCheckDto {
   innerData?: CounterbalanceCylinderDataDto;
 }
 
+class TrammingDataDto {
+  @IsOptional()
+  @IsNumber()
+  leftTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  leftBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  centerOuterTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  centerOuterBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  centerInnerTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  centerInnerBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  rightTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  rightBottom?: number;
+}
+
+class TrammingCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingDataDto)
+  outerData?: TrammingDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingDataDto)
+  innerData?: TrammingDataDto;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
 export class UpdateServiceDto {
   @IsOptional()
   @IsDateString()
@@ -684,4 +734,9 @@ export class UpdateServiceDto {
   @ValidateNested()
   @Type(() => CounterbalanceCylinderCheckDto)
   counterbalanceCylinder?: CounterbalanceCylinderCheckDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingCheckDto)
+  tramming?: TrammingCheckDto;
 }

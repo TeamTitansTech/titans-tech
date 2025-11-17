@@ -255,7 +255,8 @@
     "gibs": "GUIAS",
     "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRIFICAÇÃO / HIDRÁULICA / INTERRUPTORES DE PRESSÃO / ÓLEO E FILTRO",
     "clutch": "EMBREAGEM",
-    "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG"
+    "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG",
+    "tramming": "TRAMMING"
   },
   "models": {
     "title": "Criar Modelo",
@@ -390,7 +391,8 @@
       "gibs": "Guias",
       "lubricationHydraulics": "Lubrificação / Hidráulica",
       "clutch": "Folga de Embreagem e Freio",
-      "counterbalance": "Cilindro de Contrapeso / Airbag"
+      "counterbalance": "Cilindro de Contrapeso / Airbag",
+      "tramming": "Tramming"
     },
     "sectionStatus": {
       "ok": "OK",

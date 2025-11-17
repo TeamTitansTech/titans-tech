@@ -587,6 +587,48 @@ class CounterbalanceCylinderCheckDto {
   innerData?: CounterbalanceCylinderDataDto;
 }
 
+class TrammingDataDto {
+  @IsNumber()
+  leftTop: number;
+
+  @IsNumber()
+  leftBottom: number;
+
+  @IsNumber()
+  centerOuterTop: number;
+
+  @IsNumber()
+  centerOuterBottom: number;
+
+  @IsNumber()
+  centerInnerTop: number;
+
+  @IsNumber()
+  centerInnerBottom: number;
+
+  @IsNumber()
+  rightTop: number;
+
+  @IsNumber()
+  rightBottom: number;
+}
+
+class TrammingCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingDataDto)
+  outerData?: TrammingDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingDataDto)
+  innerData?: TrammingDataDto;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
 export class CreateServiceDto {
   @IsString()
   machineId: string;
@@ -646,4 +688,9 @@ export class CreateServiceDto {
   @ValidateNested()
   @Type(() => CounterbalanceCylinderCheckDto)
   counterbalanceCylinder?: CounterbalanceCylinderCheckDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingCheckDto)
+  tramming?: TrammingCheckDto;
 }

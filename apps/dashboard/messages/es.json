@@ -243,7 +243,8 @@
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
-    "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire"
+    "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
+    "tramming": "Tramming"
   },
   "models": {
     "title": "Crear Modelo",
@@ -373,7 +374,8 @@
       "gibs": "Guías",
       "lubricationHydraulics": "Lubricación / Hidráulica",
       "clutch": "Holgura de Embrague y Freno - CP 2",
-      "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire"
+      "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
+      "tramming": "Tramming"
     },
     "sectionStatus": {
       "ok": "OK",

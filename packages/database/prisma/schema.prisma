@@ -270,6 +270,7 @@ enum ServiceSection {
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER
   CLUTCH
   COUNTERBALANCE_CYLINDER_AIRBAG
+  TRAMMING
 }
 
 enum AlertSeverity {
@@ -497,6 +498,7 @@ model MachineService {
   lubricationHydraulics        MachineServiceLubricationHydraulics[]
   clutch                       MachineServiceClutch[]
   counterbalanceCylinderAirbag MachineServiceCounterbalanceCylinderAirbag[]
+  tramming                     MachineServiceTramming[]
   alertBearingClearance        AlertBearingClearance?
 
   @@map("machine_services")
@@ -923,4 +925,44 @@ model CounterbalanceCylinderAirbagData {
   innerServices MachineServiceCounterbalanceCylinderAirbag[] @relation("InnerData")
 
   @@map("service_data_counterbalance_cylinder_airbag")
+}
+
+// TRAMMING Section
+
+model MachineServiceTramming {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  outerDataId      String?
+  innerDataId      String?
+
+  // Notes
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerData      TrammingData?  @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerData      TrammingData?  @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_tramming")
+}
+
+model TrammingData {
+  id String @id @default(cuid())
+
+  // Tramming measurements (8 points) - all in inches with 4 decimal precision
+  leftTop           Decimal @db.Decimal(10, 4)
+  leftBottom        Decimal @db.Decimal(10, 4)
+  centerOuterTop    Decimal @db.Decimal(10, 4)
+  centerOuterBottom Decimal @db.Decimal(10, 4)
+  centerInnerTop    Decimal @db.Decimal(10, 4)
+  centerInnerBottom Decimal @db.Decimal(10, 4)
+  rightTop          Decimal @db.Decimal(10, 4)
+  rightBottom       Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerServices MachineServiceTramming[] @relation("OuterData")
+  innerServices MachineServiceTramming[] @relation("InnerData")
+
+  @@map("service_data_tramming")
 }

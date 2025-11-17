@@ -255,7 +255,8 @@
     "gibs": "Gibs",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
-    "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag"
+    "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
+    "tramming": "Tramming"
   },
   "models": {
     "title": "Create Model",
@@ -385,7 +386,8 @@
       "gibs": "Gibs",
       "lubricationHydraulics": "Lubrication / Hydraulics",
       "clutch": "Clutch and Brake Clearance - CP 2",
-      "counterbalance": "Counterbalance Cylinder / Airbag"
+      "counterbalance": "Counterbalance Cylinder / Airbag",
+      "tramming": "Tramming"
     },
     "sectionStatus": {
       "ok": "OK",
