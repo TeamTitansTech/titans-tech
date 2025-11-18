@@ -102,6 +102,15 @@ export enum AirbagPistonSealsType {
   LEAKING = 'LEAKING',
 }
 
+export enum SealConditionType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  DAMAGED = 'DAMAGED',
+  LEAKING = 'LEAKING',
+  WORN = 'WORN',
+}
+
 export enum RegulatorGaugeType {
   OK = 'OK',
   NA = 'NA',
@@ -522,6 +531,45 @@ export interface TrammingCheck {
   outerData?: TrammingData;
   innerData?: TrammingData;
   slideTram?: YesNoDncType;
+  unit?: 'inches' | 'mm' | 'cm';
+  notes?: string;
+}
+
+export interface PistonsData {
+  // OUTER SECTION - LH Piston (4 measurements)
+  outerLhFrontTop: number;
+  outerLhFrontBottom: number;
+  outerLhLeft: number;
+  outerLhRight: number;
+
+  // OUTER SECTION - RH Piston (4 measurements)
+  outerRhFrontTop: number;
+  outerRhFrontBottom: number;
+  outerRhLeft: number;
+  outerRhRight: number;
+
+  // INNER SECTION - LH Piston (4 measurements)
+  innerLhFrontTop: number;
+  innerLhFrontBottom: number;
+  innerLhLeft: number;
+  innerLhRight: number;
+
+  // INNER SECTION - RH Piston (4 measurements)
+  innerRhFrontTop: number;
+  innerRhFrontBottom: number;
+  innerRhLeft: number;
+  innerRhRight: number;
+}
+
+export interface PistonsCheck {
+  outerData?: PistonsData;
+  innerData?: PistonsData;
+  guidSeals?: string;
+  pistonSeals?: string;
+  vacuumSystem?: string;
+  vacuumSystemAirPressureSetting?: number;
+  vacuumSystemAirPressureUnit?: string; // PSI, BAR, etc.
+  unit?: 'inches' | 'mm' | 'cm';
   notes?: string;
 }
 
@@ -542,6 +590,7 @@ export interface CreateServicePayload {
   clutch?: ClutchData;
   counterbalanceCylinder?: CounterbalanceCylinderCheck;
   tramming?: TrammingCheck;
+  pistons?: PistonsCheck;
 }
 
 export interface UpdateServicePayload {
@@ -559,6 +608,7 @@ export interface UpdateServicePayload {
   clutch?: ClutchData;
   counterbalanceCylinder?: CounterbalanceCylinderCheck;
   tramming?: TrammingCheck;
+  pistons?: PistonsCheck;
 }
 
 // Complete Service Entity

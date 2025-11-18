@@ -11,6 +11,7 @@ const SECTION_TO_RELATION_KEY: Record<string, string> = {
   CLUTCH: 'clutch',
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalanceCylinderAirbag',
   TRAMMING: 'tramming',
+  PISTONS: 'pistons',
 };
 
 interface RouteContext {
@@ -72,6 +73,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           select: { id: true, outerDataId: true, innerDataId: true },
         },
         tramming: {
+          select: { id: true, outerDataId: true, innerDataId: true },
+        },
+        pistons: {
           select: { id: true, outerDataId: true, innerDataId: true },
         },
       },
@@ -498,6 +502,73 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         }
         break;
       }
+
+      case 'PISTONS': {
+        const existingRecord = existingService.pistons?.[0];
+
+        if (existingRecord) {
+          const updatePayload: any = {};
+
+          // Handle outerData
+          if (sectionData.outerData) {
+            if (existingRecord.outerDataId) {
+              await prisma.pistonsData.update({
+                where: { id: existingRecord.outerDataId },
+                data: sectionData.outerData,
+              });
+            } else {
+              updatePayload.outerData = { create: sectionData.outerData };
+            }
+          }
+
+          // Handle innerData
+          if (sectionData.innerData) {
+            if (existingRecord.innerDataId) {
+              await prisma.pistonsData.update({
+                where: { id: existingRecord.innerDataId },
+                data: sectionData.innerData,
+              });
+            } else {
+              updatePayload.innerData = { create: sectionData.innerData };
+            }
+          }
+
+          // Handle metadata fields
+          if (sectionData.guidSeals !== undefined) {
+            updatePayload.guidSeals = sectionData.guidSeals;
+          }
+          if (sectionData.pistonSeals !== undefined) {
+            updatePayload.pistonSeals = sectionData.pistonSeals;
+          }
+          if (sectionData.vacuumSystem !== undefined) {
+            updatePayload.vacuumSystem = sectionData.vacuumSystem;
+          }
+          if (sectionData.vacuumSystemAirPressureSetting !== undefined) {
+            updatePayload.vacuumSystemAirPressureSetting =
+              sectionData.vacuumSystemAirPressureSetting;
+          }
+          if (sectionData.vacuumSystemAirPressureUnit !== undefined) {
+            updatePayload.vacuumSystemAirPressureUnit = sectionData.vacuumSystemAirPressureUnit;
+          }
+          if (sectionData.unit !== undefined) {
+            updatePayload.unit = sectionData.unit;
+          }
+          if (sectionData.notes !== undefined) {
+            updatePayload.notes = sectionData.notes;
+          }
+
+          // Update the pistons record
+          await prisma.machineServicePistons.update({
+            where: { id: existingRecord.id },
+            data: updatePayload,
+          });
+        } else {
+          updateData.pistons = {
+            create: buildPistonsCreateData(sectionData),
+          };
+        }
+        break;
+      }
     }
 
     // Update service with new completed sections and timestamp
@@ -550,6 +621,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           },
         },
         tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        pistons: {
           include: {
             outerData: true,
             innerData: true,
@@ -762,6 +839,30 @@ function buildTrammingCreateData(data: any) {
   }
 
   if (data.slideTram) result.slideTram = data.slideTram;
+  if (data.notes) result.notes = data.notes;
+
+  return result;
+}
+
+function buildPistonsCreateData(data: any) {
+  const result: any = {};
+
+  if (data.outerData) {
+    result.outerData = { create: data.outerData };
+  }
+
+  if (data.innerData) {
+    result.innerData = { create: data.innerData };
+  }
+
+  if (data.guidSeals) result.guidSeals = data.guidSeals;
+  if (data.pistonSeals) result.pistonSeals = data.pistonSeals;
+  if (data.vacuumSystem) result.vacuumSystem = data.vacuumSystem;
+  if (data.vacuumSystemAirPressureSetting !== undefined)
+    result.vacuumSystemAirPressureSetting = data.vacuumSystemAirPressureSetting;
+  if (data.vacuumSystemAirPressureUnit)
+    result.vacuumSystemAirPressureUnit = data.vacuumSystemAirPressureUnit;
+  if (data.unit) result.unit = data.unit;
   if (data.notes) result.notes = data.notes;
 
   return result;

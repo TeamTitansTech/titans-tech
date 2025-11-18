@@ -54,6 +54,9 @@ export class ServicesService {
         tramming: {
           include: { outerData: true; innerData: true };
         };
+        pistons: {
+          include: { outerData: true; innerData: true };
+        };
       };
     }>
   > {
@@ -360,6 +363,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        pistons: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
     });
 
@@ -399,6 +408,12 @@ export class ServicesService {
         };
         clutch: { include: { data: true } };
         counterbalanceCylinderAirbag: {
+          include: { outerData: true; innerData: true };
+        };
+        tramming: {
+          include: { outerData: true; innerData: true };
+        };
+        pistons: {
           include: { outerData: true; innerData: true };
         };
       };
@@ -462,6 +477,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        pistons: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
       orderBy: {
         date: 'desc',
@@ -505,6 +526,9 @@ export class ServicesService {
           include: { outerData: true; innerData: true };
         };
         tramming: {
+          include: { outerData: true; innerData: true };
+        };
+        pistons: {
           include: { outerData: true; innerData: true };
         };
       };
@@ -569,6 +593,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        pistons: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
     });
 
@@ -612,6 +642,12 @@ export class ServicesService {
         };
         clutch: { include: { data: true } };
         counterbalanceCylinderAirbag: {
+          include: { outerData: true; innerData: true };
+        };
+        tramming: {
+          include: { outerData: true; innerData: true };
+        };
+        pistons: {
           include: { outerData: true; innerData: true };
         };
       };
@@ -684,6 +720,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        pistons: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
       orderBy: {
         date: 'desc',
@@ -730,6 +772,9 @@ export class ServicesService {
           include: { outerData: true; innerData: true };
         };
         tramming: {
+          include: { outerData: true; innerData: true };
+        };
+        pistons: {
           include: { outerData: true; innerData: true };
         };
       };
@@ -995,6 +1040,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        pistons: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
     });
 
@@ -1076,6 +1127,18 @@ export class ServicesService {
           },
         },
         counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        pistons: {
           include: {
             outerData: true,
             innerData: true,

@@ -2,16 +2,16 @@
 
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrammingForm } from '../forms/TrammingForm';
+import { PistonsForm } from '../forms/PistonsForm';
 import { displayValue } from '../utils/displayHelpers';
 
-interface TrammingSummaryProps {
+interface PistonsSummaryProps {
   data: any;
 }
 
-export function TrammingSummary({ data }: TrammingSummaryProps) {
+export function PistonsSummary({ data }: PistonsSummaryProps) {
   const tServicesSummary = useTranslations('services.modal.summary');
-  const tTramming = useTranslations('inspections.form.tramming');
+  const tPistons = useTranslations('inspections.form.pistons');
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common.status');
 
@@ -21,23 +21,46 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
   return (
     <div className="text-xs space-y-4">
       <div className="border-t pt-2 space-y-4">
-        {/* Slide Tram and Unit Fields */}
-        <div className="border rounded-md overflow-hidden">
-          <div className="p-2 space-y-1.5 text-[11px]">
-            {data?.slideTram && (
+        {/* Top-level Fields */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="border rounded-md overflow-hidden">
+            <div className="p-2 space-y-1.5 text-[11px]">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{tTramming('slideTram')}:</span>
-                <span className="font-medium">{display(data.slideTram)}</span>
+                <span className="text-muted-foreground">{tPistons('guidSeals')}:</span>
+                <span className="font-medium">{display(data.guidSeals)}</span>
               </div>
-            )}
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">{tTramming('unit')}:</span>
-              <span className="font-medium">{data?.unit || 'inches'}</span>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{tPistons('pistonSeals')}:</span>
+                <span className="font-medium">{display(data.pistonSeals)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="border rounded-md overflow-hidden">
+            <div className="p-2 space-y-1.5 text-[11px]">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{tPistons('vacuumSystem')}:</span>
+                <span className="font-medium">{display(data.vacuumSystem)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">
+                  {tPistons('vacuumSystemAirPressureSetting')}:
+                </span>
+                <span className="font-medium">
+                  {data?.vacuumSystemAirPressureSetting
+                    ? `${data.vacuumSystemAirPressureSetting} ${data.vacuumSystemAirPressureUnit || 'PSI'}`
+                    : '-'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{tPistons('unit')}:</span>
+                <span className="font-medium">{data?.unit || 'inches'}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Render actual tramming forms in read-only mode */}
+        {/* Render actual pistons forms in read-only mode */}
         <Tabs defaultValue="outer" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="outer">
@@ -52,7 +75,7 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
 
           {data?.outerData && (
             <TabsContent value="outer">
-              <TrammingForm
+              <PistonsForm
                 data={data.outerData}
                 errors={{}}
                 updateField={() => {}}
@@ -65,7 +88,7 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
 
           {data?.innerData && (
             <TabsContent value="inner">
-              <TrammingForm
+              <PistonsForm
                 data={data.innerData}
                 errors={{}}
                 updateField={() => {}}

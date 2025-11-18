@@ -43,6 +43,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
     counterbalanceCylinder: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     counterbalanceCylinderAirbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     tramming: 'TRAMMING',
+    pistons: 'PISTONS',
   };
 
   // Helper to check if section data has actual content

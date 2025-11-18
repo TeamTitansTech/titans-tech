@@ -259,7 +259,8 @@
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
     "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
-    "tramming": "Tramming"
+    "tramming": "Tramming",
+    "pistons": "Pistones"
   },
   "models": {
     "title": "Crear Modelo",
@@ -390,7 +391,8 @@
       "lubricationHydraulics": "Lubricación / Hidráulica",
       "clutch": "Holgura de Embrague y Freno - CP 2",
       "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
-      "tramming": "Tramming"
+      "tramming": "Tramming",
+      "pistons": "Pistones"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -809,6 +811,16 @@
         "right": "Derecha",
         "trimPin": "Pasador de Ajuste",
         "notes": "Notas"
+      },
+      "pistons": {
+        "guidSeals": "Sellos de Guía",
+        "pistonSeals": "Sellos de Pistón",
+        "vacuumSystem": "Sistema de Vacío",
+        "vacuumSystemAirPressureSetting": "Configuración de Presión de Aire del Sistema de Vacío",
+        "unit": "Unidad",
+        "piston": "Pistón",
+        "front": "Frente",
+        "notes": "Notas (Opcional)"
       },
       "cancel": "Cancelar",
       "submit": {
