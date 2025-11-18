@@ -19,7 +19,7 @@ interface EnumOptionsManagerProps {
 }
 
 export const EnumOptionsManager = ({
-  fieldIndex,
+  fieldIndex: _fieldIndex,
   options,
   newValue,
   onAdd,

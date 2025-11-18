@@ -43,7 +43,7 @@ export const BlueprintCreationModal = ({
     handleSubmit,
     isLoading,
     result,
-    reset: resetForm,
+    reset: _resetForm,
   } = useBlueprintForm(onSuccess, onClose);
 
   const {

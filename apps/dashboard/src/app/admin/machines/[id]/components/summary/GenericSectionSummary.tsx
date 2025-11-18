@@ -8,7 +8,7 @@ interface GenericSectionSummaryProps {
   sectionKey?: string;
 }
 
-export function GenericSectionSummary({ data, sectionKey }: GenericSectionSummaryProps) {
+export function GenericSectionSummary({ data, _sectionKey }: GenericSectionSummaryProps) {
   if (!data) return <div className="text-sm text-muted-foreground">No data available</div>;
 
   // Function to recursively render data

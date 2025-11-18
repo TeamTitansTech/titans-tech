@@ -101,7 +101,7 @@ import { formatFieldName } from './fieldFormatters';
  */
 export const extractBearingRows = (
   data: any,
-  sectionKey?: string,
+  _sectionKey?: string,
 ): { field: string; lh: any; rh: any; differential: string }[] => {
   if (!data) return [];
 

@@ -5,7 +5,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type TrammingData, ServiceType, YesNoDncType } from '@/data/types/services.types';
 import { TrammingForm } from '../forms/TrammingForm';
 import { isDataTouched } from './utils';
-import { SectionContainer } from '../shared/SectionContainer';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -100,7 +99,7 @@ interface TrammingSectionProps {
 }
 
 export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionProps>(
-  ({ isOpen, onOpenChange, onSectionTouched, initialData }, ref) => {
+  ({ isOpen: _isOpen, onOpenChange: _onOpenChange, onSectionTouched, initialData }, ref) => {
     // Store the initial loaded data to compare against for "touched" detection
     const [initialOuterData] = useState<TrammingData>(
       initialData?.outerData || defaultTrammingData,

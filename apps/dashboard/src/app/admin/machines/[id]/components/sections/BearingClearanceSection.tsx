@@ -17,11 +17,7 @@ import { BearingTabContent } from '../shared/BearingTabContent';
 import { ShutdownAdjustmentFields } from '../shared/ShutdownAdjustmentFields';
 import { useBearingClearanceState } from '../../hooks/useBearingClearanceState';
 import { isDataTouched } from './utils';
-import {
-  buildBearingFields,
-  validateHasBeenAdjustedFields,
-  validateAtLeastOneSection,
-} from './bearingClearanceUtils';
+import { buildBearingFields, validateHasBeenAdjustedFields } from './bearingClearanceUtils';
 
 // Default data structure
 export const defaultBearingData: BearingClearanceData = {

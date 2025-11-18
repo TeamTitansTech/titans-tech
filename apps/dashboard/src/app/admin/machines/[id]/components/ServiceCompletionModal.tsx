@@ -102,7 +102,7 @@ export function ServiceCompletionModal({
     reset: resetSectionData,
   } = useSectionData();
 
-  const { sectionRefs, registerRef, getRef, reset: resetRefs } = useSectionRefs();
+  const { sectionRefs: _sectionRefs, registerRef, getRef, reset: resetRefs } = useSectionRefs();
 
   const currentServiceId = serviceId || createdServiceId;
 
