@@ -887,6 +887,11 @@
           "na": "N/A",
           "dnc": "DNC"
         },
+        "yesNoDnc": {
+          "yes": "Sí",
+          "no": "No",
+          "dnc": "DNC"
+        },
         "conditionOkNaDncBrokenWorn": {
           "ok": "OK",
           "na": "N/A",
