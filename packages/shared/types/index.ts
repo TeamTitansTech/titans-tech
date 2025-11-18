@@ -11,3 +11,6 @@ export * from './machines';
 
 // Service Types
 export * from './services';
+
+// Bearing Clearance Field Types
+export * from './bearing-fields';
