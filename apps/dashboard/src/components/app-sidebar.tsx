@@ -10,6 +10,7 @@ import {
   Settings,
   ClipboardList,
   Shield,
+  Factory,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -111,6 +112,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: t('navigation.allMachines'),
         icon: Wrench,
         url: '/machines',
+      },
+      {
+        title: t('navigation.productionLines'),
+        icon: Factory,
+        url: '/production-lines',
       },
       {
         title: t('navigation.services'),

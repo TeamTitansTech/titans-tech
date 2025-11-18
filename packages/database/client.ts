@@ -1,4 +1,9 @@
 import { PrismaClient } from './generated/prisma/client';
+import { config } from 'dotenv';
+import { resolve } from 'path';
+
+// Load .env file from the database package directory
+config({ path: resolve(__dirname, '.env') });
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

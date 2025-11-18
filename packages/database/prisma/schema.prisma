@@ -317,10 +317,11 @@ model CompanyBranch {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company   Company      @relation(fields: [companyId], references: [id])
-  companyId String
-  users     UserBranch[]
-  machines  Machine[]
+  company         Company          @relation(fields: [companyId], references: [id])
+  companyId       String
+  users           UserBranch[]
+  machines        Machine[]
+  productionLines ProductionLine[]
 
   @@map("company_branches")
 }
@@ -381,6 +382,12 @@ model UserBranch {
   createServices Boolean @default(false)
   updateServices Boolean @default(false)
   deleteServices Boolean @default(false)
+
+  // Production Line Permissions
+  readProductionLines   Boolean @default(false)
+  createProductionLines Boolean @default(false)
+  updateProductionLines Boolean @default(false)
+  deleteProductionLines Boolean @default(false)
 
   @@id([userId, branchId])
   @@map("user_branches")
@@ -453,10 +460,11 @@ model Machine {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  blueprint Blueprint        @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
-  branch    CompanyBranch    @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  fields    MachineField[]
-  services  MachineService[]
+  blueprint       Blueprint                @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  branch          CompanyBranch            @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  fields          MachineField[]
+  services        MachineService[]
+  productionLines MachineProductionLine[]
 
   @@map("machines")
 }
@@ -1066,4 +1074,33 @@ model PistonsData {
   innerServices MachineServicePistons[] @relation("InnerData")
 
   @@map("service_data_pistons")
+}
+
+// Production Line Models
+
+model ProductionLine {
+  id        String   @id @default(cuid())
+  name      String
+  branchId  String
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branch   CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  machines MachineProductionLine[]
+
+  @@map("production_lines")
+}
+
+model MachineProductionLine {
+  machineId        String
+  productionLineId String
+  order            Int
+  addedAt          DateTime @default(now())
+
+  machine        Machine        @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  productionLine ProductionLine @relation(fields: [productionLineId], references: [id], onDelete: Cascade)
+
+  @@id([machineId, productionLineId])
+  @@map("machine_production_lines")
 }

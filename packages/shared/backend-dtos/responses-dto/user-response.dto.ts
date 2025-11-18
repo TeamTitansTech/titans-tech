@@ -4,6 +4,7 @@ export class CompanyBranchDto {
   id: string;
   name: string;
   companyId: string;
+  location?: string;
   createdAt: Date;
   updatedAt: Date;
 

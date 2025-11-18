@@ -37,6 +37,7 @@
     "companies": "Empresas",
     "allMachines": "Máquinas",
     "machines": "Máquinas",
+    "productionLines": "Linhas de Produção",
     "services": "Serviços",
     "settings": "Configurações",
     "adminPortal": "Portal Administrativo",
@@ -1130,5 +1131,37 @@
     "selectBranch": "Por favor, selecione uma filial",
     "success": "Sucesso",
     "error": "Erro"
+  },
+  "productionLines": {
+    "pageTitle": "Linhas de Produção",
+    "pageDescription": "Gerencie e visualize suas linhas de produção",
+    "newButton": "Nova Linha",
+    "emptyState": "Nenhuma linha de produção criada",
+    "errorLoading": "Erro ao carregar linhas de produção",
+    "tabView": "Visualizar",
+    "tabConfig": "Configurar",
+    "selectCompany": "Selecionar Empresa",
+    "selectBranch": "Selecionar Filial",
+    "selectMachines": "Selecionar Máquinas",
+    "machineOrder": "Ordem das Máquinas",
+    "saveConfig": "Salvar Configurações",
+    "savingConfig": "Salvando...",
+    "configSaved": "Configurações salvas com sucesso",
+    "lineName": "Nome da Linha",
+    "lineNamePlaceholder": "Ex: Linha Principal",
+    "lineNameRequired": "Nome da linha é obrigatório",
+    "machineCount": "máquina(s)",
+    "noMachinesConfigured": "Nenhuma máquina configurada",
+    "configureFirst": "Configure sua linha de produção primeiro",
+    "selectCompanyFirst": "Selecione uma empresa",
+    "noMachinesAvailable": "Nenhuma máquina disponível",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo",
+    "createDialog": {
+      "title": "Nova Linha de Produção",
+      "description": "Crie uma nova linha de produção para organizar suas máquinas",
+      "cancel": "Cancelar",
+      "create": "Criar Linha"
+    }
   }
 }
