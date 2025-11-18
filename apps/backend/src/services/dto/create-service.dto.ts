@@ -743,6 +743,43 @@ export class CreateServiceDto {
   @IsArray()
   selectedSections?: string[];
 
+  // Inspection observation fields
+  @IsOptional()
+  @IsEnum(YesNoNaDncType)
+  isPressLevel?: YesNoNaDncType;
+
+  @IsOptional()
+  @IsString()
+  driveBeltCondition?: string;
+
+  @IsOptional()
+  @IsString()
+  areAllProtectiveCovers?: string;
+
+  @IsOptional()
+  @IsString()
+  protectiveCoversExplanation?: string;
+
+  @IsOptional()
+  @IsEnum(YesNoDncType)
+  areCracksVisible?: YesNoDncType;
+
+  @IsOptional()
+  @IsString()
+  cracksLocation?: string;
+
+  @IsOptional()
+  @IsEnum(YesNoDncType)
+  isMainMotorSecure?: YesNoDncType;
+
+  @IsOptional()
+  @IsEnum(YesNoDncType)
+  isMotorPlateSecure?: YesNoDncType;
+
+  @IsOptional()
+  @IsString()
+  whyNotCovered?: string;
+
   @IsOptional()
   @ValidateNested()
   @Type(() => BearingClearanceCheckDto)

@@ -1,6 +1,14 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
 import { ServiceType } from '@/data/types/services.types';
+import {
+  FoundationType,
+  FrameType,
+  MachineClutchType,
+  PneumaticSystemType,
+  PressMountingType,
+  MachineFeaturesType,
+} from '@titans-tech/shared/types';
 
 interface MachineField {
   fieldSlug: string;
@@ -12,6 +20,36 @@ interface CreateMachinePayload {
   branchId: string;
   name: string;
   fields: MachineField[];
+  // Machine specifications
+  manufacturer?: string;
+  model?: string;
+  sizeTonnage?: string;
+  serialNumber?: string;
+  stroke?: string;
+  foundationType?: FoundationType;
+  frameType?: FrameType;
+  clutchType?: MachineClutchType;
+  pneumaticSystem?: PneumaticSystemType;
+  pressMounting?: PressMountingType;
+  features?: MachineFeaturesType;
+}
+
+interface UpdateMachinePayload {
+  blueprintId?: string;
+  name?: string;
+  fields?: MachineField[];
+  // Machine specifications
+  manufacturer?: string;
+  model?: string;
+  sizeTonnage?: string;
+  serialNumber?: string;
+  stroke?: string;
+  foundationType?: FoundationType;
+  frameType?: FrameType;
+  clutchType?: MachineClutchType;
+  pneumaticSystem?: PneumaticSystemType;
+  pressMounting?: PressMountingType;
+  features?: MachineFeaturesType;
 }
 
 interface BearingClearance {
@@ -103,5 +141,18 @@ export const createMachine = async (payload: CreateMachinePayload) => {
   return await responseHandler<Machine>('/machines', {
     method: 'POST',
     body: payload,
+  });
+};
+
+export const updateMachine = async (id: string, payload: UpdateMachinePayload) => {
+  return await responseHandler<Machine>(`/machines/${id}`, {
+    method: 'PUT',
+    body: payload,
+  });
+};
+
+export const deleteMachine = async (id: string) => {
+  return await responseHandler<void>(`/machines/${id}`, {
+    method: 'DELETE',
   });
 };

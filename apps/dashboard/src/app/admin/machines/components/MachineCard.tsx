@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Typography } from '@/components/ui/typography';
-import { Wrench, ChevronRight, Calendar } from 'lucide-react';
+import { Wrench, ChevronRight, Calendar, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { MachineCardProps } from '@/data/types/machines.types';
@@ -15,6 +15,11 @@ const statusClassNames = {
   offline: 'bg-red-600 text-white dark:bg-red-500',
 };
 
+interface ExtendedMachineCardProps extends MachineCardProps {
+  onEdit?: () => void;
+  onDelete?: () => void;
+}
+
 export function MachineCard({
   id,
   name,
@@ -22,7 +27,9 @@ export function MachineCard({
   location,
   lastInspection,
   status = 'operational',
-}: MachineCardProps) {
+  onEdit,
+  onDelete,
+}: ExtendedMachineCardProps) {
   const t = useTranslations('machines');
 
   return (
@@ -71,12 +78,34 @@ export function MachineCard({
             )}
           </div>
 
-          <Button asChild variant="outline" className="w-full justify-between" size="sm">
-            <Link href={`/admin/machines/${id}`}>
-              {t('viewDetails')}
-              <ChevronRight className="w-4 h-4" />
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" className="flex-1 justify-between" size="sm">
+              <Link href={`/admin/machines/${id}`}>
+                {t('viewDetails')}
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </Button>
+          </div>
+
+          <div className="flex gap-2 pt-2">
+            {onEdit && (
+              <Button onClick={onEdit} variant="outline" size="sm" className="flex-1">
+                <Pencil className="w-4 h-4 mr-2" />
+                {t('edit')}
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                onClick={onDelete}
+                variant="outline"
+                size="sm"
+                className="flex-1 text-destructive hover:text-destructive"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                {t('delete')}
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>

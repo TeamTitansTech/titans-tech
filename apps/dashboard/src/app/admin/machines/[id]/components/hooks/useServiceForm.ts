@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { ServiceType } from '@/data/types/services.types';
+import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types';
 
 const getTomorrowDate = () => {
   const tomorrow = new Date();
@@ -27,6 +28,17 @@ export function useServiceForm(
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Inspection observation fields
+  const [isPressLevel, setIsPressLevel] = useState<YesNoNaDncType | undefined>();
+  const [driveBeltCondition, setDriveBeltCondition] = useState<string>('');
+  const [areAllProtectiveCovers, setAreAllProtectiveCovers] = useState<string>('');
+  const [protectiveCoversExplanation, setProtectiveCoversExplanation] = useState<string>('');
+  const [areCracksVisible, setAreCracksVisible] = useState<YesNoDncType | undefined>();
+  const [cracksLocation, setCracksLocation] = useState<string>('');
+  const [isMainMotorSecure, setIsMainMotorSecure] = useState<YesNoDncType | undefined>();
+  const [isMotorPlateSecure, setIsMotorPlateSecure] = useState<YesNoDncType | undefined>();
+  const [whyNotCovered, setWhyNotCovered] = useState<string>('');
+
   // Use the prop serviceType if provided (completing service), otherwise use internal state (creating new)
   const currentServiceType = serviceType || selectedServiceType;
 
@@ -36,6 +48,16 @@ export function useServiceForm(
     setPerformedBy('');
     setIsSubmitting(false);
     setError(null);
+    // Reset inspection fields
+    setIsPressLevel(undefined);
+    setDriveBeltCondition('');
+    setAreAllProtectiveCovers('');
+    setProtectiveCoversExplanation('');
+    setAreCracksVisible(undefined);
+    setCracksLocation('');
+    setIsMainMotorSecure(undefined);
+    setIsMotorPlateSecure(undefined);
+    setWhyNotCovered('');
   };
 
   return {
@@ -50,6 +72,25 @@ export function useServiceForm(
     setIsSubmitting,
     error,
     setError,
+    // Inspection observation fields
+    isPressLevel,
+    setIsPressLevel,
+    driveBeltCondition,
+    setDriveBeltCondition,
+    areAllProtectiveCovers,
+    setAreAllProtectiveCovers,
+    protectiveCoversExplanation,
+    setProtectiveCoversExplanation,
+    areCracksVisible,
+    setAreCracksVisible,
+    cracksLocation,
+    setCracksLocation,
+    isMainMotorSecure,
+    setIsMainMotorSecure,
+    isMotorPlateSecure,
+    setIsMotorPlateSecure,
+    whyNotCovered,
+    setWhyNotCovered,
     reset,
   };
 }

@@ -336,7 +336,15 @@
     "location": "Location",
     "lastInspection": "Last inspection",
     "viewDetails": "View Details",
+    "edit": "Edit",
+    "delete": "Delete",
     "createdSuccessfully": "Machine created successfully",
+    "deletedSuccessfully": "Machine deleted successfully",
+    "deleteConfirmTitle": "Delete Machine",
+    "deleteConfirmDescription": "Are you sure you want to delete {name}? This action cannot be undone and will permanently remove all associated data.",
+    "confirmDelete": "Delete",
+    "deleting": "Deleting...",
+    "cancel": "Cancel",
     "sectionsCount": "sections",
     "fieldsCount": "fields",
     "backToMachines": "Back to Machines",
@@ -898,6 +906,53 @@
           "bushing": "Bushing",
           "connection": "Connection",
           "nutScrewSleeve": "Nut Screw Sleeve"
+        },
+        "foundationType": {
+          "plantFloor": "Plant Floor",
+          "isolatedPad": "Isolated Pad"
+        },
+        "frameType": {
+          "gap": "Gap",
+          "straightSide": "Straight Side"
+        },
+        "clutchType": {
+          "jh5": "JH5",
+          "na": "N/A"
+        },
+        "pneumaticSystem": {
+          "air": "Air",
+          "hyd": "Hyd",
+          "wetAir": "Wet Air",
+          "wetHyd": "Wet Hyd"
+        },
+        "pressMounting": {
+          "adjustable": "Adjustable",
+          "onFloor": "On Floor",
+          "shims": "Shims",
+          "other": "Other"
+        },
+        "features": {
+          "aim": "AIM",
+          "adjStroke": "Adj Stroke",
+          "doubleLockup": "Double Lockup",
+          "na": "N/A"
+        },
+        "driveBeltCondition": {
+          "ok": "OK",
+          "na": "N/A",
+          "loosened": "Loosened",
+          "tightened": "Tightened",
+          "worn": "Worn"
+        },
+        "protectiveCoversStatus": {
+          "yes": "Yes",
+          "no": "No",
+          "ok": "OK"
+        },
+        "whyNotCovered": {
+          "customerRemoved": "Customer removed for audit; customer to reinstall",
+          "notInArea": "Covers are not located in area of press; not visible",
+          "otherExplain": "Other: Explain"
         }
       }
     }
@@ -929,6 +984,32 @@
       "maintenanceSummary": "Maintenance Summary",
       "inspectionSummary": "Inspection Summary",
       "completing": "Completing...",
+      "machineInformation": {
+        "title": "Machine Information",
+        "manufacturer": "Manufacturer",
+        "model": "Model",
+        "sizeTonnage": "Size/Tonnage",
+        "serialNumber": "Serial #",
+        "stroke": "Stroke",
+        "foundationType": "Foundation Type",
+        "frameType": "Frame Type",
+        "clutchType": "Clutch Type",
+        "pneumaticSystem": "Pneumatic System",
+        "pressMounting": "Press Mounting",
+        "features": "Features"
+      },
+      "inspectionObservations": {
+        "title": "Inspection Observations",
+        "isPressLevel": "Is Press Level?",
+        "driveBeltCondition": "Drive Belt Condition",
+        "areAllProtectiveCovers": "Are all protective covers in place?",
+        "protectiveCoversExplanation": "If \"No\" above, explain:",
+        "areCracksVisible": "Are cracks visible in crown, bed or slide?",
+        "cracksLocation": "If \"Yes\" above, where?",
+        "isMainMotorSecure": "Is Main Motor Secure?",
+        "isMotorPlateSecure": "Is Motor Plate Secure?",
+        "whyNotCovered": "Why not covered"
+      },
       "stepper": {
         "details": "Details",
         "summary": "Summary",

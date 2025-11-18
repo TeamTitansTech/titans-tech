@@ -2,7 +2,6 @@ import {
   IsString,
   IsArray,
   ValidateNested,
-  IsNotEmpty,
   IsOptional,
   IsEnum,
 } from 'class-validator';
@@ -18,31 +17,26 @@ import {
 
 class MachineFieldDto {
   @IsString()
-  @IsNotEmpty()
   fieldSlug: string;
 
   @IsString()
-  @IsNotEmpty()
   value: string;
 }
 
-export class CreateMachineDto {
+export class UpdateMachineDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  blueprintId: string;
+  blueprintId?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  branchId: string;
+  name?: string;
 
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => MachineFieldDto)
-  fields: MachineFieldDto[];
+  fields?: MachineFieldDto[];
 
   // Optional machine specifications
   @IsOptional()

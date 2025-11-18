@@ -3,6 +3,9 @@
  * Exports all shared type definitions used across frontend and backend
  */
 
+// Enums
+export * from './enums';
+
 // Blueprint Types
 export * from './blueprints';
 

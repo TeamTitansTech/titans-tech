@@ -4,6 +4,14 @@
  */
 
 import { Blueprint } from './blueprints';
+import {
+  FoundationType,
+  FrameType,
+  MachineClutchType,
+  PneumaticSystemType,
+  PressMountingType,
+  MachineFeaturesType,
+} from './enums';
 
 // Machine Field Definition
 export interface MachineField {
@@ -18,6 +26,20 @@ export interface Machine {
   name: string;
   imageUrl?: string;
   fields: MachineField[];
+
+  // Machine specifications
+  manufacturer?: string;
+  model?: string;
+  sizeTonnage?: string;
+  serialNumber?: string;
+  stroke?: string;
+  foundationType?: FoundationType;
+  frameType?: FrameType;
+  clutchType?: MachineClutchType;
+  pneumaticSystem?: PneumaticSystemType;
+  pressMounting?: PressMountingType;
+  features?: MachineFeaturesType;
+
   createdAt: string;
   updatedAt: string;
   blueprint?: Blueprint;
@@ -39,6 +61,19 @@ export interface CreateMachinePayload {
   blueprintId: string;
   name: string;
   fields: MachineField[];
+
+  // Optional machine specifications
+  manufacturer?: string;
+  model?: string;
+  sizeTonnage?: string;
+  serialNumber?: string;
+  stroke?: string;
+  foundationType?: FoundationType;
+  frameType?: FrameType;
+  clutchType?: MachineClutchType;
+  pneumaticSystem?: PneumaticSystemType;
+  pressMounting?: PressMountingType;
+  features?: MachineFeaturesType;
 }
 
 // Machine Update Payload
@@ -46,4 +81,17 @@ export interface UpdateMachinePayload {
   blueprintId?: string;
   name?: string;
   fields?: MachineField[];
+
+  // Optional machine specifications
+  manufacturer?: string;
+  model?: string;
+  sizeTonnage?: string;
+  serialNumber?: string;
+  stroke?: string;
+  foundationType?: FoundationType;
+  frameType?: FrameType;
+  clutchType?: MachineClutchType;
+  pneumaticSystem?: PneumaticSystemType;
+  pressMounting?: PressMountingType;
+  features?: MachineFeaturesType;
 }

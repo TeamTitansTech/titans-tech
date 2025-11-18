@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateMachineDto } from './dto/create-machine.dto';
+import { UpdateMachineDto } from './dto/update-machine.dto';
 
 @Injectable()
 export class MachinesService {
@@ -128,5 +129,89 @@ export class MachinesService {
     }
 
     return machine;
+  }
+
+  async update(
+    id: string,
+    updateMachineDto: UpdateMachineDto,
+  ): Promise<
+    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
+  > {
+    // Verify machine exists
+    const existingMachine = await this.prisma.machine.findUnique({
+      where: { id },
+      include: { fields: true },
+    });
+
+    if (!existingMachine) {
+      throw new NotFoundException(`Machine with ID ${id} not found`);
+    }
+
+    // If blueprintId is being updated, verify it exists
+    if (updateMachineDto.blueprintId) {
+      const blueprint = await this.prisma.blueprint.findUnique({
+        where: { id: updateMachineDto.blueprintId },
+      });
+
+      if (!blueprint) {
+        throw new NotFoundException(
+          `Blueprint with ID ${updateMachineDto.blueprintId} not found`,
+        );
+      }
+    }
+
+    // Update machine with specifications and fields
+    const machine = await this.prisma.machine.update({
+      where: { id },
+      data: {
+        name: updateMachineDto.name,
+        blueprintId: updateMachineDto.blueprintId,
+        // Machine specifications
+        manufacturer: updateMachineDto.manufacturer,
+        model: updateMachineDto.model,
+        sizeTonnage: updateMachineDto.sizeTonnage,
+        serialNumber: updateMachineDto.serialNumber,
+        stroke: updateMachineDto.stroke,
+        foundationType: updateMachineDto.foundationType,
+        frameType: updateMachineDto.frameType,
+        clutchType: updateMachineDto.clutchType,
+        pneumaticSystem: updateMachineDto.pneumaticSystem,
+        pressMounting: updateMachineDto.pressMounting,
+        features: updateMachineDto.features,
+        // Update fields if provided
+        ...(updateMachineDto.fields && {
+          fields: {
+            deleteMany: {},
+            create: updateMachineDto.fields.map((field) => ({
+              fieldSlug: field.fieldSlug,
+              value: field.value,
+            })),
+          },
+        }),
+      },
+      include: {
+        blueprint: true,
+        branch: true,
+        fields: true,
+      },
+    });
+
+    return machine;
+  }
+
+  async delete(id: string): Promise<void> {
+    // Verify machine exists
+    const existingMachine = await this.prisma.machine.findUnique({
+      where: { id },
+    });
+
+    if (!existingMachine) {
+      throw new NotFoundException(`Machine with ID ${id} not found`);
+    }
+
+    // Delete the machine (cascade delete will handle fields)
+    await this.prisma.machine.delete({
+      where: { id },
+    });
   }
 }

@@ -583,6 +583,18 @@ export interface CreateServicePayload {
   currentStep?: string; // Current step in the modal workflow
   currentSectionKey?: string; // Current section being filled
   selectedSections?: string[]; // Array of selected section keys
+
+  // Inspection observation fields
+  isPressLevel?: YesNoNaDncType;
+  driveBeltCondition?: string; // DriveBeltConditionType
+  areAllProtectiveCovers?: string; // ProtectiveCoversStatusType
+  protectiveCoversExplanation?: string;
+  areCracksVisible?: YesNoDncType;
+  cracksLocation?: string;
+  isMainMotorSecure?: YesNoDncType;
+  isMotorPlateSecure?: YesNoDncType;
+  whyNotCovered?: string;
+
   bearingClearance?: BearingClearanceCheck;
   slide?: SlideCheck;
   gibs?: GibsCheck;
@@ -601,6 +613,18 @@ export interface UpdateServicePayload {
   currentStep?: string; // Current step in the modal workflow
   currentSectionKey?: string; // Current section being filled
   selectedSections?: string[]; // Array of selected section keys
+
+  // Inspection observation fields
+  isPressLevel?: YesNoNaDncType;
+  driveBeltCondition?: string; // DriveBeltConditionType
+  areAllProtectiveCovers?: string; // ProtectiveCoversStatusType
+  protectiveCoversExplanation?: string;
+  areCracksVisible?: YesNoDncType;
+  cracksLocation?: string;
+  isMainMotorSecure?: YesNoDncType;
+  isMotorPlateSecure?: YesNoDncType;
+  whyNotCovered?: string;
+
   bearingClearance?: BearingClearanceCheck;
   slide?: SlideCheck;
   gibs?: GibsCheck;
@@ -622,6 +646,18 @@ export interface Service {
   currentStep?: string; // Current step in the modal workflow
   currentSectionKey?: string; // Current section being filled
   selectedSections?: string[]; // Array of selected section keys
+
+  // Inspection observation fields
+  isPressLevel?: YesNoNaDncType;
+  driveBeltCondition?: string; // DriveBeltConditionType
+  areAllProtectiveCovers?: string; // ProtectiveCoversStatusType
+  protectiveCoversExplanation?: string;
+  areCracksVisible?: YesNoDncType;
+  cracksLocation?: string;
+  isMainMotorSecure?: YesNoDncType;
+  isMotorPlateSecure?: YesNoDncType;
+  whyNotCovered?: string;
+
   createdAt: string;
   updatedAt: string;
 }
