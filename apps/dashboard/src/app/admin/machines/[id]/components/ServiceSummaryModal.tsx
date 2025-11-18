@@ -18,7 +18,6 @@ import { format } from 'date-fns';
 import { SECTION_REGISTRY } from './sections/registry';
 import { exportToExcel, exportToPDF } from './utils/serviceExportUtils';
 import { SectionSummary } from './summary';
-import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types';
 
 interface ServiceSummaryModalProps {
   service: Service;
