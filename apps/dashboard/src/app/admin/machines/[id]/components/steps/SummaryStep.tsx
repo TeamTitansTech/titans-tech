@@ -2,7 +2,8 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/ui/typography';
 import { Stepper, type StepperStep } from '@/components/ui/stepper';
-import { Check } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Check, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
 import { SECTION_REGISTRY } from '../sections/registry';
 import { SectionSummary } from '../summary';
@@ -121,14 +122,19 @@ export function SummaryStep({
             if (!sectionConfig || !data) return null;
 
             return (
-              <div key={sectionKey} className="border rounded-lg p-4">
-                <Typography variant="h4" className="font-semibold mb-2">
-                  {translations.getSectionName(sectionConfig.metadata.i18nKey)}
-                </Typography>
-                <div className="text-sm">
-                  <SectionSummary sectionKey={sectionKey} data={data} />
+              <Collapsible key={sectionKey} defaultOpen={true}>
+                <div className="border rounded-lg">
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
+                    <Typography variant="h4" className="font-semibold text-sm">
+                      {translations.getSectionName(sectionConfig.metadata.i18nKey)}
+                    </Typography>
+                    <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="p-3 pt-0 text-sm">
+                    <SectionSummary sectionKey={sectionKey} data={data} />
+                  </CollapsibleContent>
                 </div>
-              </div>
+              </Collapsible>
             );
           })}
         </div>

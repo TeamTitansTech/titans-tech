@@ -91,8 +91,6 @@ export const hasActualData = (data: any): boolean => {
   });
 };
 
-import { formatFieldName } from './fieldFormatters';
-
 /**
  * Extract bearing measurement rows from data
  * @param data - The bearing data
