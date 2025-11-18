@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type TrammingData, ServiceType, YesNoDncType } from '@/data/types/services.types';
 import { TrammingForm } from '../forms/TrammingForm';
@@ -256,6 +257,8 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
       },
     }));
 
+    const tMeasurements = useTranslations('measurements');
+
     return (
       <div className="space-y-6 p-4">
         {/* Slide Tram and Unit Dropdowns */}
@@ -302,8 +305,14 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
         {/* Tabs for Outer/Inner */}
         <Tabs defaultValue="outer" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
-            <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
+            <TabsTrigger value="outer">
+              <span className="hidden sm:inline">{tMeasurements('outerMeasurements')}</span>
+              <span className="sm:hidden">Outer</span>
+            </TabsTrigger>
+            <TabsTrigger value="inner">
+              <span className="hidden sm:inline">{tMeasurements('innerMeasurements')}</span>
+              <span className="sm:hidden">Inner</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="outer" className="mt-4">

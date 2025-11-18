@@ -399,8 +399,14 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
         {/* Tabs for Outer/Inner */}
         <Tabs defaultValue="outer" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="outer">{tMeasurements('outerMeasurements')}</TabsTrigger>
-            <TabsTrigger value="inner">{tMeasurements('innerMeasurements')}</TabsTrigger>
+            <TabsTrigger value="outer">
+              <span className="hidden sm:inline">{tMeasurements('outerMeasurements')}</span>
+              <span className="sm:hidden">Outer</span>
+            </TabsTrigger>
+            <TabsTrigger value="inner">
+              <span className="hidden sm:inline">{tMeasurements('innerMeasurements')}</span>
+              <span className="sm:hidden">Inner</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="outer" className="mt-4">

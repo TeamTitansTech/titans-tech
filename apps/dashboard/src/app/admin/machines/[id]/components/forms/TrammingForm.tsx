@@ -135,7 +135,7 @@ export function TrammingForm({
           {renderInput(point.fields.top)}
         </div>
 
-        {/* Left input - with extra spacing from center */}
+        {/* Left input */}
         <div className="absolute top-1/2 -translate-y-1/2" style={{ left: '-52px' }}>
           {renderInput(point.fields.left)}
         </div>
@@ -145,7 +145,7 @@ export function TrammingForm({
           <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
         </div>
 
-        {/* Right input - with extra spacing from center */}
+        {/* Right input */}
         <div className="absolute top-1/2 -translate-y-1/2" style={{ right: '-52px' }}>
           {renderInput(point.fields.right)}
         </div>
@@ -160,43 +160,10 @@ export function TrammingForm({
 
   return (
     <div className="space-y-4">
-      <div className="relative ">
-        <div className="relative min-h-[350px] flex items-center justify-center p-4">
-          {/* Grid layout: 3x3 with center being the trim pin */}
-          <div className="grid grid-cols-3 grid-rows-3 gap-4 w-full max-w-3xl">
-            {/* Top-Left: Empty */}
-            <div />
-
-            {/* Top-Center: Top Measurements */}
-            {renderMeasurementPoint(measurementPoints[0])}
-
-            {/* Top-Right: Empty */}
-            <div />
-
-            {/* Middle-Left: Left Measurements */}
-            {renderMeasurementPoint(measurementPoints[2])}
-
-            {/* Middle-Center: Trim Pin */}
-            <div className="flex items-center justify-center">
-              <div className="w-12 h-12 rounded-full border-2 border-foreground/30 bg-background flex items-center justify-center p-1">
-                <span className="text-[8px] font-medium text-muted-foreground text-center leading-tight">
-                  {t('trimPin')}
-                </span>
-              </div>
-            </div>
-
-            {/* Middle-Right: Right Measurements */}
-            {renderMeasurementPoint(measurementPoints[3])}
-
-            {/* Bottom-Left: Empty */}
-            <div />
-
-            {/* Bottom-Center: Bottom Measurements */}
-            {renderMeasurementPoint(measurementPoints[1])}
-
-            {/* Bottom-Right: Empty */}
-            <div />
-          </div>
+      <div className="bg-muted/20 dark:bg-slate-700/40 border border-border/50 dark:border-slate-600/50 rounded-lg p-4">
+        {/* Grid layout: 1 measurement point per row on mobile, 2 side by side on larger screens */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-2xl mx-auto">
+          {measurementPoints.map((point) => renderMeasurementPoint(point))}
         </div>
       </div>
     </div>

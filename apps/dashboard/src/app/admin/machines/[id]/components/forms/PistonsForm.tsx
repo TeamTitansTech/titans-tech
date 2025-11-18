@@ -137,8 +137,8 @@ export function PistonsForm({
   return (
     <div className="space-y-4">
       <div className="bg-muted/20 dark:bg-slate-700/40 border border-border/50 dark:border-slate-600/50 rounded-lg p-4">
-        {/* Grid layout: 2 pistons side by side */}
-        <div className="grid grid-cols-2 gap-8 w-full max-w-2xl mx-auto">
+        {/* Grid layout: 1 piston per row on mobile, 2 side by side on larger screens */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-2xl mx-auto">
           {pistonPoints.map((piston) => renderPiston(piston))}
         </div>
       </div>
