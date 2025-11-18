@@ -10,6 +10,7 @@ import Image from 'next/image';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { ServiceCompletionModal } from './ServiceCompletionModal';
+import { UrgentServiceModal } from './UrgentServiceModal';
 import { SectionCard, type SectionStatus } from './SectionCard';
 import { Typography } from '@/components/ui/typography';
 
@@ -79,6 +80,7 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+  const [isUrgentServiceModalOpen, setIsUrgentServiceModalOpen] = useState(false);
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
 
   const handleSectionClick = (section: string) => {
@@ -111,7 +113,7 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
             variant="destructive"
             size="sm"
             className="shrink-0"
-            onClick={() => setIsInspectionModalOpen(true)}
+            onClick={() => setIsUrgentServiceModalOpen(true)}
           >
             <Wrench className="w-4 h-4 mr-2" />
             {t('requestUrgentService')}
@@ -171,6 +173,13 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
         open={isInspectionModalOpen}
         onOpenChange={setIsInspectionModalOpen}
         machineSections={machine.blueprint?.sections}
+      />
+
+      <UrgentServiceModal
+        machineId={machine.id}
+        machineName={machine.name}
+        open={isUrgentServiceModalOpen}
+        onOpenChange={setIsUrgentServiceModalOpen}
       />
     </>
   );
