@@ -86,7 +86,7 @@ export const getLatestReport = async (machineId: string) => {
 };
 
 /**
- * Update a specific section of a service (calls Prisma directly)
+ * Update a specific section of a service
  */
 export const updateServiceSection = async (
   serviceId: string,
@@ -94,138 +94,76 @@ export const updateServiceSection = async (
   sectionData: any,
   machineId?: string,
 ) => {
-  try {
-    // Import route handler logic
-    const { PATCH } = await import('@/app/api/services/[serviceId]/sections/[sectionKey]/route');
+  // Map section keys to backend endpoint paths
+  const sectionEndpointMap: Record<string, string> = {
+    BEARING_CLEARANCE: 'bearing-clearance',
+    SLIDE: 'slide',
+    GIBS: 'gibs',
+    LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubrication-hydraulics',
+    CLUTCH: 'clutch',
+    COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance-cylinder',
+    TRAMMING: 'tramming',
+    PISTONS: 'pistons',
+  };
 
-    // Create mock request and context
-    const mockRequest = {
-      json: async () => sectionData,
-    } as any;
-
-    const mockContext = {
-      params: Promise.resolve({ serviceId, sectionKey }),
-    };
-
-    // Call the route handler
-    const response = await PATCH(mockRequest, mockContext);
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        data: null,
-        errors: data.errors || [data.error || 'Unknown error'],
-        rawErrors: data,
-      };
-    }
-
-    if (machineId) {
-      revalidateTag(`services-${machineId}`, 'max');
-      revalidatePath(`/machines/${machineId}`);
-      revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
-    }
-
-    return { data: data.data, errors: null, rawErrors: null };
-  } catch (error) {
-    console.error('Error updating section:', error);
+  const endpoint = sectionEndpointMap[sectionKey];
+  if (!endpoint) {
     return {
       data: null,
-      errors: [error instanceof Error ? error.message : 'Connection error'],
-      rawErrors: error as any,
+      errors: [`Invalid section key: ${sectionKey}`],
+      rawErrors: { error: 'Invalid section key' },
     };
   }
+
+  const response = await responseHandler<Service>(`/services/${serviceId}/sections/${endpoint}`, {
+    method: 'PATCH',
+    body: sectionData,
+  });
+
+  if (!response.errors && machineId) {
+    revalidateTag(`services-${machineId}`, 'max');
+    revalidatePath(`/machines/${machineId}`);
+    revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
+  }
+
+  return response;
 };
 
 /**
- * Mark a service as completed (calls Prisma directly)
+ * Mark a service as completed
  */
 export const completeService = async (
   serviceId: string,
   performedBy: string,
   machineId?: string,
 ) => {
-  try {
-    // Import route handler logic
-    const { POST } = await import('@/app/api/services/[serviceId]/complete/route');
+  const response = await responseHandler<Service>(`/services/${serviceId}/complete`, {
+    method: 'PATCH',
+    body: { completedBy: performedBy },
+  });
 
-    // Create mock request and context
-    const mockRequest = {
-      json: async () => ({ performedBy }),
-    } as any;
-
-    const mockContext = {
-      params: Promise.resolve({ serviceId }),
-    };
-
-    // Call the route handler
-    const response = await POST(mockRequest, mockContext);
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        data: null,
-        errors: data.errors || [data.error || 'Unknown error'],
-        rawErrors: data,
-      };
-    }
-
-    if (machineId) {
-      revalidateTag(`services-${machineId}`, 'max');
-      revalidatePath(`/machines/${machineId}`);
-      revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
-    }
-
-    return { data: data.data, errors: null, rawErrors: null };
-  } catch (error) {
-    console.error('Error completing service:', error);
-    return {
-      data: null,
-      errors: [error instanceof Error ? error.message : 'Connection error'],
-      rawErrors: error as any,
-    };
+  if (!response.errors && machineId) {
+    revalidateTag(`services-${machineId}`, 'max');
+    revalidatePath(`/machines/${machineId}`);
+    revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
+
+  return response;
 };
 
 /**
  * Delete a service
  */
 export const deleteService = async (serviceId: string, machineId?: string) => {
-  try {
-    // Import route handler logic
-    const { DELETE } = await import('@/app/api/services/[serviceId]/route');
+  const response = await responseHandler<void>(`/services/${serviceId}`, {
+    method: 'DELETE',
+  });
 
-    // Create mock request and context
-    const mockRequest = {} as any;
-
-    const mockContext = {
-      params: Promise.resolve({ serviceId }),
-    };
-
-    // Call the route handler
-    const response = await DELETE(mockRequest, mockContext);
-    const data = await response.json();
-
-    if (!response.ok) {
-      return {
-        data: null,
-        errors: data.errors || [data.error || 'Unknown error'],
-        rawErrors: data,
-      };
-    }
-
-    if (machineId) {
-      revalidateTag(`services-${machineId}`, 'max');
-      revalidatePath(`/machines/${machineId}`);
-      revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
-    }
-
-    return { data: data.data, errors: null, rawErrors: null };
-  } catch (error) {
-    console.error('Error deleting service:', error);
-    return {
-      data: null,
-      errors: [error instanceof Error ? error.message : 'Connection error'],
-      rawErrors: error as any,
-    };
+  if (!response.errors && machineId) {
+    revalidateTag(`services-${machineId}`, 'max');
+    revalidatePath(`/machines/${machineId}`);
+    revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
+
+  return response;
 };
