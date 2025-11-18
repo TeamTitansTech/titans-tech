@@ -342,7 +342,15 @@
     "client": "Cliente",
     "model": "Modelo",
     "viewDetails": "Ver Detalhes",
+    "edit": "Editar",
+    "delete": "Excluir",
     "createdSuccessfully": "Máquina criada com sucesso",
+    "deletedSuccessfully": "Máquina excluída com sucesso",
+    "deleteConfirmTitle": "Excluir Máquina",
+    "deleteConfirmDescription": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita e removerá permanentemente todos os dados associados.",
+    "confirmDelete": "Excluir",
+    "deleting": "Excluindo...",
+    "cancel": "Cancelar",
     "sectionsCount": "seções",
     "fieldsCount": "campos",
     "backToMachines": "Voltar para Máquinas",
@@ -879,6 +887,11 @@
           "na": "N/A",
           "dnc": "DNC"
         },
+        "yesNoDnc": {
+          "yes": "Sim",
+          "no": "Não",
+          "dnc": "DNC"
+        },
         "conditionOkNaDncBrokenWorn": {
           "ok": "OK",
           "na": "N/A",
@@ -903,6 +916,53 @@
           "bushing": "Bucha",
           "connection": "Conexão",
           "nutScrewSleeve": "Porca e Parafuso"
+        },
+        "foundationType": {
+          "plantFloor": "Piso da Planta",
+          "isolatedPad": "Almofada Isolada"
+        },
+        "frameType": {
+          "gap": "Gap",
+          "straightSide": "Straight Side"
+        },
+        "clutchType": {
+          "jh5": "JH5",
+          "na": "N/A"
+        },
+        "pneumaticSystem": {
+          "air": "Ar",
+          "hyd": "Hidráulico",
+          "wetAir": "Ar Úmido",
+          "wetHyd": "Hidráulico Úmido"
+        },
+        "pressMounting": {
+          "adjustable": "Ajustável",
+          "onFloor": "No Piso",
+          "shims": "Calços",
+          "other": "Outro"
+        },
+        "features": {
+          "aim": "AIM",
+          "adjStroke": "Curso Ajustável",
+          "doubleLockup": "Trava Dupla",
+          "na": "N/A"
+        },
+        "driveBeltCondition": {
+          "ok": "OK",
+          "na": "N/A",
+          "loosened": "Afrouxado",
+          "tightened": "Apertado",
+          "worn": "Desgastado"
+        },
+        "protectiveCoversStatus": {
+          "yes": "Sim",
+          "no": "Não",
+          "ok": "OK"
+        },
+        "whyNotCovered": {
+          "customerRemoved": "Cliente removeu para auditoria; cliente deve reinstalar",
+          "notInArea": "Coberturas não estão localizadas na área da prensa; não visíveis",
+          "otherExplain": "Outro: Explique"
         }
       }
     }
@@ -983,6 +1043,32 @@
       "maintenanceSummary": "Resumo da Manutenção",
       "inspectionSummary": "Resumo da Inspeção",
       "completing": "Concluindo...",
+      "machineInformation": {
+        "title": "Informações da Máquina",
+        "manufacturer": "Fabricante",
+        "model": "Modelo",
+        "sizeTonnage": "Tamanho/Tonelagem",
+        "serialNumber": "Número de Série",
+        "stroke": "Curso",
+        "foundationType": "Tipo de Fundação",
+        "frameType": "Tipo de Estrutura",
+        "clutchType": "Tipo de Embreagem",
+        "pneumaticSystem": "Sistema Pneumático",
+        "pressMounting": "Montagem da Prensa",
+        "features": "Características"
+      },
+      "inspectionObservations": {
+        "title": "Observações da Inspeção",
+        "isPressLevel": "A Prensa Está Nivelada?",
+        "driveBeltCondition": "Condição da Correia de Transmissão",
+        "areAllProtectiveCovers": "Todas as coberturas de proteção estão no lugar?",
+        "protectiveCoversExplanation": "Se \"Não\" acima, explique:",
+        "areCracksVisible": "Há rachaduras visíveis na coroa, leito ou deslizamento?",
+        "cracksLocation": "Se \"Sim\" acima, onde?",
+        "isMainMotorSecure": "O Motor Principal Está Seguro?",
+        "isMotorPlateSecure": "A Placa do Motor Está Segura?",
+        "whyNotCovered": "Por que não coberto"
+      },
       "stepper": {
         "details": "Detalhes",
         "summary": "Resumo",

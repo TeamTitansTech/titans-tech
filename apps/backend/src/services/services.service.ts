@@ -1,5 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, ServiceSection } from '@titans-tech/db';
+import {
+  Prisma,
+  ServiceSection,
+  DriveBeltConditionType,
+  ProtectiveCoversStatusType,
+} from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
@@ -301,6 +306,37 @@ export class ServicesService {
             }),
           },
         },
+      }),
+      // Inspection observation fields
+      ...(createInspectionDto.isPressLevel !== undefined && {
+        isPressLevel: createInspectionDto.isPressLevel,
+      }),
+      ...(createInspectionDto.driveBeltCondition !== undefined && {
+        driveBeltCondition:
+          createInspectionDto.driveBeltCondition as DriveBeltConditionType,
+      }),
+      ...(createInspectionDto.areAllProtectiveCovers !== undefined && {
+        areAllProtectiveCovers:
+          createInspectionDto.areAllProtectiveCovers as ProtectiveCoversStatusType,
+      }),
+      ...(createInspectionDto.protectiveCoversExplanation !== undefined && {
+        protectiveCoversExplanation:
+          createInspectionDto.protectiveCoversExplanation,
+      }),
+      ...(createInspectionDto.areCracksVisible !== undefined && {
+        areCracksVisible: createInspectionDto.areCracksVisible,
+      }),
+      ...(createInspectionDto.cracksLocation !== undefined && {
+        cracksLocation: createInspectionDto.cracksLocation,
+      }),
+      ...(createInspectionDto.isMainMotorSecure !== undefined && {
+        isMainMotorSecure: createInspectionDto.isMainMotorSecure,
+      }),
+      ...(createInspectionDto.isMotorPlateSecure !== undefined && {
+        isMotorPlateSecure: createInspectionDto.isMotorPlateSecure,
+      }),
+      ...(createInspectionDto.whyNotCovered !== undefined && {
+        whyNotCovered: createInspectionDto.whyNotCovered,
       }),
     };
 
@@ -982,6 +1018,37 @@ export class ServicesService {
               },
             }
           : undefined,
+        // Inspection observation fields
+        ...(updateServiceDto.isPressLevel !== undefined && {
+          isPressLevel: updateServiceDto.isPressLevel,
+        }),
+        ...(updateServiceDto.driveBeltCondition !== undefined && {
+          driveBeltCondition:
+            updateServiceDto.driveBeltCondition as DriveBeltConditionType,
+        }),
+        ...(updateServiceDto.areAllProtectiveCovers !== undefined && {
+          areAllProtectiveCovers:
+            updateServiceDto.areAllProtectiveCovers as ProtectiveCoversStatusType,
+        }),
+        ...(updateServiceDto.protectiveCoversExplanation !== undefined && {
+          protectiveCoversExplanation:
+            updateServiceDto.protectiveCoversExplanation,
+        }),
+        ...(updateServiceDto.areCracksVisible !== undefined && {
+          areCracksVisible: updateServiceDto.areCracksVisible,
+        }),
+        ...(updateServiceDto.cracksLocation !== undefined && {
+          cracksLocation: updateServiceDto.cracksLocation,
+        }),
+        ...(updateServiceDto.isMainMotorSecure !== undefined && {
+          isMainMotorSecure: updateServiceDto.isMainMotorSecure,
+        }),
+        ...(updateServiceDto.isMotorPlateSecure !== undefined && {
+          isMotorPlateSecure: updateServiceDto.isMotorPlateSecure,
+        }),
+        ...(updateServiceDto.whyNotCovered !== undefined && {
+          whyNotCovered: updateServiceDto.whyNotCovered,
+        }),
       },
       include: {
         machine: {

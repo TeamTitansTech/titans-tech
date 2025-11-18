@@ -30,8 +30,23 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
   const tServices = useTranslations('services');
   const tServicesSummary = useTranslations('services.modal.summary');
   const tActions = useTranslations('actions');
+  const tInspections = useTranslations('inspections.form.enums');
 
   const isInspection = service.type === ServiceType.INSPECTION;
+
+  // Helper function to format enum values for display
+  const formatEnumValue = (value: string | undefined, enumType: string) => {
+    if (!value) return '-';
+    const translationKey = `${enumType}.${value.toLowerCase()}`;
+    const translated = tInspections(translationKey);
+
+    // If translation key is returned as-is, return the original value
+    if (translated === translationKey || translated.includes('inspections.form.enums')) {
+      return value;
+    }
+
+    return translated;
+  };
 
   // Map section data keys to section registry keys
   const SECTION_DATA_TO_REGISTRY_KEY: Record<string, string> = {
@@ -203,6 +218,85 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
                   {tServices('modal.performedBy')}
                 </Label>
                 <div className="text-sm font-medium">{service.performedBy || '-'}</div>
+              </div>
+
+              {/* Add all inspection observation fields here */}
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  {tServices('modal.inspectionObservations.isPressLevel')}
+                </Label>
+                <div className="text-sm font-medium">
+                  {formatEnumValue(service.isPressLevel, 'yesNoNaDnc')}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  {tServices('modal.inspectionObservations.driveBeltCondition')}
+                </Label>
+                <div className="text-sm font-medium">
+                  {formatEnumValue(service.driveBeltCondition, 'driveBeltCondition')}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  {tServices('modal.inspectionObservations.areAllProtectiveCovers')}
+                </Label>
+                <div className="text-sm font-medium">
+                  {formatEnumValue(service.areAllProtectiveCovers, 'protectiveCoversStatus')}
+                </div>
+              </div>
+              {service.areAllProtectiveCovers === 'NO' && (
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    {tServices('modal.inspectionObservations.whyNotCovered')}
+                  </Label>
+                  <div className="text-sm font-medium">
+                    {formatEnumValue(service.whyNotCovered, 'whyNotCovered')}
+                  </div>
+                </div>
+              )}
+              {service.areAllProtectiveCovers === 'NO' &&
+                service.whyNotCovered === 'OTHER_EXPLAIN' && (
+                  <div className="col-span-2">
+                    <Label className="text-xs text-muted-foreground">
+                      {tServices('modal.inspectionObservations.protectiveCoversExplanation')}
+                    </Label>
+                    <div className="text-sm font-medium">
+                      {service.protectiveCoversExplanation || '-'}
+                    </div>
+                  </div>
+                )}
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  {tServices('modal.inspectionObservations.areCracksVisible')}
+                </Label>
+                <div className="text-sm font-medium">
+                  {formatEnumValue(service.areCracksVisible, 'yesNoDnc')}
+                </div>
+              </div>
+              {service.areCracksVisible === 'YES' && (
+                <div>
+                  <Label className="text-xs text-muted-foreground">
+                    {tServices('modal.inspectionObservations.cracksLocation')}
+                  </Label>
+                  <div className="text-sm font-medium">{service.cracksLocation || '-'}</div>
+                </div>
+              )}
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  {tServices('modal.inspectionObservations.isMainMotorSecure')}
+                </Label>
+                <div className="text-sm font-medium">
+                  {formatEnumValue(service.isMainMotorSecure, 'yesNoDnc')}
+                </div>
+              </div>
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  {tServices('modal.inspectionObservations.isMotorPlateSecure')}
+                </Label>
+                <div className="text-sm font-medium">
+                  {formatEnumValue(service.isMotorPlateSecure, 'yesNoDnc')}
+                </div>
               </div>
             </div>
           </div>
