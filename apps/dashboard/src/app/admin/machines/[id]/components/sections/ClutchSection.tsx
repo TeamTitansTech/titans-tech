@@ -79,6 +79,9 @@ interface ClutchSectionProps {
 
 export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
   ({ onSectionTouched, initialData }, ref) => {
+    // Store initial loaded data for "touched" detection
+    const [initialClutchData] = useState<ClutchData>(initialData || defaultClutchData);
+
     const [data, setData] = useState<ClutchData>(initialData || defaultClutchData);
     const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -94,26 +97,28 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
 
     useImperativeHandle(ref, () => ({
       isTouched: (): boolean => {
-        return isDataTouched(data, defaultClutchData);
+        return isDataTouched(data, initialClutchData);
       },
 
       validateAndGetData: (
         serviceType: ServiceType,
       ): { isValid: boolean; errors: string[]; data?: ClutchData } => {
-        const touched = isDataTouched(data, defaultClutchData);
+        const touched = isDataTouched(data, initialClutchData);
+        const hasData = touched || isDataTouched(initialClutchData, defaultClutchData);
 
-        if (!touched) {
+        // If no data at all (initial or touched), validation passes with no data
+        if (!hasData) {
           return { isValid: true, errors: [] };
         }
 
-        const validationErrors = validateClutchData(data, serviceType);
+        const validationErrors = touched ? validateClutchData(data, serviceType) : [];
         const isValid = validationErrors.length === 0;
 
         if (isValid) {
           return {
             isValid: true,
             errors: [],
-            data,
+            data: touched ? data : initialClutchData,
           };
         }
 
@@ -124,12 +129,13 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
       },
 
       getData: (): ClutchData | undefined => {
-        const touched = isDataTouched(data, defaultClutchData);
-        return touched ? data : undefined;
+        const touched = isDataTouched(data, initialClutchData);
+        const hasData = touched || isDataTouched(initialClutchData, defaultClutchData);
+        return hasData ? (touched ? data : initialClutchData) : undefined;
       },
 
       validate: (serviceType: ServiceType): string[] => {
-        const touched = isDataTouched(data, defaultClutchData);
+        const touched = isDataTouched(data, initialClutchData);
         if (touched) {
           return validateClutchData(data, serviceType);
         }

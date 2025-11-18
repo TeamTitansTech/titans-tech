@@ -355,7 +355,17 @@ async function main() {
   // ========================================
   const bearingBlueprint = await prisma.blueprint.upsert({
     where: { id: 'default-bearing-clearance-blueprint' },
-    update: {},
+    update: {
+      sections: [
+        ServiceSection.BEARING_CLEARANCE,
+        ServiceSection.CLUTCH,
+        ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG,
+        ServiceSection.GIBS,
+        ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
+        ServiceSection.SLIDE,
+        ServiceSection.TRAMMING,
+      ],
+    },
     create: {
       id: 'default-bearing-clearance-blueprint',
       name: 'Standard Bearing Clearance Service',
@@ -366,6 +376,7 @@ async function main() {
         ServiceSection.GIBS,
         ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
         ServiceSection.SLIDE,
+        ServiceSection.TRAMMING,
       ],
       fields: [
         {

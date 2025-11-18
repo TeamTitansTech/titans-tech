@@ -17,11 +17,7 @@ import { BearingTabContent } from '../shared/BearingTabContent';
 import { ShutdownAdjustmentFields } from '../shared/ShutdownAdjustmentFields';
 import { useBearingClearanceState } from '../../hooks/useBearingClearanceState';
 import { isDataTouched } from './utils';
-import {
-  buildBearingFields,
-  validateHasBeenAdjustedFields,
-  validateAtLeastOneSection,
-} from './bearingClearanceUtils';
+import { buildBearingFields, validateHasBeenAdjustedFields } from './bearingClearanceUtils';
 
 // Default data structure
 export const defaultBearingData: BearingClearanceData = {
@@ -70,7 +66,8 @@ export const validateBearingClearanceData = (data: BearingClearanceData): string
 
   requiredNumericFields.forEach((field) => {
     const value = data[field];
-    if (typeof value !== 'number' || isNaN(value)) {
+    // Only validate if field exists in data
+    if (value !== undefined && (typeof value !== 'number' || isNaN(value))) {
       errors.push(`${String(field)} is required and must be a valid number`);
     }
   });
@@ -111,6 +108,10 @@ export const BearingClearanceSection = forwardRef<
 
   // Use custom hook for state management
   const {
+    initialOuterBeforeData,
+    initialOuterAfterData,
+    initialInnerBeforeData,
+    initialInnerAfterData,
     includeBeforeMeasurements,
     setIncludeBeforeMeasurements,
     outerBeforeData,
@@ -245,10 +246,16 @@ export const BearingClearanceSection = forwardRef<
   // Expose methods to parent via ref
   useImperativeHandle(ref, () => ({
     getData: (): BearingClearanceSectionData => {
-      const outerBeforeTouched = isDataTouched(outerBeforeData, defaultBearingData);
-      const outerAfterTouched = isDataTouched(outerAfterData, defaultBearingData);
-      const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
-      const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
+      const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
+      const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
+      const innerBeforeTouched = isDataTouched(innerBeforeData, initialInnerBeforeData);
+      const innerAfterTouched = isDataTouched(innerAfterData, initialInnerAfterData);
+
+      // Check if there's any existing data (either initial or modified)
+      const hasOuterData =
+        outerAfterTouched || isDataTouched(initialOuterAfterData, defaultBearingData);
+      const hasInnerData =
+        innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
 
       const sharedFields = {
         slideMotorMounts,
@@ -299,22 +306,26 @@ export const BearingClearanceSection = forwardRef<
           includeBeforeMeasurements && outerBeforeTouched
             ? { ...outerBeforeData, ...outerBeforeFields }
             : undefined,
-        outerData: outerAfterTouched ? { ...outerAfterData, ...outerAfterFields } : undefined,
+        outerData: hasOuterData
+          ? { ...(outerAfterTouched ? outerAfterData : initialOuterAfterData), ...outerAfterFields }
+          : undefined,
         innerBefore:
           includeBeforeMeasurements && innerBeforeTouched
             ? { ...innerBeforeData, ...innerBeforeFields }
             : undefined,
-        innerData: innerAfterTouched ? { ...innerAfterData, ...innerAfterFields } : undefined,
+        innerData: hasInnerData
+          ? { ...(innerAfterTouched ? innerAfterData : initialInnerAfterData), ...innerAfterFields }
+          : undefined,
       };
     },
 
     validate: (serviceType: ServiceType): string[] => {
       const errors: string[] = [];
 
-      const outerBeforeTouched = isDataTouched(outerBeforeData, defaultBearingData);
-      const outerAfterTouched = isDataTouched(outerAfterData, defaultBearingData);
-      const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
-      const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
+      const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
+      const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
+      const innerBeforeTouched = isDataTouched(innerBeforeData, initialInnerBeforeData);
+      const innerAfterTouched = isDataTouched(innerAfterData, initialInnerAfterData);
 
       // Validate before measurements if checkbox is enabled
       if (includeBeforeMeasurements) {
@@ -353,8 +364,18 @@ export const BearingClearanceSection = forwardRef<
         errors.push(...validateBearingClearanceData(innerAfterData).map((e) => `Inner Data: ${e}`));
       }
 
-      // Validate at least one measurement set
-      errors.push(...validateAtLeastOneSection(outerAfterTouched, innerAfterTouched));
+      // Check if there's any existing data (either initial or modified)
+      const hasOuterData =
+        outerAfterTouched || isDataTouched(initialOuterAfterData, defaultBearingData);
+      const hasInnerData =
+        innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
+
+      // Validate at least one measurement set (either initial or new)
+      if (!hasOuterData && !hasInnerData) {
+        errors.push(
+          'Bearing Clearance: You must fill at least one measurement section (Outer Data or Inner Data)',
+        );
+      }
 
       // Validate required "Has Been Adjusted" fields
       errors.push(
@@ -377,10 +398,10 @@ export const BearingClearanceSection = forwardRef<
     reset,
 
     isTouched: (): boolean => {
-      const outerBeforeTouched = isDataTouched(outerBeforeData, defaultBearingData);
-      const outerAfterTouched = isDataTouched(outerAfterData, defaultBearingData);
-      const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
-      const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
+      const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
+      const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
+      const innerBeforeTouched = isDataTouched(innerBeforeData, initialInnerBeforeData);
+      const innerAfterTouched = isDataTouched(innerAfterData, initialInnerAfterData);
       return outerBeforeTouched || outerAfterTouched || innerBeforeTouched || innerAfterTouched;
     },
 
@@ -388,10 +409,10 @@ export const BearingClearanceSection = forwardRef<
       serviceType: ServiceType,
     ): { isValid: boolean; errors: string[]; data?: BearingClearanceSectionData } => {
       const errors: string[] = [];
-      const outerBeforeTouched = isDataTouched(outerBeforeData, defaultBearingData);
-      const outerAfterTouched = isDataTouched(outerAfterData, defaultBearingData);
-      const innerBeforeTouched = isDataTouched(innerBeforeData, defaultBearingData);
-      const innerAfterTouched = isDataTouched(innerAfterData, defaultBearingData);
+      const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
+      const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
+      const innerBeforeTouched = isDataTouched(innerBeforeData, initialInnerBeforeData);
+      const innerAfterTouched = isDataTouched(innerAfterData, initialInnerAfterData);
 
       // Validate before measurements if checkbox is enabled
       if (includeBeforeMeasurements) {
@@ -430,8 +451,18 @@ export const BearingClearanceSection = forwardRef<
         errors.push(...validateBearingClearanceData(innerAfterData).map((e) => `Inner Data: ${e}`));
       }
 
-      // Validate at least one measurement set
-      errors.push(...validateAtLeastOneSection(outerAfterTouched, innerAfterTouched));
+      // Check if there's any existing data (either initial or modified)
+      const hasOuterData =
+        outerAfterTouched || isDataTouched(initialOuterAfterData, defaultBearingData);
+      const hasInnerData =
+        innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
+
+      // Validate at least one measurement set (either initial or new)
+      if (!hasOuterData && !hasInnerData) {
+        errors.push(
+          'Bearing Clearance: You must fill at least one measurement section (Outer Data or Inner Data)',
+        );
+      }
 
       // Validate required "Has Been Adjusted" fields
       errors.push(
@@ -501,12 +532,16 @@ export const BearingClearanceSection = forwardRef<
           includeBeforeMeasurements && outerBeforeTouched
             ? { ...outerBeforeData, ...outerBeforeFields }
             : undefined,
-        outerData: outerAfterTouched ? { ...outerAfterData, ...outerAfterFields } : undefined,
+        outerData: hasOuterData
+          ? { ...(outerAfterTouched ? outerAfterData : initialOuterAfterData), ...outerAfterFields }
+          : undefined,
         innerBefore:
           includeBeforeMeasurements && innerBeforeTouched
             ? { ...innerBeforeData, ...innerBeforeFields }
             : undefined,
-        innerData: innerAfterTouched ? { ...innerAfterData, ...innerAfterFields } : undefined,
+        innerData: hasInnerData
+          ? { ...(innerAfterTouched ? innerAfterData : initialInnerAfterData), ...innerAfterFields }
+          : undefined,
       };
 
       return { isValid: true, errors: [], data };

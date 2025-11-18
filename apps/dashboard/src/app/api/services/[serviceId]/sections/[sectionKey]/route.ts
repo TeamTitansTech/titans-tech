@@ -10,6 +10,7 @@ const SECTION_TO_RELATION_KEY: Record<string, string> = {
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
   CLUTCH: 'clutch',
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalanceCylinderAirbag',
+  TRAMMING: 'tramming',
 };
 
 interface RouteContext {
@@ -68,6 +69,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         lubricationHydraulics: { select: { id: true, dataId: true } },
         clutch: { select: { id: true, dataId: true } },
         counterbalanceCylinderAirbag: {
+          select: { id: true, outerDataId: true, innerDataId: true },
+        },
+        tramming: {
           select: { id: true, outerDataId: true, innerDataId: true },
         },
       },
@@ -443,6 +447,57 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         }
         break;
       }
+
+      case 'TRAMMING': {
+        const existingRecord = existingService.tramming?.[0];
+
+        if (existingRecord) {
+          const updatePayload: any = {};
+
+          // Handle outerData
+          if (sectionData.outerData) {
+            if (existingRecord.outerDataId) {
+              await prisma.trammingData.update({
+                where: { id: existingRecord.outerDataId },
+                data: sectionData.outerData,
+              });
+            } else {
+              updatePayload.outerData = { create: sectionData.outerData };
+            }
+          }
+
+          // Handle innerData
+          if (sectionData.innerData) {
+            if (existingRecord.innerDataId) {
+              await prisma.trammingData.update({
+                where: { id: existingRecord.innerDataId },
+                data: sectionData.innerData,
+              });
+            } else {
+              updatePayload.innerData = { create: sectionData.innerData };
+            }
+          }
+
+          // Handle metadata fields
+          if (sectionData.slideTram !== undefined) {
+            updatePayload.slideTram = sectionData.slideTram;
+          }
+          if (sectionData.notes !== undefined) {
+            updatePayload.notes = sectionData.notes;
+          }
+
+          // Update the tramming record
+          await prisma.machineServiceTramming.update({
+            where: { id: existingRecord.id },
+            data: updatePayload,
+          });
+        } else {
+          updateData.tramming = {
+            create: buildTrammingCreateData(sectionData),
+          };
+        }
+        break;
+      }
     }
 
     // Update service with new completed sections and timestamp
@@ -489,6 +544,12 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           },
         },
         counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        tramming: {
           include: {
             outerData: true,
             innerData: true,
@@ -688,3 +749,20 @@ function buildCounterbalanceCreateData(data: any) {
 // function buildCounterbalanceUpdateData(data: any) {
 //   return buildCounterbalanceCreateData(data);
 // }
+
+function buildTrammingCreateData(data: any) {
+  const result: any = {};
+
+  if (data.outerData) {
+    result.outerData = { create: data.outerData };
+  }
+
+  if (data.innerData) {
+    result.innerData = { create: data.innerData };
+  }
+
+  if (data.slideTram) result.slideTram = data.slideTram;
+  if (data.notes) result.notes = data.notes;
+
+  return result;
+}

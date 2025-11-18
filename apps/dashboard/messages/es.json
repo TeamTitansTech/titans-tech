@@ -2,7 +2,22 @@
   "common": {
     "companyName": "InspectPro",
     "companySubtitle": "Portal de Administración",
-    "unsavedChanges": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?"
+    "unsavedChanges": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?",
+    "status": {
+      "ok": "OK",
+      "na": "N/D",
+      "dnc": "DNC",
+      "yes": "Sí",
+      "no": "No",
+      "damaged": "Dañado",
+      "leaking": "Fugando",
+      "not_operational": "No Operativo",
+      "dark_oil": "Aceite Oscuro",
+      "needs_replaced": "Necesita Reemplazo",
+      "bushing": "Buje",
+      "bed": "Lecho",
+      "bolster": "Bolster"
+    }
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -246,7 +261,8 @@
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
-    "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire"
+    "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
+    "tramming": "Tramming"
   },
   "models": {
     "title": "Crear Modelo",
@@ -376,7 +392,8 @@
       "gibs": "Guías",
       "lubricationHydraulics": "Lubricación / Hidráulica",
       "clutch": "Holgura de Embrague y Freno - CP 2",
-      "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire"
+      "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
+      "tramming": "Tramming"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -611,6 +628,20 @@
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Presiones del Sistema (PSI)",
+        "addRow": "Agregar Fila",
+        "systemLabel": "Sistema",
+        "gaugeSwitchLabel": "Medidor/Interruptor",
+        "psiLabel": "PSI",
+        "noSystemsAdded": "No se han agregado sistemas. Haga clic en \"Agregar Fila\" para comenzar.",
+        "gaugeSwitchPlaceholder": "Medidor/Interruptor",
+        "selectPlaceholder": "Seleccionar",
+        "systems": {
+          "lube": "Lubricación",
+          "hyd": "Hidráulico",
+          "monitorflow": "Monitor de Flujo",
+          "press_sw": "Interruptor de Presión",
+          "gib": "Gib"
+        },
         "lubePSI": "PSI de Lubricación",
         "monitorflowPSI": "PSI de Monitor de Flujo",
         "hydPSI": "PSI Hidráulico",
@@ -620,7 +651,10 @@
         "changedOil": "Aceite Cambiado",
         "oilTemperatureF": "Temperatura del Aceite (°F)",
         "oilMfgType": "Fabricante/Tipo de Aceite",
-        "changedFilter": "Filtro Cambiado"
+        "filterTitle": "Filtro",
+        "changedFilter": "Filtro Cambiado",
+        "notes": "Notas",
+        "notesPlaceholder": "Notas adicionales..."
       },
       "clutch": {
         "clutchInfoTitle": "Información del Embrague",
@@ -693,6 +727,7 @@
           "crankEndplayBefore": "Juego Axial del Cigüeñal (Antes)",
           "crankEndplayAfter": "Juego Axial del Cigüeñal (Después)",
           "airRegulator": "Regulador de Aire",
+          "airClutchTravel": "Recorrido del Embrague de Aire",
           "airClutchTravelClearance": "Recorrido/Holgura del Embrague de Aire",
           "airLineOilerSetting": "Configuración del Lubricador de Línea de Aire",
           "splinesDriveRingDisc": "Estrías: Anillo de Transmisión/Disco",
@@ -706,13 +741,20 @@
           "notes": "Notas"
         },
         "sections": {
+          "basicInformation": "Información Básica",
           "brakeSpringSettings": "Configuración del Resorte del Freno",
           "brakeMeasurements": "Mediciones del Freno",
           "flywheel": "Volante",
+          "clutchSeals": "Embrague y Sellos",
           "clutchDetails": "Detalles del Embrague",
+          "adjustments": "Ajustes",
+          "gearBacklash": "Holgura de Engranaje",
+          "crankEndplay": "Juego Axial del Cigüeñal",
           "gearBacklashCrankEndplay": "Holgura de Engranaje y Juego Axial del Cigüeñal",
           "airSystem": "Sistema de Aire",
-          "hydraulicSystem": "Sistema Hidráulico"
+          "hydraulicSystem": "Sistema Hidráulico",
+          "before": "Antes",
+          "after": "Después"
         },
         "placeholders": {
           "selectType": "Seleccione el tipo",
@@ -748,6 +790,28 @@
           "cylinder": "Cilindro",
           "airbag": "Bolsa de Aire"
         }
+      },
+      "tramming": {
+        "slideTram": "Tram de Corredera",
+        "unit": "Unidad",
+        "outerSection": "Externo",
+        "innerSection": "Interno",
+        "measurementPoints": "Puntos de Medición",
+        "inches": "pulgadas",
+        "outerTop": "Superior Externo",
+        "outerBottom": "Inferior Externo",
+        "outerLeft": "Izquierdo Externo",
+        "outerRight": "Derecho Externo",
+        "innerTop": "Superior Interno",
+        "innerBottom": "Inferior Interno",
+        "innerLeft": "Izquierdo Interno",
+        "innerRight": "Derecho Interno",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Izquierda",
+        "right": "Derecha",
+        "trimPin": "Pasador de Ajuste",
+        "notes": "Notas"
       },
       "cancel": "Cancelar",
       "submit": {
@@ -918,6 +982,14 @@
     "innerAfterMaintenance": "Interno - Después del Mantenimiento"
   },
   "bearingFields": {
+    "totalClearance": "Holgura Total",
+    "mainBearings": "Rodamientos Principales",
+    "upperConnectionBearings": "Rodamientos de Conexión Superior",
+    "wristPinToMatingPart": "Pasador de Muñeca a Pieza de Acoplamiento",
+    "wristPinToBushing": "Pasador de Muñeca a Buje",
+    "slideAdjNutToScrewSleeve": "Tuerca de Ajuste de Corredera a Manguito de Tornillo",
+    "extraDoubleLockOpen": "Bloqueo Doble Extra Abierto",
+    "ballBoxArea": "Área de Caja de Bolas",
     "combinedWith": "Combinado Con",
     "matingPart": "Pieza de Acoplamiento",
     "hasBeenAdjusted": "Ha Sido Ajustado",

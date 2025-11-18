@@ -626,6 +626,164 @@ class CounterbalanceCylinderCheckDto {
   innerData?: CounterbalanceCylinderDataDto;
 }
 
+class TrammingDataDto {
+  // OUTER SECTION - Top Position
+  @IsOptional()
+  @IsNumber()
+  outerTopTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerTopBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerTopLeft?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerTopRight?: number;
+
+  // OUTER SECTION - Bottom Position
+  @IsOptional()
+  @IsNumber()
+  outerBottomTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerBottomBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerBottomLeft?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerBottomRight?: number;
+
+  // OUTER SECTION - Left Position
+  @IsOptional()
+  @IsNumber()
+  outerLeftTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerLeftBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerLeftLeft?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerLeftRight?: number;
+
+  // OUTER SECTION - Right Position
+  @IsOptional()
+  @IsNumber()
+  outerRightTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerRightBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerRightLeft?: number;
+
+  @IsOptional()
+  @IsNumber()
+  outerRightRight?: number;
+
+  // INNER SECTION - Top Position
+  @IsOptional()
+  @IsNumber()
+  innerTopTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerTopBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerTopLeft?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerTopRight?: number;
+
+  // INNER SECTION - Bottom Position
+  @IsOptional()
+  @IsNumber()
+  innerBottomTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerBottomBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerBottomLeft?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerBottomRight?: number;
+
+  // INNER SECTION - Left Position
+  @IsOptional()
+  @IsNumber()
+  innerLeftTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerLeftBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerLeftLeft?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerLeftRight?: number;
+
+  // INNER SECTION - Right Position
+  @IsOptional()
+  @IsNumber()
+  innerRightTop?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerRightBottom?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerRightLeft?: number;
+
+  @IsOptional()
+  @IsNumber()
+  innerRightRight?: number;
+}
+
+class TrammingCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingDataDto)
+  outerData?: TrammingDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingDataDto)
+  innerData?: TrammingDataDto;
+
+  @IsOptional()
+  @IsEnum(YesNoDncType)
+  slideTram?: YesNoDncType;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
 export class UpdateServiceDto {
   @IsOptional()
   @IsDateString()
@@ -684,4 +842,9 @@ export class UpdateServiceDto {
   @ValidateNested()
   @Type(() => CounterbalanceCylinderCheckDto)
   counterbalanceCylinder?: CounterbalanceCylinderCheckDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingCheckDto)
+  tramming?: TrammingCheckDto;
 }

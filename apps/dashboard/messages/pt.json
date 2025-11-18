@@ -13,7 +13,10 @@
       "leaking": "Vazando",
       "not_operational": "Não Operacional",
       "dark_oil": "Óleo Escuro",
-      "needs_replaced": "Precisa Substituir"
+      "needs_replaced": "Precisa Substituir",
+      "bushing": "Bucha",
+      "bed": "Leito",
+      "bolster": "Bolster"
     }
   },
   "validation": {
@@ -258,7 +261,8 @@
     "gibs": "GUIAS",
     "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRIFICAÇÃO / HIDRÁULICA / INTERRUPTORES DE PRESSÃO / ÓLEO E FILTRO",
     "clutch": "EMBREAGEM",
-    "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG"
+    "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG",
+    "tramming": "TRAMMING"
   },
   "models": {
     "title": "Criar Modelo",
@@ -404,7 +408,8 @@
       "gibs": "Guias",
       "lubricationHydraulics": "Lubrificação / Hidráulica",
       "clutch": "Folga de Embreagem e Freio",
-      "counterbalance": "Cilindro de Contrapeso / Airbag"
+      "counterbalance": "Cilindro de Contrapeso / Airbag",
+      "tramming": "Tramming"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -733,6 +738,7 @@
           "crankEndplayBefore": "Folga Final da Manivela (Antes)",
           "crankEndplayAfter": "Folga Final da Manivela (Depois)",
           "airRegulator": "Regulador de Ar",
+          "airClutchTravel": "Curso da Embreagem de Ar",
           "airClutchTravelClearance": "Curso/Folga da Embreagem de Ar",
           "airLineOilerSetting": "Configuração do Lubrificador da Linha de Ar",
           "splinesDriveRingDisc": "Estrias: Anel de Acionamento/Disco",
@@ -746,13 +752,20 @@
           "notes": "Observações"
         },
         "sections": {
+          "basicInformation": "Informações Básicas",
           "brakeSpringSettings": "Configurações da Mola do Freio",
           "brakeMeasurements": "Medições do Freio",
           "flywheel": "Volante",
+          "clutchSeals": "Embreagem e Vedações",
           "clutchDetails": "Detalhes da Embreagem",
+          "adjustments": "Ajustes",
+          "gearBacklash": "Folga da Engrenagem",
+          "crankEndplay": "Folga Final da Manivela",
           "gearBacklashCrankEndplay": "Folga da Engrenagem e Folga Final da Manivela",
           "airSystem": "Sistema de Ar",
-          "hydraulicSystem": "Sistema Hidráulico"
+          "hydraulicSystem": "Sistema Hidráulico",
+          "before": "Antes",
+          "after": "Depois"
         },
         "placeholders": {
           "selectType": "Selecione o tipo",
@@ -788,6 +801,28 @@
           "cylinder": "Cilindro",
           "airbag": "Airbag"
         }
+      },
+      "tramming": {
+        "slideTram": "Tram do Slide",
+        "unit": "Unidade",
+        "outerSection": "Externo",
+        "innerSection": "Interno",
+        "measurementPoints": "Pontos de Medição",
+        "inches": "polegadas",
+        "outerTop": "Superior Externo",
+        "outerBottom": "Inferior Externo",
+        "outerLeft": "Esquerdo Externo",
+        "outerRight": "Direito Externo",
+        "innerTop": "Superior Interno",
+        "innerBottom": "Inferior Interno",
+        "innerLeft": "Esquerdo Interno",
+        "innerRight": "Direito Interno",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Esquerda",
+        "right": "Direita",
+        "trimPin": "Pino de Ajuste",
+        "notes": "Notas"
       },
       "cancel": "Cancelar",
       "submit": {
@@ -1007,6 +1042,14 @@
     "innerAfterMaintenance": "Interno - Após a Manutenção"
   },
   "bearingFields": {
+    "totalClearance": "Folga Total",
+    "mainBearings": "Rolamentos Principais",
+    "upperConnectionBearings": "Rolamentos de Conexão Superior",
+    "wristPinToMatingPart": "Pino do Pulso à Peça de Acoplamento",
+    "wristPinToBushing": "Pino do Pulso à Bucha",
+    "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide à Luva do Parafuso",
+    "extraDoubleLockOpen": "Trava Dupla Extra Aberta",
+    "ballBoxArea": "Área da Caixa de Esfera",
     "combinedWith": "Combinado Com",
     "matingPart": "Peça de Acoplamento",
     "hasBeenAdjusted": "Foi Ajustado",

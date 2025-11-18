@@ -59,6 +59,7 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
   CLUTCH: 'clutch',
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
+  TRAMMING: 'tramming',
 };
 
 const SECTION_IMAGES: Record<string, string> = {
@@ -69,6 +70,7 @@ const SECTION_IMAGES: Record<string, string> = {
     '/assets/sections/lubrication-hydraulics.svg',
   CLUTCH: '/assets/sections/clutch.svg',
   COUNTERBALANCE_CYLINDER_AIRBAG: '/assets/sections/counterbalance.svg',
+  TRAMMING: '/assets/sections/tramming.svg',
 };
 
 const getSectionStatus = (_section: string, _machine: Machine): SectionStatus => {
