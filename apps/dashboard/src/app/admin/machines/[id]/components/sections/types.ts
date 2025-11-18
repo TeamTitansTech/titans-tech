@@ -1,12 +1,18 @@
 import type { ServiceType } from '@/data/types/services.types';
 
 /**
+ * Section data can be any of the section-specific update DTOs
+ * Structure varies by section type (Bearing Clearance, Slide, Gibs, etc.)
+ */
+export type SectionData = Record<string, unknown>;
+
+/**
  * Result of validating a section's data
  */
 export interface ValidationResult {
   isValid: boolean;
   errors: string[];
-  data?: any;
+  data?: SectionData;
 }
 
 /**
@@ -32,7 +38,7 @@ export interface SectionComponentRef {
    * Get the current data from the section
    * @returns The section's data object
    */
-  getData: () => any;
+  getData: () => SectionData;
 
   /**
    * Reset the section to its initial state
@@ -57,7 +63,7 @@ export interface SectionComponentProps {
   serviceType: ServiceType;
 
   /** Initial data to populate the section (for editing existing services) */
-  initialData?: any;
+  initialData?: SectionData;
 
   /** Whether the section is currently open (for collapsible sections) */
   isOpen?: boolean;

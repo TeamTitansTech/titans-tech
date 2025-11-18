@@ -12,7 +12,7 @@ import {
 import { Typography } from '@/components/ui/typography';
 
 interface LubricationSummaryProps {
-  data: any;
+  data: Record<string, unknown>;
 }
 
 export function LubricationSummary({ data }: LubricationSummaryProps) {
@@ -41,7 +41,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
   };
 
   // Helper function to display value with translations
-  const displayValue = (value: any): string => {
+  const displayValue = (value: unknown): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }
@@ -117,7 +117,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {gauges.map((gauge: any, idx: number) => (
+                {gauges.map((gauge: Record<string, unknown>, idx: number) => (
                   <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
                     <TableCell className="py-1.5 font-medium border-r bg-muted/20">
                       {displayValue(gauge.system)}

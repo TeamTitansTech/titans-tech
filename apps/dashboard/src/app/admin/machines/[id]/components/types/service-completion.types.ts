@@ -15,7 +15,7 @@ export interface ServiceCompletionModalProps {
 
 export interface SectionDataState {
   completedSections: Set<string>;
-  completedSectionData: Record<string, any>;
+  completedSectionData: Record<string, Record<string, unknown>>;
 }
 
 export interface ServiceFormState {

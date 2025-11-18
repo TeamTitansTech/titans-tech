@@ -6,7 +6,7 @@ import { TrammingForm } from '../forms/TrammingForm';
 import { displayValue } from '../utils/displayHelpers';
 
 interface TrammingSummaryProps {
-  data: any;
+  data: Record<string, unknown>;
 }
 
 export function TrammingSummary({ data }: TrammingSummaryProps) {
@@ -16,7 +16,7 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
   const tCommon = useTranslations('common.status');
 
   // Helper to display values with translations
-  const display = (value: any) => displayValue(value, tCommon('yes'), tCommon('no'));
+  const display = (value: unknown) => displayValue(value, tCommon('yes'), tCommon('no'));
 
   return (
     <div className="text-xs space-y-4">

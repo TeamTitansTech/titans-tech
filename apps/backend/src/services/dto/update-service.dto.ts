@@ -22,6 +22,8 @@ import {
   ConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType,
   ConditionOkNaDncDamagedType,
+  DriveBeltConditionType,
+  ProtectiveCoversStatusType,
 } from '@titans-tech/shared/types';
 
 class BearingClearanceDataDto {
@@ -819,12 +821,12 @@ export class UpdateServiceDto {
   isPressLevel?: YesNoNaDncType;
 
   @IsOptional()
-  @IsString()
-  driveBeltCondition?: string;
+  @IsEnum(DriveBeltConditionType)
+  driveBeltCondition?: DriveBeltConditionType;
 
   @IsOptional()
-  @IsString()
-  areAllProtectiveCovers?: string;
+  @IsEnum(ProtectiveCoversStatusType)
+  areAllProtectiveCovers?: ProtectiveCoversStatusType;
 
   @IsOptional()
   @IsString()

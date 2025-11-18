@@ -4,7 +4,7 @@ import { formatFieldName, displayValue } from '../utils/fieldFormatters';
 import { isIdField } from '../utils/sectionDataUtils';
 
 interface GenericSectionSummaryProps {
-  data: any;
+  data: Record<string, unknown>;
   sectionKey?: string;
 }
 
@@ -12,7 +12,7 @@ export function GenericSectionSummary({ data }: GenericSectionSummaryProps) {
   if (!data) return <div className="text-sm text-muted-foreground">No data available</div>;
 
   // Function to recursively render data
-  const renderData = (obj: any, depth = 0): React.ReactElement[] => {
+  const renderData = (obj: Record<string, unknown>, depth = 0): React.ReactElement[] => {
     if (!obj || typeof obj !== 'object') return [];
 
     const elements: React.ReactElement[] = [];

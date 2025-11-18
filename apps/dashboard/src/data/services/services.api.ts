@@ -87,11 +87,12 @@ export const getLatestReport = async (machineId: string) => {
 
 /**
  * Update a specific section of a service
+ * @param sectionData - Section-specific data (structure varies by section type)
  */
 export const updateServiceSection = async (
   serviceId: string,
   sectionKey: string,
-  sectionData: any,
+  sectionData: Record<string, unknown>,
   machineId?: string,
 ) => {
   // Map section keys to backend endpoint paths

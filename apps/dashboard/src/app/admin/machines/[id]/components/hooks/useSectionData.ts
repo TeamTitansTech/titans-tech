@@ -5,12 +5,14 @@ export function useSectionData() {
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
 
   // Store completed section data for summary display
-  const [completedSectionData, setCompletedSectionData] = useState<Record<string, any>>({});
+  const [completedSectionData, setCompletedSectionData] = useState<
+    Record<string, Record<string, unknown>>
+  >({});
 
   // Store the service ID for newly created services
   const [createdServiceId, setCreatedServiceId] = useState<string | null>(null);
 
-  const markSectionComplete = (sectionKey: string, data: any) => {
+  const markSectionComplete = (sectionKey: string, data: Record<string, unknown>) => {
     setCompletedSections((prev) => new Set(prev).add(sectionKey));
     setCompletedSectionData((prev) => ({ ...prev, [sectionKey]: data }));
   };

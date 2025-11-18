@@ -62,13 +62,15 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
   };
 
   // Helper to check if section data has actual content
-  const hasDataContent = (data: any): boolean => {
+  const hasDataContent = (data: Record<string, unknown>): boolean => {
     if (!data || typeof data !== 'object') return false;
 
     // Check if any nested object has data
-    const checkNestedData = (obj: any): boolean => {
+    const checkNestedData = (obj: unknown): boolean => {
       if (!obj || typeof obj !== 'object') return false;
-      return Object.values(obj).some((val) => val !== null && val !== undefined && val !== '');
+      return Object.values(obj as Record<string, unknown>).some(
+        (val) => val !== null && val !== undefined && val !== '',
+      );
     };
 
     // For objects with nested structure (bearingClearance, slide, gibs)
@@ -96,7 +98,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
 
   // Get all sections that have data in this service
   const completedSections: string[] = [];
-  const completedSectionData: Record<string, any> = {};
+  const completedSectionData: Record<string, Record<string, unknown>> = {};
 
   Object.entries(service).forEach(([key, value]) => {
     const registryKey = SECTION_DATA_TO_REGISTRY_KEY[key];

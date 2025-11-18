@@ -14,7 +14,7 @@ interface SummaryStepProps {
   date: Date;
   performedBy: string;
   completedSections: Set<string>;
-  completedSectionData: Record<string, any>;
+  completedSectionData: Record<string, Record<string, unknown>>;
   isSubmitting: boolean;
   error: string | null;
   stepperSteps: StepperStep[];

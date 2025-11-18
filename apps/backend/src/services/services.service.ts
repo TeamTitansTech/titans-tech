@@ -121,11 +121,10 @@ export class ServicesService {
       updateData.isPressLevel = updateDto.isPressLevel;
     }
     if (updateDto.driveBeltCondition !== undefined) {
-      updateData.driveBeltCondition = updateDto.driveBeltCondition as any;
+      updateData.driveBeltCondition = updateDto.driveBeltCondition;
     }
     if (updateDto.areAllProtectiveCovers !== undefined) {
-      updateData.areAllProtectiveCovers =
-        updateDto.areAllProtectiveCovers as any;
+      updateData.areAllProtectiveCovers = updateDto.areAllProtectiveCovers;
     }
     if (updateDto.protectiveCoversExplanation !== undefined) {
       updateData.protectiveCoversExplanation =

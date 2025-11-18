@@ -6,7 +6,7 @@ import { PistonsForm } from '../forms/PistonsForm';
 import { displayValue } from '../utils/displayHelpers';
 
 interface PistonsSummaryProps {
-  data: any;
+  data: Record<string, unknown>;
 }
 
 export function PistonsSummary({ data }: PistonsSummaryProps) {
@@ -16,7 +16,7 @@ export function PistonsSummary({ data }: PistonsSummaryProps) {
   const tCommon = useTranslations('common.status');
 
   // Helper to display values with translations
-  const display = (value: any) => displayValue(value, tCommon('yes'), tCommon('no'));
+  const display = (value: unknown) => displayValue(value, tCommon('yes'), tCommon('no'));
 
   return (
     <div className="text-xs space-y-4">

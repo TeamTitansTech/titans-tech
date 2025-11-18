@@ -8,7 +8,7 @@ import { ServiceType } from '@/data/types/services.types';
 interface SectionsStepProps {
   selectedSectionsArray: string[];
   currentSectionIndex: number;
-  completedSectionData: Record<string, any>;
+  completedSectionData: Record<string, Record<string, unknown>>;
   currentServiceType: ServiceType;
   error: string | null;
   stepperSteps: StepperStep[];

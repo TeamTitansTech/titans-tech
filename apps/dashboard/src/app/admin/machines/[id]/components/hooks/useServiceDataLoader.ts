@@ -2,7 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { getServiceById } from '@/data/services/services.api';
 import { RELATION_TO_SECTION_KEY } from '../types/service-completion.types';
-import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types';
+import { YesNoNaDncType, YesNoDncType, type Service } from '@titans-tech/shared/types';
+
+type ServiceStep = 'selection' | 'details' | 'sections' | 'summary';
+
+interface ServiceWithRelations extends Service {
+  [key: string]: unknown;
+  completedSections?: string[];
+}
 
 export function useServiceDataLoader(
   open: boolean,
@@ -12,9 +19,9 @@ export function useServiceDataLoader(
   machineSections: string[],
   shouldSkipSelection: boolean,
   setCompletedSections: (sections: Set<string>) => void,
-  setCompletedSectionData: (data: Record<string, any>) => void,
+  setCompletedSectionData: (data: Record<string, Record<string, unknown>>) => void,
   setSelectedSections: (sections: Set<string>) => void,
-  setCurrentStep: (step: any) => void,
+  setCurrentStep: (step: ServiceStep) => void,
   setCurrentSectionIndex: (index: number) => void,
   // Inspection observation field setters
   setDate?: (date: Date) => void,
@@ -58,7 +65,7 @@ export function useServiceDataLoader(
           return;
         }
 
-        const service = response.data as any;
+        const service = response.data as ServiceWithRelations;
 
         console.log('📦 [useServiceDataLoader] Loaded service data:', {
           serviceId,
@@ -78,13 +85,13 @@ export function useServiceDataLoader(
           ? service.completedSections
           : [];
 
-        const loadedSectionData: Record<string, any> = {};
+        const loadedSectionData: Record<string, Record<string, unknown>> = {};
 
         // Extract data from each relation
         Object.entries(RELATION_TO_SECTION_KEY).forEach(([relationKey, sectionKey]) => {
           const relationData = service[relationKey];
           if (relationData && Array.isArray(relationData) && relationData.length > 0) {
-            const recordWithData = relationData.find((record: any) => {
+            const recordWithData = relationData.find((record: Record<string, unknown>) => {
               const hasNestedData =
                 record.outerBefore ||
                 record.outerData ||
@@ -93,7 +100,8 @@ export function useServiceDataLoader(
                 record.data;
               return hasNestedData;
             });
-            loadedSectionData[sectionKey] = recordWithData || relationData[relationData.length - 1];
+            loadedSectionData[sectionKey] = (recordWithData ||
+              relationData[relationData.length - 1]) as Record<string, unknown>;
           }
         });
 
@@ -150,7 +158,17 @@ export function useServiceDataLoader(
         console.log('✅ [useServiceDataLoader] Restored inspection observation fields');
 
         // Restore step
-        if (service.currentStep && service.currentStep !== 'summary') {
+        const isValidStep = (step: string | undefined): step is ServiceStep => {
+          return (
+            step === 'selection' || step === 'details' || step === 'sections' || step === 'summary'
+          );
+        };
+
+        if (
+          service.currentStep &&
+          isValidStep(service.currentStep) &&
+          service.currentStep !== 'summary'
+        ) {
           setCurrentStep(service.currentStep);
 
           if (service.currentStep === 'sections' && service.currentSectionKey) {

@@ -12,7 +12,7 @@ import {
 import { calculateMaxDeviation } from '../utils/sectionDataUtils';
 
 interface SlideSummaryProps {
-  data: any;
+  data: Record<string, unknown>;
 }
 
 export function SlideSummary({ data }: SlideSummaryProps) {
@@ -38,7 +38,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
   };
 
   // Helper function to display value with translations
-  const displayValue = (value: any): string => {
+  const displayValue = (value: unknown): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }

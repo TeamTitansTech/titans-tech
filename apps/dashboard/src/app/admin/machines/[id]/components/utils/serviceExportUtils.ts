@@ -16,7 +16,7 @@ const formatFieldName = (key: string): string => {
 };
 
 // Helper function to display value or "-" for empty
-const displayValue = (value: any): string => {
+const displayValue = (value: Record<string, unknown>): string => {
   if (value === null || value === undefined || value === '') {
     return '-';
   }
@@ -27,7 +27,7 @@ const displayValue = (value: any): string => {
 };
 
 // Helper function to calculate max deviation from slide position data
-const calculateMaxDeviation = (data: any): string => {
+const calculateMaxDeviation = (data: Record<string, unknown>): string => {
   if (!data) return '-';
 
   const positions = [
@@ -51,10 +51,15 @@ const calculateMaxDeviation = (data: any): string => {
 };
 
 // Helper function to extract bearing measurement rows
-const extractBearingRows = (data: any) => {
+const extractBearingRows = (data: Record<string, unknown>) => {
   if (!data) return [];
 
-  const rows: { field: string; lh: any; rh: any; differential: string }[] = [];
+  const rows: {
+    field: string;
+    lh: Record<string, unknown>;
+    rh: Record<string, unknown>;
+    differential: string;
+  }[] = [];
   const processedFields = new Set<string>();
 
   // Fields to skip (non-measurement fields)
@@ -99,7 +104,7 @@ const extractBearingRows = (data: any) => {
 };
 
 // Helper function to check if data has actual values
-const hasActualData = (data: any): boolean => {
+const hasActualData = (data: Record<string, unknown>): boolean => {
   if (!data) return false;
 
   return Object.entries(data).some(([key, value]) => {
@@ -113,8 +118,8 @@ const hasActualData = (data: any): boolean => {
 interface ExportData {
   service: Service;
   completedSections: string[];
-  completedSectionData: Record<string, any>;
-  sectionRegistry: any;
+  completedSectionData: Record<string, Record<string, unknown>>;
+  sectionRegistry: Record<string, unknown>;
   translationCallbacks: {
     getSectionName: (key: string) => string;
     getServiceTypeName: () => string;
@@ -144,7 +149,7 @@ export function exportToExcel(data: ExportData): void {
   completedSections.forEach((sectionKey) => {
     const sectionData = completedSectionData[sectionKey];
     const sectionName = translationCallbacks.getSectionName(sectionKey);
-    const sheetData: any[] = [];
+    const sheetData: unknown[][] = [];
 
     // Bearing Clearance Section
     if (sectionKey === 'BEARING_CLEARANCE') {
@@ -440,7 +445,7 @@ export function exportToExcel(data: ExportData): void {
       if (gauges.length > 0) {
         sheetData.push(['Gauges']);
         sheetData.push(['System', 'Gauge', 'PSI']);
-        gauges.forEach((gauge: any) => {
+        gauges.forEach((gauge: Record<string, unknown>) => {
           sheetData.push([
             displayValue(gauge.system),
             displayValue(gauge.gauge),
@@ -586,7 +591,7 @@ export function exportToPDF(data: ExportData): void {
             margin: { left: margin + 2 },
             tableWidth: contentWidth / 2 - 3,
           });
-          yPosition = (doc as any).lastAutoTable.finalY + 5;
+          yPosition = (doc as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 5;
         }
       }
 
@@ -630,7 +635,7 @@ export function exportToPDF(data: ExportData): void {
             margin: { left: margin + 2 },
             tableWidth: contentWidth / 2 - 3,
           });
-          yPosition = (doc as any).lastAutoTable.finalY + 8;
+          yPosition = (doc as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
         }
       }
     }
@@ -662,7 +667,7 @@ export function exportToPDF(data: ExportData): void {
           bodyStyles: { fontSize: 7 },
           margin: { left: margin + 2 },
         });
-        yPosition = (doc as any).lastAutoTable.finalY + 5;
+        yPosition = (doc as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 5;
       }
 
       if (sectionData.outerData) {
@@ -695,7 +700,7 @@ export function exportToPDF(data: ExportData): void {
           bodyStyles: { fontSize: 7 },
           margin: { left: margin + 2 },
         });
-        yPosition = (doc as any).lastAutoTable.finalY + 8;
+        yPosition = (doc as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
       }
     }
 
@@ -725,7 +730,7 @@ export function exportToPDF(data: ExportData): void {
           bodyStyles: { fontSize: 7 },
           margin: { left: margin + 2 },
         });
-        yPosition = (doc as any).lastAutoTable.finalY + 8;
+        yPosition = (doc as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 8;
       }
     }
 

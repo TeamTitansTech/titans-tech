@@ -13,7 +13,7 @@ import { hasActualData, extractBearingRows } from '../utils/sectionDataUtils';
 import { displayValue } from '../utils/fieldFormatters';
 
 interface GibsSummaryProps {
-  data: any;
+  data: Record<string, unknown>;
 }
 
 export function GibsSummary({ data }: GibsSummaryProps) {
