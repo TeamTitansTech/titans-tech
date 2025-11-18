@@ -170,9 +170,6 @@ export function TrammingForm({
   return (
     <div className="space-y-4">
       <div className="relative ">
-        {/* Background slide area */}
-        <div className="absolute inset-0 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg" />
-
         <div className="relative min-h-[350px] flex items-center justify-center p-4">
           {/* Grid layout: 3x3 with center being the trim pin */}
           <div className="grid grid-cols-3 grid-rows-3 gap-4 w-full max-w-3xl">
