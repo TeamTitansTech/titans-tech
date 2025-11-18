@@ -62,6 +62,18 @@ export async function POST(request: NextRequest, context: RouteContext) {
             innerData: true,
           },
         },
+        tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        pistons: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
     });
 
@@ -135,6 +147,18 @@ export async function POST(request: NextRequest, context: RouteContext) {
           },
         },
         counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        pistons: {
           include: {
             outerData: true,
             innerData: true,

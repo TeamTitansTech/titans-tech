@@ -259,7 +259,8 @@
     "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRIFICAÇÃO / HIDRÁULICA / INTERRUPTORES DE PRESSÃO / ÓLEO E FILTRO",
     "clutch": "EMBREAGEM",
     "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG",
-    "tramming": "TRAMMING"
+    "tramming": "TRAMMING",
+    "pistons": "PISTÕES"
   },
   "models": {
     "title": "Criar Modelo",
@@ -395,7 +396,8 @@
       "lubricationHydraulics": "Lubrificação / Hidráulica",
       "clutch": "Folga de Embreagem e Freio",
       "counterbalance": "Cilindro de Contrapeso / Airbag",
-      "tramming": "Tramming"
+      "tramming": "Tramming",
+      "pistons": "Pistões"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -809,6 +811,15 @@
         "right": "Direita",
         "trimPin": "Pino de Ajuste",
         "notes": "Notas"
+      },
+      "pistons": {
+        "guidSeals": "Vedações de Guia",
+        "pistonSeals": "Vedações de Pistão",
+        "vacuumSystem": "Sistema de Vácuo",
+        "vacuumSystemAirPressureSetting": "Configuração de Pressão de Ar do Sistema de Vácuo",
+        "unit": "Unidade",
+        "piston": "Pistão",
+        "front": "Frente"
       },
       "cancel": "Cancelar",
       "submit": {

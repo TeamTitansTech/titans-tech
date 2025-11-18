@@ -6,6 +6,7 @@ import { SlideSummary } from './SlideSummary';
 import { GibsSummary } from './GibsSummary';
 import { CounterbalanceSummary } from './CounterbalanceSummary';
 import { TrammingSummary } from './TrammingSummary';
+import { PistonsSummary } from './PistonsSummary';
 import { ClutchSummary } from './ClutchSummary';
 import { LubricationSummary } from './LubricationSummary';
 
@@ -16,6 +17,7 @@ export { SlideSummary };
 export { GibsSummary };
 export { CounterbalanceSummary };
 export { TrammingSummary };
+export { PistonsSummary };
 export { ClutchSummary };
 export { LubricationSummary };
 
@@ -36,6 +38,9 @@ export function SectionSummary({ sectionKey, data }: { sectionKey: string; data:
 
     case 'TRAMMING':
       return <TrammingSummary data={data} />;
+
+    case 'PISTONS':
+      return <PistonsSummary data={data} />;
 
     case 'CLUTCH':
       return <ClutchSummary data={data} />;

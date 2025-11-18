@@ -271,6 +271,7 @@ enum ServiceSection {
   CLUTCH
   COUNTERBALANCE_CYLINDER_AIRBAG
   TRAMMING
+  PISTONS
 }
 
 enum AlertSeverity {
@@ -499,6 +500,7 @@ model MachineService {
   clutch                       MachineServiceClutch[]
   counterbalanceCylinderAirbag MachineServiceCounterbalanceCylinderAirbag[]
   tramming                     MachineServiceTramming[]
+  pistons                      MachineServicePistons[]
   alertBearingClearance        AlertBearingClearance?
 
   @@map("machine_services")
@@ -1004,4 +1006,64 @@ model TrammingData {
   innerServices MachineServiceTramming[] @relation("InnerData")
 
   @@map("service_data_tramming")
+}
+
+model MachineServicePistons {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  outerDataId      String?
+  innerDataId      String?
+
+  // Top-level fields
+  guidSeals                       String?
+  pistonSeals                     String?
+  vacuumSystem                    String?
+  vacuumSystemAirPressureSetting  Decimal? @db.Decimal(10, 4)
+  vacuumSystemAirPressureUnit     String?  @default("PSI") // PSI, BAR, etc.
+  unit                            String?  @default("inches") // inches, mm, cm
+
+  // Notes
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerData      PistonsData?   @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerData      PistonsData?   @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_pistons")
+}
+
+model PistonsData {
+  id String @id @default(cuid())
+
+  // OUTER SECTION - LH Piston (4 measurements around piston)
+  outerLhFrontTop    Decimal @db.Decimal(10, 4)
+  outerLhFrontBottom Decimal @db.Decimal(10, 4)
+  outerLhLeft        Decimal @db.Decimal(10, 4)
+  outerLhRight       Decimal @db.Decimal(10, 4)
+
+  // OUTER SECTION - RH Piston (4 measurements around piston)
+  outerRhFrontTop    Decimal @db.Decimal(10, 4)
+  outerRhFrontBottom Decimal @db.Decimal(10, 4)
+  outerRhLeft        Decimal @db.Decimal(10, 4)
+  outerRhRight       Decimal @db.Decimal(10, 4)
+
+  // INNER SECTION - LH Piston (4 measurements around piston)
+  innerLhFrontTop    Decimal @db.Decimal(10, 4)
+  innerLhFrontBottom Decimal @db.Decimal(10, 4)
+  innerLhLeft        Decimal @db.Decimal(10, 4)
+  innerLhRight       Decimal @db.Decimal(10, 4)
+
+  // INNER SECTION - RH Piston (4 measurements around piston)
+  innerRhFrontTop    Decimal @db.Decimal(10, 4)
+  innerRhFrontBottom Decimal @db.Decimal(10, 4)
+  innerRhLeft        Decimal @db.Decimal(10, 4)
+  innerRhRight       Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerServices MachineServicePistons[] @relation("OuterData")
+  innerServices MachineServicePistons[] @relation("InnerData")
+
+  @@map("service_data_pistons")
 }

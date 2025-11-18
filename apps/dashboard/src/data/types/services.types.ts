@@ -17,6 +17,7 @@ export {
   OkNaDncDamageType,
   CounterbalanceTypeEnum,
   AirbagPistonSealsType,
+  SealConditionType,
   RegulatorGaugeType,
   PneumaticsPlumbingType,
   RodSealsType,
@@ -43,6 +44,8 @@ export type {
   CounterbalanceCylinderCheck,
   TrammingData,
   TrammingCheck,
+  PistonsData,
+  PistonsCheck,
   // Service entity
   Service,
   ServiceHistoryItem,

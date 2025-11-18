@@ -11,6 +11,7 @@ export const SERVICE_SECTION_SLUGS = [
   'clutch',
   'counterbalance_cylinder_airbag',
   'tramming',
+  'pistons',
 ] as const;
 
 export type ServiceSectionSlug = (typeof SERVICE_SECTION_SLUGS)[number];

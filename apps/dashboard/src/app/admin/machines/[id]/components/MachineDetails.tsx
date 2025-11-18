@@ -24,6 +24,7 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   CLUTCH: 'clutch',
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
   TRAMMING: 'tramming',
+  PISTONS: 'pistons',
 };
 
 const SECTION_IMAGES: Record<string, string> = {
@@ -35,6 +36,7 @@ const SECTION_IMAGES: Record<string, string> = {
   CLUTCH: '/assets/sections/clutch.svg',
   COUNTERBALANCE_CYLINDER_AIRBAG: '/assets/sections/counterbalance.svg',
   TRAMMING: '/assets/sections/tramming.svg',
+  PISTONS: '/assets/sections/pistons.svg',
 };
 
 const CLEARANCE_LIMITS = {

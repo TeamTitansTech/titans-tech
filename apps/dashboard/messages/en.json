@@ -259,7 +259,8 @@
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
-    "tramming": "Tramming"
+    "tramming": "Tramming",
+    "pistons": "Pistons"
   },
   "models": {
     "title": "Create Model",
@@ -390,7 +391,8 @@
       "lubricationHydraulics": "Lubrication / Hydraulics",
       "clutch": "Clutch and Brake Clearance - CP 2",
       "counterbalance": "Counterbalance Cylinder / Airbag",
-      "tramming": "Tramming"
+      "tramming": "Tramming",
+      "pistons": "Pistons"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -804,6 +806,15 @@
         "right": "Right",
         "trimPin": "Trim Pin",
         "notes": "Notes"
+      },
+      "pistons": {
+        "guidSeals": "Guide Seals",
+        "pistonSeals": "Piston Seals",
+        "vacuumSystem": "Vacuum System",
+        "vacuumSystemAirPressureSetting": "Vacuum System Air Pressure Setting",
+        "unit": "Unit",
+        "piston": "Piston",
+        "front": "Front"
       },
       "cancel": "Cancel",
       "submit": {
