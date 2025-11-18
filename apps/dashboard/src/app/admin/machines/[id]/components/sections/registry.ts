@@ -5,6 +5,7 @@ import { GibsSection } from './GibsSection';
 import { LubricationHydraulicsSection } from './LubricationHydraulicsSection';
 import { ClutchSection } from './ClutchSection';
 import { CounterbalanceCylinderSection } from './CounterbalanceCylinderSection';
+import { TrammingSection } from './TrammingSection';
 
 /**
  * Configuration for a single section
@@ -87,6 +88,16 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
       i18nKey: 'counterbalance',
     },
     // No badges for counterbalance section
+  },
+
+  TRAMMING: {
+    key: 'TRAMMING',
+    component: TrammingSection,
+    metadata: {
+      image: '/assets/sections/tramming.svg',
+      i18nKey: 'tramming',
+    },
+    // No badges for tramming section
   },
 };
 

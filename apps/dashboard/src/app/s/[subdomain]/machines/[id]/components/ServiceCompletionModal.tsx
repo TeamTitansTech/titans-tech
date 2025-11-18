@@ -56,6 +56,11 @@ const SECTION_DETAILS = {
     image: '/assets/sections/counterbalance.svg',
     i18nKey: 'counterbalance',
   },
+  TRAMMING: {
+    key: 'TRAMMING',
+    image: '/assets/sections/tramming.svg',
+    i18nKey: 'tramming',
+  },
 } as const;
 
 export function ServiceCompletionModal({

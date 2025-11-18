@@ -13,7 +13,10 @@
       "leaking": "Leaking",
       "not_operational": "Not Operational",
       "dark_oil": "Dark Oil",
-      "needs_replaced": "Needs Replaced"
+      "needs_replaced": "Needs Replaced",
+      "bushing": "Bushing",
+      "bed": "Bed",
+      "bolster": "Bolster"
     }
   },
   "validation": {
@@ -255,7 +258,8 @@
     "gibs": "Gibs",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
-    "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag"
+    "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
+    "tramming": "Tramming"
   },
   "models": {
     "title": "Create Model",
@@ -385,7 +389,8 @@
       "gibs": "Gibs",
       "lubricationHydraulics": "Lubrication / Hydraulics",
       "clutch": "Clutch and Brake Clearance - CP 2",
-      "counterbalance": "Counterbalance Cylinder / Airbag"
+      "counterbalance": "Counterbalance Cylinder / Airbag",
+      "tramming": "Tramming"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -620,16 +625,28 @@
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "System Pressures (PSI)",
-        "lubePSI": "Lube PSI",
-        "monitorflowPSI": "Monitor Flow PSI",
-        "hydPSI": "Hydraulic PSI",
-        "pressSWPSI": "Pressure Switch PSI",
-        "otherGauges": "Other Gauges",
+        "addRow": "Add Row",
+        "systemLabel": "System",
+        "gaugeSwitchLabel": "Gauge/Switch",
+        "psiLabel": "PSI",
+        "noSystemsAdded": "No systems added. Click \"Add Row\" to start.",
+        "gaugeSwitchPlaceholder": "Gauge/Switch",
+        "selectPlaceholder": "Select",
+        "systems": {
+          "lube": "Lube",
+          "hyd": "Hyd",
+          "monitorflow": "Monitorflow",
+          "press_sw": "Press SW",
+          "gib": "Gib"
+        },
         "oilInfoTitle": "Oil Information",
         "changedOil": "Changed Oil",
         "oilTemperatureF": "Oil Temperature (°F)",
         "oilMfgType": "Oil Manufacturer/Type",
-        "changedFilter": "Changed Filter"
+        "filterTitle": "Filter",
+        "changedFilter": "Changed Filter",
+        "notes": "Notes",
+        "notesPlaceholder": "Additional notes..."
       },
       "clutch": {
         "clutchInfoTitle": "Clutch Information",
@@ -702,6 +719,7 @@
           "crankEndplayBefore": "Crank Endplay (Before)",
           "crankEndplayAfter": "Crank Endplay (After)",
           "airRegulator": "Air Regulator",
+          "airClutchTravel": "Air Clutch Travel",
           "airClutchTravelClearance": "Air Clutch Travel/Clearance",
           "airLineOilerSetting": "Air Line Oiler Setting",
           "splinesDriveRingDisc": "Splines: Drive Ring Disc",
@@ -715,13 +733,20 @@
           "notes": "Notes"
         },
         "sections": {
+          "basicInformation": "Basic Information",
           "brakeSpringSettings": "Brake Spring Settings",
           "brakeMeasurements": "Brake Measurements",
           "flywheel": "Flywheel",
+          "clutchSeals": "Clutch & Seals",
           "clutchDetails": "Clutch Details",
+          "adjustments": "Adjustments",
+          "gearBacklash": "Gear Backlash",
+          "crankEndplay": "Crank Endplay",
           "gearBacklashCrankEndplay": "Gear Backlash & Crank Endplay",
           "airSystem": "Air System",
-          "hydraulicSystem": "Hydraulic System"
+          "hydraulicSystem": "Hydraulic System",
+          "before": "Before",
+          "after": "After"
         },
         "placeholders": {
           "selectType": "Select type",
@@ -758,6 +783,28 @@
           "airbag": "Airbag"
         }
       },
+      "tramming": {
+        "slideTram": "Slide Tram",
+        "unit": "Unit",
+        "outerSection": "Outer",
+        "innerSection": "Inner",
+        "measurementPoints": "Measurement Points",
+        "inches": "inches",
+        "outerTop": "Outer Top",
+        "outerBottom": "Outer Bottom",
+        "outerLeft": "Outer Left",
+        "outerRight": "Outer Right",
+        "innerTop": "Inner Top",
+        "innerBottom": "Inner Bottom",
+        "innerLeft": "Inner Left",
+        "innerRight": "Inner Right",
+        "top": "Top",
+        "bottom": "Bottom",
+        "left": "Left",
+        "right": "Right",
+        "trimPin": "Trim Pin",
+        "notes": "Notes"
+      },
       "cancel": "Cancel",
       "submit": {
         "idle": "Create Inspection",
@@ -770,6 +817,76 @@
         "minValue": "Minimum value is {min}",
         "maxValue": "Maximum value is {max}",
         "futureDate": "Date cannot be in the future"
+      },
+      "common": {
+        "measurement": "Measurement",
+        "lh": "LH",
+        "rh": "RH",
+        "differential": "Differential",
+        "outer": "Outer",
+        "inner": "Inner",
+        "notes": "Notes",
+        "selectOption": "Select an option",
+        "selectStatus": "Select status",
+        "selectMatingPart": "Select mating part",
+        "referenceMeasurement": "Reference measurement",
+        "additionalNotes": "Enter additional notes..."
+      },
+      "bearingClearanceSection": {
+        "includeBeforeMeasurements": "Include Before Measurements",
+        "beforeMaintenance": "Before Maintenance",
+        "afterMaintenance": "After Maintenance",
+        "hasBeenAdjusted": "Has Been Adjusted",
+        "combinedWith": "Combined With",
+        "matingPartType": "Mating Part Type",
+        "shutdownAdjustmentMechanism": "Shutdown Adjustment Mechanism",
+        "slideMotorMounts": "Slide Motor/Mounts",
+        "powerCordHoses": "Power Cord/Hoses",
+        "chainsGearsSprockets": "Chains and Gears/Sprockets",
+        "lockingClamps": "Locking Clamps",
+        "validation": {
+          "fieldRequired": "{field} is required and must be a valid number",
+          "beforeSectionsRequired": "Bearing Clearance: When \"Include Before Measurements\" is enabled for maintenance, you must fill all \"Before\" sections (Outer Before and Inner Before)",
+          "outerBefore": "Outer Before",
+          "innerBefore": "Inner Before",
+          "outerData": "Outer Data",
+          "innerData": "Inner Data",
+          "atLeastOneSectionRequired": "Bearing Clearance: You must fill at least one measurement section (Outer Data or Inner Data)",
+          "hasBeenAdjustedRequired": "Bearing Clearance: The \"Has Been Adjusted\" field is required"
+        }
+      },
+      "enums": {
+        "yesNoNaDnc": {
+          "yes": "Yes",
+          "no": "No",
+          "na": "N/A",
+          "dnc": "DNC"
+        },
+        "conditionOkNaDncBrokenWorn": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "broken": "Broken",
+          "worn": "Worn"
+        },
+        "conditionOkNaDncBrokenLoose": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "broken": "Broken",
+          "loose": "Loose"
+        },
+        "conditionOkNaDncDamaged": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "damaged": "Damaged"
+        },
+        "matingPartType": {
+          "bushing": "Bushing",
+          "connection": "Connection",
+          "nutScrewSleeve": "Nut Screw Sleeve"
+        }
       }
     }
   },
@@ -788,13 +905,17 @@
     "modal": {
       "completeMaintenance": "Complete Maintenance",
       "completeMaintenanceDetails": "Complete Maintenance - Details",
+      "completeInspection": "Complete Inspection",
+      "completeInspectionDetails": "Complete Inspection - Details",
       "selectMaintenanceAreas": "Select the maintenance areas to be performed",
       "fillMaintenanceDetails": "Fill in the maintenance details performed",
+      "fillInspectionDetails": "Fill in the inspection details performed",
       "selectAreasAbove": "Select maintenance areas above to start",
       "realizationDate": "Date of completion",
       "performedBy": "Performed by",
       "technicianName": "Technician name",
       "maintenanceSummary": "Maintenance Summary",
+      "inspectionSummary": "Inspection Summary",
       "completing": "Completing...",
       "stepper": {
         "details": "Details",
@@ -853,6 +974,14 @@
     "innerAfterMaintenance": "Inner - After Maintenance"
   },
   "bearingFields": {
+    "totalClearance": "Total Clearance",
+    "mainBearings": "Main Bearings",
+    "upperConnectionBearings": "Upper Connection Bearings",
+    "wristPinToMatingPart": "Wrist Pin To Mating Part",
+    "wristPinToBushing": "Wrist Pin To Bushing",
+    "slideAdjNutToScrewSleeve": "Slide Adj Nut To Screw Sleeve",
+    "extraDoubleLockOpen": "Extra Double Lock Open",
+    "ballBoxArea": "Ball Box Area",
     "combinedWith": "Combined With",
     "matingPart": "Mating Part",
     "hasBeenAdjusted": "Has Been Adjusted",

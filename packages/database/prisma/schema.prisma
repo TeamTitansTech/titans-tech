@@ -270,6 +270,7 @@ enum ServiceSection {
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER
   CLUTCH
   COUNTERBALANCE_CYLINDER_AIRBAG
+  TRAMMING
 }
 
 enum AlertSeverity {
@@ -497,6 +498,7 @@ model MachineService {
   lubricationHydraulics        MachineServiceLubricationHydraulics[]
   clutch                       MachineServiceClutch[]
   counterbalanceCylinderAirbag MachineServiceCounterbalanceCylinderAirbag[]
+  tramming                     MachineServiceTramming[]
   alertBearingClearance        AlertBearingClearance?
 
   @@map("machine_services")
@@ -923,4 +925,83 @@ model CounterbalanceCylinderAirbagData {
   innerServices MachineServiceCounterbalanceCylinderAirbag[] @relation("InnerData")
 
   @@map("service_data_counterbalance_cylinder_airbag")
+}
+
+// TRAMMING Section
+
+model MachineServiceTramming {
+  id               String        @id @default(cuid())
+  machineServiceId String
+  outerDataId      String?
+  innerDataId      String?
+  slideTram        YesNoDncType?
+
+  // Notes
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerData      TrammingData?  @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerData      TrammingData?  @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_tramming")
+}
+
+model TrammingData {
+  id String @id @default(cuid())
+
+  // OUTER SECTION - Top Position (4 measurements around trim pin)
+  outerTopTop    Decimal @db.Decimal(10, 4)
+  outerTopBottom Decimal @db.Decimal(10, 4)
+  outerTopLeft   Decimal @db.Decimal(10, 4)
+  outerTopRight  Decimal @db.Decimal(10, 4)
+
+  // OUTER SECTION - Bottom Position (4 measurements around trim pin)
+  outerBottomTop    Decimal @db.Decimal(10, 4)
+  outerBottomBottom Decimal @db.Decimal(10, 4)
+  outerBottomLeft   Decimal @db.Decimal(10, 4)
+  outerBottomRight  Decimal @db.Decimal(10, 4)
+
+  // OUTER SECTION - Left Position (4 measurements around trim pin)
+  outerLeftTop    Decimal @db.Decimal(10, 4)
+  outerLeftBottom Decimal @db.Decimal(10, 4)
+  outerLeftLeft   Decimal @db.Decimal(10, 4)
+  outerLeftRight  Decimal @db.Decimal(10, 4)
+
+  // OUTER SECTION - Right Position (4 measurements around trim pin)
+  outerRightTop    Decimal @db.Decimal(10, 4)
+  outerRightBottom Decimal @db.Decimal(10, 4)
+  outerRightLeft   Decimal @db.Decimal(10, 4)
+  outerRightRight  Decimal @db.Decimal(10, 4)
+
+  // INNER SECTION - Top Position (4 measurements around trim pin)
+  innerTopTop    Decimal @db.Decimal(10, 4)
+  innerTopBottom Decimal @db.Decimal(10, 4)
+  innerTopLeft   Decimal @db.Decimal(10, 4)
+  innerTopRight  Decimal @db.Decimal(10, 4)
+
+  // INNER SECTION - Bottom Position (4 measurements around trim pin)
+  innerBottomTop    Decimal @db.Decimal(10, 4)
+  innerBottomBottom Decimal @db.Decimal(10, 4)
+  innerBottomLeft   Decimal @db.Decimal(10, 4)
+  innerBottomRight  Decimal @db.Decimal(10, 4)
+
+  // INNER SECTION - Left Position (4 measurements around trim pin)
+  innerLeftTop    Decimal @db.Decimal(10, 4)
+  innerLeftBottom Decimal @db.Decimal(10, 4)
+  innerLeftLeft   Decimal @db.Decimal(10, 4)
+  innerLeftRight  Decimal @db.Decimal(10, 4)
+
+  // INNER SECTION - Right Position (4 measurements around trim pin)
+  innerRightTop    Decimal @db.Decimal(10, 4)
+  innerRightBottom Decimal @db.Decimal(10, 4)
+  innerRightLeft   Decimal @db.Decimal(10, 4)
+  innerRightRight  Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerServices MachineServiceTramming[] @relation("OuterData")
+  innerServices MachineServiceTramming[] @relation("InnerData")
+
+  @@map("service_data_tramming")
 }

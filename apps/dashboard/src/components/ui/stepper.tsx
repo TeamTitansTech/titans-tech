@@ -125,11 +125,8 @@ export function Stepper({ steps, onStepClick }: StepperProps) {
 
   return (
     <div className="w-full pt-6 pb-4 px-2 bg-muted/30 rounded-lg border relative">
-      {/* Horizontal scroll container - only scrollable on mobile */}
-      <div
-        ref={containerRef}
-        className="flex items-start overflow-x-auto lg:overflow-x-visible lg:justify-between scrollbar-none py-2"
-      >
+      {/* Horizontal scroll container - scrollable on all screen sizes when needed */}
+      <div ref={containerRef} className="flex items-start overflow-x-auto scrollbar-none py-2">
         {steps.map((step, index) => (
           <StepperItem
             key={step.key}

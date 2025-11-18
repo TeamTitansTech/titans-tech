@@ -1,18 +1,6 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Typography } from '@/components/ui/typography';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -20,32 +8,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Trash2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { toast } from 'sonner';
-import { createBlueprint } from '@/data/services/blueprints.api';
-import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { SERVICE_SECTION_SLUGS } from '@titans-tech/db/client';
-import { Card, CardContent } from '@/components/ui/card';
-import {
-  BearingClearanceThresholds,
-  BearingClearanceThresholdsData,
-} from '@/components/alerts/BearingClearanceThresholds';
-
-interface BlueprintCreationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess?: () => void;
-}
-
-type FieldType = 'string' | 'int' | 'enum';
-
-interface Field {
-  fieldName: string;
-  fieldSlug: string;
-  fieldType: FieldType;
-  fieldOptions?: string[];
-}
+import { BearingClearanceThresholds } from '@/components/alerts/BearingClearanceThresholds';
+import { type BlueprintCreationModalProps } from './types';
+import { useBlueprintForm } from './hooks/useBlueprintForm';
+import { useFieldsManager } from './hooks/useFieldsManager';
+import { useEnumOptionsManager } from './hooks/useEnumOptionsManager';
+import { BasicInfoSection } from './form-sections/BasicInfoSection';
+import { SectionsSelector } from './form-sections/SectionsSelector';
+import { CustomFieldsList } from './form-sections/CustomFieldsList';
+import { ErrorDisplay } from './form-sections/ErrorDisplay';
+import { FormActions } from './form-sections/FormActions';
 
 const AVAILABLE_SECTIONS = SERVICE_SECTION_SLUGS;
 
@@ -56,171 +30,47 @@ export const BlueprintCreationModal = ({
 }: BlueprintCreationModalProps) => {
   const t = useTranslations('models');
   const tSections = useTranslations('sections');
-  const [name, setName] = useState('');
-  const [selectedSections, setSelectedSections] = useState<string[]>([]);
-  const [fields, setFields] = useState<Field[]>([]);
-  const [newOptionValues, setNewOptionValues] = useState<Record<number, string>>({});
-  const [thresholdsOpen, setThresholdsOpen] = useState(false);
-  const [thresholds, setThresholds] = useState<BearingClearanceThresholdsData>({
-    totalClearance_greenMin: 0,
-    totalClearance_yellowMin: 0,
-    totalClearance_redMin: 0,
-    mainBearings_greenMin: 0,
-    mainBearings_yellowMin: 0,
-    mainBearings_redMin: 0,
-    upperConnectionBearings_greenMin: 0,
-    upperConnectionBearings_yellowMin: 0,
-    upperConnectionBearings_redMin: 0,
-    wristPinToMatingPart_greenMin: 0,
-    wristPinToMatingPart_yellowMin: 0,
-    wristPinToMatingPart_redMin: 0,
-    wristPinToBushing_greenMin: 0,
-    wristPinToBushing_yellowMin: 0,
-    wristPinToBushing_redMin: 0,
-    slideAdjNutToScrewSleeve_greenMin: 0,
-    slideAdjNutToScrewSleeve_yellowMin: 0,
-    slideAdjNutToScrewSleeve_redMin: 0,
-  });
 
-  const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
+  const {
+    name,
+    setName,
+    selectedSections,
+    toggleSection,
+    thresholdsOpen,
+    setThresholdsOpen,
+    thresholds,
+    setThresholds,
+    handleSubmit,
+    isLoading,
+    result,
+    reset: _resetForm,
+  } = useBlueprintForm(onSuccess, onClose);
 
-  const toggleSection = (section: string) => {
-    setSelectedSections((prev) =>
-      prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section],
-    );
-  };
+  const {
+    fields,
+    addField,
+    removeField,
+    updateField,
+    hasInvalidEnumFields,
+    reset: resetFields,
+  } = useFieldsManager();
 
-  const generateSlug = (name: string, existingSlugs: string[]): string => {
-    const baseSlug = name
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '_')
-      .replace(/^_+|_+$/g, '');
+  const {
+    newOptionValues,
+    addOption,
+    removeOption,
+    updateNewOptionValue,
+    reset: resetEnumOptions,
+  } = useEnumOptionsManager();
 
-    if (!baseSlug) return '';
-
-    let slug = baseSlug;
-    let counter = 1;
-    while (existingSlugs.includes(slug)) {
-      slug = `${baseSlug}_${counter}`;
-      counter++;
-    }
-
-    return slug;
-  };
-
-  const addField = () => {
-    setFields([
-      ...fields,
-      {
-        fieldName: '',
-        fieldSlug: '',
-        fieldType: 'string',
-      },
-    ]);
-  };
-
-  const removeField = (index: number) => {
-    setFields(fields.filter((_, i) => i !== index));
-  };
-
-  const updateField = (index: number, key: keyof Field, value: string | string[]) => {
-    const newFields = [...fields];
-    newFields[index] = { ...newFields[index], [key]: value };
-
-    if (key === 'fieldName' && typeof value === 'string') {
-      const existingSlugs = newFields
-        .map((f, i) => (i !== index ? f.fieldSlug : ''))
-        .filter(Boolean);
-      newFields[index].fieldSlug = generateSlug(value, existingSlugs);
-    }
-
-    if (key === 'fieldType' && value === 'enum' && !newFields[index].fieldOptions) {
-      newFields[index].fieldOptions = [];
-    }
-
-    setFields(newFields);
-  };
-
-  const addOption = (fieldIndex: number) => {
-    const newValue = newOptionValues[fieldIndex]?.trim();
-    if (!newValue) return;
-
-    const newFields = [...fields];
-    const currentOptions = newFields[fieldIndex].fieldOptions || [];
-
-    if (!currentOptions.includes(newValue)) {
-      newFields[fieldIndex].fieldOptions = [...currentOptions, newValue];
-      setFields(newFields);
-    }
-
-    setNewOptionValues((prev) => ({ ...prev, [fieldIndex]: '' }));
-  };
-
-  const removeOption = (fieldIndex: number, optionIndex: number) => {
-    const newFields = [...fields];
-    const currentOptions = newFields[fieldIndex].fieldOptions || [];
-    newFields[fieldIndex].fieldOptions = currentOptions.filter((_, i) => i !== optionIndex);
-    setFields(newFields);
-  };
-
-  const updateNewOptionValue = (fieldIndex: number, value: string) => {
-    setNewOptionValues((prev) => ({ ...prev, [fieldIndex]: value }));
-  };
-
-  const hasInvalidEnumFields = fields.some(
-    (field) =>
-      field.fieldType === 'enum' && (!field.fieldOptions || field.fieldOptions.length === 0),
-  );
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const hasBearingClearance = selectedSections.includes('bearing_clearance');
-
-    const payload: any = {
-      name,
-      sections: selectedSections,
-      fields: fields.map((field) => {
-        const baseField = {
-          fieldName: field.fieldName,
-          fieldSlug: field.fieldSlug,
-          fieldType: field.fieldType,
-        };
-
-        if (field.fieldType === 'enum' && field.fieldOptions) {
-          return {
-            ...baseField,
-            fieldOptions: field.fieldOptions.filter(Boolean),
-          };
-        }
-
-        return baseField;
-      }),
-    };
-
-    if (hasBearingClearance) {
-      payload.thresholds = thresholds;
-    }
-
-    const response = await submitBlueprint(payload);
-
-    if (response.data) {
-      toast.success(t('createdSuccessfully'));
-      setName('');
-      setSelectedSections([]);
-      setFields([]);
-      setNewOptionValues({});
-      onSuccess?.();
-      onClose();
-    }
+  const onSubmit = async (e: React.FormEvent) => {
+    await handleSubmit(e, fields, resetFields, resetEnumOptions);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col bg-background">
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+        <form onSubmit={onSubmit} className="flex flex-col flex-1 min-h-0">
           <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
             <DialogTitle className="text-2xl text-foreground">{t('title')}</DialogTitle>
             <DialogDescription className="text-muted-foreground">
@@ -229,197 +79,55 @@ export const BlueprintCreationModal = ({
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
-            <section className="space-y-4">
-              <div>
-                <Typography variant="h3" className="mb-4">
-                  {t('form.basicInfo.title')}
-                </Typography>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">{t('form.name.label')} *</Label>
-                    <Input
-                      id="name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      required
-                      placeholder={t('form.name.placeholder')}
-                    />
-                  </div>
-                </div>
-              </div>
-            </section>
+            <BasicInfoSection
+              name={name}
+              setName={setName}
+              translations={{
+                title: t('form.basicInfo.title'),
+                nameLabel: t('form.name.label'),
+                namePlaceholder: t('form.name.placeholder'),
+              }}
+            />
 
             <Separator />
 
-            <section className="space-y-4">
-              <div>
-                <Typography variant="h3" className="mb-4">
-                  {t('form.sections.label')}
-                </Typography>
-                <div className="flex flex-wrap gap-2">
-                  {AVAILABLE_SECTIONS.map((section) => {
-                    const isSelected = selectedSections.includes(section);
-                    return (
-                      <Button
-                        key={section}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleSection(section)}
-                        className={
-                          isSelected
-                            ? 'bg-orange-500 text-white font-bold hover:bg-orange-600 border-orange-500 transition-all'
-                            : 'text-foreground border-border hover:bg-orange-100 hover:text-orange-500 hover:border-orange-500 dark:hover:bg-orange-500/20 dark:hover:text-white transition-all'
-                        }
-                      >
-                        {tSections(section)}
-                      </Button>
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
+            <SectionsSelector
+              selectedSections={selectedSections}
+              availableSections={AVAILABLE_SECTIONS}
+              toggleSection={toggleSection}
+              translations={{
+                title: t('form.sections.label'),
+                getSectionName: (section: string) => tSections(section),
+              }}
+            />
 
             <Separator />
 
-            <section className="space-y-4">
-              <div className="flex justify-between items-center">
-                <Typography variant="h3">{t('form.fields.label')}</Typography>
-                <Button type="button" onClick={addField} variant="outline" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  {t('form.fields.addButton')}
-                </Button>
-              </div>
-
-              <div className="space-y-4">
-                {fields.map((field, index) => (
-                  <Card key={index}>
-                    <CardContent className="pt-6">
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center">
-                          <Typography variant="small" className="font-medium">
-                            {t('form.fields.fieldNumber', { number: index + 1 })}
-                          </Typography>
-                          {fields.length > 0 && (
-                            <Button
-                              type="button"
-                              onClick={() => removeField(index)}
-                              variant="ghost"
-                              size="sm"
-                              className="hover:bg-orange-500 hover:text-white transition-all"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor={`field-name-${index}`}>
-                              {t('form.fields.fieldName.label')}
-                            </Label>
-                            <Input
-                              id={`field-name-${index}`}
-                              type="text"
-                              value={field.fieldName}
-                              onChange={(e) => updateField(index, 'fieldName', e.target.value)}
-                              required
-                              placeholder={t('form.fields.fieldName.placeholder')}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor={`field-type-${index}`}>
-                              {t('form.fields.fieldType.label')}
-                            </Label>
-                            <Select
-                              value={field.fieldType}
-                              onValueChange={(value) =>
-                                updateField(index, 'fieldType', value as FieldType)
-                              }
-                            >
-                              <SelectTrigger id={`field-type-${index}`}>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="string">
-                                  {t('form.fields.fieldType.string')}
-                                </SelectItem>
-                                <SelectItem value="int">
-                                  {t('form.fields.fieldType.int')}
-                                </SelectItem>
-                                <SelectItem value="enum">
-                                  {t('form.fields.fieldType.enum')}
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {field.fieldType === 'enum' && (
-                            <div className="space-y-2 md:col-span-2">
-                              <Label>{t('form.fields.fieldOptions.label')}</Label>
-
-                              {field.fieldOptions && field.fieldOptions.length > 0 && (
-                                <div className="flex flex-wrap gap-2">
-                                  {field.fieldOptions.map((option, optionIndex) => (
-                                    <div
-                                      key={optionIndex}
-                                      className="flex items-center gap-1 bg-muted rounded-md px-3 py-1"
-                                    >
-                                      <Typography variant="small">{option}</Typography>
-                                      <Button
-                                        type="button"
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => removeOption(index, optionIndex)}
-                                        className="h-5 w-5 p-0 hover:bg-destructive/10 hover:text-destructive"
-                                      >
-                                        ×
-                                      </Button>
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-
-                              <div className="flex gap-2">
-                                <Input
-                                  type="text"
-                                  value={newOptionValues[index] || ''}
-                                  onChange={(e) => updateNewOptionValue(index, e.target.value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      e.preventDefault();
-                                      addOption(index);
-                                    }
-                                  }}
-                                  placeholder={t('form.fields.fieldOptions.placeholder')}
-                                  className="flex-1"
-                                />
-                                <Button
-                                  type="button"
-                                  onClick={() => addOption(index)}
-                                  variant="outline"
-                                  size="sm"
-                                >
-                                  {t('form.fields.addButton')}
-                                </Button>
-                              </div>
-
-                              {field.fieldOptions?.length === 0 && (
-                                <Typography variant="small" className="text-destructive">
-                                  {t('form.fields.fieldOptions.required')}
-                                </Typography>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </section>
+            <CustomFieldsList
+              fields={fields}
+              addField={addField}
+              removeField={removeField}
+              updateField={updateField}
+              newOptionValues={newOptionValues}
+              addOption={addOption}
+              removeOption={removeOption}
+              updateNewOptionValue={updateNewOptionValue}
+              translations={{
+                title: t('form.fields.label'),
+                addButton: t('form.fields.addButton'),
+                fieldNumber: t('form.fields.fieldNumber', { number: 0 }).replace(' 0', ''),
+                fieldNameLabel: t('form.fields.fieldName.label'),
+                fieldNamePlaceholder: t('form.fields.fieldName.placeholder'),
+                fieldTypeLabel: t('form.fields.fieldType.label'),
+                fieldTypeString: t('form.fields.fieldType.string'),
+                fieldTypeInt: t('form.fields.fieldType.int'),
+                fieldTypeEnum: t('form.fields.fieldType.enum'),
+                fieldOptionsLabel: t('form.fields.fieldOptions.label'),
+                fieldOptionsPlaceholder: t('form.fields.fieldOptions.placeholder'),
+                fieldOptionsRequired: t('form.fields.fieldOptions.required'),
+                fieldOptionsAddButton: t('form.fields.addButton'),
+              }}
+            />
 
             {selectedSections.includes('bearing_clearance') && (
               <>
@@ -435,36 +143,24 @@ export const BlueprintCreationModal = ({
               </>
             )}
 
-            {result?.errors && result.errors.length > 0 && (
-              <div className="rounded-md border border-destructive bg-destructive/10 p-4">
-                <Typography variant="h3" className="mb-2 text-destructive">
-                  {t('form.error.title')}
-                </Typography>
-                <ul className="list-disc list-inside space-y-1">
-                  {result.errors.map((error, index) => (
-                    <li key={index}>
-                      <Typography variant="small" className="text-destructive">
-                        {error}
-                      </Typography>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <ErrorDisplay
+              errors={result?.errors ?? undefined}
+              translations={{
+                title: t('form.error.title'),
+              }}
+            />
           </div>
 
-          <div className="border-t border-border p-6 flex justify-end gap-3 shrink-0 bg-background">
-            <Button type="button" variant="outline" onClick={onClose}>
-              {t('form.cancel')}
-            </Button>
-            <Button
-              type="submit"
-              disabled={isLoading || hasInvalidEnumFields}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
-            </Button>
-          </div>
+          <FormActions
+            onCancel={onClose}
+            isLoading={isLoading}
+            isDisabled={hasInvalidEnumFields}
+            translations={{
+              cancel: t('form.cancel'),
+              submitLoading: t('form.submit.loading'),
+              submitIdle: t('form.submit.idle'),
+            }}
+          />
         </form>
       </DialogContent>
     </Dialog>

@@ -51,6 +51,9 @@ export class ServicesService {
         counterbalanceCylinderAirbag: {
           include: { outerData: true; innerData: true };
         };
+        tramming: {
+          include: { outerData: true; innerData: true };
+        };
       };
     }>
   > {
@@ -272,6 +275,30 @@ export class ServicesService {
           },
         },
       }),
+      ...(createInspectionDto.tramming && {
+        tramming: {
+          create: {
+            ...(createInspectionDto.tramming.outerData && {
+              outerData: {
+                create: createInspectionDto.tramming
+                  .outerData as Prisma.TrammingDataCreateWithoutOuterServicesInput,
+              },
+            }),
+            ...(createInspectionDto.tramming.innerData && {
+              innerData: {
+                create: createInspectionDto.tramming
+                  .innerData as Prisma.TrammingDataCreateWithoutInnerServicesInput,
+              },
+            }),
+            ...(createInspectionDto.tramming.slideTram && {
+              slideTram: createInspectionDto.tramming.slideTram,
+            }),
+            ...(createInspectionDto.tramming.notes && {
+              notes: createInspectionDto.tramming.notes,
+            }),
+          },
+        },
+      }),
     };
 
     const inspection = await this.prisma.machineService.create({
@@ -322,6 +349,12 @@ export class ServicesService {
           },
         },
         counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        tramming: {
           include: {
             outerData: true,
             innerData: true,
@@ -423,6 +456,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
       orderBy: {
         date: 'desc',
@@ -463,6 +502,9 @@ export class ServicesService {
         };
         clutch: { include: { data: true } };
         counterbalanceCylinderAirbag: {
+          include: { outerData: true; innerData: true };
+        };
+        tramming: {
           include: { outerData: true; innerData: true };
         };
       };
@@ -516,6 +558,12 @@ export class ServicesService {
           },
         },
         counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        tramming: {
           include: {
             outerData: true,
             innerData: true,
@@ -630,6 +678,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
       },
       orderBy: {
         date: 'desc',
@@ -673,6 +727,9 @@ export class ServicesService {
         };
         clutch: { include: { data: true } };
         counterbalanceCylinderAirbag: {
+          include: { outerData: true; innerData: true };
+        };
+        tramming: {
           include: { outerData: true; innerData: true };
         };
       };
@@ -856,6 +913,30 @@ export class ServicesService {
                 },
               }
             : undefined,
+        tramming: updateServiceDto.tramming
+          ? {
+              create: {
+                ...(updateServiceDto.tramming.outerData && {
+                  outerData: {
+                    create: updateServiceDto.tramming
+                      .outerData as Prisma.TrammingDataCreateWithoutOuterServicesInput,
+                  },
+                }),
+                ...(updateServiceDto.tramming.innerData && {
+                  innerData: {
+                    create: updateServiceDto.tramming
+                      .innerData as Prisma.TrammingDataCreateWithoutInnerServicesInput,
+                  },
+                }),
+                ...(updateServiceDto.tramming.slideTram && {
+                  slideTram: updateServiceDto.tramming.slideTram,
+                }),
+                ...(updateServiceDto.tramming.notes && {
+                  notes: updateServiceDto.tramming.notes,
+                }),
+              },
+            }
+          : undefined,
       },
       include: {
         machine: {
@@ -903,6 +984,12 @@ export class ServicesService {
           },
         },
         counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        tramming: {
           include: {
             outerData: true,
             innerData: true,

@@ -587,6 +587,132 @@ class CounterbalanceCylinderCheckDto {
   innerData?: CounterbalanceCylinderDataDto;
 }
 
+class TrammingDataDto {
+  // OUTER SECTION - Top Position
+  @IsNumber()
+  outerTopTop: number;
+
+  @IsNumber()
+  outerTopBottom: number;
+
+  @IsNumber()
+  outerTopLeft: number;
+
+  @IsNumber()
+  outerTopRight: number;
+
+  // OUTER SECTION - Bottom Position
+  @IsNumber()
+  outerBottomTop: number;
+
+  @IsNumber()
+  outerBottomBottom: number;
+
+  @IsNumber()
+  outerBottomLeft: number;
+
+  @IsNumber()
+  outerBottomRight: number;
+
+  // OUTER SECTION - Left Position
+  @IsNumber()
+  outerLeftTop: number;
+
+  @IsNumber()
+  outerLeftBottom: number;
+
+  @IsNumber()
+  outerLeftLeft: number;
+
+  @IsNumber()
+  outerLeftRight: number;
+
+  // OUTER SECTION - Right Position
+  @IsNumber()
+  outerRightTop: number;
+
+  @IsNumber()
+  outerRightBottom: number;
+
+  @IsNumber()
+  outerRightLeft: number;
+
+  @IsNumber()
+  outerRightRight: number;
+
+  // INNER SECTION - Top Position
+  @IsNumber()
+  innerTopTop: number;
+
+  @IsNumber()
+  innerTopBottom: number;
+
+  @IsNumber()
+  innerTopLeft: number;
+
+  @IsNumber()
+  innerTopRight: number;
+
+  // INNER SECTION - Bottom Position
+  @IsNumber()
+  innerBottomTop: number;
+
+  @IsNumber()
+  innerBottomBottom: number;
+
+  @IsNumber()
+  innerBottomLeft: number;
+
+  @IsNumber()
+  innerBottomRight: number;
+
+  // INNER SECTION - Left Position
+  @IsNumber()
+  innerLeftTop: number;
+
+  @IsNumber()
+  innerLeftBottom: number;
+
+  @IsNumber()
+  innerLeftLeft: number;
+
+  @IsNumber()
+  innerLeftRight: number;
+
+  // INNER SECTION - Right Position
+  @IsNumber()
+  innerRightTop: number;
+
+  @IsNumber()
+  innerRightBottom: number;
+
+  @IsNumber()
+  innerRightLeft: number;
+
+  @IsNumber()
+  innerRightRight: number;
+}
+
+class TrammingCheckDto {
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingDataDto)
+  outerData?: TrammingDataDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingDataDto)
+  innerData?: TrammingDataDto;
+
+  @IsOptional()
+  @IsEnum(YesNoDncType)
+  slideTram?: YesNoDncType;
+
+  @IsOptional()
+  @IsString()
+  notes?: string;
+}
+
 export class CreateServiceDto {
   @IsString()
   machineId: string;
@@ -646,4 +772,9 @@ export class CreateServiceDto {
   @ValidateNested()
   @Type(() => CounterbalanceCylinderCheckDto)
   counterbalanceCylinder?: CounterbalanceCylinderCheckDto;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => TrammingCheckDto)
+  tramming?: TrammingCheckDto;
 }
