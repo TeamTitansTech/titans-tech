@@ -55,6 +55,8 @@
   "settings": {
     "title": "Settings",
     "description": "Manage your application preferences and settings",
+    "pageTitle": "Settings",
+    "pageDescription": "Manage your application preferences and settings",
     "language": {
       "title": "Language & Region",
       "label": "Select Language",

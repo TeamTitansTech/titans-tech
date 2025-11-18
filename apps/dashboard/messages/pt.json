@@ -55,6 +55,8 @@
   "settings": {
     "title": "Configurações",
     "description": "Gerencie suas preferências e configurações do aplicativo",
+    "pageTitle": "Configurações",
+    "pageDescription": "Gerencie suas preferências e configurações do aplicativo",
     "language": {
       "title": "Idioma e Região",
       "label": "Selecionar Idioma",
