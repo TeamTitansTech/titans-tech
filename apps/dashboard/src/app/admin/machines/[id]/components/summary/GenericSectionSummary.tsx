@@ -12,10 +12,10 @@ export function GenericSectionSummary({ data, sectionKey }: GenericSectionSummar
   if (!data) return <div className="text-sm text-muted-foreground">No data available</div>;
 
   // Function to recursively render data
-  const renderData = (obj: any, depth = 0): JSX.Element[] => {
+  const renderData = (obj: any, depth = 0): React.ReactElement[] => {
     if (!obj || typeof obj !== 'object') return [];
 
-    const elements: JSX.Element[] = [];
+    const elements: React.ReactElement[] = [];
 
     Object.entries(obj).forEach(([key, value]) => {
       // Skip ID fields and empty values

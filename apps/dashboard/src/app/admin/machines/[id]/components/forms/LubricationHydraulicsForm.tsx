@@ -84,7 +84,7 @@ export function LubricationHydraulicsForm({
         </div>
 
         <div className="border rounded-b-lg">
-          {data.gauges.length === 0 ? (
+          {!data.gauges || data.gauges.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground text-sm">
               {t('form.lubricationHydraulics.noSystemsAdded')}
             </div>
