@@ -146,7 +146,7 @@ export const extractBearingRows = (
       }
 
       rows.push({
-        field: formatFieldName(baseField),
+        field: baseField, // Return raw field key for translation
         lh: lhValue,
         rh: rhValue,
         differential,

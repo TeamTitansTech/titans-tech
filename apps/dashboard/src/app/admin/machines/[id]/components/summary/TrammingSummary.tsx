@@ -10,6 +10,9 @@ interface TrammingSummaryProps {
 
 export function TrammingSummary({ data }: TrammingSummaryProps) {
   const tServicesSummary = useTranslations('services.modal.summary');
+  const tTramming = useTranslations('inspections.form.tramming');
+  const tMeasurements = useTranslations('measurements');
+  const tCommon = useTranslations('common.status');
 
   // Helper function to display value or "-" for empty
   const displayValue = (value: any): string => {
@@ -17,7 +20,7 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
       return '-';
     }
     if (typeof value === 'boolean') {
-      return value ? 'Yes' : 'No';
+      return value ? tCommon('yes') : tCommon('no');
     }
     return String(value);
   };
@@ -30,12 +33,12 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
           <div className="p-2 space-y-1.5 text-[11px]">
             {data?.slideTram && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Slide Tram:</span>
+                <span className="text-muted-foreground">{tTramming('slideTram')}:</span>
                 <span className="font-medium">{displayValue(data.slideTram)}</span>
               </div>
             )}
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Unit:</span>
+              <span className="text-muted-foreground">{tTramming('unit')}:</span>
               <span className="font-medium">{data?.unit || 'inches'}</span>
             </div>
           </div>
@@ -44,8 +47,8 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
         {/* Render actual tramming forms in read-only mode */}
         <Tabs defaultValue="outer" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
-            <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
+            <TabsTrigger value="outer">{tMeasurements('outerMeasurements')}</TabsTrigger>
+            <TabsTrigger value="inner">{tMeasurements('innerMeasurements')}</TabsTrigger>
           </TabsList>
 
           {data?.outerData && (

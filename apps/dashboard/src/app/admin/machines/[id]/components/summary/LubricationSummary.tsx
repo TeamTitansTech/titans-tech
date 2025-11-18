@@ -18,22 +18,15 @@ interface LubricationSummaryProps {
 export function LubricationSummary({ data }: LubricationSummaryProps) {
   const tTable = useTranslations('table');
   const tServicesSummary = useTranslations('services.modal.summary');
+  const tLubricationFields = useTranslations('inspections.form.lubricationHydraulics');
+  const tCommon = useTranslations('common.status');
 
-  // Helper function to check if a field is an ID field
-  const isIdField = (key: string): boolean => {
-    const lowerKey = key.toLowerCase();
-    return (
-      key === 'id' ||
-      key.endsWith('Id') ||
-      key.endsWith('ID') ||
-      lowerKey === 'id' ||
-      lowerKey === 'createdat' ||
-      lowerKey === 'updatedat' ||
-      key === 'createdAt' ||
-      key === 'updatedAt' ||
-      key === 'created_at' ||
-      key === 'updated_at'
-    );
+  // Helper function to translate field names
+  const translateFieldName = (key: string): string => {
+    const translation = tLubricationFields(key);
+    if (translation !== key) return translation;
+    // Fallback to formatFieldName
+    return formatFieldName(key);
   };
 
   // Helper function to format field names
@@ -47,34 +40,33 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
       .join(' ');
   };
 
-  // Helper function to display value or "-" for empty
+  // Helper function to display value with translations
   const displayValue = (value: any): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }
     if (typeof value === 'boolean') {
-      return value ? 'Yes' : 'No';
+      return value ? tCommon('yes') : tCommon('no');
     }
-    return String(value);
+    // Translate enum values
+    const stringValue = String(value);
+    if (stringValue === 'YES') return tCommon('yes');
+    if (stringValue === 'NO') return tCommon('no');
+    if (stringValue === 'DNC') return tCommon('dnc');
+    if (stringValue === 'NA') return tCommon('na');
+
+    return stringValue;
   };
 
-  // Filter out object/array fields and ID fields (we'll handle gauges separately)
-  const scalarFields = Object.entries(data).filter(
-    ([key, value]) =>
-      !isIdField(key) &&
-      key !== 'gauges' &&
-      (typeof value !== 'object' || value === null) &&
-      value !== null &&
-      value !== undefined &&
-      value !== '',
-  );
+  // Define all scalar fields that should be shown
+  const scalarFieldKeys = ['changedOil', 'oilTemperatureF', 'oilMfgType', 'changedFilter', 'notes'];
 
   const gauges = Array.isArray(data.gauges) ? data.gauges : [];
 
   return (
     <div className="text-xs space-y-3">
       {/* Scalar fields table */}
-      {scalarFields.length > 0 && (
+      {scalarFieldKeys.length > 0 && (
         <div className="border-t pt-2 mb-3">
           <div className="border rounded-md overflow-hidden">
             <Table>
@@ -89,12 +81,12 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {scalarFields.map(([key, value]) => (
+                {scalarFieldKeys.map((key) => (
                   <TableRow key={key} className="text-[11px] hover:bg-muted/30">
                     <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                      {formatFieldName(key)}
+                      {translateFieldName(key)}
                     </TableCell>
-                    <TableCell className="py-1.5 text-center">{displayValue(value)}</TableCell>
+                    <TableCell className="py-1.5 text-center">{displayValue(data[key])}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -142,8 +134,8 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
         </div>
       )}
 
-      {/* Show message if no data to display */}
-      {scalarFields.length === 0 && gauges.length === 0 && (
+      {/* Show message if no data at all */}
+      {scalarFieldKeys.length === 0 && gauges.length === 0 && (
         <div className="border-t pt-2">
           <Typography variant="muted" className="text-center py-4 text-xs">
             Nenhum dado disponível

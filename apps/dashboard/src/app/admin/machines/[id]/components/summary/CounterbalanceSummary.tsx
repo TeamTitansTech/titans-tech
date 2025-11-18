@@ -10,23 +10,7 @@ export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {
   const tTable = useTranslations('table');
   const tServicesSummary = useTranslations('services.modal.summary');
   const tCounterbalanceFields = useTranslations('inspections.form.counterbalanceCylinder');
-
-  // Helper function to check if a field is an ID field
-  const isIdField = (key: string): boolean => {
-    const lowerKey = key.toLowerCase();
-    return (
-      key === 'id' ||
-      key.endsWith('Id') ||
-      key.endsWith('ID') ||
-      lowerKey === 'id' ||
-      lowerKey === 'createdat' ||
-      lowerKey === 'updatedat' ||
-      key === 'createdAt' ||
-      key === 'updatedAt' ||
-      key === 'created_at' ||
-      key === 'updated_at'
-    );
-  };
+  const tCommon = useTranslations('common.status');
 
   // Helper function to translate field names
   const translateFieldName = (key: string): string => {
@@ -47,16 +31,40 @@ export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {
       .join(' ');
   };
 
-  // Helper function to display value or "-" for empty
+  // Helper function to display value with translations
   const displayValue = (value: any): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }
     if (typeof value === 'boolean') {
-      return value ? 'Yes' : 'No';
+      return value ? tCommon('yes') : tCommon('no');
     }
-    return String(value);
+    // Translate enum values
+    const stringValue = String(value);
+    if (stringValue === 'YES') return tCommon('yes');
+    if (stringValue === 'NO') return tCommon('no');
+    if (stringValue === 'DNC') return tCommon('dnc');
+    if (stringValue === 'NA') return tCommon('na');
+    if (stringValue === 'OK') return tCommon('ok');
+    if (stringValue === 'DAMAGED') return tCommon('damaged');
+    if (stringValue === 'LEAKING') return tCommon('leaking');
+    if (stringValue === 'NOT_OPERATIONAL') return tCommon('not_operational');
+
+    return stringValue;
   };
+
+  // Define all fields that should be shown for counterbalance data
+  const counterbalanceFields = [
+    'counterbalanceType',
+    'airbagPistonSeals',
+    'airbagPistonSealsLeakLocation',
+    'regulator',
+    'gauge',
+    'pneumaticsPlumbing',
+    'rodSeals',
+    'rodBushing',
+    'oilWick',
+  ];
 
   return (
     <div className="text-xs space-y-3">
@@ -68,14 +76,12 @@ export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {
                 {tTable('outer')}
               </div>
               <div className="p-2 space-y-1.5 text-[11px]">
-                {Object.entries(data.outerData)
-                  .filter(([key]) => !isIdField(key) && key !== 'notes')
-                  .map(([key, value]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-muted-foreground">{translateFieldName(key)}:</span>
-                      <span className="font-medium">{displayValue(value)}</span>
-                    </div>
-                  ))}
+                {counterbalanceFields.map((key) => (
+                  <div key={key} className="flex justify-between">
+                    <span className="text-muted-foreground">{translateFieldName(key)}:</span>
+                    <span className="font-medium">{displayValue(data.outerData[key])}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -86,14 +92,12 @@ export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {
                 {tTable('inner')}
               </div>
               <div className="p-2 space-y-1.5 text-[11px]">
-                {Object.entries(data.innerData)
-                  .filter(([key]) => !isIdField(key) && key !== 'notes')
-                  .map(([key, value]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-muted-foreground">{translateFieldName(key)}:</span>
-                      <span className="font-medium">{displayValue(value)}</span>
-                    </div>
-                  ))}
+                {counterbalanceFields.map((key) => (
+                  <div key={key} className="flex justify-between">
+                    <span className="text-muted-foreground">{translateFieldName(key)}:</span>
+                    <span className="font-medium">{displayValue(data.innerData[key])}</span>
+                  </div>
+                ))}
               </div>
             </div>
           )}

@@ -11,7 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { hasActualData, extractBearingRows } from '../utils/sectionDataUtils';
-import { displayValue } from '../utils/fieldFormatters';
+import { formatFieldName } from '../utils/fieldFormatters';
 
 interface BearingClearanceSummaryProps {
   data: any;
@@ -22,6 +22,40 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
   const tTable = useTranslations('table');
   const tBearingFields = useTranslations('bearingFields');
   const tServicesSummary = useTranslations('services.modal.summary');
+  const tCommon = useTranslations('common.status');
+
+  // Helper function to translate field names
+  const translateFieldName = (key: string): string => {
+    const translation = tBearingFields(key);
+    if (translation !== key) return translation;
+    // Fallback to formatFieldName
+    return formatFieldName(key);
+  };
+
+  // Helper function to display value with translations
+  const displayValue = (value: any): string => {
+    if (value === null || value === undefined || value === '') {
+      return '-';
+    }
+    if (typeof value === 'boolean') {
+      return value ? tCommon('yes') : tCommon('no');
+    }
+    // Translate enum values
+    const stringValue = String(value);
+    if (stringValue === 'YES') return tCommon('yes');
+    if (stringValue === 'NO') return tCommon('no');
+    if (stringValue === 'DNC') return tCommon('dnc');
+    if (stringValue === 'NA') return tCommon('na');
+    if (stringValue === 'OK') return tCommon('ok');
+    if (stringValue === 'DAMAGED') return tCommon('damaged');
+    if (stringValue === 'LEAKING') return tCommon('leaking');
+    if (stringValue === 'NOT_OPERATIONAL') return tCommon('not_operational');
+    if (stringValue === 'BUSHING') return tCommon('bushing');
+    if (stringValue === 'BED') return tCommon('bed');
+    if (stringValue === 'BOLSTER') return tCommon('bolster');
+
+    return stringValue;
+  };
 
   // Check if we have before data
   const hasBeforeData =
@@ -71,7 +105,7 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                   {outerBeforeRows.map((row, idx) => (
                     <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
                       <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                        {row.field}
+                        {translateFieldName(row.field)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
                         {displayValue(row.lh)}
@@ -112,7 +146,7 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                   {innerBeforeRows.map((row, idx) => (
                     <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
                       <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                        {row.field}
+                        {translateFieldName(row.field)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
                         {displayValue(row.lh)}
@@ -165,7 +199,7 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                   {outerAfterRows.map((row, idx) => (
                     <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
                       <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                        {row.field}
+                        {translateFieldName(row.field)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
                         {displayValue(row.lh)}
@@ -206,7 +240,7 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                   {innerAfterRows.map((row, idx) => (
                     <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
                       <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                        {row.field}
+                        {translateFieldName(row.field)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
                         {displayValue(row.lh)}

@@ -9,6 +9,17 @@ interface ClutchSummaryProps {
 
 export function ClutchSummary({ data }: ClutchSummaryProps) {
   const tServicesSummary = useTranslations('services.modal.summary');
+  const tClutchFields = useTranslations('inspections.form.clutch.fields');
+  const tClutchSections = useTranslations('inspections.form.clutch.sections');
+  const tCommon = useTranslations('common.status');
+
+  // Helper function to translate field names
+  const translateFieldName = (key: string): string => {
+    const translation = tClutchFields(key);
+    if (translation !== key) return translation;
+    // Fallback to formatFieldName
+    return formatFieldName(key);
+  };
 
   // Helper function to format field names
   const formatFieldName = (key: string): string => {
@@ -21,61 +32,64 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
       .join(' ');
   };
 
-  // Helper function to display value or "-" for empty
+  // Helper function to display value with translations
   const displayValue = (value: any): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }
     if (typeof value === 'boolean') {
-      return value ? 'Yes' : 'No';
+      return value ? tCommon('yes') : tCommon('no');
     }
-    return String(value);
+    // Translate enum values
+    const stringValue = String(value);
+    if (stringValue === 'YES') return tCommon('yes');
+    if (stringValue === 'NO') return tCommon('no');
+    if (stringValue === 'DNC') return tCommon('dnc');
+    if (stringValue === 'NA') return tCommon('na');
+    if (stringValue === 'OK') return tCommon('ok');
+    if (stringValue === 'DAMAGED') return tCommon('damaged');
+    if (stringValue === 'LEAKING') return tCommon('leaking');
+    if (stringValue === 'NOT_OPERATIONAL') return tCommon('not_operational');
+
+    return stringValue;
   };
 
-  // Helper to render a field group
+  // Helper to render a field group - shows all fields even if empty
   const renderFieldGroup = (
     title: string,
     fields: Array<{ key: string; label?: string; combine?: boolean }>,
   ) => {
-    const visibleFields = fields
-      .map((field) => {
-        // Handle combined pressure fields
-        if (field.combine && field.key.endsWith('Value')) {
-          const baseKey = field.key.replace('Value', '');
-          const value = data[field.key];
-          const unit = data[`${baseKey}Unit`];
-          if (value !== null && value !== undefined && value !== '') {
-            return {
-              key: field.key,
-              label: field.label || formatFieldName(baseKey),
-              value: `${value} ${unit || 'PSI'}`,
-            };
-          }
-          return null;
-        }
-        // Handle regular fields
+    const formattedFields = fields.map((field) => {
+      // Handle combined pressure fields
+      if (field.combine && field.key.endsWith('Value')) {
+        const baseKey = field.key.replace('Value', '');
         const value = data[field.key];
-        if (value !== null && value !== undefined && value !== '') {
-          return {
-            key: field.key,
-            label: field.label || formatFieldName(field.key),
-            value: displayValue(value),
-          };
-        }
-        return null;
-      })
-      .filter(Boolean);
-
-    if (visibleFields.length === 0) return null;
+        const unit = data[`${baseKey}Unit`];
+        const displayVal =
+          value !== null && value !== undefined && value !== '' ? `${value} ${unit || 'PSI'}` : '-';
+        return {
+          key: field.key,
+          label: field.label || translateFieldName(baseKey),
+          value: displayVal,
+        };
+      }
+      // Handle regular fields
+      const value = data[field.key];
+      return {
+        key: field.key,
+        label: field.label || translateFieldName(field.key),
+        value: displayValue(value),
+      };
+    });
 
     return (
       <div className="border rounded-md overflow-hidden">
         <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold border-b">{title}</div>
         <div className="p-2 space-y-1.5 text-[11px]">
-          {visibleFields.map((field) => (
-            <div key={field!.key} className="flex justify-between gap-2">
-              <span className="text-muted-foreground">{field!.label}:</span>
-              <span className="font-medium text-right">{field!.value}</span>
+          {formattedFields.map((field) => (
+            <div key={field.key} className="flex justify-between gap-2">
+              <span className="text-muted-foreground">{field.label}:</span>
+              <span className="font-medium text-right">{field.value}</span>
             </div>
           ))}
         </div>
@@ -102,7 +116,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
       <div className="border-t pt-2">
         {/* Basic Info */}
         <div className="grid grid-cols-2 gap-3 mb-3">
-          {renderFieldGroup('Basic Information', [
+          {renderFieldGroup(tClutchSections('basicInformation'), [
             { key: 'clutchType' },
             { key: 'clutchLocation' },
           ])}
@@ -110,19 +124,19 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
 
         {/* Brake Spring Settings */}
         <div className="mb-3">
-          {renderFieldGroup('Brake Spring Settings (inches)', [
-            { key: 'brakeSpringBrake', label: 'Brake' },
-            { key: 'brakeSpringClutch', label: 'Clutch' },
-            { key: 'brakeSpringFB', label: 'FB' },
-            { key: 'brakeSpringFTB', label: 'FTB' },
-            { key: 'brakeSpringRTB', label: 'RTB' },
-            { key: 'brakeSpringStudBolt', label: 'Stud Bolt' },
+          {renderFieldGroup(tClutchSections('brakeSpringSettings'), [
+            { key: 'brakeSpringBrake', label: tClutchFields('brakeSpringBrake') },
+            { key: 'brakeSpringClutch', label: tClutchFields('brakeSpringClutch') },
+            { key: 'brakeSpringFB', label: tClutchFields('brakeSpringFB') },
+            { key: 'brakeSpringFTB', label: tClutchFields('brakeSpringFTB') },
+            { key: 'brakeSpringRTB', label: tClutchFields('brakeSpringRTB') },
+            { key: 'brakeSpringStudBolt', label: tClutchFields('brakeSpringStudBolt') },
           ])}
         </div>
 
         {/* Brake Measurements */}
         <div className="grid grid-cols-2 gap-3 mb-3">
-          {renderFieldGroup('Brake Measurements', [
+          {renderFieldGroup(tClutchSections('brakeMeasurements'), [
             { key: 'brakeStoppingTime' },
             { key: 'brakeLining' },
             { key: 'brakeClearing' },
@@ -130,7 +144,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
             { key: 'brakeClearanceRear' },
           ])}
 
-          {renderFieldGroup('Flywheel', [
+          {renderFieldGroup(tClutchSections('flywheel'), [
             { key: 'flywheelStoppingTime' },
             { key: 'flywheelBearings' },
             { key: 'flywheelBrake' },
@@ -139,7 +153,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
 
         {/* Clutch & Seals */}
         <div className="grid grid-cols-2 gap-3 mb-3">
-          {renderFieldGroup('Clutch & Seals', [
+          {renderFieldGroup(tClutchSections('clutchSeals'), [
             { key: 'rotaryUnion' },
             { key: 'clutchEngagements' },
             { key: 'clutchLining' },
@@ -148,7 +162,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
             { key: 'flexDisc' },
           ])}
 
-          {renderFieldGroup('Adjustments', [
+          {renderFieldGroup(tClutchSections('adjustments'), [
             { key: 'splinesDriveRingDisc' },
             { key: 'adjustingNutLockSecure' },
           ])}
@@ -156,20 +170,20 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
 
         {/* Measurements - Before/After */}
         <div className="grid grid-cols-2 gap-3 mb-3">
-          {renderFieldGroup('Gear Backlash', [
-            { key: 'gearBacklashBefore', label: 'Before' },
-            { key: 'gearBacklashAfter', label: 'After' },
+          {renderFieldGroup(tClutchSections('gearBacklash'), [
+            { key: 'gearBacklashBefore', label: tClutchSections('before') },
+            { key: 'gearBacklashAfter', label: tClutchSections('after') },
           ])}
 
-          {renderFieldGroup('Crank Endplay', [
-            { key: 'crankEndplayBefore', label: 'Before' },
-            { key: 'crankEndplayAfter', label: 'After' },
+          {renderFieldGroup(tClutchSections('crankEndplay'), [
+            { key: 'crankEndplayBefore', label: tClutchSections('before') },
+            { key: 'crankEndplayAfter', label: tClutchSections('after') },
           ])}
         </div>
 
         {/* Air System */}
         <div className="mb-3">
-          {renderFieldGroup('Air System', [
+          {renderFieldGroup(tClutchSections('airSystem'), [
             { key: 'airRegulatorValue', combine: true },
             { key: 'airClutchTravel' },
             { key: 'airLineOilerSetting' },
@@ -178,7 +192,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
 
         {/* Hydraulic System */}
         <div className="grid grid-cols-2 gap-3 mb-3">
-          {renderFieldGroup('Hydraulic System', [
+          {renderFieldGroup(tClutchSections('hydraulicSystem'), [
             { key: 'hydClutchClearanceTotal' },
             { key: 'hydClutchClearanceRear' },
             { key: 'hydraulicPressureValue', combine: true },

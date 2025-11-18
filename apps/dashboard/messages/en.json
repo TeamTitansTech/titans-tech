@@ -13,7 +13,10 @@
       "leaking": "Leaking",
       "not_operational": "Not Operational",
       "dark_oil": "Dark Oil",
-      "needs_replaced": "Needs Replaced"
+      "needs_replaced": "Needs Replaced",
+      "bushing": "Bushing",
+      "bed": "Bed",
+      "bolster": "Bolster"
     }
   },
   "validation": {
@@ -716,6 +719,7 @@
           "crankEndplayBefore": "Crank Endplay (Before)",
           "crankEndplayAfter": "Crank Endplay (After)",
           "airRegulator": "Air Regulator",
+          "airClutchTravel": "Air Clutch Travel",
           "airClutchTravelClearance": "Air Clutch Travel/Clearance",
           "airLineOilerSetting": "Air Line Oiler Setting",
           "splinesDriveRingDisc": "Splines: Drive Ring Disc",
@@ -729,13 +733,20 @@
           "notes": "Notes"
         },
         "sections": {
+          "basicInformation": "Basic Information",
           "brakeSpringSettings": "Brake Spring Settings",
           "brakeMeasurements": "Brake Measurements",
           "flywheel": "Flywheel",
+          "clutchSeals": "Clutch & Seals",
           "clutchDetails": "Clutch Details",
+          "adjustments": "Adjustments",
+          "gearBacklash": "Gear Backlash",
+          "crankEndplay": "Crank Endplay",
           "gearBacklashCrankEndplay": "Gear Backlash & Crank Endplay",
           "airSystem": "Air System",
-          "hydraulicSystem": "Hydraulic System"
+          "hydraulicSystem": "Hydraulic System",
+          "before": "Before",
+          "after": "After"
         },
         "placeholders": {
           "selectType": "Select type",
@@ -774,6 +785,7 @@
       },
       "tramming": {
         "slideTram": "Slide Tram",
+        "unit": "Unit",
         "outerSection": "Outer",
         "innerSection": "Inner",
         "measurementPoints": "Measurement Points",
@@ -962,6 +974,14 @@
     "innerAfterMaintenance": "Inner - After Maintenance"
   },
   "bearingFields": {
+    "totalClearance": "Total Clearance",
+    "mainBearings": "Main Bearings",
+    "upperConnectionBearings": "Upper Connection Bearings",
+    "wristPinToMatingPart": "Wrist Pin To Mating Part",
+    "wristPinToBushing": "Wrist Pin To Bushing",
+    "slideAdjNutToScrewSleeve": "Slide Adj Nut To Screw Sleeve",
+    "extraDoubleLockOpen": "Extra Double Lock Open",
+    "ballBoxArea": "Ball Box Area",
     "combinedWith": "Combined With",
     "matingPart": "Mating Part",
     "hasBeenAdjusted": "Has Been Adjusted",

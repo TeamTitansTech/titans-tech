@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { calculateMaxDeviation } from '../utils/sectionDataUtils';
 
 interface SlideSummaryProps {
   data: any;
@@ -20,84 +21,13 @@ export function SlideSummary({ data }: SlideSummaryProps) {
   const tTable = useTranslations('table');
   const tMeasurements = useTranslations('measurements');
   const tServicesSummary = useTranslations('services.modal.summary');
-
-  // Helper function to check if a field is an ID field
-  const isIdField = (key: string): boolean => {
-    const lowerKey = key.toLowerCase();
-    return (
-      key === 'id' ||
-      key.endsWith('Id') ||
-      key.endsWith('ID') ||
-      lowerKey === 'id' ||
-      lowerKey === 'createdat' ||
-      lowerKey === 'updatedat' ||
-      key === 'createdAt' ||
-      key === 'updatedAt' ||
-      key === 'created_at' ||
-      key === 'updated_at'
-    );
-  };
-
-  // Helper function to check if a field should be shown in Slide section summary
-  const isSlideFieldAllowedInSummary = (key: string): boolean => {
-    // Position fields (not allowed)
-    if (key.startsWith('position')) return false;
-
-    // Only allow specific fields
-    const allowedFields = [
-      // These fields are at the section level, not in nested objects
-      'outerParallelism',
-      'outerHasParallelismBeenAdjusted',
-      'innerParallelism',
-      'innerHasParallelismBeenAdjusted',
-      'outerShutheightIndicatorsChecked',
-      'outerOverloadsOnTonnageMonitor',
-      'outerShutheightActualSh',
-      'outerIndicatorReading',
-      'innerShutheightIndicatorsChecked',
-      'innerOverloadsOnTonnageMonitor',
-      'innerShutheightActualSh',
-      'innerIndicatorReading',
-      'notes',
-    ];
-
-    return allowedFields.includes(key);
-  };
-
-  // Helper function to calculate max deviation from slide position data
-  const calculateMaxDeviation = (data: any): string => {
-    if (!data) return '-';
-
-    const positions = [
-      data.position1,
-      data.position2,
-      data.position3,
-      data.position4,
-      data.position5,
-      data.position6,
-    ];
-    const validValues = positions.filter(
-      (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
-    );
-
-    if (validValues.length > 1) {
-      const max = Math.max(...validValues);
-      const min = Math.min(...validValues);
-      return (max - min).toFixed(4);
-    }
-    return '-';
-  };
+  const tCommon = useTranslations('common.status');
 
   // Helper function to translate field names
   const translateFieldName = (key: string): string => {
     const translation = tSlideFields(key);
     if (translation !== key) return translation;
     // Fallback to formatFieldName
-    return formatFieldName(key);
-  };
-
-  // Helper function to format field names
-  const formatFieldName = (key: string): string => {
     return key
       .replace(/([A-Z])/g, ' $1')
       .replace(/_/g, ' ')
@@ -107,59 +37,45 @@ export function SlideSummary({ data }: SlideSummaryProps) {
       .join(' ');
   };
 
-  // Helper function to display value or "-" for empty
+  // Helper function to display value with translations
   const displayValue = (value: any): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }
     if (typeof value === 'boolean') {
-      return value ? 'Yes' : 'No';
+      return value ? tCommon('yes') : tCommon('no');
     }
-
-    // Handle enum translations
+    // Translate enum values
     const stringValue = String(value);
-
-    // Translate ParallelismType values
-    if (stringValue === 'TO_BED') {
-      return tSlide('toBed');
-    }
-    if (stringValue === 'TO_BOLSTER') {
-      return tSlide('toBolster');
-    }
-    if (stringValue === 'DNC') {
-      return tSlide('dnc');
-    }
-
-    // Translate Yes/No/NA values
-    if (stringValue === 'YES') {
-      return tSlide('yes');
-    }
-    if (stringValue === 'NO') {
-      return tSlide('no');
-    }
-    if (stringValue === 'NA') {
-      return tSlide('na');
-    }
+    if (stringValue === 'YES') return tCommon('yes');
+    if (stringValue === 'NO') return tCommon('no');
+    if (stringValue === 'DNC') return tCommon('dnc');
+    if (stringValue === 'NA') return tCommon('na');
 
     return stringValue;
   };
 
+  // Define all section-level fields that should be shown
+  const sectionLevelFields = [
+    'outerParallelism',
+    'outerHasParallelismBeenAdjusted',
+    'innerParallelism',
+    'innerHasParallelismBeenAdjusted',
+    'outerShutheightIndicatorsChecked',
+    'outerOverloadsOnTonnageMonitor',
+    'outerShutheightActualSh',
+    'outerIndicatorReading',
+    'innerShutheightIndicatorsChecked',
+    'innerOverloadsOnTonnageMonitor',
+    'innerShutheightActualSh',
+    'innerIndicatorReading',
+    'notes',
+  ];
+
   return (
     <div className="text-xs space-y-3">
-      {/* Section-level fields table - Only specific fields */}
-      {Object.entries(data).filter(
-        ([key, value]) =>
-          !isIdField(key) &&
-          isSlideFieldAllowedInSummary(key) &&
-          key !== 'outerData' &&
-          key !== 'innerData' &&
-          key !== 'outerBefore' &&
-          key !== 'innerBefore' &&
-          (typeof value !== 'object' || value === null) &&
-          value !== null &&
-          value !== undefined &&
-          value !== '',
-      ).length > 0 && (
+      {/* Section-level fields table - Show all fields */}
+      {sectionLevelFields.some((key) => key in data) && (
         <div className="border-t pt-2">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {tServicesSummary('sectionFields')}
@@ -177,28 +93,14 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {Object.entries(data)
-                  .filter(
-                    ([key, value]) =>
-                      !isIdField(key) &&
-                      isSlideFieldAllowedInSummary(key) &&
-                      key !== 'outerData' &&
-                      key !== 'innerData' &&
-                      key !== 'outerBefore' &&
-                      key !== 'innerBefore' &&
-                      (typeof value !== 'object' || value === null) &&
-                      value !== null &&
-                      value !== undefined &&
-                      value !== '',
-                  )
-                  .map(([key, value]) => (
-                    <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                      <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                        {translateFieldName(key)}
-                      </TableCell>
-                      <TableCell className="py-1.5 text-center">{displayValue(value)}</TableCell>
-                    </TableRow>
-                  ))}
+                {sectionLevelFields.map((key) => (
+                  <TableRow key={key} className="text-[11px] hover:bg-muted/30">
+                    <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                      {translateFieldName(key)}
+                    </TableCell>
+                    <TableCell className="py-1.5 text-center">{displayValue(data[key])}</TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </div>
