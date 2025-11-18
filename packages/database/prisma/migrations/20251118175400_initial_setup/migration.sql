@@ -104,6 +104,30 @@ CREATE TYPE "SeparateBrakeSealsType" AS ENUM ('OK', 'NA', 'DNC', 'LEAKING');
 CREATE TYPE "FlexDiscType" AS ENUM ('OK', 'NA', 'DNC', 'BUCKLED', 'CRACKED');
 
 -- CreateEnum
+CREATE TYPE "FoundationType" AS ENUM ('PLANT_FLOOR', 'ISOLATED_PAD');
+
+-- CreateEnum
+CREATE TYPE "FrameType" AS ENUM ('GAP', 'STRAIGHT_SIDE');
+
+-- CreateEnum
+CREATE TYPE "MachineClutchType" AS ENUM ('JH5', 'NA');
+
+-- CreateEnum
+CREATE TYPE "PneumaticSystemType" AS ENUM ('AIR', 'HYD', 'WET_AIR', 'WET_HYD');
+
+-- CreateEnum
+CREATE TYPE "PressMountingType" AS ENUM ('ADJUSTABLE', 'ON_FLOOR', 'SHIMS', 'OTHER');
+
+-- CreateEnum
+CREATE TYPE "MachineFeaturesType" AS ENUM ('AIM', 'ADJ_STROKE', 'DOUBLE_LOCKUP', 'NA');
+
+-- CreateEnum
+CREATE TYPE "DriveBeltConditionType" AS ENUM ('OK', 'NA', 'LOOSENED', 'TIGHTENED', 'WORN');
+
+-- CreateEnum
+CREATE TYPE "ProtectiveCoversStatusType" AS ENUM ('YES', 'NO', 'OK');
+
+-- CreateEnum
 CREATE TYPE "ServiceSection" AS ENUM ('BEARING_CLEARANCE', 'SLIDE', 'GIBS', 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER', 'CLUTCH', 'COUNTERBALANCE_CYLINDER_AIRBAG', 'TRAMMING', 'PISTONS');
 
 -- CreateEnum
@@ -241,6 +265,17 @@ CREATE TABLE "machines" (
     "blueprintId" TEXT NOT NULL,
     "branchId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "manufacturer" TEXT,
+    "model" TEXT,
+    "sizeTonnage" TEXT,
+    "serialNumber" TEXT,
+    "stroke" TEXT,
+    "foundationType" "FoundationType",
+    "frameType" "FrameType",
+    "clutchType" "MachineClutchType",
+    "pneumaticSystem" "PneumaticSystemType",
+    "pressMounting" "PressMountingType",
+    "features" "MachineFeaturesType",
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -272,6 +307,15 @@ CREATE TABLE "machine_services" (
     "currentStep" TEXT,
     "currentSectionKey" TEXT,
     "selectedSections" JSONB DEFAULT '[]',
+    "isPressLevel" "YesNoNaDncType",
+    "driveBeltCondition" "DriveBeltConditionType",
+    "areAllProtectiveCovers" "ProtectiveCoversStatusType",
+    "protectiveCoversExplanation" TEXT,
+    "areCracksVisible" "YesNoDncType",
+    "cracksLocation" TEXT,
+    "isMainMotorSecure" "YesNoDncType",
+    "isMotorPlateSecure" "YesNoDncType",
+    "whyNotCovered" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 

@@ -48,6 +48,16 @@ export class ServicesController {
     return this.servicesService.getLatestReport(machineId);
   }
 
+  // Update service (for basic service info and inspection observations)
+  @Authenticated()
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateServiceDto,
+  ): Promise<unknown> {
+    return this.servicesService.update(id, updateDto);
+  }
+
   // Section update endpoints
   @Authenticated()
   @Patch(':id/sections/bearing-clearance')

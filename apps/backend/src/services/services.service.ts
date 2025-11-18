@@ -6,6 +6,7 @@ import {
 import { Prisma, ServiceSection, ServiceStatus } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateServiceDto } from './dto/create-service.dto';
+import { UpdateServiceDto } from './dto/update-service.dto';
 import { CompleteServiceDto } from './dto/complete-service.dto';
 import {
   UpdateBearingClearanceDto,
@@ -89,6 +90,134 @@ export class ServicesService {
     });
 
     return inspection;
+  }
+
+  async update(serviceId: string, updateDto: UpdateServiceDto): Promise<any> {
+    // Verify service exists
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    // Build the update data object with only the fields that are provided
+    const updateData: Prisma.MachineServiceUpdateInput = {};
+
+    // Basic service fields
+    if (updateDto.performedBy !== undefined) {
+      updateData.performedBy = updateDto.performedBy;
+    }
+    if (updateDto.currentStep !== undefined) {
+      updateData.currentStep = updateDto.currentStep;
+    }
+    if (updateDto.currentSectionKey !== undefined) {
+      updateData.currentSectionKey = updateDto.currentSectionKey;
+    }
+
+    // Inspection observation fields
+    if (updateDto.isPressLevel !== undefined) {
+      updateData.isPressLevel = updateDto.isPressLevel;
+    }
+    if (updateDto.driveBeltCondition !== undefined) {
+      updateData.driveBeltCondition = updateDto.driveBeltCondition as any;
+    }
+    if (updateDto.areAllProtectiveCovers !== undefined) {
+      updateData.areAllProtectiveCovers =
+        updateDto.areAllProtectiveCovers as any;
+    }
+    if (updateDto.protectiveCoversExplanation !== undefined) {
+      updateData.protectiveCoversExplanation =
+        updateDto.protectiveCoversExplanation;
+    }
+    if (updateDto.areCracksVisible !== undefined) {
+      updateData.areCracksVisible = updateDto.areCracksVisible;
+    }
+    if (updateDto.cracksLocation !== undefined) {
+      updateData.cracksLocation = updateDto.cracksLocation;
+    }
+    if (updateDto.isMainMotorSecure !== undefined) {
+      updateData.isMainMotorSecure = updateDto.isMainMotorSecure;
+    }
+    if (updateDto.isMotorPlateSecure !== undefined) {
+      updateData.isMotorPlateSecure = updateDto.isMotorPlateSecure;
+    }
+    if (updateDto.whyNotCovered !== undefined) {
+      updateData.whyNotCovered = updateDto.whyNotCovered;
+    }
+
+    // Update the service
+    const updatedService = await this.prisma.machineService.update({
+      where: { id: serviceId },
+      data: updateData,
+      include: {
+        machine: {
+          include: {
+            blueprint: true,
+            fields: true,
+          },
+        },
+        bearingClearance: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        slide: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        lubricationHydraulics: {
+          include: {
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
+          },
+        },
+        clutch: {
+          include: {
+            data: true,
+          },
+        },
+        counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        pistons: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+      },
+    });
+
+    return updatedService;
   }
 
   async findAll(): Promise<
