@@ -83,7 +83,14 @@ export class NotificationsService {
       updatedAt: notification.updatedAt.toISOString(),
     };
 
-    this.notificationsGateway.emitNotificationToAllAdmins(notificationDto);
+    // Broadcast notification to all connected admins via WebSocket
+    this.notificationsGateway.handleNewNotification(notificationDto);
+
+    // Get updated stats and broadcast them
+    const stats = await this.getAdminNotificationStats(
+      machine.branch.companyId,
+    );
+    this.notificationsGateway.broadcastStatsUpdate(stats);
 
     const adminEmails = 'xewonip570@delaeb.com';
     const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${machineId}?openServiceModal=true`;

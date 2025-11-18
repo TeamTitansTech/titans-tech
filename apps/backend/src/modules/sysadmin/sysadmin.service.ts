@@ -9,6 +9,7 @@ import { LoginDto } from './dto/login.dto';
 import { SysAdminResponseDto, UpdatePasswordDto } from '@titans-tech/shared';
 import { SysAdminJwtPayload } from '../../types/request';
 import * as bcrypt from 'bcrypt';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const DEFAULT_PASSWORD = 'password';
 
@@ -17,6 +18,7 @@ export class SysAdminService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -58,7 +60,17 @@ export class SysAdminService {
       throw new NotFoundException('SysAdmin not found');
     }
 
-    return new SysAdminResponseDto(sysAdmin);
+    // Buscar quantidade de notificações não lidas (AdminNotification para sysadmin)
+    const unreadNotifications = await this.prisma.adminNotification.count({
+      where: {
+        isRead: false,
+      },
+    });
+
+    const sysAdminResponse = new SysAdminResponseDto(sysAdmin);
+    sysAdminResponse.unreadNotifications = unreadNotifications;
+
+    return sysAdminResponse;
   }
 
   async updatePassword(userId: string, data: UpdatePasswordDto) {

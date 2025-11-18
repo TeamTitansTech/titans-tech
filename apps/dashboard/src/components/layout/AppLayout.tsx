@@ -13,12 +13,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { companyUser } = useCompanyUser();
   const { sysAdminUser } = useSysAdmin();
 
-  // Get user ID from either context
+  // Get user ID and unread notifications from either context
   const userId = companyUser?.id || sysAdminUser?.id;
+  const unreadNotifications =
+    companyUser?.unreadNotifications || sysAdminUser?.unreadNotifications || 0;
 
   console.log('[AppLayout] Current pathname:', pathname);
   console.log('[AppLayout] Should skip layout?', noLayoutPaths.includes(pathname));
   console.log('[AppLayout] UserId:', userId);
+  console.log('[AppLayout] Unread notifications:', unreadNotifications);
 
   if (noLayoutPaths.includes(pathname)) {
     console.log('[AppLayout] Skipping layout for:', pathname);
@@ -27,7 +30,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   console.log('[AppLayout] Using full layout with NotificationsSocketProvider');
   return (
-    <NotificationsSocketProvider userId={userId}>
+    <NotificationsSocketProvider userId={userId} initialUnreadCount={unreadNotifications}>
       <SidebarProvider defaultOpen={true}>
         <AppSidebar />
         <SidebarInset>

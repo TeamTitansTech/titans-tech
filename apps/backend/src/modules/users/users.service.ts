@@ -17,6 +17,7 @@ import * as bcrypt from 'bcrypt';
 import { FieldsErr } from 'src/errors/err';
 import { isSysAdmin, JwtPayload, UserJwtPayload } from 'src/types/request';
 import { JwtService } from '@nestjs/jwt';
+import { NotificationsService } from '../notifications/notifications.service';
 
 const defaultPassword = 'password';
 @Injectable()
@@ -24,6 +25,7 @@ export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async login(email: string, password: string, companyId: string) {
@@ -81,7 +83,18 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    return new UserResponseDto(user);
+    // Buscar quantidade de notificações não lidas
+    const unreadNotifications = await this.prisma.clientNotification.count({
+      where: {
+        userId,
+        isRead: false,
+      },
+    });
+
+    const userResponse = new UserResponseDto(user);
+    userResponse.unreadNotifications = unreadNotifications;
+
+    return userResponse;
   }
 
   async findAll(companyId: string) {

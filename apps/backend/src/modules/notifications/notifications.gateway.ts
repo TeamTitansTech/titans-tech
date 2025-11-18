@@ -1,237 +1,135 @@
 import {
-  WebSocketGateway,
-  WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
-import { Logger } from '@nestjs/common';
+import { Socket, Server } from 'socket.io';
+import { Logger, OnModuleInit } from '@nestjs/common';
+import type { AdminNotificationResponseDto } from '@titans-tech/shared/backend-dtos';
 
 @WebSocketGateway({
   cors: {
     origin: '*',
     credentials: true,
   },
-  transports: ['websocket', 'polling'],
+  namespace: '/notifications',
 })
 export class NotificationsGateway
-  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+  implements
+    OnGatewayInit,
+    OnGatewayConnection,
+    OnGatewayDisconnect,
+    OnModuleInit
 {
-  @WebSocketServer()
-  server: Server;
-
+  @WebSocketServer() server: Server;
   private readonly logger = new Logger(NotificationsGateway.name);
-  private connectedClients = new Map<string, Set<string>>();
-  private isInitialized = false;
-  private pendingNotifications: Array<{
-    type: 'user' | 'company' | 'admin' | 'stats';
-    data: any;
-    target?: string;
-  }> = [];
 
-  constructor() {
-    this.logger.log('🏗️ NotificationsGateway constructor called!');
+  onModuleInit() {
+    this.logger.log('NotificationsGateway module initialized');
   }
 
-  afterInit(server: Server) {
-    this.logger.log(
-      '📢 afterInit() called! Server parameter received:',
-      !!server,
-    );
-    this.server = server;
-    this.markAsInitialized();
-  }
-
-  private markAsInitialized() {
-    if (this.isInitialized) {
-      return;
-    }
-
-    this.isInitialized = true;
-    this.logger.log('🚀 NotificationsGateway initialized!');
-    this.logger.log(`WebSocket server ready. Server exists: ${!!this.server}`);
-
-    // Emit any pending notifications
-    if (this.pendingNotifications.length > 0) {
-      this.logger.log(
-        `Processing ${this.pendingNotifications.length} pending notifications`,
-      );
-      const notifications = [...this.pendingNotifications];
-      this.pendingNotifications = [];
-
-      notifications.forEach((pending) => {
-        switch (pending.type) {
-          case 'user':
-            this.emitNotificationToUser(pending.target!, pending.data);
-            break;
-          case 'company':
-            this.emitNotificationToCompany(pending.target!, pending.data);
-            break;
-          case 'admin':
-            this.emitNotificationToAllAdmins(pending.data);
-            break;
-          case 'stats':
-            this.emitStatsUpdate(pending.target!, pending.data);
-            break;
-        }
-      });
-    }
-  }
-
-  private ensureInitialized() {
-    // If server is available but not marked as initialized, do it now
-    if (!this.isInitialized && this.server) {
-      this.logger.log('Lazy initializing gateway (afterInit was not called)');
-      this.markAsInitialized();
-    }
+  afterInit() {
+    this.logger.log('WebSocket Gateway initialized');
   }
 
   handleConnection(client: Socket) {
-    // When a client connects, the server should be ready
-    this.ensureInitialized();
-
-    const userId = client.handshake.query.userId as string;
-
-    if (!userId) {
-      this.logger.warn(`Client ${client.id} connected without userId`);
-      client.disconnect();
-      return;
-    }
-
-    // Store client connection
-    if (!this.connectedClients.has(userId)) {
-      this.connectedClients.set(userId, new Set());
-    }
-    this.connectedClients.get(userId)!.add(client.id);
-
-    // Join user-specific room
-    client.join(`user:${userId}`);
-
-    this.logger.log(
-      `Client ${client.id} connected for user ${userId}. Total connections for user: ${this.connectedClients.get(userId)!.size}`,
-    );
+    this.logger.log(`Client connected: ${client.id}`);
   }
 
   handleDisconnect(client: Socket) {
-    const userId = client.handshake.query.userId as string;
+    this.logger.log(`Client disconnected: ${client.id}`);
+  }
 
-    if (userId && this.connectedClients.has(userId)) {
-      const userClients = this.connectedClients.get(userId)!;
-      userClients.delete(client.id);
+  /**
+   * Client subscribes to admin notifications
+   * Usage: socket.emit('joinAdminRoom', { userId: 'admin-user-id', role: 'admin' })
+   */
+  @SubscribeMessage('joinAdminRoom')
+  handleJoinAdminRoom(
+    client: Socket,
+    payload: { userId: string; role: string },
+  ) {
+    const { userId, role } = payload;
 
-      if (userClients.size === 0) {
-        this.connectedClients.delete(userId);
-      }
-
+    // Only allow admins to join the admin room
+    if (role === 'ADMIN' || role === 'SUPER_ADMIN') {
+      client.join('admin-notifications');
       this.logger.log(
-        `Client ${client.id} disconnected for user ${userId}. Remaining connections: ${userClients.size}`,
+        `Admin user ${userId} (${client.id}) joined admin-notifications room`,
       );
+
+      client.emit('joinedAdminRoom', {
+        success: true,
+        message: 'Successfully joined admin notifications',
+      });
+    } else {
+      this.logger.warn(
+        `User ${userId} attempted to join admin room without proper role`,
+      );
+      client.emit('joinedAdminRoom', {
+        success: false,
+        message: 'Unauthorized: Admin role required',
+      });
     }
   }
 
   /**
-   * Emit new notification to specific user
+   * Client leaves admin notifications room
    */
-  emitNotificationToUser(userId: string, notification: any) {
-    this.ensureInitialized();
+  @SubscribeMessage('leaveAdminRoom')
+  handleLeaveAdminRoom(client: Socket, payload: { userId: string }) {
+    client.leave('admin-notifications');
+    this.logger.log(
+      `User ${payload.userId} (${client.id}) left admin-notifications room`,
+    );
 
-    if (!this.isInitialized || !this.server) {
-      this.logger.log(
-        `Queueing notification for user ${userId} (server not ready)`,
-      );
-      this.pendingNotifications.push({
-        type: 'user',
-        target: userId,
-        data: notification,
-      });
-      return;
-    }
-    this.server.to(`user:${userId}`).emit('notification:new', notification);
-    this.logger.log(`Emitted notification to user ${userId}`);
+    client.emit('leftAdminRoom', {
+      success: true,
+      message: 'Left admin notifications room',
+    });
   }
 
   /**
-   * Emit notification update to all company admins
+   * Broadcast a new notification to all connected admins
+   * This is called from the NotificationsService
    */
-  emitNotificationToCompany(companyId: string, notification: any) {
-    this.ensureInitialized();
-
-    if (!this.isInitialized || !this.server) {
-      this.logger.log(
-        `Queueing notification for company ${companyId} (server not ready)`,
+  handleNewNotification(notification: AdminNotificationResponseDto) {
+    if (!this.server) {
+      this.logger.warn(
+        'WebSocket server not initialized yet, skipping notification broadcast',
       );
-      this.pendingNotifications.push({
-        type: 'company',
-        target: companyId,
-        data: notification,
-      });
       return;
     }
+
+    this.logger.log(
+      `Broadcasting new notification ${notification.id} to admin-notifications room`,
+    );
+
+    this.server.to('admin-notifications').emit('newNotification', notification);
+  }
+
+  /**
+   * Broadcast notification stats update to all admins
+   */
+  broadcastStatsUpdate(stats: {
+    totalUnread: number;
+    urgentRequests: number;
+    reminders: number;
+    overdue: number;
+  }) {
+    if (!this.server) {
+      this.logger.warn(
+        'WebSocket server not initialized yet, skipping stats broadcast',
+      );
+      return;
+    }
+
+    this.logger.log('Broadcasting stats update to admin-notifications room');
     this.server
-      .to(`company:${companyId}`)
-      .emit('notification:new', notification);
-    this.logger.log(`Emitted notification to company ${companyId}`);
-  }
-
-  /**
-   * Emit notification stats update to user
-   */
-  emitStatsUpdate(userId: string, stats: any) {
-    this.ensureInitialized();
-
-    if (!this.isInitialized || !this.server) {
-      this.logger.log(
-        `Queueing stats update for user ${userId} (server not ready)`,
-      );
-      this.pendingNotifications.push({
-        type: 'stats',
-        target: userId,
-        data: stats,
-      });
-      return;
-    }
-    this.server.to(`user:${userId}`).emit('notification:stats', stats);
-    this.logger.log(`Emitted stats update to user ${userId}`);
-  }
-
-  /**
-   * Emit notification to all admins (for SysAdmins)
-   */
-  emitNotificationToAllAdmins(notification: any) {
-    this.ensureInitialized();
-
-    if (!this.isInitialized || !this.server) {
-      this.logger.log(`Queueing admin notification (server not ready)`);
-      this.pendingNotifications.push({
-        type: 'admin',
-        data: notification,
-      });
-      return;
-    }
-
-    const connectedCount = this.server.sockets.sockets.size;
-    this.logger.log(
-      `Emitting notification to all admins. Connected clients: ${connectedCount}`,
-    );
-    this.logger.log(
-      `Connected users: ${Array.from(this.connectedClients.keys()).join(', ')}`,
-    );
-
-    this.server.emit('notification:new', notification);
-    this.logger.log('Notification emitted successfully');
-  }
-
-  /**
-   * Register user to receive company notifications
-   */
-  registerCompanyListener(socketId: string, companyId: string) {
-    const socket = this.server.sockets.sockets.get(socketId);
-    if (socket) {
-      socket.join(`company:${companyId}`);
-      this.logger.log(
-        `Socket ${socketId} joined company room: company:${companyId}`,
-      );
-    }
+      .to('admin-notifications')
+      .emit('notificationStatsUpdate', stats);
   }
 }

@@ -53,6 +53,7 @@ export function NotificationsDropdown() {
     }
   };
 
+  // Load notifications when dropdown opens
   useEffect(() => {
     if (isOpen && notifications.length === 0) {
       loadInitialData();

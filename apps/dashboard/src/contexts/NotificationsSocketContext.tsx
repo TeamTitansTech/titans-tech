@@ -23,16 +23,18 @@ const NotificationsSocketContext = createContext<NotificationsSocketContextType 
 interface NotificationsSocketProviderProps {
   children: ReactNode;
   userId?: string;
+  initialUnreadCount?: number;
 }
 
 export function NotificationsSocketProvider({
   children,
   userId,
+  initialUnreadCount = 0,
 }: NotificationsSocketProviderProps) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [notifications, setNotifications] = useState<AdminNotificationResponseDto[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
   useEffect(() => {
@@ -93,66 +95,22 @@ export function NotificationsSocketProvider({
     };
   }, [userId]);
 
-  // Load initial notifications and stats when WebSocket connects
+  // Sync unreadCount when initialUnreadCount changes (from /me endpoint)
   useEffect(() => {
-    const loadData = async () => {
-      if (!isConnected || initialDataLoaded) return;
-
-      console.log('[NotificationsSocket] Loading initial data...');
-
-      try {
-        // Dynamically import the API functions (they are server actions)
-        const { getAdminNotifications, getAdminNotificationStats } = await import(
-          '@/data/services/notifications.api'
-        );
-
-        const [notificationsResult, statsResult] = await Promise.all([
-          getAdminNotifications(10, false),
-          getAdminNotificationStats(),
-        ]);
-
-        if (notificationsResult.data) {
-          console.log(
-            '[NotificationsSocket] Loaded',
-            notificationsResult.data.length,
-            'notifications',
-          );
-          setNotifications(notificationsResult.data);
-        }
-
-        if (statsResult.data) {
-          console.log('[NotificationsSocket] Loaded stats:', statsResult.data);
-          setUnreadCount(statsResult.data.totalUnread);
-        }
-
-        setInitialDataLoaded(true);
-      } catch (error) {
-        console.error('[NotificationsSocket] Failed to load initial data:', error);
-      }
-    };
-
-    loadData();
-  }, [isConnected, initialDataLoaded]);
+    console.log('[NotificationsSocket] Initial unread count updated:', initialUnreadCount);
+    setUnreadCount(initialUnreadCount);
+  }, [initialUnreadCount]);
 
   const loadInitialData = async () => {
     console.log('[NotificationsSocket] Manual loadInitialData called');
 
     try {
-      const { getAdminNotifications, getAdminNotificationStats } = await import(
-        '@/data/services/notifications.api'
-      );
+      const { getAdminNotifications } = await import('@/data/services/notifications.api');
 
-      const [notificationsResult, statsResult] = await Promise.all([
-        getAdminNotifications(10, false),
-        getAdminNotificationStats(),
-      ]);
+      const notificationsResult = await getAdminNotifications(10, false);
 
       if (notificationsResult.data) {
         setNotifications(notificationsResult.data);
-      }
-
-      if (statsResult.data) {
-        setUnreadCount(statsResult.data.totalUnread);
       }
 
       setInitialDataLoaded(true);
