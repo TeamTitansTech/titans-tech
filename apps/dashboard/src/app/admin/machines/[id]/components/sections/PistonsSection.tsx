@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type PistonsData, ServiceType, SealConditionType } from '@/data/types/services.types';
 import { PistonsForm } from '../forms/PistonsForm';
 import { isDataTouched } from './utils';
+import { validateNumericFields } from '../utils/validateNumericFields';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -40,21 +41,7 @@ export const defaultPistonsData: PistonsData = {
 };
 
 export const validatePistonsData = (data: PistonsData): string[] => {
-  const errors: string[] = [];
-
-  // Get all numeric field keys from the data
-  const fieldsToValidate = Object.keys(data).filter(
-    (key) => key.startsWith('outer') || key.startsWith('inner'),
-  ) as (keyof PistonsData)[];
-
-  fieldsToValidate.forEach((field) => {
-    const value = data[field];
-    if (value !== undefined && (typeof value !== 'number' || isNaN(value))) {
-      errors.push(`${String(field)} is required and must be a valid number`);
-    }
-  });
-
-  return errors;
+  return validateNumericFields(data, ['outer', 'inner']);
 };
 
 export interface PistonsSectionData {
@@ -91,12 +78,8 @@ interface PistonsSectionProps {
 export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>(
   ({ isOpen: _isOpen, onOpenChange: _onOpenChange, onSectionTouched, initialData }, ref) => {
     // Store the initial loaded data to compare against for "touched" detection
-    const [initialOuterData] = useState<PistonsData>(
-      initialData?.outerData || defaultPistonsData,
-    );
-    const [initialInnerData] = useState<PistonsData>(
-      initialData?.innerData || defaultPistonsData,
-    );
+    const [initialOuterData] = useState<PistonsData>(initialData?.outerData || defaultPistonsData);
+    const [initialInnerData] = useState<PistonsData>(initialData?.innerData || defaultPistonsData);
 
     const [outerData, setOuterData] = useState<PistonsData>(
       initialData?.outerData || defaultPistonsData,
@@ -156,7 +139,9 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
           pistonSeals !== (initialData?.pistonSeals || '') ||
           vacuumSystem !== (initialData?.vacuumSystem || '') ||
           vacuumSystemAirPressureSetting !== initialData?.vacuumSystemAirPressureSetting;
-        return outerTouched || innerTouched || notes.trim() !== initialNotes.trim() || topFieldsTouched;
+        return (
+          outerTouched || innerTouched || notes.trim() !== initialNotes.trim() || topFieldsTouched
+        );
       },
 
       validateAndGetData: (

@@ -1015,12 +1015,12 @@ model MachineServicePistons {
   innerDataId      String?
 
   // Top-level fields
-  guidSeals                       String?
-  pistonSeals                     String?
-  vacuumSystem                    String?
-  vacuumSystemAirPressureSetting  Decimal? @db.Decimal(10, 4)
-  vacuumSystemAirPressureUnit     String?  @default("PSI") // PSI, BAR, etc.
-  unit                            String?  @default("inches") // inches, mm, cm
+  guidSeals                      String?
+  pistonSeals                    String?
+  vacuumSystem                   String?
+  vacuumSystemAirPressureSetting Decimal? @db.Decimal(10, 4)
+  vacuumSystemAirPressureUnit    String?  @default("PSI") // PSI, BAR, etc.
+  unit                           String?  @default("inches") // inches, mm, cm
 
   // Notes
   notes String?

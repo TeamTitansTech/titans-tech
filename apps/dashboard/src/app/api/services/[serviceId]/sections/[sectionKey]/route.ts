@@ -544,7 +544,8 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
             updatePayload.vacuumSystem = sectionData.vacuumSystem;
           }
           if (sectionData.vacuumSystemAirPressureSetting !== undefined) {
-            updatePayload.vacuumSystemAirPressureSetting = sectionData.vacuumSystemAirPressureSetting;
+            updatePayload.vacuumSystemAirPressureSetting =
+              sectionData.vacuumSystemAirPressureSetting;
           }
           if (sectionData.vacuumSystemAirPressureUnit !== undefined) {
             updatePayload.vacuumSystemAirPressureUnit = sectionData.vacuumSystemAirPressureUnit;
@@ -859,7 +860,8 @@ function buildPistonsCreateData(data: any) {
   if (data.vacuumSystem) result.vacuumSystem = data.vacuumSystem;
   if (data.vacuumSystemAirPressureSetting !== undefined)
     result.vacuumSystemAirPressureSetting = data.vacuumSystemAirPressureSetting;
-  if (data.vacuumSystemAirPressureUnit) result.vacuumSystemAirPressureUnit = data.vacuumSystemAirPressureUnit;
+  if (data.vacuumSystemAirPressureUnit)
+    result.vacuumSystemAirPressureUnit = data.vacuumSystemAirPressureUnit;
   if (data.unit) result.unit = data.unit;
   if (data.notes) result.notes = data.notes;
 

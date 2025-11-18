@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PistonsForm } from '../forms/PistonsForm';
+import { displayValue } from '../utils/displayHelpers';
 
 interface PistonsSummaryProps {
   data: any;
@@ -14,16 +15,8 @@ export function PistonsSummary({ data }: PistonsSummaryProps) {
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common.status');
 
-  // Helper function to display value or "-" for empty
-  const displayValue = (value: any): string => {
-    if (value === null || value === undefined || value === '') {
-      return '-';
-    }
-    if (typeof value === 'boolean') {
-      return value ? tCommon('yes') : tCommon('no');
-    }
-    return String(value);
-  };
+  // Helper to display values with translations
+  const display = (value: any) => displayValue(value, tCommon('yes'), tCommon('no'));
 
   return (
     <div className="text-xs space-y-4">
@@ -34,11 +27,11 @@ export function PistonsSummary({ data }: PistonsSummaryProps) {
             <div className="p-2 space-y-1.5 text-[11px]">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tPistons('guidSeals')}:</span>
-                <span className="font-medium">{displayValue(data.guidSeals)}</span>
+                <span className="font-medium">{display(data.guidSeals)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tPistons('pistonSeals')}:</span>
-                <span className="font-medium">{displayValue(data.pistonSeals)}</span>
+                <span className="font-medium">{display(data.pistonSeals)}</span>
               </div>
             </div>
           </div>
@@ -47,7 +40,7 @@ export function PistonsSummary({ data }: PistonsSummaryProps) {
             <div className="p-2 space-y-1.5 text-[11px]">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tPistons('vacuumSystem')}:</span>
-                <span className="font-medium">{displayValue(data.vacuumSystem)}</span>
+                <span className="font-medium">{display(data.vacuumSystem)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
@@ -76,31 +69,27 @@ export function PistonsSummary({ data }: PistonsSummaryProps) {
 
           {data?.outerData && (
             <TabsContent value="outer">
-              <div className="bg-muted/20 dark:bg-slate-700/40 border border-border/50 dark:border-slate-600/50 rounded-lg p-4">
-                <PistonsForm
-                  data={data.outerData}
-                  errors={{}}
-                  updateField={() => {}}
-                  handleBlur={() => {}}
-                  title="Outer"
-                  readOnly={true}
-                />
-              </div>
+              <PistonsForm
+                data={data.outerData}
+                errors={{}}
+                updateField={() => {}}
+                handleBlur={() => {}}
+                title="Outer"
+                readOnly={true}
+              />
             </TabsContent>
           )}
 
           {data?.innerData && (
             <TabsContent value="inner">
-              <div className="bg-muted/20 dark:bg-slate-700/40 border border-border/50 dark:border-slate-600/50 rounded-lg p-4">
-                <PistonsForm
-                  data={data.innerData}
-                  errors={{}}
-                  updateField={() => {}}
-                  handleBlur={() => {}}
-                  title="Inner"
-                  readOnly={true}
-                />
-              </div>
+              <PistonsForm
+                data={data.innerData}
+                errors={{}}
+                updateField={() => {}}
+                handleBlur={() => {}}
+                title="Inner"
+                readOnly={true}
+              />
             </TabsContent>
           )}
         </Tabs>
@@ -113,7 +102,7 @@ export function PistonsSummary({ data }: PistonsSummaryProps) {
             </div>
             <div className="border rounded-md overflow-hidden">
               <div className="p-2 text-[11px]">
-                <span className="font-medium">{displayValue(data.notes)}</span>
+                <span className="font-medium">{display(data.notes)}</span>
               </div>
             </div>
           </div>

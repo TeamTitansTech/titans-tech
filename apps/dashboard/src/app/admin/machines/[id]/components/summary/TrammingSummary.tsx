@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrammingForm } from '../forms/TrammingForm';
+import { displayValue } from '../utils/displayHelpers';
 
 interface TrammingSummaryProps {
   data: any;
@@ -14,16 +15,8 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common.status');
 
-  // Helper function to display value or "-" for empty
-  const displayValue = (value: any): string => {
-    if (value === null || value === undefined || value === '') {
-      return '-';
-    }
-    if (typeof value === 'boolean') {
-      return value ? tCommon('yes') : tCommon('no');
-    }
-    return String(value);
-  };
+  // Helper to display values with translations
+  const display = (value: any) => displayValue(value, tCommon('yes'), tCommon('no'));
 
   return (
     <div className="text-xs space-y-4">
@@ -34,7 +27,7 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
             {data?.slideTram && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tTramming('slideTram')}:</span>
-                <span className="font-medium">{displayValue(data.slideTram)}</span>
+                <span className="font-medium">{display(data.slideTram)}</span>
               </div>
             )}
             <div className="flex justify-between">
@@ -86,7 +79,7 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
             </div>
             <div className="border rounded-md overflow-hidden">
               <div className="p-2 text-[11px]">
-                <span className="font-medium">{displayValue(data.notes)}</span>
+                <span className="font-medium">{display(data.notes)}</span>
               </div>
             </div>
           </div>

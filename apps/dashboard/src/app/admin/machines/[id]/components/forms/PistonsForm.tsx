@@ -1,9 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { type PistonsData } from '@/data/types/services.types';
+import { MeasurementInput } from '../shared/MeasurementInput';
 
 interface PistonsFormProps {
   data: PistonsData;
@@ -79,25 +79,16 @@ export function PistonsForm({
         },
       ];
 
-  const renderInput = (field: keyof PistonsData) =>
-    readOnly ? (
-      <div className="w-20 h-8 text-sm px-2 py-1 border rounded-md bg-muted/50 flex items-center justify-center font-medium">
-        {data[field]}
-      </div>
-    ) : (
-      <Input
-        id={`${field}`}
-        type="number"
-        step="0.0001"
-        min="0"
-        max="999999.9999"
-        value={data[field]}
-        onChange={(e) => updateField(field, Number(e.target.value))}
-        onBlur={() => handleBlur(field)}
-        className={`w-20 h-8 text-sm px-2 py-1 ${errors[field] ? 'border-destructive' : ''}`}
-        required
-      />
-    );
+  const renderInput = (field: keyof PistonsData) => (
+    <MeasurementInput
+      field={field}
+      value={data[field]}
+      onChange={updateField}
+      onBlur={handleBlur}
+      error={errors[field]}
+      readOnly={readOnly}
+    />
+  );
 
   const renderPiston = (piston: PistonPoint) => (
     <div className="flex flex-col items-center gap-1">
