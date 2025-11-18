@@ -3,27 +3,94 @@ import {
   WebSocketServer,
   OnGatewayConnection,
   OnGatewayDisconnect,
+  OnGatewayInit,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: '*',
     credentials: true,
   },
-  namespace: '/notifications',
+  transports: ['websocket', 'polling'],
 })
 export class NotificationsGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   @WebSocketServer()
   server: Server;
 
   private readonly logger = new Logger(NotificationsGateway.name);
-  private connectedClients = new Map<string, Set<string>>(); // userId -> Set<socketId>
+  private connectedClients = new Map<string, Set<string>>();
+  private isInitialized = false;
+  private pendingNotifications: Array<{
+    type: 'user' | 'company' | 'admin' | 'stats';
+    data: any;
+    target?: string;
+  }> = [];
+
+  constructor() {
+    this.logger.log('🏗️ NotificationsGateway constructor called!');
+  }
+
+  afterInit(server: Server) {
+    this.logger.log(
+      '📢 afterInit() called! Server parameter received:',
+      !!server,
+    );
+    this.server = server;
+    this.markAsInitialized();
+  }
+
+  private markAsInitialized() {
+    if (this.isInitialized) {
+      return;
+    }
+
+    this.isInitialized = true;
+    this.logger.log('🚀 NotificationsGateway initialized!');
+    this.logger.log(`WebSocket server ready. Server exists: ${!!this.server}`);
+
+    // Emit any pending notifications
+    if (this.pendingNotifications.length > 0) {
+      this.logger.log(
+        `Processing ${this.pendingNotifications.length} pending notifications`,
+      );
+      const notifications = [...this.pendingNotifications];
+      this.pendingNotifications = [];
+
+      notifications.forEach((pending) => {
+        switch (pending.type) {
+          case 'user':
+            this.emitNotificationToUser(pending.target!, pending.data);
+            break;
+          case 'company':
+            this.emitNotificationToCompany(pending.target!, pending.data);
+            break;
+          case 'admin':
+            this.emitNotificationToAllAdmins(pending.data);
+            break;
+          case 'stats':
+            this.emitStatsUpdate(pending.target!, pending.data);
+            break;
+        }
+      });
+    }
+  }
+
+  private ensureInitialized() {
+    // If server is available but not marked as initialized, do it now
+    if (!this.isInitialized && this.server) {
+      this.logger.log('Lazy initializing gateway (afterInit was not called)');
+      this.markAsInitialized();
+    }
+  }
 
   handleConnection(client: Socket) {
+    // When a client connects, the server should be ready
+    this.ensureInitialized();
+
     const userId = client.handshake.query.userId as string;
 
     if (!userId) {
@@ -67,8 +134,17 @@ export class NotificationsGateway
    * Emit new notification to specific user
    */
   emitNotificationToUser(userId: string, notification: any) {
-    if (!this.server) {
-      this.logger.warn('WebSocket server not initialized yet');
+    this.ensureInitialized();
+
+    if (!this.isInitialized || !this.server) {
+      this.logger.log(
+        `Queueing notification for user ${userId} (server not ready)`,
+      );
+      this.pendingNotifications.push({
+        type: 'user',
+        target: userId,
+        data: notification,
+      });
       return;
     }
     this.server.to(`user:${userId}`).emit('notification:new', notification);
@@ -79,8 +155,17 @@ export class NotificationsGateway
    * Emit notification update to all company admins
    */
   emitNotificationToCompany(companyId: string, notification: any) {
-    if (!this.server) {
-      this.logger.warn('WebSocket server not initialized yet');
+    this.ensureInitialized();
+
+    if (!this.isInitialized || !this.server) {
+      this.logger.log(
+        `Queueing notification for company ${companyId} (server not ready)`,
+      );
+      this.pendingNotifications.push({
+        type: 'company',
+        target: companyId,
+        data: notification,
+      });
       return;
     }
     this.server
@@ -93,8 +178,17 @@ export class NotificationsGateway
    * Emit notification stats update to user
    */
   emitStatsUpdate(userId: string, stats: any) {
-    if (!this.server) {
-      this.logger.warn('WebSocket server not initialized yet');
+    this.ensureInitialized();
+
+    if (!this.isInitialized || !this.server) {
+      this.logger.log(
+        `Queueing stats update for user ${userId} (server not ready)`,
+      );
+      this.pendingNotifications.push({
+        type: 'stats',
+        target: userId,
+        data: stats,
+      });
       return;
     }
     this.server.to(`user:${userId}`).emit('notification:stats', stats);
@@ -105,10 +199,14 @@ export class NotificationsGateway
    * Emit notification to all admins (for SysAdmins)
    */
   emitNotificationToAllAdmins(notification: any) {
-    if (!this.server) {
-      this.logger.warn(
-        'WebSocket server not initialized yet, notification will not be emitted in real-time',
-      );
+    this.ensureInitialized();
+
+    if (!this.isInitialized || !this.server) {
+      this.logger.log(`Queueing admin notification (server not ready)`);
+      this.pendingNotifications.push({
+        type: 'admin',
+        data: notification,
+      });
       return;
     }
 
@@ -116,7 +214,9 @@ export class NotificationsGateway
     this.logger.log(
       `Emitting notification to all admins. Connected clients: ${connectedCount}`,
     );
-    this.logger.log(`Connected users: ${Array.from(this.connectedClients.keys()).join(', ')}`);
+    this.logger.log(
+      `Connected users: ${Array.from(this.connectedClients.keys()).join(', ')}`,
+    );
 
     this.server.emit('notification:new', notification);
     this.logger.log('Notification emitted successfully');
