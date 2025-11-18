@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type PistonsData, ServiceType, SealConditionType } from '@/data/types/services.types';
 import { PistonsForm } from '../forms/PistonsForm';
@@ -259,12 +260,15 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
       },
     }));
 
+    const t = useTranslations('inspections.form.pistons');
+    const tMeasurements = useTranslations('measurements');
+
     return (
       <div className="space-y-6 p-4">
         {/* Top-level fields */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="guidSeals">Guide Seals</Label>
+            <Label htmlFor="guidSeals">{t('guidSeals')}</Label>
             <Select
               value={guidSeals}
               onValueChange={(value) => {
@@ -287,7 +291,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="pistonSeals">Piston Seals</Label>
+            <Label htmlFor="pistonSeals">{t('pistonSeals')}</Label>
             <Select
               value={pistonSeals}
               onValueChange={(value) => {
@@ -310,7 +314,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="vacuumSystem">Vacuum System</Label>
+            <Label htmlFor="vacuumSystem">{t('vacuumSystem')}</Label>
             <Select
               value={vacuumSystem}
               onValueChange={(value) => {
@@ -334,7 +338,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
 
           <div className="space-y-2">
             <Label htmlFor="vacuumSystemAirPressureSetting">
-              Vacuum System Air Pressure Setting
+              {t('vacuumSystemAirPressureSetting')}
             </Label>
             <div className="flex gap-2">
               <Input
@@ -372,7 +376,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
         {/* Unit Selector */}
         <div className="flex items-center gap-2">
           <Label htmlFor="unit" className="text-sm font-medium whitespace-nowrap">
-            Unit:
+            {t('unit')}:
           </Label>
           <Select
             value={unit}
@@ -395,8 +399,8 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
         {/* Tabs for Outer/Inner */}
         <Tabs defaultValue="outer" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
-            <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
+            <TabsTrigger value="outer">{tMeasurements('outerMeasurements')}</TabsTrigger>
+            <TabsTrigger value="inner">{tMeasurements('innerMeasurements')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="outer" className="mt-4">
@@ -422,7 +426,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
 
         {/* Notes */}
         <div className="space-y-2">
-          <Label htmlFor="pistons-notes">Notes (Optional)</Label>
+          <Label htmlFor="pistons-notes">{t('notes')}</Label>
           <Textarea
             id="pistons-notes"
             value={notes}

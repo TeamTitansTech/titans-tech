@@ -814,7 +814,8 @@
         "vacuumSystemAirPressureSetting": "Vacuum System Air Pressure Setting",
         "unit": "Unit",
         "piston": "Piston",
-        "front": "Front"
+        "front": "Front",
+        "notes": "Notes (Optional)"
       },
       "cancel": "Cancel",
       "submit": {

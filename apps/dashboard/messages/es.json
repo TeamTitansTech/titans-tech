@@ -819,7 +819,8 @@
         "vacuumSystemAirPressureSetting": "Configuración de Presión de Aire del Sistema de Vacío",
         "unit": "Unidad",
         "piston": "Pistón",
-        "front": "Frente"
+        "front": "Frente",
+        "notes": "Notas (Opcional)"
       },
       "cancel": "Cancelar",
       "submit": {
