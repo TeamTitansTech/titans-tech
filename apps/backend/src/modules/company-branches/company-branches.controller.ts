@@ -7,6 +7,7 @@ import {
   Delete,
   Param,
   Request,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { CompanyBranchesService } from './company-branches.service';
@@ -23,6 +24,10 @@ import {
   SetCompanyManagerSchema,
   SysAdminCreateUserDto,
   SysAdminCreateUserSchema,
+  DeleteUserDto,
+  DeleteUserSchema,
+  UpdateUserPermissionsDto,
+  UpdateUserPermissionsSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, BranchPermission, CompanyAdmin } from '../auth/auth.decorators';
@@ -150,5 +155,51 @@ export class CompanyBranchesController {
     @Request() req: ReqWithAuthUser,
   ) {
     return this.usersService.setCompanyManager(userId, dto, req.user);
+  }
+
+  /**
+   * Delete user from company or remove from branch
+   * Scope: 'branch' = remove from specific branch only
+   * Scope: 'company' = delete user completely
+   */
+  @BranchPermission('deleteUsers')
+  @Delete(':branchId/users/:userId/delete')
+  deleteUser(
+    @Param('branchId') branchId: string,
+    @Param('userId') userId: string,
+    @Body(new ZodValidationPipe(DeleteUserSchema))
+    dto: DeleteUserDto,
+  ) {
+    return this.usersService.deleteUser(userId, dto.scope, branchId);
+  }
+
+  /**
+   * Update user permissions across all branches they belong to
+   * Requires manageUserPermissions permission
+   */
+  @BranchPermission('manageUserPermissions')
+  @Patch(':branchId/users/:userId/permissions-all-branches')
+  updateUserPermissionsAllBranches(
+    @Param('branchId') branchId: string,
+    @Param('userId') userId: string,
+    @Body(new ZodValidationPipe(UpdateUserPermissionsSchema))
+    dto: UpdateUserPermissionsDto,
+    @Request() req: ReqWithAuthUser,
+  ) {
+    // BranchPermission guard ensures this is a company user, not a sys admin
+    if (isSysAdmin(req.user)) {
+      throw new ForbiddenException('System admins cannot access this endpoint');
+    }
+
+    const companyId = req.user.companyId;
+
+    // Extract permissions (remove applyToAllBranches flag)
+    const { ...permissions } = dto;
+
+    return this.usersService.updateUserPermissionsAllBranches(
+      userId,
+      companyId,
+      permissions,
+    );
   }
 }

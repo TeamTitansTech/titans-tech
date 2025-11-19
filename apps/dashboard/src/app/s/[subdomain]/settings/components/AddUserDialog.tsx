@@ -16,16 +16,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { createUser } from '@/data/services/users.api';
+import { createUser, setCompanyManager } from '@/data/services/users.api';
 import { setUserPermissions } from '@/data/services/company-branches.api';
+import { PermissionsEditor } from '@/components/permissions/PermissionsEditor';
+import { Permissions, WORKER_PERMISSIONS } from '@titans-tech/shared/types';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { isCompanyAdmin } from '@/lib/permissions';
 
 interface AddUserDialogProps {
   open: boolean;
@@ -44,14 +43,20 @@ export function AddUserDialog({
 }: AddUserDialogProps) {
   const t = useTranslations('settings.addUserDialog');
   const tValidation = useTranslations('validation');
+  const { companyUser } = useCompanyUser();
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [permissions, setPermissions] = useState<Permissions>({
+    ...WORKER_PERMISSIONS,
+  });
+  const [applyToAllBranches, setApplyToAllBranches] = useState(false);
+  const [promoteToManager, setPromoteToManager] = useState(false);
 
   const userSchema = useMemo(
     () =>
       z.object({
         name: z.string().min(1, tValidation('fullNameRequired')),
         email: z.string().email(tValidation('invalidEmail')),
-        role: z.enum(['Manager', 'Worker']),
       }),
     [tValidation],
   );
@@ -63,21 +68,15 @@ export function AddUserDialog({
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
-    watch,
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
-    defaultValues: {
-      role: 'Worker',
-    },
   });
-
-  const selectedRole = watch('role');
 
   const onSubmit = async (data: UserFormData) => {
     setIsSubmitting(true);
 
     try {
+      // Create the user
       const response = await createUser({
         branchId,
         data: {
@@ -90,76 +89,37 @@ export function AddUserDialog({
 
       if (!response.data) {
         toast.error(t('error'));
+        setIsSubmitting(false);
         return;
       }
 
-      // Set branch-specific permissions based on role
-      const permissions: Record<string, boolean> = {
-        readUsers: false,
-        createUsers: false,
-        updateUsers: false,
-        deleteUsers: false,
-        manageUserPermissions: false,
-        assignUsersToBranches: false,
-        readBranches: false,
-        updateBranches: false,
-        readBlueprints: false,
-        createBlueprints: false,
-        updateBlueprints: false,
-        deleteBlueprints: false,
-        readMachines: false,
-        createMachines: false,
-        updateMachines: false,
-        deleteMachines: false,
-        readServices: false,
-        createServices: false,
-        updateServices: false,
-        deleteServices: false,
-      };
+      const userId = response.data.id;
 
-      if (data.role === 'Manager') {
-        // Manager: One per branch, has admin permissions for the branch
-        permissions.readUsers = true;
-        permissions.createUsers = true;
-        permissions.updateUsers = true;
-        permissions.deleteUsers = true;
-        permissions.manageUserPermissions = true;
-        permissions.assignUsersToBranches = true;
-        permissions.readBranches = true;
-        permissions.updateBranches = true;
-        permissions.readBlueprints = true;
-        permissions.createBlueprints = true;
-        permissions.updateBlueprints = true;
-        permissions.deleteBlueprints = true;
-        permissions.readMachines = true;
-        permissions.createMachines = true;
-        permissions.updateMachines = true;
-        permissions.deleteMachines = true;
-        permissions.readServices = true;
-        permissions.createServices = true;
-        permissions.updateServices = true;
-        permissions.deleteServices = true;
-      } else if (data.role === 'Worker') {
-        // Worker: Standard employee with basic operational access
-        permissions.readBranches = true;
-        permissions.readBlueprints = true;
-        permissions.readMachines = true;
-        permissions.readServices = true;
-        permissions.createServices = true;
-        permissions.updateServices = true;
-      }
-
+      // Set branch-specific permissions
       await setUserPermissions({
         branchId,
-        userId: response.data.id,
+        userId,
         permissions,
       });
 
+      // If applying to all branches, we'd need to get all branches and set permissions
+      // For now, the user can be added to other branches later
+      // TODO: Implement multi-branch assignment on creation
+
+      // Promote to Company Manager if requested and user has permission
+      if (promoteToManager && isCompanyAdmin(companyUser)) {
+        await setCompanyManager({
+          branchId,
+          userId,
+          isCompanyManager: true,
+        });
+      }
+
       toast.success(t('success'));
-      reset();
-      onOpenChange(false);
+      handleClose();
       onSuccess();
-    } catch {
+    } catch (error) {
+      console.error('Error creating user:', error);
       toast.error(t('error'));
     } finally {
       setIsSubmitting(false);
@@ -167,69 +127,102 @@ export function AddUserDialog({
   };
 
   const handleClose = () => {
-    reset();
-    onOpenChange(false);
+    if (!isSubmitting) {
+      reset();
+      setPermissions({ ...WORKER_PERMISSIONS });
+      setApplyToAllBranches(false);
+      setPromoteToManager(false);
+      onOpenChange(false);
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description', { branchName })}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">
-              {t('form.name.label')} <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="name"
-              {...register('name')}
-              placeholder={t('form.name.placeholder')}
-              disabled={isSubmitting}
-            />
-            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* User Info */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">
+                {t('form.name.label')} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="name"
+                {...register('name')}
+                placeholder={t('form.name.placeholder')}
+                disabled={isSubmitting}
+              />
+              {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="email">
+                {t('form.email.label')} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                {...register('email')}
+                placeholder={t('form.email.placeholder')}
+                disabled={isSubmitting}
+              />
+              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email">
-              {t('form.email.label')} <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              {...register('email')}
-              placeholder={t('form.email.placeholder')}
-              disabled={isSubmitting}
-            />
-            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+          <Separator />
+
+          {/* Options */}
+          <div className="space-y-3">
+            {/* Apply to All Branches */}
+            <div className="flex items-start space-x-3 p-3 border rounded-lg">
+              <Checkbox
+                id="applyToAllBranches"
+                checked={applyToAllBranches}
+                onCheckedChange={(checked) => setApplyToAllBranches(checked as boolean)}
+                disabled={isSubmitting}
+              />
+              <div className="flex-1 space-y-1">
+                <Label htmlFor="applyToAllBranches" className="text-sm font-medium cursor-pointer">
+                  {t('form.applyToAllBranches.label')}
+                </Label>
+                <p className="text-xs text-gray-500">{t('form.applyToAllBranches.description')}</p>
+              </div>
+            </div>
+
+            {/* Promote to Company Manager (only for Company Admins) */}
+            {isCompanyAdmin(companyUser) && (
+              <div className="flex items-start space-x-3 p-3 border rounded-lg">
+                <Checkbox
+                  id="companyManager"
+                  checked={promoteToManager}
+                  onCheckedChange={(checked) => setPromoteToManager(checked as boolean)}
+                  disabled={isSubmitting}
+                />
+                <div className="flex-1 space-y-1">
+                  <Label htmlFor="companyManager" className="text-sm font-medium cursor-pointer">
+                    {t('form.companyManager.label')}
+                  </Label>
+                  <p className="text-xs text-gray-500">{t('form.companyManager.description')}</p>
+                </div>
+              </div>
+            )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="role">
-              {t('form.role.label')} <span className="text-destructive">*</span>
-            </Label>
-            <Select
-              value={selectedRole}
-              onValueChange={(value) => setValue('role', value as UserFormData['role'])}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger id="role">
-                <SelectValue placeholder={t('form.role.placeholder')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Manager">{t('form.role.options.manager')}</SelectItem>
-                <SelectItem value="Worker">{t('form.role.options.worker')}</SelectItem>
-              </SelectContent>
-            </Select>
-            {errors.role && <p className="text-sm text-destructive">{errors.role.message}</p>}
+          <Separator />
 
-            <p className="text-xs text-muted-foreground">
-              {t(`form.role.descriptions.${selectedRole.toLowerCase()}`)}
-            </p>
-          </div>
+          {/* Permissions Editor */}
+          <PermissionsEditor
+            permissions={permissions}
+            onChange={setPermissions}
+            disabled={isSubmitting}
+            showPresetSelector={true}
+          />
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>

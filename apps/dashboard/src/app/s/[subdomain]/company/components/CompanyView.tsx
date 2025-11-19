@@ -67,9 +67,7 @@ export function CompanyView({ company, branches, companyUser }: CompanyViewProps
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t('companies.totalBranches')}
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">{t('companies.totalBranches')}</CardTitle>
             <Building2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -82,9 +80,7 @@ export function CompanyView({ company, branches, companyUser }: CompanyViewProps
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t('companies.totalMachines')}
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">{t('companies.totalMachines')}</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -94,7 +90,6 @@ export function CompanyView({ company, branches, companyUser }: CompanyViewProps
             </p>
           </CardContent>
         </Card>
-
       </div>
 
       {/* Company Administrator */}

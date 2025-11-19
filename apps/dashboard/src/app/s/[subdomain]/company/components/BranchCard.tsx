@@ -20,7 +20,7 @@ export function BranchCard({ branch, machineCount, companyUser }: BranchCardProp
   const router = useInternalRouter();
 
   // Find user's permissions for this branch
-  const userBranch = companyUser.branches?.find(b => b.branchId === branch.id);
+  const userBranch = companyUser.branches?.find((b) => b.branchId === branch.id);
   const canViewMachines = userBranch?.readMachines ?? false;
 
   const handleViewMachines = () => {
@@ -60,19 +60,15 @@ export function BranchCard({ branch, machineCount, companyUser }: BranchCardProp
               {machineCount === 0
                 ? t('companies.noMachines')
                 : machineCount === 1
-                ? `1 ${t('companies.machine')}`
-                : `${machineCount} ${t('companies.machines')}`}
+                  ? `1 ${t('companies.machine')}`
+                  : `${machineCount} ${t('companies.machines')}`}
             </span>
           </div>
         </div>
 
         {/* Actions */}
         {canViewMachines && machineCount > 0 && (
-          <Button
-            onClick={handleViewMachines}
-            className="w-full"
-            variant="outline"
-          >
+          <Button onClick={handleViewMachines} className="w-full" variant="outline">
             <Eye className="h-4 w-4 mr-2" />
             {t('companies.viewMachines')}
             <ChevronRight className="h-4 w-4 ml-auto" />

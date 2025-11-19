@@ -112,14 +112,25 @@
       "loadingFailed": "Error al cargar usuarios",
       "noUsers": "No se encontraron usuarios para esta sucursal",
       "addUser": "Agregar Usuario",
+      "editUser": "Editar Usuario",
+      "deleteUser": "Eliminar Usuario",
       "table": {
         "name": "Nombre",
         "email": "Correo Electrónico",
-        "role": "Rol"
+        "role": "Rol",
+        "actions": "Acciones"
       },
       "roles": {
-        "branchManager": "Gerente",
-        "employee": "Empleado"
+        "companyAdmin": "Admin de Empresa",
+        "companyManager": "Gerente de Empresa",
+        "branchManager": "Gerente de Sucursal",
+        "employee": "Empleado",
+        "custom": "Personalizado"
+      },
+      "badges": {
+        "companyAdmin": "Admin de Empresa",
+        "companyManager": "Gerente",
+        "branchManager": "Ger. Sucursal"
       }
     },
     "addUserDialog": {
@@ -135,16 +146,26 @@
           "placeholder": "usuario@ejemplo.com"
         },
         "role": {
-          "label": "Rol",
-          "placeholder": "Seleccione un rol",
+          "label": "Rol Predefinido",
+          "placeholder": "Seleccione un rol predefinido",
           "options": {
             "manager": "Gerente",
-            "worker": "Empleado"
+            "worker": "Empleado",
+            "custom": "Permisos Personalizados"
           },
           "descriptions": {
-            "manager": "Gerente: Control total de esta sucursal",
-            "worker": "Empleado: Acceso operacional estándar"
+            "manager": "Control total de esta sucursal - todos los permisos habilitados",
+            "worker": "Acceso operacional estándar - ver todo, crear/editar servicios",
+            "custom": "Configurar permisos individuales manualmente"
           }
+        },
+        "applyToAllBranches": {
+          "label": "Aplicar a Todas las Sucursales",
+          "description": "Dar a este usuario los mismos permisos en todas las sucursales"
+        },
+        "companyManager": {
+          "label": "Promover a Gerente de Empresa",
+          "description": "Los Gerentes de Empresa tienen acceso total a todas las sucursales"
         }
       },
       "cancel": "Cancelar",
@@ -152,6 +173,117 @@
       "submitting": "Agregando...",
       "success": "Usuario agregado exitosamente",
       "error": "Error al agregar usuario"
+    },
+    "editUserDialog": {
+      "title": "Editar Usuario",
+      "description": "Actualizar información y permisos del usuario",
+      "form": {
+        "name": {
+          "label": "Nombre Completo",
+          "placeholder": "Ingrese el nombre completo del usuario"
+        },
+        "email": {
+          "label": "Correo Electrónico",
+          "placeholder": "usuario@ejemplo.com"
+        },
+        "updateScope": {
+          "label": "Alcance de Actualización",
+          "thisBranch": "Solo Esta Sucursal",
+          "allBranches": "Todas las Sucursales",
+          "description": "Elija si desea actualizar permisos solo para esta sucursal o todas las sucursales a las que pertenece este usuario"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Guardar Cambios",
+      "submitting": "Guardando...",
+      "success": "Usuario actualizado exitosamente",
+      "error": "Error al actualizar usuario"
+    },
+    "deleteUserDialog": {
+      "title": "Eliminar Usuario",
+      "description": "¿Está seguro de que desea eliminar este usuario?",
+      "warning": "Esta acción no se puede deshacer.",
+      "userInfo": "Está a punto de eliminar:",
+      "scopeLabel": "Alcance de Eliminación",
+      "scopeOptions": {
+        "branch": "Remover Solo de Esta Sucursal",
+        "company": "Remover de Toda la Empresa"
+      },
+      "scopeDescriptions": {
+        "branch": "El usuario perderá acceso a esta sucursal pero permanecerá en otras sucursales",
+        "company": "El usuario será completamente removido y perderá todo el acceso"
+      },
+      "cancel": "Cancelar",
+      "confirm": "Eliminar Usuario",
+      "confirming": "Eliminando...",
+      "success": "Usuario eliminado exitosamente",
+      "error": "Error al eliminar usuario"
+    },
+    "permissions": {
+      "title": "Permisos",
+      "description": "Controle a qué puede acceder y gestionar este usuario",
+      "preset": {
+        "label": "Rol Predefinido",
+        "manager": "Gerente",
+        "worker": "Empleado",
+        "custom": "Personalizado"
+      },
+      "categories": {
+        "userManagement": "Gestión de Usuarios",
+        "branchManagement": "Gestión de Sucursales",
+        "blueprintManagement": "Modelos de Máquinas",
+        "machineManagement": "Gestión de Máquinas",
+        "serviceManagement": "Registros de Servicios"
+      },
+      "actions": {
+        "selectAll": "Seleccionar Todo",
+        "clearAll": "Limpiar Todo"
+      },
+      "names": {
+        "readUsers": "Ver Usuarios",
+        "createUsers": "Agregar Usuarios",
+        "updateUsers": "Editar Usuarios",
+        "deleteUsers": "Eliminar Usuarios",
+        "manageUserPermissions": "Gestionar Permisos",
+        "assignUsersToBranches": "Asignar a Sucursales",
+        "readBranches": "Ver Sucursales",
+        "updateBranches": "Editar Sucursales",
+        "readBlueprints": "Ver Modelos",
+        "createBlueprints": "Crear Modelos",
+        "updateBlueprints": "Editar Modelos",
+        "deleteBlueprints": "Eliminar Modelos",
+        "readMachines": "Ver Máquinas",
+        "createMachines": "Registrar Máquinas",
+        "updateMachines": "Editar Máquinas",
+        "deleteMachines": "Eliminar Máquinas",
+        "readServices": "Ver Servicios",
+        "createServices": "Crear Servicios",
+        "updateServices": "Editar Servicios",
+        "deleteServices": "Eliminar Servicios"
+      },
+      "descriptions": {
+        "readUsers": "Ver la lista de usuarios y su información",
+        "createUsers": "Agregar nuevas cuentas de usuario a la sucursal",
+        "updateUsers": "Modificar información del usuario (nombre, correo)",
+        "deleteUsers": "Remover usuarios de sucursales o de la empresa",
+        "manageUserPermissions": "Cambiar lo que otros usuarios pueden hacer",
+        "assignUsersToBranches": "Agregar usuarios a diferentes sucursales",
+        "readBranches": "Ver información y detalles de la sucursal",
+        "updateBranches": "Modificar configuración e información de la sucursal",
+        "readBlueprints": "Ver modelos de máquinas y especificaciones",
+        "createBlueprints": "Agregar nuevos modelos de máquinas",
+        "updateBlueprints": "Modificar modelos existentes",
+        "deleteBlueprints": "Remover modelos de máquinas",
+        "readMachines": "Ver la lista de máquinas y sus detalles",
+        "createMachines": "Registrar nuevas máquinas en el sistema",
+        "updateMachines": "Modificar información de la máquina",
+        "deleteMachines": "Remover máquinas del sistema",
+        "readServices": "Ver registros de inspección y mantenimiento",
+        "createServices": "Agregar nuevos registros de inspección/mantenimiento",
+        "updateServices": "Modificar registros de servicio existentes",
+        "deleteServices": "Remover registros de servicio"
+      },
+      "permissionCount": "{count} permisos habilitados"
     }
   },
   "adminSettings": {

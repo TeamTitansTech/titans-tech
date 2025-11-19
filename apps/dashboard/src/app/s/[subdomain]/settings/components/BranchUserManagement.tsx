@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Users, Plus } from 'lucide-react';
+import { Users, Plus, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { getAllUsers } from '@/data/services/users.api';
 import { getBranch } from '@/data/services/company-branches.api';
 import { toast } from 'sonner';
@@ -18,41 +19,11 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { AddUserDialog } from './AddUserDialog';
+import { EditUserDialog } from './EditUserDialog';
+import { DeleteUserDialog } from './DeleteUserDialog';
+import { getUserRole, canEditUser, canDeleteUser } from '@/lib/permissions';
+import { getUserRoleBadgeColor } from '@/lib/permissions';
 import type { UserResponseDto } from '@titans-tech/shared';
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-}
-
-// Transform UserResponseDto to UI User format
-function transformUserToUI(user: UserResponseDto, branchId: string): User {
-  // Determine role based on branch-specific permissions
-  let role = 'employee'; // Default: Funcionário (Worker)
-
-  // Check branch-specific permissions
-  const branchPermissions = user.branches?.find((b) => b.branchId === branchId);
-  if (branchPermissions) {
-    const hasManagerPermissions =
-      branchPermissions.createUsers ||
-      branchPermissions.manageUserPermissions ||
-      branchPermissions.updateBranches;
-
-    if (hasManagerPermissions) {
-      role = 'branchManager';
-    }
-    // Otherwise remains 'employee' (Worker)
-  }
-
-  return {
-    id: user.id,
-    name: user.name || 'Unknown User',
-    email: user.email,
-    role,
-  };
-}
 
 interface BranchUserManagementProps {
   branchId: string;
@@ -61,10 +32,15 @@ interface BranchUserManagementProps {
 export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const t = useTranslations('settings.userManagement');
   const { companyUser } = useCompanyUser();
-  const [users, setUsers] = useState<User[]>([]);
+
+  const [users, setUsers] = useState<UserResponseDto[]>([]);
   const [branchName, setBranchName] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+  const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
+  const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
 
   // Check if current user can create users in this branch
   const canCreateUsers =
@@ -72,52 +48,52 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
     companyUser?.isCompanyManager ||
     companyUser?.branches?.some((b) => b.branchId === branchId && b.createUsers);
 
-  const loadUsers = useCallback(
-    async () => {
-      if (!branchId) return;
+  const loadUsers = useCallback(async () => {
+    if (!branchId) return;
 
-      setIsLoading(true);
+    setIsLoading(true);
 
-      try {
-        const branchResponse = await getBranch({ branchId });
-        if (branchResponse.data) {
-          setBranchName(branchResponse.data.name);
+    try {
+      const branchResponse = await getBranch({ branchId });
+      if (branchResponse.data) {
+        setBranchName(branchResponse.data.name);
 
-          const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
-          if (usersResponse.data) {
-            // Filter users for this branch
-            const filteredUsers = usersResponse.data.filter((user) => {
-              // Exclude company admins and managers - they are shown at company level
-              if (user.isCompanyAdmin || user.isCompanyManager) {
-                return false;
-              }
-              // Include only users with permissions for this branch
-              return user.branches?.some((b) => b.branchId === branchId);
-            });
+        const usersResponse = await getAllUsers({
+          companyId: branchResponse.data.companyId,
+        });
+        if (usersResponse.data) {
+          // Filter users for this branch
+          const filteredUsers = usersResponse.data.filter((user) => {
+            // Exclude company admins and managers - they are shown at company level
+            if (user.isCompanyAdmin || user.isCompanyManager) {
+              return false;
+            }
+            // Include only users with permissions for this branch
+            return user.branches?.some((b) => b.branchId === branchId);
+          });
 
-            const transformedUsers = filteredUsers.map((user) => transformUserToUI(user, branchId));
-            setUsers(transformedUsers);
-          }
+          setUsers(filteredUsers);
         }
-      } catch {
-        toast.error(t('loadingFailed'));
-      } finally {
-        setIsLoading(false);
       }
-    },
-    [branchId, t],
-  );
+    } catch {
+      toast.error(t('loadingFailed'));
+    } finally {
+      setIsLoading(false);
+    }
+  }, [branchId, t]);
 
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
 
-  const getRoleBadgeColor = (role: string) => {
-    const colors: Record<string, string> = {
-      branchManager: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-      employee: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
-    };
-    return colors[role] || colors.employee;
+  const handleEdit = (user: UserResponseDto) => {
+    setSelectedUser(user);
+    setIsEditUserDialogOpen(true);
+  };
+
+  const handleDelete = (user: UserResponseDto) => {
+    setSelectedUser(user);
+    setIsDeleteUserDialogOpen(true);
   };
 
   if (isLoading) {
@@ -134,6 +110,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
                 <TableHead>{t('table.name')}</TableHead>
                 <TableHead>{t('table.email')}</TableHead>
                 <TableHead>{t('table.role')}</TableHead>
+                <TableHead className="w-[100px]">{t('table.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -147,6 +124,9 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
                   </TableCell>
                   <TableCell>
                     <Skeleton className="h-6 w-24" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-8 w-16" />
                   </TableCell>
                 </TableRow>
               ))}
@@ -181,39 +161,89 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
               <TableHead>{t('table.name')}</TableHead>
               <TableHead>{t('table.email')}</TableHead>
               <TableHead>{t('table.role')}</TableHead>
+              <TableHead className="w-[120px]">{t('table.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center text-muted-foreground">
+                <TableCell colSpan={4} className="text-center text-muted-foreground">
                   {t('noUsers')}
                 </TableCell>
               </TableRow>
             ) : (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}
-                    >
-                      {t(`roles.${user.role}`)}
-                    </span>
-                  </TableCell>
-                </TableRow>
-              ))
+              users.map((user) => {
+                const role = getUserRole(
+                  user.isCompanyAdmin,
+                  user.isCompanyManager,
+                  user.branches?.find((b) => b.branchId === branchId),
+                );
+                const canEdit = canEditUser(companyUser, user, branchId);
+                const canDelete = canDeleteUser(companyUser, user, branchId);
+
+                return (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.name || 'Unknown User'}</TableCell>
+                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                    <TableCell>
+                      <Badge className={getUserRoleBadgeColor(role)} variant="secondary">
+                        {t(`roles.${role}`)}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(user)}
+                          disabled={!canEdit}
+                          className="h-8 w-8 p-0"
+                        >
+                          <Pencil className="h-4 w-4" />
+                          <span className="sr-only">{t('editUser')}</span>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(user)}
+                          disabled={!canDelete}
+                          className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">{t('deleteUser')}</span>
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
       </div>
 
+      {/* Dialogs */}
       <AddUserDialog
         open={isAddUserDialogOpen}
         onOpenChange={setIsAddUserDialogOpen}
         branchId={branchId}
         branchName={branchName}
+        onSuccess={loadUsers}
+      />
+
+      <EditUserDialog
+        open={isEditUserDialogOpen}
+        onOpenChange={setIsEditUserDialogOpen}
+        user={selectedUser}
+        branchId={branchId}
+        onSuccess={loadUsers}
+      />
+
+      <DeleteUserDialog
+        open={isDeleteUserDialogOpen}
+        onOpenChange={setIsDeleteUserDialogOpen}
+        user={selectedUser}
+        branchId={branchId}
         onSuccess={loadUsers}
       />
     </div>

@@ -16,9 +16,7 @@ export default async function CompanyPage({ params }: PageProps) {
   if (!companyResult.data) {
     return (
       <div className="container mx-auto p-6">
-        <div className="text-center text-muted-foreground">
-          Empresa não encontrada
-        </div>
+        <div className="text-center text-muted-foreground">Empresa não encontrada</div>
       </div>
     );
   }
@@ -34,15 +32,10 @@ export default async function CompanyPage({ params }: PageProps) {
       return {
         ...branch,
         machineCount: machinesResult.data?.length || 0,
-        machines: machinesResult.data || []
+        machines: machinesResult.data || [],
       };
-    })
+    }),
   );
 
-  return (
-    <CompanyViewWrapper
-      company={companyResult.data}
-      branches={branchesWithMachineCount}
-    />
-  );
+  return <CompanyViewWrapper company={companyResult.data} branches={branchesWithMachineCount} />;
 }

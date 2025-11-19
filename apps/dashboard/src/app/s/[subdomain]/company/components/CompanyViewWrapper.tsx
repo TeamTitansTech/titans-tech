@@ -40,11 +40,5 @@ export function CompanyViewWrapper({ company, branches }: CompanyViewWrapperProp
     );
   }
 
-  return (
-    <CompanyView
-      company={company}
-      branches={branches}
-      companyUser={companyUser}
-    />
-  );
+  return <CompanyView company={company} branches={branches} companyUser={companyUser} />;
 }
