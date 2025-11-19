@@ -1076,7 +1076,6 @@ model PistonsData {
   @@map("service_data_pistons")
 }
 
-// Production Line Models
 
 model ProductionLine {
   id        String   @id @default(cuid())

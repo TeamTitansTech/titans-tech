@@ -1164,6 +1164,8 @@
       "description": "Crie uma nova linha de produção para organizar suas máquinas",
       "cancel": "Cancelar",
       "create": "Criar Linha"
-    }
+    },
+    "errorSaving": "Erro ao salvar configurações",
+    "configurationUpdated": "Configuração atualizada com sucesso"
   }
 }

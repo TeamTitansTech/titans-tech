@@ -78,7 +78,7 @@ export function MachineCardInLine({ machine }: MachineCardInLineProps) {
   const t = useTranslations('machines');
 
   const handleClick = () => {
-    router.push(`/client/machines/${machine.id}`);
+    router.push(`/machines/${machine.id}`);
   };
 
   const sections = machine.blueprint?.sections || [];

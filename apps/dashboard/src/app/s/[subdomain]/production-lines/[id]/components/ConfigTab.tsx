@@ -18,7 +18,7 @@ import { ArrowUp, ArrowDown, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { getMachines } from '@/data/services/machines.api';
 import { updateProductionLine } from '@/data/services/production-lines.api';
-import type { ProductionLine, MachineWithStatus } from '@/data/types/production-lines.types';
+import type { ProductionLine } from '@/data/types/production-lines.types';
 import type { Machine } from '@/data/types/machines.types';
 
 interface ConfigTabProps {
@@ -40,10 +40,14 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   const { companyUser } = useCompanyUser();
   const [selectedBranchId, setSelectedBranchId] = useState(productionLine.branchId || '');
   const [allMachines, setAllMachines] = useState<MachineWithBranch[]>([]);
-  const [selectedMachineIds, setSelectedMachineIds] = useState<string[]>(
-    productionLine.machineIds || [],
-  );
-  const [machineOrder, setMachineOrder] = useState<string[]>(productionLine.machineIds || []);
+
+  // Extrair IDs das máquinas ordenadas
+  const initialMachineIds = productionLine.machines
+    ?.sort((a, b) => a.order - b.order)
+    .map((pm) => pm.machineId) || [];
+
+  const [selectedMachineIds, setSelectedMachineIds] = useState<string[]>(initialMachineIds);
+  const [machineOrder, setMachineOrder] = useState<string[]>(initialMachineIds);
   const [isLoadingMachines, setIsLoadingMachines] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -132,25 +136,10 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
         return;
       }
 
-      // Buscar as máquinas completas para passar ao callback
-      const selectedMachines: MachineWithStatus[] = machineOrder
-        .map((id) => allMachines.find((m) => m.id === id))
-        .filter((m) => m !== undefined)
-        .map((machine) => ({
-          ...machine,
-          sectionStatus: {}, // Initialize empty status for now
-        }));
-
-      // Criar o objeto atualizado com as máquinas completas
-      const updatedLine: ProductionLine = {
-        ...productionLine,
-        branchId: selectedBranchId,
-        machineIds: machineOrder,
-        machines: selectedMachines,
-      };
-
-      toast.success(t('configSaved'));
-      onSuccess?.(updatedLine);
+      if (response.data) {
+        toast.success(t('configSaved'));
+        onSuccess?.(response.data);
+      }
     } catch (error) {
       toast.error('Erro ao salvar configurações');
       console.error(error);

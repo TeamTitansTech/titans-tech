@@ -15,10 +15,10 @@ export function ProductionLineCard({ productionLine }: ProductionLineCardProps) 
   const t = useTranslations('productionLines');
 
   const handleClick = () => {
-    router.push(`/client/production-lines/${productionLine.id}`);
+    router.push(`/production-lines/${productionLine.id}`);
   };
 
-  const machineCount = productionLine._count?.machines || productionLine.machineIds?.length || 0;
+  const machineCount = productionLine._count?.machines || productionLine.machines?.length || 0;
 
   return (
     <Card

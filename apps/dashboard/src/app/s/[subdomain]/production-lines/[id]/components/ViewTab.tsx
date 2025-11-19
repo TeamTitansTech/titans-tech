@@ -35,9 +35,14 @@ export function ViewTab({ productionLine }: ViewTabProps) {
     <div className="relative">
       <div className="overflow-x-auto pb-4">
         <div className="inline-flex gap-6 min-w-full px-2">
-          {machines.map((machine) => (
-            <MachineCardInLine key={machine.id} machine={machine} />
-          ))}
+          {machines
+            .filter((pm) => pm.machine)
+            .map((productionLineMachine) => (
+              <MachineCardInLine
+                key={productionLineMachine.machineId}
+                machine={productionLineMachine.machine!}
+              />
+            ))}
         </div>
       </div>
     </div>

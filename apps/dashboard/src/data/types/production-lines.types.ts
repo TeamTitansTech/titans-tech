@@ -3,16 +3,30 @@ import type { Machine } from './machines.types';
 export interface ProductionLine {
   id: string;
   name: string;
-  companyId: string;
-  branchId?: string;
-  userId: string;
-  machineIds: string[];
-  machines?: MachineWithStatus[];
+  branchId: string;
+  createdBy?: string;
   createdAt: string;
   updatedAt: string;
+  branch?: {
+    id: string;
+    name: string;
+    isMainBranch: boolean;
+    location?: string;
+    companyId: string;
+  };
+  machines?: ProductionLineMachine[];
   _count?: {
     machines: number;
   };
+}
+
+export interface ProductionLineMachine {
+  productionLineId: string;
+  machineId: string;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+  machine?: MachineWithStatus;
 }
 
 export interface MachineWithStatus extends Machine {
@@ -23,11 +37,13 @@ export interface MachineWithStatus extends Machine {
 
 export interface CreateProductionLineDto {
   name: string;
+  branchId: string;
+  machineIds: string[];
+  createdBy?: string;
 }
 
 export interface UpdateProductionLineDto {
   name?: string;
-  companyId?: string;
   branchId?: string;
   machineIds?: string[];
 }

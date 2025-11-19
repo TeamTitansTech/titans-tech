@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { BlueprintsModule } from './blueprints/blueprints.module';
 import { MachinesModule } from './machines/machines.module';
 import { ServicesModule } from './services/services.module';
+import { ProductionLinesModule } from './production-lines/production-lines.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SysAdminModule } from './modules/sysadmin/sysadmin.module';
@@ -23,6 +24,7 @@ import { AlertsModule } from './modules/alerts/alerts.module';
     BlueprintsModule,
     MachinesModule,
     ServicesModule,
+    ProductionLinesModule,
     AlertsModule,
   ],
   controllers: [AppController],

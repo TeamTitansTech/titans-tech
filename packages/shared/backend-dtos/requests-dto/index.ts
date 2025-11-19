@@ -4,3 +4,4 @@ export * from './company-branch.dto';
 export * from './user.dto';
 export * from './threshold-bearing-clearance.dto';
 export * from './blueprint.dto';
+export * from './production-line.dto';

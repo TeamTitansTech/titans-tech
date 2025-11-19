@@ -36,7 +36,7 @@ export function ProductionLineDetail({
   return (
     <div className="space-y-6 p-8">
       <div className="flex items-center gap-6">
-        <Link href={'/client/production-lines'} className="shrink-0">
+        <Link href={'/production-lines'} className="shrink-0">
           <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
         </Link>
         <div className="flex-1">
