@@ -15,7 +15,7 @@ import {
 import { toast } from 'sonner';
 import { deleteUser } from '@/data/services/users.api';
 import { getBranch } from '@/data/services/company-branches.api';
-import type { UserResponseDto } from '@titans-tech/shared';
+import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 interface DeleteUserDialogProps {
   open: boolean;

@@ -12,8 +12,6 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  type ClutchData,
-  type ClutchFormProps,
   ClutchType,
   ClutchLocation,
   BrakeSpringStudBoltType,
@@ -30,6 +28,7 @@ import {
   SeparateBrakeSealsType,
   FlexDiscType,
 } from '@titans-tech/shared/types';
+import type { ClutchData, ClutchFormProps } from '@titans-tech/shared/types/services';
 
 export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: ClutchFormProps) {
   const tClutch = useTranslations('inspections.form.clutch.fields');

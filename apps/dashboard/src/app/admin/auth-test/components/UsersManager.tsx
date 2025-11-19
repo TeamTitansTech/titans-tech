@@ -5,7 +5,7 @@ import { getAllBranches, CompanyBranch } from '@/data/services/company-branches.
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { FormEvent, useState, useEffect } from 'react';
 import { Company } from '@/data/services/companies.api';
-import { UserResponseDto } from '@titans-tech/shared';
+import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
 
