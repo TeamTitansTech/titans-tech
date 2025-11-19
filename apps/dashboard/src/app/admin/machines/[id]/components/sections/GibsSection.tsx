@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useState, forwardRef, useImperativeHandle, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -19,6 +19,38 @@ import { type GibsData, ServiceType, YesNoDncType } from '@/data/types/services.
 import { GibsForm } from '../forms/GibsForm';
 import { isDataTouched } from './utils';
 import { useGibsState } from '../../hooks/useGibsState';
+import { type GibsStageData } from '@/hooks/useGibsCalculations';
+
+// Helper function to convert old GibsData (point1-16) to new GibsStageData (position1-16)
+const convertGibsDataToStageData = (data: GibsData): GibsStageData => {
+  return {
+    position1: data.point1,
+    position2: data.point2,
+    position3: data.point3,
+    position4: data.point4,
+    position5: data.point5,
+    position6: data.point6,
+    position7: data.point7,
+    position8: data.point8,
+    position9: data.point9,
+    position10: data.point10,
+    position11: data.point11,
+    position12: data.point12,
+    position13: data.point13,
+    position14: data.point14,
+    position15: data.point15,
+    position16: data.point16,
+  };
+};
+
+// Helper function to convert field names from position* to point*
+const convertPositionFieldToPointField = (field: keyof GibsStageData): keyof GibsData | null => {
+  const match = field.match(/^position(\d+)$/);
+  if (match) {
+    return `point${match[1]}` as keyof GibsData;
+  }
+  return null;
+};
 
 export const defaultGibsData: GibsData = {
   point1: 0,
@@ -37,14 +69,14 @@ export const defaultGibsData: GibsData = {
   point14: 0,
   point15: 0,
   point16: 0,
-  leftTop: undefined,
-  leftBottom: undefined,
-  rightTop: undefined,
-  rightBottom: undefined,
-  frontTop: undefined,
-  frontBottom: undefined,
-  backTop: undefined,
-  backBottom: undefined,
+  leftTop: 0,
+  leftBottom: 0,
+  rightTop: 0,
+  rightBottom: 0,
+  frontTop: 0,
+  frontBottom: 0,
+  backTop: 0,
+  backBottom: 0,
 };
 
 export const validateGibsData = (data: GibsData): string[] => {
@@ -128,10 +160,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       updateOuterAfterField: baseUpdateOuterAfter,
       updateInnerBeforeField: baseUpdateInnerBefore,
       updateInnerAfterField: baseUpdateInnerAfter,
-      setOuterBeforeFieldError,
-      setOuterAfterFieldError,
-      setInnerBeforeFieldError,
-      setInnerAfterFieldError,
       reset,
     } = useGibsState();
 
@@ -139,78 +167,116 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     const [isBeforeOpen, setIsBeforeOpen] = useState(true);
     const [isAfterOpen, setIsAfterOpen] = useState(true);
 
-    // Wrapper update functions to call onSectionTouched
-    const updateOuterBeforeField = (field: keyof GibsData, value: string | number | undefined) => {
-      baseUpdateOuterBefore(field, value);
-      onSectionTouched?.();
-    };
+    // Convert GibsData to format expected by GibsForm (with stage structure)
+    // Using useMemo to prevent unnecessary re-renders that could cause input to lose focus
+    // Note: GibsForm with type="outer" renders multiple stages, so we need to provide all of them
+    const outerBeforeFormData = useMemo(
+      () => ({
+        outerBeforeAdjustment: convertGibsDataToStageData(outerBeforeData),
+        outerAfterAdjustment: convertGibsDataToStageData(outerAfterData),
+      }),
+      [outerBeforeData, outerAfterData],
+    );
+    const outerAfterFormData = useMemo(
+      () => ({
+        outerAfterAdjustment: convertGibsDataToStageData(outerAfterData),
+        outerAfterInstallation: convertGibsDataToStageData(outerAfterData),
+      }),
+      [outerAfterData],
+    );
+    const innerBeforeFormData = useMemo(
+      () => ({
+        innerBeforeAdjustment: convertGibsDataToStageData(innerBeforeData),
+        innerAfterAdjustment: convertGibsDataToStageData(innerAfterData),
+        innerBeforeInstallation: convertGibsDataToStageData(innerBeforeData),
+      }),
+      [innerBeforeData, innerAfterData],
+    );
+    const innerAfterFormData = useMemo(
+      () => ({
+        innerAfterAdjustment: convertGibsDataToStageData(innerAfterData),
+        innerAfterInstallation: convertGibsDataToStageData(innerAfterData),
+      }),
+      [innerAfterData],
+    );
 
-    const updateOuterAfterField = (field: keyof GibsData, value: string | number | undefined) => {
-      baseUpdateOuterAfter(field, value);
-      onSectionTouched?.();
-    };
-
-    const updateInnerBeforeField = (field: keyof GibsData, value: string | number | undefined) => {
-      baseUpdateInnerBefore(field, value);
-      onSectionTouched?.();
-    };
-
-    const updateInnerAfterField = (field: keyof GibsData, value: string | number | undefined) => {
-      baseUpdateInnerAfter(field, value);
-      onSectionTouched?.();
-    };
-
-    // Validation on blur
-    const validateField = (
-      field: keyof GibsData,
-      value: string | number | boolean | undefined,
-    ): string => {
-      // Optional directional fields
-      if (
-        [
-          'leftTop',
-          'leftBottom',
-          'rightTop',
-          'rightBottom',
-          'frontTop',
-          'frontBottom',
-          'backTop',
-          'backBottom',
-        ].includes(String(field))
-      ) {
-        if (value === undefined || value === '') return '';
+    // Adapter update functions that convert from GibsStageData format back to GibsData format
+    const updateOuterBeforeFieldAdapter = (
+      stage:
+        | 'outerBeforeAdjustment'
+        | 'outerAfterAdjustment'
+        | 'outerAfterInstallation'
+        | 'innerBeforeAdjustment'
+        | 'innerAfterAdjustment'
+        | 'innerBeforeInstallation'
+        | 'innerAfterInstallation',
+      field: keyof GibsStageData,
+      value: number | undefined,
+    ) => {
+      const pointField = convertPositionFieldToPointField(field);
+      if (pointField) {
+        baseUpdateOuterBefore(pointField, value);
+        onSectionTouched?.();
       }
+    };
 
-      const numValue = Number(value);
-      if (isNaN(numValue)) {
-        return t('form.error.invalidNumber');
+    const updateOuterAfterFieldAdapter = (
+      stage:
+        | 'outerBeforeAdjustment'
+        | 'outerAfterAdjustment'
+        | 'outerAfterInstallation'
+        | 'innerBeforeAdjustment'
+        | 'innerAfterAdjustment'
+        | 'innerBeforeInstallation'
+        | 'innerAfterInstallation',
+      field: keyof GibsStageData,
+      value: number | undefined,
+    ) => {
+      const pointField = convertPositionFieldToPointField(field);
+      if (pointField) {
+        baseUpdateOuterAfter(pointField, value);
+        onSectionTouched?.();
       }
-
-      return '';
     };
 
-    // Blur handlers
-    const handleBlurOuterBefore = (field: keyof GibsData) => {
-      const error = validateField(field, outerBeforeData[field]);
-      setOuterBeforeFieldError(field, error);
+    const updateInnerBeforeFieldAdapter = (
+      stage:
+        | 'outerBeforeAdjustment'
+        | 'outerAfterAdjustment'
+        | 'outerAfterInstallation'
+        | 'innerBeforeAdjustment'
+        | 'innerAfterAdjustment'
+        | 'innerBeforeInstallation'
+        | 'innerAfterInstallation',
+      field: keyof GibsStageData,
+      value: number | undefined,
+    ) => {
+      const pointField = convertPositionFieldToPointField(field);
+      if (pointField) {
+        baseUpdateInnerBefore(pointField, value);
+        onSectionTouched?.();
+      }
     };
 
-    const handleBlurOuterAfter = (field: keyof GibsData) => {
-      const error = validateField(field, outerAfterData[field]);
-      setOuterAfterFieldError(field, error);
+    const updateInnerAfterFieldAdapter = (
+      stage:
+        | 'outerBeforeAdjustment'
+        | 'outerAfterAdjustment'
+        | 'outerAfterInstallation'
+        | 'innerBeforeAdjustment'
+        | 'innerAfterAdjustment'
+        | 'innerBeforeInstallation'
+        | 'innerAfterInstallation',
+      field: keyof GibsStageData,
+      value: number | undefined,
+    ) => {
+      const pointField = convertPositionFieldToPointField(field);
+      if (pointField) {
+        baseUpdateInnerAfter(pointField, value);
+        onSectionTouched?.();
+      }
     };
 
-    const handleBlurInnerBefore = (field: keyof GibsData) => {
-      const error = validateField(field, innerBeforeData[field]);
-      setInnerBeforeFieldError(field, error);
-    };
-
-    const handleBlurInnerAfter = (field: keyof GibsData) => {
-      const error = validateField(field, innerAfterData[field]);
-      setInnerAfterFieldError(field, error);
-    };
-
-    // Expose methods to parent via ref
     useImperativeHandle(ref, () => ({
       getData: (): GibsSectionData => {
         const outerBeforeTouched = isDataTouched(outerBeforeData, defaultGibsData);
@@ -363,7 +429,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
         <h3 className="text-base font-semibold mb-4">Gibs</h3>
 
         <div className="space-y-6">
-          {/* Include Before Measurements Checkbox - Only for Maintenance */}
           {serviceType === ServiceType.MAINTENANCE && (
             <div className="flex items-center space-x-2 pb-4 border-b">
               <Checkbox
@@ -383,7 +448,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
             </div>
           )}
 
-          {/* Global Has Been Adjusted */}
           <div className="space-y-2">
             <Label htmlFor="hasBeenAdjusted" className="text-xs font-semibold">
               {t('form.gibs.hasBeenAdjusted')}
@@ -408,7 +472,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
 
           {includeBeforeMeasurements ? (
             <div className="space-y-8">
-              {/* Before Maintenance Section */}
               <Collapsible open={isBeforeOpen} onOpenChange={setIsBeforeOpen}>
                 <div className="space-y-4">
                   <CollapsibleTrigger className="flex items-center justify-between w-full group">
@@ -430,21 +493,19 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
 
                       <TabsContent value="outer" className="space-y-6">
                         <GibsForm
-                          data={outerBeforeData}
-                          updateFn={updateOuterBeforeField}
+                          data={outerBeforeFormData}
+                          updateFn={updateOuterBeforeFieldAdapter}
                           errors={outerBeforeErrors}
-                          handleBlur={handleBlurOuterBefore}
-                          title="Outer Before"
+                          type="outer"
                         />
                       </TabsContent>
 
                       <TabsContent value="inner" className="space-y-6">
                         <GibsForm
-                          data={innerBeforeData}
-                          updateFn={updateInnerBeforeField}
+                          data={innerBeforeFormData}
+                          updateFn={updateInnerBeforeFieldAdapter}
                           errors={innerBeforeErrors}
-                          handleBlur={handleBlurInnerBefore}
-                          title="Inner Before"
+                          type="inner"
                         />
                       </TabsContent>
                     </Tabs>
@@ -452,10 +513,8 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
                 </div>
               </Collapsible>
 
-              {/* Divider */}
               <div className="border-t-2 border-border" />
 
-              {/* After Maintenance Section */}
               <Collapsible open={isAfterOpen} onOpenChange={setIsAfterOpen}>
                 <div className="space-y-4">
                   <CollapsibleTrigger className="flex items-center justify-between w-full group">
@@ -477,21 +536,19 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
 
                       <TabsContent value="outer" className="space-y-6">
                         <GibsForm
-                          data={outerAfterData}
-                          updateFn={updateOuterAfterField}
+                          data={outerAfterFormData}
+                          updateFn={updateOuterAfterFieldAdapter}
                           errors={outerAfterErrors}
-                          handleBlur={handleBlurOuterAfter}
-                          title="Outer After"
+                          type="outer"
                         />
                       </TabsContent>
 
                       <TabsContent value="inner" className="space-y-6">
                         <GibsForm
-                          data={innerAfterData}
-                          updateFn={updateInnerAfterField}
+                          data={innerAfterFormData}
+                          updateFn={updateInnerAfterFieldAdapter}
                           errors={innerAfterErrors}
-                          handleBlur={handleBlurInnerAfter}
-                          title="Inner After"
+                          type="inner"
                         />
                       </TabsContent>
                     </Tabs>
@@ -509,28 +566,25 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
 
                 <TabsContent value="outer" className="space-y-6">
                   <GibsForm
-                    data={outerAfterData}
-                    updateFn={updateOuterAfterField}
+                    data={outerAfterFormData}
+                    updateFn={updateOuterAfterFieldAdapter}
                     errors={outerAfterErrors}
-                    handleBlur={handleBlurOuterAfter}
-                    title="Outer After"
+                    type="outer"
                   />
                 </TabsContent>
 
                 <TabsContent value="inner" className="space-y-6">
                   <GibsForm
-                    data={innerAfterData}
-                    updateFn={updateInnerAfterField}
+                    data={innerAfterFormData}
+                    updateFn={updateInnerAfterFieldAdapter}
                     errors={innerAfterErrors}
-                    handleBlur={handleBlurInnerAfter}
-                    title="Inner After"
+                    type="inner"
                   />
                 </TabsContent>
               </Tabs>
             </>
           )}
 
-          {/* Global Notes Field */}
           <div className="space-y-2">
             <Label htmlFor="gibsNotes" className="text-xs font-semibold">
               {t('form.common.notes')}

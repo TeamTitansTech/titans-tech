@@ -668,69 +668,100 @@ model SlideData {
   @@map("service_data_slide")
 }
 
-// GIBS Section
+// GIBS Section - 7 Stage Architecture
+
+enum GibsStageType {
+  OUTER_BEFORE_ADJUSTMENT
+  OUTER_AFTER_ADJUSTMENT
+  OUTER_AFTER_INSTALLATION
+  INNER_BEFORE_ADJUSTMENT
+  INNER_AFTER_ADJUSTMENT
+  INNER_BEFORE_INSTALLATION
+  INNER_AFTER_INSTALLATION
+}
 
 model MachineServiceGibs {
-  id               String         @id @default(cuid())
+  id               String  @id @default(cuid())
   machineServiceId String
-  outerBeforeId    String?
-  outerDataId      String?
-  innerBeforeId    String?
-  innerDataId      String?
 
   // Global fields
-  hasBeenAdjusted  YesNoDncType?
-  notes            String?
+  hasBeenAdjusted YesNoDncType?
+  notes           String?
 
-  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
-  outerBefore    GibsData?      @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
-  outerData      GibsData?      @relation("OuterDataMeasurement", fields: [outerDataId], references: [id], onDelete: SetNull)
-  innerBefore    GibsData?      @relation("InnerBeforeMeasurement", fields: [innerBeforeId], references: [id], onDelete: SetNull)
-  innerData      GibsData?      @relation("InnerDataMeasurement", fields: [innerDataId], references: [id], onDelete: SetNull)
+  machineService MachineService  @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  stages         GibsStageData[]
 
   @@map("machine_service_gibs")
 }
 
-model GibsData {
-  id String @id @default(cuid())
+model GibsStageData {
+  id                   String        @id @default(cuid())
+  machineServiceGibsId String
+  stageType            GibsStageType
 
-  // Front to Back measurements (16 points)
-  point1  Decimal @db.Decimal(10, 4)
-  point2  Decimal @db.Decimal(10, 4)
-  point3  Decimal @db.Decimal(10, 4)
-  point4  Decimal @db.Decimal(10, 4)
-  point5  Decimal @db.Decimal(10, 4)
-  point6  Decimal @db.Decimal(10, 4)
-  point7  Decimal @db.Decimal(10, 4)
-  point8  Decimal @db.Decimal(10, 4)
-  point9  Decimal @db.Decimal(10, 4)
-  point10 Decimal @db.Decimal(10, 4)
-  point11 Decimal @db.Decimal(10, 4)
-  point12 Decimal @db.Decimal(10, 4)
-  point13 Decimal @db.Decimal(10, 4)
-  point14 Decimal @db.Decimal(10, 4)
-  point15 Decimal @db.Decimal(10, 4)
-  point16 Decimal @db.Decimal(10, 4)
+  // Input measurements - Front to Back (positions 1-8)
+  // Used in: Outer Before/After Adjustment, Inner Before Installation
+  position1 Decimal? @db.Decimal(10, 4)
+  position2 Decimal? @db.Decimal(10, 4)
+  position3 Decimal? @db.Decimal(10, 4)
+  position4 Decimal? @db.Decimal(10, 4)
+  position5 Decimal? @db.Decimal(10, 4)
+  position6 Decimal? @db.Decimal(10, 4)
+  position7 Decimal? @db.Decimal(10, 4)
+  position8 Decimal? @db.Decimal(10, 4)
 
-  // Directional measurements
-  leftTop     Decimal? @db.Decimal(10, 4)
-  leftBottom  Decimal? @db.Decimal(10, 4)
-  rightTop    Decimal? @db.Decimal(10, 4)
-  rightBottom Decimal? @db.Decimal(10, 4)
-  frontTop    Decimal? @db.Decimal(10, 4)
-  frontBottom Decimal? @db.Decimal(10, 4)
-  backTop     Decimal? @db.Decimal(10, 4)
-  backBottom  Decimal? @db.Decimal(10, 4)
+  // Input measurements - Left to Right (positions 9-16)
+  // Used in: All stages
+  position9  Decimal? @db.Decimal(10, 4)
+  position10 Decimal? @db.Decimal(10, 4)
+  position11 Decimal? @db.Decimal(10, 4)
+  position12 Decimal? @db.Decimal(10, 4)
+  position13 Decimal? @db.Decimal(10, 4)
+  position14 Decimal? @db.Decimal(10, 4)
+  position15 Decimal? @db.Decimal(10, 4)
+  position16 Decimal? @db.Decimal(10, 4)
+
+  // Special inputs for Outer After Installation
+  topFront Decimal? @db.Decimal(10, 4)
+  topBack  Decimal? @db.Decimal(10, 4)
+
+  // Calculated outputs - Top measurements
+  calculatedTopFront Decimal? @db.Decimal(10, 4)
+  calculatedTopBack  Decimal? @db.Decimal(10, 4)
+  calculatedTopRear  Decimal? @db.Decimal(10, 4) // For Inner After Installation
+
+  // Calculated outputs - Bottom measurements
+  calculatedBottomFront Decimal? @db.Decimal(10, 4)
+  calculatedBottomBack  Decimal? @db.Decimal(10, 4)
+
+  // Calculated outputs - Left/Right (for Inner Before Installation)
+  calculatedLeft  Decimal? @db.Decimal(10, 4)
+  calculatedRight Decimal? @db.Decimal(10, 4)
+
+  // Calculated outputs - Directional (legacy compatibility)
+  calculatedLeftTop     Decimal? @db.Decimal(10, 4)
+  calculatedLeftBottom  Decimal? @db.Decimal(10, 4)
+  calculatedRightTop    Decimal? @db.Decimal(10, 4)
+  calculatedRightBottom Decimal? @db.Decimal(10, 4)
+  calculatedFrontTop    Decimal? @db.Decimal(10, 4)
+  calculatedFrontBottom Decimal? @db.Decimal(10, 4)
+  calculatedBackTop     Decimal? @db.Decimal(10, 4)
+  calculatedBackBottom  Decimal? @db.Decimal(10, 4)
+
+  // Comparison/Differential fields (for After stages)
+  differentialTopFront  Decimal? @db.Decimal(10, 4)
+  differentialTopBack   Decimal? @db.Decimal(10, 4)
+  differentialTopRear   Decimal? @db.Decimal(10, 4)
+  differentialBottom    Decimal? @db.Decimal(10, 4)
+  differentialLeft      Decimal? @db.Decimal(10, 4)
+  differentialRight     Decimal? @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  outerBeforeServices MachineServiceGibs[] @relation("OuterBeforeMeasurement")
-  outerDataServices   MachineServiceGibs[] @relation("OuterDataMeasurement")
-  innerBeforeServices MachineServiceGibs[] @relation("InnerBeforeMeasurement")
-  innerDataServices   MachineServiceGibs[] @relation("InnerDataMeasurement")
+  machineServiceGibs MachineServiceGibs @relation(fields: [machineServiceGibsId], references: [id], onDelete: Cascade)
 
-  @@map("service_data_gibs")
+  @@map("service_data_gibs_stage")
 }
 
 // LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER Section
