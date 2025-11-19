@@ -109,7 +109,7 @@ export function UpcomingServicesWrapper({
               {upcomingServices.map((service) => {
                 const serviceDate = new Date(service.date);
                 // Check if service has any sections completed (in progress)
-                const serviceData = service as any;
+                const serviceData = service as Service & { completedSections?: string[] };
                 const completedSections = Array.isArray(serviceData.completedSections)
                   ? serviceData.completedSections
                   : [];

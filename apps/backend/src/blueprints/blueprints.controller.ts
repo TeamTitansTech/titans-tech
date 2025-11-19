@@ -1,9 +1,13 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { BlueprintsService } from './blueprints.service';
-import { CreateBlueprintDto } from './dto/create-blueprint.dto';
-import { CreateBlueprintWithThresholdsDto } from '@titans-tech/shared';
+import {
+  CreateBlueprintWithThresholdsDto,
+  CreateBlueprintDto,
+  CreateBlueprintSchema,
+} from '@titans-tech/shared/backend-dtos';
 import { Admin, Authenticated } from 'src/modules/auth/auth.decorators';
+import { ZodValidationPipe } from '../errors/zod-validation.pipe';
 
 @Controller('blueprints')
 export class BlueprintsController {
@@ -12,7 +16,7 @@ export class BlueprintsController {
   @Admin()
   @Post()
   create(
-    @Body()
+    @Body(new ZodValidationPipe(CreateBlueprintSchema))
     createBlueprintDto: CreateBlueprintDto | CreateBlueprintWithThresholdsDto,
   ): Promise<Prisma.BlueprintGetPayload<object>> {
     return this.blueprintsService.create(createBlueprintDto);

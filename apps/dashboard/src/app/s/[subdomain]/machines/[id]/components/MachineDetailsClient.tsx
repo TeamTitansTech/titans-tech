@@ -10,74 +10,13 @@ import Image from 'next/image';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { ServiceCompletionModal } from './ServiceCompletionModal';
-import { SectionCard, type SectionStatus } from './SectionCard';
+import { SectionCard } from '@/components/shared/SectionCard';
 import { Typography } from '@/components/ui/typography';
-
-interface MachineField {
-  fieldSlug: string;
-  value: string | number;
-}
-
-interface BlueprintField {
-  fieldName: string;
-  fieldSlug: string;
-  fieldType: string;
-  fieldOptions?: string[];
-}
-
-interface Blueprint {
-  id: string;
-  name: string;
-  sections: string[];
-  fields: BlueprintField[];
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Machine {
-  id: string;
-  blueprintId: string;
-  name: string;
-  imageUrl?: string;
-  fields: MachineField[];
-  createdAt: string;
-  updatedAt: string;
-  blueprint?: Blueprint;
-  client?: string;
-  location?: string;
-}
+import type { Machine } from '@titans-tech/shared/types';
 
 interface MachineDetailsClientProps {
   machine: Machine;
 }
-
-const SECTION_I18N_KEYS: Record<string, string> = {
-  BEARING_CLEARANCE: 'bearingClearance',
-  SLIDE: 'slide',
-  GIBS: 'gibs',
-  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
-  CLUTCH: 'clutch',
-  COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
-  TRAMMING: 'tramming',
-  PISTONS: 'pistons',
-};
-
-const SECTION_IMAGES: Record<string, string> = {
-  BEARING_CLEARANCE: '/assets/sections/bearing-clearance.svg',
-  SLIDE: '/assets/sections/slide.svg',
-  GIBS: '/assets/sections/gibs.svg',
-  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER:
-    '/assets/sections/lubrication-hydraulics.svg',
-  CLUTCH: '/assets/sections/clutch.svg',
-  COUNTERBALANCE_CYLINDER_AIRBAG: '/assets/sections/counterbalance.svg',
-  TRAMMING: '/assets/sections/tramming.svg',
-  PISTONS: '/assets/sections/pistons.svg',
-};
-
-const getSectionStatus = (_section: string, _machine: Machine): SectionStatus => {
-  // TODO: Implement service status checking for subdomain pages
-  return 'unknown';
-};
 
 export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
@@ -152,9 +91,8 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
                 {machine.blueprint.sections.map((section) => (
                   <SectionCard
                     key={section}
-                    title={t(`sectionNames.${SECTION_I18N_KEYS[section] || 'unknown'}`)}
-                    status={getSectionStatus(section, machine)}
-                    imageUrl={SECTION_IMAGES[section]}
+                    sectionKey={section}
+                    machine={machine}
                     onClick={() => handleSectionClick(section)}
                     isLoading={loadingSection === section}
                   />

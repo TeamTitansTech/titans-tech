@@ -5,13 +5,18 @@ export type ValidationRule<T> = {
   message: string;
 };
 
+/**
+ * Note: Using `Record<string, any>` here is intentional to allow interfaces with optional properties.
+ * TypeScript's `Record<string, unknown>` doesn't support optional fields, which most data interfaces have.
+ */
 export type FieldValidationRules<T extends Record<string, any>> = Partial<
-  Record<keyof T, ValidationRule<any>[]>
+  Record<keyof T, ValidationRule<unknown>[]>
 >;
 
 /**
  * Hook for field-level validation
  * @template T - The type of data being validated
+ * Note: Using `Record<string, any>` here is intentional to allow interfaces with optional properties.
  */
 export function useFieldValidation<T extends Record<string, any>>(rules: FieldValidationRules<T>) {
   const validateField = useCallback(
@@ -59,12 +64,12 @@ export function useFieldValidation<T extends Record<string, any>>(rules: FieldVa
 
 // Common validation rules
 export const commonValidationRules = {
-  required: (message = 'This field is required'): ValidationRule<any> => ({
+  required: (message = 'This field is required'): ValidationRule<unknown> => ({
     validate: (value) => value !== undefined && value !== null && value !== '',
     message,
   }),
 
-  numeric: (message = 'Must be a valid number'): ValidationRule<any> => ({
+  numeric: (message = 'Must be a valid number'): ValidationRule<unknown> => ({
     validate: (value) => !isNaN(Number(value)),
     message,
   }),

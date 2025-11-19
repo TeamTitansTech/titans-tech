@@ -31,7 +31,7 @@ import {
   PneumaticSystemType,
   PressMountingType,
   MachineFeaturesType,
-} from '@titans-tech/shared/types';
+} from '@titans-tech/shared/types/enums';
 
 interface MachineEditModalProps {
   isOpen: boolean;

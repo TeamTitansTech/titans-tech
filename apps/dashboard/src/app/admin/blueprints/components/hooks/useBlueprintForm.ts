@@ -62,7 +62,21 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
     const hasBearingClearance = selectedSections.includes('bearing_clearance');
 
-    const payload: any = {
+    interface BlueprintField {
+      fieldName: string;
+      fieldSlug: string;
+      fieldType: string;
+      fieldOptions?: string[];
+    }
+
+    interface CreateBlueprintPayload {
+      name: string;
+      sections: string[];
+      fields: BlueprintField[];
+      thresholds?: BearingClearanceThresholdsData;
+    }
+
+    const payload: CreateBlueprintPayload = {
       name,
       sections: selectedSections
         .map((slug) => SLUG_TO_SECTION[slug])

@@ -73,7 +73,7 @@ interface PistonsSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
-  initialData?: any; // PistonsCheck data from API
+  initialData?: PistonsSectionData;
 }
 
 export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>(

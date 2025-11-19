@@ -92,7 +92,7 @@ interface GibsSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
-  initialData?: any; // GibsCheck data from API
+  initialData?: GibsSectionData;
 }
 
 export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
@@ -127,6 +127,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       baseUpdateOuterBefore(field, value as any);
       onSectionTouched?.();
     };
@@ -135,6 +136,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       baseUpdateOuterAfter(field, value as any);
       onSectionTouched?.();
     };
@@ -143,6 +145,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       baseUpdateInnerBefore(field, value as any);
       onSectionTouched?.();
     };
@@ -151,6 +154,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       baseUpdateInnerAfter(field, value as any);
       onSectionTouched?.();
     };

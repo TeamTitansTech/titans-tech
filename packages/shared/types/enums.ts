@@ -40,20 +40,8 @@ export enum MachineFeaturesType {
   NA = 'NA',
 }
 
-// Inspection-specific enums
-export enum DriveBeltConditionType {
-  OK = 'OK',
-  NA = 'NA',
-  LOOSENED = 'LOOSENED',
-  TIGHTENED = 'TIGHTENED',
-  WORN = 'WORN',
-}
-
-export enum ProtectiveCoversStatusType {
-  YES = 'YES',
-  NO = 'NO',
-  OK = 'OK',
-}
+// Note: DriveBeltConditionType and ProtectiveCoversStatusType are now exported from Prisma
+// via backend-dtos/service.dto.ts and re-exported from types/services.ts
 
 export enum WhyNotCoveredType {
   CUSTOMER_REMOVED = 'CUSTOMER_REMOVED',

@@ -27,6 +27,7 @@ import { getAllCompanies, type Company } from '@/data/services/companies.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
+import { useBranch } from '@/contexts/BranchContext';
 import { toast } from 'sonner';
 import { Boxes, Check, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -76,6 +77,7 @@ export function MachineCreationModal({
   const t = useTranslations('machines');
   const { companyUser } = useCompanyUser();
   const { sysAdminUser } = useSysAdmin();
+  const { selectedBranchId: contextBranchId } = useBranch();
   const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -93,9 +95,21 @@ export function MachineCreationModal({
   const isSysAdmin = !!sysAdminUser;
   const effectiveCompanyId = companyIdProp || selectedCompanyId || companyUser?.companyId;
 
+  // Use branch from context if available and not overridden
+  const effectiveBranchId = branchId || selectedBranchId || contextBranchId;
+
   const selectedBlueprint = useMemo(() => {
     return blueprints.find((bp) => bp.id === selectedBlueprintId) ?? null;
   }, [selectedBlueprintId, blueprints]);
+
+  // Determine if user has access to multiple branches with createMachines permission
+  const hasMultipleBranches = useMemo(() => {
+    if (!companyUser) return false;
+    const accessibleBranches = companyUser.branches.filter(
+      (userBranch) => userBranch.createMachines,
+    );
+    return accessibleBranches.length > 1;
+  }, [companyUser]);
 
   useEffect(() => {
     const loadBlueprints = async () => {
@@ -157,6 +171,40 @@ export function MachineCreationModal({
     };
   }, [branchId, effectiveCompanyId]);
 
+  // Auto-select branch if user has access to only one branch with createMachines permission
+  useEffect(() => {
+    // Skip if branch is already provided as prop
+    if (branchId) {
+      return;
+    }
+
+    // Skip if branch is already selected
+    if (selectedBranchId) {
+      return;
+    }
+
+    // Skip if companyUser is not loaded
+    if (!companyUser) {
+      return;
+    }
+
+    // Skip if branches are still loading
+    if (isLoadingBranches) {
+      return;
+    }
+
+    // Get branches where user has createMachines permission
+    const accessibleBranches = companyUser.branches.filter(
+      (userBranch) => userBranch.createMachines,
+    );
+
+    // Auto-select if user has access to exactly one branch
+    if (accessibleBranches.length === 1) {
+      setSelectedBranchId(accessibleBranches[0].branchId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [branchId, companyUser, isLoadingBranches]);
+
   const handleBlueprintSelect = (blueprintId: string) => {
     setSelectedBlueprintId(blueprintId);
     setFieldValues({});
@@ -172,7 +220,7 @@ export function MachineCreationModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedBlueprint || !selectedBranchId) {
+    if (!selectedBlueprint || !effectiveBranchId) {
       toast.error(t('form.error.branchRequired'));
       return;
     }
@@ -184,7 +232,7 @@ export function MachineCreationModal({
 
     const payload = {
       blueprintId: selectedBlueprintId,
-      branchId: selectedBranchId,
+      branchId: effectiveBranchId,
       name: machineName,
       fields,
     };
@@ -327,70 +375,72 @@ export function MachineCreationModal({
               </>
             )}
 
-            {!branchId && (companyIdProp || selectedCompanyId || companyUser?.companyId) && (
-              <>
-                <section className="space-y-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-foreground">
-                      {t('form.branch.label')}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {t('form.branch.description')}
-                    </p>
-                  </div>
-
-                  {isLoadingBranches ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      {t('form.branch.loading')}
+            {!branchId &&
+              (companyIdProp || selectedCompanyId || companyUser?.companyId) &&
+              (hasMultipleBranches || isSysAdmin) && (
+                <>
+                  <section className="space-y-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-foreground">
+                        {t('form.branch.label')}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {t('form.branch.description')}
+                      </p>
                     </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {branches.map((branch) => {
-                        const isSelected = selectedBranchId === branch.id;
-                        return (
-                          <Card
-                            key={branch.id}
-                            className={`cursor-pointer transition-all hover:shadow-md ${
-                              isSelected
-                                ? 'ring-2 ring-primary border-primary bg-primary/10'
-                                : 'hover:border-primary/50'
-                            }`}
-                            onClick={() => setSelectedBranchId(branch.id)}
-                          >
-                            <CardContent className="p-4">
-                              <div className="flex items-start justify-between">
-                                <div className="flex items-start gap-3 flex-1">
-                                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                    <MapPin className="w-5 h-5 text-primary" />
+
+                    {isLoadingBranches ? (
+                      <div className="text-center py-8 text-muted-foreground">
+                        {t('form.branch.loading')}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {branches.map((branch) => {
+                          const isSelected = selectedBranchId === branch.id;
+                          return (
+                            <Card
+                              key={branch.id}
+                              className={`cursor-pointer transition-all hover:shadow-md ${
+                                isSelected
+                                  ? 'ring-2 ring-primary border-primary bg-primary/10'
+                                  : 'hover:border-primary/50'
+                              }`}
+                              onClick={() => setSelectedBranchId(branch.id)}
+                            >
+                              <CardContent className="p-4">
+                                <div className="flex items-start justify-between">
+                                  <div className="flex items-start gap-3 flex-1">
+                                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                      <MapPin className="w-5 h-5 text-primary" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <h4 className="font-semibold text-sm text-foreground">
+                                        {branch.name}
+                                      </h4>
+                                      {branch.isMainBranch && (
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          {t('form.branch.mainBranch')}
+                                        </p>
+                                      )}
+                                    </div>
                                   </div>
-                                  <div className="flex-1">
-                                    <h4 className="font-semibold text-sm text-foreground">
-                                      {branch.name}
-                                    </h4>
-                                    {branch.isMainBranch && (
-                                      <p className="text-xs text-muted-foreground mt-1">
-                                        {t('form.branch.mainBranch')}
-                                      </p>
-                                    )}
-                                  </div>
+                                  {isSelected && (
+                                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
+                                      <Check className="w-3 h-3 text-white" />
+                                    </div>
+                                  )}
                                 </div>
-                                {isSelected && (
-                                  <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-                                    <Check className="w-3 h-3 text-white" />
-                                  </div>
-                                )}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })}
-                    </div>
-                  )}
-                </section>
+                              </CardContent>
+                            </Card>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </section>
 
-                {selectedBranchId && <Separator />}
-              </>
-            )}
+                  {selectedBranchId && <Separator />}
+                </>
+              )}
 
             {(branchId || selectedBranchId) && (
               <section className="space-y-4">

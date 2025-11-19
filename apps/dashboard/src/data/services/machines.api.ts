@@ -138,7 +138,7 @@ export const getMachineById = async (id: string) => {
 };
 
 export const createMachine = async (payload: CreateMachinePayload) => {
-  return await responseHandler<Machine>('/machines', {
+  return await responseHandler<Machine>(`/company-branches/${payload.branchId}/machines`, {
     method: 'POST',
     body: payload,
   });

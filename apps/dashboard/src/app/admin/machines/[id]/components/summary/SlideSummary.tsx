@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { SlideCheck } from '@/data/types/services.types';
 import {
   Table,
   TableBody,
@@ -12,7 +13,7 @@ import {
 import { calculateMaxDeviation } from '../utils/sectionDataUtils';
 
 interface SlideSummaryProps {
-  data: any;
+  data: SlideCheck;
 }
 
 export function SlideSummary({ data }: SlideSummaryProps) {
@@ -38,7 +39,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
   };
 
   // Helper function to display value with translations
-  const displayValue = (value: any): string => {
+  const displayValue = (value: unknown): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }
@@ -98,7 +99,9 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                     <TableCell className="py-1.5 font-medium border-r bg-muted/20">
                       {translateFieldName(key)}
                     </TableCell>
-                    <TableCell className="py-1.5 text-center">{displayValue(data[key])}</TableCell>
+                    <TableCell className="py-1.5 text-center">
+                      {displayValue((data as Record<string, unknown>)[key])}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -108,7 +111,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
       )}
 
       {/* Outer Before Measurements */}
-      {data.outerBefore && (
+      {!!data.outerBefore && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {tMeasurements('outerBeforeMaintenance')}
@@ -149,7 +152,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                     {displayValue(data.outerBefore.position6)}
                   </TableCell>
                   <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.outerBefore)}
+                    {calculateMaxDeviation(data.outerBefore as unknown as Record<string, unknown>)}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -159,7 +162,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
       )}
 
       {/* Outer After Measurements */}
-      {data.outerData && (
+      {!!data.outerData && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {data.outerBefore
@@ -202,7 +205,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                     {displayValue(data.outerData.position6)}
                   </TableCell>
                   <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.outerData)}
+                    {calculateMaxDeviation(data.outerData as unknown as Record<string, unknown>)}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -212,7 +215,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
       )}
 
       {/* Inner Before Measurements */}
-      {data.innerBefore && (
+      {!!data.innerBefore && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {tMeasurements('innerBeforeMaintenance')}
@@ -253,7 +256,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                     {displayValue(data.innerBefore.position6)}
                   </TableCell>
                   <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.innerBefore)}
+                    {calculateMaxDeviation(data.innerBefore as unknown as Record<string, unknown>)}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -263,7 +266,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
       )}
 
       {/* Inner After Measurements */}
-      {data.innerData && (
+      {!!data.innerData && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {data.innerBefore
@@ -306,7 +309,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                     {displayValue(data.innerData.position6)}
                   </TableCell>
                   <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.innerData)}
+                    {calculateMaxDeviation(data.innerData as unknown as Record<string, unknown>)}
                   </TableCell>
                 </TableRow>
               </TableBody>
