@@ -4,7 +4,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { appEnv } from './config/env';
 import { AllExceptionsFilter, ZodErrorFilter } from './errors/error.filter';
-import { IoAdapter } from '@nestjs/platform-socket.io';
+import { SocketIOAdapter } from './adapters/socket-io.adapter';
 
 async function bootstrap() {
   if (appEnv.NODE_ENV === 'development') {
@@ -15,9 +15,6 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
 
-  // Enable WebSocket with Socket.IO adapter
-  app.useWebSocketAdapter(new IoAdapter(app));
-
   app.enableCors({
     origin: '*',
     credentials: true,
@@ -25,11 +22,20 @@ async function bootstrap() {
 
   app.useGlobalFilters(new ZodErrorFilter());
   app.useGlobalFilters(new AllExceptionsFilter());
-  await app.listen(appEnv.PORT);
 
-  console.log(`HTTP Server running on http://localhost:${appEnv.PORT}`);
-  console.log(
-    `WebSocket Server running on ws://localhost:${appEnv.PORT}/notifications`,
-  );
+  // Initialize WebSocket adapter AFTER CORS but BEFORE listen
+  const socketAdapter = new SocketIOAdapter(app);
+  app.useWebSocketAdapter(socketAdapter);
+  console.log('📡 WebSocket adapter configured');
+
+  // Start listening - this will trigger WebSocket initialization
+  console.log(`🚀 Starting server on port ${appEnv.PORT}...`);
+  await app.listen(appEnv.PORT);
+  console.log('✅ Server started successfully');
+
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(`✅ HTTP Server running on http://localhost:${appEnv.PORT}`);
+  console.log(`✅ WebSocket Server running on ws://localhost:${appEnv.PORT}`);
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 }
 bootstrap();

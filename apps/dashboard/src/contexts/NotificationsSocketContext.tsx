@@ -46,15 +46,10 @@ export function NotificationsSocketProvider({
     }
 
     // Connect to WebSocket
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
-    console.log(
-      '[NotificationsSocket] Connecting to:',
-      `${backendUrl}/notifications`,
-      'with userId:',
-      userId,
-    );
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    console.log('[NotificationsSocket] Connecting to:', backendUrl, 'with userId:', userId);
 
-    const socketInstance = io(`${backendUrl}/notifications`, {
+    const socketInstance = io(backendUrl, {
       query: { userId },
       transports: ['websocket', 'polling'],
       reconnection: true,
