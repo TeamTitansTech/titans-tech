@@ -31,7 +31,7 @@ export function GenericSectionSummary({ data }: GenericSectionSummaryProps) {
               {formatFieldName(key)}
             </div>
             <div className="pl-3 border-l-2 border-muted space-y-1.5">
-              {renderData(value, depth + 1)}
+              {renderData(value as Record<string, unknown>, depth + 1)}
             </div>
           </div>,
         );

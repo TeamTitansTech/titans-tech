@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PistonsForm } from '../forms/PistonsForm';
@@ -9,14 +10,14 @@ interface PistonsSummaryProps {
   data: Record<string, unknown>;
 }
 
-export function PistonsSummary({ data }: PistonsSummaryProps) {
+export function PistonsSummary({ data }: PistonsSummaryProps): React.ReactElement {
   const tServicesSummary = useTranslations('services.modal.summary');
   const tPistons = useTranslations('inspections.form.pistons');
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common.status');
 
   // Helper to display values with translations
-  const display = (value: unknown) => displayValue(value, tCommon('yes'), tCommon('no'));
+  const display = (value: unknown): string => displayValue(value, tCommon('yes'), tCommon('no'));
 
   return (
     <div className="text-xs space-y-4">
@@ -27,11 +28,15 @@ export function PistonsSummary({ data }: PistonsSummaryProps) {
             <div className="p-2 space-y-1.5 text-[11px]">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tPistons('guidSeals')}:</span>
-                <span className="font-medium">{display(data.guidSeals)}</span>
+                <span className="font-medium">
+                  {displayValue(data.guidSeals, tCommon('yes'), tCommon('no'))}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tPistons('pistonSeals')}:</span>
-                <span className="font-medium">{display(data.pistonSeals)}</span>
+                <span className="font-medium">
+                  {displayValue(data.pistonSeals, tCommon('yes'), tCommon('no'))}
+                </span>
               </div>
             </div>
           </div>
@@ -40,21 +45,23 @@ export function PistonsSummary({ data }: PistonsSummaryProps) {
             <div className="p-2 space-y-1.5 text-[11px]">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tPistons('vacuumSystem')}:</span>
-                <span className="font-medium">{display(data.vacuumSystem)}</span>
+                <span className="font-medium">
+                  {displayValue(data.vacuumSystem, tCommon('yes'), tCommon('no'))}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">
                   {tPistons('vacuumSystemAirPressureSetting')}:
                 </span>
                 <span className="font-medium">
-                  {data?.vacuumSystemAirPressureSetting
-                    ? `${data.vacuumSystemAirPressureSetting} ${data.vacuumSystemAirPressureUnit || 'PSI'}`
+                  {!!data?.vacuumSystemAirPressureSetting
+                    ? `${data.vacuumSystemAirPressureSetting} ${String(data.vacuumSystemAirPressureUnit || 'PSI')}`
                     : '-'}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">{tPistons('unit')}:</span>
-                <span className="font-medium">{data?.unit || 'inches'}</span>
+                <span className="font-medium">{String(data?.unit || 'inches')}</span>
               </div>
             </div>
           </div>

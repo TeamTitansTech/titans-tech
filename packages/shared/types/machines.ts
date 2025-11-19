@@ -12,6 +12,7 @@ import {
   PressMountingType,
   MachineFeaturesType,
 } from './enums';
+import type { ServiceType, BearingClearanceCheck } from './services';
 
 // Machine Field Definition
 export interface MachineField {
@@ -46,6 +47,7 @@ export interface Machine {
   client?: string;
   location?: string;
   services?: MachineService[];
+  inspections?: MachineInspection[];
 }
 
 // Basic Service Info (for machine response)
@@ -54,6 +56,15 @@ export interface MachineService {
   date: string;
   isMaintenance: boolean;
   performedBy: string;
+}
+
+// Machine Inspection (detailed service data for inspections)
+export interface MachineInspection {
+  id: string;
+  date: string;
+  type: ServiceType;
+  performedBy: string;
+  bearingClearanceChecks: BearingClearanceCheck | null;
 }
 
 // Machine Creation Payload (for API requests)

@@ -21,18 +21,22 @@ export function GibsSummary({ data }: GibsSummaryProps) {
   const tServices = useTranslations('services');
   const tServicesSummary = useTranslations('services.modal.summary');
 
-  // Check if we have before data
-  const hasBeforeData =
-    (data?.outerBefore && hasActualData(data.outerBefore)) ||
-    (data?.innerBefore && hasActualData(data.innerBefore));
-  const hasAfterData =
-    (data?.outerData && hasActualData(data.outerData)) ||
-    (data?.innerData && hasActualData(data.innerData));
+  // Type helpers for accessing nested properties
+  const outerData = data?.outerData as Record<string, unknown> | undefined;
+  const innerData = data?.innerData as Record<string, unknown> | undefined;
+  const outerBefore = data?.outerBefore as Record<string, unknown> | undefined;
+  const innerBefore = data?.innerBefore as Record<string, unknown> | undefined;
 
-  const outerBeforeRows = extractBearingRows(data?.outerBefore);
-  const innerBeforeRows = extractBearingRows(data?.innerBefore);
-  const outerDataRows = extractBearingRows(data?.outerData);
-  const innerDataRows = extractBearingRows(data?.innerData);
+  // Check if we have before data
+  const hasBeforeData: boolean =
+    !!(outerBefore && hasActualData(outerBefore)) || !!(innerBefore && hasActualData(innerBefore));
+  const hasAfterData: boolean =
+    !!(outerData && hasActualData(outerData)) || !!(innerData && hasActualData(innerData));
+
+  const outerBeforeRows = extractBearingRows(outerBefore);
+  const innerBeforeRows = extractBearingRows(innerBefore);
+  const outerDataRows = extractBearingRows(outerData);
+  const innerDataRows = extractBearingRows(innerData);
 
   return (
     <div className="text-xs space-y-3">

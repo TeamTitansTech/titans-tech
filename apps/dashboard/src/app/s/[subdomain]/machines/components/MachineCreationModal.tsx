@@ -27,6 +27,7 @@ import { getAllCompanies, type Company } from '@/data/services/companies.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
+import { useBranch } from '@/contexts/BranchContext';
 import { toast } from 'sonner';
 import { Boxes, Check, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -76,6 +77,7 @@ export function MachineCreationModal({
   const t = useTranslations('machines');
   const { companyUser } = useCompanyUser();
   const { sysAdminUser } = useSysAdmin();
+  const { selectedBranchId: contextBranchId } = useBranch();
   const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -88,14 +90,26 @@ export function MachineCreationModal({
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(!!sysAdminUser && !companyIdProp);
   const [isLoadingBranches, setIsLoadingBranches] = useState(!branchId);
 
-  const { execute: submitMachine, isLoading, result } = useLazyQuery(createMachine);
+  const { execute: submitMachine, isLoading, result} = useLazyQuery(createMachine);
 
   const isSysAdmin = !!sysAdminUser;
   const effectiveCompanyId = companyIdProp || selectedCompanyId || companyUser?.companyId;
 
+  // Use branch from context if available and not overridden
+  const effectiveBranchId = branchId || selectedBranchId || contextBranchId;
+
   const selectedBlueprint = useMemo(() => {
     return blueprints.find((bp) => bp.id === selectedBlueprintId) ?? null;
   }, [selectedBlueprintId, blueprints]);
+
+  // Determine if user has access to multiple branches with createMachines permission
+  const hasMultipleBranches = useMemo(() => {
+    if (!companyUser) return false;
+    const accessibleBranches = companyUser.branches.filter(
+      (userBranch) => userBranch.createMachines,
+    );
+    return accessibleBranches.length > 1;
+  }, [companyUser]);
 
   useEffect(() => {
     const loadBlueprints = async () => {
@@ -157,6 +171,39 @@ export function MachineCreationModal({
     };
   }, [branchId, effectiveCompanyId]);
 
+  // Auto-select branch if user has access to only one branch with createMachines permission
+  useEffect(() => {
+    // Skip if branch is already provided as prop
+    if (branchId) {
+      return;
+    }
+
+    // Skip if branch is already selected
+    if (selectedBranchId) {
+      return;
+    }
+
+    // Skip if companyUser is not loaded
+    if (!companyUser) {
+      return;
+    }
+
+    // Skip if branches are still loading
+    if (isLoadingBranches) {
+      return;
+    }
+
+    // Get branches where user has createMachines permission
+    const accessibleBranches = companyUser.branches.filter(
+      (userBranch) => userBranch.createMachines,
+    );
+
+    // Auto-select if user has access to exactly one branch
+    if (accessibleBranches.length === 1) {
+      setSelectedBranchId(accessibleBranches[0].branchId);
+    }
+  }, [branchId, selectedBranchId, companyUser, isLoadingBranches]);
+
   const handleBlueprintSelect = (blueprintId: string) => {
     setSelectedBlueprintId(blueprintId);
     setFieldValues({});
@@ -172,7 +219,7 @@ export function MachineCreationModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedBlueprint || !selectedBranchId) {
+    if (!selectedBlueprint || !effectiveBranchId) {
       toast.error(t('form.error.branchRequired'));
       return;
     }
@@ -184,7 +231,7 @@ export function MachineCreationModal({
 
     const payload = {
       blueprintId: selectedBlueprintId,
-      branchId: selectedBranchId,
+      branchId: effectiveBranchId,
       name: machineName,
       fields,
     };
@@ -327,7 +374,9 @@ export function MachineCreationModal({
               </>
             )}
 
-            {!branchId && (companyIdProp || selectedCompanyId || companyUser?.companyId) && (
+            {!branchId &&
+              (companyIdProp || selectedCompanyId || companyUser?.companyId) &&
+              (hasMultipleBranches || isSysAdmin) && (
               <>
                 <section className="space-y-4">
                   <div>

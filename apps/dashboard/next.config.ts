@@ -14,6 +14,20 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'media.tenor.com',
       },
+      // Allow localhost for subdomain image loading in development
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '3000',
+        pathname: '/**',
+      },
+      // Allow wildcard subdomains on localhost for development
+      {
+        protocol: 'http',
+        hostname: '*.localhost',
+        port: '3000',
+        pathname: '/**',
+      },
     ],
   },
   turbopack: {

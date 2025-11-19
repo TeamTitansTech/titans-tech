@@ -108,7 +108,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
       )}
 
       {/* Outer Before Measurements */}
-      {data.outerBefore && (
+      {!!data.outerBefore && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {tMeasurements('outerBeforeMaintenance')}
@@ -159,7 +159,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
       )}
 
       {/* Outer After Measurements */}
-      {data.outerData && (
+      {!!data.outerData && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {data.outerBefore
@@ -212,7 +212,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
       )}
 
       {/* Inner Before Measurements */}
-      {data.innerBefore && (
+      {!!data.innerBefore && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {tMeasurements('innerBeforeMaintenance')}
@@ -263,7 +263,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
       )}
 
       {/* Inner After Measurements */}
-      {data.innerData && (
+      {!!data.innerData && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {data.innerBefore

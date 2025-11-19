@@ -119,6 +119,17 @@ export class CompanyBranchesController {
     return this.companyBranchesService.getMachines(branchId);
   }
 
+  @BranchPermission('createMachines')
+  @Post(':branchId/machines')
+  createMachine(
+    @Param('branchId') branchId: string,
+    @Body() createMachineDto: any,
+  ): Promise<
+    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
+  > {
+    return this.machinesService.create(createMachineDto);
+  }
+
   @Admin()
   @Patch(':branchId/users/:userId/company-admin')
   setCompanyAdmin(

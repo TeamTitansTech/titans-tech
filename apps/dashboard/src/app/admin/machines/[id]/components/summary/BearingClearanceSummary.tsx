@@ -354,7 +354,9 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                     {tBearingFields('chainsGearsSprockets')}:
                   </span>
                   <span className="font-medium">
-                    {displayValue(outerData?.chainsGearsSprockets || outerBefore?.chainsGearsSprockets)}
+                    {displayValue(
+                      outerData?.chainsGearsSprockets || outerBefore?.chainsGearsSprockets,
+                    )}
                   </span>
                 </div>
                 <div className="flex justify-between">

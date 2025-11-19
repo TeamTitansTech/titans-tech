@@ -79,7 +79,9 @@ export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {
                 {counterbalanceFields.map((key) => (
                   <div key={key} className="flex justify-between">
                     <span className="text-muted-foreground">{translateFieldName(key)}:</span>
-                    <span className="font-medium">{displayValue((data.outerData as Record<string, unknown>)[key])}</span>
+                    <span className="font-medium">
+                      {displayValue((data.outerData as Record<string, unknown>)[key])}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -95,7 +97,9 @@ export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {
                 {counterbalanceFields.map((key) => (
                   <div key={key} className="flex justify-between">
                     <span className="text-muted-foreground">{translateFieldName(key)}:</span>
-                    <span className="font-medium">{displayValue((data.innerData as Record<string, unknown>)[key])}</span>
+                    <span className="font-medium">
+                      {displayValue((data.innerData as Record<string, unknown>)[key])}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -104,7 +108,10 @@ export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {
         </div>
 
         {/* Notes (if exists) */}
-        {!!((data?.outerData as Record<string, unknown>)?.notes || (data?.innerData as Record<string, unknown>)?.notes) && (
+        {!!(
+          (data?.outerData as Record<string, unknown>)?.notes ||
+          (data?.innerData as Record<string, unknown>)?.notes
+        ) && (
           <div className="mt-3 border-t pt-2">
             <div className="font-semibold text-muted-foreground mb-2 text-xs">
               {tServicesSummary('notes')}
@@ -112,7 +119,10 @@ export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {
             <div className="border rounded-md overflow-hidden">
               <div className="p-2 text-[11px]">
                 <span className="font-medium">
-                  {displayValue((data?.outerData as Record<string, unknown>)?.notes || (data?.innerData as Record<string, unknown>)?.notes)}
+                  {displayValue(
+                    (data?.outerData as Record<string, unknown>)?.notes ||
+                      (data?.innerData as Record<string, unknown>)?.notes,
+                  )}
                 </span>
               </div>
             </div>
