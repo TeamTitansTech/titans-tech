@@ -10,12 +10,14 @@ import {
   Settings,
   ClipboardList,
   Shield,
+  Building2,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { BranchSelector } from './layout/BranchSelector';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
 
 import {
   Sidebar,
@@ -32,6 +34,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const t = useTranslations();
   const { sysAdminUser } = useSysAdmin();
+  const { companyUser } = useCompanyUser();
 
   // Check if we're on an admin route or if sysAdminUser is set
   const isAdmin = pathname.startsWith('/admin') || !!sysAdminUser;
@@ -104,9 +107,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: '/home',
       },
       {
-        title: t('navigation.clients'),
-        icon: Users,
-        url: '/clients',
+        title: t('navigation.company'),
+        icon: Building2,
+        url: '/company',
       },
       {
         title: t('navigation.allMachines'),
@@ -212,8 +215,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <User className="size-6" />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold text-white text-sm">Admin User</span>
-            <span className="truncate text-xs text-gray-400">admin@inspectpro.com</span>
+            <span className="truncate font-semibold text-white text-sm">
+              {isAdmin && sysAdminUser
+                ? sysAdminUser.name || 'Admin User'
+                : companyUser
+                  ? companyUser.name || 'Company User'
+                  : 'User'}
+            </span>
+            <span className="truncate text-xs text-gray-400">
+              {isAdmin && sysAdminUser
+                ? sysAdminUser.email
+                : companyUser
+                  ? companyUser.email
+                  : 'Loading...'}
+            </span>
           </div>
         </div>
       </SidebarFooter>

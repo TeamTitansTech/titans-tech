@@ -1,0 +1,107 @@
+'use client';
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Building2, MapPin, Package, ChevronRight, Eye } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
+import type { UserResponseDto } from '@titans-tech/shared';
+import type { CompanyBranch } from '@/data/services/company-branches.api';
+
+interface BranchCardProps {
+  branch: CompanyBranch;
+  machineCount: number;
+  companyUser: UserResponseDto;
+}
+
+export function BranchCard({ branch, machineCount, companyUser }: BranchCardProps) {
+  const t = useTranslations();
+  const router = useInternalRouter();
+
+  // Find user's permissions for this branch
+  const userBranch = companyUser.branches?.find(b => b.branchId === branch.id);
+  const canViewMachines = userBranch?.readMachines ?? false;
+
+  const handleViewMachines = () => {
+    // Navigate to machines page with branch filter
+    router.push(`/machines?branchId=${branch.id}`);
+  };
+
+  return (
+    <Card className="hover:shadow-lg transition-shadow duration-200">
+      <CardHeader>
+        <div className="flex items-start justify-between">
+          <div className="space-y-1 flex-1">
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              {branch.name}
+            </CardTitle>
+            {branch.location && (
+              <CardDescription className="flex items-center gap-1">
+                <MapPin className="h-3 w-3" />
+                {branch.location}
+              </CardDescription>
+            )}
+          </div>
+          {branch.isMainBranch && (
+            <Badge variant="secondary" className="ml-2">
+              {t('companies.mainBranch')}
+            </Badge>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Machine Count */}
+        <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">
+              {machineCount === 0
+                ? t('companies.noMachines')
+                : machineCount === 1
+                ? `1 ${t('companies.machine')}`
+                : `${machineCount} ${t('companies.machines')}`}
+            </span>
+          </div>
+        </div>
+
+        {/* Actions */}
+        {canViewMachines && machineCount > 0 && (
+          <Button
+            onClick={handleViewMachines}
+            className="w-full"
+            variant="outline"
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            {t('companies.viewMachines')}
+            <ChevronRight className="h-4 w-4 ml-auto" />
+          </Button>
+        )}
+
+        {/* User Permissions Indicator */}
+        {userBranch && (
+          <div className="pt-2 border-t">
+            <div className="flex flex-wrap gap-1">
+              {userBranch.readMachines && (
+                <Badge variant="outline" className="text-xs">
+                  {t('permissions.readMachines')}
+                </Badge>
+              )}
+              {userBranch.createMachines && (
+                <Badge variant="outline" className="text-xs">
+                  {t('permissions.createMachines')}
+                </Badge>
+              )}
+              {userBranch.readServices && (
+                <Badge variant="outline" className="text-xs">
+                  {t('permissions.readServices')}
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
