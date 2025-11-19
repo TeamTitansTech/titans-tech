@@ -16,8 +16,8 @@ const STATUS_COLORS = {
 
 export function StatusBadge({ status, label }: StatusBadgeProps) {
   return (
-    <div className="flex items-center gap-2 text-sm">
-      <Circle className={`w-3 h-3 fill-current ${STATUS_COLORS[status]}`} />
+    <div className="flex items-center gap-1 text-xs">
+      <Circle className={`w-2 h-2 fill-current ${STATUS_COLORS[status]}`} />
       <span className="truncate">{label}</span>
     </div>
   );

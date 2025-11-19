@@ -85,7 +85,7 @@ export function MachineCardInLine({ machine }: MachineCardInLineProps) {
 
   return (
     <Card
-      className="cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all w-[320px] shrink-0"
+      className="cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all w-[200px] shrink-0"
       onClick={handleClick}
     >
       <CardContent className="p-0">
@@ -97,23 +97,23 @@ export function MachineCardInLine({ machine }: MachineCardInLineProps) {
               alt={machine.name}
               fill
               className="object-cover"
-              sizes="320px"
+              sizes="200px"
             />
           ) : (
-            <div className="text-center p-6">
-              <Box className="w-20 h-20 mx-auto text-muted-foreground mb-2" />
+            <div className="text-center p-3">
+              <Box className="w-12 h-12 mx-auto text-muted-foreground" />
             </div>
           )}
         </div>
 
         {/* Nome da máquina */}
-        <div className="p-4 border-t">
-          <h3 className="text-lg font-semibold text-center line-clamp-2">{machine.name}</h3>
+        <div className="p-2 border-t">
+          <h3 className="text-xs font-semibold text-center line-clamp-2">{machine.name}</h3>
         </div>
 
         {/* Status badges */}
         {sections.length > 0 && (
-          <div className="px-4 pb-4 space-y-2 border-t pt-4">
+          <div className="px-2 pb-2 space-y-1 border-t pt-2">
             {sections.map((section) => {
               const status = getSectionStatus(section, machine);
               const sectionName = t(`sectionNames.${SECTION_I18N_KEYS[section] || 'unknown'}`);
