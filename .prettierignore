@@ -5,3 +5,4 @@ build
 coverage
 .turbo
 packages/database/generated
+next-env.d.ts
