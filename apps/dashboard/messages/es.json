@@ -329,6 +329,8 @@
     "noBlueprintAssigned": "Sin plantilla asignada",
     "errorLoading": "Error al cargar máquinas",
     "description": "Crear una nueva máquina",
+    "routineInspection": "Inspección de Rutina",
+    "routineMaintenance": "Mantenimiento de Rutina",
     "status": {
       "operational": "Operacional",
       "maintenance": "Mantenimiento",
@@ -973,6 +975,16 @@
     "createServiceDescription": "Complete los detalles del servicio a continuación",
     "serviceDate": "Fecha del Servicio",
     "serviceType": "Tipo de Servicio",
+    "viewDetails": "Ver detalles del servicio",
+    "serviceInformation": "Información del Servicio",
+    "date": "Fecha",
+    "technician": "Técnico",
+    "status": "Estado",
+    "completed": "Completado",
+    "inProgress": "En Progreso",
+    "inspectionObservations": "Observaciones de la Inspección",
+    "serviceSummary": "Resumen del Servicio",
+    "noSectionsCompleted": "No se completaron secciones en este servicio",
     "types": {
       "inspection": "Inspección",
       "maintenance": "Mantenimiento"

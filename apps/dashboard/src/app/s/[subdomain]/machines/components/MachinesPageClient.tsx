@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
+import { useSearchParams } from 'next/navigation';
 import { MachineCard } from './MachineCard';
 import { MachineCreationModal } from './MachineCreationModal';
 import { Button } from '@/components/ui/button';
@@ -35,7 +36,16 @@ export function MachinesPageClient() {
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const t = useTranslations('machines');
-  const { selectedBranchId, selectedBranchName } = useBranch();
+  const { selectedBranchId, setSelectedBranchId, selectedBranchName } = useBranch();
+  const searchParams = useSearchParams();
+  const branchIdFromUrl = searchParams.get('branchId');
+
+  // Set branch ID from URL if available
+  useEffect(() => {
+    if (branchIdFromUrl && branchIdFromUrl !== selectedBranchId) {
+      setSelectedBranchId(branchIdFromUrl);
+    }
+  }, [branchIdFromUrl, selectedBranchId, setSelectedBranchId]);
 
   // Fetch machines when selected branch changes
   useEffect(() => {

@@ -329,6 +329,8 @@
     "noBlueprintAssigned": "No blueprint assigned",
     "errorLoading": "Error loading machines",
     "description": "Create a new machine",
+    "routineInspection": "Routine Inspection",
+    "routineMaintenance": "Routine Maintenance",
     "status": {
       "operational": "Operational",
       "maintenance": "Maintenance",
@@ -968,6 +970,16 @@
     "createServiceDescription": "Fill in the service details below",
     "serviceDate": "Service Date",
     "serviceType": "Service Type",
+    "viewDetails": "View service details",
+    "serviceInformation": "Service Information",
+    "date": "Date",
+    "technician": "Technician",
+    "status": "Status",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "inspectionObservations": "Inspection Observations",
+    "serviceSummary": "Service Summary",
+    "noSectionsCompleted": "No sections were completed in this service",
     "types": {
       "inspection": "Inspection",
       "maintenance": "Maintenance"

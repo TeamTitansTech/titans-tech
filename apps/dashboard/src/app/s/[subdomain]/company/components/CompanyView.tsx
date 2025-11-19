@@ -73,25 +73,6 @@ export function CompanyView({ company, branches, companyUser }: CompanyViewProps
           </CardContent>
         </Card>
 
-        {company.brandColor && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t('companies.brandColor')}
-              </CardTitle>
-              <div
-                className="h-4 w-4 rounded"
-                style={{ backgroundColor: company.brandColor }}
-              />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold uppercase">{company.brandColor}</div>
-              <p className="text-xs text-muted-foreground">
-                {t('companies.primaryColor')}
-              </p>
-            </CardContent>
-          </Card>
-        )}
       </div>
 
       {/* Branches Section */}

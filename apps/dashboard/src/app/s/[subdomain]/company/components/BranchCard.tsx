@@ -45,7 +45,7 @@ export function BranchCard({ branch, machineCount, companyUser }: BranchCardProp
             )}
           </div>
           {branch.isMainBranch && (
-            <Badge variant="secondary" className="ml-2">
+            <Badge className="ml-2 bg-gray-500/10 text-gray-500 border-gray-500/20">
               {t('companies.mainBranch')}
             </Badge>
           )}
@@ -77,29 +77,6 @@ export function BranchCard({ branch, machineCount, companyUser }: BranchCardProp
             {t('companies.viewMachines')}
             <ChevronRight className="h-4 w-4 ml-auto" />
           </Button>
-        )}
-
-        {/* User Permissions Indicator */}
-        {userBranch && (
-          <div className="pt-2 border-t">
-            <div className="flex flex-wrap gap-1">
-              {userBranch.readMachines && (
-                <Badge variant="outline" className="text-xs">
-                  {t('permissions.readMachines')}
-                </Badge>
-              )}
-              {userBranch.createMachines && (
-                <Badge variant="outline" className="text-xs">
-                  {t('permissions.createMachines')}
-                </Badge>
-              )}
-              {userBranch.readServices && (
-                <Badge variant="outline" className="text-xs">
-                  {t('permissions.readServices')}
-                </Badge>
-              )}
-            </div>
-          </div>
         )}
       </CardContent>
     </Card>
