@@ -55,13 +55,104 @@
   "settings": {
     "title": "Settings",
     "description": "Manage your application preferences and settings",
+    "pageTitle": "Settings",
+    "pageDescription": "Manage your preferences and company information",
     "language": {
       "title": "Language & Region",
       "label": "Select Language",
       "description": "Choose your preferred language for the interface"
     },
     "close": "Close",
-    "applying": "Applying changes..."
+    "applying": "Applying changes...",
+    "generalSettings": {
+      "title": "General Settings",
+      "description": "Configure your personal preferences",
+      "language": {
+        "label": "Language",
+        "placeholder": "Select language"
+      },
+      "unitSystem": {
+        "label": "Unit System",
+        "placeholder": "Select unit system",
+        "metric": "Metric (SI)",
+        "imperial": "Imperial"
+      },
+      "autoSaveNotice": "Settings are saved automatically",
+      "saved": "Settings saved"
+    },
+    "companyInfo": {
+      "title": "Company Information",
+      "description": "Details about your organization",
+      "noCompanyFound": "No company found",
+      "active": "Active",
+      "companyName": "Company Name",
+      "brandColor": "Brand Color",
+      "address": "Address",
+      "phone": "Phone",
+      "website": "Website",
+      "administrator": "Company Administrator",
+      "unknownUser": "Unknown User",
+      "createdAt": "Created on",
+      "lastUpdated": "Last Updated",
+      "branches": "Branches",
+      "subdomain": "Subdomain"
+    },
+    "branches": {
+      "title": "Branches",
+      "loading": "Loading branches...",
+      "noBranches": "No branches found for this company.",
+      "loadingFailed": "Failed to load branches",
+      "mainBranch": "Main Branch",
+      "users": "users",
+      "clickToViewUsers": "Click to view users"
+    },
+    "userManagement": {
+      "title": "User Accounts",
+      "loading": "Loading users...",
+      "loadingFailed": "Failed to load users",
+      "noUsers": "No users found for this branch",
+      "addUser": "Add User",
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role"
+      },
+      "roles": {
+        "branchManager": "Manager",
+        "employee": "Employee"
+      }
+    },
+    "addUserDialog": {
+      "title": "Add User",
+      "description": "Add a new user to {branchName}",
+      "form": {
+        "name": {
+          "label": "Full Name",
+          "placeholder": "Enter user's full name"
+        },
+        "email": {
+          "label": "Email Address",
+          "placeholder": "user@example.com"
+        },
+        "role": {
+          "label": "Role",
+          "placeholder": "Select a role",
+          "options": {
+            "manager": "Manager",
+            "worker": "Employee"
+          },
+          "descriptions": {
+            "manager": "Manager: Full control of this branch",
+            "worker": "Employee: Standard operational access"
+          }
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Add User",
+      "submitting": "Adding...",
+      "success": "User added successfully",
+      "error": "Failed to add user"
+    }
   },
   "adminSettings": {
     "pageTitle": "Settings",
@@ -330,6 +421,7 @@
     "errorLoading": "Error loading machines",
     "description": "Create a new machine",
     "routineInspection": "Routine Inspection",
+    "maintenanceInspection": "Maintenance Inspection",
     "routineMaintenance": "Routine Maintenance",
     "status": {
       "operational": "Operational",

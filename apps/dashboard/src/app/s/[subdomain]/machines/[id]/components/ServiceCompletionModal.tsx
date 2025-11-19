@@ -156,11 +156,7 @@ export function ServiceCompletionModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[900px] h-[700px] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>
-            {currentStep === 'selection'
-              ? tInspections('title')
-              : tInspections('title') + ' - ' + t('inspectionSections')}
-          </DialogTitle>
+          <DialogTitle>{tInspections('title')}</DialogTitle>
           <DialogDescription>
             {currentStep === 'selection'
               ? 'Selecione as áreas de manutenção a serem realizadas'
@@ -170,14 +166,7 @@ export function ServiceCompletionModal({
 
         {currentStep === 'selection' ? (
           // Step 1: Section Selection
-          <div className="flex-1 overflow-y-auto py-4">
-            <Typography variant="h4" className="mb-4 px-1">
-              Áreas de Manutenção
-            </Typography>
-            <Typography variant="muted" className="mb-6 px-1 text-sm">
-              Selecione as áreas onde a manutenção será realizada
-            </Typography>
-
+          <div className="flex-1 overflow-y-auto p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {machineSections.map((sectionKey) => {
                 const section = SECTION_DETAILS[sectionKey as keyof typeof SECTION_DETAILS];

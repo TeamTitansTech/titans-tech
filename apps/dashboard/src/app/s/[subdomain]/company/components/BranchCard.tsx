@@ -31,21 +31,21 @@ export function BranchCard({ branch, machineCount, companyUser }: BranchCardProp
   return (
     <Card className="hover:shadow-lg transition-shadow duration-200">
       <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="space-y-1 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <div className="space-y-1 flex-1 min-w-0">
             <CardTitle className="flex items-center gap-2">
-              <Building2 className="h-5 w-5" />
-              {branch.name}
+              <Building2 className="h-5 w-5 flex-shrink-0" />
+              <span className="truncate">{branch.name}</span>
             </CardTitle>
             {branch.location && (
               <CardDescription className="flex items-center gap-1">
-                <MapPin className="h-3 w-3" />
-                {branch.location}
+                <MapPin className="h-3 w-3 flex-shrink-0" />
+                <span className="truncate">{branch.location}</span>
               </CardDescription>
             )}
           </div>
           {branch.isMainBranch && (
-            <Badge className="ml-2 bg-gray-500/10 text-gray-500 border-gray-500/20">
+            <Badge className="flex-shrink-0 bg-gray-500/10 text-gray-500 border-gray-500/20 pointer-events-none whitespace-nowrap">
               {t('companies.mainBranch')}
             </Badge>
           )}

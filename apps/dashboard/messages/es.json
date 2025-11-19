@@ -55,13 +55,104 @@
   "settings": {
     "title": "Configuración",
     "description": "Administre sus preferencias y configuraciones de la aplicación",
+    "pageTitle": "Configuración",
+    "pageDescription": "Administre sus preferencias e información de la empresa",
     "language": {
       "title": "Idioma y Región",
       "label": "Seleccionar Idioma",
       "description": "Elija su idioma preferido para la interfaz"
     },
     "close": "Cerrar",
-    "applying": "Aplicando cambios..."
+    "applying": "Aplicando cambios...",
+    "generalSettings": {
+      "title": "Configuración General",
+      "description": "Configure sus preferencias personales",
+      "language": {
+        "label": "Idioma",
+        "placeholder": "Seleccionar idioma"
+      },
+      "unitSystem": {
+        "label": "Sistema de Unidades",
+        "placeholder": "Seleccionar sistema de unidades",
+        "metric": "Métrico (SI)",
+        "imperial": "Imperial"
+      },
+      "autoSaveNotice": "La configuración se guarda automáticamente",
+      "saved": "Configuración guardada"
+    },
+    "companyInfo": {
+      "title": "Información de la Empresa",
+      "description": "Detalles sobre su organización",
+      "noCompanyFound": "No se encontró empresa",
+      "active": "Activa",
+      "companyName": "Nombre de la Empresa",
+      "brandColor": "Color de Marca",
+      "address": "Dirección",
+      "phone": "Teléfono",
+      "website": "Sitio Web",
+      "administrator": "Administrador de la Empresa",
+      "unknownUser": "Usuario Desconocido",
+      "createdAt": "Creada el",
+      "lastUpdated": "Última Actualización",
+      "branches": "Sucursales",
+      "subdomain": "Subdominio"
+    },
+    "branches": {
+      "title": "Sucursales",
+      "loading": "Cargando sucursales...",
+      "noBranches": "No se encontraron sucursales para esta empresa.",
+      "loadingFailed": "Error al cargar sucursales",
+      "mainBranch": "Sucursal Principal",
+      "users": "usuarios",
+      "clickToViewUsers": "Haga clic para ver usuarios"
+    },
+    "userManagement": {
+      "title": "Cuentas de Usuario",
+      "loading": "Cargando usuarios...",
+      "loadingFailed": "Error al cargar usuarios",
+      "noUsers": "No se encontraron usuarios para esta sucursal",
+      "addUser": "Agregar Usuario",
+      "table": {
+        "name": "Nombre",
+        "email": "Correo Electrónico",
+        "role": "Rol"
+      },
+      "roles": {
+        "branchManager": "Gerente",
+        "employee": "Empleado"
+      }
+    },
+    "addUserDialog": {
+      "title": "Agregar Usuario",
+      "description": "Agregar un nuevo usuario a {branchName}",
+      "form": {
+        "name": {
+          "label": "Nombre Completo",
+          "placeholder": "Ingrese el nombre completo del usuario"
+        },
+        "email": {
+          "label": "Correo Electrónico",
+          "placeholder": "usuario@ejemplo.com"
+        },
+        "role": {
+          "label": "Rol",
+          "placeholder": "Seleccione un rol",
+          "options": {
+            "manager": "Gerente",
+            "worker": "Empleado"
+          },
+          "descriptions": {
+            "manager": "Gerente: Control total de esta sucursal",
+            "worker": "Empleado: Acceso operacional estándar"
+          }
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Agregar Usuario",
+      "submitting": "Agregando...",
+      "success": "Usuario agregado exitosamente",
+      "error": "Error al agregar usuario"
+    }
   },
   "adminSettings": {
     "pageTitle": "Configuración",
@@ -330,6 +421,7 @@
     "errorLoading": "Error al cargar máquinas",
     "description": "Crear una nueva máquina",
     "routineInspection": "Inspección de Rutina",
+    "maintenanceInspection": "Inspección de Mantenimiento",
     "routineMaintenance": "Mantenimiento de Rutina",
     "status": {
       "operational": "Operacional",

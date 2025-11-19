@@ -1,14 +1,16 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Typography } from '@/components/ui/typography';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, MapPin, Package } from 'lucide-react';
+import { Building2, MapPin, Package, User } from 'lucide-react';
 import { BranchCard } from './BranchCard';
 import type { UserResponseDto } from '@titans-tech/shared';
 import type { Company } from '@/data/services/companies.api';
 import type { CompanyBranch } from '@/data/services/company-branches.api';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
+import { getAllUsers } from '@/data/services/users.api';
 
 interface BranchWithMachineCount extends CompanyBranch {
   machineCount: number;
@@ -23,10 +25,30 @@ interface CompanyViewProps {
 
 export function CompanyView({ company, branches, companyUser }: CompanyViewProps) {
   const t = useTranslations();
+  const [companyAdmin, setCompanyAdmin] = useState<UserResponseDto | null>(null);
 
   // Calculate totals
   const totalBranches = branches.length;
   const totalMachines = branches.reduce((sum, branch) => sum + branch.machineCount, 0);
+
+  // Load company admin
+  useEffect(() => {
+    async function loadCompanyAdmin() {
+      try {
+        const usersResponse = await getAllUsers({ companyId: company.id });
+        if (usersResponse.data) {
+          const admin = usersResponse.data.find(
+            (user) => user.isCompanyAdmin || user.isCompanyManager,
+          );
+          setCompanyAdmin(admin || null);
+        }
+      } catch (error) {
+        console.error('Error loading company admin:', error);
+      }
+    }
+
+    loadCompanyAdmin();
+  }, [company.id]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -75,14 +97,29 @@ export function CompanyView({ company, branches, companyUser }: CompanyViewProps
 
       </div>
 
+      {/* Company Administrator */}
+      {companyAdmin && (
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium text-muted-foreground mb-1">
+                  {t('companies.companyAdmin')}
+                </p>
+                <p className="text-base font-semibold">{companyAdmin.name}</p>
+                <p className="text-sm text-muted-foreground">{companyAdmin.email}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Branches Section */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <Typography variant="h3">{t('companies.branches')}</Typography>
-          {companyUser.isCompanyAdmin && (
-            <Badge variant="secondary">{t('companies.companyAdmin')}</Badge>
-          )}
-        </div>
+        <Typography variant="h3">{t('companies.branches')}</Typography>
 
         {branches.length === 0 ? (
           <Card>

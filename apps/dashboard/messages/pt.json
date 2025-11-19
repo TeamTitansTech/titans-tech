@@ -55,13 +55,104 @@
   "settings": {
     "title": "Configurações",
     "description": "Gerencie suas preferências e configurações do aplicativo",
+    "pageTitle": "Configurações",
+    "pageDescription": "Gerencie suas preferências e informações da empresa",
     "language": {
       "title": "Idioma e Região",
       "label": "Selecionar Idioma",
       "description": "Escolha seu idioma preferido para a interface"
     },
     "close": "Fechar",
-    "applying": "Aplicando alterações..."
+    "applying": "Aplicando alterações...",
+    "generalSettings": {
+      "title": "Configurações Gerais",
+      "description": "Configure suas preferências pessoais",
+      "language": {
+        "label": "Idioma",
+        "placeholder": "Selecionar idioma"
+      },
+      "unitSystem": {
+        "label": "Sistema de Unidades",
+        "placeholder": "Selecionar sistema de unidades",
+        "metric": "Métrico (SI)",
+        "imperial": "Imperial"
+      },
+      "autoSaveNotice": "As configurações são salvas automaticamente",
+      "saved": "Configurações salvas"
+    },
+    "companyInfo": {
+      "title": "Informações da Empresa",
+      "description": "Detalhes sobre sua organização",
+      "noCompanyFound": "Nenhuma empresa encontrada",
+      "active": "Ativa",
+      "companyName": "Nome da Empresa",
+      "brandColor": "Cor da Marca",
+      "address": "Endereço",
+      "phone": "Telefone",
+      "website": "Website",
+      "administrator": "Administrador da Empresa",
+      "unknownUser": "Usuário Desconhecido",
+      "createdAt": "Criada em",
+      "lastUpdated": "Última Atualização",
+      "branches": "Filiais",
+      "subdomain": "Subdomínio"
+    },
+    "branches": {
+      "title": "Filiais",
+      "loading": "Carregando filiais...",
+      "noBranches": "Nenhuma filial encontrada para esta empresa.",
+      "loadingFailed": "Falha ao carregar filiais",
+      "mainBranch": "Matriz (Filial Principal)",
+      "users": "usuários",
+      "clickToViewUsers": "Clique para ver usuários"
+    },
+    "userManagement": {
+      "title": "Contas de Usuário",
+      "loading": "Carregando usuários...",
+      "loadingFailed": "Falha ao carregar usuários",
+      "noUsers": "Nenhum usuário encontrado para esta filial",
+      "addUser": "Adicionar Usuário",
+      "table": {
+        "name": "Nome",
+        "email": "Email",
+        "role": "Função"
+      },
+      "roles": {
+        "branchManager": "Gerente",
+        "employee": "Funcionário"
+      }
+    },
+    "addUserDialog": {
+      "title": "Adicionar Usuário",
+      "description": "Adicionar um novo usuário a {branchName}",
+      "form": {
+        "name": {
+          "label": "Nome Completo",
+          "placeholder": "Digite o nome completo do usuário"
+        },
+        "email": {
+          "label": "Endereço de Email",
+          "placeholder": "usuario@exemplo.com"
+        },
+        "role": {
+          "label": "Função",
+          "placeholder": "Selecione uma função",
+          "options": {
+            "manager": "Gerente",
+            "worker": "Funcionário"
+          },
+          "descriptions": {
+            "manager": "Gerente: Controle total desta filial",
+            "worker": "Funcionário: Acesso operacional padrão"
+          }
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Adicionar Usuário",
+      "submitting": "Adicionando...",
+      "success": "Usuário adicionado com sucesso",
+      "error": "Falha ao adicionar usuário"
+    }
   },
   "adminSettings": {
     "pageTitle": "Configurações",
@@ -335,6 +426,7 @@
     "errorLoading": "Erro ao carregar máquinas",
     "description": "Crie uma nova máquina",
     "routineInspection": "Inspeção de Rotina",
+    "maintenanceInspection": "Inspeção de Manutenção",
     "routineMaintenance": "Manutenção de Rotina",
     "status": {
       "operational": "Operacional",
@@ -982,7 +1074,7 @@
     "noBranches": "Nenhuma filial encontrada para esta empresa",
     "noBranchesDescription": "As filiais serão exibidas aqui quando forem criadas",
     "branch": "filial",
-    "branches": "filiais",
+    "branches": "Filiais",
     "machine": "máquina",
     "machines": "máquinas",
     "noMachines": "Sem máquinas",

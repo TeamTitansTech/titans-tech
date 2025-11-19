@@ -9,6 +9,12 @@ export interface Company {
   logo?: string | null;
   brandColor?: string | null;
   description?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  website?: string | null;
+  isActive?: boolean;
+  createdAt: string;
+  updatedAt: string;
   _count?: {
     branches: number;
   };
