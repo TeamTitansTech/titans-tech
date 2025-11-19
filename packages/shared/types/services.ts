@@ -6,7 +6,7 @@
  * All types are defined in backend-dtos using Zod schemas and inferred from them.
  */
 
-// Re-export all enums from backend-dtos
+// Re-export all enums from centralized location
 export {
   ServiceType,
   ServiceStatus,
@@ -21,14 +21,11 @@ export {
   ConditionOkNaDncDamagedType,
   SystemType,
   OkNaDncDamageType,
-  CounterbalanceTypeEnum,
-  AirbagPistonSealsType,
-  SealConditionType,
-  RegulatorGaugeType,
-  PneumaticsPlumbingType,
-  RodSealsType,
-  RodBushingType,
-  OilWickType,
+  OkNaDncLeakingType,
+  OkNaDncNotOperationalType,
+  OkNaDncNotOperationalLeakingType,
+  OkNaDncDarkOilType,
+  OkNaDncNeedReplacedType,
   ClutchType,
   ClutchLocation,
   BrakeSpringStudBoltType,
@@ -46,7 +43,8 @@ export {
   FlexDiscType,
   DriveBeltConditionType,
   ProtectiveCoversStatusType,
-} from '../backend-dtos/requests-dto/service/service.dto';
+  CylinderAirbagType,
+} from '../enums';
 
 // Re-export all section data types
 export type {
