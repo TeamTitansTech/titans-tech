@@ -11,6 +11,7 @@ This package is organized into two main directories:
 Pure TypeScript interfaces and enums used for type-checking across frontend and backend.
 
 **What goes here:**
+
 - TypeScript interfaces
 - TypeScript enums
 - Type aliases
@@ -18,12 +19,14 @@ Pure TypeScript interfaces and enums used for type-checking across frontend and 
 - No classes with decorators
 
 **Examples:**
+
 - `machines.ts` - Machine, MachineField interfaces
 - `services.ts` - Service, BearingClearanceData interfaces
 - `blueprints.ts` - Blueprint, BlueprintField interfaces
 - `enums.ts` - FoundationType, FrameType enums
 
 **Usage:**
+
 ```typescript
 import { Machine, Blueprint, ServiceType } from '@titans-tech/shared/types';
 ```
@@ -33,20 +36,24 @@ import { Machine, Blueprint, ServiceType } from '@titans-tech/shared/types';
 DTOs with runtime validation (Zod schemas) and transformation (class-transformer).
 
 #### `/backend-dtos/requests-dto` - Request DTOs
+
 Zod schemas for validating incoming API requests.
 
 **What goes here:**
+
 - Zod schemas (`z.object()`)
 - Type inference from schemas (`z.infer<typeof Schema>`)
 - Used by backend for validation
 - Can be used by frontend for type-safety
 
 **Examples:**
+
 - `auth.dto.ts` - LoginDto with LoginSchema
 - `machine.dto.ts` - CreateMachineDto, UpdateMachineDto
 - `service/` - All service-related DTOs
 
 **Usage:**
+
 ```typescript
 // Backend
 import { CreateMachineDto, CreateMachineSchema } from '@titans-tech/shared';
@@ -57,18 +64,22 @@ const data: CreateMachineDto = { ... };
 ```
 
 #### `/backend-dtos/responses-dto` - Response DTOs
+
 Classes with class-transformer decorators for API responses.
 
 **What goes here:**
+
 - Class definitions with `@Exclude()`, `@Type()` decorators
 - Used by backend to transform Prisma entities to API responses
 - Can be used by frontend as TypeScript types (not instantiated)
 
 **Examples:**
+
 - `user-response.dto.ts` - UserResponseDto
 - `sysadmin-response.dto.ts` - SysAdminResponseDto
 
 **Usage:**
+
 ```typescript
 // Backend (instantiates the class)
 import { UserResponseDto } from '@titans-tech/shared';
@@ -84,6 +95,7 @@ const user: UserResponseDto = await api.getUser();
 ### ✅ Correct Usage
 
 **Frontend:**
+
 ```typescript
 // Import interfaces/types from /types
 import { Machine, Service, Blueprint } from '@titans-tech/shared/types';
@@ -93,6 +105,7 @@ import { CreateMachineDto, UserResponseDto } from '@titans-tech/shared';
 ```
 
 **Backend:**
+
 ```typescript
 // Import DTOs for validation and transformation
 import { CreateMachineDto, CreateMachineSchema, UserResponseDto } from '@titans-tech/shared';
@@ -155,6 +168,7 @@ packages/shared/
 ## Migration Notes
 
 All DTOs have been moved from `/types` to `/backend-dtos` to maintain clear separation:
+
 - `/types` now contains ONLY interfaces and type definitions
 - All Zod validation schemas are in `/backend-dtos/requests-dto`
 - All class-transformer response classes are in `/backend-dtos/responses-dto`

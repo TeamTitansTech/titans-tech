@@ -9,7 +9,7 @@ import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { SectionCard } from '@/components/shared/SectionCard';
 import { Typography } from '@/components/ui/typography';
-import { Machine, MachineDetailsProps } from '@/data/types/machines.types';
+import type { MachineDetailsProps } from '@/data/types/machines.types';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { LatestReportModal } from './LatestReportModal';

@@ -705,7 +705,13 @@ export interface LubricationHydraulicsFormProps {
   data: LubricationHydraulicsData;
   updateFn: (
     field: keyof LubricationHydraulicsData,
-    value: string | number | boolean | PrismaYesNoDncType | LubricationHydraulicsGauge[] | undefined,
+    value:
+      | string
+      | number
+      | boolean
+      | PrismaYesNoDncType
+      | LubricationHydraulicsGauge[]
+      | undefined,
   ) => void;
   errors: Record<string, string>;
   handleBlur: (field: keyof LubricationHydraulicsData) => void;

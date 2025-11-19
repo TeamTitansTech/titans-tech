@@ -23,13 +23,7 @@ export { ClutchSummary };
 export { LubricationSummary };
 
 // Main component that routes to appropriate summary based on section key
-export function SectionSummary({
-  sectionKey,
-  data,
-}: {
-  sectionKey: string;
-  data: AnySectionData;
-}) {
+export function SectionSummary({ sectionKey, data }: { sectionKey: string; data: AnySectionData }) {
   switch (sectionKey) {
     case 'BEARING_CLEARANCE':
       return <BearingClearanceSummary data={data} />;

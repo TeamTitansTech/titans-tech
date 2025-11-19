@@ -39,13 +39,13 @@ export function MachinesPageClient() {
 
   // Fetch machines when selected branch changes
   useEffect(() => {
-    if (!selectedBranchId) {
-      setMachines([]);
-      setIsLoading(false);
-      return;
-    }
-
     const fetchMachines = async () => {
+      if (!selectedBranchId) {
+        setMachines([]);
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       setError(null);
       const response = await getMachinesByBranch(selectedBranchId);
@@ -80,7 +80,9 @@ export function MachinesPageClient() {
           <div>
             <Typography variant="h2">{t('pageTitle')}</Typography>
             <Typography variant="muted">
-              {selectedBranchName ? `${selectedBranchName} - ${t('pageDescription')}` : t('pageDescription')}
+              {selectedBranchName
+                ? `${selectedBranchName} - ${t('pageDescription')}`
+                : t('pageDescription')}
             </Typography>
           </div>
           <Button onClick={() => setIsModalOpen(true)} disabled={!selectedBranchId}>
