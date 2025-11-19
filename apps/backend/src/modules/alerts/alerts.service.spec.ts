@@ -14,6 +14,51 @@ import {
   createMockMachineService,
 } from '../../../test/factories/threshold.factory';
 
+// Mock @titans-tech/shared
+jest.mock('@titans-tech/shared', () => ({
+  AlertBearingClearanceResponseDto: jest.fn().mockImplementation((data) => ({
+    id: data?.id,
+    machineServiceId: data?.machineServiceId,
+    totalClearance_differential: data?.totalClearance_differential,
+    totalClearance_severity: data?.totalClearance_severity,
+    thresholdSnapshot: data?.thresholdSnapshot,
+    bearingData: data?.bearingData,
+  })),
+  ThresholdBearingClearanceResponseDto: jest
+    .fn()
+    .mockImplementation((data) => data),
+  CreateThresholdBearingClearanceSchema: {
+    parse: jest.fn().mockImplementation((data) => {
+      // Simple validation for threshold ordering
+      const fields = [
+        'totalClearance',
+        'mainBearings',
+        'upperConnectionBearings',
+        'wristPinToMatingPart',
+        'wristPinToBushing',
+        'slideAdjNutToScrewSleeve',
+      ];
+      for (const field of fields) {
+        const greenMin = data[`${field}_greenMin`];
+        const yellowMin = data[`${field}_yellowMin`];
+        const redMin = data[`${field}_redMin`];
+        if (
+          greenMin !== undefined &&
+          yellowMin !== undefined &&
+          redMin !== undefined
+        ) {
+          if (greenMin >= yellowMin || yellowMin >= redMin) {
+            throw new Error(
+              `Invalid threshold order for ${field}: greenMin (${greenMin}) < yellowMin (${yellowMin}) < redMin (${redMin})`,
+            );
+          }
+        }
+      }
+      return data;
+    }),
+  },
+}));
+
 // Use string literals for AlertSeverity enum
 const AlertSeverity = {
   NONE: 'NONE' as const,

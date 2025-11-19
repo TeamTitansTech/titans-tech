@@ -66,6 +66,7 @@ export function createMockPrismaService() {
     // User methods
     user: {
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
@@ -79,9 +80,35 @@ export function createMockPrismaService() {
       update: jest.fn(),
       delete: jest.fn(),
     },
+    // CompanyBranch methods
+    companyBranch: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      updateMany: jest.fn(),
+      delete: jest.fn(),
+    },
+    // UserBranch methods
+    userBranch: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
+    // BearingClearanceData methods
+    bearingClearanceData: {
+      findUnique: jest.fn(),
+      findMany: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    },
     // Connection methods
     $connect: jest.fn(),
     $disconnect: jest.fn(),
+    $transaction: jest.fn((callback) => callback(createMockPrismaService())),
     onModuleInit: jest.fn(),
     onModuleDestroy: jest.fn(),
   };

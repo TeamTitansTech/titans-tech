@@ -13,6 +13,12 @@ import {
   createMockMachineService,
 } from '../../test/factories/threshold.factory';
 
+// Mock @titans-tech/shared
+jest.mock('@titans-tech/shared', () => ({
+  LatestBearingClearanceDto: jest.fn().mockImplementation((data) => data),
+  LatestReportResponseDto: jest.fn().mockImplementation((data) => data),
+}));
+
 // Use string literals that match the enum values
 const ServiceType = {
   INSPECTION: 'INSPECTION' as const,
@@ -85,13 +91,6 @@ describe('ServicesService', () => {
         type: ServiceType.INSPECTION,
         status: ServiceStatus.PENDING,
         machine: mockMachine,
-        bearingClearance: [],
-        slide: [],
-        gibs: [],
-        lubricationHydraulics: [],
-        clutch: [],
-        counterbalanceCylinderAirbag: [],
-        tramming: [],
       };
 
       // chama o mock do prisma para buscar a maquina
@@ -128,70 +127,7 @@ describe('ServicesService', () => {
       );
     });
 
-    it('should create service with bearing clearance data', async () => {
-      // setup do test mockando todos os dados do BC
-      // Pergunta 1 do doc
-      const bearingData = {
-        totalClearance_RH: 0.015,
-        totalClearance_LH: 0.01,
-        mainBearings_RH: 0.015,
-        mainBearings_LH: 0.01,
-        upperConnectionBearings_RH: 0.015,
-        upperConnectionBearings_LH: 0.01,
-        wristPinToMatingPart_RH: 0.015,
-        wristPinToMatingPart_LH: 0.01,
-        wristPinToBushing_RH: 0.015,
-        wristPinToBushing_LH: 0.01,
-        slideAdjNutToScrewSleeve_RH: 0.015,
-        slideAdjNutToScrewSleeve_LH: 0.01,
-      };
-
-      const createDto = {
-        machineId: 'machine-123',
-        date: '2024-01-15',
-        type: ServiceType.INSPECTION,
-        bearingClearance: {
-          outerAfter: bearingData,
-        },
-      };
-
-      const mockMachine = {
-        id: 'machine-123',
-        name: 'Test Machine',
-        blueprint: { id: 'bp-1', name: 'Test BP' },
-      };
-
-      const mockCreatedService = {
-        id: 'service-123',
-        machineId: 'machine-123',
-        date: new Date('2024-01-15'),
-        type: ServiceType.INSPECTION,
-        status: ServiceStatus.PENDING,
-        machine: mockMachine,
-        bearingClearance: [
-          {
-            id: 'bc-1',
-            outerData: createMockBearingClearanceData(bearingData),
-          },
-        ],
-        slide: [],
-        gibs: [],
-        lubricationHydraulics: [],
-        clutch: [],
-        counterbalanceCylinderAirbag: [],
-        tramming: [],
-      };
-
-      prismaService.machine.findUnique.mockResolvedValue(mockMachine);
-      prismaService.machineService.create.mockResolvedValue(mockCreatedService);
-
-      const result = await service.create(createDto as any);
-
-      // verifica se o resultado é o esperado
-      expect(result.bearingClearance).toHaveLength(1);
-      // verifica se o outerData do BC foi criado
-      expect(result.bearingClearance[0].outerData).toBeDefined();
-    });
+    // NOTE: bearing clearance data is now added via update endpoints, not during creation
   });
 
   describe('findAll', () => {
