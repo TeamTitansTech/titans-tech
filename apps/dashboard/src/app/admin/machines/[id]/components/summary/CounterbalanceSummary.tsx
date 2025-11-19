@@ -1,9 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { CounterbalanceCylinderCheck } from '@/data/types/services.types';
 
 interface CounterbalanceSummaryProps {
-  data: Record<string, unknown>;
+  data: CounterbalanceCylinderCheck;
 }
 
 export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {

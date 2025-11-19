@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { GibsCheck } from '@/data/types/services.types';
 import {
   Table,
   TableBody,
@@ -13,7 +14,7 @@ import { hasActualData, extractBearingRows } from '../utils/sectionDataUtils';
 import { displayValue } from '../utils/fieldFormatters';
 
 interface GibsSummaryProps {
-  data: Record<string, unknown>;
+  data: GibsCheck;
 }
 
 export function GibsSummary({ data }: GibsSummaryProps) {
@@ -21,11 +22,11 @@ export function GibsSummary({ data }: GibsSummaryProps) {
   const tServices = useTranslations('services');
   const tServicesSummary = useTranslations('services.modal.summary');
 
-  // Type helpers for accessing nested properties
-  const outerData = data?.outerData as Record<string, unknown> | undefined;
-  const innerData = data?.innerData as Record<string, unknown> | undefined;
-  const outerBefore = data?.outerBefore as Record<string, unknown> | undefined;
-  const innerBefore = data?.innerBefore as Record<string, unknown> | undefined;
+  // Access nested properties with proper types
+  const outerData = data?.outerAfter;
+  const innerData = data?.innerAfter;
+  const outerBefore = data?.outerBefore;
+  const innerBefore = data?.innerBefore;
 
   // Check if we have before data
   const hasBeforeData: boolean =

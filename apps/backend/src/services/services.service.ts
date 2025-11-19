@@ -5,10 +5,12 @@ import {
 } from '@nestjs/common';
 import { Prisma, ServiceSection, ServiceStatus } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
-import { CreateServiceDto } from './dto/create-service.dto';
-import { UpdateServiceDto } from './dto/update-service.dto';
-import { CompleteServiceDto } from './dto/complete-service.dto';
 import {
+  LatestReportResponseDto,
+  LatestBearingClearanceDto,
+  CreateServiceDto,
+  UpdateServiceDto,
+  CompleteServiceDto,
   UpdateBearingClearanceDto,
   UpdateSlideDto,
   UpdateGibsDto,
@@ -17,12 +19,8 @@ import {
   UpdateCounterbalanceCylinderDto,
   UpdateTrammingDto,
   UpdatePistonsDto,
-} from './dto/sections';
-import { AlertsService } from '../modules/alerts/alerts.service';
-import {
-  LatestReportResponseDto,
-  LatestBearingClearanceDto,
 } from '@titans-tech/shared';
+import { AlertsService } from '../modules/alerts/alerts.service';
 
 @Injectable()
 export class ServicesService {
@@ -1471,7 +1469,7 @@ export class ServicesService {
               }),
               ...(updateDto.slideTram && { slideTram: updateDto.slideTram }),
               ...(updateDto.notes && { notes: updateDto.notes }),
-            },
+            } as any,
           },
         },
       });

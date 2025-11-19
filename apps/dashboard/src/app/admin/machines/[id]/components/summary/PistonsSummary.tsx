@@ -2,12 +2,13 @@
 
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import type { PistonsCheck } from '@/data/types/services.types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PistonsForm } from '../forms/PistonsForm';
 import { displayValue } from '../utils/displayHelpers';
 
 interface PistonsSummaryProps {
-  data: Record<string, unknown>;
+  data: PistonsCheck;
 }
 
 export function PistonsSummary({ data }: PistonsSummaryProps): React.ReactElement {

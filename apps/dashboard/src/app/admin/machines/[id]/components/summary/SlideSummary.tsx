@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { SlideCheck } from '@/data/types/services.types';
 import {
   Table,
   TableBody,
@@ -12,7 +13,7 @@ import {
 import { calculateMaxDeviation } from '../utils/sectionDataUtils';
 
 interface SlideSummaryProps {
-  data: Record<string, unknown>;
+  data: SlideCheck;
 }
 
 export function SlideSummary({ data }: SlideSummaryProps) {
@@ -98,7 +99,9 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                     <TableCell className="py-1.5 font-medium border-r bg-muted/20">
                       {translateFieldName(key)}
                     </TableCell>
-                    <TableCell className="py-1.5 text-center">{displayValue(data[key])}</TableCell>
+                    <TableCell className="py-1.5 text-center">
+                      {displayValue((data as Record<string, unknown>)[key])}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -149,7 +152,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                     {displayValue(data.outerBefore.position6)}
                   </TableCell>
                   <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.outerBefore)}
+                    {calculateMaxDeviation(data.outerBefore as unknown as Record<string, unknown>)}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -202,7 +205,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                     {displayValue(data.outerData.position6)}
                   </TableCell>
                   <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.outerData)}
+                    {calculateMaxDeviation(data.outerData as unknown as Record<string, unknown>)}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -253,7 +256,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                     {displayValue(data.innerBefore.position6)}
                   </TableCell>
                   <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.innerBefore)}
+                    {calculateMaxDeviation(data.innerBefore as unknown as Record<string, unknown>)}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -306,7 +309,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
                     {displayValue(data.innerData.position6)}
                   </TableCell>
                   <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.innerData)}
+                    {calculateMaxDeviation(data.innerData as unknown as Record<string, unknown>)}
                   </TableCell>
                 </TableRow>
               </TableBody>

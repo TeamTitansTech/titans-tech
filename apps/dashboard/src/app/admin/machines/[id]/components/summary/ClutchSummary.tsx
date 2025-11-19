@@ -1,10 +1,11 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { ClutchData } from '@/data/types/services.types';
 import { Typography } from '@/components/ui/typography';
 
 interface ClutchSummaryProps {
-  data: Record<string, unknown>;
+  data: ClutchData;
 }
 
 export function ClutchSummary({ data }: ClutchSummaryProps) {

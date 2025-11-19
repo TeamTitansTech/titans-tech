@@ -9,9 +9,14 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { MachinesService } from './machines.service';
-import { CreateMachineDto } from './dto/create-machine.dto';
-import { UpdateMachineDto } from './dto/update-machine.dto';
+import {
+  CreateMachineDto,
+  CreateMachineSchema,
+  UpdateMachineDto,
+  UpdateMachineSchema,
+} from '@titans-tech/shared';
 import { Authenticated } from 'src/modules/auth/auth.decorators';
+import { ZodValidationPipe } from '../errors/zod-validation.pipe';
 
 @Controller('machines')
 export class MachinesController {
@@ -20,7 +25,8 @@ export class MachinesController {
   @Authenticated()
   @Post()
   create(
-    @Body() createMachineDto: CreateMachineDto,
+    @Body(new ZodValidationPipe(CreateMachineSchema))
+    createMachineDto: CreateMachineDto,
   ): Promise<
     Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
   > {
@@ -64,7 +70,8 @@ export class MachinesController {
   @Put(':id')
   update(
     @Param('id') id: string,
-    @Body() updateMachineDto: UpdateMachineDto,
+    @Body(new ZodValidationPipe(UpdateMachineSchema))
+    updateMachineDto: UpdateMachineDto,
   ): Promise<
     Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
   > {

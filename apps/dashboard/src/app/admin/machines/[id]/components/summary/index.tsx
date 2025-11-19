@@ -1,5 +1,6 @@
 'use client';
 
+import type { AnySectionData } from '../types/service-completion.types';
 import { BearingClearanceSummary } from './BearingClearanceSummary';
 import { GenericSectionSummary } from './GenericSectionSummary';
 import { SlideSummary } from './SlideSummary';
@@ -27,7 +28,7 @@ export function SectionSummary({
   data,
 }: {
   sectionKey: string;
-  data: Record<string, unknown>;
+  data: AnySectionData;
 }) {
   switch (sectionKey) {
     case 'BEARING_CLEARANCE':

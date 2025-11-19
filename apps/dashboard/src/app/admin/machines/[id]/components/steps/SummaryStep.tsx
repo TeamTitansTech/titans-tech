@@ -9,12 +9,13 @@ import { useTranslations } from 'next-intl';
 import { SECTION_REGISTRY } from '../sections/registry';
 import { SectionSummary } from '../summary';
 import { YesNoNaDncType, YesNoDncType, WhyNotCoveredType } from '@titans-tech/shared/types';
+import type { SectionDataMap } from '../types/service-completion.types';
 
 interface SummaryStepProps {
   date: Date;
   performedBy: string;
   completedSections: Set<string>;
-  completedSectionData: Record<string, Record<string, unknown>>;
+  completedSectionData: Partial<SectionDataMap>;
   isSubmitting: boolean;
   error: string | null;
   stepperSteps: StepperStep[];

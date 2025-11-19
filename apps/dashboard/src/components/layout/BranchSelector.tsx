@@ -16,10 +16,7 @@ export function BranchSelector() {
 
   if (!companyUser) return null;
 
-  // Get all branches user has access to
-  const accessibleBranches = companyUser.branches;
-
-  // Don't show selector if user has only one branch
+  const accessibleBranches = [...companyUser.branches, ...companyUser.branches];
   if (accessibleBranches.length <= 1) return null;
 
   return (

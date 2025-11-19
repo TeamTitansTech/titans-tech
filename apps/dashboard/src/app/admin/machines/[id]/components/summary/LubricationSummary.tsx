@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { LubricationHydraulicsData } from '@/data/types/services.types';
 import {
   Table,
   TableBody,
@@ -12,7 +13,7 @@ import {
 import { Typography } from '@/components/ui/typography';
 
 interface LubricationSummaryProps {
-  data: Record<string, unknown>;
+  data: LubricationHydraulicsData;
 }
 
 export function LubricationSummary({ data }: LubricationSummaryProps) {

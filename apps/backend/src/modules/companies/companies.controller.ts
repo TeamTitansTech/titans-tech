@@ -17,6 +17,8 @@ import {
   UpdateUserSchema,
   CreateCompanyBranchDto,
   CreateCompanyBranchSchema,
+  LoginDto,
+  LoginSchema,
 } from '@titans-tech/shared';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import {
@@ -27,7 +29,6 @@ import {
 } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
 import { CompanyBranchesService } from '../company-branches/company-branches.service';
-import { LoginDto, LoginSchema } from '../sysadmin/dto/login.dto';
 
 @Controller('companies')
 export class CompaniesController {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { BearingClearanceCheck } from '@/data/types/services.types';
 
 import {
   Table,
@@ -14,7 +15,7 @@ import { hasActualData, extractBearingRows } from '../utils/sectionDataUtils';
 import { formatFieldName } from '../utils/fieldFormatters';
 
 interface BearingClearanceSummaryProps {
-  data: Record<string, unknown>;
+  data: BearingClearanceCheck;
 }
 
 export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) {
@@ -24,11 +25,11 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
   const tServicesSummary = useTranslations('services.modal.summary');
   const tCommon = useTranslations('common.status');
 
-  // Type helpers for accessing nested properties
-  const outerData = data?.outerData as Record<string, unknown> | undefined;
-  const innerData = data?.innerData as Record<string, unknown> | undefined;
-  const outerBefore = data?.outerBefore as Record<string, unknown> | undefined;
-  const innerBefore = data?.innerBefore as Record<string, unknown> | undefined;
+  // Access nested properties with proper types
+  const outerData = data?.outerAfter;
+  const innerData = data?.innerAfter;
+  const outerBefore = data?.outerBefore;
+  const innerBefore = data?.innerBefore;
 
   // Helper function to translate field names
   const translateFieldName = (key: string): string => {

@@ -1,10 +1,28 @@
-import type { ServiceType } from '@/data/types/services.types';
+import type {
+  ServiceType,
+  BearingClearanceCheck,
+  SlideCheck,
+  GibsCheck,
+  LubricationHydraulicsData,
+  ClutchData,
+  CounterbalanceCylinderCheck,
+  TrammingCheck,
+  PistonsCheck,
+} from '@/data/types/services.types';
 
 /**
- * Section data can be any of the section-specific update DTOs
+ * Section data can be any of the section-specific data types
  * Structure varies by section type (Bearing Clearance, Slide, Gibs, etc.)
  */
-export type SectionData = Record<string, unknown>;
+export type SectionData =
+  | BearingClearanceCheck
+  | SlideCheck
+  | GibsCheck
+  | LubricationHydraulicsData
+  | ClutchData
+  | CounterbalanceCylinderCheck
+  | TrammingCheck
+  | PistonsCheck;
 
 /**
  * Result of validating a section's data

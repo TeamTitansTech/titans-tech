@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { getServiceById } from '@/data/services/services.api';
-import { RELATION_TO_SECTION_KEY } from '../types/service-completion.types';
+import { RELATION_TO_SECTION_KEY, type SectionDataMap } from '../types/service-completion.types';
 import { YesNoNaDncType, YesNoDncType, type Service } from '@titans-tech/shared/types';
 
 type ServiceStep = 'selection' | 'details' | 'sections' | 'summary';
@@ -19,7 +19,7 @@ export function useServiceDataLoader(
   machineSections: string[],
   shouldSkipSelection: boolean,
   setCompletedSections: (sections: Set<string>) => void,
-  setCompletedSectionData: (data: Record<string, Record<string, unknown>>) => void,
+  setCompletedSectionData: (data: Partial<SectionDataMap>) => void,
   setSelectedSections: (sections: Set<string>) => void,
   setCurrentStep: (step: ServiceStep) => void,
   setCurrentSectionIndex: (index: number) => void,
@@ -85,13 +85,13 @@ export function useServiceDataLoader(
           ? service.completedSections
           : [];
 
-        const loadedSectionData: Record<string, Record<string, unknown>> = {};
+        const loadedSectionData: Partial<SectionDataMap> = {};
 
         // Extract data from each relation
         Object.entries(RELATION_TO_SECTION_KEY).forEach(([relationKey, sectionKey]) => {
           const relationData = service[relationKey];
           if (relationData && Array.isArray(relationData) && relationData.length > 0) {
-            const recordWithData = relationData.find((record: Record<string, unknown>) => {
+            const recordWithData = relationData.find((record: any) => {
               const hasNestedData =
                 record.outerBefore ||
                 record.outerData ||
@@ -100,8 +100,8 @@ export function useServiceDataLoader(
                 record.data;
               return hasNestedData;
             });
-            loadedSectionData[sectionKey] = (recordWithData ||
-              relationData[relationData.length - 1]) as Record<string, unknown>;
+            loadedSectionData[sectionKey as keyof SectionDataMap] = (recordWithData ||
+              relationData[relationData.length - 1]) as any;
           }
         });
 

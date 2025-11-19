@@ -1,12 +1,13 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { TrammingCheck } from '@/data/types/services.types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrammingForm } from '../forms/TrammingForm';
 import { displayValue } from '../utils/displayHelpers';
 
 interface TrammingSummaryProps {
-  data: Record<string, unknown>;
+  data: TrammingCheck;
 }
 
 export function TrammingSummary({ data }: TrammingSummaryProps) {

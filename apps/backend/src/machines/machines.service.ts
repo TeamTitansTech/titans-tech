@@ -1,8 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
-import { CreateMachineDto } from './dto/create-machine.dto';
-import { UpdateMachineDto } from './dto/update-machine.dto';
+import {
+  CreateMachineDto,
+  UpdateMachineDto,
+} from '@titans-tech/shared';
 
 @Injectable()
 export class MachinesService {
@@ -39,6 +41,17 @@ export class MachinesService {
         blueprintId: createMachineDto.blueprintId,
         branchId: createMachineDto.branchId,
         name: createMachineDto.name,
+        manufacturer: createMachineDto.manufacturer,
+        model: createMachineDto.model,
+        sizeTonnage: createMachineDto.sizeTonnage,
+        serialNumber: createMachineDto.serialNumber,
+        stroke: createMachineDto.stroke,
+        foundationType: createMachineDto.foundationType,
+        frameType: createMachineDto.frameType,
+        clutchType: createMachineDto.clutchType,
+        pneumaticSystem: createMachineDto.pneumaticSystem,
+        pressMounting: createMachineDto.pressMounting,
+        features: createMachineDto.features,
         fields: {
           create: createMachineDto.fields.map((field) => ({
             fieldSlug: field.fieldSlug,
