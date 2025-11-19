@@ -16,7 +16,7 @@ export function BranchSelector() {
 
   if (!companyUser) return null;
 
-  const accessibleBranches = [...companyUser.branches, ...companyUser.branches];
+  const accessibleBranches = companyUser.branches;
   if (accessibleBranches.length <= 1) return null;
 
   return (

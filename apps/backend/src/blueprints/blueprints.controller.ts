@@ -5,7 +5,7 @@ import {
   CreateBlueprintWithThresholdsDto,
   CreateBlueprintDto,
   CreateBlueprintSchema,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import { Admin, Authenticated } from 'src/modules/auth/auth.decorators';
 import { ZodValidationPipe } from '../errors/zod-validation.pipe';
 

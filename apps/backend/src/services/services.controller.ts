@@ -3,28 +3,28 @@ import { ServicesService } from './services.service';
 import {
   CreateServiceDto,
   CreateServiceSchema,
-  UpdateServiceDto,
-  UpdateServiceSchema,
+  UpdateServicePayload,
+  UpdateServicePayloadSchema,
   CompleteServiceDto,
   CompleteServiceSchema,
-  UpdateBearingClearanceDto,
-  UpdateBearingClearanceSchema,
-  UpdateSlideDto,
-  UpdateSlideSchema,
-  UpdateGibsDto,
-  UpdateGibsSchema,
-  UpdateLubricationHydraulicsDto,
-  UpdateLubricationHydraulicsSchema,
-  UpdateClutchDto,
-  UpdateClutchSchema,
-  UpdateCounterbalanceCylinderDto,
-  UpdateCounterbalanceCylinderSchema,
-  UpdateTrammingDto,
-  UpdateTrammingSchema,
-  UpdatePistonsDto,
-  UpdatePistonsSchema,
+  BearingClearanceCheck,
+  BearingClearanceCheckSchema,
+  SlideCheck,
+  SlideCheckSchema,
+  GibsCheck,
+  GibsCheckSchema,
+  LubricationHydraulicsData,
+  LubricationHydraulicsDataSchema,
+  ClutchData,
+  ClutchDataSchema,
+  CounterbalanceCylinderCheck,
+  CounterbalanceCylinderCheckSchema,
+  TrammingCheck,
+  TrammingCheckSchema,
+  PistonsCheck,
+  PistonsCheckSchema,
   LatestReportResponseDto,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import { Public, Authenticated } from 'src/modules/auth/auth.decorators';
 import { ZodValidationPipe } from '../errors/zod-validation.pipe';
 
@@ -68,8 +68,8 @@ export class ServicesController {
   @Put(':id')
   update(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateServiceSchema))
-    updateDto: UpdateServiceDto,
+    @Body(new ZodValidationPipe(UpdateServicePayloadSchema))
+    updateDto: UpdateServicePayload,
   ): Promise<unknown> {
     return this.servicesService.update(id, updateDto);
   }
@@ -79,8 +79,8 @@ export class ServicesController {
   @Patch(':id/sections/bearing-clearance')
   updateBearingClearance(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateBearingClearanceSchema))
-    updateDto: UpdateBearingClearanceDto,
+    @Body(new ZodValidationPipe(BearingClearanceCheckSchema))
+    updateDto: BearingClearanceCheck,
   ): Promise<unknown> {
     return this.servicesService.updateBearingClearance(id, updateDto);
   }
@@ -89,8 +89,8 @@ export class ServicesController {
   @Patch(':id/sections/slide')
   updateSlide(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateSlideSchema))
-    updateDto: UpdateSlideDto,
+    @Body(new ZodValidationPipe(SlideCheckSchema))
+    updateDto: SlideCheck,
   ): Promise<unknown> {
     return this.servicesService.updateSlide(id, updateDto);
   }
@@ -99,8 +99,8 @@ export class ServicesController {
   @Patch(':id/sections/gibs')
   updateGibs(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateGibsSchema))
-    updateDto: UpdateGibsDto,
+    @Body(new ZodValidationPipe(GibsCheckSchema))
+    updateDto: GibsCheck,
   ): Promise<unknown> {
     return this.servicesService.updateGibs(id, updateDto);
   }
@@ -109,8 +109,8 @@ export class ServicesController {
   @Patch(':id/sections/lubrication-hydraulics')
   updateLubricationHydraulics(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateLubricationHydraulicsSchema))
-    updateDto: UpdateLubricationHydraulicsDto,
+    @Body(new ZodValidationPipe(LubricationHydraulicsDataSchema))
+    updateDto: LubricationHydraulicsData,
   ): Promise<unknown> {
     return this.servicesService.updateLubricationHydraulics(id, updateDto);
   }
@@ -119,8 +119,8 @@ export class ServicesController {
   @Patch(':id/sections/clutch')
   updateClutch(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateClutchSchema))
-    updateDto: UpdateClutchDto,
+    @Body(new ZodValidationPipe(ClutchDataSchema))
+    updateDto: ClutchData,
   ): Promise<unknown> {
     return this.servicesService.updateClutch(id, updateDto);
   }
@@ -129,8 +129,8 @@ export class ServicesController {
   @Patch(':id/sections/counterbalance-cylinder')
   updateCounterbalanceCylinder(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateCounterbalanceCylinderSchema))
-    updateDto: UpdateCounterbalanceCylinderDto,
+    @Body(new ZodValidationPipe(CounterbalanceCylinderCheckSchema))
+    updateDto: CounterbalanceCylinderCheck,
   ): Promise<unknown> {
     return this.servicesService.updateCounterbalanceCylinder(id, updateDto);
   }
@@ -139,8 +139,8 @@ export class ServicesController {
   @Patch(':id/sections/tramming')
   updateTramming(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdateTrammingSchema))
-    updateDto: UpdateTrammingDto,
+    @Body(new ZodValidationPipe(TrammingCheckSchema))
+    updateDto: TrammingCheck,
   ): Promise<unknown> {
     return this.servicesService.updateTramming(id, updateDto);
   }
@@ -149,8 +149,8 @@ export class ServicesController {
   @Patch(':id/sections/pistons')
   updatePistons(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(UpdatePistonsSchema))
-    updateDto: UpdatePistonsDto,
+    @Body(new ZodValidationPipe(PistonsCheckSchema))
+    updateDto: PistonsCheck,
   ): Promise<unknown> {
     return this.servicesService.updatePistons(id, updateDto);
   }

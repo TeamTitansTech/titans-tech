@@ -9,7 +9,7 @@ import {
   SysAdminResponseDto,
   UpdatePasswordDto,
   LoginDto,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import { SysAdminJwtPayload } from '../../types/request';
 import * as bcrypt from 'bcrypt';
 

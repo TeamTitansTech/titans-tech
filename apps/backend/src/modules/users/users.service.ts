@@ -12,7 +12,7 @@ import {
   UserResponseDto,
   SetCompanyAdminDto,
   SetCompanyManagerDto,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import * as bcrypt from 'bcrypt';
 import { FieldsErr } from 'src/errors/err';
 import { isSysAdmin, JwtPayload, UserJwtPayload } from 'src/types/request';

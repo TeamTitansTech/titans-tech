@@ -23,7 +23,7 @@ import {
   SetCompanyManagerSchema,
   SysAdminCreateUserDto,
   SysAdminCreateUserSchema,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, BranchPermission, CompanyAdmin } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';

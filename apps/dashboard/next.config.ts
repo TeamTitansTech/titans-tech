@@ -30,8 +30,13 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  turbopack: {
-    root: '../../',
+  // Ensure Prisma client is handled correctly by webpack
+  serverExternalPackages: ['@prisma/client', '@titans-tech/db'],
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push('@prisma/client', '@titans-tech/db');
+    }
+    return config;
   },
 };
 

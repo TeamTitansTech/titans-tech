@@ -535,7 +535,7 @@ export const CreateServiceSchema = z.object({
   machineId: z.string().min(1, 'Machine ID is required'),
   date: z.string().datetime('Invalid date format'),
   type: z.nativeEnum(PrismaServiceType),
-  performedBy: z.string().min(1, 'Performed by is required'),
+  performedBy: z.string().min(1, 'Performed by is required').optional(),
   isMaintenance: z.boolean().default(false),
   notes: z.string().optional(),
   status: z.nativeEnum(PrismaServiceStatus).optional(),

@@ -15,7 +15,7 @@ import {
   UpdatePasswordSchema,
   LoginDto,
   LoginSchema,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import { ReqWithAuthUser } from 'src/types/request';
 
 @Controller('auth/admin')

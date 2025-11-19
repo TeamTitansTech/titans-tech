@@ -9,17 +9,17 @@ import {
   LatestReportResponseDto,
   LatestBearingClearanceDto,
   CreateServiceDto,
-  UpdateServiceDto,
+  UpdateServicePayload,
   CompleteServiceDto,
-  UpdateBearingClearanceDto,
-  UpdateSlideDto,
-  UpdateGibsDto,
-  UpdateLubricationHydraulicsDto,
-  UpdateClutchDto,
-  UpdateCounterbalanceCylinderDto,
-  UpdateTrammingDto,
-  UpdatePistonsDto,
-} from '@titans-tech/shared';
+  BearingClearanceCheck,
+  SlideCheck,
+  GibsCheck,
+  LubricationHydraulicsData,
+  ClutchData,
+  CounterbalanceCylinderCheck,
+  TrammingCheck,
+  PistonsCheck,
+} from '@titans-tech/shared/backend-dtos';
 import { AlertsService } from '../modules/alerts/alerts.service';
 
 @Injectable()
@@ -90,7 +90,10 @@ export class ServicesService {
     return inspection;
   }
 
-  async update(serviceId: string, updateDto: UpdateServiceDto): Promise<any> {
+  async update(
+    serviceId: string,
+    updateDto: UpdateServicePayload,
+  ): Promise<any> {
     // Verify service exists
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
@@ -724,7 +727,7 @@ export class ServicesService {
 
   async updateBearingClearance(
     serviceId: string,
-    updateDto: UpdateBearingClearanceDto,
+    updateDto: BearingClearanceCheck,
   ): Promise<any> {
     // Check if service exists
     const service = await this.prisma.machineService.findUnique({
@@ -846,10 +849,7 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
-  async updateSlide(
-    serviceId: string,
-    updateDto: UpdateSlideDto,
-  ): Promise<any> {
+  async updateSlide(serviceId: string, updateDto: SlideCheck): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: { slide: true },
@@ -983,7 +983,7 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
-  async updateGibs(serviceId: string, updateDto: UpdateGibsDto): Promise<any> {
+  async updateGibs(serviceId: string, updateDto: GibsCheck): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: { gibs: true },
@@ -1114,7 +1114,7 @@ export class ServicesService {
 
   async updateLubricationHydraulics(
     serviceId: string,
-    updateDto: UpdateLubricationHydraulicsDto,
+    updateDto: LubricationHydraulicsData,
   ): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
@@ -1216,10 +1216,7 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
-  async updateClutch(
-    serviceId: string,
-    updateDto: UpdateClutchDto,
-  ): Promise<any> {
+  async updateClutch(serviceId: string, updateDto: ClutchData): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: { clutch: true },
@@ -1283,7 +1280,7 @@ export class ServicesService {
 
   async updateCounterbalanceCylinder(
     serviceId: string,
-    updateDto: UpdateCounterbalanceCylinderDto,
+    updateDto: CounterbalanceCylinderCheck,
   ): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
@@ -1378,7 +1375,7 @@ export class ServicesService {
 
   async updateTramming(
     serviceId: string,
-    updateDto: UpdateTrammingDto,
+    updateDto: TrammingCheck,
   ): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
@@ -1480,7 +1477,7 @@ export class ServicesService {
 
   async updatePistons(
     serviceId: string,
-    updateDto: UpdatePistonsDto,
+    updateDto: PistonsCheck,
   ): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },

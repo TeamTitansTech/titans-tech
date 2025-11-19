@@ -14,7 +14,7 @@ import {
   CreateMachineSchema,
   UpdateMachineDto,
   UpdateMachineSchema,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import { Authenticated } from 'src/modules/auth/auth.decorators';
 import { ZodValidationPipe } from '../errors/zod-validation.pipe';
 

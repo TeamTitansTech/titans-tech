@@ -8,7 +8,7 @@ import { PrismaService } from '../prisma.service';
 import {
   CreateBlueprintWithThresholdsDto,
   CreateBlueprintDto,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import { convertThresholdToDecimal } from '../modules/alerts/threshold.utils';
 
 @Injectable()

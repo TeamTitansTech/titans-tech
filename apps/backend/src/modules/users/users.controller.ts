@@ -8,9 +8,9 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UpdatePasswordDto } from '@titans-tech/shared';
+import { UpdatePasswordDto } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
-import { UpdatePasswordSchema } from '@titans-tech/shared';
+import { UpdatePasswordSchema } from '@titans-tech/shared/backend-dtos';
 import { Authenticated } from '../auth/auth.decorators';
 import { ReqWithAuthUser } from '../../types/request';
 

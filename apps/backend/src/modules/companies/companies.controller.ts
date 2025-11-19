@@ -19,7 +19,7 @@ import {
   CreateCompanyBranchSchema,
   LoginDto,
   LoginSchema,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import {
   Admin,
