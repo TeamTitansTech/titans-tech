@@ -26,7 +26,7 @@ import {
 import { toast } from 'sonner';
 import { updateUser } from '@/data/services/users.api';
 import { setUserPermissions, getBranch } from '@/data/services/company-branches.api';
-import type { UserResponseDto } from '@titans-tech/shared';
+import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 interface EditUserDialogProps {
   open: boolean;

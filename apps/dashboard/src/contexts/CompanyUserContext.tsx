@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { UserResponseDto } from '@titans-tech/shared';
+import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { getCurrentUser } from '@/data/services/auth.api';
 import { usePathname } from 'next/navigation';
 

@@ -11,7 +11,7 @@ import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useState, useEffect } from 'react';
 import { Company } from '@/data/services/companies.api';
 import { CompanyBranch } from '@/data/services/company-branches.api';
-import { UserResponseDto } from '@titans-tech/shared';
+import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import UserPermissionsManager from './UserPermissionsManager';
 import { Typography } from '@/components/ui/typography';
 

@@ -23,7 +23,7 @@ import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
 import { getUserRole, canEditUser, canDeleteUser } from '@/lib/permissions';
 import { getUserRoleBadgeColor } from '@/lib/permissions';
-import type { UserResponseDto } from '@titans-tech/shared';
+import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 interface BranchUserManagementProps {
   branchId: string;
@@ -173,11 +173,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
               </TableRow>
             ) : (
               users.map((user) => {
-                const role = getUserRole(
-                  user.isCompanyAdmin,
-                  user.isCompanyManager,
-                  user.branches?.find((b) => b.branchId === branchId),
-                );
+                const role = getUserRole(user, branchId);
                 const canEdit = canEditUser(companyUser, user, branchId);
                 const canDelete = canDeleteUser(companyUser, user, branchId);
 

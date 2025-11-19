@@ -9,7 +9,7 @@ import {
   SetCompanyManagerDto,
   UpdateUserPermissionsDto,
   DeleteUserDto,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import { Permissions } from '@titans-tech/shared/types';
 
 export const getAllUsers = async (args: { companyId: string }) => {

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Building2, MapPin, Package, ChevronRight, Eye } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
-import type { UserResponseDto } from '@titans-tech/shared';
+import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import type { CompanyBranch } from '@/data/services/company-branches.api';
 
 interface BranchCardProps {

@@ -2,14 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { Typography } from '@/components/ui/typography';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building2, MapPin, Package, User } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Building2, Package, User } from 'lucide-react';
 import { BranchCard } from './BranchCard';
-import type { UserResponseDto } from '@titans-tech/shared';
+import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import type { Company } from '@/data/services/companies.api';
 import type { CompanyBranch } from '@/data/services/company-branches.api';
 import { useTranslations } from 'next-intl';
-import { Badge } from '@/components/ui/badge';
 import { getAllUsers } from '@/data/services/users.api';
 
 interface BranchWithMachineCount extends CompanyBranch {

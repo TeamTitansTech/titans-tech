@@ -1,6 +1,6 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import { CreateCompanyDto, UpdateCompanyDto } from '@titans-tech/shared';
+import { CreateCompanyDto, UpdateCompanyDto } from '@titans-tech/shared/backend-dtos';
 
 export interface Company {
   id: string;

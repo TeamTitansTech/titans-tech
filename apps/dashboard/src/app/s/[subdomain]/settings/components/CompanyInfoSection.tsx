@@ -10,7 +10,7 @@ import { getAllUsers } from '@/data/services/users.api';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import type { UserResponseDto } from '@titans-tech/shared';
+import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 export function CompanyInfoSection() {
   const t = useTranslations('settings.companyInfo');
@@ -214,7 +214,7 @@ export function CompanyInfoSection() {
                   {companyManagers.map((manager) => {
                     const branchNames =
                       manager.branches
-                        ?.map((b: { branchName?: string }) => b.branchName)
+                        ?.map((b) => b.branch?.name)
                         .filter(Boolean)
                         .join(', ') || 'All branches';
 

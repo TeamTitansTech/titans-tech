@@ -99,7 +99,7 @@ export function AddUserDialog({
       await setUserPermissions({
         branchId,
         userId,
-        permissions,
+        permissions: permissions as unknown as Record<string, boolean>,
       });
 
       // If applying to all branches, we'd need to get all branches and set permissions

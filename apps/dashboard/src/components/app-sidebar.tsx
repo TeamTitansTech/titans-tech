@@ -217,7 +217,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold text-white text-sm">
               {isAdmin && sysAdminUser
-                ? sysAdminUser.name || 'Admin User'
+                ? sysAdminUser.email || 'Admin User'
                 : companyUser
                   ? companyUser.name || 'Company User'
                   : 'User'}

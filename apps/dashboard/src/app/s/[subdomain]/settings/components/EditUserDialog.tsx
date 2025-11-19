@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -30,7 +30,6 @@ import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { Permissions } from '@titans-tech/shared/types';
 import { PermissionsEditor } from '@/components/permissions/PermissionsEditor';
 import { getBranchPermissions } from '@/lib/permissions';
-import { useCompanyUser } from '@/contexts/CompanyUserContext';
 
 interface EditUserDialogProps {
   open: boolean;
@@ -49,7 +48,6 @@ export function EditUserDialog({
 }: EditUserDialogProps) {
   const t = useTranslations('settings.editUserDialog');
   const tValidation = useTranslations('validation');
-  const { companyUser } = useCompanyUser();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateScope, setUpdateScope] = useState<'thisBranch' | 'allBranches'>('thisBranch');
@@ -93,7 +91,7 @@ export function EditUserDialog({
     }
   }, [user, branchId, open, reset]);
 
-  const onSubmit = async (data: UserFormData) => {
+  const onSubmit = async () => {
     if (!user || !permissions) return;
 
     setIsSubmitting(true);

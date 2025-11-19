@@ -1,6 +1,10 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import { SysAdminResponseDto, UpdatePasswordDto, UserResponseDto } from '@titans-tech/shared';
+import {
+  SysAdminResponseDto,
+  UpdatePasswordDto,
+  UserResponseDto,
+} from '@titans-tech/shared/backend-dtos';
 import { deleteCookie } from '@/lib/cookies';
 
 export interface LoginCredentials {
