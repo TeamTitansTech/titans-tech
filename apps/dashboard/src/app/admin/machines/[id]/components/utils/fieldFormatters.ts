@@ -87,7 +87,7 @@ export interface EnumTranslations {
  * @param enumTranslations - Optional translations for enum values
  * @returns Formatted string value
  */
-export const displayValue = (value: any, enumTranslations?: EnumTranslations): string => {
+export const displayValue = (value: unknown, enumTranslations?: EnumTranslations): string => {
   if (value === null || value === undefined || value === '') {
     return '-';
   }

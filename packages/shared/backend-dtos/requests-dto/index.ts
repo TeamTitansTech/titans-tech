@@ -4,3 +4,6 @@ export * from './company-branch.dto';
 export * from './user.dto';
 export * from './threshold-bearing-clearance.dto';
 export * from './blueprint.dto';
+export * from './auth.dto';
+export * from './machine.dto';
+export * from './service';

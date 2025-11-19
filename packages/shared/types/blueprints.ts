@@ -1,6 +1,7 @@
 /**
- * Shared Blueprint Types
+ * Shared Blueprint Types (Interfaces only - NO DTOs)
  * Used by both frontend and backend
+ * DTOs are located in backend-dtos/requests-dto/blueprint.dto.ts
  */
 
 // Enums
@@ -12,9 +13,10 @@ export enum ServiceSection {
   CLUTCH = 'CLUTCH',
   COUNTERBALANCE_CYLINDER_AIRBAG = 'COUNTERBALANCE_CYLINDER_AIRBAG',
   TRAMMING = 'TRAMMING',
+  PISTONS = 'PISTONS',
 }
 
-// Blueprint Field Definition
+// Blueprint Field Definition (Interface - not DTO)
 export interface BlueprintField {
   fieldName: string;
   fieldSlug: string;
@@ -22,7 +24,7 @@ export interface BlueprintField {
   fieldOptions?: string[];
 }
 
-// Complete Blueprint Entity
+// Complete Blueprint Entity (Interface - not DTO)
 export interface Blueprint {
   id: string;
   name: string;
@@ -33,14 +35,13 @@ export interface Blueprint {
   deletedAt?: string | null;
 }
 
-// Blueprint Creation Payload (for API requests)
+// Blueprint Payload Interfaces for frontend usage
 export interface CreateBlueprintPayload {
   name: string;
   fields: BlueprintField[];
   sections: ServiceSection[];
 }
 
-// Blueprint Update Payload
 export interface UpdateBlueprintPayload {
   name?: string;
   fields?: BlueprintField[];

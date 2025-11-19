@@ -1,10 +1,11 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { ClutchData } from '@/data/types/services.types';
 import { Typography } from '@/components/ui/typography';
 
 interface ClutchSummaryProps {
-  data: any;
+  data: ClutchData;
 }
 
 export function ClutchSummary({ data }: ClutchSummaryProps) {
@@ -33,7 +34,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
   };
 
   // Helper function to display value with translations
-  const displayValue = (value: any): string => {
+  const displayValue = (value: unknown): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }
@@ -97,7 +98,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
     );
   };
 
-  const hasAnyData = Object.values(data).some(
+  const hasAnyData: boolean = Object.values(data).some(
     (val) => val !== null && val !== undefined && val !== '',
   );
 
@@ -201,7 +202,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
         </div>
 
         {/* Notes */}
-        {data.notes && (
+        {!!data.notes && (
           <div className="border-t pt-2 mt-3">
             <div className="font-semibold text-muted-foreground mb-2 text-xs">
               {tServicesSummary('notes')}

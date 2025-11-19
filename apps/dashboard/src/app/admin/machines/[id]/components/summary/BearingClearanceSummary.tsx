@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { BearingClearanceCheck } from '@/data/types/services.types';
 
 import {
   Table,
@@ -14,7 +15,7 @@ import { hasActualData, extractBearingRows } from '../utils/sectionDataUtils';
 import { formatFieldName } from '../utils/fieldFormatters';
 
 interface BearingClearanceSummaryProps {
-  data: any;
+  data: BearingClearanceCheck;
 }
 
 export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) {
@@ -23,6 +24,12 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
   const tBearingFields = useTranslations('bearingFields');
   const tServicesSummary = useTranslations('services.modal.summary');
   const tCommon = useTranslations('common.status');
+
+  // Access nested properties with proper types
+  const outerData = data?.outerAfter;
+  const innerData = data?.innerAfter;
+  const outerBefore = data?.outerBefore;
+  const innerBefore = data?.innerBefore;
 
   // Helper function to translate field names
   const translateFieldName = (key: string): string => {
@@ -33,7 +40,7 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
   };
 
   // Helper function to display value with translations
-  const displayValue = (value: any): string => {
+  const displayValue = (value: unknown): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }
@@ -58,17 +65,15 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
   };
 
   // Check if we have before data
-  const hasBeforeData =
-    (data?.outerBefore && hasActualData(data.outerBefore)) ||
-    (data?.innerBefore && hasActualData(data.innerBefore));
-  const hasAfterData =
-    (data?.outerData && hasActualData(data.outerData)) ||
-    (data?.innerData && hasActualData(data.innerData));
+  const hasBeforeData: boolean =
+    !!(outerBefore && hasActualData(outerBefore)) || !!(innerBefore && hasActualData(innerBefore));
+  const hasAfterData: boolean =
+    !!(outerData && hasActualData(outerData)) || !!(innerData && hasActualData(innerData));
 
-  const outerBeforeRows = extractBearingRows(data?.outerBefore, 'BEARING_CLEARANCE');
-  const innerBeforeRows = extractBearingRows(data?.innerBefore, 'BEARING_CLEARANCE');
-  const outerAfterRows = extractBearingRows(data?.outerData, 'BEARING_CLEARANCE');
-  const innerAfterRows = extractBearingRows(data?.innerData, 'BEARING_CLEARANCE');
+  const outerBeforeRows = extractBearingRows(outerBefore, 'BEARING_CLEARANCE');
+  const innerBeforeRows = extractBearingRows(innerBefore, 'BEARING_CLEARANCE');
+  const outerAfterRows = extractBearingRows(outerData, 'BEARING_CLEARANCE');
+  const innerAfterRows = extractBearingRows(innerData, 'BEARING_CLEARANCE');
 
   return (
     <div>
@@ -274,13 +279,13 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{tBearingFields('combinedWith')}:</span>
                   <span className="font-medium">
-                    {displayValue(data?.outerData?.combinedWith || data?.outerBefore?.combinedWith)}
+                    {displayValue(outerData?.combinedWith || outerBefore?.combinedWith)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{tBearingFields('matingPart')}:</span>
                   <span className="font-medium">
-                    {displayValue(data?.outerData?.matingPart || data?.outerBefore?.matingPart)}
+                    {displayValue(outerData?.matingPart || outerBefore?.matingPart)}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -288,9 +293,7 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                     {tBearingFields('hasBeenAdjusted')}:
                   </span>
                   <span className="font-medium">
-                    {displayValue(
-                      data?.outerData?.hasBeenAdjusted || data?.outerBefore?.hasBeenAdjusted,
-                    )}
+                    {displayValue(outerData?.hasBeenAdjusted || outerBefore?.hasBeenAdjusted)}
                   </span>
                 </div>
               </div>
@@ -305,13 +308,13 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{tBearingFields('combinedWith')}:</span>
                   <span className="font-medium">
-                    {displayValue(data?.innerData?.combinedWith || data?.innerBefore?.combinedWith)}
+                    {displayValue(innerData?.combinedWith || innerBefore?.combinedWith)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{tBearingFields('matingPart')}:</span>
                   <span className="font-medium">
-                    {displayValue(data?.innerData?.matingPart || data?.innerBefore?.matingPart)}
+                    {displayValue(innerData?.matingPart || innerBefore?.matingPart)}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -319,9 +322,7 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                     {tBearingFields('hasBeenAdjusted')}:
                   </span>
                   <span className="font-medium">
-                    {displayValue(
-                      data?.innerData?.hasBeenAdjusted || data?.innerBefore?.hasBeenAdjusted,
-                    )}
+                    {displayValue(innerData?.hasBeenAdjusted || innerBefore?.hasBeenAdjusted)}
                   </span>
                 </div>
               </div>
@@ -340,17 +341,13 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                     {tBearingFields('slideMotorMounts')}:
                   </span>
                   <span className="font-medium">
-                    {displayValue(
-                      data?.outerData?.slideMotorMounts || data?.outerBefore?.slideMotorMounts,
-                    )}
+                    {displayValue(outerData?.slideMotorMounts || outerBefore?.slideMotorMounts)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{tBearingFields('powerCordHoses')}:</span>
                   <span className="font-medium">
-                    {displayValue(
-                      data?.outerData?.powerCordHoses || data?.outerBefore?.powerCordHoses,
-                    )}
+                    {displayValue(outerData?.powerCordHoses || outerBefore?.powerCordHoses)}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -359,24 +356,21 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                   </span>
                   <span className="font-medium">
                     {displayValue(
-                      data?.outerData?.chainsGearsSprockets ||
-                        data?.outerBefore?.chainsGearsSprockets,
+                      outerData?.chainsGearsSprockets || outerBefore?.chainsGearsSprockets,
                     )}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">{tBearingFields('lockingClamps')}:</span>
                   <span className="font-medium">
-                    {displayValue(
-                      data?.outerData?.lockingClamps || data?.outerBefore?.lockingClamps,
-                    )}
+                    {displayValue(outerData?.lockingClamps || outerBefore?.lockingClamps)}
                   </span>
                 </div>
-                {(data?.outerData?.notes || data?.outerBefore?.notes) && (
+                {!!(outerData?.notes || outerBefore?.notes) && (
                   <div className="flex flex-col gap-1 pt-1 border-t">
                     <span className="text-muted-foreground">{tServicesSummary('notes')}:</span>
                     <span className="font-medium">
-                      {displayValue(data?.outerData?.notes || data?.outerBefore?.notes)}
+                      {displayValue(outerData?.notes || outerBefore?.notes)}
                     </span>
                   </div>
                 )}

@@ -1,0 +1,183 @@
+'use client';
+
+import { Card } from '@/components/ui/card';
+import { Typography } from '@/components/ui/typography';
+import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { Loader2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import type { MachineInspection } from '@titans-tech/shared/types';
+
+export type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
+
+interface SectionCardProps {
+  sectionKey: string;
+  machine: {
+    inspections?: MachineInspection[];
+  };
+  onClick?: () => void;
+  isLoading?: boolean;
+}
+
+const STATUS_COLORS = {
+  ok: 'bg-green-500',
+  warning: 'bg-yellow-500',
+  alert: 'bg-red-500',
+  unknown: 'bg-muted-foreground',
+} as const;
+
+const SECTION_I18N_KEYS: Record<string, string> = {
+  BEARING_CLEARANCE: 'bearingClearance',
+  SLIDE: 'slide',
+  GIBS: 'gibs',
+  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
+  CLUTCH: 'clutch',
+  COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
+  TRAMMING: 'tramming',
+  PISTONS: 'pistons',
+};
+
+const SECTION_IMAGES: Record<string, string> = {
+  BEARING_CLEARANCE: '/assets/sections/bearing-clearance.svg',
+  SLIDE: '/assets/sections/slide.svg',
+  GIBS: '/assets/sections/gibs.svg',
+  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER:
+    '/assets/sections/lubrication-hydraulics.svg',
+  CLUTCH: '/assets/sections/clutch.svg',
+  COUNTERBALANCE_CYLINDER_AIRBAG: '/assets/sections/counterbalance.svg',
+  TRAMMING: '/assets/sections/tramming.svg',
+  PISTONS: '/assets/sections/pistons.svg',
+};
+
+const CLEARANCE_LIMITS = {
+  WARNING: 0.15,
+  ALERT: 0.2,
+};
+
+const getSectionStatus = (
+  section: string,
+  machine: { inspections?: MachineInspection[] },
+): SectionStatus => {
+  if (!machine.inspections || machine.inspections.length === 0) {
+    return 'unknown';
+  }
+
+  const latestInspection = machine.inspections[0];
+
+  switch (section) {
+    case 'BEARING_CLEARANCE': {
+      const bearingCheck = latestInspection.bearingClearanceChecks;
+      if (!bearingCheck || !bearingCheck.outerAfter) {
+        return 'unknown';
+      }
+
+      const clearances = [
+        bearingCheck.outerAfter.totalClearance_RH,
+        bearingCheck.outerAfter.totalClearance_LH,
+        bearingCheck.outerAfter.mainBearings_RH,
+        bearingCheck.outerAfter.mainBearings_LH,
+        bearingCheck.outerAfter.upperConnectionBearings_RH,
+        bearingCheck.outerAfter.upperConnectionBearings_LH,
+        bearingCheck.outerAfter.wristPinToMatingPart_RH,
+        bearingCheck.outerAfter.wristPinToMatingPart_LH,
+        bearingCheck.outerAfter.wristPinToBushing_RH,
+        bearingCheck.outerAfter.wristPinToBushing_LH,
+      ];
+
+      const maxClearance = Math.max(...clearances);
+
+      if (maxClearance >= CLEARANCE_LIMITS.ALERT) {
+        return 'alert';
+      } else if (maxClearance >= CLEARANCE_LIMITS.WARNING) {
+        return 'warning';
+      } else {
+        return 'ok';
+      }
+    }
+
+    case 'SLIDE':
+    case 'GIBS':
+    case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
+    case 'CLUTCH':
+    case 'COUNTERBALANCE_CYLINDER_AIRBAG':
+    case 'TRAMMING':
+    case 'PISTONS':
+    default:
+      return 'ok';
+  }
+};
+
+export function SectionCard({ sectionKey, machine, onClick, isLoading = false }: SectionCardProps) {
+  const t = useTranslations('machines');
+
+  const status = getSectionStatus(sectionKey, machine);
+  const imageUrl = SECTION_IMAGES[sectionKey];
+  const title = t(`sectionNames.${SECTION_I18N_KEYS[sectionKey] || 'unknown'}`);
+
+  // Use API route for images when on a subdomain
+  const getImageUrl = (path: string) => {
+    if (typeof window === 'undefined') return path;
+
+    const hostname = window.location.hostname;
+    // If we're on a subdomain, use the API route
+    if (hostname.includes('.localhost')) {
+      // Remove the leading /assets/ from the path
+      const assetPath = path.replace('/assets/', '');
+      return `/api/assets/${assetPath}`;
+    }
+    // Otherwise use the direct path
+    return path;
+  };
+
+  return (
+    <Card
+      className={cn(
+        'relative overflow-hidden transition-all hover:shadow-lg hover:scale-[1.02]',
+        'bg-card border-border',
+        onClick && !isLoading && 'cursor-pointer',
+        isLoading && 'opacity-75 cursor-wait',
+      )}
+      onClick={isLoading ? undefined : onClick}
+    >
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="absolute inset-0 z-20 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-orange-500 animate-spin" />
+        </div>
+      )}
+
+      <div className="absolute top-3 right-3 z-10">
+        <div
+          className={cn(
+            'w-4 h-4 rounded-full border-2 border-white shadow-md',
+            STATUS_COLORS[status],
+          )}
+        />
+      </div>
+
+      <div className="aspect-[4/3] bg-slate-400 dark:bg-slate-600 flex items-center justify-center relative px-5">
+        {imageUrl ? (
+          <Image
+            src={getImageUrl(imageUrl)}
+            alt={title}
+            width={300}
+            height={225}
+            className="object-contain max-w-full max-h-full brightness-0 invert"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            unoptimized
+          />
+        ) : (
+          <div className="w-24 h-24 border-2 border-dashed border-border rounded-lg flex items-center justify-center">
+            <span className="text-muted-foreground text-xs">No Image</span>
+          </div>
+        )}
+      </div>
+
+      <div className="p-3 bg-secondary">
+        <Typography variant="h4" className="text-sm font-medium text-secondary-foreground truncate">
+          {title}
+        </Typography>
+      </div>
+    </Card>
+  );
+}

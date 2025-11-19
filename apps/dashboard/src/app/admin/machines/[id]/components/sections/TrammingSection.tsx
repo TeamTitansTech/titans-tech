@@ -82,7 +82,7 @@ interface TrammingSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
-  initialData?: any; // TrammingCheck data from API
+  initialData?: TrammingSectionData;
 }
 
 export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionProps>(

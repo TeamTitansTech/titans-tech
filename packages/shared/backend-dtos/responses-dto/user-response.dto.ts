@@ -71,7 +71,7 @@ export class UserResponseDto {
   updatedAt: Date;
 
   @Exclude()
-  password: string;
+  password?: string;
 
   @Type(() => UserBranchDto)
   branches: UserBranchDto[];
@@ -81,5 +81,7 @@ export class UserResponseDto {
     if (partial.branches) {
       this.branches = partial.branches.map((branch) => new UserBranchDto(branch));
     }
+    // Explicitly remove password
+    delete this.password;
   }
 }

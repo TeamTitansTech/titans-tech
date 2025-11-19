@@ -1,6 +1,43 @@
-import { ServiceType } from '@/data/types/services.types';
+import {
+  ServiceType,
+  BearingClearanceCheck,
+  SlideCheck,
+  GibsCheck,
+  LubricationHydraulicsData,
+  ClutchData,
+  CounterbalanceCylinderCheck,
+  TrammingCheck,
+  PistonsCheck,
+} from '@/data/types/services.types';
 
 export type StepType = 'selection' | 'details' | 'sections' | 'summary';
+
+/**
+ * Type-safe mapping of section keys to their data types
+ */
+export interface SectionDataMap {
+  BEARING_CLEARANCE: BearingClearanceCheck;
+  SLIDE: SlideCheck;
+  GIBS: GibsCheck;
+  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LubricationHydraulicsData;
+  CLUTCH: ClutchData;
+  COUNTERBALANCE_CYLINDER_AIRBAG: CounterbalanceCylinderCheck;
+  TRAMMING: TrammingCheck;
+  PISTONS: PistonsCheck;
+}
+
+/**
+ * Union type of all possible section data types
+ */
+export type AnySectionData =
+  | BearingClearanceCheck
+  | SlideCheck
+  | GibsCheck
+  | LubricationHydraulicsData
+  | ClutchData
+  | CounterbalanceCylinderCheck
+  | TrammingCheck
+  | PistonsCheck;
 
 export interface ServiceCompletionModalProps {
   machineId: string;
@@ -15,7 +52,7 @@ export interface ServiceCompletionModalProps {
 
 export interface SectionDataState {
   completedSections: Set<string>;
-  completedSectionData: Record<string, any>;
+  completedSectionData: Partial<SectionDataMap>;
 }
 
 export interface ServiceFormState {
