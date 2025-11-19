@@ -16,6 +16,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
+import { BranchSelector } from './layout/BranchSelector';
 
 import {
   Sidebar,
@@ -152,6 +153,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </Link>
       </SidebarHeader>
       <SidebarContent className="px-2 py-6">
+        {!isAdmin && (
+          <div className="px-4 pb-4 border-b border-slate-700/50 mb-4">
+            <BranchSelector />
+          </div>
+        )}
         <SidebarGroup className="px-0">
           <SidebarMenu className="space-y-2.5">
             {data.navMain.map((item) => {

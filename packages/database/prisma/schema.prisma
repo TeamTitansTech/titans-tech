@@ -263,6 +263,58 @@ enum FlexDiscType {
   CRACKED
 }
 
+// Machine-specific enums
+enum FoundationType {
+  PLANT_FLOOR
+  ISOLATED_PAD
+}
+
+enum FrameType {
+  GAP
+  STRAIGHT_SIDE
+}
+
+enum MachineClutchType {
+  JH5
+  NA
+}
+
+enum PneumaticSystemType {
+  AIR
+  HYD
+  WET_AIR
+  WET_HYD
+}
+
+enum PressMountingType {
+  ADJUSTABLE
+  ON_FLOOR
+  SHIMS
+  OTHER
+}
+
+enum MachineFeaturesType {
+  AIM
+  ADJ_STROKE
+  DOUBLE_LOCKUP
+  NA
+}
+
+// Inspection-specific enums
+enum DriveBeltConditionType {
+  OK
+  NA
+  LOOSENED
+  TIGHTENED
+  WORN
+}
+
+enum ProtectiveCoversStatusType {
+  YES
+  NO
+  OK
+}
+
 enum ServiceSection {
   BEARING_CLEARANCE
   SLIDE
@@ -453,12 +505,26 @@ model ThresholdBearingClearance {
 }
 
 model Machine {
-  id          String   @id @default(cuid())
+  id          String @id @default(cuid())
   blueprintId String
   branchId    String
   name        String // Machine name/identifier
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+
+  // Machine specifications
+  manufacturer    String?
+  model           String?
+  sizeTonnage     String?
+  serialNumber    String?
+  stroke          String?
+  foundationType  FoundationType?
+  frameType       FrameType?
+  clutchType      MachineClutchType?
+  pneumaticSystem PneumaticSystemType?
+  pressMounting   PressMountingType?
+  features        MachineFeaturesType?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blueprint       Blueprint                @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
   branch          CompanyBranch            @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -497,8 +563,20 @@ model MachineService {
   currentStep        String? // Current step in the modal: 'selection', 'details', 'sections', 'summary'
   currentSectionKey  String? // Current section being filled (e.g., 'BEARING_CLEARANCE')
   selectedSections   Json?         @default("[]") // Array of selected section keys
-  createdAt          DateTime      @default(now())
-  updatedAt          DateTime      @updatedAt
+
+  // Inspection observation fields
+  isPressLevel                YesNoNaDncType?
+  driveBeltCondition          DriveBeltConditionType?
+  areAllProtectiveCovers      ProtectiveCoversStatusType?
+  protectiveCoversExplanation String?
+  areCracksVisible            YesNoDncType?
+  cracksLocation              String?
+  isMainMotorSecure           YesNoDncType?
+  isMotorPlateSecure          YesNoDncType?
+  whyNotCovered               String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machine                      Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
   bearingClearance             MachineServiceBearingClearance[]

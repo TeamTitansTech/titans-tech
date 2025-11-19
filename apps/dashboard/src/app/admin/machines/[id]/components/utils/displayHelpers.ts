@@ -7,7 +7,7 @@
  * @returns Formatted string representation of the value
  */
 export function displayValue(
-  value: any,
+  value: unknown,
   yesText: string = 'Yes',
   noText: string = 'No',
   fallback: string = '-',

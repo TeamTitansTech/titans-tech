@@ -12,7 +12,7 @@ import {
   UserResponseDto,
   SetCompanyAdminDto,
   SetCompanyManagerDto,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import * as bcrypt from 'bcrypt';
 import { FieldsErr } from 'src/errors/err';
 import { isSysAdmin, JwtPayload, UserJwtPayload } from 'src/types/request';
@@ -79,6 +79,46 @@ export class UsersService {
 
     if (!user) {
       throw new NotFoundException('User not found');
+    }
+
+    // If user is company admin or manager, they have access to all branches
+    // We need to populate the branches array with all company branches
+    if (user.isCompanyAdmin || user.isCompanyManager) {
+      const allBranches = await this.prisma.companyBranch.findMany({
+        where: { companyId: user.companyId },
+      });
+
+      // Create UserBranch objects with full permissions for admins/managers
+      const userBranches = allBranches.map((branch) => ({
+        userId: user.id,
+        branchId: branch.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        // Grant all permissions
+        readUsers: true,
+        createUsers: true,
+        updateUsers: true,
+        deleteUsers: true,
+        manageUserPermissions: true,
+        assignUsersToBranches: true,
+        readBranches: true,
+        updateBranches: true,
+        readBlueprints: true,
+        createBlueprints: true,
+        updateBlueprints: true,
+        deleteBlueprints: true,
+        readMachines: true,
+        createMachines: true,
+        updateMachines: true,
+        deleteMachines: true,
+        readServices: true,
+        createServices: true,
+        updateServices: true,
+        deleteServices: true,
+        branch: branch,
+      }));
+
+      return new UserResponseDto({ ...user, branches: userBranches });
     }
 
     return new UserResponseDto(user);

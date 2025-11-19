@@ -97,7 +97,7 @@ export interface BearingClearanceSectionRef {
 interface BearingClearanceSectionProps {
   onSectionTouched: () => void;
   serviceType: ServiceType;
-  initialData?: any; // Will be BearingClearanceSectionData from the hook
+  initialData?: BearingClearanceSectionData;
 }
 
 export const BearingClearanceSection = forwardRef<

@@ -1,6 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
-import { CreateCompanyDto, UpdateCompanyDto } from '@titans-tech/shared';
+import {
+  CreateCompanyDto,
+  UpdateCompanyDto,
+} from '@titans-tech/shared/backend-dtos';
 import { FieldsErr } from '../../errors/err';
 
 @Injectable()

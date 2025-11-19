@@ -79,25 +79,25 @@ interface SlideSectionProps {
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
   serviceType: ServiceType;
-  initialData?: any; // SlideCheck data from API
+  initialData?: SlideSectionData;
 }
 
 export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
   ({ isOpen, onOpenChange, onSectionTouched, serviceType, initialData }, ref) => {
     // Store initial loaded data for "touched" detection
     const [initialFormData] = useState({
-      outerBeforeData: initialData?.outerBeforeData || defaultSlideData,
-      outerAfterData: initialData?.outerAfterData || initialData?.outerData || defaultSlideData,
-      innerBeforeData: initialData?.innerBeforeData || defaultSlideData,
-      innerAfterData: initialData?.innerAfterData || initialData?.innerData || defaultSlideData,
+      outerBeforeData: initialData?.outerBefore || defaultSlideData,
+      outerAfterData: initialData?.outerData || defaultSlideData,
+      innerBeforeData: initialData?.innerBefore || defaultSlideData,
+      innerAfterData: initialData?.innerData || defaultSlideData,
     });
 
     // All slide data in a single state object
     const [formData, setFormData] = useState({
-      outerBeforeData: initialData?.outerBeforeData || defaultSlideData,
-      outerAfterData: initialData?.outerAfterData || initialData?.outerData || defaultSlideData,
-      innerBeforeData: initialData?.innerBeforeData || defaultSlideData,
-      innerAfterData: initialData?.innerAfterData || initialData?.innerData || defaultSlideData,
+      outerBeforeData: initialData?.outerBefore || defaultSlideData,
+      outerAfterData: initialData?.outerData || defaultSlideData,
+      innerBeforeData: initialData?.innerBefore || defaultSlideData,
+      innerAfterData: initialData?.innerData || defaultSlideData,
       outerParallelism: initialData?.outerParallelism || ParallelismType.DNC,
       outerHasParallelismBeenAdjusted:
         initialData?.outerHasParallelismBeenAdjusted || YesNoNaDncType.DNC,
@@ -125,7 +125,7 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
     });
 
     const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(
-      !!(initialData?.outerBeforeData || initialData?.innerBeforeData),
+      !!(initialData?.outerBefore || initialData?.innerBefore),
     );
 
     // Generic update function for any field in formData

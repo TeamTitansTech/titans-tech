@@ -15,7 +15,11 @@ export interface SectionConfig {
   /** Unique key for the section (matches enum value) */
   key: string;
 
-  /** React component to render for this section */
+  /**
+   * React component to render for this section
+   * Note: Using `any` here is intentional as section components have different prop requirements
+   * (some need serviceType, some need isOpen, etc.) that can't be unified into a single interface.
+   */
   component: ComponentType<any>;
 
   /** Metadata for displaying the section */

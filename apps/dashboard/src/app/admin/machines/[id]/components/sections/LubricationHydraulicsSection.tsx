@@ -56,11 +56,13 @@ export const LubricationHydraulicsSection = forwardRef<
   } = useSectionState<LubricationHydraulicsData>(initialData || defaultLubricationHydraulicsData);
 
   // Wrapper to call onSectionTouched
+  // Note: This wrapper accepts a union type and casts to the base hook's generic type.
+  // This is safe because the hook is typed with LubricationHydraulicsData, ensuring type safety at compile time.
   const updateField = (
     field: keyof LubricationHydraulicsData,
     value: string | number | boolean | YesNoDncType | LubricationHydraulicsGauge[] | undefined,
   ) => {
-    baseUpdateField(field, value as any);
+    baseUpdateField(field, value as LubricationHydraulicsData[keyof LubricationHydraulicsData]);
     onSectionTouched?.();
   };
 
