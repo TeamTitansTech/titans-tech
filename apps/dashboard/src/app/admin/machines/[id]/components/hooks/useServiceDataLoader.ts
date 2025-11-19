@@ -1,7 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { getServiceById } from '@/data/services/services.api';
-import { RELATION_TO_SECTION_KEY } from '../types/service-completion.types';
+import { RELATION_TO_SECTION_KEY, type SectionDataMap } from '../types/service-completion.types';
+import { YesNoNaDncType, YesNoDncType, type Service } from '@titans-tech/shared/types';
+
+type ServiceStep = 'selection' | 'details' | 'sections' | 'summary';
+
+interface ServiceWithRelations extends Service {
+  [key: string]: unknown;
+  completedSections?: string[];
+}
 
 export function useServiceDataLoader(
   open: boolean,
@@ -11,18 +19,40 @@ export function useServiceDataLoader(
   machineSections: string[],
   shouldSkipSelection: boolean,
   setCompletedSections: (sections: Set<string>) => void,
-  setCompletedSectionData: (data: Record<string, any>) => void,
+  setCompletedSectionData: (data: Partial<SectionDataMap>) => void,
   setSelectedSections: (sections: Set<string>) => void,
-  setCurrentStep: (step: any) => void,
+  setCurrentStep: (step: ServiceStep) => void,
   setCurrentSectionIndex: (index: number) => void,
+  // Inspection observation field setters
+  setDate?: (date: Date) => void,
+  setPerformedBy?: (value: string) => void,
+  setIsPressLevel?: (value: YesNoNaDncType | undefined) => void,
+  setDriveBeltCondition?: (value: string) => void,
+  setAreAllProtectiveCovers?: (value: string) => void,
+  setProtectiveCoversExplanation?: (value: string) => void,
+  setAreCracksVisible?: (value: YesNoDncType | undefined) => void,
+  setCracksLocation?: (value: string) => void,
+  setIsMainMotorSecure?: (value: YesNoDncType | undefined) => void,
+  setIsMotorPlateSecure?: (value: YesNoDncType | undefined) => void,
+  setWhyNotCovered?: (value: string) => void,
 ) {
   const [isLoadingServiceData, setIsLoadingServiceData] = useState(!!serviceId);
   const hasLoadedInitialData = useRef(false);
 
   useEffect(() => {
     const loadServiceData = async () => {
+      console.log('🔄 [useServiceDataLoader] Effect triggered:', {
+        open,
+        serviceId,
+        createdServiceId,
+        hasLoadedInitialData: hasLoadedInitialData.current,
+      });
+
       // Only load if conditions are met
-      if (!open || !serviceId || createdServiceId || hasLoadedInitialData.current) return;
+      if (!open || !serviceId || createdServiceId || hasLoadedInitialData.current) {
+        console.log('❌ [useServiceDataLoader] Skipping load due to conditions');
+        return;
+      }
 
       setIsLoadingServiceData(true);
 
@@ -35,14 +65,27 @@ export function useServiceDataLoader(
           return;
         }
 
-        const service = response.data as any;
+        const service = response.data as ServiceWithRelations;
+
+        console.log('📦 [useServiceDataLoader] Loaded service data:', {
+          serviceId,
+          date: service.date,
+          performedBy: service.performedBy,
+          isPressLevel: service.isPressLevel,
+          driveBeltCondition: service.driveBeltCondition,
+          areAllProtectiveCovers: service.areAllProtectiveCovers,
+          areCracksVisible: service.areCracksVisible,
+          isMainMotorSecure: service.isMainMotorSecure,
+          isMotorPlateSecure: service.isMotorPlateSecure,
+          whyNotCovered: service.whyNotCovered,
+        });
 
         // Extract completed sections
         const savedCompletedSections = Array.isArray(service.completedSections)
           ? service.completedSections
           : [];
 
-        const loadedSectionData: Record<string, any> = {};
+        const loadedSectionData: Partial<SectionDataMap> = {};
 
         // Extract data from each relation
         Object.entries(RELATION_TO_SECTION_KEY).forEach(([relationKey, sectionKey]) => {
@@ -57,7 +100,8 @@ export function useServiceDataLoader(
                 record.data;
               return hasNestedData;
             });
-            loadedSectionData[sectionKey] = recordWithData || relationData[relationData.length - 1];
+            loadedSectionData[sectionKey as keyof SectionDataMap] = (recordWithData ||
+              relationData[relationData.length - 1]) as any;
           }
         });
 
@@ -76,8 +120,55 @@ export function useServiceDataLoader(
 
         setSelectedSections(new Set(savedSelectedSections));
 
+        // Restore inspection observation fields
+        if (service.date && setDate) {
+          setDate(new Date(service.date));
+        }
+        if (service.performedBy !== undefined && setPerformedBy) {
+          setPerformedBy(service.performedBy || '');
+        }
+        if (service.isPressLevel !== undefined && setIsPressLevel) {
+          setIsPressLevel(service.isPressLevel);
+        }
+        if (service.driveBeltCondition !== undefined && setDriveBeltCondition) {
+          setDriveBeltCondition(service.driveBeltCondition || '');
+        }
+        if (service.areAllProtectiveCovers !== undefined && setAreAllProtectiveCovers) {
+          setAreAllProtectiveCovers(service.areAllProtectiveCovers || '');
+        }
+        if (service.protectiveCoversExplanation !== undefined && setProtectiveCoversExplanation) {
+          setProtectiveCoversExplanation(service.protectiveCoversExplanation || '');
+        }
+        if (service.areCracksVisible !== undefined && setAreCracksVisible) {
+          setAreCracksVisible(service.areCracksVisible);
+        }
+        if (service.cracksLocation !== undefined && setCracksLocation) {
+          setCracksLocation(service.cracksLocation || '');
+        }
+        if (service.isMainMotorSecure !== undefined && setIsMainMotorSecure) {
+          setIsMainMotorSecure(service.isMainMotorSecure);
+        }
+        if (service.isMotorPlateSecure !== undefined && setIsMotorPlateSecure) {
+          setIsMotorPlateSecure(service.isMotorPlateSecure);
+        }
+        if (service.whyNotCovered !== undefined && setWhyNotCovered) {
+          setWhyNotCovered(service.whyNotCovered || '');
+        }
+
+        console.log('✅ [useServiceDataLoader] Restored inspection observation fields');
+
         // Restore step
-        if (service.currentStep && service.currentStep !== 'summary') {
+        const isValidStep = (step: string | undefined): step is ServiceStep => {
+          return (
+            step === 'selection' || step === 'details' || step === 'sections' || step === 'summary'
+          );
+        };
+
+        if (
+          service.currentStep &&
+          isValidStep(service.currentStep) &&
+          service.currentStep !== 'summary'
+        ) {
           setCurrentStep(service.currentStep);
 
           if (service.currentStep === 'sections' && service.currentSectionKey) {

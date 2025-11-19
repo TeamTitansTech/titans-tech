@@ -51,7 +51,7 @@ export const isSlideFieldAllowedInSummary = (key: string): boolean => {
 /**
  * Calculate max deviation from slide position data
  */
-export const calculateMaxDeviation = (data: any): string => {
+export const calculateMaxDeviation = (data: Record<string, unknown>): string => {
   if (!data) return '-';
 
   const positions = [
@@ -63,7 +63,7 @@ export const calculateMaxDeviation = (data: any): string => {
     data.position6,
   ];
   const validValues = positions.filter(
-    (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
+    (val): val is number => typeof val === 'number' && !isNaN(val) && val !== 0,
   );
 
   if (validValues.length > 1) {
@@ -77,7 +77,7 @@ export const calculateMaxDeviation = (data: any): string => {
 /**
  * Check if data has actual values (not just defaults)
  */
-export const hasActualData = (data: any): boolean => {
+export const hasActualData = (data: Record<string, unknown>): boolean => {
   if (!data) return false;
 
   // Check if any field has a value (including zero, which is valid)
@@ -98,12 +98,12 @@ export const hasActualData = (data: any): boolean => {
  * @returns Array of bearing rows with field, lh, rh, and differential values
  */
 export const extractBearingRows = (
-  data: any,
+  data: Record<string, unknown> | undefined,
   _sectionKey?: string,
-): { field: string; lh: any; rh: any; differential: string }[] => {
+): { field: string; lh: unknown; rh: unknown; differential: string }[] => {
   if (!data) return [];
 
-  const rows: { field: string; lh: any; rh: any; differential: string }[] = [];
+  const rows: { field: string; lh: unknown; rh: unknown; differential: string }[] = [];
   const processedFields = new Set<string>();
 
   // Fields to skip (non-measurement fields)

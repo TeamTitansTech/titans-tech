@@ -71,6 +71,25 @@ export function ServiceCompletionModal({
     setIsSubmitting,
     error,
     setError,
+    // Inspection observation fields
+    isPressLevel,
+    setIsPressLevel,
+    driveBeltCondition,
+    setDriveBeltCondition,
+    areAllProtectiveCovers,
+    setAreAllProtectiveCovers,
+    protectiveCoversExplanation,
+    setProtectiveCoversExplanation,
+    areCracksVisible,
+    setAreCracksVisible,
+    cracksLocation,
+    setCracksLocation,
+    isMainMotorSecure,
+    setIsMainMotorSecure,
+    isMotorPlateSecure,
+    setIsMotorPlateSecure,
+    whyNotCovered,
+    setWhyNotCovered,
     reset: resetForm,
   } = useServiceForm(serviceType, initialDate, initialPerformedBy);
 
@@ -122,6 +141,18 @@ export function ServiceCompletionModal({
     setSelectedSections,
     setCurrentStep,
     setCurrentSectionIndex,
+    // Inspection observation field setters
+    setDate,
+    setPerformedBy,
+    setIsPressLevel,
+    setDriveBeltCondition,
+    setAreAllProtectiveCovers,
+    setProtectiveCoversExplanation,
+    setAreCracksVisible,
+    setCracksLocation,
+    setIsMainMotorSecure,
+    setIsMotorPlateSecure,
+    setWhyNotCovered,
   );
 
   // Reset when modal closes
@@ -156,8 +187,9 @@ export function ServiceCompletionModal({
     e?.stopPropagation();
 
     if (currentStep === 'details') {
-      // Create service if needed
+      // Create or update service
       if (!currentServiceId) {
+        // Create new service
         setIsSubmitting(true);
         try {
           const payload: CreateServicePayload = {
@@ -168,6 +200,16 @@ export function ServiceCompletionModal({
             performedBy: performedBy || undefined,
             currentStep: 'sections',
             selectedSections: Array.from(selectedSections),
+            // Inspection observation fields
+            isPressLevel,
+            driveBeltCondition: driveBeltCondition || undefined,
+            areAllProtectiveCovers: areAllProtectiveCovers || undefined,
+            protectiveCoversExplanation: protectiveCoversExplanation || undefined,
+            areCracksVisible,
+            cracksLocation: cracksLocation || undefined,
+            isMainMotorSecure,
+            isMotorPlateSecure,
+            whyNotCovered: whyNotCovered || undefined,
           };
 
           const response = await createService(payload);
@@ -186,6 +228,45 @@ export function ServiceCompletionModal({
         } catch (error) {
           console.error('Error creating service:', error);
           toast.error('An unexpected error occurred while creating the service');
+          setIsSubmitting(false);
+          return;
+        }
+      } else {
+        // Update existing service with inspection observation fields
+        setIsSubmitting(true);
+        try {
+          const updatePayload = {
+            date: date.toISOString(),
+            performedBy: performedBy || undefined,
+            currentStep: 'sections',
+            selectedSections: Array.from(selectedSections),
+            // Inspection observation fields
+            isPressLevel,
+            driveBeltCondition: driveBeltCondition || undefined,
+            areAllProtectiveCovers: areAllProtectiveCovers || undefined,
+            protectiveCoversExplanation: protectiveCoversExplanation || undefined,
+            areCracksVisible,
+            cracksLocation: cracksLocation || undefined,
+            isMainMotorSecure,
+            isMotorPlateSecure,
+            whyNotCovered: whyNotCovered || undefined,
+          };
+
+          const response = await updateService(currentServiceId, updatePayload);
+
+          if (response.errors) {
+            toast.error(
+              `Failed to update service:\n${response.errors?.join('\n') || 'Unknown error'}`,
+            );
+            setIsSubmitting(false);
+            return;
+          }
+
+          toast.success('Service details updated successfully.');
+          setIsSubmitting(false);
+        } catch (error) {
+          console.error('Error updating service:', error);
+          toast.error('An unexpected error occurred while updating the service');
           setIsSubmitting(false);
           return;
         }
@@ -428,7 +509,7 @@ export function ServiceCompletionModal({
                 `${count} ${count === 1 ? 'área selecionada' : 'áreas selecionadas'}`,
               selectAreasAbove: tServices('modal.selectAreasAbove'),
               cancel: 'Cancelar',
-              continue: 'Continuar',
+              continue: 'Salvar e Continuar',
             }}
           />
         ) : currentStep === 'details' ? (
@@ -447,6 +528,25 @@ export function ServiceCompletionModal({
               onStepClick={handleStepClick}
               onBack={() => setCurrentStep('selection')}
               onNext={handleNext}
+              // Inspection observation fields
+              isPressLevel={isPressLevel}
+              setIsPressLevel={setIsPressLevel}
+              driveBeltCondition={driveBeltCondition}
+              setDriveBeltCondition={setDriveBeltCondition}
+              areAllProtectiveCovers={areAllProtectiveCovers}
+              setAreAllProtectiveCovers={setAreAllProtectiveCovers}
+              protectiveCoversExplanation={protectiveCoversExplanation}
+              setProtectiveCoversExplanation={setProtectiveCoversExplanation}
+              areCracksVisible={areCracksVisible}
+              setAreCracksVisible={setAreCracksVisible}
+              cracksLocation={cracksLocation}
+              setCracksLocation={setCracksLocation}
+              isMainMotorSecure={isMainMotorSecure}
+              setIsMainMotorSecure={setIsMainMotorSecure}
+              isMotorPlateSecure={isMotorPlateSecure}
+              setIsMotorPlateSecure={setIsMotorPlateSecure}
+              whyNotCovered={whyNotCovered}
+              setWhyNotCovered={setWhyNotCovered}
               translations={{
                 dateLabel: isCompletingService
                   ? tServices('modal.realizationDate')
@@ -459,7 +559,35 @@ export function ServiceCompletionModal({
                 selectedAreasTitle: 'Áreas selecionadas',
                 getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
                 back: 'Voltar',
-                continue: 'Continuar',
+                continue: 'Salvar e Continuar',
+                // Machine information
+                machineInformationTitle: tServices('modal.machineInformation.title'),
+                manufacturer: tServices('modal.machineInformation.manufacturer'),
+                model: tServices('modal.machineInformation.model'),
+                sizeTonnage: tServices('modal.machineInformation.sizeTonnage'),
+                serialNumber: tServices('modal.machineInformation.serialNumber'),
+                stroke: tServices('modal.machineInformation.stroke'),
+                foundationType: tServices('modal.machineInformation.foundationType'),
+                frameType: tServices('modal.machineInformation.frameType'),
+                clutchType: tServices('modal.machineInformation.clutchType'),
+                pneumaticSystem: tServices('modal.machineInformation.pneumaticSystem'),
+                pressMounting: tServices('modal.machineInformation.pressMounting'),
+                features: tServices('modal.machineInformation.features'),
+                // Inspection observations
+                inspectionObservationsTitle: tServices('modal.inspectionObservations.title'),
+                isPressLevel: tServices('modal.inspectionObservations.isPressLevel'),
+                driveBeltCondition: tServices('modal.inspectionObservations.driveBeltCondition'),
+                areAllProtectiveCovers: tServices(
+                  'modal.inspectionObservations.areAllProtectiveCovers',
+                ),
+                protectiveCoversExplanation: tServices(
+                  'modal.inspectionObservations.protectiveCoversExplanation',
+                ),
+                areCracksVisible: tServices('modal.inspectionObservations.areCracksVisible'),
+                cracksLocation: tServices('modal.inspectionObservations.cracksLocation'),
+                isMainMotorSecure: tServices('modal.inspectionObservations.isMainMotorSecure'),
+                isMotorPlateSecure: tServices('modal.inspectionObservations.isMotorPlateSecure'),
+                whyNotCovered: tServices('modal.inspectionObservations.whyNotCovered'),
               }}
             />
           </form>
@@ -495,6 +623,16 @@ export function ServiceCompletionModal({
             stepperSteps={getStepperSteps()}
             onStepClick={handleStepClick}
             onSubmit={handleSubmit}
+            // Inspection observation fields
+            isPressLevel={isPressLevel}
+            driveBeltCondition={driveBeltCondition}
+            areAllProtectiveCovers={areAllProtectiveCovers}
+            protectiveCoversExplanation={protectiveCoversExplanation}
+            areCracksVisible={areCracksVisible}
+            cracksLocation={cracksLocation}
+            isMainMotorSecure={isMainMotorSecure}
+            isMotorPlateSecure={isMotorPlateSecure}
+            whyNotCovered={whyNotCovered}
             translations={{
               title: isInspection
                 ? tServices('modal.inspectionSummary')

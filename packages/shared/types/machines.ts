@@ -4,6 +4,15 @@
  */
 
 import { Blueprint } from './blueprints';
+import {
+  FoundationType,
+  FrameType,
+  MachineClutchType,
+  PneumaticSystemType,
+  PressMountingType,
+  MachineFeaturesType,
+} from './enums';
+import type { ServiceType, BearingClearanceCheck } from './services';
 
 // Machine Field Definition
 export interface MachineField {
@@ -18,12 +27,27 @@ export interface Machine {
   name: string;
   imageUrl?: string;
   fields: MachineField[];
+
+  // Machine specifications
+  manufacturer?: string;
+  model?: string;
+  sizeTonnage?: string;
+  serialNumber?: string;
+  stroke?: string;
+  foundationType?: FoundationType;
+  frameType?: FrameType;
+  clutchType?: MachineClutchType;
+  pneumaticSystem?: PneumaticSystemType;
+  pressMounting?: PressMountingType;
+  features?: MachineFeaturesType;
+
   createdAt: string;
   updatedAt: string;
   blueprint?: Blueprint;
   client?: string;
   location?: string;
   services?: MachineService[];
+  inspections?: MachineInspection[];
 }
 
 // Basic Service Info (for machine response)
@@ -34,11 +58,33 @@ export interface MachineService {
   performedBy: string;
 }
 
+// Machine Inspection (detailed service data for inspections)
+export interface MachineInspection {
+  id: string;
+  date: string;
+  type: ServiceType;
+  performedBy: string;
+  bearingClearanceChecks: BearingClearanceCheck | null;
+}
+
 // Machine Creation Payload (for API requests)
 export interface CreateMachinePayload {
   blueprintId: string;
   name: string;
   fields: MachineField[];
+
+  // Optional machine specifications
+  manufacturer?: string;
+  model?: string;
+  sizeTonnage?: string;
+  serialNumber?: string;
+  stroke?: string;
+  foundationType?: FoundationType;
+  frameType?: FrameType;
+  clutchType?: MachineClutchType;
+  pneumaticSystem?: PneumaticSystemType;
+  pressMounting?: PressMountingType;
+  features?: MachineFeaturesType;
 }
 
 // Machine Update Payload
@@ -46,4 +92,17 @@ export interface UpdateMachinePayload {
   blueprintId?: string;
   name?: string;
   fields?: MachineField[];
+
+  // Optional machine specifications
+  manufacturer?: string;
+  model?: string;
+  sizeTonnage?: string;
+  serialNumber?: string;
+  stroke?: string;
+  foundationType?: FoundationType;
+  frameType?: FrameType;
+  clutchType?: MachineClutchType;
+  pneumaticSystem?: PneumaticSystemType;
+  pressMounting?: PressMountingType;
+  features?: MachineFeaturesType;
 }

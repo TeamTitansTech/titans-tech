@@ -4,7 +4,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
+    "lint": "npm run format && prisma validate --schema=packages/database/prisma/schema.prisma && turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\" && prisma format --schema=packages/database/prisma/schema.prisma",
     "postinstall": "prisma generate --schema=packages/database/prisma/schema.prisma && npm run install:hooks",
     "install:hooks": "bash scripts/install-git-hooks.sh",

@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { GibsCheck } from '@/data/types/services.types';
 import {
   Table,
   TableBody,
@@ -13,7 +14,7 @@ import { hasActualData, extractBearingRows } from '../utils/sectionDataUtils';
 import { displayValue } from '../utils/fieldFormatters';
 
 interface GibsSummaryProps {
-  data: any;
+  data: GibsCheck;
 }
 
 export function GibsSummary({ data }: GibsSummaryProps) {
@@ -21,18 +22,22 @@ export function GibsSummary({ data }: GibsSummaryProps) {
   const tServices = useTranslations('services');
   const tServicesSummary = useTranslations('services.modal.summary');
 
-  // Check if we have before data
-  const hasBeforeData =
-    (data?.outerBefore && hasActualData(data.outerBefore)) ||
-    (data?.innerBefore && hasActualData(data.innerBefore));
-  const hasAfterData =
-    (data?.outerData && hasActualData(data.outerData)) ||
-    (data?.innerData && hasActualData(data.innerData));
+  // Access nested properties with proper types
+  const outerData = data?.outerAfter;
+  const innerData = data?.innerAfter;
+  const outerBefore = data?.outerBefore;
+  const innerBefore = data?.innerBefore;
 
-  const outerBeforeRows = extractBearingRows(data?.outerBefore);
-  const innerBeforeRows = extractBearingRows(data?.innerBefore);
-  const outerDataRows = extractBearingRows(data?.outerData);
-  const innerDataRows = extractBearingRows(data?.innerData);
+  // Check if we have before data
+  const hasBeforeData: boolean =
+    !!(outerBefore && hasActualData(outerBefore)) || !!(innerBefore && hasActualData(innerBefore));
+  const hasAfterData: boolean =
+    !!(outerData && hasActualData(outerData)) || !!(innerData && hasActualData(innerData));
+
+  const outerBeforeRows = extractBearingRows(outerBefore);
+  const innerBeforeRows = extractBearingRows(innerBefore);
+  const outerDataRows = extractBearingRows(outerData);
+  const innerDataRows = extractBearingRows(innerData);
 
   return (
     <div className="text-xs space-y-3">

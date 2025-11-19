@@ -5,8 +5,11 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../shared/prisma.service';
-import { LoginDto } from './dto/login.dto';
-import { SysAdminResponseDto, UpdatePasswordDto } from '@titans-tech/shared';
+import {
+  SysAdminResponseDto,
+  UpdatePasswordDto,
+  LoginDto,
+} from '@titans-tech/shared/backend-dtos';
 import { SysAdminJwtPayload } from '../../types/request';
 import * as bcrypt from 'bcrypt';
 

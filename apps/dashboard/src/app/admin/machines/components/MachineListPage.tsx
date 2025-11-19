@@ -5,9 +5,31 @@ import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { MachineCard } from './MachineCard';
 import { MachineCreationModal } from './MachineCreationModal';
+import { MachineEditModal } from './MachineEditModal';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { Plus } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { deleteMachine } from '@/data/services/machines.api';
+import { useLazyQuery } from '@/hooks/useLazyQuery';
+import { toast } from 'sonner';
+import {
+  FoundationType,
+  FrameType,
+  MachineClutchType,
+  PneumaticSystemType,
+  PressMountingType,
+  MachineFeaturesType,
+} from '@titans-tech/shared/types';
 
 interface Machine {
   id: string;
@@ -20,6 +42,17 @@ interface Machine {
   location?: string;
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';
+  manufacturer?: string | null;
+  model?: string | null;
+  sizeTonnage?: string | null;
+  serialNumber?: string | null;
+  stroke?: string | null;
+  foundationType?: FoundationType | null;
+  frameType?: FrameType | null;
+  clutchType?: MachineClutchType | null;
+  pneumaticSystem?: PneumaticSystemType | null;
+  pressMounting?: PressMountingType | null;
+  features?: MachineFeaturesType | null;
 }
 
 interface MachineListPagePageProps {
@@ -27,12 +60,45 @@ interface MachineListPagePageProps {
 }
 
 export function MachineListPage({ machines }: MachineListPagePageProps) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
+  const [machineToDelete, setMachineToDelete] = useState<{ id: string; name: string } | null>(null);
   const router = useInternalRouter();
   const t = useTranslations('machines');
 
+  const { execute: executeDelete, isLoading: isDeleting } = useLazyQuery((id: string) =>
+    deleteMachine(id),
+  );
+
   const handleSuccess = () => {
     router.refresh();
+  };
+
+  const handleEdit = (machine: Machine) => {
+    setSelectedMachine(machine);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (machine: { id: string; name: string }) => {
+    setMachineToDelete(machine);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!machineToDelete) return;
+
+    const response = await executeDelete(machineToDelete.id);
+
+    if (!response.errors) {
+      toast.success(t('deletedSuccessfully'));
+      setIsDeleteDialogOpen(false);
+      setMachineToDelete(null);
+      handleSuccess();
+    } else {
+      toast.error(response.errors.join(', '));
+    }
   };
 
   return (
@@ -43,7 +109,7 @@ export function MachineListPage({ machines }: MachineListPagePageProps) {
             <Typography variant="h2">{t('pageTitle')}</Typography>
             <Typography variant="muted">{t('pageDescription')}</Typography>
           </div>
-          <Button onClick={() => setIsModalOpen(true)}>
+          <Button onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="w-4 h-4 mr-2" />
             {t('newButton')}
           </Button>
@@ -64,6 +130,8 @@ export function MachineListPage({ machines }: MachineListPagePageProps) {
                 location={machine.location}
                 lastInspection={machine.lastInspection}
                 status={machine.status}
+                onEdit={() => handleEdit(machine)}
+                onDelete={() => handleDeleteClick({ id: machine.id, name: machine.name })}
               />
             ))}
           </div>
@@ -71,10 +139,43 @@ export function MachineListPage({ machines }: MachineListPagePageProps) {
       </div>
 
       <MachineCreationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
         onSuccess={handleSuccess}
       />
+
+      {selectedMachine && (
+        <MachineEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedMachine(null);
+          }}
+          onSuccess={handleSuccess}
+          machine={selectedMachine}
+        />
+      )}
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('deleteConfirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('deleteConfirmDescription', { name: machineToDelete?.name || '' })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? t('deleting') : t('confirmDelete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
