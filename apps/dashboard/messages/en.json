@@ -1238,6 +1238,7 @@
     "configureFirst": "Configure your production line first",
     "selectCompanyFirst": "Select a company",
     "noMachinesAvailable": "No machines available",
+    "noMachineSelected": "No machine selected",
     "moveUp": "Move up",
     "moveDown": "Move down",
     "createDialog": {

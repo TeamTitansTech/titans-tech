@@ -215,12 +215,14 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
             </CardContent>
           </Card>
 
-          {machineOrder.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>{t('machineOrder')}</CardTitle>
-              </CardHeader>
-              <CardContent>
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('machineOrder')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {machineOrder.length === 0 ? (
+                <p className="text-muted-foreground text-xl">{t('noMachineSelected')}</p>
+              ) : (
                 <div className="space-y-2">
                   {machineOrder.map((machineId, index) => {
                     const machine = allMachines.find((m) => m.id === machineId);
@@ -254,9 +256,9 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
                     );
                   })}
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              )}
+            </CardContent>
+          </Card>
         </div>
       )}
 
