@@ -32,13 +32,7 @@ export function MachineStatusChart({ data }: MachineStatusChartProps) {
   const total = data.operational + data.warning + data.critical;
 
   // Custom label for the center of the donut
-  const renderCustomLabel = ({
-    cx,
-    cy,
-  }: {
-    cx: number;
-    cy: number;
-  }) => {
+  const renderCustomLabel = ({ cx, cy }: { cx: number; cy: number }) => {
     return (
       <text
         x={cx}
@@ -87,11 +81,7 @@ export function MachineStatusChart({ data }: MachineStatusChartProps) {
                   borderRadius: '8px',
                 }}
               />
-              <Legend
-                verticalAlign="bottom"
-                height={36}
-                wrapperStyle={{ fontSize: '12px' }}
-              />
+              <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: '12px' }} />
               {renderCustomLabel({ cx: 150, cy: 150 })}
             </PieChart>
           </ResponsiveContainer>

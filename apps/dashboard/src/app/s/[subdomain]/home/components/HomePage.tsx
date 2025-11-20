@@ -13,12 +13,20 @@ import { getServices } from '@/data/services/services.api';
 import { getMachines } from '@/data/services/machines.api';
 import { Loader2 } from 'lucide-react';
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from 'date-fns';
+import {
+  ServiceType,
+  ServiceStatus,
+  AlertSeverity,
+  type ServiceType as ServiceTypeEnum,
+  type ServiceStatus as ServiceStatusEnum,
+  type AlertSeverity as AlertSeverityEnum,
+} from '@titans-tech/shared/enums';
 
 interface Service {
   id: string;
   date: string;
-  type: 'INSPECTION' | 'MAINTENANCE';
-  status: 'PENDING' | 'COMPLETED';
+  type: ServiceTypeEnum;
+  status: ServiceStatusEnum;
   machine: {
     id: string;
     name: string;
@@ -39,7 +47,7 @@ interface Alert {
   id: string;
   machineName: string;
   machineId: string;
-  severity: 'RED' | 'YELLOW' | 'GREEN';
+  severity: AlertSeverityEnum;
   message: string;
   createdAt: string;
 }
@@ -61,11 +69,11 @@ export function HomePage() {
         ]);
 
         if (servicesResponse.data) {
-          setServices(servicesResponse.data as Service[]);
+          setServices(servicesResponse.data as unknown as Service[]);
         }
 
         if (machinesResponse.data) {
-          setMachines(machinesResponse.data as Machine[]);
+          setMachines(machinesResponse.data as unknown as Machine[]);
         }
 
         // TODO: Fetch alerts from alerts API when available
@@ -88,16 +96,16 @@ export function HomePage() {
     const totalMachines = machines.length;
 
     // Calculate alert counts from real alerts
-    const criticalCount = alerts.filter((alert) => alert.severity === 'RED').length;
-    const warningCount = alerts.filter((alert) => alert.severity === 'YELLOW').length;
+    const criticalCount = alerts.filter((alert) => alert.severity === AlertSeverity.RED).length;
+    const warningCount = alerts.filter((alert) => alert.severity === AlertSeverity.YELLOW).length;
 
     // Calculate fleet health score (mock calculation)
-    const completedServices = services.filter((s) => s.status === 'COMPLETED').length;
+    const completedServices = services.filter((s) => s.status === ServiceStatus.COMPLETED).length;
     const totalServices = services.length;
     const completionRate = totalServices > 0 ? (completedServices / totalServices) * 100 : 100;
     const fleetHealthScore = Math.round(
       completionRate * 0.7 + // 70% weight on service completion
-        ((totalMachines - criticalCount - warningCount) / Math.max(totalMachines, 1)) * 30 // 30% weight on machine health
+        ((totalMachines - criticalCount - warningCount) / Math.max(totalMachines, 1)) * 30, // 30% weight on machine health
     );
 
     // Calculate monthly trends for last 6 months
@@ -111,14 +119,14 @@ export function HomePage() {
       const monthServices = services.filter((service) => {
         const serviceDate = parseISO(service.date);
         return (
-          service.status === 'COMPLETED' &&
+          service.status === ServiceStatus.COMPLETED &&
           serviceDate >= monthStart &&
           serviceDate <= monthEnd
         );
       });
 
-      const inspections = monthServices.filter((s) => s.type === 'INSPECTION').length;
-      const maintenance = monthServices.filter((s) => s.type === 'MAINTENANCE').length;
+      const inspections = monthServices.filter((s) => s.type === ServiceType.INSPECTION).length;
+      const maintenance = monthServices.filter((s) => s.type === ServiceType.MAINTENANCE).length;
 
       monthlyData.push({
         month: monthLabel,
@@ -131,7 +139,7 @@ export function HomePage() {
     // Get upcoming services (PENDING status, future dates)
     const upcomingServices = services
       .filter((service) => {
-        return service.status === 'PENDING' && new Date(service.date) >= new Date();
+        return service.status === ServiceStatus.PENDING && new Date(service.date) >= new Date();
       })
       .map((service) => ({
         id: service.id,

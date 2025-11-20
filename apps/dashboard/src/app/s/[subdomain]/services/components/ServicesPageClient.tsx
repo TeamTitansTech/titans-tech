@@ -10,14 +10,17 @@ import { ServiceCard } from './ServiceCard';
 import { ServiceStatsCards } from './ServiceStatsCards';
 import { ServiceFilters } from './ServiceFilters';
 import { ServiceSummaryModal } from '@/app/admin/machines/[id]/components/ServiceSummaryModal';
+import {
+  ServiceStatus,
+  type ServiceType as ServiceTypeEnum,
+  type ServiceStatus as ServiceStatusEnum,
+} from '@titans-tech/shared/enums';
+import type { Service as BaseService } from '@/data/types/services.types';
 
-interface Service {
-  id: string;
-  date: Date | string;
-  type: 'INSPECTION' | 'MAINTENANCE';
-  status: 'PENDING' | 'COMPLETED';
-  performedBy?: string | null;
-  currentStep?: string | null;
+// Service with machine relation populated (as returned by the API)
+interface Service extends Omit<BaseService, 'type' | 'status'> {
+  type: ServiceTypeEnum;
+  status: ServiceStatusEnum;
   machine: {
     id: string;
     name: string;
@@ -47,7 +50,7 @@ export function ServicesPageClient() {
       try {
         const response = await getServices();
         if (!response.errors && response.data) {
-          setServices(response.data as Service[]);
+          setServices(response.data as unknown as Service[]);
         }
       } catch (error) {
         console.error('Error loading services:', error);
@@ -117,8 +120,10 @@ export function ServicesPageClient() {
 
   // Categorize services
   const { upcomingServices, historyServices, allServices } = useMemo(() => {
-    const upcoming = filteredServices.filter((service) => service.status === 'PENDING');
-    const history = filteredServices.filter((service) => service.status === 'COMPLETED');
+    const upcoming = filteredServices.filter((service) => service.status === ServiceStatus.PENDING);
+    const history = filteredServices.filter(
+      (service) => service.status === ServiceStatus.COMPLETED,
+    );
 
     return {
       upcomingServices: upcoming.sort(
@@ -140,7 +145,7 @@ export function ServicesPageClient() {
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
 
     const completedThisMonth = branchServices.filter((service) => {
-      if (service.status !== 'COMPLETED') return false;
+      if (service.status !== ServiceStatus.COMPLETED) return false;
       const serviceDate = new Date(service.date);
       return serviceDate >= startOfMonth && serviceDate <= endOfMonth;
     }).length;

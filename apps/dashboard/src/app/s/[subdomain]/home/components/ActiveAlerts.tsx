@@ -6,12 +6,13 @@ import { useTranslations } from 'next-intl';
 import { AlertTriangle, AlertCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { AlertSeverity, type AlertSeverity as AlertSeverityEnum } from '@titans-tech/shared/enums';
 
 interface Alert {
   id: string;
   machineName: string;
   machineId: string;
-  severity: 'RED' | 'YELLOW' | 'GREEN';
+  severity: AlertSeverityEnum;
   message: string;
   createdAt: string;
 }
@@ -25,12 +26,14 @@ export function ActiveAlerts({ alerts }: ActiveAlertsProps) {
 
   // Show only critical and warning alerts
   const importantAlerts = alerts
-    .filter((alert) => alert.severity === 'RED' || alert.severity === 'YELLOW')
+    .filter(
+      (alert) => alert.severity === AlertSeverity.RED || alert.severity === AlertSeverity.YELLOW,
+    )
     .slice(0, 5); // Show max 5
 
-  const getSeverityConfig = (severity: string) => {
+  const getSeverityConfig = (severity: AlertSeverityEnum) => {
     switch (severity) {
-      case 'RED':
+      case AlertSeverity.RED:
         return {
           icon: AlertCircle,
           color: 'text-red-600',
@@ -38,12 +41,12 @@ export function ActiveAlerts({ alerts }: ActiveAlertsProps) {
           badge: 'destructive' as const,
           label: t('severity.critical'),
         };
-      case 'YELLOW':
+      case AlertSeverity.YELLOW:
         return {
           icon: AlertTriangle,
           color: 'text-yellow-600',
           bg: 'bg-yellow-50',
-          badge: 'warning' as const,
+          badge: 'secondary' as const,
           label: t('severity.warning'),
         };
       default:

@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { format, formatDistanceToNow } from 'date-fns';
 import { ptBR, enUS, es } from 'date-fns/locale';
 import { useLocale } from 'next-intl';
+import { useMemo } from 'react';
+import { ServiceType, type ServiceType as ServiceTypeEnum } from '@titans-tech/shared/enums';
 
 interface Service {
   id: string;
@@ -15,7 +17,7 @@ interface Service {
   machineId: string;
   branchName: string;
   date: string;
-  type: 'INSPECTION' | 'MAINTENANCE';
+  type: ServiceTypeEnum;
 }
 
 interface UpcomingServicesTimelineProps {
@@ -28,11 +30,25 @@ export function UpcomingServicesTimeline({ services }: UpcomingServicesTimelineP
 
   const dateLocale = locale === 'pt' ? ptBR : locale === 'es' ? es : enUS;
 
+  // Memoize current date calculations to avoid impure function calls during render
+  const { todayStr, tomorrowStr } = useMemo(() => {
+    const now = new Date();
+    const tomorrow = new Date(now.getTime() + 86400000);
+    return {
+      todayStr: format(now, 'yyyy-MM-dd'),
+      tomorrowStr: format(tomorrow, 'yyyy-MM-dd'),
+    };
+  }, []);
+
   // Sort by date and take next 7 days
-  const upcomingServices = services
-    .filter((service) => new Date(service.date) > new Date())
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .slice(0, 6);
+  const upcomingServices = useMemo(
+    () =>
+      services
+        .filter((service) => new Date(service.date) > new Date())
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .slice(0, 6),
+    [services],
+  );
 
   if (upcomingServices.length === 0) {
     return (
@@ -62,13 +78,12 @@ export function UpcomingServicesTimeline({ services }: UpcomingServicesTimelineP
       <CardContent>
         <div className="space-y-4">
           {upcomingServices.map((service, index) => {
-            const isInspection = service.type === 'INSPECTION';
+            const isInspection = service.type === ServiceType.INSPECTION;
             const ServiceIcon = isInspection ? ClipboardList : Wrench;
             const serviceDate = new Date(service.date);
-            const isToday = format(serviceDate, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
-            const isTomorrow =
-              format(serviceDate, 'yyyy-MM-dd') ===
-              format(new Date(Date.now() + 86400000), 'yyyy-MM-dd');
+            const serviceDateStr = format(serviceDate, 'yyyy-MM-dd');
+            const isToday = serviceDateStr === todayStr;
+            const isTomorrow = serviceDateStr === tomorrowStr;
 
             return (
               <Link
@@ -113,7 +128,12 @@ export function UpcomingServicesTimeline({ services }: UpcomingServicesTimelineP
                         <>
                           <span>{format(serviceDate, 'MMM d, yyyy', { locale: dateLocale })}</span>
                           <span className="text-muted-foreground/60">
-                            ({formatDistanceToNow(serviceDate, { addSuffix: true, locale: dateLocale })})
+                            (
+                            {formatDistanceToNow(serviceDate, {
+                              addSuffix: true,
+                              locale: dateLocale,
+                            })}
+                            )
                           </span>
                         </>
                       )}

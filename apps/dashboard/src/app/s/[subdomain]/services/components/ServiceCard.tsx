@@ -4,13 +4,19 @@ import { Calendar, Wrench, ClipboardCheck, MapPin, Package } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
+import {
+  ServiceType,
+  ServiceStatus,
+  type ServiceType as ServiceTypeEnum,
+  type ServiceStatus as ServiceStatusEnum,
+} from '@titans-tech/shared/enums';
 
 interface ServiceCardProps {
   service: {
     id: string;
     date: Date | string;
-    type: 'INSPECTION' | 'MAINTENANCE';
-    status: 'PENDING' | 'COMPLETED';
+    type: ServiceTypeEnum;
+    status: ServiceStatusEnum;
     performedBy?: string | null;
     currentStep?: string | null;
     machine: {
@@ -29,8 +35,8 @@ export function ServiceCard({ service, onClick }: ServiceCardProps) {
   const t = useTranslations('services');
   const tMachines = useTranslations('machines');
 
-  const isInProgress = service.status === 'PENDING' && service.currentStep;
-  const isCompleted = service.status === 'COMPLETED';
+  const isInProgress = service.status === ServiceStatus.PENDING && service.currentStep;
+  const isCompleted = service.status === ServiceStatus.COMPLETED;
 
   const getStatusBadge = () => {
     if (isCompleted) {
@@ -53,7 +59,7 @@ export function ServiceCard({ service, onClick }: ServiceCardProps) {
   };
 
   const getServiceTypeLabel = () => {
-    return service.type === 'INSPECTION'
+    return service.type === ServiceType.INSPECTION
       ? tMachines('scheduledInspection')
       : tMachines('scheduledMaintenance');
   };
@@ -94,7 +100,7 @@ export function ServiceCard({ service, onClick }: ServiceCardProps) {
           {/* Service type and date */}
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <div className="flex items-center gap-1.5">
-              {service.type === 'INSPECTION' ? (
+              {service.type === ServiceType.INSPECTION ? (
                 <ClipboardCheck className="h-4 w-4 text-blue-600" />
               ) : (
                 <Wrench className="h-4 w-4 text-orange-600" />
