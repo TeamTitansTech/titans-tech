@@ -11,7 +11,7 @@ import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useState, useEffect } from 'react';
 import { Company } from '@/data/services/companies.api';
 import { CompanyBranch } from '@/data/services/company-branches.api';
-import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
+import { UserResponseDto, UserBranchDto } from '@titans-tech/shared/backend-dtos';
 import UserPermissionsManager from './UserPermissionsManager';
 import { Typography } from '@/components/ui/typography';
 
@@ -44,13 +44,13 @@ export default function BranchUsersManager({ selectedCompany, selectedBranch, on
     if (response?.data) {
       // Filter users who are in this branch
       const usersInBranch = response.data.filter((user) =>
-        user.branches.some((ub) => ub.branch.id === selectedBranch.id),
+        user.branches.some((ub: UserBranchDto) => ub.branch.id === selectedBranch.id),
       );
       setBranchUsers(usersInBranch);
 
       // Filter users who are NOT in this branch
       const usersNotInBranch = response.data.filter(
-        (user) => !user.branches.some((ub) => ub.branch.id === selectedBranch.id),
+        (user) => !user.branches.some((ub: UserBranchDto) => ub.branch.id === selectedBranch.id),
       );
       setAvailableUsers(usersNotInBranch);
     }

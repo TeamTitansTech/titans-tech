@@ -15,19 +15,17 @@ export {
   YesNoDncType,
   LubeHydMonitorFlowPressSwGibType,
   OkNaDncDamageType,
-  CounterbalanceTypeEnum,
-  AirbagPistonSealsType,
-  SealConditionType,
-  RegulatorGaugeType,
-  PneumaticsPlumbingType,
-  RodSealsType,
-  RodBushingType,
-  OilWickType,
+  OkNaDncLeakingType,
+  OkNaDncNotOperationalType,
+  OkNaDncNotOperationalLeakingType,
+  OkNaDncDarkOilType,
+  OkNaDncNeedReplacedType,
+  CylinderAirbagType,
   ConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType,
   ConditionOkNaDncDamagedType,
   SystemType,
-} from '@titans-tech/shared/types';
+} from '@titans-tech/shared/types/services';
 
 export type {
   // Data interfaces
@@ -61,12 +59,12 @@ export type {
   TrammingFormProps,
   InspectionModalProps,
   ServiceCreationModalProps,
-} from '@titans-tech/shared/types';
+} from '@titans-tech/shared/types/services';
 
 // Legacy type alias for backward compatibility
-export type { ServiceCreationModalProps as InspectionCreationModalProps } from '@titans-tech/shared/types';
+export type { ServiceCreationModalProps as InspectionCreationModalProps } from '@titans-tech/shared/types/services';
 
-import type { BearingClearanceData as BearingData } from '@titans-tech/shared/types';
+import type { BearingClearanceData as BearingData } from '@titans-tech/shared/types/services';
 
 export interface LatestBearingClearance {
   latestServiceId: string;

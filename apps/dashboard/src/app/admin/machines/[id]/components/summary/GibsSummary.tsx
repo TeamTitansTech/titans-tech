@@ -23,8 +23,8 @@ export function GibsSummary({ data }: GibsSummaryProps) {
   const tServicesSummary = useTranslations('services.modal.summary');
 
   // Access nested properties with proper types
-  const outerData = data?.outerAfter;
-  const innerData = data?.innerAfter;
+  const outerData = data?.outerData;
+  const innerData = data?.innerData;
   const outerBefore = data?.outerBefore;
   const innerBefore = data?.innerBefore;
 

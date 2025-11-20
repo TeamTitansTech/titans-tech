@@ -3,7 +3,18 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { type PistonsData, ServiceType, SealConditionType } from '@/data/types/services.types';
+import { type PistonsData, ServiceType } from '@/data/types/services.types';
+
+// TODO: Este enum precisa ser adicionado ao Prisma ou revisado
+// Valores DAMAGED e WORN não existem nos enums do Prisma
+enum SealConditionType {
+  OK = 'OK',
+  NA = 'NA',
+  DNC = 'DNC',
+  DAMAGED = 'DAMAGED',
+  LEAKING = 'LEAKING',
+  WORN = 'WORN',
+}
 import { PistonsForm } from '../forms/PistonsForm';
 import { isDataTouched } from './utils';
 import { validateNumericFields } from '../utils/validateNumericFields';

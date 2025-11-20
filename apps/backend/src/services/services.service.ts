@@ -3,7 +3,8 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { Prisma, ServiceSection, ServiceStatus } from '@titans-tech/db';
+import { Prisma } from '@titans-tech/db';
+import { ServiceSection, ServiceStatus } from '@titans-tech/shared/enums';
 import { PrismaService } from '../prisma.service';
 import {
   LatestReportResponseDto,

@@ -5,7 +5,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
-import { ServiceType } from '@titans-tech/shared/types';
+import { ServiceType } from '@titans-tech/shared/types/services';
 import { cn } from '@/lib/utils';
 import { useTranslations } from 'next-intl';
 

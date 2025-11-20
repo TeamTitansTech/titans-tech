@@ -67,21 +67,21 @@ const getSectionStatus = (
   switch (section) {
     case 'BEARING_CLEARANCE': {
       const bearingCheck = latestInspection.bearingClearanceChecks;
-      if (!bearingCheck || !bearingCheck.outerAfter) {
+      if (!bearingCheck || !bearingCheck.outerData) {
         return 'unknown';
       }
 
       const clearances = [
-        bearingCheck.outerAfter.totalClearance_RH,
-        bearingCheck.outerAfter.totalClearance_LH,
-        bearingCheck.outerAfter.mainBearings_RH,
-        bearingCheck.outerAfter.mainBearings_LH,
-        bearingCheck.outerAfter.upperConnectionBearings_RH,
-        bearingCheck.outerAfter.upperConnectionBearings_LH,
-        bearingCheck.outerAfter.wristPinToMatingPart_RH,
-        bearingCheck.outerAfter.wristPinToMatingPart_LH,
-        bearingCheck.outerAfter.wristPinToBushing_RH,
-        bearingCheck.outerAfter.wristPinToBushing_LH,
+        bearingCheck.outerData.totalClearance_RH,
+        bearingCheck.outerData.totalClearance_LH,
+        bearingCheck.outerData.mainBearings_RH,
+        bearingCheck.outerData.mainBearings_LH,
+        bearingCheck.outerData.upperConnectionBearings_RH,
+        bearingCheck.outerData.upperConnectionBearings_LH,
+        bearingCheck.outerData.wristPinToMatingPart_RH,
+        bearingCheck.outerData.wristPinToMatingPart_LH,
+        bearingCheck.outerData.wristPinToBushing_RH,
+        bearingCheck.outerData.wristPinToBushing_LH,
       ];
 
       const maxClearance = Math.max(...clearances);

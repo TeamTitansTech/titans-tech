@@ -95,7 +95,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
                 return false;
               }
               // Include only users with permissions for this branch
-              return user.branches?.some((b) => b.branchId === branchId);
+              return user.branches?.some((b: { branchId: string }) => b.branchId === branchId);
             });
 
             setUsersData(filteredUsers);
