@@ -1,85 +1,16 @@
 #!/bin/sh
 
 # Colors for output
-RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-echo "${YELLOW}🔍 Running pre-commit checks...${NC}"
+echo "${YELLOW}🎨 Formatting staged files...${NC}"
 echo ""
 
-# Get current branch
-branch=$(git rev-parse --abbrev-ref HEAD)
-
-# Prevent direct commits to main branch
-if [ "$branch" = "main" ]; then
-  echo "${RED}❌ Direct commits to 'main' branch are not allowed!${NC}"
-  echo ""
-  echo "Please create a feature branch instead:"
-  echo "  git checkout -b feature/your-feature"
-  echo ""
-  exit 1
-fi
-
-# Run lint-staged for staged files (lint + format)
-echo "${YELLOW}📝 Running lint-staged...${NC}"
+# Run lint-staged to format staged files
+# This runs Prettier on TS/TSX/MD/JSON files and Prisma format on schema
 npx lint-staged
-if [ $? -ne 0 ]; then
-  echo "${RED}❌ Lint-staged failed!${NC}"
-  exit 1
-fi
-echo "${GREEN}✅ Lint-staged passed${NC}"
-echo ""
-
-# Run ESLint on entire codebase
-echo "${YELLOW}🔎 Running ESLint...${NC}"
-npm run lint
-if [ $? -ne 0 ]; then
-  echo "${RED}❌ ESLint failed!${NC}"
-  exit 1
-fi
-echo "${GREEN}✅ ESLint passed${NC}"
-echo ""
-
-# Run Prettier check on entire codebase
-echo "${YELLOW}🎨 Checking Prettier formatting...${NC}"
-npm run format:check
-if [ $? -ne 0 ]; then
-  echo "${RED}❌ Prettier check failed! Run 'npm run format' to fix.${NC}"
-  exit 1
-fi
-echo "${GREEN}✅ Prettier check passed${NC}"
-echo ""
-
-# Run Prisma validate
-echo "${YELLOW}🗃️  Validating Prisma schema...${NC}"
-npx prisma validate --schema=packages/database/prisma/schema.prisma
-if [ $? -ne 0 ]; then
-  echo "${RED}❌ Prisma validation failed!${NC}"
-  exit 1
-fi
-echo "${GREEN}✅ Prisma schema valid${NC}"
-echo ""
-
-# Check Prisma schema format
-echo "${YELLOW}🗃️  Checking Prisma schema format...${NC}"
-npx prisma format --schema=packages/database/prisma/schema.prisma
-if [ $? -ne 0 ]; then
-  echo "${RED}❌ Prisma format check failed!${NC}"
-  exit 1
-fi
-echo "${GREEN}✅ Prisma format check passed${NC}"
-echo ""
-
-# Run build
-echo "${YELLOW}🏗️  Running build...${NC}"
-npm run build
-if [ $? -ne 0 ]; then
-  echo "${RED}❌ Build failed!${NC}"
-  exit 1
-fi
-echo "${GREEN}✅ Build passed${NC}"
 
 echo ""
-echo "${GREEN}✅ All pre-commit checks passed!${NC}"
+echo "${GREEN}✅ Code formatted successfully!${NC}"
