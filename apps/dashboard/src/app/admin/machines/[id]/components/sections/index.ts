@@ -25,7 +25,7 @@ export {
   type GibsSectionData,
   defaultGibsData,
   validateGibsData,
-} from './GibsSectionNew';
+} from './GibsSection';
 
 export {
   LubricationHydraulicsSection,

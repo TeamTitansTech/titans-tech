@@ -19,8 +19,8 @@ export function calculateGibsFields(data: GibsStageData): GibsCalculatedFields {
   const rightTop = data.point10 + data.point14; // columns 10+14
   const rightBottom = data.point12 + data.point16; // columns 12+16
 
-  // Usable calculation (formula can be adjusted based on requirements)
-  const usable = (frontTop + frontBottom + backTop + backBottom) / 4;
+  // Usable calculation - based on Left to Right values
+  const usable = (leftTop + leftBottom + rightTop + rightBottom) / 4;
 
   return {
     frontTop,

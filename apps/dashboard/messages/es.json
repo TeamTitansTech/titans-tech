@@ -593,6 +593,10 @@
       },
       "gibs": {
         "hasBeenAdjusted": "Ha Sido Ajustado",
+        "includePreviousMeasurements": "Incluir Mediciones Anteriores",
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "freeHangingAfterInstall": "Libre (Después de la Instalación)",
         "frontToBackTitle": "Mediciones de Frente a Atrás (16 Puntos)",
         "leftToRightTitle": "Mediciones de Izquierda a Derecha (16 Puntos)",
         "directionalTitle": "Mediciones Direccionales",

@@ -605,6 +605,10 @@
       },
       "gibs": {
         "hasBeenAdjusted": "Has Been Adjusted",
+        "includePreviousMeasurements": "Include Previous Measurements",
+        "beforeAdjustment": "Before Adjustment",
+        "afterAdjustment": "After Adjustment",
+        "freeHangingAfterInstall": "Free Hanging (After Install)",
         "frontToBackTitle": "Front to Back Measurements (16 Points)",
         "leftToRightTitle": "Left to Right Measurements (16 Points)",
         "directionalTitle": "Directional Measurements",
