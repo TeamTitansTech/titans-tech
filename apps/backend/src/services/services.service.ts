@@ -34,7 +34,13 @@ export class ServicesService {
         };
         gibs: {
           include: {
-            stages: true;
+            outerBeforeAdjustment: true;
+            outerAfterAdjustment: true;
+            outerFreeHangingAfterInstall: true;
+            innerBeforeAdjustment: true;
+            innerAfterAdjustment: true;
+            innerBeforeToolInstallation: true;
+            innerAfterToolInstallation: true;
           };
         };
         lubricationHydraulics: {
@@ -185,68 +191,42 @@ export class ServicesService {
       ...(createInspectionDto.gibs && {
         gibs: {
           create: {
-            hasBeenAdjusted: createInspectionDto.gibs.hasBeenAdjusted,
+            outerBeforeAdjustment: createInspectionDto.gibs.outerBeforeAdjustment
+              ? {
+                  create: createInspectionDto.gibs.outerBeforeAdjustment,
+                }
+              : undefined,
+            outerAfterAdjustment: createInspectionDto.gibs.outerAfterAdjustment
+              ? {
+                  create: createInspectionDto.gibs.outerAfterAdjustment,
+                }
+              : undefined,
+            outerFreeHangingAfterInstall: createInspectionDto.gibs.outerFreeHangingAfterInstall
+              ? {
+                  create: createInspectionDto.gibs.outerFreeHangingAfterInstall,
+                }
+              : undefined,
+            innerBeforeAdjustment: createInspectionDto.gibs.innerBeforeAdjustment
+              ? {
+                  create: createInspectionDto.gibs.innerBeforeAdjustment,
+                }
+              : undefined,
+            innerAfterAdjustment: createInspectionDto.gibs.innerAfterAdjustment
+              ? {
+                  create: createInspectionDto.gibs.innerAfterAdjustment,
+                }
+              : undefined,
+            innerBeforeToolInstallation: createInspectionDto.gibs.innerBeforeToolInstallation
+              ? {
+                  create: createInspectionDto.gibs.innerBeforeToolInstallation,
+                }
+              : undefined,
+            innerAfterToolInstallation: createInspectionDto.gibs.innerAfterToolInstallation
+              ? {
+                  create: createInspectionDto.gibs.innerAfterToolInstallation,
+                }
+              : undefined,
             notes: createInspectionDto.gibs.notes,
-            stages: {
-              create: [
-                ...(createInspectionDto.gibs.outerBeforeAdjustment
-                  ? [
-                      {
-                        stageType: 'OUTER_BEFORE_ADJUSTMENT' as const,
-                        ...createInspectionDto.gibs.outerBeforeAdjustment,
-                      },
-                    ]
-                  : []),
-                ...(createInspectionDto.gibs.outerAfterAdjustment
-                  ? [
-                      {
-                        stageType: 'OUTER_AFTER_ADJUSTMENT' as const,
-                        ...createInspectionDto.gibs.outerAfterAdjustment,
-                      },
-                    ]
-                  : []),
-                ...(createInspectionDto.gibs.outerAfterInstallation
-                  ? [
-                      {
-                        stageType: 'OUTER_AFTER_INSTALLATION' as const,
-                        ...createInspectionDto.gibs.outerAfterInstallation,
-                      },
-                    ]
-                  : []),
-                ...(createInspectionDto.gibs.innerBeforeAdjustment
-                  ? [
-                      {
-                        stageType: 'INNER_BEFORE_ADJUSTMENT' as const,
-                        ...createInspectionDto.gibs.innerBeforeAdjustment,
-                      },
-                    ]
-                  : []),
-                ...(createInspectionDto.gibs.innerAfterAdjustment
-                  ? [
-                      {
-                        stageType: 'INNER_AFTER_ADJUSTMENT' as const,
-                        ...createInspectionDto.gibs.innerAfterAdjustment,
-                      },
-                    ]
-                  : []),
-                ...(createInspectionDto.gibs.innerBeforeInstallation
-                  ? [
-                      {
-                        stageType: 'INNER_BEFORE_INSTALLATION' as const,
-                        ...createInspectionDto.gibs.innerBeforeInstallation,
-                      },
-                    ]
-                  : []),
-                ...(createInspectionDto.gibs.innerAfterInstallation
-                  ? [
-                      {
-                        stageType: 'INNER_AFTER_INSTALLATION' as const,
-                        ...createInspectionDto.gibs.innerAfterInstallation,
-                      },
-                    ]
-                  : []),
-              ],
-            },
           },
         },
       }),
@@ -336,7 +316,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            stages: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -387,7 +373,13 @@ export class ServicesService {
         };
         gibs: {
           include: {
-            stages: true;
+            outerBeforeAdjustment: true;
+            outerAfterAdjustment: true;
+            outerFreeHangingAfterInstall: true;
+            innerBeforeAdjustment: true;
+            innerAfterAdjustment: true;
+            innerBeforeToolInstallation: true;
+            innerAfterToolInstallation: true;
           };
         };
         lubricationHydraulics: {
@@ -426,7 +418,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            stages: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -478,7 +476,13 @@ export class ServicesService {
         };
         gibs: {
           include: {
-            stages: true;
+            outerBeforeAdjustment: true;
+            outerAfterAdjustment: true;
+            outerFreeHangingAfterInstall: true;
+            innerBeforeAdjustment: true;
+            innerAfterAdjustment: true;
+            innerBeforeToolInstallation: true;
+            innerAfterToolInstallation: true;
           };
         };
         lubricationHydraulics: {
@@ -518,7 +522,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            stages: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -573,7 +583,13 @@ export class ServicesService {
         };
         gibs: {
           include: {
-            stages: true;
+            outerBeforeAdjustment: true;
+            outerAfterAdjustment: true;
+            outerFreeHangingAfterInstall: true;
+            innerBeforeAdjustment: true;
+            innerAfterAdjustment: true;
+            innerBeforeToolInstallation: true;
+            innerAfterToolInstallation: true;
           };
         };
         lubricationHydraulics: {
@@ -621,7 +637,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            stages: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -676,7 +698,13 @@ export class ServicesService {
         };
         gibs: {
           include: {
-            stages: true;
+            outerBeforeAdjustment: true;
+            outerAfterAdjustment: true;
+            outerFreeHangingAfterInstall: true;
+            innerBeforeAdjustment: true;
+            innerAfterAdjustment: true;
+            innerBeforeToolInstallation: true;
+            innerAfterToolInstallation: true;
           };
         };
         lubricationHydraulics: {
@@ -781,68 +809,49 @@ export class ServicesService {
         gibs: updateServiceDto.gibs
           ? {
               create: {
-                hasBeenAdjusted: updateServiceDto.gibs.hasBeenAdjusted,
+                outerBeforeAdjustment: updateServiceDto.gibs.outerBeforeAdjustment
+                  ? {
+                      create: updateServiceDto.gibs
+                        .outerBeforeAdjustment as Prisma.GibsStageDataCreateWithoutOuterBeforeAdjustmentServicesInput,
+                    }
+                  : undefined,
+                outerAfterAdjustment: updateServiceDto.gibs.outerAfterAdjustment
+                  ? {
+                      create: updateServiceDto.gibs
+                        .outerAfterAdjustment as Prisma.GibsStageDataCreateWithoutOuterAfterAdjustmentServicesInput,
+                    }
+                  : undefined,
+                outerFreeHangingAfterInstall: updateServiceDto.gibs.outerFreeHangingAfterInstall
+                  ? {
+                      create: updateServiceDto.gibs
+                        .outerFreeHangingAfterInstall as Prisma.GibsStageDataCreateWithoutOuterFreeHangingAfterInstallServicesInput,
+                    }
+                  : undefined,
+                innerBeforeAdjustment: updateServiceDto.gibs.innerBeforeAdjustment
+                  ? {
+                      create: updateServiceDto.gibs
+                        .innerBeforeAdjustment as Prisma.GibsStageDataCreateWithoutInnerBeforeAdjustmentServicesInput,
+                    }
+                  : undefined,
+                innerAfterAdjustment: updateServiceDto.gibs.innerAfterAdjustment
+                  ? {
+                      create: updateServiceDto.gibs
+                        .innerAfterAdjustment as Prisma.GibsStageDataCreateWithoutInnerAfterAdjustmentServicesInput,
+                    }
+                  : undefined,
+                innerBeforeToolInstallation: updateServiceDto.gibs.innerBeforeToolInstallation
+                  ? {
+                      create: updateServiceDto.gibs
+                        .innerBeforeToolInstallation as Prisma.GibsStageDataCreateWithoutInnerBeforeToolInstallationServicesInput,
+                    }
+                  : undefined,
+                innerAfterToolInstallation: updateServiceDto.gibs.innerAfterToolInstallation
+                  ? {
+                      create: updateServiceDto.gibs
+                        .innerAfterToolInstallation as Prisma.GibsStageDataCreateWithoutInnerAfterToolInstallationServicesInput,
+                    }
+                  : undefined,
                 notes: updateServiceDto.gibs.notes,
-                stages: {
-                  create: [
-                    ...(updateServiceDto.gibs.outerBeforeAdjustment
-                      ? [
-                          {
-                            stageType: 'OUTER_BEFORE_ADJUSTMENT' as const,
-                            ...updateServiceDto.gibs.outerBeforeAdjustment,
-                          },
-                        ]
-                      : []),
-                    ...(updateServiceDto.gibs.outerAfterAdjustment
-                      ? [
-                          {
-                            stageType: 'OUTER_AFTER_ADJUSTMENT' as const,
-                            ...updateServiceDto.gibs.outerAfterAdjustment,
-                          },
-                        ]
-                      : []),
-                    ...(updateServiceDto.gibs.outerAfterInstallation
-                      ? [
-                          {
-                            stageType: 'OUTER_AFTER_INSTALLATION' as const,
-                            ...updateServiceDto.gibs.outerAfterInstallation,
-                          },
-                        ]
-                      : []),
-                    ...(updateServiceDto.gibs.innerBeforeAdjustment
-                      ? [
-                          {
-                            stageType: 'INNER_BEFORE_ADJUSTMENT' as const,
-                            ...updateServiceDto.gibs.innerBeforeAdjustment,
-                          },
-                        ]
-                      : []),
-                    ...(updateServiceDto.gibs.innerAfterAdjustment
-                      ? [
-                          {
-                            stageType: 'INNER_AFTER_ADJUSTMENT' as const,
-                            ...updateServiceDto.gibs.innerAfterAdjustment,
-                          },
-                        ]
-                      : []),
-                    ...(updateServiceDto.gibs.innerBeforeInstallation
-                      ? [
-                          {
-                            stageType: 'INNER_BEFORE_INSTALLATION' as const,
-                            ...updateServiceDto.gibs.innerBeforeInstallation,
-                          },
-                        ]
-                      : []),
-                    ...(updateServiceDto.gibs.innerAfterInstallation
-                      ? [
-                          {
-                            stageType: 'INNER_AFTER_INSTALLATION' as const,
-                            ...updateServiceDto.gibs.innerAfterInstallation,
-                          },
-                        ]
-                      : []),
-                  ],
-                },
               },
             }
           : undefined,
@@ -931,7 +940,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            stages: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {

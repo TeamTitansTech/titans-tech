@@ -146,6 +146,14 @@ class BearingClearanceCheckDto {
 
 class SlideDataDto {
   @IsOptional()
+  @IsEnum(DncToBedToBolsterType)
+  parallelism?: DncToBedToBolsterType;
+
+  @IsOptional()
+  @IsBoolean()
+  hasBeenAdjusted?: boolean;
+
+  @IsOptional()
   @IsNumber()
   position1?: number;
 
@@ -162,12 +170,20 @@ class SlideDataDto {
   position4?: number;
 
   @IsOptional()
-  @IsNumber()
-  position5?: number;
+  @IsBoolean()
+  shutheightChecked?: boolean;
 
   @IsOptional()
-  @IsNumber()
-  position6?: number;
+  @IsString()
+  actualSH?: string;
+
+  @IsOptional()
+  @IsString()
+  overloadsOnMonitor?: string;
+
+  @IsOptional()
+  @IsString()
+  indicatorReading?: string;
 }
 
 class SlideCheckDto {
@@ -244,176 +260,73 @@ class SlideCheckDto {
   notes?: string;
 }
 
-// GIBS Stage DTOs - Following 7-stage architecture
-// OUTER SLIDE GIBS: 3 stages (Before Adjustment, After Adjustment, After Installation)
-// INNER SLIDE GIBS: 4 stages (Before Adjustment, After Adjustment, Before Installation, After Installation)
-
 class GibsStageDataDto {
-  // Front to Back positions (1-8) - Used in Outer Before/After Adjustment, Inner Before Installation
   @IsOptional()
   @IsNumber()
-  position1?: number;
+  point1?: number;
 
   @IsOptional()
   @IsNumber()
-  position2?: number;
+  point2?: number;
 
   @IsOptional()
   @IsNumber()
-  position3?: number;
+  point3?: number;
 
   @IsOptional()
   @IsNumber()
-  position4?: number;
+  point4?: number;
 
   @IsOptional()
   @IsNumber()
-  position5?: number;
+  point5?: number;
 
   @IsOptional()
   @IsNumber()
-  position6?: number;
+  point6?: number;
 
   @IsOptional()
   @IsNumber()
-  position7?: number;
+  point7?: number;
 
   @IsOptional()
   @IsNumber()
-  position8?: number;
-
-  // Left to Right positions (9-16) - Used in all stages
-  @IsOptional()
-  @IsNumber()
-  position9?: number;
+  point8?: number;
 
   @IsOptional()
   @IsNumber()
-  position10?: number;
+  point9?: number;
 
   @IsOptional()
   @IsNumber()
-  position11?: number;
+  point10?: number;
 
   @IsOptional()
   @IsNumber()
-  position12?: number;
+  point11?: number;
 
   @IsOptional()
   @IsNumber()
-  position13?: number;
+  point12?: number;
 
   @IsOptional()
   @IsNumber()
-  position14?: number;
+  point13?: number;
 
   @IsOptional()
   @IsNumber()
-  position15?: number;
+  point14?: number;
 
   @IsOptional()
   @IsNumber()
-  position16?: number;
-
-  // Special inputs for Outer After Installation
-  @IsOptional()
-  @IsNumber()
-  topFront?: number;
+  point15?: number;
 
   @IsOptional()
   @IsNumber()
-  topBack?: number;
-
-  // Calculated outputs (computed on backend)
-  @IsOptional()
-  @IsNumber()
-  calculatedTopFront?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedTopBack?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedTopRear?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedBottomFront?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedBottomBack?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedLeft?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedRight?: number;
-
-  // Directional calculated outputs (for compatibility)
-  @IsOptional()
-  @IsNumber()
-  calculatedLeftTop?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedLeftBottom?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedRightTop?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedRightBottom?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedFrontTop?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedFrontBottom?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedBackTop?: number;
-
-  @IsOptional()
-  @IsNumber()
-  calculatedBackBottom?: number;
-
-  // Differentials (comparison with before stage)
-  @IsOptional()
-  @IsNumber()
-  differentialTopFront?: number;
-
-  @IsOptional()
-  @IsNumber()
-  differentialTopBack?: number;
-
-  @IsOptional()
-  @IsNumber()
-  differentialTopRear?: number;
-
-  @IsOptional()
-  @IsNumber()
-  differentialBottom?: number;
-
-  @IsOptional()
-  @IsNumber()
-  differentialLeft?: number;
-
-  @IsOptional()
-  @IsNumber()
-  differentialRight?: number;
+  point16?: number;
 }
 
 class GibsCheckDto {
-  // OUTER SLIDE GIBS - Before Tool Installation Tab
   @IsOptional()
   @ValidateNested()
   @Type(() => GibsStageDataDto)
@@ -424,13 +337,11 @@ class GibsCheckDto {
   @Type(() => GibsStageDataDto)
   outerAfterAdjustment?: GibsStageDataDto;
 
-  // OUTER SLIDE GIBS - After Tool Installation Tab
   @IsOptional()
   @ValidateNested()
   @Type(() => GibsStageDataDto)
-  outerAfterInstallation?: GibsStageDataDto;
+  outerFreeHangingAfterInstall?: GibsStageDataDto;
 
-  // INNER SLIDE GIBS - 4 stages
   @IsOptional()
   @ValidateNested()
   @Type(() => GibsStageDataDto)
@@ -444,17 +355,12 @@ class GibsCheckDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => GibsStageDataDto)
-  innerBeforeInstallation?: GibsStageDataDto;
+  innerBeforeToolInstallation?: GibsStageDataDto;
 
   @IsOptional()
   @ValidateNested()
   @Type(() => GibsStageDataDto)
-  innerAfterInstallation?: GibsStageDataDto;
-
-  // Global fields
-  @IsOptional()
-  @IsEnum(YesNoDncType)
-  hasBeenAdjusted?: YesNoDncType;
+  innerAfterToolInstallation?: GibsStageDataDto;
 
   @IsOptional()
   @IsString()

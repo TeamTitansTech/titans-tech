@@ -59,10 +59,14 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         gibs: {
           select: {
             id: true,
-            outerBeforeId: true,
-            outerDataId: true,
-            innerBeforeId: true,
-            innerDataId: true,
+            outerBeforeAdjustmentId: true,
+            outerAfterAdjustmentId: true,
+            outerFreeHangingAfterInstallId: true,
+            innerBeforeAdjustmentId: true,
+            innerAfterAdjustmentId: true,
+            innerBeforeToolInstallationId: true,
+            innerAfterToolInstallationId: true,
+            notes: true,
           },
         },
         lubricationHydraulics: { select: { id: true, dataId: true } },
@@ -262,48 +266,28 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         if (existingRecord) {
           const updatePayload: any = {};
 
-          // Handle nested gibs data
-          if (sectionData.outerBefore) {
-            if (existingRecord.outerBeforeId) {
-              await prisma.gibsData.update({
-                where: { id: existingRecord.outerBeforeId },
-                data: sectionData.outerBefore,
-              });
-            } else {
-              updatePayload.outerBefore = { create: sectionData.outerBefore };
-            }
-          }
+          // Handle nested gibs stage data (7 stages)
+          const stageFields = [
+            { dataField: 'outerBeforeAdjustment', idField: 'outerBeforeAdjustmentId' },
+            { dataField: 'outerAfterAdjustment', idField: 'outerAfterAdjustmentId' },
+            { dataField: 'outerFreeHangingAfterInstall', idField: 'outerFreeHangingAfterInstallId' },
+            { dataField: 'innerBeforeAdjustment', idField: 'innerBeforeAdjustmentId' },
+            { dataField: 'innerAfterAdjustment', idField: 'innerAfterAdjustmentId' },
+            { dataField: 'innerBeforeToolInstallation', idField: 'innerBeforeToolInstallationId' },
+            { dataField: 'innerAfterToolInstallation', idField: 'innerAfterToolInstallationId' },
+          ];
 
-          if (sectionData.outerData) {
-            if (existingRecord.outerDataId) {
-              await prisma.gibsData.update({
-                where: { id: existingRecord.outerDataId },
-                data: sectionData.outerData,
-              });
-            } else {
-              updatePayload.outerData = { create: sectionData.outerData };
-            }
-          }
-
-          if (sectionData.innerBefore) {
-            if (existingRecord.innerBeforeId) {
-              await prisma.gibsData.update({
-                where: { id: existingRecord.innerBeforeId },
-                data: sectionData.innerBefore,
-              });
-            } else {
-              updatePayload.innerBefore = { create: sectionData.innerBefore };
-            }
-          }
-
-          if (sectionData.innerData) {
-            if (existingRecord.innerDataId) {
-              await prisma.gibsData.update({
-                where: { id: existingRecord.innerDataId },
-                data: sectionData.innerData,
-              });
-            } else {
-              updatePayload.innerData = { create: sectionData.innerData };
+          for (const { dataField, idField } of stageFields) {
+            if (sectionData[dataField]) {
+              const existingId = (existingRecord as any)[idField];
+              if (existingId) {
+                await prisma.gibsStageData.update({
+                  where: { id: existingId },
+                  data: sectionData[dataField],
+                });
+              } else {
+                updatePayload[dataField] = { create: sectionData[dataField] };
+              }
             }
           }
 
@@ -468,10 +452,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
         },
         gibs: {
           include: {
-            outerBefore: true,
-            outerData: true,
-            innerBefore: true,
-            innerData: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -617,20 +604,33 @@ async function buildSlideCreateData(data: any) {
 async function buildGibsCreateData(data: any) {
   const result: any = {};
 
-  if (data.outerBefore) {
-    result.outerBefore = { create: data.outerBefore };
+  // Handle all 7 stages
+  if (data.outerBeforeAdjustment) {
+    result.outerBeforeAdjustment = { create: data.outerBeforeAdjustment };
   }
 
-  if (data.outerData) {
-    result.outerData = { create: data.outerData };
+  if (data.outerAfterAdjustment) {
+    result.outerAfterAdjustment = { create: data.outerAfterAdjustment };
   }
 
-  if (data.innerBefore) {
-    result.innerBefore = { create: data.innerBefore };
+  if (data.outerFreeHangingAfterInstall) {
+    result.outerFreeHangingAfterInstall = { create: data.outerFreeHangingAfterInstall };
   }
 
-  if (data.innerData) {
-    result.innerData = { create: data.innerData };
+  if (data.innerBeforeAdjustment) {
+    result.innerBeforeAdjustment = { create: data.innerBeforeAdjustment };
+  }
+
+  if (data.innerAfterAdjustment) {
+    result.innerAfterAdjustment = { create: data.innerAfterAdjustment };
+  }
+
+  if (data.innerBeforeToolInstallation) {
+    result.innerBeforeToolInstallation = { create: data.innerBeforeToolInstallation };
+  }
+
+  if (data.innerAfterToolInstallation) {
+    result.innerAfterToolInstallation = { create: data.innerAfterToolInstallation };
   }
 
   if (data.notes) result.notes = data.notes;

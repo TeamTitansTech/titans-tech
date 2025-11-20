@@ -36,10 +36,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
         },
         gibs: {
           include: {
-            outerBefore: true,
-            outerData: true,
-            innerBefore: true,
-            innerData: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -114,10 +117,13 @@ export async function POST(request: NextRequest, context: RouteContext) {
         },
         gibs: {
           include: {
-            outerBefore: true,
-            outerData: true,
-            innerBefore: true,
-            innerData: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {

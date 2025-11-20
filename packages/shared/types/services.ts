@@ -26,16 +26,6 @@ export enum ParallelismType {
   TO_BOLSTER = 'TO_BOLSTER',
 }
 
-export enum GibsStageType {
-  OUTER_BEFORE_ADJUSTMENT = 'OUTER_BEFORE_ADJUSTMENT',
-  OUTER_AFTER_ADJUSTMENT = 'OUTER_AFTER_ADJUSTMENT',
-  OUTER_AFTER_INSTALLATION = 'OUTER_AFTER_INSTALLATION',
-  INNER_BEFORE_ADJUSTMENT = 'INNER_BEFORE_ADJUSTMENT',
-  INNER_AFTER_ADJUSTMENT = 'INNER_AFTER_ADJUSTMENT',
-  INNER_BEFORE_INSTALLATION = 'INNER_BEFORE_INSTALLATION',
-  INNER_AFTER_INSTALLATION = 'INNER_AFTER_INSTALLATION',
-}
-
 export enum DncToBedToBolsterType {
   DNC = 'DNC',
   TO_BED = 'TO_BED',
@@ -334,8 +324,8 @@ export interface SlideCheck {
   notes?: string;
 }
 
-// Gibs Data
-export interface GibsData {
+// Gibs Data - Represents one stage measurement (16 points)
+export interface GibsStageData {
   point1: number;
   point2: number;
   point3: number;
@@ -352,22 +342,35 @@ export interface GibsData {
   point14: number;
   point15: number;
   point16: number;
-  leftTop?: number;
-  leftBottom?: number;
-  rightTop?: number;
-  rightBottom?: number;
-  frontTop?: number;
-  frontBottom?: number;
-  backTop?: number;
-  backBottom?: number;
 }
 
+// Calculated fields (frontend only, not stored in DB)
+export interface GibsCalculatedFields {
+  leftTop: number;
+  leftBottom: number;
+  rightTop: number;
+  rightBottom: number;
+  frontTop: number;
+  frontBottom: number;
+  backTop: number;
+  backBottom: number;
+  usable?: number;
+}
+
+// Complete GIBS check with all 7 stages
 export interface GibsCheck {
-  outerBefore?: GibsData;
-  outerAfter?: GibsData;
-  innerBefore?: GibsData;
-  innerAfter?: GibsData;
-  hasBeenAdjusted?: YesNoDncType;
+  // OUTER SLIDE (3 stages)
+  outerBeforeAdjustment?: GibsStageData;
+  outerAfterAdjustment?: GibsStageData;
+  outerFreeHangingAfterInstall?: GibsStageData;
+
+  // INNER SLIDE (4 stages)
+  innerBeforeAdjustment?: GibsStageData;
+  innerAfterAdjustment?: GibsStageData;
+  innerBeforeToolInstallation?: GibsStageData;
+  innerAfterToolInstallation?: GibsStageData;
+
+  // Global notes field
   notes?: string;
 }
 
@@ -553,11 +556,13 @@ export interface SlideFormProps {
 }
 
 export interface GibsFormProps {
-  data: GibsData;
-  updateFn: (field: keyof GibsData, value: string | number | undefined) => void;
+  data: GibsStageData;
+  updateFn: (field: keyof GibsStageData, value: number) => void;
   errors: Record<string, string>;
-  handleBlur: (field: keyof GibsData) => void;
+  handleBlur: (field: keyof GibsStageData) => void;
   title: string;
+  showDiagram?: boolean;
+  diagramType?: 'frontToBack' | 'leftToRight';
 }
 
 export interface LubricationHydraulicsFormProps {
