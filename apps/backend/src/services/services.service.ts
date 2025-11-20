@@ -32,7 +32,7 @@ export class ServicesService {
   async create(createInspectionDto: CreateServiceDto): Promise<
     Prisma.MachineServiceGetPayload<{
       include: {
-        machine: { include: { blueprint: true; fields: true } };
+        machine: { include: { blueprint: true; fields: true; branch: true } };
       };
     }>
   > {
@@ -82,6 +82,7 @@ export class ServicesService {
           include: {
             blueprint: true,
             fields: true,
+            branch: true,
           },
         },
       },
@@ -156,6 +157,7 @@ export class ServicesService {
           include: {
             blueprint: true,
             fields: true,
+            branch: true,
           },
         },
         bearingClearance: {
@@ -223,7 +225,7 @@ export class ServicesService {
   async findAll(): Promise<
     Prisma.MachineServiceGetPayload<{
       include: {
-        machine: { include: { blueprint: true; fields: true } };
+        machine: { include: { blueprint: true; fields: true; branch: true } };
         bearingClearance: {
           include: {
             outerBefore: true;
@@ -270,6 +272,7 @@ export class ServicesService {
           include: {
             blueprint: true,
             fields: true,
+            branch: true,
           },
         },
         bearingClearance: {
@@ -386,6 +389,7 @@ export class ServicesService {
           include: {
             blueprint: true,
             fields: true,
+            branch: true,
           },
         },
         bearingClearance: {
@@ -513,6 +517,7 @@ export class ServicesService {
           include: {
             blueprint: true,
             fields: true,
+            branch: true,
           },
         },
         bearingClearance: {

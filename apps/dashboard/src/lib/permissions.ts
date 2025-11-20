@@ -120,14 +120,7 @@ export function getBranchPermissions(
   if (!branchData) return null;
 
   // Extract only the permission fields (excluding branch, userId, branchId, etc.)
-  const {
-    branch,
-    userId,
-    branchId: _branchId,
-    createdAt,
-    updatedAt,
-    ...permissions
-  } = branchData as any;
+  const { branchId: _branchId, ...permissions } = branchData;
 
   return permissions as Permissions;
 }

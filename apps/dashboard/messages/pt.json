@@ -1188,8 +1188,11 @@
         },
         "whyNotCovered": {
           "customerRemoved": "Cliente removeu para auditoria; cliente deve reinstalar",
+          "customer_removed": "Cliente removeu para auditoria; cliente deve reinstalar",
           "notInArea": "Coberturas não estão localizadas na área da prensa; não visíveis",
-          "otherExplain": "Outro: Explique"
+          "not_in_area": "Coberturas não estão localizadas na área da prensa; não visíveis",
+          "otherExplain": "Outro: Explique",
+          "other_explain": "Outro: Explique"
         }
       }
     }
@@ -1356,6 +1359,25 @@
         "gauges": "Medidores",
         "notes": "Observações"
       }
+    },
+    "pageTitle": "Serviços",
+    "pageDescription": "Visualize e gerencie todos os serviços de suas máquinas",
+    "pending": "Pendente",
+    "noServicesFound": "Nenhum serviço encontrado",
+    "stats": {
+      "totalServices": "Total de Serviços",
+      "upcomingServices": "Serviços Agendados",
+      "completedThisMonth": "Concluídos Este Mês"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar máquinas, técnicos...",
+      "allBranches": "Todas as Filiais",
+      "allMachines": "Todas as Máquinas"
+    },
+    "tabs": {
+      "upcoming": "Agendados",
+      "history": "Histórico",
+      "all": "Todos os Serviços"
     }
   },
   "table": {

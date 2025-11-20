@@ -50,7 +50,7 @@ export function CompanyView({ company, branches, companyUser }: CompanyViewProps
   }, [company.id]);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container p-6 space-y-6">
       {/* Company Header */}
       <div className="space-y-1">
         <Typography variant="h2" className="flex items-center gap-2">

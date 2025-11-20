@@ -1183,8 +1183,11 @@
         },
         "whyNotCovered": {
           "customerRemoved": "Customer removed for audit; customer to reinstall",
+          "customer_removed": "Customer removed for audit; customer to reinstall",
           "notInArea": "Covers are not located in area of press; not visible",
-          "otherExplain": "Other: Explain"
+          "not_in_area": "Covers are not located in area of press; not visible",
+          "otherExplain": "Other: Explain",
+          "other_explain": "Other: Explain"
         }
       }
     }
@@ -1283,6 +1286,25 @@
         "gauges": "Gauges",
         "notes": "Notes"
       }
+    },
+    "pageTitle": "Services",
+    "pageDescription": "View and manage all services across your machines",
+    "pending": "Pending",
+    "noServicesFound": "No services found",
+    "stats": {
+      "totalServices": "Total Services",
+      "upcomingServices": "Upcoming Services",
+      "completedThisMonth": "Completed This Month"
+    },
+    "filters": {
+      "searchPlaceholder": "Search machines, technicians...",
+      "allBranches": "All Branches",
+      "allMachines": "All Machines"
+    },
+    "tabs": {
+      "upcoming": "Upcoming",
+      "history": "History",
+      "all": "All Services"
     }
   },
   "table": {
