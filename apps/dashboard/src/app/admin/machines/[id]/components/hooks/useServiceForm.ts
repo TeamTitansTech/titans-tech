@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { ServiceType } from '@/data/types/services.types';
-import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types';
+import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services';
 
 const getTomorrowDate = () => {
   const tomorrow = new Date();

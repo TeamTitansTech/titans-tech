@@ -27,7 +27,7 @@ import {
   AirLineOilerSettingType,
   SeparateBrakeSealsType,
   FlexDiscType,
-} from '@titans-tech/shared/types';
+} from '@titans-tech/shared/types/services';
 import type { ClutchData, ClutchFormProps } from '@titans-tech/shared/types/services';
 
 export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: ClutchFormProps) {
