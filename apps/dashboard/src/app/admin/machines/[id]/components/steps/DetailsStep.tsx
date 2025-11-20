@@ -15,7 +15,8 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { ServiceType } from '@/data/types/services.types';
-import { YesNoNaDncType, YesNoDncType, WhyNotCoveredType } from '@titans-tech/shared/types';
+import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services';
+import { WhyNotCoveredType } from '@titans-tech/shared/types';
 import { SECTION_REGISTRY } from '../sections/registry';
 
 interface DetailsStepProps {

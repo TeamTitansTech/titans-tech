@@ -37,7 +37,8 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
 
   return (
     <div className="space-y-6 p-4">
-      <MachineDetailsClient machine={response.data} />
+      {/* TODO: Fix type mismatch between API Machine and shared Machine types */}
+      <MachineDetailsClient machine={response.data as any} />
       <ServiceHistory machineId={id} />
     </div>
   );

@@ -45,7 +45,7 @@ export function SectionsStep({
   if (!sectionConfig) return null;
 
   const SectionComponent = sectionConfig.component;
-  const sectionData = completedSectionData[currentSectionKey];
+  const sectionData = completedSectionData[currentSectionKey as keyof typeof completedSectionData];
 
   // Create a key that changes when data is loaded to force component remount
   const dataHash = sectionData
