@@ -19,7 +19,7 @@ import { AddUserDialog } from './AddUserDialog';
 import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
 import { UserTableSkeleton } from './UserTableSkeleton';
-import type { UserResponseDto } from '@titans-tech/shared';
+import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 interface User {
   id: string;
@@ -95,7 +95,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
                 return false;
               }
               // Include only users with permissions for this branch
-              return user.branches?.some((b) => b.branchId === branchId);
+              return user.branches?.some((b: { branchId: string }) => b.branchId === branchId);
             });
 
             setUsersData(filteredUsers);

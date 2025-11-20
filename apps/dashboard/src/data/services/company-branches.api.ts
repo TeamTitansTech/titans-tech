@@ -4,7 +4,7 @@ import {
   CreateCompanyBranchDto,
   UpdateCompanyBranchDto,
   UserResponseDto,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 
 export interface CompanyBranch {
   id: string;

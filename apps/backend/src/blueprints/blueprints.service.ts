@@ -3,7 +3,8 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { Prisma, ServiceSection } from '@titans-tech/db';
+import { Prisma } from '@titans-tech/db';
+import { ServiceSection } from '@titans-tech/shared/enums';
 import { PrismaService } from '../prisma.service';
 import {
   CreateBlueprintWithThresholdsDto,
