@@ -474,6 +474,81 @@
         "machines": "Máquinas",
         "pendingServices": "Servicios Pendientes"
       }
+    },
+    "client": {
+      "title": "Panel de Control",
+      "description": "Resumen de sus máquinas y servicios",
+      "fleetHealth": {
+        "title": "Índice de Salud de la Flota",
+        "description": "Estado general de salud de su flota de máquinas",
+        "summary": "Basado en tasas de finalización de servicios y condiciones de las máquinas",
+        "operational": "Operacional",
+        "warning": "Necesita Atención",
+        "critical": "Crítico",
+        "trend": {
+          "up": "Mejorando",
+          "down": "Empeorando",
+          "stable": "Estable"
+        }
+      },
+      "activeAlerts": {
+        "title": "Alertas Activas",
+        "description": "Problemas que requieren atención",
+        "noAlerts": "Todos los sistemas operacionales - no hay alertas activas",
+        "viewAll": "Ver todas las {count} alertas",
+        "severity": {
+          "critical": "Crítico",
+          "warning": "Advertencia",
+          "info": "Info"
+        }
+      },
+      "upcomingServices": {
+        "title": "Servicios Programados",
+        "description": "Inspecciones y mantenimientos programados",
+        "noServices": "No hay servicios programados",
+        "viewAll": "Ver todos los {count} servicios",
+        "today": "Hoy",
+        "tomorrow": "Mañana",
+        "types": {
+          "inspection": "Inspección",
+          "maintenance": "Mantenimiento"
+        }
+      },
+      "serviceTrends": {
+        "title": "Tendencias de Servicios",
+        "description": "Finalización de servicios en los últimos 6 meses",
+        "legend": {
+          "inspections": "Inspecciones",
+          "maintenance": "Mantenimientos"
+        },
+        "stats": {
+          "totalInspections": "Total de Inspecciones",
+          "totalMaintenance": "Total de Mantenimientos",
+          "totalServices": "Total de Servicios"
+        }
+      },
+      "machineStatus": {
+        "title": "Estado de las Máquinas",
+        "description": "Distribución de la salud de las máquinas",
+        "totalMachines": "Total de Máquinas",
+        "status": {
+          "operational": "Operacional",
+          "warning": "Necesita Atención",
+          "critical": "Crítico"
+        }
+      },
+      "quickActions": {
+        "title": "Acciones Rápidas",
+        "description": "Tareas comunes y accesos directos",
+        "viewMachines": "Ver Máquinas",
+        "viewMachinesDesc": "Explore todas sus máquinas y su estado",
+        "viewServices": "Ver Servicios",
+        "viewServicesDesc": "Vea servicios programados y completados",
+        "viewReports": "Ver Informes",
+        "viewReportsDesc": "Acceda al historial de servicios y análisis",
+        "settings": "Configuración",
+        "settingsDesc": "Administre su cuenta y preferencias"
+      }
     }
   },
   "sections": {

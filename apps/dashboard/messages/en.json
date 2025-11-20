@@ -474,6 +474,81 @@
         "machines": "Machines",
         "pendingServices": "Pending Services"
       }
+    },
+    "client": {
+      "title": "Dashboard",
+      "description": "Overview of your machines and services",
+      "fleetHealth": {
+        "title": "Fleet Health Score",
+        "description": "Overall health status of your machine fleet",
+        "summary": "Based on service completion rates and machine conditions",
+        "operational": "Operational",
+        "warning": "Needs Attention",
+        "critical": "Critical",
+        "trend": {
+          "up": "Improving",
+          "down": "Declining",
+          "stable": "Stable"
+        }
+      },
+      "activeAlerts": {
+        "title": "Active Alerts",
+        "description": "Issues requiring attention",
+        "noAlerts": "All systems operational - no active alerts",
+        "viewAll": "View all {count} alerts",
+        "severity": {
+          "critical": "Critical",
+          "warning": "Warning",
+          "info": "Info"
+        }
+      },
+      "upcomingServices": {
+        "title": "Upcoming Services",
+        "description": "Scheduled inspections and maintenance",
+        "noServices": "No services scheduled",
+        "viewAll": "View all {count} services",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "types": {
+          "inspection": "Inspection",
+          "maintenance": "Maintenance"
+        }
+      },
+      "serviceTrends": {
+        "title": "Service Trends",
+        "description": "Service completion over the last 6 months",
+        "legend": {
+          "inspections": "Inspections",
+          "maintenance": "Maintenance"
+        },
+        "stats": {
+          "totalInspections": "Total Inspections",
+          "totalMaintenance": "Total Maintenance",
+          "totalServices": "Total Services"
+        }
+      },
+      "machineStatus": {
+        "title": "Machine Status",
+        "description": "Distribution of machine health",
+        "totalMachines": "Total Machines",
+        "status": {
+          "operational": "Operational",
+          "warning": "Needs Attention",
+          "critical": "Critical"
+        }
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "description": "Common tasks and shortcuts",
+        "viewMachines": "View Machines",
+        "viewMachinesDesc": "Browse all your machines and their status",
+        "viewServices": "View Services",
+        "viewServicesDesc": "See upcoming and completed services",
+        "viewReports": "View Reports",
+        "viewReportsDesc": "Access service history and analytics",
+        "settings": "Settings",
+        "settingsDesc": "Manage your account and preferences"
+      }
     }
   },
   "sections": {
