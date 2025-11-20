@@ -49,7 +49,10 @@
     "toggleTheme": "Alternar Modo Oscuro",
     "userProfile": "Perfil de Usuario",
     "settings": "Configuración",
-    "logout": "Cerrar Sesión"
+    "logout": "Cerrar Sesión",
+    "markAllAsRead": "Marcar todas como leídas",
+    "loading": "Cargando",
+    "noNotifications": "No hay notificaciones"
   },
   "settings": {
     "title": "Configuración",

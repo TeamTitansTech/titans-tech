@@ -69,6 +69,7 @@ export class UserResponseDto {
   companyId: string;
   createdAt: Date;
   updatedAt: Date;
+  unreadNotifications?: number;
 
   @Exclude()
   password?: string;
