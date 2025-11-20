@@ -104,6 +104,20 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
     return blueprints.find((bp) => bp.id === selectedBlueprintId) ?? null;
   }, [selectedBlueprintId, blueprints]);
 
+  // Check if selected blueprint is Angularity
+  const isAngularityBlueprint = useMemo(() => {
+    return (
+      selectedBlueprint?.id === 'angularity-blueprint' || selectedBlueprint?.name === 'Angularity'
+    );
+  }, [selectedBlueprint]);
+
+  // Set manufacturer to "Minster" for Angularity blueprints
+  useEffect(() => {
+    if (isAngularityBlueprint) {
+      setManufacturer('Minster');
+    }
+  }, [isAngularityBlueprint]);
+
   // Load companies and blueprints on mount
   useEffect(() => {
     const loadData = async () => {
@@ -401,197 +415,234 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
             <section className="space-y-4">
               <Typography variant="h3">Machine Specifications</Typography>
               <Typography variant="small" className="text-xs text-muted-foreground">
-                All fields are optional
+                {isAngularityBlueprint
+                  ? 'Required fields for Angularity machines'
+                  : 'All fields are optional'}
               </Typography>
 
-              <div className="grid grid-cols-2 gap-4">
-                {/* Manufacturer */}
-                <div className="space-y-2">
-                  <Label htmlFor="manufacturer">Manufacturer</Label>
-                  <Input
-                    id="manufacturer"
-                    type="text"
-                    value={manufacturer}
-                    onChange={(e) => setManufacturer(e.target.value)}
-                    placeholder="Enter manufacturer"
-                  />
-                </div>
+              {isAngularityBlueprint ? (
+                /* Simplified fields for Angularity */
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Manufacturer - Read-only for Angularity */}
+                  <div className="space-y-2">
+                    <Label htmlFor="manufacturer">Manufacturer</Label>
+                    <Input
+                      id="manufacturer"
+                      type="text"
+                      value={manufacturer}
+                      disabled
+                      className="bg-muted cursor-not-allowed"
+                    />
+                  </div>
 
-                {/* Size/Tonnage */}
-                <div className="space-y-2">
-                  <Label htmlFor="sizeTonnage">Size/Tonnage</Label>
-                  <Input
-                    id="sizeTonnage"
-                    type="text"
-                    value={sizeTonnage}
-                    onChange={(e) => setSizeTonnage(e.target.value)}
-                    placeholder="Enter size/tonnage"
-                  />
+                  {/* Serial Number - Editable */}
+                  <div className="space-y-2">
+                    <Label htmlFor="serialNumber">Serial Number</Label>
+                    <Input
+                      id="serialNumber"
+                      type="text"
+                      value={serialNumber}
+                      onChange={(e) => setSerialNumber(e.target.value)}
+                      placeholder="Enter serial number"
+                    />
+                  </div>
                 </div>
+              ) : (
+                /* Full fields for other blueprints */
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Manufacturer */}
+                  <div className="space-y-2">
+                    <Label htmlFor="manufacturer">Manufacturer</Label>
+                    <Input
+                      id="manufacturer"
+                      type="text"
+                      value={manufacturer}
+                      onChange={(e) => setManufacturer(e.target.value)}
+                      placeholder="Enter manufacturer"
+                    />
+                  </div>
 
-                {/* Serial Number */}
-                <div className="space-y-2">
-                  <Label htmlFor="serialNumber">Serial Number</Label>
-                  <Input
-                    id="serialNumber"
-                    type="text"
-                    value={serialNumber}
-                    onChange={(e) => setSerialNumber(e.target.value)}
-                    placeholder="Enter serial number"
-                  />
-                </div>
+                  {/* Size/Tonnage */}
+                  <div className="space-y-2">
+                    <Label htmlFor="sizeTonnage">Size/Tonnage</Label>
+                    <Input
+                      id="sizeTonnage"
+                      type="text"
+                      value={sizeTonnage}
+                      onChange={(e) => setSizeTonnage(e.target.value)}
+                      placeholder="Enter size/tonnage"
+                    />
+                  </div>
 
-                {/* Stroke */}
-                <div className="space-y-2">
-                  <Label htmlFor="stroke">Stroke</Label>
-                  <Input
-                    id="stroke"
-                    type="text"
-                    value={stroke}
-                    onChange={(e) => setStroke(e.target.value)}
-                    placeholder="Enter stroke"
-                  />
-                </div>
+                  {/* Serial Number */}
+                  <div className="space-y-2">
+                    <Label htmlFor="serialNumber">Serial Number</Label>
+                    <Input
+                      id="serialNumber"
+                      type="text"
+                      value={serialNumber}
+                      onChange={(e) => setSerialNumber(e.target.value)}
+                      placeholder="Enter serial number"
+                    />
+                  </div>
 
-                {/* Foundation Type */}
-                <div className="space-y-2">
-                  <Label htmlFor="foundationType">Foundation Type</Label>
-                  <Select
-                    value={foundationType}
-                    onValueChange={(val) => setFoundationType(val as FoundationType)}
-                  >
-                    <SelectTrigger id="foundationType">
-                      <SelectValue placeholder="Select foundation type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={FoundationType.PLANT_FLOOR}>
-                        {tInspections('foundationType.plantFloor')}
-                      </SelectItem>
-                      <SelectItem value={FoundationType.ISOLATED_PAD}>
-                        {tInspections('foundationType.isolatedPad')}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  {/* Stroke */}
+                  <div className="space-y-2">
+                    <Label htmlFor="stroke">Stroke</Label>
+                    <Input
+                      id="stroke"
+                      type="text"
+                      value={stroke}
+                      onChange={(e) => setStroke(e.target.value)}
+                      placeholder="Enter stroke"
+                    />
+                  </div>
 
-                {/* Frame Type */}
-                <div className="space-y-2">
-                  <Label htmlFor="frameType">Frame Type</Label>
-                  <Select value={frameType} onValueChange={(val) => setFrameType(val as FrameType)}>
-                    <SelectTrigger id="frameType">
-                      <SelectValue placeholder="Select frame type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={FrameType.GAP}>{tInspections('frameType.gap')}</SelectItem>
-                      <SelectItem value={FrameType.STRAIGHT_SIDE}>
-                        {tInspections('frameType.straightSide')}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  {/* Foundation Type */}
+                  <div className="space-y-2">
+                    <Label htmlFor="foundationType">Foundation Type</Label>
+                    <Select
+                      value={foundationType}
+                      onValueChange={(val) => setFoundationType(val as FoundationType)}
+                    >
+                      <SelectTrigger id="foundationType">
+                        <SelectValue placeholder="Select foundation type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={FoundationType.PLANT_FLOOR}>
+                          {tInspections('foundationType.plantFloor')}
+                        </SelectItem>
+                        <SelectItem value={FoundationType.ISOLATED_PAD}>
+                          {tInspections('foundationType.isolatedPad')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* Clutch Type */}
-                <div className="space-y-2">
-                  <Label htmlFor="clutchType">Clutch Type</Label>
-                  <Select
-                    value={clutchType}
-                    onValueChange={(val) => setClutchType(val as MachineClutchType)}
-                  >
-                    <SelectTrigger id="clutchType">
-                      <SelectValue placeholder="Select clutch type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={MachineClutchType.JH5}>
-                        {tInspections('clutchType.jh5')}
-                      </SelectItem>
-                      <SelectItem value={MachineClutchType.NA}>
-                        {tInspections('clutchType.na')}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  {/* Frame Type */}
+                  <div className="space-y-2">
+                    <Label htmlFor="frameType">Frame Type</Label>
+                    <Select
+                      value={frameType}
+                      onValueChange={(val) => setFrameType(val as FrameType)}
+                    >
+                      <SelectTrigger id="frameType">
+                        <SelectValue placeholder="Select frame type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={FrameType.GAP}>
+                          {tInspections('frameType.gap')}
+                        </SelectItem>
+                        <SelectItem value={FrameType.STRAIGHT_SIDE}>
+                          {tInspections('frameType.straightSide')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* Pneumatic System */}
-                <div className="space-y-2">
-                  <Label htmlFor="pneumaticSystem">Pneumatic System</Label>
-                  <Select
-                    value={pneumaticSystem}
-                    onValueChange={(val) => setPneumaticSystem(val as PneumaticSystemType)}
-                  >
-                    <SelectTrigger id="pneumaticSystem">
-                      <SelectValue placeholder="Select pneumatic system" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={PneumaticSystemType.AIR}>
-                        {tInspections('pneumaticSystem.air')}
-                      </SelectItem>
-                      <SelectItem value={PneumaticSystemType.HYD}>
-                        {tInspections('pneumaticSystem.hyd')}
-                      </SelectItem>
-                      <SelectItem value={PneumaticSystemType.WET_AIR}>
-                        {tInspections('pneumaticSystem.wetAir')}
-                      </SelectItem>
-                      <SelectItem value={PneumaticSystemType.WET_HYD}>
-                        {tInspections('pneumaticSystem.wetHyd')}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  {/* Clutch Type */}
+                  <div className="space-y-2">
+                    <Label htmlFor="clutchType">Clutch Type</Label>
+                    <Select
+                      value={clutchType}
+                      onValueChange={(val) => setClutchType(val as MachineClutchType)}
+                    >
+                      <SelectTrigger id="clutchType">
+                        <SelectValue placeholder="Select clutch type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={MachineClutchType.JH5}>
+                          {tInspections('clutchType.jh5')}
+                        </SelectItem>
+                        <SelectItem value={MachineClutchType.NA}>
+                          {tInspections('clutchType.na')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* Press Mounting */}
-                <div className="space-y-2">
-                  <Label htmlFor="pressMounting">Press Mounting</Label>
-                  <Select
-                    value={pressMounting}
-                    onValueChange={(val) => setPressMounting(val as PressMountingType)}
-                  >
-                    <SelectTrigger id="pressMounting">
-                      <SelectValue placeholder="Select press mounting" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={PressMountingType.ADJUSTABLE}>
-                        {tInspections('pressMounting.adjustable')}
-                      </SelectItem>
-                      <SelectItem value={PressMountingType.ON_FLOOR}>
-                        {tInspections('pressMounting.onFloor')}
-                      </SelectItem>
-                      <SelectItem value={PressMountingType.SHIMS}>
-                        {tInspections('pressMounting.shims')}
-                      </SelectItem>
-                      <SelectItem value={PressMountingType.OTHER}>
-                        {tInspections('pressMounting.other')}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                  {/* Pneumatic System */}
+                  <div className="space-y-2">
+                    <Label htmlFor="pneumaticSystem">Pneumatic System</Label>
+                    <Select
+                      value={pneumaticSystem}
+                      onValueChange={(val) => setPneumaticSystem(val as PneumaticSystemType)}
+                    >
+                      <SelectTrigger id="pneumaticSystem">
+                        <SelectValue placeholder="Select pneumatic system" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={PneumaticSystemType.AIR}>
+                          {tInspections('pneumaticSystem.air')}
+                        </SelectItem>
+                        <SelectItem value={PneumaticSystemType.HYD}>
+                          {tInspections('pneumaticSystem.hyd')}
+                        </SelectItem>
+                        <SelectItem value={PneumaticSystemType.WET_AIR}>
+                          {tInspections('pneumaticSystem.wetAir')}
+                        </SelectItem>
+                        <SelectItem value={PneumaticSystemType.WET_HYD}>
+                          {tInspections('pneumaticSystem.wetHyd')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {/* Features */}
-                <div className="space-y-2">
-                  <Label htmlFor="features">Features</Label>
-                  <Select
-                    value={features}
-                    onValueChange={(val) => setFeatures(val as MachineFeaturesType)}
-                  >
-                    <SelectTrigger id="features">
-                      <SelectValue placeholder="Select features" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value={MachineFeaturesType.AIM}>
-                        {tInspections('features.aim')}
-                      </SelectItem>
-                      <SelectItem value={MachineFeaturesType.ADJ_STROKE}>
-                        {tInspections('features.adjStroke')}
-                      </SelectItem>
-                      <SelectItem value={MachineFeaturesType.DOUBLE_LOCKUP}>
-                        {tInspections('features.doubleLockup')}
-                      </SelectItem>
-                      <SelectItem value={MachineFeaturesType.NA}>
-                        {tInspections('features.na')}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {/* Press Mounting */}
+                  <div className="space-y-2">
+                    <Label htmlFor="pressMounting">Press Mounting</Label>
+                    <Select
+                      value={pressMounting}
+                      onValueChange={(val) => setPressMounting(val as PressMountingType)}
+                    >
+                      <SelectTrigger id="pressMounting">
+                        <SelectValue placeholder="Select press mounting" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={PressMountingType.ADJUSTABLE}>
+                          {tInspections('pressMounting.adjustable')}
+                        </SelectItem>
+                        <SelectItem value={PressMountingType.ON_FLOOR}>
+                          {tInspections('pressMounting.onFloor')}
+                        </SelectItem>
+                        <SelectItem value={PressMountingType.SHIMS}>
+                          {tInspections('pressMounting.shims')}
+                        </SelectItem>
+                        <SelectItem value={PressMountingType.OTHER}>
+                          {tInspections('pressMounting.other')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Features */}
+                  <div className="space-y-2">
+                    <Label htmlFor="features">Features</Label>
+                    <Select
+                      value={features}
+                      onValueChange={(val) => setFeatures(val as MachineFeaturesType)}
+                    >
+                      <SelectTrigger id="features">
+                        <SelectValue placeholder="Select features" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={MachineFeaturesType.AIM}>
+                          {tInspections('features.aim')}
+                        </SelectItem>
+                        <SelectItem value={MachineFeaturesType.ADJ_STROKE}>
+                          {tInspections('features.adjStroke')}
+                        </SelectItem>
+                        <SelectItem value={MachineFeaturesType.DOUBLE_LOCKUP}>
+                          {tInspections('features.doubleLockup')}
+                        </SelectItem>
+                        <SelectItem value={MachineFeaturesType.NA}>
+                          {tInspections('features.na')}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
-              </div>
+              )}
             </section>
 
             {selectedBlueprint && (

@@ -10,6 +10,7 @@ import { TrammingSummary } from './TrammingSummary';
 import { PistonsSummary } from './PistonsSummary';
 import { ClutchSummary } from './ClutchSummary';
 import { LubricationSummary } from './LubricationSummary';
+import { AngularitySummary } from './AngularitySummary';
 
 // Re-export individual summary components
 export { BearingClearanceSummary };
@@ -21,6 +22,7 @@ export { TrammingSummary };
 export { PistonsSummary };
 export { ClutchSummary };
 export { LubricationSummary };
+export { AngularitySummary };
 
 // Main component that routes to appropriate summary based on section key
 export function SectionSummary({ sectionKey, data }: { sectionKey: string; data: AnySectionData }) {
@@ -48,6 +50,9 @@ export function SectionSummary({ sectionKey, data }: { sectionKey: string; data:
 
     case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
       return <LubricationSummary data={data} />;
+
+    case 'ANGULARITY':
+      return <AngularitySummary data={data} />;
 
     // For all other sections, use the generic summary component
     // This displays data in a readable format instead of raw JSON

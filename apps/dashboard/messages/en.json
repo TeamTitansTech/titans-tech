@@ -260,7 +260,8 @@
     "clutch": "Clutch",
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
     "tramming": "Tramming",
-    "pistons": "Pistons"
+    "pistons": "Pistons",
+    "angularity": "Angularity"
   },
   "models": {
     "title": "Create Model",
@@ -400,7 +401,9 @@
       "clutch": "Clutch and Brake Clearance - CP 2",
       "counterbalance": "Counterbalance Cylinder / Airbag",
       "tramming": "Tramming",
-      "pistons": "Pistons"
+      "pistons": "Pistons",
+      "angularity": "Angularity",
+      "unknown": "Unknown"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -824,6 +827,38 @@
         "piston": "Piston",
         "front": "Front",
         "notes": "Notes (Optional)"
+      },
+      "angularity": {
+        "metadata": "Machine Information",
+        "sizeTonnage": "Size/Tonnage",
+        "serialNumber": "Serial #",
+        "stroke": "Stroke",
+        "spm": "SPM",
+        "setup": "Indicator Setup",
+        "setupAndConfiguration": "Setup & Configuration",
+        "distanceIndicatorTipFromSlide": "Distance of Indicator Tip from Slide",
+        "locationOfIndicator": "Location of Indicator",
+        "counterbalancePressure": "Counterbalance Pressure (PSI)",
+        "configuration": "Configuration",
+        "partOfStrokeBeingRead": "What Part of the Stroke is Being Read",
+        "shutheightSetAt": "What is the Shutheight Set At",
+        "whatWasUsedAsSquare": "What was Used as a Square",
+        "whereWasSquarePlaced": "Where was the Square Placed",
+        "indicatorDetails": "Indicator Details",
+        "whatIndicatorWasUsed": "What Indicator was Used (Graduation)",
+        "graduationPlaceholder": "e.g., .0001 or .001",
+        "whatKindOfTipWasOnIndicator": "What Kind of Tip was on the Indicator",
+        "totalLiftCheck": "Total Lift Check (IN)",
+        "perpendicularity": "Perpendicularity",
+        "hasPerpendicularityBeenAdjusted": "Has Perpendicularity Been Adjusted?",
+        "measurements": "Measurements",
+        "measurement": "Measurement",
+        "beforeAdjustment": "Before Adjustment",
+        "afterAdjustment": "After Adjustment",
+        "fr": "Front-Rear",
+        "lr": "Left-Right",
+        "notes": "Notes",
+        "notesPlaceholder": "Enter any additional observations or notes..."
       },
       "cancel": "Cancel",
       "submit": {

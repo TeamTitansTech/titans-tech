@@ -12,6 +12,7 @@ export const SERVICE_SECTION_SLUGS = [
   'counterbalance_cylinder_airbag',
   'tramming',
   'pistons',
+  'angularity',
 ] as const;
 
 export type ServiceSectionSlug = (typeof SERVICE_SECTION_SLUGS)[number];

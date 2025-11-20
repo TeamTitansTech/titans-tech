@@ -260,7 +260,8 @@
     "clutch": "EMBREAGEM",
     "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG",
     "tramming": "TRAMMING",
-    "pistons": "PISTÕES"
+    "pistons": "PISTÕES",
+    "angularity": "ANGULARIDADE"
   },
   "models": {
     "title": "Criar Modelo",
@@ -405,7 +406,9 @@
       "clutch": "Folga de Embreagem e Freio",
       "counterbalance": "Cilindro de Contrapeso / Airbag",
       "tramming": "Tramming",
-      "pistons": "Pistões"
+      "pistons": "Pistões",
+      "angularity": "Angularidade",
+      "unknown": "Desconhecido"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -829,6 +832,38 @@
         "piston": "Pistão",
         "front": "Frente",
         "notes": "Notas (Opcional)"
+      },
+      "angularity": {
+        "metadata": "Informações da Máquina",
+        "sizeTonnage": "Tamanho/Tonelagem",
+        "serialNumber": "Número de Série",
+        "stroke": "Curso",
+        "spm": "GPM",
+        "setup": "Configuração do Indicador",
+        "setupAndConfiguration": "Configuração e Ajustes",
+        "distanceIndicatorTipFromSlide": "Distância da Ponta do Indicador do Deslizamento",
+        "locationOfIndicator": "Localização do Indicador",
+        "counterbalancePressure": "Pressão de Contrapeso (PSI)",
+        "configuration": "Configuração",
+        "partOfStrokeBeingRead": "Qual Parte do Curso Está Sendo Lida",
+        "shutheightSetAt": "Qual é a Altura de Fechamento Definida",
+        "whatWasUsedAsSquare": "O que foi Usado como Esquadro",
+        "whereWasSquarePlaced": "Onde o Esquadro foi Colocado",
+        "indicatorDetails": "Detalhes do Indicador",
+        "whatIndicatorWasUsed": "Qual Indicador foi Usado (Graduação)",
+        "graduationPlaceholder": "ex., .0001 ou .001",
+        "whatKindOfTipWasOnIndicator": "Que Tipo de Ponta Estava no Indicador",
+        "totalLiftCheck": "Verificação de Elevação Total (POL)",
+        "perpendicularity": "Perpendicularidade",
+        "hasPerpendicularityBeenAdjusted": "A Perpendicularidade foi Ajustada?",
+        "measurements": "Medições",
+        "measurement": "Medição",
+        "beforeAdjustment": "Antes do Ajuste",
+        "afterAdjustment": "Depois do Ajuste",
+        "fr": "Frente-Trás",
+        "lr": "Esquerda-Direita",
+        "notes": "Notas",
+        "notesPlaceholder": "Digite quaisquer observações ou notas adicionais..."
       },
       "cancel": "Cancelar",
       "submit": {

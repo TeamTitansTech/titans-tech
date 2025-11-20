@@ -424,6 +424,18 @@ async function main() {
   });
   console.log(`✓ Created/Updated Slide Blueprint`);
 
+  const angularityBlueprint = await prisma.blueprint.upsert({
+    where: { id: 'angularity-blueprint' },
+    update: {},
+    create: {
+      id: 'angularity-blueprint',
+      name: 'Angularity',
+      sections: [ServiceSection.ANGULARITY],
+      fields: [], // No custom fields - manufacturer and serial handled separately
+    },
+  });
+  console.log(`✓ Created/Updated Angularity Blueprint`);
+
   // ========================================
   // 8. Create Example Machines
   // ========================================

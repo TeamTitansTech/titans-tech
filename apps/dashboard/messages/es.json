@@ -260,7 +260,8 @@
     "clutch": "Embrague",
     "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
     "tramming": "Tramming",
-    "pistons": "Pistones"
+    "pistons": "Pistones",
+    "angularity": "Angularidad"
   },
   "models": {
     "title": "Crear Modelo",
@@ -400,7 +401,9 @@
       "clutch": "Holgura de Embrague y Freno - CP 2",
       "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
       "tramming": "Tramming",
-      "pistons": "Pistones"
+      "pistons": "Pistones",
+      "angularity": "Angularidad",
+      "unknown": "Desconocido"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -829,6 +832,38 @@
         "piston": "Pistón",
         "front": "Frente",
         "notes": "Notas (Opcional)"
+      },
+      "angularity": {
+        "metadata": "Información de la Máquina",
+        "sizeTonnage": "Tamaño/Tonelaje",
+        "serialNumber": "Número de Serie",
+        "stroke": "Carrera",
+        "spm": "GPM",
+        "setup": "Configuración del Indicador",
+        "setupAndConfiguration": "Configuración y Ajustes",
+        "distanceIndicatorTipFromSlide": "Distancia de la Punta del Indicador desde la Corredera",
+        "locationOfIndicator": "Ubicación del Indicador",
+        "counterbalancePressure": "Presión de Contrapeso (PSI)",
+        "configuration": "Configuración",
+        "partOfStrokeBeingRead": "Qué Parte de la Carrera se Está Leyendo",
+        "shutheightSetAt": "Cuál es la Altura de Cierre Configurada",
+        "whatWasUsedAsSquare": "Qué se Usó como Escuadra",
+        "whereWasSquarePlaced": "Dónde se Colocó la Escuadra",
+        "indicatorDetails": "Detalles del Indicador",
+        "whatIndicatorWasUsed": "Qué Indicador se Usó (Graduación)",
+        "graduationPlaceholder": "ej., .0001 o .001",
+        "whatKindOfTipWasOnIndicator": "Qué Tipo de Punta Tenía el Indicador",
+        "totalLiftCheck": "Verificación de Elevación Total (PULG)",
+        "perpendicularity": "Perpendicularidad",
+        "hasPerpendicularityBeenAdjusted": "¿Se Ha Ajustado la Perpendicularidad?",
+        "measurements": "Mediciones",
+        "measurement": "Medición",
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "fr": "Frente-Trasera",
+        "lr": "Izquierda-Derecha",
+        "notes": "Notas",
+        "notesPlaceholder": "Ingrese cualquier observación o nota adicional..."
       },
       "cancel": "Cancelar",
       "submit": {

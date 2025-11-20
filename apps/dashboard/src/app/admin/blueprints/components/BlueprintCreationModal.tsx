@@ -21,7 +21,8 @@ import { CustomFieldsList } from './form-sections/CustomFieldsList';
 import { ErrorDisplay } from './form-sections/ErrorDisplay';
 import { FormActions } from './form-sections/FormActions';
 
-const AVAILABLE_SECTIONS = SERVICE_SECTION_SLUGS;
+// Exclude 'angularity' from regular section selection since it's a standalone blueprint
+const AVAILABLE_SECTIONS = SERVICE_SECTION_SLUGS.filter((section) => section !== 'angularity');
 
 export const BlueprintCreationModal = ({
   isOpen,

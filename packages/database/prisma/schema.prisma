@@ -324,6 +324,7 @@ enum ServiceSection {
   COUNTERBALANCE_CYLINDER_AIRBAG
   TRAMMING
   PISTONS
+  ANGULARITY
 }
 
 enum AlertSeverity {
@@ -579,6 +580,7 @@ model MachineService {
   counterbalanceCylinderAirbag MachineServiceCounterbalanceCylinderAirbag[]
   tramming                     MachineServiceTramming[]
   pistons                      MachineServicePistons[]
+  angularity                   MachineServiceAngularity[]
   alertBearingClearance        AlertBearingClearance?
 
   @@map("machine_services")
@@ -1144,4 +1146,63 @@ model PistonsData {
   innerServices MachineServicePistons[] @relation("InnerData")
 
   @@map("service_data_pistons")
+}
+
+// ANGULARITY Section
+
+model MachineServiceAngularity {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  beforeDataId     String?
+  afterDataId      String?
+
+  // Metadata fields
+  sizeTonnage  String?
+  serialNumber String?
+  stroke       String?
+  spm          String?
+
+  // Setup fields
+  distanceIndicatorTipFromSlide String?
+  locationOfIndicator           String?
+  counterbalancePressure        String?
+
+  // Configuration fields
+  partOfStrokeBeingRead String?
+  shutheightSetAt       String?
+  whatWasUsedAsSquare   String?
+  whereWasSquarePlaced  String?
+
+  // Indicator details
+  whatIndicatorWasUsed        String?
+  whatKindOfTipWasOnIndicator String?
+  totalLiftCheck              String?
+
+  // Perpendicularity adjustment
+  hasPerpendicularityBeenAdjusted YesNoDncType?
+
+  // Notes
+  notes String?
+
+  machineService MachineService  @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  beforeData     AngularityData? @relation("BeforeAdjustment", fields: [beforeDataId], references: [id], onDelete: SetNull)
+  afterData      AngularityData? @relation("AfterAdjustment", fields: [afterDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_angularity")
+}
+
+model AngularityData {
+  id String @id @default(cuid())
+
+  // Before/After adjustment measurements
+  fr Decimal @db.Decimal(10, 4) // Front-Rear
+  lr Decimal @db.Decimal(10, 4) // Left-Right
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  beforeServices MachineServiceAngularity[] @relation("BeforeAdjustment")
+  afterServices  MachineServiceAngularity[] @relation("AfterAdjustment")
+
+  @@map("service_data_angularity")
 }
