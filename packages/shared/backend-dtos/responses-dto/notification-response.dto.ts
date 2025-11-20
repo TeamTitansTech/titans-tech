@@ -44,12 +44,6 @@ export const NotificationStatsResponseDtoSchema = z.object({
 });
 
 export type NotificationTypeDto = z.infer<typeof NotificationTypeDtoSchema>;
-export type AdminNotificationResponseDto = z.infer<
-  typeof AdminNotificationResponseDtoSchema
->;
-export type ClientNotificationResponseDto = z.infer<
-  typeof ClientNotificationResponseDtoSchema
->;
-export type NotificationStatsResponseDto = z.infer<
-  typeof NotificationStatsResponseDtoSchema
->;
+export type AdminNotificationResponseDto = z.infer<typeof AdminNotificationResponseDtoSchema>;
+export type ClientNotificationResponseDto = z.infer<typeof ClientNotificationResponseDtoSchema>;
+export type NotificationStatsResponseDto = z.infer<typeof NotificationStatsResponseDtoSchema>;

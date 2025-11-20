@@ -5,6 +5,4 @@ export const CreateUrgentRequestDtoSchema = z.object({
   notes: z.string().optional(),
 });
 
-export type CreateUrgentRequestDto = z.infer<
-  typeof CreateUrgentRequestDtoSchema
->;
+export type CreateUrgentRequestDto = z.infer<typeof CreateUrgentRequestDtoSchema>;

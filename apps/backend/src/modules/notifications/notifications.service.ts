@@ -92,7 +92,7 @@ export class NotificationsService {
     );
     this.notificationsGateway.broadcastStatsUpdate(stats);
 
-    const adminEmails = 'xewonip570@delaeb.com';
+    const adminEmails = 'tedewa3616@feralrex.com';
     const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${machineId}?openServiceModal=true`;
 
     try {

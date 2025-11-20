@@ -389,11 +389,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company                      Company              @relation(fields: [companyId], references: [id])
-  companyId                    String
-  branches                     UserBranch[]
-  adminNotificationsCreated    AdminNotification[]  @relation("AdminNotificationsCreated")
-  clientNotificationsReceived  ClientNotification[] @relation("ClientNotificationsReceived")
+  company                     Company              @relation(fields: [companyId], references: [id])
+  companyId                   String
+  branches                    UserBranch[]
+  adminNotificationsCreated   AdminNotification[]  @relation("AdminNotificationsCreated")
+  clientNotificationsReceived ClientNotification[] @relation("ClientNotificationsReceived")
 
   @@map("users")
 }
@@ -1033,15 +1033,15 @@ enum EmailProvider {
 }
 
 model AdminNotification {
-  id              String   @id @default(cuid())
+  id              String           @id @default(cuid())
   machineId       String
-  message         String   @db.Text
-  isRead          Boolean  @default(false)
+  message         String           @db.Text
+  isRead          Boolean          @default(false)
   type            NotificationType @default(URGENT_SERVICE_REQUEST)
   createdByUserId String
-  metadata        Json?    // Store additional data like notes, urgency level, etc.
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  metadata        Json? // Store additional data like notes, urgency level, etc.
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   machine   Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
   createdBy User    @relation("AdminNotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
@@ -1052,16 +1052,16 @@ model AdminNotification {
 }
 
 model ClientNotification {
-  id          String   @id @default(cuid())
+  id          String           @id @default(cuid())
   userId      String
   machineId   String?
-  message     String   @db.Text
-  isRead      Boolean  @default(false)
-  redirectUrl String?  // e.g., "/s/company-slug/machines/123?openServiceModal=true"
+  message     String           @db.Text
+  isRead      Boolean          @default(false)
+  redirectUrl String? // e.g., "/s/company-slug/machines/123?openServiceModal=true"
   type        NotificationType
-  metadata    Json?    // Store additional contextual data
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  metadata    Json? // Store additional contextual data
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 
   user    User     @relation("ClientNotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
   machine Machine? @relation(fields: [machineId], references: [id], onDelete: Cascade)
@@ -1072,21 +1072,21 @@ model ClientNotification {
 }
 
 model Email {
-  id         String        @id @default(cuid())
+  id         String           @id @default(cuid())
   to         String
   from       String
   subject    String
-  body       String        @db.Text
+  body       String           @db.Text
   type       NotificationType
-  status     EmailStatus   @default(PENDING)
+  status     EmailStatus      @default(PENDING)
   provider   EmailProvider
-  externalId String?       // Provider's message ID (SendGrid/SES tracking)
-  error      String?       @db.Text
+  externalId String? // Provider's message ID (SendGrid/SES tracking)
+  error      String?          @db.Text
   sentAt     DateTime?
   machineId  String?
-  metadata   Json?         // Store additional email data (CC, BCC, attachments info, etc.)
-  createdAt  DateTime      @default(now())
-  updatedAt  DateTime      @updatedAt
+  metadata   Json? // Store additional email data (CC, BCC, attachments info, etc.)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 
   machine Machine? @relation(fields: [machineId], references: [id], onDelete: SetNull)
 
@@ -1095,6 +1095,7 @@ model Email {
   @@index([createdAt])
   @@map("emails")
 }
+
 // TRAMMING Section
 
 model MachineServiceTramming {
