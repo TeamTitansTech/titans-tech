@@ -32,7 +32,7 @@ import {
   FlexDiscType as PrismaFlexDiscType,
   DriveBeltConditionType as PrismaDriveBeltConditionType,
   ProtectiveCoversStatusType as PrismaProtectiveCoversStatusType,
-} from '@titans-tech/db';
+} from '@titans-tech/db/enums';
 
 // ============================================================================
 // Re-export Prisma Enums
