@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Patch,
+  Delete,
+} from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { ProductionLinesService } from './production-lines.service';
 import { CreateProductionLineDto } from './dto/create-production-line.dto';
@@ -17,9 +25,7 @@ export class ProductionLinesController {
    */
   @Authenticated()
   @Post()
-  create(
-    @Body() createProductionLineDto: CreateProductionLineDto,
-  ): Promise<
+  create(@Body() createProductionLineDto: CreateProductionLineDto): Promise<
     Prisma.ProductionLineGetPayload<{
       include: {
         branch: true;

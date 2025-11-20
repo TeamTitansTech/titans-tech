@@ -42,9 +42,8 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   const [allMachines, setAllMachines] = useState<MachineWithBranch[]>([]);
 
   // Extrair IDs das máquinas ordenadas
-  const initialMachineIds = productionLine.machines
-    ?.sort((a, b) => a.order - b.order)
-    .map((pm) => pm.machineId) || [];
+  const initialMachineIds =
+    productionLine.machines?.sort((a, b) => a.order - b.order).map((pm) => pm.machineId) || [];
 
   const [selectedMachineIds, setSelectedMachineIds] = useState<string[]>(initialMachineIds);
   const [machineOrder, setMachineOrder] = useState<string[]>(initialMachineIds);
@@ -55,7 +54,7 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
 
   console.log('ConfigTab Branches:', {
     companyUser,
-    branches: branches.map(b => ({ id: b.id, name: b.name })),
+    branches: branches.map((b) => ({ id: b.id, name: b.name })),
     selectedBranchId,
   });
 
@@ -66,8 +65,18 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
     selectedBranchId,
     allMachinesCount: allMachines.length,
     availableMachinesCount: availableMachines.length,
-    allMachines: allMachines.map(m => ({ id: m.id, name: m.name, branchId: m.branchId, branchObjectId: m.branch?.id })),
-    availableMachines: availableMachines.map(m => ({ id: m.id, name: m.name, branchId: m.branchId, branchObjectId: m.branch?.id })),
+    allMachines: allMachines.map((m) => ({
+      id: m.id,
+      name: m.name,
+      branchId: m.branchId,
+      branchObjectId: m.branch?.id,
+    })),
+    availableMachines: availableMachines.map((m) => ({
+      id: m.id,
+      name: m.name,
+      branchId: m.branchId,
+      branchObjectId: m.branch?.id,
+    })),
   });
 
   // Load all machines once

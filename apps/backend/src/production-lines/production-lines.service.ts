@@ -13,9 +13,7 @@ export class ProductionLinesService {
    * @param createProductionLineDto - Dados para criar a linha de produção
    * @returns Linha de produção criada com as máquinas associadas
    */
-  async create(
-    createProductionLineDto: CreateProductionLineDto,
-  ): Promise<
+  async create(createProductionLineDto: CreateProductionLineDto): Promise<
     Prisma.ProductionLineGetPayload<{
       include: {
         branch: true;
@@ -48,22 +46,24 @@ export class ProductionLinesService {
         name: createProductionLineDto.name,
         branchId: createProductionLineDto.branchId,
         createdBy: createProductionLineDto.createdBy,
-      
+
         machines: {
-          create: createProductionLineDto.machineIds.map((machineId, index) => ({
-            machineId,
-            order: index,
-          })),
+          create: createProductionLineDto.machineIds.map(
+            (machineId, index) => ({
+              machineId,
+              order: index,
+            }),
+          ),
         },
       },
       include: {
         branch: true,
         machines: {
           include: {
-            machine: true, 
+            machine: true,
           },
           orderBy: {
-            order: 'asc', 
+            order: 'asc',
           },
         },
       },
@@ -102,7 +102,7 @@ export class ProductionLinesService {
         },
       },
       orderBy: {
-        createdAt: 'desc', 
+        createdAt: 'desc',
       },
     });
   }
@@ -166,7 +166,6 @@ export class ProductionLinesService {
       };
     }>
   > {
-    
     const existingLine = await this.prisma.productionLine.findUnique({
       where: { id },
     });
@@ -175,7 +174,6 @@ export class ProductionLinesService {
       throw new NotFoundException(`Production line with ID ${id} not found`);
     }
 
-    
     if (updateProductionLineDto.branchId) {
       const branch = await this.prisma.companyBranch.findUnique({
         where: { id: updateProductionLineDto.branchId },
@@ -188,7 +186,6 @@ export class ProductionLinesService {
       }
     }
 
-    
     if (updateProductionLineDto.machineIds) {
       if (updateProductionLineDto.machineIds.length > 0) {
         const machines = await this.prisma.machine.findMany({
@@ -207,10 +204,12 @@ export class ProductionLinesService {
           branchId: updateProductionLineDto.branchId,
           machines: {
             deleteMany: {},
-            create: updateProductionLineDto.machineIds.map((machineId, index) => ({
-              machineId,
-              order: index,
-            })),
+            create: updateProductionLineDto.machineIds.map(
+              (machineId, index) => ({
+                machineId,
+                order: index,
+              }),
+            ),
           },
         },
         include: {

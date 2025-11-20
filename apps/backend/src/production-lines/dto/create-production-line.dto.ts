@@ -1,4 +1,10 @@
-import { IsString, IsArray, IsNotEmpty, IsOptional, IsInt } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsInt,
+} from 'class-validator';
 
 export class CreateProductionLineDto {
   @IsString()

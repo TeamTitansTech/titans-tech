@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Typography } from '@/components/ui/typography';
@@ -49,8 +49,14 @@ export function ProductionLineDetail({
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList>
-          <TabsTrigger value="view">{t('tabView')}</TabsTrigger>
-          <TabsTrigger value="config">{t('tabConfig')}</TabsTrigger>
+          <TabsTrigger value="view">
+            <Eye className="w-4 h-4 mr-2" />
+            {t('tabView')}
+          </TabsTrigger>
+          <TabsTrigger value="config">
+            <Settings className="w-4 h-4 mr-2" />
+            {t('tabConfig')}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="view" className="mt-6">

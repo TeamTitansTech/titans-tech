@@ -526,8 +526,8 @@ model Machine {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  blueprint       Blueprint                @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
-  branch          CompanyBranch            @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  blueprint       Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  branch          CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
   fields          MachineField[]
   services        MachineService[]
   productionLines MachineProductionLine[]
@@ -1153,7 +1153,6 @@ model PistonsData {
 
   @@map("service_data_pistons")
 }
-
 
 model ProductionLine {
   id        String   @id @default(cuid())

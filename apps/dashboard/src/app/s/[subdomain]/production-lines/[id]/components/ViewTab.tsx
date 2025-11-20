@@ -41,7 +41,10 @@ export function ViewTab({ productionLine }: ViewTabProps) {
             {/* Cards das máquinas posicionados horizontalmente */}
             <div className="flex justify-between items-end mb-12 gap-8">
               {filteredMachines.map((productionLineMachine) => (
-                <div key={productionLineMachine.machineId} className="relative flex flex-col items-center">
+                <div
+                  key={productionLineMachine.machineId}
+                  className="relative flex flex-col items-center"
+                >
                   <MachineCardInLine machine={productionLineMachine.machine!} />
                   {/* Linha vertical conectando o card à linha horizontal */}
                   <div className="w-1 h-12 bg-green-500" />

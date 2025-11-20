@@ -40,7 +40,8 @@ export function ProductionLineCard({ productionLine }: ProductionLineCardProps) 
           </div>
 
           <p className="text-sm text-muted-foreground line-clamp-2">
-            Linha de produção {machineCount > 0 ? `principal com ${machineCount}` : 'sem'} máquina{machineCount !== 1 ? 's' : ''}
+            Linha de produção {machineCount > 0 ? `principal com ${machineCount}` : 'sem'} máquina
+            {machineCount !== 1 ? 's' : ''}
           </p>
 
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
