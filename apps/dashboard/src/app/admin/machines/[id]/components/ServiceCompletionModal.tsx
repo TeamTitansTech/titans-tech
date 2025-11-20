@@ -201,15 +201,16 @@ export function ServiceCompletionModal({
             currentStep: 'sections',
             selectedSections: Array.from(selectedSections),
             // Inspection observation fields
+            // TODO: Fix state types to use proper enum types instead of string
             isPressLevel,
-            driveBeltCondition: driveBeltCondition || undefined,
-            areAllProtectiveCovers: areAllProtectiveCovers || undefined,
+            driveBeltCondition: (driveBeltCondition || undefined) as any,
+            areAllProtectiveCovers: (areAllProtectiveCovers || undefined) as any,
             protectiveCoversExplanation: protectiveCoversExplanation || undefined,
             areCracksVisible,
             cracksLocation: cracksLocation || undefined,
             isMainMotorSecure,
             isMotorPlateSecure,
-            whyNotCovered: whyNotCovered || undefined,
+            whyNotCovered: (whyNotCovered || undefined) as any,
           };
 
           const response = await createService(payload);
@@ -241,15 +242,16 @@ export function ServiceCompletionModal({
             currentStep: 'sections',
             selectedSections: Array.from(selectedSections),
             // Inspection observation fields
+            // TODO: Fix state types to use proper enum types instead of string
             isPressLevel,
-            driveBeltCondition: driveBeltCondition || undefined,
-            areAllProtectiveCovers: areAllProtectiveCovers || undefined,
+            driveBeltCondition: (driveBeltCondition || undefined) as any,
+            areAllProtectiveCovers: (areAllProtectiveCovers || undefined) as any,
             protectiveCoversExplanation: protectiveCoversExplanation || undefined,
             areCracksVisible,
             cracksLocation: cracksLocation || undefined,
             isMainMotorSecure,
             isMotorPlateSecure,
-            whyNotCovered: whyNotCovered || undefined,
+            whyNotCovered: (whyNotCovered || undefined) as any,
           };
 
           const response = await updateService(currentServiceId, updatePayload);

@@ -12,13 +12,11 @@ import {
 } from '@/components/ui/select';
 import {
   type CounterbalanceCylinderFormProps,
-  CounterbalanceTypeEnum,
-  AirbagPistonSealsType,
-  RegulatorGaugeType,
-  PneumaticsPlumbingType,
-  RodSealsType,
-  RodBushingType,
-  OilWickType,
+  CylinderAirbagType,
+  OkNaDncLeakingType,
+  OkNaDncNotOperationalType,
+  OkNaDncDarkOilType,
+  OkNaDncNeedReplacedType,
 } from '@/data/types/services.types';
 
 type InspectionRow =
@@ -41,28 +39,28 @@ const INSPECTION_ROWS: InspectionRow[] = [
   {
     key: 'counterbalanceType',
     type: 'select',
-    enumValues: CounterbalanceTypeEnum,
+    enumValues: CylinderAirbagType,
     useCommon: false,
   },
   {
     key: 'pistonSeals',
     field: 'airbagPistonSeals',
     type: 'select',
-    enumValues: AirbagPistonSealsType,
+    enumValues: OkNaDncLeakingType,
     useCommon: true,
   },
   { key: 'leakLocation', field: 'airbagPistonSealsLeakLocation', type: 'text' },
-  { key: 'regulator', type: 'select', enumValues: RegulatorGaugeType, useCommon: true },
-  { key: 'gauge', type: 'select', enumValues: RegulatorGaugeType, useCommon: true },
+  { key: 'regulator', type: 'select', enumValues: OkNaDncNotOperationalType, useCommon: true },
+  { key: 'gauge', type: 'select', enumValues: OkNaDncNotOperationalType, useCommon: true },
   {
     key: 'pneumaticsPlumbing',
     type: 'select',
-    enumValues: PneumaticsPlumbingType,
+    enumValues: OkNaDncLeakingType,
     useCommon: true,
   },
-  { key: 'rodSeals', type: 'select', enumValues: RodSealsType, useCommon: true },
-  { key: 'rodBushing', type: 'select', enumValues: RodBushingType, useCommon: true },
-  { key: 'oilWick', type: 'select', enumValues: OilWickType, useCommon: true },
+  { key: 'rodSeals', type: 'select', enumValues: OkNaDncLeakingType, useCommon: true },
+  { key: 'rodBushing', type: 'select', enumValues: OkNaDncDarkOilType, useCommon: true },
+  { key: 'oilWick', type: 'select', enumValues: OkNaDncNeedReplacedType, useCommon: true },
 ];
 
 export function CounterbalanceCylinderForm({

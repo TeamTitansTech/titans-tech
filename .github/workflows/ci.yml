@@ -33,6 +33,8 @@ jobs:
   format:
     name: Format
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://user:password@localhost:5432/db
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

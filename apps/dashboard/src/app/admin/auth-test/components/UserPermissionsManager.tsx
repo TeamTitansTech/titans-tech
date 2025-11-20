@@ -2,7 +2,7 @@
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { setUserPermissions } from '@/data/services/company-branches.api';
 import { useState } from 'react';
-import { UserResponseDto } from '@titans-tech/shared';
+import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
 

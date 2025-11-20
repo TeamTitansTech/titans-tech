@@ -6,7 +6,7 @@ import { Building2, User } from 'lucide-react';
 import { type Company } from '@/data/services/companies.api';
 import { getAllUsers } from '@/data/services/users.api';
 import { Card, CardContent } from '@/components/ui/card';
-import type { UserResponseDto } from '@titans-tech/shared';
+import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 interface CompanyCardProps {
   company: Company;
