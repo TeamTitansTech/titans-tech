@@ -112,6 +112,13 @@ function MeasurementSection({
   diagramType,
   t,
 }: MeasurementSectionProps) {
+  // Helper to safely add two point values
+  const addPoints = (a: number | undefined, b: number | undefined): string => {
+    const numA = typeof a === 'number' ? a : 0;
+    const numB = typeof b === 'number' ? b : 0;
+    return (numA + numB).toFixed(4);
+  };
+
   const calculated = useMemo(() => calculateGibsFields(data), [data]);
 
   const diagramPath = useMemo(() => {
@@ -195,10 +202,10 @@ function MeasurementSection({
                     <tr>
                       <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
                       <td className="border p-2 text-center font-mono">
-                        {(data.point1 + data.point2).toFixed(4)}
+                        {addPoints(data.point1, data.point2)}
                       </td>
                       <td className="border p-2 text-center font-mono">
-                        {(data.point5 + data.point6).toFixed(4)}
+                        {addPoints(data.point5, data.point6)}
                       </td>
                     </tr>
                   </tbody>
@@ -254,19 +261,19 @@ function MeasurementSection({
                     <tr>
                       <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
                       <td className="border p-2 text-center font-mono">
-                        {(data.point1 + data.point2).toFixed(4)}
+                        {addPoints(data.point1, data.point2)}
                       </td>
                       <td className="border p-2 text-center font-mono">
-                        {(data.point5 + data.point6).toFixed(4)}
+                        {addPoints(data.point5, data.point6)}
                       </td>
                     </tr>
                     <tr>
                       <td className="border p-2 font-medium bg-muted">{t('form.gibs.bottom')}</td>
                       <td className="border p-2 text-center font-mono">
-                        {(data.point3 + data.point4).toFixed(4)}
+                        {addPoints(data.point3, data.point4)}
                       </td>
                       <td className="border p-2 text-center font-mono">
-                        {(data.point7 + data.point8).toFixed(4)}
+                        {addPoints(data.point7, data.point8)}
                       </td>
                     </tr>
                   </tbody>
@@ -288,10 +295,10 @@ function MeasurementSection({
                     <tr>
                       <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
                       <td className="border p-2 text-center font-mono">
-                        {(data.point9 + data.point13).toFixed(4)}
+                        {addPoints(data.point9, data.point13)}
                       </td>
                       <td className="border p-2 text-center font-mono">
-                        {(data.point10 + data.point14).toFixed(4)}
+                        {addPoints(data.point10, data.point14)}
                       </td>
                     </tr>
                   </tbody>

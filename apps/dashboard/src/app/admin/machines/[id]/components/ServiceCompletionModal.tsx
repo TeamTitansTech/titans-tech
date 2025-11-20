@@ -77,6 +77,7 @@ export function ServiceCompletionModal({
   const tServicesSummary = useTranslations('services.modal.summary');
   const tBearingFields = useTranslations('bearingFields');
   const tBearingClearanceFields = useTranslations('inspections.form.bearingClearance.fields');
+  const tGibsFields = useTranslations('inspections.form.gibs');
   const tClutchFields = useTranslations('inspections.form.clutch.fields');
   const tCounterbalanceFields = useTranslations('inspections.form.counterbalanceCylinder');
   const router = useInternalRouter();
@@ -164,7 +165,7 @@ export function ServiceCompletionModal({
   useEffect(() => {
     if (!open) {
       // Reset to initial state based on service type
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setCurrentStep(shouldSkipSelection ? 'details' : 'selection');
       setCurrentSectionIndex(0);
       setSelectedSections(isInspection ? new Set(machineSections) : new Set());
@@ -2413,6 +2414,155 @@ export function ServiceCompletionModal({
                                 </Table>
                               </div>
                             </div>
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
+                    );
+                  }
+
+                  // Render GIBS Section
+                  if (sectionKey === 'GIBS') {
+                    const data = completedSectionData[sectionKey] || {};
+
+                    // Helper to render a stage table
+                    const renderStageTable = (stageData: any, stageTitle: string) => {
+                      if (!stageData) return null;
+
+                      const points = [];
+                      for (let i = 1; i <= 16; i++) {
+                        const key = `point${i}`;
+                        if (stageData[key] !== undefined && stageData[key] !== null) {
+                          points.push({ number: i, value: stageData[key] });
+                        }
+                      }
+
+                      if (points.length === 0) return null;
+
+                      return (
+                        <div className="mb-3">
+                          <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                            {stageTitle}
+                          </div>
+                          <div className="border rounded-md overflow-hidden">
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="bg-muted/50">
+                                  <TableHead className="h-8 text-[10px] font-semibold border-r text-center">
+                                    Point
+                                  </TableHead>
+                                  <TableHead className="h-8 text-[10px] text-center font-semibold">
+                                    {tTable('value')}
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {points.map((point) => (
+                                  <TableRow
+                                    key={point.number}
+                                    className="text-[11px] hover:bg-muted/30"
+                                  >
+                                    <TableCell className="py-1.5 text-center border-r bg-muted/20 font-medium">
+                                      {point.number}
+                                    </TableCell>
+                                    <TableCell className="py-1.5 text-center">
+                                      {displayValue(point.value)}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        </div>
+                      );
+                    };
+
+                    return (
+                      <Collapsible key={sectionKey} defaultOpen={isCompleted}>
+                        <div className="border rounded-lg">
+                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
+                            <div className="flex items-center gap-2">
+                              <Typography variant="h4" className="font-semibold text-sm">
+                                {t('sectionNames.gibs')}
+                              </Typography>
+                              {isCompleted ? (
+                                <span className="text-xs text-green-600 dark:text-green-400">
+                                  ({tServices('modal.status.complete')})
+                                </span>
+                              ) : (
+                                <span className="text-xs text-orange-600 dark:text-orange-400">
+                                  ({tServices('modal.status.incomplete')})
+                                </span>
+                              )}
+                            </div>
+                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="p-3 pt-0 text-xs">
+                            {/* Outer Slide Stages */}
+                            {(data.outerBeforeAdjustment ||
+                              data.outerAfterAdjustment ||
+                              data.outerFreeHangingAfterInstall) && (
+                              <div className="border-t pt-2 mb-3">
+                                <div className="font-semibold text-muted-foreground mb-3 text-sm">
+                                  {tTable('outer')} {tGibsFields('directionalTitle')}
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                  {renderStageTable(
+                                    data.outerBeforeAdjustment,
+                                    tGibsFields('beforeAdjustment'),
+                                  )}
+                                  {renderStageTable(
+                                    data.outerAfterAdjustment,
+                                    tGibsFields('afterAdjustment'),
+                                  )}
+                                  {renderStageTable(
+                                    data.outerFreeHangingAfterInstall,
+                                    tGibsFields('freeHangingAfterInstall'),
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Inner Slide Stages */}
+                            {(data.innerBeforeAdjustment ||
+                              data.innerAfterAdjustment ||
+                              data.innerBeforeToolInstallation ||
+                              data.innerAfterToolInstallation) && (
+                              <div className="border-t pt-2 mb-3">
+                                <div className="font-semibold text-muted-foreground mb-3 text-sm">
+                                  {tTable('inner')} {tGibsFields('directionalTitle')}
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  {renderStageTable(
+                                    data.innerBeforeAdjustment,
+                                    tGibsFields('beforeAdjustment'),
+                                  )}
+                                  {renderStageTable(
+                                    data.innerAfterAdjustment,
+                                    tGibsFields('afterAdjustment'),
+                                  )}
+                                  {renderStageTable(
+                                    data.innerBeforeToolInstallation,
+                                    tGibsFields('beforeToolInstallation'),
+                                  )}
+                                  {renderStageTable(
+                                    data.innerAfterToolInstallation,
+                                    tGibsFields('afterToolInstallation'),
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Notes */}
+                            {data.notes && (
+                              <div className="border-t pt-2">
+                                <div className="font-semibold text-muted-foreground mb-2 text-xs">
+                                  {tServicesSummary('notes')}
+                                </div>
+                                <div className="text-[11px] p-2 bg-muted/20 rounded-md">
+                                  {data.notes}
+                                </div>
+                              </div>
+                            )}
                           </CollapsibleContent>
                         </div>
                       </Collapsible>

@@ -7,17 +7,20 @@ import { GibsStageData, GibsCalculatedFields } from '@/data/types/services.types
  * - Points 9-16: Left to Right
  */
 export function calculateGibsFields(data: GibsStageData): GibsCalculatedFields {
+  // Helper to safely convert to number (0 if undefined/null)
+  const toNum = (val: number | undefined): number => (typeof val === 'number' ? val : 0);
+
   // Front to Back (points 1-8)
-  const frontTop = data.point1 + data.point2; // columns 1+2
-  const frontBottom = data.point3 + data.point4; // columns 3+4
-  const backTop = data.point5 + data.point6; // columns 5+6
-  const backBottom = data.point7 + data.point8; // columns 7+8
+  const frontTop = toNum(data.point1) + toNum(data.point2); // columns 1+2
+  const frontBottom = toNum(data.point3) + toNum(data.point4); // columns 3+4
+  const backTop = toNum(data.point5) + toNum(data.point6); // columns 5+6
+  const backBottom = toNum(data.point7) + toNum(data.point8); // columns 7+8
 
   // Left to Right (points 9-16)
-  const leftTop = data.point9 + data.point13; // columns 9+13
-  const leftBottom = data.point11 + data.point15; // columns 11+15
-  const rightTop = data.point10 + data.point14; // columns 10+14
-  const rightBottom = data.point12 + data.point16; // columns 12+16
+  const leftTop = toNum(data.point9) + toNum(data.point13); // columns 9+13
+  const leftBottom = toNum(data.point11) + toNum(data.point15); // columns 11+15
+  const rightTop = toNum(data.point10) + toNum(data.point14); // columns 10+14
+  const rightBottom = toNum(data.point12) + toNum(data.point16); // columns 12+16
 
   // Usable calculation - based on Left to Right values
   const usable = (leftTop + leftBottom + rightTop + rightBottom) / 4;
