@@ -170,7 +170,7 @@ interface GibsSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
-  initialData?: any; // GibsCheck data from API
+  initialData?: GibsSectionData;
 }
 
 // Custom hook for managing a single stage's state
@@ -494,23 +494,24 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
             <TabsContent value="outer" className="space-y-6">
               <GibsForm
                 slideType="outer"
-                beforeAdjustmentData={outerBeforeAdjustment.data}
-                afterAdjustmentData={outerAfterAdjustment.data}
-                afterInstallData={outerFreeHangingAfterInstall.data}
-                onBeforeAdjustmentUpdate={wrapUpdateFn(outerBeforeAdjustment.updateField)}
-                onAfterAdjustmentUpdate={wrapUpdateFn(outerAfterAdjustment.updateField)}
-                onAfterInstallUpdate={wrapUpdateFn(outerFreeHangingAfterInstall.updateField)}
-                beforeAdjustmentErrors={outerBeforeAdjustment.errors}
-                afterAdjustmentErrors={outerAfterAdjustment.errors}
-                afterInstallErrors={outerFreeHangingAfterInstall.errors}
-                handleBeforeBlur={outerBeforeAdjustment.handleBlur}
-                handleAfterBlur={outerAfterAdjustment.handleBlur}
-                handleAfterInstallBlur={outerFreeHangingAfterInstall.handleBlur}
-                data={outerBeforeAdjustment.data}
-                updateFn={wrapUpdateFn(outerBeforeAdjustment.updateField)}
-                errors={outerBeforeAdjustment.errors}
-                handleBlur={outerBeforeAdjustment.handleBlur}
-                title="Outer Slide"
+                beforeAdjustment={{
+                  data: outerBeforeAdjustment.data,
+                  onUpdate: wrapUpdateFn(outerBeforeAdjustment.updateField),
+                  errors: outerBeforeAdjustment.errors,
+                  handleBlur: outerBeforeAdjustment.handleBlur,
+                }}
+                afterAdjustment={{
+                  data: outerAfterAdjustment.data,
+                  onUpdate: wrapUpdateFn(outerAfterAdjustment.updateField),
+                  errors: outerAfterAdjustment.errors,
+                  handleBlur: outerAfterAdjustment.handleBlur,
+                }}
+                afterInstall={{
+                  data: outerFreeHangingAfterInstall.data,
+                  onUpdate: wrapUpdateFn(outerFreeHangingAfterInstall.updateField),
+                  errors: outerFreeHangingAfterInstall.errors,
+                  handleBlur: outerFreeHangingAfterInstall.handleBlur,
+                }}
               />
             </TabsContent>
 
@@ -518,27 +519,30 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
             <TabsContent value="inner" className="space-y-6">
               <GibsForm
                 slideType="inner"
-                beforeAdjustmentData={innerBeforeAdjustment.data}
-                afterAdjustmentData={innerAfterAdjustment.data}
-                beforeToolInstallData={innerBeforeToolInstallation.data}
-                afterToolInstallData={innerAfterToolInstallation.data}
-                onBeforeAdjustmentUpdate={wrapUpdateFn(innerBeforeAdjustment.updateField)}
-                onAfterAdjustmentUpdate={wrapUpdateFn(innerAfterAdjustment.updateField)}
-                onBeforeToolInstallUpdate={wrapUpdateFn(innerBeforeToolInstallation.updateField)}
-                onAfterToolInstallUpdate={wrapUpdateFn(innerAfterToolInstallation.updateField)}
-                beforeAdjustmentErrors={innerBeforeAdjustment.errors}
-                afterAdjustmentErrors={innerAfterAdjustment.errors}
-                beforeToolInstallErrors={innerBeforeToolInstallation.errors}
-                afterToolInstallErrors={innerAfterToolInstallation.errors}
-                handleBeforeBlur={innerBeforeAdjustment.handleBlur}
-                handleAfterBlur={innerAfterAdjustment.handleBlur}
-                handleBeforeToolInstallBlur={innerBeforeToolInstallation.handleBlur}
-                handleAfterToolInstallBlur={innerAfterToolInstallation.handleBlur}
-                data={innerBeforeAdjustment.data}
-                updateFn={wrapUpdateFn(innerBeforeAdjustment.updateField)}
-                errors={innerBeforeAdjustment.errors}
-                handleBlur={innerBeforeAdjustment.handleBlur}
-                title="Inner Slide"
+                beforeAdjustment={{
+                  data: innerBeforeAdjustment.data,
+                  onUpdate: wrapUpdateFn(innerBeforeAdjustment.updateField),
+                  errors: innerBeforeAdjustment.errors,
+                  handleBlur: innerBeforeAdjustment.handleBlur,
+                }}
+                afterAdjustment={{
+                  data: innerAfterAdjustment.data,
+                  onUpdate: wrapUpdateFn(innerAfterAdjustment.updateField),
+                  errors: innerAfterAdjustment.errors,
+                  handleBlur: innerAfterAdjustment.handleBlur,
+                }}
+                beforeToolInstall={{
+                  data: innerBeforeToolInstallation.data,
+                  onUpdate: wrapUpdateFn(innerBeforeToolInstallation.updateField),
+                  errors: innerBeforeToolInstallation.errors,
+                  handleBlur: innerBeforeToolInstallation.handleBlur,
+                }}
+                afterToolInstall={{
+                  data: innerAfterToolInstallation.data,
+                  onUpdate: wrapUpdateFn(innerAfterToolInstallation.updateField),
+                  errors: innerAfterToolInstallation.errors,
+                  handleBlur: innerAfterToolInstallation.handleBlur,
+                }}
               />
             </TabsContent>
           </Tabs>
