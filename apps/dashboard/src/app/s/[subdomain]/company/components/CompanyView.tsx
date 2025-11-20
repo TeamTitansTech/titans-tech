@@ -37,9 +37,7 @@ export function CompanyView({ company, branches, companyUser }: CompanyViewProps
       try {
         const usersResponse = await getAllUsers({ companyId: company.id });
         if (usersResponse.data) {
-          const admin = usersResponse.data.find(
-            (user) => user.isCompanyAdmin || user.isCompanyManager,
-          );
+          const admin = usersResponse.data.find((user) => user.isCompanyAdmin);
           setCompanyAdmin(admin || null);
         }
       } catch (error) {
