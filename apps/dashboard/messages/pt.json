@@ -633,7 +633,10 @@
         "frontBottom": "Frente Inferior",
         "backTop": "Trás Superior",
         "backBottom": "Trás Inferior",
-        "usable": "Utilizável"
+        "usable": "Utilizável",
+        "rear": "Traseira",
+        "beforeToolInstallation": "Antes da Instalação da Ferramenta",
+        "afterToolInstallation": "Após Instalação da Ferramenta"
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Pressões do Sistema (PSI)",

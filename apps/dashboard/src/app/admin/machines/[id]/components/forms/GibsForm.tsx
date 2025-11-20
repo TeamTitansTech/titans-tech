@@ -25,20 +25,36 @@ const TOP_VIEW_POINTS_RIGHT = ['point6', 'point5'] as const;
 const LEFT_TO_RIGHT_POINTS_LEFT = ['point13', 'point9', 'point15', 'point11'] as const;
 const LEFT_TO_RIGHT_POINTS_RIGHT = ['point14', 'point10', 'point16', 'point12'] as const;
 
+// Before Tool Installation: points 1-8 (same as front-to-back)
+const BEFORE_TOOL_POINTS_LEFT = ['point2', 'point1', 'point4', 'point3'] as const;
+const BEFORE_TOOL_POINTS_RIGHT = ['point6', 'point5', 'point8', 'point7'] as const;
+
+// After Tool Installation: only points 9, 10, 13, 14
+const AFTER_TOOL_POINTS_LEFT = ['point13', 'point9'] as const;
+const AFTER_TOOL_POINTS_RIGHT = ['point14', 'point10'] as const;
+
 interface GibsFormExtendedProps extends GibsFormProps {
   slideType: 'outer' | 'inner';
   beforeAdjustmentData?: GibsStageData;
   afterAdjustmentData?: GibsStageData;
   afterInstallData?: GibsStageData;
+  beforeToolInstallData?: GibsStageData;
+  afterToolInstallData?: GibsStageData;
   onBeforeAdjustmentUpdate?: (field: keyof GibsStageData, value: number) => void;
   onAfterAdjustmentUpdate?: (field: keyof GibsStageData, value: number) => void;
   onAfterInstallUpdate?: (field: keyof GibsStageData, value: number) => void;
+  onBeforeToolInstallUpdate?: (field: keyof GibsStageData, value: number) => void;
+  onAfterToolInstallUpdate?: (field: keyof GibsStageData, value: number) => void;
   beforeAdjustmentErrors?: Record<string, string>;
   afterAdjustmentErrors?: Record<string, string>;
   afterInstallErrors?: Record<string, string>;
+  beforeToolInstallErrors?: Record<string, string>;
+  afterToolInstallErrors?: Record<string, string>;
   handleBeforeBlur?: (field: keyof GibsStageData) => void;
   handleAfterBlur?: (field: keyof GibsStageData) => void;
   handleAfterInstallBlur?: (field: keyof GibsStageData) => void;
+  handleBeforeToolInstallBlur?: (field: keyof GibsStageData) => void;
+  handleAfterToolInstallBlur?: (field: keyof GibsStageData) => void;
 }
 
 interface MeasurementInputsProps {
@@ -95,7 +111,7 @@ interface MeasurementSectionProps {
   updateFn: (field: keyof GibsStageData, value: number) => void;
   handleBlur: (field: keyof GibsStageData) => void;
   errors: Record<string, string>;
-  diagramType: 'frontToBack' | 'leftToRight' | 'topView';
+  diagramType: 'frontToBack' | 'leftToRight' | 'topView' | 'beforeTool' | 'afterTool';
   t: any;
 }
 
@@ -112,6 +128,8 @@ function MeasurementSection({
 
   const diagramPath = useMemo(() => {
     if (diagramType === 'topView') return '/assets/gibs/top.png';
+    if (diagramType === 'beforeTool') return '/assets/gibs/before-tool-instalation.png';
+    if (diagramType === 'afterTool') return '/assets/gibs/after-tool-instalation.png';
     return diagramType === 'frontToBack'
       ? '/assets/gibs/front-to-back.png'
       : '/assets/gibs/left-to-right.png';
@@ -119,11 +137,15 @@ function MeasurementSection({
 
   const relevantPointsLeft = useMemo(() => {
     if (diagramType === 'topView') return TOP_VIEW_POINTS_LEFT;
+    if (diagramType === 'beforeTool') return BEFORE_TOOL_POINTS_LEFT;
+    if (diagramType === 'afterTool') return AFTER_TOOL_POINTS_LEFT;
     return diagramType === 'frontToBack' ? FRONT_TO_BACK_POINTS_LEFT : LEFT_TO_RIGHT_POINTS_LEFT;
   }, [diagramType]);
 
   const relevantPointsRight = useMemo(() => {
     if (diagramType === 'topView') return TOP_VIEW_POINTS_RIGHT;
+    if (diagramType === 'beforeTool') return BEFORE_TOOL_POINTS_RIGHT;
+    if (diagramType === 'afterTool') return AFTER_TOOL_POINTS_RIGHT;
     return diagramType === 'frontToBack' ? FRONT_TO_BACK_POINTS_RIGHT : LEFT_TO_RIGHT_POINTS_RIGHT;
   }, [diagramType]);
 
@@ -235,6 +257,67 @@ function MeasurementSection({
                 </table>
               </div>
             </div>
+          ) : diagramType === 'beforeTool' ? (
+            /* Before Tool Installation Table - Left/Right × Top/Bottom */
+            <div className="w-full max-w-md">
+              <div className="border rounded-md overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-muted">
+                      <th className="border p-2 font-medium"></th>
+                      <th className="border p-2 font-medium">{t('form.gibs.left')}</th>
+                      <th className="border p-2 font-medium">{t('form.gibs.right')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
+                      <td className="border p-2 text-center font-mono">
+                        {(data.point1 + data.point2).toFixed(4)}
+                      </td>
+                      <td className="border p-2 text-center font-mono">
+                        {(data.point5 + data.point6).toFixed(4)}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.bottom')}</td>
+                      <td className="border p-2 text-center font-mono">
+                        {(data.point3 + data.point4).toFixed(4)}
+                      </td>
+                      <td className="border p-2 text-center font-mono">
+                        {(data.point7 + data.point8).toFixed(4)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : diagramType === 'afterTool' ? (
+            /* After Tool Installation Table - Front/Rear × Top */
+            <div className="w-full max-w-md">
+              <div className="border rounded-md overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-muted">
+                      <th className="border p-2 font-medium"></th>
+                      <th className="border p-2 font-medium">{t('form.gibs.front')}</th>
+                      <th className="border p-2 font-medium">{t('form.gibs.rear')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
+                      <td className="border p-2 text-center font-mono">
+                        {(data.point9 + data.point13).toFixed(4)}
+                      </td>
+                      <td className="border p-2 text-center font-mono">
+                        {(data.point10 + data.point14).toFixed(4)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           ) : (
             /* Left/Right Table with Usable - for Left to Right measurements */
             <div className="w-full max-w-md">
@@ -268,9 +351,7 @@ function MeasurementSection({
                     </tr>
                     {calculated.usable !== undefined && (
                       <tr>
-                        <td className="border p-2 font-medium bg-muted">
-                          {t('form.gibs.usable')}
-                        </td>
+                        <td className="border p-2 font-medium bg-muted">{t('form.gibs.usable')}</td>
                         <td className="border p-2 text-center font-mono" colSpan={2}>
                           {calculated.usable.toFixed(4)}
                         </td>
@@ -292,15 +373,23 @@ export function GibsForm({
   beforeAdjustmentData,
   afterAdjustmentData,
   afterInstallData,
+  beforeToolInstallData,
+  afterToolInstallData,
   onBeforeAdjustmentUpdate,
   onAfterAdjustmentUpdate,
   onAfterInstallUpdate,
+  onBeforeToolInstallUpdate,
+  onAfterToolInstallUpdate,
   beforeAdjustmentErrors = {},
   afterAdjustmentErrors = {},
   afterInstallErrors = {},
+  beforeToolInstallErrors = {},
+  afterToolInstallErrors = {},
   handleBeforeBlur = () => {},
   handleAfterBlur = () => {},
   handleAfterInstallBlur = () => {},
+  handleBeforeToolInstallBlur = () => {},
+  handleAfterToolInstallBlur = () => {},
 }: GibsFormExtendedProps) {
   const t = useTranslations('inspections');
   const [includePreviousMeasurements, setIncludePreviousMeasurements] = useState(false);
@@ -465,64 +554,134 @@ export function GibsForm({
     );
   }
 
-  // Inner slide - no collapsible, just tabs
+  // Inner slide - with 2 tabs: Adjustment and Installation
+  const [includeAdjustmentPrevious, setIncludeAdjustmentPrevious] = useState(false);
+  const [adjustmentBeforeOpen, setAdjustmentBeforeOpen] = useState(false);
+  const [adjustmentAfterOpen, setAdjustmentAfterOpen] = useState(false);
+
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="beforeAdjustment" className="w-full">
+      <Tabs defaultValue="adjustment" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="beforeAdjustment">{t('form.gibs.beforeAdjustment')}</TabsTrigger>
-          <TabsTrigger value="afterAdjustment">{t('form.gibs.afterAdjustment')}</TabsTrigger>
+          <TabsTrigger value="adjustment">Adjustment</TabsTrigger>
+          <TabsTrigger value="installation">Installation</TabsTrigger>
         </TabsList>
 
-        {beforeAdjustmentData && onBeforeAdjustmentUpdate && (
-          <TabsContent value="beforeAdjustment" className="mt-4">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              <MeasurementSection
-                title="Before Adjustment - Front to Back"
-                data={beforeAdjustmentData}
-                updateFn={onBeforeAdjustmentUpdate}
-                handleBlur={handleBeforeBlur}
-                errors={beforeAdjustmentErrors}
-                diagramType="frontToBack"
-                t={t}
-              />
-              <MeasurementSection
-                title="Before Adjustment - Left to Right"
-                data={beforeAdjustmentData}
-                updateFn={onBeforeAdjustmentUpdate}
-                handleBlur={handleBeforeBlur}
-                errors={beforeAdjustmentErrors}
-                diagramType="leftToRight"
-                t={t}
-              />
-            </div>
-          </TabsContent>
-        )}
+        {/* Adjustment Tab */}
+        <TabsContent value="adjustment" className="mt-4 space-y-6">
+          {/* Checkbox to include previous measurements */}
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="include-adjustment-previous"
+              checked={includeAdjustmentPrevious}
+              onCheckedChange={(checked) => setIncludeAdjustmentPrevious(checked as boolean)}
+            />
+            <Label
+              htmlFor="include-adjustment-previous"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {t('form.gibs.includePreviousMeasurements')}
+            </Label>
+          </div>
 
-        {afterAdjustmentData && onAfterAdjustmentUpdate && (
-          <TabsContent value="afterAdjustment" className="mt-4">
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          {includeAdjustmentPrevious ? (
+            <>
+              {/* Before Adjustment - Collapsible */}
+              {beforeAdjustmentData && onBeforeAdjustmentUpdate && (
+                <Collapsible open={adjustmentBeforeOpen} onOpenChange={setAdjustmentBeforeOpen}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                    <span className="font-medium">{t('form.gibs.beforeAdjustment')}</span>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${adjustmentBeforeOpen ? 'rotate-180' : ''}`}
+                    />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-4">
+                    <MeasurementSection
+                      title="Before Adjustment - Left to Right"
+                      data={beforeAdjustmentData}
+                      updateFn={onBeforeAdjustmentUpdate}
+                      handleBlur={handleBeforeBlur}
+                      errors={beforeAdjustmentErrors}
+                      diagramType="leftToRight"
+                      t={t}
+                    />
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+
+              {/* After Adjustment - Collapsible */}
+              {afterAdjustmentData && onAfterAdjustmentUpdate && (
+                <Collapsible open={adjustmentAfterOpen} onOpenChange={setAdjustmentAfterOpen}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                    <span className="font-medium">{t('form.gibs.afterAdjustment')}</span>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${adjustmentAfterOpen ? 'rotate-180' : ''}`}
+                    />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-4">
+                    <MeasurementSection
+                      title="After Adjustment - Left to Right"
+                      data={afterAdjustmentData}
+                      updateFn={onAfterAdjustmentUpdate}
+                      handleBlur={handleAfterBlur}
+                      errors={afterAdjustmentErrors}
+                      diagramType="leftToRight"
+                      t={t}
+                    />
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+            </>
+          ) : (
+            /* When checkbox is not checked, show only After Adjustment */
+            afterAdjustmentData &&
+            onAfterAdjustmentUpdate && (
+              <div className="space-y-4">
+                <h4 className="font-semibold text-sm">{t('form.gibs.afterAdjustment')}</h4>
+                <MeasurementSection
+                  title="After Adjustment - Left to Right"
+                  data={afterAdjustmentData}
+                  updateFn={onAfterAdjustmentUpdate}
+                  handleBlur={handleAfterBlur}
+                  errors={afterAdjustmentErrors}
+                  diagramType="leftToRight"
+                  t={t}
+                />
+              </div>
+            )
+          )}
+        </TabsContent>
+
+        {/* Installation Tab */}
+        <TabsContent value="installation" className="mt-4">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {/* Before Tool Installation */}
+            {beforeToolInstallData && onBeforeToolInstallUpdate && (
               <MeasurementSection
-                title="After Adjustment - Front to Back"
-                data={afterAdjustmentData}
-                updateFn={onAfterAdjustmentUpdate}
-                handleBlur={handleAfterBlur}
-                errors={afterAdjustmentErrors}
-                diagramType="frontToBack"
+                title={t('form.gibs.beforeToolInstallation')}
+                data={beforeToolInstallData}
+                updateFn={onBeforeToolInstallUpdate}
+                handleBlur={handleBeforeToolInstallBlur}
+                errors={beforeToolInstallErrors}
+                diagramType="beforeTool"
                 t={t}
               />
+            )}
+
+            {/* After Tool Installation */}
+            {afterToolInstallData && onAfterToolInstallUpdate && (
               <MeasurementSection
-                title="After Adjustment - Left to Right"
-                data={afterAdjustmentData}
-                updateFn={onAfterAdjustmentUpdate}
-                handleBlur={handleAfterBlur}
-                errors={afterAdjustmentErrors}
-                diagramType="leftToRight"
+                title={t('form.gibs.afterToolInstallation')}
+                data={afterToolInstallData}
+                updateFn={onAfterToolInstallUpdate}
+                handleBlur={handleAfterToolInstallBlur}
+                errors={afterToolInstallErrors}
+                diagramType="afterTool"
                 t={t}
               />
-            </div>
-          </TabsContent>
-        )}
+            )}
+          </div>
+        </TabsContent>
       </Tabs>
     </div>
   );

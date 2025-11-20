@@ -520,61 +520,26 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
                 slideType="inner"
                 beforeAdjustmentData={innerBeforeAdjustment.data}
                 afterAdjustmentData={innerAfterAdjustment.data}
+                beforeToolInstallData={innerBeforeToolInstallation.data}
+                afterToolInstallData={innerAfterToolInstallation.data}
                 onBeforeAdjustmentUpdate={wrapUpdateFn(innerBeforeAdjustment.updateField)}
                 onAfterAdjustmentUpdate={wrapUpdateFn(innerAfterAdjustment.updateField)}
+                onBeforeToolInstallUpdate={wrapUpdateFn(innerBeforeToolInstallation.updateField)}
+                onAfterToolInstallUpdate={wrapUpdateFn(innerAfterToolInstallation.updateField)}
                 beforeAdjustmentErrors={innerBeforeAdjustment.errors}
                 afterAdjustmentErrors={innerAfterAdjustment.errors}
+                beforeToolInstallErrors={innerBeforeToolInstallation.errors}
+                afterToolInstallErrors={innerAfterToolInstallation.errors}
                 handleBeforeBlur={innerBeforeAdjustment.handleBlur}
                 handleAfterBlur={innerAfterAdjustment.handleBlur}
+                handleBeforeToolInstallBlur={innerBeforeToolInstallation.handleBlur}
+                handleAfterToolInstallBlur={innerAfterToolInstallation.handleBlur}
                 data={innerBeforeAdjustment.data}
                 updateFn={wrapUpdateFn(innerBeforeAdjustment.updateField)}
                 errors={innerBeforeAdjustment.errors}
                 handleBlur={innerBeforeAdjustment.handleBlur}
                 title="Inner Slide"
               />
-
-              {/* Tool Installation measurements */}
-              <div className="mt-6 space-y-4">
-                <h3 className="font-semibold">Tool Installation Measurements</h3>
-                <Tabs defaultValue="beforeTool" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="beforeTool">Before Tool Installation</TabsTrigger>
-                    <TabsTrigger value="afterTool">After Tool Installation</TabsTrigger>
-                  </TabsList>
-
-                  <TabsContent value="beforeTool" className="mt-4">
-                    <GibsForm
-                      slideType="inner"
-                      beforeAdjustmentData={innerBeforeToolInstallation.data}
-                      onBeforeAdjustmentUpdate={wrapUpdateFn(
-                        innerBeforeToolInstallation.updateField,
-                      )}
-                      beforeAdjustmentErrors={innerBeforeToolInstallation.errors}
-                      handleBeforeBlur={innerBeforeToolInstallation.handleBlur}
-                      data={innerBeforeToolInstallation.data}
-                      updateFn={wrapUpdateFn(innerBeforeToolInstallation.updateField)}
-                      errors={innerBeforeToolInstallation.errors}
-                      handleBlur={innerBeforeToolInstallation.handleBlur}
-                      title="Before Tool Installation"
-                    />
-                  </TabsContent>
-
-                  <TabsContent value="afterTool" className="mt-4">
-                    <GibsForm
-                      slideType="inner"
-                      beforeAdjustmentData={innerAfterToolInstallation.data}
-                      onBeforeAdjustmentUpdate={wrapUpdateFn(innerAfterToolInstallation.updateField)}
-                      beforeAdjustmentErrors={innerAfterToolInstallation.errors}
-                      handleBeforeBlur={innerAfterToolInstallation.handleBlur}
-                      data={innerAfterToolInstallation.data}
-                      updateFn={wrapUpdateFn(innerAfterToolInstallation.updateField)}
-                      errors={innerAfterToolInstallation.errors}
-                      handleBlur={innerAfterToolInstallation.handleBlur}
-                      title="After Tool Installation"
-                    />
-                  </TabsContent>
-                </Tabs>
-              </div>
             </TabsContent>
           </Tabs>
 
