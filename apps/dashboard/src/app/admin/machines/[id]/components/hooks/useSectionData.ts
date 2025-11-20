@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import type { SectionDataMap, AnySectionData } from '../types/service-completion.types';
+import type { AnySectionData } from '../types/service-completion.types';
 
 export function useSectionData() {
   // Track which sections have been completed (validated)
   const [completedSections, setCompletedSections] = useState<Set<string>>(new Set());
 
   // Store completed section data for summary display
-  const [completedSectionData, setCompletedSectionData] = useState<Partial<SectionDataMap>>({});
+  // Using Record<string, AnySectionData> instead of Partial<SectionDataMap> to allow
+  // flexible assignment of different section types without type assertions
+  const [completedSectionData, setCompletedSectionData] = useState<Record<string, AnySectionData>>(
+    {},
+  );
 
   // Store the service ID for newly created services
   const [createdServiceId, setCreatedServiceId] = useState<string | null>(null);

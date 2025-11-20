@@ -8,12 +8,13 @@ import { BranchCard } from './BranchCard';
 import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import type { Company } from '@/data/services/companies.api';
 import type { CompanyBranch } from '@/data/services/company-branches.api';
+import type { Machine } from '@/data/services/machines.api';
 import { useTranslations } from 'next-intl';
 import { getAllUsers } from '@/data/services/users.api';
 
 interface BranchWithMachineCount extends CompanyBranch {
   machineCount: number;
-  machines: any[];
+  machines: Machine[];
 }
 
 interface CompanyViewProps {

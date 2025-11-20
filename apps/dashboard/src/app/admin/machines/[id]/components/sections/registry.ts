@@ -20,6 +20,7 @@ export interface SectionConfig {
    * Note: Using `any` here is intentional as section components have different prop requirements
    * (some need serviceType, some need isOpen, etc.) that can't be unified into a single interface.
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: ComponentType<any>;
 
   /** Metadata for displaying the section */

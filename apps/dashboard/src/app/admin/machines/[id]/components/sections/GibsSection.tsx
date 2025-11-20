@@ -127,8 +127,8 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      baseUpdateOuterBefore(field, value as any);
+      // Type assertion needed: form inputs provide union type, but hook expects exact field type
+      baseUpdateOuterBefore(field, value as GibsData[keyof GibsData]);
       onSectionTouched?.();
     };
 
@@ -136,8 +136,8 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      baseUpdateOuterAfter(field, value as any);
+      // Type assertion needed: form inputs provide union type, but hook expects exact field type
+      baseUpdateOuterAfter(field, value as GibsData[keyof GibsData]);
       onSectionTouched?.();
     };
 
@@ -145,8 +145,8 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      baseUpdateInnerBefore(field, value as any);
+      // Type assertion needed: form inputs provide union type, but hook expects exact field type
+      baseUpdateInnerBefore(field, value as GibsData[keyof GibsData]);
       onSectionTouched?.();
     };
 
@@ -154,8 +154,8 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       field: keyof GibsData,
       value: string | number | boolean | undefined,
     ) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      baseUpdateInnerAfter(field, value as any);
+      // Type assertion needed: form inputs provide union type, but hook expects exact field type
+      baseUpdateInnerAfter(field, value as GibsData[keyof GibsData]);
       onSectionTouched?.();
     };
 

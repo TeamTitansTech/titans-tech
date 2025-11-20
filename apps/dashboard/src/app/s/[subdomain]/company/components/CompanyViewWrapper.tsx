@@ -4,10 +4,11 @@ import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { CompanyView } from './CompanyView';
 import type { Company } from '@/data/services/companies.api';
 import type { CompanyBranch } from '@/data/services/company-branches.api';
+import type { Machine } from '@/data/services/machines.api';
 
 interface BranchWithMachineCount extends CompanyBranch {
   machineCount: number;
-  machines: any[];
+  machines: Machine[];
 }
 
 interface CompanyViewWrapperProps {

@@ -12,9 +12,9 @@ import { useTranslations } from 'next-intl';
 import { ServiceCompletionModal } from './ServiceCompletionModal';
 import { SectionCard } from '@/components/shared/SectionCard';
 import { Typography } from '@/components/ui/typography';
-import type { Machine } from '@titans-tech/shared/types';
+import type { Machine } from '@/data/services/machines.api';
 
-interface MachineDetailsClientProps {
+export interface MachineDetailsClientProps {
   machine: Machine;
 }
 

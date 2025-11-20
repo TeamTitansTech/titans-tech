@@ -5,20 +5,17 @@ export type ValidationRule<T> = {
   message: string;
 };
 
-/**
- * Note: Using `Record<string, any>` here is intentional to allow interfaces with optional properties.
- * TypeScript's `Record<string, unknown>` doesn't support optional fields, which most data interfaces have.
- */
-export type FieldValidationRules<T extends Record<string, any>> = Partial<
+export type FieldValidationRules<T extends Record<string, unknown>> = Partial<
   Record<keyof T, ValidationRule<unknown>[]>
 >;
 
 /**
  * Hook for field-level validation
  * @template T - The type of data being validated
- * Note: Using `Record<string, any>` here is intentional to allow interfaces with optional properties.
  */
-export function useFieldValidation<T extends Record<string, any>>(rules: FieldValidationRules<T>) {
+export function useFieldValidation<T extends Record<string, unknown>>(
+  rules: FieldValidationRules<T>,
+) {
   const validateField = useCallback(
     <K extends keyof T>(field: K, value: T[K]): string => {
       const fieldRules = rules[field];

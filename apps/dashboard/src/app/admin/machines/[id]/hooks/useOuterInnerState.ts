@@ -4,10 +4,8 @@ import { useState, useCallback } from 'react';
  * Hook for managing outer/inner + before/after state pattern
  * Handles the complex 4-way state pattern (outerBefore, outerAfter, innerBefore, innerAfter)
  * @template T - The type of data for each section
- * Note: Using `Record<string, any>` here is intentional to allow interfaces with optional properties.
- * TypeScript's `Record<string, unknown>` doesn't support optional fields, which most data interfaces have.
  */
-export function useOuterInnerState<T extends Record<string, any>>(
+export function useOuterInnerState<T extends Record<string, unknown>>(
   initialData: T,
   loadedData?: {
     outerBefore?: T;

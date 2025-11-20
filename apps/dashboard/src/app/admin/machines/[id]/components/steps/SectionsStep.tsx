@@ -4,12 +4,12 @@ import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { SECTION_REGISTRY } from '../sections/registry';
 import type { SectionComponentRef } from '../sections/types';
 import { ServiceType } from '@/data/types/services.types';
-import type { SectionDataMap } from '../types/service-completion.types';
+import type { AnySectionData } from '../types/service-completion.types';
 
 interface SectionsStepProps {
   selectedSectionsArray: string[];
   currentSectionIndex: number;
-  completedSectionData: Partial<SectionDataMap>;
+  completedSectionData: Record<string, AnySectionData>;
   currentServiceType: ServiceType;
   error: string | null;
   stepperSteps: StepperStep[];
