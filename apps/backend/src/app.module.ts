@@ -11,6 +11,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
 import { CompanyBranchesModule } from './modules/company-branches/company-branches.module';
 import { UsersModule } from './modules/users/users.module';
 import { AlertsModule } from './modules/alerts/alerts.module';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AlertsModule } from './modules/alerts/alerts.module';
     CompaniesModule,
     CompanyBranchesModule,
     UsersModule,
+    UploadModule,
     BlueprintsModule,
     MachinesModule,
     ServicesModule,
