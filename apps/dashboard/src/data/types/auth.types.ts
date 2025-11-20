@@ -1,4 +1,4 @@
-import { UserResponseDto, SysAdminResponseDto } from '@titans-tech/shared';
+import { UserResponseDto, SysAdminResponseDto } from '@titans-tech/shared/backend-dtos';
 
 export interface CompanyUserContextType {
   companyUser: UserResponseDto | null;

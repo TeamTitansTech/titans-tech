@@ -5,19 +5,33 @@ import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Check, ChevronUp } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslations } from 'next-intl';
 import { SECTION_REGISTRY } from '../sections/registry';
 import { SectionSummary } from '../summary';
+import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services';
+import { WhyNotCoveredType } from '@titans-tech/shared/types';
+import type { SectionDataMap } from '../types/service-completion.types';
 
 interface SummaryStepProps {
   date: Date;
   performedBy: string;
   completedSections: Set<string>;
-  completedSectionData: Record<string, any>;
+  completedSectionData: Partial<SectionDataMap>;
   isSubmitting: boolean;
   error: string | null;
   stepperSteps: StepperStep[];
   onStepClick: (index: number) => void;
   onSubmit: (e: React.FormEvent) => void;
+  // Inspection observation fields
+  isPressLevel?: YesNoNaDncType;
+  driveBeltCondition?: string;
+  areAllProtectiveCovers?: string;
+  protectiveCoversExplanation?: string;
+  areCracksVisible?: YesNoDncType;
+  cracksLocation?: string;
+  isMainMotorSecure?: YesNoDncType;
+  isMotorPlateSecure?: YesNoDncType;
+  whyNotCovered?: string;
   translations: {
     title: string;
     serviceDetailsTitle: string;
@@ -41,8 +55,35 @@ export function SummaryStep({
   stepperSteps,
   onStepClick,
   onSubmit,
+  // Inspection observation fields
+  isPressLevel,
+  driveBeltCondition,
+  areAllProtectiveCovers,
+  protectiveCoversExplanation,
+  areCracksVisible,
+  cracksLocation,
+  isMainMotorSecure,
+  isMotorPlateSecure,
+  whyNotCovered,
   translations,
 }: SummaryStepProps) {
+  const tServices = useTranslations('services.modal');
+  const tInspections = useTranslations('inspections.form.enums');
+
+  // Helper function to format enum values for display
+  const formatEnumValue = (value: string | undefined, enumType: string) => {
+    if (!value) return '-';
+    const translationKey = `${enumType}.${value.toLowerCase()}`;
+    const translated = tInspections(translationKey);
+
+    // If translation key is returned as-is, return the original value
+    if (translated === translationKey || translated.includes('inspections.form.enums')) {
+      return value;
+    }
+
+    return translated;
+  };
+
   return (
     <form onSubmit={onSubmit} className="flex-1 overflow-hidden flex flex-col">
       {/* Stepper */}
@@ -70,6 +111,83 @@ export function SummaryStep({
             <div>
               <Label className="text-xs text-muted-foreground">{translations.performedBy}</Label>
               <div className="text-sm font-medium">{performedBy || '-'}</div>
+            </div>
+
+            {/* Add all inspection observation fields here */}
+            <div>
+              <Label className="text-xs text-muted-foreground">
+                {tServices('inspectionObservations.isPressLevel')}
+              </Label>
+              <div className="text-sm font-medium">
+                {formatEnumValue(isPressLevel, 'yesNoNaDnc')}
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">
+                {tServices('inspectionObservations.driveBeltCondition')}
+              </Label>
+              <div className="text-sm font-medium">
+                {formatEnumValue(driveBeltCondition, 'driveBeltCondition')}
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">
+                {tServices('inspectionObservations.areAllProtectiveCovers')}
+              </Label>
+              <div className="text-sm font-medium">
+                {formatEnumValue(areAllProtectiveCovers, 'protectiveCoversStatus')}
+              </div>
+            </div>
+            {areAllProtectiveCovers === 'NO' && (
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  {tServices('inspectionObservations.whyNotCovered')}
+                </Label>
+                <div className="text-sm font-medium">
+                  {formatEnumValue(whyNotCovered, 'whyNotCovered')}
+                </div>
+              </div>
+            )}
+            {areAllProtectiveCovers === 'NO' &&
+              whyNotCovered === WhyNotCoveredType.OTHER_EXPLAIN && (
+                <div className="col-span-2">
+                  <Label className="text-xs text-muted-foreground">
+                    {tServices('inspectionObservations.protectiveCoversExplanation')}
+                  </Label>
+                  <div className="text-sm font-medium">{protectiveCoversExplanation || '-'}</div>
+                </div>
+              )}
+            <div>
+              <Label className="text-xs text-muted-foreground">
+                {tServices('inspectionObservations.areCracksVisible')}
+              </Label>
+              <div className="text-sm font-medium">
+                {formatEnumValue(areCracksVisible, 'yesNoDnc')}
+              </div>
+            </div>
+            {areCracksVisible === YesNoDncType.YES && (
+              <div>
+                <Label className="text-xs text-muted-foreground">
+                  {tServices('inspectionObservations.cracksLocation')}
+                </Label>
+                <div className="text-sm font-medium">{cracksLocation || '-'}</div>
+              </div>
+            )}
+            <div>
+              <Label className="text-xs text-muted-foreground">
+                {tServices('inspectionObservations.isMainMotorSecure')}
+              </Label>
+              <div className="text-sm font-medium">
+                {formatEnumValue(isMainMotorSecure, 'yesNoDnc')}
+              </div>
+            </div>
+            <div>
+              <Label className="text-xs text-muted-foreground">
+                {tServices('inspectionObservations.isMotorPlateSecure')}
+              </Label>
+              <div className="text-sm font-medium">
+                {formatEnumValue(isMotorPlateSecure, 'yesNoDnc')}
+              </div>
             </div>
           </div>
         </div>
@@ -118,7 +236,7 @@ export function SummaryStep({
           */}
           {Array.from(completedSections).map((sectionKey) => {
             const sectionConfig = SECTION_REGISTRY[sectionKey];
-            const data = completedSectionData[sectionKey];
+            const data = completedSectionData[sectionKey as keyof typeof completedSectionData];
             if (!sectionConfig || !data) return null;
 
             return (

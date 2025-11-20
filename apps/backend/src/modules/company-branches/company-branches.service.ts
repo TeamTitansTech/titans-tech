@@ -5,7 +5,7 @@ import {
   UpdateCompanyBranchDto,
   SetUserPermissionsDto,
   UserResponseDto,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 import { Prisma } from '@titans-tech/db';
 
 @Injectable()

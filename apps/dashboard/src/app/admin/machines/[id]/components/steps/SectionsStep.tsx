@@ -4,11 +4,12 @@ import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { SECTION_REGISTRY } from '../sections/registry';
 import type { SectionComponentRef } from '../sections/types';
 import { ServiceType } from '@/data/types/services.types';
+import type { SectionDataMap } from '../types/service-completion.types';
 
 interface SectionsStepProps {
   selectedSectionsArray: string[];
   currentSectionIndex: number;
-  completedSectionData: Record<string, any>;
+  completedSectionData: Partial<SectionDataMap>;
   currentServiceType: ServiceType;
   error: string | null;
   stepperSteps: StepperStep[];
@@ -44,7 +45,7 @@ export function SectionsStep({
   if (!sectionConfig) return null;
 
   const SectionComponent = sectionConfig.component;
-  const sectionData = completedSectionData[currentSectionKey];
+  const sectionData = completedSectionData[currentSectionKey as keyof typeof completedSectionData];
 
   // Create a key that changes when data is loaded to force component remount
   const dataHash = sectionData

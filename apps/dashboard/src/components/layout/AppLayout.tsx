@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { NotificationsSocketProvider } from '@/contexts/NotificationsSocketContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
+import { BranchProvider } from '@/contexts/BranchContext';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -31,13 +32,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   console.log('[AppLayout] Using full layout with NotificationsSocketProvider');
   return (
     <NotificationsSocketProvider userId={userId} initialUnreadCount={unreadNotifications}>
-      <SidebarProvider defaultOpen={true}>
-        <AppSidebar />
-        <SidebarInset>
-          <AppHeader />
-          <main className="flex-1 min-h-screen bg-background">{children}</main>
-        </SidebarInset>
-      </SidebarProvider>
+      <BranchProvider>
+        <SidebarProvider defaultOpen={true}>
+          <AppSidebar />
+          <SidebarInset>
+            <AppHeader />
+            <main className="flex-1 min-h-screen bg-background">{children}</main>
+          </SidebarInset>
+        </SidebarProvider>
+      </BranchProvider>
     </NotificationsSocketProvider>
   );
 }

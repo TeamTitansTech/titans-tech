@@ -6,6 +6,7 @@ import { LubricationHydraulicsSection } from './LubricationHydraulicsSection';
 import { ClutchSection } from './ClutchSection';
 import { CounterbalanceCylinderSection } from './CounterbalanceCylinderSection';
 import { TrammingSection } from './TrammingSection';
+import { PistonsSection } from './PistonsSection';
 
 /**
  * Configuration for a single section
@@ -14,7 +15,11 @@ export interface SectionConfig {
   /** Unique key for the section (matches enum value) */
   key: string;
 
-  /** React component to render for this section */
+  /**
+   * React component to render for this section
+   * Note: Using `any` here is intentional as section components have different prop requirements
+   * (some need serviceType, some need isOpen, etc.) that can't be unified into a single interface.
+   */
   component: ComponentType<any>;
 
   /** Metadata for displaying the section */
@@ -98,6 +103,16 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
       i18nKey: 'tramming',
     },
     // No badges for tramming section
+  },
+
+  PISTONS: {
+    key: 'PISTONS',
+    component: PistonsSection,
+    metadata: {
+      image: '/assets/sections/pistons.svg',
+      i18nKey: 'pistons',
+    },
+    // No badges for pistons section
   },
 };
 

@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { type TrammingData, ServiceType, YesNoDncType } from '@/data/types/services.types';
 import { TrammingForm } from '../forms/TrammingForm';
 import { isDataTouched } from './utils';
+import { validateNumericFields } from '../utils/validateNumericFields';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -53,22 +55,7 @@ export const defaultTrammingData: TrammingData = {
 };
 
 export const validateTrammingData = (data: TrammingData): string[] => {
-  const errors: string[] = [];
-
-  // Get all numeric field keys from the data (exclude any that might be undefined)
-  const fieldsToValidate = Object.keys(data).filter(
-    (key) => key.startsWith('outer') || key.startsWith('inner'),
-  ) as (keyof TrammingData)[];
-
-  fieldsToValidate.forEach((field) => {
-    const value = data[field];
-    // Only validate if the field exists in the data (not undefined)
-    if (value !== undefined && (typeof value !== 'number' || isNaN(value))) {
-      errors.push(`${String(field)} is required and must be a valid number`);
-    }
-  });
-
-  return errors;
+  return validateNumericFields(data, ['outer', 'inner']);
 };
 
 export interface TrammingSectionData {
@@ -95,7 +82,7 @@ interface TrammingSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
-  initialData?: any; // TrammingCheck data from API
+  initialData?: TrammingSectionData;
 }
 
 export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionProps>(
@@ -270,6 +257,8 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
       },
     }));
 
+    const tMeasurements = useTranslations('measurements');
+
     return (
       <div className="space-y-6 p-4">
         {/* Slide Tram and Unit Dropdowns */}
@@ -316,8 +305,14 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
         {/* Tabs for Outer/Inner */}
         <Tabs defaultValue="outer" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
-            <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
+            <TabsTrigger value="outer">
+              <span className="hidden sm:inline">{tMeasurements('outerMeasurements')}</span>
+              <span className="sm:hidden">Outer</span>
+            </TabsTrigger>
+            <TabsTrigger value="inner">
+              <span className="hidden sm:inline">{tMeasurements('innerMeasurements')}</span>
+              <span className="sm:hidden">Inner</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="outer" className="mt-4">

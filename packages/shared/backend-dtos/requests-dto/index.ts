@@ -6,3 +6,6 @@ export * from './threshold-bearing-clearance.dto';
 export * from './blueprint.dto';
 export * from './create-urgent-request.dto';
 export * from './mark-notification-read.dto';
+export * from './auth.dto';
+export * from './machine.dto';
+export * from './service';

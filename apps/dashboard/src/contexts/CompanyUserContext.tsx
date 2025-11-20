@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { UserResponseDto } from '@titans-tech/shared';
+import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 interface CompanyUserContextType {
   companyUser: UserResponseDto | null;

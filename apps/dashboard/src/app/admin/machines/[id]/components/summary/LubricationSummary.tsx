@@ -1,6 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
+import type { LubricationHydraulicsData } from '@/data/types/services.types';
 import {
   Table,
   TableBody,
@@ -12,7 +13,7 @@ import {
 import { Typography } from '@/components/ui/typography';
 
 interface LubricationSummaryProps {
-  data: any;
+  data: LubricationHydraulicsData;
 }
 
 export function LubricationSummary({ data }: LubricationSummaryProps) {
@@ -41,7 +42,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
   };
 
   // Helper function to display value with translations
-  const displayValue = (value: any): string => {
+  const displayValue = (value: unknown): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }
@@ -86,7 +87,9 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                     <TableCell className="py-1.5 font-medium border-r bg-muted/20">
                       {translateFieldName(key)}
                     </TableCell>
-                    <TableCell className="py-1.5 text-center">{displayValue(data[key])}</TableCell>
+                    <TableCell className="py-1.5 text-center">
+                      {displayValue(data[key as keyof LubricationHydraulicsData])}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -117,7 +120,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {gauges.map((gauge: any, idx: number) => (
+                {gauges.map((gauge: Record<string, unknown>, idx: number) => (
                   <TableRow key={idx} className="text-[11px] hover:bg-muted/30">
                     <TableCell className="py-1.5 font-medium border-r bg-muted/20">
                       {displayValue(gauge.system)}

@@ -10,8 +10,8 @@ import {
   ThresholdBearingClearanceResponseDto,
   AlertBearingClearanceResponseDto,
   CreateThresholdBearingClearanceSchema,
-} from '@titans-tech/shared';
-import { AlertSeverity } from '@titans-tech/db';
+} from '@titans-tech/shared/backend-dtos';
+import { AlertSeverity } from '@titans-tech/shared/enums';
 import { Decimal } from '@prisma/client/runtime/library';
 import {
   convertThresholdToDecimal,

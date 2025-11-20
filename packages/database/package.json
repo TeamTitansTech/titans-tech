@@ -14,6 +14,11 @@
       "require": "./dist/client-safe.js",
       "import": "./dist/client-safe.js",
       "types": "./dist/client-safe.d.ts"
+    },
+    "./enums": {
+      "require": "./dist/enums.js",
+      "import": "./dist/enums.js",
+      "types": "./dist/enums.d.ts"
     }
   },
   "scripts": {

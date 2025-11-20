@@ -1,8 +1,22 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Body,
+  Param,
+} from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { MachinesService } from './machines.service';
-import { CreateMachineDto } from './dto/create-machine.dto';
+import {
+  CreateMachineDto,
+  CreateMachineSchema,
+  UpdateMachineDto,
+  UpdateMachineSchema,
+} from '@titans-tech/shared/backend-dtos';
 import { Authenticated } from 'src/modules/auth/auth.decorators';
+import { ZodValidationPipe } from '../errors/zod-validation.pipe';
 
 @Controller('machines')
 export class MachinesController {
@@ -11,7 +25,8 @@ export class MachinesController {
   @Authenticated()
   @Post()
   create(
-    @Body() createMachineDto: CreateMachineDto,
+    @Body(new ZodValidationPipe(CreateMachineSchema))
+    createMachineDto: CreateMachineDto,
   ): Promise<
     Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
   > {
@@ -49,5 +64,23 @@ export class MachinesController {
     }>
   > {
     return this.machinesService.findOne(id);
+  }
+
+  @Authenticated()
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateMachineSchema))
+    updateMachineDto: UpdateMachineDto,
+  ): Promise<
+    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
+  > {
+    return this.machinesService.update(id, updateMachineDto);
+  }
+
+  @Authenticated()
+  @Delete(':id')
+  delete(@Param('id') id: string): Promise<void> {
+    return this.machinesService.delete(id);
   }
 }

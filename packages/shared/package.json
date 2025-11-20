@@ -21,9 +21,21 @@
       "default": "./dist/index.js",
       "types": "./index.ts"
     },
+    "./enums": {
+      "default": "./dist/enums/index.js",
+      "types": "./enums/index.ts"
+    },
     "./types": {
       "default": "./dist/types/index.js",
       "types": "./types/index.ts"
+    },
+    "./types/enums": {
+      "default": "./dist/types/enums.js",
+      "types": "./types/enums.ts"
+    },
+    "./types/services": {
+      "default": "./dist/types/services.js",
+      "types": "./types/services.ts"
     },
     "./backend-dtos": {
       "default": "./dist/backend-dtos/index.js",

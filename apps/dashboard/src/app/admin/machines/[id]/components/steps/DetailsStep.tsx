@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/ui/typography';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -12,7 +13,10 @@ import {
 import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslations } from 'next-intl';
 import { ServiceType } from '@/data/types/services.types';
+import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services';
+import { WhyNotCoveredType } from '@titans-tech/shared/types';
 import { SECTION_REGISTRY } from '../sections/registry';
 
 interface DetailsStepProps {
@@ -29,6 +33,42 @@ interface DetailsStepProps {
   onStepClick: (index: number) => void;
   onBack: () => void;
   onNext: () => void;
+
+  // Inspection observation fields
+  isPressLevel?: YesNoNaDncType;
+  setIsPressLevel: (value: YesNoNaDncType | undefined) => void;
+  driveBeltCondition: string;
+  setDriveBeltCondition: (value: string) => void;
+  areAllProtectiveCovers: string;
+  setAreAllProtectiveCovers: (value: string) => void;
+  protectiveCoversExplanation: string;
+  setProtectiveCoversExplanation: (value: string) => void;
+  areCracksVisible?: YesNoDncType;
+  setAreCracksVisible: (value: YesNoDncType | undefined) => void;
+  cracksLocation: string;
+  setCracksLocation: (value: string) => void;
+  isMainMotorSecure?: YesNoDncType;
+  setIsMainMotorSecure: (value: YesNoDncType | undefined) => void;
+  isMotorPlateSecure?: YesNoDncType;
+  setIsMotorPlateSecure: (value: YesNoDncType | undefined) => void;
+  whyNotCovered: string;
+  setWhyNotCovered: (value: string) => void;
+
+  // Optional machine data (for read-only display)
+  machine?: {
+    manufacturer?: string;
+    model?: string;
+    sizeTonnage?: string;
+    serialNumber?: string;
+    stroke?: string;
+    foundationType?: string;
+    frameType?: string;
+    clutchType?: string;
+    pneumaticSystem?: string;
+    pressMounting?: string;
+    features?: string;
+  };
+
   translations: {
     dateLabel: string;
     performedByLabel: string;
@@ -40,6 +80,30 @@ interface DetailsStepProps {
     getSectionName: (i18nKey: string) => string;
     back: string;
     continue: string;
+    // Machine information
+    machineInformationTitle: string;
+    manufacturer: string;
+    model: string;
+    sizeTonnage: string;
+    serialNumber: string;
+    stroke: string;
+    foundationType: string;
+    frameType: string;
+    clutchType: string;
+    pneumaticSystem: string;
+    pressMounting: string;
+    features: string;
+    // Inspection observations
+    inspectionObservationsTitle: string;
+    isPressLevel: string;
+    driveBeltCondition: string;
+    areAllProtectiveCovers: string;
+    protectiveCoversExplanation: string;
+    areCracksVisible: string;
+    cracksLocation: string;
+    isMainMotorSecure: string;
+    isMotorPlateSecure: string;
+    whyNotCovered: string;
   };
 }
 
@@ -57,8 +121,30 @@ export function DetailsStep({
   onStepClick,
   onBack,
   onNext,
+  // Inspection fields
+  isPressLevel,
+  setIsPressLevel,
+  driveBeltCondition,
+  setDriveBeltCondition,
+  areAllProtectiveCovers,
+  setAreAllProtectiveCovers,
+  protectiveCoversExplanation,
+  setProtectiveCoversExplanation,
+  areCracksVisible,
+  setAreCracksVisible,
+  cracksLocation,
+  setCracksLocation,
+  isMainMotorSecure,
+  setIsMainMotorSecure,
+  isMotorPlateSecure,
+  setIsMotorPlateSecure,
+  whyNotCovered,
+  setWhyNotCovered,
+  machine,
   translations,
 }: DetailsStepProps) {
+  const tInspections = useTranslations('inspections.form.enums');
+
   return (
     <>
       {/* Stepper */}
@@ -67,6 +153,7 @@ export function DetailsStep({
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 space-y-6 py-4">
+        {/* Basic Service Info */}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label htmlFor="date">{translations.dateLabel}</Label>
@@ -109,6 +196,252 @@ export function DetailsStep({
               </Select>
             </div>
           )}
+        </div>
+
+        {/* Machine Information (Read-only) */}
+        {machine && (
+          <div className="border rounded-lg p-4 bg-muted/30">
+            <Typography variant="h4" className="mb-3">
+              {translations.machineInformationTitle}
+            </Typography>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              {machine.manufacturer && (
+                <div>
+                  <span className="text-muted-foreground">{translations.manufacturer}:</span>
+                  <span className="ml-2 font-medium">{machine.manufacturer}</span>
+                </div>
+              )}
+              {machine.model && (
+                <div>
+                  <span className="text-muted-foreground">{translations.model}:</span>
+                  <span className="ml-2 font-medium">{machine.model}</span>
+                </div>
+              )}
+              {machine.sizeTonnage && (
+                <div>
+                  <span className="text-muted-foreground">{translations.sizeTonnage}:</span>
+                  <span className="ml-2 font-medium">{machine.sizeTonnage}</span>
+                </div>
+              )}
+              {machine.serialNumber && (
+                <div>
+                  <span className="text-muted-foreground">{translations.serialNumber}:</span>
+                  <span className="ml-2 font-medium">{machine.serialNumber}</span>
+                </div>
+              )}
+              {machine.stroke && (
+                <div>
+                  <span className="text-muted-foreground">{translations.stroke}:</span>
+                  <span className="ml-2 font-medium">{machine.stroke}</span>
+                </div>
+              )}
+              {machine.foundationType && (
+                <div>
+                  <span className="text-muted-foreground">{translations.foundationType}:</span>
+                  <span className="ml-2 font-medium">{machine.foundationType}</span>
+                </div>
+              )}
+              {machine.frameType && (
+                <div>
+                  <span className="text-muted-foreground">{translations.frameType}:</span>
+                  <span className="ml-2 font-medium">{machine.frameType}</span>
+                </div>
+              )}
+              {machine.clutchType && (
+                <div>
+                  <span className="text-muted-foreground">{translations.clutchType}:</span>
+                  <span className="ml-2 font-medium">{machine.clutchType}</span>
+                </div>
+              )}
+              {machine.pneumaticSystem && (
+                <div>
+                  <span className="text-muted-foreground">{translations.pneumaticSystem}:</span>
+                  <span className="ml-2 font-medium">{machine.pneumaticSystem}</span>
+                </div>
+              )}
+              {machine.pressMounting && (
+                <div>
+                  <span className="text-muted-foreground">{translations.pressMounting}:</span>
+                  <span className="ml-2 font-medium">{machine.pressMounting}</span>
+                </div>
+              )}
+              {machine.features && (
+                <div>
+                  <span className="text-muted-foreground">{translations.features}:</span>
+                  <span className="ml-2 font-medium">{machine.features}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Inspection Observation Fields */}
+        <div className="border rounded-lg p-4">
+          <Typography variant="h4" className="mb-4">
+            {translations.inspectionObservationsTitle}
+          </Typography>
+
+          <div className="space-y-4">
+            {/* Press Level */}
+            <div>
+              <Label htmlFor="isPressLevel">{translations.isPressLevel}</Label>
+              <Select
+                value={isPressLevel || ''}
+                onValueChange={(value) => setIsPressLevel(value as YesNoNaDncType)}
+              >
+                <SelectTrigger id="isPressLevel" className="mt-1">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={YesNoNaDncType.YES}>Yes</SelectItem>
+                  <SelectItem value={YesNoNaDncType.NO}>No</SelectItem>
+                  <SelectItem value={YesNoNaDncType.NA}>N/A</SelectItem>
+                  <SelectItem value={YesNoNaDncType.DNC}>DNC</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Drive Belt Condition */}
+            <div>
+              <Label htmlFor="driveBeltCondition">{translations.driveBeltCondition}</Label>
+              <Select value={driveBeltCondition} onValueChange={setDriveBeltCondition}>
+                <SelectTrigger id="driveBeltCondition" className="mt-1">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="OK">OK</SelectItem>
+                  <SelectItem value="NA">N/A</SelectItem>
+                  <SelectItem value="LOOSENED">Loosened</SelectItem>
+                  <SelectItem value="TIGHTENED">Tightened</SelectItem>
+                  <SelectItem value="WORN">Worn</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Protective Covers */}
+            <div>
+              <Label htmlFor="areAllProtectiveCovers">{translations.areAllProtectiveCovers}</Label>
+              <Select value={areAllProtectiveCovers} onValueChange={setAreAllProtectiveCovers}>
+                <SelectTrigger id="areAllProtectiveCovers" className="mt-1">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="YES">Yes</SelectItem>
+                  <SelectItem value="NO">No</SelectItem>
+                  <SelectItem value="OK">OK</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Conditional: Why Not Covered (appears when NO) */}
+            {areAllProtectiveCovers === 'NO' && (
+              <div>
+                <Label htmlFor="whyNotCovered">{translations.whyNotCovered}</Label>
+                <Select value={whyNotCovered} onValueChange={setWhyNotCovered}>
+                  <SelectTrigger id="whyNotCovered" className="mt-1">
+                    <SelectValue placeholder="Select..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={WhyNotCoveredType.CUSTOMER_REMOVED}>
+                      {tInspections('whyNotCovered.customerRemoved')}
+                    </SelectItem>
+                    <SelectItem value={WhyNotCoveredType.NOT_IN_AREA}>
+                      {tInspections('whyNotCovered.notInArea')}
+                    </SelectItem>
+                    <SelectItem value={WhyNotCoveredType.OTHER_EXPLAIN}>
+                      {tInspections('whyNotCovered.otherExplain')}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Conditional: Protective Covers Explanation (appears when OTHER_EXPLAIN) */}
+            {areAllProtectiveCovers === 'NO' &&
+              whyNotCovered === WhyNotCoveredType.OTHER_EXPLAIN && (
+                <div>
+                  <Label htmlFor="protectiveCoversExplanation">
+                    {translations.protectiveCoversExplanation}
+                  </Label>
+                  <Textarea
+                    id="protectiveCoversExplanation"
+                    value={protectiveCoversExplanation}
+                    onChange={(e) => setProtectiveCoversExplanation(e.target.value)}
+                    placeholder="Enter explanation..."
+                    className="mt-1"
+                    rows={3}
+                  />
+                </div>
+              )}
+
+            {/* Cracks Visible */}
+            <div>
+              <Label htmlFor="areCracksVisible">{translations.areCracksVisible}</Label>
+              <Select
+                value={areCracksVisible || ''}
+                onValueChange={(value) => setAreCracksVisible(value as YesNoDncType)}
+              >
+                <SelectTrigger id="areCracksVisible" className="mt-1">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
+                  <SelectItem value={YesNoDncType.NO}>No</SelectItem>
+                  <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Conditional: Cracks Location */}
+            {areCracksVisible === YesNoDncType.YES && (
+              <div>
+                <Label htmlFor="cracksLocation">{translations.cracksLocation}</Label>
+                <Input
+                  id="cracksLocation"
+                  value={cracksLocation}
+                  onChange={(e) => setCracksLocation(e.target.value)}
+                  placeholder="Enter location..."
+                  className="mt-1"
+                />
+              </div>
+            )}
+
+            {/* Main Motor Secure */}
+            <div>
+              <Label htmlFor="isMainMotorSecure">{translations.isMainMotorSecure}</Label>
+              <Select
+                value={isMainMotorSecure || ''}
+                onValueChange={(value) => setIsMainMotorSecure(value as YesNoDncType)}
+              >
+                <SelectTrigger id="isMainMotorSecure" className="mt-1">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
+                  <SelectItem value={YesNoDncType.NO}>No</SelectItem>
+                  <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Motor Plate Secure */}
+            <div>
+              <Label htmlFor="isMotorPlateSecure">{translations.isMotorPlateSecure}</Label>
+              <Select
+                value={isMotorPlateSecure || ''}
+                onValueChange={(value) => setIsMotorPlateSecure(value as YesNoDncType)}
+              >
+                <SelectTrigger id="isMotorPlateSecure" className="mt-1">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
+                  <SelectItem value={YesNoDncType.NO}>No</SelectItem>
+                  <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </div>
 
         {/* Display selected sections summary */}
