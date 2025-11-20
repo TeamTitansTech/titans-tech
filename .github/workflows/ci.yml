@@ -33,6 +33,8 @@ jobs:
   format:
     name: Format
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ vars.DATABASE_URL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -83,7 +85,7 @@ jobs:
     name: Prisma Validation
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: postgresql://user:password@localhost:5432/db
+      DATABASE_URL: ${{ vars.DATABASE_URL }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
