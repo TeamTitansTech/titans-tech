@@ -4,6 +4,58 @@ import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { type Service } from '@/data/types/services.types';
 
+// Type definitions for section data structures
+interface BearingMeasurements extends Record<string, unknown> {
+  hasBeenAdjusted?: boolean;
+  combinedWith?: string;
+  matingPart?: string;
+  slideMotorMounts?: string;
+  powerCordHoses?: string;
+  chainsGearsSprockets?: string;
+  lockingClamps?: string;
+  notes?: string;
+}
+
+interface SlidePositionData extends Record<string, unknown> {
+  position1?: number;
+  position2?: number;
+  position3?: number;
+  position4?: number;
+  position5?: number;
+  position6?: number;
+}
+
+interface BearingClearanceSectionData {
+  outerBefore?: BearingMeasurements;
+  innerBefore?: BearingMeasurements;
+  outerData?: BearingMeasurements;
+  innerData?: BearingMeasurements;
+}
+
+interface SlideSectionData {
+  outerBefore?: SlidePositionData;
+  innerBefore?: SlidePositionData;
+  outerData?: SlidePositionData;
+  innerData?: SlidePositionData;
+}
+
+interface GibsSectionData {
+  outerBefore?: Record<string, unknown>;
+  innerBefore?: Record<string, unknown>;
+  outerData?: Record<string, unknown>;
+  innerData?: Record<string, unknown>;
+}
+
+interface GaugeData {
+  system?: unknown;
+  gauge?: unknown;
+  psi?: unknown;
+}
+
+interface OtherSectionData extends Record<string, unknown> {
+  gauges?: GaugeData[];
+}
+
 // Helper function to format field names
 const formatFieldName = (key: string): string => {
   return key
@@ -16,7 +68,7 @@ const formatFieldName = (key: string): string => {
 };
 
 // Helper function to display value or "-" for empty
-const displayValue = (value: Record<string, unknown>): string => {
+const displayValue = (value: unknown): string => {
   if (value === null || value === undefined || value === '') {
     return '-';
   }
@@ -39,7 +91,8 @@ const calculateMaxDeviation = (data: Record<string, unknown>): string => {
     data.position6,
   ];
   const validValues = positions.filter(
-    (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
+    (val): val is number =>
+      val !== undefined && val !== null && typeof val === 'number' && !isNaN(val) && val !== 0,
   );
 
   if (validValues.length > 1) {
@@ -51,13 +104,14 @@ const calculateMaxDeviation = (data: Record<string, unknown>): string => {
 };
 
 // Helper function to extract bearing measurement rows
-const extractBearingRows = (data: Record<string, unknown>) => {
-  if (!data) return [];
+const extractBearingRows = (data: unknown) => {
+  if (!data || typeof data !== 'object') return [];
+  const dataObj = data as Record<string, unknown>;
 
   const rows: {
     field: string;
-    lh: Record<string, unknown>;
-    rh: Record<string, unknown>;
+    lh: unknown;
+    rh: unknown;
     differential: string;
   }[] = [];
   const processedFields = new Set<string>();
@@ -74,7 +128,7 @@ const extractBearingRows = (data: Record<string, unknown>) => {
     'notes',
   ];
 
-  Object.keys(data).forEach((key) => {
+  Object.keys(dataObj).forEach((key) => {
     if (skipFields.includes(key)) {
       return;
     }
@@ -83,8 +137,8 @@ const extractBearingRows = (data: Record<string, unknown>) => {
 
     if (!processedFields.has(baseField)) {
       processedFields.add(baseField);
-      const lhValue = data[`${baseField}_LH`];
-      const rhValue = data[`${baseField}_RH`];
+      const lhValue = dataObj[`${baseField}_LH`];
+      const rhValue = dataObj[`${baseField}_RH`];
 
       let differential = '-';
       if (typeof lhValue === 'number' && typeof rhValue === 'number') {
@@ -104,10 +158,10 @@ const extractBearingRows = (data: Record<string, unknown>) => {
 };
 
 // Helper function to check if data has actual values
-const hasActualData = (data: Record<string, unknown>): boolean => {
-  if (!data) return false;
+const hasActualData = (data: unknown): boolean => {
+  if (!data || typeof data !== 'object') return false;
 
-  return Object.entries(data).some(([key, value]) => {
+  return Object.entries(data as Record<string, unknown>).some(([key, value]) => {
     if (key === 'hasBeenAdjusted' || key === 'combinedWith' || key === 'matingPart') {
       return value !== '' && value !== null && value !== undefined;
     }
@@ -153,13 +207,14 @@ export function exportToExcel(data: ExportData): void {
 
     // Bearing Clearance Section
     if (sectionKey === 'BEARING_CLEARANCE') {
+      const bearingData = sectionData as unknown as BearingClearanceSectionData;
       sheetData.push([sectionName]);
       sheetData.push([]);
 
       // Before measurements
       const hasBeforeData =
-        (sectionData?.outerBefore && hasActualData(sectionData.outerBefore)) ||
-        (sectionData?.innerBefore && hasActualData(sectionData.innerBefore));
+        (bearingData?.outerBefore && hasActualData(bearingData.outerBefore)) ||
+        (bearingData?.innerBefore && hasActualData(bearingData.innerBefore));
 
       if (hasBeforeData) {
         sheetData.push(['Before Maintenance']);
@@ -168,7 +223,7 @@ export function exportToExcel(data: ExportData): void {
         // Outer Before
         sheetData.push(['Outer']);
         sheetData.push(['Field', 'LH', 'RH', 'Diff']);
-        const outerBeforeRows = extractBearingRows(sectionData?.outerBefore);
+        const outerBeforeRows = extractBearingRows(bearingData?.outerBefore);
         outerBeforeRows.forEach((row) => {
           sheetData.push([row.field, displayValue(row.lh), displayValue(row.rh), row.differential]);
         });
@@ -177,7 +232,7 @@ export function exportToExcel(data: ExportData): void {
         // Inner Before
         sheetData.push(['Inner']);
         sheetData.push(['Field', 'LH', 'RH', 'Diff']);
-        const innerBeforeRows = extractBearingRows(sectionData?.innerBefore);
+        const innerBeforeRows = extractBearingRows(bearingData?.innerBefore);
         innerBeforeRows.forEach((row) => {
           sheetData.push([row.field, displayValue(row.lh), displayValue(row.rh), row.differential]);
         });
@@ -186,8 +241,8 @@ export function exportToExcel(data: ExportData): void {
 
       // After measurements
       const hasAfterData =
-        (sectionData?.outerData && hasActualData(sectionData.outerData)) ||
-        (sectionData?.innerData && hasActualData(sectionData.innerData));
+        (bearingData?.outerData && hasActualData(bearingData.outerData)) ||
+        (bearingData?.innerData && hasActualData(bearingData.innerData));
 
       if (hasAfterData) {
         if (hasBeforeData) {
@@ -198,7 +253,7 @@ export function exportToExcel(data: ExportData): void {
         // Outer After
         sheetData.push(['Outer']);
         sheetData.push(['Field', 'LH', 'RH', 'Diff']);
-        const outerAfterRows = extractBearingRows(sectionData?.outerData);
+        const outerAfterRows = extractBearingRows(bearingData?.outerData);
         outerAfterRows.forEach((row) => {
           sheetData.push([row.field, displayValue(row.lh), displayValue(row.rh), row.differential]);
         });
@@ -207,7 +262,7 @@ export function exportToExcel(data: ExportData): void {
         // Inner After
         sheetData.push(['Inner']);
         sheetData.push(['Field', 'LH', 'RH', 'Diff']);
-        const innerAfterRows = extractBearingRows(sectionData?.innerData);
+        const innerAfterRows = extractBearingRows(bearingData?.innerData);
         innerAfterRows.forEach((row) => {
           sheetData.push([row.field, displayValue(row.lh), displayValue(row.rh), row.differential]);
         });
@@ -217,39 +272,35 @@ export function exportToExcel(data: ExportData): void {
         sheetData.push(['Additional Information']);
         sheetData.push([]);
         sheetData.push(['Outer']);
+        const outerData = bearingData?.outerData;
+        const outerBefore = bearingData?.outerBefore;
+        const innerData = bearingData?.innerData;
+        const innerBefore = bearingData?.innerBefore;
         sheetData.push([
           'Combined With',
-          displayValue(
-            sectionData?.outerData?.combinedWith || sectionData?.outerBefore?.combinedWith,
-          ),
+          displayValue(outerData?.combinedWith || outerBefore?.combinedWith),
         ]);
         sheetData.push([
           'Mating Part',
-          displayValue(sectionData?.outerData?.matingPart || sectionData?.outerBefore?.matingPart),
+          displayValue(outerData?.matingPart || outerBefore?.matingPart),
         ]);
         sheetData.push([
           'Has Been Adjusted',
-          displayValue(
-            sectionData?.outerData?.hasBeenAdjusted || sectionData?.outerBefore?.hasBeenAdjusted,
-          ),
+          displayValue(outerData?.hasBeenAdjusted || outerBefore?.hasBeenAdjusted),
         ]);
         sheetData.push([]);
         sheetData.push(['Inner']);
         sheetData.push([
           'Combined With',
-          displayValue(
-            sectionData?.innerData?.combinedWith || sectionData?.innerBefore?.combinedWith,
-          ),
+          displayValue(innerData?.combinedWith || innerBefore?.combinedWith),
         ]);
         sheetData.push([
           'Mating Part',
-          displayValue(sectionData?.innerData?.matingPart || sectionData?.innerBefore?.matingPart),
+          displayValue(innerData?.matingPart || innerBefore?.matingPart),
         ]);
         sheetData.push([
           'Has Been Adjusted',
-          displayValue(
-            sectionData?.innerData?.hasBeenAdjusted || sectionData?.innerBefore?.hasBeenAdjusted,
-          ),
+          displayValue(innerData?.hasBeenAdjusted || innerBefore?.hasBeenAdjusted),
         ]);
         sheetData.push([]);
 
@@ -257,103 +308,92 @@ export function exportToExcel(data: ExportData): void {
         sheetData.push(['Shutdown Adjustment Mechanism']);
         sheetData.push([
           'Slide Motor/Mounts',
-          displayValue(
-            sectionData?.outerData?.slideMotorMounts || sectionData?.outerBefore?.slideMotorMounts,
-          ),
+          displayValue(outerData?.slideMotorMounts || outerBefore?.slideMotorMounts),
         ]);
         sheetData.push([
           'Power Cord/Hoses',
-          displayValue(
-            sectionData?.outerData?.powerCordHoses || sectionData?.outerBefore?.powerCordHoses,
-          ),
+          displayValue(outerData?.powerCordHoses || outerBefore?.powerCordHoses),
         ]);
         sheetData.push([
           'Chains & Gears/Sprockets',
-          displayValue(
-            sectionData?.outerData?.chainsGearsSprockets ||
-              sectionData?.outerBefore?.chainsGearsSprockets,
-          ),
+          displayValue(outerData?.chainsGearsSprockets || outerBefore?.chainsGearsSprockets),
         ]);
         sheetData.push([
           'Locking Clamps',
-          displayValue(
-            sectionData?.outerData?.lockingClamps || sectionData?.outerBefore?.lockingClamps,
-          ),
+          displayValue(outerData?.lockingClamps || outerBefore?.lockingClamps),
         ]);
-        if (sectionData?.outerData?.notes || sectionData?.outerBefore?.notes) {
-          sheetData.push([
-            'Notes',
-            displayValue(sectionData?.outerData?.notes || sectionData?.outerBefore?.notes),
-          ]);
+        if (outerData?.notes || outerBefore?.notes) {
+          sheetData.push(['Notes', displayValue(outerData?.notes || outerBefore?.notes)]);
         }
       }
     }
 
     // Slide Section
     else if (sectionKey === 'SLIDE') {
+      const slideData = sectionData as unknown as SlideSectionData;
       sheetData.push([sectionName]);
       sheetData.push([]);
 
       // Outer Before
-      if (sectionData.outerBefore) {
+      if (slideData.outerBefore) {
         sheetData.push(['Outer - Before Maintenance']);
         sheetData.push(['Pos 1', 'Pos 2', 'Pos 3', 'Pos 4', 'Pos 5', 'Pos 6', 'Max Deviation']);
         sheetData.push([
-          displayValue(sectionData.outerBefore.position1),
-          displayValue(sectionData.outerBefore.position2),
-          displayValue(sectionData.outerBefore.position3),
-          displayValue(sectionData.outerBefore.position4),
-          displayValue(sectionData.outerBefore.position5),
-          displayValue(sectionData.outerBefore.position6),
-          calculateMaxDeviation(sectionData.outerBefore),
+          displayValue(slideData.outerBefore.position1),
+          displayValue(slideData.outerBefore.position2),
+          displayValue(slideData.outerBefore.position3),
+          displayValue(slideData.outerBefore.position4),
+          displayValue(slideData.outerBefore.position5),
+          displayValue(slideData.outerBefore.position6),
+          calculateMaxDeviation(slideData.outerBefore),
         ]);
         sheetData.push([]);
       }
 
       // Outer After
-      if (sectionData.outerData) {
-        sheetData.push([sectionData.outerBefore ? 'Outer - After Maintenance' : 'Outer']);
+      if (slideData.outerData) {
+        sheetData.push([slideData.outerBefore ? 'Outer - After Maintenance' : 'Outer']);
         sheetData.push(['Pos 1', 'Pos 2', 'Pos 3', 'Pos 4', 'Pos 5', 'Pos 6', 'Max Deviation']);
         sheetData.push([
-          displayValue(sectionData.outerData.position1),
-          displayValue(sectionData.outerData.position2),
-          displayValue(sectionData.outerData.position3),
-          displayValue(sectionData.outerData.position4),
-          displayValue(sectionData.outerData.position5),
-          displayValue(sectionData.outerData.position6),
-          calculateMaxDeviation(sectionData.outerData),
+          displayValue(slideData.outerData.position1),
+          displayValue(slideData.outerData.position2),
+          displayValue(slideData.outerData.position3),
+          displayValue(slideData.outerData.position4),
+          displayValue(slideData.outerData.position5),
+          displayValue(slideData.outerData.position6),
+          calculateMaxDeviation(slideData.outerData),
         ]);
         sheetData.push([]);
       }
 
       // Inner Before
-      if (sectionData.innerBefore) {
+      if (slideData.innerBefore) {
         sheetData.push(['Inner - Before Maintenance']);
         sheetData.push(['Pos 1', 'Pos 2', 'Pos 3', 'Pos 4', 'Pos 5', 'Pos 6', 'Max Deviation']);
         sheetData.push([
-          displayValue(sectionData.innerBefore.position1),
-          displayValue(sectionData.innerBefore.position2),
-          displayValue(sectionData.innerBefore.position3),
-          displayValue(sectionData.innerBefore.position4),
-          displayValue(sectionData.innerBefore.position5),
-          displayValue(sectionData.innerBefore.position6),
-          calculateMaxDeviation(sectionData.innerBefore),
+          displayValue(slideData.innerBefore.position1),
+          displayValue(slideData.innerBefore.position2),
+          displayValue(slideData.innerBefore.position3),
+          displayValue(slideData.innerBefore.position4),
+          displayValue(slideData.innerBefore.position5),
+          displayValue(slideData.innerBefore.position6),
+          calculateMaxDeviation(slideData.innerBefore),
         ]);
         sheetData.push([]);
       }
 
       // Inner After
-      if (sectionData.innerData) {
-        sheetData.push([sectionData.innerBefore ? 'Inner - After Maintenance' : 'Inner']);
+      if (slideData.innerData) {
+        sheetData.push([slideData.innerBefore ? 'Inner - After Maintenance' : 'Inner']);
         sheetData.push(['Pos 1', 'Pos 2', 'Pos 3', 'Pos 4', 'Pos 5', 'Pos 6', 'Max Deviation']);
         sheetData.push([
-          displayValue(sectionData.innerData.position1),
-          displayValue(sectionData.innerData.position2),
-          displayValue(sectionData.innerData.position3),
-          displayValue(sectionData.innerData.position4),
-          displayValue(sectionData.innerData.position5),
-          displayValue(sectionData.innerData.position6),
-          calculateMaxDeviation(sectionData.innerData),
+          displayValue(slideData.innerData.position1),
+          displayValue(slideData.innerData.position2),
+          displayValue(slideData.innerData.position3),
+          displayValue(slideData.innerData.position4),
+          displayValue(slideData.innerData.position5),
+          displayValue(slideData.innerData.position6),
+          calculateMaxDeviation(slideData.innerData),
         ]);
         sheetData.push([]);
       }
@@ -361,12 +401,13 @@ export function exportToExcel(data: ExportData): void {
 
     // Gibs Section
     else if (sectionKey === 'GIBS') {
+      const gibsData = sectionData as unknown as GibsSectionData;
       sheetData.push([sectionName]);
       sheetData.push([]);
 
       const hasBeforeData =
-        (sectionData?.outerBefore && hasActualData(sectionData.outerBefore)) ||
-        (sectionData?.innerBefore && hasActualData(sectionData.innerBefore));
+        (gibsData?.outerBefore && hasActualData(gibsData.outerBefore)) ||
+        (gibsData?.innerBefore && hasActualData(gibsData.innerBefore));
 
       if (hasBeforeData) {
         sheetData.push(['Before Maintenance']);
@@ -374,7 +415,7 @@ export function exportToExcel(data: ExportData): void {
 
         sheetData.push(['Outer']);
         sheetData.push(['Field', 'LH', 'RH', 'Diff']);
-        const outerBeforeRows = extractBearingRows(sectionData?.outerBefore);
+        const outerBeforeRows = extractBearingRows(gibsData?.outerBefore);
         outerBeforeRows.forEach((row) => {
           sheetData.push([row.field, displayValue(row.lh), displayValue(row.rh), row.differential]);
         });
@@ -382,7 +423,7 @@ export function exportToExcel(data: ExportData): void {
 
         sheetData.push(['Inner']);
         sheetData.push(['Field', 'LH', 'RH', 'Diff']);
-        const innerBeforeRows = extractBearingRows(sectionData?.innerBefore);
+        const innerBeforeRows = extractBearingRows(gibsData?.innerBefore);
         innerBeforeRows.forEach((row) => {
           sheetData.push([row.field, displayValue(row.lh), displayValue(row.rh), row.differential]);
         });
@@ -390,8 +431,8 @@ export function exportToExcel(data: ExportData): void {
       }
 
       const hasAfterData =
-        (sectionData?.outerData && hasActualData(sectionData.outerData)) ||
-        (sectionData?.innerData && hasActualData(sectionData.innerData));
+        (gibsData?.outerData && hasActualData(gibsData.outerData)) ||
+        (gibsData?.innerData && hasActualData(gibsData.innerData));
 
       if (hasAfterData) {
         if (hasBeforeData) {
@@ -401,7 +442,7 @@ export function exportToExcel(data: ExportData): void {
 
         sheetData.push(['Outer']);
         sheetData.push(['Field', 'LH', 'RH', 'Diff']);
-        const outerDataRows = extractBearingRows(sectionData?.outerData);
+        const outerDataRows = extractBearingRows(gibsData?.outerData);
         outerDataRows.forEach((row) => {
           sheetData.push([row.field, displayValue(row.lh), displayValue(row.rh), row.differential]);
         });
@@ -409,7 +450,7 @@ export function exportToExcel(data: ExportData): void {
 
         sheetData.push(['Inner']);
         sheetData.push(['Field', 'LH', 'RH', 'Diff']);
-        const innerDataRows = extractBearingRows(sectionData?.innerData);
+        const innerDataRows = extractBearingRows(gibsData?.innerData);
         innerDataRows.forEach((row) => {
           sheetData.push([row.field, displayValue(row.lh), displayValue(row.rh), row.differential]);
         });
@@ -419,11 +460,12 @@ export function exportToExcel(data: ExportData): void {
 
     // Other Sections (Clutch, Lubrication, Counterbalance)
     else {
+      const otherData = sectionData as unknown as OtherSectionData;
       sheetData.push([sectionName]);
       sheetData.push([]);
 
       // Handle scalar fields
-      const scalarFields = Object.entries(sectionData).filter(
+      const scalarFields = Object.entries(otherData).filter(
         ([key, value]) =>
           key !== 'gauges' &&
           (typeof value !== 'object' || value === null) &&
@@ -441,11 +483,11 @@ export function exportToExcel(data: ExportData): void {
       }
 
       // Handle gauges
-      const gauges = Array.isArray(sectionData.gauges) ? sectionData.gauges : [];
+      const gauges = Array.isArray(otherData.gauges) ? otherData.gauges : [];
       if (gauges.length > 0) {
         sheetData.push(['Gauges']);
         sheetData.push(['System', 'Gauge', 'PSI']);
-        gauges.forEach((gauge: Record<string, unknown>) => {
+        gauges.forEach((gauge) => {
           sheetData.push([
             displayValue(gauge.system),
             displayValue(gauge.gauge),
@@ -558,9 +600,10 @@ export function exportToPDF(data: ExportData): void {
 
     // Bearing Clearance Section
     if (sectionKey === 'BEARING_CLEARANCE') {
+      const bearingData = sectionData as unknown as BearingClearanceSectionData;
       const hasBeforeData =
-        (sectionData?.outerBefore && hasActualData(sectionData.outerBefore)) ||
-        (sectionData?.innerBefore && hasActualData(sectionData.innerBefore));
+        (bearingData?.outerBefore && hasActualData(bearingData.outerBefore)) ||
+        (bearingData?.innerBefore && hasActualData(bearingData.innerBefore));
 
       if (hasBeforeData) {
         doc.setFont('helvetica', 'bold');
@@ -569,7 +612,7 @@ export function exportToPDF(data: ExportData): void {
         yPosition += 5;
 
         // Outer Before
-        const outerBeforeRows = extractBearingRows(sectionData?.outerBefore);
+        const outerBeforeRows = extractBearingRows(bearingData?.outerBefore);
         if (outerBeforeRows.length > 0) {
           autoTable(doc, {
             startY: yPosition,
@@ -596,8 +639,8 @@ export function exportToPDF(data: ExportData): void {
       }
 
       const hasAfterData =
-        (sectionData?.outerData && hasActualData(sectionData.outerData)) ||
-        (sectionData?.innerData && hasActualData(sectionData.innerData));
+        (bearingData?.outerData && hasActualData(bearingData.outerData)) ||
+        (bearingData?.innerData && hasActualData(bearingData.innerData));
 
       if (hasAfterData) {
         if (yPosition > 240) {
@@ -613,7 +656,7 @@ export function exportToPDF(data: ExportData): void {
         }
 
         // Outer After
-        const outerAfterRows = extractBearingRows(sectionData?.outerData);
+        const outerAfterRows = extractBearingRows(bearingData?.outerData);
         if (outerAfterRows.length > 0) {
           autoTable(doc, {
             startY: yPosition,
@@ -642,19 +685,20 @@ export function exportToPDF(data: ExportData): void {
 
     // Slide Section
     else if (sectionKey === 'SLIDE') {
-      if (sectionData.outerBefore) {
+      const slideData = sectionData as unknown as SlideSectionData;
+      if (slideData.outerBefore) {
         autoTable(doc, {
           startY: yPosition,
           head: [['Pos 1', 'Pos 2', 'Pos 3', 'Pos 4', 'Pos 5', 'Pos 6', 'Max Dev']],
           body: [
             [
-              displayValue(sectionData.outerBefore.position1),
-              displayValue(sectionData.outerBefore.position2),
-              displayValue(sectionData.outerBefore.position3),
-              displayValue(sectionData.outerBefore.position4),
-              displayValue(sectionData.outerBefore.position5),
-              displayValue(sectionData.outerBefore.position6),
-              calculateMaxDeviation(sectionData.outerBefore),
+              displayValue(slideData.outerBefore.position1),
+              displayValue(slideData.outerBefore.position2),
+              displayValue(slideData.outerBefore.position3),
+              displayValue(slideData.outerBefore.position4),
+              displayValue(slideData.outerBefore.position5),
+              displayValue(slideData.outerBefore.position6),
+              calculateMaxDeviation(slideData.outerBefore),
             ],
           ],
           theme: 'grid',
@@ -670,7 +714,7 @@ export function exportToPDF(data: ExportData): void {
         yPosition = (doc as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY + 5;
       }
 
-      if (sectionData.outerData) {
+      if (slideData.outerData) {
         if (yPosition > 240) {
           doc.addPage();
           yPosition = 20;
@@ -681,13 +725,13 @@ export function exportToPDF(data: ExportData): void {
           head: [['Pos 1', 'Pos 2', 'Pos 3', 'Pos 4', 'Pos 5', 'Pos 6', 'Max Dev']],
           body: [
             [
-              displayValue(sectionData.outerData.position1),
-              displayValue(sectionData.outerData.position2),
-              displayValue(sectionData.outerData.position3),
-              displayValue(sectionData.outerData.position4),
-              displayValue(sectionData.outerData.position5),
-              displayValue(sectionData.outerData.position6),
-              calculateMaxDeviation(sectionData.outerData),
+              displayValue(slideData.outerData.position1),
+              displayValue(slideData.outerData.position2),
+              displayValue(slideData.outerData.position3),
+              displayValue(slideData.outerData.position4),
+              displayValue(slideData.outerData.position5),
+              displayValue(slideData.outerData.position6),
+              calculateMaxDeviation(slideData.outerData),
             ],
           ],
           theme: 'grid',
@@ -706,7 +750,8 @@ export function exportToPDF(data: ExportData): void {
 
     // Other Sections
     else {
-      const scalarFields = Object.entries(sectionData).filter(
+      const otherData = sectionData as unknown as OtherSectionData;
+      const scalarFields = Object.entries(otherData).filter(
         ([key, value]) =>
           key !== 'gauges' &&
           (typeof value !== 'object' || value === null) &&

@@ -26,8 +26,8 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
   const tCommon = useTranslations('common.status');
 
   // Access nested properties with proper types
-  const outerData = data?.outerAfter;
-  const innerData = data?.innerAfter;
+  const outerData = data?.outerData;
+  const innerData = data?.innerData;
   const outerBefore = data?.outerBefore;
   const innerBefore = data?.innerBefore;
 

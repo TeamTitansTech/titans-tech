@@ -8,7 +8,8 @@ import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { SECTION_REGISTRY } from '../sections/registry';
 import { SectionSummary } from '../summary';
-import { YesNoNaDncType, YesNoDncType, WhyNotCoveredType } from '@titans-tech/shared/types';
+import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services';
+import { WhyNotCoveredType } from '@titans-tech/shared/types';
 import type { SectionDataMap } from '../types/service-completion.types';
 
 interface SummaryStepProps {
@@ -235,7 +236,7 @@ export function SummaryStep({
           */}
           {Array.from(completedSections).map((sectionKey) => {
             const sectionConfig = SECTION_REGISTRY[sectionKey];
-            const data = completedSectionData[sectionKey];
+            const data = completedSectionData[sectionKey as keyof typeof completedSectionData];
             if (!sectionConfig || !data) return null;
 
             return (

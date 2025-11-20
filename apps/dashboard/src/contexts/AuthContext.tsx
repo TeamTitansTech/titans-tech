@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import { SysAdminResponseDto, UserResponseDto } from '@titans-tech/shared';
+import { SysAdminResponseDto, UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { getCookie } from '@/lib/cookies';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

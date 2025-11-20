@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState, ReactNode } from 'react';
-import { SysAdminResponseDto } from '@titans-tech/shared';
+import { SysAdminResponseDto } from '@titans-tech/shared/backend-dtos';
 
 interface SysAdminContextType {
   sysAdminUser: SysAdminResponseDto | null;

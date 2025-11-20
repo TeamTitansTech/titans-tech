@@ -118,8 +118,8 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
           key === 'counterbalanceCylinderAirbag'
         ) {
           // Check if there's a nested 'data' property (for clutch and lubrication)
-          if (extractedData.data) {
-            extractedData = extractedData.data;
+          if (extractedData && typeof extractedData === 'object' && 'data' in extractedData) {
+            extractedData = (extractedData as any).data;
           }
           // For counterbalance, the structure might have outerData/innerData at the wrapper level
           // We'll keep the whole object but filter ID fields during rendering
@@ -131,15 +131,15 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
         console.log('Bearing Clearance Data:', {
           raw: value,
           extracted: extractedData,
-          hasDataContent: hasDataContent(extractedData),
+          hasDataContent: hasDataContent(extractedData as unknown as Record<string, unknown>),
         });
       }
 
       // For inspections, show all sections even if empty
       // For maintenance, only show sections with actual data
-      if (isInspection || hasDataContent(extractedData)) {
+      if (isInspection || hasDataContent(extractedData as unknown as Record<string, unknown>)) {
         completedSections.push(registryKey);
-        completedSectionData[registryKey] = extractedData;
+        completedSectionData[registryKey] = extractedData as unknown as Record<string, unknown>;
       }
     }
   });

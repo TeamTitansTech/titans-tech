@@ -64,8 +64,8 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
       // Handle combined pressure fields
       if (field.combine && field.key.endsWith('Value')) {
         const baseKey = field.key.replace('Value', '');
-        const value = data[field.key];
-        const unit = data[`${baseKey}Unit`];
+        const value = data[field.key as keyof ClutchData];
+        const unit = data[`${baseKey}Unit` as keyof ClutchData];
         const displayVal =
           value !== null && value !== undefined && value !== '' ? `${value} ${unit || 'PSI'}` : '-';
         return {
@@ -75,7 +75,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
         };
       }
       // Handle regular fields
-      const value = data[field.key];
+      const value = data[field.key as keyof ClutchData];
       return {
         key: field.key,
         label: field.label || translateFieldName(field.key),
