@@ -21,6 +21,7 @@ const SLUG_TO_SECTION: Record<string, string> = {
 export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const t = useTranslations('models');
   const [name, setName] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [thresholdsOpen, setThresholdsOpen] = useState(false);
   const [thresholds, setThresholds] = useState<BearingClearanceThresholdsData>({
@@ -71,6 +72,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
     interface CreateBlueprintPayload {
       name: string;
+      imageUrl?: string;
       sections: string[];
       fields: BlueprintField[];
       thresholds?: BearingClearanceThresholdsData;
@@ -78,6 +80,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
     const payload: CreateBlueprintPayload = {
       name,
+      imageUrl: imageUrl || undefined,
       sections: selectedSections
         .map((slug) => SLUG_TO_SECTION[slug])
         .filter((section) => section !== undefined),
@@ -108,6 +111,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     if (response.data) {
       toast.success(t('createdSuccessfully'));
       setName('');
+      setImageUrl('');
       setSelectedSections([]);
       resetFields();
       resetOptions();
@@ -118,12 +122,15 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
   const reset = () => {
     setName('');
+    setImageUrl('');
     setSelectedSections([]);
   };
 
   return {
     name,
     setName,
+    imageUrl,
+    setImageUrl,
     selectedSections,
     toggleSection,
     thresholdsOpen,

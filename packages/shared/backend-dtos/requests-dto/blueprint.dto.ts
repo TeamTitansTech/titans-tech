@@ -4,6 +4,7 @@ import { ServiceSection } from '@titans-tech/db';
 // Schema existente para Blueprint
 export const CreateBlueprintSchema = z.object({
   name: z.string().min(1, 'Blueprint name is required'),
+  imageUrl: z.string().url().optional(),
   fields: z.array(z.any()),
   sections: z.array(z.nativeEnum(ServiceSection)),
 });
@@ -72,6 +73,7 @@ export type ThresholdsDto = z.infer<typeof ThresholdsSchema>;
 export const CreateBlueprintWithThresholdsSchema = z
   .object({
     name: z.string().min(1, 'Blueprint name is required'),
+    imageUrl: z.string().url().optional(),
     fields: z.array(z.any()),
     sections: z.array(z.nativeEnum(ServiceSection)),
     thresholds: ThresholdsSchema.optional(),
