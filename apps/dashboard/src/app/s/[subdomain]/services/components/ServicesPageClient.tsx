@@ -152,10 +152,10 @@ export function ServicesPageClient() {
 
     return {
       totalServices: branchServices.length,
-      upcomingServices: upcomingServices.length,
+      upcomingServices: branchServices.filter((s) => s.status === ServiceStatus.PENDING).length,
       completedThisMonth,
     };
-  }, [branchServices, upcomingServices]);
+  }, [branchServices]);
 
   const handleServiceClick = (service: Service) => {
     setSelectedService(service);
