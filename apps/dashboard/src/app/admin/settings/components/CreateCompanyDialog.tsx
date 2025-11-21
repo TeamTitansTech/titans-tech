@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,6 +33,7 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCom
   const tCommon = useTranslations('common');
   const tValidation = useTranslations('validation');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const companySchema = useMemo(
     () =>
@@ -72,15 +74,18 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCom
     defaultValue: '#000000',
   });
 
-  const handleDialogClose = (open: boolean) => {
-    if (!open && isDirty && !isSubmitting) {
-      if (confirm(tCommon('unsavedChanges'))) {
-        reset();
-        onOpenChange(false);
-      }
+  const handleClose = () => {
+    if (isDirty && !isSubmitting) {
+      setShowConfirmDialog(true);
     } else {
-      onOpenChange(open);
+      onOpenChange(false);
     }
+  };
+
+  const handleConfirmClose = () => {
+    setShowConfirmDialog(false);
+    reset();
+    onOpenChange(false);
   };
 
   const onSubmit = async (data: CompanyFormData) => {
@@ -111,99 +116,111 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCom
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>{t('title')}</DialogTitle>
-          <DialogDescription>{t('description')}</DialogDescription>
-        </DialogHeader>
+    <>
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('title')}</DialogTitle>
+            <DialogDescription>{t('description')}</DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name">{t('form.name.label')}</Label>
-            <Input
-              id="name"
-              {...register('name')}
-              placeholder={t('form.name.placeholder')}
-              disabled={isSubmitting}
-            />
-            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
-          </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">{t('form.name.label')}</Label>
+              <Input
+                id="name"
+                {...register('name')}
+                placeholder={t('form.name.placeholder')}
+                disabled={isSubmitting}
+              />
+              {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="slug">{t('form.slug.label')}</Label>
-            <Input
-              id="slug"
-              {...register('slug')}
-              placeholder={t('form.slug.placeholder')}
-              disabled={isSubmitting}
-            />
-            {errors.slug && <p className="text-sm text-destructive">{errors.slug.message}</p>}
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="slug">{t('form.slug.label')}</Label>
+              <Input
+                id="slug"
+                {...register('slug')}
+                placeholder={t('form.slug.placeholder')}
+                disabled={isSubmitting}
+              />
+              {errors.slug && <p className="text-sm text-destructive">{errors.slug.message}</p>}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="logo">{t('form.logo.label')}</Label>
-            <Input
-              id="logo"
-              {...register('logo')}
-              placeholder={t('form.logo.placeholder')}
-              disabled={isSubmitting}
-            />
-            {errors.logo && <p className="text-sm text-destructive">{errors.logo.message}</p>}
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="logo">{t('form.logo.label')}</Label>
+              <Input
+                id="logo"
+                {...register('logo')}
+                placeholder={t('form.logo.placeholder')}
+                disabled={isSubmitting}
+              />
+              {errors.logo && <p className="text-sm text-destructive">{errors.logo.message}</p>}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="brandColor">{t('form.brandColor.label')}</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  disabled={isSubmitting}
-                  type="button"
-                >
-                  <div
-                    className="w-6 h-6 rounded border mr-2"
-                    style={{ backgroundColor: brandColor }}
+            <div className="space-y-2">
+              <Label htmlFor="brandColor">{t('form.brandColor.label')}</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    disabled={isSubmitting}
+                    type="button"
+                  >
+                    <div
+                      className="w-6 h-6 rounded border mr-2"
+                      style={{ backgroundColor: brandColor }}
+                    />
+                    {brandColor}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3">
+                  <HexColorPicker
+                    color={brandColor}
+                    onChange={(color) => setValue('brandColor', color, { shouldDirty: true })}
                   />
-                  {brandColor}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-3">
-                <HexColorPicker
-                  color={brandColor}
-                  onChange={(color) => setValue('brandColor', color, { shouldDirty: true })}
-                />
-              </PopoverContent>
-            </Popover>
-            {errors.brandColor && (
-              <p className="text-sm text-destructive">{errors.brandColor.message}</p>
-            )}
-          </div>
+                </PopoverContent>
+              </Popover>
+              {errors.brandColor && (
+                <p className="text-sm text-destructive">{errors.brandColor.message}</p>
+              )}
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">{t('form.description.label')}</Label>
-            <Input
-              id="description"
-              {...register('description')}
-              placeholder={t('form.description.placeholder')}
-              disabled={isSubmitting}
-            />
-            {errors.description && (
-              <p className="text-sm text-destructive">{errors.description.message}</p>
-            )}
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">{t('form.description.label')}</Label>
+              <Input
+                id="description"
+                {...register('description')}
+                placeholder={t('form.description.placeholder')}
+                disabled={isSubmitting}
+              />
+              {errors.description && (
+                <p className="text-sm text-destructive">{errors.description.message}</p>
+              )}
+            </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              {t('cancel')}
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t('submitting') : t('submit')}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={handleClose}>
+                {t('cancel')}
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? t('submitting') : t('submit')}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      <ConfirmDialog
+        open={showConfirmDialog}
+        onOpenChange={setShowConfirmDialog}
+        onConfirm={handleConfirmClose}
+        title={tCommon('confirmClose.title')}
+        description={tCommon('confirmClose.description')}
+        confirmText={tCommon('confirmClose.confirm')}
+        cancelText={tCommon('confirmClose.cancel')}
+      />
+    </>
   );
 }
