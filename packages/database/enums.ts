@@ -70,4 +70,4 @@ export {
 
   // Alert enums
   AlertSeverity,
-} from './generated/prisma/client';
+} from './generated/prisma/enums';
