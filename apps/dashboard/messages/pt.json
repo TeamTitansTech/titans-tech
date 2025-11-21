@@ -436,7 +436,8 @@
       "right": "Direita",
       "top": "Superior",
       "bottom": "Inferior",
-      "usable": "Utilizável"
+      "usable": "Utilizável",
+      "rear": "Traseira"
     },
     "sectionStatus": {
       "ok": "OK",

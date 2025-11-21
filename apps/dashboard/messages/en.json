@@ -420,7 +420,8 @@
       "right": "Right",
       "top": "Top",
       "bottom": "Bottom",
-      "usable": "Usable"
+      "usable": "Usable",
+      "rear": "Rear"
     },
     "sectionStatus": {
       "ok": "OK",

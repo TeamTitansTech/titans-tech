@@ -420,7 +420,8 @@
       "right": "Derecha",
       "top": "Superior",
       "bottom": "Inferior",
-      "usable": "Utilizable"
+      "usable": "Utilizable",
+      "rear": "Trasera"
     },
     "sectionStatus": {
       "ok": "OK",

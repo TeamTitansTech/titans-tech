@@ -115,8 +115,8 @@ export function GibsSummary({ data }: GibsSummaryProps) {
               <div className="text-[10px] font-semibold mb-1 text-muted-foreground">
                 {tGibsFields('frontToBackTitle')}
               </div>
-              <div className="grid grid-cols-2 gap-1 mb-2">
-                {[1, 2, 5, 6].map((num) => {
+              <div className="grid grid-cols-4 gap-1 mb-2">
+                {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => {
                   const value = (stageData as any)[`point${num}`];
                   if (value === undefined || value === null) return null;
                   return (
