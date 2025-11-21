@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Typography } from '@/components/ui/typography';
-import { FleetHealthScore } from './FleetHealthScore';
-import { ActiveAlerts } from './ActiveAlerts';
-import { UpcomingServicesTimeline } from './UpcomingServicesTimeline';
+import { OverviewHeroSection } from './OverviewHeroSection';
+import { RequiresAttention } from './RequiresAttention';
+import { Next7DaysTimeline } from './Next7DaysTimeline';
+import { MonthPerformance } from './MonthPerformance';
+import { MachineHealthGrid } from './MachineHealthGrid';
+import { WeeklyActivityBars } from './WeeklyActivityBars';
 import { ServiceTrendsChart } from './ServiceTrendsChart';
-import { MachineStatusChart } from './MachineStatusChart';
-import { QuickActions } from './QuickActions';
 import { getServices } from '@/data/services/services.api';
 import { getMachines } from '@/data/services/machines.api';
 import { Loader2 } from 'lucide-react';
@@ -99,15 +100,6 @@ export function HomePage() {
     const criticalCount = alerts.filter((alert) => alert.severity === AlertSeverity.RED).length;
     const warningCount = alerts.filter((alert) => alert.severity === AlertSeverity.YELLOW).length;
 
-    // Calculate fleet health score (mock calculation)
-    const completedServices = services.filter((s) => s.status === ServiceStatus.COMPLETED).length;
-    const totalServices = services.length;
-    const completionRate = totalServices > 0 ? (completedServices / totalServices) * 100 : 100;
-    const fleetHealthScore = Math.round(
-      completionRate * 0.7 + // 70% weight on service completion
-        ((totalMachines - criticalCount - warningCount) / Math.max(totalMachines, 1)) * 30, // 30% weight on machine health
-    );
-
     // Calculate monthly trends for last 6 months
     const monthlyData = [];
     for (let i = 5; i >= 0; i--) {
@@ -150,22 +142,42 @@ export function HomePage() {
         type: service.type,
       }));
 
+    // Calculate current month performance
+    const currentMonthStart = startOfMonth(new Date());
+    const currentMonthEnd = endOfMonth(new Date());
+    const currentMonthServices = services.filter((service) => {
+      const serviceDate = parseISO(service.date);
+      return (
+        service.status === ServiceStatus.COMPLETED &&
+        serviceDate >= currentMonthStart &&
+        serviceDate <= currentMonthEnd
+      );
+    });
+
+    const preventiveCount = currentMonthServices.filter(
+      (s) => s.type === ServiceType.INSPECTION,
+    ).length;
+    const correctiveCount = currentMonthServices.filter(
+      (s) => s.type === ServiceType.MAINTENANCE,
+    ).length;
+
+    // Mock availability calculation (would need real uptime data)
+    const availability = totalMachines > 0 ? 98.5 : 100;
+
     return {
-      fleetHealth: {
-        score: fleetHealthScore,
-        trend: 'stable' as const,
-        criticalCount,
-        warningCount,
-        totalMachines,
-      },
-      machineStatus: {
-        operational: totalMachines - criticalCount - warningCount,
-        warning: warningCount,
-        critical: criticalCount,
-      },
+      totalMachines,
+      upcomingServicesCount: upcomingServices.length,
+      activeAlertsCount: alerts.length,
+      criticalCount,
+      warningCount,
       monthlyTrends: monthlyData,
       upcomingServices,
       alerts: alerts,
+      monthPerformance: {
+        preventiveCount,
+        correctiveCount,
+        availability,
+      },
     };
   };
 
@@ -191,31 +203,39 @@ export function HomePage() {
         </Typography>
       </div>
 
-      {/* Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Fleet Health Score - spans 2 columns */}
-        <FleetHealthScore
-          score={dashboardData.fleetHealth.score}
-          trend={dashboardData.fleetHealth.trend}
-          criticalCount={dashboardData.fleetHealth.criticalCount}
-          warningCount={dashboardData.fleetHealth.warningCount}
-          totalMachines={dashboardData.fleetHealth.totalMachines}
+      {/* Overview Hero Section */}
+      <OverviewHeroSection
+        totalMachines={dashboardData.totalMachines}
+        upcomingServicesCount={dashboardData.upcomingServicesCount}
+        activeAlertsCount={dashboardData.activeAlertsCount}
+      />
+
+      {/* Requires Attention - Only shows when there are alerts */}
+      <RequiresAttention alerts={dashboardData.alerts} />
+
+      {/* Machine Health Grid - Full width */}
+      <MachineHealthGrid
+        machines={machines}
+        criticalCount={dashboardData.criticalCount}
+        warningCount={dashboardData.warningCount}
+      />
+
+      {/* Next 7 Days + Month Performance */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Next7DaysTimeline services={dashboardData.upcomingServices} />
+        <MonthPerformance
+          preventiveCount={dashboardData.monthPerformance.preventiveCount}
+          correctiveCount={dashboardData.monthPerformance.correctiveCount}
+          availability={dashboardData.monthPerformance.availability}
         />
+      </div>
 
-        {/* Active Alerts - spans 1 column */}
-        <ActiveAlerts alerts={dashboardData.alerts} />
-
-        {/* Upcoming Services Timeline - spans 2 columns */}
-        <UpcomingServicesTimeline services={dashboardData.upcomingServices} />
-
-        {/* Machine Status Chart - spans 1 column */}
-        <MachineStatusChart data={dashboardData.machineStatus} />
-
-        {/* Service Trends Chart - spans full width */}
-        <ServiceTrendsChart data={dashboardData.monthlyTrends} />
-
-        {/* Quick Actions - spans full width */}
-        <QuickActions />
+      {/* Service Trends Chart + Weekly Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <ServiceTrendsChart data={dashboardData.monthlyTrends} />
+        </div>
+        <WeeklyActivityBars services={services} />
       </div>
     </div>
   );
