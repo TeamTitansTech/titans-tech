@@ -811,6 +811,11 @@
           "hasBeenAdjustedRequired": "Holgura de Cojinete: El campo \"Ha Sido Ajustado\" es obligatorio"
         }
       },
+      "gibsSection": {
+        "includeBeforeMeasurements": "Incluir Mediciones Anteriores",
+        "beforeMaintenance": "Antes del Mantenimiento",
+        "afterMaintenance": "Después del Mantenimiento"
+      },
       "enums": {
         "yesNoNaDnc": {
           "yes": "Sí",

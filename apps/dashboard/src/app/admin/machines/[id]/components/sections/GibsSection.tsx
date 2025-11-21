@@ -1,15 +1,17 @@
 'use client';
 
 import { forwardRef, useImperativeHandle, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
 import { type GibsStageData, ServiceType } from '@/data/types/services.types';
 import { GibsForm } from '../forms/GibsForm';
 import { isDataTouched } from './utils';
-import { SectionContainer } from '../shared/SectionContainer';
 
-// Default empty stage data
 export const defaultGibsStageData: GibsStageData = {
   point1: 0,
   point2: 0,
@@ -60,7 +62,6 @@ export const validateGibsStageData = (data: GibsStageData): string[] => {
   return errors;
 };
 
-// Default data for the entire GIBS section (all 7 stages empty)
 export const defaultGibsData: GibsSectionData = {
   outerBeforeAdjustment: undefined,
   outerAfterAdjustment: undefined,
@@ -72,7 +73,6 @@ export const defaultGibsData: GibsSectionData = {
   notes: undefined,
 };
 
-// Validate the entire GIBS section
 export const validateGibsData = (data: GibsSectionData, serviceType: ServiceType): string[] => {
   const errors: string[] = [];
 
@@ -86,7 +86,6 @@ export const validateGibsData = (data: GibsSectionData, serviceType: ServiceType
     innerAfterToolInstallation: !!data.innerAfterToolInstallation,
   };
 
-  // For MAINTENANCE, require at least one "before" stage
   if (serviceType === ServiceType.MAINTENANCE) {
     if (!stages.outerBeforeAdjustment && !stages.innerBeforeAdjustment) {
       errors.push(
@@ -95,7 +94,6 @@ export const validateGibsData = (data: GibsSectionData, serviceType: ServiceType
     }
   }
 
-  // For INSPECTION, require at least one "after" stage
   if (serviceType === ServiceType.INSPECTION) {
     const hasAfterStage =
       stages.outerAfterAdjustment ||
@@ -110,7 +108,6 @@ export const validateGibsData = (data: GibsSectionData, serviceType: ServiceType
     }
   }
 
-  // Validate each stage that has data
   if (data.outerBeforeAdjustment) {
     const stageErrors = validateGibsStageData(data.outerBeforeAdjustment);
     errors.push(...stageErrors.map((e) => `GIBS outerBeforeAdjustment: ${e}`));
@@ -167,13 +164,11 @@ export interface GibsSectionRef {
 }
 
 interface GibsSectionProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
+  serviceType: ServiceType;
   initialData?: GibsSectionData;
 }
 
-// Custom hook for managing a single stage's state
 function useStageState(initialData?: GibsStageData) {
   const [data, setData] = useState<GibsStageData>(initialData || defaultGibsStageData);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -219,8 +214,9 @@ function useStageState(initialData?: GibsStageData) {
 }
 
 export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
-  ({ isOpen, onOpenChange, onSectionTouched, initialData }, ref) => {
-    // State for all 7 stages
+  ({ onSectionTouched, serviceType, initialData }, ref) => {
+    const t = useTranslations('inspections');
+
     const outerBeforeAdjustment = useStageState(initialData?.outerBeforeAdjustment);
     const outerAfterAdjustment = useStageState(initialData?.outerAfterAdjustment);
     const outerFreeHangingAfterInstall = useStageState(initialData?.outerFreeHangingAfterInstall);
@@ -229,10 +225,13 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     const innerBeforeToolInstallation = useStageState(initialData?.innerBeforeToolInstallation);
     const innerAfterToolInstallation = useStageState(initialData?.innerAfterToolInstallation);
 
-    // Global notes
     const [notes, setNotes] = useState(initialData?.notes || '');
+    const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(false);
 
-    // Wrapper functions to call onSectionTouched
+    // UI state for collapsibles
+    const [isBeforeOpen, setIsBeforeOpen] = useState(true);
+    const [isAfterOpen, setIsAfterOpen] = useState(true);
+
     const wrapUpdateFn = (updateFn: (field: keyof GibsStageData, value: number) => void) => {
       return (field: keyof GibsStageData, value: number) => {
         updateFn(field, value);
@@ -278,7 +277,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           ),
         };
 
-        // For MAINTENANCE, require at least one "before" stage
         if (serviceType === ServiceType.MAINTENANCE) {
           if (!stages.outerBeforeAdjustment && !stages.innerBeforeAdjustment) {
             validationErrors.push(
@@ -287,7 +285,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           }
         }
 
-        // For INSPECTION, require at least one "after" stage
         if (serviceType === ServiceType.INSPECTION) {
           const hasAfterStage =
             stages.outerAfterAdjustment ||
@@ -302,7 +299,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           }
         }
 
-        // Validate each touched stage
         Object.entries(stages).forEach(([stageName, isTouched]) => {
           if (isTouched) {
             const stageMap: Record<string, typeof outerBeforeAdjustment> = {
@@ -423,7 +419,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           ),
         };
 
-        // For MAINTENANCE, require at least one "before" stage
         if (serviceType === ServiceType.MAINTENANCE) {
           if (!stages.outerBeforeAdjustment && !stages.innerBeforeAdjustment) {
             validationErrors.push(
@@ -432,7 +427,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           }
         }
 
-        // For INSPECTION, require at least one "after" stage
         if (serviceType === ServiceType.INSPECTION) {
           const hasAfterStage =
             stages.outerAfterAdjustment ||
@@ -447,7 +441,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           }
         }
 
-        // Validate each touched stage
         Object.entries(stages).forEach(([stageName, isTouched]) => {
           if (isTouched) {
             const stageMap: Record<string, typeof outerBeforeAdjustment> = {
@@ -481,90 +474,271 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     }));
 
     return (
-      <SectionContainer title="GIBS" isOpen={isOpen} onOpenChange={onOpenChange}>
-        <div className="space-y-6">
-          {/* Main tabs: OUTER SLIDE vs INNER SLIDE */}
-          <Tabs defaultValue="outer" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="outer">OUTER SLIDE</TabsTrigger>
-              <TabsTrigger value="inner">INNER SLIDE</TabsTrigger>
-            </TabsList>
-
-            {/* OUTER SLIDE - with collapsible sections */}
-            <TabsContent value="outer" className="space-y-6">
-              <GibsForm
-                slideType="outer"
-                beforeAdjustment={{
-                  data: outerBeforeAdjustment.data,
-                  onUpdate: wrapUpdateFn(outerBeforeAdjustment.updateField),
-                  errors: outerBeforeAdjustment.errors,
-                  handleBlur: outerBeforeAdjustment.handleBlur,
-                }}
-                afterAdjustment={{
-                  data: outerAfterAdjustment.data,
-                  onUpdate: wrapUpdateFn(outerAfterAdjustment.updateField),
-                  errors: outerAfterAdjustment.errors,
-                  handleBlur: outerAfterAdjustment.handleBlur,
-                }}
-                afterInstall={{
-                  data: outerFreeHangingAfterInstall.data,
-                  onUpdate: wrapUpdateFn(outerFreeHangingAfterInstall.updateField),
-                  errors: outerFreeHangingAfterInstall.errors,
-                  handleBlur: outerFreeHangingAfterInstall.handleBlur,
-                }}
-              />
-            </TabsContent>
-
-            {/* INNER SLIDE - with tabs */}
-            <TabsContent value="inner" className="space-y-6">
-              <GibsForm
-                slideType="inner"
-                beforeAdjustment={{
-                  data: innerBeforeAdjustment.data,
-                  onUpdate: wrapUpdateFn(innerBeforeAdjustment.updateField),
-                  errors: innerBeforeAdjustment.errors,
-                  handleBlur: innerBeforeAdjustment.handleBlur,
-                }}
-                afterAdjustment={{
-                  data: innerAfterAdjustment.data,
-                  onUpdate: wrapUpdateFn(innerAfterAdjustment.updateField),
-                  errors: innerAfterAdjustment.errors,
-                  handleBlur: innerAfterAdjustment.handleBlur,
-                }}
-                beforeToolInstall={{
-                  data: innerBeforeToolInstallation.data,
-                  onUpdate: wrapUpdateFn(innerBeforeToolInstallation.updateField),
-                  errors: innerBeforeToolInstallation.errors,
-                  handleBlur: innerBeforeToolInstallation.handleBlur,
-                }}
-                afterToolInstall={{
-                  data: innerAfterToolInstallation.data,
-                  onUpdate: wrapUpdateFn(innerAfterToolInstallation.updateField),
-                  errors: innerAfterToolInstallation.errors,
-                  handleBlur: innerAfterToolInstallation.handleBlur,
-                }}
-              />
-            </TabsContent>
-          </Tabs>
-
-          {/* Global Notes (Always Visible) */}
-          <div className="space-y-2 p-4 border rounded-lg">
-            <Label htmlFor="gibs-notes" className="font-medium">
-              Notes
-            </Label>
-            <Textarea
-              id="gibs-notes"
-              value={notes}
-              onChange={(e) => {
-                setNotes(e.target.value);
+      <div className="p-6 space-y-6">
+        {/* Include Before Measurements Checkbox - Only for Maintenance */}
+        {serviceType === ServiceType.MAINTENANCE && (
+          <div className="flex items-center space-x-2 pb-4 border-b">
+            <Checkbox
+              id="includeBeforeMeasurements"
+              checked={includeBeforeMeasurements}
+              onCheckedChange={(checked) => {
+                setIncludeBeforeMeasurements(Boolean(checked));
                 onSectionTouched?.();
               }}
-              placeholder="Enter any additional notes about the GIBS measurements..."
-              rows={4}
             />
+            <Label
+              htmlFor="includeBeforeMeasurements"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {t('form.gibsSection.includeBeforeMeasurements')}
+            </Label>
           </div>
+        )}
+
+        {includeBeforeMeasurements ? (
+          <div className="space-y-8">
+            {/* Before Maintenance Section */}
+            <Collapsible open={isBeforeOpen} onOpenChange={setIsBeforeOpen}>
+              <div className="space-y-4">
+                <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                  <h4 className="text-lg font-semibold">
+                    {t('form.gibsSection.beforeMaintenance')}
+                  </h4>
+                  <ChevronDown
+                    className={`w-5 h-5 transition-transform duration-200 ${
+                      isBeforeOpen ? '' : 'rotate-180'
+                    }`}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <Tabs defaultValue="outer" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-4">
+                      <TabsTrigger value="outer">OUTER SLIDE</TabsTrigger>
+                      <TabsTrigger value="inner">INNER SLIDE</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="outer" className="space-y-4">
+                      <GibsForm
+                        slideType="outer"
+                        beforeAdjustment={{
+                          data: outerBeforeAdjustment.data,
+                          onUpdate: wrapUpdateFn(outerBeforeAdjustment.updateField),
+                          errors: outerBeforeAdjustment.errors,
+                          handleBlur: outerBeforeAdjustment.handleBlur,
+                        }}
+                        afterAdjustment={{
+                          data: outerAfterAdjustment.data,
+                          onUpdate: wrapUpdateFn(outerAfterAdjustment.updateField),
+                          errors: outerAfterAdjustment.errors,
+                          handleBlur: outerAfterAdjustment.handleBlur,
+                        }}
+                        afterInstall={{
+                          data: outerFreeHangingAfterInstall.data,
+                          onUpdate: wrapUpdateFn(outerFreeHangingAfterInstall.updateField),
+                          errors: outerFreeHangingAfterInstall.errors,
+                          handleBlur: outerFreeHangingAfterInstall.handleBlur,
+                        }}
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="inner" className="space-y-4">
+                      <GibsForm
+                        slideType="inner"
+                        beforeAdjustment={{
+                          data: innerBeforeAdjustment.data,
+                          onUpdate: wrapUpdateFn(innerBeforeAdjustment.updateField),
+                          errors: innerBeforeAdjustment.errors,
+                          handleBlur: innerBeforeAdjustment.handleBlur,
+                        }}
+                        afterAdjustment={{
+                          data: innerAfterAdjustment.data,
+                          onUpdate: wrapUpdateFn(innerAfterAdjustment.updateField),
+                          errors: innerAfterAdjustment.errors,
+                          handleBlur: innerAfterAdjustment.handleBlur,
+                        }}
+                        beforeToolInstall={{
+                          data: innerBeforeToolInstallation.data,
+                          onUpdate: wrapUpdateFn(innerBeforeToolInstallation.updateField),
+                          errors: innerBeforeToolInstallation.errors,
+                          handleBlur: innerBeforeToolInstallation.handleBlur,
+                        }}
+                        afterToolInstall={{
+                          data: innerAfterToolInstallation.data,
+                          onUpdate: wrapUpdateFn(innerAfterToolInstallation.updateField),
+                          errors: innerAfterToolInstallation.errors,
+                          handleBlur: innerAfterToolInstallation.handleBlur,
+                        }}
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </CollapsibleContent>
+              </div>
+            </Collapsible>
+
+            {/* Divider */}
+            <div className="border-t-2 border-border" />
+
+            {/* After Maintenance Section */}
+            <Collapsible open={isAfterOpen} onOpenChange={setIsAfterOpen}>
+              <div className="space-y-4">
+                <CollapsibleTrigger className="flex items-center justify-between w-full group">
+                  <h4 className="text-lg font-semibold">
+                    {t('form.gibsSection.afterMaintenance')}
+                  </h4>
+                  <ChevronDown
+                    className={`w-5 h-5 transition-transform duration-200 ${
+                      isAfterOpen ? '' : 'rotate-180'
+                    }`}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <Tabs defaultValue="outer" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-4">
+                      <TabsTrigger value="outer">OUTER SLIDE</TabsTrigger>
+                      <TabsTrigger value="inner">INNER SLIDE</TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="outer" className="space-y-4">
+                      <GibsForm
+                        slideType="outer"
+                        beforeAdjustment={{
+                          data: outerBeforeAdjustment.data,
+                          onUpdate: wrapUpdateFn(outerBeforeAdjustment.updateField),
+                          errors: outerBeforeAdjustment.errors,
+                          handleBlur: outerBeforeAdjustment.handleBlur,
+                        }}
+                        afterAdjustment={{
+                          data: outerAfterAdjustment.data,
+                          onUpdate: wrapUpdateFn(outerAfterAdjustment.updateField),
+                          errors: outerAfterAdjustment.errors,
+                          handleBlur: outerAfterAdjustment.handleBlur,
+                        }}
+                        afterInstall={{
+                          data: outerFreeHangingAfterInstall.data,
+                          onUpdate: wrapUpdateFn(outerFreeHangingAfterInstall.updateField),
+                          errors: outerFreeHangingAfterInstall.errors,
+                          handleBlur: outerFreeHangingAfterInstall.handleBlur,
+                        }}
+                      />
+                    </TabsContent>
+
+                    <TabsContent value="inner" className="space-y-4">
+                      <GibsForm
+                        slideType="inner"
+                        beforeAdjustment={{
+                          data: innerBeforeAdjustment.data,
+                          onUpdate: wrapUpdateFn(innerBeforeAdjustment.updateField),
+                          errors: innerBeforeAdjustment.errors,
+                          handleBlur: innerBeforeAdjustment.handleBlur,
+                        }}
+                        afterAdjustment={{
+                          data: innerAfterAdjustment.data,
+                          onUpdate: wrapUpdateFn(innerAfterAdjustment.updateField),
+                          errors: innerAfterAdjustment.errors,
+                          handleBlur: innerAfterAdjustment.handleBlur,
+                        }}
+                        beforeToolInstall={{
+                          data: innerBeforeToolInstallation.data,
+                          onUpdate: wrapUpdateFn(innerBeforeToolInstallation.updateField),
+                          errors: innerBeforeToolInstallation.errors,
+                          handleBlur: innerBeforeToolInstallation.handleBlur,
+                        }}
+                        afterToolInstall={{
+                          data: innerAfterToolInstallation.data,
+                          onUpdate: wrapUpdateFn(innerAfterToolInstallation.updateField),
+                          errors: innerAfterToolInstallation.errors,
+                          handleBlur: innerAfterToolInstallation.handleBlur,
+                        }}
+                      />
+                    </TabsContent>
+                  </Tabs>
+                </CollapsibleContent>
+              </div>
+            </Collapsible>
+          </div>
+        ) : (
+          <>
+            <Tabs defaultValue="outer" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4">
+                <TabsTrigger value="outer">OUTER SLIDE</TabsTrigger>
+                <TabsTrigger value="inner">INNER SLIDE</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="outer" className="space-y-4">
+                <GibsForm
+                  slideType="outer"
+                  beforeAdjustment={{
+                    data: outerBeforeAdjustment.data,
+                    onUpdate: wrapUpdateFn(outerBeforeAdjustment.updateField),
+                    errors: outerBeforeAdjustment.errors,
+                    handleBlur: outerBeforeAdjustment.handleBlur,
+                  }}
+                  afterAdjustment={{
+                    data: outerAfterAdjustment.data,
+                    onUpdate: wrapUpdateFn(outerAfterAdjustment.updateField),
+                    errors: outerAfterAdjustment.errors,
+                    handleBlur: outerAfterAdjustment.handleBlur,
+                  }}
+                  afterInstall={{
+                    data: outerFreeHangingAfterInstall.data,
+                    onUpdate: wrapUpdateFn(outerFreeHangingAfterInstall.updateField),
+                    errors: outerFreeHangingAfterInstall.errors,
+                    handleBlur: outerFreeHangingAfterInstall.handleBlur,
+                  }}
+                />
+              </TabsContent>
+
+              <TabsContent value="inner" className="space-y-4">
+                <GibsForm
+                  slideType="inner"
+                  beforeAdjustment={{
+                    data: innerBeforeAdjustment.data,
+                    onUpdate: wrapUpdateFn(innerBeforeAdjustment.updateField),
+                    errors: innerBeforeAdjustment.errors,
+                    handleBlur: innerBeforeAdjustment.handleBlur,
+                  }}
+                  afterAdjustment={{
+                    data: innerAfterAdjustment.data,
+                    onUpdate: wrapUpdateFn(innerAfterAdjustment.updateField),
+                    errors: innerAfterAdjustment.errors,
+                    handleBlur: innerAfterAdjustment.handleBlur,
+                  }}
+                  beforeToolInstall={{
+                    data: innerBeforeToolInstallation.data,
+                    onUpdate: wrapUpdateFn(innerBeforeToolInstallation.updateField),
+                    errors: innerBeforeToolInstallation.errors,
+                    handleBlur: innerBeforeToolInstallation.handleBlur,
+                  }}
+                  afterToolInstall={{
+                    data: innerAfterToolInstallation.data,
+                    onUpdate: wrapUpdateFn(innerAfterToolInstallation.updateField),
+                    errors: innerAfterToolInstallation.errors,
+                    handleBlur: innerAfterToolInstallation.handleBlur,
+                  }}
+                />
+              </TabsContent>
+            </Tabs>
+          </>
+        )}
+
+        {/* Global Notes */}
+        <div className="space-y-2 p-4 border rounded-lg bg-muted/30">
+          <Label htmlFor="gibs-notes" className="text-sm font-medium">
+            Notes
+          </Label>
+          <Textarea
+            id="gibs-notes"
+            value={notes}
+            onChange={(e) => {
+              setNotes(e.target.value);
+              onSectionTouched?.();
+            }}
+            placeholder="Enter any additional notes about the GIBS measurements..."
+            rows={4}
+            className="text-sm"
+          />
         </div>
-      </SectionContainer>
+      </div>
     );
   },
 );

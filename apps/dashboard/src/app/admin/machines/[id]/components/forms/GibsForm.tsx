@@ -373,7 +373,7 @@ export function GibsForm({
 
   if (slideType === 'outer') {
     return (
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div className="flex items-center space-x-2">
           <Checkbox
             id="include-previous-measurements"
@@ -393,13 +393,13 @@ export function GibsForm({
             {beforeAdjustment?.data && beforeAdjustment?.onUpdate && (
               <Collapsible open={beforeAdjustmentOpen} onOpenChange={setBeforeAdjustmentOpen}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                  <span className="font-medium">{t('form.gibs.beforeAdjustment')}</span>
+                  <span className="text-sm font-medium">{t('form.gibs.beforeAdjustment')}</span>
                   <ChevronDown
                     className={`h-4 w-4 transition-transform ${beforeAdjustmentOpen ? 'rotate-180' : ''}`}
                   />
                 </CollapsibleTrigger>
-                <CollapsibleContent className="mt-4">
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <CollapsibleContent className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                     <MeasurementSection
                       title="Before Adjustment - Front to Back"
                       data={beforeAdjustment.data!}
@@ -426,13 +426,13 @@ export function GibsForm({
             {afterAdjustment?.data && afterAdjustment?.onUpdate && (
               <Collapsible open={afterAdjustmentOpen} onOpenChange={setAfterAdjustmentOpen}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                  <span className="font-medium">{t('form.gibs.afterAdjustment')}</span>
+                  <span className="text-sm font-medium">{t('form.gibs.afterAdjustment')}</span>
                   <ChevronDown
                     className={`h-4 w-4 transition-transform ${afterAdjustmentOpen ? 'rotate-180' : ''}`}
                   />
                 </CollapsibleTrigger>
-                <CollapsibleContent className="mt-4">
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <CollapsibleContent className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                     <MeasurementSection
                       title="After Adjustment - Front to Back"
                       data={afterAdjustment.data!}
@@ -459,13 +459,15 @@ export function GibsForm({
             {afterInstall?.data && afterInstall?.onUpdate && (
               <Collapsible open={afterInstallOpen} onOpenChange={setAfterInstallOpen}>
                 <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                  <span className="font-medium">{t('form.gibs.freeHangingAfterInstall')}</span>
+                  <span className="text-sm font-medium">
+                    {t('form.gibs.freeHangingAfterInstall')}
+                  </span>
                   <ChevronDown
                     className={`h-4 w-4 transition-transform ${afterInstallOpen ? 'rotate-180' : ''}`}
                   />
                 </CollapsibleTrigger>
-                <CollapsibleContent className="mt-4">
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <CollapsibleContent className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                     <MeasurementSection
                       title="Free Hanging - Top View"
                       data={afterInstall.data!}
@@ -493,8 +495,8 @@ export function GibsForm({
           afterInstall?.data &&
           afterInstall?.onUpdate && (
             <div className="space-y-4">
-              <h4 className="font-semibold text-sm">{t('form.gibs.freeHangingAfterInstall')}</h4>
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+              <h4 className="text-sm font-semibold">{t('form.gibs.freeHangingAfterInstall')}</h4>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 <MeasurementSection
                   title="Free Hanging - Top View"
                   data={afterInstall.data!}
@@ -522,14 +524,14 @@ export function GibsForm({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <Tabs defaultValue="adjustment" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="adjustment">Adjustment</TabsTrigger>
           <TabsTrigger value="installation">Installation</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="adjustment" className="mt-4 space-y-6">
+        <TabsContent value="adjustment" className="space-y-4 mt-4">
           <div className="flex items-center space-x-2">
             <Checkbox
               id="include-adjustment-previous"
@@ -549,12 +551,12 @@ export function GibsForm({
               {beforeAdjustment?.data && beforeAdjustment?.onUpdate && (
                 <Collapsible open={adjustmentBeforeOpen} onOpenChange={setAdjustmentBeforeOpen}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                    <span className="font-medium">{t('form.gibs.beforeAdjustment')}</span>
+                    <span className="text-sm font-medium">{t('form.gibs.beforeAdjustment')}</span>
                     <ChevronDown
                       className={`h-4 w-4 transition-transform ${adjustmentBeforeOpen ? 'rotate-180' : ''}`}
                     />
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-4">
+                  <CollapsibleContent className="mt-4 space-y-4">
                     <MeasurementSection
                       title="Before Adjustment - Left to Right"
                       data={beforeAdjustment.data!}
@@ -571,12 +573,12 @@ export function GibsForm({
               {afterAdjustment?.data && afterAdjustment?.onUpdate && (
                 <Collapsible open={adjustmentAfterOpen} onOpenChange={setAdjustmentAfterOpen}>
                   <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                    <span className="font-medium">{t('form.gibs.afterAdjustment')}</span>
+                    <span className="text-sm font-medium">{t('form.gibs.afterAdjustment')}</span>
                     <ChevronDown
                       className={`h-4 w-4 transition-transform ${adjustmentAfterOpen ? 'rotate-180' : ''}`}
                     />
                   </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-4">
+                  <CollapsibleContent className="mt-4 space-y-4">
                     <MeasurementSection
                       title="After Adjustment - Left to Right"
                       data={afterAdjustment.data!}
@@ -594,7 +596,7 @@ export function GibsForm({
             afterAdjustment?.data &&
             afterAdjustment?.onUpdate && (
               <div className="space-y-4">
-                <h4 className="font-semibold text-sm">{t('form.gibs.afterAdjustment')}</h4>
+                <h4 className="text-sm font-semibold">{t('form.gibs.afterAdjustment')}</h4>
                 <MeasurementSection
                   title="After Adjustment - Left to Right"
                   data={afterAdjustment.data!}
@@ -609,8 +611,8 @@ export function GibsForm({
           )}
         </TabsContent>
 
-        <TabsContent value="installation" className="mt-4">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <TabsContent value="installation" className="space-y-4 mt-4">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {beforeToolInstall?.data && beforeToolInstall?.onUpdate && (
               <MeasurementSection
                 title={t('form.gibs.beforeToolInstallation')}

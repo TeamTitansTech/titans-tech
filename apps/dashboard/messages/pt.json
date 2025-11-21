@@ -840,6 +840,11 @@
           "hasBeenAdjustedRequired": "Folga de Rolamento: O campo \"Foi Ajustado\" é obrigatório"
         }
       },
+      "gibsSection": {
+        "includeBeforeMeasurements": "Incluir Medições Anteriores",
+        "beforeMaintenance": "Antes da Manutenção",
+        "afterMaintenance": "Após a Manutenção"
+      },
       "enums": {
         "yesNoNaDnc": {
           "yes": "Sim",
