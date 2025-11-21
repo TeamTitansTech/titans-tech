@@ -1,4 +1,5 @@
-import { ServiceType, ServiceSection, BearingClearanceData } from '@titans-tech/db';
+import { ServiceType, ServiceSection } from '@titans-tech/db/enums';
+import { BearingClearanceData } from '@titans-tech/db';
 import { AlertBearingClearanceResponseDto } from './alert-bearing-clearance-response.dto';
 
 /**

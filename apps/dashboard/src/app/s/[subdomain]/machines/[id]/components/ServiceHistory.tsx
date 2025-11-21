@@ -65,7 +65,7 @@ export async function ServiceHistory({ machineId }: ServiceHistoryProps) {
                   </div>
                   <div>
                     <Typography variant="h4">
-                      {inspection.isMaintenance
+                      {inspection.type === 'MAINTENANCE'
                         ? t('maintenanceInspection')
                         : t('routineInspection')}
                     </Typography>

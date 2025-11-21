@@ -1,4 +1,4 @@
-import { AlertSeverity } from '@titans-tech/db';
+import { AlertSeverity } from '@titans-tech/db/enums';
 
 export class AlertBearingClearanceResponseDto {
   id: string;
