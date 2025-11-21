@@ -17,9 +17,6 @@ export * from './blueprints';
 // Machine Types (interfaces only - safe for client)
 export * from './machines';
 
-// Service Enums Only (safe for client components)
-export * from './services-enums';
-
 // Bearing Clearance Field Types (safe for client)
 export * from './bearing-fields';
 

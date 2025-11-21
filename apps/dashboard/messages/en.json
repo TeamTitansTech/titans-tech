@@ -50,7 +50,10 @@
     "toggleTheme": "Toggle Dark Mode",
     "userProfile": "User Profile",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "markAllAsRead": "Mark all as read",
+    "loading": "Loading",
+    "noNotifications": "No notifications"
   },
   "settings": {
     "title": "Settings",

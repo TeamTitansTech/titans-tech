@@ -4,17 +4,30 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "npm run format && prisma validate --schema=packages/database/prisma/schema.prisma && turbo run lint",
+    "lint": "npm run format && turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\" && prisma format --schema=packages/database/prisma/schema.prisma",
-    "postinstall": "prisma generate --schema=packages/database/prisma/schema.prisma && npm run install:hooks",
-    "install:hooks": "bash scripts/install-git-hooks.sh",
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
+    "postinstall": "prisma generate --schema=packages/database/prisma/schema.prisma",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f postgres",
     "docker:restart": "docker compose restart postgres",
     "docker:clean": "docker compose down -v",
     "db:setup": "npm run docker:up && sleep 3 && prisma generate --schema=packages/database/prisma/schema.prisma && prisma db push --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
-    "db:reset": "npm run docker:up && sleep 3 && prisma migrate reset --force --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed"
+    "db:reset": "npm run docker:up && sleep 3 && prisma migrate reset --force --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{md,json}": [
+      "prettier --write"
+    ],
+    "packages/database/prisma/schema.prisma": [
+      "prisma format --schema"
+    ]
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -22,7 +35,9 @@
     "eslint": "^9.0.0",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.0",
+    "husky": "^9.1.7",
     "jsx-ast-utils": "^3.3.5",
+    "lint-staged": "^16.2.6",
     "next": "16.0.1",
     "prettier": "^3.3.0",
     "prisma": "^6.19.0",
