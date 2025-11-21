@@ -270,7 +270,10 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
           const stageFields = [
             { dataField: 'outerBeforeAdjustment', idField: 'outerBeforeAdjustmentId' },
             { dataField: 'outerAfterAdjustment', idField: 'outerAfterAdjustmentId' },
-            { dataField: 'outerFreeHangingAfterInstall', idField: 'outerFreeHangingAfterInstallId' },
+            {
+              dataField: 'outerFreeHangingAfterInstall',
+              idField: 'outerFreeHangingAfterInstallId',
+            },
             { dataField: 'innerBeforeAdjustment', idField: 'innerBeforeAdjustmentId' },
             { dataField: 'innerAfterAdjustment', idField: 'innerAfterAdjustmentId' },
             { dataField: 'innerBeforeToolInstallation', idField: 'innerBeforeToolInstallationId' },

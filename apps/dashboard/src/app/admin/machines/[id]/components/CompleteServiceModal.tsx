@@ -321,10 +321,7 @@ export function CompleteServiceModal({
             )}
 
             {blueprintSections.includes('GIBS') && (
-              <GibsSection
-                ref={gibsRef}
-                onSectionTouched={() => markSectionTouched('GIBS')}
-              />
+              <GibsSection ref={gibsRef} onSectionTouched={() => markSectionTouched('GIBS')} />
             )}
 
             {blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (

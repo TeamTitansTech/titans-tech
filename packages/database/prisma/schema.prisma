@@ -671,29 +671,29 @@ model SlideData {
 // GIBS Section
 
 model MachineServiceGibs {
-  id               String  @id @default(cuid())
+  id               String @id @default(cuid())
   machineServiceId String
 
   // 7-Stage GIBS structure matching Excel
-  outerBeforeAdjustmentId           String?
-  outerAfterAdjustmentId            String?
-  outerFreeHangingAfterInstallId    String?
-  innerBeforeAdjustmentId           String?
-  innerAfterAdjustmentId            String?
-  innerBeforeToolInstallationId     String?
-  innerAfterToolInstallationId      String?
+  outerBeforeAdjustmentId        String?
+  outerAfterAdjustmentId         String?
+  outerFreeHangingAfterInstallId String?
+  innerBeforeAdjustmentId        String?
+  innerAfterAdjustmentId         String?
+  innerBeforeToolInstallationId  String?
+  innerAfterToolInstallationId   String?
 
   // Global field
   notes String?
 
-  machineService                MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
-  outerBeforeAdjustment         GibsStageData? @relation("OuterBeforeAdjustment", fields: [outerBeforeAdjustmentId], references: [id], onDelete: SetNull)
-  outerAfterAdjustment          GibsStageData? @relation("OuterAfterAdjustment", fields: [outerAfterAdjustmentId], references: [id], onDelete: SetNull)
-  outerFreeHangingAfterInstall  GibsStageData? @relation("OuterFreeHangingAfterInstall", fields: [outerFreeHangingAfterInstallId], references: [id], onDelete: SetNull)
-  innerBeforeAdjustment         GibsStageData? @relation("InnerBeforeAdjustment", fields: [innerBeforeAdjustmentId], references: [id], onDelete: SetNull)
-  innerAfterAdjustment          GibsStageData? @relation("InnerAfterAdjustment", fields: [innerAfterAdjustmentId], references: [id], onDelete: SetNull)
-  innerBeforeToolInstallation   GibsStageData? @relation("InnerBeforeToolInstallation", fields: [innerBeforeToolInstallationId], references: [id], onDelete: SetNull)
-  innerAfterToolInstallation    GibsStageData? @relation("InnerAfterToolInstallation", fields: [innerAfterToolInstallationId], references: [id], onDelete: SetNull)
+  machineService               MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerBeforeAdjustment        GibsStageData? @relation("OuterBeforeAdjustment", fields: [outerBeforeAdjustmentId], references: [id], onDelete: SetNull)
+  outerAfterAdjustment         GibsStageData? @relation("OuterAfterAdjustment", fields: [outerAfterAdjustmentId], references: [id], onDelete: SetNull)
+  outerFreeHangingAfterInstall GibsStageData? @relation("OuterFreeHangingAfterInstall", fields: [outerFreeHangingAfterInstallId], references: [id], onDelete: SetNull)
+  innerBeforeAdjustment        GibsStageData? @relation("InnerBeforeAdjustment", fields: [innerBeforeAdjustmentId], references: [id], onDelete: SetNull)
+  innerAfterAdjustment         GibsStageData? @relation("InnerAfterAdjustment", fields: [innerAfterAdjustmentId], references: [id], onDelete: SetNull)
+  innerBeforeToolInstallation  GibsStageData? @relation("InnerBeforeToolInstallation", fields: [innerBeforeToolInstallationId], references: [id], onDelete: SetNull)
+  innerAfterToolInstallation   GibsStageData? @relation("InnerAfterToolInstallation", fields: [innerAfterToolInstallationId], references: [id], onDelete: SetNull)
 
   @@map("machine_service_gibs")
 }
@@ -723,13 +723,13 @@ model GibsStageData {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  outerBeforeAdjustmentServices         MachineServiceGibs[] @relation("OuterBeforeAdjustment")
-  outerAfterAdjustmentServices          MachineServiceGibs[] @relation("OuterAfterAdjustment")
-  outerFreeHangingAfterInstallServices  MachineServiceGibs[] @relation("OuterFreeHangingAfterInstall")
-  innerBeforeAdjustmentServices         MachineServiceGibs[] @relation("InnerBeforeAdjustment")
-  innerAfterAdjustmentServices          MachineServiceGibs[] @relation("InnerAfterAdjustment")
-  innerBeforeToolInstallationServices   MachineServiceGibs[] @relation("InnerBeforeToolInstallation")
-  innerAfterToolInstallationServices    MachineServiceGibs[] @relation("InnerAfterToolInstallation")
+  outerBeforeAdjustmentServices        MachineServiceGibs[] @relation("OuterBeforeAdjustment")
+  outerAfterAdjustmentServices         MachineServiceGibs[] @relation("OuterAfterAdjustment")
+  outerFreeHangingAfterInstallServices MachineServiceGibs[] @relation("OuterFreeHangingAfterInstall")
+  innerBeforeAdjustmentServices        MachineServiceGibs[] @relation("InnerBeforeAdjustment")
+  innerAfterAdjustmentServices         MachineServiceGibs[] @relation("InnerAfterAdjustment")
+  innerBeforeToolInstallationServices  MachineServiceGibs[] @relation("InnerBeforeToolInstallation")
+  innerAfterToolInstallationServices   MachineServiceGibs[] @relation("InnerAfterToolInstallation")
 
   @@map("service_data_gibs_stage")
 }

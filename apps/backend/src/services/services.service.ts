@@ -191,7 +191,8 @@ export class ServicesService {
       ...(createInspectionDto.gibs && {
         gibs: {
           create: {
-            outerBeforeAdjustment: createInspectionDto.gibs.outerBeforeAdjustment
+            outerBeforeAdjustment: createInspectionDto.gibs
+              .outerBeforeAdjustment
               ? {
                   create: createInspectionDto.gibs.outerBeforeAdjustment,
                 }
@@ -201,12 +202,14 @@ export class ServicesService {
                   create: createInspectionDto.gibs.outerAfterAdjustment,
                 }
               : undefined,
-            outerFreeHangingAfterInstall: createInspectionDto.gibs.outerFreeHangingAfterInstall
+            outerFreeHangingAfterInstall: createInspectionDto.gibs
+              .outerFreeHangingAfterInstall
               ? {
                   create: createInspectionDto.gibs.outerFreeHangingAfterInstall,
                 }
               : undefined,
-            innerBeforeAdjustment: createInspectionDto.gibs.innerBeforeAdjustment
+            innerBeforeAdjustment: createInspectionDto.gibs
+              .innerBeforeAdjustment
               ? {
                   create: createInspectionDto.gibs.innerBeforeAdjustment,
                 }
@@ -216,12 +219,14 @@ export class ServicesService {
                   create: createInspectionDto.gibs.innerAfterAdjustment,
                 }
               : undefined,
-            innerBeforeToolInstallation: createInspectionDto.gibs.innerBeforeToolInstallation
+            innerBeforeToolInstallation: createInspectionDto.gibs
+              .innerBeforeToolInstallation
               ? {
                   create: createInspectionDto.gibs.innerBeforeToolInstallation,
                 }
               : undefined,
-            innerAfterToolInstallation: createInspectionDto.gibs.innerAfterToolInstallation
+            innerAfterToolInstallation: createInspectionDto.gibs
+              .innerAfterToolInstallation
               ? {
                   create: createInspectionDto.gibs.innerAfterToolInstallation,
                 }
@@ -809,7 +814,8 @@ export class ServicesService {
         gibs: updateServiceDto.gibs
           ? {
               create: {
-                outerBeforeAdjustment: updateServiceDto.gibs.outerBeforeAdjustment
+                outerBeforeAdjustment: updateServiceDto.gibs
+                  .outerBeforeAdjustment
                   ? {
                       create: updateServiceDto.gibs
                         .outerBeforeAdjustment as Prisma.GibsStageDataCreateWithoutOuterBeforeAdjustmentServicesInput,
@@ -821,13 +827,15 @@ export class ServicesService {
                         .outerAfterAdjustment as Prisma.GibsStageDataCreateWithoutOuterAfterAdjustmentServicesInput,
                     }
                   : undefined,
-                outerFreeHangingAfterInstall: updateServiceDto.gibs.outerFreeHangingAfterInstall
+                outerFreeHangingAfterInstall: updateServiceDto.gibs
+                  .outerFreeHangingAfterInstall
                   ? {
                       create: updateServiceDto.gibs
                         .outerFreeHangingAfterInstall as Prisma.GibsStageDataCreateWithoutOuterFreeHangingAfterInstallServicesInput,
                     }
                   : undefined,
-                innerBeforeAdjustment: updateServiceDto.gibs.innerBeforeAdjustment
+                innerBeforeAdjustment: updateServiceDto.gibs
+                  .innerBeforeAdjustment
                   ? {
                       create: updateServiceDto.gibs
                         .innerBeforeAdjustment as Prisma.GibsStageDataCreateWithoutInnerBeforeAdjustmentServicesInput,
@@ -839,13 +847,15 @@ export class ServicesService {
                         .innerAfterAdjustment as Prisma.GibsStageDataCreateWithoutInnerAfterAdjustmentServicesInput,
                     }
                   : undefined,
-                innerBeforeToolInstallation: updateServiceDto.gibs.innerBeforeToolInstallation
+                innerBeforeToolInstallation: updateServiceDto.gibs
+                  .innerBeforeToolInstallation
                   ? {
                       create: updateServiceDto.gibs
                         .innerBeforeToolInstallation as Prisma.GibsStageDataCreateWithoutInnerBeforeToolInstallationServicesInput,
                     }
                   : undefined,
-                innerAfterToolInstallation: updateServiceDto.gibs.innerAfterToolInstallation
+                innerAfterToolInstallation: updateServiceDto.gibs
+                  .innerAfterToolInstallation
                   ? {
                       create: updateServiceDto.gibs
                         .innerAfterToolInstallation as Prisma.GibsStageDataCreateWithoutInnerAfterToolInstallationServicesInput,
