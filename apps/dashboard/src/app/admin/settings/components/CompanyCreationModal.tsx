@@ -22,13 +22,13 @@ import { Label } from '@/components/ui/label';
 import { createCompany, type Company } from '@/data/services/companies.api';
 import { toast } from 'sonner';
 
-interface CreateCompanyDialogProps {
+interface CompanyCreationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess: (newCompany?: Company) => void;
 }
 
-export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCompanyDialogProps) {
+export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyCreationModalProps) {
   const t = useTranslations('adminSettings.createCompany');
   const tCommon = useTranslations('common');
   const tValidation = useTranslations('validation');
