@@ -505,6 +505,7 @@ export function ServiceCompletionModal({
       }
 
       const result = ref.validateAndGetData(currentServiceType);
+
       if (!result.isValid || !result.data) {
         toast.error('Please fill in all required fields');
         return;
@@ -542,11 +543,6 @@ export function ServiceCompletionModal({
 
         // Save the form data directly to state (don't try to extract from DB response)
         // This keeps the data in memory for navigation between sections
-        console.log('🟡 [ServiceCompletionModal] Saving section data after save:', {
-          sectionKey: currentSectionKey,
-          formDataKeys: result.data ? Object.keys(result.data) : [],
-          hasFormData: !!result.data,
-        });
         setCompletedSectionData((prev) => ({
           ...prev,
           [currentSectionKey]: result.data, // Use form data directly
@@ -2112,255 +2108,6 @@ export function ServiceCompletionModal({
                     );
                   }
 
-                  // Render Gibs Section
-                  if (sectionKey === 'GIBS') {
-                    const data = completedSectionData[sectionKey];
-
-                    // Check if we have before data
-                    const hasBeforeData =
-                      (data?.outerBefore && hasActualData(data.outerBefore)) ||
-                      (data?.innerBefore && hasActualData(data.innerBefore));
-                    const hasAfterData =
-                      (data?.outerData && hasActualData(data.outerAfter)) ||
-                      (data?.innerData && hasActualData(data.innerAfter));
-
-                    const outerBeforeRows = extractBearingRows(data?.outerBefore, 'GIBS');
-                    const innerBeforeRows = extractBearingRows(data?.innerBefore, 'GIBS');
-                    const outerAfterRows = extractBearingRows(data?.outerData, 'GIBS');
-                    const innerAfterRows = extractBearingRows(data?.innerData, 'GIBS');
-
-                    return (
-                      <Collapsible key={sectionKey} defaultOpen={isCompleted}>
-                        <div className="border rounded-lg">
-                          <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
-                            <div className="flex items-center gap-2">
-                              <Typography variant="h4" className="font-semibold text-sm">
-                                {t('sectionNames.gibs')}
-                              </Typography>
-                              {isCompleted ? (
-                                <span className="text-xs text-green-600 dark:text-green-400">
-                                  ({tServices('modal.status.complete')})
-                                </span>
-                              ) : (
-                                <span className="text-xs text-orange-600 dark:text-orange-400">
-                                  ({tServices('modal.status.incomplete')})
-                                </span>
-                              )}
-                            </div>
-                            <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="p-3 pt-0 text-xs">
-                            {/* Before Measurements (only if data exists) */}
-                            {hasBeforeData && (
-                              <div className="border-t pt-2 mb-3">
-                                <div className="font-semibold text-muted-foreground mb-2 text-sm">
-                                  {tServices('modal.sections.beforeMaintenance')}
-                                </div>
-                                <div className="grid grid-cols-2 gap-3">
-                                  {/* Outer Table */}
-                                  <div className="border rounded-md overflow-hidden">
-                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      {tTable('outer')}
-                                    </div>
-                                    <Table>
-                                      <TableHeader>
-                                        <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            {tTable('field')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            {tTable('lh')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            {tTable('rh')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            {tTable('diff')}
-                                          </TableHead>
-                                        </TableRow>
-                                      </TableHeader>
-                                      <TableBody>
-                                        {outerBeforeRows.map((row, idx) => (
-                                          <TableRow
-                                            key={idx}
-                                            className="text-[11px] hover:bg-muted/30"
-                                          >
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                              {row.field}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">
-                                              {displayValue(row.lh)}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">
-                                              {displayValue(row.rh)}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center">
-                                              {row.differential}
-                                            </TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  </div>
-
-                                  {/* Inner Table */}
-                                  <div className="border rounded-md overflow-hidden">
-                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      {tTable('inner')}
-                                    </div>
-                                    <Table>
-                                      <TableHeader>
-                                        <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            {tTable('field')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            {tTable('lh')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            {tTable('rh')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            {tTable('diff')}
-                                          </TableHead>
-                                        </TableRow>
-                                      </TableHeader>
-                                      <TableBody>
-                                        {innerBeforeRows.map((row, idx) => (
-                                          <TableRow
-                                            key={idx}
-                                            className="text-[11px] hover:bg-muted/30"
-                                          >
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                              {row.field}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">
-                                              {displayValue(row.lh)}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">
-                                              {displayValue(row.rh)}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center">
-                                              {row.differential}
-                                            </TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-
-                            {/* After Measurements */}
-                            {hasAfterData && (
-                              <div className="border-t pt-2">
-                                {hasBeforeData && (
-                                  <div className="font-semibold text-muted-foreground mb-2 text-sm">
-                                    {tServices('modal.sections.afterMaintenance')}
-                                  </div>
-                                )}
-                                <div className="grid grid-cols-2 gap-3">
-                                  {/* Outer Table */}
-                                  <div className="border rounded-md overflow-hidden">
-                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      {tTable('outer')}
-                                    </div>
-                                    <Table>
-                                      <TableHeader>
-                                        <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            {tTable('field')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            {tTable('lh')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            {tTable('rh')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            {tTable('diff')}
-                                          </TableHead>
-                                        </TableRow>
-                                      </TableHeader>
-                                      <TableBody>
-                                        {outerAfterRows.map((row, idx) => (
-                                          <TableRow
-                                            key={idx}
-                                            className="text-[11px] hover:bg-muted/30"
-                                          >
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                              {row.field}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">
-                                              {displayValue(row.lh)}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">
-                                              {displayValue(row.rh)}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center">
-                                              {row.differential}
-                                            </TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  </div>
-
-                                  {/* Inner Table */}
-                                  <div className="border rounded-md overflow-hidden">
-                                    <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
-                                      {tTable('inner')}
-                                    </div>
-                                    <Table>
-                                      <TableHeader>
-                                        <TableRow className="bg-muted/50">
-                                          <TableHead className="h-8 text-[10px] font-semibold border-r">
-                                            {tTable('field')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            {tTable('lh')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold border-r">
-                                            {tTable('rh')}
-                                          </TableHead>
-                                          <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                            {tTable('diff')}
-                                          </TableHead>
-                                        </TableRow>
-                                      </TableHeader>
-                                      <TableBody>
-                                        {innerAfterRows.map((row, idx) => (
-                                          <TableRow
-                                            key={idx}
-                                            className="text-[11px] hover:bg-muted/30"
-                                          >
-                                            <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                                              {row.field}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">
-                                              {displayValue(row.lh)}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center border-r">
-                                              {displayValue(row.rh)}
-                                            </TableCell>
-                                            <TableCell className="py-1.5 text-center">
-                                              {row.differential}
-                                            </TableCell>
-                                          </TableRow>
-                                        ))}
-                                      </TableBody>
-                                    </Table>
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </CollapsibleContent>
-                        </div>
-                      </Collapsible>
-                    );
-                  }
-
                   // Render Lubrication/Hydraulics Section
                   if (sectionKey === 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') {
                     const data = completedSectionData[sectionKey] || {};
@@ -2424,53 +2171,166 @@ export function ServiceCompletionModal({
                   if (sectionKey === 'GIBS') {
                     const data = completedSectionData[sectionKey] || {};
 
-                    // Helper to render a stage table
+                    // Helper to calculate GIBS fields
+                    const calculateGibsFields = (stageData: any) => {
+                      const toNum = (val: any) => (typeof val === 'number' ? val : 0);
+                      return {
+                        frontTop: toNum(stageData.point1) + toNum(stageData.point2),
+                        frontBottom: toNum(stageData.point3) + toNum(stageData.point4),
+                        backTop: toNum(stageData.point5) + toNum(stageData.point6),
+                        backBottom: toNum(stageData.point7) + toNum(stageData.point8),
+                        leftTop: toNum(stageData.point9) + toNum(stageData.point13),
+                        leftBottom: toNum(stageData.point11) + toNum(stageData.point15),
+                        rightTop: toNum(stageData.point10) + toNum(stageData.point14),
+                        rightBottom: toNum(stageData.point12) + toNum(stageData.point16),
+                      };
+                    };
+
+                    // Helper to render a stage with grouped measurements and calculations
                     const renderStageTable = (stageData: any, stageTitle: string) => {
                       if (!stageData) return null;
 
-                      const points = [];
-                      for (let i = 1; i <= 16; i++) {
-                        const key = `point${i}`;
-                        if (stageData[key] !== undefined && stageData[key] !== null) {
-                          points.push({ number: i, value: stageData[key] });
-                        }
-                      }
+                      // Group points by category
+                      const frontToBackPoints = [1, 2, 3, 4, 5, 6, 7, 8];
+                      const leftToRightPoints = [9, 10, 11, 12, 13, 14, 15, 16];
 
-                      if (points.length === 0) return null;
+                      const hasFrontToBack = frontToBackPoints.some(
+                        (i) =>
+                          stageData[`point${i}`] !== undefined && stageData[`point${i}`] !== null,
+                      );
+                      const hasLeftToRight = leftToRightPoints.some(
+                        (i) =>
+                          stageData[`point${i}`] !== undefined && stageData[`point${i}`] !== null,
+                      );
+
+                      if (!hasFrontToBack && !hasLeftToRight) return null;
+
+                      const calculated = calculateGibsFields(stageData);
 
                       return (
-                        <div className="mb-3">
-                          <div className="font-medium text-muted-foreground mb-2 text-[11px]">
+                        <div className="mb-2 border rounded-md p-2 bg-muted/10">
+                          <div className="font-medium text-muted-foreground mb-2 text-xs">
                             {stageTitle}
                           </div>
-                          <div className="border rounded-md overflow-hidden">
-                            <Table>
-                              <TableHeader>
-                                <TableRow className="bg-muted/50">
-                                  <TableHead className="h-8 text-[10px] font-semibold border-r text-center">
-                                    Point
-                                  </TableHead>
-                                  <TableHead className="h-8 text-[10px] text-center font-semibold">
-                                    {tTable('value')}
-                                  </TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {points.map((point) => (
-                                  <TableRow
-                                    key={point.number}
-                                    className="text-[11px] hover:bg-muted/30"
-                                  >
-                                    <TableCell className="py-1.5 text-center border-r bg-muted/20 font-medium">
-                                      {point.number}
-                                    </TableCell>
-                                    <TableCell className="py-1.5 text-center">
-                                      {displayValue(point.value)}
-                                    </TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
+                          {/* Side by side layout for Front-to-Back and Left-to-Right */}
+                          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                            {/* Front to Back Section */}
+                            {hasFrontToBack && (
+                              <div>
+                                <div className="text-[10px] font-semibold mb-1 text-muted-foreground">
+                                  {tGibsFields('frontToBackTitle')}
+                                </div>
+                                <div className="grid grid-cols-2 gap-1 mb-2">
+                                  {/* Only show P1, P2, P5, P6 */}
+                                  {[1, 2, 5, 6].map((num) => {
+                                    const value = stageData[`point${num}`];
+                                    if (value === undefined || value === null) return null;
+                                    return (
+                                      <div
+                                        key={num}
+                                        className="flex flex-col p-1 bg-background border rounded text-[10px]"
+                                      >
+                                        <span className="text-muted-foreground text-[9px]">
+                                          P{num}
+                                        </span>
+                                        <span className="font-mono font-medium">
+                                          {displayValue(value)}
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                                {/* Calculation Table - Only Superior row with Left/Right columns */}
+                                <div className="border rounded overflow-hidden text-[10px]">
+                                  <table className="w-full">
+                                    <thead>
+                                      <tr className="bg-muted/50">
+                                        <th className="border p-1"></th>
+                                        <th className="border p-1">{tGibsFields('left')}</th>
+                                        <th className="border p-1">{tGibsFields('right')}</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className="border p-1 bg-muted/50 font-medium">
+                                          {tGibsFields('top')}
+                                        </td>
+                                        <td className="border p-1 text-center font-mono">
+                                          {calculated.frontTop.toFixed(4)}
+                                        </td>
+                                        <td className="border p-1 text-center font-mono">
+                                          {calculated.backTop.toFixed(4)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Left to Right Section */}
+                            {hasLeftToRight && (
+                              <div>
+                                <div className="text-[10px] font-semibold mb-1 text-muted-foreground">
+                                  {tGibsFields('leftToRightTitle')}
+                                </div>
+                                <div className="grid grid-cols-4 gap-1 mb-2">
+                                  {leftToRightPoints.map((num) => {
+                                    const value = stageData[`point${num}`];
+                                    if (value === undefined || value === null) return null;
+                                    return (
+                                      <div
+                                        key={num}
+                                        className="flex flex-col p-1 bg-background border rounded text-[10px]"
+                                      >
+                                        <span className="text-muted-foreground text-[9px]">
+                                          P{num}
+                                        </span>
+                                        <span className="font-mono font-medium">
+                                          {displayValue(value)}
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                                {/* Calculation Table - Top/Bottom rows with Left/Right columns */}
+                                <div className="border rounded overflow-hidden text-[10px]">
+                                  <table className="w-full">
+                                    <thead>
+                                      <tr className="bg-muted/50">
+                                        <th className="border p-1"></th>
+                                        <th className="border p-1">{tGibsFields('left')}</th>
+                                        <th className="border p-1">{tGibsFields('right')}</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      <tr>
+                                        <td className="border p-1 bg-muted/50 font-medium">
+                                          {tGibsFields('top')}
+                                        </td>
+                                        <td className="border p-1 text-center font-mono">
+                                          {calculated.leftTop.toFixed(4)}
+                                        </td>
+                                        <td className="border p-1 text-center font-mono">
+                                          {calculated.rightTop.toFixed(4)}
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td className="border p-1 bg-muted/50 font-medium">
+                                          {tGibsFields('bottom')}
+                                        </td>
+                                        <td className="border p-1 text-center font-mono">
+                                          {calculated.leftBottom.toFixed(4)}
+                                        </td>
+                                        <td className="border p-1 text-center font-mono">
+                                          {calculated.rightBottom.toFixed(4)}
+                                        </td>
+                                      </tr>
+                                    </tbody>
+                                  </table>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
@@ -2497,60 +2357,64 @@ export function ServiceCompletionModal({
                             <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
-                            {/* Outer Slide Stages */}
-                            {(data.outerBeforeAdjustment ||
-                              data.outerAfterAdjustment ||
-                              data.outerFreeHangingAfterInstall) && (
-                              <div className="border-t pt-2 mb-3">
-                                <div className="font-semibold text-muted-foreground mb-3 text-sm">
-                                  {tTable('outer')} {tGibsFields('directionalTitle')}
+                            <div className="space-y-4">
+                              {/* Outer Slide Stages */}
+                              {(data.outerBeforeAdjustment ||
+                                data.outerAfterAdjustment ||
+                                data.outerFreeHangingAfterInstall) && (
+                                <div className="border-t pt-3">
+                                  <div className="font-semibold mb-2 text-sm flex items-center gap-2">
+                                    <div className="w-1 h-5 bg-primary rounded" />
+                                    {tTable('outer')} {tGibsFields('directionalTitle')}
+                                  </div>
+                                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
+                                    {renderStageTable(
+                                      data.outerBeforeAdjustment,
+                                      tGibsFields('beforeAdjustment'),
+                                    )}
+                                    {renderStageTable(
+                                      data.outerAfterAdjustment,
+                                      tGibsFields('afterAdjustment'),
+                                    )}
+                                    {renderStageTable(
+                                      data.outerFreeHangingAfterInstall,
+                                      tGibsFields('freeHangingAfterInstall'),
+                                    )}
+                                  </div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                                  {renderStageTable(
-                                    data.outerBeforeAdjustment,
-                                    tGibsFields('beforeAdjustment'),
-                                  )}
-                                  {renderStageTable(
-                                    data.outerAfterAdjustment,
-                                    tGibsFields('afterAdjustment'),
-                                  )}
-                                  {renderStageTable(
-                                    data.outerFreeHangingAfterInstall,
-                                    tGibsFields('freeHangingAfterInstall'),
-                                  )}
-                                </div>
-                              </div>
-                            )}
+                              )}
 
-                            {/* Inner Slide Stages */}
-                            {(data.innerBeforeAdjustment ||
-                              data.innerAfterAdjustment ||
-                              data.innerBeforeToolInstallation ||
-                              data.innerAfterToolInstallation) && (
-                              <div className="border-t pt-2 mb-3">
-                                <div className="font-semibold text-muted-foreground mb-3 text-sm">
-                                  {tTable('inner')} {tGibsFields('directionalTitle')}
+                              {/* Inner Slide Stages */}
+                              {(data.innerBeforeAdjustment ||
+                                data.innerAfterAdjustment ||
+                                data.innerBeforeToolInstallation ||
+                                data.innerAfterToolInstallation) && (
+                                <div className="border-t pt-3">
+                                  <div className="font-semibold mb-2 text-sm flex items-center gap-2">
+                                    <div className="w-1 h-5 bg-secondary rounded" />
+                                    {tTable('inner')} {tGibsFields('directionalTitle')}
+                                  </div>
+                                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+                                    {renderStageTable(
+                                      data.innerBeforeAdjustment,
+                                      tGibsFields('beforeAdjustment'),
+                                    )}
+                                    {renderStageTable(
+                                      data.innerAfterAdjustment,
+                                      tGibsFields('afterAdjustment'),
+                                    )}
+                                    {renderStageTable(
+                                      data.innerBeforeToolInstallation,
+                                      tGibsFields('beforeToolInstallation'),
+                                    )}
+                                    {renderStageTable(
+                                      data.innerAfterToolInstallation,
+                                      tGibsFields('afterToolInstallation'),
+                                    )}
+                                  </div>
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                  {renderStageTable(
-                                    data.innerBeforeAdjustment,
-                                    tGibsFields('beforeAdjustment'),
-                                  )}
-                                  {renderStageTable(
-                                    data.innerAfterAdjustment,
-                                    tGibsFields('afterAdjustment'),
-                                  )}
-                                  {renderStageTable(
-                                    data.innerBeforeToolInstallation,
-                                    tGibsFields('beforeToolInstallation'),
-                                  )}
-                                  {renderStageTable(
-                                    data.innerAfterToolInstallation,
-                                    tGibsFields('afterToolInstallation'),
-                                  )}
-                                </div>
-                              </div>
-                            )}
+                              )}
+                            </div>
 
                             {/* Notes */}
                             {data.notes && (

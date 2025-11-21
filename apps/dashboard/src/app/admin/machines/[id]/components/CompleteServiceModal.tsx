@@ -118,7 +118,7 @@ export function CompleteServiceModal({
 
       // Gibs validation
       if (blueprintSections.includes('GIBS') && gibsRef.current?.isTouched()) {
-        const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+        const gibsResult = gibsRef.current.validateAndGetData();
         if (!gibsResult.isValid) {
           validationErrors.push(...gibsResult.errors);
         }
@@ -189,7 +189,7 @@ export function CompleteServiceModal({
 
       // Add gibs data if validated successfully
       if (blueprintSections.includes('GIBS') && gibsRef.current?.isTouched()) {
-        const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+        const gibsResult = gibsRef.current.validateAndGetData();
         if (gibsResult.isValid && gibsResult.data) {
           payload.gibs = gibsResult.data;
         }
@@ -324,7 +324,6 @@ export function CompleteServiceModal({
               <GibsSection
                 ref={gibsRef}
                 onSectionTouched={() => markSectionTouched('GIBS')}
-                serviceType={serviceType}
               />
             )}
 
