@@ -2,9 +2,10 @@
 
 import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { HexColorPicker } from 'react-colorful';
 import {
   Dialog,
   DialogContent,
@@ -13,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -55,8 +57,19 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCom
     formState: { errors, isDirty },
     reset,
     setError,
+    setValue,
+    control,
   } = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
+    defaultValues: {
+      brandColor: '#000000',
+    },
+  });
+
+  const brandColor = useWatch({
+    control,
+    name: 'brandColor',
+    defaultValue: '#000000',
   });
 
   const handleDialogClose = (open: boolean) => {
@@ -141,13 +154,28 @@ export function CreateCompanyDialog({ open, onOpenChange, onSuccess }: CreateCom
 
           <div className="space-y-2">
             <Label htmlFor="brandColor">{t('form.brandColor.label')}</Label>
-            <Input
-              id="brandColor"
-              type="color"
-              {...register('brandColor')}
-              placeholder={t('form.brandColor.placeholder')}
-              disabled={isSubmitting}
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  disabled={isSubmitting}
+                  type="button"
+                >
+                  <div
+                    className="w-6 h-6 rounded border mr-2"
+                    style={{ backgroundColor: brandColor }}
+                  />
+                  {brandColor}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-3">
+                <HexColorPicker
+                  color={brandColor}
+                  onChange={(color) => setValue('brandColor', color, { shouldDirty: true })}
+                />
+              </PopoverContent>
+            </Popover>
             {errors.brandColor && (
               <p className="text-sm text-destructive">{errors.brandColor.message}</p>
             )}
