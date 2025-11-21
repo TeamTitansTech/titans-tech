@@ -48,6 +48,24 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
   const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
 
+  // Verifica se há dados preenchidos no formulário
+  const hasUnsavedChanges = useCallback(
+    (fields: Field[]) => {
+      if (name.trim()) return true;
+      if (selectedSections.length > 0) return true;
+      if (fields.length > 0) return true;
+
+      const hasThresholdChanges = (
+        Object.keys(thresholds) as Array<keyof BearingClearanceThresholdsData>
+      ).some((key) => thresholds[key] !== INITIAL_THRESHOLDS[key]);
+
+      if (hasThresholdChanges) return true;
+
+      return false;
+    },
+    [name, selectedSections, thresholds],
+  );
+
   const toggleSection = (section: string) => {
     setSelectedSections((prev) =>
       prev.includes(section) ? prev.filter((s) => s !== section) : [...prev, section],
@@ -144,5 +162,6 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     result,
     handleSubmit,
     reset,
+    hasUnsavedChanges,
   };
 }

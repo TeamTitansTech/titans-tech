@@ -322,6 +322,12 @@
       },
       "response": {
         "title": "Resposta:"
+      },
+      "confirmClose": {
+        "title": "Descartar alterações?",
+        "description": "Você tem alterações não salvas. Se fechar agora, todos os dados preenchidos serão perdidos.",
+        "confirm": "Sim, descartar",
+        "cancel": "Continuar editando"
       }
     }
   },
