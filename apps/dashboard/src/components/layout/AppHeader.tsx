@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
-import { PanelLeft, Search, Bell, UserCircle, LogOut, Settings, Moon, Sun } from 'lucide-react';
+import { PanelLeft, Search, UserCircle, LogOut, Settings, Moon, Sun } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -16,6 +16,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { SettingsModal } from './SettingsModal';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { NotificationsDropdown } from './NotificationsDropdown';
 import { useTheme } from 'next-themes';
 import { logout } from '@/data/services/auth.api';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
@@ -68,14 +69,7 @@ export function AppHeader() {
         </div>
 
         <div className="flex items-center gap-2 ml-auto">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200">
-                <Bell className="h-5 w-5" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>{t('notifications')}</TooltipContent>
-          </Tooltip>
+          <NotificationsDropdown />
 
           <LanguageSwitcher />
 
