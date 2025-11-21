@@ -6,6 +6,7 @@ export class SysAdminResponseDto {
   isUsingDefaultPassword: boolean;
   createdAt: Date;
   updatedAt: Date;
+  unreadNotifications?: number;
 
   @Exclude()
   password: string;

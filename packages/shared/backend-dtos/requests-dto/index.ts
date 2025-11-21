@@ -7,3 +7,4 @@ export * from './blueprint.dto';
 export * from './auth.dto';
 export * from './machine.dto';
 export * from './service';
+export * from './create-urgent-request.dto';

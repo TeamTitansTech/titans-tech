@@ -128,7 +128,7 @@ CREATE TYPE "DriveBeltConditionType" AS ENUM ('OK', 'NA', 'LOOSENED', 'TIGHTENED
 CREATE TYPE "ProtectiveCoversStatusType" AS ENUM ('YES', 'NO', 'OK');
 
 -- CreateEnum
-CREATE TYPE "ServiceSection" AS ENUM ('BEARING_CLEARANCE', 'SLIDE', 'GIBS', 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER', 'CLUTCH', 'COUNTERBALANCE_CYLINDER_AIRBAG', 'TRAMMING', 'PISTONS');
+CREATE TYPE "ServiceSection" AS ENUM ('BEARING_CLEARANCE', 'SLIDE', 'GIBS', 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER', 'CLUTCH', 'COUNTERBALANCE_CYLINDER_AIRBAG');
 
 -- CreateEnum
 CREATE TYPE "AlertSeverity" AS ENUM ('GREEN', 'YELLOW', 'RED', 'NONE');
@@ -599,101 +599,6 @@ CREATE TABLE "service_data_counterbalance_cylinder_airbag" (
     CONSTRAINT "service_data_counterbalance_cylinder_airbag_pkey" PRIMARY KEY ("id")
 );
 
--- CreateTable
-CREATE TABLE "machine_service_tramming" (
-    "id" TEXT NOT NULL,
-    "machineServiceId" TEXT NOT NULL,
-    "outerDataId" TEXT,
-    "innerDataId" TEXT,
-    "slideTram" "YesNoDncType",
-    "notes" TEXT,
-
-    CONSTRAINT "machine_service_tramming_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "service_data_tramming" (
-    "id" TEXT NOT NULL,
-    "outerTopTop" DECIMAL(10,4) NOT NULL,
-    "outerTopBottom" DECIMAL(10,4) NOT NULL,
-    "outerTopLeft" DECIMAL(10,4) NOT NULL,
-    "outerTopRight" DECIMAL(10,4) NOT NULL,
-    "outerBottomTop" DECIMAL(10,4) NOT NULL,
-    "outerBottomBottom" DECIMAL(10,4) NOT NULL,
-    "outerBottomLeft" DECIMAL(10,4) NOT NULL,
-    "outerBottomRight" DECIMAL(10,4) NOT NULL,
-    "outerLeftTop" DECIMAL(10,4) NOT NULL,
-    "outerLeftBottom" DECIMAL(10,4) NOT NULL,
-    "outerLeftLeft" DECIMAL(10,4) NOT NULL,
-    "outerLeftRight" DECIMAL(10,4) NOT NULL,
-    "outerRightTop" DECIMAL(10,4) NOT NULL,
-    "outerRightBottom" DECIMAL(10,4) NOT NULL,
-    "outerRightLeft" DECIMAL(10,4) NOT NULL,
-    "outerRightRight" DECIMAL(10,4) NOT NULL,
-    "innerTopTop" DECIMAL(10,4) NOT NULL,
-    "innerTopBottom" DECIMAL(10,4) NOT NULL,
-    "innerTopLeft" DECIMAL(10,4) NOT NULL,
-    "innerTopRight" DECIMAL(10,4) NOT NULL,
-    "innerBottomTop" DECIMAL(10,4) NOT NULL,
-    "innerBottomBottom" DECIMAL(10,4) NOT NULL,
-    "innerBottomLeft" DECIMAL(10,4) NOT NULL,
-    "innerBottomRight" DECIMAL(10,4) NOT NULL,
-    "innerLeftTop" DECIMAL(10,4) NOT NULL,
-    "innerLeftBottom" DECIMAL(10,4) NOT NULL,
-    "innerLeftLeft" DECIMAL(10,4) NOT NULL,
-    "innerLeftRight" DECIMAL(10,4) NOT NULL,
-    "innerRightTop" DECIMAL(10,4) NOT NULL,
-    "innerRightBottom" DECIMAL(10,4) NOT NULL,
-    "innerRightLeft" DECIMAL(10,4) NOT NULL,
-    "innerRightRight" DECIMAL(10,4) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "service_data_tramming_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "machine_service_pistons" (
-    "id" TEXT NOT NULL,
-    "machineServiceId" TEXT NOT NULL,
-    "outerDataId" TEXT,
-    "innerDataId" TEXT,
-    "guidSeals" TEXT,
-    "pistonSeals" TEXT,
-    "vacuumSystem" TEXT,
-    "vacuumSystemAirPressureSetting" DECIMAL(10,4),
-    "vacuumSystemAirPressureUnit" TEXT DEFAULT 'PSI',
-    "unit" TEXT DEFAULT 'inches',
-    "notes" TEXT,
-
-    CONSTRAINT "machine_service_pistons_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "service_data_pistons" (
-    "id" TEXT NOT NULL,
-    "outerLhFrontTop" DECIMAL(10,4) NOT NULL,
-    "outerLhFrontBottom" DECIMAL(10,4) NOT NULL,
-    "outerLhLeft" DECIMAL(10,4) NOT NULL,
-    "outerLhRight" DECIMAL(10,4) NOT NULL,
-    "outerRhFrontTop" DECIMAL(10,4) NOT NULL,
-    "outerRhFrontBottom" DECIMAL(10,4) NOT NULL,
-    "outerRhLeft" DECIMAL(10,4) NOT NULL,
-    "outerRhRight" DECIMAL(10,4) NOT NULL,
-    "innerLhFrontTop" DECIMAL(10,4) NOT NULL,
-    "innerLhFrontBottom" DECIMAL(10,4) NOT NULL,
-    "innerLhLeft" DECIMAL(10,4) NOT NULL,
-    "innerLhRight" DECIMAL(10,4) NOT NULL,
-    "innerRhFrontTop" DECIMAL(10,4) NOT NULL,
-    "innerRhFrontBottom" DECIMAL(10,4) NOT NULL,
-    "innerRhLeft" DECIMAL(10,4) NOT NULL,
-    "innerRhRight" DECIMAL(10,4) NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "service_data_pistons_pkey" PRIMARY KEY ("id")
-);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "sys_admins_email_key" ON "sys_admins"("email");
 
@@ -810,21 +715,3 @@ ALTER TABLE "machine_service_counterbalance_cylinder_airbag" ADD CONSTRAINT "mac
 
 -- AddForeignKey
 ALTER TABLE "machine_service_counterbalance_cylinder_airbag" ADD CONSTRAINT "machine_service_counterbalance_cylinder_airbag_innerDataId_fkey" FOREIGN KEY ("innerDataId") REFERENCES "service_data_counterbalance_cylinder_airbag"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "machine_service_tramming" ADD CONSTRAINT "machine_service_tramming_machineServiceId_fkey" FOREIGN KEY ("machineServiceId") REFERENCES "machine_services"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "machine_service_tramming" ADD CONSTRAINT "machine_service_tramming_outerDataId_fkey" FOREIGN KEY ("outerDataId") REFERENCES "service_data_tramming"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "machine_service_tramming" ADD CONSTRAINT "machine_service_tramming_innerDataId_fkey" FOREIGN KEY ("innerDataId") REFERENCES "service_data_tramming"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "machine_service_pistons" ADD CONSTRAINT "machine_service_pistons_machineServiceId_fkey" FOREIGN KEY ("machineServiceId") REFERENCES "machine_services"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "machine_service_pistons" ADD CONSTRAINT "machine_service_pistons_outerDataId_fkey" FOREIGN KEY ("outerDataId") REFERENCES "service_data_pistons"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "machine_service_pistons" ADD CONSTRAINT "machine_service_pistons_innerDataId_fkey" FOREIGN KEY ("innerDataId") REFERENCES "service_data_pistons"("id") ON DELETE SET NULL ON UPDATE CASCADE;

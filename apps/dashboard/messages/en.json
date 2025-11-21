@@ -38,6 +38,7 @@
     "companies": "Companies",
     "allMachines": "Machines",
     "machines": "Machines",
+    "productionLines": "Production Lines",
     "services": "Services",
     "settings": "Settings",
     "adminPortal": "Admin Portal",
@@ -50,7 +51,10 @@
     "toggleTheme": "Toggle Dark Mode",
     "userProfile": "User Profile",
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "markAllAsRead": "Mark all as read",
+    "loading": "Loading",
+    "noNotifications": "No notifications"
   },
   "settings": {
     "title": "Settings",
@@ -1564,5 +1568,38 @@
     "selectBranch": "Please select a branch",
     "success": "Success",
     "error": "Error"
+  },
+  "productionLines": {
+    "pageTitle": "Production Lines",
+    "pageDescription": "Manage and visualize your production lines",
+    "newButton": "New Line",
+    "emptyState": "No production lines created",
+    "errorLoading": "Error loading production lines",
+    "tabView": "Visualization",
+    "tabConfig": "Configuration",
+    "selectCompany": "Select Company",
+    "selectBranch": "Select Branch",
+    "selectMachines": "Select Machines",
+    "machineOrder": "Machine Order",
+    "saveConfig": "Save Configuration",
+    "savingConfig": "Saving...",
+    "configSaved": "Configuration saved successfully",
+    "lineName": "Line Name",
+    "lineNamePlaceholder": "Ex: Main Line",
+    "lineNameRequired": "Line name is required",
+    "machineCount": "machine(s)",
+    "noMachinesConfigured": "No machines configured",
+    "configureFirst": "Configure your production line first",
+    "selectCompanyFirst": "Select a company",
+    "noMachinesAvailable": "No machines available",
+    "noMachineSelected": "No machine selected",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "createDialog": {
+      "title": "New Production Line",
+      "description": "Create a new production line to organize your machines",
+      "cancel": "Cancel",
+      "create": "Create Line"
+    }
   }
 }

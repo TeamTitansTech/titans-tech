@@ -483,6 +483,101 @@ async function main() {
   });
   console.log(`✓ Created/Updated Machine: ${machine3.name}`);
 
+  // Create machines for the subdomain company
+  const subdomainMachine1 = await prisma.machine.upsert({
+    where: { id: 'subdomain-machine-1' },
+    update: {},
+    create: {
+      id: 'subdomain-machine-1',
+      name: 'Subdomain Press #001',
+      blueprintId: bearingBlueprint.id,
+      branchId: mainBranch.id,
+      fields: {
+        create: [
+          { fieldSlug: 'serial_number', value: 'SUB-12345' },
+          { fieldSlug: 'model_year', value: '2022' },
+          { fieldSlug: 'machine_type', value: 'Press' },
+        ],
+      },
+    },
+  });
+  console.log(`✓ Created/Updated Machine: ${subdomainMachine1.name}`);
+
+  const subdomainMachine2 = await prisma.machine.upsert({
+    where: { id: 'subdomain-machine-2' },
+    update: {},
+    create: {
+      id: 'subdomain-machine-2',
+      name: 'Subdomain Stamping #002',
+      blueprintId: bearingBlueprint.id,
+      branchId: mainBranch.id,
+      fields: {
+        create: [
+          { fieldSlug: 'serial_number', value: 'SUB-67890' },
+          { fieldSlug: 'model_year', value: '2023' },
+          { fieldSlug: 'machine_type', value: 'Stamping' },
+        ],
+      },
+    },
+  });
+  console.log(`✓ Created/Updated Machine: ${subdomainMachine2.name}`);
+
+  const subdomainMachine3 = await prisma.machine.upsert({
+    where: { id: 'subdomain-machine-3' },
+    update: {},
+    create: {
+      id: 'subdomain-machine-3',
+      name: 'Subdomain Forming Press #003',
+      blueprintId: bearingBlueprint.id,
+      branchId: mainBranch.id,
+      fields: {
+        create: [
+          { fieldSlug: 'serial_number', value: 'SUB-11223' },
+          { fieldSlug: 'model_year', value: '2021' },
+          { fieldSlug: 'machine_type', value: 'Forming' },
+        ],
+      },
+    },
+  });
+  console.log(`✓ Created/Updated Machine: ${subdomainMachine3.name}`);
+
+  const subdomainMachine4 = await prisma.machine.upsert({
+    where: { id: 'subdomain-machine-4' },
+    update: {},
+    create: {
+      id: 'subdomain-machine-4',
+      name: 'Subdomain Slide Press #004',
+      blueprintId: slideBlueprint.id,
+      branchId: mainBranch.id,
+      fields: {
+        create: [
+          { fieldSlug: 'serial_number', value: 'SUB-44556' },
+          { fieldSlug: 'slide_type', value: 'Single' },
+        ],
+      },
+    },
+  });
+  console.log(`✓ Created/Updated Machine: ${subdomainMachine4.name}`);
+
+  const subdomainMachine5 = await prisma.machine.upsert({
+    where: { id: 'subdomain-machine-5' },
+    update: {},
+    create: {
+      id: 'subdomain-machine-5',
+      name: 'Subdomain Hydraulic Press #005',
+      blueprintId: bearingBlueprint.id,
+      branchId: mainBranch.id,
+      fields: {
+        create: [
+          { fieldSlug: 'serial_number', value: 'SUB-77889' },
+          { fieldSlug: 'model_year', value: '2024' },
+          { fieldSlug: 'machine_type', value: 'Press' },
+        ],
+      },
+    },
+  });
+  console.log(`✓ Created/Updated Machine: ${subdomainMachine5.name}`);
+
   console.log('\n========================================');
   console.log('Seeding completed successfully!');
   console.log('========================================');

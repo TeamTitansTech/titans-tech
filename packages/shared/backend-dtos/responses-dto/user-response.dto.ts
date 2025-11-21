@@ -4,6 +4,7 @@ export class CompanyBranchDto {
   id: string;
   name: string;
   companyId: string;
+  location?: string;
   createdAt: Date;
   updatedAt: Date;
 
@@ -69,6 +70,7 @@ export class UserResponseDto {
   companyId: string;
   createdAt: Date;
   updatedAt: Date;
+  unreadNotifications?: number;
 
   @Exclude()
   password?: string;

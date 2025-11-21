@@ -3,22 +3,26 @@ import { FieldsErr, FullInfoErr, SimpleErr } from './errors/err';
 import { ZodValidationPipe } from './errors/zod-validation.pipe';
 import z from 'zod';
 import { AppService } from './app.service';
+import { Public } from './modules/auth/auth.decorators';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Public()
   @Get()
   getHello() {
     return this.appService.getHello();
   }
 
+  @Public()
   @Get('error')
   getError() {
     // eslint-disable-next-line no-restricted-syntax
     throw Error('This is a test error');
   }
 
+  @Public()
   @Get('error-nest')
   getErrorNest() {
     throw new NotFoundException(
@@ -26,11 +30,13 @@ export class AppController {
     );
   }
 
+  @Public()
   @Get('error-list')
   getErrorList() {
     throw SimpleErr('This is a test error');
   }
 
+  @Public()
   @Get('error-fields')
   getErrorFields() {
     throw FieldsErr({
@@ -40,6 +46,7 @@ export class AppController {
     });
   }
 
+  @Public()
   @Get('error-fullinfo')
   fullInfoError() {
     throw FullInfoErr('This is a test error', {
@@ -48,6 +55,7 @@ export class AppController {
     });
   }
 
+  @Public()
   @Get('error-from-zod-pipe')
   errorfromZodPipe(
     @Query(
@@ -66,6 +74,7 @@ export class AppController {
     return 'zod should have validated this query';
   }
 
+  @Public()
   @Get('error-from-zod-parse')
   errorfromZodParse() {
     const a = z

@@ -38,6 +38,7 @@
     "companies": "Empresas",
     "allMachines": "Máquinas",
     "machines": "Máquinas",
+    "productionLines": "Líneas de Producción",
     "services": "Servicios",
     "settings": "Configuración",
     "adminPortal": "Portal de Administración",
@@ -50,13 +51,16 @@
     "toggleTheme": "Alternar Modo Oscuro",
     "userProfile": "Perfil de Usuario",
     "settings": "Configuración",
-    "logout": "Cerrar Sesión"
+    "logout": "Cerrar Sesión",
+    "markAllAsRead": "Marcar todas como leídas",
+    "loading": "Cargando",
+    "noNotifications": "No hay notificaciones"
   },
   "settings": {
     "title": "Configuración",
     "description": "Administre sus preferencias y configuraciones de la aplicación",
     "pageTitle": "Configuración",
-    "pageDescription": "Administre sus preferencias e información de la empresa",
+    "pageDescription": "Administre sus preferencias y configuraciones de la aplicación",
     "language": {
       "title": "Idioma y Región",
       "label": "Seleccionar Idioma",
@@ -1550,5 +1554,38 @@
     "selectBranch": "Por favor seleccione una sucursal",
     "success": "Éxito",
     "error": "Error"
+  },
+  "productionLines": {
+    "pageTitle": "Líneas de Producción",
+    "pageDescription": "Gestione y visualice sus líneas de producción",
+    "newButton": "Nueva Línea",
+    "emptyState": "No se han creado líneas de producción",
+    "errorLoading": "Error al cargar líneas de producción",
+    "tabView": "Visualización",
+    "tabConfig": "Configuración",
+    "selectCompany": "Seleccionar Empresa",
+    "selectBranch": "Seleccionar Sucursal",
+    "selectMachines": "Seleccionar Máquinas",
+    "machineOrder": "Orden de Máquinas",
+    "saveConfig": "Guardar Configuración",
+    "savingConfig": "Guardando...",
+    "configSaved": "Configuración guardada exitosamente",
+    "lineName": "Nombre de la Línea",
+    "lineNamePlaceholder": "Ej: Línea Principal",
+    "lineNameRequired": "El nombre de la línea es obligatorio",
+    "machineCount": "máquina(s)",
+    "noMachinesConfigured": "No hay máquinas configuradas",
+    "configureFirst": "Configure su línea de producción primero",
+    "selectCompanyFirst": "Seleccione una empresa",
+    "noMachinesAvailable": "No hay máquinas disponibles",
+    "noMachineSelected": "Ninguna máquina seleccionada",
+    "moveUp": "Mover arriba",
+    "moveDown": "Mover abajo",
+    "createDialog": {
+      "title": "Nueva Línea de Producción",
+      "description": "Cree una nueva línea de producción para organizar sus máquinas",
+      "cancel": "Cancelar",
+      "create": "Crear Línea"
+    }
   }
 }
