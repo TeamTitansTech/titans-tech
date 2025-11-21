@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   Dialog,
@@ -43,7 +44,7 @@ export const BlueprintCreationModal = ({
     handleSubmit,
     isLoading,
     result,
-    reset: _resetForm,
+    reset: resetForm,
   } = useBlueprintForm(onSuccess, onClose);
 
   const {
@@ -62,6 +63,15 @@ export const BlueprintCreationModal = ({
     updateNewOptionValue,
     reset: resetEnumOptions,
   } = useEnumOptionsManager();
+
+  // Reset all form fields when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      resetForm();
+      resetFields();
+      resetEnumOptions();
+    }
+  }, [isOpen, resetForm, resetFields, resetEnumOptions]);
 
   const onSubmit = async (e: React.FormEvent) => {
     await handleSubmit(e, fields, resetFields, resetEnumOptions);
