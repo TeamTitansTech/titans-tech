@@ -25,6 +25,14 @@ export const SERVICE_SECTION_CONFIG = {
     slug: 'counterbalance_cylinder_airbag',
     displayName: 'Counterbalance Cylinder / Airbag',
   },
+  [ServiceSection.TRAMMING]: {
+    slug: 'tramming',
+    displayName: 'Tramming',
+  },
+  [ServiceSection.PISTONS]: {
+    slug: 'pistons',
+    displayName: 'Pistons',
+  },
 } as const;
 
 export const SERVICE_SECTIONS = Object.values(ServiceSection);

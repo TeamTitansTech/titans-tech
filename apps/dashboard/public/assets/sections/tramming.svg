@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#FF6B35" opacity="0.1"/>
+
+  <!-- Tramming measurement grid -->
+  <!-- Vertical lines -->
+  <line x1="60" y1="50" x2="60" y2="150" stroke="#FF6B35" stroke-width="2"/>
+  <line x1="100" y1="50" x2="100" y2="150" stroke="#FF6B35" stroke-width="3"/>
+  <line x1="140" y1="50" x2="140" y2="150" stroke="#FF6B35" stroke-width="2"/>
+
+  <!-- Horizontal lines -->
+  <line x1="50" y1="70" x2="150" y2="70" stroke="#FF6B35" stroke-width="2"/>
+  <line x1="50" y1="130" x2="150" y2="130" stroke="#FF6B35" stroke-width="2"/>
+
+  <!-- Measurement points -->
+  <!-- Left -->
+  <circle cx="60" cy="70" r="6" fill="#FF6B35"/>
+  <circle cx="60" cy="130" r="6" fill="#FF6B35"/>
+
+  <!-- Center -->
+  <circle cx="100" cy="70" r="6" fill="#FF6B35"/>
+  <circle cx="100" cy="130" r="6" fill="#FF6B35"/>
+
+  <!-- Right -->
+  <circle cx="140" cy="70" r="6" fill="#FF6B35"/>
+  <circle cx="140" cy="130" r="6" fill="#FF6B35"/>
+
+  <!-- Measurement indicators -->
+  <path d="M 55 70 L 45 70 M 50 75 L 50 65" stroke="#FF6B35" stroke-width="1.5"/>
+  <path d="M 55 130 L 45 130 M 50 135 L 50 125" stroke="#FF6B35" stroke-width="1.5"/>
+  <path d="M 145 70 L 155 70 M 150 75 L 150 65" stroke="#FF6B35" stroke-width="1.5"/>
+  <path d="M 145 130 L 155 130 M 150 135 L 150 125" stroke="#FF6B35" stroke-width="1.5"/>
+
+  <!-- Text label -->
+  <text x="100" y="25" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="#FF6B35" text-anchor="middle">
+    TRAMMING
+  </text>
+</svg>

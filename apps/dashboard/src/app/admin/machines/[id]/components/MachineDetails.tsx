@@ -2,97 +2,47 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
-import { ArrowLeft, ClipboardCheck, Box } from 'lucide-react';
+import { ArrowLeft, ClipboardCheck, Box, FileText } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
-import { SectionCard, type SectionStatus } from './SectionCard';
+import { SectionCard } from '@/components/shared/SectionCard';
 import { Typography } from '@/components/ui/typography';
-import { Machine, MachineDetailsProps } from '@/data/types/machines.types';
+import type { MachineDetailsProps } from '@/data/types/machines.types';
 import { useState } from 'react';
-
-const SECTION_I18N_KEYS: Record<string, string> = {
-  BEARING_CLEARANCE: 'bearingClearance',
-  SLIDE: 'slide',
-  GIBS: 'gibs',
-  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
-  CLUTCH: 'clutch',
-  COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
-};
-
-const SECTION_IMAGES: Record<string, string> = {
-  BEARING_CLEARANCE: '/assets/sections/bearing-clearance.svg',
-  SLIDE: '/assets/sections/slide.svg',
-  GIBS: '/assets/sections/gibs.svg',
-  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER:
-    '/assets/sections/lubrication-hydraulics.svg',
-  CLUTCH: '/assets/sections/clutch.svg',
-  COUNTERBALANCE_CYLINDER_AIRBAG: '/assets/sections/counterbalance.svg',
-};
-
-const CLEARANCE_LIMITS = {
-  WARNING: 0.15,
-  ALERT: 0.2,
-};
-
-const getSectionStatus = (section: string, machine: Machine): SectionStatus => {
-  if (!machine.inspections || machine.inspections.length === 0) {
-    return 'unknown';
-  }
-
-  const latestInspection = machine.inspections[0];
-
-  switch (section) {
-    case 'BEARING_CLEARANCE': {
-      const bearingCheck = latestInspection.bearingClearanceChecks;
-      if (!bearingCheck || !bearingCheck.after) {
-        return 'unknown';
-      }
-
-      const clearances = [
-        bearingCheck.after.totalClearance_RH,
-        bearingCheck.after.totalClearance_LH,
-        bearingCheck.after.mainBearings_RH,
-        bearingCheck.after.mainBearings_LH,
-        bearingCheck.after.upperConnectionBearings_RH,
-        bearingCheck.after.upperConnectionBearings_LH,
-        bearingCheck.after.wristPinToMatingPart_RH,
-        bearingCheck.after.wristPinToMatingPart_LH,
-        bearingCheck.after.wristPinToBushing_RH,
-        bearingCheck.after.wristPinToBushing_LH,
-      ];
-
-      const maxClearance = Math.max(...clearances);
-
-      if (maxClearance >= CLEARANCE_LIMITS.ALERT) {
-        return 'alert';
-      } else if (maxClearance >= CLEARANCE_LIMITS.WARNING) {
-        return 'warning';
-      } else {
-        return 'ok';
-      }
-    }
-
-    case 'SLIDE':
-    case 'GIBS':
-    case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
-    case 'CLUTCH':
-    case 'COUNTERBALANCE_CYLINDER_AIRBAG':
-    default:
-      return 'ok';
-  }
-};
+import { Button } from '@/components/ui/button';
+import { LatestReportModal } from './LatestReportModal';
+import { getLatestReport } from '@/data/services/services.api';
+import type { LatestReport } from '@/data/types/services.types';
 
 export function MachineDetails({ machine }: MachineDetailsProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
+  const [isLoadingReport, setIsLoadingReport] = useState(false);
 
   const handleSectionClick = async (section: string) => {
     setLoadingSection(section);
     const sectionSlug = section.toLowerCase();
     router.push(`/admin/machines/${machine.id}/sections/${sectionSlug}`);
+  };
+
+  const handleOpenReport = async () => {
+    setIsLoadingReport(true);
+    try {
+      const response = await getLatestReport(machine.id);
+      if (response.data) {
+        setLatestReport(response.data);
+        setIsReportModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error fetching latest report:', error);
+    } finally {
+      setIsLoadingReport(false);
+    }
   };
 
   return (
@@ -115,6 +65,10 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
               </Typography>
             </ConditionalTooltip>
           </div>
+          <Button onClick={handleOpenReport} disabled={isLoadingReport} className="gap-2 shrink-0">
+            <FileText className="w-4 h-4" />
+            {isLoadingReport ? 'Carregando...' : 'Ver Relatório Atualizado'}
+          </Button>
         </div>
       </div>
 
@@ -147,9 +101,8 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
                 {machine.blueprint.sections.map((section) => (
                   <SectionCard
                     key={section}
-                    title={t(`sectionNames.${SECTION_I18N_KEYS[section] || 'unknown'}`)}
-                    status={getSectionStatus(section, machine)}
-                    imageUrl={SECTION_IMAGES[section]}
+                    sectionKey={section}
+                    machine={machine}
                     onClick={() => handleSectionClick(section)}
                     isLoading={loadingSection === section}
                   />
@@ -164,6 +117,14 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
           </CardContent>
         </Card>
       </div>
+
+      {latestReport && (
+        <LatestReportModal
+          report={latestReport}
+          open={isReportModalOpen}
+          onOpenChange={setIsReportModalOpen}
+        />
+      )}
     </>
   );
 }

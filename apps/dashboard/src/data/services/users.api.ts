@@ -5,7 +5,7 @@ import {
   SysAdminCreateUserDto,
   UpdateUserDto,
   UserResponseDto,
-} from '@titans-tech/shared';
+} from '@titans-tech/shared/backend-dtos';
 
 export const getAllUsers = async (args: { companyId: string }) => {
   return await responseHandler<UserResponseDto[]>(`/companies/${args.companyId}/users`, {

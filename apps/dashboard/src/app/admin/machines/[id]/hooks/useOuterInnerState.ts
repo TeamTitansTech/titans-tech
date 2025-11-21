@@ -4,6 +4,8 @@ import { useState, useCallback } from 'react';
  * Hook for managing outer/inner + before/after state pattern
  * Handles the complex 4-way state pattern (outerBefore, outerAfter, innerBefore, innerAfter)
  * @template T - The type of data for each section
+ * Note: Using `Record<string, any>` here is intentional to allow interfaces with optional properties.
+ * TypeScript's `Record<string, unknown>` doesn't support optional fields, which most data interfaces have.
  */
 export function useOuterInnerState<T extends Record<string, any>>(
   initialData: T,
@@ -16,6 +18,16 @@ export function useOuterInnerState<T extends Record<string, any>>(
     innerData?: T; // API uses innerData instead of innerAfter
   },
 ) {
+  // Store initial loaded data for "touched" detection (compare against this, not default)
+  const [initialOuterBeforeData] = useState<T>(loadedData?.outerBefore || initialData);
+  const [initialOuterAfterData] = useState<T>(
+    loadedData?.outerAfter || loadedData?.outerData || initialData,
+  );
+  const [initialInnerBeforeData] = useState<T>(loadedData?.innerBefore || initialData);
+  const [initialInnerAfterData] = useState<T>(
+    loadedData?.innerAfter || loadedData?.innerData || initialData,
+  );
+
   // Use loaded data if available, otherwise use initial data
   const [outerBeforeData, setOuterBeforeData] = useState<T>(loadedData?.outerBefore || initialData);
   const [outerAfterData, setOuterAfterData] = useState<T>(
@@ -92,6 +104,12 @@ export function useOuterInnerState<T extends Record<string, any>>(
   }, [initialData]);
 
   return {
+    // Initial loaded data (for touched detection)
+    initialOuterBeforeData,
+    initialOuterAfterData,
+    initialInnerBeforeData,
+    initialInnerAfterData,
+
     // Data states
     outerBeforeData,
     setOuterBeforeData,

@@ -2,7 +2,22 @@
   "common": {
     "companyName": "InspectPro",
     "companySubtitle": "Portal de Administración",
-    "unsavedChanges": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?"
+    "unsavedChanges": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?",
+    "status": {
+      "ok": "OK",
+      "na": "N/D",
+      "dnc": "DNC",
+      "yes": "Sí",
+      "no": "No",
+      "damaged": "Dañado",
+      "leaking": "Fugando",
+      "not_operational": "No Operativo",
+      "dark_oil": "Aceite Oscuro",
+      "needs_replaced": "Necesita Reemplazo",
+      "bushing": "Buje",
+      "bed": "Lecho",
+      "bolster": "Bolster"
+    }
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -34,7 +49,10 @@
     "toggleTheme": "Alternar Modo Oscuro",
     "userProfile": "Perfil de Usuario",
     "settings": "Configuración",
-    "logout": "Cerrar Sesión"
+    "logout": "Cerrar Sesión",
+    "markAllAsRead": "Marcar todas como leídas",
+    "loading": "Cargando",
+    "noNotifications": "No hay notificaciones"
   },
   "settings": {
     "title": "Configuración",
@@ -243,7 +261,9 @@
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
-    "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire"
+    "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
+    "tramming": "Tramming",
+    "pistons": "Pistones"
   },
   "models": {
     "title": "Crear Modelo",
@@ -319,7 +339,15 @@
     "location": "Ubicación",
     "lastInspection": "Última inspección",
     "viewDetails": "Ver Detalles",
+    "edit": "Editar",
+    "delete": "Eliminar",
     "createdSuccessfully": "Máquina creada exitosamente",
+    "deletedSuccessfully": "Máquina eliminada exitosamente",
+    "deleteConfirmTitle": "Eliminar Máquina",
+    "deleteConfirmDescription": "¿Está seguro de que desea eliminar {name}? Esta acción no se puede deshacer y eliminará permanentemente todos los datos asociados.",
+    "confirmDelete": "Eliminar",
+    "deleting": "Eliminando...",
+    "cancel": "Cancelar",
     "sectionsCount": "secciones",
     "fieldsCount": "campos",
     "backToMachines": "Volver a Máquinas",
@@ -373,7 +401,26 @@
       "gibs": "Guías",
       "lubricationHydraulics": "Lubricación / Hidráulica",
       "clutch": "Holgura de Embrague y Freno - CP 2",
-      "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire"
+      "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
+      "tramming": "Tramming",
+      "pistons": "Pistones"
+    },
+    "gibsFields": {
+      "directionalTitle": "Mediciones Direccionales",
+      "beforeAdjustment": "Antes del Ajuste",
+      "afterAdjustment": "Después del Ajuste",
+      "freeHangingAfterInstall": "Libre Después de la Instalación",
+      "beforeToolInstallation": "Antes de la Instalación de la Herramienta",
+      "afterToolInstallation": "Después de la Instalación de la Herramienta",
+      "frontToBackTitle": "De Adelante hacia Atrás",
+      "leftToRightTitle": "De Izquierda a Derecha",
+      "front": "Adelante",
+      "back": "Atrás",
+      "left": "Izquierda",
+      "right": "Derecha",
+      "top": "Superior",
+      "bottom": "Inferior",
+      "usable": "Utilizable"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -623,6 +670,20 @@
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Presiones del Sistema (PSI)",
+        "addRow": "Agregar Fila",
+        "systemLabel": "Sistema",
+        "gaugeSwitchLabel": "Medidor/Interruptor",
+        "psiLabel": "PSI",
+        "noSystemsAdded": "No se han agregado sistemas. Haga clic en \"Agregar Fila\" para comenzar.",
+        "gaugeSwitchPlaceholder": "Medidor/Interruptor",
+        "selectPlaceholder": "Seleccionar",
+        "systems": {
+          "lube": "Lubricación",
+          "hyd": "Hidráulico",
+          "monitorflow": "Monitor de Flujo",
+          "press_sw": "Interruptor de Presión",
+          "gib": "Gib"
+        },
         "lubePSI": "PSI de Lubricación",
         "monitorflowPSI": "PSI de Monitor de Flujo",
         "hydPSI": "PSI Hidráulico",
@@ -632,7 +693,10 @@
         "changedOil": "Aceite Cambiado",
         "oilTemperatureF": "Temperatura del Aceite (°F)",
         "oilMfgType": "Fabricante/Tipo de Aceite",
-        "changedFilter": "Filtro Cambiado"
+        "filterTitle": "Filtro",
+        "changedFilter": "Filtro Cambiado",
+        "notes": "Notas",
+        "notesPlaceholder": "Notas adicionales..."
       },
       "clutch": {
         "clutchInfoTitle": "Información del Embrague",
@@ -705,6 +769,7 @@
           "crankEndplayBefore": "Juego Axial del Cigüeñal (Antes)",
           "crankEndplayAfter": "Juego Axial del Cigüeñal (Después)",
           "airRegulator": "Regulador de Aire",
+          "airClutchTravel": "Recorrido del Embrague de Aire",
           "airClutchTravelClearance": "Recorrido/Holgura del Embrague de Aire",
           "airLineOilerSetting": "Configuración del Lubricador de Línea de Aire",
           "splinesDriveRingDisc": "Estrías: Anillo de Transmisión/Disco",
@@ -718,13 +783,20 @@
           "notes": "Notas"
         },
         "sections": {
+          "basicInformation": "Información Básica",
           "brakeSpringSettings": "Configuración del Resorte del Freno",
           "brakeMeasurements": "Mediciones del Freno",
           "flywheel": "Volante",
+          "clutchSeals": "Embrague y Sellos",
           "clutchDetails": "Detalles del Embrague",
+          "adjustments": "Ajustes",
+          "gearBacklash": "Holgura de Engranaje",
+          "crankEndplay": "Juego Axial del Cigüeñal",
           "gearBacklashCrankEndplay": "Holgura de Engranaje y Juego Axial del Cigüeñal",
           "airSystem": "Sistema de Aire",
-          "hydraulicSystem": "Sistema Hidráulico"
+          "hydraulicSystem": "Sistema Hidráulico",
+          "before": "Antes",
+          "after": "Después"
         },
         "placeholders": {
           "selectType": "Seleccione el tipo",
@@ -760,6 +832,38 @@
           "cylinder": "Cilindro",
           "airbag": "Bolsa de Aire"
         }
+      },
+      "tramming": {
+        "slideTram": "Tram de Corredera",
+        "unit": "Unidad",
+        "outerSection": "Externo",
+        "innerSection": "Interno",
+        "measurementPoints": "Puntos de Medición",
+        "inches": "pulgadas",
+        "outerTop": "Superior Externo",
+        "outerBottom": "Inferior Externo",
+        "outerLeft": "Izquierdo Externo",
+        "outerRight": "Derecho Externo",
+        "innerTop": "Superior Interno",
+        "innerBottom": "Inferior Interno",
+        "innerLeft": "Izquierdo Interno",
+        "innerRight": "Derecho Interno",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Izquierda",
+        "right": "Derecha",
+        "trimPin": "Pasador de Ajuste",
+        "notes": "Notas"
+      },
+      "pistons": {
+        "guidSeals": "Sellos de Guía",
+        "pistonSeals": "Sellos de Pistón",
+        "vacuumSystem": "Sistema de Vacío",
+        "vacuumSystemAirPressureSetting": "Configuración de Presión de Aire del Sistema de Vacío",
+        "unit": "Unidad",
+        "piston": "Pistón",
+        "front": "Frente",
+        "notes": "Notas (Opcional)"
       },
       "cancel": "Cancelar",
       "submit": {
@@ -823,6 +927,11 @@
           "na": "N/A",
           "dnc": "DNC"
         },
+        "yesNoDnc": {
+          "yes": "Sí",
+          "no": "No",
+          "dnc": "DNC"
+        },
         "conditionOkNaDncBrokenWorn": {
           "ok": "OK",
           "na": "N/A",
@@ -847,6 +956,53 @@
           "bushing": "Casquillo",
           "connection": "Conexión",
           "nutScrewSleeve": "Tuerca y Tornillo"
+        },
+        "foundationType": {
+          "plantFloor": "Piso de Planta",
+          "isolatedPad": "Base Aislada"
+        },
+        "frameType": {
+          "gap": "Gap",
+          "straightSide": "Lado Recto"
+        },
+        "clutchType": {
+          "jh5": "JH5",
+          "na": "N/A"
+        },
+        "pneumaticSystem": {
+          "air": "Aire",
+          "hyd": "Hidráulico",
+          "wetAir": "Aire Húmedo",
+          "wetHyd": "Hidráulico Húmedo"
+        },
+        "pressMounting": {
+          "adjustable": "Ajustable",
+          "onFloor": "En el Piso",
+          "shims": "Calzos",
+          "other": "Otro"
+        },
+        "features": {
+          "aim": "AIM",
+          "adjStroke": "Carrera Ajustable",
+          "doubleLockup": "Bloqueo Doble",
+          "na": "N/A"
+        },
+        "driveBeltCondition": {
+          "ok": "OK",
+          "na": "N/A",
+          "loosened": "Aflojado",
+          "tightened": "Apretado",
+          "worn": "Desgastado"
+        },
+        "protectiveCoversStatus": {
+          "yes": "Sí",
+          "no": "No",
+          "ok": "OK"
+        },
+        "whyNotCovered": {
+          "customerRemoved": "Cliente removió para auditoría; cliente debe reinstalar",
+          "notInArea": "Las cubiertas no están ubicadas en el área de la prensa; no visibles",
+          "otherExplain": "Otro: Explique"
         }
       }
     }
@@ -878,6 +1034,32 @@
       "maintenanceSummary": "Resumen de Mantenimiento",
       "inspectionSummary": "Resumen de Inspección",
       "completing": "Completando...",
+      "machineInformation": {
+        "title": "Información de la Máquina",
+        "manufacturer": "Fabricante",
+        "model": "Modelo",
+        "sizeTonnage": "Tamaño/Tonelaje",
+        "serialNumber": "N° de Serie",
+        "stroke": "Carrera",
+        "foundationType": "Tipo de Fundación",
+        "frameType": "Tipo de Bastidor",
+        "clutchType": "Tipo de Embrague",
+        "pneumaticSystem": "Sistema Neumático",
+        "pressMounting": "Montaje de Prensa",
+        "features": "Características"
+      },
+      "inspectionObservations": {
+        "title": "Observaciones de Inspección",
+        "isPressLevel": "¿La Prensa Está Nivelada?",
+        "driveBeltCondition": "Condición de la Correa de Transmisión",
+        "areAllProtectiveCovers": "¿Todas las cubiertas protectoras están en su lugar?",
+        "protectiveCoversExplanation": "Si \"No\" arriba, explique:",
+        "areCracksVisible": "¿Hay grietas visibles en la corona, lecho o corredera?",
+        "cracksLocation": "Si \"Sí\" arriba, ¿dónde?",
+        "isMainMotorSecure": "¿El Motor Principal Está Seguro?",
+        "isMotorPlateSecure": "¿La Placa del Motor Está Segura?",
+        "whyNotCovered": "Por qué no cubierto"
+      },
       "stepper": {
         "details": "Detalles",
         "summary": "Resumen",
@@ -935,6 +1117,14 @@
     "innerAfterMaintenance": "Interno - Después del Mantenimiento"
   },
   "bearingFields": {
+    "totalClearance": "Holgura Total",
+    "mainBearings": "Rodamientos Principales",
+    "upperConnectionBearings": "Rodamientos de Conexión Superior",
+    "wristPinToMatingPart": "Pasador de Muñeca a Pieza de Acoplamiento",
+    "wristPinToBushing": "Pasador de Muñeca a Buje",
+    "slideAdjNutToScrewSleeve": "Tuerca de Ajuste de Corredera a Manguito de Tornillo",
+    "extraDoubleLockOpen": "Bloqueo Doble Extra Abierto",
+    "ballBoxArea": "Área de Caja de Bolas",
     "combinedWith": "Combinado Con",
     "matingPart": "Pieza de Acoplamiento",
     "hasBeenAdjusted": "Ha Sido Ajustado",

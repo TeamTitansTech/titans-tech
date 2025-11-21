@@ -48,6 +48,7 @@ export const LubricationHydraulicsSection = forwardRef<
 >(({ onSectionTouched, initialData }, ref) => {
   // Use the section state hook
   const {
+    initialSectionData,
     data,
     errors,
     updateField: baseUpdateField,
@@ -55,11 +56,13 @@ export const LubricationHydraulicsSection = forwardRef<
   } = useSectionState<LubricationHydraulicsData>(initialData || defaultLubricationHydraulicsData);
 
   // Wrapper to call onSectionTouched
+  // Note: This wrapper accepts a union type and casts to the base hook's generic type.
+  // This is safe because the hook is typed with LubricationHydraulicsData, ensuring type safety at compile time.
   const updateField = (
     field: keyof LubricationHydraulicsData,
     value: string | number | boolean | YesNoDncType | LubricationHydraulicsGauge[] | undefined,
   ) => {
-    baseUpdateField(field, value as any);
+    baseUpdateField(field, value as LubricationHydraulicsData[keyof LubricationHydraulicsData]);
     onSectionTouched?.();
   };
 
@@ -69,26 +72,29 @@ export const LubricationHydraulicsSection = forwardRef<
 
   useImperativeHandle(ref, () => ({
     isTouched: (): boolean => {
-      return isDataTouched(data, defaultLubricationHydraulicsData);
+      return isDataTouched(data, initialSectionData);
     },
 
     validateAndGetData: (
       _serviceType: ServiceType,
     ): { isValid: boolean; errors: string[]; data?: LubricationHydraulicsData } => {
-      const touched = isDataTouched(data, defaultLubricationHydraulicsData);
+      const touched = isDataTouched(data, initialSectionData);
+      const hasData =
+        touched || isDataTouched(initialSectionData, defaultLubricationHydraulicsData);
 
-      if (!touched) {
+      // If no data at all (initial or touched), validation passes with no data
+      if (!hasData) {
         return { isValid: true, errors: [] };
       }
 
-      const validationErrors = validateLubricationHydraulicsData(data);
+      const validationErrors = touched ? validateLubricationHydraulicsData(data) : [];
       const isValid = validationErrors.length === 0;
 
       if (isValid) {
         return {
           isValid: true,
           errors: [],
-          data,
+          data: touched ? data : initialSectionData,
         };
       }
 
@@ -99,12 +105,14 @@ export const LubricationHydraulicsSection = forwardRef<
     },
 
     getData: (): LubricationHydraulicsData | undefined => {
-      const touched = isDataTouched(data, defaultLubricationHydraulicsData);
-      return touched ? data : undefined;
+      const touched = isDataTouched(data, initialSectionData);
+      const hasData =
+        touched || isDataTouched(initialSectionData, defaultLubricationHydraulicsData);
+      return hasData ? (touched ? data : initialSectionData) : undefined;
     },
 
     validate: (_serviceType: ServiceType): string[] => {
-      const touched = isDataTouched(data, defaultLubricationHydraulicsData);
+      const touched = isDataTouched(data, initialSectionData);
       if (touched) {
         return validateLubricationHydraulicsData(data);
       }

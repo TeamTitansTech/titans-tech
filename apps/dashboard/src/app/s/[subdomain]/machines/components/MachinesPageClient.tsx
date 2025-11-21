@@ -1,38 +1,76 @@
 'use client';
 
-import { useState } from 'react';
-import { useInternalRouter } from '@/hooks/useInternalRouter';
+import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { MachineCard } from './MachineCard';
 import { MachineCreationModal } from './MachineCreationModal';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { Plus } from 'lucide-react';
+import { useBranch } from '@/contexts/BranchContext';
+import { getMachinesByBranch } from '@/data/services/machines.api';
 
 interface Machine {
   id: string;
   name: string;
   blueprintId: string;
+  branchId: string;
   fields: { fieldSlug: string; value: string | number }[];
   blueprint?: {
     name: string;
+  };
+  branch?: {
+    id: string;
+    name: string;
+    companyId: string;
   };
   location?: string;
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';
 }
 
-interface MachinesPageClientProps {
-  machines: Machine[];
-}
-
-export function MachinesPageClient({ machines }: MachinesPageClientProps) {
+export function MachinesPageClient() {
+  const [machines, setMachines] = useState<Machine[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const router = useInternalRouter();
   const t = useTranslations('machines');
+  const { selectedBranchId, selectedBranchName } = useBranch();
+
+  // Fetch machines when selected branch changes
+  useEffect(() => {
+    const fetchMachines = async () => {
+      if (!selectedBranchId) {
+        setMachines([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      setError(null);
+      const response = await getMachinesByBranch(selectedBranchId);
+
+      if (response.errors) {
+        setError(response.errors.join(', '));
+        setMachines([]);
+      } else {
+        setMachines(response.data || []);
+      }
+      setIsLoading(false);
+    };
+
+    fetchMachines();
+  }, [selectedBranchId]);
 
   const handleSuccess = () => {
-    router.refresh();
+    // Refresh machines list
+    if (selectedBranchId) {
+      getMachinesByBranch(selectedBranchId).then((response) => {
+        if (response.data) {
+          setMachines(response.data);
+        }
+      });
+    }
   };
 
   return (
@@ -41,15 +79,33 @@ export function MachinesPageClient({ machines }: MachinesPageClientProps) {
         <div className="flex items-center justify-between">
           <div>
             <Typography variant="h2">{t('pageTitle')}</Typography>
-            <Typography variant="muted">{t('pageDescription')}</Typography>
+            <Typography variant="muted">
+              {selectedBranchName
+                ? `${selectedBranchName} - ${t('pageDescription')}`
+                : t('pageDescription')}
+            </Typography>
           </div>
-          <Button onClick={() => setIsModalOpen(true)}>
+          <Button onClick={() => setIsModalOpen(true)} disabled={!selectedBranchId}>
             <Plus className="w-4 h-4 mr-2" />
             {t('newButton')}
           </Button>
         </div>
 
-        {machines.length === 0 ? (
+        {!selectedBranchId ? (
+          <div className="text-center py-12">
+            <Typography variant="muted">Please select a branch to view machines</Typography>
+          </div>
+        ) : isLoading ? (
+          <div className="text-center py-12">
+            <Typography variant="muted">Loading machines...</Typography>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <p className="text-destructive">
+              {t('errorLoading')}: {error}
+            </p>
+          </div>
+        ) : machines.length === 0 ? (
           <div className="text-center py-12">
             <Typography variant="muted">{t('emptyState')}</Typography>
           </div>

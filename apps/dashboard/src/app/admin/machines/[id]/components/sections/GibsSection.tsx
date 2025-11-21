@@ -51,7 +51,8 @@ export const validateGibsStageData = (data: GibsStageData): string[] => {
 
   requiredFields.forEach((field) => {
     const value = data[field];
-    if (typeof value !== 'number' || isNaN(value)) {
+    // Only validate if field exists in data
+    if (value !== undefined && (typeof value !== 'number' || isNaN(value))) {
       errors.push(`${String(field)} is required and must be a valid number`);
     }
   });

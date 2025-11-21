@@ -1,4 +1,16 @@
-import { GibsStageData, GibsCalculatedFields } from '@/data/types/services.types';
+import { GibsStageData } from '@/data/types/services.types';
+
+export interface GibsCalculatedFields {
+  frontTop: number;
+  frontBottom: number;
+  backTop: number;
+  backBottom: number;
+  leftTop: number;
+  leftBottom: number;
+  rightTop: number;
+  rightBottom: number;
+  usable?: number;
+}
 
 export function calculateGibsFields(data: GibsStageData): GibsCalculatedFields {
   const toNum = (val: number | undefined): number => (typeof val === 'number' ? val : 0);

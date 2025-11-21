@@ -3,8 +3,13 @@ import { useState, useCallback } from 'react';
 /**
  * Generic hook for managing section state with update and validation
  * @template T - The type of data being managed
+ * Note: Using `Record<string, any>` here is intentional to allow interfaces with optional properties.
+ * TypeScript's `Record<string, unknown>` doesn't support optional fields, which most data interfaces have.
  */
 export function useSectionState<T extends Record<string, any>>(initialData: T) {
+  // Store initial loaded data for "touched" detection
+  const [initialSectionData] = useState<T>(initialData);
+
   const [data, setData] = useState<T>(initialData);
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
   const [isTouched, setIsTouched] = useState(false);
@@ -35,6 +40,7 @@ export function useSectionState<T extends Record<string, any>>(initialData: T) {
   }, [initialData]);
 
   return {
+    initialSectionData,
     data,
     setData,
     errors,

@@ -10,6 +10,8 @@ export const SERVICE_SECTION_SLUGS = [
   'lubrication_hydraulics_pressure_switches_oil_filter',
   'clutch',
   'counterbalance_cylinder_airbag',
+  'tramming',
+  'pistons',
 ] as const;
 
 export type ServiceSectionSlug = (typeof SERVICE_SECTION_SLUGS)[number];

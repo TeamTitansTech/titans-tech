@@ -8,10 +8,14 @@ import {
   Get,
 } from '@nestjs/common';
 import { SysAdminService } from './sysadmin.service';
-import { LoginDto, LoginSchema } from './dto/login.dto';
 import { Authenticated, Public } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
-import { UpdatePasswordDto, UpdatePasswordSchema } from '@titans-tech/shared';
+import {
+  UpdatePasswordDto,
+  UpdatePasswordSchema,
+  LoginDto,
+  LoginSchema,
+} from '@titans-tech/shared/backend-dtos';
 import { ReqWithAuthUser } from 'src/types/request';
 
 @Controller('auth/admin')

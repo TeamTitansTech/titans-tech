@@ -286,7 +286,7 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    if (args.requiredPermission && (!args.branchId || !args.companyId)) {
+    if (args.requiredPermission && !args.branchId && !args.companyId) {
       throw new ForbiddenException(
         'Access denied: No branch or company context provided',
       );

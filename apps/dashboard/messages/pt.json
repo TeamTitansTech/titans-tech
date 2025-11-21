@@ -13,7 +13,10 @@
       "leaking": "Vazando",
       "not_operational": "Não Operacional",
       "dark_oil": "Óleo Escuro",
-      "needs_replaced": "Precisa Substituir"
+      "needs_replaced": "Precisa Substituir",
+      "bushing": "Bucha",
+      "bed": "Leito",
+      "bolster": "Bolster"
     }
   },
   "validation": {
@@ -46,7 +49,10 @@
     "toggleTheme": "Alternar Modo Escuro",
     "userProfile": "Perfil do Usuário",
     "settings": "Configurações",
-    "logout": "Sair"
+    "logout": "Sair",
+    "markAllAsRead": "Marcar todas como lidas",
+    "loading": "Carregando",
+    "noNotifications": "Nenhuma notificação"
   },
   "settings": {
     "title": "Configurações",
@@ -255,7 +261,9 @@
     "gibs": "GUIAS",
     "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRIFICAÇÃO / HIDRÁULICA / INTERRUPTORES DE PRESSÃO / ÓLEO E FILTRO",
     "clutch": "EMBREAGEM",
-    "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG"
+    "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG",
+    "tramming": "TRAMMING",
+    "pistons": "PISTÕES"
   },
   "models": {
     "title": "Criar Modelo",
@@ -337,7 +345,15 @@
     "client": "Cliente",
     "model": "Modelo",
     "viewDetails": "Ver Detalhes",
+    "edit": "Editar",
+    "delete": "Excluir",
     "createdSuccessfully": "Máquina criada com sucesso",
+    "deletedSuccessfully": "Máquina excluída com sucesso",
+    "deleteConfirmTitle": "Excluir Máquina",
+    "deleteConfirmDescription": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita e removerá permanentemente todos os dados associados.",
+    "confirmDelete": "Excluir",
+    "deleting": "Excluindo...",
+    "cancel": "Cancelar",
     "sectionsCount": "seções",
     "fieldsCount": "campos",
     "backToMachines": "Voltar para Máquinas",
@@ -359,6 +375,17 @@
     "inProgress": "Em Andamento",
     "createInspection": "Criar Vistoria",
     "requestUrgentService": "Solicitar Serviço Urgente",
+    "urgentServiceDescription": "Solicite um serviço urgente para {machineName}. Nossa equipe será notificada imediatamente.",
+    "machine": "Máquina",
+    "additionalNotes": "Notas Adicionais",
+    "optional": "opcional",
+    "urgentServiceNotesPlaceholder": "Descreva o problema ou urgência...",
+    "urgentServiceNotesHint": "Forneça detalhes que ajudem nossa equipe a entender melhor a situação.",
+    "urgentServiceRequestSent": "Solicitação enviada com sucesso! Nossa equipe foi notificada.",
+    "urgentServiceRequestError": "Erro ao enviar solicitação. Por favor, tente novamente.",
+    "urgentServiceWarning": "Esta solicitação notificará imediatamente os administradores da empresa.",
+    "requestSent": "Solicitação Enviada",
+    "sendUrgentRequest": "Enviar Solicitação",
     "noInspectionsFound": "Nenhuma vistoria encontrada",
     "noServicesFound": "Nenhum serviço encontrado",
     "maintenanceService": "Manutenção",
@@ -390,7 +417,26 @@
       "gibs": "Guias",
       "lubricationHydraulics": "Lubrificação / Hidráulica",
       "clutch": "Folga de Embreagem e Freio",
-      "counterbalance": "Cilindro de Contrapeso / Airbag"
+      "counterbalance": "Cilindro de Contrapeso / Airbag",
+      "tramming": "Tramming",
+      "pistons": "Pistões"
+    },
+    "gibsFields": {
+      "directionalTitle": "Medições Direcionais",
+      "beforeAdjustment": "Antes do Ajuste",
+      "afterAdjustment": "Após Ajuste",
+      "freeHangingAfterInstall": "Livre Após Instalação",
+      "beforeToolInstallation": "Antes da Instalação da Ferramenta",
+      "afterToolInstallation": "Após Instalação da Ferramenta",
+      "frontToBackTitle": "Frente para Trás",
+      "leftToRightTitle": "Esquerda para Direita",
+      "front": "Frente",
+      "back": "Trás",
+      "left": "Esquerda",
+      "right": "Direita",
+      "top": "Superior",
+      "bottom": "Inferior",
+      "usable": "Utilizável"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -736,6 +782,7 @@
           "crankEndplayBefore": "Folga Final da Manivela (Antes)",
           "crankEndplayAfter": "Folga Final da Manivela (Depois)",
           "airRegulator": "Regulador de Ar",
+          "airClutchTravel": "Curso da Embreagem de Ar",
           "airClutchTravelClearance": "Curso/Folga da Embreagem de Ar",
           "airLineOilerSetting": "Configuração do Lubrificador da Linha de Ar",
           "splinesDriveRingDisc": "Estrias: Anel de Acionamento/Disco",
@@ -749,13 +796,20 @@
           "notes": "Observações"
         },
         "sections": {
+          "basicInformation": "Informações Básicas",
           "brakeSpringSettings": "Configurações da Mola do Freio",
           "brakeMeasurements": "Medições do Freio",
           "flywheel": "Volante",
+          "clutchSeals": "Embreagem e Vedações",
           "clutchDetails": "Detalhes da Embreagem",
+          "adjustments": "Ajustes",
+          "gearBacklash": "Folga da Engrenagem",
+          "crankEndplay": "Folga Final da Manivela",
           "gearBacklashCrankEndplay": "Folga da Engrenagem e Folga Final da Manivela",
           "airSystem": "Sistema de Ar",
-          "hydraulicSystem": "Sistema Hidráulico"
+          "hydraulicSystem": "Sistema Hidráulico",
+          "before": "Antes",
+          "after": "Depois"
         },
         "placeholders": {
           "selectType": "Selecione o tipo",
@@ -791,6 +845,38 @@
           "cylinder": "Cilindro",
           "airbag": "Airbag"
         }
+      },
+      "tramming": {
+        "slideTram": "Tram do Slide",
+        "unit": "Unidade",
+        "outerSection": "Externo",
+        "innerSection": "Interno",
+        "measurementPoints": "Pontos de Medição",
+        "inches": "polegadas",
+        "outerTop": "Superior Externo",
+        "outerBottom": "Inferior Externo",
+        "outerLeft": "Esquerdo Externo",
+        "outerRight": "Direito Externo",
+        "innerTop": "Superior Interno",
+        "innerBottom": "Inferior Interno",
+        "innerLeft": "Esquerdo Interno",
+        "innerRight": "Direito Interno",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Esquerda",
+        "right": "Direita",
+        "trimPin": "Pino de Ajuste",
+        "notes": "Notas"
+      },
+      "pistons": {
+        "guidSeals": "Vedações de Guia",
+        "pistonSeals": "Vedações de Pistão",
+        "vacuumSystem": "Sistema de Vácuo",
+        "vacuumSystemAirPressureSetting": "Configuração de Pressão de Ar do Sistema de Vácuo",
+        "unit": "Unidade",
+        "piston": "Pistão",
+        "front": "Frente",
+        "notes": "Notas (Opcional)"
       },
       "cancel": "Cancelar",
       "submit": {
@@ -854,6 +940,11 @@
           "na": "N/A",
           "dnc": "DNC"
         },
+        "yesNoDnc": {
+          "yes": "Sim",
+          "no": "Não",
+          "dnc": "DNC"
+        },
         "conditionOkNaDncBrokenWorn": {
           "ok": "OK",
           "na": "N/A",
@@ -878,6 +969,53 @@
           "bushing": "Bucha",
           "connection": "Conexão",
           "nutScrewSleeve": "Porca e Parafuso"
+        },
+        "foundationType": {
+          "plantFloor": "Piso da Planta",
+          "isolatedPad": "Almofada Isolada"
+        },
+        "frameType": {
+          "gap": "Gap",
+          "straightSide": "Straight Side"
+        },
+        "clutchType": {
+          "jh5": "JH5",
+          "na": "N/A"
+        },
+        "pneumaticSystem": {
+          "air": "Ar",
+          "hyd": "Hidráulico",
+          "wetAir": "Ar Úmido",
+          "wetHyd": "Hidráulico Úmido"
+        },
+        "pressMounting": {
+          "adjustable": "Ajustável",
+          "onFloor": "No Piso",
+          "shims": "Calços",
+          "other": "Outro"
+        },
+        "features": {
+          "aim": "AIM",
+          "adjStroke": "Curso Ajustável",
+          "doubleLockup": "Trava Dupla",
+          "na": "N/A"
+        },
+        "driveBeltCondition": {
+          "ok": "OK",
+          "na": "N/A",
+          "loosened": "Afrouxado",
+          "tightened": "Apertado",
+          "worn": "Desgastado"
+        },
+        "protectiveCoversStatus": {
+          "yes": "Sim",
+          "no": "Não",
+          "ok": "OK"
+        },
+        "whyNotCovered": {
+          "customerRemoved": "Cliente removeu para auditoria; cliente deve reinstalar",
+          "notInArea": "Coberturas não estão localizadas na área da prensa; não visíveis",
+          "otherExplain": "Outro: Explique"
         }
       }
     }
@@ -958,6 +1096,32 @@
       "maintenanceSummary": "Resumo da Manutenção",
       "inspectionSummary": "Resumo da Inspeção",
       "completing": "Concluindo...",
+      "machineInformation": {
+        "title": "Informações da Máquina",
+        "manufacturer": "Fabricante",
+        "model": "Modelo",
+        "sizeTonnage": "Tamanho/Tonelagem",
+        "serialNumber": "Número de Série",
+        "stroke": "Curso",
+        "foundationType": "Tipo de Fundação",
+        "frameType": "Tipo de Estrutura",
+        "clutchType": "Tipo de Embreagem",
+        "pneumaticSystem": "Sistema Pneumático",
+        "pressMounting": "Montagem da Prensa",
+        "features": "Características"
+      },
+      "inspectionObservations": {
+        "title": "Observações da Inspeção",
+        "isPressLevel": "A Prensa Está Nivelada?",
+        "driveBeltCondition": "Condição da Correia de Transmissão",
+        "areAllProtectiveCovers": "Todas as coberturas de proteção estão no lugar?",
+        "protectiveCoversExplanation": "Se \"Não\" acima, explique:",
+        "areCracksVisible": "Há rachaduras visíveis na coroa, leito ou deslizamento?",
+        "cracksLocation": "Se \"Sim\" acima, onde?",
+        "isMainMotorSecure": "O Motor Principal Está Seguro?",
+        "isMotorPlateSecure": "A Placa do Motor Está Segura?",
+        "whyNotCovered": "Por que não coberto"
+      },
       "stepper": {
         "details": "Detalhes",
         "summary": "Resumo",
@@ -1015,6 +1179,14 @@
     "innerAfterMaintenance": "Interno - Após a Manutenção"
   },
   "bearingFields": {
+    "totalClearance": "Folga Total",
+    "mainBearings": "Rolamentos Principais",
+    "upperConnectionBearings": "Rolamentos de Conexão Superior",
+    "wristPinToMatingPart": "Pino do Pulso à Peça de Acoplamento",
+    "wristPinToBushing": "Pino do Pulso à Bucha",
+    "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide à Luva do Parafuso",
+    "extraDoubleLockOpen": "Trava Dupla Extra Aberta",
+    "ballBoxArea": "Área da Caixa de Esfera",
     "combinedWith": "Combinado Com",
     "matingPart": "Peça de Acoplamento",
     "hasBeenAdjusted": "Foi Ajustado",
