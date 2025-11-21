@@ -1,5 +1,5 @@
 'use client';
-
+import { GibsStageData } from '@/data/types/services.types';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import {
@@ -939,7 +939,6 @@ export function ServiceCompletionModal({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Show loading state ONLY during initial load, not after saving sections */}
         {isLoadingServiceData && serviceId && !hasLoadedInitialData.current ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center space-y-3">
@@ -991,7 +990,6 @@ export function ServiceCompletionModal({
         ) : currentStep === 'details' ? (
           // Step 2: Service Details (Date & PerformedBy)
           <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
-            {/* Stepper */}
             <div className="px-4 pb-2 pt-2">
               <Stepper steps={getStepperSteps()} onStepClick={handleStepClick} />
             </div>
@@ -1045,7 +1043,6 @@ export function ServiceCompletionModal({
                 )}
               </div>
 
-              {/* Display selected sections summary */}
               <div className="border rounded-lg p-4">
                 <Typography variant="h4" className="mb-3">
                   Áreas selecionadas
@@ -1092,13 +1089,11 @@ export function ServiceCompletionModal({
         ) : currentStep === 'sections' ? (
           // Step 3: Section Forms (One at a time with stepper)
           <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
-            {/* Stepper */}
             <div className="px-4 pb-2">
               <Stepper steps={getStepperSteps()} onStepClick={handleStepClick} />
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-2">
-              {/* Render all selected sections but only show the current one */}
               {(() => {
                 const sectionsArray = getSelectedSectionsArray();
                 const currentSectionKey = sectionsArray[currentSectionIndex];
@@ -1174,7 +1169,6 @@ export function ServiceCompletionModal({
         ) : currentStep === 'summary' ? (
           // Step 4: Summary/Review
           <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
-            {/* Stepper */}
             <div className="px-4 pb-2">
               <Stepper steps={getStepperSteps()} onStepClick={handleStepClick} />
             </div>
@@ -1186,7 +1180,6 @@ export function ServiceCompletionModal({
                   : tServices('modal.maintenanceSummary')}
               </Typography>
 
-              {/* Service Details Summary */}
               <div className="border rounded-lg p-4 mb-4">
                 <Typography variant="h4" className="font-semibold mb-3">
                   Detalhes do Serviço
@@ -1207,7 +1200,6 @@ export function ServiceCompletionModal({
                 </div>
               </div>
 
-              {/* Sections Summary */}
               <div className="border rounded-lg p-4 mb-4">
                 <Typography variant="h4" className="font-semibold mb-3">
                   Áreas Preenchidas
@@ -1231,13 +1223,11 @@ export function ServiceCompletionModal({
                 </div>
               </div>
 
-              {/* Detailed Data Review */}
               <div className="space-y-3">
                 <Typography variant="h4" className="font-semibold">
                   Dados Preenchidos
                 </Typography>
 
-                {/* Loop through ALL selected sections, not just completed */}
                 {Array.from(selectedSections).map((sectionKey) => {
                   const sectionConfig = SECTION_REGISTRY[sectionKey];
                   if (!sectionConfig) return null;
@@ -1289,14 +1279,12 @@ export function ServiceCompletionModal({
                             <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
-                            {/* Before Measurements (only if data exists) */}
                             {hasBeforeData && (
                               <div className="border-t pt-2 mb-3">
                                 <div className="font-semibold text-muted-foreground mb-2 text-sm">
                                   {tServices('modal.sections.beforeMaintenance')}
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                  {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
                                       {tTable('outer')}
@@ -1342,7 +1330,6 @@ export function ServiceCompletionModal({
                                     </Table>
                                   </div>
 
-                                  {/* Inner Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
                                       {tTable('inner')}
@@ -1391,7 +1378,6 @@ export function ServiceCompletionModal({
                               </div>
                             )}
 
-                            {/* After Measurements */}
                             {hasAfterData && (
                               <div className="border-t pt-2">
                                 {hasBeforeData && (
@@ -1400,7 +1386,6 @@ export function ServiceCompletionModal({
                                   </div>
                                 )}
                                 <div className="grid grid-cols-2 gap-3">
-                                  {/* Outer Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
                                       {tTable('outer')}
@@ -1446,7 +1431,6 @@ export function ServiceCompletionModal({
                                     </Table>
                                   </div>
 
-                                  {/* Inner Table */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
                                       {tTable('inner')}
@@ -1495,14 +1479,12 @@ export function ServiceCompletionModal({
                               </div>
                             )}
 
-                            {/* Additional Fields */}
                             {(hasBeforeData || hasAfterData) && (
                               <div className="border-t pt-2 mt-3">
                                 <div className="font-semibold text-muted-foreground mb-2 text-sm">
                                   {tServicesSummary('additionalInformation')}
                                 </div>
                                 <div className="grid grid-cols-2 gap-3">
-                                  {/* Outer Fields */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
                                       {tTable('outer')}
@@ -1544,7 +1526,6 @@ export function ServiceCompletionModal({
                                     </div>
                                   </div>
 
-                                  {/* Inner Fields */}
                                   <div className="border rounded-md overflow-hidden">
                                     <div className="bg-muted/50 px-2 py-1 text-[10px] font-semibold text-center border-b">
                                       {tTable('inner')}
@@ -1587,7 +1568,6 @@ export function ServiceCompletionModal({
                                   </div>
                                 </div>
 
-                                {/* Shutdown Adjustment Mechanism */}
                                 <div className="mt-3">
                                   <div className="font-semibold text-muted-foreground mb-2 text-xs">
                                     {tServicesSummary('shutdownAdjustmentMechanism')}
@@ -1686,7 +1666,6 @@ export function ServiceCompletionModal({
                             <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
-                            {/* Before Measurements (if exists) */}
                             {((data as any).outerBefore || (data as any).innerBefore) && (
                               <div className="border-t pt-2 mb-3">
                                 <div className="font-medium text-muted-foreground mb-2 text-[11px]">
@@ -1783,7 +1762,6 @@ export function ServiceCompletionModal({
                               </div>
                             )}
 
-                            {/* Section-level fields table */}
                             {Object.entries(data).filter(
                               ([key, value]) =>
                                 !isIdField(key) &&
@@ -1847,7 +1825,6 @@ export function ServiceCompletionModal({
                               </div>
                             )}
 
-                            {/* Outer Before Measurements */}
                             {data.outerBefore && (
                               <div className="border-t pt-3 mt-3">
                                 <div className="font-medium text-muted-foreground mb-2 text-[11px]">
@@ -1910,7 +1887,6 @@ export function ServiceCompletionModal({
                               </div>
                             )}
 
-                            {/* Outer After Measurements */}
                             {data.outerData && (
                               <div className="border-t pt-3 mt-3">
                                 <div className="font-medium text-muted-foreground mb-2 text-[11px]">
@@ -1975,7 +1951,6 @@ export function ServiceCompletionModal({
                               </div>
                             )}
 
-                            {/* Inner Before Measurements */}
                             {data.innerBefore && (
                               <div className="border-t pt-3 mt-3">
                                 <div className="font-medium text-muted-foreground mb-2 text-[11px]">
@@ -2038,7 +2013,6 @@ export function ServiceCompletionModal({
                               </div>
                             )}
 
-                            {/* Inner After Measurements */}
                             {data.innerData && (
                               <div className="border-t pt-3 mt-3">
                                 <div className="font-medium text-muted-foreground mb-2 text-[11px]">
@@ -2171,18 +2145,83 @@ export function ServiceCompletionModal({
                   if (sectionKey === 'GIBS') {
                     const data = completedSectionData[sectionKey] || {};
 
-                    // Helper to calculate GIBS fields
-                    const calculateGibsFields = (stageData: any) => {
-                      const toNum = (val: any) => (typeof val === 'number' ? val : 0);
+                    const calculateGibsFields = (stageData: GibsStageData) => {
+                      const toNum = (val: number | undefined) =>
+                        typeof val === 'number' ? val : 0;
+                      const isNum = (val: number | undefined): boolean =>
+                        typeof val === 'number' && !isNaN(val);
+
+                      const frontTop = toNum(stageData.point1) + toNum(stageData.point2);
+                      const frontBottom = toNum(stageData.point3) + toNum(stageData.point4);
+                      const backTop = toNum(stageData.point5) + toNum(stageData.point6);
+                      const backBottom = toNum(stageData.point7) + toNum(stageData.point8);
+                      const leftTop = toNum(stageData.point9) + toNum(stageData.point13);
+                      const leftBottom = toNum(stageData.point11) + toNum(stageData.point15);
+                      const rightTop = toNum(stageData.point10) + toNum(stageData.point14);
+                      const rightBottom = toNum(stageData.point12) + toNum(stageData.point16);
+
+                      const topPointsCount = [
+                        stageData.point9,
+                        stageData.point10,
+                        stageData.point13,
+                        stageData.point14,
+                      ].filter(isNum).length;
+
+                      const bottomPointsCount = [
+                        stageData.point11,
+                        stageData.point12,
+                        stageData.point15,
+                        stageData.point16,
+                      ].filter(isNum).length;
+
+                      let usable: number | undefined;
+
+                      if (topPointsCount === 4 && bottomPointsCount === 4) {
+                        const minLeft = Math.min(
+                          toNum(stageData.point9),
+                          toNum(stageData.point11),
+                          toNum(stageData.point13),
+                          toNum(stageData.point15),
+                        );
+                        const minRight = Math.min(
+                          toNum(stageData.point10),
+                          toNum(stageData.point12),
+                          toNum(stageData.point14),
+                          toNum(stageData.point16),
+                        );
+                        usable = minLeft + minRight;
+                      } else if (topPointsCount === 4) {
+                        const minTopLeft = Math.min(
+                          toNum(stageData.point9),
+                          toNum(stageData.point13),
+                        );
+                        const minTopRight = Math.min(
+                          toNum(stageData.point10),
+                          toNum(stageData.point14),
+                        );
+                        usable = minTopLeft + minTopRight;
+                      } else if (bottomPointsCount === 4) {
+                        const minBottomLeft = Math.min(
+                          toNum(stageData.point11),
+                          toNum(stageData.point15),
+                        );
+                        const minBottomRight = Math.min(
+                          toNum(stageData.point12),
+                          toNum(stageData.point16),
+                        );
+                        usable = minBottomLeft + minBottomRight;
+                      }
+
                       return {
-                        frontTop: toNum(stageData.point1) + toNum(stageData.point2),
-                        frontBottom: toNum(stageData.point3) + toNum(stageData.point4),
-                        backTop: toNum(stageData.point5) + toNum(stageData.point6),
-                        backBottom: toNum(stageData.point7) + toNum(stageData.point8),
-                        leftTop: toNum(stageData.point9) + toNum(stageData.point13),
-                        leftBottom: toNum(stageData.point11) + toNum(stageData.point15),
-                        rightTop: toNum(stageData.point10) + toNum(stageData.point14),
-                        rightBottom: toNum(stageData.point12) + toNum(stageData.point16),
+                        frontTop,
+                        frontBottom,
+                        backTop,
+                        backBottom,
+                        leftTop,
+                        leftBottom,
+                        rightTop,
+                        rightBottom,
+                        usable,
                       };
                     };
 
@@ -2212,16 +2251,14 @@ export function ServiceCompletionModal({
                           <div className="font-medium text-muted-foreground mb-2 text-xs">
                             {stageTitle}
                           </div>
-                          {/* Side by side layout for Front-to-Back and Left-to-Right */}
+
                           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                            {/* Front to Back Section */}
                             {hasFrontToBack && (
                               <div>
                                 <div className="text-[10px] font-semibold mb-1 text-muted-foreground">
                                   {tGibsFields('frontToBackTitle')}
                                 </div>
                                 <div className="grid grid-cols-2 gap-1 mb-2">
-                                  {/* Only show P1, P2, P5, P6 */}
                                   {[1, 2, 5, 6].map((num) => {
                                     const value = stageData[`point${num}`];
                                     if (value === undefined || value === null) return null;
@@ -2240,26 +2277,50 @@ export function ServiceCompletionModal({
                                     );
                                   })}
                                 </div>
-                                {/* Calculation Table - Only Superior row with Left/Right columns */}
+
                                 <div className="border rounded overflow-hidden text-[10px]">
                                   <table className="w-full">
                                     <thead>
                                       <tr className="bg-muted/50">
                                         <th className="border p-1"></th>
-                                        <th className="border p-1">{tGibsFields('left')}</th>
-                                        <th className="border p-1">{tGibsFields('right')}</th>
+                                        <th className="border p-1">{tGibsFields('top')}</th>
+                                        <th className="border p-1">{tGibsFields('bottom')}</th>
                                       </tr>
                                     </thead>
                                     <tbody>
                                       <tr>
                                         <td className="border p-1 bg-muted/50 font-medium">
-                                          {tGibsFields('top')}
+                                          {tGibsFields('front')}
                                         </td>
                                         <td className="border p-1 text-center font-mono">
                                           {calculated.frontTop.toFixed(4)}
                                         </td>
                                         <td className="border p-1 text-center font-mono">
+                                          {calculated.frontBottom.toFixed(4)}
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td className="border p-1 bg-muted/50 font-medium">
+                                          {tGibsFields('back')}
+                                        </td>
+                                        <td className="border p-1 text-center font-mono">
                                           {calculated.backTop.toFixed(4)}
+                                        </td>
+                                        <td className="border p-1 text-center font-mono">
+                                          {calculated.backBottom.toFixed(4)}
+                                        </td>
+                                      </tr>
+                                      <tr>
+                                        <td className="border p-1 bg-muted/50 font-medium">
+                                          {tGibsFields('usable')}
+                                        </td>
+                                        <td
+                                          className="border p-1 text-center font-mono"
+                                          colSpan={2}
+                                        >
+                                          {calculated.usable !== undefined
+                                            ? calculated.usable.toFixed(4)
+                                            : '-'}
                                         </td>
                                       </tr>
                                     </tbody>
@@ -2268,7 +2329,6 @@ export function ServiceCompletionModal({
                               </div>
                             )}
 
-                            {/* Left to Right Section */}
                             {hasLeftToRight && (
                               <div>
                                 <div className="text-[10px] font-semibold mb-1 text-muted-foreground">
@@ -2293,34 +2353,34 @@ export function ServiceCompletionModal({
                                     );
                                   })}
                                 </div>
-                                {/* Calculation Table - Top/Bottom rows with Left/Right columns */}
+
                                 <div className="border rounded overflow-hidden text-[10px]">
                                   <table className="w-full">
                                     <thead>
                                       <tr className="bg-muted/50">
                                         <th className="border p-1"></th>
-                                        <th className="border p-1">{tGibsFields('left')}</th>
-                                        <th className="border p-1">{tGibsFields('right')}</th>
+                                        <th className="border p-1">{tGibsFields('top')}</th>
+                                        <th className="border p-1">{tGibsFields('bottom')}</th>
                                       </tr>
                                     </thead>
                                     <tbody>
                                       <tr>
                                         <td className="border p-1 bg-muted/50 font-medium">
-                                          {tGibsFields('top')}
+                                          {tGibsFields('left')}
                                         </td>
                                         <td className="border p-1 text-center font-mono">
                                           {calculated.leftTop.toFixed(4)}
                                         </td>
                                         <td className="border p-1 text-center font-mono">
-                                          {calculated.rightTop.toFixed(4)}
+                                          {calculated.leftBottom.toFixed(4)}
                                         </td>
                                       </tr>
                                       <tr>
                                         <td className="border p-1 bg-muted/50 font-medium">
-                                          {tGibsFields('bottom')}
+                                          {tGibsFields('right')}
                                         </td>
                                         <td className="border p-1 text-center font-mono">
-                                          {calculated.leftBottom.toFixed(4)}
+                                          {calculated.rightTop.toFixed(4)}
                                         </td>
                                         <td className="border p-1 text-center font-mono">
                                           {calculated.rightBottom.toFixed(4)}
@@ -2358,7 +2418,6 @@ export function ServiceCompletionModal({
                           </CollapsibleTrigger>
                           <CollapsibleContent className="p-3 pt-0 text-xs">
                             <div className="space-y-4">
-                              {/* Outer Slide Stages */}
                               {(data.outerBeforeAdjustment ||
                                 data.outerAfterAdjustment ||
                                 data.outerFreeHangingAfterInstall) && (
@@ -2384,7 +2443,6 @@ export function ServiceCompletionModal({
                                 </div>
                               )}
 
-                              {/* Inner Slide Stages */}
                               {(data.innerBeforeAdjustment ||
                                 data.innerAfterAdjustment ||
                                 data.innerBeforeToolInstallation ||
@@ -2416,7 +2474,6 @@ export function ServiceCompletionModal({
                               )}
                             </div>
 
-                            {/* Notes */}
                             {data.notes && (
                               <div className="border-t pt-2">
                                 <div className="font-semibold text-muted-foreground mb-2 text-xs">

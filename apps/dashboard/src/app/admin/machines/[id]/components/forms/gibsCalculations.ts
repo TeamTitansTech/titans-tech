@@ -1,29 +1,53 @@
 import { GibsStageData, GibsCalculatedFields } from '@/data/types/services.types';
 
-/**
- * Calculate directional fields from 16 measurement points
- * Following the Excel structure where:
- * - Points 1-8: Front to Back
- * - Points 9-16: Left to Right
- */
 export function calculateGibsFields(data: GibsStageData): GibsCalculatedFields {
-  // Helper to safely convert to number (0 if undefined/null)
   const toNum = (val: number | undefined): number => (typeof val === 'number' ? val : 0);
 
-  // Front to Back (points 1-8)
-  const frontTop = toNum(data.point1) + toNum(data.point2); // columns 1+2
-  const frontBottom = toNum(data.point3) + toNum(data.point4); // columns 3+4
-  const backTop = toNum(data.point5) + toNum(data.point6); // columns 5+6
-  const backBottom = toNum(data.point7) + toNum(data.point8); // columns 7+8
+  const frontTop = toNum(data.point1) + toNum(data.point2);
+  const frontBottom = toNum(data.point3) + toNum(data.point4);
+  const backTop = toNum(data.point5) + toNum(data.point6);
+  const backBottom = toNum(data.point7) + toNum(data.point8);
 
-  // Left to Right (points 9-16)
-  const leftTop = toNum(data.point9) + toNum(data.point13); // columns 9+13
-  const leftBottom = toNum(data.point11) + toNum(data.point15); // columns 11+15
-  const rightTop = toNum(data.point10) + toNum(data.point14); // columns 10+14
-  const rightBottom = toNum(data.point12) + toNum(data.point16); // columns 12+16
+  const leftTop = toNum(data.point9) + toNum(data.point13);
+  const leftBottom = toNum(data.point11) + toNum(data.point15);
+  const rightTop = toNum(data.point10) + toNum(data.point14);
+  const rightBottom = toNum(data.point12) + toNum(data.point16);
 
-  // Usable calculation - based on Left to Right values
-  const usable = (leftTop + leftBottom + rightTop + rightBottom) / 4;
+  const isNum = (val: number | undefined): boolean => typeof val === 'number' && !isNaN(val);
+
+  const topPointsCount = [data.point9, data.point10, data.point13, data.point14].filter(
+    isNum,
+  ).length;
+
+  const bottomPointsCount = [data.point11, data.point12, data.point15, data.point16].filter(
+    isNum,
+  ).length;
+
+  let usable: number | undefined;
+
+  if (topPointsCount === 4 && bottomPointsCount === 4) {
+    const minLeft = Math.min(
+      toNum(data.point9),
+      toNum(data.point11),
+      toNum(data.point13),
+      toNum(data.point15),
+    );
+    const minRight = Math.min(
+      toNum(data.point10),
+      toNum(data.point12),
+      toNum(data.point14),
+      toNum(data.point16),
+    );
+    usable = minLeft + minRight;
+  } else if (topPointsCount === 4) {
+    const minTopLeft = Math.min(toNum(data.point9), toNum(data.point13));
+    const minTopRight = Math.min(toNum(data.point10), toNum(data.point14));
+    usable = minTopLeft + minTopRight;
+  } else if (bottomPointsCount === 4) {
+    const minBottomLeft = Math.min(toNum(data.point11), toNum(data.point15));
+    const minBottomRight = Math.min(toNum(data.point12), toNum(data.point16));
+    usable = minBottomLeft + minBottomRight;
+  }
 
   return {
     frontTop,
@@ -38,9 +62,6 @@ export function calculateGibsFields(data: GibsStageData): GibsCalculatedFields {
   };
 }
 
-/**
- * Get a specific subset of points for a measurement type
- */
 export function getPointsForMeasurement(
   data: GibsStageData,
   type: 'frontToBack' | 'leftToRight',

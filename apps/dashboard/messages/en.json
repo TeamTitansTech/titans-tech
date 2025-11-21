@@ -631,7 +631,9 @@
         "usable": "Usable",
         "rear": "Rear",
         "beforeToolInstallation": "Before Tool Installation",
-        "afterToolInstallation": "After Tool Installation"
+        "afterToolInstallation": "After Tool Installation",
+        "adjustment": "Adjustment",
+        "installation": "Installation"
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "System Pressures (PSI)",

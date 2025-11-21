@@ -51,7 +51,6 @@ interface MeasurementInputsProps {
   updateFn: (field: keyof GibsStageData, value: number) => void;
   handleBlur: (field: keyof GibsStageData) => void;
   errors: Record<string, string>;
-  title: string;
   t: TranslationFunction;
 }
 
@@ -61,7 +60,6 @@ function MeasurementInputs({
   updateFn,
   handleBlur,
   errors,
-  title,
   t,
 }: MeasurementInputsProps) {
   return (
@@ -70,11 +68,11 @@ function MeasurementInputs({
         const pointNumber = field.replace('point', '');
         return (
           <div key={field}>
-            <Label htmlFor={`${field}-${title}`} className="text-xs">
+            <Label htmlFor={field} className="text-xs">
               {t('form.gibs.point', { number: pointNumber })}
             </Label>
             <Input
-              id={`${field}-${title}`}
+              id={field}
               type="number"
               step="0.0001"
               min="0"
@@ -93,8 +91,209 @@ function MeasurementInputs({
   );
 }
 
+interface CalculatedTableProps {
+  data: GibsStageData;
+  t: TranslationFunction;
+}
+
+// Tabela para Top View (outer after install)
+function TopViewTable({ data, t }: CalculatedTableProps) {
+  const addPoints = (a: number | undefined, b: number | undefined): string => {
+    const numA = typeof a === 'number' ? a : 0;
+    const numB = typeof b === 'number' ? b : 0;
+    return (numA + numB).toFixed(4);
+  };
+
+  return (
+    <div className="w-full max-w-md">
+      <div className="border rounded-md overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-muted">
+              <th className="border p-2 font-medium"></th>
+              <th className="border p-2 font-medium">{t('form.gibs.left')}</th>
+              <th className="border p-2 font-medium">{t('form.gibs.right')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
+              <td className="border p-2 text-center font-mono">
+                {addPoints(data.point1, data.point2)}
+              </td>
+              <td className="border p-2 text-center font-mono">
+                {addPoints(data.point5, data.point6)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// Tabela para Front to Back (outer before/after adjustment)
+function FrontToBackTable({ data, t }: CalculatedTableProps) {
+  const calculated = useMemo(() => calculateGibsFields(data), [data]);
+
+  return (
+    <div className="w-full max-w-md">
+      <div className="border rounded-md overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-muted">
+              <th className="border p-2 font-medium"></th>
+              <th className="border p-2 font-medium">{t('form.gibs.top')}</th>
+              <th className="border p-2 font-medium">{t('form.gibs.bottom')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border p-2 font-medium bg-muted">{t('form.gibs.front')}</td>
+              <td className="border p-2 text-center font-mono">{calculated.frontTop.toFixed(4)}</td>
+              <td className="border p-2 text-center font-mono">
+                {calculated.frontBottom.toFixed(4)}
+              </td>
+            </tr>
+            <tr>
+              <td className="border p-2 font-medium bg-muted">{t('form.gibs.back')}</td>
+              <td className="border p-2 text-center font-mono">{calculated.backTop.toFixed(4)}</td>
+              <td className="border p-2 text-center font-mono">
+                {calculated.backBottom.toFixed(4)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// Tabela para Before Tool Installation
+function BeforeToolTable({ data, t }: CalculatedTableProps) {
+  const calculated = useMemo(() => calculateGibsFields(data), [data]);
+
+  return (
+    <div className="w-full max-w-md">
+      <div className="border rounded-md overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-muted">
+              <th className="border p-2 font-medium"></th>
+              <th className="border p-2 font-medium">{t('form.gibs.top')}</th>
+              <th className="border p-2 font-medium">{t('form.gibs.bottom')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border p-2 font-medium bg-muted">{t('form.gibs.front')}</td>
+              <td className="border p-2 text-center font-mono">{calculated.frontTop.toFixed(4)}</td>
+              <td className="border p-2 text-center font-mono">
+                {calculated.frontBottom.toFixed(4)}
+              </td>
+            </tr>
+            <tr>
+              <td className="border p-2 font-medium bg-muted">{t('form.gibs.back')}</td>
+              <td className="border p-2 text-center font-mono">{calculated.backTop.toFixed(4)}</td>
+              <td className="border p-2 text-center font-mono">
+                {calculated.backBottom.toFixed(4)}
+              </td>
+            </tr>
+            <tr>
+              <td className="border p-2 font-medium bg-muted">{t('form.gibs.usable')}</td>
+              <td className="border p-2 text-center font-mono" colSpan={2}>
+                {calculated.usable?.toFixed(4) ?? '0.0000'}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// Tabela para After Tool Installation
+function AfterToolTable({ data, t }: CalculatedTableProps) {
+  const addPoints = (a: number | undefined, b: number | undefined): string => {
+    const numA = typeof a === 'number' ? a : 0;
+    const numB = typeof b === 'number' ? b : 0;
+    return (numA + numB).toFixed(4);
+  };
+
+  return (
+    <div className="w-full max-w-md">
+      <div className="border rounded-md overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-muted">
+              <th className="border p-2 font-medium"></th>
+              <th className="border p-2 font-medium">{t('form.gibs.front')}</th>
+              <th className="border p-2 font-medium">{t('form.gibs.rear')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
+              <td className="border p-2 text-center font-mono">
+                {addPoints(data.point9, data.point13)}
+              </td>
+              <td className="border p-2 text-center font-mono">
+                {addPoints(data.point10, data.point14)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// Tabela para Left to Right (inner adjustment e outer after install)
+function LeftToRightTable({ data, t }: CalculatedTableProps) {
+  const calculated = useMemo(() => calculateGibsFields(data), [data]);
+
+  return (
+    <div className="w-full max-w-md">
+      <div className="border rounded-md overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-muted">
+              <th className="border p-2 font-medium"></th>
+              <th className="border p-2 font-medium">{t('form.gibs.top')}</th>
+              <th className="border p-2 font-medium">{t('form.gibs.bottom')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="border p-2 font-medium bg-muted">{t('form.gibs.front')}</td>
+              <td className="border p-2 text-center font-mono">{calculated.leftTop.toFixed(4)}</td>
+              <td className="border p-2 text-center font-mono">{calculated.rightTop.toFixed(4)}</td>
+            </tr>
+            <tr>
+              <td className="border p-2 font-medium bg-muted">{t('form.gibs.back')}</td>
+              <td className="border p-2 text-center font-mono">
+                {calculated.leftBottom.toFixed(4)}
+              </td>
+              <td className="border p-2 text-center font-mono">
+                {calculated.rightBottom.toFixed(4)}
+              </td>
+            </tr>
+            {calculated.usable !== undefined && (
+              <tr>
+                <td className="border p-2 font-medium bg-muted">{t('form.gibs.usable')}</td>
+                <td className="border p-2 text-center font-mono" colSpan={2}>
+                  {calculated.usable.toFixed(4)}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 interface MeasurementSectionProps {
-  title: string;
   data: GibsStageData;
   updateFn: (field: keyof GibsStageData, value: number) => void;
   handleBlur: (field: keyof GibsStageData) => void;
@@ -104,7 +303,6 @@ interface MeasurementSectionProps {
 }
 
 function MeasurementSection({
-  title,
   data,
   updateFn,
   handleBlur,
@@ -112,15 +310,6 @@ function MeasurementSection({
   diagramType,
   t,
 }: MeasurementSectionProps) {
-  // Helper to safely add two point values
-  const addPoints = (a: number | undefined, b: number | undefined): string => {
-    const numA = typeof a === 'number' ? a : 0;
-    const numB = typeof b === 'number' ? b : 0;
-    return (numA + numB).toFixed(4);
-  };
-
-  const calculated = useMemo(() => calculateGibsFields(data), [data]);
-
   const diagramPath = useMemo(() => {
     if (diagramType === 'topView') return '/assets/gibs/top.png';
     if (diagramType === 'beforeTool') return '/assets/gibs/before-tool-instalation.png';
@@ -144,14 +333,44 @@ function MeasurementSection({
     return diagramType === 'frontToBack' ? FRONT_TO_BACK_POINTS_RIGHT : LEFT_TO_RIGHT_POINTS_RIGHT;
   }, [diagramType]);
 
+  const getTitle = () => {
+    switch (diagramType) {
+      case 'frontToBack':
+        return t('form.gibs.frontToBackTitle');
+      case 'leftToRight':
+        return t('form.gibs.leftToRightTitle');
+      case 'topView':
+        return t('form.gibs.freeHangingAfterInstall');
+      case 'beforeTool':
+        return t('form.gibs.beforeToolInstallation');
+      case 'afterTool':
+        return t('form.gibs.afterToolInstallation');
+      default:
+        return '';
+    }
+  };
+
+  const renderTable = () => {
+    switch (diagramType) {
+      case 'topView':
+        return <TopViewTable data={data} t={t} />;
+      case 'frontToBack':
+        return <FrontToBackTable data={data} t={t} />;
+      case 'beforeTool':
+        return <BeforeToolTable data={data} t={t} />;
+      case 'afterTool':
+        return <AfterToolTable data={data} t={t} />;
+      case 'leftToRight':
+        return <LeftToRightTable data={data} t={t} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-sm">
-          {diagramType === 'frontToBack'
-            ? t('form.gibs.frontToBackTitle')
-            : t('form.gibs.leftToRightTitle')}
-        </CardTitle>
+        <CardTitle className="text-sm">{getTitle()}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
@@ -161,7 +380,6 @@ function MeasurementSection({
             updateFn={updateFn}
             handleBlur={handleBlur}
             errors={errors}
-            title={title}
             t={t}
           />
 
@@ -169,7 +387,7 @@ function MeasurementSection({
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={diagramPath}
-              alt={`GIBS measurement diagram for ${title}`}
+              alt={`GIBS measurement diagram`}
               className="max-w-full h-auto"
               style={{ maxHeight: '300px' }}
             />
@@ -181,174 +399,11 @@ function MeasurementSection({
             updateFn={updateFn}
             handleBlur={handleBlur}
             errors={errors}
-            title={title}
             t={t}
           />
         </div>
 
-        <div className="mt-6 flex justify-center">
-          {diagramType === 'topView' ? (
-            <div className="w-full max-w-md">
-              <div className="border rounded-md overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-muted">
-                      <th className="border p-2 font-medium"></th>
-                      <th className="border p-2 font-medium">{t('form.gibs.left')}</th>
-                      <th className="border p-2 font-medium">{t('form.gibs.right')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
-                      <td className="border p-2 text-center font-mono">
-                        {addPoints(data.point1, data.point2)}
-                      </td>
-                      <td className="border p-2 text-center font-mono">
-                        {addPoints(data.point5, data.point6)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : diagramType === 'frontToBack' ? (
-            <div className="w-full max-w-md">
-              <div className="border rounded-md overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-muted">
-                      <th className="border p-2 font-medium"></th>
-                      <th className="border p-2 font-medium">{t('form.gibs.top')}</th>
-                      <th className="border p-2 font-medium">{t('form.gibs.bottom')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.front')}</td>
-                      <td className="border p-2 text-center font-mono">
-                        {calculated.frontTop.toFixed(4)}
-                      </td>
-                      <td className="border p-2 text-center font-mono">
-                        {calculated.frontBottom.toFixed(4)}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.back')}</td>
-                      <td className="border p-2 text-center font-mono">
-                        {calculated.backTop.toFixed(4)}
-                      </td>
-                      <td className="border p-2 text-center font-mono">
-                        {calculated.backBottom.toFixed(4)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : diagramType === 'beforeTool' ? (
-            <div className="w-full max-w-md">
-              <div className="border rounded-md overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-muted">
-                      <th className="border p-2 font-medium"></th>
-                      <th className="border p-2 font-medium">{t('form.gibs.left')}</th>
-                      <th className="border p-2 font-medium">{t('form.gibs.right')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
-                      <td className="border p-2 text-center font-mono">
-                        {addPoints(data.point1, data.point2)}
-                      </td>
-                      <td className="border p-2 text-center font-mono">
-                        {addPoints(data.point5, data.point6)}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.bottom')}</td>
-                      <td className="border p-2 text-center font-mono">
-                        {addPoints(data.point3, data.point4)}
-                      </td>
-                      <td className="border p-2 text-center font-mono">
-                        {addPoints(data.point7, data.point8)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : diagramType === 'afterTool' ? (
-            <div className="w-full max-w-md">
-              <div className="border rounded-md overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-muted">
-                      <th className="border p-2 font-medium"></th>
-                      <th className="border p-2 font-medium">{t('form.gibs.front')}</th>
-                      <th className="border p-2 font-medium">{t('form.gibs.rear')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
-                      <td className="border p-2 text-center font-mono">
-                        {addPoints(data.point9, data.point13)}
-                      </td>
-                      <td className="border p-2 text-center font-mono">
-                        {addPoints(data.point10, data.point14)}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          ) : (
-            <div className="w-full max-w-md">
-              <div className="border rounded-md overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="bg-muted">
-                      <th className="border p-2 font-medium"></th>
-                      <th className="border p-2 font-medium">{t('form.gibs.left')}</th>
-                      <th className="border p-2 font-medium">{t('form.gibs.right')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
-                      <td className="border p-2 text-center font-mono">
-                        {calculated.leftTop.toFixed(4)}
-                      </td>
-                      <td className="border p-2 text-center font-mono">
-                        {calculated.rightTop.toFixed(4)}
-                      </td>
-                    </tr>
-                    <tr>
-                      <td className="border p-2 font-medium bg-muted">{t('form.gibs.bottom')}</td>
-                      <td className="border p-2 text-center font-mono">
-                        {calculated.leftBottom.toFixed(4)}
-                      </td>
-                      <td className="border p-2 text-center font-mono">
-                        {calculated.rightBottom.toFixed(4)}
-                      </td>
-                    </tr>
-                    {calculated.usable !== undefined && (
-                      <tr>
-                        <td className="border p-2 font-medium bg-muted">{t('form.gibs.usable')}</td>
-                        <td className="border p-2 text-center font-mono" colSpan={2}>
-                          {calculated.usable.toFixed(4)}
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
+        <div className="mt-6 flex justify-center">{renderTable()}</div>
       </CardContent>
     </Card>
   );
@@ -401,7 +456,6 @@ export function GibsForm({
                 <CollapsibleContent className="mt-4 space-y-4">
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                     <MeasurementSection
-                      title="Before Adjustment - Front to Back"
                       data={beforeAdjustment.data!}
                       updateFn={beforeAdjustment.onUpdate!}
                       handleBlur={beforeAdjustment.handleBlur || (() => {})}
@@ -410,7 +464,6 @@ export function GibsForm({
                       t={t}
                     />
                     <MeasurementSection
-                      title="Before Adjustment - Left to Right"
                       data={beforeAdjustment.data!}
                       updateFn={beforeAdjustment.onUpdate!}
                       handleBlur={beforeAdjustment.handleBlur || (() => {})}
@@ -434,7 +487,6 @@ export function GibsForm({
                 <CollapsibleContent className="mt-4 space-y-4">
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                     <MeasurementSection
-                      title="After Adjustment - Front to Back"
                       data={afterAdjustment.data!}
                       updateFn={afterAdjustment.onUpdate!}
                       handleBlur={afterAdjustment.handleBlur || (() => {})}
@@ -443,7 +495,6 @@ export function GibsForm({
                       t={t}
                     />
                     <MeasurementSection
-                      title="After Adjustment - Left to Right"
                       data={afterAdjustment.data!}
                       updateFn={afterAdjustment.onUpdate!}
                       handleBlur={afterAdjustment.handleBlur || (() => {})}
@@ -469,7 +520,6 @@ export function GibsForm({
                 <CollapsibleContent className="mt-4 space-y-4">
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                     <MeasurementSection
-                      title="Free Hanging - Top View"
                       data={afterInstall.data!}
                       updateFn={afterInstall.onUpdate!}
                       handleBlur={afterInstall.handleBlur || (() => {})}
@@ -478,7 +528,6 @@ export function GibsForm({
                       t={t}
                     />
                     <MeasurementSection
-                      title="Free Hanging - Left to Right"
                       data={afterInstall.data!}
                       updateFn={afterInstall.onUpdate!}
                       handleBlur={afterInstall.handleBlur || (() => {})}
@@ -498,7 +547,6 @@ export function GibsForm({
               <h4 className="text-sm font-semibold">{t('form.gibs.freeHangingAfterInstall')}</h4>
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                 <MeasurementSection
-                  title="Free Hanging - Top View"
                   data={afterInstall.data!}
                   updateFn={afterInstall.onUpdate!}
                   handleBlur={afterInstall.handleBlur || (() => {})}
@@ -507,7 +555,6 @@ export function GibsForm({
                   t={t}
                 />
                 <MeasurementSection
-                  title="Free Hanging - Left to Right"
                   data={afterInstall.data!}
                   updateFn={afterInstall.onUpdate!}
                   handleBlur={afterInstall.handleBlur || (() => {})}
@@ -527,8 +574,8 @@ export function GibsForm({
     <div className="space-y-4">
       <Tabs defaultValue="adjustment" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="adjustment">Adjustment</TabsTrigger>
-          <TabsTrigger value="installation">Installation</TabsTrigger>
+          <TabsTrigger value="adjustment">{t('form.gibs.adjustment')}</TabsTrigger>
+          <TabsTrigger value="installation">{t('form.gibs.installation')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="adjustment" className="space-y-4 mt-4">
@@ -558,7 +605,6 @@ export function GibsForm({
                   </CollapsibleTrigger>
                   <CollapsibleContent className="mt-4 space-y-4">
                     <MeasurementSection
-                      title="Before Adjustment - Left to Right"
                       data={beforeAdjustment.data!}
                       updateFn={beforeAdjustment.onUpdate!}
                       handleBlur={beforeAdjustment.handleBlur || (() => {})}
@@ -580,7 +626,6 @@ export function GibsForm({
                   </CollapsibleTrigger>
                   <CollapsibleContent className="mt-4 space-y-4">
                     <MeasurementSection
-                      title="After Adjustment - Left to Right"
                       data={afterAdjustment.data!}
                       updateFn={afterAdjustment.onUpdate!}
                       handleBlur={afterAdjustment.handleBlur || (() => {})}
@@ -598,7 +643,6 @@ export function GibsForm({
               <div className="space-y-4">
                 <h4 className="text-sm font-semibold">{t('form.gibs.afterAdjustment')}</h4>
                 <MeasurementSection
-                  title="After Adjustment - Left to Right"
                   data={afterAdjustment.data!}
                   updateFn={afterAdjustment.onUpdate!}
                   handleBlur={afterAdjustment.handleBlur || (() => {})}
@@ -615,7 +659,6 @@ export function GibsForm({
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {beforeToolInstall?.data && beforeToolInstall?.onUpdate && (
               <MeasurementSection
-                title={t('form.gibs.beforeToolInstallation')}
                 data={beforeToolInstall.data!}
                 updateFn={beforeToolInstall.onUpdate!}
                 handleBlur={beforeToolInstall.handleBlur || (() => {})}
@@ -627,7 +670,6 @@ export function GibsForm({
 
             {afterToolInstall?.data && afterToolInstall?.onUpdate && (
               <MeasurementSection
-                title={t('form.gibs.afterToolInstallation')}
                 data={afterToolInstall.data!}
                 updateFn={afterToolInstall.onUpdate!}
                 handleBlur={afterToolInstall.handleBlur || (() => {})}
