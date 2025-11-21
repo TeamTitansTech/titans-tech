@@ -2,17 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { useBranch } from '@/contexts/BranchContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ArrowUp, ArrowDown, Save } from 'lucide-react';
 import { toast } from 'sonner';
@@ -37,11 +29,9 @@ interface MachineWithBranch extends Machine {
 
 export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   const t = useTranslations('productionLines');
-  const { companyUser } = useCompanyUser();
-  const [selectedBranchId, setSelectedBranchId] = useState(productionLine.branchId || '');
+  const { selectedBranchId } = useBranch();
   const [allMachines, setAllMachines] = useState<MachineWithBranch[]>([]);
 
-  // Extrair IDs das máquinas ordenadas
   const initialMachineIds =
     productionLine.machines?.sort((a, b) => a.order - b.order).map((pm) => pm.machineId) || [];
 
@@ -50,36 +40,8 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   const [isLoadingMachines, setIsLoadingMachines] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const branches = companyUser?.branches?.map((ub) => ub.branch) || [];
-
-  console.log('ConfigTab Branches:', {
-    companyUser,
-    branches: branches.map((b) => ({ id: b.id, name: b.name })),
-    selectedBranchId,
-  });
-
   const availableMachines = allMachines.filter((m) => m.branch?.id === selectedBranchId);
 
-  // Debug logs
-  console.log('ConfigTab Debug:', {
-    selectedBranchId,
-    allMachinesCount: allMachines.length,
-    availableMachinesCount: availableMachines.length,
-    allMachines: allMachines.map((m) => ({
-      id: m.id,
-      name: m.name,
-      branchId: m.branchId,
-      branchObjectId: m.branch?.id,
-    })),
-    availableMachines: availableMachines.map((m) => ({
-      id: m.id,
-      name: m.name,
-      branchId: m.branchId,
-      branchObjectId: m.branch?.id,
-    })),
-  });
-
-  // Load all machines once
   useEffect(() => {
     const loadMachines = async () => {
       setIsLoadingMachines(true);
@@ -129,14 +91,18 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
 
   const handleSave = async () => {
     if (!selectedBranchId) {
-      toast.error('Selecione uma filial primeiro');
+      toast.error('Nenhuma filial selecionada');
+      return;
+    }
+
+    if (productionLine.branchId !== selectedBranchId) {
+      toast.error('Esta linha de produção pertence a outra filial');
       return;
     }
 
     setIsSaving(true);
     try {
       const response = await updateProductionLine(productionLine.id, {
-        branchId: selectedBranchId,
         machineIds: machineOrder,
       });
 
@@ -157,122 +123,115 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
     }
   };
 
-  return (
-    <div className="space-y-6">
+  if (!selectedBranchId) {
+    return (
       <Card>
-        <CardHeader>
-          <CardTitle>{t('selectBranch')}</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>{t('selectBranch')}</Label>
-            {!companyUser ? (
-              <p className="text-sm text-muted-foreground">Carregando...</p>
-            ) : branches.length === 0 ? (
-              <p className="text-sm text-destructive">Nenhuma filial disponível</p>
-            ) : (
-              <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione uma filial" />
-                </SelectTrigger>
-                <SelectContent>
-                  {branches.map((branch) => (
-                    <SelectItem key={branch.id} value={branch.id}>
-                      {branch.name}
-                      {branch.location && ` - ${branch.location}`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
+        <CardContent className="p-6">
+          <p className="text-muted-foreground">
+            Por favor, selecione uma filial no menu superior para configurar linhas de produção.
+          </p>
         </CardContent>
       </Card>
+    );
+  }
 
-      {selectedBranchId && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('selectMachines')}</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {isLoadingMachines ? (
-                <p className="text-muted-foreground">Carregando máquinas...</p>
-              ) : availableMachines.length === 0 ? (
-                <p className="text-muted-foreground">{t('noMachinesAvailable')}</p>
-              ) : (
-                <div className="space-y-2">
-                  {availableMachines.map((machine) => (
-                    <div key={machine.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={machine.id}
-                        checked={selectedMachineIds.includes(machine.id)}
-                        onCheckedChange={(checked) =>
-                          handleMachineToggle(machine.id, checked as boolean)
-                        }
-                      />
-                      <label
-                        htmlFor={machine.id}
-                        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                      >
-                        {machine.name}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+  if (productionLine.branchId !== selectedBranchId) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-muted-foreground">
+            Esta linha de produção pertence a outra filial. Selecione a filial correta no menu
+            superior para editá-la.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('machineOrder')}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {machineOrder.length === 0 ? (
-                <p className="text-muted-foreground text-xl">{t('noMachineSelected')}</p>
-              ) : (
-                <div className="space-y-2">
-                  {machineOrder.map((machineId, index) => {
-                    const machine = allMachines.find((m) => m.id === machineId);
-                    return (
-                      <div
-                        key={machineId}
-                        className="flex items-center justify-between p-3 border rounded-lg"
-                      >
-                        <span className="font-medium">
-                          {index + 1}. {machine?.name || machineId}
-                        </span>
-                        <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => moveUp(index)}
-                            disabled={index === 0}
-                          >
-                            <ArrowUp className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => moveDown(index)}
-                            disabled={index === machineOrder.length - 1}
-                          >
-                            <ArrowDown className="w-4 h-4" />
-                          </Button>
-                        </div>
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('selectMachines')}</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {isLoadingMachines ? (
+              <p className="text-muted-foreground">Carregando máquinas...</p>
+            ) : availableMachines.length === 0 ? (
+              <p className="text-muted-foreground">{t('noMachinesAvailable')}</p>
+            ) : (
+              <div className="space-y-2">
+                {availableMachines.map((machine) => (
+                  <div key={machine.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={machine.id}
+                      checked={selectedMachineIds.includes(machine.id)}
+                      onCheckedChange={(checked) =>
+                        handleMachineToggle(machine.id, checked as boolean)
+                      }
+                    />
+                    <label
+                      htmlFor={machine.id}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      {machine.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('machineOrder')}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {machineOrder.length === 0 ? (
+              <p className="text-muted-foreground text-xl">{t('noMachineSelected')}</p>
+            ) : (
+              <div className="space-y-2">
+                {machineOrder.map((machineId, index) => {
+                  const machine = allMachines.find((m) => m.id === machineId);
+                  return (
+                    <div
+                      key={machineId}
+                      className="flex items-center justify-between p-3 border rounded-lg"
+                    >
+                      <span className="font-medium">
+                        {index + 1}. {machine?.name || machineId}
+                      </span>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => moveUp(index)}
+                          disabled={index === 0}
+                        >
+                          <ArrowUp className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => moveDown(index)}
+                          disabled={index === machineOrder.length - 1}
+                        >
+                          <ArrowDown className="w-4 h-4" />
+                        </Button>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave} disabled={isSaving || !selectedBranchId}>
+        <Button onClick={handleSave} disabled={isSaving}>
           <Save className="w-4 h-4 mr-2" />
           {isSaving ? t('savingConfig') : t('saveConfig')}
         </Button>

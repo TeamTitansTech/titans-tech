@@ -48,11 +48,11 @@ export function QuickActions() {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {actions.map((action) => {
+          {actions.map((action, index) => {
             const Icon = action.icon;
             return (
               <Button
-                key={action.href}
+                key={`${action.href}-${index}`}
                 variant={action.variant}
                 asChild
                 className="h-auto py-6 flex-col items-start gap-2"

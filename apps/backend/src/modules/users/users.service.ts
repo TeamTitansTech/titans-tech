@@ -82,19 +82,8 @@ export class UsersService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    const unreadNotifications = 0;
 
-    // Buscar quantidade de notificações não lidas
-    const unreadNotifications = await this.prisma.clientNotification.count({
-      where: {
-        userId,
-        isRead: false,
-      },
-    });
-
-    const userResponse = new UserResponseDto(user);
-    userResponse.unreadNotifications = unreadNotifications;
-
-    return userResponse;
     // If user is company admin or manager, they have access to all branches
     // We need to populate the branches array with all company branches
     if (user.isCompanyAdmin || user.isCompanyManager) {
@@ -132,10 +121,17 @@ export class UsersService {
         branch: branch,
       }));
 
-      return new UserResponseDto({ ...user, branches: userBranches });
+      const userResponse = new UserResponseDto({
+        ...user,
+        branches: userBranches,
+      });
+      userResponse.unreadNotifications = unreadNotifications;
+      return userResponse;
     }
 
-    return new UserResponseDto(user);
+    const userResponse = new UserResponseDto(user);
+    userResponse.unreadNotifications = unreadNotifications;
+    return userResponse;
   }
 
   async findAll(companyId: string) {

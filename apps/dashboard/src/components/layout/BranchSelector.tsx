@@ -14,10 +14,23 @@ export function BranchSelector() {
   const { companyUser } = useCompanyUser();
   const { selectedBranchId, setSelectedBranchId } = useBranch();
 
-  if (!companyUser) return null;
+  console.log('[BranchSelector] Component rendered');
+  console.log('[BranchSelector] companyUser:', companyUser);
+  console.log('[BranchSelector] selectedBranchId:', selectedBranchId);
+
+  if (!companyUser) {
+    console.log('[BranchSelector] No companyUser - returning null');
+    return null;
+  }
 
   const accessibleBranches = companyUser.branches;
-  if (accessibleBranches.length <= 1) return null;
+  console.log('[BranchSelector] accessibleBranches:', accessibleBranches);
+  console.log('[BranchSelector] accessibleBranches.length:', accessibleBranches.length);
+
+  if (accessibleBranches.length <= 1) {
+    console.log('[BranchSelector] Only 1 or 0 branches - returning null');
+    return null;
+  }
 
   return (
     <Select value={selectedBranchId || ''} onValueChange={setSelectedBranchId}>

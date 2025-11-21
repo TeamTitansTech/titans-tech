@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../prisma.service';
 import { CreateProductionLineDto } from './dto/create-production-line.dto';
@@ -8,12 +12,77 @@ import { UpdateProductionLineDto } from './dto/update-production-line.dto';
 export class ProductionLinesService {
   constructor(private prisma: PrismaService) {}
 
-  /**
-   * Cria uma nova linha de produção
-   * @param createProductionLineDto - Dados para criar a linha de produção
-   * @returns Linha de produção criada com as máquinas associadas
-   */
-  async create(createProductionLineDto: CreateProductionLineDto): Promise<
+  private async validateUserBranchAccess(
+    userId: string,
+    branchId: string,
+  ): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        branches: {
+          where: { branchId },
+        },
+        company: {
+          include: {
+            branches: {
+              where: { id: branchId },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.company.branches.length === 0) {
+      throw new ForbiddenException(
+        'This branch does not belong to your company',
+      );
+    }
+
+    if (user.isCompanyAdmin || user.isCompanyManager) {
+      return;
+    }
+
+    if (user.branches.length === 0) {
+      throw new ForbiddenException('You do not have access to this branch');
+    }
+  }
+
+  private async getUserBranchIds(userId: string): Promise<string[]> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        branches: {
+          select: { branchId: true },
+        },
+        company: {
+          include: {
+            branches: {
+              select: { id: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.isCompanyAdmin || user.isCompanyManager) {
+      return user.company.branches.map((b) => b.id);
+    }
+
+    return user.branches.map((ub) => ub.branchId);
+  }
+
+  async create(
+    userId: string,
+    createProductionLineDto: CreateProductionLineDto,
+  ): Promise<
     Prisma.ProductionLineGetPayload<{
       include: {
         branch: true;
@@ -21,6 +90,11 @@ export class ProductionLinesService {
       };
     }>
   > {
+    await this.validateUserBranchAccess(
+      userId,
+      createProductionLineDto.branchId,
+    );
+
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id: createProductionLineDto.branchId },
     });
@@ -38,6 +112,15 @@ export class ProductionLinesService {
 
       if (machines.length !== createProductionLineDto.machineIds.length) {
         throw new NotFoundException('One or more machines not found');
+      }
+
+      const invalidMachines = machines.filter(
+        (machine) => machine.branchId !== createProductionLineDto.branchId,
+      );
+      if (invalidMachines.length > 0) {
+        throw new NotFoundException(
+          'All machines must belong to the same branch as the production line',
+        );
       }
     }
 
@@ -71,12 +154,7 @@ export class ProductionLinesService {
 
     return productionLine;
   }
-
-  /**
-   * Busca todas as linhas de produção
-   * @returns Lista de todas as linhas de produção
-   */
-  async findAll(): Promise<
+  async findAll(userId: string): Promise<
     Prisma.ProductionLineGetPayload<{
       include: {
         branch: true;
@@ -84,7 +162,14 @@ export class ProductionLinesService {
       };
     }>[]
   > {
+    const branchIds = await this.getUserBranchIds(userId);
+
     return this.prisma.productionLine.findMany({
+      where: {
+        branchId: {
+          in: branchIds,
+        },
+      },
       include: {
         branch: true,
         machines: {
@@ -107,12 +192,10 @@ export class ProductionLinesService {
     });
   }
 
-  /**
-   * Busca uma linha de produção específica por ID
-   * @param id - ID da linha de produção
-   * @returns Linha de produção encontrada
-   */
-  async findOne(id: string): Promise<
+  async findOne(
+    userId: string,
+    id: string,
+  ): Promise<
     Prisma.ProductionLineGetPayload<{
       include: {
         branch: true;
@@ -144,16 +227,11 @@ export class ProductionLinesService {
       throw new NotFoundException(`Production line with ID ${id} not found`);
     }
 
+    await this.validateUserBranchAccess(userId, productionLine.branchId);
     return productionLine;
   }
-
-  /**
-   * Atualiza uma linha de produção existente
-   * @param id - ID da linha de produção
-   * @param updateProductionLineDto - Dados para atualizar
-   * @returns Linha de produção atualizada
-   */
   async update(
+    userId: string,
     id: string,
     updateProductionLineDto: UpdateProductionLineDto,
   ): Promise<
@@ -174,17 +252,7 @@ export class ProductionLinesService {
       throw new NotFoundException(`Production line with ID ${id} not found`);
     }
 
-    if (updateProductionLineDto.branchId) {
-      const branch = await this.prisma.companyBranch.findUnique({
-        where: { id: updateProductionLineDto.branchId },
-      });
-
-      if (!branch) {
-        throw new NotFoundException(
-          `Branch with ID ${updateProductionLineDto.branchId} not found`,
-        );
-      }
-    }
+    await this.validateUserBranchAccess(userId, existingLine.branchId);
 
     if (updateProductionLineDto.machineIds) {
       if (updateProductionLineDto.machineIds.length > 0) {
@@ -195,13 +263,21 @@ export class ProductionLinesService {
         if (machines.length !== updateProductionLineDto.machineIds.length) {
           throw new NotFoundException('One or more machines not found');
         }
+
+        const invalidMachines = machines.filter(
+          (machine) => machine.branchId !== existingLine.branchId,
+        );
+        if (invalidMachines.length > 0) {
+          throw new NotFoundException(
+            'All machines must belong to the same branch as the production line',
+          );
+        }
       }
 
       return this.prisma.productionLine.update({
         where: { id },
         data: {
           name: updateProductionLineDto.name,
-          branchId: updateProductionLineDto.branchId,
           machines: {
             deleteMany: {},
             create: updateProductionLineDto.machineIds.map(
@@ -231,12 +307,10 @@ export class ProductionLinesService {
       });
     }
 
-    // 5. Se não está atualizando as máquinas, apenas atualizar nome/branch
     return this.prisma.productionLine.update({
       where: { id },
       data: {
         name: updateProductionLineDto.name,
-        branchId: updateProductionLineDto.branchId,
       },
       include: {
         branch: true,
@@ -257,11 +331,7 @@ export class ProductionLinesService {
     });
   }
 
-  /**
-   * Deleta uma linha de produção
-   * @param id - ID da linha de produção
-   */
-  async remove(id: string): Promise<void> {
+  async remove(userId: string, id: string): Promise<void> {
     // 1. Verificar se a linha de produção existe
     const productionLine = await this.prisma.productionLine.findUnique({
       where: { id },
@@ -271,7 +341,7 @@ export class ProductionLinesService {
       throw new NotFoundException(`Production line with ID ${id} not found`);
     }
 
-    // 2. Deletar a linha de produção (as relações ProductionLineMachine serão deletadas em cascata)
+    await this.validateUserBranchAccess(userId, productionLine.branchId);
     await this.prisma.productionLine.delete({
       where: { id },
     });

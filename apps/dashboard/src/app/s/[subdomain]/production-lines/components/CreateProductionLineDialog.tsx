@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
+import { useBranch } from '@/contexts/BranchContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import {
   Dialog,
@@ -36,10 +37,8 @@ export function CreateProductionLineDialog({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const t = useTranslations('productionLines');
   const router = useInternalRouter();
+  const { selectedBranchId } = useBranch();
   const { companyUser } = useCompanyUser();
-
-  // Usar automaticamente a primeira filial do usuário
-  const defaultBranchId = companyUser?.branches?.[0]?.branchId;
 
   const schema = useMemo(
     () =>
@@ -59,8 +58,8 @@ export function CreateProductionLineDialog({
   } = useForm<FormData>();
 
   const onSubmit = async (data: FormData) => {
-    if (!defaultBranchId) {
-      toast.error('Nenhuma filial disponível');
+    if (!selectedBranchId) {
+      toast.error('Selecione uma filial no menu superior');
       return;
     }
 
@@ -68,8 +67,8 @@ export function CreateProductionLineDialog({
     try {
       const response = await createProductionLine({
         name: data.name,
-        branchId: defaultBranchId,
-        machineIds: [], // Criar linha sem máquinas
+        branchId: selectedBranchId,
+        machineIds: [],
         createdBy: companyUser?.id,
       });
 

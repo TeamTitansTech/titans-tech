@@ -31,7 +31,12 @@ export type BranchPermissionType =
   | 'readServices'
   | 'createServices'
   | 'updateServices'
-  | 'deleteServices';
+  | 'deleteServices'
+  // Production Line Permissions
+  | 'readProductionLines'
+  | 'createProductionLines'
+  | 'updateProductionLines'
+  | 'deleteProductionLines';
 
 export const Admin = () => SetMetadata(IS_SYS_ADMIN_KEY, true);
 

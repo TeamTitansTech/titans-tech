@@ -18,11 +18,10 @@ export function CompanyUserProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
 
-  // Check if we're on a client portal route (not admin)
   const isClientRoute = pathname && !pathname.startsWith('/admin');
+  console.log('[CompanyUserProvider] isClientRoute:', isClientRoute);
 
   const fetchUser = async () => {
-    // Only fetch user data for client routes
     if (!isClientRoute) {
       setIsLoading(false);
       return;
@@ -31,13 +30,14 @@ export function CompanyUserProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       const response = await getCurrentUser();
+
       if (response.data) {
         setCompanyUser(response.data);
       } else {
         setCompanyUser(null);
       }
     } catch (error) {
-      console.error('Failed to fetch current user:', error);
+      console.error('[CompanyUserProvider fetchUser] Failed to fetch current user:', error);
       setCompanyUser(null);
     } finally {
       setIsLoading(false);
@@ -46,7 +46,7 @@ export function CompanyUserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchUser();
-  }, [pathname]); // Refetch when route changes
+  }, [pathname]);
 
   const refetchUser = async () => {
     await fetchUser();
