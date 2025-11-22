@@ -34,9 +34,9 @@ export function MachineCard({
   const t = useTranslations('machines');
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardContent className="p-6">
-        <div className="space-y-4">
+    <Card className="shadow-md hover:shadow-xl transition-all duration-200 border-2 hover:border-primary/20 hover:-translate-y-1">
+      <CardContent className="p-8">
+        <div className="space-y-5">
           <div className="flex items-start justify-between">
             <div className="flex items-start gap-3 min-w-0 flex-1 mr-2">
               <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">

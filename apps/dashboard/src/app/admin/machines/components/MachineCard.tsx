@@ -35,7 +35,7 @@ export function MachineCard({
 
   return (
     <Link href={`/admin/machines/${id}`} className="block">
-      <Card className="relative hover:shadow-lg transition-shadow cursor-pointer">
+      <Card className="relative shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer hover:-translate-y-1 border-2 hover:border-primary/20">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -53,8 +53,8 @@ export function MachineCard({
           </Tooltip>
         </TooltipProvider>
 
-        <CardContent className="p-[clamp(0.875rem,2.5vw,1.5rem)]">
-          <div className="space-y-[clamp(0.625rem,2vw,1rem)]">
+        <CardContent className="p-[clamp(1.25rem,3vw,2rem)]">
+          <div className="space-y-[clamp(0.875rem,2.5vw,1.25rem)]">
             <div className="flex items-start gap-[clamp(0.625rem,2vw,0.875rem)] min-w-0 pr-5">
               <div className="w-[clamp(2.25rem,9vw,2.75rem)] h-[clamp(2.25rem,9vw,2.75rem)] rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                 <Wrench className="w-[clamp(1.125rem,4.5vw,1.375rem)] h-[clamp(1.125rem,4.5vw,1.375rem)] text-accent" />
@@ -125,7 +125,7 @@ export function MachineCard({
                     }}
                     variant="outline"
                     size="sm"
-                    className="flex-1 px-2 text-sm text-destructive hover:text-destructive gap-0 sm:gap-1.5 md:gap-2"
+                    className="flex-1 px-2 text-sm text-destructive hover:text-destructive hover:bg-destructive/10 hover:border-destructive/50 gap-0 sm:gap-1.5 md:gap-2"
                   >
                     <Trash2 className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 shrink-0" />
                     <span className="hidden sm:inline">{t('delete')}</span>
