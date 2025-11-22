@@ -983,6 +983,8 @@
       "completeInspection": "Complete Inspection",
       "completeInspectionDetails": "Complete Inspection - Details",
       "selectMaintenanceAreas": "Select the maintenance areas to be performed",
+      "selectedAreas": "Selected Areas",
+      "inspectionAreas": "Inspection Areas",
       "fillMaintenanceDetails": "Fill in the maintenance details performed",
       "fillInspectionDetails": "Fill in the inspection details performed",
       "selectAreasAbove": "Select maintenance areas above to start",

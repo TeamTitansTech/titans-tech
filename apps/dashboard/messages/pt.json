@@ -1060,6 +1060,8 @@
       "completeInspection": "Concluir Inspeção",
       "completeInspectionDetails": "Concluir Inspeção - Detalhes",
       "selectMaintenanceAreas": "Selecione as áreas de manutenção a serem realizadas",
+      "selectedAreas": "Áreas selecionadas",
+      "inspectionAreas": "Áreas de Inspeção",
       "fillMaintenanceDetails": "Preencha os detalhes da manutenção realizada",
       "fillInspectionDetails": "Preencha os detalhes da inspeção realizada",
       "selectAreasAbove": "Selecione as áreas de manutenção acima para começar",

@@ -558,7 +558,9 @@ export function ServiceCompletionModal({
                 serviceTypeLabel: tServices('serviceType'),
                 inspectionType: tServices('types.inspection'),
                 maintenanceType: tServices('types.maintenance'),
-                selectedAreasTitle: 'Áreas selecionadas',
+                selectedAreasTitle: isInspection
+                  ? tServices('modal.inspectionAreas')
+                  : tServices('modal.selectedAreas'),
                 getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
                 back: 'Voltar',
                 continue: 'Salvar e Continuar',
