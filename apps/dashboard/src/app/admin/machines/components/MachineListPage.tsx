@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { MachineCard } from './MachineCard';
@@ -59,7 +59,8 @@ interface MachineListPagePageProps {
   machines: Machine[];
 }
 
-export function MachineListPage({ machines }: MachineListPagePageProps) {
+export function MachineListPage({ machines: initialMachines }: MachineListPagePageProps) {
+  const [machines, setMachines] = useState<Machine[]>(initialMachines);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -71,6 +72,10 @@ export function MachineListPage({ machines }: MachineListPagePageProps) {
   const { execute: executeDelete, isLoading: isDeleting } = useLazyQuery((id: string) =>
     deleteMachine(id),
   );
+
+  useEffect(() => {
+    setMachines(initialMachines);
+  }, [initialMachines]);
 
   const handleSuccess = () => {
     router.refresh();
@@ -89,15 +94,22 @@ export function MachineListPage({ machines }: MachineListPagePageProps) {
   const handleDeleteConfirm = async () => {
     if (!machineToDelete) return;
 
-    const response = await executeDelete(machineToDelete.id);
+    setMachines((prevMachines) =>
+      prevMachines.filter((machine) => machine.id !== machineToDelete.id),
+    );
+
+    setIsDeleteDialogOpen(false);
+    const deletedMachineId = machineToDelete.id;
+    setMachineToDelete(null);
+
+    const response = await executeDelete(deletedMachineId);
 
     if (!response.errors) {
       toast.success(t('deletedSuccessfully'));
-      setIsDeleteDialogOpen(false);
-      setMachineToDelete(null);
       handleSuccess();
     } else {
       toast.error(response.errors.join(', '));
+      router.refresh();
     }
   };
 
