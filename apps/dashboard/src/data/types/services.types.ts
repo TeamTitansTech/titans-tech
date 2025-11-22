@@ -24,6 +24,7 @@ export {
   ConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType,
   ConditionOkNaDncDamagedType,
+  TemperatureUnit,
   SystemType,
 } from '@titans-tech/shared/types/services';
 
@@ -36,6 +37,7 @@ export type {
   GibsData,
   GibsCheck,
   LubricationHydraulicsData,
+  LubricationHydraulicsCheck,
   LubricationHydraulicsGauge,
   ClutchData,
   CounterbalanceCylinderData,

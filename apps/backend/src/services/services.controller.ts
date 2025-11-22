@@ -13,8 +13,8 @@ import {
   SlideCheckSchema,
   GibsCheck,
   GibsCheckSchema,
-  LubricationHydraulicsData,
-  LubricationHydraulicsDataSchema,
+  LubricationHydraulicsCheck,
+  LubricationHydraulicsCheckSchema,
   ClutchData,
   ClutchDataSchema,
   CounterbalanceCylinderCheck,
@@ -109,8 +109,8 @@ export class ServicesController {
   @Patch(':id/sections/lubrication-hydraulics')
   updateLubricationHydraulics(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(LubricationHydraulicsDataSchema))
-    updateDto: LubricationHydraulicsData,
+    @Body(new ZodValidationPipe(LubricationHydraulicsCheckSchema))
+    updateDto: LubricationHydraulicsCheck,
   ): Promise<unknown> {
     return this.servicesService.updateLubricationHydraulics(id, updateDto);
   }

@@ -14,6 +14,7 @@ export {
   // Measurement enums
   MeasurementUnit,
   PressureUnit,
+  TemperatureUnit,
 
   // Yes/No/NA/DNC variants
   YesNoNaDncType,

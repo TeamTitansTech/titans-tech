@@ -30,8 +30,8 @@ export {
 export {
   LubricationHydraulicsSection,
   type LubricationHydraulicsSectionRef,
-  defaultLubricationHydraulicsData,
-  validateLubricationHydraulicsData,
+  defaultLubricationHydraulicsCheck,
+  validateLubricationHydraulicsCheck,
 } from './LubricationHydraulicsSection';
 
 export {

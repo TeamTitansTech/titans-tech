@@ -32,6 +32,7 @@ import {
   FlexDiscType as PrismaFlexDiscType,
   DriveBeltConditionType as PrismaDriveBeltConditionType,
   ProtectiveCoversStatusType as PrismaProtectiveCoversStatusType,
+  TemperatureUnit as PrismaTemperatureUnit,
 } from '@titans-tech/db/enums';
 
 // ============================================================================
@@ -66,6 +67,7 @@ export {
   PrismaFlexDiscType as FlexDiscType,
   PrismaDriveBeltConditionType as DriveBeltConditionType,
   PrismaProtectiveCoversStatusType as ProtectiveCoversStatusType,
+  PrismaTemperatureUnit as TemperatureUnit,
 };
 
 // Note: These custom enums are not in Prisma yet
@@ -286,7 +288,7 @@ export type GibsCheck = z.infer<typeof GibsCheckSchema>;
 export const LubricationHydraulicsGaugeSchema = z.object({
   id: z.string().optional(),
   system: z.nativeEnum(PrismaLubeHydMonitorFlowPressSwGibType),
-  gauge: z.string().optional(),
+  gaugeSwitchIdentifier: z.string().optional(),
   psi: z.nativeEnum(OkNaDncDamageType).optional(),
 });
 
@@ -298,13 +300,20 @@ export type LubricationHydraulicsGauge = z.infer<typeof LubricationHydraulicsGau
 export const LubricationHydraulicsDataSchema = z.object({
   gauges: z.array(LubricationHydraulicsGaugeSchema),
   changedOil: z.nativeEnum(PrismaYesNoDncType),
-  oilTemperatureF: z.number().optional(),
+  oilTemperature: z.number().optional(),
+  oilTemperatureUnit: z.nativeEnum(PrismaTemperatureUnit).optional(),
   oilMfgType: z.string().optional(),
   changedFilter: z.nativeEnum(PrismaYesNoDncType),
-  notes: z.string().optional(),
 });
 
 export type LubricationHydraulicsData = z.infer<typeof LubricationHydraulicsDataSchema>;
+
+export const LubricationHydraulicsCheckSchema = z.object({
+  data: LubricationHydraulicsDataSchema,
+  notes: z.string().optional(),
+});
+
+export type LubricationHydraulicsCheck = z.infer<typeof LubricationHydraulicsCheckSchema>;
 
 /**
  * Clutch Data Schema
@@ -573,7 +582,7 @@ export const CreateServicePayloadSchema = z.object({
   bearingClearance: BearingClearanceCheckSchema.optional(),
   slide: SlideCheckSchema.optional(),
   gibs: GibsCheckSchema.optional(),
-  lubricationHydraulics: LubricationHydraulicsDataSchema.optional(),
+  lubricationHydraulics: LubricationHydraulicsCheckSchema.optional(),
   clutch: ClutchDataSchema.optional(),
   counterbalanceCylinder: CounterbalanceCylinderCheckSchema.optional(),
   tramming: TrammingCheckSchema.optional(),
@@ -608,7 +617,7 @@ export const UpdateServicePayloadSchema = z.object({
   bearingClearance: BearingClearanceCheckSchema.optional(),
   slide: SlideCheckSchema.optional(),
   gibs: GibsCheckSchema.optional(),
-  lubricationHydraulics: LubricationHydraulicsDataSchema.optional(),
+  lubricationHydraulics: LubricationHydraulicsCheckSchema.optional(),
   clutch: ClutchDataSchema.optional(),
   counterbalanceCylinder: CounterbalanceCylinderCheckSchema.optional(),
   tramming: TrammingCheckSchema.optional(),
@@ -702,14 +711,15 @@ export interface GibsFormProps {
 }
 
 export interface LubricationHydraulicsFormProps {
-  data: LubricationHydraulicsData;
+  data: LubricationHydraulicsData & { notes?: string };
   updateFn: (
-    field: keyof LubricationHydraulicsData,
+    field: keyof LubricationHydraulicsData | 'notes',
     value:
       | string
       | number
       | boolean
       | PrismaYesNoDncType
+      | PrismaTemperatureUnit
       | LubricationHydraulicsGauge[]
       | undefined,
   ) => void;

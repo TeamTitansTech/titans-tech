@@ -224,6 +224,11 @@ enum PressureUnit {
   PSI
 }
 
+enum TemperatureUnit {
+  FAHRENHEIT
+  CELSIUS
+}
+
 enum SplinesConditionType {
   OK
   NA
@@ -826,6 +831,7 @@ model MachineServiceLubricationHydraulics {
   id               String  @id @default(cuid())
   machineServiceId String
   dataId           String?
+  notes            String?
 
   machineService MachineService             @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   data           LubricationHydraulicsData? @relation(fields: [dataId], references: [id], onDelete: SetNull)
@@ -837,15 +843,13 @@ model LubricationHydraulicsData {
   id String @id @default(cuid())
 
   // Oil information
-  changedOil      YesNoDncType @default(DNC)
-  oilTemperatureF Int?
-  oilMfgType      String?
+  changedOil         YesNoDncType    @default(DNC)
+  oilTemperature     Int?
+  oilTemperatureUnit TemperatureUnit @default(FAHRENHEIT)
+  oilMfgType         String?
 
   // Filter information
   changedFilter YesNoDncType @default(DNC)
-
-  // Notes
-  notes String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -860,7 +864,7 @@ model LubricationHydraulicsGauge {
   id                          String                           @id @default(cuid())
   lubricationHydraulicsDataId String
   system                      LubeHydMonitorFlowPressSwGibType
-  gauge                       String?
+  gaugeSwitchIdentifier       String?
   psi                         OkNaDncDamageType?
 
   createdAt DateTime @default(now())

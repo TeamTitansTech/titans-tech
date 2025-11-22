@@ -15,7 +15,7 @@ import {
   BearingClearanceCheck,
   SlideCheck,
   GibsCheck,
-  LubricationHydraulicsData,
+  LubricationHydraulicsCheck,
   ClutchData,
   CounterbalanceCylinderCheck,
   TrammingCheck,
@@ -1115,7 +1115,7 @@ export class ServicesService {
 
   async updateLubricationHydraulics(
     serviceId: string,
-    updateDto: LubricationHydraulicsData,
+    updateDto: LubricationHydraulicsCheck,
   ): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
@@ -1140,6 +1140,7 @@ export class ServicesService {
         ];
 
     const existingRecord = service.lubricationHydraulics?.[0];
+    const { data: lubData, notes } = updateDto;
 
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
@@ -1149,7 +1150,7 @@ export class ServicesService {
             where: { lubricationHydraulicsDataId: existingRecord.dataId },
           });
 
-          const { gauges, ...restData } = updateDto;
+          const { gauges, ...restData } = lubData;
 
           await tx.lubricationHydraulicsData.update({
             where: { id: existingRecord.dataId },
@@ -1161,13 +1162,20 @@ export class ServicesService {
                   : undefined,
             },
           });
+
+          // Update notes in junction table
+          await tx.machineServiceLubricationHydraulics.update({
+            where: { id: existingRecord.id },
+            data: { notes },
+          });
         } else {
           // Create new data record
-          const { gauges, ...restData } = updateDto;
+          const { gauges, ...restData } = lubData;
 
           await tx.machineServiceLubricationHydraulics.update({
             where: { id: existingRecord.id },
             data: {
+              notes,
               data: {
                 create: {
                   ...restData,
@@ -1190,7 +1198,7 @@ export class ServicesService {
         });
       });
     } else {
-      const { gauges, ...restData } = updateDto;
+      const { gauges, ...restData } = lubData;
 
       await this.prisma.machineService.update({
         where: { id: serviceId },
@@ -1199,6 +1207,7 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           lubricationHydraulics: {
             create: {
+              notes,
               data: {
                 create: {
                   ...restData,

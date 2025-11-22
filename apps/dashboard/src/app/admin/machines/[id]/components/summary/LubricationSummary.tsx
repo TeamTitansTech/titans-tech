@@ -42,7 +42,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
   };
 
   // Helper function to display value with translations
-  const displayValue = (value: unknown): string => {
+  const displayValue = (value: unknown, key?: string): string => {
     if (value === null || value === undefined || value === '') {
       return '-';
     }
@@ -56,11 +56,22 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
     if (stringValue === 'DNC') return tCommon('dnc');
     if (stringValue === 'NA') return tCommon('na');
 
+    // Special handling for temperature with unit
+    if (key === 'oilTemperature') {
+      const temp = data.oilTemperature;
+      const unit = data.oilTemperatureUnit;
+      if (temp === null || temp === undefined) {
+        return '-';
+      }
+      const unitSymbol = unit === 'FAHRENHEIT' ? '°F' : unit === 'CELSIUS' ? '°C' : '';
+      return `${temp}${unitSymbol}`;
+    }
+
     return stringValue;
   };
 
-  // Define all scalar fields that should be shown
-  const scalarFieldKeys = ['changedOil', 'oilTemperatureF', 'oilMfgType', 'changedFilter', 'notes'];
+  // Define all scalar fields that should be shown (excluding oilTemperatureUnit as it's shown with temperature)
+  const scalarFieldKeys = ['changedOil', 'oilTemperature', 'oilMfgType', 'changedFilter'];
 
   const gauges = Array.isArray(data.gauges) ? data.gauges : [];
 
@@ -88,7 +99,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                       {translateFieldName(key)}
                     </TableCell>
                     <TableCell className="py-1.5 text-center">
-                      {displayValue(data[key as keyof LubricationHydraulicsData])}
+                      {displayValue(data[key as keyof LubricationHydraulicsData], key)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -126,7 +137,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                       {displayValue(gauge.system)}
                     </TableCell>
                     <TableCell className="py-1.5 text-center border-r">
-                      {displayValue(gauge.gauge)}
+                      {displayValue(gauge.gaugeSwitchIdentifier)}
                     </TableCell>
                     <TableCell className="py-1.5 text-center">{displayValue(gauge.psi)}</TableCell>
                   </TableRow>
