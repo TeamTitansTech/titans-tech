@@ -1336,6 +1336,11 @@ export class ServicesService {
           }
         }
 
+        // Handle notes at the service level
+        if (updateDto.notes !== undefined) {
+          updatePayload.notes = updateDto.notes;
+        }
+
         if (Object.keys(updatePayload).length > 0) {
           await tx.machineServiceCounterbalanceCylinderAirbag.update({
             where: { id: existingRecord.id },
@@ -1359,6 +1364,7 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           counterbalanceCylinderAirbag: {
             create: {
+              ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
               ...(updateDto.outerData && {
                 outerData: { create: updateDto.outerData as any },
               }),

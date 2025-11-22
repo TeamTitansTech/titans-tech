@@ -969,6 +969,7 @@ model MachineServiceCounterbalanceCylinderAirbag {
   machineServiceId String
   outerDataId      String?
   innerDataId      String?
+  notes            String?
 
   machineService MachineService                    @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerData      CounterbalanceCylinderAirbagData? @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
@@ -999,9 +1000,6 @@ model CounterbalanceCylinderAirbagData {
 
   // Oil
   oilWick OkNaDncNeedReplacedType?
-
-  // Notes
-  notes String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

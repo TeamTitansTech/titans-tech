@@ -393,7 +393,6 @@ export const CounterbalanceCylinderDataSchema = z.object({
   rodSeals: z.string().optional(),
   rodBushing: z.string().optional(),
   oilWick: z.string().optional(),
-  notes: z.string().optional(),
 });
 
 export type CounterbalanceCylinderData = z.infer<typeof CounterbalanceCylinderDataSchema>;
@@ -404,6 +403,7 @@ export type CounterbalanceCylinderData = z.infer<typeof CounterbalanceCylinderDa
 export const CounterbalanceCylinderCheckSchema = z.object({
   outerData: CounterbalanceCylinderDataSchema.optional(),
   innerData: CounterbalanceCylinderDataSchema.optional(),
+  notes: z.string().optional(),
 });
 
 export type CounterbalanceCylinderCheck = z.infer<typeof CounterbalanceCylinderCheckSchema>;
@@ -730,7 +730,6 @@ export interface CounterbalanceCylinderFormProps {
   errors: Record<string, string>;
   handleBlur: (field: keyof CounterbalanceCylinderData) => void;
   title: string;
-  hideNotes?: boolean;
 }
 
 export interface TrammingFormProps {
