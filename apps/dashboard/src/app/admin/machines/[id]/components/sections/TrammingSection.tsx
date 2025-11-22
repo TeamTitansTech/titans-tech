@@ -62,7 +62,6 @@ export interface TrammingSectionData {
   outerData?: TrammingData;
   innerData?: TrammingData;
   slideTram?: YesNoDncType;
-  unit?: 'inches' | 'mm' | 'cm';
   notes?: string;
 }
 
@@ -104,7 +103,6 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
     const [slideTram, setSlideTram] = useState<YesNoDncType>(
       initialData?.slideTram || YesNoDncType.DNC,
     );
-    const [unit, setUnit] = useState<'inches' | 'mm' | 'cm'>(initialData?.unit || 'inches');
     const [notes, setNotes] = useState<string>(initialData?.notes || '');
     const [outerErrors, setOuterErrors] = useState<Record<string, string>>({});
     const [innerErrors, setInnerErrors] = useState<Record<string, string>>({});
@@ -193,7 +191,6 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
               outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
               innerData: hasInnerData ? (innerTouched ? innerData : initialInnerData) : undefined,
               slideTram: slideTram,
-              unit: unit,
               notes: notes.trim() || undefined,
             },
           };
@@ -215,7 +212,6 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
           outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
           innerData: hasInnerData ? (innerTouched ? innerData : initialInnerData) : undefined,
           slideTram: slideTram,
-          unit: unit,
           notes: notes.trim() || undefined,
         };
       },
@@ -250,7 +246,6 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
         setOuterData(defaultTrammingData);
         setInnerData(defaultTrammingData);
         setSlideTram(YesNoDncType.DNC);
-        setUnit('inches');
         setNotes('');
         setOuterErrors({});
         setInnerErrors({});
@@ -261,45 +256,24 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
 
     return (
       <div className="space-y-6 p-4">
-        {/* Slide Tram and Unit Dropdowns */}
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="slideTram" className="text-sm font-medium whitespace-nowrap">
-              Slide Tram:
-            </Label>
-            <Select
-              value={slideTram}
-              onValueChange={(value) => updateSlideTram(value as YesNoDncType)}
-            >
-              <SelectTrigger id="slideTram" className="w-[120px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
-                <SelectItem value={YesNoDncType.NO}>No</SelectItem>
-                <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Label htmlFor="unit" className="text-sm font-medium whitespace-nowrap">
-              Unit:
-            </Label>
-            <Select
-              value={unit}
-              onValueChange={(value) => setUnit(value as 'inches' | 'mm' | 'cm')}
-            >
-              <SelectTrigger id="unit" className="w-[100px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="inches">inches</SelectItem>
-                <SelectItem value="mm">mm</SelectItem>
-                <SelectItem value="cm">cm</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        {/* Slide Tram Dropdown */}
+        <div className="flex items-center gap-2">
+          <Label htmlFor="slideTram" className="text-sm font-medium whitespace-nowrap">
+            Slide Tram:
+          </Label>
+          <Select
+            value={slideTram}
+            onValueChange={(value) => updateSlideTram(value as YesNoDncType)}
+          >
+            <SelectTrigger id="slideTram" className="w-[120px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
+              <SelectItem value={YesNoDncType.NO}>No</SelectItem>
+              <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Tabs for Outer/Inner */}
