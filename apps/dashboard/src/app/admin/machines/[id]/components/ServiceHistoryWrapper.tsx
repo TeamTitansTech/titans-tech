@@ -25,9 +25,7 @@ export function ServiceHistoryWrapper({
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
-  // Filter for completed services (status-based, not date-based)
   const pastServices = services.filter((service) => {
-    // Show only completed services in history
     return service.status === 'COMPLETED';
   });
 
