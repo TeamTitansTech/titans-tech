@@ -4,7 +4,7 @@ import { useState, useOptimistic } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { CompanyCard } from './CompanyCard';
-import { CreateCompanyDialog } from '@/app/admin/settings/components/CreateCompanyDialog';
+import { CompanyCreationModal } from '@/app/admin/settings/components/CompanyCreationModal';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { type Company } from '@/data/services/companies.api';
@@ -57,7 +57,7 @@ export function CompaniesPage({ companies }: CompaniesPageProps) {
         )}
       </div>
 
-      <CreateCompanyDialog
+      <CompanyCreationModal
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onSuccess={handleSuccess}

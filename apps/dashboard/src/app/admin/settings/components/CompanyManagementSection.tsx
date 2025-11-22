@@ -16,7 +16,7 @@ import { BranchesSection } from './BranchesSection';
 import { BranchUserManagement } from './BranchUserManagement';
 import { type Company } from '@/data/services/companies.api';
 import { useState } from 'react';
-import { CreateCompanyDialog } from './CreateCompanyDialog';
+import { CompanyCreationModal } from './CompanyCreationModal';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface CompanyManagementSectionProps {
@@ -86,7 +86,7 @@ export function CompanyManagementSection({
         </CardContent>
       </Card>
 
-      <CreateCompanyDialog
+      <CompanyCreationModal
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onSuccess={() => {

@@ -72,9 +72,9 @@ export function HomePage() {
           setServices(servicesResponse.data as unknown as Service[]);
         }
 
-        if (machinesResponse.data) {
-          setMachines(machinesResponse.data as unknown as Machine[]);
-        }
+        // Count inspections (Services with type=INSPECTION)
+        // Note: getInspections already filters for type='INSPECTION'
+        const pendingServices = inspectionsRes.data?.length || 0;
 
         // TODO: Fetch alerts from alerts API when available
         // For now, we'll generate mock alerts based on service data

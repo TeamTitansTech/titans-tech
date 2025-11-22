@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { type Field } from '../types';
 
 const generateSlug = (name: string, existingSlugs: string[]): string => {
@@ -62,9 +62,9 @@ export function useFieldsManager() {
       field.fieldType === 'enum' && (!field.fieldOptions || field.fieldOptions.length === 0),
   );
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setFields([]);
-  };
+  }, []);
 
   return {
     fields,
