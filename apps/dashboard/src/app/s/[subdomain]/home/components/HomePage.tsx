@@ -10,6 +10,7 @@ import { MonthPerformance } from './MonthPerformance';
 import { MachineHealthGrid } from './MachineHealthGrid';
 import { WeeklyActivityBars } from './WeeklyActivityBars';
 import { ServiceTrendsChart } from './ServiceTrendsChart';
+import { ProductionLinesCarousel } from './ProductionLinesCarousel';
 import { getServices } from '@/data/services/services.api';
 import { getMachines } from '@/data/services/machines.api';
 import { Loader2 } from 'lucide-react';
@@ -219,6 +220,9 @@ export function HomePage() {
         criticalCount={dashboardData.criticalCount}
         warningCount={dashboardData.warningCount}
       />
+
+      {/* Production Lines Carousel */}
+      <ProductionLinesCarousel />
 
       {/* Next 7 Days + Month Performance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

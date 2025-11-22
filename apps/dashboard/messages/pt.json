@@ -482,6 +482,8 @@
     "client": {
       "title": "Dashboard",
       "description": "Visão geral das suas máquinas e serviços",
+      "viewAll": "Ver tudo",
+      "operational": "Operacional",
       "fleetHealth": {
         "title": "Índice de Saúde da Frota",
         "description": "Status geral de saúde da sua frota de máquinas",
@@ -1628,6 +1630,7 @@
     "emptyState": "Nenhuma linha de produção criada",
     "errorLoading": "Erro ao carregar linhas de produção",
     "tabView": "Visualização",
+    "tabInspection": "Inspeções",
     "tabConfig": "Configuração",
     "selectCompany": "Selecionar Empresa",
     "selectBranch": "Selecionar Filial",
@@ -1654,6 +1657,17 @@
       "create": "Criar Linha"
     },
     "errorSaving": "Erro ao salvar configurações",
-    "configurationUpdated": "Configuração atualizada com sucesso"
+    "configurationUpdated": "Configuração atualizada com sucesso",
+    "lastInspection": "Última inspeção",
+    "noInspectionData": "Nenhuma inspeção realizada",
+    "inspectionSections": "Seções de inspeção",
+    "noSectionsConfigured": "Nenhuma seção configurada",
+    "noBlueprintAssigned": "Sem modelo atribuído",
+    "status": {
+      "ok": "OK",
+      "warning": "Atenção",
+      "alert": "Alerta",
+      "unknown": "Desconhecido"
+    }
   }
 }

@@ -482,6 +482,8 @@
     "client": {
       "title": "Dashboard",
       "description": "Overview of your machines and services",
+      "viewAll": "View all",
+      "operational": "Operational",
       "fleetHealth": {
         "title": "Fleet Health Score",
         "description": "Overall health status of your machine fleet",
@@ -1576,6 +1578,7 @@
     "emptyState": "No production lines created",
     "errorLoading": "Error loading production lines",
     "tabView": "Visualization",
+    "tabInspection": "Inspections",
     "tabConfig": "Configuration",
     "selectCompany": "Select Company",
     "selectBranch": "Select Branch",
@@ -1602,6 +1605,17 @@
       "create": "Create Line"
     },
     "errorSaving": "Error saving configuration",
-    "configurationUpdated": "Configuration updated successfully"
+    "configurationUpdated": "Configuration updated successfully",
+    "lastInspection": "Last inspection",
+    "noInspectionData": "No inspection performed",
+    "inspectionSections": "Inspection sections",
+    "noSectionsConfigured": "No sections configured",
+    "noBlueprintAssigned": "No blueprint assigned",
+    "status": {
+      "ok": "OK",
+      "warning": "Warning",
+      "alert": "Alert",
+      "unknown": "Unknown"
+    }
   }
 }

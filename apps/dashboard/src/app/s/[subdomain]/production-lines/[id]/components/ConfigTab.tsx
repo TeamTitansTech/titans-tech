@@ -6,12 +6,29 @@ import { useBranch } from '@/contexts/BranchContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { ArrowUp, ArrowDown, Save } from 'lucide-react';
+import { GripVertical, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { getMachines } from '@/data/services/machines.api';
 import { updateProductionLine } from '@/data/services/production-lines.api';
 import type { ProductionLine } from '@/data/types/production-lines.types';
 import type { Machine } from '@/data/types/machines.types';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface ConfigTabProps {
   productionLine: ProductionLine;
@@ -27,6 +44,41 @@ interface MachineWithBranch extends Machine {
   };
 }
 
+interface SortableItemProps {
+  id: string;
+  index: number;
+  machineName: string;
+}
+
+function SortableItem({ id, index, machineName }: SortableItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="flex items-center justify-between p-3 border rounded-lg bg-background cursor-grab active:cursor-grabbing hover:border-primary/50 transition-colors touch-none"
+    >
+      <div className="flex items-center gap-3">
+        <GripVertical className="w-5 h-5 text-muted-foreground" />
+        <span className="font-medium">
+          {index + 1}. {machineName}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   const t = useTranslations('productionLines');
   const { selectedBranchId } = useBranch();
@@ -39,6 +91,13 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   const [machineOrder, setMachineOrder] = useState<string[]>(initialMachineIds);
   const [isLoadingMachines, setIsLoadingMachines] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
 
   const availableMachines = allMachines.filter((m) => m.branch?.id === selectedBranchId);
 
@@ -75,18 +134,16 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
     }
   };
 
-  const moveUp = (index: number) => {
-    if (index === 0) return;
-    const newOrder = [...machineOrder];
-    [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
-    setMachineOrder(newOrder);
-  };
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
 
-  const moveDown = (index: number) => {
-    if (index === machineOrder.length - 1) return;
-    const newOrder = [...machineOrder];
-    [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
-    setMachineOrder(newOrder);
+    if (over && active.id !== over.id) {
+      setMachineOrder((items) => {
+        const oldIndex = items.indexOf(active.id as string);
+        const newIndex = items.indexOf(over.id as string);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
   };
 
   const handleSave = async () => {
@@ -192,39 +249,27 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
             {machineOrder.length === 0 ? (
               <p className="text-muted-foreground text-xl">{t('noMachineSelected')}</p>
             ) : (
-              <div className="space-y-2">
-                {machineOrder.map((machineId, index) => {
-                  const machine = allMachines.find((m) => m.id === machineId);
-                  return (
-                    <div
-                      key={machineId}
-                      className="flex items-center justify-between p-3 border rounded-lg"
-                    >
-                      <span className="font-medium">
-                        {index + 1}. {machine?.name || machineId}
-                      </span>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => moveUp(index)}
-                          disabled={index === 0}
-                        >
-                          <ArrowUp className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => moveDown(index)}
-                          disabled={index === machineOrder.length - 1}
-                        >
-                          <ArrowDown className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext items={machineOrder} strategy={verticalListSortingStrategy}>
+                  <div className="space-y-2">
+                    {machineOrder.map((machineId, index) => {
+                      const machine = allMachines.find((m) => m.id === machineId);
+                      return (
+                        <SortableItem
+                          key={machineId}
+                          id={machineId}
+                          index={index}
+                          machineName={machine?.name || machineId}
+                        />
+                      );
+                    })}
+                  </div>
+                </SortableContext>
+              </DndContext>
             )}
           </CardContent>
         </Card>
