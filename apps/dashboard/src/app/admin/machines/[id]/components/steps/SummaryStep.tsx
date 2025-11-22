@@ -3,7 +3,7 @@ import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/ui/typography';
 import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Check, ChevronUp } from 'lucide-react';
+import { Check, ChevronUp, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { SECTION_REGISTRY } from '../sections/registry';
@@ -11,6 +11,7 @@ import { SectionSummary } from '../summary';
 import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services';
 import { WhyNotCoveredType } from '@titans-tech/shared/types';
 import type { SectionDataMap } from '../types/service-completion.types';
+import { useMemo } from 'react';
 
 interface SummaryStepProps {
   date: Date;
@@ -69,6 +70,7 @@ export function SummaryStep({
 }: SummaryStepProps) {
   const tServices = useTranslations('services.modal');
   const tInspections = useTranslations('inspections.form.enums');
+  const tErrors = useTranslations('errors.service');
 
   // Helper function to format enum values for display
   const formatEnumValue = (value: string | undefined, enumType: string) => {
@@ -84,6 +86,16 @@ export function SummaryStep({
     return translated;
   };
 
+  const sectionsWithMissingData = useMemo(() => {
+    return Array.from(completedSections).filter(
+      (sectionKey) => !completedSectionData[sectionKey as keyof typeof completedSectionData],
+    );
+  }, [completedSections, completedSectionData]);
+
+  const isPerformedByEmpty = !performedBy || performedBy.trim() === '';
+
+  const hasValidationErrors = sectionsWithMissingData.length > 0 || isPerformedByEmpty;
+
   return (
     <form onSubmit={onSubmit} className="flex-1 overflow-hidden flex flex-col">
       {/* Stepper */}
@@ -95,6 +107,38 @@ export function SummaryStep({
         <Typography variant="h3" className="text-lg font-semibold mb-4">
           {translations.title}
         </Typography>
+
+        {hasValidationErrors && (
+          <div className="border border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 mb-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-yellow-600 dark:text-yellow-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <Typography
+                  variant="h4"
+                  className="font-semibold text-yellow-800 dark:text-yellow-200 mb-2"
+                >
+                  {tErrors('validationWarnings')}
+                </Typography>
+                <ul className="space-y-1 text-sm text-yellow-700 dark:text-yellow-300">
+                  {isPerformedByEmpty && <li>• {tErrors('performedByRequired')}</li>}
+                  {sectionsWithMissingData.length > 0 && (
+                    <li>
+                      • {tErrors('sectionsWithMissingData')}:{' '}
+                      {sectionsWithMissingData
+                        .map((key) => {
+                          const config = SECTION_REGISTRY[key];
+                          return config
+                            ? translations.getSectionName(config.metadata.i18nKey)
+                            : key;
+                        })
+                        .join(', ')}
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Service Details Summary */}
         <div className="border rounded-lg p-4 mb-4">
@@ -265,7 +309,11 @@ export function SummaryStep({
       </div>
 
       <div className="flex justify-end gap-3 pt-4 px-4 border-t">
-        <Button type="submit" disabled={isSubmitting} className="min-w-[200px]">
+        <Button
+          type="submit"
+          disabled={isSubmitting || hasValidationErrors}
+          className="min-w-[200px]"
+        >
           {isSubmitting ? translations.completing : translations.completeService}
         </Button>
       </div>

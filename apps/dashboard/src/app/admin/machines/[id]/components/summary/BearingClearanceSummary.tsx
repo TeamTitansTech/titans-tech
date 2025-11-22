@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/table';
 import { hasActualData, extractBearingRows } from '../utils/sectionDataUtils';
 import { formatFieldName } from '../utils/fieldFormatters';
+import { translateEnumValue } from './utils/translateEnum';
 
 interface BearingClearanceSummaryProps {
   data: BearingClearanceCheck;
@@ -41,27 +42,7 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
 
   // Helper function to display value with translations
   const displayValue = (value: unknown): string => {
-    if (value === null || value === undefined || value === '') {
-      return '-';
-    }
-    if (typeof value === 'boolean') {
-      return value ? tCommon('yes') : tCommon('no');
-    }
-    // Translate enum values
-    const stringValue = String(value);
-    if (stringValue === 'YES') return tCommon('yes');
-    if (stringValue === 'NO') return tCommon('no');
-    if (stringValue === 'DNC') return tCommon('dnc');
-    if (stringValue === 'NA') return tCommon('na');
-    if (stringValue === 'OK') return tCommon('ok');
-    if (stringValue === 'DAMAGED') return tCommon('damaged');
-    if (stringValue === 'LEAKING') return tCommon('leaking');
-    if (stringValue === 'NOT_OPERATIONAL') return tCommon('not_operational');
-    if (stringValue === 'BUSHING') return tCommon('bushing');
-    if (stringValue === 'BED') return tCommon('bed');
-    if (stringValue === 'BOLSTER') return tCommon('bolster');
-
-    return stringValue;
+    return translateEnumValue(value, tCommon);
   };
 
   // Check if we have before data

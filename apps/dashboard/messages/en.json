@@ -16,7 +16,26 @@
       "needs_replaced": "Needs Replaced",
       "bushing": "Bushing",
       "bed": "Bed",
-      "bolster": "Bolster"
+      "bolster": "Bolster",
+      "glazed": "Glazed",
+      "oil_soaked": "Oil Soaked",
+      "missing_segments": "Missing Segments",
+      "broken": "Broken",
+      "bent_worn": "Bent/Worn",
+      "lining_worn": "Lining Worn",
+      "noise": "Noise",
+      "wobble": "Wobble",
+      "air_leak": "Air Leak",
+      "oil_leak": "Oil Leak",
+      "concentricity": "Concentricity",
+      "slow_response": "Slow Response",
+      "not_visible": "Not Visible",
+      "wear_visible": "Wear Visible",
+      "needs_oil": "Needs Oil",
+      "needs_oil_reset": "Needs Oil & Reset",
+      "needs_reset": "Needs Reset",
+      "buckled": "Buckled",
+      "cracked": "Cracked"
     }
   },
   "validation": {
@@ -769,6 +788,9 @@
         },
         "notes": {
           "gearBacklashCheck": "*Check only if excessive noise and/or vibration is present"
+        },
+        "validation": {
+          "required": "This field is required"
         }
       },
       "counterbalanceCylinder": {
@@ -1230,7 +1252,14 @@
       "areAllProtectiveCovers": "Are all protective covers in place",
       "sectionRefNotFound": "Section reference not found",
       "fillRequiredFields": "Please fill in all required fields",
-      "serviceIdNotFound": "Service ID not found. Please create the service first"
+      "serviceIdNotFound": "Service ID not found. Please create the service first",
+      "cannotProceedToSummary": "Cannot proceed to summary. Please complete the following sections",
+      "incompleteSections": "Cannot complete service. The following sections are incomplete",
+      "sectionsWithMissingData": "The following sections have missing data",
+      "performedByRequired": "Please fill in the 'Performed By' field",
+      "completeAllSections": "Please complete all sections before viewing the summary",
+      "validationWarnings": "Validation Warnings",
+      "redirectingToIncomplete": "Section saved! Redirecting to first incomplete section"
     },
     "successMessages": {
       "serviceUpdated": "Service details updated successfully",

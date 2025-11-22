@@ -16,7 +16,26 @@
       "needs_replaced": "Necesita Reemplazo",
       "bushing": "Buje",
       "bed": "Lecho",
-      "bolster": "Bolster"
+      "bolster": "Bolster",
+      "glazed": "Vitrificado",
+      "oil_soaked": "Empapado de Aceite",
+      "missing_segments": "Segmentos Faltantes",
+      "broken": "Roto",
+      "bent_worn": "Doblado/Desgastado",
+      "lining_worn": "Revestimiento Desgastado",
+      "noise": "Ruido",
+      "wobble": "Oscilación",
+      "air_leak": "Fuga de Aire",
+      "oil_leak": "Fuga de Aceite",
+      "concentricity": "Concentricidad",
+      "slow_response": "Respuesta Lenta",
+      "not_visible": "No Visible",
+      "wear_visible": "Desgaste Visible",
+      "needs_oil": "Necesita Aceite",
+      "needs_oil_reset": "Necesita Aceite y Reset",
+      "needs_reset": "Necesita Reset",
+      "buckled": "Pandeado",
+      "cracked": "Agrietado"
     }
   },
   "validation": {
@@ -774,6 +793,9 @@
         },
         "notes": {
           "gearBacklashCheck": "*Verificar solo si hay ruido excesivo y/o vibración"
+        },
+        "validation": {
+          "required": "Este campo es obligatorio"
         }
       },
       "counterbalanceCylinder": {
@@ -1235,7 +1257,14 @@
       "areAllProtectiveCovers": "Todas las cubiertas protectoras están en su lugar",
       "sectionRefNotFound": "Referencia de la sección no encontrada",
       "fillRequiredFields": "Por favor, complete todos los campos obligatorios",
-      "serviceIdNotFound": "ID del servicio no encontrado. Por favor, cree el servicio primero"
+      "serviceIdNotFound": "ID del servicio no encontrado. Por favor, cree el servicio primero",
+      "cannotProceedToSummary": "No se puede proceder al resumen. Por favor, complete las siguientes secciones",
+      "incompleteSections": "No se puede completar el servicio. Las siguientes secciones están incompletas",
+      "sectionsWithMissingData": "Las siguientes secciones tienen datos faltantes",
+      "performedByRequired": "Por favor, complete el campo 'Realizado Por'",
+      "completeAllSections": "Por favor, complete todas las secciones antes de ver el resumen",
+      "validationWarnings": "Advertencias de Validación",
+      "redirectingToIncomplete": "¡Sección guardada! Redirigiendo a la primera sección incompleta"
     },
     "successMessages": {
       "serviceUpdated": "Detalles del servicio actualizados exitosamente",

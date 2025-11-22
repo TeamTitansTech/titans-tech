@@ -389,8 +389,43 @@ export function ServiceCompletionModal({
 
         const nextSectionIndex = currentSectionIndex + 1;
         const isLastSection = nextSectionIndex >= sectionsArray.length;
-        const nextStep = isLastSection ? 'summary' : 'sections';
-        const nextSectionKey = isLastSection ? null : sectionsArray[nextSectionIndex];
+
+        // Calculate completed sections including the one just saved
+        const newCompletedSections = new Set(completedSections);
+        newCompletedSections.add(currentSectionKey);
+
+        // Determine next step based on completion status
+        let nextStep: 'sections' | 'summary';
+        let nextSectionKey: string | null;
+        let nextIndex: number;
+
+        if (newCompletedSections.size === sectionsArray.length) {
+          // All sections complete - go to summary
+          nextStep = 'summary';
+          nextSectionKey = null;
+          nextIndex = -1; // Not used for summary
+        } else {
+          // Find first incomplete section
+          const firstIncompleteIndex = sectionsArray.findIndex(
+            (key) => !newCompletedSections.has(key),
+          );
+
+          nextStep = 'sections';
+          nextSectionKey = sectionsArray[firstIncompleteIndex];
+          nextIndex = firstIncompleteIndex;
+
+          // Show message if we're redirecting from last section to an earlier incomplete one
+          if (isLastSection && firstIncompleteIndex < currentSectionIndex) {
+            const firstIncompleteSectionConfig = SECTION_REGISTRY[nextSectionKey];
+            const firstIncompleteName = firstIncompleteSectionConfig
+              ? t(`sectionNames.${firstIncompleteSectionConfig.metadata.i18nKey}`)
+              : nextSectionKey;
+
+            toast.info(`${tErrors('redirectingToIncomplete')}: ${firstIncompleteName}`, {
+              duration: 4000,
+            });
+          }
+        }
 
         await updateService(
           currentServiceId,
@@ -404,10 +439,11 @@ export function ServiceCompletionModal({
 
         setIsSubmitting(false);
 
-        if (!isLastSection) {
-          setCurrentSectionIndex(nextSectionIndex);
-        } else {
+        // Navigate to the determined step
+        if (nextStep === 'summary') {
           setCurrentStep('summary');
+        } else {
+          setCurrentSectionIndex(nextIndex);
         }
       } catch (error) {
         console.error('Error saving section:', error);
@@ -437,18 +473,38 @@ export function ServiceCompletionModal({
 
   const handleStepClick = (stepIndex: number) => {
     const sectionsArray = getSelectedSectionsArray();
+
     if (stepIndex === 0) {
       setCurrentStep('details');
-    } else if (stepIndex === sectionsArray.length + 1) {
+      return;
+    }
+
+    if (stepIndex === sectionsArray.length + 1) {
       if (completedSections.size === sectionsArray.length) {
         setCurrentStep('summary');
+      } else {
+        const incompleteSections = sectionsArray.filter(
+          (sectionKey) => !completedSections.has(sectionKey),
+        );
+        const incompleteSectionNames = incompleteSections
+          .map((key) => {
+            const config = SECTION_REGISTRY[key];
+            return config ? t(`sectionNames.${config.metadata.i18nKey}`) : key;
+          })
+          .join(', ');
+
+        toast.error(`${tErrors('completeAllSections')}: ${incompleteSectionNames}`, {
+          duration: 5000,
+        });
       }
-    } else {
-      const sectionIndex = stepIndex - 1;
-      if (sectionIndex < sectionsArray.length) {
-        setCurrentStep('sections');
-        setCurrentSectionIndex(sectionIndex);
-      }
+      return;
+    }
+
+    // Section step - allow free navigation to any section
+    const sectionIndex = stepIndex - 1;
+    if (sectionIndex < sectionsArray.length) {
+      setCurrentStep('sections');
+      setCurrentSectionIndex(sectionIndex);
     }
   };
 
@@ -459,6 +515,51 @@ export function ServiceCompletionModal({
 
     if (currentStep !== 'summary') {
       console.warn('Attempted to submit from non-summary step:', currentStep);
+      return;
+    }
+
+    const sectionsArray = getSelectedSectionsArray();
+
+    if (completedSections.size !== sectionsArray.length) {
+      const incompleteSections = sectionsArray.filter(
+        (sectionKey) => !completedSections.has(sectionKey),
+      );
+      const incompleteSectionNames = incompleteSections
+        .map((key) => {
+          const config = SECTION_REGISTRY[key];
+          return config ? t(`sectionNames.${config.metadata.i18nKey}`) : key;
+        })
+        .join(', ');
+
+      toast.error(`${tErrors('incompleteSections')}: ${incompleteSectionNames}`, {
+        duration: 5000,
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const sectionsWithMissingData = Array.from(completedSections).filter(
+      (sectionKey) => !completedSectionData[sectionKey as keyof typeof completedSectionData],
+    );
+
+    if (sectionsWithMissingData.length > 0) {
+      const missingSectionNames = sectionsWithMissingData
+        .map((key) => {
+          const config = SECTION_REGISTRY[key];
+          return config ? t(`sectionNames.${config.metadata.i18nKey}`) : key;
+        })
+        .join(', ');
+
+      toast.error(`${tErrors('sectionsWithMissingData')}: ${missingSectionNames}`, {
+        duration: 5000,
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!performedBy || performedBy.trim() === '') {
+      toast.error(tErrors('performedByRequired'), { duration: 5000 });
+      setIsSubmitting(false);
       return;
     }
 
@@ -507,6 +608,7 @@ export function ServiceCompletionModal({
       isClickable: true,
     });
 
+    // All section steps are clickable - users can navigate freely
     sectionsArray.forEach((sectionKey, index) => {
       const sectionConfig = SECTION_REGISTRY[sectionKey];
       if (!sectionConfig) return;
@@ -518,15 +620,16 @@ export function ServiceCompletionModal({
         key: sectionKey,
         label: t(`sectionNames.${sectionConfig.metadata.i18nKey}`),
         status: isCompleted ? 'completed' : isCurrent ? 'current' : 'pending',
-        isClickable: true,
+        isClickable: true, // Allow free navigation between sections
       });
     });
 
+    const allSectionsComplete = completedSections.size === sectionsArray.length;
     steps.push({
       key: 'summary',
       label: tServices('modal.stepper.summary'),
       status: currentStep === 'summary' ? 'current' : 'pending',
-      isClickable: completedSections.size === sectionsArray.length,
+      isClickable: allSectionsComplete,
     });
 
     return steps;
