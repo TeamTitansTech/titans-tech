@@ -1214,5 +1214,29 @@
     "selectBranch": "Please select a branch",
     "success": "Success",
     "error": "Error"
+  },
+  "errors": {
+    "service": {
+      "failedToUpdate": "Failed to update service",
+      "failedToCreate": "Failed to create service",
+      "failedToSaveSection": "Failed to save section",
+      "unexpectedError": "An unexpected error occurred while updating the service",
+      "unexpectedCreateError": "An unexpected error occurred while creating the service",
+      "unexpectedSaveError": "An unexpected error occurred while saving the section",
+      "invalidOption": "Invalid option: expected",
+      "areCracksVisible": "Are Cracks Visible",
+      "isMainMotorSecure": "Is Main Motor Secure",
+      "isMotorPlateSecure": "Is Motor Plate Secure",
+      "areAllProtectiveCovers": "Are all protective covers in place",
+      "sectionRefNotFound": "Section reference not found",
+      "fillRequiredFields": "Please fill in all required fields",
+      "serviceIdNotFound": "Service ID not found. Please create the service first"
+    },
+    "successMessages": {
+      "serviceUpdated": "Service details updated successfully",
+      "serviceCreated": "Service created. Now fill in the section forms",
+      "sectionSaved": "Section saved successfully",
+      "serviceCompleted": "Service completed successfully"
+    }
   }
 }

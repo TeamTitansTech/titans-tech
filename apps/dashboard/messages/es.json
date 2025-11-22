@@ -1219,5 +1219,29 @@
     "selectBranch": "Por favor seleccione una sucursal",
     "success": "Éxito",
     "error": "Error"
+  },
+  "errors": {
+    "service": {
+      "failedToUpdate": "Error al actualizar el servicio",
+      "failedToCreate": "Error al crear el servicio",
+      "failedToSaveSection": "Error al guardar la sección",
+      "unexpectedError": "Ocurrió un error inesperado al actualizar el servicio",
+      "unexpectedCreateError": "Ocurrió un error inesperado al crear el servicio",
+      "unexpectedSaveError": "Ocurrió un error inesperado al guardar la sección",
+      "invalidOption": "Opción inválida: esperado",
+      "areCracksVisible": "Hay grietas visibles",
+      "isMainMotorSecure": "El Motor Principal Está Seguro",
+      "isMotorPlateSecure": "La Placa del Motor Está Segura",
+      "areAllProtectiveCovers": "Todas las cubiertas protectoras están en su lugar",
+      "sectionRefNotFound": "Referencia de la sección no encontrada",
+      "fillRequiredFields": "Por favor, complete todos los campos obligatorios",
+      "serviceIdNotFound": "ID del servicio no encontrado. Por favor, cree el servicio primero"
+    },
+    "successMessages": {
+      "serviceUpdated": "Detalles del servicio actualizados exitosamente",
+      "serviceCreated": "Servicio creado. Ahora complete los formularios de las secciones",
+      "sectionSaved": "Sección guardada exitosamente",
+      "serviceCompleted": "Servicio completado exitosamente"
+    }
   }
 }

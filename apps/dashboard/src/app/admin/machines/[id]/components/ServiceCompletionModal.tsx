@@ -45,7 +45,68 @@ export function ServiceCompletionModal({
 }: ServiceCompletionModalProps) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
+  const tErrors = useTranslations('errors.service');
+  const tSuccess = useTranslations('errors.successMessages');
   const router = useInternalRouter();
+
+  // Helper function to translate error messages
+  const translateError = (error: string): string => {
+    // Check for specific field names and translate them
+    if (error.includes('Are Cracks Visible')) {
+      return error.replace('Are Cracks Visible', tErrors('areCracksVisible'));
+    }
+    if (error.includes('Is Main Motor Secure')) {
+      return error.replace('Is Main Motor Secure', tErrors('isMainMotorSecure'));
+    }
+    if (error.includes('Is Motor Plate Secure')) {
+      return error.replace('Is Motor Plate Secure', tErrors('isMotorPlateSecure'));
+    }
+    if (error.includes('Invalid option: expected')) {
+      return error.replace('Invalid option: expected', tErrors('invalidOption'));
+    }
+    return error;
+  };
+
+  // Helper function to get dialog title
+  const getDialogTitle = (): string => {
+    // Completing existing service
+    if (isCompletingService) {
+      // Selection step
+      if (currentStep === 'selection') {
+        if (isInspection) return tServices('modal.completeInspection');
+        return tServices('modal.completeMaintenance');
+      }
+
+      // Details step
+      if (isInspection) return tServices('modal.completeInspectionDetails');
+      return tServices('modal.completeMaintenanceDetails');
+    }
+
+    // Creating new service - Selection step
+    if (currentStep === 'selection') {
+      return tServices('createNewService');
+    }
+
+    // Creating new service - Other steps
+    return `${tServices('createNewService')} - ${t('inspectionSections')}`;
+  };
+
+  // Helper function to get dialog description
+  const getDialogDescription = (): string => {
+    // Selection step - same for both create and complete
+    if (currentStep === 'selection') {
+      return tServices('modal.selectMaintenanceAreas');
+    }
+
+    // Completing existing service
+    if (isCompletingService) {
+      if (isInspection) return tServices('modal.fillInspectionDetails');
+      return tServices('modal.fillMaintenanceDetails');
+    }
+
+    // Creating new service
+    return tServices('createServiceDescription');
+  };
 
   // Memoize machineSections to prevent infinite loop
   const machineSections = useMemo(
@@ -216,19 +277,21 @@ export function ServiceCompletionModal({
           const response = await createService(payload);
 
           if (response.errors || !response.data) {
+            const translatedErrors = response.errors ? response.errors.map(translateError) : [];
             toast.error(
-              `Failed to create service:\n${response.errors?.join('\n') || 'Unknown error'}`,
+              `${tErrors('failedToCreate')}:\n${translatedErrors.join('\n') || 'Unknown error'}`,
+              { duration: 5000 },
             );
             setIsSubmitting(false);
             return;
           }
 
           setCreatedServiceId(response.data.id);
-          toast.success('Service created. Now fill in the section forms.');
+          toast.success(tSuccess('serviceCreated'), { duration: 3000 });
           setIsSubmitting(false);
         } catch (error) {
           console.error('Error creating service:', error);
-          toast.error('An unexpected error occurred while creating the service');
+          toast.error(tErrors('unexpectedCreateError'), { duration: 5000 });
           setIsSubmitting(false);
           return;
         }
@@ -257,18 +320,20 @@ export function ServiceCompletionModal({
           const response = await updateService(currentServiceId, updatePayload);
 
           if (response.errors) {
+            const translatedErrors = response.errors.map(translateError);
             toast.error(
-              `Failed to update service:\n${response.errors?.join('\n') || 'Unknown error'}`,
+              `${tErrors('failedToUpdate')}:\n${translatedErrors.join('\n') || 'Unknown error'}`,
+              { duration: 5000 },
             );
             setIsSubmitting(false);
             return;
           }
 
-          toast.success('Service details updated successfully.');
+          toast.success(tSuccess('serviceUpdated'), { duration: 3000 });
           setIsSubmitting(false);
         } catch (error) {
           console.error('Error updating service:', error);
-          toast.error('An unexpected error occurred while updating the service');
+          toast.error(tErrors('unexpectedError'), { duration: 5000 });
           setIsSubmitting(false);
           return;
         }
@@ -282,13 +347,15 @@ export function ServiceCompletionModal({
 
       const ref = getRef(currentSectionKey);
       if (!ref) {
-        toast.error('Section reference not found');
+        toast.error(tErrors('sectionRefNotFound'), { duration: 5000 });
         return;
       }
 
       const result = ref.validateAndGetData(currentServiceType);
       if (!result.isValid || !result.data) {
-        toast.error(result.errors.join('\n\n') || 'Please fill in all required fields');
+        toast.error(result.errors.join('\n\n') || tErrors('fillRequiredFields'), {
+          duration: 5000,
+        });
         return;
       }
 
@@ -296,7 +363,7 @@ export function ServiceCompletionModal({
 
       try {
         if (!currentServiceId) {
-          toast.error('Service ID not found. Please create the service first.');
+          toast.error(tErrors('serviceIdNotFound'), { duration: 5000 });
           setIsSubmitting(false);
           return;
         }
@@ -309,12 +376,15 @@ export function ServiceCompletionModal({
         );
 
         if (response.errors) {
-          toast.error(`Failed to save section:\n${response.errors.join('\n')}`);
+          const translatedErrors = response.errors.map(translateError);
+          toast.error(`${tErrors('failedToSaveSection')}:\n${translatedErrors.join('\n')}`, {
+            duration: 5000,
+          });
           setIsSubmitting(false);
           return;
         }
 
-        toast.success('Section saved successfully');
+        toast.success(tSuccess('sectionSaved'), { duration: 3000 });
         markSectionComplete(currentSectionKey, result.data);
 
         const nextSectionIndex = currentSectionIndex + 1;
@@ -341,7 +411,7 @@ export function ServiceCompletionModal({
         }
       } catch (error) {
         console.error('Error saving section:', error);
-        toast.error('An unexpected error occurred while saving the section');
+        toast.error(tErrors('unexpectedSaveError'), { duration: 5000 });
         setIsSubmitting(false);
       }
     }
@@ -396,7 +466,7 @@ export function ServiceCompletionModal({
 
     try {
       if (!currentServiceId) {
-        toast.error('Service ID not found');
+        toast.error(tErrors('serviceIdNotFound'), { duration: 5000 });
         setIsSubmitting(false);
         return;
       }
@@ -404,14 +474,13 @@ export function ServiceCompletionModal({
       const response = await completeService(currentServiceId, performedBy || '', machineId);
 
       if (response.errors) {
-        setError(response.errors.join(', '));
+        const translatedErrors = response.errors.map(translateError);
+        setError(translatedErrors.join(', '));
         setIsSubmitting(false);
         return;
       }
 
-      toast.success(
-        isInspection ? 'Inspeção concluída com sucesso' : 'Manutenção concluída com sucesso',
-      );
+      toast.success(tSuccess('serviceCompleted'), { duration: 3000 });
 
       resetForm();
       resetSectionData();
@@ -467,28 +536,8 @@ export function ServiceCompletionModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full md:w-[1200px] h-[86vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>
-            {isCompletingService
-              ? isInspection
-                ? currentStep === 'selection'
-                  ? tServices('modal.completeInspection')
-                  : tServices('modal.completeInspectionDetails')
-                : currentStep === 'selection'
-                  ? tServices('modal.completeMaintenance')
-                  : tServices('modal.completeMaintenanceDetails')
-              : currentStep === 'selection'
-                ? tServices('createNewService')
-                : tServices('createNewService') + ' - ' + t('inspectionSections')}
-          </DialogTitle>
-          <DialogDescription>
-            {currentStep === 'selection'
-              ? tServices('modal.selectMaintenanceAreas')
-              : isCompletingService
-                ? isInspection
-                  ? tServices('modal.fillInspectionDetails')
-                  : tServices('modal.fillMaintenanceDetails')
-                : tServices('createServiceDescription')}
-          </DialogDescription>
+          <DialogTitle>{getDialogTitle()}</DialogTitle>
+          <DialogDescription>{getDialogDescription()}</DialogDescription>
         </DialogHeader>
 
         {isLoadingServiceData && serviceId && !hasLoadedInitialData.current ? (
