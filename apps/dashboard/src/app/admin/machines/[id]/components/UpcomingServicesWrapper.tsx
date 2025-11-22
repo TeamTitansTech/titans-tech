@@ -41,9 +41,11 @@ export function UpcomingServicesWrapper({
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const upcomingServices = services.filter((service) => {
-    return service.status === 'PENDING';
-  });
+  const upcomingServices = services
+    .filter((service) => {
+      return service.status === 'PENDING';
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleServiceClick = (service: Service) => {
     setSelectedService(service);

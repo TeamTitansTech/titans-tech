@@ -25,9 +25,11 @@ export function ServiceHistoryWrapper({
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
-  const pastServices = services.filter((service) => {
-    return service.status === 'COMPLETED';
-  });
+  const pastServices = services
+    .filter((service) => {
+      return service.status === 'COMPLETED';
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleServiceClick = (service: Service) => {
     setSelectedService(service);
