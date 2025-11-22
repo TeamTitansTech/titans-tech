@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { Plus } from 'lucide-react';
 import { useBranch } from '@/contexts/BranchContext';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { getMachinesByBranch } from '@/data/services/machines.api';
 
 interface Machine {
@@ -37,8 +38,21 @@ export function MachinesPageClient() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const t = useTranslations('machines');
   const { selectedBranchId, setSelectedBranchId, selectedBranchName } = useBranch();
+  const { companyUser } = useCompanyUser();
   const searchParams = useSearchParams();
   const branchIdFromUrl = searchParams.get('branchId');
+
+  // Check if user has permission to create machines in the selected branch
+  const canCreateMachines = () => {
+    if (!companyUser || !selectedBranchId) return false;
+
+    // Company admin and manager can create machines
+    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+
+    // Check branch-specific permission
+    const userBranch = companyUser.branches.find((ub) => ub.branchId === selectedBranchId);
+    return userBranch?.createMachines || false;
+  };
 
   // Set branch ID from URL if available
   useEffect(() => {
@@ -95,10 +109,12 @@ export function MachinesPageClient() {
                 : t('pageDescription')}
             </Typography>
           </div>
-          <Button onClick={() => setIsModalOpen(true)} disabled={!selectedBranchId}>
-            <Plus className="w-4 h-4 mr-2" />
-            {t('newButton')}
-          </Button>
+          {canCreateMachines() && (
+            <Button onClick={() => setIsModalOpen(true)} disabled={!selectedBranchId}>
+              <Plus className="w-4 h-4 mr-2" />
+              {t('newButton')}
+            </Button>
+          )}
         </div>
 
         {!selectedBranchId ? (
