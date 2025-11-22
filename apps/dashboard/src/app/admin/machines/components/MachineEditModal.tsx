@@ -41,7 +41,6 @@ interface MachineEditModalProps {
     id: string;
     name: string;
     manufacturer?: string | null;
-    model?: string | null;
     sizeTonnage?: string | null;
     serialNumber?: string | null;
     stroke?: string | null;

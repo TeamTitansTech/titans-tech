@@ -57,7 +57,6 @@ interface DetailsStepProps {
   // Optional machine data (for read-only display)
   machine?: {
     manufacturer?: string;
-    model?: string;
     sizeTonnage?: string;
     serialNumber?: string;
     stroke?: string;
@@ -209,12 +208,6 @@ export function DetailsStep({
                 <div>
                   <span className="text-muted-foreground">{translations.manufacturer}:</span>
                   <span className="ml-2 font-medium">{machine.manufacturer}</span>
-                </div>
-              )}
-              {machine.model && (
-                <div>
-                  <span className="text-muted-foreground">{translations.model}:</span>
-                  <span className="ml-2 font-medium">{machine.model}</span>
                 </div>
               )}
               {machine.sizeTonnage && (
