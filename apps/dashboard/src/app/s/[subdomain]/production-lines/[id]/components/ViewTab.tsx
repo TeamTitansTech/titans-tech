@@ -106,7 +106,7 @@ export function ViewTab({ productionLine }: ViewTabProps) {
           <div className="absolute left-8 top-0 bottom-0 w-1 bg-green-500" />
 
           <div className="flex flex-col gap-8 pl-8">
-            {filteredMachines.map((productionLineMachine, index) => (
+            {filteredMachines.map((productionLineMachine) => (
               <div key={productionLineMachine.machineId} className="relative flex items-center">
                 <div className="absolute left-0 w-3 h-3 rounded-full bg-green-500 border-2 border-green-600 -translate-x-1/2" />
 

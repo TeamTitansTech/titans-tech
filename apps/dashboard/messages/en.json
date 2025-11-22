@@ -115,6 +115,7 @@
       "loading": "Loading users...",
       "loadingFailed": "Failed to load users",
       "noUsers": "No users found for this branch",
+      "noPermissionToViewUsers": "You do not have permission to view users in this branch.",
       "addUser": "Add User",
       "editUser": "Edit User",
       "deleteUser": "Delete User",
@@ -287,7 +288,37 @@
         "updateServices": "Modify existing service records",
         "deleteServices": "Remove service records"
       },
-      "permissionCount": "{count} permissions enabled"
+      "permissionCount": "{count} permissions enabled",
+      "templates": "Templates"
+    },
+    "permissionTemplates": {
+      "title": "Manage Permission Templates",
+      "description": "Save and reuse frequently used permission configurations",
+      "createNew": "Create New Template",
+      "apply": "Apply Template",
+      "loading": "Loading templates...",
+      "noTemplates": "No templates saved yet",
+      "permissionsCount": "permissions",
+      "close": "Close",
+      "errorLoading": "Error loading templates",
+      "errorCreating": "Error creating template",
+      "errorUpdating": "Error updating template",
+      "errorDeleting": "Error deleting template",
+      "nameRequired": "Template name is required",
+      "created": "Template created successfully",
+      "updated": "Template updated successfully",
+      "deleted": "Template deleted successfully",
+      "applied": "Template '{name}' applied successfully",
+      "confirmDelete": "Are you sure you want to delete this template?",
+      "form": {
+        "name": "Template Name",
+        "namePlaceholder": "e.g., Standard Branch Manager",
+        "description": "Description (Optional)",
+        "descriptionPlaceholder": "Describe when to use this template...",
+        "permissions": "Permissions",
+        "save": "Save",
+        "cancel": "Cancel"
+      }
     }
   },
   "adminSettings": {
@@ -422,7 +453,7 @@
     },
     "editUserDialog": {
       "title": "Edit User",
-      "description": "Update user information for {branchName}",
+      "description": "Update user information and permissions for {branchName}",
       "form": {
         "name": {
           "label": "Full Name",
@@ -432,29 +463,19 @@
           "label": "Email Address",
           "placeholder": "user@example.com"
         },
-        "role": {
-          "label": "Role",
-          "placeholder": "Select a role",
-          "options": {
-            "admin": "Admin",
-            "manager": "Manager",
-            "worker": "Worker"
-          },
-          "descriptions": {
-            "admin": "Admin: Full control over matrix and all branches",
-            "manager": "Manager: Full control over this branch only",
-            "worker": "Worker: Standard employee with operational access"
-          }
+        "updateScope": {
+          "label": "Update Scope",
+          "thisBranch": "This Branch Only",
+          "allBranches": "All Branches",
+          "description": "Choose whether to update permissions for this branch only or all branches this user belongs to"
         }
       },
       "cancel": "Cancel",
-      "submit": "Update User",
-      "submitting": "Updating...",
+      "submit": "Save Changes",
+      "submitting": "Saving...",
       "success": "User updated successfully",
       "error": "Failed to update user",
-      "errors": {
-        "adminAlreadyExists": "A company admin already exists. Only one admin is allowed per company."
-      }
+      "cannotEditAdmin": "Company Administrators cannot be edited. Please contact system support to modify admin accounts."
     },
     "deleteUserDialog": {
       "title": "Delete User",

@@ -1,11 +1,14 @@
 'use client';
 
 import * as React from 'react';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { BookmarkPlus } from 'lucide-react';
 import { RolePresetSelector } from './RolePresetSelector';
 import { PermissionCheckbox } from './PermissionCheckbox';
+import { PermissionTemplateManager } from './PermissionTemplateManager';
 import {
   Permissions,
   RolePreset,
@@ -23,6 +26,7 @@ interface PermissionsEditorProps {
   onChange: (permissions: Permissions) => void;
   disabled?: boolean;
   showPresetSelector?: boolean;
+  companyId?: string;
 }
 
 export function PermissionsEditor({
@@ -30,8 +34,10 @@ export function PermissionsEditor({
   onChange,
   disabled = false,
   showPresetSelector = true,
+  companyId,
 }: PermissionsEditorProps) {
   const t = useTranslations('settings');
+  const [showTemplateManager, setShowTemplateManager] = useState(false);
 
   // Detect current preset
   const currentPreset = detectRolePreset(permissions);
@@ -42,12 +48,56 @@ export function PermissionsEditor({
     onChange(newPermissions);
   };
 
+  // Define permission dependencies: these permissions require the "read" permission
+  const permissionDependencies: Record<string, PermissionName> = {
+    canCreateUsers: 'canReadUsers',
+    canUpdateUsers: 'canReadUsers',
+    canDeleteUsers: 'canReadUsers',
+    canCreateMachines: 'canReadMachines',
+    canUpdateMachines: 'canReadMachines',
+    canDeleteMachines: 'canReadMachines',
+    canCreateServices: 'canReadServices',
+    canUpdateServices: 'canReadServices',
+    canDeleteServices: 'canReadServices',
+    canCreateProductionLines: 'canReadProductionLines',
+    canUpdateProductionLines: 'canReadProductionLines',
+    canDeleteProductionLines: 'canReadProductionLines',
+  };
+
+  // Get the read permission for a given category
+  const getDependentPermissions = (readPermission: PermissionName): PermissionName[] => {
+    return Object.entries(permissionDependencies)
+      .filter(([_, dep]) => dep === readPermission)
+      .map(([perm]) => perm as PermissionName);
+  };
+
+  // Check if a permission should be disabled
+  const isPermissionDisabled = (permission: PermissionName): boolean => {
+    if (disabled) return true;
+    const requiredPermission = permissionDependencies[permission];
+    if (requiredPermission) {
+      return !permissions[requiredPermission];
+    }
+    return false;
+  };
+
   // Handle individual permission change
   const handlePermissionChange = (permission: PermissionName, checked: boolean) => {
     const newPermissions = {
       ...permissions,
       [permission]: checked,
     };
+
+    // If unchecking a read permission, also uncheck all dependent permissions
+    if (!checked) {
+      const dependents = getDependentPermissions(permission);
+      if (dependents.length > 0) {
+        dependents.forEach((dep) => {
+          newPermissions[dep] = false;
+        });
+      }
+    }
+
     onChange(newPermissions);
   };
 
@@ -72,6 +122,9 @@ export function PermissionsEditor({
             value={currentPreset}
             onChange={handlePresetChange}
             disabled={disabled}
+            companyId={companyId}
+            currentPermissions={permissions}
+            onApplyTemplate={onChange}
           />
           <Separator />
         </>
@@ -84,6 +137,19 @@ export function PermissionsEditor({
             <h4 className="text-sm font-semibold text-gray-900">{t('permissions.title')}</h4>
             <p className="text-xs text-gray-500 mt-0.5">{t('permissions.description')}</p>
           </div>
+          {companyId && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowTemplateManager(true)}
+              disabled={disabled}
+              className="h-8"
+            >
+              <BookmarkPlus className="w-4 h-4 mr-2" />
+              {t('permissions.templates')}
+            </Button>
+          )}
         </div>
 
         {/* Permission Groups */}
@@ -138,7 +204,7 @@ export function PermissionsEditor({
                       permission={permission}
                       checked={permissions[permission]}
                       onChange={(checked) => handlePermissionChange(permission, checked)}
-                      disabled={disabled}
+                      disabled={isPermissionDisabled(permission)}
                     />
                   ))}
                 </div>
@@ -161,6 +227,17 @@ export function PermissionsEditor({
           )}
         </div>
       </div>
+
+      {/* Template Manager Dialog */}
+      {companyId && (
+        <PermissionTemplateManager
+          open={showTemplateManager}
+          onOpenChange={setShowTemplateManager}
+          companyId={companyId}
+          currentPermissions={permissions}
+          onApplyTemplate={onChange}
+        />
+      )}
     </div>
   );
 }

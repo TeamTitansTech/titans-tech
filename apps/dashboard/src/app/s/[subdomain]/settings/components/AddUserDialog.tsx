@@ -222,6 +222,7 @@ export function AddUserDialog({
             onChange={setPermissions}
             disabled={isSubmitting}
             showPresetSelector={true}
+            companyId={companyUser?.companyId}
           />
 
           <DialogFooter>

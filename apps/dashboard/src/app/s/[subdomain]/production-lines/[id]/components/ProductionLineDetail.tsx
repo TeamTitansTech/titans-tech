@@ -26,9 +26,7 @@ export function ProductionLineDetail({
   const router = useInternalRouter();
 
   const handleConfigSaved = (updatedLine: ProductionLine) => {
-    // Atualizar o estado local com os dados salvos
     setProductionLine(updatedLine);
-    // Após salvar config, trocar para tab view
     setActiveTab('view');
     router.refresh();
   };

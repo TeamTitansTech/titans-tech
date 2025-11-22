@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,6 +16,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Separator } from '@/components/ui/separator';
 import {
   Select,
   SelectContent,
@@ -24,9 +25,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { updateUser } from '@/data/services/users.api';
-import { setUserPermissions, getBranch } from '@/data/services/company-branches.api';
+import {
+  updateUser,
+  updateUserPermissions,
+  updateUserPermissionsAllBranches,
+} from '@/data/services/users.api';
+import { getBranch } from '@/data/services/company-branches.api';
 import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
+import { Permissions } from '@titans-tech/shared/types';
+import { PermissionsEditor } from '@/components/permissions/PermissionsEditor';
+import { getBranchPermissions } from '@/lib/permissions';
 
 interface EditUserDialogProps {
   open: boolean;
@@ -49,65 +57,46 @@ export function EditUserDialog({
   const tValidation = useTranslations('validation');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [companyId, setCompanyId] = useState<string>('');
+  const [updateScope, setUpdateScope] = useState<'thisBranch' | 'allBranches'>('thisBranch');
+  const [permissions, setPermissions] = useState<Permissions | null>(null);
 
   const userSchema = useMemo(
     () =>
       z.object({
         name: z.string().min(1, tValidation('fullNameRequired')),
         email: z.string().email(tValidation('invalidEmail')),
-        role: z.enum(['Manager', 'Worker']),
       }),
     [tValidation],
   );
 
   type UserFormData = z.infer<typeof userSchema>;
 
-  const determineRole = useCallback(
-    (userData: UserResponseDto | null): 'Manager' | 'Worker' => {
-      if (!userData) return 'Worker';
-
-      const branchPermissions = userData.branches?.find((b) => b.branchId === branchId);
-      if (branchPermissions) {
-        const hasManagerPermissions =
-          branchPermissions.createUsers ||
-          branchPermissions.manageUserPermissions ||
-          branchPermissions.updateBranches;
-
-        if (hasManagerPermissions) {
-          return 'Manager';
-        }
-      }
-
-      return 'Worker';
-    },
-    [branchId],
-  );
-
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-    setValue,
-    watch,
   } = useForm<UserFormData>({
     resolver: zodResolver(userSchema),
-    defaultValues: {
-      name: user?.name || '',
-      email: user?.email || '',
-      role: determineRole(user),
-    },
   });
 
-  const selectedRole = watch('role');
-
+  // Initialize form when user changes
   useEffect(() => {
-    if (user) {
-      setValue('name', user.name || '');
-      setValue('email', user.email);
-      setValue('role', determineRole(user));
+    if (user && open) {
+      reset({
+        name: user.name || '',
+        email: user.email,
+      });
+
+      // Get permissions for this branch
+      const branchPerms = getBranchPermissions(user, branchId);
+      if (branchPerms) {
+        setPermissions(branchPerms);
+      }
+
+      setUpdateScope('thisBranch');
     }
-  }, [user, setValue, determineRole]);
+  }, [user, branchId, open, reset]);
 
   useEffect(() => {
     const fetchCompanyId = async () => {
@@ -126,12 +115,13 @@ export function EditUserDialog({
   }, [branchId]);
 
   const onSubmit = async (data: UserFormData) => {
-    if (!user || !companyId) return;
+    if (!user || !companyId || !permissions) return;
 
     setIsSubmitting(true);
 
     try {
-      const response = await updateUser({
+      // First update basic user info
+      const userUpdateResponse = await updateUser({
         companyId,
         userId: user.id,
         data: {
@@ -140,78 +130,47 @@ export function EditUserDialog({
         },
       });
 
-      if (!response.data) {
+      if (!userUpdateResponse.data) {
         toast.error(t('error'));
+        setIsSubmitting(false);
         return;
       }
 
-      // Update permissions based on role
-      const permissions: Record<string, boolean> = {
-        readUsers: false,
-        createUsers: false,
-        updateUsers: false,
-        deleteUsers: false,
-        manageUserPermissions: false,
-        assignUsersToBranches: false,
-        readBranches: false,
-        updateBranches: false,
-        readBlueprints: false,
-        createBlueprints: false,
-        updateBlueprints: false,
-        deleteBlueprints: false,
-        readMachines: false,
-        createMachines: false,
-        updateMachines: false,
-        deleteMachines: false,
-        readServices: false,
-        createServices: false,
-        updateServices: false,
-        deleteServices: false,
-      };
+      // Then update permissions based on scope
+      if (updateScope === 'allBranches') {
+        const response = await updateUserPermissionsAllBranches({
+          branchId,
+          userId: user.id,
+          permissions,
+          applyToAllBranches: true,
+        });
 
-      if (data.role === 'Manager') {
-        // Manager: Full branch permissions
-        permissions.readUsers = true;
-        permissions.createUsers = true;
-        permissions.updateUsers = true;
-        permissions.deleteUsers = true;
-        permissions.manageUserPermissions = true;
-        permissions.assignUsersToBranches = true;
-        permissions.readBranches = true;
-        permissions.updateBranches = true;
-        permissions.readBlueprints = true;
-        permissions.createBlueprints = true;
-        permissions.updateBlueprints = true;
-        permissions.deleteBlueprints = true;
-        permissions.readMachines = true;
-        permissions.createMachines = true;
-        permissions.updateMachines = true;
-        permissions.deleteMachines = true;
-        permissions.readServices = true;
-        permissions.createServices = true;
-        permissions.updateServices = true;
-        permissions.deleteServices = true;
-      } else if (data.role === 'Worker') {
-        // Worker: Basic operational permissions
-        permissions.readBranches = true;
-        permissions.readBlueprints = true;
-        permissions.readMachines = true;
-        permissions.readServices = true;
-        permissions.createServices = true;
-        permissions.updateServices = true;
+        if (!response.data) {
+          toast.error(t('error'));
+          setIsSubmitting(false);
+          return;
+        }
+      } else {
+        const response = await updateUserPermissions({
+          branchId,
+          userId: user.id,
+          permissions,
+        });
+
+        if (!response.data) {
+          toast.error(t('error'));
+          setIsSubmitting(false);
+          return;
+        }
       }
-
-      await setUserPermissions({
-        branchId,
-        userId: user.id,
-        permissions,
-      });
 
       toast.success(t('success'));
       reset();
+      setPermissions(null);
       onOpenChange(false);
       onSuccess();
-    } catch {
+    } catch (error) {
+      console.error('Error updating user:', error);
       toast.error(t('error'));
     } finally {
       setIsSubmitting(false);
@@ -219,69 +178,107 @@ export function EditUserDialog({
   };
 
   const handleClose = () => {
-    reset();
-    onOpenChange(false);
+    if (!isSubmitting) {
+      reset();
+      setPermissions(null);
+      onOpenChange(false);
+    }
   };
+
+  if (!user || !permissions) return null;
+
+  // Don't allow editing company admins
+  if (user.isCompanyAdmin) {
+    return (
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>{t('title')}</DialogTitle>
+            <DialogDescription>{t('description', { branchName })}</DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-gray-600">{t('cannotEditAdmin')}</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleClose}>
+              {t('cancel')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description', { branchName })}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="edit-name">
-              {t('form.name.label')} <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="edit-name"
-              {...register('name')}
-              placeholder={t('form.name.placeholder')}
-              disabled={isSubmitting}
-            />
-            {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* User Info */}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="edit-name">
+                {t('form.name.label')} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="edit-name"
+                {...register('name')}
+                placeholder={t('form.name.placeholder')}
+                disabled={isSubmitting}
+              />
+              {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="edit-email">
+                {t('form.email.label')} <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="edit-email"
+                type="email"
+                {...register('email')}
+                placeholder={t('form.email.placeholder')}
+                disabled={isSubmitting}
+              />
+              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="edit-email">
-              {t('form.email.label')} <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="edit-email"
-              type="email"
-              {...register('email')}
-              placeholder={t('form.email.placeholder')}
-              disabled={isSubmitting}
-            />
-            {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
-          </div>
+          <Separator />
 
+          {/* Update Scope */}
           <div className="space-y-2">
-            <Label htmlFor="edit-role">
-              {t('form.role.label')} <span className="text-destructive">*</span>
-            </Label>
+            <Label htmlFor="updateScope">{t('form.updateScope.label')}</Label>
             <Select
-              value={selectedRole}
-              onValueChange={(value) => setValue('role', value as UserFormData['role'])}
+              value={updateScope}
+              onValueChange={(value) => setUpdateScope(value as 'thisBranch' | 'allBranches')}
               disabled={isSubmitting}
             >
-              <SelectTrigger id="edit-role">
-                <SelectValue placeholder={t('form.role.placeholder')} />
+              <SelectTrigger id="updateScope">
+                <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Manager">{t('form.role.options.manager')}</SelectItem>
-                <SelectItem value="Worker">{t('form.role.options.worker')}</SelectItem>
+                <SelectItem value="thisBranch">{t('form.updateScope.thisBranch')}</SelectItem>
+                <SelectItem value="allBranches">{t('form.updateScope.allBranches')}</SelectItem>
               </SelectContent>
             </Select>
-            {errors.role && <p className="text-sm text-destructive">{errors.role.message}</p>}
-
-            <p className="text-xs text-muted-foreground">
-              {t(`form.role.descriptions.${selectedRole.toLowerCase()}`)}
-            </p>
+            <p className="text-xs text-gray-500">{t('form.updateScope.description')}</p>
           </div>
+
+          <Separator />
+
+          {/* Permissions Editor */}
+          <PermissionsEditor
+            permissions={permissions}
+            onChange={setPermissions}
+            disabled={isSubmitting}
+            showPresetSelector={true}
+            companyId={companyId}
+          />
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>

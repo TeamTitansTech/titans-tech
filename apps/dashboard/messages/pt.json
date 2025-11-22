@@ -115,6 +115,7 @@
       "loading": "Carregando usuários...",
       "loadingFailed": "Falha ao carregar usuários",
       "noUsers": "Nenhum usuário encontrado para esta filial",
+      "noPermissionToViewUsers": "Você não tem permissão para visualizar usuários nesta filial.",
       "addUser": "Adicionar Usuário",
       "editUser": "Editar Usuário",
       "deleteUser": "Excluir Usuário",
@@ -287,7 +288,37 @@
         "updateServices": "Modificar registros de serviço existentes",
         "deleteServices": "Remover registros de serviço"
       },
-      "permissionCount": "{count} permissões habilitadas"
+      "permissionCount": "{count} permissões habilitadas",
+      "templates": "Templates"
+    },
+    "permissionTemplates": {
+      "title": "Gerenciar Templates de Permissão",
+      "description": "Salve e reutilize configurações de permissão frequentemente usadas",
+      "createNew": "Criar Novo Template",
+      "apply": "Aplicar Template",
+      "loading": "Carregando templates...",
+      "noTemplates": "Nenhum template salvo ainda",
+      "permissionsCount": "permissões",
+      "close": "Fechar",
+      "errorLoading": "Erro ao carregar templates",
+      "errorCreating": "Erro ao criar template",
+      "errorUpdating": "Erro ao atualizar template",
+      "errorDeleting": "Erro ao excluir template",
+      "nameRequired": "Nome do template é obrigatório",
+      "created": "Template criado com sucesso",
+      "updated": "Template atualizado com sucesso",
+      "deleted": "Template excluído com sucesso",
+      "applied": "Template '{name}' aplicado com sucesso",
+      "confirmDelete": "Tem certeza que deseja excluir este template?",
+      "form": {
+        "name": "Nome do Template",
+        "namePlaceholder": "ex: Gerente de Filial Padrão",
+        "description": "Descrição (Opcional)",
+        "descriptionPlaceholder": "Descreva quando usar este template...",
+        "permissions": "Permissões",
+        "save": "Salvar",
+        "cancel": "Cancelar"
+      }
     }
   },
   "adminSettings": {
@@ -422,7 +453,7 @@
     },
     "editUserDialog": {
       "title": "Editar Usuário",
-      "description": "Atualizar informações do usuário para {branchName}",
+      "description": "Atualizar informações e permissões do usuário para {branchName}",
       "form": {
         "name": {
           "label": "Nome Completo",
@@ -432,29 +463,19 @@
           "label": "Endereço de Email",
           "placeholder": "usuario@exemplo.com"
         },
-        "role": {
-          "label": "Função",
-          "placeholder": "Selecione uma função",
-          "options": {
-            "admin": "Administrador",
-            "manager": "Gerente",
-            "worker": "Funcionário"
-          },
-          "descriptions": {
-            "admin": "Administrador: Controle total da matriz e todas as filiais",
-            "manager": "Gerente: Controle total desta filial apenas",
-            "worker": "Funcionário: Acesso operacional padrão"
-          }
+        "updateScope": {
+          "label": "Escopo de Atualização",
+          "thisBranch": "Apenas Esta Filial",
+          "allBranches": "Todas as Filiais",
+          "description": "Escolha se deseja atualizar permissões apenas para esta filial ou todas as filiais às quais este usuário pertence"
         }
       },
       "cancel": "Cancelar",
-      "submit": "Atualizar Usuário",
-      "submitting": "Atualizando...",
+      "submit": "Salvar Alterações",
+      "submitting": "Salvando...",
       "success": "Usuário atualizado com sucesso",
       "error": "Falha ao atualizar usuário",
-      "errors": {
-        "adminAlreadyExists": "Já existe um administrador da empresa. Apenas um administrador é permitido por empresa."
-      }
+      "cannotEditAdmin": "Administradores da empresa não podem ser editados. Entre em contato com o suporte do sistema para modificar contas de administrador."
     },
     "deleteUserDialog": {
       "title": "Excluir Usuário",

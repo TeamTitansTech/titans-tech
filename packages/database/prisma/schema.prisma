@@ -354,10 +354,26 @@ model Company {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  branches CompanyBranch[]
-  users    User[]
+  branches            CompanyBranch[]
+  users               User[]
+  permissionTemplates PermissionTemplate[]
 
   @@map("companies")
+}
+
+model PermissionTemplate {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  permissions Json // Stores the Permissions object as JSON
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+
+  @@map("permission_templates")
 }
 
 model CompanyBranch {

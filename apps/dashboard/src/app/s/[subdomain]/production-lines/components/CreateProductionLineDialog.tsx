@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
@@ -55,7 +56,9 @@ export function CreateProductionLineDialog({
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<FormData>();
+  } = useForm<FormData>({
+    resolver: zodResolver(schema),
+  });
 
   const onSubmit = async (data: FormData) => {
     if (!selectedBranchId) {

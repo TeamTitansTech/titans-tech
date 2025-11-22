@@ -42,7 +42,12 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
 
-  // Check if current user can create users in this branch
+  // Check permissions for this branch
+  const canReadUsers =
+    companyUser?.isCompanyAdmin ||
+    companyUser?.isCompanyManager ||
+    companyUser?.branches?.some((b) => b.branchId === branchId && b.readUsers);
+
   const canCreateUsers =
     companyUser?.isCompanyAdmin ||
     companyUser?.isCompanyManager ||
@@ -132,6 +137,26 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
               ))}
             </TableBody>
           </Table>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if user has permission to view users
+  if (!canReadUsers) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <Users className="h-4 w-4" />
+          <h3 className="text-base font-semibold">
+            {t('title')} - {branchName}
+          </h3>
+        </div>
+        <div className="rounded-md border border-yellow-200 bg-yellow-50 p-6 text-center">
+          <p className="text-sm text-yellow-800">
+            {t('noPermissionToViewUsers') ||
+              'Você não tem permissão para visualizar usuários nesta filial.'}
+          </p>
         </div>
       </div>
     );

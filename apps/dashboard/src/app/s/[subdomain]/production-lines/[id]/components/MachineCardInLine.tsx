@@ -89,7 +89,6 @@ export function MachineCardInLine({ machine }: MachineCardInLineProps) {
       onClick={handleClick}
     >
       <CardContent className="p-0">
-        {/* Imagem da máquina */}
         <div className="relative aspect-square bg-muted flex items-center justify-center">
           {machine.imageUrl ? (
             <Image
@@ -106,7 +105,6 @@ export function MachineCardInLine({ machine }: MachineCardInLineProps) {
           )}
         </div>
 
-        {/* Nome da máquina */}
         <div className="p-2 border-t">
           <h3 className="text-xs font-semibold text-center line-clamp-2">{machine.name}</h3>
         </div>

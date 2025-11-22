@@ -115,6 +115,7 @@
       "loading": "Cargando usuarios...",
       "loadingFailed": "Error al cargar usuarios",
       "noUsers": "No se encontraron usuarios para esta sucursal",
+      "noPermissionToViewUsers": "No tiene permiso para ver usuarios en esta sucursal.",
       "addUser": "Agregar Usuario",
       "editUser": "Editar Usuario",
       "deleteUser": "Eliminar Usuario",
@@ -287,7 +288,37 @@
         "updateServices": "Modificar registros de servicio existentes",
         "deleteServices": "Remover registros de servicio"
       },
-      "permissionCount": "{count} permisos habilitados"
+      "permissionCount": "{count} permisos habilitados",
+      "templates": "Plantillas"
+    },
+    "permissionTemplates": {
+      "title": "Gestionar Plantillas de Permisos",
+      "description": "Guarde y reutilice configuraciones de permisos utilizadas frecuentemente",
+      "createNew": "Crear Nueva Plantilla",
+      "apply": "Aplicar Plantilla",
+      "loading": "Cargando plantillas...",
+      "noTemplates": "No hay plantillas guardadas aún",
+      "permissionsCount": "permisos",
+      "close": "Cerrar",
+      "errorLoading": "Error al cargar plantillas",
+      "errorCreating": "Error al crear plantilla",
+      "errorUpdating": "Error al actualizar plantilla",
+      "errorDeleting": "Error al eliminar plantilla",
+      "nameRequired": "El nombre de la plantilla es obligatorio",
+      "created": "Plantilla creada exitosamente",
+      "updated": "Plantilla actualizada exitosamente",
+      "deleted": "Plantilla eliminada exitosamente",
+      "applied": "Plantilla '{name}' aplicada exitosamente",
+      "confirmDelete": "¿Está seguro de que desea eliminar esta plantilla?",
+      "form": {
+        "name": "Nombre de la Plantilla",
+        "namePlaceholder": "ej: Gerente de Sucursal Estándar",
+        "description": "Descripción (Opcional)",
+        "descriptionPlaceholder": "Describa cuándo usar esta plantilla...",
+        "permissions": "Permisos",
+        "save": "Guardar",
+        "cancel": "Cancelar"
+      }
     }
   },
   "adminSettings": {
@@ -422,7 +453,7 @@
     },
     "editUserDialog": {
       "title": "Editar Usuario",
-      "description": "Actualizar información del usuario para {branchName}",
+      "description": "Actualizar información y permisos del usuario para {branchName}",
       "form": {
         "name": {
           "label": "Nombre Completo",
@@ -432,29 +463,19 @@
           "label": "Dirección de Correo Electrónico",
           "placeholder": "usuario@ejemplo.com"
         },
-        "role": {
-          "label": "Rol",
-          "placeholder": "Seleccione un rol",
-          "options": {
-            "admin": "Administrador",
-            "manager": "Gerente",
-            "worker": "Trabajador"
-          },
-          "descriptions": {
-            "admin": "Administrador: Control total sobre la matriz y todas las sucursales",
-            "manager": "Gerente: Control total solo sobre esta sucursal",
-            "worker": "Trabajador: Acceso operativo estándar para empleados"
-          }
+        "updateScope": {
+          "label": "Alcance de Actualización",
+          "thisBranch": "Solo Esta Sucursal",
+          "allBranches": "Todas las Sucursales",
+          "description": "Elija si desea actualizar los permisos solo para esta sucursal o todas las sucursales a las que pertenece este usuario"
         }
       },
       "cancel": "Cancelar",
-      "submit": "Actualizar Usuario",
-      "submitting": "Actualizando...",
+      "submit": "Guardar Cambios",
+      "submitting": "Guardando...",
       "success": "Usuario actualizado exitosamente",
       "error": "Error al actualizar usuario",
-      "errors": {
-        "adminAlreadyExists": "Ya existe un administrador de la empresa. Solo se permite un administrador por empresa."
-      }
+      "cannotEditAdmin": "Los administradores de la empresa no se pueden editar. Póngase en contacto con el soporte del sistema para modificar cuentas de administrador."
     },
     "deleteUserDialog": {
       "title": "Eliminar Usuario",

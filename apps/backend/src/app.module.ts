@@ -15,6 +15,7 @@ import { EmailModule } from './modules/email/email.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { ProductionLinesModule } from './production-lines/production-lines.module';
+import { PermissionTemplatesModule } from './permission-templates/permission-templates.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ProductionLinesModule } from './production-lines/production-lines.modul
     NotificationsModule,
     TasksModule,
     ProductionLinesModule,
+    PermissionTemplatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
