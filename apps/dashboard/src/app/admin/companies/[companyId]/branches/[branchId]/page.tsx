@@ -1,16 +1,16 @@
 import { getTranslations } from 'next-intl/server';
-import { BranchDetail } from './components/BranchDetail';
+import { BranchDetailPage } from './components/BranchDetailPage';
 import { getBranch } from '@/data/services/company-branches.api';
 import { getMachinesByBranch } from '@/data/services/machines.api';
 
-interface BranchDetailPageProps {
+interface BranchDetailPagePropsType {
   params: Promise<{
     companyId: string;
     branchId: string;
   }>;
 }
 
-export default async function BranchDetailPage({ params }: BranchDetailPageProps) {
+export default async function BranchDetailPageRoute({ params }: BranchDetailPagePropsType) {
   const { companyId, branchId } = await params;
   const t = await getTranslations('branches');
 
@@ -32,5 +32,5 @@ export default async function BranchDetailPage({ params }: BranchDetailPageProps
   const branch = branchResponse.data;
   const machines = machinesResponse.data || [];
 
-  return <BranchDetail branch={branch} machines={machines} companyId={companyId} />;
+  return <BranchDetailPage branch={branch} machines={machines} companyId={companyId} />;
 }
