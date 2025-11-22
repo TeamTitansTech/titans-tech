@@ -11,9 +11,9 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Calendar } from '@/components/ui/calendar';
 import { toast } from 'sonner';
 import { createService } from '@/data/services/services.api';
 import { ServiceType, type ServiceCreationModalProps } from '@/data/types/services.types';
@@ -24,7 +24,7 @@ export default function ServiceCreationModal({
   onOpenChange,
 }: ServiceCreationModalProps) {
   const t = useTranslations('MachineDetails');
-  const [date, setDate] = useState<string>('');
+  const [date, setDate] = useState<Date>(new Date());
   const [serviceType, setServiceType] = useState<ServiceType>(ServiceType.INSPECTION);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,7 +41,7 @@ export default function ServiceCreationModal({
     try {
       await createService({
         machineId,
-        date,
+        date: date.toISOString().split('T')[0],
         type: serviceType,
       });
 
@@ -49,7 +49,7 @@ export default function ServiceCreationModal({
       onOpenChange(false);
 
       // Reset form
-      setDate('');
+      setDate(new Date());
       setServiceType(ServiceType.INSPECTION);
 
       // Reload the page to show the new service
@@ -70,16 +70,20 @@ export default function ServiceCreationModal({
           <DialogDescription>{t('serviceCreation.description')}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="date">{t('serviceCreation.date')}</Label>
-              <Input
-                id="date"
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-              />
+          <div className="grid gap-6 py-4">
+            <div className="grid gap-3">
+              <Label>{t('serviceCreation.date')}</Label>
+              <div className="flex justify-center">
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={(newDate) => newDate && setDate(newDate)}
+                  captionLayout="dropdown"
+                  startMonth={new Date(1900, 0)}
+                  endMonth={new Date(new Date().getFullYear() + 10, 11)}
+                  className="rounded-md border"
+                />
+              </div>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox

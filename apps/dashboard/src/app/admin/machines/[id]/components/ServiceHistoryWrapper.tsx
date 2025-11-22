@@ -25,15 +25,10 @@ export function ServiceHistoryWrapper({
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
 
-  // Filter for past services (completed or past due pending services)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
+  // Filter for completed services (status-based, not date-based)
   const pastServices = services.filter((service) => {
-    const serviceDate = new Date(service.date);
-    serviceDate.setHours(0, 0, 0, 0);
-    // Show completed services or pending services that are past due
-    return service.status === 'COMPLETED' || serviceDate < today;
+    // Show only completed services in history
+    return service.status === 'COMPLETED';
   });
 
   const handleServiceClick = (service: Service) => {

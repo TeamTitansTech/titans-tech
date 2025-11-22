@@ -47,31 +47,12 @@ const OUTER_FIELDS = [
   'wristPinToMatingPart_LH',
   'wristPinToBushing_RH',
   'wristPinToBushing_LH',
-  'slide_adj_nut_to_screw_sleeve_RH',
-  'slide_adj_nut_to_screw_sleeve_LH',
-  'extra_double_lockOpen_RH',
-  'extra_double_lockOpen_LH',
-  'ball_box_area_RH',
-  'ball_box_area_LH',
-] as const;
-
-const INNER_FIELDS = [
-  'innerTotalClearance_RH',
-  'innerTotalClearance_LH',
-  'innerMainBearings_RH',
-  'innerMainBearings_LH',
-  'innerUpperConnectionBearings_RH',
-  'innerUpperConnectionBearings_LH',
-  'innerWristPinToMatingPart_RH',
-  'innerWristPinToMatingPart_LH',
-  'innerWristPinToBushing_RH',
-  'innerWristPinToBushing_LH',
-  'innerSlide_adj_nut_to_screw_sleeve_RH',
-  'innerSlide_adj_nut_to_screw_sleeve_LH',
-  'innerExtra_double_lockOpen_RH',
-  'innerExtra_double_lockOpen_LH',
-  'innerBall_box_area_RH',
-  'innerBall_box_area_LH',
+  'slideAdjNutToScrewSleeve_RH',
+  'slideAdjNutToScrewSleeve_LH',
+  'extraDoubleLockOpen_RH',
+  'extraDoubleLockOpen_LH',
+  'ballBoxArea_RH',
+  'ballBoxArea_LH',
 ] as const;
 
 const defaultBearingData: BearingClearanceData = {
@@ -124,10 +105,11 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
                 step="0.0001"
                 min="0"
                 max="999999.9999"
-                value={data[field as keyof BearingClearanceData]}
-                onChange={(e) =>
-                  updateFn(field as keyof BearingClearanceData, Number(e.target.value))
-                }
+                value={data[field as keyof BearingClearanceData] ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                  updateFn(field as keyof BearingClearanceData, isNaN(value) ? 0 : value);
+                }}
                 onBlur={() => handleBlur(field as keyof BearingClearanceData)}
                 className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
                 required
@@ -142,41 +124,7 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
         </div>
       </div>
 
-      <div>
-        <Typography variant="h4" className="mb-3">
-          {t('form.bearingClearance.inner')}
-        </Typography>
-        <div className="grid grid-cols-2 gap-4">
-          {INNER_FIELDS.map((field) => (
-            <div key={field}>
-              <Label htmlFor={field} className="text-xs">
-                {t(`form.bearingClearance.fields.${field.replace('inner', '')}`)}
-              </Label>
-              <Input
-                id={field}
-                type="number"
-                step="0.0001"
-                min="0"
-                max="999999.9999"
-                value={data[field as keyof BearingClearanceData]}
-                onChange={(e) =>
-                  updateFn(field as keyof BearingClearanceData, Number(e.target.value))
-                }
-                onBlur={() => handleBlur(field as keyof BearingClearanceData)}
-                className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
-                required
-              />
-              {errors[field] && (
-                <Typography variant="small" className="text-xs text-destructive mt-1">
-                  {errors[field]}
-                </Typography>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 mt-6">
         <div>
           <Label htmlFor="combinedWith">{t('form.bearingClearance.combinedWith.label')}</Label>
           <Input
@@ -301,7 +249,7 @@ export function InspectionCreationModal({
     const MAX_DECIMAL = 999999.9999;
     const MIN_DECIMAL = 0;
 
-    const numericFields = [...OUTER_FIELDS, ...INNER_FIELDS] as (keyof BearingClearanceData)[];
+    const numericFields = OUTER_FIELDS as unknown as (keyof BearingClearanceData)[];
 
     numericFields.forEach((field) => {
       const value = Number(data[field]);
