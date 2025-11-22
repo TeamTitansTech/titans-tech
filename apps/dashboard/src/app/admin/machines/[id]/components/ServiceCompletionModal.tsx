@@ -47,6 +47,7 @@ export function ServiceCompletionModal({
   const tServices = useTranslations('services');
   const tErrors = useTranslations('errors.service');
   const tSuccess = useTranslations('errors.successMessages');
+  const tActions = useTranslations('actions');
   const router = useInternalRouter();
 
   // Helper function to translate error messages
@@ -351,82 +352,92 @@ export function ServiceCompletionModal({
         return;
       }
 
-      const result = ref.validateAndGetData(currentServiceType);
-      if (!result.isValid || !result.data) {
-        toast.error(result.errors.join('\n\n') || tErrors('fillRequiredFields'), {
-          duration: 5000,
-        });
-        return;
-      }
+      const isSectionCompleted = completedSections.has(currentSectionKey);
+      const isSectionTouched = ref.isTouched?.() ?? false;
+      const shouldSkipSave = isSectionCompleted && !isSectionTouched;
 
-      setIsSubmitting(true);
-
-      try {
-        if (!currentServiceId) {
-          toast.error(tErrors('serviceIdNotFound'), { duration: 5000 });
-          setIsSubmitting(false);
-          return;
-        }
-
-        const response = await updateServiceSection(
-          currentServiceId,
-          currentSectionKey,
-          result.data,
-          machineId,
-        );
-
-        if (response.errors) {
-          const translatedErrors = response.errors.map(translateError);
-          toast.error(`${tErrors('failedToSaveSection')}:\n${translatedErrors.join('\n')}`, {
+      if (!shouldSkipSave) {
+        const result = ref.validateAndGetData(currentServiceType);
+        if (!result.isValid || !result.data) {
+          toast.error(result.errors.join('\n\n') || tErrors('fillRequiredFields'), {
             duration: 5000,
           });
-          setIsSubmitting(false);
           return;
         }
 
-        toast.success(tSuccess('sectionSaved'), { duration: 3000 });
-        markSectionComplete(currentSectionKey, result.data);
+        setIsSubmitting(true);
 
-        const nextSectionIndex = currentSectionIndex + 1;
-        const isLastSection = nextSectionIndex >= sectionsArray.length;
+        try {
+          if (!currentServiceId) {
+            toast.error(tErrors('serviceIdNotFound'), { duration: 5000 });
+            setIsSubmitting(false);
+            return;
+          }
 
-        // Calculate completed sections including the one just saved
-        const newCompletedSections = new Set(completedSections);
-        newCompletedSections.add(currentSectionKey);
-
-        // Determine next step based on completion status
-        let nextStep: 'sections' | 'summary';
-        let nextSectionKey: string | null;
-        let nextIndex: number;
-
-        if (newCompletedSections.size === sectionsArray.length) {
-          // All sections complete - go to summary
-          nextStep = 'summary';
-          nextSectionKey = null;
-          nextIndex = -1; // Not used for summary
-        } else {
-          // Find first incomplete section
-          const firstIncompleteIndex = sectionsArray.findIndex(
-            (key) => !newCompletedSections.has(key),
+          const response = await updateServiceSection(
+            currentServiceId,
+            currentSectionKey,
+            result.data,
+            machineId,
           );
 
-          nextStep = 'sections';
-          nextSectionKey = sectionsArray[firstIncompleteIndex];
-          nextIndex = firstIncompleteIndex;
-
-          // Show message if we're redirecting from last section to an earlier incomplete one
-          if (isLastSection && firstIncompleteIndex < currentSectionIndex) {
-            const firstIncompleteSectionConfig = SECTION_REGISTRY[nextSectionKey];
-            const firstIncompleteName = firstIncompleteSectionConfig
-              ? t(`sectionNames.${firstIncompleteSectionConfig.metadata.i18nKey}`)
-              : nextSectionKey;
-
-            toast.info(`${tErrors('redirectingToIncomplete')}: ${firstIncompleteName}`, {
-              duration: 4000,
+          if (response.errors) {
+            const translatedErrors = response.errors.map(translateError);
+            toast.error(`${tErrors('failedToSaveSection')}:\n${translatedErrors.join('\n')}`, {
+              duration: 5000,
             });
+            setIsSubmitting(false);
+            return;
           }
-        }
 
+          toast.success(tSuccess('sectionSaved'), { duration: 3000 });
+          markSectionComplete(currentSectionKey, result.data);
+        } catch (error) {
+          console.error('Error saving section:', error);
+          toast.error(tErrors('unexpectedSaveError'), { duration: 5000 });
+          setIsSubmitting(false);
+          return;
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
+
+      const nextSectionIndex = currentSectionIndex + 1;
+      const isLastSection = nextSectionIndex >= sectionsArray.length;
+
+      const newCompletedSections = new Set(completedSections);
+      newCompletedSections.add(currentSectionKey);
+
+      let nextStep: 'sections' | 'summary';
+      let nextSectionKey: string | null;
+      let nextIndex: number;
+
+      if (newCompletedSections.size === sectionsArray.length) {
+        nextStep = 'summary';
+        nextSectionKey = null;
+        nextIndex = -1;
+      } else {
+        const firstIncompleteIndex = sectionsArray.findIndex(
+          (key) => !newCompletedSections.has(key),
+        );
+
+        nextStep = 'sections';
+        nextSectionKey = sectionsArray[firstIncompleteIndex];
+        nextIndex = firstIncompleteIndex;
+
+        if (isLastSection && firstIncompleteIndex < currentSectionIndex) {
+          const firstIncompleteSectionConfig = SECTION_REGISTRY[nextSectionKey];
+          const firstIncompleteName = firstIncompleteSectionConfig
+            ? t(`sectionNames.${firstIncompleteSectionConfig.metadata.i18nKey}`)
+            : nextSectionKey;
+
+          toast.info(`${tErrors('redirectingToIncomplete')}: ${firstIncompleteName}`, {
+            duration: 4000,
+          });
+        }
+      }
+
+      if (currentServiceId) {
         await updateService(
           currentServiceId,
           {
@@ -436,19 +447,12 @@ export function ServiceCompletionModal({
           },
           machineId,
         );
+      }
 
-        setIsSubmitting(false);
-
-        // Navigate to the determined step
-        if (nextStep === 'summary') {
-          setCurrentStep('summary');
-        } else {
-          setCurrentSectionIndex(nextIndex);
-        }
-      } catch (error) {
-        console.error('Error saving section:', error);
-        toast.error(tErrors('unexpectedSaveError'), { duration: 5000 });
-        setIsSubmitting(false);
+      if (nextStep === 'summary') {
+        setCurrentStep('summary');
+      } else {
+        setCurrentSectionIndex(nextIndex);
       }
     }
   };
@@ -662,8 +666,8 @@ export function ServiceCompletionModal({
               areasSelected: (count) =>
                 `${count} ${count === 1 ? 'área selecionada' : 'áreas selecionadas'}`,
               selectAreasAbove: tServices('modal.selectAreasAbove'),
-              cancel: 'Cancelar',
-              continue: 'Salvar e Continuar',
+              cancel: tActions('cancel'),
+              continue: tActions('continue'),
             }}
           />
         ) : currentStep === 'details' ? (
@@ -712,8 +716,8 @@ export function ServiceCompletionModal({
                 maintenanceType: tServices('types.maintenance'),
                 selectedAreasTitle: 'Áreas selecionadas',
                 getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
-                back: 'Voltar',
-                continue: 'Salvar e Continuar',
+                back: tActions('cancel'),
+                continue: tActions('continue'),
                 // Machine information
                 machineInformationTitle: tServices('modal.machineInformation.title'),
                 manufacturer: tServices('modal.machineInformation.manufacturer'),
@@ -759,10 +763,13 @@ export function ServiceCompletionModal({
               registerSectionRef={registerRef}
               onPrevious={handlePrevious}
               onNext={handleNext}
+              getSectionRef={getRef}
+              completedSections={completedSections}
               translations={{
                 getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
-                previous: 'Anterior',
-                saveAndContinue: 'Salvar e Continuar',
+                previous: tActions('cancel'),
+                save: tActions('save'),
+                continue: tActions('continue'),
               }}
             />
           </form>

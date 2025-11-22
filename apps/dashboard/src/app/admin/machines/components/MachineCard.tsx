@@ -31,6 +31,7 @@ export function MachineCard({
   onDelete,
 }: ExtendedMachineCardProps) {
   const t = useTranslations('machines');
+  const tActions = useTranslations('actions');
 
   return (
     <Card className="hover:shadow-lg transition-shadow">
@@ -102,7 +103,7 @@ export function MachineCard({
                 className="flex-1 text-destructive hover:text-destructive"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                {t('delete')}
+                {tActions('delete')}
               </Button>
             )}
           </div>

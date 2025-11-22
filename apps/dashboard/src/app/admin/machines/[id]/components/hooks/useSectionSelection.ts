@@ -21,7 +21,7 @@ export function useSectionSelection(isInspection: boolean, machineSections: stri
   };
 
   const getSelectedSectionsArray = () => {
-    return Array.from(selectedSections);
+    return machineSections.filter((section) => selectedSections.has(section));
   };
 
   const reset = (inspection: boolean, sections: string[]) => {

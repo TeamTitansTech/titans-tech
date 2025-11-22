@@ -67,6 +67,7 @@ export function MachineListPage({ machines }: MachineListPagePageProps) {
   const [machineToDelete, setMachineToDelete] = useState<{ id: string; name: string } | null>(null);
   const router = useInternalRouter();
   const t = useTranslations('machines');
+  const tActions = useTranslations('actions');
 
   const { execute: executeDelete, isLoading: isDeleting } = useLazyQuery((id: string) =>
     deleteMachine(id),
@@ -165,13 +166,13 @@ export function MachineListPage({ machines }: MachineListPagePageProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>{tActions('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? t('deleting') : t('confirmDelete')}
+              {isDeleting ? tActions('deleting') : t('confirmDelete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
