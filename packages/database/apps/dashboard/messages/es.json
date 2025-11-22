@@ -60,7 +60,7 @@
     "title": "Configuración",
     "description": "Administre sus preferencias y configuraciones de la aplicación",
     "pageTitle": "Configuración",
-    "pageDescription": "Administre sus preferencias e información de la empresa",
+    "pageDescription": "Administre sus preferencias y configuraciones de la aplicación",
     "language": {
       "title": "Idioma y Región",
       "label": "Seleccionar Idioma",
@@ -1586,8 +1586,6 @@
       "description": "Cree una nueva línea de producción para organizar sus máquinas",
       "cancel": "Cancelar",
       "create": "Crear Línea"
-    },
-    "errorSaving": "Error al guardar la configuración",
-    "configurationUpdated": "Configuración actualizada exitosamente"
+    }
   }
 }

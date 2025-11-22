@@ -202,6 +202,11 @@ async function main() {
       createServices: true,
       updateServices: true,
       deleteServices: true,
+      // Production Line Permissions
+      readProductionLines: true,
+      createProductionLines: true,
+      updateProductionLines: true,
+      deleteProductionLines: true,
     },
   });
 
@@ -296,6 +301,11 @@ async function main() {
       createServices: true,
       updateServices: true,
       deleteServices: true,
+      // Production Line Permissions
+      readProductionLines: true,
+      createProductionLines: true,
+      updateProductionLines: true,
+      deleteProductionLines: true,
     },
   });
   console.log(`✓ Assigned Admin to Main Branch with full permissions`);
@@ -324,11 +334,15 @@ async function main() {
       readServices: true,
       createServices: true,
       updateServices: true,
+      // Production Line Permissions
+      readProductionLines: true,
+      createProductionLines: true,
+      updateProductionLines: true,
     },
   });
   console.log(`✓ Assigned Manager to Main Branch with limited permissions`);
 
-  // Regular user with read/create permissions
+  // Regular user with read/create permissions on Secondary Branch
   await prisma.userBranch.upsert({
     where: {
       userId_branchId: {
@@ -346,9 +360,37 @@ async function main() {
       readMachines: true,
       readServices: true,
       createServices: true,
+      // Production Line Permissions
+      readProductionLines: true,
     },
   });
   console.log(`✓ Assigned User to Secondary Branch with basic permissions`);
+
+  // Also assign regular user to Main Branch with similar permissions
+  await prisma.userBranch.upsert({
+    where: {
+      userId_branchId: {
+        userId: regularUser.id,
+        branchId: acmeMainBranch.id,
+      },
+    },
+    update: {},
+    create: {
+      userId: regularUser.id,
+      branchId: acmeMainBranch.id,
+      // Basic permissions
+      readBranches: true,
+      readBlueprints: true,
+      readMachines: true,
+      readServices: true,
+      createServices: true,
+      // Production Line Permissions
+      readProductionLines: true,
+      createProductionLines: true,
+      updateProductionLines: true,
+    },
+  });
+  console.log(`✓ Assigned User to Main Branch with basic permissions`);
 
   // ========================================
   // 7. Create Blueprints

@@ -3,6 +3,12 @@
     "companyName": "InspectPro",
     "companySubtitle": "Portal Admin",
     "unsavedChanges": "Você tem alterações não salvas. Tem certeza que deseja fechar?",
+    "confirmClose": {
+      "title": "Descartar alterações?",
+      "description": "Você tem alterações não salvas. Se fechar agora, todos os dados preenchidos serão perdidos.",
+      "confirm": "Sim, descartar",
+      "cancel": "Continuar editando"
+    },
     "status": {
       "ok": "OK",
       "na": "N/A",
@@ -60,7 +66,7 @@
     "title": "Configurações",
     "description": "Gerencie suas preferências e configurações do aplicativo",
     "pageTitle": "Configurações",
-    "pageDescription": "Gerencie suas preferências e informações da empresa",
+    "pageDescription": "Gerencie suas preferências e configurações do aplicativo",
     "language": {
       "title": "Idioma e Região",
       "label": "Selecionar Idioma",
@@ -552,42 +558,6 @@
         "viewReportsDesc": "Acesse histórico de serviços e análises",
         "settings": "Configurações",
         "settingsDesc": "Gerencie sua conta e preferências"
-      },
-      "overview": {
-        "machines": "Máquinas",
-        "services": "Serviços",
-        "alerts": "Alertas",
-        "operating": "Operando",
-        "scheduled": "Agendado",
-        "scheduled_plural": "Agendados",
-        "allOk": "Tudo OK",
-        "requiresAttention": "Requer Atenção"
-      },
-      "requiresAttention": {
-        "title": "Requer Atenção",
-        "more": "+{count} mais"
-      },
-      "timeline": {
-        "title": "Próximos 7 Dias",
-        "noServices": "Nenhum serviço agendado",
-        "today": "Hoje",
-        "tomorrow": "Amanhã",
-        "maintenance": "Manutenção",
-        "inspection": "Inspeção"
-      },
-      "performance": {
-        "title": "Performance do Mês",
-        "availability": "Disponibilidade",
-        "preventive": "Preventivas",
-        "corrective": "Corretivas"
-      },
-      "machineHealth": {
-        "title": "Status das Máquinas",
-        "more": "máquinas adicionais"
-      },
-      "weeklyActivity": {
-        "title": "Atividade Semanal",
-        "description": "Serviços concluídos nos últimos 7 dias"
       }
     }
   },
@@ -658,6 +628,12 @@
       },
       "response": {
         "title": "Resposta:"
+      },
+      "confirmClose": {
+        "title": "Descartar alterações?",
+        "description": "Você tem alterações não salvas. Se fechar agora, todos os dados preenchidos serão perdidos.",
+        "confirm": "Sim, descartar",
+        "cancel": "Continuar editando"
       }
     }
   },

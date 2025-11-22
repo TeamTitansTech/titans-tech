@@ -17,13 +17,20 @@ export function BranchSelector() {
   if (!companyUser) return null;
 
   const accessibleBranches = companyUser.branches;
-  if (accessibleBranches.length <= 1) return null;
+  if (accessibleBranches.length === 0) return null;
+
+  // If only one branch, show it but make it disabled
+  const isDisabled = accessibleBranches.length === 1;
 
   return (
-    <Select value={selectedBranchId || ''} onValueChange={setSelectedBranchId}>
-      <SelectTrigger className="w-[200px]">
+    <Select
+      value={selectedBranchId || ''}
+      onValueChange={setSelectedBranchId}
+      disabled={isDisabled}
+    >
+      <SelectTrigger className="w-full">
         <MapPin className="w-4 h-4 mr-2" />
-        <SelectValue placeholder="Select branch" />
+        <SelectValue placeholder="Selecionar filial" />
       </SelectTrigger>
       <SelectContent>
         {accessibleBranches.map((userBranch) => (

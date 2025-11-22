@@ -14,6 +14,7 @@ import { AlertsModule } from './modules/alerts/alerts.module';
 import { EmailModule } from './modules/email/email.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { ProductionLinesModule } from './production-lines/production-lines.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { TasksModule } from './modules/tasks/tasks.module';
     EmailModule,
     NotificationsModule,
     TasksModule,
+    ProductionLinesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
