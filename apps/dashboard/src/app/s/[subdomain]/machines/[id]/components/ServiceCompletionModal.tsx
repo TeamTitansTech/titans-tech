@@ -61,6 +61,11 @@ const SECTION_DETAILS = {
     image: '/assets/sections/tramming.svg',
     i18nKey: 'tramming',
   },
+  Pistons: {
+    key: 'Pistons',
+    image: '/assets/sections/tramming.svg',
+    i18nKey: 'pistons',
+  },
 } as const;
 
 export function ServiceCompletionModal({

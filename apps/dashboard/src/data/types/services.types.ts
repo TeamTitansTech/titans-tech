@@ -26,6 +26,9 @@ export {
   ConditionOkNaDncDamagedType,
   TemperatureUnit,
   SystemType,
+  SealConditionType,
+  VacuumSystemConditionType,
+  PressureUnit,
 } from '@titans-tech/shared/types/services';
 
 export type {

@@ -1548,7 +1548,7 @@ export class ServicesService {
 
         // Handle metadata fields
         const metadataFields = [
-          'guidSeals',
+          'guideSeals',
           'pistonSeals',
           'vacuumSystem',
           'vacuumSystemAirPressureSetting',
@@ -1592,7 +1592,7 @@ export class ServicesService {
               ...(updateDto.innerData && {
                 innerData: { create: updateDto.innerData as any },
               }),
-              ...(updateDto.guidSeals && { guidSeals: updateDto.guidSeals }),
+              ...(updateDto.guideSeals && { guideSeals: updateDto.guideSeals }),
               ...(updateDto.pistonSeals && {
                 pistonSeals: updateDto.pistonSeals,
               }),

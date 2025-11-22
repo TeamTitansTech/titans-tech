@@ -229,6 +229,22 @@ enum TemperatureUnit {
   CELSIUS
 }
 
+enum SealConditionType {
+  OK
+  NA
+  DNC
+  LEAKING
+  WORN
+}
+
+enum VacuumSystemConditionType {
+  OK
+  NA
+  DNC
+  DAMAGED
+  LEAKING
+}
+
 enum SplinesConditionType {
   OK
   NA
@@ -1184,12 +1200,12 @@ model MachineServicePistons {
   innerDataId      String?
 
   // Top-level fields
-  guidSeals                      String?
-  pistonSeals                    String?
-  vacuumSystem                   String?
-  vacuumSystemAirPressureSetting Decimal? @db.Decimal(10, 4)
-  vacuumSystemAirPressureUnit    String?  @default("PSI") // PSI, BAR, etc.
-  unit                           String?  @default("inches") // inches, mm, cm
+  guideSeals                     SealConditionType?
+  pistonSeals                    SealConditionType?
+  vacuumSystem                   VacuumSystemConditionType?
+  vacuumSystemAirPressureSetting Decimal?                   @db.Decimal(10, 4)
+  vacuumSystemAirPressureUnit    PressureUnit?
+  unit                           String?                    @default("inches") // inches, mm, cm
 
   // Notes
   notes String?

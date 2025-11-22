@@ -33,6 +33,8 @@ import {
   DriveBeltConditionType as PrismaDriveBeltConditionType,
   ProtectiveCoversStatusType as PrismaProtectiveCoversStatusType,
   TemperatureUnit as PrismaTemperatureUnit,
+  SealConditionType as PrismaSealConditionType,
+  VacuumSystemConditionType as PrismaVacuumSystemConditionType,
 } from '@titans-tech/db/enums';
 
 // ============================================================================
@@ -68,6 +70,8 @@ export {
   PrismaDriveBeltConditionType as DriveBeltConditionType,
   PrismaProtectiveCoversStatusType as ProtectiveCoversStatusType,
   PrismaTemperatureUnit as TemperatureUnit,
+  PrismaSealConditionType as SealConditionType,
+  PrismaVacuumSystemConditionType as VacuumSystemConditionType,
 };
 
 // Note: These custom enums are not in Prisma yet
@@ -101,15 +105,6 @@ export enum AirbagPistonSealsType {
   NA = 'NA',
   DNC = 'DNC',
   LEAKING = 'LEAKING',
-}
-
-export enum SealConditionType {
-  OK = 'OK',
-  NA = 'NA',
-  DNC = 'DNC',
-  DAMAGED = 'DAMAGED',
-  LEAKING = 'LEAKING',
-  WORN = 'WORN',
 }
 
 export enum RegulatorGaugeType {
@@ -522,11 +517,11 @@ export type PistonsData = z.infer<typeof PistonsDataSchema>;
 export const PistonsCheckSchema = z.object({
   outerData: PistonsDataSchema.optional(),
   innerData: PistonsDataSchema.optional(),
-  guidSeals: z.string().optional(),
-  pistonSeals: z.string().optional(),
-  vacuumSystem: z.string().optional(),
+  guideSeals: z.nativeEnum(PrismaSealConditionType).optional(),
+  pistonSeals: z.nativeEnum(PrismaSealConditionType).optional(),
+  vacuumSystem: z.nativeEnum(PrismaVacuumSystemConditionType).optional(),
   vacuumSystemAirPressureSetting: z.number().optional(),
-  vacuumSystemAirPressureUnit: z.string().optional(),
+  vacuumSystemAirPressureUnit: z.nativeEnum(PrismaPressureUnit).optional(),
   unit: z.enum(['inches', 'mm', 'cm']).optional(),
   notes: z.string().optional(),
 });

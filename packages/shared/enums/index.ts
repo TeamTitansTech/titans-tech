@@ -30,6 +30,8 @@ export {
   OkNaDncNotOperationalLeakingType,
   OkNaDncDarkOilType,
   OkNaDncNeedReplacedType,
+  SealConditionType,
+  VacuumSystemConditionType,
 
   // Bearing/Slide enums
   MatingPartType,

@@ -45,6 +45,8 @@ export {
   ProtectiveCoversStatusType,
   CylinderAirbagType,
   TemperatureUnit,
+  SealConditionType,
+  VacuumSystemConditionType,
 } from '../enums';
 
 // Re-export all section data types
