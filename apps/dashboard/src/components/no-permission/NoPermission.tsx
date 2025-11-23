@@ -18,7 +18,7 @@ export function NoPermission({ message, description, showContactAdmin = true }: 
   const t = useTranslations('common');
 
   const handleGoToDashboard = () => {
-    router.push('/');
+    router.push('/home');
   };
 
   return (

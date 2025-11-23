@@ -8,6 +8,7 @@ import { CreateProductionLineDialog } from './CreateProductionLineDialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { type ProductionLine } from '@/data/types/production-lines.types';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
 
 interface ProductionLinesPageProps {
   productionLines: ProductionLine[];
@@ -17,10 +18,17 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const router = useInternalRouter();
   const t = useTranslations('productionLines');
+  const { companyUser } = useCompanyUser();
   const [optimisticLines, addOptimisticLine] = useOptimistic(
     productionLines,
     (state, newLine: ProductionLine) => [...state, newLine],
   );
+
+  // Check if user has permission to create production lines
+  const canCreateProductionLines =
+    companyUser?.isCompanyAdmin ||
+    companyUser?.isCompanyManager ||
+    companyUser?.branches?.some((b) => b.createProductionLines);
 
   const handleSuccess = (newLine?: ProductionLine) => {
     startTransition(() => {
@@ -40,10 +48,12 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
             <h1 className="text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
             <p className="text-muted-foreground">{t('pageDescription')}</p>
           </div>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            {t('newButton')}
-          </Button>
+          {canCreateProductionLines && (
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              {t('newButton')}
+            </Button>
+          )}
         </div>
 
         {optimisticLines.length === 0 ? (

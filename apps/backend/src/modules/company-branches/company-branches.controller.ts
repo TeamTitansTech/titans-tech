@@ -194,7 +194,7 @@ export class CompanyBranchesController {
     const companyId = req.user.companyId;
 
     // Extract permissions (remove applyToAllBranches flag)
-    const { ...permissions } = dto;
+    const { applyToAllBranches, ...permissions } = dto;
 
     return this.usersService.updateUserPermissionsAllBranches(
       userId,

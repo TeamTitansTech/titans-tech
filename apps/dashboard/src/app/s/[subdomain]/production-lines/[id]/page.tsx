@@ -51,11 +51,25 @@ export default async function ProductionLineDetailPage({
     user.isCompanyManager ||
     user.branches.some((ub) => ub.branchId === productionLine.branchId && ub.readMachines);
 
+  // Check if user has updateProductionLines permission
+  const canEditProductionLine =
+    user.isCompanyAdmin ||
+    user.isCompanyManager ||
+    user.branches.some((ub) => ub.branchId === productionLine.branchId && ub.updateProductionLines);
+
+  // Check if user has deleteProductionLines permission
+  const canDeleteProductionLine =
+    user.isCompanyAdmin ||
+    user.isCompanyManager ||
+    user.branches.some((ub) => ub.branchId === productionLine.branchId && ub.deleteProductionLines);
+
   return (
     <ProductionLineDetail
       productionLine={productionLine}
       initialTab={tab}
       canViewMachineDetails={canViewMachineDetails}
+      canEditProductionLine={canEditProductionLine}
+      canDeleteProductionLine={canDeleteProductionLine}
     />
   );
 }
