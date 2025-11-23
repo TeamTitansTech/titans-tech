@@ -42,7 +42,6 @@ export class MachinesService {
         branchId: createMachineDto.branchId,
         name: createMachineDto.name,
         manufacturer: createMachineDto.manufacturer,
-        model: createMachineDto.model,
         sizeTonnage: createMachineDto.sizeTonnage,
         serialNumber: createMachineDto.serialNumber,
         stroke: createMachineDto.stroke,
@@ -181,7 +180,6 @@ export class MachinesService {
         blueprintId: updateMachineDto.blueprintId,
         // Machine specifications
         manufacturer: updateMachineDto.manufacturer,
-        model: updateMachineDto.model,
         sizeTonnage: updateMachineDto.sizeTonnage,
         serialNumber: updateMachineDto.serialNumber,
         stroke: updateMachineDto.stroke,

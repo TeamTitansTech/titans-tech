@@ -558,14 +558,15 @@ export function ServiceCompletionModal({
                 serviceTypeLabel: tServices('serviceType'),
                 inspectionType: tServices('types.inspection'),
                 maintenanceType: tServices('types.maintenance'),
-                selectedAreasTitle: 'Áreas selecionadas',
+                selectedAreasTitle: isInspection
+                  ? tServices('modal.inspectionAreas')
+                  : tServices('modal.selectedAreas'),
                 getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
-                back: 'Voltar',
-                continue: 'Salvar e Continuar',
+                back: tServices('modal.back'),
+                continue: tServices('modal.continue'),
                 // Machine information
                 machineInformationTitle: tServices('modal.machineInformation.title'),
                 manufacturer: tServices('modal.machineInformation.manufacturer'),
-                model: tServices('modal.machineInformation.model'),
                 sizeTonnage: tServices('modal.machineInformation.sizeTonnage'),
                 serialNumber: tServices('modal.machineInformation.serialNumber'),
                 stroke: tServices('modal.machineInformation.stroke'),

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { type ClutchData, ServiceType } from '@/data/types/services.types';
 import { ClutchForm } from '../forms/ClutchForm';
 import { isDataTouched } from './utils';
@@ -80,10 +80,20 @@ interface ClutchSectionProps {
 export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
   ({ onSectionTouched, initialData }, ref) => {
     // Store initial loaded data for "touched" detection
-    const [initialClutchData] = useState<ClutchData>(initialData || defaultClutchData);
+    const [initialClutchData, setInitialClutchData] = useState<ClutchData>(
+      initialData || defaultClutchData,
+    );
 
     const [data, setData] = useState<ClutchData>(initialData || defaultClutchData);
     const [errors, setErrors] = useState<Record<string, string>>({});
+
+    // Update data when initialData changes (e.g., when loading saved data)
+    useEffect(() => {
+      if (initialData) {
+        setData(initialData);
+        setInitialClutchData(initialData);
+      }
+    }, [initialData]);
 
     const updateField = (field: keyof ClutchData, value: string | number | undefined) => {
       setData((prev) => ({ ...prev, [field]: value }));
