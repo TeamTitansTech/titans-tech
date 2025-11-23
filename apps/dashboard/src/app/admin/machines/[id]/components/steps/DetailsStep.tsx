@@ -82,7 +82,6 @@ interface DetailsStepProps {
     // Machine information
     machineInformationTitle: string;
     manufacturer: string;
-    model: string;
     sizeTonnage: string;
     serialNumber: string;
     stroke: string;
