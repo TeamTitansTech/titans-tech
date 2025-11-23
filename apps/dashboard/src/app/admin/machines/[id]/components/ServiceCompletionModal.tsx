@@ -768,7 +768,7 @@ export function ServiceCompletionModal({
               completedSections={completedSections}
               translations={{
                 getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
-                previous: tActions('cancel'),
+                previous: tActions('previous'),
                 save: tActions('save'),
                 continue: tActions('continue'),
               }}
