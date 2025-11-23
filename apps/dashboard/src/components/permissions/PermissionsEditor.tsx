@@ -49,6 +49,8 @@ export function PermissionsEditor({
 
   // Define permission dependencies: these permissions require the "read" permission
   const permissionDependencies: Record<string, PermissionName> = {
+    // User management requires branch visibility (users are linked to branches)
+    readUsers: 'readBranches',
     createUsers: 'readUsers',
     updateUsers: 'readUsers',
     deleteUsers: 'readUsers',
@@ -87,6 +89,14 @@ export function PermissionsEditor({
       ...permissions,
       [permission]: checked,
     };
+
+    // If checking a permission, also enable its dependency
+    if (checked) {
+      const requiredPermission = permissionDependencies[permission];
+      if (requiredPermission) {
+        newPermissions[requiredPermission] = true;
+      }
+    }
 
     // If unchecking a read permission, also uncheck all dependent permissions
     if (!checked) {
