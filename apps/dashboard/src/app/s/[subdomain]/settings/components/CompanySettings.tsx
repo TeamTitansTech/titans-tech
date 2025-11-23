@@ -6,10 +6,24 @@ import { Separator } from '@/components/ui/separator';
 import { CompanyInfoSection } from './CompanyInfoSection';
 import { BranchesSection } from './BranchesSection';
 import { BranchUserManagement } from './BranchUserManagement';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { hasPermission } from '@/lib/permissions';
+import { useBranch } from '@/contexts/BranchContext';
 
 export function CompanySettings() {
   const t = useTranslations('settings');
+  const { companyUser } = useCompanyUser();
+  const { selectedBranchId: contextSelectedBranchId } = useBranch();
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
+
+  // Check if user has permission to read branches
+  // Company admins and managers always have access
+  const canReadBranches =
+    companyUser?.isCompanyAdmin ||
+    companyUser?.isCompanyManager ||
+    (contextSelectedBranchId
+      ? hasPermission(companyUser, contextSelectedBranchId, 'readBranches')
+      : false);
 
   return (
     <div className="space-y-6 p-8">
@@ -22,14 +36,20 @@ export function CompanySettings() {
 
       <CompanyInfoSection />
 
-      <Separator />
-
-      <BranchesSection selectedBranchId={selectedBranchId} onSelectBranch={setSelectedBranchId} />
-
-      {selectedBranchId && (
+      {canReadBranches && (
         <>
           <Separator />
-          <BranchUserManagement branchId={selectedBranchId} />
+          <BranchesSection
+            selectedBranchId={selectedBranchId}
+            onSelectBranch={setSelectedBranchId}
+          />
+
+          {selectedBranchId && (
+            <>
+              <Separator />
+              <BranchUserManagement branchId={selectedBranchId} />
+            </>
+          )}
         </>
       )}
     </div>

@@ -1,6 +1,5 @@
 'use client';
 
-import * as React from 'react';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
@@ -50,18 +49,16 @@ export function PermissionsEditor({
 
   // Define permission dependencies: these permissions require the "read" permission
   const permissionDependencies: Record<string, PermissionName> = {
-    canCreateUsers: 'canReadUsers',
-    canUpdateUsers: 'canReadUsers',
-    canDeleteUsers: 'canReadUsers',
-    canCreateMachines: 'canReadMachines',
-    canUpdateMachines: 'canReadMachines',
-    canDeleteMachines: 'canReadMachines',
-    canCreateServices: 'canReadServices',
-    canUpdateServices: 'canReadServices',
-    canDeleteServices: 'canReadServices',
-    canCreateProductionLines: 'canReadProductionLines',
-    canUpdateProductionLines: 'canReadProductionLines',
-    canDeleteProductionLines: 'canReadProductionLines',
+    createUsers: 'readUsers',
+    updateUsers: 'readUsers',
+    deleteUsers: 'readUsers',
+    updateBranches: 'readBranches',
+    createMachines: 'readMachines',
+    updateMachines: 'readMachines',
+    deleteMachines: 'readMachines',
+    createServices: 'readServices',
+    updateServices: 'readServices',
+    deleteServices: 'readServices',
   };
 
   // Get the read permission for a given category

@@ -22,7 +22,7 @@ import { toast } from 'sonner';
 import { createUser, setCompanyManager } from '@/data/services/users.api';
 import { setUserPermissions } from '@/data/services/company-branches.api';
 import { PermissionsEditor } from '@/components/permissions/PermissionsEditor';
-import { Permissions, WORKER_PERMISSIONS } from '@titans-tech/shared/types';
+import { Permissions, EMPTY_PERMISSIONS } from '@titans-tech/shared/types';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { isCompanyAdmin } from '@/lib/permissions';
 
@@ -47,7 +47,7 @@ export function AddUserDialog({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [permissions, setPermissions] = useState<Permissions>({
-    ...WORKER_PERMISSIONS,
+    ...EMPTY_PERMISSIONS,
   });
   const [applyToAllBranches, setApplyToAllBranches] = useState(false);
   const [promoteToManager, setPromoteToManager] = useState(false);
@@ -129,7 +129,7 @@ export function AddUserDialog({
   const handleClose = () => {
     if (!isSubmitting) {
       reset();
-      setPermissions({ ...WORKER_PERMISSIONS });
+      setPermissions({ ...EMPTY_PERMISSIONS });
       setApplyToAllBranches(false);
       setPromoteToManager(false);
       onOpenChange(false);

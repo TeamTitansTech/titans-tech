@@ -8,7 +8,6 @@ import { RequiresAttention } from './RequiresAttention';
 import { Next7DaysTimeline } from './Next7DaysTimeline';
 import { MonthPerformance } from './MonthPerformance';
 import { MachineHealthGrid } from './MachineHealthGrid';
-import { WeeklyActivityBars } from './WeeklyActivityBars';
 import { ServiceTrendsChart } from './ServiceTrendsChart';
 import { ProductionLinesCarousel } from './ProductionLinesCarousel';
 import { getServices } from '@/data/services/services.api';
@@ -234,13 +233,8 @@ export function HomePage() {
         />
       </div>
 
-      {/* Service Trends Chart + Weekly Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <ServiceTrendsChart data={dashboardData.monthlyTrends} />
-        </div>
-        <WeeklyActivityBars services={services} />
-      </div>
+      {/* Service Trends Chart */}
+      <ServiceTrendsChart data={dashboardData.monthlyTrends} />
     </div>
   );
 }

@@ -64,7 +64,7 @@ export class CompaniesController {
     return this.companiesService.getCompanyPublicInfo(companySlug);
   }
 
-  @BranchPermission('readBranches')
+  @Authenticated()
   @Get(':companyId')
   findOne(@Param('companyId') companyId: string) {
     return this.companiesService.findOne(companyId);

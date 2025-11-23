@@ -84,6 +84,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: Wrench,
         url: '/admin/machines',
       },
+      {
+        title: t('navigation.services'),
+        icon: ClipboardList,
+        url: '/admin/services',
+      },
     ],
     navUtility: [
       {
@@ -137,7 +142,46 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ],
   };
 
-  const data = isAdmin ? adminData : clientData;
+  // Filter client navigation based on permissions
+  const filteredClientData = React.useMemo(() => {
+    if (isAdmin) return clientData;
+
+    // Company admins and managers see everything
+    if (companyUser?.isCompanyAdmin || companyUser?.isCompanyManager) {
+      return clientData;
+    }
+
+    // For regular users, filter based on permissions
+    // Check if user has permission in ANY of their branches
+    const hasPermissionInAnyBranch = (permission: string) => {
+      if (!companyUser?.branches || companyUser.branches.length === 0) {
+        return false;
+      }
+      return companyUser.branches.some((branch) => branch[permission as keyof typeof branch]);
+    };
+
+    // Filter nav items based on permissions
+    const filteredNavMain = clientData.navMain.filter((item) => {
+      // Check permissions for specific routes
+      if (item.url === '/machines') {
+        return hasPermissionInAnyBranch('readMachines');
+      }
+      if (item.url === '/services') {
+        return hasPermissionInAnyBranch('readServices');
+      }
+      if (item.url === '/production-lines') {
+        return hasPermissionInAnyBranch('readMachines'); // Production lines use machine permissions
+      }
+      return true;
+    });
+
+    return {
+      ...clientData,
+      navMain: filteredNavMain,
+    };
+  }, [isAdmin, companyUser]);
+
+  const data = isAdmin ? adminData : filteredClientData;
   const dashboardUrl = isAdmin ? '/admin/dashboard' : '/home';
 
   return (

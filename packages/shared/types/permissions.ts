@@ -110,16 +110,12 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
     permissions: ['readBranches', 'updateBranches'],
   },
   {
-    category: PermissionCategory.BLUEPRINT_MANAGEMENT,
-    permissions: ['readBlueprints', 'createBlueprints', 'updateBlueprints', 'deleteBlueprints'],
-  },
-  {
     category: PermissionCategory.MACHINE_MANAGEMENT,
     permissions: ['readMachines', 'createMachines', 'updateMachines', 'deleteMachines'],
   },
   {
     category: PermissionCategory.SERVICE_MANAGEMENT,
-    permissions: ['readServices', 'createServices', 'updateServices', 'deleteServices'],
+    permissions: ['readServices'],
   },
 ];
 
@@ -134,7 +130,7 @@ export enum RolePreset {
 
 /**
  * Manager Preset - Full branch control
- * All 18 permissions enabled
+ * Includes all user-level permissions (blueprints are sysadmin-only)
  */
 export const MANAGER_PERMISSIONS: Permissions = {
   // User Management
@@ -149,11 +145,11 @@ export const MANAGER_PERMISSIONS: Permissions = {
   readBranches: true,
   updateBranches: true,
 
-  // Blueprint Management
-  readBlueprints: true,
-  createBlueprints: true,
-  updateBlueprints: true,
-  deleteBlueprints: true,
+  // Blueprint Management (sysadmin-only, not available to regular users)
+  readBlueprints: false,
+  createBlueprints: false,
+  updateBlueprints: false,
+  deleteBlueprints: false,
 
   // Machine Management
   readMachines: true,
@@ -161,20 +157,20 @@ export const MANAGER_PERMISSIONS: Permissions = {
   updateMachines: true,
   deleteMachines: true,
 
-  // Service Management
+  // Service Management (read-only for regular users)
   readServices: true,
-  createServices: true,
-  updateServices: true,
-  deleteServices: true,
+  createServices: false,
+  updateServices: false,
+  deleteServices: false,
 };
 
 /**
  * Worker/Employee Preset - Operational access
- * Can view everything and manage services
+ * Can view machines and services (read-only)
  */
 export const WORKER_PERMISSIONS: Permissions = {
   // User Management
-  readUsers: true,
+  readUsers: false,
   createUsers: false,
   updateUsers: false,
   deleteUsers: false,
@@ -182,11 +178,11 @@ export const WORKER_PERMISSIONS: Permissions = {
   assignUsersToBranches: false,
 
   // Branch Management
-  readBranches: true,
+  readBranches: false,
   updateBranches: false,
 
-  // Blueprint Management
-  readBlueprints: true,
+  // Blueprint Management (sysadmin-only, not available to regular users)
+  readBlueprints: false,
   createBlueprints: false,
   updateBlueprints: false,
   deleteBlueprints: false,
@@ -197,10 +193,10 @@ export const WORKER_PERMISSIONS: Permissions = {
   updateMachines: false,
   deleteMachines: false,
 
-  // Service Management
+  // Service Management (read-only for regular users)
   readServices: true,
-  createServices: true,
-  updateServices: true,
+  createServices: false,
+  updateServices: false,
   deleteServices: false,
 };
 

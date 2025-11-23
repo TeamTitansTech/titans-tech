@@ -11,15 +11,27 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
-import { Factory, ArrowRight, Box, MoveUp } from 'lucide-react';
+import { Factory, ArrowRight, Box, MoveUp, Circle } from 'lucide-react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { getProductionLines } from '@/data/services/production-lines.api';
 import type { ProductionLine } from '@/data/types/production-lines.types';
 import Image from 'next/image';
 
+const SECTION_I18N_KEYS: Record<string, string> = {
+  BEARING_CLEARANCE: 'bearingClearance',
+  SLIDE: 'slide',
+  GIBS: 'gibs',
+  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
+  CLUTCH: 'clutch',
+  COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
+  TRAMMING: 'tramming',
+  PISTONS: 'pistons',
+};
+
 export function ProductionLinesCarousel() {
   const t = useTranslations('dashboard.client');
   const tProdLines = useTranslations('productionLines');
+  const tMachines = useTranslations('machines');
   const router = useInternalRouter();
   const [productionLines, setProductionLines] = useState<ProductionLine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -142,13 +154,14 @@ export function ProductionLinesCarousel() {
                             <div className="flex items-end justify-center gap-4 min-w-max px-4">
                               {filteredMachines.map((productionLineMachine) => {
                                 const machine = productionLineMachine.machine!;
+                                const sections = machine.blueprint?.sections || [];
                                 return (
                                   <div
                                     key={productionLineMachine.machineId}
                                     className="relative flex flex-col items-center"
                                   >
                                     {/* Machine Card */}
-                                    <div className="w-24 bg-muted rounded-md overflow-hidden border">
+                                    <div className="w-32 bg-muted rounded-md overflow-hidden border">
                                       <div className="relative aspect-square bg-muted flex items-center justify-center">
                                         {machine.imageUrl ? (
                                           <Image
@@ -156,17 +169,37 @@ export function ProductionLinesCarousel() {
                                             alt={machine.name}
                                             fill
                                             className="object-cover"
-                                            sizes="96px"
+                                            sizes="128px"
                                           />
                                         ) : (
                                           <Box className="w-8 h-8 text-muted-foreground" />
                                         )}
                                       </div>
-                                      <div className="p-1.5 border-t bg-background">
-                                        <p className="text-[10px] font-medium text-center line-clamp-1">
+                                      <div className="p-2 border-t bg-background">
+                                        <p className="text-xs font-medium text-center line-clamp-1">
                                           {machine.name}
                                         </p>
                                       </div>
+
+                                      {/* Status badges for sections */}
+                                      {sections.length > 0 && (
+                                        <div className="px-2 pb-2 space-y-1 border-t pt-2 bg-background">
+                                          {sections.map((section) => {
+                                            const sectionName = tMachines(
+                                              `sectionNames.${SECTION_I18N_KEYS[section] || 'unknown'}`,
+                                            );
+                                            return (
+                                              <div
+                                                key={section}
+                                                className="flex items-center gap-1 text-xs"
+                                              >
+                                                <Circle className="w-2 h-2 fill-current text-muted-foreground" />
+                                                <span className="truncate">{sectionName}</span>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
                                     </div>
 
                                     {/* Arrow pointing to line */}
