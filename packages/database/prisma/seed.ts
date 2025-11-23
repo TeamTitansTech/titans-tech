@@ -364,6 +364,7 @@ async function main() {
         ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
         ServiceSection.SLIDE,
         ServiceSection.TRAMMING,
+        ServiceSection.PISTONS,
       ],
     },
     create: {
@@ -377,6 +378,7 @@ async function main() {
         ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
         ServiceSection.SLIDE,
         ServiceSection.TRAMMING,
+        ServiceSection.PISTONS,
       ],
       fields: [
         {
@@ -423,6 +425,32 @@ async function main() {
     },
   });
   console.log(`✓ Created/Updated Slide Blueprint`);
+
+  const pistonsBlueprint = await prisma.blueprint.upsert({
+    where: { id: 'default-pistons-blueprint' },
+    update: {
+      sections: [ServiceSection.PISTONS],
+    },
+    create: {
+      id: 'default-pistons-blueprint',
+      name: 'Standard Pistons Service',
+      sections: [ServiceSection.PISTONS],
+      fields: [
+        {
+          fieldName: 'Serial Number',
+          fieldSlug: 'serial_number',
+          fieldType: 'string',
+        },
+        {
+          fieldName: 'Piston Type',
+          fieldSlug: 'piston_type',
+          fieldType: 'enum',
+          fieldOptions: ['Single', 'Double', 'Quad'],
+        },
+      ],
+    },
+  });
+  console.log(`✓ Created/Updated Pistons Blueprint`);
 
   // ========================================
   // 8. Create Example Machines
@@ -482,6 +510,24 @@ async function main() {
     },
   });
   console.log(`✓ Created/Updated Machine: ${machine3.name}`);
+
+  const machine4 = await prisma.machine.upsert({
+    where: { id: 'example-machine-4' },
+    update: {},
+    create: {
+      id: 'example-machine-4',
+      name: 'Pistons Press #004',
+      blueprintId: pistonsBlueprint.id,
+      branchId: acmeMainBranch.id,
+      fields: {
+        create: [
+          { fieldSlug: 'serial_number', value: 'SN-22222' },
+          { fieldSlug: 'piston_type', value: 'Quad' },
+        ],
+      },
+    },
+  });
+  console.log(`✓ Created/Updated Machine: ${machine4.name}`);
 
   console.log('\n========================================');
   console.log('Seeding completed successfully!');

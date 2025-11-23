@@ -485,26 +485,26 @@ export type TrammingCheck = z.infer<typeof TrammingCheckSchema>;
  */
 export const PistonsDataSchema = z.object({
   // OUTER SECTION - LH Piston (4 measurements)
-  outerLhFrontTop: z.number(),
-  outerLhFrontBottom: z.number(),
+  outerLhTop: z.number(),
+  outerLhBottom: z.number(),
   outerLhLeft: z.number(),
   outerLhRight: z.number(),
 
   // OUTER SECTION - RH Piston (4 measurements)
-  outerRhFrontTop: z.number(),
-  outerRhFrontBottom: z.number(),
+  outerRhTop: z.number(),
+  outerRhBottom: z.number(),
   outerRhLeft: z.number(),
   outerRhRight: z.number(),
 
   // INNER SECTION - LH Piston (4 measurements)
-  innerLhFrontTop: z.number(),
-  innerLhFrontBottom: z.number(),
+  innerLhTop: z.number(),
+  innerLhBottom: z.number(),
   innerLhLeft: z.number(),
   innerLhRight: z.number(),
 
   // INNER SECTION - RH Piston (4 measurements)
-  innerRhFrontTop: z.number(),
-  innerRhFrontBottom: z.number(),
+  innerRhTop: z.number(),
+  innerRhBottom: z.number(),
   innerRhLeft: z.number(),
   innerRhRight: z.number(),
 });

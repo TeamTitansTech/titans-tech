@@ -26,23 +26,23 @@ import {
 
 export const defaultPistonsData: PistonsData = {
   // OUTER SECTION - LH Piston
-  outerLhFrontTop: 0,
-  outerLhFrontBottom: 0,
+  outerLhTop: 0,
+  outerLhBottom: 0,
   outerLhLeft: 0,
   outerLhRight: 0,
   // OUTER SECTION - RH Piston
-  outerRhFrontTop: 0,
-  outerRhFrontBottom: 0,
+  outerRhTop: 0,
+  outerRhBottom: 0,
   outerRhLeft: 0,
   outerRhRight: 0,
   // INNER SECTION - LH Piston
-  innerLhFrontTop: 0,
-  innerLhFrontBottom: 0,
+  innerLhTop: 0,
+  innerLhBottom: 0,
   innerLhLeft: 0,
   innerLhRight: 0,
   // INNER SECTION - RH Piston
-  innerRhFrontTop: 0,
-  innerRhFrontBottom: 0,
+  innerRhTop: 0,
+  innerRhBottom: 0,
   innerRhLeft: 0,
   innerRhRight: 0,
 };

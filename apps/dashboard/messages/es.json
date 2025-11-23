@@ -825,13 +825,14 @@
         "notes": "Notas"
       },
       "pistons": {
-        "guidSeals": "Sellos de Guía",
+        "guideSeals": "Sellos de Guía",
         "pistonSeals": "Sellos de Pistón",
         "vacuumSystem": "Sistema de Vacío",
         "vacuumSystemAirPressureSetting": "Configuración de Presión de Aire del Sistema de Vacío",
         "unit": "Unidad",
         "piston": "Pistón",
-        "front": "Frente",
+        "top": "Superior",
+        "bottom": "Inferior",
         "notes": "Notas (Opcional)"
       },
       "cancel": "Cancelar",

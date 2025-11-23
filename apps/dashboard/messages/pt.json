@@ -848,13 +848,14 @@
         "notes": "Notas"
       },
       "pistons": {
-        "guidSeals": "Vedações de Guia",
+        "guideSeals": "Vedações de Guia",
         "pistonSeals": "Vedações de Pistão",
         "vacuumSystem": "Sistema de Vácuo",
         "vacuumSystemAirPressureSetting": "Configuração de Pressão de Ar do Sistema de Vácuo",
         "unit": "Unidade",
         "piston": "Pistão",
-        "front": "Frente",
+        "top": "Superior",
+        "bottom": "Inferior",
         "notes": "Notas (Opcional)"
       },
       "cancel": "Cancelar",

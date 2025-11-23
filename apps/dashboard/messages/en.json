@@ -820,13 +820,14 @@
         "notes": "Notes"
       },
       "pistons": {
-        "guidSeals": "Guide Seals",
+        "guideSeals": "Guide Seals",
         "pistonSeals": "Piston Seals",
         "vacuumSystem": "Vacuum System",
         "vacuumSystemAirPressureSetting": "Vacuum System Air Pressure Setting",
         "unit": "Unit",
         "piston": "Piston",
-        "front": "Front",
+        "top": "Top",
+        "bottom": "Bottom",
         "notes": "Notes (Optional)"
       },
       "cancel": "Cancel",
