@@ -530,7 +530,6 @@ model Machine {
 
   // Machine specifications
   manufacturer    String?
-  model           String?
   sizeTonnage     String?
   serialNumber    String?
   stroke          String?

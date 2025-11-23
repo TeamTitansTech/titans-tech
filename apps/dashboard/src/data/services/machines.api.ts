@@ -23,7 +23,6 @@ interface CreateMachinePayload {
   fields: MachineField[];
   // Machine specifications
   manufacturer?: string;
-  model?: string;
   sizeTonnage?: string;
   serialNumber?: string;
   stroke?: string;
@@ -41,7 +40,6 @@ interface UpdateMachinePayload {
   fields?: MachineField[];
   // Machine specifications
   manufacturer?: string;
-  model?: string;
   sizeTonnage?: string;
   serialNumber?: string;
   stroke?: string;

@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Put, Patch, Body, Param } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Patch,
+  Delete,
+  Body,
+  Param,
+} from '@nestjs/common';
 import { ServicesService } from './services.service';
 import {
   CreateServiceDto,
@@ -164,5 +173,12 @@ export class ServicesController {
     completeDto: CompleteServiceDto,
   ): Promise<unknown> {
     return this.servicesService.completeService(id, completeDto);
+  }
+
+  // Delete service endpoint
+  @Authenticated()
+  @Delete(':id')
+  delete(@Param('id') id: string): Promise<void> {
+    return this.servicesService.delete(id);
   }
 }

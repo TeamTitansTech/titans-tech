@@ -30,7 +30,6 @@ export interface Machine {
 
   // Machine specifications
   manufacturer?: string;
-  model?: string;
   sizeTonnage?: string;
   serialNumber?: string;
   stroke?: string;
@@ -75,7 +74,6 @@ export interface CreateMachinePayload {
 
   // Optional machine specifications
   manufacturer?: string;
-  model?: string;
   sizeTonnage?: string;
   serialNumber?: string;
   stroke?: string;
@@ -95,7 +93,6 @@ export interface UpdateMachinePayload {
 
   // Optional machine specifications
   manufacturer?: string;
-  model?: string;
   sizeTonnage?: string;
   serialNumber?: string;
   stroke?: string;
