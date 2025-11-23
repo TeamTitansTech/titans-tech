@@ -169,9 +169,7 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
@@ -227,25 +225,19 @@ export class ServicesService {
         machine: { include: { blueprint: true; fields: true } };
         bearingClearance: {
           include: {
-            outerBefore: true;
             outerData: true;
-            innerBefore: true;
             innerData: true;
           };
         };
         slide: {
           include: {
-            outerBefore: true;
             outerData: true;
-            innerBefore: true;
             innerData: true;
           };
         };
         gibs: {
           include: {
-            outerBefore: true;
             outerData: true;
-            innerBefore: true;
             innerData: true;
           };
         };
@@ -283,9 +275,7 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
@@ -342,25 +332,19 @@ export class ServicesService {
         machine: { include: { blueprint: true; fields: true } };
         bearingClearance: {
           include: {
-            outerBefore: true;
             outerData: true;
-            innerBefore: true;
             innerData: true;
           };
         };
         slide: {
           include: {
-            outerBefore: true;
             outerData: true;
-            innerBefore: true;
             innerData: true;
           };
         };
         gibs: {
           include: {
-            outerBefore: true;
             outerData: true;
-            innerBefore: true;
             innerData: true;
           };
         };
@@ -399,9 +383,7 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
@@ -461,25 +443,19 @@ export class ServicesService {
         machine: { include: { blueprint: true; fields: true } };
         bearingClearance: {
           include: {
-            outerBefore: true;
             outerData: true;
-            innerBefore: true;
             innerData: true;
           };
         };
         slide: {
           include: {
-            outerBefore: true;
             outerData: true;
-            innerBefore: true;
             innerData: true;
           };
         };
         gibs: {
           include: {
-            outerBefore: true;
             outerData: true;
-            innerBefore: true;
             innerData: true;
           };
         };
@@ -526,9 +502,7 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
@@ -612,9 +586,7 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
@@ -871,7 +843,7 @@ export class ServicesService {
     await this.prisma.$transaction(async (tx) => {
       const existingRecord = service.slide?.[0];
 
-      // Helper function to upsert nested slide data
+      // Helper function to upsert nested slide data (now contains all fields)
       const upsertData = async (
         data: any,
         existingId: string | null | undefined,
@@ -894,53 +866,21 @@ export class ServicesService {
 
       if (existingRecord) {
         // Update existing slide record
-        const outerBeforeId = await upsertData(
-          updateDto.outerBefore,
-          existingRecord.outerBeforeId,
-        );
         const outerDataId = await upsertData(
           updateDto.outerData,
           existingRecord.outerDataId,
-        );
-        const innerBeforeId = await upsertData(
-          updateDto.innerBefore,
-          existingRecord.innerBeforeId,
         );
         const innerDataId = await upsertData(
           updateDto.innerData,
           existingRecord.innerDataId,
         );
 
-        // Build update payload with IDs and metadata
+        // Build update payload with IDs and notes
         const updatePayload: any = {
-          ...(outerBeforeId && { outerBeforeId }),
           ...(outerDataId && { outerDataId }),
-          ...(innerBeforeId && { innerBeforeId }),
           ...(innerDataId && { innerDataId }),
+          ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
         };
-
-        // Handle metadata fields
-        const metadataFields = [
-          'outerParallelism',
-          'outerHasParallelismBeenAdjusted',
-          'innerParallelism',
-          'innerHasParallelismBeenAdjusted',
-          'outerShutheightIndicatorsChecked',
-          'outerOverloadsOnTonnageMonitor',
-          'outerShutheightActualSh',
-          'outerIndicatorReading',
-          'innerShutheightIndicatorsChecked',
-          'innerOverloadsOnTonnageMonitor',
-          'innerShutheightActualSh',
-          'innerIndicatorReading',
-          'notes',
-        ];
-
-        metadataFields.forEach((field) => {
-          if ((updateDto as any)[field] !== undefined) {
-            updatePayload[field] = (updateDto as any)[field];
-          }
-        });
 
         await tx.machineServiceSlide.update({
           where: { id: existingRecord.id },
@@ -948,25 +888,18 @@ export class ServicesService {
         });
       } else {
         // Create new slide record
-        const { outerBefore, outerData, innerBefore, innerData, ...metadata } =
-          updateDto;
+        const { outerData, innerData, notes } = updateDto;
 
         await tx.machineServiceSlide.create({
           data: {
             machineService: { connect: { id: serviceId } },
-            ...(outerBefore && {
-              outerBefore: { create: outerBefore as any },
-            }),
             ...(outerData && {
               outerData: { create: outerData as any },
-            }),
-            ...(innerBefore && {
-              innerBefore: { create: innerBefore as any },
             }),
             ...(innerData && {
               innerData: { create: innerData as any },
             }),
-            ...metadata,
+            ...(notes && { notes }),
           },
         });
       }
@@ -1671,9 +1604,7 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },

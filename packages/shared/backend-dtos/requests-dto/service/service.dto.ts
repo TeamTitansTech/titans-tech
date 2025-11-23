@@ -193,38 +193,43 @@ export type BearingClearanceCheck = z.infer<typeof BearingClearanceCheckSchema>;
 
 /**
  * Slide Data Schema
+ * Consolidated schema with parallelism config, shutheight fields, and before/after measurements
  */
 export const SlideDataSchema = z.object({
-  position1: z.number(),
-  position2: z.number(),
-  position3: z.number(),
-  position4: z.number(),
-  position5: z.number(),
-  position6: z.number(),
+  // Parallelism configuration
+  parallelism: z.nativeEnum(PrismaParallelismType).optional(),
+  hasParallelismBeenAdjusted: z.nativeEnum(PrismaYesNoNaDncType).optional(),
+
+  // Shutheight fields
+  shutheightIndicatorsChecked: z.nativeEnum(PrismaYesNoDncType).optional(),
+  overloadsOnTonnageMonitor: z.string().optional(),
+  shutheightActualSh: z.string().optional(),
+  indicatorReading: z.string().optional(),
+
+  // Before measurements (only filled if hasParallelismBeenAdjusted = YES)
+  beforePosition1: z.number().optional(),
+  beforePosition2: z.number().optional(),
+  beforePosition3: z.number().optional(),
+  beforePosition4: z.number().optional(),
+  beforePosition5: z.number().optional(),
+
+  // After/Current measurements (always required)
+  afterPosition1: z.number(),
+  afterPosition2: z.number(),
+  afterPosition3: z.number(),
+  afterPosition4: z.number(),
+  afterPosition5: z.number(),
 });
 
 export type SlideData = z.infer<typeof SlideDataSchema>;
 
 /**
  * Slide Check Schema
+ * Simplified with only outerData and innerData (no separate before/after)
  */
 export const SlideCheckSchema = z.object({
-  outerBefore: SlideDataSchema.optional(),
   outerData: SlideDataSchema.optional(),
-  innerBefore: SlideDataSchema.optional(),
   innerData: SlideDataSchema.optional(),
-  outerParallelism: z.nativeEnum(PrismaParallelismType).optional(),
-  outerHasParallelismBeenAdjusted: z.nativeEnum(PrismaYesNoNaDncType).optional(),
-  innerParallelism: z.nativeEnum(PrismaParallelismType).optional(),
-  innerHasParallelismBeenAdjusted: z.nativeEnum(PrismaYesNoNaDncType).optional(),
-  outerShutheightIndicatorsChecked: z.nativeEnum(PrismaYesNoDncType).optional(),
-  outerOverloadsOnTonnageMonitor: z.string().optional(),
-  outerShutheightActualSh: z.string().optional(),
-  outerIndicatorReading: z.string().optional(),
-  innerShutheightIndicatorsChecked: z.nativeEnum(PrismaYesNoDncType).optional(),
-  innerOverloadsOnTonnageMonitor: z.string().optional(),
-  innerShutheightActualSh: z.string().optional(),
-  innerIndicatorReading: z.string().optional(),
   notes: z.string().optional(),
 });
 
