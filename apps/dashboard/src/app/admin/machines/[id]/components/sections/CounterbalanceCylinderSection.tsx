@@ -138,14 +138,6 @@ export const CounterbalanceCylinderSection = forwardRef<
     onSectionTouched();
   };
 
-  const handleBlurOuter = (_field: keyof CounterbalanceCylinderData) => {
-    // No validation on blur
-  };
-
-  const handleBlurInner = (_field: keyof CounterbalanceCylinderData) => {
-    // No validation on blur
-  };
-
   useImperativeHandle(ref, () => ({
     isTouched: (): boolean => {
       const outerTouched = isDataTouched(outerData, initialOuterData);
@@ -264,7 +256,6 @@ export const CounterbalanceCylinderSection = forwardRef<
             data={outerData}
             updateFn={updateOuterField}
             errors={errors.outer}
-            handleBlur={handleBlurOuter}
             title=""
             hideNotes
           />
@@ -275,7 +266,6 @@ export const CounterbalanceCylinderSection = forwardRef<
             data={innerData}
             updateFn={updateInnerField}
             errors={errors.inner}
-            handleBlur={handleBlurInner}
             title=""
             hideNotes
           />

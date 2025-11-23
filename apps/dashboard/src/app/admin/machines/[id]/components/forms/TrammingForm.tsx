@@ -8,7 +8,7 @@ import { MeasurementInput } from '../shared/MeasurementInput';
 interface TrammingFormProps {
   data: TrammingData;
   errors: Record<string, string>;
-  updateField: (field: keyof TrammingData, value: number) => void;
+  updateField: (field: keyof TrammingData, value: number | undefined) => void;
   handleBlur: (field: keyof TrammingData) => void;
   title: string;
   readOnly?: boolean;
