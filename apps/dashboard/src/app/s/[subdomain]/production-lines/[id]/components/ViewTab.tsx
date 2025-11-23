@@ -8,9 +8,10 @@ import type { ProductionLine } from '@/data/types/production-lines.types';
 
 interface ViewTabProps {
   productionLine: ProductionLine;
+  canViewMachineDetails?: boolean;
 }
 
-export function ViewTab({ productionLine }: ViewTabProps) {
+export function ViewTab({ productionLine, canViewMachineDetails = true }: ViewTabProps) {
   const t = useTranslations('productionLines');
 
   const machines = productionLine.machines || [];
@@ -47,7 +48,10 @@ export function ViewTab({ productionLine }: ViewTabProps) {
                       key={productionLineMachine.machineId}
                       className="relative flex flex-col items-center"
                     >
-                      <MachineCardInLine machine={productionLineMachine.machine!} />
+                      <MachineCardInLine
+                        machine={productionLineMachine.machine!}
+                        canViewDetails={canViewMachineDetails}
+                      />
                       <div className="flex flex-col items-center mt-5">
                         <MoveUp className="w-6 h-6 text-green-500 -mb-1" />
                       </div>
@@ -71,7 +75,10 @@ export function ViewTab({ productionLine }: ViewTabProps) {
                       <div className="flex flex-col items-center mb-5">
                         <MoveDown className="w-6 h-6 text-green-500 -mb-1" />
                       </div>
-                      <MachineCardInLine machine={productionLineMachine.machine!} />
+                      <MachineCardInLine
+                        machine={productionLineMachine.machine!}
+                        canViewDetails={canViewMachineDetails}
+                      />
                     </div>
                   );
                 })}

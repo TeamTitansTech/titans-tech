@@ -14,11 +14,13 @@ import type { ProductionLine } from '@/data/types/production-lines.types';
 interface ProductionLineDetailProps {
   productionLine: ProductionLine;
   initialTab?: string;
+  canViewMachineDetails?: boolean;
 }
 
 export function ProductionLineDetail({
   productionLine: initialProductionLine,
   initialTab = 'view',
+  canViewMachineDetails = true,
 }: ProductionLineDetailProps) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [productionLine, setProductionLine] = useState(initialProductionLine);
@@ -58,7 +60,7 @@ export function ProductionLineDetail({
         </TabsList>
 
         <TabsContent value="view" className="mt-6">
-          <ViewTab productionLine={productionLine} />
+          <ViewTab productionLine={productionLine} canViewMachineDetails={canViewMachineDetails} />
         </TabsContent>
 
         <TabsContent value="config" className="mt-6">

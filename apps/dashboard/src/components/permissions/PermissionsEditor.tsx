@@ -59,6 +59,9 @@ export function PermissionsEditor({
     createServices: 'readServices',
     updateServices: 'readServices',
     deleteServices: 'readServices',
+    createProductionLines: 'readProductionLines',
+    updateProductionLines: 'readProductionLines',
+    deleteProductionLines: 'readProductionLines',
   };
 
   // Get the read permission for a given category

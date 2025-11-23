@@ -10,6 +10,7 @@ import type { MachineWithStatus } from '@/data/types/production-lines.types';
 
 interface MachineCardInLineProps {
   machine: MachineWithStatus;
+  canViewDetails?: boolean;
 }
 
 const SECTION_I18N_KEYS: Record<string, string> = {
@@ -73,19 +74,25 @@ const getSectionStatus = (section: string, machine: any): SectionStatus => {
   }
 };
 
-export function MachineCardInLine({ machine }: MachineCardInLineProps) {
+export function MachineCardInLine({ machine, canViewDetails = true }: MachineCardInLineProps) {
   const router = useInternalRouter();
   const t = useTranslations('machines');
 
   const handleClick = () => {
-    router.push(`/machines/${machine.id}`);
+    if (canViewDetails) {
+      router.push(`/machines/${machine.id}`);
+    }
   };
 
   const sections = machine.blueprint?.sections || [];
 
   return (
     <Card
-      className="cursor-pointer hover:border-primary/50 hover:shadow-lg transition-all w-[200px] shrink-0"
+      className={`w-[200px] shrink-0 transition-all ${
+        canViewDetails
+          ? 'cursor-pointer hover:border-primary/50 hover:shadow-lg'
+          : 'cursor-not-allowed opacity-60'
+      }`}
       onClick={handleClick}
     >
       <CardContent className="p-0">

@@ -3,6 +3,12 @@
     "companyName": "InspectPro",
     "companySubtitle": "Admin Portal",
     "unsavedChanges": "You have unsaved changes. Are you sure you want to close?",
+    "noPermission": {
+      "title": "No Permission",
+      "description": "You don't have permission to access this page or resource.",
+      "contactMessage": "If you believe you should have access, please contact your company administrator or manager.",
+      "goToDashboard": "Go to Dashboard"
+    },
     "status": {
       "ok": "OK",
       "na": "N/A",

@@ -45,6 +45,12 @@ export const SetUserPermissionsSchema = z.object({
   createServices: z.boolean().optional(),
   updateServices: z.boolean().optional(),
   deleteServices: z.boolean().optional(),
+
+  // Production Line Permissions
+  readProductionLines: z.boolean().optional(),
+  createProductionLines: z.boolean().optional(),
+  updateProductionLines: z.boolean().optional(),
+  deleteProductionLines: z.boolean().optional(),
 });
 
 export const SetCompanyAdminSchema = z.object({

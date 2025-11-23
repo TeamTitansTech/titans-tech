@@ -34,7 +34,12 @@ export type PermissionName =
   | 'readServices'
   | 'createServices'
   | 'updateServices'
-  | 'deleteServices';
+  | 'deleteServices'
+  // Production Line Management
+  | 'readProductionLines'
+  | 'createProductionLines'
+  | 'updateProductionLines'
+  | 'deleteProductionLines';
 
 /**
  * Complete set of permissions (UserBranch model)
@@ -69,6 +74,12 @@ export interface Permissions {
   createServices: boolean;
   updateServices: boolean;
   deleteServices: boolean;
+
+  // Production Line Management (4)
+  readProductionLines: boolean;
+  createProductionLines: boolean;
+  updateProductionLines: boolean;
+  deleteProductionLines: boolean;
 }
 
 /**
@@ -80,6 +91,7 @@ export enum PermissionCategory {
   BLUEPRINT_MANAGEMENT = 'blueprintManagement',
   MACHINE_MANAGEMENT = 'machineManagement',
   SERVICE_MANAGEMENT = 'serviceManagement',
+  PRODUCTION_LINE_MANAGEMENT = 'productionLineManagement',
 }
 
 /**
@@ -116,6 +128,15 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   {
     category: PermissionCategory.SERVICE_MANAGEMENT,
     permissions: ['readServices'],
+  },
+  {
+    category: PermissionCategory.PRODUCTION_LINE_MANAGEMENT,
+    permissions: [
+      'readProductionLines',
+      'createProductionLines',
+      'updateProductionLines',
+      'deleteProductionLines',
+    ],
   },
 ];
 
@@ -162,6 +183,12 @@ export const MANAGER_PERMISSIONS: Permissions = {
   createServices: false,
   updateServices: false,
   deleteServices: false,
+
+  // Production Line Management
+  readProductionLines: true,
+  createProductionLines: true,
+  updateProductionLines: true,
+  deleteProductionLines: true,
 };
 
 /**
@@ -198,6 +225,12 @@ export const WORKER_PERMISSIONS: Permissions = {
   createServices: false,
   updateServices: false,
   deleteServices: false,
+
+  // Production Line Management
+  readProductionLines: false,
+  createProductionLines: false,
+  updateProductionLines: false,
+  deleteProductionLines: false,
 };
 
 /**
@@ -224,6 +257,10 @@ export const EMPTY_PERMISSIONS: Permissions = {
   createServices: false,
   updateServices: false,
   deleteServices: false,
+  readProductionLines: false,
+  createProductionLines: false,
+  updateProductionLines: false,
+  deleteProductionLines: false,
 };
 
 /**

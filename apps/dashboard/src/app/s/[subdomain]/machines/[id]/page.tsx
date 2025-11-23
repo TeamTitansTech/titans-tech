@@ -1,9 +1,11 @@
 import { getTranslations } from 'next-intl/server';
 import { getMachineById } from '@/data/services/machines.api';
+import { getCurrentUser } from '@/data/services/auth.api';
 import { MachineDetailsClient } from './components/MachineDetailsClient';
 import { ServiceHistory } from './components/ServiceHistory';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Typography } from '@/components/ui/typography';
+import { NoPermission } from '@/components/no-permission/NoPermission';
 
 interface MachineDetailPageProps {
   params: Promise<{
@@ -14,6 +16,13 @@ interface MachineDetailPageProps {
 export default async function MachineDetailPage({ params }: MachineDetailPageProps) {
   const { id } = await params;
   const t = await getTranslations('machines');
+
+  // Get current user and check permissions
+  const userResponse = await getCurrentUser();
+  if (userResponse.errors || !userResponse.data) {
+    redirect('/');
+  }
+
   const response = await getMachineById(id);
 
   if (response.errors) {
@@ -33,6 +42,19 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
 
   if (!response.data) {
     notFound();
+  }
+
+  const machine = response.data;
+  const user = userResponse.data;
+
+  // Check if user has readMachines permission for this machine's branch
+  const canViewMachine =
+    user.isCompanyAdmin ||
+    user.isCompanyManager ||
+    user.branches.some((ub) => ub.branchId === machine.branchId && ub.readMachines);
+
+  if (!canViewMachine) {
+    return <NoPermission />;
   }
 
   return (

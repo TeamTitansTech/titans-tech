@@ -170,7 +170,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         return hasPermissionInAnyBranch('readServices');
       }
       if (item.url === '/production-lines') {
-        return hasPermissionInAnyBranch('readMachines'); // Production lines use machine permissions
+        return hasPermissionInAnyBranch('readProductionLines');
       }
       return true;
     });

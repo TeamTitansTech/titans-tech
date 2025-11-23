@@ -54,6 +54,18 @@ export function MachinesPageClient() {
     return userBranch?.createMachines || false;
   };
 
+  // Check if user has permission to view machine details in the selected branch
+  const canViewMachineDetails = () => {
+    if (!companyUser || !selectedBranchId) return false;
+
+    // Company admin and manager can view machines
+    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+
+    // Check branch-specific permission
+    const userBranch = companyUser.branches.find((ub) => ub.branchId === selectedBranchId);
+    return userBranch?.readMachines || false;
+  };
+
   // Set branch ID from URL if available
   useEffect(() => {
     if (branchIdFromUrl && branchIdFromUrl !== selectedBranchId) {
@@ -146,6 +158,7 @@ export function MachinesPageClient() {
                 location={machine.location}
                 lastInspection={machine.lastInspection}
                 status={machine.status}
+                canViewDetails={canViewMachineDetails()}
               />
             ))}
           </div>

@@ -1,7 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import { ProductionLineDetail } from './components/ProductionLineDetail';
 import { getProductionLineById } from '@/data/services/production-lines.api';
-import { notFound } from 'next/navigation';
+import { getCurrentUser } from '@/data/services/auth.api';
+import { notFound, redirect } from 'next/navigation';
 
 interface ProductionLineDetailPageProps {
   params: Promise<{ id: string }>;
@@ -15,6 +16,12 @@ export default async function ProductionLineDetailPage({
   const { id } = await params;
   const { tab = 'view' } = await searchParams;
   const t = await getTranslations('productionLines');
+
+  // Get current user for permission checking
+  const userResponse = await getCurrentUser();
+  if (userResponse.errors || !userResponse.data) {
+    redirect('/');
+  }
 
   const response = await getProductionLineById(id);
 
@@ -35,5 +42,20 @@ export default async function ProductionLineDetailPage({
     notFound();
   }
 
-  return <ProductionLineDetail productionLine={response.data} initialTab={tab} />;
+  const user = userResponse.data;
+  const productionLine = response.data;
+
+  // Check if user has readMachines permission for the production line's branch
+  const canViewMachineDetails =
+    user.isCompanyAdmin ||
+    user.isCompanyManager ||
+    user.branches.some((ub) => ub.branchId === productionLine.branchId && ub.readMachines);
+
+  return (
+    <ProductionLineDetail
+      productionLine={productionLine}
+      initialTab={tab}
+      canViewMachineDetails={canViewMachineDetails}
+    />
+  );
 }

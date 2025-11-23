@@ -3,6 +3,12 @@
     "companyName": "InspectPro",
     "companySubtitle": "Portal de Administración",
     "unsavedChanges": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?",
+    "noPermission": {
+      "title": "Sin Permiso",
+      "description": "No tiene permiso para acceder a esta página o recurso.",
+      "contactMessage": "Si cree que debería tener acceso, comuníquese con el administrador o gerente de la empresa.",
+      "goToDashboard": "Ir al Panel"
+    },
     "status": {
       "ok": "OK",
       "na": "N/D",

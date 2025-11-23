@@ -15,6 +15,7 @@ interface MachineCardProps {
   location?: string;
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';
+  canViewDetails?: boolean;
 }
 
 const statusClassNames = {
@@ -30,6 +31,7 @@ export function MachineCard({
   location,
   lastInspection,
   status = 'operational',
+  canViewDetails = true,
 }: MachineCardProps) {
   const t = useTranslations('machines');
 
@@ -79,12 +81,19 @@ export function MachineCard({
             )}
           </div>
 
-          <Button asChild variant="outline" className="w-full justify-between" size="sm">
-            <Link href={`/machines/${id}`}>
+          {canViewDetails ? (
+            <Button asChild variant="outline" className="w-full justify-between" size="sm">
+              <Link href={`/machines/${id}`}>
+                {t('viewDetails')}
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </Button>
+          ) : (
+            <Button variant="outline" className="w-full justify-between" size="sm" disabled>
               {t('viewDetails')}
               <ChevronRight className="w-4 h-4" />
-            </Link>
-          </Button>
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
