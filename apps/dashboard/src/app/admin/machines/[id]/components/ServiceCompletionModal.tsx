@@ -50,7 +50,7 @@ export function ServiceCompletionModal({
   // Memoize machineSections to prevent infinite loop
   const machineSections = useMemo(
     () => machineSectionsProp || Object.keys(SECTION_REGISTRY),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     [JSON.stringify(machineSectionsProp)],
   );
 

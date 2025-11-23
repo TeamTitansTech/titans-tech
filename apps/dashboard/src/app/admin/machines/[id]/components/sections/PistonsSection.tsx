@@ -260,9 +260,9 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
       reset: () => {
         setOuterData(defaultPistonsData);
         setInnerData(defaultPistonsData);
-        setGuidSeals('');
-        setPistonSeals('');
-        setVacuumSystem('');
+        setGuideSeals(undefined);
+        setPistonSeals(undefined);
+        setVacuumSystem(undefined);
         setVacuumSystemAirPressureSetting(undefined);
         setVacuumSystemAirPressureUnit('PSI');
         setUnit('inches');
