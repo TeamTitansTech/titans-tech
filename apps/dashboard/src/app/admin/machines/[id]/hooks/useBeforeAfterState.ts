@@ -3,8 +3,11 @@ import { useState, useCallback } from 'react';
 /**
  * Hook for managing before/after maintenance state pattern
  * @template T - The type of data for each time period
+ * Note: Using `Record<string, any>` here is intentional to allow interfaces with optional properties.
+ * TypeScript's `Record<string, unknown>` doesn't support optional fields, which most data interfaces have.
  */
-export function useBeforeAfterState<T extends Record<string, unknown>>(
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useBeforeAfterState<T extends Record<string, any>>(
   initialBeforeData: T,
   initialAfterData: T,
   loadedBeforeData?: T,

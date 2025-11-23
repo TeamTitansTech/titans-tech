@@ -233,6 +233,7 @@
     "permissions": {
       "title": "Permisos",
       "description": "Controle a qué puede acceder y gestionar este usuario",
+      "userManagementInfo": "Nota: Para gestionar usuarios, debe habilitar el permiso \"Ver Sucursales\", ya que los usuarios están vinculados a las sucursales.",
       "preset": {
         "label": "Rol Predefinido",
         "manager": "Gerente",
@@ -1597,6 +1598,7 @@
     "tabView": "Visualización",
     "tabInspection": "Inspecciones",
     "tabConfig": "Configuración",
+    "deleteButton": "Eliminar Línea",
     "selectCompany": "Seleccionar Empresa",
     "selectBranch": "Seleccionar Sucursal",
     "selectMachines": "Seleccionar Máquinas",
@@ -1620,6 +1622,16 @@
       "description": "Cree una nueva línea de producción para organizar sus máquinas",
       "cancel": "Cancelar",
       "create": "Crear Línea"
+    },
+    "deleteDialog": {
+      "title": "Eliminar Línea de Producción",
+      "description": "¿Está seguro de que desea eliminar esta línea de producción?",
+      "warningMessage": "Esta acción no se puede deshacer. La línea de producción \"{name}\" será eliminada permanentemente.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar Línea",
+      "deleting": "Eliminando...",
+      "success": "Línea de producción eliminada exitosamente",
+      "error": "Error al eliminar línea de producción"
     },
     "errorSaving": "Error al guardar la configuración",
     "configurationUpdated": "Configuración actualizada exitosamente",

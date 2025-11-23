@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { BookmarkPlus } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { BookmarkPlus, Info } from 'lucide-react';
 import { RolePresetSelector } from './RolePresetSelector';
 import { PermissionCheckbox } from './PermissionCheckbox';
 import { PermissionTemplateManager } from './PermissionTemplateManager';
@@ -113,7 +114,21 @@ export function PermissionsEditor({
 
   // Handle select all for a category
   const handleSelectAllCategory = (category: PermissionCategory) => {
-    const newPermissions = setCategoryPermissions(permissions, category, true);
+    let newPermissions = { ...permissions };
+
+    // Get the permissions for this category
+    const categoryGroup = PERMISSION_GROUPS.find((g) => g.category === category);
+    if (categoryGroup) {
+      // Only enable permissions that are not disabled
+      categoryGroup.permissions.forEach((permission) => {
+        const requiredPermission = permissionDependencies[permission];
+        // Only enable if no dependency OR dependency is already enabled
+        if (!requiredPermission || newPermissions[requiredPermission]) {
+          newPermissions[permission] = true;
+        }
+      });
+    }
+
     onChange(newPermissions);
   };
 
@@ -205,6 +220,16 @@ export function PermissionsEditor({
                     </Button>
                   </div>
                 </div>
+
+                {/* Info message for userManagement category */}
+                {group.category === 'userManagement' && (
+                  <Alert className="bg-blue-50 border-blue-200">
+                    <Info className="h-4 w-4 text-blue-600" />
+                    <AlertDescription className="text-xs text-blue-800">
+                      {t('permissions.userManagementInfo')}
+                    </AlertDescription>
+                  </Alert>
+                )}
 
                 {/* Permission Checkboxes */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">

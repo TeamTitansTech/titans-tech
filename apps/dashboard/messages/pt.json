@@ -239,6 +239,7 @@
     "permissions": {
       "title": "Permissões",
       "description": "Controle o que este usuário pode acessar e gerenciar",
+      "userManagementInfo": "Nota: Para gerenciar usuários, é necessário ter a permissão \"Visualizar Filiais\" habilitada, pois os usuários estão vinculados às filiais.",
       "preset": {
         "label": "Função Predefinida",
         "manager": "Gerente",
@@ -1684,6 +1685,7 @@
     "tabView": "Visualização",
     "tabInspection": "Inspeções",
     "tabConfig": "Configuração",
+    "deleteButton": "Excluir Linha",
     "selectCompany": "Selecionar Empresa",
     "selectBranch": "Selecionar Filial",
     "selectMachines": "Selecionar Máquinas",
@@ -1707,6 +1709,16 @@
       "description": "Crie uma nova linha de produção para organizar suas máquinas",
       "cancel": "Cancelar",
       "create": "Criar Linha"
+    },
+    "deleteDialog": {
+      "title": "Excluir Linha de Produção",
+      "description": "Tem certeza de que deseja excluir esta linha de produção?",
+      "warningMessage": "Esta ação não pode ser desfeita. A linha de produção \"{name}\" será permanentemente excluída.",
+      "cancel": "Cancelar",
+      "confirm": "Excluir Linha",
+      "deleting": "Excluindo...",
+      "success": "Linha de produção excluída com sucesso",
+      "error": "Erro ao excluir linha de produção"
     },
     "errorSaving": "Erro ao salvar configurações",
     "configurationUpdated": "Configuração atualizada com sucesso",

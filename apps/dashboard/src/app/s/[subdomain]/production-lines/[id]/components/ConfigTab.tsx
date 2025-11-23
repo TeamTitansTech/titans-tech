@@ -108,7 +108,6 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
         const response = await getMachines();
         if (response.data) {
           setAllMachines(response.data as MachineWithBranch[]);
-          console.log('Loaded all machines:', response.data);
         } else if (response.errors) {
           console.error('Error loading machines:', response.errors);
           toast.error('Erro ao carregar máquinas');
