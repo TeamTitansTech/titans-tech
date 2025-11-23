@@ -21,6 +21,7 @@ import {
   YesNoNaDncType,
   YesNoDncType,
 } from '@/data/types/services.types';
+import { useNumericInput } from '@/hooks/useNumericInput';
 
 interface SlideFormData {
   outerBeforeData: SlideData;
@@ -69,12 +70,39 @@ function PositionFields({
   title,
 }: {
   data: SlideData;
-  updateFn: (field: keyof SlideData, value: number) => void;
+  updateFn: (field: keyof SlideData, value: number | undefined) => void;
   errors: Record<string, string>;
   handleBlur: (field: keyof SlideData) => void;
   title: string;
 }) {
   const t = useTranslations('inspections.form.slide');
+
+  // Use numeric input hook for each position
+  const [position1Value, handlePosition1Change, handlePosition1Blur] = useNumericInput(
+    data.position1,
+    (val) => updateFn('position1', val),
+    { maxDecimals: 4, required: true },
+  );
+  const [position2Value, handlePosition2Change, handlePosition2Blur] = useNumericInput(
+    data.position2,
+    (val) => updateFn('position2', val),
+    { maxDecimals: 4, required: true },
+  );
+  const [position3Value, handlePosition3Change, handlePosition3Blur] = useNumericInput(
+    data.position3,
+    (val) => updateFn('position3', val),
+    { maxDecimals: 4, required: true },
+  );
+  const [position4Value, handlePosition4Change, handlePosition4Blur] = useNumericInput(
+    data.position4,
+    (val) => updateFn('position4', val),
+    { maxDecimals: 4, required: true },
+  );
+  const [position5Value, handlePosition5Change, handlePosition5Blur] = useNumericInput(
+    data.position5,
+    (val) => updateFn('position5', val),
+    { maxDecimals: 4, required: true },
+  );
 
   // Calculate max deviation: MAX - MIN of positions 1-6 if more than 1 value exists
   const calculateMaxDeviation = (): string => {
@@ -109,9 +137,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position1}
-            onChange={(e) => updateFn('position1', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position1')}
+            value={position1Value}
+            onChange={handlePosition1Change}
+            onBlur={() => {
+              handlePosition1Blur();
+              handleBlur('position1');
+            }}
             className={errors.position1 ? 'border-destructive' : ''}
             required
           />
@@ -123,9 +154,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position2}
-            onChange={(e) => updateFn('position2', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position2')}
+            value={position2Value}
+            onChange={handlePosition2Change}
+            onBlur={() => {
+              handlePosition2Blur();
+              handleBlur('position2');
+            }}
             className={errors.position2 ? 'border-destructive' : ''}
             required
           />
@@ -137,9 +171,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position3}
-            onChange={(e) => updateFn('position3', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position3')}
+            value={position3Value}
+            onChange={handlePosition3Change}
+            onBlur={() => {
+              handlePosition3Blur();
+              handleBlur('position3');
+            }}
             className={errors.position3 ? 'border-destructive' : ''}
             required
           />
@@ -162,9 +199,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position4}
-            onChange={(e) => updateFn('position4', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position4')}
+            value={position4Value}
+            onChange={handlePosition4Change}
+            onBlur={() => {
+              handlePosition4Blur();
+              handleBlur('position4');
+            }}
             className={errors.position4 ? 'border-destructive' : ''}
             required
           />
@@ -176,9 +216,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position5}
-            onChange={(e) => updateFn('position5', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position5')}
+            value={position5Value}
+            onChange={handlePosition5Change}
+            onBlur={() => {
+              handlePosition5Blur();
+              handleBlur('position5');
+            }}
             className={errors.position5 ? 'border-destructive' : ''}
             required
           />
@@ -214,9 +257,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position1}
-            onChange={(e) => updateFn('position1', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position1')}
+            value={position1Value}
+            onChange={handlePosition1Change}
+            onBlur={() => {
+              handlePosition1Blur();
+              handleBlur('position1');
+            }}
             className={errors.position1 ? 'border-destructive' : ''}
             required
           />
@@ -228,9 +274,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position2}
-            onChange={(e) => updateFn('position2', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position2')}
+            value={position2Value}
+            onChange={handlePosition2Change}
+            onBlur={() => {
+              handlePosition2Blur();
+              handleBlur('position2');
+            }}
             className={errors.position2 ? 'border-destructive' : ''}
             required
           />
@@ -253,9 +302,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position3}
-            onChange={(e) => updateFn('position3', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position3')}
+            value={position3Value}
+            onChange={handlePosition3Change}
+            onBlur={() => {
+              handlePosition3Blur();
+              handleBlur('position3');
+            }}
             className={errors.position3 ? 'border-destructive' : ''}
             required
           />
@@ -267,9 +319,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position4}
-            onChange={(e) => updateFn('position4', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position4')}
+            value={position4Value}
+            onChange={handlePosition4Change}
+            onBlur={() => {
+              handlePosition4Blur();
+              handleBlur('position4');
+            }}
             className={errors.position4 ? 'border-destructive' : ''}
             required
           />
@@ -292,9 +347,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position5}
-            onChange={(e) => updateFn('position5', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position5')}
+            value={position5Value}
+            onChange={handlePosition5Change}
+            onBlur={() => {
+              handlePosition5Blur();
+              handleBlur('position5');
+            }}
             className={errors.position5 ? 'border-destructive' : ''}
             required
           />
@@ -321,9 +379,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position1}
-            onChange={(e) => updateFn('position1', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position1')}
+            value={position1Value}
+            onChange={handlePosition1Change}
+            onBlur={() => {
+              handlePosition1Blur();
+              handleBlur('position1');
+            }}
             className={errors.position1 ? 'border-destructive' : ''}
             required
           />
@@ -335,9 +396,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position2}
-            onChange={(e) => updateFn('position2', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position2')}
+            value={position2Value}
+            onChange={handlePosition2Change}
+            onBlur={() => {
+              handlePosition2Blur();
+              handleBlur('position2');
+            }}
             className={errors.position2 ? 'border-destructive' : ''}
             required
           />
@@ -351,9 +415,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position3}
-            onChange={(e) => updateFn('position3', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position3')}
+            value={position3Value}
+            onChange={handlePosition3Change}
+            onBlur={() => {
+              handlePosition3Blur();
+              handleBlur('position3');
+            }}
             className={errors.position3 ? 'border-destructive' : ''}
             required
           />
@@ -365,9 +432,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position4}
-            onChange={(e) => updateFn('position4', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position4')}
+            value={position4Value}
+            onChange={handlePosition4Change}
+            onBlur={() => {
+              handlePosition4Blur();
+              handleBlur('position4');
+            }}
             className={errors.position4 ? 'border-destructive' : ''}
             required
           />
@@ -381,9 +451,12 @@ function PositionFields({
             type="number"
             step="0.0001"
             max="999999.9999"
-            value={data.position5}
-            onChange={(e) => updateFn('position5', Number(e.target.value) || 0)}
-            onBlur={() => handleBlur('position5')}
+            value={position5Value}
+            onChange={handlePosition5Change}
+            onBlur={() => {
+              handlePosition5Blur();
+              handleBlur('position5');
+            }}
             className={errors.position5 ? 'border-destructive' : ''}
             required
           />
