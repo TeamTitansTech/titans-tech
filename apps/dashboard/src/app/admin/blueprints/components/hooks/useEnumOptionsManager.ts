@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { type Field } from '../types';
 
 export function useEnumOptionsManager() {
@@ -39,9 +39,9 @@ export function useEnumOptionsManager() {
     setNewOptionValues((prev) => ({ ...prev, [fieldIndex]: value }));
   };
 
-  const reset = () => {
+  const reset = useCallback(() => {
     setNewOptionValues({});
-  };
+  }, []);
 
   return {
     newOptionValues,

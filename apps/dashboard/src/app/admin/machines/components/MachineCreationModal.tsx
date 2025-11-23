@@ -69,20 +69,28 @@ interface MachineCreationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  preselectedBranchId?: string;
+  preselectedCompanyId?: string;
 }
 
-export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCreationModalProps) {
+export function MachineCreationModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  preselectedBranchId,
+  preselectedCompanyId,
+}: MachineCreationModalProps) {
   const t = useTranslations('machines');
   const tInspections = useTranslations('inspections.form.enums');
   const [companies, setCompanies] = useState<Company[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [blueprints, setBlueprints] = useState<Blueprint[]>([]);
-  const [selectedCompanyId, setSelectedCompanyId] = useState<string>('');
-  const [selectedBranchId, setSelectedBranchId] = useState<string>('');
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>(preselectedCompanyId || '');
+  const [selectedBranchId, setSelectedBranchId] = useState<string>(preselectedBranchId || '');
   const [selectedBlueprintId, setSelectedBlueprintId] = useState<string>('');
   const [machineName, setMachineName] = useState('');
   const [fieldValues, setFieldValues] = useState<Record<string, string | number>>({});
-  const [isLoadingCompanies, setIsLoadingCompanies] = useState(true);
+  const [isLoadingCompanies, setIsLoadingCompanies] = useState(!preselectedCompanyId);
   const [isLoadingBranches, setIsLoadingBranches] = useState(false);
   const [isLoadingBlueprints, setIsLoadingBlueprints] = useState(true);
 
@@ -107,34 +115,44 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
   // Load companies and blueprints on mount
   useEffect(() => {
     const loadData = async () => {
-      setIsLoadingCompanies(true);
       setIsLoadingBlueprints(true);
 
-      const [companiesResponse, blueprintsResponse] = await Promise.all([
-        getAllCompanies(),
-        getBlueprints(),
-      ]);
+      if (!preselectedCompanyId) {
+        setIsLoadingCompanies(true);
+        const [companiesResponse, blueprintsResponse] = await Promise.all([
+          getAllCompanies(),
+          getBlueprints(),
+        ]);
 
-      if (companiesResponse.data) {
-        setCompanies(companiesResponse.data);
-      }
-      if (blueprintsResponse.data) {
-        setBlueprints(blueprintsResponse.data);
+        if (companiesResponse.data) {
+          setCompanies(companiesResponse.data);
+        }
+        setIsLoadingCompanies(false);
+
+        if (blueprintsResponse.data) {
+          setBlueprints(blueprintsResponse.data);
+        }
+      } else {
+        const blueprintsResponse = await getBlueprints();
+        if (blueprintsResponse.data) {
+          setBlueprints(blueprintsResponse.data);
+        }
       }
 
-      setIsLoadingCompanies(false);
       setIsLoadingBlueprints(false);
     };
 
     loadData();
-  }, []);
+  }, [preselectedCompanyId]);
 
-  // Load branches when company changes
+  // Load branches when company changes (skip if preselected)
   useEffect(() => {
     const loadBranches = async () => {
-      if (!selectedCompanyId) {
-        setBranches([]);
-        setSelectedBranchId('');
+      if (!selectedCompanyId || preselectedBranchId) {
+        if (!selectedCompanyId && !preselectedBranchId) {
+          setBranches([]);
+          setSelectedBranchId('');
+        }
         return;
       }
 
@@ -150,7 +168,7 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
     };
 
     loadBranches();
-  }, [selectedCompanyId]);
+  }, [selectedCompanyId, preselectedBranchId]);
 
   const handleCompanySelect = (companyId: string) => {
     setSelectedCompanyId(companyId);
@@ -276,67 +294,71 @@ export function MachineCreationModal({ isOpen, onClose, onSuccess }: MachineCrea
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
-            {/* Company and Branch Selection */}
-            <section className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="company">{t('form.company.label')}</Label>
-                  <Typography variant="small" className="text-xs text-muted-foreground">
-                    {t('form.company.description')}
-                  </Typography>
-                  <Select value={selectedCompanyId} onValueChange={handleCompanySelect}>
-                    <SelectTrigger id="company">
-                      <SelectValue placeholder={t('form.selectCompanyPrompt')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isLoadingCompanies ? (
-                        <div className="p-2 text-sm text-muted-foreground">
-                          {t('form.company.loading')}
-                        </div>
-                      ) : (
-                        companies.map((company) => (
-                          <SelectItem key={company.id} value={company.id}>
-                            {company.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
+            {/* Company and Branch Selection - Hidden when preselected */}
+            {!preselectedBranchId && !preselectedCompanyId && (
+              <>
+                <section className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="company">{t('form.company.label')}</Label>
+                      <Typography variant="small" className="text-xs text-muted-foreground">
+                        {t('form.company.description')}
+                      </Typography>
+                      <Select value={selectedCompanyId} onValueChange={handleCompanySelect}>
+                        <SelectTrigger id="company">
+                          <SelectValue placeholder={t('form.selectCompanyPrompt')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {isLoadingCompanies ? (
+                            <div className="p-2 text-sm text-muted-foreground">
+                              {t('form.company.loading')}
+                            </div>
+                          ) : (
+                            companies.map((company) => (
+                              <SelectItem key={company.id} value={company.id}>
+                                {company.name}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="branch">{t('form.branch.label')}</Label>
-                  <Typography variant="small" className="text-xs text-muted-foreground">
-                    {t('form.branch.description')}
-                  </Typography>
-                  <Select
-                    value={selectedBranchId}
-                    onValueChange={setSelectedBranchId}
-                    disabled={!selectedCompanyId || isLoadingBranches}
-                  >
-                    <SelectTrigger id="branch">
-                      <SelectValue placeholder={t('form.selectBranchPrompt')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {isLoadingBranches ? (
-                        <div className="p-2 text-sm text-muted-foreground">
-                          {t('form.branch.loading')}
-                        </div>
-                      ) : (
-                        branches.map((branch) => (
-                          <SelectItem key={branch.id} value={branch.id}>
-                            {branch.name}
-                            {branch.isMainBranch && ` (${t('form.branch.mainBranch')})`}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </section>
+                    <div className="space-y-2">
+                      <Label htmlFor="branch">{t('form.branch.label')}</Label>
+                      <Typography variant="small" className="text-xs text-muted-foreground">
+                        {t('form.branch.description')}
+                      </Typography>
+                      <Select
+                        value={selectedBranchId}
+                        onValueChange={setSelectedBranchId}
+                        disabled={!selectedCompanyId || isLoadingBranches}
+                      >
+                        <SelectTrigger id="branch">
+                          <SelectValue placeholder={t('form.selectBranchPrompt')} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {isLoadingBranches ? (
+                            <div className="p-2 text-sm text-muted-foreground">
+                              {t('form.branch.loading')}
+                            </div>
+                          ) : (
+                            branches.map((branch) => (
+                              <SelectItem key={branch.id} value={branch.id}>
+                                {branch.name}
+                                {branch.isMainBranch && ` (${t('form.branch.mainBranch')})`}
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </section>
 
-            <Separator />
+                <Separator />
+              </>
+            )}
 
             {/* Blueprint Selection */}
             <section className="space-y-4">

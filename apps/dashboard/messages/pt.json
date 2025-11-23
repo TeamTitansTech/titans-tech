@@ -3,6 +3,12 @@
     "companyName": "InspectPro",
     "companySubtitle": "Portal Admin",
     "unsavedChanges": "Você tem alterações não salvas. Tem certeza que deseja fechar?",
+    "confirmClose": {
+      "title": "Descartar alterações?",
+      "description": "Você tem alterações não salvas. Se fechar agora, todos os dados preenchidos serão perdidos.",
+      "confirm": "Sim, descartar",
+      "cancel": "Continuar editando"
+    },
     "status": {
       "ok": "OK",
       "na": "N/A",
@@ -681,6 +687,12 @@
       },
       "response": {
         "title": "Resposta:"
+      },
+      "confirmClose": {
+        "title": "Descartar alterações?",
+        "description": "Você tem alterações não salvas. Se fechar agora, todos os dados preenchidos serão perdidos.",
+        "confirm": "Sim, descartar",
+        "cancel": "Continuar editando"
       }
     }
   },

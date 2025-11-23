@@ -3,6 +3,7 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useTranslations } from 'next-intl';
+import { useState, useEffect } from 'react';
 
 interface ThresholdRangeInputProps {
   label: string;
@@ -25,6 +26,58 @@ export function ThresholdRangeInput({
 }: ThresholdRangeInputProps) {
   const t = useTranslations('alerts.thresholds');
 
+  // Estado local para permitir digitação de valores temporários como "-"
+  const [greenValue, setGreenValue] = useState(greenMin.toString());
+  const [yellowValue, setYellowValue] = useState(yellowMin.toString());
+  const [redValue, setRedValue] = useState(redMin.toString());
+
+  // Função para validar máximo de 4 casas decimais
+  const hasMaxFourDecimals = (value: string): boolean => {
+    const parts = value.split('.');
+    if (parts.length <= 1) return true; // Sem decimais ou apenas parte inteira
+    return parts[1].length <= 4;
+  };
+
+  // Handler genérico para onChange
+  const handleChange =
+    (setValue: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      if (hasMaxFourDecimals(newValue)) {
+        setValue(newValue);
+      }
+    };
+
+  // Handler genérico para onBlur
+  const handleBlur =
+    (
+      value: string,
+      setValue: (value: string) => void,
+      onChange: (value: number) => void,
+      fallbackValue: number,
+    ) =>
+    () => {
+      const numValue = parseFloat(value);
+      if (!isNaN(numValue)) {
+        onChange(numValue);
+      } else {
+        // Reseta para o valor anterior se inválido
+        setValue(fallbackValue.toString());
+      }
+    };
+
+  // Sincroniza com props quando valores externos mudam
+  useEffect(() => {
+    setGreenValue(greenMin.toString());
+  }, [greenMin]);
+
+  useEffect(() => {
+    setYellowValue(yellowMin.toString());
+  }, [yellowMin]);
+
+  useEffect(() => {
+    setRedValue(redMin.toString());
+  }, [redMin]);
+
   return (
     <div className="space-y-3">
       <Label className="text-sm font-medium">{label}</Label>
@@ -32,15 +85,15 @@ export function ThresholdRangeInput({
       <div className="h-10 w-full rounded-md overflow-hidden border border-gray-200">
         <div className="flex h-full">
           <div className="bg-green-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            &lt; {yellowMin.toFixed(3)}
+            &lt; {yellowMin}
           </div>
 
           <div className="bg-yellow-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            {yellowMin.toFixed(3)} - &lt; {redMin.toFixed(3)}
+            {yellowMin} - &lt; {redMin}
           </div>
 
           <div className="bg-red-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            ≥ {redMin.toFixed(3)}
+            ≥ {redMin}
           </div>
         </div>
       </div>
@@ -53,10 +106,10 @@ export function ThresholdRangeInput({
           </Label>
           <Input
             type="number"
-            step="0.01"
-            min="0"
-            value={greenMin}
-            onChange={(e) => onGreenMinChange(parseFloat(e.target.value) || 0)}
+            step="0.0001"
+            value={greenValue}
+            onChange={handleChange(setGreenValue)}
+            onBlur={handleBlur(greenValue, setGreenValue, onGreenMinChange, greenMin)}
             className="text-sm"
           />
         </div>
@@ -68,10 +121,11 @@ export function ThresholdRangeInput({
           </Label>
           <Input
             type="number"
-            step="0.01"
+            step="0.0001"
             min={greenMin}
-            value={yellowMin}
-            onChange={(e) => onYellowMinChange(parseFloat(e.target.value) || 0)}
+            value={yellowValue}
+            onChange={handleChange(setYellowValue)}
+            onBlur={handleBlur(yellowValue, setYellowValue, onYellowMinChange, yellowMin)}
             className="text-sm"
           />
         </div>
@@ -83,10 +137,11 @@ export function ThresholdRangeInput({
           </Label>
           <Input
             type="number"
-            step="0.01"
+            step="0.0001"
             min={yellowMin}
-            value={redMin}
-            onChange={(e) => onRedMinChange(parseFloat(e.target.value) || 0)}
+            value={redValue}
+            onChange={handleChange(setRedValue)}
+            onBlur={handleBlur(redValue, setRedValue, onRedMinChange, redMin)}
             className="text-sm"
           />
         </div>
