@@ -85,7 +85,6 @@ export type {
   CounterbalanceCylinderFormProps,
   TrammingFormProps,
   InspectionModalProps,
-  ServiceCreationModalProps,
 } from '../backend-dtos/requests-dto/service/service.dto';
 
 // Re-export Zod schemas (for validation)

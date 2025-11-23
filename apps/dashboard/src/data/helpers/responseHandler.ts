@@ -85,7 +85,15 @@ export async function responseHandler<T>(
       };
     }
 
-    const data = await response.json();
+    // trata a resposta em caso de 204
+    let data: T;
+    const contentType = response.headers.get('content-type');
+    if (response.status === 204 || !contentType?.includes('application/json')) {
+      data = null as T;
+    } else {
+      data = await response.json();
+    }
+
     if (process.env.NODE_ENV === 'development') {
       console.debug('API Response Data:', `${method} -- ${path}`, data);
     }

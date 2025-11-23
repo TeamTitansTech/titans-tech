@@ -746,10 +746,3 @@ export interface InspectionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-export interface ServiceCreationModalProps {
-  machineId: string;
-  blueprintSections: string[];
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
