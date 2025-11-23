@@ -16,6 +16,12 @@ import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { getProductionLines } from '@/data/services/production-lines.api';
 import type { ProductionLine } from '@/data/types/production-lines.types';
 import Image from 'next/image';
+import {
+  getAlertStatus,
+  getSectionStatus,
+  statusColors,
+  sectionStatusColors,
+} from '@/lib/alertStatus';
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
@@ -163,6 +169,10 @@ export function ProductionLinesCarousel() {
                                     {/* Machine Card */}
                                     <div className="w-32 bg-muted rounded-md overflow-hidden border">
                                       <div className="relative aspect-square bg-muted flex items-center justify-center">
+                                        {/* Status Indicator Circle */}
+                                        <div
+                                          className={`absolute top-2 right-2 w-3 h-3 rounded-full border ${statusColors[getAlertStatus(machine)]} z-10`}
+                                        />
                                         {machine.imageUrl ? (
                                           <Image
                                             src={machine.imageUrl}
@@ -185,6 +195,7 @@ export function ProductionLinesCarousel() {
                                       {sections.length > 0 && (
                                         <div className="px-2 pb-2 space-y-1 border-t pt-2 bg-background">
                                           {sections.map((section) => {
+                                            const status = getSectionStatus(section, machine);
                                             const sectionName = tMachines(
                                               `sectionNames.${SECTION_I18N_KEYS[section] || 'unknown'}`,
                                             );
@@ -193,7 +204,9 @@ export function ProductionLinesCarousel() {
                                                 key={section}
                                                 className="flex items-center gap-1 text-xs"
                                               >
-                                                <Circle className="w-2 h-2 fill-current text-muted-foreground" />
+                                                <Circle
+                                                  className={`w-2 h-2 fill-current ${sectionStatusColors[status]}`}
+                                                />
                                                 <span className="truncate">{sectionName}</span>
                                               </div>
                                             );

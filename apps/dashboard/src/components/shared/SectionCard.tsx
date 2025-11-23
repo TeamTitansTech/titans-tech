@@ -7,8 +7,7 @@ import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { MachineInspection, MachineService } from '@titans-tech/shared/types';
-
-export type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
+import { getSectionStatus } from '@/lib/alertStatus';
 
 interface SectionCardProps {
   sectionKey: string;
@@ -48,49 +47,6 @@ const SECTION_IMAGES: Record<string, string> = {
   COUNTERBALANCE_CYLINDER_AIRBAG: '/assets/sections/counterbalance.svg',
   TRAMMING: '/assets/sections/tramming.svg',
   PISTONS: '/assets/sections/pistons.svg',
-};
-
-const getSectionStatus = (
-  section: string,
-  machine: { inspections?: MachineInspection[]; services?: MachineService[] },
-): SectionStatus => {
-  // Try to get status from services (new alert system)
-  if (machine.services && machine.services.length > 0) {
-    const latestService = machine.services[0];
-
-    switch (section) {
-      case 'BEARING_CLEARANCE': {
-        const alert = latestService?.alertBearingClearance;
-        if (!alert) {
-          return 'unknown';
-        }
-
-        // Usa apenas a severidade da folga total
-        const severity = alert.totalClearance_severity;
-
-        if (severity === 'RED') {
-          return 'alert';
-        } else if (severity === 'YELLOW') {
-          return 'warning';
-        } else if (severity === 'GREEN') {
-          return 'ok';
-        }
-
-        return 'unknown';
-      }
-
-      default:
-        return 'ok';
-    }
-  }
-
-  // Fallback to inspections (legacy system) if services not available
-  if (!machine.inspections || machine.inspections.length === 0) {
-    return 'unknown';
-  }
-
-  // For other sections, return ok for now
-  return 'ok';
 };
 
 export function SectionCard({ sectionKey, machine, onClick, isLoading = false }: SectionCardProps) {

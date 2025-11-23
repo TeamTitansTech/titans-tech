@@ -8,52 +8,12 @@ import { useTranslations } from 'next-intl';
 import { StatusBadge } from './StatusBadge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { MachineWithStatus } from '@/data/types/production-lines.types';
+import { getAlertStatus, getSectionStatus, statusColors, statusLabels } from '@/lib/alertStatus';
 
 interface MachineCardInLineProps {
   machine: MachineWithStatus;
   canViewDetails?: boolean;
 }
-
-type AlertStatus = 'ok' | 'warning' | 'critical' | 'unknown';
-
-const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
-  if (!machine.services || machine.services.length === 0) {
-    return 'unknown';
-  }
-
-  const latestService = machine.services[0];
-  const alert = latestService?.alertBearingClearance;
-
-  if (!alert) {
-    return 'unknown';
-  }
-
-  const severity = alert.totalClearance_severity;
-
-  if (severity === 'RED') {
-    return 'critical';
-  } else if (severity === 'YELLOW') {
-    return 'warning';
-  } else if (severity === 'GREEN') {
-    return 'ok';
-  }
-
-  return 'unknown';
-};
-
-const statusColors = {
-  ok: 'bg-green-500 border-green-600',
-  warning: 'bg-yellow-500 border-yellow-600',
-  critical: 'bg-red-500 border-red-600',
-  unknown: 'bg-gray-400 border-gray-500',
-};
-
-const statusLabels = {
-  ok: 'OK',
-  warning: 'Atenção',
-  critical: 'Crítico',
-  unknown: 'Sem dados',
-};
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
@@ -64,41 +24,6 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
   TRAMMING: 'tramming',
   PISTONS: 'pistons',
-};
-
-type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
-
-const getSectionStatus = (section: string, machine: MachineWithStatus): SectionStatus => {
-  if (!machine.services || machine.services.length === 0) {
-    return 'unknown';
-  }
-
-  const latestService = machine.services[0];
-
-  switch (section) {
-    case 'BEARING_CLEARANCE': {
-      const alert = latestService?.alertBearingClearance;
-      if (!alert) {
-        return 'unknown';
-      }
-
-      // Usa apenas a severidade da folga total
-      const severity = alert.totalClearance_severity;
-
-      if (severity === 'RED') {
-        return 'alert';
-      } else if (severity === 'YELLOW') {
-        return 'warning';
-      } else if (severity === 'GREEN') {
-        return 'ok';
-      }
-
-      return 'unknown';
-    }
-
-    default:
-      return 'ok';
-  }
 };
 
 export function MachineCardInLine({ machine, canViewDetails = true }: MachineCardInLineProps) {
