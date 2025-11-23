@@ -34,6 +34,7 @@ export function UpcomingServicesWrapper({
   services,
 }: UpcomingServicesWrapperProps) {
   const t = useTranslations('machines');
+  const tActions = useTranslations('actions');
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -194,13 +195,13 @@ export function UpcomingServicesWrapper({
             <AlertDialogDescription>{t('deleteServiceDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>{tActions('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? t('deleting') : t('delete')}
+              {isDeleting ? tActions('deleting') : tActions('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

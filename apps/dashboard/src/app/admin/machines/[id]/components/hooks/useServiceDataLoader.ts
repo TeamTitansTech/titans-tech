@@ -105,6 +105,17 @@ export function useServiceDataLoader(
           }
         });
 
+        const sectionsWithMissingData = savedCompletedSections.filter(
+          (sectionKey) => !loadedSectionData[sectionKey as keyof SectionDataMap],
+        );
+
+        if (sectionsWithMissingData.length > 0) {
+          toast.warning(
+            `Some sections are marked complete but have missing data: ${sectionsWithMissingData.join(', ')}`,
+            { duration: 5000 },
+          );
+        }
+
         // Update state
         setCompletedSections(new Set(savedCompletedSections));
         setCompletedSectionData(loadedSectionData);
