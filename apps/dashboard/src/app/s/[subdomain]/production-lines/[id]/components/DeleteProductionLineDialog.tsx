@@ -55,8 +55,14 @@ export function DeleteProductionLineDialog({
     }
   };
 
+  const handleClose = () => {
+    if (!isDeleting) {
+      onOpenChange(false);
+    }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <div className="flex items-center gap-3">
