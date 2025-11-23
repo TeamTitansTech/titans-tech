@@ -25,11 +25,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { updateUserPermissions, updateUserPermissionsAllBranches } from '@/data/services/users.api';
+import {
+  updateUser,
+  updateUserPermissions,
+  updateUserPermissionsAllBranches,
+} from '@/data/services/users.api';
 import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { Permissions } from '@titans-tech/shared/types';
 import { PermissionsEditor } from '@/components/permissions/PermissionsEditor';
-import { getBranchPermissions } from '@/lib/permissions';
+import { getBranchPermissions, hasPermission } from '@/lib/permissions';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
 
 interface EditUserDialogProps {
   open: boolean;
@@ -48,10 +53,21 @@ export function EditUserDialog({
 }: EditUserDialogProps) {
   const t = useTranslations('settings.editUserDialog');
   const tValidation = useTranslations('validation');
+  const { companyUser } = useCompanyUser();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [updateScope, setUpdateScope] = useState<'thisBranch' | 'allBranches'>('thisBranch');
   const [permissions, setPermissions] = useState<Permissions | null>(null);
+
+  // Check current user permissions
+  const canUpdateUserInfo =
+    hasPermission(companyUser, branchId, 'updateUsers') ||
+    companyUser?.isCompanyAdmin ||
+    companyUser?.isCompanyManager;
+  const canManagePermissions =
+    hasPermission(companyUser, branchId, 'manageUserPermissions') ||
+    companyUser?.isCompanyAdmin ||
+    companyUser?.isCompanyManager;
 
   const userSchema = useMemo(
     () =>
@@ -91,37 +107,57 @@ export function EditUserDialog({
     }
   }, [user, branchId, open, reset]);
 
-  const onSubmit = async () => {
-    if (!user || !permissions) return;
+  const onSubmit = async (data: UserFormData) => {
+    if (!user) return;
 
     setIsSubmitting(true);
 
     try {
-      // Update permissions based on scope
-      if (updateScope === 'allBranches') {
-        const response = await updateUserPermissionsAllBranches({
-          branchId,
+      // Update user info (name, email) if permission exists
+      if (canUpdateUserInfo && (data.name !== user.name || data.email !== user.email)) {
+        const updateResponse = await updateUser({
+          companyId: user.companyId,
           userId: user.id,
-          permissions,
-          applyToAllBranches: true,
+          data: {
+            name: data.name,
+            email: data.email,
+          },
         });
 
-        if (!response.data) {
+        if (!updateResponse.data) {
           toast.error(t('error'));
           setIsSubmitting(false);
           return;
         }
-      } else {
-        const response = await updateUserPermissions({
-          branchId,
-          userId: user.id,
-          permissions,
-        });
+      }
 
-        if (!response.data) {
-          toast.error(t('error'));
-          setIsSubmitting(false);
-          return;
+      // Update permissions if permission exists and permissions changed
+      if (canManagePermissions && permissions) {
+        if (updateScope === 'allBranches') {
+          const response = await updateUserPermissionsAllBranches({
+            branchId,
+            userId: user.id,
+            permissions,
+            applyToAllBranches: true,
+          });
+
+          if (!response.data) {
+            toast.error(t('error'));
+            setIsSubmitting(false);
+            return;
+          }
+        } else {
+          const response = await updateUserPermissions({
+            branchId,
+            userId: user.id,
+            permissions,
+          });
+
+          if (!response.data) {
+            toast.error(t('error'));
+            setIsSubmitting(false);
+            return;
+          }
         }
       }
 
@@ -144,7 +180,7 @@ export function EditUserDialog({
     }
   };
 
-  if (!user || !permissions) return null;
+  if (!user) return null;
 
   // Don't allow editing company admins
   if (user.isCompanyAdmin) {
@@ -180,71 +216,91 @@ export function EditUserDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* User Info */}
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">{t('form.name.label')}</Label>
-              <Input
-                id="name"
-                {...register('name')}
-                placeholder={t('form.name.placeholder')}
+          {/* User Info - Only show if user has updateUsers permission */}
+          {canUpdateUserInfo && (
+            <>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">{t('form.name.label')}</Label>
+                  <Input
+                    id="name"
+                    {...register('name')}
+                    placeholder={t('form.name.placeholder')}
+                    disabled={isSubmitting}
+                  />
+                  {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">{t('form.email.label')}</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    {...register('email')}
+                    placeholder={t('form.email.placeholder')}
+                    disabled={isSubmitting}
+                  />
+                  {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+                </div>
+              </div>
+
+              {canManagePermissions && <Separator />}
+            </>
+          )}
+
+          {/* Permissions Section - Only show if user has manageUserPermissions */}
+          {canManagePermissions && permissions && (
+            <>
+              {/* Update Scope */}
+              <div className="space-y-2">
+                <Label htmlFor="updateScope">{t('form.updateScope.label')}</Label>
+                <Select
+                  value={updateScope}
+                  onValueChange={(value) => setUpdateScope(value as 'thisBranch' | 'allBranches')}
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger id="updateScope">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="thisBranch">{t('form.updateScope.thisBranch')}</SelectItem>
+                    <SelectItem value="allBranches">{t('form.updateScope.allBranches')}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-500">{t('form.updateScope.description')}</p>
+              </div>
+
+              <Separator />
+
+              {/* Permissions Editor */}
+              <PermissionsEditor
+                permissions={permissions}
+                onChange={setPermissions}
                 disabled={isSubmitting}
+                showPresetSelector={true}
+                companyId={user.companyId}
               />
-              {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
+            </>
+          )}
+
+          {/* Show message if user has no permissions to edit anything */}
+          {!canUpdateUserInfo && !canManagePermissions && (
+            <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4 text-center">
+              <p className="text-sm text-yellow-800">
+                {t('noPermissionToEdit') || 'Você não tem permissão para editar este usuário.'}
+              </p>
             </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="email">{t('form.email.label')}</Label>
-              <Input
-                id="email"
-                type="email"
-                {...register('email')}
-                placeholder={t('form.email.placeholder')}
-                disabled={isSubmitting}
-              />
-              {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Update Scope */}
-          <div className="space-y-2">
-            <Label htmlFor="updateScope">{t('form.updateScope.label')}</Label>
-            <Select
-              value={updateScope}
-              onValueChange={(value) => setUpdateScope(value as 'thisBranch' | 'allBranches')}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger id="updateScope">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="thisBranch">{t('form.updateScope.thisBranch')}</SelectItem>
-                <SelectItem value="allBranches">{t('form.updateScope.allBranches')}</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-gray-500">{t('form.updateScope.description')}</p>
-          </div>
-
-          <Separator />
-
-          {/* Permissions Editor */}
-          <PermissionsEditor
-            permissions={permissions}
-            onChange={setPermissions}
-            disabled={isSubmitting}
-            showPresetSelector={true}
-            companyId={user.companyId}
-          />
+          )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>
               {t('cancel')}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? t('submitting') : t('submit')}
-            </Button>
+            {(canUpdateUserInfo || canManagePermissions) && (
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? t('submitting') : t('submit')}
+              </Button>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

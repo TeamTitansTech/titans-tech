@@ -218,11 +218,11 @@ export function getUserRoleBadgeColor(role: UserRole): string {
 }
 
 /**
- * Check if current user can edit another user's permissions
+ * Check if current user can edit another user (name, email, or permissions)
  * Rules:
  * - Company Admins can edit everyone except other Company Admins
  * - Company Managers can edit everyone except Company Admins
- * - Users with manageUserPermissions can edit regular users in their branch
+ * - Users with updateUsers OR manageUserPermissions can edit regular users in their branch
  */
 export function canEditUser(
   currentUser: UserResponseDto | null | undefined,
@@ -249,7 +249,8 @@ export function canEditUser(
     return false;
   }
 
-  return hasPermission(currentUser, branchId, 'manageUserPermissions');
+  // Allow editing if user has updateUsers OR manageUserPermissions
+  return hasAnyPermission(currentUser, branchId, ['updateUsers', 'manageUserPermissions']);
 }
 
 /**
