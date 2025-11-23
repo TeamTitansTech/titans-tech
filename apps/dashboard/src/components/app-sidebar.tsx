@@ -100,47 +100,50 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   // Client navigation
-  const clientData = {
-    company: {
-      name: t('common.companyName'),
-      subtitle: t('common.companySubtitle'),
-      logo: Wrench,
-    },
-    navMain: [
-      {
-        title: t('navigation.dashboard'),
-        icon: LayoutDashboard,
-        url: '/home',
+  const clientData = React.useMemo(
+    () => ({
+      company: {
+        name: t('common.companyName'),
+        subtitle: t('common.companySubtitle'),
+        logo: Wrench,
       },
-      {
-        title: t('navigation.company'),
-        icon: Building2,
-        url: '/company',
-      },
-      {
-        title: t('navigation.allMachines'),
-        icon: Wrench,
-        url: '/machines',
-      },
-      {
-        title: t('navigation.productionLines'),
-        icon: Factory,
-        url: '/production-lines',
-      },
-      {
-        title: t('navigation.services'),
-        icon: ClipboardList,
-        url: '/services',
-      },
-    ],
-    navUtility: [
-      {
-        title: t('navigation.settings'),
-        icon: Settings,
-        url: '/settings',
-      },
-    ],
-  };
+      navMain: [
+        {
+          title: t('navigation.dashboard'),
+          icon: LayoutDashboard,
+          url: '/home',
+        },
+        {
+          title: t('navigation.company'),
+          icon: Building2,
+          url: '/company',
+        },
+        {
+          title: t('navigation.allMachines'),
+          icon: Wrench,
+          url: '/machines',
+        },
+        {
+          title: t('navigation.productionLines'),
+          icon: Factory,
+          url: '/production-lines',
+        },
+        {
+          title: t('navigation.services'),
+          icon: ClipboardList,
+          url: '/services',
+        },
+      ],
+      navUtility: [
+        {
+          title: t('navigation.settings'),
+          icon: Settings,
+          url: '/settings',
+        },
+      ],
+    }),
+    [t],
+  );
 
   // Filter client navigation based on permissions
   const filteredClientData = React.useMemo(() => {
@@ -179,7 +182,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ...clientData,
       navMain: filteredNavMain,
     };
-  }, [isAdmin, companyUser]);
+  }, [isAdmin, companyUser, clientData]);
 
   const data = isAdmin ? adminData : filteredClientData;
   const dashboardUrl = isAdmin ? '/admin/dashboard' : '/home';

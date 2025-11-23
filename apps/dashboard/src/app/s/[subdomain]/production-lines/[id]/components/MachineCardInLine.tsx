@@ -16,7 +16,7 @@ interface MachineCardInLineProps {
 
 type AlertStatus = 'ok' | 'warning' | 'critical' | 'unknown';
 
-const getAlertStatus = (machine: any): AlertStatus => {
+const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   if (!machine.services || machine.services.length === 0) {
     return 'unknown';
   }
@@ -68,7 +68,7 @@ const SECTION_I18N_KEYS: Record<string, string> = {
 
 type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
 
-const getSectionStatus = (section: string, machine: any): SectionStatus => {
+const getSectionStatus = (section: string, machine: MachineWithStatus): SectionStatus => {
   if (!machine.services || machine.services.length === 0) {
     return 'unknown';
   }

@@ -90,6 +90,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     // Update data when initialData changes (e.g., when loading saved data)
     useEffect(() => {
       if (initialData) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setData(initialData);
         setInitialClutchData(initialData);
       }

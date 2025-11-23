@@ -114,7 +114,7 @@ export function PermissionsEditor({
 
   // Handle select all for a category
   const handleSelectAllCategory = (category: PermissionCategory) => {
-    let newPermissions = { ...permissions };
+    const newPermissions = { ...permissions };
 
     // Get the permissions for this category
     const categoryGroup = PERMISSION_GROUPS.find((g) => g.category === category);

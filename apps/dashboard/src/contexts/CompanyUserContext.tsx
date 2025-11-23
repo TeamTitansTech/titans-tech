@@ -46,6 +46,7 @@ export function CompanyUserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetchUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]); // Refetch when route changes
 
   const refetchUser = async () => {

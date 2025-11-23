@@ -58,6 +58,7 @@ export function NotificationsDropdown() {
     if (isOpen && notifications.length === 0) {
       loadInitialData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const handleNotificationClick = async (notification: AdminNotificationResponseDto) => {

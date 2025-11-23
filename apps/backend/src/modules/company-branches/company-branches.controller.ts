@@ -194,6 +194,7 @@ export class CompanyBranchesController {
     const companyId = req.user.companyId;
 
     // Extract permissions (remove applyToAllBranches flag)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { applyToAllBranches, ...permissions } = dto;
 
     return this.usersService.updateUserPermissionsAllBranches(
