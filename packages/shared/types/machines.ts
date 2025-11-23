@@ -13,6 +13,7 @@ import {
   MachineFeaturesType,
 } from './enums';
 import type { ServiceType, BearingClearanceCheck } from './services';
+import type { AlertSeverity } from '../enums';
 
 // Machine Field Definition
 export interface MachineField {
@@ -49,12 +50,45 @@ export interface Machine {
   inspections?: MachineInspection[];
 }
 
+// Alert Bearing Clearance (for service alerts)
+export interface AlertBearingClearance {
+  id: string;
+  machineServiceId: string;
+  totalClearance_RH: number;
+  totalClearance_LH: number;
+  totalClearance_differential: number;
+  totalClearance_severity: AlertSeverity;
+  mainBearings_RH: number;
+  mainBearings_LH: number;
+  mainBearings_differential: number;
+  mainBearings_severity: AlertSeverity;
+  upperConnectionBearings_RH: number;
+  upperConnectionBearings_LH: number;
+  upperConnectionBearings_differential: number;
+  upperConnectionBearings_severity: AlertSeverity;
+  wristPinToMatingPart_RH: number;
+  wristPinToMatingPart_LH: number;
+  wristPinToMatingPart_differential: number;
+  wristPinToMatingPart_severity: AlertSeverity;
+  wristPinToBushing_RH: number;
+  wristPinToBushing_LH: number;
+  wristPinToBushing_differential: number;
+  wristPinToBushing_severity: AlertSeverity;
+  slideAdjNutToScrewSleeve_RH: number;
+  slideAdjNutToScrewSleeve_LH: number;
+  slideAdjNutToScrewSleeve_differential: number;
+  slideAdjNutToScrewSleeve_severity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Basic Service Info (for machine response)
 export interface MachineService {
   id: string;
   date: string;
   isMaintenance: boolean;
   performedBy: string;
+  alertBearingClearance?: AlertBearingClearance;
 }
 
 // Machine Inspection (detailed service data for inspections)

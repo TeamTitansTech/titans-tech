@@ -192,17 +192,7 @@ export class ProductionLinesService {
     });
   }
 
-  async findOne(
-    userId: string,
-    id: string,
-  ): Promise<
-    Prisma.ProductionLineGetPayload<{
-      include: {
-        branch: true;
-        machines: { include: { machine: { include: { blueprint: true } } } };
-      };
-    }>
-  > {
+  async findOne(userId: string, id: string) {
     const productionLine = await this.prisma.productionLine.findUnique({
       where: { id },
       include: {
@@ -213,6 +203,15 @@ export class ProductionLinesService {
               include: {
                 blueprint: true,
                 fields: true,
+                services: {
+                  take: 1,
+                  orderBy: {
+                    date: 'desc',
+                  },
+                  include: {
+                    alertBearingClearance: true,
+                  },
+                },
               },
             },
           },

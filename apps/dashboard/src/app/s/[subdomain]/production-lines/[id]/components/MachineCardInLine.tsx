@@ -6,12 +6,54 @@ import Image from 'next/image';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { StatusBadge } from './StatusBadge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { MachineWithStatus } from '@/data/types/production-lines.types';
 
 interface MachineCardInLineProps {
   machine: MachineWithStatus;
   canViewDetails?: boolean;
 }
+
+type AlertStatus = 'ok' | 'warning' | 'critical' | 'unknown';
+
+const getAlertStatus = (machine: any): AlertStatus => {
+  if (!machine.services || machine.services.length === 0) {
+    return 'unknown';
+  }
+
+  const latestService = machine.services[0];
+  const alert = latestService?.alertBearingClearance;
+
+  if (!alert) {
+    return 'unknown';
+  }
+
+  const severity = alert.totalClearance_severity;
+
+  if (severity === 'RED') {
+    return 'critical';
+  } else if (severity === 'YELLOW') {
+    return 'warning';
+  } else if (severity === 'GREEN') {
+    return 'ok';
+  }
+
+  return 'unknown';
+};
+
+const statusColors = {
+  ok: 'bg-green-500 border-green-600',
+  warning: 'bg-yellow-500 border-yellow-600',
+  critical: 'bg-red-500 border-red-600',
+  unknown: 'bg-gray-400 border-gray-500',
+};
+
+const statusLabels = {
+  ok: 'OK',
+  warning: 'Atenção',
+  critical: 'Crítico',
+  unknown: 'Sem dados',
+};
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
@@ -24,49 +66,34 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   PISTONS: 'pistons',
 };
 
-const CLEARANCE_LIMITS = {
-  WARNING: 0.15,
-  ALERT: 0.2,
-};
-
 type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
 
 const getSectionStatus = (section: string, machine: any): SectionStatus => {
-  if (!machine.inspections || machine.inspections.length === 0) {
+  if (!machine.services || machine.services.length === 0) {
     return 'unknown';
   }
 
-  const latestInspection = machine.inspections[0];
+  const latestService = machine.services[0];
 
   switch (section) {
     case 'BEARING_CLEARANCE': {
-      const bearingCheck = latestInspection.bearingClearanceChecks;
-      if (!bearingCheck || !bearingCheck.after) {
+      const alert = latestService?.alertBearingClearance;
+      if (!alert) {
         return 'unknown';
       }
 
-      const clearances = [
-        bearingCheck.after.totalClearance_RH,
-        bearingCheck.after.totalClearance_LH,
-        bearingCheck.after.mainBearings_RH,
-        bearingCheck.after.mainBearings_LH,
-        bearingCheck.after.upperConnectionBearings_RH,
-        bearingCheck.after.upperConnectionBearings_LH,
-        bearingCheck.after.wristPinToMatingPart_RH,
-        bearingCheck.after.wristPinToMatingPart_LH,
-        bearingCheck.after.wristPinToBushing_RH,
-        bearingCheck.after.wristPinToBushing_LH,
-      ];
+      // Usa apenas a severidade da folga total
+      const severity = alert.totalClearance_severity;
 
-      const maxClearance = Math.max(...clearances);
-
-      if (maxClearance >= CLEARANCE_LIMITS.ALERT) {
+      if (severity === 'RED') {
         return 'alert';
-      } else if (maxClearance >= CLEARANCE_LIMITS.WARNING) {
+      } else if (severity === 'YELLOW') {
         return 'warning';
-      } else {
+      } else if (severity === 'GREEN') {
         return 'ok';
       }
+
+      return 'unknown';
     }
 
     default:
@@ -85,6 +112,7 @@ export function MachineCardInLine({ machine, canViewDetails = true }: MachineCar
   };
 
   const sections = machine.blueprint?.sections || [];
+  const alertStatus = getAlertStatus(machine);
 
   return (
     <Card
@@ -97,6 +125,24 @@ export function MachineCardInLine({ machine, canViewDetails = true }: MachineCar
     >
       <CardContent className="p-0">
         <div className="relative aspect-square bg-muted flex items-center justify-center">
+          {/* Status Indicator Circle */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className={`absolute top-2 right-2 w-4 h-4 rounded-full border-2 ${statusColors[alertStatus]} z-10`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{statusLabels[alertStatus]}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
           {machine.imageUrl ? (
             <Image
               src={machine.imageUrl}

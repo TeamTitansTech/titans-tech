@@ -110,6 +110,7 @@ export class MachinesService {
                 innerAfter: true;
               };
             };
+            alertBearingClearance: true;
           };
         };
       };
@@ -122,6 +123,8 @@ export class MachinesService {
         branch: true,
         fields: true,
         services: {
+          take: 1,
+          orderBy: { date: 'desc' },
           include: {
             bearingClearance: {
               include: {
@@ -131,6 +134,7 @@ export class MachinesService {
                 innerData: true,
               },
             },
+            alertBearingClearance: true,
           },
         },
       },

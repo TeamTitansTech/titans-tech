@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { MachineInspection } from '@titans-tech/shared/types';
+import type { MachineInspection, MachineService } from '@titans-tech/shared/types';
 
 export type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
 
@@ -14,6 +14,7 @@ interface SectionCardProps {
   sectionKey: string;
   machine: {
     inspections?: MachineInspection[];
+    services?: MachineService[];
   };
   onClick?: () => void;
   isLoading?: boolean;
@@ -49,62 +50,47 @@ const SECTION_IMAGES: Record<string, string> = {
   PISTONS: '/assets/sections/pistons.svg',
 };
 
-const CLEARANCE_LIMITS = {
-  WARNING: 0.15,
-  ALERT: 0.2,
-};
-
 const getSectionStatus = (
   section: string,
-  machine: { inspections?: MachineInspection[] },
+  machine: { inspections?: MachineInspection[]; services?: MachineService[] },
 ): SectionStatus => {
+  // Try to get status from services (new alert system)
+  if (machine.services && machine.services.length > 0) {
+    const latestService = machine.services[0];
+
+    switch (section) {
+      case 'BEARING_CLEARANCE': {
+        const alert = latestService?.alertBearingClearance;
+        if (!alert) {
+          return 'unknown';
+        }
+
+        // Usa apenas a severidade da folga total
+        const severity = alert.totalClearance_severity;
+
+        if (severity === 'RED') {
+          return 'alert';
+        } else if (severity === 'YELLOW') {
+          return 'warning';
+        } else if (severity === 'GREEN') {
+          return 'ok';
+        }
+
+        return 'unknown';
+      }
+
+      default:
+        return 'ok';
+    }
+  }
+
+  // Fallback to inspections (legacy system) if services not available
   if (!machine.inspections || machine.inspections.length === 0) {
     return 'unknown';
   }
 
-  const latestInspection = machine.inspections[0];
-
-  switch (section) {
-    case 'BEARING_CLEARANCE': {
-      const bearingCheck = latestInspection.bearingClearanceChecks;
-      if (!bearingCheck || !bearingCheck.outerData) {
-        return 'unknown';
-      }
-
-      const clearances = [
-        bearingCheck.outerData.totalClearance_RH,
-        bearingCheck.outerData.totalClearance_LH,
-        bearingCheck.outerData.mainBearings_RH,
-        bearingCheck.outerData.mainBearings_LH,
-        bearingCheck.outerData.upperConnectionBearings_RH,
-        bearingCheck.outerData.upperConnectionBearings_LH,
-        bearingCheck.outerData.wristPinToMatingPart_RH,
-        bearingCheck.outerData.wristPinToMatingPart_LH,
-        bearingCheck.outerData.wristPinToBushing_RH,
-        bearingCheck.outerData.wristPinToBushing_LH,
-      ];
-
-      const maxClearance = Math.max(...clearances);
-
-      if (maxClearance >= CLEARANCE_LIMITS.ALERT) {
-        return 'alert';
-      } else if (maxClearance >= CLEARANCE_LIMITS.WARNING) {
-        return 'warning';
-      } else {
-        return 'ok';
-      }
-    }
-
-    case 'SLIDE':
-    case 'GIBS':
-    case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
-    case 'CLUTCH':
-    case 'COUNTERBALANCE_CYLINDER_AIRBAG':
-    case 'TRAMMING':
-    case 'PISTONS':
-    default:
-      return 'ok';
-  }
+  // For other sections, return ok for now
+  return 'ok';
 };
 
 export function SectionCard({ sectionKey, machine, onClick, isLoading = false }: SectionCardProps) {
