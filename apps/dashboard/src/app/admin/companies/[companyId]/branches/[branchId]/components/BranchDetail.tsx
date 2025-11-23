@@ -1,12 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
-import { ArrowLeft, Plus, Wrench } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Wrench } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useCompanyUser } from '@/contexts/CompanyUserContext';
 
 interface Machine {
   id: string;
@@ -19,77 +16,20 @@ interface Machine {
   };
 }
 
-interface Branch {
-  id: string;
-  name: string;
-  isMainBranch: boolean;
-  companyId: string;
-}
-
 interface BranchDetailProps {
-  branch: Branch;
   machines: Machine[];
-  companyId: string;
 }
 
-export function BranchDetail({ branch, machines, companyId }: BranchDetailProps) {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export function BranchDetail({ machines }: BranchDetailProps) {
   const router = useInternalRouter();
   const t = useTranslations('branches');
-  const { companyUser } = useCompanyUser();
-
-  const canCreateMachines = () => {
-    if (!companyUser) return false;
-
-    // Company Admin and Manager can do everything
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) {
-      return true;
-    }
-
-    // Check branch-specific permission
-    const userBranch = companyUser.branches.find((ub) => ub.branchId === branch.id);
-    return userBranch?.createMachines || false;
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleSuccess = () => {
-    router.refresh();
-  };
 
   const handleMachineClick = (machineId: string) => {
     router.push(`/machines/${machineId}`);
   };
 
   return (
-    <div className="space-y-6 p-8">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push(`/admin/companies/${companyId}`)}
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-bold tracking-tight">{branch.name}</h1>
-            {branch.isMainBranch && (
-              <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
-                {t('mainBranch')}
-              </span>
-            )}
-          </div>
-          <p className="text-muted-foreground mt-1">{t('machinesSubtitle')}</p>
-        </div>
-        {canCreateMachines() && (
-          <Button onClick={() => setIsModalOpen(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            {t('newMachine')}
-          </Button>
-        )}
-      </div>
-
+    <>
       {machines.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground">{t('noMachines')}</p>
@@ -127,6 +67,6 @@ export function BranchDetail({ branch, machines, companyId }: BranchDetailProps)
           ))}
         </div>
       )}
-    </div>
+    </>
   );
 }

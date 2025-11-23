@@ -3,6 +3,12 @@
     "companyName": "InspectPro",
     "companySubtitle": "Portal Admin",
     "unsavedChanges": "Você tem alterações não salvas. Tem certeza que deseja fechar?",
+    "confirmClose": {
+      "title": "Descartar alterações?",
+      "description": "Você tem alterações não salvas. Se fechar agora, todos os dados preenchidos serão perdidos.",
+      "confirm": "Sim, descartar",
+      "cancel": "Continuar editando"
+    },
     "status": {
       "ok": "OK",
       "na": "N/A",
@@ -322,6 +328,12 @@
       },
       "response": {
         "title": "Resposta:"
+      },
+      "confirmClose": {
+        "title": "Descartar alterações?",
+        "description": "Você tem alterações não salvas. Se fechar agora, todos os dados preenchidos serão perdidos.",
+        "confirm": "Sim, descartar",
+        "cancel": "Continuar editando"
       }
     }
   },
@@ -1088,6 +1100,10 @@
       "completeInspection": "Concluir Inspeção",
       "completeInspectionDetails": "Concluir Inspeção - Detalhes",
       "selectMaintenanceAreas": "Selecione as áreas de manutenção a serem realizadas",
+      "selectedAreas": "Áreas selecionadas",
+      "inspectionAreas": "Áreas de Inspeção",
+      "back": "Voltar",
+      "continue": "Salvar e Continuar",
       "fillMaintenanceDetails": "Preencha os detalhes da manutenção realizada",
       "fillInspectionDetails": "Preencha os detalhes da inspeção realizada",
       "selectAreasAbove": "Selecione as áreas de manutenção acima para começar",

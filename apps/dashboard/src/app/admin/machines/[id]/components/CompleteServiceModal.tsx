@@ -19,7 +19,7 @@ import {
   ServiceType,
   ServiceStatus,
   type UpdateServicePayload,
-  type ServiceCreationModalProps,
+  type InspectionModalProps,
 } from '@/data/types/services.types';
 import {
   BearingClearanceSection,
@@ -38,7 +38,7 @@ import {
   type CounterbalanceCylinderSectionRef,
 } from './sections/CounterbalanceCylinderSection';
 
-interface CompleteServiceModalProps extends ServiceCreationModalProps {
+interface CompleteServiceModalProps extends InspectionModalProps {
   serviceId: string; // ID of the service to complete
   serviceType: ServiceType; // Type of the service being completed
   initialDate?: string; // Initial date from the service
