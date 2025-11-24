@@ -85,6 +85,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         url: '/admin/machines',
       },
       {
+        title: t('navigation.productionLines'),
+        icon: Factory,
+        url: '/admin/production-lines',
+      },
+      {
         title: t('navigation.services'),
         icon: ClipboardList,
         url: '/admin/services',
