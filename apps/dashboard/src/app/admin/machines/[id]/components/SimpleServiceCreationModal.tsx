@@ -39,6 +39,7 @@ export default function SimpleServiceCreationModal({
   onOpenChange,
 }: SimpleServiceCreationModalProps) {
   const t = useTranslations('services');
+  const tActions = useTranslations('actions');
   const router = useInternalRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -151,7 +152,7 @@ export default function SimpleServiceCreationModal({
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
             >
-              {t('cancel')}
+              {tActions('cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? t('creating') : t('createService')}

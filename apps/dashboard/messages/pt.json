@@ -28,7 +28,26 @@
       "needs_replaced": "Precisa Substituir",
       "bushing": "Bucha",
       "bed": "Leito",
-      "bolster": "Bolster"
+      "bolster": "Bolster",
+      "glazed": "Vitrificado",
+      "oil_soaked": "Encharcado de Óleo",
+      "missing_segments": "Segmentos Faltando",
+      "broken": "Quebrado",
+      "bent_worn": "Dobrado/Desgastado",
+      "lining_worn": "Revestimento Desgastado",
+      "noise": "Ruído",
+      "wobble": "Oscilação",
+      "air_leak": "Vazamento de Ar",
+      "oil_leak": "Vazamento de Óleo",
+      "concentricity": "Concentricidade",
+      "slow_response": "Resposta Lenta",
+      "not_visible": "Não Visível",
+      "wear_visible": "Desgaste Visível",
+      "needs_oil": "Precisa de Óleo",
+      "needs_oil_reset": "Precisa de Óleo e Reset",
+      "needs_reset": "Precisa de Reset",
+      "buckled": "Empenado",
+      "cracked": "Rachado"
     }
   },
   "validation": {
@@ -737,14 +756,11 @@
     "model": "Modelo",
     "viewDetails": "Ver Detalhes",
     "edit": "Editar",
-    "delete": "Excluir",
     "createdSuccessfully": "Máquina criada com sucesso",
     "deletedSuccessfully": "Máquina excluída com sucesso",
     "deleteConfirmTitle": "Excluir Máquina",
     "deleteConfirmDescription": "Tem certeza de que deseja excluir {name}? Esta ação não pode ser desfeita e removerá permanentemente todos os dados associados.",
     "confirmDelete": "Excluir",
-    "deleting": "Excluindo...",
-    "cancel": "Cancelar",
     "sectionsCount": "seções",
     "fieldsCount": "campos",
     "backToMachines": "Voltar para Máquinas",
@@ -788,9 +804,6 @@
     "scheduledInspection": "Inspeção Agendada",
     "deleteServiceTitle": "Excluir Serviço",
     "deleteServiceDescription": "Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.",
-    "cancel": "Cancelar",
-    "delete": "Excluir",
-    "deleting": "Excluindo...",
     "noImageAvailable": "Sem Imagem Disponível",
     "inspectionSections": "Seções de Inspeção",
     "noSectionsAvailable": "Nenhuma seção de inspeção disponível para este tipo de máquina.",
@@ -1176,6 +1189,9 @@
         },
         "notes": {
           "gearBacklashCheck": "*Verificar apenas se houver ruído excessivo e/ou vibração"
+        },
+        "validation": {
+          "required": "Este campo é obrigatório"
         }
       },
       "counterbalanceCylinder": {
@@ -1656,6 +1672,7 @@
   "actions": {
     "save": "Salvar",
     "saving": "Salvando...",
+    "continue": "Continuar",
     "savePermissions": "Salvar Permissões",
     "cancel": "Cancelar",
     "delete": "Excluir",
@@ -1734,6 +1751,37 @@
       "warning": "Atenção",
       "alert": "Alerta",
       "unknown": "Desconhecido"
+    }
+  },
+  "errors": {
+    "service": {
+      "failedToUpdate": "Falha ao atualizar serviço",
+      "failedToCreate": "Falha ao criar serviço",
+      "failedToSaveSection": "Falha ao salvar seção",
+      "unexpectedError": "Ocorreu um erro inesperado ao atualizar o serviço",
+      "unexpectedCreateError": "Ocorreu um erro inesperado ao criar o serviço",
+      "unexpectedSaveError": "Ocorreu um erro inesperado ao salvar a seção",
+      "invalidOption": "Opção inválida: esperado",
+      "areCracksVisible": "Há rachaduras visíveis",
+      "isMainMotorSecure": "O Motor Principal Está Seguro",
+      "isMotorPlateSecure": "A Placa do Motor Está Segura",
+      "areAllProtectiveCovers": "Todas as coberturas de proteção estão no lugar",
+      "sectionRefNotFound": "Referência da seção não encontrada",
+      "fillRequiredFields": "Por favor, preencha todos os campos obrigatórios",
+      "serviceIdNotFound": "ID do serviço não encontrado. Por favor, crie o serviço primeiro",
+      "cannotProceedToSummary": "Não é possível prosseguir para o resumo. Por favor, complete as seguintes seções",
+      "incompleteSections": "Não é possível concluir o serviço. As seguintes seções estão incompletas",
+      "sectionsWithMissingData": "As seguintes seções têm dados faltando",
+      "performedByRequired": "Por favor, preencha o campo 'Realizado Por'",
+      "completeAllSections": "Por favor, complete todas as seções antes de visualizar o resumo",
+      "validationWarnings": "Avisos de Validação",
+      "redirectingToIncomplete": "Seção salva! Redirecionando para a primeira seção incompleta"
+    },
+    "successMessages": {
+      "serviceUpdated": "Detalhes do serviço atualizados com sucesso",
+      "serviceCreated": "Serviço criado. Agora preencha os formulários das seções",
+      "sectionSaved": "Seção salva com sucesso",
+      "serviceCompleted": "Serviço concluído com sucesso"
     }
   }
 }

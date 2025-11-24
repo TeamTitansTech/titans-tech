@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Typography } from '@/components/ui/typography';
+import { translateEnumValue } from './utils/translateEnum';
 
 interface LubricationSummaryProps {
   data: LubricationHydraulicsData;
@@ -43,20 +44,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
 
   // Helper function to display value with translations
   const displayValue = (value: unknown): string => {
-    if (value === null || value === undefined || value === '') {
-      return '-';
-    }
-    if (typeof value === 'boolean') {
-      return value ? tCommon('yes') : tCommon('no');
-    }
-    // Translate enum values
-    const stringValue = String(value);
-    if (stringValue === 'YES') return tCommon('yes');
-    if (stringValue === 'NO') return tCommon('no');
-    if (stringValue === 'DNC') return tCommon('dnc');
-    if (stringValue === 'NA') return tCommon('na');
-
-    return stringValue;
+    return translateEnumValue(value, tCommon);
   };
 
   // Define all scalar fields that should be shown
