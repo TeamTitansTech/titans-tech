@@ -14,8 +14,8 @@ import { AlertsModule } from './modules/alerts/alerts.module';
 import { EmailModule } from './modules/email/email.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { TasksModule } from './modules/tasks/tasks.module';
-import { ProductionLinesModule } from './production-lines/production-lines.module';
-import { PermissionTemplatesModule } from './permission-templates/permission-templates.module';
+import { ProductionLinesModule } from './modules/production-lines/production-lines.module';
+import { PermissionTemplatesModule } from './modules/permission-templates/permission-templates.module';
 
 @Module({
   imports: [

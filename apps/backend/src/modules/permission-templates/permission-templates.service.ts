@@ -3,7 +3,7 @@ import {
   NotFoundException,
   ForbiddenException,
 } from '@nestjs/common';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../shared/prisma.service';
 import {
   CreatePermissionTemplateDto,
   UpdatePermissionTemplateDto,

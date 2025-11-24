@@ -15,8 +15,8 @@ import {
   UpdatePermissionTemplateDto,
   PermissionTemplateResponseDto,
 } from '@titans-tech/shared/backend-dtos';
-import { Authenticated } from '../modules/auth/auth.decorators';
-import { ReqWithAuthUser } from '../types/request';
+import { Authenticated } from '../auth/auth.decorators';
+import { ReqWithAuthUser } from '../../types/request';
 
 @Controller('permission-templates')
 export class PermissionTemplatesController {

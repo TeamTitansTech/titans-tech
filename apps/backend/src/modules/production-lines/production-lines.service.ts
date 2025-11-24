@@ -4,7 +4,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../shared/prisma.service';
 import { CreateProductionLineDto } from './dto/create-production-line.dto';
 import { UpdateProductionLineDto } from './dto/update-production-line.dto';
 

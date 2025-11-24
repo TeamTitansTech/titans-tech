@@ -12,11 +12,8 @@ import { Prisma } from '@titans-tech/db';
 import { ProductionLinesService } from './production-lines.service';
 import { CreateProductionLineDto } from './dto/create-production-line.dto';
 import { UpdateProductionLineDto } from './dto/update-production-line.dto';
-import {
-  Authenticated,
-  BranchPermission,
-} from '../modules/auth/auth.decorators';
-import { ReqWithAuthUser } from '../types/request';
+import { Authenticated, BranchPermission } from '../auth/auth.decorators';
+import { ReqWithAuthUser } from '../../types/request';
 
 @Controller('production-lines')
 export class ProductionLinesController {
