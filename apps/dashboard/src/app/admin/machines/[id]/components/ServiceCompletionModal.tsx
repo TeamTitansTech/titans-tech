@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo } from 'react';
+
 import { useTranslations } from 'next-intl';
 import {
   Dialog,

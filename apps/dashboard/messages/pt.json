@@ -446,6 +446,24 @@
       "tramming": "Tramming",
       "pistons": "Pistões"
     },
+    "gibsFields": {
+      "directionalTitle": "Medições Direcionais",
+      "beforeAdjustment": "Antes do Ajuste",
+      "afterAdjustment": "Após Ajuste",
+      "freeHangingAfterInstall": "Livre Após Instalação",
+      "beforeToolInstallation": "Antes da Instalação da Ferramenta",
+      "afterToolInstallation": "Após Instalação da Ferramenta",
+      "frontToBackTitle": "Frente para Trás",
+      "leftToRightTitle": "Esquerda para Direita",
+      "front": "Frente",
+      "back": "Trás",
+      "left": "Esquerda",
+      "right": "Direita",
+      "top": "Superior",
+      "bottom": "Inferior",
+      "usable": "Utilizável",
+      "rear": "Traseira"
+    },
     "sectionStatus": {
       "ok": "OK",
       "warning": "Atenção",
@@ -664,9 +682,21 @@
       },
       "gibs": {
         "hasBeenAdjusted": "Foi Ajustado",
-        "frontToBackTitle": "Medições Frente para Trás (16 Pontos)",
-        "directionalTitle": "Medições Direcionais",
+        "includePreviousMeasurements": "Incluir Medições Anteriores",
+        "beforeAdjustment": "Antes do Ajuste",
+        "afterAdjustment": "Após o Ajuste",
+        "freeHangingAfterInstall": "Livre (Após Instalação)",
+        "frontToBackTitle": "Frente para Trás",
+        "leftToRightTitle": "Esquerda para Direita",
+        "directionalTitle": "Direcionais",
+        "calculatedFields": "Campos Direcionais Calculados",
         "point": "Ponto {number}",
+        "left": "Esquerda",
+        "right": "Direita",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "front": "Frente",
+        "back": "Trás",
         "leftTop": "Esquerda Superior",
         "leftBottom": "Esquerda Inferior",
         "rightTop": "Direita Superior",
@@ -675,7 +705,12 @@
         "frontBottom": "Frente Inferior",
         "backTop": "Trás Superior",
         "backBottom": "Trás Inferior",
-        "usable": "Utilizável"
+        "usable": "Utilizável",
+        "rear": "Traseira",
+        "beforeToolInstallation": "Antes da Instalação da Ferramenta",
+        "afterToolInstallation": "Após Instalação da Ferramenta",
+        "adjustment": "Ajuste",
+        "installation": "Instalação"
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Pressões do Sistema (PSI)",
@@ -921,6 +956,11 @@
           "atLeastOneSectionRequired": "Folga de Rolamento: Você deve preencher pelo menos uma seção de medição (Dados Externos ou Dados Internos)",
           "hasBeenAdjustedRequired": "Folga de Rolamento: O campo \"Foi Ajustado\" é obrigatório"
         }
+      },
+      "gibsSection": {
+        "includeBeforeMeasurements": "Incluir Medições Anteriores",
+        "beforeMaintenance": "Antes da Manutenção",
+        "afterMaintenance": "Após a Manutenção"
       },
       "enums": {
         "yesNoNaDnc": {

@@ -1,7 +1,7 @@
 import type { ComponentType } from 'react';
 import { BearingClearanceSection } from './BearingClearanceSection';
 import { SlideSection } from './SlideSection';
-import { GibsSection } from './GibsSection';
+import { GibsSection } from './';
 import { LubricationHydraulicsSection } from './LubricationHydraulicsSection';
 import { ClutchSection } from './ClutchSection';
 import { CounterbalanceCylinderSection } from './CounterbalanceCylinderSection';
