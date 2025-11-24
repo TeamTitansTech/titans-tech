@@ -73,7 +73,6 @@ export class MachinesService {
       include: {
         blueprint: true;
         fields: true;
-        services: { include: { alertBearingClearance: true } };
       };
     }>[]
   > {
@@ -82,13 +81,6 @@ export class MachinesService {
         blueprint: true,
         branch: true,
         fields: true,
-        services: {
-          take: 1,
-          orderBy: { date: 'desc' },
-          include: {
-            alertBearingClearance: true,
-          },
-        },
       },
     });
   }
@@ -98,7 +90,6 @@ export class MachinesService {
       include: {
         blueprint: true;
         fields: true;
-        services: { include: { alertBearingClearance: true } };
       };
     }>[]
   > {
@@ -108,13 +99,6 @@ export class MachinesService {
         blueprint: true,
         branch: true,
         fields: true,
-        services: {
-          take: 1,
-          orderBy: { date: 'desc' },
-          include: {
-            alertBearingClearance: true,
-          },
-        },
       },
     });
   }

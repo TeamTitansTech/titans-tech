@@ -52,7 +52,6 @@ export class MachinesController {
       include: {
         blueprint: true;
         fields: true;
-        services: { include: { alertBearingClearance: true } };
       };
     }>[]
   > {

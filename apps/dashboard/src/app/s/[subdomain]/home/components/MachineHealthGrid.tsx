@@ -4,21 +4,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { getAlertStatus, type AlertStatus } from '@/lib/alertStatus';
+import type { AlertStatus } from '@/lib/alertStatus';
 import type { Machine } from '@/data/services/machines.api';
 
+interface MachineWithStatus extends Machine {
+  alertStatus?: AlertStatus;
+}
+
 interface MachineHealthGridProps {
-  machines: Machine[];
+  machines: MachineWithStatus[];
 }
 
 export function MachineHealthGrid({ machines }: MachineHealthGridProps) {
   const t = useTranslations('dashboard.client');
 
-  // Calculate health status from actual alert data
-  const machinesWithStatus = machines.map((machine) => {
-    const healthStatus = getAlertStatus(machine);
-    return { ...machine, healthStatus };
-  });
+  // Machines already have status calculated
+  const machinesWithStatus = machines.map((machine) => ({
+    ...machine,
+    healthStatus: machine.alertStatus || 'unknown',
+  }));
 
   const getStatusColor = (status: AlertStatus) => {
     switch (status) {

@@ -4,11 +4,50 @@
  */
 
 import type { MachineWithStatus } from '@/data/types/production-lines.types';
+import type { LatestReport } from '@/data/types/services.types';
 
 export type AlertStatus = 'ok' | 'warning' | 'critical' | 'unknown';
 export type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
+export type AlertSeverity = 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
 
 /**
+ * Calculate machine alert status from latest report
+ * This aggregates alerts from all sections to determine the overall machine status
+ */
+export const calculateStatusFromLatestReport = (latestReport: LatestReport | null): AlertStatus => {
+  if (!latestReport) {
+    return 'unknown';
+  }
+
+  const allSeverities: AlertSeverity[] = [];
+
+  // Collect severities from BEARING_CLEARANCE section
+  if (latestReport.sections.BEARING_CLEARANCE?.alert) {
+    const alert = latestReport.sections.BEARING_CLEARANCE.alert;
+    allSeverities.push(
+      alert.totalClearance_severity,
+      alert.mainBearings_severity,
+      alert.upperConnectionBearings_severity,
+      alert.wristPinToMatingPart_severity,
+      alert.wristPinToBushing_severity,
+      alert.slideAdjNutToScrewSleeve_severity,
+    );
+  }
+
+  // TODO: Add other sections when their alert logic is implemented
+  // if (latestReport.sections.SLIDE?.alert) { ... }
+  // if (latestReport.sections.CLUTCH?.alert) { ... }
+
+  // Return the most critical severity
+  if (allSeverities.includes('RED')) return 'critical';
+  if (allSeverities.includes('YELLOW')) return 'warning';
+  if (allSeverities.includes('GREEN')) return 'ok';
+
+  return 'unknown';
+};
+
+/**
+ * @deprecated Use calculateStatusFromLatestReport instead
  * Get the overall alert status for a machine based on bearing clearance alerts
  */
 export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
@@ -37,6 +76,58 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
 };
 
 /**
+ * Get the alert status for a specific section from latest report
+ */
+export const getSectionStatusFromReport = (
+  section: string,
+  latestReport: LatestReport | null,
+): SectionStatus => {
+  if (!latestReport) {
+    return 'unknown';
+  }
+
+  switch (section) {
+    case 'BEARING_CLEARANCE': {
+      const bearingData = latestReport.sections.BEARING_CLEARANCE;
+      if (!bearingData?.alert) {
+        return 'unknown';
+      }
+
+      const alert = bearingData.alert;
+
+      // Check all bearing fields for worst severity
+      const severities = [
+        alert.totalClearance_severity,
+        alert.mainBearings_severity,
+        alert.upperConnectionBearings_severity,
+        alert.wristPinToMatingPart_severity,
+        alert.wristPinToBushing_severity,
+        alert.slideAdjNutToScrewSleeve_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      } else if (severities.includes('GREEN')) {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
+    // TODO: Add other sections when their alert logic is implemented
+    // case 'SLIDE':
+    // case 'GIBS':
+    // etc.
+
+    default:
+      return 'ok';
+  }
+};
+
+/**
+ * @deprecated Use getSectionStatusFromReport instead
  * Get the alert status for a specific section
  * Accepts any object with services array (more flexible than MachineWithStatus)
  */

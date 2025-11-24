@@ -10,9 +10,11 @@ import { MonthPerformance } from './MonthPerformance';
 import { MachineHealthGrid } from './MachineHealthGrid';
 import { ServiceTrendsChart } from './ServiceTrendsChart';
 import { ProductionLinesCarousel } from './ProductionLinesCarousel';
-import { getServices } from '@/data/services/services.api';
+import { getServices, getLatestReport } from '@/data/services/services.api';
 import { getMachines } from '@/data/services/machines.api';
 import type { Machine } from '@/data/services/machines.api';
+import { calculateStatusFromLatestReport, type AlertStatus } from '@/lib/alertStatus';
+import type { LatestReport } from '@/data/types/services.types';
 import { Loader2 } from 'lucide-react';
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
@@ -49,11 +51,16 @@ interface Alert {
   createdAt: string;
 }
 
+interface MachineWithStatus extends Machine {
+  latestReport?: LatestReport | null;
+  alertStatus?: AlertStatus;
+}
+
 export function HomePage() {
   const t = useTranslations('dashboard.client');
   const { companyUser } = useCompanyUser();
   const [services, setServices] = useState<Service[]>([]);
-  const [machines, setMachines] = useState<Machine[]>([]);
+  const [machines, setMachines] = useState<MachineWithStatus[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -74,7 +81,32 @@ export function HomePage() {
         }
 
         if (machinesResponse.data) {
-          setMachines(machinesResponse.data as unknown as Machine[]);
+          const machinesData = machinesResponse.data as unknown as Machine[];
+
+          // Fetch latest report for each machine
+          const machinesWithStatus = await Promise.all(
+            machinesData.map(async (machine) => {
+              try {
+                const reportResponse = await getLatestReport(machine.id);
+                const latestReport = reportResponse.data || null;
+                const alertStatus = calculateStatusFromLatestReport(latestReport);
+
+                return {
+                  ...machine,
+                  latestReport,
+                  alertStatus,
+                };
+              } catch (error) {
+                return {
+                  ...machine,
+                  latestReport: null,
+                  alertStatus: 'unknown' as AlertStatus,
+                };
+              }
+            }),
+          );
+
+          setMachines(machinesWithStatus);
         }
 
         // TODO: Fetch alerts from alerts API when available

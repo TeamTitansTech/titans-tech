@@ -8,7 +8,7 @@ import { MachineEditModal } from './MachineEditModal';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { NoPermission } from '@/components/no-permission/NoPermission';
-import { getAlertStatus, type AlertStatus } from '@/lib/alertStatus';
+import { calculateStatusFromLatestReport, type AlertStatus } from '@/lib/alertStatus';
 import {
   Select,
   SelectContent,
@@ -30,6 +30,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { getMachines, deleteMachine } from '@/data/services/machines.api';
+import { getLatestReport } from '@/data/services/services.api';
 import { getBranchesWithPermission, filterByBranchPermission } from '@/lib/branchFilters';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { toast } from 'sonner';
@@ -41,8 +42,8 @@ import {
   PressMountingType,
   MachineFeaturesType,
   type Blueprint,
-  type MachineService,
 } from '@titans-tech/shared/types';
+import type { LatestReport } from '@/data/types/services.types';
 
 interface Machine {
   id: string;
@@ -72,11 +73,15 @@ interface Machine {
   pneumaticSystem?: PneumaticSystemType;
   pressMounting?: PressMountingType;
   features?: MachineFeaturesType;
-  services?: MachineService[];
+}
+
+interface MachineWithStatus extends Machine {
+  latestReport?: LatestReport | null;
+  alertStatus?: AlertStatus;
 }
 
 export function MachinesPageClient() {
-  const [machines, setMachines] = useState<Machine[]>([]);
+  const [machines, setMachines] = useState<MachineWithStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
@@ -158,34 +163,88 @@ export function MachinesPageClient() {
     return userBranch?.deleteMachines || false;
   };
 
-  // Fetch all machines on mount
+  // Fetch all machines on mount and their latest reports
   useEffect(() => {
-    const fetchMachines = async () => {
+    const fetchMachinesWithStatus = async () => {
       setIsLoading(true);
       setError(null);
       setErrorStatus(null);
+
+      // 1. Fetch all machines
       const response = await getMachines();
 
       if (response.errors) {
         setError(response.errors.join(', '));
         setErrorStatus(response.status);
         setMachines([]);
-      } else {
-        setMachines(response.data || []);
+        setIsLoading(false);
+        return;
       }
+
+      const machinesData = response.data || [];
+
+      // 2. Fetch latest report for each machine
+      const machinesWithStatus = await Promise.all(
+        machinesData.map(async (machine) => {
+          try {
+            const reportResponse = await getLatestReport(machine.id);
+            const latestReport = reportResponse.data || null;
+            const alertStatus = calculateStatusFromLatestReport(latestReport);
+
+            return {
+              ...machine,
+              latestReport,
+              alertStatus,
+            };
+          } catch (error) {
+            // If report fetch fails, return machine with unknown status
+            return {
+              ...machine,
+              latestReport: null,
+              alertStatus: 'unknown' as AlertStatus,
+            };
+          }
+        }),
+      );
+
+      setMachines(machinesWithStatus);
       setIsLoading(false);
     };
 
-    fetchMachines();
+    fetchMachinesWithStatus();
   }, []);
 
-  const handleSuccess = () => {
-    // Refresh machines list
-    getMachines().then((response) => {
-      if (response.data) {
-        setMachines(response.data);
-      }
-    });
+  const handleSuccess = async () => {
+    // Refresh machines list with latest reports
+    const response = await getMachines();
+    if (response.data) {
+      const machinesData = response.data;
+
+      // Fetch latest report for each machine
+      const machinesWithStatus = await Promise.all(
+        machinesData.map(async (machine) => {
+          try {
+            const reportResponse = await getLatestReport(machine.id);
+            const latestReport = reportResponse.data || null;
+            const alertStatus = calculateStatusFromLatestReport(latestReport);
+
+            return {
+              ...machine,
+              latestReport,
+              alertStatus,
+            };
+          } catch (error) {
+            return {
+              ...machine,
+              latestReport: null,
+              alertStatus: 'unknown' as AlertStatus,
+            };
+          }
+        }),
+      );
+
+      setMachines(machinesWithStatus);
+    }
   };
 
   const handleEdit = (machine: Machine) => {
@@ -284,8 +343,8 @@ export function MachinesPageClient() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMachines.map((machine) => {
-              // Calculate actual status from alert data
-              const alertStatus = getAlertStatus(machine);
+              // Use calculated alert status from latest report
+              const alertStatus = machine.alertStatus || 'unknown';
               const cardStatus = mapAlertStatusToCardStatus(alertStatus);
 
               return (
