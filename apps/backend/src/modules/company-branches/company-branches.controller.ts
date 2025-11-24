@@ -121,7 +121,6 @@ export class CompanyBranchesController {
       include: {
         blueprint: true;
         fields: true;
-        services: { include: { alertBearingClearance: true } };
       };
     }>[]
   > {

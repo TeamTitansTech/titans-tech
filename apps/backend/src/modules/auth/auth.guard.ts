@@ -118,7 +118,6 @@ export class AuthGuard implements CanActivate {
     }
 
     // From this point on, we know the user is a regular user (not SysAdmin)
-
     const currentUser: CurrentUserInfo = await this.prisma.user.findUnique({
       where: { id: payload.id },
       select: {

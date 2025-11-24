@@ -111,7 +111,6 @@ export class CompanyBranchesService {
       include: {
         blueprint: true;
         fields: true;
-        services: { include: { alertBearingClearance: true } };
       };
     }>[]
   > {
@@ -122,13 +121,6 @@ export class CompanyBranchesService {
           include: {
             blueprint: true,
             fields: true,
-            services: {
-              take: 1,
-              orderBy: { date: 'desc' },
-              include: {
-                alertBearingClearance: true,
-              },
-            },
           },
         },
       },
