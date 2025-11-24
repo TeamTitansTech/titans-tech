@@ -7,14 +7,18 @@ import { CompanyInfoSection } from './CompanyInfoSection';
 import { BranchesSection } from './BranchesSection';
 import { BranchUserManagement } from './BranchUserManagement';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { hasPermissionInAnyBranch } from '@/lib/permissions';
 
 export function CompanySettings() {
   const t = useTranslations('settings');
   const { companyUser } = useCompanyUser();
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
 
-  // Users can always see their assigned branches
-  const hasAssignedBranches = (companyUser?.branches?.length ?? 0) > 0;
+  // Check if user can view branches (company admins/managers or users with readBranches permission)
+  const canViewBranches =
+    companyUser?.isCompanyAdmin ||
+    companyUser?.isCompanyManager ||
+    hasPermissionInAnyBranch(companyUser, 'readBranches');
 
   return (
     <div className="space-y-6 p-8">
@@ -27,7 +31,7 @@ export function CompanySettings() {
 
       <CompanyInfoSection />
 
-      {hasAssignedBranches && (
+      {canViewBranches && (
         <>
           <Separator />
           <BranchesSection

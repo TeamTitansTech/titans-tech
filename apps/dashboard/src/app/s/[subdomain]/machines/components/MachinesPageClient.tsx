@@ -126,8 +126,19 @@ export function MachinesPageClient() {
     [machines, selectedBranchFilter, companyUser],
   );
 
-  // Check if user has permission to create machines in the selected branch
-  const canCreateMachines = () => {
+  // Check if user has permission to create machines in ANY branch (to show/hide button)
+  const hasCreateMachinesPermission = useMemo(() => {
+    if (!companyUser) return false;
+
+    // Company admin and manager can create machines
+    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+
+    // Check if user has createMachines permission in at least one branch
+    return companyUser.branches.some((ub) => ub.createMachines);
+  }, [companyUser]);
+
+  // Check if user can create machines in the currently selected branch (to enable/disable button)
+  const canCreateInSelectedBranch = () => {
     if (!companyUser) return false;
     if (selectedBranchFilter === 'all') return false; // Need to select a specific branch to create
 
@@ -197,6 +208,7 @@ export function MachinesPageClient() {
               alertStatus,
             };
           } catch (error) {
+            console.error(error);
             // If report fetch fails, return machine with unknown status
             return {
               ...machine,
@@ -234,6 +246,7 @@ export function MachinesPageClient() {
               alertStatus,
             };
           } catch (error) {
+            console.error(error);
             return {
               ...machine,
               latestReport: null,
@@ -302,21 +315,26 @@ export function MachinesPageClient() {
               </SelectContent>
             </Select>
 
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <Button onClick={() => setIsModalOpen(true)} disabled={!canCreateMachines()}>
-                    <Plus className="w-4 h-4 mr-2" />
-                    {t('newButton')}
-                  </Button>
-                </div>
-              </TooltipTrigger>
-              {!canCreateMachines() && (
-                <TooltipContent>
-                  <p>{t('selectBranchToCreate')}</p>
-                </TooltipContent>
-              )}
-            </Tooltip>
+            {hasCreateMachinesPermission && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Button
+                      onClick={() => setIsModalOpen(true)}
+                      disabled={!canCreateInSelectedBranch()}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      {t('newButton')}
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                {!canCreateInSelectedBranch() && (
+                  <TooltipContent>
+                    <p>{t('selectBranchToCreate')}</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            )}
           </div>
         </div>
 

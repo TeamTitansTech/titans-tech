@@ -97,6 +97,7 @@ export function HomePage() {
                   alertStatus,
                 };
               } catch (error) {
+                console.error(error);
                 return {
                   ...machine,
                   latestReport: null,
