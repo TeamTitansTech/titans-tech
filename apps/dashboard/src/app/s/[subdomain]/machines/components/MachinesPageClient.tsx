@@ -40,6 +40,8 @@ import {
   PneumaticSystemType,
   PressMountingType,
   MachineFeaturesType,
+  type Blueprint,
+  type MachineService,
 } from '@titans-tech/shared/types';
 
 interface Machine {
@@ -47,10 +49,10 @@ interface Machine {
   name: string;
   blueprintId: string;
   branchId: string;
+  createdAt: string;
+  updatedAt: string;
   fields: { fieldSlug: string; value: string | number }[];
-  blueprint?: {
-    name: string;
-  };
+  blueprint?: Blueprint;
   branch?: {
     id: string;
     name: string;
@@ -59,24 +61,18 @@ interface Machine {
   location?: string;
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';
-  manufacturer?: string | null;
-  model?: string | null;
-  sizeTonnage?: string | null;
-  serialNumber?: string | null;
-  stroke?: string | null;
-  foundationType?: FoundationType | null;
-  frameType?: FrameType | null;
-  clutchType?: MachineClutchType | null;
-  pneumaticSystem?: PneumaticSystemType | null;
-  pressMounting?: PressMountingType | null;
-  features?: MachineFeaturesType | null;
-  services?: Array<{
-    id: string;
-    date: string;
-    alertBearingClearance?: {
-      totalClearance_severity: 'RED' | 'YELLOW' | 'GREEN' | 'NONE';
-    };
-  }>;
+  manufacturer?: string;
+  model?: string;
+  sizeTonnage?: string;
+  serialNumber?: string;
+  stroke?: string;
+  foundationType?: FoundationType;
+  frameType?: FrameType;
+  clutchType?: MachineClutchType;
+  pneumaticSystem?: PneumaticSystemType;
+  pressMounting?: PressMountingType;
+  features?: MachineFeaturesType;
+  services?: MachineService[];
 }
 
 export function MachinesPageClient() {
@@ -289,7 +285,7 @@ export function MachinesPageClient() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMachines.map((machine) => {
               // Calculate actual status from alert data
-              const alertStatus = getAlertStatus(machine as any);
+              const alertStatus = getAlertStatus(machine);
               const cardStatus = mapAlertStatusToCardStatus(alertStatus);
 
               return (
