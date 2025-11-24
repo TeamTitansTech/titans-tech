@@ -164,7 +164,8 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const branchId = request.params?.branchId;
+    // Extract branchId from params (URL) or body (POST requests)
+    const branchId = request.params?.branchId || request.body?.branchId;
     const companyId = request.params?.companyId;
 
     this.validateCorrectRouteConfiguration({

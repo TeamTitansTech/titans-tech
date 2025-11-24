@@ -34,13 +34,19 @@ import {
   PistonsCheckSchema,
   LatestReportResponseDto,
 } from '@titans-tech/shared/backend-dtos';
-import { Public, Authenticated } from 'src/modules/auth/auth.decorators';
+import { Authenticated } from 'src/modules/auth/auth.decorators';
 import { ZodValidationPipe } from '../errors/zod-validation.pipe';
 
 @Controller('services')
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
-  @Public()
+
+  /**
+   * Create a new service/inspection
+   * TODO: Add @BranchPermission('createServices') after restructuring routes to include machineId/branchId in path
+   * Current: Requires authentication only, service validation happens in service layer
+   */
+  @Authenticated()
   @Post()
   create(
     @Body(new ZodValidationPipe(CreateServiceSchema))
@@ -48,17 +54,35 @@ export class ServicesController {
   ): Promise<unknown> {
     return this.servicesService.create(createServiceDto);
   }
-  @Public()
+
+  /**
+   * Get all services
+   * TODO: Add @BranchPermission('readServices') and filter by accessible branches
+   * Current: Requires authentication only, returns all services (should filter by user's branches)
+   */
+  @Authenticated()
   @Get()
   findAll(): Promise<unknown> {
     return this.servicesService.findAll();
   }
-  @Public()
+
+  /**
+   * Get service by ID
+   * TODO: Add @BranchPermission('readServices') with resource lookup
+   * Current: Requires authentication only
+   */
+  @Authenticated()
   @Get(':id')
   findOne(@Param('id') id: string): Promise<unknown> {
     return this.servicesService.findOne(id);
   }
-  @Public()
+
+  /**
+   * Get services for a specific machine
+   * TODO: Add @BranchPermission('readServices') - need to lookup machine's branchId first
+   * Current: Requires authentication only
+   */
+  @Authenticated()
   @Get('machine/:machineId')
   findByMachine(@Param('machineId') machineId: string): Promise<unknown> {
     return this.servicesService.findByMachine(machineId);

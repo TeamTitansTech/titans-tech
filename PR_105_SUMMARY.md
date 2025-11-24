@@ -107,6 +107,43 @@ This PR implements a comprehensive client user portal with production line manag
 - **Fix**: Wrapped `fetchUser` in `useCallback` with proper `[isClientRoute]` dependency
 - **Impact**: Proper dependency tracking, removed eslint-disable comment, prevents stale closures
 
+12. **Production Lines Not Using NestJS Guard Pattern**
+
+- Files:
+  - `apps/backend/src/modules/auth/auth.decorators.ts`
+  - `apps/backend/src/modules/auth/auth.guard.ts`
+  - `apps/backend/src/production-lines/production-lines.controller.ts`
+  - `apps/backend/src/production-lines/production-lines.service.ts`
+- **Issue**: Production lines controller using only `@Authenticated()` with manual service-level permission checks instead of declarative `@BranchPermission` guards
+- **Fix**:
+  - Added production line permissions to `BranchPermissionType` (`readProductionLines`, `createProductionLines`, `updateProductionLines`, `deleteProductionLines`)
+  - Extended `AuthGuard` to check `request.body?.branchId` for POST requests
+  - Refactored create endpoint to use `@BranchPermission('createProductionLines')`
+  - Removed manual `validateUserBranchAccess` call from create method
+- **Impact**: Consistent authorization pattern across codebase, centralized permission logic in guard, follows NestJS best practices
+
+13. **CRITICAL: Services Controller Security Vulnerability**
+
+- File: `apps/backend/src/services/services.controller.ts`
+- **Issue**: Multiple endpoints using `@Public()` decorator, allowing unauthenticated access to sensitive service/inspection data (create, findAll, findOne, findByMachine endpoints)
+- **Fix**:
+  - Changed `@Public()` to `@Authenticated()` on create endpoint (POST /)
+  - Changed `@Public()` to `@Authenticated()` on findAll endpoint (GET /)
+  - Changed `@Public()` to `@Authenticated()` on findOne endpoint (GET /:id)
+  - Changed `@Public()` to `@Authenticated()` on findByMachine endpoint (GET /machine/:machineId)
+  - Added TODO comments indicating future work needed for proper `@BranchPermission` guards
+- **Impact**: Critical security fix - prevents unauthorized access to sensitive machine inspection data. Currently requires authentication minimum, future enhancement will add branch-level permission checking.
+
+14. **Machines Controller Missing NestJS Guard Pattern**
+
+- File: `apps/backend/src/machines/machines.controller.ts`
+- **Issue**: Create endpoint only using `@Authenticated()` with no permission validation; other endpoints lacking proper authorization
+- **Fix**:
+  - Changed create endpoint (POST /) to use `@BranchPermission('createMachines')`
+  - Added TODO comments on remaining endpoints (GET, GET/:id, PUT/:id, DELETE/:id) explaining they need `@BranchPermission` with resource lookup
+  - Added comprehensive JSDoc comments documenting current vs desired authorization state
+- **Impact**: Create endpoint now properly validates `createMachines` permission for target branch. Remaining endpoints documented for future refactoring (GET operations need filtering by accessible branches, PUT/DELETE need resource lookup).
+
 ---
 
 ## 🔧 Code Refactoring
@@ -453,10 +490,13 @@ This PR successfully implements a complete client user portal with:
 
 - Eliminated ~50 lines of duplicated code
 - Added 2 reusable utility files
-- Fixed 11 bugs and code quality issues
+- Fixed 14 bugs and code quality issues (including 1 critical security vulnerability)
 - Improved performance with early returns
 - Enhanced type safety across codebase
 - Removed 3 eslint-disable comments (React anti-patterns fixed)
+- Standardized authorization pattern using NestJS Guards
+- Extended AuthGuard to support branchId in request body
+- Secured all service/inspection endpoints with authentication
 
 **Ready for Production:** Yes ✅
 

@@ -12,7 +12,10 @@ import { Prisma } from '@titans-tech/db';
 import { ProductionLinesService } from './production-lines.service';
 import { CreateProductionLineDto } from './dto/create-production-line.dto';
 import { UpdateProductionLineDto } from './dto/update-production-line.dto';
-import { Authenticated } from '../modules/auth/auth.decorators';
+import {
+  Authenticated,
+  BranchPermission,
+} from '../modules/auth/auth.decorators';
 import { ReqWithAuthUser } from '../types/request';
 
 @Controller('production-lines')
@@ -20,7 +23,12 @@ export class ProductionLinesController {
   constructor(
     private readonly productionLinesService: ProductionLinesService,
   ) {}
-  @Authenticated()
+
+  /**
+   * Create a new production line
+   * Requires createProductionLines permission for the target branch (branchId in body)
+   */
+  @BranchPermission('createProductionLines')
   @Post()
   create(
     @Request() req: ReqWithAuthUser,
@@ -33,10 +41,7 @@ export class ProductionLinesController {
       };
     }>
   > {
-    return this.productionLinesService.create(
-      req.user.id,
-      createProductionLineDto,
-    );
+    return this.productionLinesService.create(createProductionLineDto);
   }
 
   @Authenticated()

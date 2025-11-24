@@ -15,14 +15,21 @@ import {
   UpdateMachineDto,
   UpdateMachineSchema,
 } from '@titans-tech/shared/backend-dtos';
-import { Authenticated } from 'src/modules/auth/auth.decorators';
+import {
+  Authenticated,
+  BranchPermission,
+} from 'src/modules/auth/auth.decorators';
 import { ZodValidationPipe } from '../errors/zod-validation.pipe';
 
 @Controller('machines')
 export class MachinesController {
   constructor(private readonly machinesService: MachinesService) {}
 
-  @Authenticated()
+  /**
+   * Create a new machine
+   * Requires createMachines permission for the target branch (branchId in body)
+   */
+  @BranchPermission('createMachines')
   @Post()
   create(
     @Body(new ZodValidationPipe(CreateMachineSchema))
@@ -33,6 +40,11 @@ export class MachinesController {
     return this.machinesService.create(createMachineDto);
   }
 
+  /**
+   * Get all machines
+   * TODO: Add @BranchPermission('readMachines') and filter by accessible branches
+   * Current: Requires authentication only, returns all machines (should filter by user's branches)
+   */
   @Authenticated()
   @Get()
   findAll(): Promise<
@@ -47,6 +59,11 @@ export class MachinesController {
     return this.machinesService.findAll();
   }
 
+  /**
+   * Get machine by ID
+   * TODO: Add @BranchPermission('readMachines') with resource lookup
+   * Current: Requires authentication only
+   */
   @Authenticated()
   @Get(':id')
   findOne(@Param('id') id: string): Promise<
@@ -72,6 +89,11 @@ export class MachinesController {
     return this.machinesService.findOne(id);
   }
 
+  /**
+   * Update machine
+   * TODO: Add @BranchPermission('updateMachines') with resource lookup
+   * Current: Requires authentication only
+   */
   @Authenticated()
   @Put(':id')
   update(
@@ -84,6 +106,11 @@ export class MachinesController {
     return this.machinesService.update(id, updateMachineDto);
   }
 
+  /**
+   * Delete machine
+   * TODO: Add @BranchPermission('deleteMachines') with resource lookup
+   * Current: Requires authentication only
+   */
   @Authenticated()
   @Delete(':id')
   delete(@Param('id') id: string): Promise<void> {

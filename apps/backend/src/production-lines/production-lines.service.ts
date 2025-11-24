@@ -79,10 +79,7 @@ export class ProductionLinesService {
     return user.branches.map((ub) => ub.branchId);
   }
 
-  async create(
-    userId: string,
-    createProductionLineDto: CreateProductionLineDto,
-  ): Promise<
+  async create(createProductionLineDto: CreateProductionLineDto): Promise<
     Prisma.ProductionLineGetPayload<{
       include: {
         branch: true;
@@ -90,11 +87,7 @@ export class ProductionLinesService {
       };
     }>
   > {
-    await this.validateUserBranchAccess(
-      userId,
-      createProductionLineDto.branchId,
-    );
-
+    // Permission check handled by @BranchPermission('createProductionLines') guard
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id: createProductionLineDto.branchId },
     });
