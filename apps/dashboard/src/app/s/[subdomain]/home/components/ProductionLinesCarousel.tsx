@@ -19,6 +19,7 @@ import Image from 'next/image';
 import {
   getAlertStatus,
   getSectionStatus,
+  getProductionLineStatus,
   statusColors,
   sectionStatusColors,
 } from '@/lib/alertStatus';
@@ -124,18 +125,25 @@ export function ProductionLinesCarousel() {
               const machines = line.machines || [];
               const filteredMachines = machines.filter((pm) => pm.machine);
               const machineCount = filteredMachines.length;
+              const machinesWithStatus = filteredMachines.map((pm) => pm.machine!);
+              const lineStatus = getProductionLineStatus(machinesWithStatus);
 
               return (
                 <CarouselItem key={line.id} className="pl-2 md:pl-4 basis-full">
                   <Card
-                    className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
+                    className="relative cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
                     onClick={() => handleCardClick(line.id)}
                   >
+                    {/* Production Line Status Indicator */}
+                    <div
+                      className={`absolute top-4 right-4 w-3 h-3 rounded-full ${statusColors[lineStatus]} z-10`}
+                    />
+
                     <CardContent className="p-6">
                       <div className="flex flex-col gap-4">
                         {/* Header */}
                         <div className="flex items-start justify-between">
-                          <div className="flex-1">
+                          <div className="flex-1 pr-6">
                             <h3 className="font-semibold text-lg line-clamp-1">{line.name}</h3>
                             <p className="text-sm text-muted-foreground mt-1">
                               {line.branch?.name || tProdLines('noBlueprintAssigned')}

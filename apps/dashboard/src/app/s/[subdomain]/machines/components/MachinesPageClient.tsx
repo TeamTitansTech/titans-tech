@@ -8,6 +8,7 @@ import { MachineEditModal } from './MachineEditModal';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { NoPermission } from '@/components/no-permission/NoPermission';
+import { getAlertStatus, type AlertStatus } from '@/lib/alertStatus';
 import {
   Select,
   SelectContent,
@@ -69,6 +70,13 @@ interface Machine {
   pneumaticSystem?: PneumaticSystemType | null;
   pressMounting?: PressMountingType | null;
   features?: MachineFeaturesType | null;
+  services?: Array<{
+    id: string;
+    date: string;
+    alertBearingClearance?: {
+      totalClearance_severity: 'RED' | 'YELLOW' | 'GREEN' | 'NONE';
+    };
+  }>;
 }
 
 export function MachinesPageClient() {
@@ -84,6 +92,22 @@ export function MachinesPageClient() {
   const [machineToDelete, setMachineToDelete] = useState<{ id: string; name: string } | null>(null);
   const t = useTranslations('machines');
   const { companyUser } = useCompanyUser();
+
+  // Helper to map alert status to machine card status
+  const mapAlertStatusToCardStatus = (
+    alertStatus: AlertStatus,
+  ): 'operational' | 'maintenance' | 'offline' => {
+    switch (alertStatus) {
+      case 'ok':
+        return 'operational';
+      case 'warning':
+        return 'maintenance';
+      case 'critical':
+        return 'offline';
+      default:
+        return 'operational';
+    }
+  };
 
   const { execute: executeDelete, isLoading: isDeleting } = useLazyQuery((id: string) =>
     deleteMachine(id),
@@ -263,23 +287,31 @@ export function MachinesPageClient() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredMachines.map((machine) => (
-              <MachineCard
-                key={machine.id}
-                id={machine.id}
-                name={machine.name}
-                blueprintName={machine.blueprint?.name || t('noBlueprint')}
-                location={machine.branch?.name}
-                lastInspection={machine.lastInspection}
-                status={machine.status}
-                onEdit={canUpdateMachine(machine.branchId) ? () => handleEdit(machine) : undefined}
-                onDelete={
-                  canDeleteMachine(machine.branchId)
-                    ? () => handleDeleteClick({ id: machine.id, name: machine.name })
-                    : undefined
-                }
-              />
-            ))}
+            {filteredMachines.map((machine) => {
+              // Calculate actual status from alert data
+              const alertStatus = getAlertStatus(machine as any);
+              const cardStatus = mapAlertStatusToCardStatus(alertStatus);
+
+              return (
+                <MachineCard
+                  key={machine.id}
+                  id={machine.id}
+                  name={machine.name}
+                  blueprintName={machine.blueprint?.name || t('noBlueprint')}
+                  location={machine.branch?.name}
+                  lastInspection={machine.lastInspection}
+                  status={cardStatus}
+                  onEdit={
+                    canUpdateMachine(machine.branchId) ? () => handleEdit(machine) : undefined
+                  }
+                  onDelete={
+                    canDeleteMachine(machine.branchId)
+                      ? () => handleDeleteClick({ id: machine.id, name: machine.name })
+                      : undefined
+                  }
+                />
+              );
+            })}
           </div>
         )}
       </div>

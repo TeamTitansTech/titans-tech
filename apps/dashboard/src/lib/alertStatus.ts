@@ -109,3 +109,36 @@ export const statusLabels = {
   critical: 'Crítico',
   unknown: 'Sem dados',
 } as const;
+
+/**
+ * Get the overall status for a production line based on all its machines
+ * Returns the worst status among all machines (critical > warning > ok > unknown)
+ */
+export const getProductionLineStatus = (machines: MachineWithStatus[]): AlertStatus => {
+  if (!machines || machines.length === 0) {
+    return 'unknown';
+  }
+
+  let hasCritical = false;
+  let hasWarning = false;
+  let hasOk = false;
+
+  for (const machine of machines) {
+    const status = getAlertStatus(machine);
+
+    if (status === 'critical') {
+      hasCritical = true;
+    } else if (status === 'warning') {
+      hasWarning = true;
+    } else if (status === 'ok') {
+      hasOk = true;
+    }
+  }
+
+  // Return worst status
+  if (hasCritical) return 'critical';
+  if (hasWarning) return 'warning';
+  if (hasOk) return 'ok';
+
+  return 'unknown';
+};

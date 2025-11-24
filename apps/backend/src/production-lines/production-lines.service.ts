@@ -178,6 +178,15 @@ export class ProductionLinesService {
               include: {
                 blueprint: true,
                 fields: true,
+                services: {
+                  take: 1,
+                  orderBy: {
+                    date: 'desc',
+                  },
+                  include: {
+                    alertBearingClearance: true,
+                  },
+                },
               },
             },
           },

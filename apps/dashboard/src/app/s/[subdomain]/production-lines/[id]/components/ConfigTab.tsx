@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { useBranch } from '@/contexts/BranchContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -81,7 +80,6 @@ function SortableItem({ id, index, machineName }: SortableItemProps) {
 
 export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   const t = useTranslations('productionLines');
-  const { selectedBranchId } = useBranch();
   const [allMachines, setAllMachines] = useState<MachineWithBranch[]>([]);
 
   const initialMachineIds =
@@ -99,7 +97,8 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
     }),
   );
 
-  const availableMachines = allMachines.filter((m) => m.branch?.id === selectedBranchId);
+  // Use the production line's branch instead of global context
+  const availableMachines = allMachines.filter((m) => m.branch?.id === productionLine.branchId);
 
   useEffect(() => {
     const loadMachines = async () => {
@@ -146,16 +145,6 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   };
 
   const handleSave = async () => {
-    if (!selectedBranchId) {
-      toast.error('Nenhuma filial selecionada');
-      return;
-    }
-
-    if (productionLine.branchId !== selectedBranchId) {
-      toast.error('Esta linha de produção pertence a outra filial');
-      return;
-    }
-
     setIsSaving(true);
     try {
       const response = await updateProductionLine(productionLine.id, {
@@ -178,31 +167,6 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
       setIsSaving(false);
     }
   };
-
-  if (!selectedBranchId) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-muted-foreground">
-            Por favor, selecione uma filial no menu superior para configurar linhas de produção.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (productionLine.branchId !== selectedBranchId) {
-    return (
-      <Card>
-        <CardContent className="p-6">
-          <p className="text-muted-foreground">
-            Esta linha de produção pertence a outra filial. Selecione a filial correta no menu
-            superior para editá-la.
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <div className="space-y-6">
