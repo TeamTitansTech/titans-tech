@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
-import { useBranch } from '@/contexts/BranchContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import {
   Dialog,
@@ -28,17 +27,18 @@ interface CreateProductionLineDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: (productionLine: ProductionLine) => void;
+  branchId?: string;
 }
 
 export function CreateProductionLineDialog({
   open,
   onOpenChange,
   onSuccess,
+  branchId,
 }: CreateProductionLineDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const t = useTranslations('productionLines');
   const router = useInternalRouter();
-  const { selectedBranchId } = useBranch();
   const { companyUser } = useCompanyUser();
 
   const schema = useMemo(
@@ -61,8 +61,8 @@ export function CreateProductionLineDialog({
   });
 
   const onSubmit = async (data: FormData) => {
-    if (!selectedBranchId) {
-      toast.error('Selecione uma filial no menu superior');
+    if (!branchId) {
+      toast.error('Selecione uma filial');
       return;
     }
 
@@ -70,7 +70,7 @@ export function CreateProductionLineDialog({
     try {
       const response = await createProductionLine({
         name: data.name,
-        branchId: selectedBranchId,
+        branchId: branchId,
         machineIds: [],
         createdBy: companyUser?.id,
       });
