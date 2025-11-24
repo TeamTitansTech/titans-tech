@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'media.tenor.com',
       },
+      // AWS S3 bucket for blueprint and machine images
+      {
+        protocol: 'https',
+        hostname: '*.s3.*.amazonaws.com',
+        pathname: '/**',
+      },
       // Allow localhost for subdomain image loading in development
       {
         protocol: 'http',

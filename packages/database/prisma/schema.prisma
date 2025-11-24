@@ -501,10 +501,11 @@ model ThresholdBearingClearance {
 }
 
 model Machine {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   blueprintId String
   branchId    String
   name        String // Machine name/identifier
+  imageUrl    String? // Inherited from blueprint or custom image
 
   // Machine specifications
   manufacturer    String?

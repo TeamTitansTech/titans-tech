@@ -35,12 +35,14 @@ export class MachinesService {
         `Branch with ID ${createMachineDto.branchId} not found`,
       );
     }
+    const imageUrl = createMachineDto.imageUrl || blueprint.imageUrl;
 
     const machine = await this.prisma.machine.create({
       data: {
         blueprintId: createMachineDto.blueprintId,
         branchId: createMachineDto.branchId,
         name: createMachineDto.name,
+        imageUrl: imageUrl,
         manufacturer: createMachineDto.manufacturer,
         sizeTonnage: createMachineDto.sizeTonnage,
         serialNumber: createMachineDto.serialNumber,
@@ -178,6 +180,7 @@ export class MachinesService {
       data: {
         name: updateMachineDto.name,
         blueprintId: updateMachineDto.blueprintId,
+        imageUrl: updateMachineDto.imageUrl,
         // Machine specifications
         manufacturer: updateMachineDto.manufacturer,
         sizeTonnage: updateMachineDto.sizeTonnage,

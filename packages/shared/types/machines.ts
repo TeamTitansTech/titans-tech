@@ -73,6 +73,7 @@ export interface CreateMachinePayload {
   fields: MachineField[];
 
   // Optional machine specifications
+  imageUrl?: string;
   manufacturer?: string;
   sizeTonnage?: string;
   serialNumber?: string;
@@ -92,6 +93,7 @@ export interface UpdateMachinePayload {
   fields?: MachineField[];
 
   // Optional machine specifications
+  imageUrl?: string;
   manufacturer?: string;
   sizeTonnage?: string;
   serialNumber?: string;
