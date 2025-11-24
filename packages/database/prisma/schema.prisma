@@ -1107,11 +1107,11 @@ model Email {
 // TRAMMING Section
 
 model MachineServiceTramming {
-  id               String        @id @default(cuid())
+  id               String                 @id @default(cuid())
   machineServiceId String
   outerDataId      String?
   innerDataId      String?
-  slideTram        YesNoDncType?
+  slideTram        DncToBedToBolsterType?
 
   // Notes
   notes String?
@@ -1126,53 +1126,29 @@ model MachineServiceTramming {
 model TrammingData {
   id String @id @default(cuid())
 
-  // OUTER SECTION - Top Position (4 measurements around trim pin)
-  outerTopTop    Decimal @db.Decimal(10, 4)
-  outerTopBottom Decimal @db.Decimal(10, 4)
-  outerTopLeft   Decimal @db.Decimal(10, 4)
-  outerTopRight  Decimal @db.Decimal(10, 4)
+  // Top Position (4 measurements around trim pin)
+  topTop    Decimal @db.Decimal(10, 4)
+  topBottom Decimal @db.Decimal(10, 4)
+  topLeft   Decimal @db.Decimal(10, 4)
+  topRight  Decimal @db.Decimal(10, 4)
 
-  // OUTER SECTION - Bottom Position (4 measurements around trim pin)
-  outerBottomTop    Decimal @db.Decimal(10, 4)
-  outerBottomBottom Decimal @db.Decimal(10, 4)
-  outerBottomLeft   Decimal @db.Decimal(10, 4)
-  outerBottomRight  Decimal @db.Decimal(10, 4)
+  // Bottom Position (4 measurements around trim pin)
+  bottomTop    Decimal @db.Decimal(10, 4)
+  bottomBottom Decimal @db.Decimal(10, 4)
+  bottomLeft   Decimal @db.Decimal(10, 4)
+  bottomRight  Decimal @db.Decimal(10, 4)
 
-  // OUTER SECTION - Left Position (4 measurements around trim pin)
-  outerLeftTop    Decimal @db.Decimal(10, 4)
-  outerLeftBottom Decimal @db.Decimal(10, 4)
-  outerLeftLeft   Decimal @db.Decimal(10, 4)
-  outerLeftRight  Decimal @db.Decimal(10, 4)
+  // Left Position (4 measurements around trim pin)
+  leftTop    Decimal @db.Decimal(10, 4)
+  leftBottom Decimal @db.Decimal(10, 4)
+  leftLeft   Decimal @db.Decimal(10, 4)
+  leftRight  Decimal @db.Decimal(10, 4)
 
-  // OUTER SECTION - Right Position (4 measurements around trim pin)
-  outerRightTop    Decimal @db.Decimal(10, 4)
-  outerRightBottom Decimal @db.Decimal(10, 4)
-  outerRightLeft   Decimal @db.Decimal(10, 4)
-  outerRightRight  Decimal @db.Decimal(10, 4)
-
-  // INNER SECTION - Top Position (4 measurements around trim pin)
-  innerTopTop    Decimal @db.Decimal(10, 4)
-  innerTopBottom Decimal @db.Decimal(10, 4)
-  innerTopLeft   Decimal @db.Decimal(10, 4)
-  innerTopRight  Decimal @db.Decimal(10, 4)
-
-  // INNER SECTION - Bottom Position (4 measurements around trim pin)
-  innerBottomTop    Decimal @db.Decimal(10, 4)
-  innerBottomBottom Decimal @db.Decimal(10, 4)
-  innerBottomLeft   Decimal @db.Decimal(10, 4)
-  innerBottomRight  Decimal @db.Decimal(10, 4)
-
-  // INNER SECTION - Left Position (4 measurements around trim pin)
-  innerLeftTop    Decimal @db.Decimal(10, 4)
-  innerLeftBottom Decimal @db.Decimal(10, 4)
-  innerLeftLeft   Decimal @db.Decimal(10, 4)
-  innerLeftRight  Decimal @db.Decimal(10, 4)
-
-  // INNER SECTION - Right Position (4 measurements around trim pin)
-  innerRightTop    Decimal @db.Decimal(10, 4)
-  innerRightBottom Decimal @db.Decimal(10, 4)
-  innerRightLeft   Decimal @db.Decimal(10, 4)
-  innerRightRight  Decimal @db.Decimal(10, 4)
+  // Right Position (4 measurements around trim pin)
+  rightTop    Decimal @db.Decimal(10, 4)
+  rightBottom Decimal @db.Decimal(10, 4)
+  rightLeft   Decimal @db.Decimal(10, 4)
+  rightRight  Decimal @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1210,29 +1186,17 @@ model MachineServicePistons {
 model PistonsData {
   id String @id @default(cuid())
 
-  // OUTER SECTION - LH Piston (4 measurements around piston)
-  outerLhTop    Decimal @db.Decimal(10, 4)
-  outerLhBottom Decimal @db.Decimal(10, 4)
-  outerLhLeft   Decimal @db.Decimal(10, 4)
-  outerLhRight  Decimal @db.Decimal(10, 4)
+  // LH Piston (4 measurements around piston)
+  lhTop    Decimal @db.Decimal(10, 4)
+  lhBottom Decimal @db.Decimal(10, 4)
+  lhLeft   Decimal @db.Decimal(10, 4)
+  lhRight  Decimal @db.Decimal(10, 4)
 
-  // OUTER SECTION - RH Piston (4 measurements around piston)
-  outerRhTop    Decimal @db.Decimal(10, 4)
-  outerRhBottom Decimal @db.Decimal(10, 4)
-  outerRhLeft   Decimal @db.Decimal(10, 4)
-  outerRhRight  Decimal @db.Decimal(10, 4)
-
-  // INNER SECTION - LH Piston (4 measurements around piston)
-  innerLhTop    Decimal @db.Decimal(10, 4)
-  innerLhBottom Decimal @db.Decimal(10, 4)
-  innerLhLeft   Decimal @db.Decimal(10, 4)
-  innerLhRight  Decimal @db.Decimal(10, 4)
-
-  // INNER SECTION - RH Piston (4 measurements around piston)
-  innerRhTop    Decimal @db.Decimal(10, 4)
-  innerRhBottom Decimal @db.Decimal(10, 4)
-  innerRhLeft   Decimal @db.Decimal(10, 4)
-  innerRhRight  Decimal @db.Decimal(10, 4)
+  // RH Piston (4 measurements around piston)
+  rhTop    Decimal @db.Decimal(10, 4)
+  rhBottom Decimal @db.Decimal(10, 4)
+  rhLeft   Decimal @db.Decimal(10, 4)
+  rhRight  Decimal @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
