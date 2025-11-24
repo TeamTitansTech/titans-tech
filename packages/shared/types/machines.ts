@@ -1,6 +1,20 @@
 /**
  * Shared Machine Types
  * Used by both frontend and backend
+ *
+ * TODO: This file should be refactored to re-export types from Prisma instead of
+ * manually defining interfaces. This would ensure single source of truth and prevent
+ * schema drift. Current issues:
+ * - branchId field is missing (exists in Prisma schema)
+ * - Some fields like imageUrl, client, location don't exist in Prisma schema
+ * - inspections[] doesn't exist (should use services[] which already exists)
+ *
+ * Proper approach: Re-export types from @titans-tech/db and create helper types
+ * for common includes (e.g., MachineWithBlueprint, MachineWithRelations)
+ *
+ * Related files that need migration:
+ * - apps/dashboard/src/data/services/machines.api.ts
+ * - apps/dashboard/src/data/types/machines.types.ts
  */
 
 import { Blueprint } from './blueprints';
