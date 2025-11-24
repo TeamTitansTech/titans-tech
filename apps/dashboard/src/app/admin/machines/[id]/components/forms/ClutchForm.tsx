@@ -35,6 +35,8 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
   const tSections = useTranslations('inspections.form.clutch.sections');
   const tPlaceholders = useTranslations('inspections.form.clutch.placeholders');
   const tNotes = useTranslations('inspections.form.clutch.notes');
+  const tCommon = useTranslations('common.status');
+
   const handleSelectChange = (field: keyof ClutchData, value: string) => {
     updateFn(field, value);
   };
@@ -42,6 +44,40 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
   const handleNumberChange = (field: keyof ClutchData, value: string) => {
     const numValue = value === '' ? undefined : Number(value);
     updateFn(field, numValue);
+  };
+
+  // Helper function to translate enum values for display
+  const translateEnum = (value: string): string => {
+    const enumMap: Record<string, string> = {
+      OK: tCommon('ok'),
+      NA: tCommon('na'),
+      DNC: tCommon('dnc'),
+      YES: tCommon('yes'),
+      NO: tCommon('no'),
+      DAMAGED: tCommon('damaged'),
+      LEAKING: tCommon('leaking'),
+      NOT_OPERATIONAL: tCommon('not_operational'),
+      GLAZED: tCommon('glazed'),
+      OIL_SOAKED: tCommon('oil_soaked'),
+      MISSING_SEGMENTS: tCommon('missing_segments'),
+      BROKEN: tCommon('broken'),
+      BENT_WORN: tCommon('bent_worn'),
+      LINING_WORN: tCommon('lining_worn'),
+      NOISE: tCommon('noise'),
+      WOBBLE: tCommon('wobble'),
+      AIR_LEAK: tCommon('air_leak'),
+      OIL_LEAK: tCommon('oil_leak'),
+      CONCENTRICITY: tCommon('concentricity'),
+      SLOW_RESPONSE: tCommon('slow_response'),
+      NOT_VISIBLE: tCommon('not_visible'),
+      WEAR_VISIBLE: tCommon('wear_visible'),
+      NEEDS_OIL: tCommon('needs_oil'),
+      NEEDS_OIL_RESET: tCommon('needs_oil_reset'),
+      NEEDS_RESET: tCommon('needs_reset'),
+      BUCKLED: tCommon('buckled'),
+      CRACKED: tCommon('cracked'),
+    };
+    return enumMap[value] || value;
   };
 
   return (
@@ -161,7 +197,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(BrakeSpringStudBoltType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -197,7 +233,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(BrakeLiningType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -269,7 +305,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(FlywheelBearingsType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -288,7 +324,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(FlywheelBrakeType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -312,7 +348,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(RotaryUnionType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -331,7 +367,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(ClutchLiningType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -350,7 +386,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(ClutchSealsType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -483,7 +519,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(AirLineOilerSettingType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -502,7 +538,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(SplinesConditionType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -521,7 +557,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(AdjustingNutLockType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -540,7 +576,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(SeparateBrakeSealsType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -648,7 +684,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
               <SelectContent>
                 {Object.values(FlexDiscType).map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type}
+                    {translateEnum(type)}
                   </SelectItem>
                 ))}
               </SelectContent>

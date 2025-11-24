@@ -34,6 +34,7 @@ export function UpcomingServicesWrapper({
   services,
 }: UpcomingServicesWrapperProps) {
   const t = useTranslations('machines');
+  const tActions = useTranslations('actions');
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
@@ -41,15 +42,11 @@ export function UpcomingServicesWrapper({
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Filter for upcoming services (future dates and PENDING status)
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const upcomingServices = services.filter((service) => {
-    const serviceDate = new Date(service.date);
-    serviceDate.setHours(0, 0, 0, 0);
-    return serviceDate >= today && service.status === 'PENDING';
-  });
+  const upcomingServices = services
+    .filter((service) => {
+      return service.status === 'PENDING';
+    })
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const handleServiceClick = (service: Service) => {
     setSelectedService(service);
@@ -198,13 +195,13 @@ export function UpcomingServicesWrapper({
             <AlertDialogDescription>{t('deleteServiceDescription')}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>{tActions('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? t('deleting') : t('delete')}
+              {isDeleting ? tActions('deleting') : tActions('delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

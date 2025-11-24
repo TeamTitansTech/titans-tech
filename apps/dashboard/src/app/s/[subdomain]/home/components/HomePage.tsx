@@ -42,9 +42,9 @@ export function HomePage() {
         const totalMachines = machinesRes.data?.length || 0;
         const activeCompanies = companiesRes.data?.length || 0;
 
-        // Count inspections that are not maintenance (routine inspections = pending services)
-        const pendingServices =
-          inspectionsRes.data?.filter((inspection) => !inspection.isMaintenance)?.length || 0;
+        // Count inspections (Services with type=INSPECTION)
+        // Note: getInspections already filters for type='INSPECTION'
+        const pendingServices = inspectionsRes.data?.length || 0;
 
         setStats({
           totalModels,

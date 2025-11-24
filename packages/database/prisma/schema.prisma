@@ -389,9 +389,11 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company   Company      @relation(fields: [companyId], references: [id])
-  companyId String
-  branches  UserBranch[]
+  company                     Company              @relation(fields: [companyId], references: [id])
+  companyId                   String
+  branches                    UserBranch[]
+  adminNotificationsCreated   AdminNotification[]  @relation("AdminNotificationsCreated")
+  clientNotificationsReceived ClientNotification[] @relation("ClientNotificationsReceived")
 
   @@map("users")
 }
@@ -506,7 +508,6 @@ model Machine {
 
   // Machine specifications
   manufacturer    String?
-  model           String?
   sizeTonnage     String?
   serialNumber    String?
   stroke          String?
@@ -520,10 +521,13 @@ model Machine {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  blueprint Blueprint        @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
-  branch    CompanyBranch    @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  fields    MachineField[]
-  services  MachineService[]
+  blueprint           Blueprint            @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  branch              CompanyBranch        @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  fields              MachineField[]
+  services            MachineService[]
+  adminNotifications  AdminNotification[]
+  clientNotifications ClientNotification[]
+  emails              Email[]
 
   @@map("machines")
 }
@@ -1006,6 +1010,90 @@ model CounterbalanceCylinderAirbagData {
   innerServices MachineServiceCounterbalanceCylinderAirbag[] @relation("InnerData")
 
   @@map("service_data_counterbalance_cylinder_airbag")
+}
+
+// Notification and Email Models
+
+enum NotificationType {
+  URGENT_SERVICE_REQUEST
+  SERVICE_REMINDER
+  SERVICE_OVERDUE
+  SERVICE_COMPLETED
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum EmailProvider {
+  SENDGRID
+  AWS_SES
+}
+
+model AdminNotification {
+  id              String           @id @default(cuid())
+  machineId       String
+  message         String           @db.Text
+  isRead          Boolean          @default(false)
+  type            NotificationType @default(URGENT_SERVICE_REQUEST)
+  createdByUserId String
+  metadata        Json? // Store additional data like notes, urgency level, etc.
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  machine   Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  createdBy User    @relation("AdminNotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
+
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("admin_notifications")
+}
+
+model ClientNotification {
+  id          String           @id @default(cuid())
+  userId      String
+  machineId   String?
+  message     String           @db.Text
+  isRead      Boolean          @default(false)
+  redirectUrl String? // e.g., "/s/company-slug/machines/123?openServiceModal=true"
+  type        NotificationType
+  metadata    Json? // Store additional contextual data
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  user    User     @relation("ClientNotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
+  machine Machine? @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
+  @@map("client_notifications")
+}
+
+model Email {
+  id         String           @id @default(cuid())
+  to         String
+  from       String
+  subject    String
+  body       String           @db.Text
+  type       NotificationType
+  status     EmailStatus      @default(PENDING)
+  provider   EmailProvider
+  externalId String? // Provider's message ID (SendGrid/SES tracking)
+  error      String?          @db.Text
+  sentAt     DateTime?
+  machineId  String?
+  metadata   Json? // Store additional email data (CC, BCC, attachments info, etc.)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  machine Machine? @relation(fields: [machineId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([type])
+  @@index([createdAt])
+  @@map("emails")
 }
 
 // TRAMMING Section

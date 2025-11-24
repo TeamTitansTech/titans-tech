@@ -32,7 +32,7 @@ import {
   FlexDiscType as PrismaFlexDiscType,
   DriveBeltConditionType as PrismaDriveBeltConditionType,
   ProtectiveCoversStatusType as PrismaProtectiveCoversStatusType,
-} from '@titans-tech/db';
+} from '@titans-tech/db/enums';
 
 // ============================================================================
 // Re-export Prisma Enums
@@ -728,7 +728,6 @@ export interface CounterbalanceCylinderFormProps {
   data: CounterbalanceCylinderData;
   updateFn: (field: keyof CounterbalanceCylinderData, value: string | number | undefined) => void;
   errors: Record<string, string>;
-  handleBlur: (field: keyof CounterbalanceCylinderData) => void;
   title: string;
   hideNotes?: boolean;
 }
@@ -742,13 +741,6 @@ export interface TrammingFormProps {
 }
 
 export interface InspectionModalProps {
-  machineId: string;
-  blueprintSections: string[];
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export interface ServiceCreationModalProps {
   machineId: string;
   blueprintSections: string[];
   open: boolean;

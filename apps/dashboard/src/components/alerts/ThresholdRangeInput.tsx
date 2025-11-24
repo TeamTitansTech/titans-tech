@@ -3,6 +3,7 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useTranslations } from 'next-intl';
+import { useNumericInput } from '@/hooks/useNumericInput';
 
 interface ThresholdRangeInputProps {
   label: string;
@@ -25,6 +26,26 @@ export function ThresholdRangeInput({
 }: ThresholdRangeInputProps) {
   const t = useTranslations('alerts.thresholds');
 
+  // Use numeric input hook for each threshold
+  // Wrap the onChange callbacks to ensure number (never undefined) since thresholds are required
+  const [greenValue, handleGreenChange, handleGreenBlur] = useNumericInput(
+    greenMin,
+    (val) => val !== undefined && onGreenMinChange(val),
+    { maxDecimals: 4, allowNegative: true, required: true },
+  );
+
+  const [yellowValue, handleYellowChange, handleYellowBlur] = useNumericInput(
+    yellowMin,
+    (val) => val !== undefined && onYellowMinChange(val),
+    { maxDecimals: 4, allowNegative: true, min: greenMin, required: true },
+  );
+
+  const [redValue, handleRedChange, handleRedBlur] = useNumericInput(
+    redMin,
+    (val) => val !== undefined && onRedMinChange(val),
+    { maxDecimals: 4, allowNegative: true, min: yellowMin, required: true },
+  );
+
   return (
     <div className="space-y-3">
       <Label className="text-sm font-medium">{label}</Label>
@@ -32,15 +53,15 @@ export function ThresholdRangeInput({
       <div className="h-10 w-full rounded-md overflow-hidden border border-gray-200">
         <div className="flex h-full">
           <div className="bg-green-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            &lt; {yellowMin.toFixed(3)}
+            &lt; {yellowMin}
           </div>
 
           <div className="bg-yellow-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            {yellowMin.toFixed(3)} - &lt; {redMin.toFixed(3)}
+            {yellowMin} - &lt; {redMin}
           </div>
 
           <div className="bg-red-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            ≥ {redMin.toFixed(3)}
+            ≥ {redMin}
           </div>
         </div>
       </div>
@@ -53,10 +74,10 @@ export function ThresholdRangeInput({
           </Label>
           <Input
             type="number"
-            step="0.01"
-            min="0"
-            value={greenMin}
-            onChange={(e) => onGreenMinChange(parseFloat(e.target.value) || 0)}
+            step="0.0001"
+            value={greenValue}
+            onChange={handleGreenChange}
+            onBlur={handleGreenBlur}
             className="text-sm"
           />
         </div>
@@ -68,10 +89,11 @@ export function ThresholdRangeInput({
           </Label>
           <Input
             type="number"
-            step="0.01"
+            step="0.0001"
             min={greenMin}
-            value={yellowMin}
-            onChange={(e) => onYellowMinChange(parseFloat(e.target.value) || 0)}
+            value={yellowValue}
+            onChange={handleYellowChange}
+            onBlur={handleYellowBlur}
             className="text-sm"
           />
         </div>
@@ -83,10 +105,11 @@ export function ThresholdRangeInput({
           </Label>
           <Input
             type="number"
-            step="0.01"
+            step="0.0001"
             min={yellowMin}
-            value={redMin}
-            onChange={(e) => onRedMinChange(parseFloat(e.target.value) || 0)}
+            value={redValue}
+            onChange={handleRedChange}
+            onBlur={handleRedBlur}
             className="text-sm"
           />
         </div>

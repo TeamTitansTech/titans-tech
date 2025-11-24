@@ -50,7 +50,6 @@ export const CreateMachineSchema = z.object({
 
   // Optional machine specifications
   manufacturer: z.string().optional(),
-  model: z.string().optional(),
   sizeTonnage: z.string().optional(),
   serialNumber: z.string().optional(),
   stroke: z.string().optional(),
@@ -78,7 +77,6 @@ export const UpdateMachineSchema = z.object({
 
   // Optional machine specifications
   manufacturer: z.string().optional(),
-  model: z.string().optional(),
   sizeTonnage: z.string().optional(),
   serialNumber: z.string().optional(),
   stroke: z.string().optional(),

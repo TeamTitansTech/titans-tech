@@ -12,6 +12,9 @@ import { CompanyBranchesModule } from './modules/company-branches/company-branch
 import { UsersModule } from './modules/users/users.module';
 import { AlertsModule } from './modules/alerts/alerts.module';
 import { UploadModule } from './modules/upload/upload.module';
+import { EmailModule } from './modules/email/email.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { TasksModule } from './modules/tasks/tasks.module';
 
 @Module({
   imports: [
@@ -26,6 +29,9 @@ import { UploadModule } from './modules/upload/upload.module';
     MachinesModule,
     ServicesModule,
     AlertsModule,
+    EmailModule,
+    NotificationsModule,
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],

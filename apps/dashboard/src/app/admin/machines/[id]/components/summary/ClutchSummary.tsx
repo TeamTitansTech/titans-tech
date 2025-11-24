@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import type { ClutchData } from '@/data/types/services.types';
 import { Typography } from '@/components/ui/typography';
+import { translateEnumValue } from './utils/translateEnum';
 
 interface ClutchSummaryProps {
   data: ClutchData;
@@ -35,24 +36,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
 
   // Helper function to display value with translations
   const displayValue = (value: unknown): string => {
-    if (value === null || value === undefined || value === '') {
-      return '-';
-    }
-    if (typeof value === 'boolean') {
-      return value ? tCommon('yes') : tCommon('no');
-    }
-    // Translate enum values
-    const stringValue = String(value);
-    if (stringValue === 'YES') return tCommon('yes');
-    if (stringValue === 'NO') return tCommon('no');
-    if (stringValue === 'DNC') return tCommon('dnc');
-    if (stringValue === 'NA') return tCommon('na');
-    if (stringValue === 'OK') return tCommon('ok');
-    if (stringValue === 'DAMAGED') return tCommon('damaged');
-    if (stringValue === 'LEAKING') return tCommon('leaking');
-    if (stringValue === 'NOT_OPERATIONAL') return tCommon('not_operational');
-
-    return stringValue;
+    return translateEnumValue(value, tCommon);
   };
 
   // Helper to render a field group - shows all fields even if empty

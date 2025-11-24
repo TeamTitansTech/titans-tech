@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ServiceSection } from '@titans-tech/db';
+import { ServiceSection } from '@titans-tech/db/enums';
 
 // Schema existente para Blueprint
 export const CreateBlueprintSchema = z.object({

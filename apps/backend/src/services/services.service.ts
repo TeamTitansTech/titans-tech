@@ -1689,4 +1689,20 @@ export class ServicesService {
     this.alertsService.generateAlertsForService(serviceId);
     return updatedService;
   }
+
+  async delete(id: string): Promise<void> {
+    // Verify service exists
+    const service = await this.prisma.machineService.findUnique({
+      where: { id },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${id} not found`);
+    }
+
+    // Delete the service (cascade delete will handle related data)
+    await this.prisma.machineService.delete({
+      where: { id },
+    });
+  }
 }

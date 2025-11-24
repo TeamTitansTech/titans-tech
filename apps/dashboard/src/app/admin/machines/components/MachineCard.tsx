@@ -4,15 +4,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Typography } from '@/components/ui/typography';
-import { Wrench, ChevronRight, Calendar, Pencil, Trash2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Wrench, Calendar, Pencil, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { MachineCardProps } from '@/data/types/machines.types';
 
 const statusClassNames = {
-  operational: 'bg-green-600 text-white dark:bg-green-500',
-  maintenance: 'bg-yellow-600 text-white dark:bg-yellow-500',
-  offline: 'bg-red-600 text-white dark:bg-red-500',
+  operational: 'bg-green-600 dark:bg-green-500',
+  maintenance: 'bg-yellow-600 dark:bg-yellow-500',
+  offline: 'bg-red-600 dark:bg-red-500',
 };
 
 interface ExtendedMachineCardProps extends MachineCardProps {
@@ -31,83 +32,111 @@ export function MachineCard({
   onDelete,
 }: ExtendedMachineCardProps) {
   const t = useTranslations('machines');
+  const tActions = useTranslations('actions');
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          <div className="flex items-start justify-between">
-            <div className="flex items-start gap-3 min-w-0 flex-1 mr-2">
-              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                <Wrench className="w-5 h-5 text-accent" />
+    <Link href={`/admin/machines/${id}`} className="block">
+      <Card className="relative shadow-md hover:shadow-xl transition-all duration-200 cursor-pointer hover:-translate-y-1 border-2 hover:border-primary/20">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className={`absolute top-[clamp(0.5rem,1.5vw,0.75rem)] right-[clamp(0.5rem,1.5vw,0.75rem)] w-[clamp(0.75rem,3vw,1rem)] h-[clamp(0.75rem,3vw,1rem)] rounded-full ${statusClassNames[status]}`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+              />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{t(`status.${status}`)}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <CardContent className="p-[clamp(1.25rem,3vw,2rem)]">
+          <div className="space-y-[clamp(0.875rem,2.5vw,1.25rem)]">
+            <div className="flex items-start gap-[clamp(0.625rem,2vw,0.875rem)] min-w-0 pr-5">
+              <div className="w-[clamp(2.25rem,9vw,2.75rem)] h-[clamp(2.25rem,9vw,2.75rem)] rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                <Wrench className="w-[clamp(1.125rem,4.5vw,1.375rem)] h-[clamp(1.125rem,4.5vw,1.375rem)] text-accent" />
               </div>
               <div className="min-w-0 flex-1">
                 <ConditionalTooltip content={name}>
-                  <Typography variant="h3" className="truncate">
+                  <Typography
+                    variant="h3"
+                    className="truncate text-base font-semibold leading-tight"
+                  >
                     {name}
                   </Typography>
                 </ConditionalTooltip>
                 <ConditionalTooltip
                   content={blueprintName}
-                  className="text-sm text-muted-foreground truncate"
+                  className="text-sm text-muted-foreground truncate block leading-snug mt-0.5"
                 >
                   {blueprintName}
                 </ConditionalTooltip>
               </div>
             </div>
-            <span
-              className={`px-3 py-1 rounded-full text-xs font-medium shrink-0 ${statusClassNames[status]}`}
-            >
-              {t(`status.${status}`)}
-            </span>
-          </div>
 
-          <div className="space-y-2">
-            {location && (
-              <Typography variant="small" className="text-muted-foreground">
-                <span className="font-medium">{t('location')}:</span> {location}
-              </Typography>
-            )}
-            {lastInspection && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Calendar className="w-4 h-4" />
-                <Typography variant="small" className="text-muted-foreground">
-                  <span className="font-medium">{t('lastInspection')}:</span> {lastInspection}
+            <div className="space-y-[clamp(0.375rem,1.25vw,0.625rem)]">
+              {location && (
+                <Typography
+                  variant="small"
+                  className="text-muted-foreground text-sm truncate leading-relaxed"
+                >
+                  <span className="font-medium">{t('location')}:</span> {location}
                 </Typography>
+              )}
+              {lastInspection && (
+                <div className="flex items-center gap-[clamp(0.5rem,1.5vw,0.625rem)] text-muted-foreground">
+                  <Calendar className="w-[clamp(0.875rem,3.5vw,1.125rem)] h-[clamp(0.875rem,3.5vw,1.125rem)] shrink-0" />
+                  <Typography
+                    variant="small"
+                    className="text-muted-foreground text-sm truncate leading-relaxed"
+                  >
+                    <span className="font-medium">{t('lastInspection')}:</span> {lastInspection}
+                  </Typography>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <div className="flex gap-2 sm:gap-2.5 md:gap-3 max-w-full">
+                {onEdit && (
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onEdit();
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 px-2 text-sm gap-0 sm:gap-1.5 md:gap-2"
+                  >
+                    <Pencil className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 shrink-0" />
+                    <span className="hidden sm:inline">{tActions('edit')}</span>
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      onDelete();
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 px-2 text-sm text-destructive hover:text-destructive hover:bg-destructive/10 hover:border-destructive/50 gap-0 sm:gap-1.5 md:gap-2"
+                  >
+                    <Trash2 className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 shrink-0" />
+                    <span className="hidden sm:inline">{tActions('delete')}</span>
+                  </Button>
+                )}
               </div>
-            )}
+            </div>
           </div>
-
-          <div className="flex gap-2">
-            <Button asChild variant="outline" className="flex-1 justify-between" size="sm">
-              <Link href={`/admin/machines/${id}`}>
-                {t('viewDetails')}
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </Button>
-          </div>
-
-          <div className="flex gap-2 pt-2">
-            {onEdit && (
-              <Button onClick={onEdit} variant="outline" size="sm" className="flex-1">
-                <Pencil className="w-4 h-4 mr-2" />
-                {t('edit')}
-              </Button>
-            )}
-            {onDelete && (
-              <Button
-                onClick={onDelete}
-                variant="outline"
-                size="sm"
-                className="flex-1 text-destructive hover:text-destructive"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                {t('delete')}
-              </Button>
-            )}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }

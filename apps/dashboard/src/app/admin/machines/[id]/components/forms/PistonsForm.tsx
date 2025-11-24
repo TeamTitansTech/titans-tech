@@ -8,7 +8,7 @@ import { MeasurementInput } from '../shared/MeasurementInput';
 interface PistonsFormProps {
   data: PistonsData;
   errors: Record<string, string>;
-  updateField: (field: keyof PistonsData, value: number) => void;
+  updateField: (field: keyof PistonsData, value: number | undefined) => void;
   handleBlur: (field: keyof PistonsData) => void;
   title: string;
   readOnly?: boolean;

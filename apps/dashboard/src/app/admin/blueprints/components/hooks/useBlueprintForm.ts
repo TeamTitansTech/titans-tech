@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
@@ -18,34 +18,54 @@ const SLUG_TO_SECTION: Record<string, string> = {
   tramming: 'TRAMMING',
 };
 
+const INITIAL_THRESHOLDS: BearingClearanceThresholdsData = {
+  totalClearance_greenMin: 0.0135,
+  totalClearance_yellowMin: 0.028,
+  totalClearance_redMin: 0.035,
+  mainBearings_greenMin: 0.004,
+  mainBearings_yellowMin: 0.008,
+  mainBearings_redMin: 0.012,
+  upperConnectionBearings_greenMin: 0.004,
+  upperConnectionBearings_yellowMin: 0.008,
+  upperConnectionBearings_redMin: 0.012,
+  wristPinToMatingPart_greenMin: -0.0005,
+  wristPinToMatingPart_yellowMin: 0.0005,
+  wristPinToMatingPart_redMin: 0.0015,
+  wristPinToBushing_greenMin: 0.0002,
+  wristPinToBushing_yellowMin: 0.003,
+  wristPinToBushing_redMin: 0.005,
+  slideAdjNutToScrewSleeve_greenMin: 0.0003,
+  slideAdjNutToScrewSleeve_yellowMin: 0.0016,
+  slideAdjNutToScrewSleeve_redMin: 0.003,
+};
+
 export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const t = useTranslations('models');
   const [name, setName] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [thresholdsOpen, setThresholdsOpen] = useState(false);
-  const [thresholds, setThresholds] = useState<BearingClearanceThresholdsData>({
-    totalClearance_greenMin: 0,
-    totalClearance_yellowMin: 0,
-    totalClearance_redMin: 0,
-    mainBearings_greenMin: 0,
-    mainBearings_yellowMin: 0,
-    mainBearings_redMin: 0,
-    upperConnectionBearings_greenMin: 0,
-    upperConnectionBearings_yellowMin: 0,
-    upperConnectionBearings_redMin: 0,
-    wristPinToMatingPart_greenMin: 0,
-    wristPinToMatingPart_yellowMin: 0,
-    wristPinToMatingPart_redMin: 0,
-    wristPinToBushing_greenMin: 0,
-    wristPinToBushing_yellowMin: 0,
-    wristPinToBushing_redMin: 0,
-    slideAdjNutToScrewSleeve_greenMin: 0,
-    slideAdjNutToScrewSleeve_yellowMin: 0,
-    slideAdjNutToScrewSleeve_redMin: 0,
-  });
+  const [thresholds, setThresholds] = useState<BearingClearanceThresholdsData>(INITIAL_THRESHOLDS);
 
   const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
+
+  // Verifica se há dados preenchidos no formulário
+  const hasUnsavedChanges = useCallback(
+    (fields: Field[]) => {
+      if (name.trim()) return true;
+      if (selectedSections.length > 0) return true;
+      if (fields.length > 0) return true;
+
+      const hasThresholdChanges = (
+        Object.keys(thresholds) as Array<keyof BearingClearanceThresholdsData>
+      ).some((key) => thresholds[key] !== INITIAL_THRESHOLDS[key]);
+
+      if (hasThresholdChanges) return true;
+
+      return false;
+    },
+    [name, selectedSections, thresholds],
+  );
 
   const toggleSection = (section: string) => {
     setSelectedSections((prev) =>
@@ -113,6 +133,8 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       setName('');
       setImageUrl('');
       setSelectedSections([]);
+      setThresholdsOpen(false);
+      resetThresholds();
       resetFields();
       resetOptions();
       onSuccess?.();
@@ -120,11 +142,17 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     }
   };
 
-  const reset = () => {
+  const resetThresholds = useCallback(() => {
+    setThresholds(INITIAL_THRESHOLDS);
+  }, []);
+
+  const reset = useCallback(() => {
     setName('');
     setImageUrl('');
     setSelectedSections([]);
-  };
+    setThresholdsOpen(false);
+    resetThresholds();
+  }, [resetThresholds]);
 
   return {
     name,
@@ -141,5 +169,6 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     result,
     handleSubmit,
     reset,
+    hasUnsavedChanges,
   };
 }

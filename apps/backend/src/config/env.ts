@@ -9,6 +9,11 @@ export const EnvSchema = z.object({
   AWS_SECRET_ACCESS_KEY: z.string().min(1),
   AWS_REGION: z.string().min(1),
   AWS_S3_BUCKET_NAME: z.string().min(1),
+  // Email configuration
+  SENDGRID_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().email().default('noreply@titanstech.com'),
+  EMAIL_PROVIDER: z.enum(['SENDGRID', 'AWS_SES']).default('SENDGRID'),
+  FRONTEND_URL: z.string().url().default('http://localhost:3000'),
 });
 
 // eslint-disable-next-line no-restricted-syntax

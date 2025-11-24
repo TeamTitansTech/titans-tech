@@ -47,31 +47,12 @@ const OUTER_FIELDS = [
   'wristPinToMatingPart_LH',
   'wristPinToBushing_RH',
   'wristPinToBushing_LH',
-  'slide_adj_nut_to_screw_sleeve_RH',
-  'slide_adj_nut_to_screw_sleeve_LH',
-  'extra_double_lockOpen_RH',
-  'extra_double_lockOpen_LH',
-  'ball_box_area_RH',
-  'ball_box_area_LH',
-] as const;
-
-const INNER_FIELDS = [
-  'innerTotalClearance_RH',
-  'innerTotalClearance_LH',
-  'innerMainBearings_RH',
-  'innerMainBearings_LH',
-  'innerUpperConnectionBearings_RH',
-  'innerUpperConnectionBearings_LH',
-  'innerWristPinToMatingPart_RH',
-  'innerWristPinToMatingPart_LH',
-  'innerWristPinToBushing_RH',
-  'innerWristPinToBushing_LH',
-  'innerSlide_adj_nut_to_screw_sleeve_RH',
-  'innerSlide_adj_nut_to_screw_sleeve_LH',
-  'innerExtra_double_lockOpen_RH',
-  'innerExtra_double_lockOpen_LH',
-  'innerBall_box_area_RH',
-  'innerBall_box_area_LH',
+  'slideAdjNutToScrewSleeve_RH',
+  'slideAdjNutToScrewSleeve_LH',
+  'extraDoubleLockOpen_RH',
+  'extraDoubleLockOpen_LH',
+  'ballBoxArea_RH',
+  'ballBoxArea_LH',
 ] as const;
 
 const defaultBearingData: BearingClearanceData = {
@@ -85,30 +66,15 @@ const defaultBearingData: BearingClearanceData = {
   wristPinToMatingPart_LH: 0,
   wristPinToBushing_RH: 0,
   wristPinToBushing_LH: 0,
-  slide_adj_nut_to_screw_sleeve_RH: 0,
-  slide_adj_nut_to_screw_sleeve_LH: 0,
-  extra_double_lockOpen_RH: 0,
-  extra_double_lockOpen_LH: 0,
-  ball_box_area_RH: 0,
-  ball_box_area_LH: 0,
-  innerTotalClearance_RH: 0,
-  innerTotalClearance_LH: 0,
-  innerMainBearings_RH: 0,
-  innerMainBearings_LH: 0,
-  innerUpperConnectionBearings_RH: 0,
-  innerUpperConnectionBearings_LH: 0,
-  innerWristPinToMatingPart_RH: 0,
-  innerWristPinToMatingPart_LH: 0,
-  innerWristPinToBushing_RH: 0,
-  innerWristPinToBushing_LH: 0,
-  innerSlide_adj_nut_to_screw_sleeve_RH: 0,
-  innerSlide_adj_nut_to_screw_sleeve_LH: 0,
-  innerExtra_double_lockOpen_RH: 0,
-  innerExtra_double_lockOpen_LH: 0,
-  innerBall_box_area_RH: 0,
-  innerBall_box_area_LH: 0,
-  combined_with: '',
-  mating_part: MatingPartType.BUSHING,
+  slideAdjNutToScrewSleeve_RH: 0,
+  slideAdjNutToScrewSleeve_LH: 0,
+  extraDoubleLockOpen_RH: 0,
+  extraDoubleLockOpen_LH: 0,
+  ballBoxArea_RH: 0,
+  ballBoxArea_LH: 0,
+  hasBeenAdjusted: 'NA' as const,
+  combinedWith: '',
+  matingPart: MatingPartType.BUSHING,
 };
 
 interface RenderBearingFieldsProps {
@@ -139,10 +105,11 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
                 step="0.0001"
                 min="0"
                 max="999999.9999"
-                value={data[field as keyof BearingClearanceData]}
-                onChange={(e) =>
-                  updateFn(field as keyof BearingClearanceData, Number(e.target.value))
-                }
+                value={data[field as keyof BearingClearanceData] ?? ''}
+                onChange={(e) => {
+                  const value = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                  updateFn(field as keyof BearingClearanceData, isNaN(value) ? 0 : value);
+                }}
                 onBlur={() => handleBlur(field as keyof BearingClearanceData)}
                 className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
                 required
@@ -157,76 +124,42 @@ function RenderBearingFields({ data, updateFn, errors, handleBlur }: RenderBeari
         </div>
       </div>
 
-      <div>
-        <Typography variant="h4" className="mb-3">
-          {t('form.bearingClearance.inner')}
-        </Typography>
-        <div className="grid grid-cols-2 gap-4">
-          {INNER_FIELDS.map((field) => (
-            <div key={field}>
-              <Label htmlFor={field} className="text-xs">
-                {t(`form.bearingClearance.fields.${field.replace('inner', '')}`)}
-              </Label>
-              <Input
-                id={field}
-                type="number"
-                step="0.0001"
-                min="0"
-                max="999999.9999"
-                value={data[field as keyof BearingClearanceData]}
-                onChange={(e) =>
-                  updateFn(field as keyof BearingClearanceData, Number(e.target.value))
-                }
-                onBlur={() => handleBlur(field as keyof BearingClearanceData)}
-                className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
-                required
-              />
-              {errors[field] && (
-                <Typography variant="small" className="text-xs text-destructive mt-1">
-                  {errors[field]}
-                </Typography>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 mt-6">
         <div>
-          <Label htmlFor="combined_with">{t('form.bearingClearance.combined_with.label')}</Label>
+          <Label htmlFor="combinedWith">{t('form.bearingClearance.combinedWith.label')}</Label>
           <Input
-            id="combined_with"
-            value={data.combined_with}
-            onChange={(e) => updateFn('combined_with', e.target.value)}
-            onBlur={() => handleBlur('combined_with')}
-            placeholder={t('form.bearingClearance.combined_with.placeholder')}
-            className={`mt-1 ${errors.combined_with ? 'border-destructive' : ''}`}
+            id="combinedWith"
+            value={data.combinedWith}
+            onChange={(e) => updateFn('combinedWith', e.target.value)}
+            onBlur={() => handleBlur('combinedWith')}
+            placeholder={t('form.bearingClearance.combinedWith.placeholder')}
+            className={`mt-1 ${errors.combinedWith ? 'border-destructive' : ''}`}
             required
           />
-          {errors.combined_with && (
+          {errors.combinedWith && (
             <Typography variant="small" className="text-xs text-destructive mt-1">
-              {errors.combined_with}
+              {errors.combinedWith}
             </Typography>
           )}
         </div>
         <div>
-          <Label htmlFor="mating_part">{t('form.bearingClearance.mating_part.label')}</Label>
+          <Label htmlFor="matingPart">{t('form.bearingClearance.matingPart.label')}</Label>
           <Select
-            value={data.mating_part}
-            onValueChange={(value) => updateFn('mating_part', value as MatingPartType)}
+            value={data.matingPart}
+            onValueChange={(value) => updateFn('matingPart', value as MatingPartType)}
           >
             <SelectTrigger className="mt-1">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={MatingPartType.BUSHING}>
-                {t('form.bearingClearance.mating_part.bushing')}
+                {t('form.bearingClearance.matingPart.bushing')}
               </SelectItem>
               <SelectItem value={MatingPartType.CONNECTION}>
-                {t('form.bearingClearance.mating_part.connection')}
+                {t('form.bearingClearance.matingPart.connection')}
               </SelectItem>
               <SelectItem value={MatingPartType.NUT_SCREW_SLEEVE}>
-                {t('form.bearingClearance.mating_part.nut_screw_sleeve')}
+                {t('form.bearingClearance.matingPart.nut_screw_sleeve')}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -283,14 +216,14 @@ export function InspectionCreationModal({
     const MAX_DECIMAL = 999999.9999;
     const MIN_DECIMAL = 0;
 
-    if (field === 'combined_with') {
+    if (field === 'combinedWith') {
       if (!value || String(value).trim() === '') {
         return t('form.error.required');
       }
       return '';
     }
 
-    if (field === 'mating_part') {
+    if (field === 'matingPart') {
       if (!value) {
         return t('form.error.required');
       }
@@ -316,7 +249,7 @@ export function InspectionCreationModal({
     const MAX_DECIMAL = 999999.9999;
     const MIN_DECIMAL = 0;
 
-    const numericFields = [...OUTER_FIELDS, ...INNER_FIELDS] as (keyof BearingClearanceData)[];
+    const numericFields = OUTER_FIELDS as unknown as (keyof BearingClearanceData)[];
 
     numericFields.forEach((field) => {
       const value = Number(data[field]);
@@ -339,24 +272,24 @@ export function InspectionCreationModal({
       }
     });
 
-    if (!data.combined_with || data.combined_with.trim() === '') {
-      errors.push(t('form.bearingClearance.combined_with.label') + ': ' + t('form.error.required'));
+    if (!data.combinedWith || data.combinedWith.trim() === '') {
+      errors.push(t('form.bearingClearance.combinedWith.label') + ': ' + t('form.error.required'));
     }
 
-    if (!data.mating_part) {
-      errors.push(t('form.bearingClearance.mating_part.label') + ': ' + t('form.error.required'));
+    if (!data.matingPart) {
+      errors.push(t('form.bearingClearance.matingPart.label') + ': ' + t('form.error.required'));
     }
 
     return errors;
   };
 
   const handleBlurBefore = (field: keyof BearingClearanceData) => {
-    const error = validateField(field, beforeData[field]);
+    const error = validateField(field, beforeData[field] ?? '');
     setBeforeErrors((prev) => ({ ...prev, [field]: error }));
   };
 
   const handleBlurAfter = (field: keyof BearingClearanceData) => {
-    const error = validateField(field, afterData[field]);
+    const error = validateField(field, afterData[field] ?? '');
     setAfterErrors((prev) => ({ ...prev, [field]: error }));
   };
 
@@ -414,11 +347,11 @@ export function InspectionCreationModal({
       const payload: CreateInspectionPayload = {
         machineId,
         date: new Date(date).toISOString(),
-        isMaintenance,
+        type: isMaintenance ? 'MAINTENANCE' : 'INSPECTION',
         performedBy: performedBy || undefined,
         bearingClearance: {
-          before: isMaintenance ? beforeData : undefined,
-          after: afterData,
+          outerBefore: isMaintenance ? beforeData : undefined,
+          outerData: afterData,
         },
       };
 

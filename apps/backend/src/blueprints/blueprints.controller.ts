@@ -12,7 +12,7 @@ import { BlueprintsService } from './blueprints.service';
 import {
   CreateBlueprintWithThresholdsDto,
   CreateBlueprintDto,
-  CreateBlueprintSchema,
+  CreateBlueprintWithThresholdsSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { UpdateBlueprintDto } from './dto/update-blueprint.dto';
 import { Admin, Authenticated } from 'src/modules/auth/auth.decorators';
@@ -25,7 +25,7 @@ export class BlueprintsController {
   @Admin()
   @Post()
   create(
-    @Body(new ZodValidationPipe(CreateBlueprintSchema))
+    @Body(new ZodValidationPipe(CreateBlueprintWithThresholdsSchema))
     createBlueprintDto: CreateBlueprintDto | CreateBlueprintWithThresholdsDto,
   ): Promise<Prisma.BlueprintGetPayload<object>> {
     return this.blueprintsService.create(createBlueprintDto);

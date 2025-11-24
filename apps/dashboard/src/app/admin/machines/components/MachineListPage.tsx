@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { MachineCard } from './MachineCard';
@@ -55,11 +55,12 @@ interface Machine {
   features?: MachineFeaturesType | null;
 }
 
-interface MachineListPagePageProps {
+interface MachineListPageProps {
   machines: Machine[];
 }
 
-export function MachineListPage({ machines }: MachineListPagePageProps) {
+export function MachineListPage({ machines: initialMachines }: MachineListPageProps) {
+  const [machines, setMachines] = useState<Machine[]>(initialMachines);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -67,10 +68,15 @@ export function MachineListPage({ machines }: MachineListPagePageProps) {
   const [machineToDelete, setMachineToDelete] = useState<{ id: string; name: string } | null>(null);
   const router = useInternalRouter();
   const t = useTranslations('machines');
+  const tActions = useTranslations('actions');
 
   const { execute: executeDelete, isLoading: isDeleting } = useLazyQuery((id: string) =>
     deleteMachine(id),
   );
+
+  useEffect(() => {
+    setMachines(initialMachines);
+  }, [initialMachines]);
 
   const handleSuccess = () => {
     router.refresh();
@@ -92,13 +98,16 @@ export function MachineListPage({ machines }: MachineListPagePageProps) {
     const response = await executeDelete(machineToDelete.id);
 
     if (!response.errors) {
+      setMachines((prevMachines) =>
+        prevMachines.filter((machine) => machine.id !== machineToDelete.id),
+      );
       toast.success(t('deletedSuccessfully'));
-      setIsDeleteDialogOpen(false);
-      setMachineToDelete(null);
-      handleSuccess();
     } else {
       toast.error(response.errors.join(', '));
     }
+
+    setIsDeleteDialogOpen(false);
+    setMachineToDelete(null);
   };
 
   return (
@@ -165,13 +174,13 @@ export function MachineListPage({ machines }: MachineListPagePageProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>{tActions('cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteConfirm}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? t('deleting') : t('confirmDelete')}
+              {isDeleting ? tActions('deleting') : t('confirmDelete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
