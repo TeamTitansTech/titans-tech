@@ -67,7 +67,9 @@ export class UploadService {
     }
 
     if (!this.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
-      throw new BadRequestException('Invalid file type. Only JPG and PNG are allowed');
+      throw new BadRequestException(
+        'Invalid file type. Only JPG and PNG are allowed',
+      );
     }
 
     if (file.size > this.MAX_FILE_SIZE) {

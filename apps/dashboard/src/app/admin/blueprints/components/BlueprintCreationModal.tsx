@@ -120,6 +120,18 @@ export const BlueprintCreationModal = ({
                 }}
               />
 
+              <div className="space-y-2">
+                <Label htmlFor="image">Imagem do Blueprint</Label>
+                <ImageUpload
+                  value={imageUrl || undefined}
+                  onChange={setImageUrl}
+                  disabled={isLoading}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Opcional: Adicione uma imagem representativa do blueprint
+                </p>
+              </div>
+
               <Separator />
 
               <SectionsSelector
@@ -192,17 +204,6 @@ export const BlueprintCreationModal = ({
                 submitIdle: t('form.submit.idle'),
               }}
             />
-            <div className="space-y-2">
-              <Label htmlFor="image">Imagem do Blueprint</Label>
-              <ImageUpload
-                value={imageUrl || undefined}
-                onChange={setImageUrl}
-                disabled={isLoading}
-              />
-              <p className="text-xs text-muted-foreground">
-                Opcional: Adicione uma imagem representativa do blueprint
-              </p>
-            </div>
           </form>
         </DialogContent>
       </Dialog>

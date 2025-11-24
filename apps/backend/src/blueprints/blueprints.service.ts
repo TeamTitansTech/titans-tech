@@ -29,7 +29,7 @@ export class BlueprintsService {
         data: {
           name: createBlueprintDto.name,
           imageUrl: createBlueprintDto.imageUrl,
-        fields: createBlueprintDto.fields as unknown as Prisma.InputJsonValue,
+          fields: createBlueprintDto.fields as unknown as Prisma.InputJsonValue,
           sections: sections,
         },
       });

@@ -7,6 +7,6 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       service: 'dashboard',
     },
-    { status: 200 }
+    { status: 200 },
   );
 }

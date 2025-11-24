@@ -11,10 +11,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
  */
 export const uploadImage = async (
   file: File,
-): Promise<
-  | { url: string; error: null }
-  | { url: null; error: string }
-> => {
+): Promise<{ url: string; error: null } | { url: null; error: string }> => {
   try {
     const token = await getCookie('auth_token');
 
@@ -35,9 +32,7 @@ export const uploadImage = async (
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       const errorMessage =
-        errorData.message ||
-        errorData.error ||
-        `Upload failed with status ${response.status}`;
+        errorData.message || errorData.error || `Upload failed with status ${response.status}`;
 
       if (process.env.NODE_ENV === 'development') {
         console.error('Upload Error:', {
@@ -48,9 +43,7 @@ export const uploadImage = async (
 
       return {
         url: null,
-        error: Array.isArray(errorMessage)
-          ? errorMessage.join(', ')
-          : errorMessage,
+        error: Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage,
       };
     }
 
