@@ -18,6 +18,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { hasPermissionInAnyBranch } from '@/lib/permissions';
 
 import {
   Sidebar,
@@ -154,25 +155,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
 
     // For regular users, filter based on permissions
-    // Check if user has permission in ANY of their branches
-    const hasPermissionInAnyBranch = (permission: string) => {
-      if (!companyUser?.branches || companyUser.branches.length === 0) {
-        return false;
-      }
-      return companyUser.branches.some((branch) => branch[permission as keyof typeof branch]);
-    };
-
-    // Filter nav items based on permissions
     const filteredNavMain = clientData.navMain.filter((item) => {
       // Check permissions for specific routes
       if (item.url === '/machines') {
-        return hasPermissionInAnyBranch('readMachines');
+        return hasPermissionInAnyBranch(companyUser, 'readMachines');
       }
       if (item.url === '/services') {
-        return hasPermissionInAnyBranch('readServices');
+        return hasPermissionInAnyBranch(companyUser, 'readServices');
       }
       if (item.url === '/production-lines') {
-        return hasPermissionInAnyBranch('readProductionLines');
+        return hasPermissionInAnyBranch(companyUser, 'readProductionLines');
       }
       return true;
     });
