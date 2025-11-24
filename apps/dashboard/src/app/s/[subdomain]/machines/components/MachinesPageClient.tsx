@@ -29,6 +29,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { getMachines, deleteMachine } from '@/data/services/machines.api';
+import { getBranchesWithPermission, filterByBranchPermission } from '@/lib/branchFilters';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { toast } from 'sonner';
 import {
@@ -89,29 +90,16 @@ export function MachinesPageClient() {
   );
 
   // Get branches where user has permission to read machines
-  const userBranches = useMemo(() => {
-    if (!companyUser) return [];
-    // Company admins and managers can see all branches
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) {
-      return companyUser.branches.map((ub) => ({
-        id: ub.branchId,
-        name: ub.branch.name,
-      }));
-    }
-    // Regular users only see branches where they have readMachines permission
-    return companyUser.branches
-      .filter((ub) => ub.readMachines)
-      .map((ub) => ({
-        id: ub.branchId,
-        name: ub.branch.name,
-      }));
-  }, [companyUser]);
+  const userBranches = useMemo(
+    () => getBranchesWithPermission(companyUser, 'readMachines'),
+    [companyUser],
+  );
 
   // Filter machines by selected branch
-  const filteredMachines = useMemo(() => {
-    if (selectedBranchFilter === 'all') return machines;
-    return machines.filter((machine) => machine.branchId === selectedBranchFilter);
-  }, [machines, selectedBranchFilter]);
+  const filteredMachines = useMemo(
+    () => filterByBranchPermission(machines, companyUser, selectedBranchFilter, 'readMachines'),
+    [machines, selectedBranchFilter, companyUser],
+  );
 
   // Check if user has permission to create machines in the selected branch
   const canCreateMachines = () => {

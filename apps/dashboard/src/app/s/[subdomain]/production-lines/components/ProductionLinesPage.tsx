@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { getBranchesWithPermission, filterByBranchPermission } from '@/lib/branchFilters';
 
 interface ProductionLinesPageProps {
   productionLines: ProductionLine[];
@@ -34,29 +35,22 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
   );
 
   // Get branches where user has permission to read production lines
-  const userBranches = useMemo(() => {
-    if (!companyUser) return [];
-    // Company admins and managers can see all branches
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) {
-      return companyUser.branches.map((ub) => ({
-        id: ub.branchId,
-        name: ub.branch.name,
-      }));
-    }
-    // Regular users only see branches where they have readProductionLines permission
-    return companyUser.branches
-      .filter((ub) => ub.readProductionLines)
-      .map((ub) => ({
-        id: ub.branchId,
-        name: ub.branch.name,
-      }));
-  }, [companyUser]);
+  const userBranches = useMemo(
+    () => getBranchesWithPermission(companyUser, 'readProductionLines'),
+    [companyUser],
+  );
 
   // Filter production lines by selected branch
-  const filteredProductionLines = useMemo(() => {
-    if (selectedBranchFilter === 'all') return optimisticLines;
-    return optimisticLines.filter((line) => line.branchId === selectedBranchFilter);
-  }, [optimisticLines, selectedBranchFilter]);
+  const filteredProductionLines = useMemo(
+    () =>
+      filterByBranchPermission(
+        optimisticLines,
+        companyUser,
+        selectedBranchFilter,
+        'readProductionLines',
+      ),
+    [optimisticLines, selectedBranchFilter, companyUser],
+  );
 
   // Check if user has permission to create production lines in the selected branch
   const canCreateProductionLines = () => {
