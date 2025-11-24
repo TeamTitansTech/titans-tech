@@ -1,15 +1,15 @@
 'use client';
 
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { type GibsData, ServiceType, YesNoDncType } from '@/data/types/services.types';
+import { Label } from '@/components/ui/label';
+import type { GibsStageData } from '@/data/types/services.types';
 import { GibsForm } from '../forms/GibsForm';
 import { isDataTouched } from './utils';
-import { useOuterInnerState } from '../../hooks/useOuterInnerState';
-import { SectionContainer } from '../shared/SectionContainer';
+import { useTranslations } from 'next-intl';
+import { Input } from '@/components/ui/input';
 
-export const defaultGibsData: GibsData = {
-  hasBeenAdjusted: YesNoDncType.NO,
+export const defaultGibsStageData: GibsStageData = {
   point1: 0,
   point2: 0,
   point3: 0,
@@ -26,20 +26,11 @@ export const defaultGibsData: GibsData = {
   point14: 0,
   point15: 0,
   point16: 0,
-  leftTop: undefined,
-  leftBottom: undefined,
-  rightTop: undefined,
-  rightBottom: undefined,
-  frontTop: undefined,
-  frontBottom: undefined,
-  backTop: undefined,
-  backBottom: undefined,
-  usable: '',
 };
 
-export const validateGibsData = (data: GibsData): string[] => {
+export const validateGibsStageData = (data: GibsStageData): string[] => {
   const errors: string[] = [];
-  const requiredFields: (keyof GibsData)[] = [
+  const requiredFields: (keyof GibsStageData)[] = [
     'point1',
     'point2',
     'point3',
@@ -69,19 +60,85 @@ export const validateGibsData = (data: GibsData): string[] => {
   return errors;
 };
 
+export const defaultGibsData: GibsSectionData = {
+  outerBeforeAdjustment: undefined,
+  outerAfterAdjustment: undefined,
+  outerFreeHangingAfterInstall: undefined,
+  innerBeforeAdjustment: undefined,
+  innerAfterAdjustment: undefined,
+  innerBeforeToolInstallation: undefined,
+  innerAfterToolInstallation: undefined,
+  notes: undefined,
+};
+
+export const validateGibsData = (data: GibsSectionData): string[] => {
+  const errors: string[] = [];
+
+  const stages = {
+    outerBeforeAdjustment: !!data.outerBeforeAdjustment,
+    outerAfterAdjustment: !!data.outerAfterAdjustment,
+    outerFreeHangingAfterInstall: !!data.outerFreeHangingAfterInstall,
+    innerBeforeAdjustment: !!data.innerBeforeAdjustment,
+    innerAfterAdjustment: !!data.innerAfterAdjustment,
+    innerBeforeToolInstallation: !!data.innerBeforeToolInstallation,
+    innerAfterToolInstallation: !!data.innerAfterToolInstallation,
+  };
+
+  const hasAnyStage = Object.values(stages).some((stage) => stage);
+
+  if (!hasAnyStage) {
+    errors.push('GIBS: You must fill at least one measurement section');
+  }
+
+  if (data.outerBeforeAdjustment) {
+    const stageErrors = validateGibsStageData(data.outerBeforeAdjustment);
+    errors.push(...stageErrors.map((e) => `GIBS outerBeforeAdjustment: ${e}`));
+  }
+  if (data.outerAfterAdjustment) {
+    const stageErrors = validateGibsStageData(data.outerAfterAdjustment);
+    errors.push(...stageErrors.map((e) => `GIBS outerAfterAdjustment: ${e}`));
+  }
+  if (data.outerFreeHangingAfterInstall) {
+    const stageErrors = validateGibsStageData(data.outerFreeHangingAfterInstall);
+    errors.push(...stageErrors.map((e) => `GIBS outerFreeHangingAfterInstall: ${e}`));
+  }
+  if (data.innerBeforeAdjustment) {
+    const stageErrors = validateGibsStageData(data.innerBeforeAdjustment);
+    errors.push(...stageErrors.map((e) => `GIBS innerBeforeAdjustment: ${e}`));
+  }
+  if (data.innerAfterAdjustment) {
+    const stageErrors = validateGibsStageData(data.innerAfterAdjustment);
+    errors.push(...stageErrors.map((e) => `GIBS innerAfterAdjustment: ${e}`));
+  }
+  if (data.innerBeforeToolInstallation) {
+    const stageErrors = validateGibsStageData(data.innerBeforeToolInstallation);
+    errors.push(...stageErrors.map((e) => `GIBS innerBeforeToolInstallation: ${e}`));
+  }
+  if (data.innerAfterToolInstallation) {
+    const stageErrors = validateGibsStageData(data.innerAfterToolInstallation);
+    errors.push(...stageErrors.map((e) => `GIBS innerAfterToolInstallation: ${e}`));
+  }
+
+  return errors;
+};
+
 export interface GibsSectionData {
-  outerBefore?: GibsData;
-  outerAfter?: GibsData;
-  innerBefore?: GibsData;
-  innerAfter?: GibsData;
+  outerBeforeAdjustment?: GibsStageData;
+  outerAfterAdjustment?: GibsStageData;
+  outerFreeHangingAfterInstall?: GibsStageData;
+  innerBeforeAdjustment?: GibsStageData;
+  innerAfterAdjustment?: GibsStageData;
+  innerBeforeToolInstallation?: GibsStageData;
+  innerAfterToolInstallation?: GibsStageData;
+  notes?: string;
 }
 
 export interface GibsSectionRef {
   getData: () => GibsSectionData;
-  validate: (serviceType: ServiceType) => string[];
+  validate: () => string[];
   reset: () => void;
   isTouched: () => boolean;
-  validateAndGetData: (serviceType: ServiceType) => {
+  validateAndGetData: () => {
     isValid: boolean;
     errors: string[];
     data?: GibsSectionData;
@@ -89,184 +146,134 @@ export interface GibsSectionRef {
 }
 
 interface GibsSectionProps {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
   initialData?: GibsSectionData;
 }
 
+function useStageState(initialData?: GibsStageData) {
+  const [data, setData] = useState<GibsStageData>(initialData || defaultGibsStageData);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const updateField = (field: keyof GibsStageData, value: number) => {
+    setData((prev: GibsStageData) => ({ ...prev, [field]: value }));
+    const fieldKey = String(field);
+    if (errors[fieldKey]) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldKey];
+        return newErrors;
+      });
+    }
+  };
+
+  const setFieldError = (field: keyof GibsStageData, error: string) => {
+    const fieldKey = String(field);
+    if (error) {
+      setErrors((prev) => ({ ...prev, [fieldKey]: error }));
+    } else {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[fieldKey];
+        return newErrors;
+      });
+    }
+  };
+
+  const validateField = (field: keyof GibsStageData): string => {
+    const value = data[field];
+    const numValue = Number(value);
+    if (isNaN(numValue)) {
+      return 'Invalid number';
+    }
+    return '';
+  };
+
+  const handleBlur = (field: keyof GibsStageData) => {
+    const error = validateField(field);
+    setFieldError(field, error);
+  };
+
+  return { data, setData, errors, updateField, handleBlur };
+}
+
 export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
-  ({ isOpen, onOpenChange, onSectionTouched, initialData }, ref) => {
-    // Use the outer/inner state hook
-    const {
-      initialOuterBeforeData,
-      initialOuterAfterData,
-      initialInnerBeforeData,
-      initialInnerAfterData,
-      outerBeforeData,
-      outerAfterData,
-      innerBeforeData,
-      innerAfterData,
-      outerBeforeErrors,
-      outerAfterErrors,
-      innerBeforeErrors,
-      innerAfterErrors,
-      updateOuterBeforeField: baseUpdateOuterBefore,
-      updateOuterAfterField: baseUpdateOuterAfter,
-      updateInnerBeforeField: baseUpdateInnerBefore,
-      updateInnerAfterField: baseUpdateInnerAfter,
-      setOuterBeforeFieldError,
-      setOuterAfterFieldError,
-      setInnerBeforeFieldError,
-      setInnerAfterFieldError,
-      reset,
-    } = useOuterInnerState<GibsData>(defaultGibsData, initialData);
+  ({ onSectionTouched, initialData }, ref) => {
+    const outerBeforeAdjustment = useStageState(initialData?.outerBeforeAdjustment);
+    const outerAfterAdjustment = useStageState(initialData?.outerAfterAdjustment);
+    const outerFreeHangingAfterInstall = useStageState(initialData?.outerFreeHangingAfterInstall);
+    const innerBeforeAdjustment = useStageState(initialData?.innerBeforeAdjustment);
+    const innerAfterAdjustment = useStageState(initialData?.innerAfterAdjustment);
+    const innerBeforeToolInstallation = useStageState(initialData?.innerBeforeToolInstallation);
+    const innerAfterToolInstallation = useStageState(initialData?.innerAfterToolInstallation);
 
-    // Wrapper functions to call onSectionTouched
-    const updateOuterBeforeField = (
-      field: keyof GibsData,
-      value: string | number | boolean | undefined,
-    ) => {
-      // Type assertion needed: form inputs provide union type, but hook expects exact field type
-      baseUpdateOuterBefore(field, value as GibsData[keyof GibsData]);
-      onSectionTouched?.();
-    };
+    const [notes, setNotes] = useState(initialData?.notes || '');
+    const t = useTranslations('inspections');
 
-    const updateOuterAfterField = (
-      field: keyof GibsData,
-      value: string | number | boolean | undefined,
-    ) => {
-      // Type assertion needed: form inputs provide union type, but hook expects exact field type
-      baseUpdateOuterAfter(field, value as GibsData[keyof GibsData]);
-      onSectionTouched?.();
-    };
-
-    const updateInnerBeforeField = (
-      field: keyof GibsData,
-      value: string | number | boolean | undefined,
-    ) => {
-      // Type assertion needed: form inputs provide union type, but hook expects exact field type
-      baseUpdateInnerBefore(field, value as GibsData[keyof GibsData]);
-      onSectionTouched?.();
-    };
-
-    const updateInnerAfterField = (
-      field: keyof GibsData,
-      value: string | number | boolean | undefined,
-    ) => {
-      // Type assertion needed: form inputs provide union type, but hook expects exact field type
-      baseUpdateInnerAfter(field, value as GibsData[keyof GibsData]);
-      onSectionTouched?.();
-    };
-
-    const validateField = (
-      field: keyof GibsData,
-      value: string | number | boolean | undefined,
-    ): string => {
-      if (field === 'hasBeenAdjusted' || field === 'usable') {
-        return '';
-      }
-
-      if (
-        [
-          'leftTop',
-          'leftBottom',
-          'rightTop',
-          'rightBottom',
-          'frontTop',
-          'frontBottom',
-          'backTop',
-          'backBottom',
-        ].includes(String(field))
-      ) {
-        if (value === undefined || value === '') return '';
-      }
-
-      const numValue = Number(value);
-      if (isNaN(numValue)) {
-        return 'Invalid number';
-      }
-
-      return '';
-    };
-
-    const handleBlurOuterBefore = (field: keyof GibsData) => {
-      const error = validateField(field, outerBeforeData[field]);
-      setOuterBeforeFieldError(field, error);
-    };
-
-    const handleBlurOuterAfter = (field: keyof GibsData) => {
-      const error = validateField(field, outerAfterData[field]);
-      setOuterAfterFieldError(field, error);
-    };
-
-    const handleBlurInnerBefore = (field: keyof GibsData) => {
-      const error = validateField(field, innerBeforeData[field]);
-      setInnerBeforeFieldError(field, error);
-    };
-
-    const handleBlurInnerAfter = (field: keyof GibsData) => {
-      const error = validateField(field, innerAfterData[field]);
-      setInnerAfterFieldError(field, error);
+    const wrapUpdateFn = (updateFn: (field: keyof GibsStageData, value: number) => void) => {
+      return (field: keyof GibsStageData, value: number) => {
+        updateFn(field, value);
+        onSectionTouched?.();
+      };
     };
 
     useImperativeHandle(ref, () => ({
       isTouched: (): boolean => {
-        const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
-        const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
-        const innerBeforeTouched = isDataTouched(innerBeforeData, initialInnerBeforeData);
-        const innerAfterTouched = isDataTouched(innerAfterData, initialInnerAfterData);
-
-        return outerBeforeTouched || outerAfterTouched || innerBeforeTouched || innerAfterTouched;
+        return (
+          isDataTouched(outerBeforeAdjustment.data, defaultGibsStageData) ||
+          isDataTouched(outerAfterAdjustment.data, defaultGibsStageData) ||
+          isDataTouched(outerFreeHangingAfterInstall.data, defaultGibsStageData) ||
+          isDataTouched(innerBeforeAdjustment.data, defaultGibsStageData) ||
+          isDataTouched(innerAfterAdjustment.data, defaultGibsStageData) ||
+          isDataTouched(innerBeforeToolInstallation.data, defaultGibsStageData) ||
+          isDataTouched(innerAfterToolInstallation.data, defaultGibsStageData) ||
+          !!notes
+        );
       },
 
-      validateAndGetData: (
-        serviceType: ServiceType,
-      ): { isValid: boolean; errors: string[]; data?: GibsSectionData } => {
+      validateAndGetData: (): { isValid: boolean; errors: string[]; data?: GibsSectionData } => {
         const validationErrors: string[] = [];
 
-        const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
-        const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
-        const innerBeforeTouched = isDataTouched(innerBeforeData, initialInnerBeforeData);
-        const innerAfterTouched = isDataTouched(innerAfterData, initialInnerAfterData);
+        const stages = {
+          outerBeforeAdjustment: isDataTouched(outerBeforeAdjustment.data, defaultGibsStageData),
+          outerAfterAdjustment: isDataTouched(outerAfterAdjustment.data, defaultGibsStageData),
+          outerFreeHangingAfterInstall: isDataTouched(
+            outerFreeHangingAfterInstall.data,
+            defaultGibsStageData,
+          ),
+          innerBeforeAdjustment: isDataTouched(innerBeforeAdjustment.data, defaultGibsStageData),
+          innerAfterAdjustment: isDataTouched(innerAfterAdjustment.data, defaultGibsStageData),
+          innerBeforeToolInstallation: isDataTouched(
+            innerBeforeToolInstallation.data,
+            defaultGibsStageData,
+          ),
+          innerAfterToolInstallation: isDataTouched(
+            innerAfterToolInstallation.data,
+            defaultGibsStageData,
+          ),
+        };
 
-        if (serviceType === ServiceType.MAINTENANCE) {
-          if (!outerBeforeTouched || !innerBeforeTouched) {
-            validationErrors.push(
-              'Gibs: For maintenance inspections, you must fill all "Before" sections (Outer Before and Inner Before)',
-            );
-          } else {
-            validationErrors.push(
-              ...validateGibsData(outerBeforeData).map((e) => `Gibs Outer Before: ${e}`),
-            );
-            validationErrors.push(
-              ...validateGibsData(innerBeforeData).map((e) => `Gibs Inner Before: ${e}`),
-            );
+        const hasAnyStage = Object.values(stages).some((stage) => stage);
+
+        if (!hasAnyStage) {
+          validationErrors.push('GIBS: You must fill at least one measurement section');
+        }
+
+        Object.entries(stages).forEach(([stageName, isTouched]) => {
+          if (isTouched) {
+            const stageMap: Record<string, typeof outerBeforeAdjustment> = {
+              outerBeforeAdjustment,
+              outerAfterAdjustment,
+              outerFreeHangingAfterInstall,
+              innerBeforeAdjustment,
+              innerAfterAdjustment,
+              innerBeforeToolInstallation,
+              innerAfterToolInstallation,
+            };
+
+            const stageErrors = validateGibsStageData(stageMap[stageName].data);
+            validationErrors.push(...stageErrors.map((e) => `GIBS ${stageName}: ${e}`));
           }
-        }
-
-        if (outerAfterTouched) {
-          validationErrors.push(
-            ...validateGibsData(outerAfterData).map((e) => `Gibs Outer After: ${e}`),
-          );
-        }
-        if (innerAfterTouched) {
-          validationErrors.push(
-            ...validateGibsData(innerAfterData).map((e) => `Gibs Inner After: ${e}`),
-          );
-        }
-
-        // Check if there's any existing data (either initial or modified)
-        const hasOuterData =
-          outerAfterTouched || isDataTouched(initialOuterAfterData, defaultGibsData);
-        const hasInnerData =
-          innerAfterTouched || isDataTouched(initialInnerAfterData, defaultGibsData);
-
-        if (serviceType === ServiceType.INSPECTION && !hasOuterData && !hasInnerData) {
-          validationErrors.push(
-            'Gibs: For routine inspections, you must fill at least one "After" section (Outer After or Inner After)',
-          );
-        }
+        });
 
         const isValid = validationErrors.length === 0;
 
@@ -275,18 +282,28 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
             isValid: true,
             errors: [],
             data: {
-              outerBefore: outerBeforeTouched ? outerBeforeData : undefined,
-              outerAfter: hasOuterData
-                ? outerAfterTouched
-                  ? outerAfterData
-                  : initialOuterAfterData
+              outerBeforeAdjustment: stages.outerBeforeAdjustment
+                ? outerBeforeAdjustment.data
                 : undefined,
-              innerBefore: innerBeforeTouched ? innerBeforeData : undefined,
-              innerAfter: hasInnerData
-                ? innerAfterTouched
-                  ? innerAfterData
-                  : initialInnerAfterData
+              outerAfterAdjustment: stages.outerAfterAdjustment
+                ? outerAfterAdjustment.data
                 : undefined,
+              outerFreeHangingAfterInstall: stages.outerFreeHangingAfterInstall
+                ? outerFreeHangingAfterInstall.data
+                : undefined,
+              innerBeforeAdjustment: stages.innerBeforeAdjustment
+                ? innerBeforeAdjustment.data
+                : undefined,
+              innerAfterAdjustment: stages.innerAfterAdjustment
+                ? innerAfterAdjustment.data
+                : undefined,
+              innerBeforeToolInstallation: stages.innerBeforeToolInstallation
+                ? innerBeforeToolInstallation.data
+                : undefined,
+              innerAfterToolInstallation: stages.innerAfterToolInstallation
+                ? innerAfterToolInstallation.data
+                : undefined,
+              notes: notes || undefined,
             },
           };
         }
@@ -298,146 +315,186 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       },
 
       getData: (): GibsSectionData => {
-        const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
-        const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
-        const innerBeforeTouched = isDataTouched(innerBeforeData, initialInnerBeforeData);
-        const innerAfterTouched = isDataTouched(innerAfterData, initialInnerAfterData);
-
-        // Check if there's any existing data (either initial or modified)
-        const hasOuterData =
-          outerAfterTouched || isDataTouched(initialOuterAfterData, defaultGibsData);
-        const hasInnerData =
-          innerAfterTouched || isDataTouched(initialInnerAfterData, defaultGibsData);
+        const stages = {
+          outerBeforeAdjustment: isDataTouched(outerBeforeAdjustment.data, defaultGibsStageData),
+          outerAfterAdjustment: isDataTouched(outerAfterAdjustment.data, defaultGibsStageData),
+          outerFreeHangingAfterInstall: isDataTouched(
+            outerFreeHangingAfterInstall.data,
+            defaultGibsStageData,
+          ),
+          innerBeforeAdjustment: isDataTouched(innerBeforeAdjustment.data, defaultGibsStageData),
+          innerAfterAdjustment: isDataTouched(innerAfterAdjustment.data, defaultGibsStageData),
+          innerBeforeToolInstallation: isDataTouched(
+            innerBeforeToolInstallation.data,
+            defaultGibsStageData,
+          ),
+          innerAfterToolInstallation: isDataTouched(
+            innerAfterToolInstallation.data,
+            defaultGibsStageData,
+          ),
+        };
 
         return {
-          outerBefore: outerBeforeTouched ? outerBeforeData : undefined,
-          outerAfter: hasOuterData
-            ? outerAfterTouched
-              ? outerAfterData
-              : initialOuterAfterData
+          outerBeforeAdjustment: stages.outerBeforeAdjustment
+            ? outerBeforeAdjustment.data
             : undefined,
-          innerBefore: innerBeforeTouched ? innerBeforeData : undefined,
-          innerAfter: hasInnerData
-            ? innerAfterTouched
-              ? innerAfterData
-              : initialInnerAfterData
+          outerAfterAdjustment: stages.outerAfterAdjustment ? outerAfterAdjustment.data : undefined,
+          outerFreeHangingAfterInstall: stages.outerFreeHangingAfterInstall
+            ? outerFreeHangingAfterInstall.data
             : undefined,
+          innerBeforeAdjustment: stages.innerBeforeAdjustment
+            ? innerBeforeAdjustment.data
+            : undefined,
+          innerAfterAdjustment: stages.innerAfterAdjustment ? innerAfterAdjustment.data : undefined,
+          innerBeforeToolInstallation: stages.innerBeforeToolInstallation
+            ? innerBeforeToolInstallation.data
+            : undefined,
+          innerAfterToolInstallation: stages.innerAfterToolInstallation
+            ? innerAfterToolInstallation.data
+            : undefined,
+          notes: notes || undefined,
         };
       },
 
-      validate: (serviceType: ServiceType): string[] => {
-        const errors: string[] = [];
+      validate: (): string[] => {
+        const validationErrors: string[] = [];
 
-        const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
-        const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
-        const innerBeforeTouched = isDataTouched(innerBeforeData, initialInnerBeforeData);
-        const innerAfterTouched = isDataTouched(innerAfterData, initialInnerAfterData);
+        const stages = {
+          outerBeforeAdjustment: isDataTouched(outerBeforeAdjustment.data, defaultGibsStageData),
+          outerAfterAdjustment: isDataTouched(outerAfterAdjustment.data, defaultGibsStageData),
+          outerFreeHangingAfterInstall: isDataTouched(
+            outerFreeHangingAfterInstall.data,
+            defaultGibsStageData,
+          ),
+          innerBeforeAdjustment: isDataTouched(innerBeforeAdjustment.data, defaultGibsStageData),
+          innerAfterAdjustment: isDataTouched(innerAfterAdjustment.data, defaultGibsStageData),
+          innerBeforeToolInstallation: isDataTouched(
+            innerBeforeToolInstallation.data,
+            defaultGibsStageData,
+          ),
+          innerAfterToolInstallation: isDataTouched(
+            innerAfterToolInstallation.data,
+            defaultGibsStageData,
+          ),
+        };
 
-        if (serviceType === ServiceType.MAINTENANCE) {
-          if (!outerBeforeTouched || !innerBeforeTouched) {
-            errors.push(
-              'Gibs: For maintenance inspections, you must fill all "Before" sections (Outer Before and Inner Before)',
-            );
-          } else {
-            errors.push(...validateGibsData(outerBeforeData).map((e) => `Gibs Outer Before: ${e}`));
-            errors.push(...validateGibsData(innerBeforeData).map((e) => `Gibs Inner Before: ${e}`));
+        const hasAnyStage = Object.values(stages).some((stage) => stage);
+
+        if (!hasAnyStage) {
+          validationErrors.push('GIBS: You must fill at least one measurement section');
+        }
+
+        Object.entries(stages).forEach(([stageName, isTouched]) => {
+          if (isTouched) {
+            const stageMap: Record<string, typeof outerBeforeAdjustment> = {
+              outerBeforeAdjustment,
+              outerAfterAdjustment,
+              outerFreeHangingAfterInstall,
+              innerBeforeAdjustment,
+              innerAfterAdjustment,
+              innerBeforeToolInstallation,
+              innerAfterToolInstallation,
+            };
+
+            const stageErrors = validateGibsStageData(stageMap[stageName].data);
+            validationErrors.push(...stageErrors.map((e) => `GIBS ${stageName}: ${e}`));
           }
-        }
+        });
 
-        if (outerAfterTouched) {
-          errors.push(...validateGibsData(outerAfterData).map((e) => `Gibs Outer After: ${e}`));
-        }
-        if (innerAfterTouched) {
-          errors.push(...validateGibsData(innerAfterData).map((e) => `Gibs Inner After: ${e}`));
-        }
-
-        // Check if there's any existing data (either initial or modified)
-        const hasOuterData =
-          outerAfterTouched || isDataTouched(initialOuterAfterData, defaultGibsData);
-        const hasInnerData =
-          innerAfterTouched || isDataTouched(initialInnerAfterData, defaultGibsData);
-
-        if (serviceType === ServiceType.INSPECTION && !hasOuterData && !hasInnerData) {
-          errors.push(
-            'Gibs: For routine inspections, you must fill at least one "After" section (Outer After or Inner After)',
-          );
-        }
-
-        return errors;
+        return validationErrors;
       },
 
-      reset,
+      reset: () => {
+        outerBeforeAdjustment.setData(defaultGibsStageData);
+        outerAfterAdjustment.setData(defaultGibsStageData);
+        outerFreeHangingAfterInstall.setData(defaultGibsStageData);
+        innerBeforeAdjustment.setData(defaultGibsStageData);
+        innerAfterAdjustment.setData(defaultGibsStageData);
+        innerBeforeToolInstallation.setData(defaultGibsStageData);
+        innerAfterToolInstallation.setData(defaultGibsStageData);
+        setNotes('');
+      },
     }));
 
     return (
-      <SectionContainer title="Gibs" isOpen={isOpen} onOpenChange={onOpenChange}>
-        <div className="space-y-6">
-          <Tabs defaultValue="outer" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
-              <TabsTrigger value="outer">Outer Measurements</TabsTrigger>
-              <TabsTrigger value="inner">Inner Measurements</TabsTrigger>
-            </TabsList>
+      <div className="p-6 space-y-6">
+        <Tabs defaultValue="outer" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsTrigger value="outer">{t('form.common.outer')}</TabsTrigger>
+            <TabsTrigger value="inner">{t('form.common.inner')}</TabsTrigger>
+          </TabsList>
 
-            <TabsContent value="outer" className="space-y-6">
-              <Tabs defaultValue="before" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                  <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                </TabsList>
+          <TabsContent value="outer" className="space-y-4">
+            <GibsForm
+              slideType="outer"
+              beforeAdjustment={{
+                data: outerBeforeAdjustment.data,
+                onUpdate: wrapUpdateFn(outerBeforeAdjustment.updateField),
+                errors: outerBeforeAdjustment.errors,
+                handleBlur: outerBeforeAdjustment.handleBlur,
+              }}
+              afterAdjustment={{
+                data: outerAfterAdjustment.data,
+                onUpdate: wrapUpdateFn(outerAfterAdjustment.updateField),
+                errors: outerAfterAdjustment.errors,
+                handleBlur: outerAfterAdjustment.handleBlur,
+              }}
+              afterInstall={{
+                data: outerFreeHangingAfterInstall.data,
+                onUpdate: wrapUpdateFn(outerFreeHangingAfterInstall.updateField),
+                errors: outerFreeHangingAfterInstall.errors,
+                handleBlur: outerFreeHangingAfterInstall.handleBlur,
+              }}
+            />
+          </TabsContent>
 
-                <TabsContent value="before" className="mt-4">
-                  <GibsForm
-                    data={outerBeforeData}
-                    updateFn={updateOuterBeforeField}
-                    errors={outerBeforeErrors}
-                    handleBlur={handleBlurOuterBefore}
-                    title="Outer Before"
-                  />
-                </TabsContent>
+          <TabsContent value="inner" className="space-y-4">
+            <GibsForm
+              slideType="inner"
+              beforeAdjustment={{
+                data: innerBeforeAdjustment.data,
+                onUpdate: wrapUpdateFn(innerBeforeAdjustment.updateField),
+                errors: innerBeforeAdjustment.errors,
+                handleBlur: innerBeforeAdjustment.handleBlur,
+              }}
+              afterAdjustment={{
+                data: innerAfterAdjustment.data,
+                onUpdate: wrapUpdateFn(innerAfterAdjustment.updateField),
+                errors: innerAfterAdjustment.errors,
+                handleBlur: innerAfterAdjustment.handleBlur,
+              }}
+              beforeToolInstall={{
+                data: innerBeforeToolInstallation.data,
+                onUpdate: wrapUpdateFn(innerBeforeToolInstallation.updateField),
+                errors: innerBeforeToolInstallation.errors,
+                handleBlur: innerBeforeToolInstallation.handleBlur,
+              }}
+              afterToolInstall={{
+                data: innerAfterToolInstallation.data,
+                onUpdate: wrapUpdateFn(innerAfterToolInstallation.updateField),
+                errors: innerAfterToolInstallation.errors,
+                handleBlur: innerAfterToolInstallation.handleBlur,
+              }}
+            />
+          </TabsContent>
+        </Tabs>
 
-                <TabsContent value="after" className="mt-4">
-                  <GibsForm
-                    data={outerAfterData}
-                    updateFn={updateOuterAfterField}
-                    errors={outerAfterErrors}
-                    handleBlur={handleBlurOuterAfter}
-                    title="Outer After"
-                  />
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-
-            <TabsContent value="inner" className="space-y-6">
-              <Tabs defaultValue="before" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="before">Before Maintenance</TabsTrigger>
-                  <TabsTrigger value="after">After Maintenance</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="before" className="mt-4">
-                  <GibsForm
-                    data={innerBeforeData}
-                    updateFn={updateInnerBeforeField}
-                    errors={innerBeforeErrors}
-                    handleBlur={handleBlurInnerBefore}
-                    title="Inner Before"
-                  />
-                </TabsContent>
-
-                <TabsContent value="after" className="mt-4">
-                  <GibsForm
-                    data={innerAfterData}
-                    updateFn={updateInnerAfterField}
-                    errors={innerAfterErrors}
-                    handleBlur={handleBlurInnerAfter}
-                    title="Inner After"
-                  />
-                </TabsContent>
-              </Tabs>
-            </TabsContent>
-          </Tabs>
+        <div>
+          <Label htmlFor="notes" className="text-xs font-medium mb-2 block">
+            {t('form.common.notes')}
+          </Label>
+          <Input
+            id="gibs-notes"
+            value={notes}
+            onChange={(e) => {
+              setNotes(e.target.value);
+              onSectionTouched?.();
+            }}
+            placeholder={t('form.common.additionalNotes')}
+            className="text-sm"
+          />
         </div>
-      </SectionContainer>
+      </div>
     );
   },
 );

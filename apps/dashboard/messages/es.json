@@ -755,6 +755,24 @@
       "tramming": "Tramming",
       "pistons": "Pistones"
     },
+    "gibsFields": {
+      "directionalTitle": "Mediciones Direccionales",
+      "beforeAdjustment": "Antes del Ajuste",
+      "afterAdjustment": "Después del Ajuste",
+      "freeHangingAfterInstall": "Libre Después de la Instalación",
+      "beforeToolInstallation": "Antes de la Instalación de la Herramienta",
+      "afterToolInstallation": "Después de la Instalación de la Herramienta",
+      "frontToBackTitle": "De Adelante hacia Atrás",
+      "leftToRightTitle": "De Izquierda a Derecha",
+      "front": "Adelante",
+      "back": "Atrás",
+      "left": "Izquierda",
+      "right": "Derecha",
+      "top": "Superior",
+      "bottom": "Inferior",
+      "usable": "Utilizable",
+      "rear": "Trasera"
+    },
     "sectionStatus": {
       "ok": "OK",
       "warning": "Advertencia",
@@ -973,9 +991,21 @@
       },
       "gibs": {
         "hasBeenAdjusted": "Ha Sido Ajustado",
+        "includePreviousMeasurements": "Incluir Mediciones Anteriores",
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "freeHangingAfterInstall": "Libre (Después de la Instalación)",
         "frontToBackTitle": "Mediciones de Frente a Atrás (16 Puntos)",
+        "leftToRightTitle": "Mediciones de Izquierda a Derecha (16 Puntos)",
         "directionalTitle": "Mediciones Direccionales",
+        "calculatedFields": "Campos Direccionales Calculados",
         "point": "Punto {number}",
+        "left": "Izquierda",
+        "right": "Derecha",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "front": "Frontal",
+        "back": "Trasera",
         "leftTop": "Superior Izquierda",
         "leftBottom": "Inferior Izquierda",
         "rightTop": "Superior Derecha",
@@ -984,7 +1014,10 @@
         "frontBottom": "Frontal Inferior",
         "backTop": "Trasera Superior",
         "backBottom": "Trasera Inferior",
-        "usable": "Utilizable"
+        "usable": "Utilizable",
+        "rear": "Trasera",
+        "beforeToolInstallation": "Antes de la Instalación de la Herramienta",
+        "afterToolInstallation": "Después de la Instalación de la Herramienta"
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Presiones del Sistema (PSI)",
@@ -1235,6 +1268,11 @@
           "atLeastOneSectionRequired": "Holgura de Cojinete: Debe completar al menos una sección de medición (Datos Externos o Datos Internos)",
           "hasBeenAdjustedRequired": "Holgura de Cojinete: El campo \"Ha Sido Ajustado\" es obligatorio"
         }
+      },
+      "gibsSection": {
+        "includeBeforeMeasurements": "Incluir Mediciones Anteriores",
+        "beforeMaintenance": "Antes del Mantenimiento",
+        "afterMaintenance": "Después del Mantenimiento"
       },
       "enums": {
         "yesNoNaDnc": {

@@ -179,10 +179,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            outerBefore: true,
-            outerData: true,
-            innerBefore: true,
-            innerData: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -245,10 +248,13 @@ export class ServicesService {
         };
         gibs: {
           include: {
-            outerBefore: true;
-            outerData: true;
-            innerBefore: true;
-            innerData: true;
+            outerBeforeAdjustment: true;
+            outerAfterAdjustment: true;
+            outerFreeHangingAfterInstall: true;
+            innerBeforeAdjustment: true;
+            innerAfterAdjustment: true;
+            innerBeforeToolInstallation: true;
+            innerAfterToolInstallation: true;
           };
         };
         lubricationHydraulics: {
@@ -294,10 +300,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            outerBefore: true,
-            outerData: true,
-            innerBefore: true,
-            innerData: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -361,10 +370,13 @@ export class ServicesService {
         };
         gibs: {
           include: {
-            outerBefore: true;
-            outerData: true;
-            innerBefore: true;
-            innerData: true;
+            outerBeforeAdjustment: true;
+            outerAfterAdjustment: true;
+            outerFreeHangingAfterInstall: true;
+            innerBeforeAdjustment: true;
+            innerAfterAdjustment: true;
+            innerBeforeToolInstallation: true;
+            innerAfterToolInstallation: true;
           };
         };
         lubricationHydraulics: {
@@ -411,10 +423,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            outerBefore: true,
-            outerData: true,
-            innerBefore: true,
-            innerData: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -481,10 +496,13 @@ export class ServicesService {
         };
         gibs: {
           include: {
-            outerBefore: true;
-            outerData: true;
-            innerBefore: true;
-            innerData: true;
+            outerBeforeAdjustment: true;
+            outerAfterAdjustment: true;
+            outerFreeHangingAfterInstall: true;
+            innerBeforeAdjustment: true;
+            innerAfterAdjustment: true;
+            innerBeforeToolInstallation: true;
+            innerAfterToolInstallation: true;
           };
         };
         lubricationHydraulics: {
@@ -539,10 +557,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            outerBefore: true,
-            outerData: true,
-            innerBefore: true,
-            innerData: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -625,10 +646,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            outerBefore: true,
-            outerData: true,
-            innerBefore: true,
-            innerData: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {
@@ -989,6 +1013,36 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
+  /**
+   * Helper method to upsert a GIBS stage (update if exists, create if not)
+   * @param tx Prisma transaction client
+   * @param stageData The stage data to upsert
+   * @param existingId The existing stage ID (if any)
+   * @param updatePayload The payload object to update with the new ID
+   * @param fieldName The field name for the ID in the updatePayload
+   */
+  private async upsertGibsStage(
+    tx: Prisma.TransactionClient,
+    stageData: any,
+    existingId: string | null | undefined,
+    updatePayload: Record<string, any>,
+    fieldName: string,
+  ): Promise<void> {
+    if (!stageData) return;
+
+    if (existingId) {
+      await tx.gibsStageData.update({
+        where: { id: existingId },
+        data: stageData,
+      });
+    } else {
+      const created = await tx.gibsStageData.create({
+        data: stageData,
+      });
+      updatePayload[fieldName] = created.id;
+    }
+  }
+
   async updateGibs(serviceId: string, updateDto: GibsCheck): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
@@ -1011,63 +1065,64 @@ export class ServicesService {
 
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
-        const updatePayload: any = {};
+        const updatePayload: Record<string, any> = {};
 
-        if (updateDto.outerBefore) {
-          if (existingRecord.outerBeforeId) {
-            await tx.gibsData.update({
-              where: { id: existingRecord.outerBeforeId },
-              data: updateDto.outerBefore as any,
-            });
-          } else {
-            const created = await tx.gibsData.create({
-              data: updateDto.outerBefore as any,
-            });
-            updatePayload.outerBeforeId = created.id;
-          }
-        }
+        // Handle all 7 GIBS stages using the helper method
+        await this.upsertGibsStage(
+          tx,
+          updateDto.outerBeforeAdjustment,
+          existingRecord.outerBeforeAdjustmentId,
+          updatePayload,
+          'outerBeforeAdjustmentId',
+        );
 
-        if (updateDto.outerData) {
-          if (existingRecord.outerDataId) {
-            await tx.gibsData.update({
-              where: { id: existingRecord.outerDataId },
-              data: updateDto.outerData as any,
-            });
-          } else {
-            const created = await tx.gibsData.create({
-              data: updateDto.outerData as any,
-            });
-            updatePayload.outerDataId = created.id;
-          }
-        }
+        await this.upsertGibsStage(
+          tx,
+          updateDto.outerAfterAdjustment,
+          existingRecord.outerAfterAdjustmentId,
+          updatePayload,
+          'outerAfterAdjustmentId',
+        );
 
-        if (updateDto.innerBefore) {
-          if (existingRecord.innerBeforeId) {
-            await tx.gibsData.update({
-              where: { id: existingRecord.innerBeforeId },
-              data: updateDto.innerBefore as any,
-            });
-          } else {
-            const created = await tx.gibsData.create({
-              data: updateDto.innerBefore as any,
-            });
-            updatePayload.innerBeforeId = created.id;
-          }
-        }
+        await this.upsertGibsStage(
+          tx,
+          updateDto.outerFreeHangingAfterInstall,
+          existingRecord.outerFreeHangingAfterInstallId,
+          updatePayload,
+          'outerFreeHangingAfterInstallId',
+        );
 
-        if (updateDto.innerData) {
-          if (existingRecord.innerDataId) {
-            await tx.gibsData.update({
-              where: { id: existingRecord.innerDataId },
-              data: updateDto.innerData as any,
-            });
-          } else {
-            const created = await tx.gibsData.create({
-              data: updateDto.innerData as any,
-            });
-            updatePayload.innerDataId = created.id;
-          }
-        }
+        await this.upsertGibsStage(
+          tx,
+          updateDto.innerBeforeAdjustment,
+          existingRecord.innerBeforeAdjustmentId,
+          updatePayload,
+          'innerBeforeAdjustmentId',
+        );
+
+        await this.upsertGibsStage(
+          tx,
+          updateDto.innerAfterAdjustment,
+          existingRecord.innerAfterAdjustmentId,
+          updatePayload,
+          'innerAfterAdjustmentId',
+        );
+
+        await this.upsertGibsStage(
+          tx,
+          updateDto.innerBeforeToolInstallation,
+          existingRecord.innerBeforeToolInstallationId,
+          updatePayload,
+          'innerBeforeToolInstallationId',
+        );
+
+        await this.upsertGibsStage(
+          tx,
+          updateDto.innerAfterToolInstallation,
+          existingRecord.innerAfterToolInstallationId,
+          updatePayload,
+          'innerAfterToolInstallationId',
+        );
 
         if (updateDto.notes !== undefined) {
           updatePayload.notes = updateDto.notes;
@@ -1096,17 +1151,40 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           gibs: {
             create: {
-              ...(updateDto.outerBefore && {
-                outerBefore: { create: updateDto.outerBefore as any },
+              ...(updateDto.outerBeforeAdjustment && {
+                outerBeforeAdjustment: {
+                  create: updateDto.outerBeforeAdjustment,
+                },
               }),
-              ...(updateDto.outerData && {
-                outerData: { create: updateDto.outerData as any },
+              ...(updateDto.outerAfterAdjustment && {
+                outerAfterAdjustment: {
+                  create: updateDto.outerAfterAdjustment,
+                },
               }),
-              ...(updateDto.innerBefore && {
-                innerBefore: { create: updateDto.innerBefore as any },
+              ...(updateDto.outerFreeHangingAfterInstall && {
+                outerFreeHangingAfterInstall: {
+                  create: updateDto.outerFreeHangingAfterInstall,
+                },
               }),
-              ...(updateDto.innerData && {
-                innerData: { create: updateDto.innerData as any },
+              ...(updateDto.innerBeforeAdjustment && {
+                innerBeforeAdjustment: {
+                  create: updateDto.innerBeforeAdjustment,
+                },
+              }),
+              ...(updateDto.innerAfterAdjustment && {
+                innerAfterAdjustment: {
+                  create: updateDto.innerAfterAdjustment,
+                },
+              }),
+              ...(updateDto.innerBeforeToolInstallation && {
+                innerBeforeToolInstallation: {
+                  create: updateDto.innerBeforeToolInstallation,
+                },
+              }),
+              ...(updateDto.innerAfterToolInstallation && {
+                innerAfterToolInstallation: {
+                  create: updateDto.innerAfterToolInstallation,
+                },
               }),
               ...(updateDto.notes && { notes: updateDto.notes }),
             },
@@ -1669,10 +1747,13 @@ export class ServicesService {
         },
         gibs: {
           include: {
-            outerBefore: true,
-            outerData: true,
-            innerBefore: true,
-            innerData: true,
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
           },
         },
         lubricationHydraulics: {

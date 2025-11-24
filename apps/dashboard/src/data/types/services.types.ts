@@ -33,7 +33,7 @@ export type {
   BearingClearanceCheck,
   SlideData,
   SlideCheck,
-  GibsData,
+  GibsStageData,
   GibsCheck,
   LubricationHydraulicsData,
   LubricationHydraulicsGauge,
