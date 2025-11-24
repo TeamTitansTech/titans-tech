@@ -10,8 +10,13 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { ProductionLinesService } from './production-lines.service';
-import { CreateProductionLineDto } from './dto/create-production-line.dto';
-import { UpdateProductionLineDto } from './dto/update-production-line.dto';
+import {
+  CreateProductionLineDto,
+  createProductionLineSchema,
+  UpdateProductionLineDto,
+  updateProductionLineSchema,
+} from '@titans-tech/shared/backend-dtos';
+import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Authenticated, BranchPermission } from '../auth/auth.decorators';
 import { ReqWithAuthUser } from '../../types/request';
 
@@ -29,7 +34,8 @@ export class ProductionLinesController {
   @Post()
   create(
     @Request() req: ReqWithAuthUser,
-    @Body() createProductionLineDto: CreateProductionLineDto,
+    @Body(new ZodValidationPipe(createProductionLineSchema))
+    createProductionLineDto: CreateProductionLineDto,
   ): Promise<
     Prisma.ProductionLineGetPayload<{
       include: {
@@ -75,7 +81,8 @@ export class ProductionLinesController {
   update(
     @Request() req: ReqWithAuthUser,
     @Param('id') id: string,
-    @Body() updateProductionLineDto: UpdateProductionLineDto,
+    @Body(new ZodValidationPipe(updateProductionLineSchema))
+    updateProductionLineDto: UpdateProductionLineDto,
   ): Promise<
     Prisma.ProductionLineGetPayload<{
       include: {

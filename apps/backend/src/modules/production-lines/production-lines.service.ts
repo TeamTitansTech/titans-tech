@@ -5,8 +5,10 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../shared/prisma.service';
-import { CreateProductionLineDto } from './dto/create-production-line.dto';
-import { UpdateProductionLineDto } from './dto/update-production-line.dto';
+import {
+  CreateProductionLineDto,
+  UpdateProductionLineDto,
+} from '@titans-tech/shared/backend-dtos';
 
 @Injectable()
 export class ProductionLinesService {
