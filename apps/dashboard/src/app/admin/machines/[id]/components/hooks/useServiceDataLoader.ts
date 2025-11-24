@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { getServiceById } from '@/data/services/services.api';
-import { RELATION_TO_SECTION_KEY, type AnySectionData } from '../types/service-completion.types';
+import {
+  RELATION_TO_SECTION_KEY,
+  type AnySectionData,
+  type SectionDataMap,
+} from '../types/service-completion.types';
 import { YesNoNaDncType, YesNoDncType, type Service } from '@titans-tech/shared/types/services';
 
 type ServiceStep = 'selection' | 'details' | 'sections' | 'summary';
