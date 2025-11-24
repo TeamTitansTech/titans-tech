@@ -113,21 +113,22 @@ export const statusLabels = {
 /**
  * Get the overall status for a production line based on all its machines
  * Returns the worst status among all machines (critical > warning > ok > unknown)
+ * Optimized with early returns for better performance
  */
 export const getProductionLineStatus = (machines: MachineWithStatus[]): AlertStatus => {
   if (!machines || machines.length === 0) {
     return 'unknown';
   }
 
-  let hasCritical = false;
   let hasWarning = false;
   let hasOk = false;
 
   for (const machine of machines) {
     const status = getAlertStatus(machine);
 
+    // Early return for critical - no need to check other machines
     if (status === 'critical') {
-      hasCritical = true;
+      return 'critical';
     } else if (status === 'warning') {
       hasWarning = true;
     } else if (status === 'ok') {
@@ -135,8 +136,7 @@ export const getProductionLineStatus = (machines: MachineWithStatus[]): AlertSta
     }
   }
 
-  // Return worst status
-  if (hasCritical) return 'critical';
+  // Return worst status found
   if (hasWarning) return 'warning';
   if (hasOk) return 'ok';
 

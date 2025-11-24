@@ -161,7 +161,7 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
         onSuccess?.(response.data);
       }
     } catch (error) {
-      toast.error('Erro ao salvar configurações');
+      toast.error(t('errorSaving'));
       console.error(error);
     } finally {
       setIsSaving(false);
