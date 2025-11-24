@@ -91,7 +91,7 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
                 <SelectValue placeholder="Filter by branch" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Branches</SelectItem>
+                <SelectItem value="all">{t('allBranches')}</SelectItem>
                 {userBranches.map((branch) => (
                   <SelectItem key={branch.id} value={branch.id}>
                     {branch.name}
