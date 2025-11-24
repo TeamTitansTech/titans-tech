@@ -55,26 +55,38 @@ export interface MachineEditModalProps {
   };
 }
 
+interface FormState {
+  name: string;
+  manufacturer: string;
+  sizeTonnage: string;
+  serialNumber: string;
+  stroke: string;
+  foundationType: FoundationType | '';
+  frameType: FrameType | '';
+  clutchType: MachineClutchType | '';
+  pneumaticSystem: PneumaticSystemType | '';
+  pressMounting: PressMountingType | '';
+  features: MachineFeaturesType | '';
+}
+
+const getInitialFormState = (machine: MachineEditModalProps['machine']): FormState => ({
+  name: machine.name,
+  manufacturer: machine.manufacturer || '',
+  sizeTonnage: machine.sizeTonnage || '',
+  serialNumber: machine.serialNumber || '',
+  stroke: machine.stroke || '',
+  foundationType: machine.foundationType || '',
+  frameType: machine.frameType || '',
+  clutchType: machine.clutchType || '',
+  pneumaticSystem: machine.pneumaticSystem || '',
+  pressMounting: machine.pressMounting || '',
+  features: machine.features || '',
+});
+
 export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: MachineEditModalProps) {
   const tInspections = useTranslations('inspections.form.enums');
 
-  const [machineName, setMachineName] = useState(machine.name);
-  const [manufacturer, setManufacturer] = useState(machine.manufacturer || '');
-  const [sizeTonnage, setSizeTonnage] = useState(machine.sizeTonnage || '');
-  const [serialNumber, setSerialNumber] = useState(machine.serialNumber || '');
-  const [stroke, setStroke] = useState(machine.stroke || '');
-  const [foundationType, setFoundationType] = useState<FoundationType | ''>(
-    machine.foundationType || '',
-  );
-  const [frameType, setFrameType] = useState<FrameType | ''>(machine.frameType || '');
-  const [clutchType, setClutchType] = useState<MachineClutchType | ''>(machine.clutchType || '');
-  const [pneumaticSystem, setPneumaticSystem] = useState<PneumaticSystemType | ''>(
-    machine.pneumaticSystem || '',
-  );
-  const [pressMounting, setPressMounting] = useState<PressMountingType | ''>(
-    machine.pressMounting || '',
-  );
-  const [features, setFeatures] = useState<MachineFeaturesType | ''>(machine.features || '');
+  const [formState, setFormState] = useState<FormState>(() => getInitialFormState(machine));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { execute: submitUpdate, isLoading } = useLazyQuery((payload: any) =>
@@ -82,37 +94,29 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
   );
 
   // Reset form when machine changes
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    setMachineName(machine.name);
-    setManufacturer(machine.manufacturer || '');
-    setSizeTonnage(machine.sizeTonnage || '');
-    setSerialNumber(machine.serialNumber || '');
-    setStroke(machine.stroke || '');
-    setFoundationType(machine.foundationType || '');
-    setFrameType(machine.frameType || '');
-    setClutchType(machine.clutchType || '');
-    setPneumaticSystem(machine.pneumaticSystem || '');
-    setPressMounting(machine.pressMounting || '');
-    setFeatures(machine.features || '');
+    setFormState(getInitialFormState(machine));
   }, [machine]);
-  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const updateField = <K extends keyof FormState>(field: K, value: FormState[K]) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const payload = {
-      name: machineName,
-      manufacturer: manufacturer || undefined,
-      sizeTonnage: sizeTonnage || undefined,
-      serialNumber: serialNumber || undefined,
-      stroke: stroke || undefined,
-      foundationType: foundationType || undefined,
-      frameType: frameType || undefined,
-      clutchType: clutchType || undefined,
-      pneumaticSystem: pneumaticSystem || undefined,
-      pressMounting: pressMounting || undefined,
-      features: features || undefined,
+      name: formState.name,
+      manufacturer: formState.manufacturer || undefined,
+      sizeTonnage: formState.sizeTonnage || undefined,
+      serialNumber: formState.serialNumber || undefined,
+      stroke: formState.stroke || undefined,
+      foundationType: formState.foundationType || undefined,
+      frameType: formState.frameType || undefined,
+      clutchType: formState.clutchType || undefined,
+      pneumaticSystem: formState.pneumaticSystem || undefined,
+      pressMounting: formState.pressMounting || undefined,
+      features: formState.features || undefined,
     };
 
     const response = await submitUpdate(payload);
@@ -160,8 +164,8 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                 <Input
                   id="name"
                   type="text"
-                  value={machineName}
-                  onChange={(e) => setMachineName(e.target.value)}
+                  value={formState.name}
+                  onChange={(e) => updateField('name', e.target.value)}
                   required
                   placeholder="Enter machine name"
                 />
@@ -184,8 +188,8 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                   <Input
                     id="manufacturer"
                     type="text"
-                    value={manufacturer}
-                    onChange={(e) => setManufacturer(e.target.value)}
+                    value={formState.manufacturer}
+                    onChange={(e) => updateField('manufacturer', e.target.value)}
                     placeholder="Enter manufacturer"
                   />
                 </div>
@@ -196,8 +200,8 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                   <Input
                     id="sizeTonnage"
                     type="text"
-                    value={sizeTonnage}
-                    onChange={(e) => setSizeTonnage(e.target.value)}
+                    value={formState.sizeTonnage}
+                    onChange={(e) => updateField('sizeTonnage', e.target.value)}
                     placeholder="Enter size/tonnage"
                   />
                 </div>
@@ -208,8 +212,8 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                   <Input
                     id="serialNumber"
                     type="text"
-                    value={serialNumber}
-                    onChange={(e) => setSerialNumber(e.target.value)}
+                    value={formState.serialNumber}
+                    onChange={(e) => updateField('serialNumber', e.target.value)}
                     placeholder="Enter serial number"
                   />
                 </div>
@@ -220,8 +224,8 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                   <Input
                     id="stroke"
                     type="text"
-                    value={stroke}
-                    onChange={(e) => setStroke(e.target.value)}
+                    value={formState.stroke}
+                    onChange={(e) => updateField('stroke', e.target.value)}
                     placeholder="Enter stroke"
                   />
                 </div>
@@ -230,8 +234,8 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                 <div className="space-y-2">
                   <Label htmlFor="foundationType">Foundation Type</Label>
                   <Select
-                    value={foundationType}
-                    onValueChange={(val) => setFoundationType(val as FoundationType)}
+                    value={formState.foundationType}
+                    onValueChange={(val) => updateField('foundationType', val as FoundationType)}
                   >
                     <SelectTrigger id="foundationType">
                       <SelectValue placeholder="Select foundation type" />
@@ -250,7 +254,10 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                 {/* Frame Type */}
                 <div className="space-y-2">
                   <Label htmlFor="frameType">Frame Type</Label>
-                  <Select value={frameType} onValueChange={(val) => setFrameType(val as FrameType)}>
+                  <Select
+                    value={formState.frameType}
+                    onValueChange={(val) => updateField('frameType', val as FrameType)}
+                  >
                     <SelectTrigger id="frameType">
                       <SelectValue placeholder="Select frame type" />
                     </SelectTrigger>
@@ -267,8 +274,8 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                 <div className="space-y-2">
                   <Label htmlFor="clutchType">Clutch Type</Label>
                   <Select
-                    value={clutchType}
-                    onValueChange={(val) => setClutchType(val as MachineClutchType)}
+                    value={formState.clutchType}
+                    onValueChange={(val) => updateField('clutchType', val as MachineClutchType)}
                   >
                     <SelectTrigger id="clutchType">
                       <SelectValue placeholder="Select clutch type" />
@@ -288,8 +295,10 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                 <div className="space-y-2">
                   <Label htmlFor="pneumaticSystem">Pneumatic System</Label>
                   <Select
-                    value={pneumaticSystem}
-                    onValueChange={(val) => setPneumaticSystem(val as PneumaticSystemType)}
+                    value={formState.pneumaticSystem}
+                    onValueChange={(val) =>
+                      updateField('pneumaticSystem', val as PneumaticSystemType)
+                    }
                   >
                     <SelectTrigger id="pneumaticSystem">
                       <SelectValue placeholder="Select pneumatic system" />
@@ -315,8 +324,8 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                 <div className="space-y-2">
                   <Label htmlFor="pressMounting">Press Mounting</Label>
                   <Select
-                    value={pressMounting}
-                    onValueChange={(val) => setPressMounting(val as PressMountingType)}
+                    value={formState.pressMounting}
+                    onValueChange={(val) => updateField('pressMounting', val as PressMountingType)}
                   >
                     <SelectTrigger id="pressMounting">
                       <SelectValue placeholder="Select press mounting" />
@@ -342,8 +351,8 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                 <div className="space-y-2">
                   <Label htmlFor="features">Features</Label>
                   <Select
-                    value={features}
-                    onValueChange={(val) => setFeatures(val as MachineFeaturesType)}
+                    value={formState.features}
+                    onValueChange={(val) => updateField('features', val as MachineFeaturesType)}
                   >
                     <SelectTrigger id="features">
                       <SelectValue placeholder="Select features" />

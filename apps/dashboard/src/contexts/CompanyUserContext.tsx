@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect, useCallback } from 'react';
 import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { getCurrentUser } from '@/data/services/auth.api';
 import { usePathname } from 'next/navigation';
@@ -21,7 +21,7 @@ export function CompanyUserProvider({ children }: { children: ReactNode }) {
   // Check if we're on a client portal route (not admin)
   const isClientRoute = pathname && !pathname.startsWith('/admin');
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback(async () => {
     // Only fetch user data for client routes
     if (!isClientRoute) {
       setIsLoading(false);
@@ -42,12 +42,11 @@ export function CompanyUserProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isClientRoute]);
 
   useEffect(() => {
     fetchUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]); // Refetch when route changes
+  }, [fetchUser]);
 
   const refetchUser = async () => {
     await fetchUser();
