@@ -1008,6 +1008,36 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
+  /**
+   * Helper method to upsert a GIBS stage (update if exists, create if not)
+   * @param tx Prisma transaction client
+   * @param stageData The stage data to upsert
+   * @param existingId The existing stage ID (if any)
+   * @param updatePayload The payload object to update with the new ID
+   * @param fieldName The field name for the ID in the updatePayload
+   */
+  private async upsertGibsStage(
+    tx: Prisma.TransactionClient,
+    stageData: any,
+    existingId: string | null | undefined,
+    updatePayload: Record<string, any>,
+    fieldName: string,
+  ): Promise<void> {
+    if (!stageData) return;
+
+    if (existingId) {
+      await tx.gibsStageData.update({
+        where: { id: existingId },
+        data: stageData,
+      });
+    } else {
+      const created = await tx.gibsStageData.create({
+        data: stageData,
+      });
+      updatePayload[fieldName] = created.id;
+    }
+  }
+
   async updateGibs(serviceId: string, updateDto: GibsCheck): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
@@ -1030,106 +1060,64 @@ export class ServicesService {
 
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
-        const updatePayload: any = {};
+        const updatePayload: Record<string, any> = {};
 
-        // Handle all 7 GIBS stages
-        if (updateDto.outerBeforeAdjustment) {
-          if (existingRecord.outerBeforeAdjustmentId) {
-            await tx.gibsStageData.update({
-              where: { id: existingRecord.outerBeforeAdjustmentId },
-              data: updateDto.outerBeforeAdjustment as any,
-            });
-          } else {
-            const created = await tx.gibsStageData.create({
-              data: updateDto.outerBeforeAdjustment as any,
-            });
-            updatePayload.outerBeforeAdjustmentId = created.id;
-          }
-        }
+        // Handle all 7 GIBS stages using the helper method
+        await this.upsertGibsStage(
+          tx,
+          updateDto.outerBeforeAdjustment,
+          existingRecord.outerBeforeAdjustmentId,
+          updatePayload,
+          'outerBeforeAdjustmentId',
+        );
 
-        if (updateDto.outerAfterAdjustment) {
-          if (existingRecord.outerAfterAdjustmentId) {
-            await tx.gibsStageData.update({
-              where: { id: existingRecord.outerAfterAdjustmentId },
-              data: updateDto.outerAfterAdjustment as any,
-            });
-          } else {
-            const created = await tx.gibsStageData.create({
-              data: updateDto.outerAfterAdjustment as any,
-            });
-            updatePayload.outerAfterAdjustmentId = created.id;
-          }
-        }
+        await this.upsertGibsStage(
+          tx,
+          updateDto.outerAfterAdjustment,
+          existingRecord.outerAfterAdjustmentId,
+          updatePayload,
+          'outerAfterAdjustmentId',
+        );
 
-        if (updateDto.outerFreeHangingAfterInstall) {
-          if (existingRecord.outerFreeHangingAfterInstallId) {
-            await tx.gibsStageData.update({
-              where: { id: existingRecord.outerFreeHangingAfterInstallId },
-              data: updateDto.outerFreeHangingAfterInstall as any,
-            });
-          } else {
-            const created = await tx.gibsStageData.create({
-              data: updateDto.outerFreeHangingAfterInstall as any,
-            });
-            updatePayload.outerFreeHangingAfterInstallId = created.id;
-          }
-        }
+        await this.upsertGibsStage(
+          tx,
+          updateDto.outerFreeHangingAfterInstall,
+          existingRecord.outerFreeHangingAfterInstallId,
+          updatePayload,
+          'outerFreeHangingAfterInstallId',
+        );
 
-        if (updateDto.innerBeforeAdjustment) {
-          if (existingRecord.innerBeforeAdjustmentId) {
-            await tx.gibsStageData.update({
-              where: { id: existingRecord.innerBeforeAdjustmentId },
-              data: updateDto.innerBeforeAdjustment as any,
-            });
-          } else {
-            const created = await tx.gibsStageData.create({
-              data: updateDto.innerBeforeAdjustment as any,
-            });
-            updatePayload.innerBeforeAdjustmentId = created.id;
-          }
-        }
+        await this.upsertGibsStage(
+          tx,
+          updateDto.innerBeforeAdjustment,
+          existingRecord.innerBeforeAdjustmentId,
+          updatePayload,
+          'innerBeforeAdjustmentId',
+        );
 
-        if (updateDto.innerAfterAdjustment) {
-          if (existingRecord.innerAfterAdjustmentId) {
-            await tx.gibsStageData.update({
-              where: { id: existingRecord.innerAfterAdjustmentId },
-              data: updateDto.innerAfterAdjustment as any,
-            });
-          } else {
-            const created = await tx.gibsStageData.create({
-              data: updateDto.innerAfterAdjustment as any,
-            });
-            updatePayload.innerAfterAdjustmentId = created.id;
-          }
-        }
+        await this.upsertGibsStage(
+          tx,
+          updateDto.innerAfterAdjustment,
+          existingRecord.innerAfterAdjustmentId,
+          updatePayload,
+          'innerAfterAdjustmentId',
+        );
 
-        if (updateDto.innerBeforeToolInstallation) {
-          if (existingRecord.innerBeforeToolInstallationId) {
-            await tx.gibsStageData.update({
-              where: { id: existingRecord.innerBeforeToolInstallationId },
-              data: updateDto.innerBeforeToolInstallation as any,
-            });
-          } else {
-            const created = await tx.gibsStageData.create({
-              data: updateDto.innerBeforeToolInstallation as any,
-            });
-            updatePayload.innerBeforeToolInstallationId = created.id;
-          }
-        }
+        await this.upsertGibsStage(
+          tx,
+          updateDto.innerBeforeToolInstallation,
+          existingRecord.innerBeforeToolInstallationId,
+          updatePayload,
+          'innerBeforeToolInstallationId',
+        );
 
-        if (updateDto.innerAfterToolInstallation) {
-          if (existingRecord.innerAfterToolInstallationId) {
-            await tx.gibsStageData.update({
-              where: { id: existingRecord.innerAfterToolInstallationId },
-              data: updateDto.innerAfterToolInstallation as any,
-            });
-          } else {
-            const created = await tx.gibsStageData.create({
-              data: updateDto.innerAfterToolInstallation as any,
-            });
-            updatePayload.innerAfterToolInstallationId = created.id;
-          }
-        }
+        await this.upsertGibsStage(
+          tx,
+          updateDto.innerAfterToolInstallation,
+          existingRecord.innerAfterToolInstallationId,
+          updatePayload,
+          'innerAfterToolInstallationId',
+        );
 
         if (updateDto.notes !== undefined) {
           updatePayload.notes = updateDto.notes;
