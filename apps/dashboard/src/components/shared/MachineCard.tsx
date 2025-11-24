@@ -125,7 +125,7 @@ export function MachineCard({
                 variant="small"
                 className="text-muted-foreground text-sm truncate leading-relaxed"
               >
-                <span className="font-medium">{t('location')}:</span> {location}
+                {location}
               </Typography>
             )}
             {lastInspection && (

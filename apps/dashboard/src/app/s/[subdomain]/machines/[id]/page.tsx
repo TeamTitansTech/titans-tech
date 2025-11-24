@@ -6,6 +6,7 @@ import { ServiceHistory } from './components/ServiceHistory';
 import { notFound, redirect } from 'next/navigation';
 import { Typography } from '@/components/ui/typography';
 import { NoPermission } from '@/components/no-permission/NoPermission';
+import { hasPermissionForResource } from '@/lib/permissions';
 
 interface MachineDetailPageProps {
   params: Promise<{
@@ -48,10 +49,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
   const user = userResponse.data;
 
   // Check if user has readMachines permission for this machine's branch
-  const canViewMachine =
-    user.isCompanyAdmin ||
-    user.isCompanyManager ||
-    user.branches.some((ub) => ub.branchId === machine.branchId && ub.readMachines);
+  const canViewMachine = hasPermissionForResource(user, machine, 'readMachines');
 
   if (!canViewMachine) {
     return <NoPermission />;

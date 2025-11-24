@@ -3,6 +3,8 @@ import { ProductionLineDetail } from './components/ProductionLineDetail';
 import { getProductionLineById } from '@/data/services/production-lines.api';
 import { getCurrentUser } from '@/data/services/auth.api';
 import { notFound, redirect } from 'next/navigation';
+import { NoPermission } from '@/components/no-permission/NoPermission';
+import { hasPermissionForResource } from '@/lib/permissions';
 
 interface ProductionLineDetailPageProps {
   params: Promise<{ id: string }>;
@@ -45,23 +47,34 @@ export default async function ProductionLineDetailPage({
   const user = userResponse.data;
   const productionLine = response.data;
 
+  // Check if user has readProductionLines permission for this branch
+  const canReadProductionLine = hasPermissionForResource(
+    user,
+    productionLine,
+    'readProductionLines',
+  );
+
+  // If user doesn't have permission to read production lines, show no permission message
+  if (!canReadProductionLine) {
+    return <NoPermission />;
+  }
+
   // Check if user has readMachines permission for the production line's branch
-  const canViewMachineDetails =
-    user.isCompanyAdmin ||
-    user.isCompanyManager ||
-    user.branches.some((ub) => ub.branchId === productionLine.branchId && ub.readMachines);
+  const canViewMachineDetails = hasPermissionForResource(user, productionLine, 'readMachines');
 
   // Check if user has updateProductionLines permission
-  const canEditProductionLine =
-    user.isCompanyAdmin ||
-    user.isCompanyManager ||
-    user.branches.some((ub) => ub.branchId === productionLine.branchId && ub.updateProductionLines);
+  const canEditProductionLine = hasPermissionForResource(
+    user,
+    productionLine,
+    'updateProductionLines',
+  );
 
   // Check if user has deleteProductionLines permission
-  const canDeleteProductionLine =
-    user.isCompanyAdmin ||
-    user.isCompanyManager ||
-    user.branches.some((ub) => ub.branchId === productionLine.branchId && ub.deleteProductionLines);
+  const canDeleteProductionLine = hasPermissionForResource(
+    user,
+    productionLine,
+    'deleteProductionLines',
+  );
 
   return (
     <ProductionLineDetail

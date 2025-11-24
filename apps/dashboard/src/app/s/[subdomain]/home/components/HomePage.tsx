@@ -15,6 +15,8 @@ import { getMachines } from '@/data/services/machines.api';
 import type { Machine } from '@/data/services/machines.api';
 import { Loader2 } from 'lucide-react';
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from 'date-fns';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { hasPermissionInAnyBranch } from '@/lib/permissions';
 import {
   ServiceType,
   ServiceStatus,
@@ -49,10 +51,14 @@ interface Alert {
 
 export function HomePage() {
   const t = useTranslations('dashboard.client');
+  const { companyUser } = useCompanyUser();
   const [services, setServices] = useState<Service[]>([]);
   const [machines, setMachines] = useState<Machine[]>([]);
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Check if user has permission to view production lines
+  const canViewProductionLines = hasPermissionInAnyBranch(companyUser, 'readProductionLines');
 
   useEffect(() => {
     async function loadData() {
@@ -204,8 +210,8 @@ export function HomePage() {
       {/* Machine Health Grid - Full width */}
       <MachineHealthGrid machines={machines} />
 
-      {/* Production Lines Carousel */}
-      <ProductionLinesCarousel />
+      {/* Production Lines Carousel - Only show if user has permission */}
+      {canViewProductionLines && <ProductionLinesCarousel />}
 
       {/* Next 7 Days + Month Performance */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

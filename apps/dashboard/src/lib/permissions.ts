@@ -37,6 +37,39 @@ export function hasPermission(
 }
 
 /**
+ * Check if user has a specific permission in ANY branch
+ * Useful for determining if a feature should be visible at all
+ */
+export function hasPermissionInAnyBranch(
+  user: UserResponseDto | null | undefined,
+  permission: PermissionName,
+): boolean {
+  if (!user) return false;
+
+  // Company Admins and Managers have all permissions
+  if (user.isCompanyAdmin || user.isCompanyManager) {
+    return true;
+  }
+
+  // Check if user has the permission in any of their branches
+  return user.branches?.some((b) => b[permission]) || false;
+}
+
+/**
+ * Check if user has permission for a specific resource's branch
+ * This is a convenience wrapper around hasPermission for resources with branchId
+ */
+export function hasPermissionForResource<T extends { branchId: string }>(
+  user: UserResponseDto | null | undefined,
+  resource: T | null | undefined,
+  permission: PermissionName,
+): boolean {
+  if (!user || !resource) return false;
+
+  return hasPermission(user, resource.branchId, permission);
+}
+
+/**
  * Check if user has ANY of the specified permissions
  */
 export function hasAnyPermission(
