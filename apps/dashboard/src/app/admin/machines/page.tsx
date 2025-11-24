@@ -2,12 +2,18 @@ import { getTranslations } from 'next-intl/server';
 import { MachineListPage } from './components/MachineListPage';
 import { getMachines } from '@/data/services/machines.api';
 import { Typography } from '@/components/ui/typography';
+import { NoPermission } from '@/components/no-permission/NoPermission';
 
 export default async function AdminMachinesPage() {
   const t = await getTranslations('machines');
   const response = await getMachines();
 
   if (response.errors) {
+    // Check for 403 Forbidden status (permission error)
+    if (response.status === 403) {
+      return <NoPermission />;
+    }
+
     return (
       <div className="space-y-6">
         <div>

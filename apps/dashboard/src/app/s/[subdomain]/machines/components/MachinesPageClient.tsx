@@ -8,6 +8,7 @@ import { MachineCreationModal } from './MachineCreationModal';
 import { MachineEditModal } from './MachineEditModal';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
+import { NoPermission } from '@/components/no-permission/NoPermission';
 import { Plus } from 'lucide-react';
 import {
   AlertDialog,
@@ -67,6 +68,7 @@ export function MachinesPageClient() {
   const [machines, setMachines] = useState<Machine[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -136,10 +138,12 @@ export function MachinesPageClient() {
 
       setIsLoading(true);
       setError(null);
+      setErrorStatus(null);
       const response = await getMachinesByBranch(selectedBranchId);
 
       if (response.errors) {
         setError(response.errors.join(', '));
+        setErrorStatus(response.status);
         setMachines([]);
       } else {
         setMachines(response.data || []);
@@ -218,11 +222,15 @@ export function MachinesPageClient() {
             <Typography variant="muted">Loading machines...</Typography>
           </div>
         ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-destructive">
-              {t('errorLoading')}: {error}
-            </p>
-          </div>
+          errorStatus === 403 ? (
+            <NoPermission />
+          ) : (
+            <div className="text-center py-12">
+              <p className="text-destructive">
+                {t('errorLoading')}: {error}
+              </p>
+            </div>
+          )
         ) : machines.length === 0 ? (
           <div className="text-center py-12">
             <Typography variant="muted">{t('emptyState')}</Typography>
