@@ -5,12 +5,33 @@ import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { MachineCard } from './MachineCard';
 import { MachineCreationModal } from './MachineCreationModal';
+import { MachineEditModal } from './MachineEditModal';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { Plus } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useBranch } from '@/contexts/BranchContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
-import { getMachinesByBranch } from '@/data/services/machines.api';
+import { getMachinesByBranch, deleteMachine } from '@/data/services/machines.api';
+import { useLazyQuery } from '@/hooks/useLazyQuery';
+import { toast } from 'sonner';
+import {
+  FoundationType,
+  FrameType,
+  MachineClutchType,
+  PneumaticSystemType,
+  PressMountingType,
+  MachineFeaturesType,
+} from '@titans-tech/shared/types';
 
 interface Machine {
   id: string;
@@ -29,6 +50,17 @@ interface Machine {
   location?: string;
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';
+  manufacturer?: string | null;
+  model?: string | null;
+  sizeTonnage?: string | null;
+  serialNumber?: string | null;
+  stroke?: string | null;
+  foundationType?: FoundationType | null;
+  frameType?: FrameType | null;
+  clutchType?: MachineClutchType | null;
+  pneumaticSystem?: PneumaticSystemType | null;
+  pressMounting?: PressMountingType | null;
+  features?: MachineFeaturesType | null;
 }
 
 export function MachinesPageClient() {
@@ -36,11 +68,19 @@ export function MachinesPageClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
+  const [machineToDelete, setMachineToDelete] = useState<{ id: string; name: string } | null>(null);
   const t = useTranslations('machines');
   const { selectedBranchId, setSelectedBranchId, selectedBranchName } = useBranch();
   const { companyUser } = useCompanyUser();
   const searchParams = useSearchParams();
   const branchIdFromUrl = searchParams.get('branchId');
+
+  const { execute: executeDelete, isLoading: isDeleting } = useLazyQuery((id: string) =>
+    deleteMachine(id),
+  );
 
   // Check if user has permission to create machines in the selected branch
   const canCreateMachines = () => {
@@ -54,16 +94,28 @@ export function MachinesPageClient() {
     return userBranch?.createMachines || false;
   };
 
-  // Check if user has permission to view machine details in the selected branch
-  const canViewMachineDetails = () => {
+  // Check if user has permission to update machines in the selected branch
+  const canUpdateMachines = () => {
     if (!companyUser || !selectedBranchId) return false;
 
-    // Company admin and manager can view machines
+    // Company admin and manager can update machines
     if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
 
     // Check branch-specific permission
     const userBranch = companyUser.branches.find((ub) => ub.branchId === selectedBranchId);
-    return userBranch?.readMachines || false;
+    return userBranch?.updateMachines || false;
+  };
+
+  // Check if user has permission to delete machines in the selected branch
+  const canDeleteMachines = () => {
+    if (!companyUser || !selectedBranchId) return false;
+
+    // Company admin and manager can delete machines
+    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+
+    // Check branch-specific permission
+    const userBranch = companyUser.branches.find((ub) => ub.branchId === selectedBranchId);
+    return userBranch?.deleteMachines || false;
   };
 
   // Set branch ID from URL if available
@@ -107,6 +159,34 @@ export function MachinesPageClient() {
         }
       });
     }
+  };
+
+  const handleEdit = (machine: Machine) => {
+    setSelectedMachine(machine);
+    setIsEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (machine: { id: string; name: string }) => {
+    setMachineToDelete(machine);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!machineToDelete) return;
+
+    const response = await executeDelete(machineToDelete.id);
+
+    if (!response.errors) {
+      setMachines((prevMachines) =>
+        prevMachines.filter((machine) => machine.id !== machineToDelete.id),
+      );
+      toast.success(t('deletedSuccessfully'));
+    } else {
+      toast.error(response.errors.join(', '));
+    }
+
+    setIsDeleteDialogOpen(false);
+    setMachineToDelete(null);
   };
 
   return (
@@ -158,7 +238,12 @@ export function MachinesPageClient() {
                 location={machine.location}
                 lastInspection={machine.lastInspection}
                 status={machine.status}
-                canViewDetails={canViewMachineDetails()}
+                onEdit={canUpdateMachines() ? () => handleEdit(machine) : undefined}
+                onDelete={
+                  canDeleteMachines()
+                    ? () => handleDeleteClick({ id: machine.id, name: machine.name })
+                    : undefined
+                }
               />
             ))}
           </div>
@@ -170,6 +255,39 @@ export function MachinesPageClient() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleSuccess}
       />
+
+      {selectedMachine && (
+        <MachineEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedMachine(null);
+          }}
+          onSuccess={handleSuccess}
+          machine={selectedMachine}
+        />
+      )}
+
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('deleteConfirmTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('deleteConfirmDescription', { name: machineToDelete?.name || '' })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>{t('cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? t('deleting') : t('confirmDelete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

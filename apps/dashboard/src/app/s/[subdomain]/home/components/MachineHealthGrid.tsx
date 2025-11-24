@@ -4,39 +4,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Package, AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-
-interface Machine {
-  id: string;
-  name: string;
-  branchId: string;
-  healthStatus?: 'ok' | 'warning' | 'critical';
-}
+import { getAlertStatus, type AlertStatus } from '@/lib/alertStatus';
+import type { Machine } from '@/data/services/machines.api';
 
 interface MachineHealthGridProps {
   machines: Machine[];
-  criticalCount: number;
-  warningCount: number;
 }
 
-export function MachineHealthGrid({
-  machines,
-  criticalCount,
-  warningCount,
-}: MachineHealthGridProps) {
+export function MachineHealthGrid({ machines }: MachineHealthGridProps) {
   const t = useTranslations('dashboard.client');
 
-  // Assign health status to machines (mock for now)
-  const machinesWithStatus = machines.map((machine, index) => {
-    let healthStatus: 'ok' | 'warning' | 'critical' = 'ok';
-    if (index < criticalCount) {
-      healthStatus = 'critical';
-    } else if (index < criticalCount + warningCount) {
-      healthStatus = 'warning';
-    }
+  // Calculate health status from actual alert data
+  const machinesWithStatus = machines.map((machine) => {
+    const healthStatus = getAlertStatus(machine);
     return { ...machine, healthStatus };
   });
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: AlertStatus) => {
     switch (status) {
       case 'critical':
         return {
@@ -50,6 +34,12 @@ export function MachineHealthGrid({
           icon: 'text-yellow-600 dark:text-yellow-400',
           Icon: AlertTriangle,
         };
+      case 'unknown':
+        return {
+          bg: 'bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-800',
+          icon: 'text-gray-600 dark:text-gray-400',
+          Icon: CheckCircle2,
+        };
       default:
         return {
           bg: 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800',
@@ -59,10 +49,11 @@ export function MachineHealthGrid({
     }
   };
 
+  // Calculate stats from actual machine data
   const stats = {
-    operational: machines.length - criticalCount - warningCount,
-    warning: warningCount,
-    critical: criticalCount,
+    operational: machinesWithStatus.filter((m) => m.healthStatus === 'ok').length,
+    warning: machinesWithStatus.filter((m) => m.healthStatus === 'warning').length,
+    critical: machinesWithStatus.filter((m) => m.healthStatus === 'critical').length,
   };
 
   return (

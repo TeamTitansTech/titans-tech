@@ -116,10 +116,14 @@ export class CompanyBranchesController {
 
   @BranchPermission('readMachines')
   @Get(':branchId/machines')
-  getMachines(
-    @Param('branchId') branchId: string,
-  ): Promise<
-    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
+  getMachines(@Param('branchId') branchId: string): Promise<
+    Prisma.MachineGetPayload<{
+      include: {
+        blueprint: true;
+        fields: true;
+        services: { include: { alertBearingClearance: true } };
+      };
+    }>[]
   > {
     return this.companyBranchesService.getMachines(branchId);
   }

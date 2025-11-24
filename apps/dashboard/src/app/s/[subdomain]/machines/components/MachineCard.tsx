@@ -13,5 +13,6 @@ interface MachineCardProps {
 }
 
 export function MachineCard(props: MachineCardProps) {
-  return <SharedMachineCard {...props} showStatusBadge={true} basePath="/machines" />;
+  // Use status circle like admin (showStatusBadge={false} is the default)
+  return <SharedMachineCard {...props} basePath="/machines" />;
 }

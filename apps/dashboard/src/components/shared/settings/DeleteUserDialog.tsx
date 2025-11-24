@@ -1,0 +1,159 @@
+'use client';
+
+import { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { toast } from 'sonner';
+import { deleteUserFromBranchOrCompany } from '@/data/services/users.api';
+import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
+import { AlertTriangleIcon } from 'lucide-react';
+
+interface DeleteUserDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  user: UserResponseDto | null;
+  branchId: string;
+  onSuccess: () => void;
+  /**
+   * Translation namespace
+   */
+  translationNamespace?: string;
+}
+
+export function DeleteUserDialog({
+  open,
+  onOpenChange,
+  user,
+  branchId,
+  onSuccess,
+  translationNamespace = 'settings.deleteUserDialog',
+}: DeleteUserDialogProps) {
+  const t = useTranslations(translationNamespace);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteScope, setDeleteScope] = useState<'branch' | 'company'>('branch');
+
+  const handleDelete = async () => {
+    if (!user) return;
+
+    setIsDeleting(true);
+
+    try {
+      const response = await deleteUserFromBranchOrCompany({
+        branchId,
+        userId: user.id,
+        scope: deleteScope,
+      });
+
+      if (response.data) {
+        toast.success(t('success'));
+        onOpenChange(false);
+        onSuccess();
+      } else {
+        toast.error(t('error'));
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast.error(t('error'));
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleClose = () => {
+    if (!isDeleting) {
+      onOpenChange(false);
+      setDeleteScope('branch');
+    }
+  };
+
+  if (!user) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+              <AlertTriangleIcon className="h-5 w-5 text-red-600" />
+            </div>
+            <div>
+              <DialogTitle>{t('title')}</DialogTitle>
+              <DialogDescription className="mt-1">{t('description')}</DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-4 py-4">
+          {/* Warning */}
+          <div className="rounded-lg bg-red-50 p-3 border border-red-200">
+            <p className="text-sm font-medium text-red-800">{t('warning')}</p>
+          </div>
+
+          {/* User Info */}
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-gray-700">{t('userInfo')}</p>
+            <div className="rounded-lg bg-gray-50 p-3 border border-gray-200">
+              <p className="text-sm font-semibold text-gray-900">{user.name}</p>
+              <p className="text-xs text-gray-600">{user.email}</p>
+            </div>
+          </div>
+
+          {/* Delete Scope Selector */}
+          <div className="space-y-2">
+            <Label htmlFor="deleteScope" className="text-sm font-medium">
+              {t('scopeLabel')}
+            </Label>
+            <Select
+              value={deleteScope}
+              onValueChange={(value) => setDeleteScope(value as 'branch' | 'company')}
+              disabled={isDeleting}
+            >
+              <SelectTrigger id="deleteScope">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="branch">
+                  <div className="space-y-0.5">
+                    <div className="font-medium">{t('scopeOptions.branch')}</div>
+                    <div className="text-xs text-gray-500">{t('scopeDescriptions.branch')}</div>
+                  </div>
+                </SelectItem>
+                <SelectItem value="company">
+                  <div className="space-y-0.5">
+                    <div className="font-medium">{t('scopeOptions.company')}</div>
+                    <div className="text-xs text-gray-500">{t('scopeDescriptions.company')}</div>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={handleClose} disabled={isDeleting}>
+            {t('cancel')}
+          </Button>
+          <Button type="button" variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+            {isDeleting ? t('confirming') : t('confirm')}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

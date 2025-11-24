@@ -69,21 +69,38 @@ export class MachinesService {
   }
 
   async findAll(): Promise<
-    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
+    Prisma.MachineGetPayload<{
+      include: {
+        blueprint: true;
+        fields: true;
+        services: { include: { alertBearingClearance: true } };
+      };
+    }>[]
   > {
     return this.prisma.machine.findMany({
       include: {
         blueprint: true,
         branch: true,
         fields: true,
+        services: {
+          take: 1,
+          orderBy: { date: 'desc' },
+          include: {
+            alertBearingClearance: true,
+          },
+        },
       },
     });
   }
 
-  async findByBranch(
-    branchId: string,
-  ): Promise<
-    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
+  async findByBranch(branchId: string): Promise<
+    Prisma.MachineGetPayload<{
+      include: {
+        blueprint: true;
+        fields: true;
+        services: { include: { alertBearingClearance: true } };
+      };
+    }>[]
   > {
     return this.prisma.machine.findMany({
       where: { branchId },
@@ -91,6 +108,13 @@ export class MachinesService {
         blueprint: true,
         branch: true,
         fields: true,
+        services: {
+          take: 1,
+          orderBy: { date: 'desc' },
+          include: {
+            alertBearingClearance: true,
+          },
+        },
       },
     });
   }

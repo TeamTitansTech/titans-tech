@@ -657,8 +657,8 @@
     "detailPageTitle": "Detalles de la Máquina",
     "newButton": "Nueva Máquina",
     "emptyState": "No se encontraron máquinas. Cree su primera máquina para comenzar.",
-    "noBlueprint": "Sin plantilla",
-    "noBlueprintAssigned": "Sin plantilla asignada",
+    "noBlueprint": "Sin modelo",
+    "noBlueprintAssigned": "Sin modelo asignado",
     "errorLoading": "Error al cargar máquinas",
     "description": "Crear una nueva máquina",
     "routineInspection": "Inspección de Rutina",
@@ -792,9 +792,9 @@
         "mainBranch": "Sucursal Principal"
       },
       "blueprint": {
-        "label": "Plantilla",
-        "placeholder": "Seleccione una plantilla",
-        "loading": "Cargando plantillas..."
+        "label": "Modelo",
+        "placeholder": "Seleccione un modelo",
+        "loading": "Cargando modelos..."
       },
       "name": {
         "label": "Nombre de la Máquina",
@@ -808,7 +808,7 @@
       },
       "selectCompanyPrompt": "Seleccione una empresa para comenzar",
       "selectBranchPrompt": "Seleccione una sucursal para comenzar",
-      "selectBlueprintPrompt": "Seleccione una plantilla para comenzar",
+      "selectBlueprintPrompt": "Seleccione un modelo para comenzar",
       "submit": {
         "idle": "Crear Máquina",
         "loading": "Enviando..."
@@ -1509,8 +1509,8 @@
     "machinesSubtitle": "Máquinas en esta sucursal",
     "newMachine": "Nueva Máquina",
     "noMachines": "Aún no hay máquinas en esta sucursal",
-    "noBlueprint": "Sin plantilla",
-    "blueprint": "Plantilla",
+    "noBlueprint": "Sin modelo",
+    "blueprint": "Modelo",
     "fields": "campos",
     "mainBranch": "Sucursal Principal"
   },

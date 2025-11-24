@@ -106,10 +106,14 @@ export class CompanyBranchesService {
     return { success: true };
   }
 
-  async getMachines(
-    branchId: string,
-  ): Promise<
-    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
+  async getMachines(branchId: string): Promise<
+    Prisma.MachineGetPayload<{
+      include: {
+        blueprint: true;
+        fields: true;
+        services: { include: { alertBearingClearance: true } };
+      };
+    }>[]
   > {
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id: branchId },
@@ -118,6 +122,13 @@ export class CompanyBranchesService {
           include: {
             blueprint: true,
             fields: true,
+            services: {
+              take: 1,
+              orderBy: { date: 'desc' },
+              include: {
+                alertBearingClearance: true,
+              },
+            },
           },
         },
       },

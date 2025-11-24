@@ -145,13 +145,8 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                 <div className="px-3 py-2 rounded-md border bg-muted/30 text-muted-foreground">
                   {machine.blueprint?.name || 'No model'}
                 </div>
-                <Typography variant="small" className="text-xs text-muted-foreground">
-                  Model cannot be changed after creation
-                </Typography>
               </div>
             </section>
-
-            <Separator />
 
             {/* Machine Name */}
             <section className="space-y-4">

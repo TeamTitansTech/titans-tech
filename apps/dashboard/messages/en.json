@@ -657,8 +657,8 @@
     "detailPageTitle": "Machine Details",
     "newButton": "New Machine",
     "emptyState": "No machines found. Create your first machine to get started.",
-    "noBlueprint": "No blueprint",
-    "noBlueprintAssigned": "No blueprint assigned",
+    "noBlueprint": "No model",
+    "noBlueprintAssigned": "No model assigned",
     "errorLoading": "Error loading machines",
     "description": "Create a new machine",
     "routineInspection": "Routine Inspection",
@@ -792,9 +792,9 @@
         "mainBranch": "Main Branch"
       },
       "blueprint": {
-        "label": "Blueprint",
-        "placeholder": "Select a blueprint",
-        "loading": "Loading blueprints..."
+        "label": "Model",
+        "placeholder": "Select a model",
+        "loading": "Loading models..."
       },
       "name": {
         "label": "Machine Name",
@@ -808,7 +808,7 @@
       },
       "selectCompanyPrompt": "Select a company to get started",
       "selectBranchPrompt": "Select a branch to get started",
-      "selectBlueprintPrompt": "Select a blueprint to get started",
+      "selectBlueprintPrompt": "Select a model to get started",
       "submit": {
         "idle": "Create Machine",
         "loading": "Sending..."
@@ -1511,8 +1511,8 @@
     "machinesSubtitle": "Machines in this branch",
     "newMachine": "New Machine",
     "noMachines": "No machines in this branch yet",
-    "noBlueprint": "No blueprint",
-    "blueprint": "Blueprint",
+    "noBlueprint": "No model",
+    "blueprint": "Model",
     "fields": "fields",
     "mainBranch": "Main Branch"
   },
@@ -1653,7 +1653,7 @@
     "noInspectionData": "No inspection performed",
     "inspectionSections": "Inspection sections",
     "noSectionsConfigured": "No sections configured",
-    "noBlueprintAssigned": "No blueprint assigned",
+    "noBlueprintAssigned": "No model assigned",
     "status": {
       "ok": "OK",
       "warning": "Warning",

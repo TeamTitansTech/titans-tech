@@ -719,7 +719,7 @@
     "detailPageTitle": "Detalhes da Máquina",
     "newButton": "Nova Máquina",
     "emptyState": "Nenhuma máquina encontrada. Crie sua primeira máquina para começar.",
-    "noBlueprint": "Sem blueprint",
+    "noBlueprint": "Sem modelo",
     "noBlueprintAssigned": "Nenhum modelo atribuído",
     "errorLoading": "Erro ao carregar máquinas",
     "description": "Crie uma nova máquina",

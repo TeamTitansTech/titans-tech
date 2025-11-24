@@ -12,12 +12,12 @@ import { ServiceTrendsChart } from './ServiceTrendsChart';
 import { ProductionLinesCarousel } from './ProductionLinesCarousel';
 import { getServices } from '@/data/services/services.api';
 import { getMachines } from '@/data/services/machines.api';
+import type { Machine } from '@/data/services/machines.api';
 import { Loader2 } from 'lucide-react';
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import {
   ServiceType,
   ServiceStatus,
-  AlertSeverity,
   type ServiceType as ServiceTypeEnum,
   type ServiceStatus as ServiceStatusEnum,
   type AlertSeverity as AlertSeverityEnum,
@@ -36,12 +36,6 @@ interface Service {
       name: string;
     };
   };
-}
-
-interface Machine {
-  id: string;
-  name: string;
-  branchId: string;
 }
 
 interface Alert {
@@ -95,10 +89,6 @@ export function HomePage() {
   const calculateDashboardData = () => {
     // Use real machines data
     const totalMachines = machines.length;
-
-    // Calculate alert counts from real alerts
-    const criticalCount = alerts.filter((alert) => alert.severity === AlertSeverity.RED).length;
-    const warningCount = alerts.filter((alert) => alert.severity === AlertSeverity.YELLOW).length;
 
     // Calculate monthly trends for last 6 months
     const monthlyData = [];
@@ -168,8 +158,6 @@ export function HomePage() {
       totalMachines,
       upcomingServicesCount: upcomingServices.length,
       activeAlertsCount: alerts.length,
-      criticalCount,
-      warningCount,
       monthlyTrends: monthlyData,
       upcomingServices,
       alerts: alerts,
@@ -214,11 +202,7 @@ export function HomePage() {
       <RequiresAttention alerts={dashboardData.alerts} />
 
       {/* Machine Health Grid - Full width */}
-      <MachineHealthGrid
-        machines={machines}
-        criticalCount={dashboardData.criticalCount}
-        warningCount={dashboardData.warningCount}
-      />
+      <MachineHealthGrid machines={machines} />
 
       {/* Production Lines Carousel */}
       <ProductionLinesCarousel />

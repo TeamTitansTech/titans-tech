@@ -36,7 +36,13 @@ export class MachinesController {
   @Authenticated()
   @Get()
   findAll(): Promise<
-    Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
+    Prisma.MachineGetPayload<{
+      include: {
+        blueprint: true;
+        fields: true;
+        services: { include: { alertBearingClearance: true } };
+      };
+    }>[]
   > {
     return this.machinesService.findAll();
   }
