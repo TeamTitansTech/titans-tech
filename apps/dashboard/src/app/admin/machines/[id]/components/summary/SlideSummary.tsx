@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { calculateMaxDeviation } from '../utils/sectionDataUtils';
+import { translateEnumValue } from './utils/translateEnum';
 
 interface SlideSummaryProps {
   data: SlideCheck;
@@ -40,20 +41,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
 
   // Helper function to display value with translations
   const displayValue = (value: unknown): string => {
-    if (value === null || value === undefined || value === '') {
-      return '-';
-    }
-    if (typeof value === 'boolean') {
-      return value ? tCommon('yes') : tCommon('no');
-    }
-    // Translate enum values
-    const stringValue = String(value);
-    if (stringValue === 'YES') return tCommon('yes');
-    if (stringValue === 'NO') return tCommon('no');
-    if (stringValue === 'DNC') return tCommon('dnc');
-    if (stringValue === 'NA') return tCommon('na');
-
-    return stringValue;
+    return translateEnumValue(value, tCommon);
   };
 
   // Define all section-level fields that should be shown

@@ -32,6 +32,7 @@ export function MachineCard({
   onDelete,
 }: ExtendedMachineCardProps) {
   const t = useTranslations('machines');
+  const tActions = useTranslations('actions');
 
   return (
     <Link href={`/admin/machines/${id}`} className="block">
@@ -113,7 +114,7 @@ export function MachineCard({
                     className="flex-1 px-2 text-sm gap-0 sm:gap-1.5 md:gap-2"
                   >
                     <Pencil className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 shrink-0" />
-                    <span className="hidden sm:inline">{t('edit')}</span>
+                    <span className="hidden sm:inline">{tActions('edit')}</span>
                   </Button>
                 )}
                 {onDelete && (
@@ -128,7 +129,7 @@ export function MachineCard({
                     className="flex-1 px-2 text-sm text-destructive hover:text-destructive hover:bg-destructive/10 hover:border-destructive/50 gap-0 sm:gap-1.5 md:gap-2"
                   >
                     <Trash2 className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 shrink-0" />
-                    <span className="hidden sm:inline">{t('delete')}</span>
+                    <span className="hidden sm:inline">{tActions('delete')}</span>
                   </Button>
                 )}
               </div>

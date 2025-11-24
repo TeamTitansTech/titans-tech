@@ -46,7 +46,69 @@ export function ServiceCompletionModal({
 }: ServiceCompletionModalProps) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
+  const tErrors = useTranslations('errors.service');
+  const tSuccess = useTranslations('errors.successMessages');
+  const tActions = useTranslations('actions');
   const router = useInternalRouter();
+
+  // Helper function to translate error messages
+  const translateError = (error: string): string => {
+    // Check for specific field names and translate them
+    if (error.includes('Are Cracks Visible')) {
+      return error.replace('Are Cracks Visible', tErrors('areCracksVisible'));
+    }
+    if (error.includes('Is Main Motor Secure')) {
+      return error.replace('Is Main Motor Secure', tErrors('isMainMotorSecure'));
+    }
+    if (error.includes('Is Motor Plate Secure')) {
+      return error.replace('Is Motor Plate Secure', tErrors('isMotorPlateSecure'));
+    }
+    if (error.includes('Invalid option: expected')) {
+      return error.replace('Invalid option: expected', tErrors('invalidOption'));
+    }
+    return error;
+  };
+
+  // Helper function to get dialog title
+  const getDialogTitle = (): string => {
+    // Completing existing service
+    if (isCompletingService) {
+      // Selection step
+      if (currentStep === 'selection') {
+        if (isInspection) return tServices('modal.completeInspection');
+        return tServices('modal.completeMaintenance');
+      }
+
+      // Details step
+      if (isInspection) return tServices('modal.completeInspectionDetails');
+      return tServices('modal.completeMaintenanceDetails');
+    }
+
+    // Creating new service - Selection step
+    if (currentStep === 'selection') {
+      return tServices('createNewService');
+    }
+
+    // Creating new service - Other steps
+    return `${tServices('createNewService')} - ${t('inspectionSections')}`;
+  };
+
+  // Helper function to get dialog description
+  const getDialogDescription = (): string => {
+    // Selection step - same for both create and complete
+    if (currentStep === 'selection') {
+      return tServices('modal.selectMaintenanceAreas');
+    }
+
+    // Completing existing service
+    if (isCompletingService) {
+      if (isInspection) return tServices('modal.fillInspectionDetails');
+      return tServices('modal.fillMaintenanceDetails');
+    }
+
+    // Creating new service
+    return tServices('createServiceDescription');
+  };
 
   // Memoize machineSections to prevent infinite loop
   const machineSections = useMemo(
@@ -217,19 +279,21 @@ export function ServiceCompletionModal({
           const response = await createService(payload);
 
           if (response.errors || !response.data) {
+            const translatedErrors = response.errors ? response.errors.map(translateError) : [];
             toast.error(
-              `Failed to create service:\n${response.errors?.join('\n') || 'Unknown error'}`,
+              `${tErrors('failedToCreate')}:\n${translatedErrors.join('\n') || 'Unknown error'}`,
+              { duration: 5000 },
             );
             setIsSubmitting(false);
             return;
           }
 
           setCreatedServiceId(response.data.id);
-          toast.success('Service created. Now fill in the section forms.');
+          toast.success(tSuccess('serviceCreated'), { duration: 3000 });
           setIsSubmitting(false);
         } catch (error) {
           console.error('Error creating service:', error);
-          toast.error('An unexpected error occurred while creating the service');
+          toast.error(tErrors('unexpectedCreateError'), { duration: 5000 });
           setIsSubmitting(false);
           return;
         }
@@ -258,18 +322,20 @@ export function ServiceCompletionModal({
           const response = await updateService(currentServiceId, updatePayload);
 
           if (response.errors) {
+            const translatedErrors = response.errors.map(translateError);
             toast.error(
-              `Failed to update service:\n${response.errors?.join('\n') || 'Unknown error'}`,
+              `${tErrors('failedToUpdate')}:\n${translatedErrors.join('\n') || 'Unknown error'}`,
+              { duration: 5000 },
             );
             setIsSubmitting(false);
             return;
           }
 
-          toast.success('Service details updated successfully.');
+          toast.success(tSuccess('serviceUpdated'), { duration: 3000 });
           setIsSubmitting(false);
         } catch (error) {
           console.error('Error updating service:', error);
-          toast.error('An unexpected error occurred while updating the service');
+          toast.error(tErrors('unexpectedError'), { duration: 5000 });
           setIsSubmitting(false);
           return;
         }
@@ -283,47 +349,96 @@ export function ServiceCompletionModal({
 
       const ref = getRef(currentSectionKey);
       if (!ref) {
-        toast.error('Section reference not found');
+        toast.error(tErrors('sectionRefNotFound'), { duration: 5000 });
         return;
       }
 
-      const result = ref.validateAndGetData(currentServiceType);
+      const isSectionCompleted = completedSections.has(currentSectionKey);
+      const isSectionTouched = ref.isTouched?.() ?? false;
+      const shouldSkipSave = isSectionCompleted && !isSectionTouched;
 
-      if (!result.isValid || !result.data) {
-        toast.error(result.errors.join('\n\n') || 'Please fill in all required fields');
-        return;
-      }
-
-      setIsSubmitting(true);
-
-      try {
-        if (!currentServiceId) {
-          toast.error('Service ID not found. Please create the service first.');
-          setIsSubmitting(false);
+      if (!shouldSkipSave) {
+        const result = ref.validateAndGetData(currentServiceType);
+        if (!result.isValid || !result.data) {
+          toast.error(result.errors.join('\n\n') || tErrors('fillRequiredFields'), {
+            duration: 5000,
+          });
           return;
         }
 
-        const response = await updateServiceSection(
-          currentServiceId,
-          currentSectionKey,
-          result.data,
-          machineId,
+        setIsSubmitting(true);
+
+        try {
+          if (!currentServiceId) {
+            toast.error(tErrors('serviceIdNotFound'), { duration: 5000 });
+            setIsSubmitting(false);
+            return;
+          }
+
+          const response = await updateServiceSection(
+            currentServiceId,
+            currentSectionKey,
+            result.data,
+            machineId,
+          );
+
+          if (response.errors) {
+            const translatedErrors = response.errors.map(translateError);
+            toast.error(`${tErrors('failedToSaveSection')}:\n${translatedErrors.join('\n')}`, {
+              duration: 5000,
+            });
+            setIsSubmitting(false);
+            return;
+          }
+
+          toast.success(tSuccess('sectionSaved'), { duration: 3000 });
+          markSectionComplete(currentSectionKey, result.data);
+        } catch (error) {
+          console.error('Error saving section:', error);
+          toast.error(tErrors('unexpectedSaveError'), { duration: 5000 });
+          setIsSubmitting(false);
+          return;
+        } finally {
+          setIsSubmitting(false);
+        }
+      }
+
+      const nextSectionIndex = currentSectionIndex + 1;
+      const isLastSection = nextSectionIndex >= sectionsArray.length;
+
+      const newCompletedSections = new Set(completedSections);
+      newCompletedSections.add(currentSectionKey);
+
+      let nextStep: 'sections' | 'summary';
+      let nextSectionKey: string | null;
+      let nextIndex: number;
+
+      if (newCompletedSections.size === sectionsArray.length) {
+        nextStep = 'summary';
+        nextSectionKey = null;
+        nextIndex = -1;
+      } else {
+        const firstIncompleteIndex = sectionsArray.findIndex(
+          (key) => !newCompletedSections.has(key),
         );
 
-        if (response.errors) {
-          toast.error(`Failed to save section:\n${response.errors.join('\n')}`);
-          setIsSubmitting(false);
-          return;
+        nextStep = 'sections';
+        nextSectionKey = sectionsArray[firstIncompleteIndex];
+        nextIndex = firstIncompleteIndex;
+
+        if (isLastSection && firstIncompleteIndex < currentSectionIndex) {
+          const firstIncompleteSectionConfig = SECTION_REGISTRY[nextSectionKey];
+          const firstIncompleteName = firstIncompleteSectionConfig
+            ? t(`sectionNames.${firstIncompleteSectionConfig.metadata.i18nKey}`)
+            : nextSectionKey;
+
+          toast.info(`${tErrors('redirectingToIncomplete')}: ${firstIncompleteName}`, {
+            duration: 4000,
+          });
         }
+      }
 
-        toast.success('Section saved successfully');
-        markSectionComplete(currentSectionKey, result.data);
-
-        const nextSectionIndex = currentSectionIndex + 1;
-        const isLastSection = nextSectionIndex >= sectionsArray.length;
-        const nextStep = isLastSection ? 'summary' : 'sections';
-        const nextSectionKey = isLastSection ? null : sectionsArray[nextSectionIndex];
-
+      if (currentServiceId) {
         await updateService(
           currentServiceId,
           {
@@ -333,18 +448,12 @@ export function ServiceCompletionModal({
           },
           machineId,
         );
+      }
 
-        setIsSubmitting(false);
-
-        if (!isLastSection) {
-          setCurrentSectionIndex(nextSectionIndex);
-        } else {
-          setCurrentStep('summary');
-        }
-      } catch (error) {
-        console.error('Error saving section:', error);
-        toast.error('An unexpected error occurred while saving the section');
-        setIsSubmitting(false);
+      if (nextStep === 'summary') {
+        setCurrentStep('summary');
+      } else {
+        setCurrentSectionIndex(nextIndex);
       }
     }
   };
@@ -369,18 +478,38 @@ export function ServiceCompletionModal({
 
   const handleStepClick = (stepIndex: number) => {
     const sectionsArray = getSelectedSectionsArray();
+
     if (stepIndex === 0) {
       setCurrentStep('details');
-    } else if (stepIndex === sectionsArray.length + 1) {
+      return;
+    }
+
+    if (stepIndex === sectionsArray.length + 1) {
       if (completedSections.size === sectionsArray.length) {
         setCurrentStep('summary');
+      } else {
+        const incompleteSections = sectionsArray.filter(
+          (sectionKey) => !completedSections.has(sectionKey),
+        );
+        const incompleteSectionNames = incompleteSections
+          .map((key) => {
+            const config = SECTION_REGISTRY[key];
+            return config ? t(`sectionNames.${config.metadata.i18nKey}`) : key;
+          })
+          .join(', ');
+
+        toast.error(`${tErrors('completeAllSections')}: ${incompleteSectionNames}`, {
+          duration: 5000,
+        });
       }
-    } else {
-      const sectionIndex = stepIndex - 1;
-      if (sectionIndex < sectionsArray.length) {
-        setCurrentStep('sections');
-        setCurrentSectionIndex(sectionIndex);
-      }
+      return;
+    }
+
+    // Section step - allow free navigation to any section
+    const sectionIndex = stepIndex - 1;
+    if (sectionIndex < sectionsArray.length) {
+      setCurrentStep('sections');
+      setCurrentSectionIndex(sectionIndex);
     }
   };
 
@@ -394,11 +523,56 @@ export function ServiceCompletionModal({
       return;
     }
 
+    const sectionsArray = getSelectedSectionsArray();
+
+    if (completedSections.size !== sectionsArray.length) {
+      const incompleteSections = sectionsArray.filter(
+        (sectionKey) => !completedSections.has(sectionKey),
+      );
+      const incompleteSectionNames = incompleteSections
+        .map((key) => {
+          const config = SECTION_REGISTRY[key];
+          return config ? t(`sectionNames.${config.metadata.i18nKey}`) : key;
+        })
+        .join(', ');
+
+      toast.error(`${tErrors('incompleteSections')}: ${incompleteSectionNames}`, {
+        duration: 5000,
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    const sectionsWithMissingData = Array.from(completedSections).filter(
+      (sectionKey) => !completedSectionData[sectionKey as keyof typeof completedSectionData],
+    );
+
+    if (sectionsWithMissingData.length > 0) {
+      const missingSectionNames = sectionsWithMissingData
+        .map((key) => {
+          const config = SECTION_REGISTRY[key];
+          return config ? t(`sectionNames.${config.metadata.i18nKey}`) : key;
+        })
+        .join(', ');
+
+      toast.error(`${tErrors('sectionsWithMissingData')}: ${missingSectionNames}`, {
+        duration: 5000,
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!performedBy || performedBy.trim() === '') {
+      toast.error(tErrors('performedByRequired'), { duration: 5000 });
+      setIsSubmitting(false);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
       if (!currentServiceId) {
-        toast.error('Service ID not found');
+        toast.error(tErrors('serviceIdNotFound'), { duration: 5000 });
         setIsSubmitting(false);
         return;
       }
@@ -406,14 +580,13 @@ export function ServiceCompletionModal({
       const response = await completeService(currentServiceId, performedBy || '', machineId);
 
       if (response.errors) {
-        setError(response.errors.join(', '));
+        const translatedErrors = response.errors.map(translateError);
+        setError(translatedErrors.join(', '));
         setIsSubmitting(false);
         return;
       }
 
-      toast.success(
-        isInspection ? 'Inspeção concluída com sucesso' : 'Manutenção concluída com sucesso',
-      );
+      toast.success(tSuccess('serviceCompleted'), { duration: 3000 });
 
       resetForm();
       resetSectionData();
@@ -440,6 +613,7 @@ export function ServiceCompletionModal({
       isClickable: true,
     });
 
+    // All section steps are clickable - users can navigate freely
     sectionsArray.forEach((sectionKey, index) => {
       const sectionConfig = SECTION_REGISTRY[sectionKey];
       if (!sectionConfig) return;
@@ -451,15 +625,16 @@ export function ServiceCompletionModal({
         key: sectionKey,
         label: t(`sectionNames.${sectionConfig.metadata.i18nKey}`),
         status: isCompleted ? 'completed' : isCurrent ? 'current' : 'pending',
-        isClickable: true,
+        isClickable: true, // Allow free navigation between sections
       });
     });
 
+    const allSectionsComplete = completedSections.size === sectionsArray.length;
     steps.push({
       key: 'summary',
       label: tServices('modal.stepper.summary'),
       status: currentStep === 'summary' ? 'current' : 'pending',
-      isClickable: completedSections.size === sectionsArray.length,
+      isClickable: allSectionsComplete,
     });
 
     return steps;
@@ -469,28 +644,8 @@ export function ServiceCompletionModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-full md:w-[1200px] h-[86vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>
-            {isCompletingService
-              ? isInspection
-                ? currentStep === 'selection'
-                  ? tServices('modal.completeInspection')
-                  : tServices('modal.completeInspectionDetails')
-                : currentStep === 'selection'
-                  ? tServices('modal.completeMaintenance')
-                  : tServices('modal.completeMaintenanceDetails')
-              : currentStep === 'selection'
-                ? tServices('createNewService')
-                : tServices('createNewService') + ' - ' + t('inspectionSections')}
-          </DialogTitle>
-          <DialogDescription>
-            {currentStep === 'selection'
-              ? tServices('modal.selectMaintenanceAreas')
-              : isCompletingService
-                ? isInspection
-                  ? tServices('modal.fillInspectionDetails')
-                  : tServices('modal.fillMaintenanceDetails')
-                : tServices('createServiceDescription')}
-          </DialogDescription>
+          <DialogTitle>{getDialogTitle()}</DialogTitle>
+          <DialogDescription>{getDialogDescription()}</DialogDescription>
         </DialogHeader>
 
         {isLoadingServiceData && serviceId && !hasLoadedInitialData.current ? (
@@ -512,8 +667,8 @@ export function ServiceCompletionModal({
               areasSelected: (count) =>
                 `${count} ${count === 1 ? 'área selecionada' : 'áreas selecionadas'}`,
               selectAreasAbove: tServices('modal.selectAreasAbove'),
-              cancel: 'Cancelar',
-              continue: 'Salvar e Continuar',
+              cancel: tActions('cancel'),
+              continue: tActions('continue'),
             }}
           />
         ) : currentStep === 'details' ? (
@@ -610,10 +765,13 @@ export function ServiceCompletionModal({
               registerSectionRef={registerRef}
               onPrevious={handlePrevious}
               onNext={handleNext}
+              getSectionRef={getRef}
+              completedSections={completedSections}
               translations={{
                 getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
-                previous: 'Anterior',
-                saveAndContinue: 'Salvar e Continuar',
+                previous: tActions('previous'),
+                save: tActions('save'),
+                continue: tActions('continue'),
               }}
             />
           </form>

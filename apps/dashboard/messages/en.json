@@ -16,7 +16,26 @@
       "needs_replaced": "Needs Replaced",
       "bushing": "Bushing",
       "bed": "Bed",
-      "bolster": "Bolster"
+      "bolster": "Bolster",
+      "glazed": "Glazed",
+      "oil_soaked": "Oil Soaked",
+      "missing_segments": "Missing Segments",
+      "broken": "Broken",
+      "bent_worn": "Bent/Worn",
+      "lining_worn": "Lining Worn",
+      "noise": "Noise",
+      "wobble": "Wobble",
+      "air_leak": "Air Leak",
+      "oil_leak": "Oil Leak",
+      "concentricity": "Concentricity",
+      "slow_response": "Slow Response",
+      "not_visible": "Not Visible",
+      "wear_visible": "Wear Visible",
+      "needs_oil": "Needs Oil",
+      "needs_oil_reset": "Needs Oil & Reset",
+      "needs_reset": "Needs Reset",
+      "buckled": "Buckled",
+      "cracked": "Cracked"
     }
   },
   "validation": {
@@ -340,14 +359,11 @@
     "lastInspection": "Last inspection",
     "viewDetails": "View Details",
     "edit": "Edit",
-    "delete": "Delete",
     "createdSuccessfully": "Machine created successfully",
     "deletedSuccessfully": "Machine deleted successfully",
     "deleteConfirmTitle": "Delete Machine",
     "deleteConfirmDescription": "Are you sure you want to delete {name}? This action cannot be undone and will permanently remove all associated data.",
     "confirmDelete": "Delete",
-    "deleting": "Deleting...",
-    "cancel": "Cancel",
     "sectionsCount": "sections",
     "fieldsCount": "fields",
     "backToMachines": "Back to Machines",
@@ -379,9 +395,6 @@
     "scheduledInspection": "Scheduled Inspection",
     "deleteServiceTitle": "Delete Service",
     "deleteServiceDescription": "Are you sure you want to delete this service? This action cannot be undone.",
-    "cancel": "Cancel",
-    "delete": "Delete",
-    "deleting": "Deleting...",
     "client": "Client",
     "model": "Model",
     "noImageAvailable": "No Image Available",
@@ -804,6 +817,9 @@
         },
         "notes": {
           "gearBacklashCheck": "*Check only if excessive noise and/or vibration is present"
+        },
+        "validation": {
+          "required": "This field is required"
         }
       },
       "counterbalanceCylinder": {
@@ -1233,6 +1249,7 @@
   "actions": {
     "save": "Save",
     "saving": "Saving...",
+    "continue": "Continue",
     "savePermissions": "Save Permissions",
     "cancel": "Cancel",
     "delete": "Delete",
@@ -1253,5 +1270,36 @@
     "selectBranch": "Please select a branch",
     "success": "Success",
     "error": "Error"
+  },
+  "errors": {
+    "service": {
+      "failedToUpdate": "Failed to update service",
+      "failedToCreate": "Failed to create service",
+      "failedToSaveSection": "Failed to save section",
+      "unexpectedError": "An unexpected error occurred while updating the service",
+      "unexpectedCreateError": "An unexpected error occurred while creating the service",
+      "unexpectedSaveError": "An unexpected error occurred while saving the section",
+      "invalidOption": "Invalid option: expected",
+      "areCracksVisible": "Are Cracks Visible",
+      "isMainMotorSecure": "Is Main Motor Secure",
+      "isMotorPlateSecure": "Is Motor Plate Secure",
+      "areAllProtectiveCovers": "Are all protective covers in place",
+      "sectionRefNotFound": "Section reference not found",
+      "fillRequiredFields": "Please fill in all required fields",
+      "serviceIdNotFound": "Service ID not found. Please create the service first",
+      "cannotProceedToSummary": "Cannot proceed to summary. Please complete the following sections",
+      "incompleteSections": "Cannot complete service. The following sections are incomplete",
+      "sectionsWithMissingData": "The following sections have missing data",
+      "performedByRequired": "Please fill in the 'Performed By' field",
+      "completeAllSections": "Please complete all sections before viewing the summary",
+      "validationWarnings": "Validation Warnings",
+      "redirectingToIncomplete": "Section saved! Redirecting to first incomplete section"
+    },
+    "successMessages": {
+      "serviceUpdated": "Service details updated successfully",
+      "serviceCreated": "Service created. Now fill in the section forms",
+      "sectionSaved": "Section saved successfully",
+      "serviceCompleted": "Service completed successfully"
+    }
   }
 }

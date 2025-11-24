@@ -728,7 +728,6 @@ export interface CounterbalanceCylinderFormProps {
   data: CounterbalanceCylinderData;
   updateFn: (field: keyof CounterbalanceCylinderData, value: string | number | undefined) => void;
   errors: Record<string, string>;
-  handleBlur: (field: keyof CounterbalanceCylinderData) => void;
   title: string;
   hideNotes?: boolean;
 }
