@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { ServiceSection, ServiceStatus } from '@titans-tech/shared/enums';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../shared/prisma.service';
 import {
   LatestReportResponseDto,
   LatestBearingClearanceDto,
@@ -21,7 +21,7 @@ import {
   TrammingCheck,
   PistonsCheck,
 } from '@titans-tech/shared/backend-dtos';
-import { AlertsService } from '../modules/alerts/alerts.service';
+import { AlertsService } from '../alerts/alerts.service';
 
 @Injectable()
 export class ServicesService {

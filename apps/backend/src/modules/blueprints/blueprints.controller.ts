@@ -6,8 +6,8 @@ import {
   CreateBlueprintDto,
   CreateBlueprintWithThresholdsSchema,
 } from '@titans-tech/shared/backend-dtos';
-import { Admin, Authenticated } from 'src/modules/auth/auth.decorators';
-import { ZodValidationPipe } from '../errors/zod-validation.pipe';
+import { Admin, Authenticated } from '../auth/auth.decorators';
+import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 
 @Controller('blueprints')
 export class BlueprintsController {

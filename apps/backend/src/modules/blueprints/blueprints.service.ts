@@ -5,12 +5,12 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { ServiceSection } from '@titans-tech/shared/enums';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../shared/prisma.service';
 import {
   CreateBlueprintWithThresholdsDto,
   CreateBlueprintDto,
 } from '@titans-tech/shared/backend-dtos';
-import { convertThresholdToDecimal } from '../modules/alerts/threshold.utils';
+import { convertThresholdToDecimal } from '../alerts/threshold.utils';
 
 @Injectable()
 export class BlueprintsService {

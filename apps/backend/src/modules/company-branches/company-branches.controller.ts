@@ -32,7 +32,7 @@ import {
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, BranchPermission, CompanyAdmin } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
-import { MachinesService } from '../../machines/machines.service';
+import { MachinesService } from '../machines/machines.service';
 import { isSysAdmin, ReqWithAuthUser } from '../../types/request';
 
 @Controller('company-branches')
