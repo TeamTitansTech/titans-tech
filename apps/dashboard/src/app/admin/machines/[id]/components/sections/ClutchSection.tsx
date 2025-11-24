@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, forwardRef, useImperativeHandle } from 'react';
+import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { type ClutchData, ServiceType } from '@/data/types/services.types';
 import { ClutchForm } from '../forms/ClutchForm';
 import { isDataTouched } from './utils';
@@ -90,7 +90,6 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
 
     // Sync state with initialData prop changes
     // Move render-phase state update to useEffect
-    import { useEffect } from 'react';
     useEffect(() => {
       if (initialData && initialData !== prevInitialData) {
         setPrevInitialData(initialData);
