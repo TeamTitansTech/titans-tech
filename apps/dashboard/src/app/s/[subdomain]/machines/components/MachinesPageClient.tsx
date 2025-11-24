@@ -88,13 +88,23 @@ export function MachinesPageClient() {
     deleteMachine(id),
   );
 
-  // Get unique branches from user's accessible branches
+  // Get branches where user has permission to read machines
   const userBranches = useMemo(() => {
     if (!companyUser) return [];
-    return companyUser.branches.map((ub) => ({
-      id: ub.branchId,
-      name: ub.branch.name,
-    }));
+    // Company admins and managers can see all branches
+    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) {
+      return companyUser.branches.map((ub) => ({
+        id: ub.branchId,
+        name: ub.branch.name,
+      }));
+    }
+    // Regular users only see branches where they have readMachines permission
+    return companyUser.branches
+      .filter((ub) => ub.readMachines)
+      .map((ub) => ({
+        id: ub.branchId,
+        name: ub.branch.name,
+      }));
   }, [companyUser]);
 
   // Filter machines by selected branch

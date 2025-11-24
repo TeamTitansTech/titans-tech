@@ -33,13 +33,23 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
     (state, newLine: ProductionLine) => [...state, newLine],
   );
 
-  // Get unique branches from user's accessible branches
+  // Get branches where user has permission to read production lines
   const userBranches = useMemo(() => {
     if (!companyUser) return [];
-    return companyUser.branches.map((ub) => ({
-      id: ub.branchId,
-      name: ub.branch.name,
-    }));
+    // Company admins and managers can see all branches
+    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) {
+      return companyUser.branches.map((ub) => ({
+        id: ub.branchId,
+        name: ub.branch.name,
+      }));
+    }
+    // Regular users only see branches where they have readProductionLines permission
+    return companyUser.branches
+      .filter((ub) => ub.readProductionLines)
+      .map((ub) => ({
+        id: ub.branchId,
+        name: ub.branch.name,
+      }));
   }, [companyUser]);
 
   // Filter production lines by selected branch

@@ -23,7 +23,6 @@ import { createUser, setCompanyManager } from '@/data/services/users.api';
 import { setUserPermissions } from '@/data/services/company-branches.api';
 import { PermissionsEditor } from '@/components/permissions/PermissionsEditor';
 import { Permissions, EMPTY_PERMISSIONS } from '@titans-tech/shared/types';
-import { isCompanyAdmin as checkIsCompanyAdmin } from '@/lib/permissions';
 
 interface AddUserDialogProps {
   open: boolean;
@@ -71,7 +70,7 @@ export function AddUserDialog({
   const [promoteToManager, setPromoteToManager] = useState(false);
 
   // Check if current user is company admin (defaults to true for sysadmin)
-  const isCompanyAdmin = currentUser ? checkIsCompanyAdmin(currentUser) : true;
+  const isCompanyAdmin = currentUser ? currentUser.isCompanyAdmin : true;
 
   const userSchema = useMemo(
     () =>

@@ -7,23 +7,11 @@ import { CompanyInfoSection } from './CompanyInfoSection';
 import { BranchesSection } from './BranchesSection';
 import { BranchUserManagement } from './BranchUserManagement';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
-import { hasPermission } from '@/lib/permissions';
-import { useBranch } from '@/contexts/BranchContext';
 
 export function CompanySettings() {
   const t = useTranslations('settings');
   const { companyUser } = useCompanyUser();
-  const { selectedBranchId: contextSelectedBranchId } = useBranch();
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
-
-  // Check if user has permission to read ALL branches
-  // Company admins and managers can see all branches
-  const canReadAllBranches =
-    companyUser?.isCompanyAdmin ||
-    companyUser?.isCompanyManager ||
-    (contextSelectedBranchId
-      ? hasPermission(companyUser, contextSelectedBranchId, 'readBranches')
-      : false);
 
   // Users can always see their assigned branches
   const hasAssignedBranches = (companyUser?.branches?.length ?? 0) > 0;
@@ -45,7 +33,6 @@ export function CompanySettings() {
           <BranchesSection
             selectedBranchId={selectedBranchId}
             onSelectBranch={setSelectedBranchId}
-            showAllBranches={canReadAllBranches}
           />
 
           {selectedBranchId && (

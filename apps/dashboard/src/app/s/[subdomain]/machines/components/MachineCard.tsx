@@ -10,6 +10,8 @@ interface MachineCardProps {
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';
   canViewDetails?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export function MachineCard(props: MachineCardProps) {
