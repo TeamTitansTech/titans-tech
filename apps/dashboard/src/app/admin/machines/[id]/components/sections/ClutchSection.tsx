@@ -92,6 +92,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     // Move render-phase state update to useEffect
     useEffect(() => {
       if (initialData && initialData !== prevInitialData) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setPrevInitialData(initialData);
         setData(initialData);
         setInitialClutchData(initialData);
