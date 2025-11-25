@@ -4,13 +4,12 @@ import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  type PistonsData,
   ServiceType,
   SealConditionType,
   VacuumSystemConditionType,
   PressureUnit,
 } from '@/data/types/services.types';
-import { PistonsForm } from '../forms/PistonsForm';
+import { PistonsForm, type PistonsDbData } from '../forms/PistonsForm';
 import { isDataTouched } from './utils';
 import { validateNumericFields } from '../utils/validateNumericFields';
 import { Label } from '@/components/ui/label';
@@ -24,36 +23,33 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-export const defaultPistonsData: PistonsData = {
-  // OUTER SECTION - LH Piston
-  outerLhTop: 0,
-  outerLhBottom: 0,
-  outerLhLeft: 0,
-  outerLhRight: 0,
-  // OUTER SECTION - RH Piston
-  outerRhTop: 0,
-  outerRhBottom: 0,
-  outerRhLeft: 0,
-  outerRhRight: 0,
-  // INNER SECTION - LH Piston
-  innerLhTop: 0,
-  innerLhBottom: 0,
-  innerLhLeft: 0,
-  innerLhRight: 0,
-  // INNER SECTION - RH Piston
-  innerRhTop: 0,
-  innerRhBottom: 0,
-  innerRhLeft: 0,
-  innerRhRight: 0,
+// Default pistons data using DB format (without outer/inner prefix)
+export const defaultPistonsDbData: PistonsDbData = {
+  lhTop: 0,
+  lhBottom: 0,
+  lhLeft: 0,
+  lhRight: 0,
+  rhTop: 0,
+  rhBottom: 0,
+  rhLeft: 0,
+  rhRight: 0,
 };
 
-export const validatePistonsData = (data: PistonsData): string[] => {
-  return validateNumericFields(data, ['outer', 'inner']);
+// Merge partial data with defaults to ensure all fields have number values
+const mergeWithDefaults = (data: Partial<PistonsDbData> | undefined): PistonsDbData => ({
+  ...defaultPistonsDbData,
+  ...Object.fromEntries(
+    Object.entries(data || {}).filter(([_, v]) => v !== undefined && v !== null),
+  ),
+});
+
+export const validatePistonsDbData = (data: PistonsDbData): string[] => {
+  return validateNumericFields(data as Record<string, unknown>, ['lh', 'rh']);
 };
 
 export interface PistonsSectionData {
-  outerData?: PistonsData;
-  innerData?: PistonsData;
+  outerData?: PistonsDbData;
+  innerData?: PistonsDbData;
   guideSeals?: SealConditionType;
   pistonSeals?: SealConditionType;
   vacuumSystem?: VacuumSystemConditionType;
@@ -85,14 +81,18 @@ interface PistonsSectionProps {
 export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>(
   ({ isOpen: _isOpen, onOpenChange: _onOpenChange, onSectionTouched, initialData }, ref) => {
     // Store the initial loaded data to compare against for "touched" detection
-    const [initialOuterData] = useState<PistonsData>(initialData?.outerData || defaultPistonsData);
-    const [initialInnerData] = useState<PistonsData>(initialData?.innerData || defaultPistonsData);
-
-    const [outerData, setOuterData] = useState<PistonsData>(
-      initialData?.outerData || defaultPistonsData,
+    const [initialOuterData] = useState<PistonsDbData>(() =>
+      mergeWithDefaults(initialData?.outerData as Partial<PistonsDbData>),
     );
-    const [innerData, setInnerData] = useState<PistonsData>(
-      initialData?.innerData || defaultPistonsData,
+    const [initialInnerData] = useState<PistonsDbData>(() =>
+      mergeWithDefaults(initialData?.innerData as Partial<PistonsDbData>),
+    );
+
+    const [outerData, setOuterData] = useState<PistonsDbData>(() =>
+      mergeWithDefaults(initialData?.outerData as Partial<PistonsDbData>),
+    );
+    const [innerData, setInnerData] = useState<PistonsDbData>(() =>
+      mergeWithDefaults(initialData?.innerData as Partial<PistonsDbData>),
     );
     const [guideSeals, setGuideSeals] = useState<SealConditionType | undefined>(
       initialData?.guideSeals,
@@ -114,17 +114,18 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
     const [outerErrors, setOuterErrors] = useState<Record<string, string>>({});
     const [innerErrors, setInnerErrors] = useState<Record<string, string>>({});
 
-    const updateOuterField = (field: keyof PistonsData, value: number | undefined) => {
+    const updateOuterField = (field: keyof PistonsDbData, value: number | undefined) => {
       setOuterData((prev) => ({ ...prev, [field]: value ?? 0 }));
       onSectionTouched?.();
     };
 
-    const updateInnerField = (field: keyof PistonsData, value: number | undefined) => {
+    const updateInnerField = (field: keyof PistonsDbData, value: number | undefined) => {
       setInnerData((prev) => ({ ...prev, [field]: value ?? 0 }));
       onSectionTouched?.();
     };
 
-    const validateField = (value: number): string => {
+    const validateField = (value: number | undefined): string => {
+      if (value === undefined) return '';
       const numValue = Number(value);
       if (isNaN(numValue)) {
         return 'Invalid number';
@@ -132,12 +133,12 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
       return '';
     };
 
-    const handleBlurOuter = (field: keyof PistonsData) => {
+    const handleBlurOuter = (field: keyof PistonsDbData) => {
       const error = validateField(outerData[field]);
       setOuterErrors((prev) => ({ ...prev, [field]: error }));
     };
 
-    const handleBlurInner = (field: keyof PistonsData) => {
+    const handleBlurInner = (field: keyof PistonsDbData) => {
       const error = validateField(innerData[field]);
       setInnerErrors((prev) => ({ ...prev, [field]: error }));
     };
@@ -168,18 +169,18 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
         // Validate touched data
         if (outerTouched) {
           validationErrors.push(
-            ...validatePistonsData(outerData).map((e) => `Pistons Outer: ${e}`),
+            ...validatePistonsDbData(outerData).map((e) => `Pistons Outer: ${e}`),
           );
         }
         if (innerTouched) {
           validationErrors.push(
-            ...validatePistonsData(innerData).map((e) => `Pistons Inner: ${e}`),
+            ...validatePistonsDbData(innerData).map((e) => `Pistons Inner: ${e}`),
           );
         }
 
         // Check if there's any existing data
-        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultPistonsData);
-        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultPistonsData);
+        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultPistonsDbData);
+        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultPistonsDbData);
 
         // Require at least one section to be filled
         if (!hasOuterData && !hasInnerData) {
@@ -189,8 +190,10 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
         const isValid = validationErrors.length === 0;
 
         if (isValid) {
-          const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultPistonsData);
-          const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultPistonsData);
+          const hasOuterData =
+            outerTouched || isDataTouched(initialOuterData, defaultPistonsDbData);
+          const hasInnerData =
+            innerTouched || isDataTouched(initialInnerData, defaultPistonsDbData);
 
           return {
             isValid: true,
@@ -218,8 +221,8 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
       getData: (): PistonsSectionData => {
         const outerTouched = isDataTouched(outerData, initialOuterData);
         const innerTouched = isDataTouched(innerData, initialInnerData);
-        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultPistonsData);
-        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultPistonsData);
+        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultPistonsDbData);
+        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultPistonsDbData);
 
         return {
           outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
@@ -241,14 +244,14 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
         const innerTouched = isDataTouched(innerData, initialInnerData);
 
         if (outerTouched) {
-          errors.push(...validatePistonsData(outerData).map((e) => `Pistons Outer: ${e}`));
+          errors.push(...validatePistonsDbData(outerData).map((e) => `Pistons Outer: ${e}`));
         }
         if (innerTouched) {
-          errors.push(...validatePistonsData(innerData).map((e) => `Pistons Inner: ${e}`));
+          errors.push(...validatePistonsDbData(innerData).map((e) => `Pistons Inner: ${e}`));
         }
 
-        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultPistonsData);
-        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultPistonsData);
+        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultPistonsDbData);
+        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultPistonsDbData);
 
         if (!hasOuterData && !hasInnerData) {
           errors.push('Pistons: You must fill at least one section (Outer or Inner)');
@@ -258,8 +261,8 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
       },
 
       reset: () => {
-        setOuterData(defaultPistonsData);
-        setInnerData(defaultPistonsData);
+        setOuterData(defaultPistonsDbData);
+        setInnerData(defaultPistonsDbData);
         setGuideSeals(undefined);
         setPistonSeals(undefined);
         setVacuumSystem(undefined);

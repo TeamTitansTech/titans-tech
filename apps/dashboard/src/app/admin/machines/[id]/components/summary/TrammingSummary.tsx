@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import type { TrammingCheck } from '@/data/types/services.types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrammingForm } from '../forms/TrammingForm';
+import { TrammingForm, type TrammingDbData } from '../forms/TrammingForm';
 import { displayValue } from '../utils/displayHelpers';
 
 interface TrammingSummaryProps {
@@ -54,7 +54,7 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
           {data?.outerData && (
             <TabsContent value="outer">
               <TrammingForm
-                data={data.outerData}
+                data={data.outerData as unknown as TrammingDbData}
                 errors={{}}
                 updateField={() => {}}
                 handleBlur={() => {}}
@@ -67,7 +67,7 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
           {data?.innerData && (
             <TabsContent value="inner">
               <TrammingForm
-                data={data.innerData}
+                data={data.innerData as unknown as TrammingDbData}
                 errors={{}}
                 updateField={() => {}}
                 handleBlur={() => {}}

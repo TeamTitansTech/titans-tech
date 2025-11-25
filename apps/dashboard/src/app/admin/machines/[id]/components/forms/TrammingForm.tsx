@@ -2,14 +2,33 @@
 
 import { useTranslations } from 'next-intl';
 import { Label } from '@/components/ui/label';
-import { type TrammingData } from '@/data/types/services.types';
 import { MeasurementInput } from '../shared/MeasurementInput';
 
+// Database format for tramming data (matches Prisma TrammingData model)
+export interface TrammingDbData {
+  topTop?: number;
+  topBottom?: number;
+  topLeft?: number;
+  topRight?: number;
+  bottomTop?: number;
+  bottomBottom?: number;
+  bottomLeft?: number;
+  bottomRight?: number;
+  leftTop?: number;
+  leftBottom?: number;
+  leftLeft?: number;
+  leftRight?: number;
+  rightTop?: number;
+  rightBottom?: number;
+  rightLeft?: number;
+  rightRight?: number;
+}
+
 interface TrammingFormProps {
-  data: TrammingData;
+  data: TrammingDbData;
   errors: Record<string, string>;
-  updateField: (field: keyof TrammingData, value: number | undefined) => void;
-  handleBlur: (field: keyof TrammingData) => void;
+  updateField: (field: keyof TrammingDbData, value: number | undefined) => void;
+  handleBlur: (field: keyof TrammingDbData) => void;
   title: string;
   readOnly?: boolean;
 }
@@ -17,10 +36,10 @@ interface TrammingFormProps {
 interface MeasurementPoint {
   label: string;
   fields: {
-    top: keyof TrammingData;
-    bottom: keyof TrammingData;
-    left: keyof TrammingData;
-    right: keyof TrammingData;
+    top: keyof TrammingDbData;
+    bottom: keyof TrammingDbData;
+    left: keyof TrammingDbData;
+    right: keyof TrammingDbData;
   };
 }
 
@@ -34,88 +53,47 @@ export function TrammingForm({
 }: TrammingFormProps) {
   const t = useTranslations('inspections.form.tramming');
 
-  // Determine which fields to use based on the title (Outer vs Inner)
-  const isOuter = title === 'Outer';
+  // Same field names for both outer and inner - the title prop indicates context
+  const measurementPoints: MeasurementPoint[] = [
+    {
+      label: t('top'),
+      fields: {
+        top: 'topTop',
+        bottom: 'topBottom',
+        left: 'topLeft',
+        right: 'topRight',
+      },
+    },
+    {
+      label: t('bottom'),
+      fields: {
+        top: 'bottomTop',
+        bottom: 'bottomBottom',
+        left: 'bottomLeft',
+        right: 'bottomRight',
+      },
+    },
+    {
+      label: t('left'),
+      fields: {
+        top: 'leftTop',
+        bottom: 'leftBottom',
+        left: 'leftLeft',
+        right: 'leftRight',
+      },
+    },
+    {
+      label: t('right'),
+      fields: {
+        top: 'rightTop',
+        bottom: 'rightBottom',
+        left: 'rightLeft',
+        right: 'rightRight',
+      },
+    },
+  ];
 
-  const measurementPoints: MeasurementPoint[] = isOuter
-    ? [
-        {
-          label: t('top'),
-          fields: {
-            top: 'outerTopTop',
-            bottom: 'outerTopBottom',
-            left: 'outerTopLeft',
-            right: 'outerTopRight',
-          },
-        },
-        {
-          label: t('bottom'),
-          fields: {
-            top: 'outerBottomTop',
-            bottom: 'outerBottomBottom',
-            left: 'outerBottomLeft',
-            right: 'outerBottomRight',
-          },
-        },
-        {
-          label: t('left'),
-          fields: {
-            top: 'outerLeftTop',
-            bottom: 'outerLeftBottom',
-            left: 'outerLeftLeft',
-            right: 'outerLeftRight',
-          },
-        },
-        {
-          label: t('right'),
-          fields: {
-            top: 'outerRightTop',
-            bottom: 'outerRightBottom',
-            left: 'outerRightLeft',
-            right: 'outerRightRight',
-          },
-        },
-      ]
-    : [
-        {
-          label: t('top'),
-          fields: {
-            top: 'innerTopTop',
-            bottom: 'innerTopBottom',
-            left: 'innerTopLeft',
-            right: 'innerTopRight',
-          },
-        },
-        {
-          label: t('bottom'),
-          fields: {
-            top: 'innerBottomTop',
-            bottom: 'innerBottomBottom',
-            left: 'innerBottomLeft',
-            right: 'innerBottomRight',
-          },
-        },
-        {
-          label: t('left'),
-          fields: {
-            top: 'innerLeftTop',
-            bottom: 'innerLeftBottom',
-            left: 'innerLeftLeft',
-            right: 'innerLeftRight',
-          },
-        },
-        {
-          label: t('right'),
-          fields: {
-            top: 'innerRightTop',
-            bottom: 'innerRightBottom',
-            left: 'innerRightLeft',
-            right: 'innerRightRight',
-          },
-        },
-      ];
-
-  const renderInput = (field: keyof TrammingData) => (
+  const renderInput = (field: keyof TrammingDbData) => (
     <MeasurementInput
       field={field}
       value={data[field]}

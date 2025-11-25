@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { formatFieldName, displayValue } from '../utils/fieldFormatters';
 import { isIdField } from '../utils/sectionDataUtils';
 
@@ -9,7 +10,12 @@ interface GenericSectionSummaryProps {
 }
 
 export function GenericSectionSummary({ data }: GenericSectionSummaryProps) {
-  if (!data) return <div className="text-sm text-muted-foreground">No data available</div>;
+  const tServicesSummary = useTranslations('services.modal.summary');
+
+  if (!data)
+    return (
+      <div className="text-sm text-muted-foreground">{tServicesSummary('noDataAvailable')}</div>
+    );
 
   // Function to recursively render data
   const renderData = (obj: Record<string, unknown>, depth = 0): React.ReactElement[] => {
@@ -82,7 +88,9 @@ export function GenericSectionSummary({ data }: GenericSectionSummaryProps) {
         (key) =>
           !isIdField(key) && data[key] !== null && data[key] !== undefined && data[key] !== '',
       ).length === 0 && (
-        <div className="text-sm text-muted-foreground italic">No data to display</div>
+        <div className="text-sm text-muted-foreground italic">
+          {tServicesSummary('noDataAvailable')}
+        </div>
       )}
     </div>
   );

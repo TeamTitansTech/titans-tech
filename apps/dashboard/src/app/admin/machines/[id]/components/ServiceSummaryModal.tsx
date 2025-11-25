@@ -24,14 +24,32 @@ interface ServiceSummaryModalProps {
   service: Service;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  hideExcelExport?: boolean;
 }
 
-export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSummaryModalProps) {
+export function ServiceSummaryModal({
+  service,
+  open,
+  onOpenChange,
+  hideExcelExport,
+}: ServiceSummaryModalProps) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
   const tServicesSummary = useTranslations('services.modal.summary');
   const tActions = useTranslations('actions');
   const tInspections = useTranslations('inspections.form.enums');
+  const tTable = useTranslations('table');
+  const tBearingFields = useTranslations('machines.bearingFields');
+  const tSlideFields = useTranslations('inspections.form.slide');
+  const tGibsFields = useTranslations('machines.gibsFields');
+  const tLubricationFields = useTranslations('inspections.form.lubricationHydraulics');
+  const tClutchFields = useTranslations('inspections.form.clutch.fields');
+  const tClutchSections = useTranslations('inspections.form.clutch.sections');
+  const tCounterbalanceFields = useTranslations('inspections.form.counterbalanceCylinder');
+  const tTrammingFields = useTranslations('inspections.form.tramming');
+  const tPistonsFields = useTranslations('inspections.form.pistons');
+  const tCommonStatus = useTranslations('common.status');
+  const tMeasurements = useTranslations('measurements');
 
   const isInspection = service.type === ServiceType.INSPECTION;
 
@@ -142,6 +160,42 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
     }
   });
 
+  // Build translation callbacks once for both exports
+  const translationCallbacks = {
+    getSectionName: (key: string) => {
+      const sectionConfig = SECTION_REGISTRY[key];
+      return sectionConfig ? t(`sectionNames.${sectionConfig.metadata.i18nKey}`) : key;
+    },
+    getServiceTypeName: () => {
+      return isInspection
+        ? tServices('modal.inspectionSummary')
+        : tServices('modal.maintenanceSummary');
+    },
+    getTableTranslation: (key: string) => tTable(key),
+    getBearingFieldTranslation: (key: string) => tBearingFields(key),
+    getSlideFieldTranslation: (key: string) => tSlideFields(key),
+    getGibsFieldTranslation: (key: string) => tGibsFields(key),
+    getLubricationFieldTranslation: (key: string) => tLubricationFields(key),
+    getClutchFieldTranslation: (key: string) => tClutchFields(key),
+    getClutchSectionTranslation: (key: string) => tClutchSections(key),
+    getCounterbalanceFieldTranslation: (key: string) => tCounterbalanceFields(key),
+    getTrammingFieldTranslation: (key: string) => tTrammingFields(key),
+    getPistonsFieldTranslation: (key: string) => tPistonsFields(key),
+    getServiceTranslation: (key: string) => tServices(`modal.${key}`),
+    getCommonStatusTranslation: (key: string) => tCommonStatus(key),
+    getMeasurementsTranslation: (key: string) => tMeasurements(key),
+    getInspectionEnumTranslation: (enumType: string, value: string) => {
+      if (!value) return '-';
+      const translationKey = `${enumType}.${value}`;
+      const translated = tInspections(translationKey);
+      // If translation key is returned as-is, return the original value
+      if (translated === translationKey || translated.includes('inspections.form.enums')) {
+        return value || '-';
+      }
+      return translated;
+    },
+  };
+
   // Handle export to Excel
   const handleExportToExcel = () => {
     exportToExcel({
@@ -149,17 +203,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
       completedSections,
       completedSectionData,
       sectionRegistry: SECTION_REGISTRY,
-      translationCallbacks: {
-        getSectionName: (key: string) => {
-          const sectionConfig = SECTION_REGISTRY[key];
-          return sectionConfig ? t(`sectionNames.${sectionConfig.metadata.i18nKey}`) : key;
-        },
-        getServiceTypeName: () => {
-          return isInspection
-            ? tServices('modal.inspectionSummary')
-            : tServices('modal.maintenanceSummary');
-        },
-      },
+      translationCallbacks,
     });
   };
 
@@ -170,17 +214,7 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
       completedSections,
       completedSectionData,
       sectionRegistry: SECTION_REGISTRY,
-      translationCallbacks: {
-        getSectionName: (key: string) => {
-          const sectionConfig = SECTION_REGISTRY[key];
-          return sectionConfig ? t(`sectionNames.${sectionConfig.metadata.i18nKey}`) : key;
-        },
-        getServiceTypeName: () => {
-          return isInspection
-            ? tServices('modal.inspectionSummary')
-            : tServices('modal.maintenanceSummary');
-        },
-      },
+      translationCallbacks,
     });
   };
 
@@ -364,15 +398,17 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
 
         <div className="flex justify-between items-center gap-3 pt-4 px-4 border-t">
           <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleExportToExcel}
-              className="flex items-center gap-2"
-            >
-              <FileSpreadsheet className="w-4 h-4" />
-              {tServicesSummary('exportExcel')}
-            </Button>
+            {!hideExcelExport && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleExportToExcel}
+                className="flex items-center gap-2"
+              >
+                <FileSpreadsheet className="w-4 h-4" />
+                {tServicesSummary('exportExcel')}
+              </Button>
+            )}
             <Button
               type="button"
               variant="outline"
