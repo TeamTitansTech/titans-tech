@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { useState, forwardRef, useImperativeHandle, useEffect, useRef } from 'react';
 import { type ClutchData, ServiceType } from '@/data/types/services.types';
 import { ClutchForm } from '../forms/ClutchForm';
 import { isDataTouched } from './utils';
@@ -86,15 +86,14 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
 
     const [data, setData] = useState<ClutchData>(initialData || defaultClutchData);
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const prevInitialDataRef = useRef<ClutchData | undefined>(initialData);
 
     // Sync state with initialData prop changes
     // Move render-phase state update to useEffect
     useEffect(() => {
-      if (initialData && initialData !== prevInitialData) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setPrevInitialData(initialData);
+      if (initialData && initialData !== prevInitialDataRef.current) {
+        prevInitialDataRef.current = initialData;
         setData(initialData);
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setInitialClutchData(initialData);
       }
     }, [initialData]);
