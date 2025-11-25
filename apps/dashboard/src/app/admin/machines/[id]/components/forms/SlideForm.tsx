@@ -15,7 +15,6 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   type SlideData,
   ParallelismType,
-  ServiceType,
   YesNoNaDncType,
   YesNoDncType,
 } from '@/data/types/services.types';
@@ -35,7 +34,6 @@ export interface SlideFormProps {
     inner: Record<string, string>;
   };
   handleBlur: (section: 'outer' | 'inner', field: keyof SlideData) => void;
-  serviceType: ServiceType;
   onSectionTouched?: () => void;
 }
 
@@ -537,7 +535,6 @@ export function SlideForm({
   updateFn,
   errors,
   handleBlur,
-  serviceType,
   onSectionTouched,
 }: SlideFormProps) {
   const t = useTranslations('inspections.form.slide');

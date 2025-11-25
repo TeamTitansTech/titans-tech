@@ -98,12 +98,11 @@ interface SlideSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
-  serviceType: ServiceType;
   initialData?: SlideSectionData;
 }
 
 export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
-  ({ isOpen, onOpenChange, onSectionTouched, serviceType, initialData }, ref) => {
+  ({ isOpen, onOpenChange, onSectionTouched, initialData }, ref) => {
     // Store initial loaded data for "touched" detection
     const [initialFormData] = useState({
       outerData: initialData?.outerData || defaultSlideData,
@@ -298,7 +297,6 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
               updateFn={updateField}
               errors={errors}
               handleBlur={handleBlur}
-              serviceType={serviceType}
               onSectionTouched={onSectionTouched}
             />
           </div>
