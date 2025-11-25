@@ -3,6 +3,12 @@
     "companyName": "InspectPro",
     "companySubtitle": "Admin Portal",
     "unsavedChanges": "You have unsaved changes. Are you sure you want to close?",
+    "noPermission": {
+      "title": "No Permission",
+      "description": "You don't have permission to access this page or resource.",
+      "contactMessage": "If you believe you should have access, please contact your company administrator or manager.",
+      "goToDashboard": "Go to Dashboard"
+    },
     "status": {
       "ok": "OK",
       "na": "N/A",
@@ -53,9 +59,11 @@
     "models": "Models",
     "blueprints": "Blueprints",
     "clients": "Clients",
+    "company": "Company",
     "companies": "Companies",
     "allMachines": "Machines",
     "machines": "Machines",
+    "productionLines": "Production Lines",
     "services": "Services",
     "settings": "Settings",
     "adminPortal": "Admin Portal",
@@ -76,13 +84,268 @@
   "settings": {
     "title": "Settings",
     "description": "Manage your application preferences and settings",
+    "pageTitle": "Settings",
+    "pageDescription": "Manage your preferences and company information",
     "language": {
       "title": "Language & Region",
       "label": "Select Language",
       "description": "Choose your preferred language for the interface"
     },
     "close": "Close",
-    "applying": "Applying changes..."
+    "applying": "Applying changes...",
+    "generalSettings": {
+      "title": "General Settings",
+      "description": "Configure your personal preferences",
+      "language": {
+        "label": "Language",
+        "placeholder": "Select language"
+      },
+      "unitSystem": {
+        "label": "Unit System",
+        "placeholder": "Select unit system",
+        "metric": "Metric (SI)",
+        "imperial": "Imperial"
+      },
+      "autoSaveNotice": "Settings are saved automatically",
+      "saved": "Settings saved"
+    },
+    "companyInfo": {
+      "title": "Company Information",
+      "description": "Details about your organization",
+      "noCompanyFound": "No company found",
+      "active": "Active",
+      "companyName": "Company Name",
+      "brandColor": "Brand Color",
+      "address": "Address",
+      "phone": "Phone",
+      "website": "Website",
+      "administrator": "Company Administrator",
+      "unknownUser": "Unknown User",
+      "createdAt": "Created on",
+      "lastUpdated": "Last Updated",
+      "branches": "Branches",
+      "subdomain": "Subdomain"
+    },
+    "branches": {
+      "title": "Branches",
+      "loading": "Loading branches...",
+      "noBranches": "No branches found for this company.",
+      "loadingFailed": "Failed to load branches",
+      "mainBranch": "Main Branch",
+      "users": "users",
+      "clickToViewUsers": "Click to view users"
+    },
+    "userManagement": {
+      "title": "User Accounts",
+      "loading": "Loading users...",
+      "loadingFailed": "Failed to load users",
+      "noUsers": "No users found for this branch",
+      "noPermissionToViewUsers": "You do not have permission to view users in this branch.",
+      "addUser": "Add User",
+      "editUser": "Edit User",
+      "deleteUser": "Delete User",
+      "table": {
+        "name": "Name",
+        "email": "Email",
+        "role": "Role",
+        "actions": "Actions"
+      },
+      "roles": {
+        "companyAdmin": "Company Admin",
+        "companyManager": "Company Manager",
+        "branchManager": "Branch Manager",
+        "employee": "Employee",
+        "custom": "Custom"
+      },
+      "badges": {
+        "companyAdmin": "Company Admin",
+        "companyManager": "Manager",
+        "branchManager": "Br. Manager"
+      }
+    },
+    "addUserDialog": {
+      "title": "Add User",
+      "description": "Add a new user to {branchName}",
+      "form": {
+        "name": {
+          "label": "Full Name",
+          "placeholder": "Enter user's full name"
+        },
+        "email": {
+          "label": "Email Address",
+          "placeholder": "user@example.com"
+        },
+        "role": {
+          "label": "Role Preset",
+          "placeholder": "Select a role preset",
+          "options": {
+            "manager": "Manager",
+            "worker": "Employee",
+            "custom": "Custom Permissions"
+          },
+          "descriptions": {
+            "manager": "Full control of this branch - all permissions enabled",
+            "worker": "Standard operational access - view all, create/edit services",
+            "custom": "Set individual permissions manually"
+          }
+        },
+        "applyToAllBranches": {
+          "label": "Apply to All Branches",
+          "description": "Give this user the same permissions in all branches"
+        },
+        "companyManager": {
+          "label": "Promote to Company Manager",
+          "description": "Company Managers have full access to all branches"
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Add User",
+      "submitting": "Adding...",
+      "success": "User added successfully",
+      "error": "Failed to add user"
+    },
+    "editUserDialog": {
+      "title": "Edit User",
+      "description": "Update user information and permissions",
+      "form": {
+        "name": {
+          "label": "Full Name",
+          "placeholder": "Enter user's full name"
+        },
+        "email": {
+          "label": "Email Address",
+          "placeholder": "user@example.com"
+        },
+        "updateScope": {
+          "label": "Update Scope",
+          "thisBranch": "This Branch Only",
+          "allBranches": "All Branches",
+          "description": "Choose whether to update permissions for this branch only or all branches this user belongs to"
+        }
+      },
+      "cancel": "Cancel",
+      "submit": "Save Changes",
+      "submitting": "Saving...",
+      "success": "User updated successfully",
+      "error": "Failed to update user"
+    },
+    "deleteUserDialog": {
+      "title": "Delete User",
+      "description": "Are you sure you want to delete this user?",
+      "warning": "This action cannot be undone.",
+      "userInfo": "You are about to delete:",
+      "scopeLabel": "Delete Scope",
+      "scopeOptions": {
+        "branch": "Remove from This Branch Only",
+        "company": "Remove from Entire Company"
+      },
+      "scopeDescriptions": {
+        "branch": "User will lose access to this branch but remain in other branches",
+        "company": "User will be completely removed and lose all access"
+      },
+      "cancel": "Cancel",
+      "confirm": "Delete User",
+      "confirming": "Deleting...",
+      "success": "User deleted successfully",
+      "error": "Failed to delete user"
+    },
+    "permissions": {
+      "title": "Permissions",
+      "description": "Control what this user can access and manage",
+      "userManagementInfo": "Note: To manage users, you must enable the \"View Branches\" permission, as users are linked to branches.",
+      "preset": {
+        "label": "Permission Preset",
+        "manager": "Manager",
+        "worker": "Employee",
+        "custom": "Custom"
+      },
+      "categories": {
+        "userManagement": "User Management",
+        "branchManagement": "Branch Management",
+        "blueprintManagement": "Machine Blueprints",
+        "machineManagement": "Machine Management",
+        "serviceManagement": "Service Records"
+      },
+      "actions": {
+        "selectAll": "Select All",
+        "clearAll": "Clear All"
+      },
+      "names": {
+        "readUsers": "View Users",
+        "createUsers": "Add Users",
+        "updateUsers": "Edit Users",
+        "deleteUsers": "Delete Users",
+        "manageUserPermissions": "Manage Permissions",
+        "assignUsersToBranches": "Assign to Branches",
+        "readBranches": "View Branches",
+        "updateBranches": "Edit Branches",
+        "readBlueprints": "View Blueprints",
+        "createBlueprints": "Create Blueprints",
+        "updateBlueprints": "Edit Blueprints",
+        "deleteBlueprints": "Delete Blueprints",
+        "readMachines": "View Machines",
+        "createMachines": "Register Machines",
+        "updateMachines": "Edit Machines",
+        "deleteMachines": "Delete Machines",
+        "readServices": "View Services",
+        "createServices": "Create Services",
+        "updateServices": "Edit Services",
+        "deleteServices": "Delete Services"
+      },
+      "descriptions": {
+        "readUsers": "See the list of users and their information",
+        "createUsers": "Add new user accounts to the branch",
+        "updateUsers": "Modify user information (name, email)",
+        "deleteUsers": "Remove users from branches or the company",
+        "manageUserPermissions": "Change what other users can do",
+        "assignUsersToBranches": "Add users to different branches",
+        "readBranches": "View branch information and details",
+        "updateBranches": "Modify branch settings and information",
+        "readBlueprints": "See machine templates and specifications",
+        "createBlueprints": "Add new machine templates",
+        "updateBlueprints": "Modify existing templates",
+        "deleteBlueprints": "Remove machine templates",
+        "readMachines": "See the list of machines and their details",
+        "createMachines": "Register new machines in the system",
+        "updateMachines": "Modify machine information",
+        "deleteMachines": "Remove machines from the system",
+        "readServices": "View inspection and maintenance records",
+        "createServices": "Add new inspection/maintenance records",
+        "updateServices": "Modify existing service records",
+        "deleteServices": "Remove service records"
+      },
+      "permissionCount": "{count} permissions enabled",
+      "templates": "Templates"
+    },
+    "permissionTemplates": {
+      "title": "Manage Permission Templates",
+      "description": "Save and reuse frequently used permission configurations",
+      "createNew": "Create New Template",
+      "apply": "Apply Template",
+      "loading": "Loading templates...",
+      "noTemplates": "No templates saved yet",
+      "permissionsCount": "permissions",
+      "close": "Close",
+      "errorLoading": "Error loading templates",
+      "errorCreating": "Error creating template",
+      "errorUpdating": "Error updating template",
+      "errorDeleting": "Error deleting template",
+      "nameRequired": "Template name is required",
+      "created": "Template created successfully",
+      "updated": "Template updated successfully",
+      "deleted": "Template deleted successfully",
+      "applied": "Template '{name}' applied successfully",
+      "confirmDelete": "Are you sure you want to delete this template?",
+      "form": {
+        "name": "Template Name",
+        "namePlaceholder": "e.g., Standard Branch Manager",
+        "description": "Description (Optional)",
+        "descriptionPlaceholder": "Describe when to use this template...",
+        "permissions": "Permissions",
+        "save": "Save",
+        "cancel": "Cancel"
+      }
+    }
   },
   "adminSettings": {
     "pageTitle": "Settings",
@@ -216,7 +479,7 @@
     },
     "editUserDialog": {
       "title": "Edit User",
-      "description": "Update user information for {branchName}",
+      "description": "Update user information and permissions for {branchName}",
       "form": {
         "name": {
           "label": "Full Name",
@@ -226,29 +489,19 @@
           "label": "Email Address",
           "placeholder": "user@example.com"
         },
-        "role": {
-          "label": "Role",
-          "placeholder": "Select a role",
-          "options": {
-            "admin": "Admin",
-            "manager": "Manager",
-            "worker": "Worker"
-          },
-          "descriptions": {
-            "admin": "Admin: Full control over matrix and all branches",
-            "manager": "Manager: Full control over this branch only",
-            "worker": "Worker: Standard employee with operational access"
-          }
+        "updateScope": {
+          "label": "Update Scope",
+          "thisBranch": "This Branch Only",
+          "allBranches": "All Branches",
+          "description": "Choose whether to update permissions for this branch only or all branches this user belongs to"
         }
       },
       "cancel": "Cancel",
-      "submit": "Update User",
-      "submitting": "Updating...",
+      "submit": "Save Changes",
+      "submitting": "Saving...",
       "success": "User updated successfully",
       "error": "Failed to update user",
-      "errors": {
-        "adminAlreadyExists": "A company admin already exists. Only one admin is allowed per company."
-      }
+      "cannotEditAdmin": "Company Administrators cannot be edited. Please contact system support to modify admin accounts."
     },
     "deleteUserDialog": {
       "title": "Delete User",
@@ -271,6 +524,83 @@
         "activeCompanies": "Active Companies",
         "machines": "Machines",
         "pendingServices": "Pending Services"
+      }
+    },
+    "client": {
+      "title": "Dashboard",
+      "description": "Overview of your machines and services",
+      "viewAll": "View all",
+      "operational": "Operational",
+      "fleetHealth": {
+        "title": "Fleet Health Score",
+        "description": "Overall health status of your machine fleet",
+        "summary": "Based on service completion rates and machine conditions",
+        "operational": "Operational",
+        "warning": "Needs Attention",
+        "critical": "Critical",
+        "trend": {
+          "up": "Improving",
+          "down": "Declining",
+          "stable": "Stable"
+        }
+      },
+      "activeAlerts": {
+        "title": "Active Alerts",
+        "description": "Issues requiring attention",
+        "noAlerts": "All systems operational - no active alerts",
+        "viewAll": "View all {count} alerts",
+        "severity": {
+          "critical": "Critical",
+          "warning": "Warning",
+          "info": "Info"
+        }
+      },
+      "upcomingServices": {
+        "title": "Upcoming Services",
+        "description": "Scheduled inspections and maintenance",
+        "noServices": "No services scheduled",
+        "viewAll": "View all {count} services",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "types": {
+          "inspection": "Inspection",
+          "maintenance": "Maintenance"
+        }
+      },
+      "serviceTrends": {
+        "title": "Service Trends",
+        "description": "Service completion over the last 6 months",
+        "legend": {
+          "inspections": "Inspections",
+          "maintenance": "Maintenance"
+        },
+        "stats": {
+          "totalInspections": "Total Inspections",
+          "totalMaintenance": "Total Maintenance",
+          "totalServices": "Total Services"
+        }
+      },
+      "machineStatus": {
+        "title": "Machine Status",
+        "description": "Distribution of machine health",
+        "totalMachines": "Total Machines",
+        "status": {
+          "operational": "Operational",
+          "warning": "Needs Attention",
+          "critical": "Critical"
+        }
+      },
+      "quickActions": {
+        "title": "Quick Actions",
+        "description": "Common tasks and shortcuts",
+        "viewMachines": "View Machines",
+        "viewMachinesDesc": "Browse all your machines and their status",
+        "viewServices": "View Services",
+        "viewServicesDesc": "See upcoming and completed services",
+        "viewReports": "View Reports",
+        "viewReportsDesc": "Access service history and analytics",
+        "settings": "Settings",
+        "settingsDesc": "Manage your account and preferences"
       }
     }
   },
@@ -346,10 +676,15 @@
     "detailPageTitle": "Machine Details",
     "newButton": "New Machine",
     "emptyState": "No machines found. Create your first machine to get started.",
-    "noBlueprint": "No blueprint",
-    "noBlueprintAssigned": "No blueprint assigned",
+    "noBlueprint": "No model",
+    "noBlueprintAssigned": "No model assigned",
     "errorLoading": "Error loading machines",
+    "selectBranchToCreate": "Select a branch first to create a machine",
+    "allBranches": "All Branches",
     "description": "Create a new machine",
+    "routineInspection": "Routine Inspection",
+    "maintenanceInspection": "Maintenance Inspection",
+    "routineMaintenance": "Routine Maintenance",
     "status": {
       "operational": "Operational",
       "maintenance": "Maintenance",
@@ -359,6 +694,8 @@
     "lastInspection": "Last inspection",
     "viewDetails": "View Details",
     "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
     "createdSuccessfully": "Machine created successfully",
     "deletedSuccessfully": "Machine deleted successfully",
     "deleteConfirmTitle": "Delete Machine",
@@ -418,6 +755,24 @@
       "tramming": "Tramming",
       "pistons": "Pistons"
     },
+    "gibsFields": {
+      "directionalTitle": "Directional Measurements",
+      "beforeAdjustment": "Before Adjustment",
+      "afterAdjustment": "After Adjustment",
+      "freeHangingAfterInstall": "Free Hanging After Install",
+      "beforeToolInstallation": "Before Tool Installation",
+      "afterToolInstallation": "After Tool Installation",
+      "frontToBackTitle": "Front to Back",
+      "leftToRightTitle": "Left to Right",
+      "front": "Front",
+      "back": "Back",
+      "left": "Left",
+      "right": "Right",
+      "top": "Top",
+      "bottom": "Bottom",
+      "usable": "Usable",
+      "rear": "Rear"
+    },
     "sectionStatus": {
       "ok": "OK",
       "warning": "Warning",
@@ -472,9 +827,9 @@
         "mainBranch": "Main Branch"
       },
       "blueprint": {
-        "label": "Blueprint",
-        "placeholder": "Select a blueprint",
-        "loading": "Loading blueprints..."
+        "label": "Model",
+        "placeholder": "Select a model",
+        "loading": "Loading models..."
       },
       "name": {
         "label": "Machine Name",
@@ -488,7 +843,7 @@
       },
       "selectCompanyPrompt": "Select a company to get started",
       "selectBranchPrompt": "Select a branch to get started",
-      "selectBlueprintPrompt": "Select a blueprint to get started",
+      "selectBlueprintPrompt": "Select a model to get started",
       "submit": {
         "idle": "Create Machine",
         "loading": "Sending..."
@@ -636,9 +991,21 @@
       },
       "gibs": {
         "hasBeenAdjusted": "Has Been Adjusted",
+        "includePreviousMeasurements": "Include Previous Measurements",
+        "beforeAdjustment": "Before Adjustment",
+        "afterAdjustment": "After Adjustment",
+        "freeHangingAfterInstall": "Free Hanging (After Install)",
         "frontToBackTitle": "Front to Back Measurements (16 Points)",
+        "leftToRightTitle": "Left to Right Measurements (16 Points)",
         "directionalTitle": "Directional Measurements",
+        "calculatedFields": "Calculated Directional Fields",
         "point": "Point {number}",
+        "left": "Left",
+        "right": "Right",
+        "top": "Top",
+        "bottom": "Bottom",
+        "front": "Front",
+        "back": "Back",
         "leftTop": "Left Top",
         "leftBottom": "Left Bottom",
         "rightTop": "Right Top",
@@ -647,7 +1014,12 @@
         "frontBottom": "Front Bottom",
         "backTop": "Back Top",
         "backBottom": "Back Bottom",
-        "usable": "Usable"
+        "usable": "Usable",
+        "rear": "Rear",
+        "beforeToolInstallation": "Before Tool Installation",
+        "afterToolInstallation": "After Tool Installation",
+        "adjustment": "Adjustment",
+        "installation": "Installation"
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "System Pressures (PSI)",
@@ -975,8 +1347,11 @@
         },
         "whyNotCovered": {
           "customerRemoved": "Customer removed for audit; customer to reinstall",
+          "customer_removed": "Customer removed for audit; customer to reinstall",
           "notInArea": "Covers are not located in area of press; not visible",
-          "otherExplain": "Other: Explain"
+          "not_in_area": "Covers are not located in area of press; not visible",
+          "otherExplain": "Other: Explain",
+          "other_explain": "Other: Explain"
         }
       }
     }
@@ -986,6 +1361,16 @@
     "createServiceDescription": "Fill in the service details below",
     "serviceDate": "Service Date",
     "serviceType": "Service Type",
+    "viewDetails": "View service details",
+    "serviceInformation": "Service Information",
+    "date": "Date",
+    "technician": "Technician",
+    "status": "Status",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "inspectionObservations": "Inspection Observations",
+    "serviceSummary": "Service Summary",
+    "noSectionsCompleted": "No sections were completed in this service",
     "types": {
       "inspection": "Inspection",
       "maintenance": "Maintenance"
@@ -1069,6 +1454,25 @@
         "gauges": "Gauges",
         "notes": "Notes"
       }
+    },
+    "pageTitle": "Services",
+    "pageDescription": "View and manage all services across your machines",
+    "pending": "Pending",
+    "noServicesFound": "No services found",
+    "stats": {
+      "totalServices": "Total Services",
+      "upcomingServices": "Upcoming Services",
+      "completedThisMonth": "Completed This Month"
+    },
+    "filters": {
+      "searchPlaceholder": "Search machines, technicians...",
+      "allBranches": "All Branches",
+      "allMachines": "All Machines"
+    },
+    "tabs": {
+      "upcoming": "Upcoming",
+      "history": "History",
+      "all": "All Services"
     }
   },
   "table": {
@@ -1121,10 +1525,17 @@
     "companyNotFound": "Company not found",
     "branchesSubtitle": "Branches",
     "noBranches": "No branches found for this company",
+    "noBranchesDescription": "Branches will be displayed here when created",
     "branch": "branch",
     "branches": "branches",
     "machine": "machine",
     "machines": "machines",
+    "noMachines": "No machines",
+    "totalBranches": "Total Branches",
+    "totalMachines": "Total Machines",
+    "brandColor": "Brand Color",
+    "primaryColor": "Company primary color",
+    "companyAdmin": "Company Administrator",
     "mainBranch": "Main Branch",
     "viewMachines": "View Machines",
     "createBranch": {
@@ -1155,10 +1566,22 @@
     "machinesSubtitle": "Machines in this branch",
     "newMachine": "New Machine",
     "noMachines": "No machines in this branch yet",
-    "noBlueprint": "No blueprint",
-    "blueprint": "Blueprint",
+    "noBlueprint": "No model",
+    "blueprint": "Model",
     "fields": "fields",
     "mainBranch": "Main Branch"
+  },
+  "permissions": {
+    "readMachines": "View Machines",
+    "createMachines": "Create Machines",
+    "updateMachines": "Edit Machines",
+    "deleteMachines": "Delete Machines",
+    "readServices": "View Services",
+    "createServices": "Create Services",
+    "updateServices": "Edit Services",
+    "deleteServices": "Delete Services",
+    "readBranches": "View Branches",
+    "updateBranches": "Edit Branches"
   },
   "login": {
     "title": "Welcome back",
@@ -1218,6 +1641,7 @@
     "savePermissions": "Save Permissions",
     "cancel": "Cancel",
     "delete": "Delete",
+    "cancel": "Cancel",
     "deleting": "Deleting...",
     "edit": "Edit",
     "create": "Create",
@@ -1235,6 +1659,66 @@
     "selectBranch": "Please select a branch",
     "success": "Success",
     "error": "Error"
+  },
+  "productionLines": {
+    "pageTitle": "Production Lines",
+    "pageDescription": "Manage and visualize your production lines",
+    "newButton": "New Line",
+    "emptyState": "No production lines created",
+    "errorLoading": "Error loading production lines",
+    "selectBranchToCreate": "Select a branch first to create a production line",
+    "allBranches": "All Branches",
+    "tabView": "Visualization",
+    "tabInspection": "Inspections",
+    "tabConfig": "Configuration",
+    "deleteButton": "Delete Line",
+    "selectCompany": "Select Company",
+    "selectBranch": "Select Branch",
+    "selectMachines": "Select Machines",
+    "machineOrder": "Machine Order",
+    "saveConfig": "Save Configuration",
+    "savingConfig": "Saving...",
+    "configSaved": "Configuration saved successfully",
+    "lineName": "Line Name",
+    "lineNamePlaceholder": "Ex: Main Line",
+    "lineNameRequired": "Line name is required",
+    "machineCount": "machine(s)",
+    "noMachinesConfigured": "No machines configured",
+    "configureFirst": "Configure your production line first",
+    "selectCompanyFirst": "Select a company",
+    "noMachinesAvailable": "No machines available",
+    "noMachineSelected": "No machine selected",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "createDialog": {
+      "title": "New Production Line",
+      "description": "Create a new production line to organize your machines",
+      "cancel": "Cancel",
+      "create": "Create Line"
+    },
+    "deleteDialog": {
+      "title": "Delete Production Line",
+      "description": "Are you sure you want to delete this production line?",
+      "warningMessage": "This action cannot be undone. The production line \"{name}\" will be permanently deleted.",
+      "cancel": "Cancel",
+      "confirm": "Delete Line",
+      "deleting": "Deleting...",
+      "success": "Production line deleted successfully",
+      "error": "Failed to delete production line"
+    },
+    "errorSaving": "Error saving configuration",
+    "configurationUpdated": "Configuration updated successfully",
+    "lastInspection": "Last inspection",
+    "noInspectionData": "No inspection performed",
+    "inspectionSections": "Inspection sections",
+    "noSectionsConfigured": "No sections configured",
+    "noBlueprintAssigned": "No model assigned",
+    "status": {
+      "ok": "OK",
+      "warning": "Warning",
+      "alert": "Alert",
+      "unknown": "Unknown"
+    }
   },
   "errors": {
     "service": {

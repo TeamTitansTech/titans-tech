@@ -202,6 +202,11 @@ async function main() {
       createServices: true,
       updateServices: true,
       deleteServices: true,
+      // Production Line Permissions
+      readProductionLines: true,
+      createProductionLines: true,
+      updateProductionLines: true,
+      deleteProductionLines: true,
     },
   });
 
@@ -296,6 +301,11 @@ async function main() {
       createServices: true,
       updateServices: true,
       deleteServices: true,
+      // Production Line Permissions
+      readProductionLines: true,
+      createProductionLines: true,
+      updateProductionLines: true,
+      deleteProductionLines: true,
     },
   });
   console.log(`✓ Assigned Admin to Main Branch with full permissions`);
@@ -324,11 +334,15 @@ async function main() {
       readServices: true,
       createServices: true,
       updateServices: true,
+      // Production Line Permissions
+      readProductionLines: true,
+      createProductionLines: true,
+      updateProductionLines: true,
     },
   });
   console.log(`✓ Assigned Manager to Main Branch with limited permissions`);
 
-  // Regular user with read/create permissions
+  // Regular user with NO permissions
   await prisma.userBranch.upsert({
     where: {
       userId_branchId: {
@@ -340,15 +354,132 @@ async function main() {
     create: {
       userId: regularUser.id,
       branchId: acmeSecondaryBranch.id,
-      // Basic permissions
-      readBranches: true,
-      readBlueprints: true,
-      readMachines: true,
-      readServices: true,
-      createServices: true,
+      // NO permissions - all false by default
+      readUsers: false,
+      createUsers: false,
+      updateUsers: false,
+      deleteUsers: false,
+      manageUserPermissions: false,
+      assignUsersToBranches: false,
+      readBranches: false,
+      updateBranches: false,
+      readBlueprints: false,
+      createBlueprints: false,
+      updateBlueprints: false,
+      deleteBlueprints: false,
+      readMachines: false,
+      createMachines: false,
+      updateMachines: false,
+      deleteMachines: false,
+      readServices: false,
+      createServices: false,
+      updateServices: false,
+      deleteServices: false,
+      readProductionLines: false,
+      createProductionLines: false,
+      updateProductionLines: false,
+      deleteProductionLines: false,
     },
   });
-  console.log(`✓ Assigned User to Secondary Branch with basic permissions`);
+  console.log(`✓ Assigned User to Secondary Branch with NO permissions`);
+
+  // Also assign regular user to Main Branch with NO permissions
+  await prisma.userBranch.upsert({
+    where: {
+      userId_branchId: {
+        userId: regularUser.id,
+        branchId: acmeMainBranch.id,
+      },
+    },
+    update: {},
+    create: {
+      userId: regularUser.id,
+      branchId: acmeMainBranch.id,
+      // NO permissions - all false by default
+      readUsers: false,
+      createUsers: false,
+      updateUsers: false,
+      deleteUsers: false,
+      manageUserPermissions: false,
+      assignUsersToBranches: false,
+      readBranches: false,
+      updateBranches: false,
+      readBlueprints: false,
+      createBlueprints: false,
+      updateBlueprints: false,
+      deleteBlueprints: false,
+      readMachines: false,
+      createMachines: false,
+      updateMachines: false,
+      deleteMachines: false,
+      readServices: false,
+      createServices: false,
+      updateServices: false,
+      deleteServices: false,
+      readProductionLines: false,
+      createProductionLines: false,
+      updateProductionLines: false,
+      deleteProductionLines: false,
+    },
+  });
+  console.log(`✓ Assigned User to Main Branch with NO permissions`);
+
+  // Test User with NO permissions
+  const testUser = await prisma.user.upsert({
+    where: { email: 'test@acme-corp.com' },
+    update: {},
+    create: {
+      name: 'Test User',
+      email: 'test@acme-corp.com',
+      password: hashedPassword,
+      isCompanyAdmin: false,
+      isCompanyManager: false,
+      isUsingDefaultPassword: true,
+      companyId: acmeCompany.id,
+    },
+  });
+  console.log(`✓ Created/Updated Test User: ${testUser.email}`);
+
+  // Assign test user to Main Branch with NO permissions
+  await prisma.userBranch.upsert({
+    where: {
+      userId_branchId: {
+        userId: testUser.id,
+        branchId: acmeMainBranch.id,
+      },
+    },
+    update: {},
+    create: {
+      userId: testUser.id,
+      branchId: acmeMainBranch.id,
+      // NO permissions - all false by default
+      readUsers: false,
+      createUsers: false,
+      updateUsers: false,
+      deleteUsers: false,
+      manageUserPermissions: false,
+      assignUsersToBranches: false,
+      readBranches: false,
+      updateBranches: false,
+      readBlueprints: false,
+      createBlueprints: false,
+      updateBlueprints: false,
+      deleteBlueprints: false,
+      readMachines: false,
+      createMachines: false,
+      updateMachines: false,
+      deleteMachines: false,
+      readServices: false,
+      createServices: false,
+      updateServices: false,
+      deleteServices: false,
+      readProductionLines: false,
+      createProductionLines: false,
+      updateProductionLines: false,
+      deleteProductionLines: false,
+    },
+  });
+  console.log(`✓ Assigned Test User to Main Branch with NO permissions`);
 
   // ========================================
   // 7. Create Blueprints
@@ -505,8 +636,11 @@ async function main() {
   console.log('\n  ACME Company Manager:');
   console.log('    Email: manager@acme-corp.com');
   console.log('    Password: password');
-  console.log('\n  ACME Regular User:');
+  console.log('\n  ACME Regular User (0 permissions):');
   console.log('    Email: user@acme-corp.com');
+  console.log('    Password: password');
+  console.log('\n  ACME Test User (0 permissions):');
+  console.log('    Email: test@acme-corp.com');
   console.log('    Password: password');
   console.log('\n🏢 Company Subdomains: subdomain, acme-corp');
   console.log('========================================\n');

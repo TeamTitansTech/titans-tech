@@ -10,14 +10,14 @@ import { SECTION_REGISTRY } from '../sections/registry';
 import { SectionSummary } from '../summary';
 import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services';
 import { WhyNotCoveredType } from '@titans-tech/shared/types';
-import type { SectionDataMap } from '../types/service-completion.types';
+import type { AnySectionData } from '../types/service-completion.types';
 import { useMemo } from 'react';
 
 interface SummaryStepProps {
   date: Date;
   performedBy: string;
   completedSections: Set<string>;
-  completedSectionData: Partial<SectionDataMap>;
+  completedSectionData: Record<string, AnySectionData>;
   isSubmitting: boolean;
   error: string | null;
   stepperSteps: StepperStep[];

@@ -16,7 +16,7 @@ import type { Machine } from '@titans-tech/shared/types';
 import { SectionCard } from '@/components/shared/SectionCard';
 import { QRCodeGenerator } from '@/components/machines/QRCodeGenerator';
 
-interface MachineDetailsClientProps {
+export interface MachineDetailsClientProps {
   machine: Machine;
 }
 

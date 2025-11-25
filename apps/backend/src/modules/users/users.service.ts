@@ -83,18 +83,6 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    // Buscar quantidade de notificações não lidas
-    const unreadNotifications = await this.prisma.clientNotification.count({
-      where: {
-        userId,
-        isRead: false,
-      },
-    });
-
-    const userResponse = new UserResponseDto(user);
-    userResponse.unreadNotifications = unreadNotifications;
-
-    return userResponse;
     // If user is company admin or manager, they have access to all branches
     // We need to populate the branches array with all company branches
     if (user.isCompanyAdmin || user.isCompanyManager) {
@@ -129,13 +117,43 @@ export class UsersService {
         createServices: true,
         updateServices: true,
         deleteServices: true,
+        readProductionLines: true,
+        createProductionLines: true,
+        updateProductionLines: true,
+        deleteProductionLines: true,
         branch: branch,
       }));
 
-      return new UserResponseDto({ ...user, branches: userBranches });
+      const userResponse = new UserResponseDto({
+        ...user,
+        branches: userBranches,
+      });
+
+      // Buscar quantidade de notificações não lidas
+      const unreadNotifications = await this.prisma.clientNotification.count({
+        where: {
+          userId,
+          isRead: false,
+        },
+      });
+
+      userResponse.unreadNotifications = unreadNotifications;
+
+      return userResponse;
     }
 
-    return new UserResponseDto(user);
+    // Buscar quantidade de notificações não lidas
+    const unreadNotifications = await this.prisma.clientNotification.count({
+      where: {
+        userId,
+        isRead: false,
+      },
+    });
+
+    const userResponse = new UserResponseDto(user);
+    userResponse.unreadNotifications = unreadNotifications;
+
+    return userResponse;
   }
 
   async findAll(companyId: string) {
@@ -502,6 +520,24 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
+    // If promoting to Company Admin, ensure only one admin per company
+    if (dto.isCompanyAdmin === true && !user.isCompanyAdmin) {
+      const existingAdmin = await this.prisma.user.findFirst({
+        where: {
+          companyId: user.companyId,
+          isCompanyAdmin: true,
+        },
+      });
+
+      if (existingAdmin) {
+        throw new ForbiddenException(
+          `Company already has an admin: ${existingAdmin.name} (${existingAdmin.email}). ` +
+            'There can only be one Company Administrator per company. ' +
+            'Please demote the existing admin first.',
+        );
+      }
+    }
+
     const updatedUser = await this.prisma.user.update({
       where: { id: userId },
       data: {
@@ -560,5 +596,125 @@ export class UsersService {
     });
 
     return new UserResponseDto(updatedUser);
+  }
+
+  /**
+   * Delete user from company or remove from specific branch
+   */
+  async deleteUser(
+    userId: string,
+    scope: 'branch' | 'company',
+    branchId?: string,
+  ) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { branches: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Prevent deletion of Company Admin
+    if (user.isCompanyAdmin) {
+      throw new ForbiddenException(
+        'Cannot delete Company Administrator. Please remove admin status first.',
+      );
+    }
+
+    if (scope === 'branch' && branchId) {
+      // Remove user from specific branch only
+      await this.prisma.userBranch.delete({
+        where: {
+          userId_branchId: {
+            userId,
+            branchId,
+          },
+        },
+      });
+
+      return {
+        success: true,
+        message: 'User removed from branch',
+      };
+    } else {
+      // Delete user completely from company
+      // First delete all UserBranch records
+      await this.prisma.userBranch.deleteMany({
+        where: { userId },
+      });
+
+      // Then delete the user
+      await this.prisma.user.delete({
+        where: { id: userId },
+      });
+
+      return {
+        success: true,
+        message: 'User deleted from company',
+      };
+    }
+  }
+
+  /**
+   * Update user permissions across all branches they belong to
+   */
+  async updateUserPermissionsAllBranches(
+    userId: string,
+    companyId: string,
+    permissions: Partial<{
+      readUsers: boolean;
+      createUsers: boolean;
+      updateUsers: boolean;
+      deleteUsers: boolean;
+      manageUserPermissions: boolean;
+      assignUsersToBranches: boolean;
+      readBranches: boolean;
+      updateBranches: boolean;
+      readBlueprints: boolean;
+      createBlueprints: boolean;
+      updateBlueprints: boolean;
+      deleteBlueprints: boolean;
+      readMachines: boolean;
+      createMachines: boolean;
+      updateMachines: boolean;
+      deleteMachines: boolean;
+      readServices: boolean;
+      createServices: boolean;
+      updateServices: boolean;
+      deleteServices: boolean;
+    }>,
+  ) {
+    // Verify user belongs to company
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { branches: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (user.companyId !== companyId) {
+      throw new ForbiddenException('User does not belong to this company');
+    }
+
+    // Update all UserBranch records for this user
+    const updatePromises = user.branches.map((userBranch) =>
+      this.prisma.userBranch.update({
+        where: {
+          userId_branchId: {
+            userId,
+            branchId: userBranch.branchId,
+          },
+        },
+        data: permissions,
+      }),
+    );
+
+    await Promise.all(updatePromises);
+
+    // Return updated user
+    return this.getMe(userId);
   }
 }

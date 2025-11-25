@@ -1,9 +1,12 @@
 import { getTranslations } from 'next-intl/server';
 import { getMachineById } from '@/data/services/machines.api';
+import { getCurrentUser } from '@/data/services/auth.api';
 import { MachineDetailsClient } from './components/MachineDetailsClient';
 import { ServiceHistory } from './components/ServiceHistory';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Typography } from '@/components/ui/typography';
+import { NoPermission } from '@/components/no-permission/NoPermission';
+import { hasPermissionForResource } from '@/lib/permissions';
 
 interface MachineDetailPageProps {
   params: Promise<{
@@ -14,6 +17,13 @@ interface MachineDetailPageProps {
 export default async function MachineDetailPage({ params }: MachineDetailPageProps) {
   const { id } = await params;
   const t = await getTranslations('machines');
+
+  // Get current user and check permissions
+  const userResponse = await getCurrentUser();
+  if (userResponse.errors || !userResponse.data) {
+    redirect('/');
+  }
+
   const response = await getMachineById(id);
 
   if (response.errors) {
@@ -35,10 +45,19 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     notFound();
   }
 
+  const machine = response.data;
+  const user = userResponse.data;
+
+  // Check if user has readMachines permission for this machine's branch
+  const canViewMachine = hasPermissionForResource(user, machine, 'readMachines');
+
+  if (!canViewMachine) {
+    return <NoPermission />;
+  }
+
   return (
     <div className="space-y-6 p-4">
-      {/* TODO: Fix type mismatch between API Machine and shared Machine types */}
-      <MachineDetailsClient machine={response.data as any} />
+      <MachineDetailsClient machine={response.data} />
       <ServiceHistory machineId={id} />
     </div>
   );

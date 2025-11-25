@@ -23,6 +23,7 @@ import {
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import {
   Admin,
+  Authenticated,
   BranchPermission,
   CompanyAdmin,
   Public,
@@ -63,7 +64,7 @@ export class CompaniesController {
     return this.companiesService.getCompanyPublicInfo(companySlug);
   }
 
-  @BranchPermission('readBranches')
+  @Authenticated()
   @Get(':companyId')
   findOne(@Param('companyId') companyId: string) {
     return this.companiesService.findOne(companyId);
@@ -119,7 +120,7 @@ export class CompaniesController {
     return this.usersService.remove(userId, companyId);
   }
 
-  @BranchPermission('readBranches')
+  @Authenticated()
   @Get(':companyId/branches')
   findAllBranches(@Param('companyId') companyId: string) {
     return this.companyBranchesService.findAll(companyId);

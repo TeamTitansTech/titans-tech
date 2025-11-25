@@ -354,10 +354,26 @@ model Company {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  branches CompanyBranch[]
-  users    User[]
+  branches            CompanyBranch[]
+  users               User[]
+  permissionTemplates PermissionTemplate[]
 
   @@map("companies")
+}
+
+model PermissionTemplate {
+  id          String  @id @default(cuid())
+  name        String
+  description String?
+  permissions Json // Stores the Permissions object as JSON
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId String
+
+  @@map("permission_templates")
 }
 
 model CompanyBranch {
@@ -369,10 +385,11 @@ model CompanyBranch {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company   Company      @relation(fields: [companyId], references: [id])
-  companyId String
-  users     UserBranch[]
-  machines  Machine[]
+  company         Company          @relation(fields: [companyId], references: [id])
+  companyId       String
+  users           UserBranch[]
+  machines        Machine[]
+  productionLines ProductionLine[]
 
   @@map("company_branches")
 }
@@ -435,6 +452,12 @@ model UserBranch {
   createServices Boolean @default(false)
   updateServices Boolean @default(false)
   deleteServices Boolean @default(false)
+
+  // Production Line Permissions
+  readProductionLines   Boolean @default(false)
+  createProductionLines Boolean @default(false)
+  updateProductionLines Boolean @default(false)
+  deleteProductionLines Boolean @default(false)
 
   @@id([userId, branchId])
   @@map("user_branches")
@@ -522,13 +545,14 @@ model Machine {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  blueprint           Blueprint            @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
-  branch              CompanyBranch        @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  blueprint           Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  branch              CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
   fields              MachineField[]
   services            MachineService[]
   adminNotifications  AdminNotification[]
   clientNotifications ClientNotification[]
   emails              Email[]
+  productionLines     MachineProductionLine[]
 
   @@map("machines")
 }
@@ -759,28 +783,38 @@ model SlideData {
 // GIBS Section
 
 model MachineServiceGibs {
-  id               String  @id @default(cuid())
+  id               String @id @default(cuid())
   machineServiceId String
-  outerBeforeId    String?
-  outerDataId      String?
-  innerBeforeId    String?
-  innerDataId      String?
 
-  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
-  outerBefore    GibsData?      @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
-  outerData      GibsData?      @relation("OuterDataMeasurement", fields: [outerDataId], references: [id], onDelete: SetNull)
-  innerBefore    GibsData?      @relation("InnerBeforeMeasurement", fields: [innerBeforeId], references: [id], onDelete: SetNull)
-  innerData      GibsData?      @relation("InnerDataMeasurement", fields: [innerDataId], references: [id], onDelete: SetNull)
+  // 7-Stage GIBS structure matching Excel
+  outerBeforeAdjustmentId        String?
+  outerAfterAdjustmentId         String?
+  outerFreeHangingAfterInstallId String?
+  innerBeforeAdjustmentId        String?
+  innerAfterAdjustmentId         String?
+  innerBeforeToolInstallationId  String?
+  innerAfterToolInstallationId   String?
+
+  // Global field
+  notes String?
+
+  machineService               MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerBeforeAdjustment        GibsStageData? @relation("OuterBeforeAdjustment", fields: [outerBeforeAdjustmentId], references: [id], onDelete: SetNull)
+  outerAfterAdjustment         GibsStageData? @relation("OuterAfterAdjustment", fields: [outerAfterAdjustmentId], references: [id], onDelete: SetNull)
+  outerFreeHangingAfterInstall GibsStageData? @relation("OuterFreeHangingAfterInstall", fields: [outerFreeHangingAfterInstallId], references: [id], onDelete: SetNull)
+  innerBeforeAdjustment        GibsStageData? @relation("InnerBeforeAdjustment", fields: [innerBeforeAdjustmentId], references: [id], onDelete: SetNull)
+  innerAfterAdjustment         GibsStageData? @relation("InnerAfterAdjustment", fields: [innerAfterAdjustmentId], references: [id], onDelete: SetNull)
+  innerBeforeToolInstallation  GibsStageData? @relation("InnerBeforeToolInstallation", fields: [innerBeforeToolInstallationId], references: [id], onDelete: SetNull)
+  innerAfterToolInstallation   GibsStageData? @relation("InnerAfterToolInstallation", fields: [innerAfterToolInstallationId], references: [id], onDelete: SetNull)
 
   @@map("machine_service_gibs")
 }
 
-model GibsData {
+// Represents one stage of GIBS measurements (16 points only, calculations done in frontend)
+model GibsStageData {
   id String @id @default(cuid())
 
-  hasBeenAdjusted YesNoDncType?
-
-  // Front to Back measurements (16 points)
+  // 16 measurement points (columns 1-16)
   point1  Decimal @db.Decimal(10, 4)
   point2  Decimal @db.Decimal(10, 4)
   point3  Decimal @db.Decimal(10, 4)
@@ -798,27 +832,18 @@ model GibsData {
   point15 Decimal @db.Decimal(10, 4)
   point16 Decimal @db.Decimal(10, 4)
 
-  // Directional measurements
-  leftTop     Decimal? @db.Decimal(10, 4)
-  leftBottom  Decimal? @db.Decimal(10, 4)
-  rightTop    Decimal? @db.Decimal(10, 4)
-  rightBottom Decimal? @db.Decimal(10, 4)
-  frontTop    Decimal? @db.Decimal(10, 4)
-  frontBottom Decimal? @db.Decimal(10, 4)
-  backTop     Decimal? @db.Decimal(10, 4)
-  backBottom  Decimal? @db.Decimal(10, 4)
-
-  usable String?
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  outerBeforeServices MachineServiceGibs[] @relation("OuterBeforeMeasurement")
-  outerDataServices   MachineServiceGibs[] @relation("OuterDataMeasurement")
-  innerBeforeServices MachineServiceGibs[] @relation("InnerBeforeMeasurement")
-  innerDataServices   MachineServiceGibs[] @relation("InnerDataMeasurement")
+  outerBeforeAdjustmentServices        MachineServiceGibs[] @relation("OuterBeforeAdjustment")
+  outerAfterAdjustmentServices         MachineServiceGibs[] @relation("OuterAfterAdjustment")
+  outerFreeHangingAfterInstallServices MachineServiceGibs[] @relation("OuterFreeHangingAfterInstall")
+  innerBeforeAdjustmentServices        MachineServiceGibs[] @relation("InnerBeforeAdjustment")
+  innerAfterAdjustmentServices         MachineServiceGibs[] @relation("InnerAfterAdjustment")
+  innerBeforeToolInstallationServices  MachineServiceGibs[] @relation("InnerBeforeToolInstallation")
+  innerAfterToolInstallationServices   MachineServiceGibs[] @relation("InnerAfterToolInstallation")
 
-  @@map("service_data_gibs")
+  @@map("service_data_gibs_stage")
 }
 
 // LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER Section
@@ -1234,4 +1259,33 @@ model PistonsData {
   innerServices MachineServicePistons[] @relation("InnerData")
 
   @@map("service_data_pistons")
+}
+
+// Production Line Models
+
+model ProductionLine {
+  id        String   @id @default(cuid())
+  name      String
+  branchId  String
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branch   CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  machines MachineProductionLine[]
+
+  @@map("production_lines")
+}
+
+model MachineProductionLine {
+  machineId        String
+  productionLineId String
+  order            Int
+  addedAt          DateTime @default(now())
+
+  machine        Machine        @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  productionLine ProductionLine @relation(fields: [productionLineId], references: [id], onDelete: Cascade)
+
+  @@id([machineId, productionLineId])
+  @@map("machine_production_lines")
 }

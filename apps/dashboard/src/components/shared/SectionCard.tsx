@@ -6,14 +6,14 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import type { MachineInspection } from '@titans-tech/shared/types';
-
-export type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
+import type { MachineInspection, MachineService } from '@titans-tech/shared/types';
+import { getSectionStatus } from '@/lib/alertStatus';
 
 interface SectionCardProps {
   sectionKey: string;
   machine: {
     inspections?: MachineInspection[];
+    services?: MachineService[];
   };
   onClick?: () => void;
   isLoading?: boolean;
@@ -47,64 +47,6 @@ const SECTION_IMAGES: Record<string, string> = {
   COUNTERBALANCE_CYLINDER_AIRBAG: '/assets/sections/counterbalance.svg',
   TRAMMING: '/assets/sections/tramming.svg',
   PISTONS: '/assets/sections/pistons.svg',
-};
-
-const CLEARANCE_LIMITS = {
-  WARNING: 0.15,
-  ALERT: 0.2,
-};
-
-const getSectionStatus = (
-  section: string,
-  machine: { inspections?: MachineInspection[] },
-): SectionStatus => {
-  if (!machine.inspections || machine.inspections.length === 0) {
-    return 'unknown';
-  }
-
-  const latestInspection = machine.inspections[0];
-
-  switch (section) {
-    case 'BEARING_CLEARANCE': {
-      const bearingCheck = latestInspection.bearingClearanceChecks;
-      if (!bearingCheck || !bearingCheck.outerData) {
-        return 'unknown';
-      }
-
-      const clearances = [
-        bearingCheck.outerData.totalClearance_RH,
-        bearingCheck.outerData.totalClearance_LH,
-        bearingCheck.outerData.mainBearings_RH,
-        bearingCheck.outerData.mainBearings_LH,
-        bearingCheck.outerData.upperConnectionBearings_RH,
-        bearingCheck.outerData.upperConnectionBearings_LH,
-        bearingCheck.outerData.wristPinToMatingPart_RH,
-        bearingCheck.outerData.wristPinToMatingPart_LH,
-        bearingCheck.outerData.wristPinToBushing_RH,
-        bearingCheck.outerData.wristPinToBushing_LH,
-      ];
-
-      const maxClearance = Math.max(...clearances);
-
-      if (maxClearance >= CLEARANCE_LIMITS.ALERT) {
-        return 'alert';
-      } else if (maxClearance >= CLEARANCE_LIMITS.WARNING) {
-        return 'warning';
-      } else {
-        return 'ok';
-      }
-    }
-
-    case 'SLIDE':
-    case 'GIBS':
-    case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
-    case 'CLUTCH':
-    case 'COUNTERBALANCE_CYLINDER_AIRBAG':
-    case 'TRAMMING':
-    case 'PISTONS':
-    default:
-      return 'ok';
-  }
 };
 
 export function SectionCard({ sectionKey, machine, onClick, isLoading = false }: SectionCardProps) {
