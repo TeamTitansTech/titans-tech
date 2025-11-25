@@ -29,7 +29,6 @@ interface TrammingFormProps {
   errors: Record<string, string>;
   updateField: (field: keyof TrammingDbData, value: number | undefined) => void;
   handleBlur: (field: keyof TrammingDbData) => void;
-  title: string;
   readOnly?: boolean;
 }
 
@@ -48,7 +47,6 @@ export function TrammingForm({
   errors,
   updateField,
   handleBlur,
-  title,
   readOnly = false,
 }: TrammingFormProps) {
   const t = useTranslations('inspections.form.tramming');

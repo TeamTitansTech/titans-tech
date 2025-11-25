@@ -88,7 +88,6 @@ export function PistonsSummary({ data }: PistonsSummaryProps): React.ReactElemen
                 errors={{}}
                 updateField={() => {}}
                 handleBlur={() => {}}
-                title="Outer"
                 readOnly={true}
               />
             </TabsContent>
@@ -101,7 +100,6 @@ export function PistonsSummary({ data }: PistonsSummaryProps): React.ReactElemen
                 errors={{}}
                 updateField={() => {}}
                 handleBlur={() => {}}
-                title="Inner"
                 readOnly={true}
               />
             </TabsContent>

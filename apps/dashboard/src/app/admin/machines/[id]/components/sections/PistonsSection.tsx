@@ -427,7 +427,6 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
               errors={outerErrors}
               updateField={updateOuterField}
               handleBlur={handleBlurOuter}
-              title="Outer"
             />
           </TabsContent>
 
@@ -437,7 +436,6 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
               errors={innerErrors}
               updateField={updateInnerField}
               handleBlur={handleBlurInner}
-              title="Inner"
             />
           </TabsContent>
         </Tabs>

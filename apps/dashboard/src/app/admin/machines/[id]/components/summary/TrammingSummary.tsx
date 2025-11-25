@@ -58,7 +58,6 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
                 errors={{}}
                 updateField={() => {}}
                 handleBlur={() => {}}
-                title="Outer"
                 readOnly={true}
               />
             </TabsContent>
@@ -71,7 +70,6 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
                 errors={{}}
                 updateField={() => {}}
                 handleBlur={() => {}}
-                title="Inner"
                 readOnly={true}
               />
             </TabsContent>

@@ -21,7 +21,6 @@ interface PistonsFormProps {
   errors: Record<string, string>;
   updateField: (field: keyof PistonsDbData, value: number | undefined) => void;
   handleBlur: (field: keyof PistonsDbData) => void;
-  title: string;
   readOnly?: boolean;
 }
 
@@ -40,7 +39,6 @@ export function PistonsForm({
   errors,
   updateField,
   handleBlur,
-  title,
   readOnly = false,
 }: PistonsFormProps) {
   const t = useTranslations('inspections.form.pistons');

@@ -289,7 +289,6 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
               errors={outerErrors}
               updateField={updateOuterField}
               handleBlur={handleBlurOuter}
-              title="Outer"
             />
           </TabsContent>
 
@@ -299,7 +298,6 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
               errors={innerErrors}
               updateField={updateInnerField}
               handleBlur={handleBlurInner}
-              title="Inner"
             />
           </TabsContent>
         </Tabs>
