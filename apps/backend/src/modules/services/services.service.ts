@@ -702,7 +702,7 @@ export class ServicesService {
     await this.prisma.$transaction(async (tx) => {
       const existingRecord = service.slide?.[0];
 
-      // Helper function to upsert nested slide data (now contains all fields)
+      // Helper function to upsert nested slide data
       const upsertData = async (
         data: any,
         existingId: string | null | undefined,
@@ -724,10 +724,18 @@ export class ServicesService {
       };
 
       if (existingRecord) {
-        // Update existing slide record
+        // Update existing slide record (now with 4 possible FKs)
+        const outerBeforeId = await upsertData(
+          updateDto.outerBefore,
+          existingRecord.outerBeforeId,
+        );
         const outerDataId = await upsertData(
           updateDto.outerData,
           existingRecord.outerDataId,
+        );
+        const innerBeforeId = await upsertData(
+          updateDto.innerBefore,
+          existingRecord.innerBeforeId,
         );
         const innerDataId = await upsertData(
           updateDto.innerData,
@@ -736,7 +744,9 @@ export class ServicesService {
 
         // Build update payload with IDs and notes
         const updatePayload: any = {
+          ...(outerBeforeId && { outerBeforeId }),
           ...(outerDataId && { outerDataId }),
+          ...(innerBeforeId && { innerBeforeId }),
           ...(innerDataId && { innerDataId }),
           ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
         };
@@ -746,14 +756,21 @@ export class ServicesService {
           data: updatePayload,
         });
       } else {
-        // Create new slide record
-        const { outerData, innerData, notes } = updateDto;
+        // Create new slide record with 4 possible SlideData records
+        const { outerBefore, outerData, innerBefore, innerData, notes } =
+          updateDto;
 
         await tx.machineServiceSlide.create({
           data: {
             machineService: { connect: { id: serviceId } },
+            ...(outerBefore && {
+              outerBefore: { create: outerBefore as any },
+            }),
             ...(outerData && {
               outerData: { create: outerData as any },
+            }),
+            ...(innerBefore && {
+              innerBefore: { create: innerBefore as any },
             }),
             ...(innerData && {
               innerData: { create: innerData as any },
