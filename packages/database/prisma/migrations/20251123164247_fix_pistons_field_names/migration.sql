@@ -35,14 +35,14 @@ CREATE TYPE "SealConditionType" AS ENUM ('OK', 'NA', 'DNC', 'LEAKING', 'WORN');
 -- CreateEnum
 CREATE TYPE "VacuumSystemConditionType" AS ENUM ('OK', 'NA', 'DNC', 'DAMAGED', 'LEAKING');
 
--- CreateEnum
-CREATE TYPE "NotificationType" AS ENUM ('URGENT_SERVICE_REQUEST', 'SERVICE_REMINDER', 'SERVICE_OVERDUE', 'SERVICE_COMPLETED');
+-- CreateEnum (NotificationType already exists in 20251122144501_add_production_lines migration line 2)
+-- CREATE TYPE "NotificationType" AS ENUM ('URGENT_SERVICE_REQUEST', 'SERVICE_REMINDER', 'SERVICE_OVERDUE', 'SERVICE_COMPLETED');
 
--- CreateEnum
-CREATE TYPE "EmailStatus" AS ENUM ('PENDING', 'SENT', 'FAILED');
+-- CreateEnum (EmailStatus already exists in 20251122144501_add_production_lines migration line 5)
+-- CREATE TYPE "EmailStatus" AS ENUM ('PENDING', 'SENT', 'FAILED');
 
--- CreateEnum
-CREATE TYPE "EmailProvider" AS ENUM ('SENDGRID', 'AWS_SES');
+-- CreateEnum (EmailProvider already exists in 20251122144501_add_production_lines migration line 8)
+-- CREATE TYPE "EmailProvider" AS ENUM ('SENDGRID', 'AWS_SES');
 
 -- AlterTable
 ALTER TABLE "lubrication_hydraulics_gauges" DROP COLUMN "gauge",
@@ -77,90 +77,95 @@ ALTER TABLE "service_data_pistons" RENAME COLUMN "innerLhFrontBottom" TO "innerL
 ALTER TABLE "service_data_pistons" RENAME COLUMN "innerRhFrontTop" TO "innerRhTop";
 ALTER TABLE "service_data_pistons" RENAME COLUMN "innerRhFrontBottom" TO "innerRhBottom";
 
--- CreateTable
-CREATE TABLE "admin_notifications" (
-    "id" TEXT NOT NULL,
-    "machineId" TEXT NOT NULL,
-    "message" TEXT NOT NULL,
-    "isRead" BOOLEAN NOT NULL DEFAULT false,
-    "type" "NotificationType" NOT NULL DEFAULT 'URGENT_SERVICE_REQUEST',
-    "createdByUserId" TEXT NOT NULL,
-    "metadata" JSONB,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+-- ========================================
+-- DUPLICATE TABLES: The following tables are already created in migration 20251122144501_add_production_lines
+-- Commenting out to avoid "relation already exists" errors
+-- ========================================
 
-    CONSTRAINT "admin_notifications_pkey" PRIMARY KEY ("id")
-);
+-- CreateTable (admin_notifications already exists in 20251122144501_add_production_lines line 17)
+-- CREATE TABLE "admin_notifications" (
+--     "id" TEXT NOT NULL,
+--     "machineId" TEXT NOT NULL,
+--     "message" TEXT NOT NULL,
+--     "isRead" BOOLEAN NOT NULL DEFAULT false,
+--     "type" "NotificationType" NOT NULL DEFAULT 'URGENT_SERVICE_REQUEST',
+--     "createdByUserId" TEXT NOT NULL,
+--     "metadata" JSONB,
+--     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     "updatedAt" TIMESTAMP(3) NOT NULL,
+--
+--     CONSTRAINT "admin_notifications_pkey" PRIMARY KEY ("id")
+-- );
 
--- CreateTable
-CREATE TABLE "client_notifications" (
-    "id" TEXT NOT NULL,
-    "userId" TEXT NOT NULL,
-    "machineId" TEXT,
-    "message" TEXT NOT NULL,
-    "isRead" BOOLEAN NOT NULL DEFAULT false,
-    "redirectUrl" TEXT,
-    "type" "NotificationType" NOT NULL,
-    "metadata" JSONB,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
+-- CreateTable (client_notifications already exists in 20251122144501_add_production_lines line 29)
+-- CREATE TABLE "client_notifications" (
+--     "id" TEXT NOT NULL,
+--     "userId" TEXT NOT NULL,
+--     "machineId" TEXT,
+--     "message" TEXT NOT NULL,
+--     "isRead" BOOLEAN NOT NULL DEFAULT false,
+--     "redirectUrl" TEXT,
+--     "type" "NotificationType" NOT NULL,
+--     "metadata" JSONB,
+--     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     "updatedAt" TIMESTAMP(3) NOT NULL,
+--
+--     CONSTRAINT "client_notifications_pkey" PRIMARY KEY ("id")
+-- );
 
-    CONSTRAINT "client_notifications_pkey" PRIMARY KEY ("id")
-);
+-- CreateTable (emails already exists in 20251122144501_add_production_lines line 48)
+-- CREATE TABLE "emails" (
+--     "id" TEXT NOT NULL,
+--     "to" TEXT NOT NULL,
+--     "from" TEXT NOT NULL,
+--     "subject" TEXT NOT NULL,
+--     "body" TEXT NOT NULL,
+--     "type" "NotificationType" NOT NULL,
+--     "status" "EmailStatus" NOT NULL DEFAULT 'PENDING',
+--     "provider" "EmailProvider" NOT NULL,
+--     "externalId" TEXT,
+--     "error" TEXT,
+--     "sentAt" TIMESTAMP(3),
+--     "machineId" TEXT,
+--     "metadata" JSONB,
+--     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     "updatedAt" TIMESTAMP(3) NOT NULL,
+--
+--     CONSTRAINT "emails_pkey" PRIMARY KEY ("id")
+-- );
 
--- CreateTable
-CREATE TABLE "emails" (
-    "id" TEXT NOT NULL,
-    "to" TEXT NOT NULL,
-    "from" TEXT NOT NULL,
-    "subject" TEXT NOT NULL,
-    "body" TEXT NOT NULL,
-    "type" "NotificationType" NOT NULL,
-    "status" "EmailStatus" NOT NULL DEFAULT 'PENDING',
-    "provider" "EmailProvider" NOT NULL,
-    "externalId" TEXT,
-    "error" TEXT,
-    "sentAt" TIMESTAMP(3),
-    "machineId" TEXT,
-    "metadata" JSONB,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" TIMESTAMP(3) NOT NULL,
-
-    CONSTRAINT "emails_pkey" PRIMARY KEY ("id")
-);
-
--- CreateIndex
-CREATE INDEX "admin_notifications_isRead_idx" ON "admin_notifications"("isRead");
-
--- CreateIndex
-CREATE INDEX "admin_notifications_createdAt_idx" ON "admin_notifications"("createdAt");
-
--- CreateIndex
-CREATE INDEX "client_notifications_userId_isRead_idx" ON "client_notifications"("userId", "isRead");
-
--- CreateIndex
-CREATE INDEX "client_notifications_createdAt_idx" ON "client_notifications"("createdAt");
+-- CreateIndex (indexes already created in 20251122144501_add_production_lines)
+-- CREATE INDEX "admin_notifications_isRead_idx" ON "admin_notifications"("isRead");
 
 -- CreateIndex
-CREATE INDEX "emails_status_idx" ON "emails"("status");
+-- CREATE INDEX "admin_notifications_createdAt_idx" ON "admin_notifications"("createdAt");
 
 -- CreateIndex
-CREATE INDEX "emails_type_idx" ON "emails"("type");
+-- CREATE INDEX "client_notifications_userId_isRead_idx" ON "client_notifications"("userId", "isRead");
 
 -- CreateIndex
-CREATE INDEX "emails_createdAt_idx" ON "emails"("createdAt");
+-- CREATE INDEX "client_notifications_createdAt_idx" ON "client_notifications"("createdAt");
+
+-- CreateIndex
+-- CREATE INDEX "emails_status_idx" ON "emails"("status");
+
+-- CreateIndex
+-- CREATE INDEX "emails_type_idx" ON "emails"("type");
+
+-- CreateIndex
+-- CREATE INDEX "emails_createdAt_idx" ON "emails"("createdAt");
+
+-- AddForeignKey (foreign keys already created in 20251122144501_add_production_lines)
+-- ALTER TABLE "admin_notifications" ADD CONSTRAINT "admin_notifications_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "admin_notifications" ADD CONSTRAINT "admin_notifications_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- ALTER TABLE "admin_notifications" ADD CONSTRAINT "admin_notifications_createdByUserId_fkey" FOREIGN KEY ("createdByUserId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "admin_notifications" ADD CONSTRAINT "admin_notifications_createdByUserId_fkey" FOREIGN KEY ("createdByUserId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- ALTER TABLE "client_notifications" ADD CONSTRAINT "client_notifications_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "client_notifications" ADD CONSTRAINT "client_notifications_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- ALTER TABLE "client_notifications" ADD CONSTRAINT "client_notifications_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "client_notifications" ADD CONSTRAINT "client_notifications_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "emails" ADD CONSTRAINT "emails_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+-- ALTER TABLE "emails" ADD CONSTRAINT "emails_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines"("id") ON DELETE SET NULL ON UPDATE CASCADE;
