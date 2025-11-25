@@ -29,6 +29,7 @@ export {
   SealConditionType,
   VacuumSystemConditionType,
   PressureUnit,
+  CounterbalanceAlertField,
 } from '@titans-tech/shared/types/services';
 
 export type {

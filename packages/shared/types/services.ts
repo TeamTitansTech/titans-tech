@@ -47,6 +47,7 @@ export {
   TemperatureUnit,
   SealConditionType,
   VacuumSystemConditionType,
+  CounterbalanceAlertField,
 } from '../enums';
 
 // Re-export all section data types
