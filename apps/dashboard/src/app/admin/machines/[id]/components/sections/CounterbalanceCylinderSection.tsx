@@ -79,8 +79,8 @@ interface CounterbalanceCylinderSectionProps {
   initialData?: CounterbalanceCylinderCheck;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  serviceId?: string; // Service ID for alerts functionality
-  machineId?: string; // Machine ID for API calls
+  serviceId?: string;
+  machineId?: string;
 }
 
 export const CounterbalanceCylinderSection = forwardRef<
