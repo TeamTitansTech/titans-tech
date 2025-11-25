@@ -4,7 +4,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { rootDomain } from './lib/utils';
 import { getCookie, setCookie } from './lib/cookies';
 
-const PUBLIC_PATHS = ['/admin', '/', '/_next', '/api', '/favicon.ico', '/globals.css'];
+const PUBLIC_PATHS = ['/admin', '/', '/_next', '/api', '/favicon.ico', '/globals.css', '/qr'];
 const ADMIN_PUBLIC_PATHS = ['/admin'];
 const ADMIN_LOGIN_PATH = '/admin';
 const ADMIN_ALREADY_LOGGED_PATH = '/admin/dashboard';
@@ -54,7 +54,8 @@ function extractSubdomain(request: NextRequest): string | null {
 
 function isPublicPath(pathname: string, isAdmin: boolean): boolean {
   const arr = isAdmin ? ADMIN_PUBLIC_PATHS : CLIENT_PUBLIC_PATHS;
-  return [...PUBLIC_PATHS, ...arr].some((path) => pathname === path);
+  // Check for exact matches and /qr/* paths
+  return [...PUBLIC_PATHS, ...arr].some((path) => pathname === path) || pathname.startsWith('/qr/');
 }
 
 export async function proxy(request: NextRequest) {

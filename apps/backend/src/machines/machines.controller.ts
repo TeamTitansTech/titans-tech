@@ -15,7 +15,7 @@ import {
   UpdateMachineDto,
   UpdateMachineSchema,
 } from '@titans-tech/shared/backend-dtos';
-import { Authenticated } from 'src/modules/auth/auth.decorators';
+import { Authenticated, Public } from 'src/modules/auth/auth.decorators';
 import { ZodValidationPipe } from '../errors/zod-validation.pipe';
 
 @Controller('machines')
@@ -39,6 +39,16 @@ export class MachinesController {
     Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>[]
   > {
     return this.machinesService.findAll();
+  }
+
+  @Public()
+  @Get(':id/company')
+  getMachineCompanyInfo(@Param('id') id: string): Promise<{
+    companyId: string;
+    companyName: string;
+    companySlug: string;
+  }> {
+    return this.machinesService.getMachineCompanyInfo(id);
   }
 
   @Authenticated()

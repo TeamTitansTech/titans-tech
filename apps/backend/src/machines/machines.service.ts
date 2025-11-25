@@ -145,6 +145,33 @@ export class MachinesService {
     return machine;
   }
 
+  async getMachineCompanyInfo(machineId: string): Promise<{
+    companyId: string;
+    companyName: string;
+    companySlug: string;
+  }> {
+    const machine = await this.prisma.machine.findUnique({
+      where: { id: machineId },
+      include: {
+        branch: {
+          include: {
+            company: true,
+          },
+        },
+      },
+    });
+
+    if (!machine) {
+      throw new NotFoundException(`Machine with ID ${machineId} not found`);
+    }
+
+    return {
+      companyId: machine.branch.company.id,
+      companyName: machine.branch.company.name,
+      companySlug: machine.branch.company.slug,
+    };
+  }
+
   async update(
     id: string,
     updateMachineDto: UpdateMachineDto,

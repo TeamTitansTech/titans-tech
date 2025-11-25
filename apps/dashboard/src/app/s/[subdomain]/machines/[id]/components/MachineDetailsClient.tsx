@@ -14,6 +14,7 @@ import { UrgentServiceModal } from './UrgentServiceModal';
 import { Typography } from '@/components/ui/typography';
 import type { Machine } from '@titans-tech/shared/types';
 import { SectionCard } from '@/components/shared/SectionCard';
+import { QRCodeGenerator } from '@/components/machines/QRCodeGenerator';
 
 interface MachineDetailsClientProps {
   machine: Machine;
@@ -52,15 +53,23 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
               </Typography>
             </ConditionalTooltip>
           </div>
-          <Button
-            variant="destructive"
-            size="sm"
-            className="shrink-0"
-            onClick={() => setIsUrgentServiceModalOpen(true)}
-          >
-            <Wrench className="w-4 h-4 mr-2" />
-            {t('requestUrgentService')}
-          </Button>
+          <div className="flex gap-2 shrink-0">
+            <QRCodeGenerator
+              machineId={machine.id}
+              machineName={machine.name}
+              machineSerialNumber={machine.serialNumber}
+              variant="outline"
+              size="sm"
+            />
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setIsUrgentServiceModalOpen(true)}
+            >
+              <Wrench className="w-4 h-4 mr-2" />
+              {t('requestUrgentService')}
+            </Button>
+          </div>
         </div>
       </div>
 
