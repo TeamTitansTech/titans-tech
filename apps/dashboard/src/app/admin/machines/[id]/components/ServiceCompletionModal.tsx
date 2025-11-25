@@ -770,6 +770,8 @@ export function ServiceCompletionModal({
               onNext={handleNext}
               getSectionRef={getRef}
               completedSections={completedSections}
+              serviceId={currentServiceId}
+              machineId={machineId}
               translations={{
                 getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
                 previous: tActions('previous'),
