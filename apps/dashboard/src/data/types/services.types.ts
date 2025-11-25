@@ -37,7 +37,7 @@ export type {
   BearingClearanceCheck,
   SlideData,
   SlideCheck,
-  GibsData,
+  GibsStageData,
   GibsCheck,
   LubricationHydraulicsData,
   LubricationHydraulicsCheck,
@@ -63,11 +63,7 @@ export type {
   CounterbalanceCylinderFormProps,
   TrammingFormProps,
   InspectionModalProps,
-  ServiceCreationModalProps,
 } from '@titans-tech/shared/types/services';
-
-// Legacy type alias for backward compatibility
-export type { ServiceCreationModalProps as InspectionCreationModalProps } from '@titans-tech/shared/types/services';
 
 import type { BearingClearanceData as BearingData } from '@titans-tech/shared/types/services';
 

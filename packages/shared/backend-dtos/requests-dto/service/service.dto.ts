@@ -236,10 +236,10 @@ export const SlideCheckSchema = z.object({
 export type SlideCheck = z.infer<typeof SlideCheckSchema>;
 
 /**
- * Gibs Data Schema
+ * Gibs Stage Data Schema - Represents one stage of GIBS measurements (16 points)
+ * This matches the GibsStageData Prisma model
  */
-export const GibsDataSchema = z.object({
-  hasBeenAdjusted: z.nativeEnum(PrismaYesNoDncType),
+export const GibsStageDataSchema = z.object({
   point1: z.number(),
   point2: z.number(),
   point3: z.number(),
@@ -256,27 +256,25 @@ export const GibsDataSchema = z.object({
   point14: z.number(),
   point15: z.number(),
   point16: z.number(),
-  leftTop: z.number().optional(),
-  leftBottom: z.number().optional(),
-  rightTop: z.number().optional(),
-  rightBottom: z.number().optional(),
-  frontTop: z.number().optional(),
-  frontBottom: z.number().optional(),
-  backTop: z.number().optional(),
-  backBottom: z.number().optional(),
-  usable: z.string().optional(),
 });
 
-export type GibsData = z.infer<typeof GibsDataSchema>;
+export type GibsStageData = z.infer<typeof GibsStageDataSchema>;
+
+// Backwards compatibility alias
+export const GibsDataSchema = GibsStageDataSchema;
+export type GibsData = GibsStageData;
 
 /**
- * Gibs Check Schema
+ * Gibs Check Schema - 7-stage GIBS structure
  */
 export const GibsCheckSchema = z.object({
-  outerBefore: GibsDataSchema.optional(),
-  outerData: GibsDataSchema.optional(),
-  innerBefore: GibsDataSchema.optional(),
-  innerData: GibsDataSchema.optional(),
+  outerBeforeAdjustment: GibsStageDataSchema.optional(),
+  outerAfterAdjustment: GibsStageDataSchema.optional(),
+  outerFreeHangingAfterInstall: GibsStageDataSchema.optional(),
+  innerBeforeAdjustment: GibsStageDataSchema.optional(),
+  innerAfterAdjustment: GibsStageDataSchema.optional(),
+  innerBeforeToolInstallation: GibsStageDataSchema.optional(),
+  innerAfterToolInstallation: GibsStageDataSchema.optional(),
   notes: z.string().optional(),
 });
 
@@ -708,6 +706,8 @@ export interface GibsFormProps {
   errors: Record<string, string>;
   handleBlur: (field: keyof GibsData) => void;
   title: string;
+  showDiagram?: boolean;
+  diagramType?: 'frontToBack' | 'leftToRight';
 }
 
 export interface LubricationHydraulicsFormProps {
@@ -738,7 +738,6 @@ export interface CounterbalanceCylinderFormProps {
   data: CounterbalanceCylinderData;
   updateFn: (field: keyof CounterbalanceCylinderData, value: string | number | undefined) => void;
   errors: Record<string, string>;
-  handleBlur: (field: keyof CounterbalanceCylinderData) => void;
   title: string;
 }
 
@@ -751,13 +750,6 @@ export interface TrammingFormProps {
 }
 
 export interface InspectionModalProps {
-  machineId: string;
-  blueprintSections: string[];
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export interface ServiceCreationModalProps {
   machineId: string;
   blueprintSections: string[];
   open: boolean;

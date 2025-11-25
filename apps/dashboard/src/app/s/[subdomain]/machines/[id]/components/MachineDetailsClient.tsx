@@ -15,7 +15,7 @@ import { Typography } from '@/components/ui/typography';
 import type { Machine } from '@titans-tech/shared/types';
 import { SectionCard } from '@/components/shared/SectionCard';
 
-interface MachineDetailsClientProps {
+export interface MachineDetailsClientProps {
   machine: Machine;
 }
 

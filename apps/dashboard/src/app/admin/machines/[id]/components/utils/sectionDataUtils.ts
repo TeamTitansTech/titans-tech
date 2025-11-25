@@ -62,9 +62,13 @@ export const calculateMaxDeviation = (data: Record<string, unknown>): string => 
     data.position5,
     data.position6,
   ];
-  const validValues = positions.filter(
-    (val): val is number => typeof val === 'number' && !isNaN(val) && val !== 0,
+
+  // Convert to numbers if they are numeric values (including string numbers and Decimal objects)
+  const numericValues = positions.map((val) =>
+    val !== null && val !== undefined ? Number(val) : NaN,
   );
+
+  const validValues = numericValues.filter((val): val is number => !isNaN(val));
 
   if (validValues.length > 1) {
     const max = Math.max(...validValues);
@@ -139,8 +143,13 @@ export const extractBearingRows = (
 
       // Calculate differential
       let differential = '-';
-      if (typeof lhValue === 'number' && typeof rhValue === 'number') {
-        differential = String(Math.abs(rhValue - lhValue));
+      // Convert to number if they are numeric values (including string numbers and Decimal objects)
+      const lhNum = lhValue !== null && lhValue !== undefined ? Number(lhValue) : NaN;
+      const rhNum = rhValue !== null && rhValue !== undefined ? Number(rhValue) : NaN;
+
+      if (!isNaN(lhNum) && !isNaN(rhNum)) {
+        const diff = Math.abs(rhNum - lhNum);
+        differential = diff.toFixed(4);
       }
 
       rows.push({

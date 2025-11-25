@@ -55,6 +55,7 @@ export type {
   BearingClearanceCheck,
   SlideData,
   SlideCheck,
+  GibsStageData,
   GibsData,
   GibsCheck,
   LubricationHydraulicsGauge,
@@ -89,7 +90,6 @@ export type {
   CounterbalanceCylinderFormProps,
   TrammingFormProps,
   InspectionModalProps,
-  ServiceCreationModalProps,
 } from '../backend-dtos/requests-dto/service/service.dto';
 
 // Re-export Zod schemas (for validation)
@@ -98,6 +98,7 @@ export {
   BearingClearanceCheckSchema,
   SlideDataSchema,
   SlideCheckSchema,
+  GibsStageDataSchema,
   GibsDataSchema,
   GibsCheckSchema,
   LubricationHydraulicsGaugeSchema,

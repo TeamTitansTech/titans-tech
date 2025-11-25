@@ -48,7 +48,6 @@ const INSPECTION_ROWS: InspectionRow[] = [
     enumValues: OkNaDncLeakingType,
     useCommon: true,
   },
-  { key: 'leakLocation', field: 'airbagPistonSealsLeakLocation', type: 'text' },
   { key: 'regulator', type: 'select', enumValues: OkNaDncNotOperationalType, useCommon: true },
   { key: 'gauge', type: 'select', enumValues: OkNaDncNotOperationalType, useCommon: true },
   {
@@ -66,11 +65,11 @@ export function CounterbalanceCylinderForm({
   data,
   updateFn,
   errors,
-  handleBlur,
   title,
 }: CounterbalanceCylinderFormProps) {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
   const tCommon = useTranslations('common.status');
+  const tValidation = useTranslations('validation');
 
   const getLabel = (type: string, useCommon: boolean, enumKey?: string) => {
     if (useCommon) {
@@ -81,6 +80,8 @@ export function CounterbalanceCylinderForm({
     }
     return type;
   };
+
+  const showLeakLocation = data.airbagPistonSeals === 'LEAKING';
 
   return (
     <div className="space-y-6">
@@ -96,44 +97,61 @@ export function CounterbalanceCylinderForm({
           const fieldName = (field || key) as keyof typeof data;
 
           return (
-            <div key={key} className="grid grid-cols-2 gap-4 items-center">
-              <div className="text-xs font-medium">{t(key)}</div>
+            <>
+              <div key={key} className="grid grid-cols-2 gap-4 items-center">
+                <div className="text-xs font-medium">{t(key)}</div>
 
-              <div>
-                {type === 'select' && enumValues ? (
-                  <Select
-                    value={(data[fieldName] as string) || ''}
-                    onValueChange={(value) => updateFn(fieldName, value ? value : undefined)}
-                  >
-                    <SelectTrigger
-                      id={`${fieldName}-${title}`}
-                      className={`h-9 text-xs ${errors[fieldName] ? 'border-destructive' : ''}`}
-                      onBlur={() => handleBlur(fieldName)}
+                <div>
+                  {type === 'select' && enumValues ? (
+                    <Select
+                      value={(data[fieldName] as string) || ''}
+                      onValueChange={(value) => updateFn(fieldName, value ? value : undefined)}
                     >
-                      <SelectValue placeholder={t('selectPlaceholder')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.values(enumValues).map((value) => (
-                        <SelectItem key={value} value={value}>
-                          {getLabel(value, useCommon || false, key)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  <Input
-                    id={`${fieldName}-${title}`}
-                    value={(data[fieldName] as string) || ''}
-                    onChange={(e) => updateFn(fieldName, e.target.value)}
-                    onBlur={() => handleBlur(fieldName)}
-                    className={`text-sm ${errors[fieldName] ? 'border-destructive' : ''}`}
-                  />
-                )}
-                {errors[fieldName] && (
-                  <p className="text-xs text-destructive mt-1">{errors[fieldName]}</p>
-                )}
+                      <SelectTrigger
+                        id={`${fieldName}-${title}`}
+                        className={`h-9 text-xs ${errors[fieldName] ? 'border-destructive' : ''}`}
+                      >
+                        <SelectValue placeholder={t('selectPlaceholder')} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(enumValues).map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {getLabel(value, useCommon || false, key)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Input
+                      id={`${fieldName}-${title}`}
+                      value={(data[fieldName] as string) || ''}
+                      onChange={(e) => updateFn(fieldName, e.target.value)}
+                      className={`text-sm ${errors[fieldName] ? 'border-destructive' : ''}`}
+                    />
+                  )}
+                  {errors[fieldName] && (
+                    <p className="text-xs text-destructive mt-1">{tValidation('required')}</p>
+                  )}
+                </div>
               </div>
-            </div>
+
+              {key === 'pistonSeals' && showLeakLocation && (
+                <div className="grid grid-cols-2 gap-4 items-center">
+                  <div className="text-xs font-medium">{t('leakLocation')}</div>
+                  <div>
+                    <Input
+                      id={`airbagPistonSealsLeakLocation-${title}`}
+                      value={data.airbagPistonSealsLeakLocation || ''}
+                      onChange={(e) => updateFn('airbagPistonSealsLeakLocation', e.target.value)}
+                      className={`text-sm ${errors.airbagPistonSealsLeakLocation ? 'border-destructive' : ''}`}
+                    />
+                    {errors.airbagPistonSealsLeakLocation && (
+                      <p className="text-xs text-destructive mt-1">{tValidation('required')}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </>
           );
         })}
       </div>

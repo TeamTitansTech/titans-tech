@@ -10,12 +10,15 @@ import {
   Settings,
   ClipboardList,
   Shield,
+  Building2,
+  Factory,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
-import { BranchSelector } from './layout/BranchSelector';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { hasPermissionInAnyBranch } from '@/lib/permissions';
 
 import {
   Sidebar,
@@ -32,6 +35,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const t = useTranslations();
   const { sysAdminUser } = useSysAdmin();
+  const { companyUser } = useCompanyUser();
 
   // Check if we're on an admin route or if sysAdminUser is set
   const isAdmin = pathname.startsWith('/admin') || !!sysAdminUser;
@@ -80,6 +84,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: Wrench,
         url: '/admin/machines',
       },
+      {
+        title: t('navigation.productionLines'),
+        icon: Factory,
+        url: '/admin/production-lines',
+      },
+      {
+        title: t('navigation.services'),
+        icon: ClipboardList,
+        url: '/admin/services',
+      },
     ],
     navUtility: [
       {
@@ -91,44 +105,82 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   // Client navigation
-  const clientData = {
-    company: {
-      name: t('common.companyName'),
-      subtitle: t('common.companySubtitle'),
-      logo: Wrench,
-    },
-    navMain: [
-      {
-        title: t('navigation.dashboard'),
-        icon: LayoutDashboard,
-        url: '/home',
+  const clientData = React.useMemo(
+    () => ({
+      company: {
+        name: t('common.companyName'),
+        subtitle: t('common.companySubtitle'),
+        logo: Wrench,
       },
-      {
-        title: t('navigation.clients'),
-        icon: Users,
-        url: '/clients',
-      },
-      {
-        title: t('navigation.allMachines'),
-        icon: Wrench,
-        url: '/machines',
-      },
-      {
-        title: t('navigation.services'),
-        icon: ClipboardList,
-        url: '/services',
-      },
-    ],
-    navUtility: [
-      {
-        title: t('navigation.settings'),
-        icon: Settings,
-        url: '/settings',
-      },
-    ],
-  };
+      navMain: [
+        {
+          title: t('navigation.dashboard'),
+          icon: LayoutDashboard,
+          url: '/home',
+        },
+        {
+          title: t('navigation.company'),
+          icon: Building2,
+          url: '/company',
+        },
+        {
+          title: t('navigation.allMachines'),
+          icon: Wrench,
+          url: '/machines',
+        },
+        {
+          title: t('navigation.productionLines'),
+          icon: Factory,
+          url: '/production-lines',
+        },
+        {
+          title: t('navigation.services'),
+          icon: ClipboardList,
+          url: '/services',
+        },
+      ],
+      navUtility: [
+        {
+          title: t('navigation.settings'),
+          icon: Settings,
+          url: '/settings',
+        },
+      ],
+    }),
+    [t],
+  );
 
-  const data = isAdmin ? adminData : clientData;
+  // Filter client navigation based on permissions
+  const filteredClientData = React.useMemo(() => {
+    if (isAdmin) return clientData;
+
+    // Company admins and managers see everything
+    if (companyUser?.isCompanyAdmin || companyUser?.isCompanyManager) {
+      return clientData;
+    }
+
+    // For regular users, filter based on permissions
+    const filteredNavMain = clientData.navMain.filter((item) => {
+      // Check permissions for specific routes
+      if (item.url === '/machines') {
+        return hasPermissionInAnyBranch(companyUser, 'readMachines');
+      }
+      if (item.url === '/services') {
+        return hasPermissionInAnyBranch(companyUser, 'readServices');
+      }
+      if (item.url === '/production-lines') {
+        return hasPermissionInAnyBranch(companyUser, 'readProductionLines');
+      }
+      return true;
+    });
+
+    return {
+      ...clientData,
+      navMain: filteredNavMain,
+    };
+  }, [isAdmin, companyUser, clientData]);
+
+  const data = isAdmin ? adminData : filteredClientData;
   const dashboardUrl = isAdmin ? '/admin/dashboard' : '/home';
 
   return (
@@ -147,11 +199,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </Link>
       </SidebarHeader>
       <SidebarContent className="px-2 py-6">
-        {!isAdmin && (
-          <div className="px-4 pb-4 border-b border-slate-700/50 mb-4">
-            <BranchSelector />
-          </div>
-        )}
         <SidebarGroup className="px-0">
           <SidebarMenu className="space-y-2.5">
             {data.navMain.map((item) => {
@@ -212,8 +259,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <User className="size-6" />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold text-white text-sm">Admin User</span>
-            <span className="truncate text-xs text-gray-400">admin@inspectpro.com</span>
+            <span className="truncate font-semibold text-white text-sm">
+              {isAdmin && sysAdminUser
+                ? sysAdminUser.email || 'Admin User'
+                : companyUser
+                  ? companyUser.name || 'Company User'
+                  : 'User'}
+            </span>
+            <span className="truncate text-xs text-gray-400">
+              {isAdmin && sysAdminUser
+                ? sysAdminUser.email
+                : companyUser
+                  ? companyUser.email
+                  : 'Loading...'}
+            </span>
           </div>
         </div>
       </SidebarFooter>

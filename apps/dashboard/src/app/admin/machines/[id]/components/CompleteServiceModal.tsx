@@ -19,14 +19,15 @@ import {
   ServiceType,
   ServiceStatus,
   type UpdateServicePayload,
-  type ServiceCreationModalProps,
+  type InspectionModalProps,
 } from '@/data/types/services.types';
 import {
   BearingClearanceSection,
   type BearingClearanceSectionRef,
 } from './sections/BearingClearanceSection';
 import { SlideSection, type SlideSectionRef } from './sections/SlideSection';
-import { GibsSection, type GibsSectionRef } from './sections/GibsSection';
+import { GibsSection, type GibsSectionRef } from './sections';
+
 import {
   LubricationHydraulicsSection,
   type LubricationHydraulicsSectionRef,
@@ -37,7 +38,7 @@ import {
   type CounterbalanceCylinderSectionRef,
 } from './sections/CounterbalanceCylinderSection';
 
-interface CompleteServiceModalProps extends ServiceCreationModalProps {
+interface CompleteServiceModalProps extends InspectionModalProps {
   serviceId: string; // ID of the service to complete
   serviceType: ServiceType; // Type of the service being completed
   initialDate?: string; // Initial date from the service
@@ -66,7 +67,6 @@ export function CompleteServiceModal({
 
   // Collapsible section states
   const [slideOpen, setSlideOpen] = useState(false);
-  const [gibsOpen, setGibsOpen] = useState(false);
 
   // Section refs
   const bearingClearanceRef = useRef<BearingClearanceSectionRef>(null);
@@ -118,7 +118,7 @@ export function CompleteServiceModal({
 
       // Gibs validation
       if (blueprintSections.includes('GIBS') && gibsRef.current?.isTouched()) {
-        const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+        const gibsResult = gibsRef.current.validateAndGetData();
         if (!gibsResult.isValid) {
           validationErrors.push(...gibsResult.errors);
         }
@@ -189,7 +189,7 @@ export function CompleteServiceModal({
 
       // Add gibs data if validated successfully
       if (blueprintSections.includes('GIBS') && gibsRef.current?.isTouched()) {
-        const gibsResult = gibsRef.current.validateAndGetData(serviceType);
+        const gibsResult = gibsRef.current.validateAndGetData();
         if (gibsResult.isValid && gibsResult.data) {
           payload.gibs = gibsResult.data;
         }
@@ -321,7 +321,7 @@ export function CompleteServiceModal({
             )}
 
             {blueprintSections.includes('GIBS') && (
-              <GibsSection ref={gibsRef} isOpen={gibsOpen} onOpenChange={setGibsOpen} />
+              <GibsSection ref={gibsRef} onSectionTouched={() => markSectionTouched('GIBS')} />
             )}
 
             {blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (

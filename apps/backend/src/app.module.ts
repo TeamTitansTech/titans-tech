@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { BlueprintsModule } from './blueprints/blueprints.module';
-import { MachinesModule } from './machines/machines.module';
-import { ServicesModule } from './services/services.module';
+import { BlueprintsModule } from './modules/blueprints/blueprints.module';
+import { MachinesModule } from './modules/machines/machines.module';
+import { ServicesModule } from './modules/services/services.module';
 import { SharedModule } from './modules/shared/shared.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { SysAdminModule } from './modules/sysadmin/sysadmin.module';
@@ -14,6 +14,8 @@ import { AlertsModule } from './modules/alerts/alerts.module';
 import { EmailModule } from './modules/email/email.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { TasksModule } from './modules/tasks/tasks.module';
+import { ProductionLinesModule } from './modules/production-lines/production-lines.module';
+import { PermissionTemplatesModule } from './modules/permission-templates/permission-templates.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { TasksModule } from './modules/tasks/tasks.module';
     EmailModule,
     NotificationsModule,
     TasksModule,
+    ProductionLinesModule,
+    PermissionTemplatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

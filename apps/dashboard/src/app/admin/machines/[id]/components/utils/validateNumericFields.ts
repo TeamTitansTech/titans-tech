@@ -3,9 +3,8 @@
  * @param data The data object to validate
  * @param prefixes Array of field prefixes to validate (e.g., ['outer', 'inner'])
  * @returns Array of validation error messages
- * Note: Using `Record<string, any>` here is intentional to allow interfaces with optional properties.
  */
-export function validateNumericFields<T extends Record<string, any>>(
+export function validateNumericFields<T extends Record<string, unknown>>(
   data: T,
   prefixes: string[] = ['outer', 'inner'],
 ): string[] {

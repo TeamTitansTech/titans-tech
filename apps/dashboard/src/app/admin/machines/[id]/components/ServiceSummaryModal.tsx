@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import { SECTION_REGISTRY } from './sections/registry';
 import { exportToExcel, exportToPDF } from './utils/serviceExportUtils';
 import { SectionSummary } from './summary';
+import type { AnySectionData } from './types/service-completion.types';
 
 interface ServiceSummaryModalProps {
   service: Service;
@@ -98,32 +99,29 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
 
   // Get all sections that have data in this service
   const completedSections: string[] = [];
-  const completedSectionData: Record<string, Record<string, unknown>> = {};
+  const completedSectionData: Record<string, AnySectionData> = {};
 
   Object.entries(service).forEach(([key, value]) => {
     const registryKey = SECTION_DATA_TO_REGISTRY_KEY[key];
     if (registryKey && value !== null && value !== undefined) {
       // Extract data from array structure (backend returns arrays)
-      let extractedData = value;
+      // Note: Type assertion needed because Object.entries() loses property-specific types
+      // We've validated this is a section property via SECTION_DATA_TO_REGISTRY_KEY check
+      let extractedData: AnySectionData = (
+        Array.isArray(value) ? value[0] : value
+      ) as AnySectionData;
 
-      // Check if it's an array and extract first element
-      if (Array.isArray(value) && value.length > 0) {
-        extractedData = value[0];
-
-        // For clutch, lubricationHydraulics, and counterbalanceCylinder, extract nested data object
-        if (
-          key === 'clutch' ||
+      // For clutch, lubricationHydraulics, and counterbalanceCylinder, extract nested data object
+      if (
+        (key === 'clutch' ||
           key === 'lubricationHydraulics' ||
           key === 'counterbalanceCylinder' ||
-          key === 'counterbalanceCylinderAirbag'
-        ) {
-          // Check if there's a nested 'data' property (for clutch and lubrication)
-          if (extractedData && typeof extractedData === 'object' && 'data' in extractedData) {
-            extractedData = (extractedData as any).data;
-          }
-          // For counterbalance, the structure might have outerData/innerData at the wrapper level
-          // We'll keep the whole object but filter ID fields during rendering
-        }
+          key === 'counterbalanceCylinderAirbag') &&
+        extractedData &&
+        typeof extractedData === 'object' &&
+        'data' in extractedData
+      ) {
+        extractedData = extractedData.data as AnySectionData;
       }
 
       // Debug logging for bearing clearance
@@ -131,15 +129,15 @@ export function ServiceSummaryModal({ service, open, onOpenChange }: ServiceSumm
         console.log('Bearing Clearance Data:', {
           raw: value,
           extracted: extractedData,
-          hasDataContent: hasDataContent(extractedData as unknown as Record<string, unknown>),
+          hasDataContent: hasDataContent(extractedData as Record<string, unknown>),
         });
       }
 
       // For inspections, show all sections even if empty
       // For maintenance, only show sections with actual data
-      if (isInspection || hasDataContent(extractedData as unknown as Record<string, unknown>)) {
+      if (isInspection || hasDataContent(extractedData as Record<string, unknown>)) {
         completedSections.push(registryKey);
-        completedSectionData[registryKey] = extractedData as unknown as Record<string, unknown>;
+        completedSectionData[registryKey] = extractedData;
       }
     }
   });

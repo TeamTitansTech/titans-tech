@@ -109,37 +109,6 @@ export const CounterbalanceCylinderSection = forwardRef<
     inner: {},
   });
 
-  const validateField = (
-    field: keyof CounterbalanceCylinderData,
-    value: string | number | undefined,
-    data: CounterbalanceCylinderData,
-  ): string => {
-    const requiredFields: (keyof CounterbalanceCylinderData)[] = [
-      'counterbalanceType',
-      'airbagPistonSeals',
-      'regulator',
-      'gauge',
-      'pneumaticsPlumbing',
-      'rodSeals',
-      'rodBushing',
-      'oilWick',
-    ];
-
-    if (requiredFields.includes(field) && !value) {
-      return 'This field is required';
-    }
-
-    if (
-      field === 'airbagPistonSealsLeakLocation' &&
-      data.airbagPistonSeals === 'LEAKING' &&
-      !value
-    ) {
-      return 'Leak location is required when seals are leaking';
-    }
-
-    return '';
-  };
-
   const updateOuterField = (
     field: keyof CounterbalanceCylinderData,
     value: string | number | undefined,
@@ -156,16 +125,6 @@ export const CounterbalanceCylinderSection = forwardRef<
     setInnerData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, inner: { ...prev.inner, [field]: '' } }));
     onSectionTouched();
-  };
-
-  const handleBlurOuter = (field: keyof CounterbalanceCylinderData) => {
-    const error = validateField(field, outerData[field], outerData);
-    setErrors((prev) => ({ ...prev, outer: { ...prev.outer, [field]: error } }));
-  };
-
-  const handleBlurInner = (field: keyof CounterbalanceCylinderData) => {
-    const error = validateField(field, innerData[field], innerData);
-    setErrors((prev) => ({ ...prev, inner: { ...prev.inner, [field]: error } }));
   };
 
   useImperativeHandle(ref, () => ({
@@ -280,7 +239,6 @@ export const CounterbalanceCylinderSection = forwardRef<
             data={outerData}
             updateFn={updateOuterField}
             errors={errors.outer}
-            handleBlur={handleBlurOuter}
             title=""
           />
         </TabsContent>
@@ -290,7 +248,6 @@ export const CounterbalanceCylinderSection = forwardRef<
             data={innerData}
             updateFn={updateInnerField}
             errors={errors.inner}
-            handleBlur={handleBlurInner}
             title=""
           />
         </TabsContent>

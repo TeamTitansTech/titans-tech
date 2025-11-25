@@ -1,274 +1,303 @@
 'use client';
 
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { type GibsData, type GibsFormProps, YesNoDncType } from '@/data/types/services.types';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ChevronDown } from 'lucide-react';
+import { type GibsStageData } from '@/data/types/services.types';
+import { MeasurementSection } from './MeasurementSection';
 
-const POINT_FIELDS = [
-  'point1',
-  'point2',
-  'point3',
-  'point4',
-  'point5',
-  'point6',
-  'point7',
-  'point8',
-  'point9',
-  'point10',
-  'point11',
-  'point12',
-  'point13',
-  'point14',
-  'point15',
-  'point16',
-] as const;
+interface StageConfig {
+  data?: GibsStageData;
+  onUpdate?: (field: keyof GibsStageData, value: number) => void;
+  errors?: Record<string, string>;
+  handleBlur?: (field: keyof GibsStageData) => void;
+}
 
-export function GibsForm({ data, updateFn, errors, handleBlur, title }: GibsFormProps) {
+interface GibsFormProps {
+  slideType: 'outer' | 'inner';
+  beforeAdjustment?: StageConfig;
+  afterAdjustment?: StageConfig;
+  afterInstall?: StageConfig;
+  beforeToolInstall?: StageConfig;
+  afterToolInstall?: StageConfig;
+}
+
+export function GibsForm({
+  slideType,
+  beforeAdjustment,
+  afterAdjustment,
+  afterInstall,
+  beforeToolInstall,
+  afterToolInstall,
+}: GibsFormProps) {
   const t = useTranslations('inspections');
+  const [includePreviousMeasurements, setIncludePreviousMeasurements] = useState(false);
+  const [beforeAdjustmentOpen, setBeforeAdjustmentOpen] = useState(false);
+  const [afterAdjustmentOpen, setAfterAdjustmentOpen] = useState(false);
+  const [afterInstallOpen, setAfterInstallOpen] = useState(false);
+  const [includeAdjustmentPrevious, setIncludeAdjustmentPrevious] = useState(false);
+  const [adjustmentBeforeOpen, setAdjustmentBeforeOpen] = useState(false);
+  const [adjustmentAfterOpen, setAdjustmentAfterOpen] = useState(false);
+
+  if (slideType === 'outer') {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="include-previous-measurements"
+            checked={includePreviousMeasurements}
+            onCheckedChange={(checked) => setIncludePreviousMeasurements(checked as boolean)}
+          />
+          <Label
+            htmlFor="include-previous-measurements"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            {t('form.gibs.includePreviousMeasurements')}
+          </Label>
+        </div>
+
+        {includePreviousMeasurements ? (
+          <>
+            {beforeAdjustment?.data && beforeAdjustment?.onUpdate && (
+              <Collapsible open={beforeAdjustmentOpen} onOpenChange={setBeforeAdjustmentOpen}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                  <span className="text-sm font-medium">{t('form.gibs.beforeAdjustment')}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${beforeAdjustmentOpen ? 'rotate-180' : ''}`}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <MeasurementSection
+                      data={beforeAdjustment.data!}
+                      updateFn={beforeAdjustment.onUpdate!}
+                      handleBlur={beforeAdjustment.handleBlur || (() => {})}
+                      errors={beforeAdjustment.errors || {}}
+                      diagramType="frontToBack"
+                      t={t}
+                    />
+                    <MeasurementSection
+                      data={beforeAdjustment.data!}
+                      updateFn={beforeAdjustment.onUpdate!}
+                      handleBlur={beforeAdjustment.handleBlur || (() => {})}
+                      errors={beforeAdjustment.errors || {}}
+                      diagramType="leftToRight"
+                      t={t}
+                    />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
+            {afterAdjustment?.data && afterAdjustment?.onUpdate && (
+              <Collapsible open={afterAdjustmentOpen} onOpenChange={setAfterAdjustmentOpen}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                  <span className="text-sm font-medium">{t('form.gibs.afterAdjustment')}</span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${afterAdjustmentOpen ? 'rotate-180' : ''}`}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <MeasurementSection
+                      data={afterAdjustment.data!}
+                      updateFn={afterAdjustment.onUpdate!}
+                      handleBlur={afterAdjustment.handleBlur || (() => {})}
+                      errors={afterAdjustment.errors || {}}
+                      diagramType="frontToBack"
+                      t={t}
+                    />
+                    <MeasurementSection
+                      data={afterAdjustment.data!}
+                      updateFn={afterAdjustment.onUpdate!}
+                      handleBlur={afterAdjustment.handleBlur || (() => {})}
+                      errors={afterAdjustment.errors || {}}
+                      diagramType="leftToRight"
+                      t={t}
+                    />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
+            {afterInstall?.data && afterInstall?.onUpdate && (
+              <Collapsible open={afterInstallOpen} onOpenChange={setAfterInstallOpen}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                  <span className="text-sm font-medium">
+                    {t('form.gibs.freeHangingAfterInstall')}
+                  </span>
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${afterInstallOpen ? 'rotate-180' : ''}`}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-4 space-y-4">
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <MeasurementSection
+                      data={afterInstall.data!}
+                      updateFn={afterInstall.onUpdate!}
+                      handleBlur={afterInstall.handleBlur || (() => {})}
+                      errors={afterInstall.errors || {}}
+                      diagramType="topView"
+                      t={t}
+                    />
+                    <MeasurementSection
+                      data={afterInstall.data!}
+                      updateFn={afterInstall.onUpdate!}
+                      handleBlur={afterInstall.handleBlur || (() => {})}
+                      errors={afterInstall.errors || {}}
+                      diagramType="leftToRight"
+                      t={t}
+                    />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+          </>
+        ) : (
+          afterInstall?.data &&
+          afterInstall?.onUpdate && (
+            <div className="space-y-4">
+              <h4 className="text-sm font-semibold">{t('form.gibs.freeHangingAfterInstall')}</h4>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                <MeasurementSection
+                  data={afterInstall.data!}
+                  updateFn={afterInstall.onUpdate!}
+                  handleBlur={afterInstall.handleBlur || (() => {})}
+                  errors={afterInstall.errors || {}}
+                  diagramType="topView"
+                  t={t}
+                />
+                <MeasurementSection
+                  data={afterInstall.data!}
+                  updateFn={afterInstall.onUpdate!}
+                  handleBlur={afterInstall.handleBlur || (() => {})}
+                  errors={afterInstall.errors || {}}
+                  diagramType="leftToRight"
+                  t={t}
+                />
+              </div>
+            </div>
+          )
+        )}
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      <h4 className="font-semibold text-sm">{title}</h4>
+    <div className="space-y-4">
+      <Tabs defaultValue="adjustment" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="adjustment">{t('form.gibs.adjustment')}</TabsTrigger>
+          <TabsTrigger value="installation">{t('form.gibs.installation')}</TabsTrigger>
+        </TabsList>
 
-      <div className="space-y-2">
-        <Label htmlFor={`hasBeenAdjusted-${title}`} className="text-xs">
-          {t('form.gibs.hasBeenAdjusted')}
-        </Label>
-        <Select
-          value={data.hasBeenAdjusted}
-          onValueChange={(value) => updateFn('hasBeenAdjusted', value as YesNoDncType)}
-        >
-          <SelectTrigger id={`hasBeenAdjusted-${title}`} className="text-sm">
-            <SelectValue placeholder="Select option" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
-            <SelectItem value={YesNoDncType.NO}>No</SelectItem>
-            <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        <TabsContent value="adjustment" className="space-y-4 mt-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="include-adjustment-previous"
+              checked={includeAdjustmentPrevious}
+              onCheckedChange={(checked) => setIncludeAdjustmentPrevious(checked as boolean)}
+            />
+            <Label
+              htmlFor="include-adjustment-previous"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              {t('form.gibs.includePreviousMeasurements')}
+            </Label>
+          </div>
 
-      <div>
-        <h4 className="font-semibold text-sm mb-4">{t('form.gibs.frontToBackTitle')}</h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {POINT_FIELDS.map((field) => (
-            <div key={field}>
-              <Label htmlFor={`${field}-${title}`} className="text-xs">
-                {t('form.gibs.point', { number: field.replace('point', '') })}
-              </Label>
-              <Input
-                id={`${field}-${title}`}
-                type="number"
-                step="0.0001"
-                min="0"
-                max="999999.9999"
-                value={data[field]}
-                onChange={(e) => updateFn(field as keyof GibsData, Number(e.target.value))}
-                onBlur={() => handleBlur(field as keyof GibsData)}
-                className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
-                required
+          {includeAdjustmentPrevious ? (
+            <>
+              {beforeAdjustment?.data && beforeAdjustment?.onUpdate && (
+                <Collapsible open={adjustmentBeforeOpen} onOpenChange={setAdjustmentBeforeOpen}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                    <span className="text-sm font-medium">{t('form.gibs.beforeAdjustment')}</span>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${adjustmentBeforeOpen ? 'rotate-180' : ''}`}
+                    />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-4 space-y-4">
+                    <MeasurementSection
+                      data={beforeAdjustment.data!}
+                      updateFn={beforeAdjustment.onUpdate!}
+                      handleBlur={beforeAdjustment.handleBlur || (() => {})}
+                      errors={beforeAdjustment.errors || {}}
+                      diagramType="leftToRight"
+                      t={t}
+                    />
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+
+              {afterAdjustment?.data && afterAdjustment?.onUpdate && (
+                <Collapsible open={adjustmentAfterOpen} onOpenChange={setAdjustmentAfterOpen}>
+                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                    <span className="text-sm font-medium">{t('form.gibs.afterAdjustment')}</span>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform ${adjustmentAfterOpen ? 'rotate-180' : ''}`}
+                    />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-4 space-y-4">
+                    <MeasurementSection
+                      data={afterAdjustment.data!}
+                      updateFn={afterAdjustment.onUpdate!}
+                      handleBlur={afterAdjustment.handleBlur || (() => {})}
+                      errors={afterAdjustment.errors || {}}
+                      diagramType="leftToRight"
+                      t={t}
+                    />
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+            </>
+          ) : (
+            afterAdjustment?.data &&
+            afterAdjustment?.onUpdate && (
+              <div className="space-y-4">
+                <h4 className="text-sm font-semibold">{t('form.gibs.afterAdjustment')}</h4>
+                <MeasurementSection
+                  data={afterAdjustment.data!}
+                  updateFn={afterAdjustment.onUpdate!}
+                  handleBlur={afterAdjustment.handleBlur || (() => {})}
+                  errors={afterAdjustment.errors || {}}
+                  diagramType="leftToRight"
+                  t={t}
+                />
+              </div>
+            )
+          )}
+        </TabsContent>
+
+        <TabsContent value="installation" className="space-y-4 mt-4">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            {beforeToolInstall?.data && beforeToolInstall?.onUpdate && (
+              <MeasurementSection
+                data={beforeToolInstall.data!}
+                updateFn={beforeToolInstall.onUpdate!}
+                handleBlur={beforeToolInstall.handleBlur || (() => {})}
+                errors={beforeToolInstall.errors || {}}
+                diagramType="beforeTool"
+                t={t}
               />
-              {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
-            </div>
-          ))}
-        </div>
-      </div>
+            )}
 
-      <div>
-        <h4 className="font-semibold text-sm mb-4">{t('form.gibs.directionalTitle')}</h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div>
-            <Label htmlFor={`leftTop-${title}`} className="text-xs">
-              {t('form.gibs.leftTop')}
-            </Label>
-            <Input
-              id={`leftTop-${title}`}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={data.leftTop || ''}
-              onChange={(e) =>
-                updateFn('leftTop', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('leftTop')}
-              className={`mt-1 ${errors.leftTop ? 'border-destructive' : ''}`}
-            />
-            {errors.leftTop && <p className="text-xs text-destructive mt-1">{errors.leftTop}</p>}
-          </div>
-
-          <div>
-            <Label htmlFor={`leftBottom-${title}`} className="text-xs">
-              {t('form.gibs.leftBottom')}
-            </Label>
-            <Input
-              id={`leftBottom-${title}`}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={data.leftBottom || ''}
-              onChange={(e) =>
-                updateFn('leftBottom', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('leftBottom')}
-              className={`mt-1 ${errors.leftBottom ? 'border-destructive' : ''}`}
-            />
-            {errors.leftBottom && (
-              <p className="text-xs text-destructive mt-1">{errors.leftBottom}</p>
+            {afterToolInstall?.data && afterToolInstall?.onUpdate && (
+              <MeasurementSection
+                data={afterToolInstall.data!}
+                updateFn={afterToolInstall.onUpdate!}
+                handleBlur={afterToolInstall.handleBlur || (() => {})}
+                errors={afterToolInstall.errors || {}}
+                diagramType="afterTool"
+                t={t}
+              />
             )}
           </div>
-
-          <div>
-            <Label htmlFor={`rightTop-${title}`} className="text-xs">
-              {t('form.gibs.rightTop')}
-            </Label>
-            <Input
-              id={`rightTop-${title}`}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={data.rightTop || ''}
-              onChange={(e) =>
-                updateFn('rightTop', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('rightTop')}
-              className={`mt-1 ${errors.rightTop ? 'border-destructive' : ''}`}
-            />
-            {errors.rightTop && <p className="text-xs text-destructive mt-1">{errors.rightTop}</p>}
-          </div>
-
-          <div>
-            <Label htmlFor={`rightBottom-${title}`} className="text-xs">
-              {t('form.gibs.rightBottom')}
-            </Label>
-            <Input
-              id={`rightBottom-${title}`}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={data.rightBottom || ''}
-              onChange={(e) =>
-                updateFn('rightBottom', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('rightBottom')}
-              className={`mt-1 ${errors.rightBottom ? 'border-destructive' : ''}`}
-            />
-            {errors.rightBottom && (
-              <p className="text-xs text-destructive mt-1">{errors.rightBottom}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor={`frontTop-${title}`} className="text-xs">
-              {t('form.gibs.frontTop')}
-            </Label>
-            <Input
-              id={`frontTop-${title}`}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={data.frontTop || ''}
-              onChange={(e) =>
-                updateFn('frontTop', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('frontTop')}
-              className={`mt-1 ${errors.frontTop ? 'border-destructive' : ''}`}
-            />
-            {errors.frontTop && <p className="text-xs text-destructive mt-1">{errors.frontTop}</p>}
-          </div>
-
-          <div>
-            <Label htmlFor={`frontBottom-${title}`} className="text-xs">
-              {t('form.gibs.frontBottom')}
-            </Label>
-            <Input
-              id={`frontBottom-${title}`}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={data.frontBottom || ''}
-              onChange={(e) =>
-                updateFn('frontBottom', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('frontBottom')}
-              className={`mt-1 ${errors.frontBottom ? 'border-destructive' : ''}`}
-            />
-            {errors.frontBottom && (
-              <p className="text-xs text-destructive mt-1">{errors.frontBottom}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor={`backTop-${title}`} className="text-xs">
-              {t('form.gibs.backTop')}
-            </Label>
-            <Input
-              id={`backTop-${title}`}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={data.backTop || ''}
-              onChange={(e) =>
-                updateFn('backTop', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('backTop')}
-              className={`mt-1 ${errors.backTop ? 'border-destructive' : ''}`}
-            />
-            {errors.backTop && <p className="text-xs text-destructive mt-1">{errors.backTop}</p>}
-          </div>
-
-          <div>
-            <Label htmlFor={`backBottom-${title}`} className="text-xs">
-              {t('form.gibs.backBottom')}
-            </Label>
-            <Input
-              id={`backBottom-${title}`}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={data.backBottom || ''}
-              onChange={(e) =>
-                updateFn('backBottom', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('backBottom')}
-              className={`mt-1 ${errors.backBottom ? 'border-destructive' : ''}`}
-            />
-            {errors.backBottom && (
-              <p className="text-xs text-destructive mt-1">{errors.backBottom}</p>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <Label htmlFor={`usable-${title}`} className="text-xs">
-          {t('form.gibs.usable')}
-        </Label>
-        <Input
-          id={`usable-${title}`}
-          value={data.usable || ''}
-          onChange={(e) => updateFn('usable', e.target.value)}
-          onBlur={() => handleBlur('usable')}
-          className={`mt-1 ${errors.usable ? 'border-destructive' : ''}`}
-        />
-        {errors.usable && <p className="text-xs text-destructive mt-1">{errors.usable}</p>}
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

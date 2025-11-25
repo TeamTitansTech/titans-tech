@@ -245,7 +245,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         onOpenChange={setIsEditUserDialogOpen}
         user={selectedUser}
         branchId={branchId}
-        branchName={branchName}
         onSuccess={handleEditUserSuccess}
       />
 

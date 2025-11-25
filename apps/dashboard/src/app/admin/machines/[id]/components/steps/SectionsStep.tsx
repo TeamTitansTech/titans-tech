@@ -4,12 +4,12 @@ import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { SECTION_REGISTRY } from '../sections/registry';
 import type { SectionComponentRef } from '../sections/types';
 import { ServiceType } from '@/data/types/services.types';
-import type { SectionDataMap } from '../types/service-completion.types';
+import type { AnySectionData } from '../types/service-completion.types';
 
 interface SectionsStepProps {
   selectedSectionsArray: string[];
   currentSectionIndex: number;
-  completedSectionData: Partial<SectionDataMap>;
+  completedSectionData: Record<string, AnySectionData>;
   currentServiceType: ServiceType;
   error: string | null;
   stepperSteps: StepperStep[];
@@ -18,10 +18,13 @@ interface SectionsStepProps {
   registerSectionRef: (sectionKey: string, ref: SectionComponentRef) => void;
   onPrevious: () => void;
   onNext: () => void;
+  getSectionRef: (sectionKey: string) => SectionComponentRef | undefined;
+  completedSections: Set<string>;
   translations: {
     getSectionName: (i18nKey: string) => string;
     previous: string;
-    saveAndContinue: string;
+    save: string;
+    continue: string;
   };
 }
 
@@ -37,6 +40,8 @@ export function SectionsStep({
   registerSectionRef,
   onPrevious,
   onNext,
+  getSectionRef,
+  completedSections,
   translations,
 }: SectionsStepProps) {
   const currentSectionKey = selectedSectionsArray[currentSectionIndex];
@@ -52,6 +57,16 @@ export function SectionsStep({
     ? JSON.stringify(Object.keys(sectionData).sort()).substring(0, 20)
     : 'empty';
   const componentKey = `${currentSectionKey}-${dataHash}`;
+
+  // Determine button text based on whether section is completed and has been modified
+  const isSectionCompleted = completedSections.has(currentSectionKey);
+  const sectionRef = getSectionRef(currentSectionKey);
+  const isSectionTouched = sectionRef?.isTouched?.() ?? false;
+
+  // Show "Continue" if section is completed and hasn't been modified
+  // Show "Save" if section is new or has been modified
+  const buttonText =
+    isSectionCompleted && !isSectionTouched ? translations.continue : translations.save;
 
   return (
     <>
@@ -95,7 +110,7 @@ export function SectionsStep({
           {translations.previous}
         </Button>
         <Button type="button" onClick={onNext}>
-          {translations.saveAndContinue}
+          {buttonText}
         </Button>
       </div>
     </>

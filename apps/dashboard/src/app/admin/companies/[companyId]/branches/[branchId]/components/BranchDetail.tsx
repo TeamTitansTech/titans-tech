@@ -25,7 +25,7 @@ export function BranchDetail({ machines }: BranchDetailProps) {
   const t = useTranslations('branches');
 
   const handleMachineClick = (machineId: string) => {
-    router.push(`/machines/${machineId}`);
+    router.push(`/admin/machines/${machineId}`);
   };
 
   return (

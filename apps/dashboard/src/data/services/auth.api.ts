@@ -53,3 +53,9 @@ export const updateSysAdminPassword = async (data: UpdatePasswordDto) => {
 export const logout = async () => {
   await deleteCookie('auth_token');
 };
+
+export const getCurrentUser = async () => {
+  return await responseHandler<UserResponseDto>('/users/me', {
+    method: 'GET',
+  });
+};
