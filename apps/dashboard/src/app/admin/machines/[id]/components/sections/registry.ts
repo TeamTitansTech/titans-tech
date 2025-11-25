@@ -7,7 +7,6 @@ import { ClutchSection } from './ClutchSection';
 import { CounterbalanceCylinderSection } from './CounterbalanceCylinderSection';
 import { TrammingSection } from './TrammingSection';
 import { PistonsSection } from './PistonsSection';
-import { AngularitySection } from './AngularitySection';
 
 /**
  * Configuration for a single section
@@ -114,16 +113,6 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
       i18nKey: 'pistons',
     },
     // No badges for pistons section
-  },
-
-  ANGULARITY: {
-    key: 'ANGULARITY',
-    component: AngularitySection,
-    metadata: {
-      image: '/assets/sections/angularity.svg',
-      i18nKey: 'angularity',
-    },
-    // No badges for angularity section
   },
 };
 

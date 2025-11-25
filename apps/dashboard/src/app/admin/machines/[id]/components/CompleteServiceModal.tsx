@@ -36,7 +36,6 @@ import {
   CounterbalanceCylinderSection,
   type CounterbalanceCylinderSectionRef,
 } from './sections/CounterbalanceCylinderSection';
-import { AngularitySection, type AngularitySectionRef } from './sections/AngularitySection';
 
 interface CompleteServiceModalProps extends ServiceCreationModalProps {
   serviceId: string; // ID of the service to complete
@@ -76,7 +75,6 @@ export function CompleteServiceModal({
   const lubricationRef = useRef<LubricationHydraulicsSectionRef>(null);
   const clutchRef = useRef<ClutchSectionRef>(null);
   const counterbalanceRef = useRef<CounterbalanceCylinderSectionRef>(null);
-  const angularityRef = useRef<AngularitySectionRef>(null);
 
   // Reset form when modal closes
   useEffect(() => {
@@ -91,7 +89,6 @@ export function CompleteServiceModal({
       lubricationRef.current?.reset();
       clutchRef.current?.reset();
       counterbalanceRef.current?.reset();
-      angularityRef.current?.reset();
     }
   }, [open, initialDate, initialPerformedBy]);
 
@@ -154,14 +151,6 @@ export function CompleteServiceModal({
         const counterbalanceResult = counterbalanceRef.current.validateAndGetData(serviceType);
         if (!counterbalanceResult.isValid) {
           validationErrors.push(...counterbalanceResult.errors);
-        }
-      }
-
-      // Angularity validation
-      if (blueprintSections.includes('ANGULARITY') && angularityRef.current?.isTouched()) {
-        const angularityResult = angularityRef.current.validate();
-        if (angularityResult.length > 0) {
-          validationErrors.push(...angularityResult);
         }
       }
 
@@ -236,14 +225,6 @@ export function CompleteServiceModal({
         }
       }
 
-      // Add angularity data if touched
-      if (blueprintSections.includes('ANGULARITY') && angularityRef.current?.isTouched()) {
-        const angularityData = angularityRef.current.getData();
-        if (angularityData) {
-          payload.angularity = angularityData;
-        }
-      }
-
       // Create update payload for PUT request
       const updatePayload: UpdateServicePayload = {
         date: payload.date,
@@ -256,7 +237,6 @@ export function CompleteServiceModal({
         lubricationHydraulics: payload.lubricationHydraulics,
         clutch: payload.clutch,
         counterbalanceCylinder: payload.counterbalanceCylinder,
-        angularity: payload.angularity,
       };
 
       const response = await updateService(serviceId, updatePayload, machineId);
@@ -364,13 +344,6 @@ export function CompleteServiceModal({
               <CounterbalanceCylinderSection
                 ref={counterbalanceRef}
                 onSectionTouched={() => markSectionTouched('COUNTERBALANCE_CYLINDER_AIRBAG')}
-              />
-            )}
-
-            {blueprintSections.includes('ANGULARITY') && (
-              <AngularitySection
-                ref={angularityRef}
-                onSectionTouched={() => markSectionTouched('ANGULARITY')}
               />
             )}
 
