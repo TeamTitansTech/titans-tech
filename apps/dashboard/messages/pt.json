@@ -9,6 +9,12 @@
       "confirm": "Sim, descartar",
       "cancel": "Continuar editando"
     },
+    "noPermission": {
+      "title": "Sem Permissão",
+      "description": "Você não tem permissão para acessar esta página ou recurso.",
+      "contactMessage": "Se você acredita que deveria ter acesso, entre em contato com o administrador ou gerente da empresa.",
+      "goToDashboard": "Ir para o Dashboard"
+    },
     "status": {
       "ok": "OK",
       "na": "N/A",
@@ -59,9 +65,11 @@
     "models": "Modelos",
     "blueprints": "Modelos",
     "clients": "Clientes",
+    "company": "Empresa",
     "companies": "Empresas",
     "allMachines": "Máquinas",
     "machines": "Máquinas",
+    "productionLines": "Linhas de Produção",
     "services": "Serviços",
     "settings": "Configurações",
     "adminPortal": "Portal Administrativo",
@@ -82,13 +90,277 @@
   "settings": {
     "title": "Configurações",
     "description": "Gerencie suas preferências e configurações do aplicativo",
+    "pageTitle": "Configurações",
+    "pageDescription": "Gerencie suas preferências e informações da empresa",
     "language": {
       "title": "Idioma e Região",
       "label": "Selecionar Idioma",
       "description": "Escolha seu idioma preferido para a interface"
     },
     "close": "Fechar",
-    "applying": "Aplicando alterações..."
+    "applying": "Aplicando alterações...",
+    "generalSettings": {
+      "title": "Configurações Gerais",
+      "description": "Configure suas preferências pessoais",
+      "language": {
+        "label": "Idioma",
+        "placeholder": "Selecionar idioma"
+      },
+      "unitSystem": {
+        "label": "Sistema de Unidades",
+        "placeholder": "Selecionar sistema de unidades",
+        "metric": "Métrico (SI)",
+        "imperial": "Imperial"
+      },
+      "autoSaveNotice": "As configurações são salvas automaticamente",
+      "saved": "Configurações salvas"
+    },
+    "companyInfo": {
+      "title": "Informações da Empresa",
+      "description": "Detalhes sobre sua organização",
+      "noCompanyFound": "Nenhuma empresa encontrada",
+      "active": "Ativa",
+      "companyName": "Nome da Empresa",
+      "brandColor": "Cor da Marca",
+      "address": "Endereço",
+      "phone": "Telefone",
+      "website": "Website",
+      "administrator": "Administrador da Empresa",
+      "unknownUser": "Usuário Desconhecido",
+      "createdAt": "Criada em",
+      "lastUpdated": "Última Atualização",
+      "branches": "Filiais",
+      "subdomain": "Subdomínio"
+    },
+    "branches": {
+      "title": "Filiais",
+      "loading": "Carregando filiais...",
+      "noBranches": "Nenhuma filial encontrada para esta empresa.",
+      "loadingFailed": "Falha ao carregar filiais",
+      "mainBranch": "Matriz (Filial Principal)",
+      "users": "usuários",
+      "clickToViewUsers": "Clique para ver usuários"
+    },
+    "userManagement": {
+      "title": "Contas de Usuário",
+      "loading": "Carregando usuários...",
+      "loadingFailed": "Falha ao carregar usuários",
+      "noUsers": "Nenhum usuário encontrado para esta filial",
+      "noPermissionToViewUsers": "Você não tem permissão para visualizar usuários nesta filial.",
+      "addUser": "Adicionar Usuário",
+      "editUser": "Editar Usuário",
+      "deleteUser": "Excluir Usuário",
+      "table": {
+        "name": "Nome",
+        "email": "Email",
+        "role": "Função",
+        "actions": "Ações"
+      },
+      "roles": {
+        "companyAdmin": "Admin da Empresa",
+        "companyManager": "Gerente da Empresa",
+        "branchManager": "Gerente da Filial",
+        "employee": "Funcionário",
+        "custom": "Personalizado"
+      },
+      "badges": {
+        "companyAdmin": "Admin da Empresa",
+        "companyManager": "Gerente",
+        "branchManager": "Ger. Filial"
+      }
+    },
+    "addUserDialog": {
+      "title": "Adicionar Usuário",
+      "description": "Adicionar um novo usuário a {branchName}",
+      "form": {
+        "name": {
+          "label": "Nome Completo",
+          "placeholder": "Digite o nome completo do usuário"
+        },
+        "email": {
+          "label": "Endereço de Email",
+          "placeholder": "usuario@exemplo.com"
+        },
+        "role": {
+          "label": "Função Predefinida",
+          "placeholder": "Selecione uma função predefinida",
+          "options": {
+            "manager": "Gerente",
+            "worker": "Funcionário",
+            "custom": "Permissões Personalizadas"
+          },
+          "descriptions": {
+            "manager": "Controle total desta filial - todas as permissões habilitadas",
+            "worker": "Acesso operacional padrão - visualizar tudo, criar/editar serviços",
+            "custom": "Definir permissões individuais manualmente"
+          }
+        },
+        "applyToAllBranches": {
+          "label": "Aplicar a Todas as Filiais",
+          "description": "Dar a este usuário as mesmas permissões em todas as filiais"
+        },
+        "companyManager": {
+          "label": "Promover a Gerente da Empresa",
+          "description": "Gerentes da Empresa têm acesso total a todas as filiais"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Adicionar Usuário",
+      "submitting": "Adicionando...",
+      "success": "Usuário adicionado com sucesso",
+      "error": "Falha ao adicionar usuário"
+    },
+    "editUserDialog": {
+      "title": "Editar Usuário",
+      "description": "Atualizar informações e permissões do usuário",
+      "form": {
+        "name": {
+          "label": "Nome Completo",
+          "placeholder": "Digite o nome completo do usuário"
+        },
+        "email": {
+          "label": "Endereço de Email",
+          "placeholder": "usuario@exemplo.com"
+        },
+        "updateScope": {
+          "label": "Escopo de Atualização",
+          "thisBranch": "Apenas Esta Filial",
+          "allBranches": "Todas as Filiais",
+          "description": "Escolha se deseja atualizar permissões apenas para esta filial ou todas as filiais às quais este usuário pertence"
+        }
+      },
+      "cancel": "Cancelar",
+      "submit": "Salvar Alterações",
+      "submitting": "Salvando...",
+      "success": "Usuário atualizado com sucesso",
+      "error": "Falha ao atualizar usuário"
+    },
+    "deleteUserDialog": {
+      "title": "Excluir Usuário",
+      "description": "Tem certeza de que deseja excluir este usuário?",
+      "warning": "Esta ação não pode ser desfeita.",
+      "userInfo": "Você está prestes a excluir:",
+      "scopeLabel": "Escopo de Exclusão",
+      "scopeOptions": {
+        "branch": "Remover Apenas Desta Filial",
+        "company": "Remover da Empresa Inteira"
+      },
+      "scopeDescriptions": {
+        "branch": "O usuário perderá acesso a esta filial, mas permanecerá em outras filiais",
+        "company": "O usuário será completamente removido e perderá todo o acesso"
+      },
+      "cancel": "Cancelar",
+      "confirm": "Excluir Usuário",
+      "confirming": "Excluindo...",
+      "success": "Usuário excluído com sucesso",
+      "error": "Falha ao excluir usuário"
+    },
+    "permissions": {
+      "title": "Permissões",
+      "description": "Controle o que este usuário pode acessar e gerenciar",
+      "userManagementInfo": "Nota: Para gerenciar usuários, é necessário ter a permissão \"Visualizar Filiais\" habilitada, pois os usuários estão vinculados às filiais.",
+      "preset": {
+        "label": "Função Predefinida",
+        "manager": "Gerente",
+        "worker": "Funcionário",
+        "custom": "Personalizado"
+      },
+      "categories": {
+        "userManagement": "Gerenciamento de Usuários",
+        "branchManagement": "Gerenciamento de Filiais",
+        "blueprintManagement": "Modelos de Máquinas",
+        "machineManagement": "Gerenciamento de Máquinas",
+        "serviceManagement": "Registros de Serviços",
+        "productionLineManagement": "Linhas de Produção"
+      },
+      "actions": {
+        "selectAll": "Selecionar Tudo",
+        "clearAll": "Limpar Tudo"
+      },
+      "names": {
+        "readUsers": "Visualizar Usuários",
+        "createUsers": "Adicionar Usuários",
+        "updateUsers": "Editar Usuários",
+        "deleteUsers": "Excluir Usuários",
+        "manageUserPermissions": "Gerenciar Permissões",
+        "assignUsersToBranches": "Atribuir a Filiais",
+        "readBranches": "Visualizar Filiais",
+        "updateBranches": "Editar Filiais",
+        "readBlueprints": "Visualizar Modelos",
+        "createBlueprints": "Criar Modelos",
+        "updateBlueprints": "Editar Modelos",
+        "deleteBlueprints": "Excluir Modelos",
+        "readMachines": "Visualizar Máquinas",
+        "createMachines": "Cadastrar Máquinas",
+        "updateMachines": "Editar Máquinas",
+        "deleteMachines": "Excluir Máquinas",
+        "readServices": "Visualizar Serviços",
+        "createServices": "Criar Serviços",
+        "updateServices": "Editar Serviços",
+        "deleteServices": "Excluir Serviços",
+        "readProductionLines": "Visualizar Linhas de Produção",
+        "createProductionLines": "Criar Linhas de Produção",
+        "updateProductionLines": "Editar Linhas de Produção",
+        "deleteProductionLines": "Excluir Linhas de Produção"
+      },
+      "descriptions": {
+        "readUsers": "Ver a lista de usuários e suas informações",
+        "createUsers": "Adicionar novas contas de usuário à filial",
+        "updateUsers": "Modificar informações do usuário (nome, email)",
+        "deleteUsers": "Remover usuários de filiais ou da empresa",
+        "manageUserPermissions": "Alterar o que outros usuários podem fazer",
+        "assignUsersToBranches": "Adicionar usuários a diferentes filiais",
+        "readBranches": "Ver informações e detalhes da filial",
+        "updateBranches": "Modificar configurações e informações da filial",
+        "readBlueprints": "Ver modelos de máquinas e especificações",
+        "createBlueprints": "Adicionar novos modelos de máquinas",
+        "updateBlueprints": "Modificar modelos existentes",
+        "deleteBlueprints": "Remover modelos de máquinas",
+        "readMachines": "Ver a lista de máquinas e seus detalhes",
+        "createMachines": "Cadastrar novas máquinas no sistema",
+        "updateMachines": "Modificar informações da máquina",
+        "deleteMachines": "Remover máquinas do sistema",
+        "readServices": "Visualizar registros de inspeção e manutenção",
+        "createServices": "Adicionar novos registros de inspeção/manutenção",
+        "updateServices": "Modificar registros de serviço existentes",
+        "deleteServices": "Remover registros de serviço",
+        "readProductionLines": "Visualizar linhas de produção e suas máquinas",
+        "createProductionLines": "Criar novas linhas de produção",
+        "updateProductionLines": "Modificar linhas de produção existentes",
+        "deleteProductionLines": "Remover linhas de produção"
+      },
+      "permissionCount": "{count} permissões habilitadas",
+      "templates": "Templates"
+    },
+    "permissionTemplates": {
+      "title": "Gerenciar Templates de Permissão",
+      "description": "Salve e reutilize configurações de permissão frequentemente usadas",
+      "createNew": "Criar Novo Template",
+      "apply": "Aplicar Template",
+      "loading": "Carregando templates...",
+      "noTemplates": "Nenhum template salvo ainda",
+      "permissionsCount": "permissões",
+      "close": "Fechar",
+      "errorLoading": "Erro ao carregar templates",
+      "errorCreating": "Erro ao criar template",
+      "errorUpdating": "Erro ao atualizar template",
+      "errorDeleting": "Erro ao excluir template",
+      "nameRequired": "Nome do template é obrigatório",
+      "created": "Template criado com sucesso",
+      "updated": "Template atualizado com sucesso",
+      "deleted": "Template excluído com sucesso",
+      "applied": "Template '{name}' aplicado com sucesso",
+      "confirmDelete": "Tem certeza que deseja excluir este template?",
+      "form": {
+        "name": "Nome do Template",
+        "namePlaceholder": "ex: Gerente de Filial Padrão",
+        "description": "Descrição (Opcional)",
+        "descriptionPlaceholder": "Descreva quando usar este template...",
+        "permissions": "Permissões",
+        "save": "Salvar",
+        "cancel": "Cancelar"
+      }
+    }
   },
   "adminSettings": {
     "pageTitle": "Configurações",
@@ -222,7 +494,7 @@
     },
     "editUserDialog": {
       "title": "Editar Usuário",
-      "description": "Atualizar informações do usuário para {branchName}",
+      "description": "Atualizar informações e permissões do usuário para {branchName}",
       "form": {
         "name": {
           "label": "Nome Completo",
@@ -232,29 +504,19 @@
           "label": "Endereço de Email",
           "placeholder": "usuario@exemplo.com"
         },
-        "role": {
-          "label": "Função",
-          "placeholder": "Selecione uma função",
-          "options": {
-            "admin": "Administrador",
-            "manager": "Gerente",
-            "worker": "Funcionário"
-          },
-          "descriptions": {
-            "admin": "Administrador: Controle total da matriz e todas as filiais",
-            "manager": "Gerente: Controle total desta filial apenas",
-            "worker": "Funcionário: Acesso operacional padrão"
-          }
+        "updateScope": {
+          "label": "Escopo de Atualização",
+          "thisBranch": "Apenas Esta Filial",
+          "allBranches": "Todas as Filiais",
+          "description": "Escolha se deseja atualizar permissões apenas para esta filial ou todas as filiais às quais este usuário pertence"
         }
       },
       "cancel": "Cancelar",
-      "submit": "Atualizar Usuário",
-      "submitting": "Atualizando...",
+      "submit": "Salvar Alterações",
+      "submitting": "Salvando...",
       "success": "Usuário atualizado com sucesso",
       "error": "Falha ao atualizar usuário",
-      "errors": {
-        "adminAlreadyExists": "Já existe um administrador da empresa. Apenas um administrador é permitido por empresa."
-      }
+      "cannotEditAdmin": "Administradores da empresa não podem ser editados. Entre em contato com o suporte do sistema para modificar contas de administrador."
     },
     "deleteUserDialog": {
       "title": "Excluir Usuário",
@@ -277,6 +539,119 @@
         "activeCompanies": "Empresas Ativas",
         "machines": "Máquinas",
         "pendingServices": "Serviços Pendentes"
+      }
+    },
+    "client": {
+      "title": "Dashboard",
+      "description": "Visão geral das suas máquinas e serviços",
+      "viewAll": "Ver tudo",
+      "operational": "Operacional",
+      "fleetHealth": {
+        "title": "Índice de Saúde da Frota",
+        "description": "Status geral de saúde da sua frota de máquinas",
+        "summary": "Baseado em taxas de conclusão de serviços e condições das máquinas",
+        "operational": "Operacional",
+        "warning": "Precisa de Atenção",
+        "critical": "Crítico",
+        "trend": {
+          "up": "Melhorando",
+          "down": "Piorando",
+          "stable": "Estável"
+        }
+      },
+      "activeAlerts": {
+        "title": "Alertas Ativos",
+        "description": "Problemas que requerem atenção",
+        "noAlerts": "Todos os sistemas operacionais - nenhum alerta ativo",
+        "viewAll": "Ver todos os {count} alertas",
+        "severity": {
+          "critical": "Crítico",
+          "warning": "Atenção",
+          "info": "Info"
+        }
+      },
+      "upcomingServices": {
+        "title": "Serviços Agendados",
+        "description": "Inspeções e manutenções programadas",
+        "noServices": "Nenhum serviço agendado",
+        "viewAll": "Ver todos os {count} serviços",
+        "today": "Hoje",
+        "tomorrow": "Amanhã",
+        "types": {
+          "inspection": "Inspeção",
+          "maintenance": "Manutenção"
+        }
+      },
+      "serviceTrends": {
+        "title": "Tendências de Serviços",
+        "description": "Conclusão de serviços nos últimos 6 meses",
+        "legend": {
+          "inspections": "Inspeções",
+          "maintenance": "Manutenções"
+        },
+        "stats": {
+          "totalInspections": "Total de Inspeções",
+          "totalMaintenance": "Total de Manutenções",
+          "totalServices": "Total de Serviços"
+        }
+      },
+      "machineStatus": {
+        "title": "Status das Máquinas",
+        "description": "Distribuição da saúde das máquinas",
+        "totalMachines": "Total de Máquinas",
+        "status": {
+          "operational": "Operacional",
+          "warning": "Precisa de Atenção",
+          "critical": "Crítico"
+        }
+      },
+      "quickActions": {
+        "title": "Ações Rápidas",
+        "description": "Tarefas comuns e atalhos",
+        "viewMachines": "Ver Máquinas",
+        "viewMachinesDesc": "Navegue por todas as suas máquinas e seu status",
+        "viewServices": "Ver Serviços",
+        "viewServicesDesc": "Veja serviços agendados e concluídos",
+        "viewReports": "Ver Relatórios",
+        "viewReportsDesc": "Acesse histórico de serviços e análises",
+        "settings": "Configurações",
+        "settingsDesc": "Gerencie sua conta e preferências"
+      },
+      "overview": {
+        "machines": "Máquinas",
+        "services": "Serviços",
+        "alerts": "Alertas",
+        "operating": "Operando",
+        "scheduled": "Agendado",
+        "scheduled_plural": "Agendados",
+        "allOk": "Tudo OK",
+        "requiresAttention": "Requer Atenção"
+      },
+      "requiresAttention": {
+        "title": "Requer Atenção",
+        "more": "+{count} mais"
+      },
+      "timeline": {
+        "title": "Próximos 7 Dias",
+        "noServices": "Nenhum serviço agendado",
+        "today": "Hoje",
+        "tomorrow": "Amanhã",
+        "maintenance": "Manutenção",
+        "inspection": "Inspeção"
+      },
+      "performance": {
+        "title": "Performance do Mês",
+        "availability": "Disponibilidade",
+        "preventive": "Preventivas",
+        "corrective": "Corretivas"
+      },
+      "machineHealth": {
+        "title": "Status das Máquinas",
+        "more": "máquinas adicionais"
+      },
+      "weeklyActivity": {
+        "title": "Atividade Semanal",
+        "description": "Serviços concluídos nos últimos 7 dias"
       }
     }
   },
@@ -363,10 +738,15 @@
     "detailPageTitle": "Detalhes da Máquina",
     "newButton": "Nova Máquina",
     "emptyState": "Nenhuma máquina encontrada. Crie sua primeira máquina para começar.",
-    "noBlueprint": "Sem blueprint",
+    "noBlueprint": "Sem modelo",
     "noBlueprintAssigned": "Nenhum modelo atribuído",
     "errorLoading": "Erro ao carregar máquinas",
+    "selectBranchToCreate": "Selecione uma filial primeiro para criar uma máquina",
+    "allBranches": "Todas as Filiais",
     "description": "Crie uma nova máquina",
+    "routineInspection": "Inspeção de Rotina",
+    "maintenanceInspection": "Inspeção de Manutenção",
+    "routineMaintenance": "Manutenção de Rotina",
     "status": {
       "operational": "Operacional",
       "maintenance": "Manutenção",
@@ -377,6 +757,8 @@
     "model": "Modelo",
     "viewDetails": "Ver Detalhes",
     "edit": "Editar",
+    "delete": "Excluir",
+    "cancel": "Cancelar",
     "createdSuccessfully": "Máquina criada com sucesso",
     "deletedSuccessfully": "Máquina excluída com sucesso",
     "deleteConfirmTitle": "Excluir Máquina",
@@ -1043,8 +1425,11 @@
         },
         "whyNotCovered": {
           "customerRemoved": "Cliente removeu para auditoria; cliente deve reinstalar",
+          "customer_removed": "Cliente removeu para auditoria; cliente deve reinstalar",
           "notInArea": "Coberturas não estão localizadas na área da prensa; não visíveis",
-          "otherExplain": "Outro: Explique"
+          "not_in_area": "Coberturas não estão localizadas na área da prensa; não visíveis",
+          "otherExplain": "Outro: Explique",
+          "other_explain": "Outro: Explique"
         }
       }
     }
@@ -1059,10 +1444,17 @@
     "companyNotFound": "Empresa não encontrada",
     "branchesSubtitle": "Filiais",
     "noBranches": "Nenhuma filial encontrada para esta empresa",
+    "noBranchesDescription": "As filiais serão exibidas aqui quando forem criadas",
     "branch": "filial",
-    "branches": "filiais",
+    "branches": "Filiais",
     "machine": "máquina",
     "machines": "máquinas",
+    "noMachines": "Sem máquinas",
+    "totalBranches": "Total de Filiais",
+    "totalMachines": "Total de Máquinas",
+    "brandColor": "Cor da Marca",
+    "primaryColor": "Cor primária da empresa",
+    "companyAdmin": "Administrador da Empresa",
     "mainBranch": "Matriz (Filial Principal)",
     "viewMachines": "Ver Máquinas",
     "createBranch": {
@@ -1098,11 +1490,33 @@
     "fields": "campos",
     "mainBranch": "Matriz (Filial Principal)"
   },
+  "permissions": {
+    "readMachines": "Ver Máquinas",
+    "createMachines": "Criar Máquinas",
+    "updateMachines": "Editar Máquinas",
+    "deleteMachines": "Excluir Máquinas",
+    "readServices": "Ver Serviços",
+    "createServices": "Criar Serviços",
+    "updateServices": "Editar Serviços",
+    "deleteServices": "Excluir Serviços",
+    "readBranches": "Ver Filiais",
+    "updateBranches": "Editar Filiais"
+  },
   "services": {
     "createNewService": "Criar Novo Serviço",
     "createServiceDescription": "Preencha os detalhes do serviço abaixo",
     "serviceDate": "Data do Serviço",
     "serviceType": "Tipo de Serviço",
+    "viewDetails": "Visualizar detalhes do serviço",
+    "serviceInformation": "Informações do Serviço",
+    "date": "Data",
+    "technician": "Técnico",
+    "status": "Status",
+    "completed": "Concluído",
+    "inProgress": "Em Andamento",
+    "inspectionObservations": "Observações da Inspeção",
+    "serviceSummary": "Resumo do Serviço",
+    "noSectionsCompleted": "Nenhuma seção foi completada neste serviço",
     "types": {
       "inspection": "Inspeção",
       "maintenance": "Manutenção"
@@ -1186,6 +1600,25 @@
         "gauges": "Medidores",
         "notes": "Observações"
       }
+    },
+    "pageTitle": "Serviços",
+    "pageDescription": "Visualize e gerencie todos os serviços de suas máquinas",
+    "pending": "Pendente",
+    "noServicesFound": "Nenhum serviço encontrado",
+    "stats": {
+      "totalServices": "Total de Serviços",
+      "upcomingServices": "Serviços Agendados",
+      "completedThisMonth": "Concluídos Este Mês"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar máquinas, técnicos...",
+      "allBranches": "Todas as Filiais",
+      "allMachines": "Todas as Máquinas"
+    },
+    "tabs": {
+      "upcoming": "Agendados",
+      "history": "Histórico",
+      "all": "Todos os Serviços"
     }
   },
   "table": {
@@ -1303,6 +1736,66 @@
     "selectBranch": "Por favor, selecione uma filial",
     "success": "Sucesso",
     "error": "Erro"
+  },
+  "productionLines": {
+    "pageTitle": "Linhas de Produção",
+    "pageDescription": "Gerencie e visualize suas linhas de produção",
+    "newButton": "Nova Linha",
+    "emptyState": "Nenhuma linha de produção criada",
+    "errorLoading": "Erro ao carregar linhas de produção",
+    "selectBranchToCreate": "Selecione uma filial primeiro para criar uma linha de produção",
+    "allBranches": "Todas as Filiais",
+    "tabView": "Visualização",
+    "tabInspection": "Inspeções",
+    "tabConfig": "Configuração",
+    "deleteButton": "Excluir Linha",
+    "selectCompany": "Selecionar Empresa",
+    "selectBranch": "Selecionar Filial",
+    "selectMachines": "Selecionar Máquinas",
+    "machineOrder": "Ordem das Máquinas",
+    "saveConfig": "Salvar Configurações",
+    "savingConfig": "Salvando...",
+    "configSaved": "Configurações salvas com sucesso",
+    "lineName": "Nome da Linha",
+    "lineNamePlaceholder": "Ex: Linha Principal",
+    "lineNameRequired": "Nome da linha é obrigatório",
+    "machineCount": "máquina(s)",
+    "noMachinesConfigured": "Nenhuma máquina configurada",
+    "configureFirst": "Configure sua linha de produção primeiro",
+    "selectCompanyFirst": "Selecione uma empresa",
+    "noMachinesAvailable": "Nenhuma máquina disponível",
+    "noMachineSelected": "Nenhuma máquina selecionada",
+    "moveUp": "Mover para cima",
+    "moveDown": "Mover para baixo",
+    "createDialog": {
+      "title": "Nova Linha de Produção",
+      "description": "Crie uma nova linha de produção para organizar suas máquinas",
+      "cancel": "Cancelar",
+      "create": "Criar Linha"
+    },
+    "deleteDialog": {
+      "title": "Excluir Linha de Produção",
+      "description": "Tem certeza de que deseja excluir esta linha de produção?",
+      "warningMessage": "Esta ação não pode ser desfeita. A linha de produção \"{name}\" será permanentemente excluída.",
+      "cancel": "Cancelar",
+      "confirm": "Excluir Linha",
+      "deleting": "Excluindo...",
+      "success": "Linha de produção excluída com sucesso",
+      "error": "Erro ao excluir linha de produção"
+    },
+    "errorSaving": "Erro ao salvar configurações",
+    "configurationUpdated": "Configuração atualizada com sucesso",
+    "lastInspection": "Última inspeção",
+    "noInspectionData": "Nenhuma inspeção realizada",
+    "inspectionSections": "Seções de inspeção",
+    "noSectionsConfigured": "Nenhuma seção configurada",
+    "noBlueprintAssigned": "Sem modelo atribuído",
+    "status": {
+      "ok": "OK",
+      "warning": "Atenção",
+      "alert": "Alerta",
+      "unknown": "Desconhecido"
+    }
   },
   "errors": {
     "service": {

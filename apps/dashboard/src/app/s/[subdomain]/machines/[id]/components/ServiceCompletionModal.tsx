@@ -156,11 +156,7 @@ export function ServiceCompletionModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[900px] h-[700px] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>
-            {currentStep === 'selection'
-              ? tInspections('title')
-              : tInspections('title') + ' - ' + t('inspectionSections')}
-          </DialogTitle>
+          <DialogTitle>{tInspections('title')}</DialogTitle>
           <DialogDescription>
             {currentStep === 'selection'
               ? 'Selecione as áreas de manutenção a serem realizadas'
@@ -170,40 +166,35 @@ export function ServiceCompletionModal({
 
         {currentStep === 'selection' ? (
           // Step 1: Section Selection
-          <div className="flex-1 overflow-y-auto py-4">
-            <Typography variant="h4" className="mb-4 px-1">
-              Áreas de Manutenção
-            </Typography>
-            <Typography variant="muted" className="mb-6 px-1 text-sm">
-              Selecione as áreas onde a manutenção será realizada
-            </Typography>
+          <>
+            <div className="flex-1 overflow-y-auto p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {machineSections.map((sectionKey) => {
+                  const section = SECTION_DETAILS[sectionKey as keyof typeof SECTION_DETAILS];
+                  if (!section) return null;
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {machineSections.map((sectionKey) => {
-                const section = SECTION_DETAILS[sectionKey as keyof typeof SECTION_DETAILS];
-                if (!section) return null;
+                  return (
+                    <SelectableSectionCard
+                      key={section.key}
+                      title={t(`sectionNames.${section.i18nKey}`)}
+                      status={getSectionStatus(section.key)}
+                      imageUrl={section.image}
+                      subtitle="CP 2"
+                      isSelected={selectedSections.has(section.key)}
+                      onClick={() => toggleSection(section.key)}
+                    />
+                  );
+                })}
+              </div>
 
-                return (
-                  <SelectableSectionCard
-                    key={section.key}
-                    title={t(`sectionNames.${section.i18nKey}`)}
-                    status={getSectionStatus(section.key)}
-                    imageUrl={section.image}
-                    subtitle="CP 2"
-                    isSelected={selectedSections.has(section.key)}
-                    onClick={() => toggleSection(section.key)}
-                  />
-                );
-              })}
+              <div className="mt-6 px-1 text-sm text-muted-foreground">
+                {selectedSections.size > 0
+                  ? `${selectedSections.size} ${selectedSections.size === 1 ? 'área selecionada' : 'áreas selecionadas'}`
+                  : 'Selecione as áreas de manutenção acima para começar'}
+              </div>
             </div>
 
-            <div className="mt-6 px-1 text-sm text-muted-foreground">
-              {selectedSections.size > 0
-                ? `${selectedSections.size} ${selectedSections.size === 1 ? 'área selecionada' : 'áreas selecionadas'}`
-                : 'Selecione as áreas de manutenção acima para começar'}
-            </div>
-
-            <div className="flex justify-end gap-3 pt-6 border-t mt-6">
+            <div className="flex justify-end gap-3 p-4 border-t bg-background">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancelar
               </Button>
@@ -215,82 +206,85 @@ export function ServiceCompletionModal({
                 Continuar
               </Button>
             </div>
-          </div>
+          </>
         ) : (
           // Step 2: Forms for Selected Sections
-          <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-6 py-4">
-            <div className="flex items-center gap-2 mb-4">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleBackToSelection}
-                className="gap-2"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Voltar para seleção
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="date">{tInspections('form.date.label')}</Label>
-                <Input
-                  id="date"
-                  type="date"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  max={new Date().toISOString().split('T')[0]}
-                  required
-                  className="mt-1"
-                />
+          <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+            <div className="flex-1 overflow-y-auto space-y-6 p-4">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleBackToSelection}
+                  className="gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Voltar para seleção
+                </Button>
               </div>
-              <div>
-                <Label htmlFor="performedBy">{tInspections('form.performedBy.label')}</Label>
-                <Input
-                  id="performedBy"
-                  value={performedBy}
-                  onChange={(e) => setPerformedBy(e.target.value)}
-                  placeholder={tInspections('form.performedBy.placeholder')}
-                  className="mt-1"
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="date">{tInspections('form.date.label')}</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
+                    required
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="performedBy">{tInspections('form.performedBy.label')}</Label>
+                  <Input
+                    id="performedBy"
+                    value={performedBy}
+                    onChange={(e) => setPerformedBy(e.target.value)}
+                    placeholder={tInspections('form.performedBy.placeholder')}
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isMaintenance"
+                  checked={isMaintenance}
+                  onCheckedChange={(checked: boolean) => setIsMaintenance(checked)}
                 />
+                <Label htmlFor="isMaintenance" className="cursor-pointer">
+                  {tInspections('form.isMaintenance.label')}
+                </Label>
+              </div>
+
+              {/* Section Forms - Add your section-specific forms here */}
+              <div className="space-y-6">
+                {Array.from(selectedSections).map((sectionKey) => {
+                  const section = SECTION_DETAILS[sectionKey as keyof typeof SECTION_DETAILS];
+                  if (!section) return null;
+
+                  return (
+                    <div key={section.key} className="border rounded-lg p-6">
+                      <Typography variant="h3" className="mb-4">
+                        {t(`sectionNames.${section.i18nKey}`)}
+                      </Typography>
+                      <Typography variant="muted" className="text-sm">
+                        Formulário para {t(`sectionNames.${section.i18nKey}`)} será implementado
+                        aqui
+                      </Typography>
+                      {/* Add section-specific form fields here */}
+                      {/* For BEARING_CLEARANCE, use the existing RenderBearingFields component */}
+                      {/* For other sections, create similar form components */}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="isMaintenance"
-                checked={isMaintenance}
-                onCheckedChange={(checked: boolean) => setIsMaintenance(checked)}
-              />
-              <Label htmlFor="isMaintenance" className="cursor-pointer">
-                {tInspections('form.isMaintenance.label')}
-              </Label>
-            </div>
-
-            {/* Section Forms - Add your section-specific forms here */}
-            <div className="space-y-6">
-              {Array.from(selectedSections).map((sectionKey) => {
-                const section = SECTION_DETAILS[sectionKey as keyof typeof SECTION_DETAILS];
-                if (!section) return null;
-
-                return (
-                  <div key={section.key} className="border rounded-lg p-6">
-                    <Typography variant="h3" className="mb-4">
-                      {t(`sectionNames.${section.i18nKey}`)}
-                    </Typography>
-                    <Typography variant="muted" className="text-sm">
-                      Formulário para {t(`sectionNames.${section.i18nKey}`)} será implementado aqui
-                    </Typography>
-                    {/* Add section-specific form fields here */}
-                    {/* For BEARING_CLEARANCE, use the existing RenderBearingFields component */}
-                    {/* For other sections, create similar form components */}
-                  </div>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-end gap-3 pt-6 border-t">
+            <div className="flex justify-end gap-3 p-4 border-t bg-background">
               <Button type="button" variant="outline" onClick={handleBackToSelection}>
                 Voltar
               </Button>

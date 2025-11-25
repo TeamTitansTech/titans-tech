@@ -12,7 +12,12 @@ import {
 } from '@/components/ui/dialog';
 import { Typography } from '@/components/ui/typography';
 import type { StepperStep } from '@/components/ui/stepper';
-import { ServiceType, ServiceStatus, type CreateServicePayload } from '@/data/types/services.types';
+import {
+  ServiceType,
+  ServiceStatus,
+  type CreateServicePayload,
+  type UpdateServicePayload,
+} from '@/data/types/services.types';
 import {
   createService,
   updateService,
@@ -264,16 +269,15 @@ export function ServiceCompletionModal({
             currentStep: 'sections',
             selectedSections: Array.from(selectedSections),
             // Inspection observation fields
-            // TODO: Fix state types to use proper enum types instead of string
             isPressLevel,
-            driveBeltCondition: (driveBeltCondition || undefined) as any,
-            areAllProtectiveCovers: (areAllProtectiveCovers || undefined) as any,
+            driveBeltCondition,
+            areAllProtectiveCovers,
             protectiveCoversExplanation: protectiveCoversExplanation || undefined,
             areCracksVisible,
             cracksLocation: cracksLocation || undefined,
             isMainMotorSecure,
             isMotorPlateSecure,
-            whyNotCovered: (whyNotCovered || undefined) as any,
+            whyNotCovered,
           };
 
           const response = await createService(payload);
@@ -301,22 +305,21 @@ export function ServiceCompletionModal({
         // Update existing service with inspection observation fields
         setIsSubmitting(true);
         try {
-          const updatePayload = {
+          const updatePayload: UpdateServicePayload = {
             date: date.toISOString(),
             performedBy: performedBy || undefined,
             currentStep: 'sections',
             selectedSections: Array.from(selectedSections),
             // Inspection observation fields
-            // TODO: Fix state types to use proper enum types instead of string
             isPressLevel,
-            driveBeltCondition: (driveBeltCondition || undefined) as any,
-            areAllProtectiveCovers: (areAllProtectiveCovers || undefined) as any,
+            driveBeltCondition,
+            areAllProtectiveCovers,
             protectiveCoversExplanation: protectiveCoversExplanation || undefined,
             areCracksVisible,
             cracksLocation: cracksLocation || undefined,
             isMainMotorSecure,
             isMotorPlateSecure,
-            whyNotCovered: (whyNotCovered || undefined) as any,
+            whyNotCovered,
           };
 
           const response = await updateService(currentServiceId, updatePayload);

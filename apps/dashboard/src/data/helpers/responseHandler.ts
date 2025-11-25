@@ -19,8 +19,8 @@ export async function responseHandler<T>(
     tags?: string[];
   },
 ): Promise<
-  | { data: T; errors: null; rawErrors: null }
-  | { data: null; errors: string[]; rawErrors: BackendErrorResponse }
+  | { data: T; errors: null; rawErrors: null; status: number }
+  | { data: null; errors: string[]; rawErrors: BackendErrorResponse; status: number }
 > {
   try {
     const token = await getCookie('auth_token');
@@ -63,6 +63,7 @@ export async function responseHandler<T>(
           data: null,
           errors: ['Session expired. Please log in again.'],
           rawErrors: errorData,
+          status: response.status,
         };
       }
 
@@ -74,6 +75,7 @@ export async function responseHandler<T>(
           data: null,
           errors: formattedErrors,
           rawErrors: errorData,
+          status: response.status,
         };
       }
 
@@ -82,6 +84,7 @@ export async function responseHandler<T>(
         data: null,
         errors: [`Error ${response.status}: ${response.statusText}`],
         rawErrors: errorData,
+        status: response.status,
       };
     }
 
@@ -97,13 +100,14 @@ export async function responseHandler<T>(
     if (process.env.NODE_ENV === 'development') {
       console.debug('API Response Data:', `${method} -- ${path}`, data);
     }
-    return { data, errors: null, rawErrors: null };
+    return { data, errors: null, rawErrors: null, status: response.status };
   } catch (error) {
     console.error('Error connecting to API', error);
     return {
       data: null,
       errors: ['Connection error'],
       rawErrors: error as BackendErrorResponse,
+      status: 0,
     };
   }
 }

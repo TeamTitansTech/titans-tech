@@ -3,6 +3,8 @@ import { Exclude, Type } from 'class-transformer';
 export class CompanyBranchDto {
   id: string;
   name: string;
+  isMainBranch: boolean;
+  location?: string | null;
   companyId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -47,6 +49,12 @@ export class UserBranchDto {
   createServices: boolean;
   updateServices: boolean;
   deleteServices: boolean;
+
+  // Production Line Permissions
+  readProductionLines: boolean;
+  createProductionLines: boolean;
+  updateProductionLines: boolean;
+  deleteProductionLines: boolean;
 
   @Type(() => CompanyBranchDto)
   branch: CompanyBranchDto;
