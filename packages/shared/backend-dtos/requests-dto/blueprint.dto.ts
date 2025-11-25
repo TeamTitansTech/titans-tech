@@ -68,6 +68,31 @@ export const ThresholdsSchema = z
 
 export type ThresholdsDto = z.infer<typeof ThresholdsSchema>;
 
+// Schema para thresholds do Slide
+export const SlideThresholdsSchema = z
+  .object({
+    maxDeviation_greenMin: z.number().positive(),
+    maxDeviation_yellowMin: z.number().positive(),
+    maxDeviation_redMin: z.number().positive(),
+  })
+  .refine(
+    (data) => {
+      // Validate that yellowMin > greenMin and redMin > yellowMin
+      if (
+        data.maxDeviation_yellowMin <= data.maxDeviation_greenMin ||
+        data.maxDeviation_redMin <= data.maxDeviation_yellowMin
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Must have greenMin < yellowMin < redMin',
+    },
+  );
+
+export type SlideThresholdsDto = z.infer<typeof SlideThresholdsSchema>;
+
 // Schema combinado: Blueprint + Thresholds opcionais
 export const CreateBlueprintWithThresholdsSchema = z
   .object({
@@ -75,6 +100,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     fields: z.array(z.any()),
     sections: z.array(z.nativeEnum(ServiceSection)),
     thresholds: ThresholdsSchema.optional(),
+    slideThresholds: SlideThresholdsSchema.optional(),
   })
   .refine(
     (data) => {
@@ -87,6 +113,19 @@ export const CreateBlueprintWithThresholdsSchema = z
     {
       message: 'Thresholds can only be configured if BEARING_CLEARANCE is in sections',
       path: ['thresholds'],
+    },
+  )
+  .refine(
+    (data) => {
+      // Se slideThresholds fornecidos, SLIDE deve estar em sections
+      if (data.slideThresholds && !data.sections.includes(ServiceSection.SLIDE)) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Slide thresholds can only be configured if SLIDE is in sections',
+      path: ['slideThresholds'],
     },
   );
 

@@ -497,6 +497,7 @@ model Blueprint {
 
   machines                  Machine[]
   thresholdBearingClearance ThresholdBearingClearance?
+  thresholdSlide            ThresholdSlide?
 
   @@map("blueprints")
 }
@@ -541,6 +542,23 @@ model ThresholdBearingClearance {
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
   @@map("threshold_bearing_clearance")
+}
+
+model ThresholdSlide {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Max Deviation thresholds (single threshold for both outer and inner)
+  maxDeviation_greenMin  Decimal @db.Decimal(10, 4)
+  maxDeviation_yellowMin Decimal @db.Decimal(10, 4)
+  maxDeviation_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_slide")
 }
 
 model Machine {
@@ -629,6 +647,7 @@ model MachineService {
   tramming                     MachineServiceTramming[]
   pistons                      MachineServicePistons[]
   alertBearingClearance        AlertBearingClearance?
+  alertSlide                   AlertSlide?
 
   @@map("machine_services")
 }
@@ -670,6 +689,29 @@ model AlertBearingClearance {
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
   @@map("alert_bearing_clearance")
+}
+
+model AlertSlide {
+  id               String @id @default(cuid())
+  machineServiceId String @unique
+
+  // Outer Max Deviation alert
+  maxDeviationOuter_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationOuter_severity     AlertSeverity
+
+  // Inner Max Deviation alert
+  maxDeviationInner_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationInner_severity     AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_slide")
 }
 
 // BEARING_CLEARANCE Section
