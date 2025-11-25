@@ -1734,7 +1734,8 @@
     "submit": "Enviar",
     "submitting": "Enviando...",
     "loading": "Carregando...",
-    "close": "Fechar"
+    "close": "Fechar",
+    "previous": "Anterior"
   },
   "messages": {
     "noUsersFound": "Nenhum usuário encontrado. Crie um para começar.",
