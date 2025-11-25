@@ -62,7 +62,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       } else {
         onChange(result.url);
       }
-    } catch (err) {
+    } catch {
       setError('Falha no upload da imagem');
       setPreview(value || null);
       onChange(value || null);

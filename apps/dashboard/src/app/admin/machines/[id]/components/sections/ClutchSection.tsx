@@ -86,17 +86,16 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
 
     const [data, setData] = useState<ClutchData>(initialData || defaultClutchData);
     const [errors, setErrors] = useState<Record<string, string>>({});
-    const [prevInitialData, setPrevInitialData] = useState(initialData);
 
     // Sync state with initialData prop changes
-    // Move render-phase state update to useEffect
     useEffect(() => {
-      if (initialData && initialData !== prevInitialData) {
-        setPrevInitialData(initialData);
+      if (initialData) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setData(initialData);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setInitialClutchData(initialData);
       }
-    }, [initialData, prevInitialData]);
+    }, [initialData]);
 
     const updateField = (field: keyof ClutchData, value: string | number | undefined) => {
       setData((prev) => ({ ...prev, [field]: value }));
