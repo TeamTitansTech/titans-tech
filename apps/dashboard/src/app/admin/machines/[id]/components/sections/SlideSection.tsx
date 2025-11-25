@@ -66,7 +66,7 @@ export const validateSlideData = (data: SlideData): string[] => {
     ];
 
     beforeFields.forEach((field) => {
-      const value = data[field];
+      const value = data[field] as number;
       if (value === undefined || value === null || isNaN(value)) {
         errors.push(`${String(field)} is required when hasParallelismBeenAdjusted is YES`);
       }
