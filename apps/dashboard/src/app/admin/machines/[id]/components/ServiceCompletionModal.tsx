@@ -771,7 +771,6 @@ export function ServiceCompletionModal({
               getSectionRef={getRef}
               completedSections={completedSections}
               serviceId={currentServiceId ?? undefined}
-              machineId={machineId}
               translations={{
                 getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
                 previous: tActions('previous'),

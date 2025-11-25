@@ -80,13 +80,12 @@ interface CounterbalanceCylinderSectionProps {
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
   serviceId?: string;
-  machineId?: string;
 }
 
 export const CounterbalanceCylinderSection = forwardRef<
   CounterbalanceCylinderSectionRef,
   CounterbalanceCylinderSectionProps
->(({ onSectionTouched, initialData, serviceId, machineId }, ref) => {
+>(({ onSectionTouched, initialData, serviceId }, ref) => {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
 
   // Store initial loaded data for "touched" detection
@@ -273,7 +272,7 @@ export const CounterbalanceCylinderSection = forwardRef<
         />
       </div>
 
-      <CounterbalanceAlertsSection serviceId={serviceId} machineId={machineId} />
+      <CounterbalanceAlertsSection serviceId={serviceId} />
     </div>
   );
 });

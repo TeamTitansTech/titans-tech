@@ -340,7 +340,6 @@ export function CompleteServiceModal({
                 ref={counterbalanceRef}
                 onSectionTouched={() => markSectionTouched('COUNTERBALANCE_CYLINDER_AIRBAG')}
                 serviceId={serviceId}
-                machineId={machineId}
               />
             )}
 

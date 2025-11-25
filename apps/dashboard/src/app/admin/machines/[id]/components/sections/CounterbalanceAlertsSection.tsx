@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -31,13 +31,9 @@ interface CounterbalanceCylinderAlert {
 
 interface CounterbalanceAlertsSectionProps {
   serviceId?: string;
-  machineId?: string;
 }
 
-export function CounterbalanceAlertsSection({
-  serviceId,
-  machineId,
-}: CounterbalanceAlertsSectionProps) {
+export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsSectionProps) {
   const t = useTranslations('inspections.form.counterbalanceCylinder.alerts');
 
   // Alerts state
@@ -48,15 +44,8 @@ export function CounterbalanceAlertsSection({
   const [justification, setJustification] = useState('');
   const [isSavingAlert, setIsSavingAlert] = useState(false);
 
-  // Fetch alerts when serviceId is available
-  useEffect(() => {
-    if (serviceId && machineId) {
-      fetchAlerts();
-    }
-  }, [serviceId, machineId]);
-
-  const fetchAlerts = async () => {
-    if (!serviceId || !machineId) return;
+  const fetchAlerts = useCallback(async () => {
+    if (!serviceId) return;
 
     setIsLoadingAlerts(true);
     try {
@@ -74,10 +63,17 @@ export function CounterbalanceAlertsSection({
     } finally {
       setIsLoadingAlerts(false);
     }
-  };
+  }, [serviceId]);
+
+  // Fetch alerts when serviceId is available
+  useEffect(() => {
+    if (serviceId) {
+      fetchAlerts();
+    }
+  }, [serviceId, fetchAlerts]);
 
   const handleSaveAlert = async () => {
-    if (!selectedField || !justification.trim() || !serviceId || !machineId) {
+    if (!selectedField || !justification.trim() || !serviceId) {
       toast.error(t('toast.selectFieldAndJustification'));
       return;
     }
@@ -112,18 +108,18 @@ export function CounterbalanceAlertsSection({
     }
   };
 
-  const getAvailableFields = (): CounterbalanceAlertField[] => {
+  const availableFields = useMemo(() => {
     const allFields = Object.values(CounterbalanceAlertField);
     const usedFields = alerts.map((alert) => alert.fieldName);
     return allFields.filter((field) => !usedFields.includes(field));
-  };
+  }, [alerts]);
 
   const getFieldLabel = (field: CounterbalanceAlertField): string => {
     return t(`fieldLabels.${field}`);
   };
 
-  // Don't render if serviceId or machineId is missing
-  if (!serviceId || !machineId) {
+  // Don't render if serviceId is missing
+  if (!serviceId) {
     return null;
   }
 
@@ -168,7 +164,7 @@ export function CounterbalanceAlertsSection({
         )}
 
         {/* Add Alert Form */}
-        {!isAddingAlert && getAvailableFields().length > 0 ? (
+        {!isAddingAlert && availableFields.length > 0 ? (
           <Button
             type="button"
             variant="outline"
@@ -196,7 +192,7 @@ export function CounterbalanceAlertsSection({
                     <SelectValue placeholder={t('selectField')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {getAvailableFields().map((field) => (
+                    {availableFields.map((field) => (
                       <SelectItem key={field} value={field} className="text-sm">
                         {getFieldLabel(field)}
                       </SelectItem>
@@ -261,7 +257,7 @@ export function CounterbalanceAlertsSection({
           </Card>
         )}
 
-        {getAvailableFields().length === 0 && !isAddingAlert && (
+        {availableFields.length === 0 && !isAddingAlert && (
           <p className="text-xs text-muted-foreground text-center">{t('allFieldsHaveAlerts')}</p>
         )}
       </div>
