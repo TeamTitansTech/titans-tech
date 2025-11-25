@@ -39,6 +39,9 @@ export function useServiceForm(
   const [isMotorPlateSecure, setIsMotorPlateSecure] = useState<YesNoDncType | undefined>();
   const [whyNotCovered, setWhyNotCovered] = useState<string>('');
 
+  // Angularity section enablement
+  const [angularityEnabled, setAngularityEnabled] = useState<boolean>(false);
+
   // Use the prop serviceType if provided (completing service), otherwise use internal state (creating new)
   const currentServiceType = serviceType || selectedServiceType;
 
@@ -58,6 +61,7 @@ export function useServiceForm(
     setIsMainMotorSecure(undefined);
     setIsMotorPlateSecure(undefined);
     setWhyNotCovered('');
+    setAngularityEnabled(false);
   };
 
   return {
@@ -91,6 +95,8 @@ export function useServiceForm(
     setIsMotorPlateSecure,
     whyNotCovered,
     setWhyNotCovered,
+    angularityEnabled,
+    setAngularityEnabled,
     reset,
   };
 }

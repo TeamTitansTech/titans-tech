@@ -260,7 +260,8 @@
     "clutch": "Embrague",
     "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
     "tramming": "Tramming",
-    "pistons": "Pistones"
+    "pistons": "Pistones",
+    "angularity": "Angularidad"
   },
   "models": {
     "title": "Crear Modelo",
@@ -384,6 +385,8 @@
     "noImageAvailable": "Sin Imagen Disponible",
     "inspectionSections": "Secciones de Inspección",
     "noSectionsAvailable": "No hay secciones de inspección disponibles para este tipo de máquina.",
+    "angularityTitle": "Sección de Angularidad",
+    "enableAngularitySection": "Habilitar inspección de Angularidad para este servicio",
     "statusBar": {
       "press": "Prensa",
       "hotDuckLift": "Elevador Hot Duck",
@@ -400,7 +403,8 @@
       "clutch": "Holgura de Embrague y Freno - CP 2",
       "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
       "tramming": "Tramming",
-      "pistons": "Pistones"
+      "pistons": "Pistones",
+      "angularity": "Angularidad"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -829,6 +833,33 @@
         "piston": "Pistón",
         "front": "Frente",
         "notes": "Notas (Opcional)"
+      },
+      "angularity": {
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "spm": "SPM",
+        "distanceIndicatorTip": "Distancia de la Punta del Indicador al Deslizamiento",
+        "locationIndicator": "Ubicación del Indicador",
+        "counterbalancePressure": "Presión del Contrapeso (PSI)",
+        "strokePartBeingRead": "Qué parte de la carrera se está leyendo",
+        "shutheightSetAt": "A qué altura de cierre está configurada",
+        "squareUsed": "Qué se usó como escuadra",
+        "squarePlacedLocation": "Dónde se colocó la escuadra",
+        "indicatorUsedGraduation": "Qué indicador se usó (graduación)",
+        "tipKindOnIndicator": "Qué tipo de punta tenía el indicador",
+        "totalLiftCheck": "Verificación de Elevación Total (IN)",
+        "hasPerpendicularityAdjusted": "¿Se ha ajustado la perpendicularidad?",
+        "unit": "Unidad",
+        "measurementFR": "Medición F-R",
+        "measurementLR": "Medición L-R",
+        "notes": "Notas",
+        "notesPlaceholder": "Notas adicionales...",
+        "yes": "Sí",
+        "no": "No",
+        "dnc": "DNC",
+        "inches": "Pulgadas",
+        "cm": "cm",
+        "mm": "mm"
       },
       "cancel": "Cancelar",
       "submit": {

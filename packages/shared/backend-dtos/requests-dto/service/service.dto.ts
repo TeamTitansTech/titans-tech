@@ -32,6 +32,8 @@ import {
   FlexDiscType as PrismaFlexDiscType,
   DriveBeltConditionType as PrismaDriveBeltConditionType,
   ProtectiveCoversStatusType as PrismaProtectiveCoversStatusType,
+  AngularityPerpendicularityType as PrismaAngularityPerpendicularityType,
+  AngularityUnitType as PrismaAngularityUnitType,
 } from '@titans-tech/db';
 
 // ============================================================================
@@ -66,6 +68,8 @@ export {
   PrismaFlexDiscType as FlexDiscType,
   PrismaDriveBeltConditionType as DriveBeltConditionType,
   PrismaProtectiveCoversStatusType as ProtectiveCoversStatusType,
+  PrismaAngularityPerpendicularityType as AngularityPerpendicularityType,
+  PrismaAngularityUnitType as AngularityUnitType,
 };
 
 // Note: These custom enums are not in Prisma yet
@@ -524,6 +528,47 @@ export const PistonsCheckSchema = z.object({
 
 export type PistonsCheck = z.infer<typeof PistonsCheckSchema>;
 
+/**
+ * Angularity Data Schema
+ */
+export const AngularityDataSchema = z.object({
+  // Setup information fields
+  spm: z.string().optional(),
+  distanceIndicatorTip: z.string().optional(),
+  locationIndicator: z.string().optional(),
+  counterbalancePressure: z.string().optional(),
+  strokePartBeingRead: z.string().optional(),
+  shutheightSetAt: z.string().optional(),
+  squareUsed: z.string().optional(),
+  squarePlacedLocation: z.string().optional(),
+  indicatorUsedGraduation: z.string().optional(),
+  tipKindOnIndicator: z.string().optional(),
+  totalLiftCheck: z.string().optional(),
+
+  // Perpendicularity adjustment
+  hasPerpendicularityAdjusted: z.nativeEnum(PrismaAngularityPerpendicularityType).optional(),
+
+  // Measurement unit
+  unit: z.nativeEnum(PrismaAngularityUnitType).optional(),
+
+  // Measurements - Front-Rear and Left-Right
+  measurementFR: z.number().optional(),
+  measurementLR: z.number().optional(),
+});
+
+export type AngularityData = z.infer<typeof AngularityDataSchema>;
+
+/**
+ * Angularity Check Schema
+ */
+export const AngularityCheckSchema = z.object({
+  beforeData: AngularityDataSchema.optional(),
+  afterData: AngularityDataSchema.optional(),
+  notes: z.string().optional(),
+});
+
+export type AngularityCheck = z.infer<typeof AngularityCheckSchema>;
+
 // ============================================================================
 // Service Payload and Entity Schemas
 // ============================================================================
@@ -578,6 +623,8 @@ export const CreateServicePayloadSchema = z.object({
   counterbalanceCylinder: CounterbalanceCylinderCheckSchema.optional(),
   tramming: TrammingCheckSchema.optional(),
   pistons: PistonsCheckSchema.optional(),
+  angularity: AngularityCheckSchema.optional(),
+  angularityEnabled: z.boolean().optional(),
 });
 
 export type CreateServicePayload = z.infer<typeof CreateServicePayloadSchema>;
@@ -613,6 +660,8 @@ export const UpdateServicePayloadSchema = z.object({
   counterbalanceCylinder: CounterbalanceCylinderCheckSchema.optional(),
   tramming: TrammingCheckSchema.optional(),
   pistons: PistonsCheckSchema.optional(),
+  angularity: AngularityCheckSchema.optional(),
+  angularityEnabled: z.boolean().optional(),
 });
 
 export type UpdateServicePayload = z.infer<typeof UpdateServicePayloadSchema>;

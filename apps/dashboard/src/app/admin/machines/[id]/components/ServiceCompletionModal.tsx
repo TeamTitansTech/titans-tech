@@ -90,6 +90,8 @@ export function ServiceCompletionModal({
     setIsMotorPlateSecure,
     whyNotCovered,
     setWhyNotCovered,
+    angularityEnabled,
+    setAngularityEnabled,
     reset: resetForm,
   } = useServiceForm(serviceType, initialDate, initialPerformedBy);
 
@@ -547,6 +549,8 @@ export function ServiceCompletionModal({
               setIsMotorPlateSecure={setIsMotorPlateSecure}
               whyNotCovered={whyNotCovered}
               setWhyNotCovered={setWhyNotCovered}
+              angularityEnabled={angularityEnabled}
+              setAngularityEnabled={setAngularityEnabled}
               translations={{
                 dateLabel: isCompletingService
                   ? tServices('modal.realizationDate')
@@ -588,6 +592,9 @@ export function ServiceCompletionModal({
                 isMainMotorSecure: tServices('modal.inspectionObservations.isMainMotorSecure'),
                 isMotorPlateSecure: tServices('modal.inspectionObservations.isMotorPlateSecure'),
                 whyNotCovered: tServices('modal.inspectionObservations.whyNotCovered'),
+                // Angularity section
+                angularityTitle: t('angularityTitle'),
+                enableAngularitySection: t('enableAngularitySection'),
               }}
             />
           </form>

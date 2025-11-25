@@ -324,6 +324,7 @@ enum ServiceSection {
   COUNTERBALANCE_CYLINDER_AIRBAG
   TRAMMING
   PISTONS
+  ANGULARITY
 }
 
 enum AlertSeverity {
@@ -331,6 +332,18 @@ enum AlertSeverity {
   YELLOW
   RED
   NONE
+}
+
+enum AngularityPerpendicularityType {
+  YES
+  NO
+  DNC
+}
+
+enum AngularityUnitType {
+  INCHES
+  CM
+  MM
 }
 
 model SysAdmin {
@@ -567,6 +580,9 @@ model MachineService {
   isMotorPlateSecure          YesNoDncType?
   whyNotCovered               String?
 
+  // Angularity section enablement
+  angularityEnabled Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -579,6 +595,7 @@ model MachineService {
   counterbalanceCylinderAirbag MachineServiceCounterbalanceCylinderAirbag[]
   tramming                     MachineServiceTramming[]
   pistons                      MachineServicePistons[]
+  angularity                   MachineServiceAngularity[]
   alertBearingClearance        AlertBearingClearance?
 
   @@map("machine_services")
@@ -1144,4 +1161,57 @@ model PistonsData {
   innerServices MachineServicePistons[] @relation("InnerData")
 
   @@map("service_data_pistons")
+}
+
+// ANGULARITY Section
+
+model MachineServiceAngularity {
+  id               String   @id @default(cuid())
+  machineServiceId String
+  beforeDataId     String?
+  afterDataId      String?
+
+  // Notes
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  beforeData     AngularityData? @relation("BeforeData", fields: [beforeDataId], references: [id], onDelete: SetNull)
+  afterData      AngularityData? @relation("AfterData", fields: [afterDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_angularity")
+}
+
+model AngularityData {
+  id String @id @default(cuid())
+
+  // Setup information fields
+  spm                          String?
+  distanceIndicatorTip         String?
+  locationIndicator            String?
+  counterbalancePressure       String?
+  strokePartBeingRead          String?
+  shutheightSetAt              String?
+  squareUsed                   String?
+  squarePlacedLocation         String?
+  indicatorUsedGraduation      String?
+  tipKindOnIndicator           String?
+  totalLiftCheck               String?
+
+  // Perpendicularity adjustment
+  hasPerpendicularityAdjusted AngularityPerpendicularityType?
+
+  // Measurement unit
+  unit AngularityUnitType @default(INCHES)
+
+  // Measurements - Front-Rear and Left-Right
+  measurementFR Decimal? @db.Decimal(10, 4)
+  measurementLR Decimal? @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  beforeServices MachineServiceAngularity[] @relation("BeforeData")
+  afterServices  MachineServiceAngularity[] @relation("AfterData")
+
+  @@map("service_data_angularity")
 }

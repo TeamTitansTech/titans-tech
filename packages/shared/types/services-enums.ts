@@ -269,3 +269,15 @@ export enum ProtectiveCoversStatusType {
   NO = 'NO',
   OK = 'OK',
 }
+
+export enum AngularityPerpendicularityType {
+  YES = 'YES',
+  NO = 'NO',
+  DNC = 'DNC',
+}
+
+export enum AngularityUnitType {
+  INCHES = 'INCHES',
+  CM = 'CM',
+  MM = 'MM',
+}

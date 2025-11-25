@@ -46,6 +46,8 @@ export {
   FlexDiscType,
   DriveBeltConditionType,
   ProtectiveCoversStatusType,
+  AngularityPerpendicularityType,
+  AngularityUnitType,
 } from '../backend-dtos/requests-dto/service/service.dto';
 
 // Re-export all section data types
@@ -65,6 +67,8 @@ export type {
   TrammingCheck,
   PistonsData,
   PistonsCheck,
+  AngularityData,
+  AngularityCheck,
 } from '../backend-dtos/requests-dto/service/service.dto';
 
 // Re-export service payload and entity types
@@ -107,6 +111,8 @@ export {
   TrammingCheckSchema,
   PistonsDataSchema,
   PistonsCheckSchema,
+  AngularityDataSchema,
+  AngularityCheckSchema,
   CreateServiceSchema,
   CreateServicePayloadSchema,
   UpdateServicePayloadSchema,
@@ -125,6 +131,7 @@ export {
   CounterbalanceCylinderCheckSchema as UpdateCounterbalanceCylinderSchema,
   TrammingCheckSchema as UpdateTrammingSchema,
   PistonsCheckSchema as UpdatePistonsSchema,
+  AngularityCheckSchema as UpdateAngularitySchema,
   UpdateServicePayloadSchema as UpdateServiceSchema,
 } from '../backend-dtos/requests-dto/service/service.dto';
 

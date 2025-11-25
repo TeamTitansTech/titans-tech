@@ -27,6 +27,8 @@ export {
   ConditionOkNaDncBrokenLooseType,
   ConditionOkNaDncDamagedType,
   SystemType,
+  AngularityPerpendicularityType,
+  AngularityUnitType,
 } from '@titans-tech/shared/types';
 
 export type {
@@ -46,6 +48,8 @@ export type {
   TrammingCheck,
   PistonsData,
   PistonsCheck,
+  AngularityData,
+  AngularityCheck,
   // Service entity
   Service,
   ServiceHistoryItem,

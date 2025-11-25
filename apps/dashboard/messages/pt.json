@@ -260,7 +260,8 @@
     "clutch": "EMBREAGEM",
     "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG",
     "tramming": "TRAMMING",
-    "pistons": "PISTÕES"
+    "pistons": "PISTÕES",
+    "angularity": "ANGULARIDADE"
   },
   "models": {
     "title": "Criar Modelo",
@@ -389,6 +390,8 @@
     "noImageAvailable": "Sem Imagem Disponível",
     "inspectionSections": "Seções de Inspeção",
     "noSectionsAvailable": "Nenhuma seção de inspeção disponível para este tipo de máquina.",
+    "angularityTitle": "Seção de Angularidade",
+    "enableAngularitySection": "Habilitar inspeção de Angularidade para este serviço",
     "statusBar": {
       "press": "Prensa",
       "hotDuckLift": "Elevador Hot Duck",
@@ -405,7 +408,8 @@
       "clutch": "Folga de Embreagem e Freio",
       "counterbalance": "Cilindro de Contrapeso / Airbag",
       "tramming": "Tramming",
-      "pistons": "Pistões"
+      "pistons": "Pistões",
+      "angularity": "Angularidade"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -829,6 +833,33 @@
         "piston": "Pistão",
         "front": "Frente",
         "notes": "Notas (Opcional)"
+      },
+      "angularity": {
+        "beforeAdjustment": "Antes do Ajuste",
+        "afterAdjustment": "Após o Ajuste",
+        "spm": "SPM",
+        "distanceIndicatorTip": "Distância da Ponta do Indicador ao Slide",
+        "locationIndicator": "Localização do Indicador",
+        "counterbalancePressure": "Pressão do Contrapeso (PSI)",
+        "strokePartBeingRead": "Que parte do curso está sendo lida",
+        "shutheightSetAt": "Em que altura de fechamento está configurada",
+        "squareUsed": "O que foi usado como esquadro",
+        "squarePlacedLocation": "Onde o esquadro foi colocado",
+        "indicatorUsedGraduation": "Que indicador foi usado (graduação)",
+        "tipKindOnIndicator": "Que tipo de ponta estava no indicador",
+        "totalLiftCheck": "Verificação de Elevação Total (IN)",
+        "hasPerpendicularityAdjusted": "A perpendicularidade foi ajustada?",
+        "unit": "Unidade",
+        "measurementFR": "Medição F-R",
+        "measurementLR": "Medição L-R",
+        "notes": "Notas",
+        "notesPlaceholder": "Notas adicionais...",
+        "yes": "Sim",
+        "no": "Não",
+        "dnc": "DNC",
+        "inches": "Polegadas",
+        "cm": "cm",
+        "mm": "mm"
       },
       "cancel": "Cancelar",
       "submit": {

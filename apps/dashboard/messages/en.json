@@ -260,7 +260,8 @@
     "clutch": "Clutch",
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
     "tramming": "Tramming",
-    "pistons": "Pistons"
+    "pistons": "Pistons",
+    "angularity": "Angularity"
   },
   "models": {
     "title": "Create Model",
@@ -384,6 +385,8 @@
     "noImageAvailable": "No Image Available",
     "inspectionSections": "Inspection Sections",
     "noSectionsAvailable": "No inspection sections available for this machine type.",
+    "angularityTitle": "Angularity Section",
+    "enableAngularitySection": "Enable Angularity inspection for this service",
     "statusBar": {
       "press": "Press",
       "hotDuckLift": "Hot Duck Lift",
@@ -400,7 +403,8 @@
       "clutch": "Clutch and Brake Clearance - CP 2",
       "counterbalance": "Counterbalance Cylinder / Airbag",
       "tramming": "Tramming",
-      "pistons": "Pistons"
+      "pistons": "Pistons",
+      "angularity": "Angularity"
     },
     "sectionStatus": {
       "ok": "OK",
@@ -824,6 +828,33 @@
         "piston": "Piston",
         "front": "Front",
         "notes": "Notes (Optional)"
+      },
+      "angularity": {
+        "beforeAdjustment": "Before Adjustment",
+        "afterAdjustment": "After Adjustment",
+        "spm": "SPM",
+        "distanceIndicatorTip": "Distance of Indicator Tip from Slide",
+        "locationIndicator": "Location of Indicator",
+        "counterbalancePressure": "Counterbalance Pressure (PSI)",
+        "strokePartBeingRead": "What part of the stroke is being read",
+        "shutheightSetAt": "What is the shutheight set at",
+        "squareUsed": "What was used as a square",
+        "squarePlacedLocation": "Where was the square placed",
+        "indicatorUsedGraduation": "What indicator was used (graduation)",
+        "tipKindOnIndicator": "What kind of tip was on the indicator",
+        "totalLiftCheck": "Total Lift Check (IN)",
+        "hasPerpendicularityAdjusted": "Has Perpendicularity been adjusted?",
+        "unit": "Unit",
+        "measurementFR": "Measurement F-R",
+        "measurementLR": "Measurement L-R",
+        "notes": "Notes",
+        "notesPlaceholder": "Additional notes...",
+        "yes": "Yes",
+        "no": "No",
+        "dnc": "DNC",
+        "inches": "Inches",
+        "cm": "cm",
+        "mm": "mm"
       },
       "cancel": "Cancel",
       "submit": {

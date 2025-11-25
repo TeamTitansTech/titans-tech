@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/ui/typography';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -52,6 +53,10 @@ interface DetailsStepProps {
   setIsMotorPlateSecure: (value: YesNoDncType | undefined) => void;
   whyNotCovered: string;
   setWhyNotCovered: (value: string) => void;
+
+  // Angularity section enablement
+  angularityEnabled: boolean;
+  setAngularityEnabled: (value: boolean) => void;
 
   // Optional machine data (for read-only display)
   machine?: {
@@ -103,6 +108,9 @@ interface DetailsStepProps {
     isMainMotorSecure: string;
     isMotorPlateSecure: string;
     whyNotCovered: string;
+    // Angularity
+    angularityTitle: string;
+    enableAngularitySection: string;
   };
 }
 
@@ -139,6 +147,8 @@ export function DetailsStep({
   setIsMotorPlateSecure,
   whyNotCovered,
   setWhyNotCovered,
+  angularityEnabled,
+  setAngularityEnabled,
   machine,
   translations,
 }: DetailsStepProps) {
@@ -440,6 +450,26 @@ export function DetailsStep({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+        </div>
+
+        {/* Angularity Section Enablement */}
+        <div className="border rounded-lg p-4">
+          <Typography variant="h4" className="mb-3">
+            {translations.angularityTitle}
+          </Typography>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="angularityEnabled"
+              checked={angularityEnabled}
+              onCheckedChange={(checked) => setAngularityEnabled(checked as boolean)}
+            />
+            <Label
+              htmlFor="angularityEnabled"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+            >
+              {translations.enableAngularitySection}
+            </Label>
           </div>
         </div>
 
