@@ -10,6 +10,8 @@ import {
   ThresholdBearingClearanceResponseDto,
   AlertBearingClearanceResponseDto,
   CreateThresholdBearingClearanceSchema,
+  CreateAlertCounterbalanceCylinderAirbagDto,
+  AlertCounterbalanceCylinderAirbagResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertSeverity } from '@titans-tech/shared/enums';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -413,5 +415,77 @@ export class AlertsService {
       ...alert,
       bearingData,
     } as any);
+  }
+
+  // ============================================================================
+  // COUNTERBALANCE CYLINDER AIRBAG ALERTS (Manual, User-Created)
+  // ============================================================================
+
+  /**
+   * Creates a manual counterbalance cylinder airbag alert
+   * @param machineServiceId - The service ID to attach the alert to
+   * @param dto - Alert data (fieldName + justification)
+   * @returns Created alert
+   * @throws BadRequestException if alert for this field already exists
+   * @throws NotFoundException if service doesn't exist
+   */
+  async createCounterbalanceAlert(
+    machineServiceId: string,
+    dto: CreateAlertCounterbalanceCylinderAirbagDto,
+  ) {
+    // Verify service exists
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: machineServiceId },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service ${machineServiceId} not found`);
+    }
+
+    // Check if alert for this field already exists (unique constraint)
+    const existingAlert =
+      await this.prisma.alertCounterbalanceCylinderAirbag.findUnique({
+        where: {
+          machineServiceId_fieldName: {
+            machineServiceId,
+            fieldName: dto.fieldName,
+          },
+        },
+      });
+
+    if (existingAlert) {
+      throw new BadRequestException(
+        `Alert for field ${dto.fieldName} already exists for this service`,
+      );
+    }
+
+    // Create alert
+    const alert = await this.prisma.alertCounterbalanceCylinderAirbag.create({
+      data: {
+        machineServiceId,
+        fieldName: dto.fieldName,
+        justification: dto.justification,
+      },
+    });
+
+    return new AlertCounterbalanceCylinderAirbagResponseDto(alert);
+  }
+
+  /**
+   * Gets all counterbalance cylinder airbag alerts for a service
+   * @param machineServiceId - The service ID
+   * @returns Array of alerts (can be empty)
+   */
+  async getCounterbalanceAlertsForService(machineServiceId: string) {
+    const alerts = await this.prisma.alertCounterbalanceCylinderAirbag.findMany(
+      {
+        where: { machineServiceId },
+        orderBy: { createdAt: 'desc' },
+      },
+    );
+
+    return alerts.map(
+      (alert) => new AlertCounterbalanceCylinderAirbagResponseDto(alert),
+    );
   }
 }
