@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Loader2, Plus, X } from 'lucide-react';
+import { Loader2, Plus, X, AlertTriangle } from 'lucide-react';
 import { CounterbalanceAlertField } from '@/data/types/services.types';
 import { responseHandler } from '@/data/helpers/responseHandler';
 
@@ -37,6 +38,8 @@ export function CounterbalanceAlertsSection({
   serviceId,
   machineId,
 }: CounterbalanceAlertsSectionProps) {
+  const t = useTranslations('inspections.form.counterbalanceCylinder.alerts');
+
   // Alerts state
   const [alerts, setAlerts] = useState<CounterbalanceCylinderAlert[]>([]);
   const [isLoadingAlerts, setIsLoadingAlerts] = useState(false);
@@ -75,7 +78,7 @@ export function CounterbalanceAlertsSection({
 
   const handleSaveAlert = async () => {
     if (!selectedField || !justification.trim() || !serviceId || !machineId) {
-      toast.error('Selecione um campo e forneça uma justificativa');
+      toast.error(t('toast.selectFieldAndJustification'));
       return;
     }
 
@@ -97,13 +100,13 @@ export function CounterbalanceAlertsSection({
         setSelectedField('');
         setJustification('');
         setIsAddingAlert(false);
-        toast.success('Alerta criado com sucesso');
+        toast.success(t('toast.createSuccess'));
       } else if (response.errors) {
-        toast.error(response.errors[0] || 'Erro ao criar alerta');
+        toast.error(response.errors[0] || t('toast.createError'));
       }
     } catch (error) {
       console.error('Failed to create alert:', error);
-      toast.error('Erro ao criar alerta');
+      toast.error(t('toast.createError'));
     } finally {
       setIsSavingAlert(false);
     }
@@ -116,16 +119,7 @@ export function CounterbalanceAlertsSection({
   };
 
   const getFieldLabel = (field: CounterbalanceAlertField): string => {
-    const labels: Record<CounterbalanceAlertField, string> = {
-      [CounterbalanceAlertField.AIRBAG_PISTON_SEALS]: 'Airbag/Piston Seals',
-      [CounterbalanceAlertField.REGULATOR]: 'Regulator',
-      [CounterbalanceAlertField.GAUGE]: 'Gauge',
-      [CounterbalanceAlertField.PNEUMATICS_PLUMBING]: 'Pneumatics Plumbing',
-      [CounterbalanceAlertField.ROD_SEALS]: 'Rod Seals',
-      [CounterbalanceAlertField.ROD_BUSHING]: 'Rod Bushing',
-      [CounterbalanceAlertField.OIL_WICK]: 'Oil Wick',
-    };
-    return labels[field] || field;
+    return t(`fieldLabels.${field}`);
   };
 
   // Don't render if serviceId or machineId is missing
@@ -139,7 +133,8 @@ export function CounterbalanceAlertsSection({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold flex items-center gap-2">
-            🔴 Alertas Críticos ({alerts.length})
+            <AlertTriangle className="h-4 w-4 text-red-500" />
+            {t('title')} ({alerts.length})
           </h3>
         </div>
 
@@ -161,7 +156,7 @@ export function CounterbalanceAlertsSection({
                     </div>
                     <p className="text-sm text-muted-foreground">{alert.justification}</p>
                     <p className="text-xs text-muted-foreground">
-                      Criado em: {new Date(alert.createdAt).toLocaleDateString('pt-BR')}
+                      {t('createdAt')}: {new Date(alert.createdAt).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -169,9 +164,7 @@ export function CounterbalanceAlertsSection({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground text-center py-4">
-            Nenhum alerta crítico registrado
-          </p>
+          <p className="text-sm text-muted-foreground text-center py-4">{t('noAlerts')}</p>
         )}
 
         {/* Add Alert Form */}
@@ -184,7 +177,7 @@ export function CounterbalanceAlertsSection({
             className="w-full"
           >
             <Plus className="h-4 w-4 mr-2" />
-            Adicionar Novo Alerta
+            {t('addNew')}
           </Button>
         ) : null}
 
@@ -193,14 +186,14 @@ export function CounterbalanceAlertsSection({
             <div className="space-y-4">
               <div>
                 <Label htmlFor="alert-field" className="text-xs font-medium mb-2 block">
-                  Campo com Problema *
+                  {t('fieldWithProblem')} *
                 </Label>
                 <Select
                   value={selectedField}
                   onValueChange={(value) => setSelectedField(value as CounterbalanceAlertField)}
                 >
                   <SelectTrigger id="alert-field" className="text-sm">
-                    <SelectValue placeholder="Selecione um campo..." />
+                    <SelectValue placeholder={t('selectField')} />
                   </SelectTrigger>
                   <SelectContent>
                     {getAvailableFields().map((field) => (
@@ -214,19 +207,19 @@ export function CounterbalanceAlertsSection({
 
               <div>
                 <Label htmlFor="alert-justification" className="text-xs font-medium mb-2 block">
-                  Justificativa *
+                  {t('justification')} *
                 </Label>
                 <Textarea
                   id="alert-justification"
                   value={justification}
                   onChange={(e) => setJustification(e.target.value)}
-                  placeholder="Descreva o problema (ex: vazamento devido a quebra de engrenagem)"
+                  placeholder={t('justificationPlaceholder')}
                   className="text-sm"
                   rows={3}
                   maxLength={1000}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  {justification.length}/1000 caracteres
+                  {justification.length}/1000 {t('characters')}
                 </p>
               </div>
 
@@ -244,7 +237,7 @@ export function CounterbalanceAlertsSection({
                   className="flex-1"
                 >
                   <X className="h-4 w-4 mr-2" />
-                  Cancelar
+                  {t('cancel')}
                 </Button>
                 <Button
                   type="button"
@@ -257,10 +250,10 @@ export function CounterbalanceAlertsSection({
                   {isSavingAlert ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Salvando...
+                      {t('saving')}
                     </>
                   ) : (
-                    <>Salvar Alerta 🔴</>
+                    t('save')
                   )}
                 </Button>
               </div>
@@ -269,9 +262,7 @@ export function CounterbalanceAlertsSection({
         )}
 
         {getAvailableFields().length === 0 && !isAddingAlert && (
-          <p className="text-xs text-muted-foreground text-center">
-            Todos os campos já possuem alertas registrados
-          </p>
+          <p className="text-xs text-muted-foreground text-center">{t('allFieldsHaveAlerts')}</p>
         )}
       </div>
     </>

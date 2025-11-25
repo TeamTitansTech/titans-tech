@@ -1260,6 +1260,35 @@
         "counterbalanceTypes": {
           "cylinder": "Cilindro",
           "airbag": "Airbag"
+        },
+        "alerts": {
+          "title": "Alertas Críticos",
+          "noAlerts": "Nenhum alerta crítico registrado",
+          "addNew": "Adicionar Novo Alerta",
+          "allFieldsHaveAlerts": "Todos os campos já possuem alertas registrados",
+          "fieldWithProblem": "Campo com Problema",
+          "selectField": "Selecione um campo...",
+          "justification": "Justificativa",
+          "justificationPlaceholder": "Descreva o problema (ex: vazamento devido a quebra de engrenagem)",
+          "characters": "caracteres",
+          "cancel": "Cancelar",
+          "save": "Salvar Alerta",
+          "saving": "Salvando...",
+          "createdAt": "Criado em",
+          "toast": {
+            "selectFieldAndJustification": "Selecione um campo e forneça uma justificativa",
+            "createSuccess": "Alerta criado com sucesso",
+            "createError": "Erro ao criar alerta"
+          },
+          "fieldLabels": {
+            "AIRBAG_PISTON_SEALS": "Vedações do Airbag/Pistão",
+            "REGULATOR": "Regulador",
+            "GAUGE": "Medidor",
+            "PNEUMATICS_PLUMBING": "Pneumática/Encanamento",
+            "ROD_SEALS": "Vedações da Haste",
+            "ROD_BUSHING": "Bucha da Haste",
+            "OIL_WICK": "Pavio de Óleo"
+          }
         }
       },
       "tramming": {
