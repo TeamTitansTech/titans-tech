@@ -15,8 +15,8 @@ export {
   SlideSection,
   type SlideSectionRef,
   type SlideSectionData,
-  defaultSlideData,
-  validateSlideData,
+  defaultSlideFormData,
+  validateSlideFormData,
 } from './SlideSection';
 
 export {
