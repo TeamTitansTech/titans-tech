@@ -1,0 +1,148 @@
+version: '3.9'
+
+services:
+  # Backend NestJS Service
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    container_name: titans-backend
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_URL: postgresql://titans:titans123@postgres:5432/titans_dev
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-jwt-secret-dev
+      CORS_ORIGINS: http://localhost:3000,http://admin.localhost:3000,http://app.localhost:3000
+      FRONTEND_URL: http://localhost:3000
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - titans-network
+    volumes:
+      - ./apps/backend:/app/apps/backend
+      - ./packages:/app/packages
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Frontend Next.js Service
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/dashboard/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+        NEXT_PUBLIC_APP_URL: http://localhost:3000
+    container_name: titans-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_ENVIRONMENT: development
+    depends_on:
+      - backend
+    networks:
+      - titans-network
+    volumes:
+      - ./apps/dashboard:/app/apps/dashboard
+      - ./packages:/app/packages
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: titans-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: titans_dev
+      POSTGRES_USER: titans
+      POSTGRES_PASSWORD: titans123
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./packages/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - titans-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U titans -d titans_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: titans-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - titans-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # LocalStack for AWS Services (S3, SES, etc.)
+  localstack:
+    image: localstack/localstack:latest
+    container_name: titans-localstack
+    ports:
+      - "4566:4566"  # LocalStack Gateway
+      - "4510-4559:4510-4559"  # External service ports
+    environment:
+      SERVICES: s3,ses,sqs,sns
+      DEBUG: 0
+      DATA_DIR: /tmp/localstack/data
+      LAMBDA_EXECUTOR: local
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+      AWS_DEFAULT_REGION: us-east-1
+    volumes:
+      - localstack-data:/tmp/localstack
+      - ./scripts/localstack-init.sh:/docker-entrypoint-initaws.d/init.sh:ro
+    networks:
+      - titans-network
+
+  # Nginx Reverse Proxy for subdomains
+  nginx:
+    image: nginx:alpine
+    container_name: titans-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - titans-network
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
+  localstack-data:
+    driver: local
+
+networks:
+  titans-network:
+    driver: bridge

@@ -18,7 +18,17 @@
     "docker:clean": "docker compose down -v",
     "db:setup": "npm run docker:up && sleep 3 && prisma generate --schema=packages/database/prisma/schema.prisma && prisma db push --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
     "db:reset": "npm run docker:up && sleep 3 && prisma migrate reset --force --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
-    "prepare": "husky"
+    "prepare": "husky",
+    "sst:dev": "sst dev",
+    "sst:deploy:staging": "sst deploy --stage staging",
+    "sst:deploy:prod": "sst deploy --stage production",
+    "sst:remove:staging": "sst remove --stage staging",
+    "sst:remove:prod": "sst remove --stage production",
+    "sst:secrets:set": "sst secret set",
+    "sst:secrets:list": "sst secret list",
+    "sst:console": "sst console",
+    "deploy:staging": "npm run build && npm run sst:deploy:staging",
+    "deploy:prod": "npm run build && npm run sst:deploy:prod"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
