@@ -17,6 +17,7 @@ import {
   LubeHydMonitorFlowPressSwGibType,
   OkNaDncDamageType,
   YesNoDncType,
+  TemperatureUnit,
   type LubricationHydraulicsGauge,
 } from '@/data/types/services.types';
 
@@ -32,7 +33,7 @@ export function LubricationHydraulicsForm({
   const addGauge = () => {
     const newGauge: LubricationHydraulicsGauge = {
       system: LubeHydMonitorFlowPressSwGibType.LUBE,
-      gauge: '',
+      gaugeSwitchIdentifier: '',
       psi: undefined,
     };
     updateFn('gauges', [...data.gauges, newGauge]);
@@ -119,8 +120,8 @@ export function LubricationHydraulicsForm({
                 <div className="col-span-3">
                   <Input
                     type="text"
-                    value={gauge.gauge || ''}
-                    onChange={(e) => updateGauge(index, 'gauge', e.target.value)}
+                    value={gauge.gaugeSwitchIdentifier || ''}
+                    onChange={(e) => updateGauge(index, 'gaugeSwitchIdentifier', e.target.value)}
                     className="h-9 text-xs"
                     placeholder={t('form.lubricationHydraulics.gaugeSwitchPlaceholder')}
                   />
@@ -189,24 +190,43 @@ export function LubricationHydraulicsForm({
             </Select>
           </div>
 
-          <div>
-            <Label htmlFor="oilTemperatureF" className="text-xs">
-              {t('form.lubricationHydraulics.oilTemperatureF')}
-            </Label>
-            <Input
-              id="oilTemperatureF"
-              type="number"
-              step="1"
-              value={data.oilTemperatureF || ''}
-              onChange={(e) =>
-                updateFn('oilTemperatureF', e.target.value ? Number(e.target.value) : undefined)
-              }
-              onBlur={() => handleBlur('oilTemperatureF')}
-              className={`mt-1 ${errors.oilTemperatureF ? 'border-destructive' : ''}`}
-            />
-            {errors.oilTemperatureF && (
-              <p className="text-xs text-destructive mt-1">{errors.oilTemperatureF}</p>
-            )}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label htmlFor="oilTemperature" className="text-xs">
+                {t('form.lubricationHydraulics.oilTemperature')}
+              </Label>
+              <Input
+                id="oilTemperature"
+                type="number"
+                step="1"
+                value={data.oilTemperature || ''}
+                onChange={(e) =>
+                  updateFn('oilTemperature', e.target.value ? Number(e.target.value) : undefined)
+                }
+                onBlur={() => handleBlur('oilTemperature')}
+                className={`mt-1 ${errors.oilTemperature ? 'border-destructive' : ''}`}
+              />
+              {errors.oilTemperature && (
+                <p className="text-xs text-destructive mt-1">{errors.oilTemperature}</p>
+              )}
+            </div>
+            <div>
+              <Label htmlFor="oilTemperatureUnit" className="text-xs">
+                {t('form.lubricationHydraulics.oilTemperatureUnit')}
+              </Label>
+              <Select
+                value={data.oilTemperatureUnit || TemperatureUnit.FAHRENHEIT}
+                onValueChange={(value) => updateFn('oilTemperatureUnit', value as TemperatureUnit)}
+              >
+                <SelectTrigger id="oilTemperatureUnit" className="mt-1 h-10 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={TemperatureUnit.FAHRENHEIT}>°F</SelectItem>
+                  <SelectItem value={TemperatureUnit.CELSIUS}>°C</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div>

@@ -93,22 +93,14 @@ export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {
         </div>
 
         {/* Notes (if exists) */}
-        {!!(
-          (data?.outerData as Record<string, unknown>)?.notes ||
-          (data?.innerData as Record<string, unknown>)?.notes
-        ) && (
+        {!!data?.notes && (
           <div className="mt-3 border-t pt-2">
             <div className="font-semibold text-muted-foreground mb-2 text-xs">
               {tServicesSummary('notes')}
             </div>
             <div className="border rounded-md overflow-hidden">
               <div className="p-2 text-[11px]">
-                <span className="font-medium">
-                  {displayValue(
-                    (data?.outerData as Record<string, unknown>)?.notes ||
-                      (data?.innerData as Record<string, unknown>)?.notes,
-                  )}
-                </span>
+                <span className="font-medium">{displayValue(data.notes)}</span>
               </div>
             </div>
           </div>

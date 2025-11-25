@@ -17,8 +17,8 @@ interface PistonsFormProps {
 interface PistonPoint {
   label: string;
   fields: {
-    frontTop: keyof PistonsData;
-    frontBottom: keyof PistonsData;
+    top: keyof PistonsData;
+    bottom: keyof PistonsData;
     left: keyof PistonsData;
     right: keyof PistonsData;
   };
@@ -42,8 +42,8 @@ export function PistonsForm({
         {
           label: 'LH',
           fields: {
-            frontTop: 'outerLhFrontTop',
-            frontBottom: 'outerLhFrontBottom',
+            top: 'outerLhTop',
+            bottom: 'outerLhBottom',
             left: 'outerLhLeft',
             right: 'outerLhRight',
           },
@@ -51,8 +51,8 @@ export function PistonsForm({
         {
           label: 'RH',
           fields: {
-            frontTop: 'outerRhFrontTop',
-            frontBottom: 'outerRhFrontBottom',
+            top: 'outerRhTop',
+            bottom: 'outerRhBottom',
             left: 'outerRhLeft',
             right: 'outerRhRight',
           },
@@ -62,8 +62,8 @@ export function PistonsForm({
         {
           label: 'LH',
           fields: {
-            frontTop: 'innerLhFrontTop',
-            frontBottom: 'innerLhFrontBottom',
+            top: 'innerLhTop',
+            bottom: 'innerLhBottom',
             left: 'innerLhLeft',
             right: 'innerLhRight',
           },
@@ -71,8 +71,8 @@ export function PistonsForm({
         {
           label: 'RH',
           fields: {
-            frontTop: 'innerRhFrontTop',
-            frontBottom: 'innerRhFrontBottom',
+            top: 'innerRhTop',
+            bottom: 'innerRhBottom',
             left: 'innerRhLeft',
             right: 'innerRhRight',
           },
@@ -94,15 +94,15 @@ export function PistonsForm({
     <div className="flex flex-col items-center gap-1">
       <Label className="text-xs font-semibold mb-1">{piston.label}</Label>
       <div className="relative flex items-center justify-center p-10">
-        {/* Front Top input */}
+        {/* Top input */}
         <div className="absolute left-1/2 -translate-x-1/2" style={{ top: '-8px' }}>
-          {renderInput(piston.fields.frontTop)}
+          {renderInput(piston.fields.top)}
         </div>
         <div
           className="absolute left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground"
           style={{ top: '26px' }}
         >
-          {t('front')}
+          {t('top')}
         </div>
 
         {/* Left input */}
@@ -120,15 +120,15 @@ export function PistonsForm({
           {renderInput(piston.fields.right)}
         </div>
 
-        {/* Front Bottom input */}
+        {/* Bottom input */}
         <div
           className="absolute left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground"
           style={{ bottom: '26px' }}
         >
-          {t('front')}
+          {t('bottom')}
         </div>
         <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: '-8px' }}>
-          {renderInput(piston.fields.frontBottom)}
+          {renderInput(piston.fields.bottom)}
         </div>
       </div>
     </div>

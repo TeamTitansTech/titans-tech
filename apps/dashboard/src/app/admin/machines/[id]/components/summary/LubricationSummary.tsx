@@ -47,8 +47,8 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
     return translateEnumValue(value, tCommon);
   };
 
-  // Define all scalar fields that should be shown
-  const scalarFieldKeys = ['changedOil', 'oilTemperatureF', 'oilMfgType', 'changedFilter', 'notes'];
+  // Define all scalar fields that should be shown (excluding oilTemperatureUnit as it's shown with temperature)
+  const scalarFieldKeys = ['changedOil', 'oilTemperature', 'oilMfgType', 'changedFilter'];
 
   const gauges = Array.isArray(data.gauges) ? data.gauges : [];
 
@@ -114,7 +114,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                       {displayValue(gauge.system)}
                     </TableCell>
                     <TableCell className="py-1.5 text-center border-r">
-                      {displayValue(gauge.gauge)}
+                      {displayValue(gauge.gaugeSwitchIdentifier)}
                     </TableCell>
                     <TableCell className="py-1.5 text-center">{displayValue(gauge.psi)}</TableCell>
                   </TableRow>

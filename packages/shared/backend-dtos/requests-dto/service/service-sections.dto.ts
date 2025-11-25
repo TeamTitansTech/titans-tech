@@ -11,7 +11,7 @@ export type {
   BearingClearanceCheck as UpdateBearingClearanceDto,
   SlideCheck as UpdateSlideDto,
   GibsCheck as UpdateGibsDto,
-  LubricationHydraulicsData as UpdateLubricationHydraulicsDto,
+  LubricationHydraulicsCheck as UpdateLubricationHydraulicsDto,
   ClutchData as UpdateClutchDto,
   CounterbalanceCylinderCheck as UpdateCounterbalanceCylinderDto,
   TrammingCheck as UpdateTrammingDto,

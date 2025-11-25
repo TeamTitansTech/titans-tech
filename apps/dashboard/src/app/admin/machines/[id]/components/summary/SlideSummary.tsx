@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { SlideCheck } from '@/data/types/services.types';
+import type { SlideCheck, SlideData } from '@/data/types/services.types';
 import {
   Table,
   TableBody,
@@ -10,8 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { calculateMaxDeviation } from '../utils/sectionDataUtils';
-import { translateEnumValue } from './utils/translateEnum';
 
 interface SlideSummaryProps {
   data: SlideCheck;
@@ -19,15 +17,13 @@ interface SlideSummaryProps {
 
 export function SlideSummary({ data }: SlideSummaryProps) {
   const tSlide = useTranslations('inspections.form.slide');
-  const tSlideFields = useTranslations('inspections.form.slide.fields');
   const tTable = useTranslations('table');
   const tMeasurements = useTranslations('measurements');
-  const tServicesSummary = useTranslations('services.modal.summary');
   const tCommon = useTranslations('common.status');
 
   // Helper function to translate field names
   const translateFieldName = (key: string): string => {
-    const translation = tSlideFields(key);
+    const translation = tSlide(key);
     if (translation !== key) return translation;
     // Fallback to formatFieldName
     return key
@@ -41,267 +37,213 @@ export function SlideSummary({ data }: SlideSummaryProps) {
 
   // Helper function to display value with translations
   const displayValue = (value: unknown): string => {
-    return translateEnumValue(value, tCommon);
+    if (value === null || value === undefined || value === '') {
+      return '-';
+    }
+    if (typeof value === 'boolean') {
+      return value ? tCommon('yes') : tCommon('no');
+    }
+    // Translate enum values
+    const stringValue = String(value);
+    if (stringValue === 'YES') return tCommon('yes');
+    if (stringValue === 'NO') return tCommon('no');
+    if (stringValue === 'DNC') return tCommon('dnc');
+    if (stringValue === 'NA') return tCommon('na');
+    if (stringValue === 'TO_BED') return tSlide('toBed');
+    if (stringValue === 'TO_BOLSTER') return tSlide('toBolster');
+
+    return stringValue;
   };
 
-  // Define all section-level fields that should be shown
-  const sectionLevelFields = [
-    'outerParallelism',
-    'outerHasParallelismBeenAdjusted',
-    'innerParallelism',
-    'innerHasParallelismBeenAdjusted',
-    'outerShutheightIndicatorsChecked',
-    'outerOverloadsOnTonnageMonitor',
-    'outerShutheightActualSh',
-    'outerIndicatorReading',
-    'innerShutheightIndicatorsChecked',
-    'innerOverloadsOnTonnageMonitor',
-    'innerShutheightActualSh',
-    'innerIndicatorReading',
-    'notes',
-  ];
+  // Calculate max deviation for positions
+  const calculateMaxDeviation = (slideData: SlideData, fieldPrefix: 'before' | 'after'): string => {
+    const positions = [1, 2, 3, 4, 5].map((pos) => {
+      const fieldName = `${fieldPrefix}Position${pos}` as keyof SlideData;
+      return slideData[fieldName] as number | undefined;
+    });
+
+    const validValues = positions.filter(
+      (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
+    ) as number[];
+
+    if (validValues.length > 1) {
+      const max = Math.max(...validValues);
+      const min = Math.min(...validValues);
+      return (max - min).toFixed(4);
+    }
+    return '-';
+  };
+
+  // Render position measurements table
+  const renderPositionsTable = (slideData: SlideData, fieldPrefix: 'before' | 'after') => {
+    const positions = [1, 2, 3, 4, 5].map((pos) => {
+      const fieldName = `${fieldPrefix}Position${pos}` as keyof SlideData;
+      return slideData[fieldName] as number | undefined;
+    });
+
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            {positions.map((_, idx) => (
+              <TableHead key={idx} className="h-8 text-[10px] font-semibold text-center">
+                Pos {idx + 1}
+              </TableHead>
+            ))}
+            <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
+              {tSlide('maxDeviation')}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow className="text-[11px]">
+            {positions.map((val, idx) => (
+              <TableCell key={idx} className="py-1.5 text-center">
+                {displayValue(val)}
+              </TableCell>
+            ))}
+            <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+              {calculateMaxDeviation(slideData, fieldPrefix)}
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    );
+  };
+
+  // Render metadata fields
+  const renderMetadataTable = (slideData: SlideData) => {
+    const metadataFields = [
+      { key: 'parallelism', label: translateFieldName('parallelism') },
+      {
+        key: 'hasParallelismBeenAdjusted',
+        label: translateFieldName('hasParallelismBeenAdjusted'),
+      },
+      {
+        key: 'shutheightIndicatorsChecked',
+        label: translateFieldName('shutheightIndicatorsChecked'),
+      },
+      { key: 'overloadsOnTonnageMonitor', label: translateFieldName('overloadsOnTonnageMonitor') },
+      { key: 'shutheightActualSh', label: translateFieldName('shutheightActualSh') },
+      { key: 'indicatorReading', label: translateFieldName('indicatorReading') },
+    ];
+
+    return (
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            <TableHead className="h-8 text-[10px] font-semibold border-r">
+              {tTable('field')}
+            </TableHead>
+            <TableHead className="h-8 text-[10px] text-center font-semibold">
+              {tTable('value')}
+            </TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {metadataFields.map((field) => (
+            <TableRow key={field.key} className="text-[11px] hover:bg-muted/30">
+              <TableCell className="py-1.5 font-medium border-r bg-muted/20">
+                {field.label}
+              </TableCell>
+              <TableCell className="py-1.5 text-center">
+                {displayValue((slideData as any)[field.key])}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  };
 
   return (
     <div className="text-xs space-y-3">
-      {/* Section-level fields table - Show all fields */}
-      {sectionLevelFields.some((key) => key in data) && (
-        <div className="border-t pt-2">
+      {/* Outer Data */}
+      {data.outerData && (
+        <div className="border-t pt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
-            {tServicesSummary('sectionFields')}
+            {tMeasurements('outerMeasurements')}
           </div>
-          <div className="border rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="h-8 text-[10px] font-semibold border-r">
-                    {tTable('field')}
-                  </TableHead>
-                  <TableHead className="h-8 text-[10px] text-center font-semibold">
-                    {tTable('value')}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sectionLevelFields.map((key) => (
-                  <TableRow key={key} className="text-[11px] hover:bg-muted/30">
-                    <TableCell className="py-1.5 font-medium border-r bg-muted/20">
-                      {translateFieldName(key)}
-                    </TableCell>
-                    <TableCell className="py-1.5 text-center">
-                      {displayValue((data as Record<string, unknown>)[key])}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+
+          {/* Outer Metadata */}
+          <div className="border rounded-md overflow-hidden mb-3">
+            {renderMetadataTable(data.outerData)}
+          </div>
+
+          {/* Outer Before Measurements (if adjusted) */}
+          {data.outerData.hasParallelismBeenAdjusted === 'YES' &&
+            data.outerData.beforePosition1 !== undefined && (
+              <div className="mb-3">
+                <div className="font-medium text-muted-foreground mb-2 text-[10px]">
+                  {tSlide('beforeAdjustment')}
+                </div>
+                <div className="border rounded-md overflow-hidden">
+                  {renderPositionsTable(data.outerData, 'before')}
+                </div>
+              </div>
+            )}
+
+          {/* Outer After/Current Measurements */}
+          <div>
+            <div className="font-medium text-muted-foreground mb-2 text-[10px]">
+              {data.outerData.hasParallelismBeenAdjusted === 'YES'
+                ? tSlide('afterAdjustment')
+                : tSlide('measurements')}
+            </div>
+            <div className="border rounded-md overflow-hidden">
+              {renderPositionsTable(data.outerData, 'after')}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Outer Before Measurements */}
-      {!!data.outerBefore && (
+      {/* Inner Data */}
+      {data.innerData && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
-            {tMeasurements('outerBeforeMaintenance')}
+            {tMeasurements('innerMeasurements')}
           </div>
-          <div className="border rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 1</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 2</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 3</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 4</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 5</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 6</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
-                    {tSlide('maxDeviation')}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="text-[11px]">
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerBefore.position1)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerBefore.position2)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerBefore.position3)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerBefore.position4)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerBefore.position5)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerBefore.position6)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.outerBefore as unknown as Record<string, unknown>)}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+
+          {/* Inner Metadata */}
+          <div className="border rounded-md overflow-hidden mb-3">
+            {renderMetadataTable(data.innerData)}
+          </div>
+
+          {/* Inner Before Measurements (if adjusted) */}
+          {data.innerData.hasParallelismBeenAdjusted === 'YES' &&
+            data.innerData.beforePosition1 !== undefined && (
+              <div className="mb-3">
+                <div className="font-medium text-muted-foreground mb-2 text-[10px]">
+                  {tSlide('beforeAdjustment')}
+                </div>
+                <div className="border rounded-md overflow-hidden">
+                  {renderPositionsTable(data.innerData, 'before')}
+                </div>
+              </div>
+            )}
+
+          {/* Inner After/Current Measurements */}
+          <div>
+            <div className="font-medium text-muted-foreground mb-2 text-[10px]">
+              {data.innerData.hasParallelismBeenAdjusted === 'YES'
+                ? tSlide('afterAdjustment')
+                : tSlide('measurements')}
+            </div>
+            <div className="border rounded-md overflow-hidden">
+              {renderPositionsTable(data.innerData, 'after')}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Outer After Measurements */}
-      {!!data.outerData && (
+      {/* Notes */}
+      {data.notes && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
-            {data.outerBefore
-              ? tMeasurements('outerAfterMaintenance')
-              : tMeasurements('outerMeasurements')}
+            {tSlide('notes')}
           </div>
-          <div className="border rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 1</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 2</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 3</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 4</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 5</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 6</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
-                    {tSlide('maxDeviation')}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="text-[11px]">
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerData.position1)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerData.position2)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerData.position3)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerData.position4)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerData.position5)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.outerData.position6)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.outerData as unknown as Record<string, unknown>)}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      )}
-
-      {/* Inner Before Measurements */}
-      {!!data.innerBefore && (
-        <div className="border-t pt-3 mt-3">
-          <div className="font-medium text-muted-foreground mb-2 text-[11px]">
-            {tMeasurements('innerBeforeMaintenance')}
-          </div>
-          <div className="border rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 1</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 2</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 3</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 4</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 5</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 6</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
-                    {tSlide('maxDeviation')}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="text-[11px]">
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerBefore.position1)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerBefore.position2)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerBefore.position3)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerBefore.position4)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerBefore.position5)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerBefore.position6)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.innerBefore as unknown as Record<string, unknown>)}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-      )}
-
-      {/* Inner After Measurements */}
-      {!!data.innerData && (
-        <div className="border-t pt-3 mt-3">
-          <div className="font-medium text-muted-foreground mb-2 text-[11px]">
-            {data.innerBefore
-              ? tMeasurements('innerAfterMaintenance')
-              : tMeasurements('innerMeasurements')}
-          </div>
-          <div className="border rounded-md overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 1</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 2</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 3</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 4</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 5</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center">Pos 6</TableHead>
-                  <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
-                    {tSlide('maxDeviation')}
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                <TableRow className="text-[11px]">
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerData.position1)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerData.position2)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerData.position3)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerData.position4)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerData.position5)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center">
-                    {displayValue(data.innerData.position6)}
-                  </TableCell>
-                  <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-                    {calculateMaxDeviation(data.innerData as unknown as Record<string, unknown>)}
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+          <div className="border rounded-md p-3 bg-muted/20">
+            <p className="text-[11px] whitespace-pre-wrap">{data.notes}</p>
           </div>
         </div>
       )}

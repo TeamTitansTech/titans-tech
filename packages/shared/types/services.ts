@@ -44,6 +44,9 @@ export {
   DriveBeltConditionType,
   ProtectiveCoversStatusType,
   CylinderAirbagType,
+  TemperatureUnit,
+  SealConditionType,
+  VacuumSystemConditionType,
 } from '../enums';
 
 // Re-export all section data types
@@ -57,6 +60,7 @@ export type {
   GibsCheck,
   LubricationHydraulicsGauge,
   LubricationHydraulicsData,
+  LubricationHydraulicsCheck,
   ClutchData,
   CounterbalanceCylinderData,
   CounterbalanceCylinderCheck,
@@ -99,6 +103,7 @@ export {
   GibsCheckSchema,
   LubricationHydraulicsGaugeSchema,
   LubricationHydraulicsDataSchema,
+  LubricationHydraulicsCheckSchema,
   ClutchDataSchema,
   CounterbalanceCylinderDataSchema,
   CounterbalanceCylinderCheckSchema,
@@ -119,7 +124,7 @@ export {
   BearingClearanceCheckSchema as UpdateBearingClearanceSchema,
   SlideCheckSchema as UpdateSlideSchema,
   GibsCheckSchema as UpdateGibsSchema,
-  LubricationHydraulicsDataSchema as UpdateLubricationHydraulicsSchema,
+  LubricationHydraulicsCheckSchema as UpdateLubricationHydraulicsSchema,
   ClutchDataSchema as UpdateClutchSchema,
   CounterbalanceCylinderCheckSchema as UpdateCounterbalanceCylinderSchema,
   TrammingCheckSchema as UpdateTrammingSchema,

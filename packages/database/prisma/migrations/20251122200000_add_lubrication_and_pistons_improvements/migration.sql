@@ -1,0 +1,9 @@
+-- AlterEnum
+-- Already applied via db push
+-- This migration baselines the database with:
+-- - TemperatureUnit enum
+-- - SealConditionType enum
+-- - VacuumSystemConditionType enum
+-- - Lubrication/Hydraulics schema changes
+-- - Pistons guidSeals -> guideSeals rename
+-- - Pistons enum type changes

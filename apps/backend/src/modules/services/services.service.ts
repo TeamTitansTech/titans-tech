@@ -15,7 +15,7 @@ import {
   BearingClearanceCheck,
   SlideCheck,
   GibsCheck,
-  LubricationHydraulicsData,
+  LubricationHydraulicsCheck,
   ClutchData,
   CounterbalanceCylinderCheck,
   TrammingCheck,
@@ -171,23 +171,11 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
-        gibs: {
-          include: {
-            outerBeforeAdjustment: true,
-            outerAfterAdjustment: true,
-            outerFreeHangingAfterInstall: true,
-            innerBeforeAdjustment: true,
-            innerAfterAdjustment: true,
-            innerBeforeToolInstallation: true,
-            innerAfterToolInstallation: true,
-          },
-        },
+        gibs: true,
         lubricationHydraulics: {
           include: {
             data: {
@@ -226,53 +214,7 @@ export class ServicesService {
     return updatedService;
   }
 
-  async findAll(): Promise<
-    Prisma.MachineServiceGetPayload<{
-      include: {
-        machine: { include: { blueprint: true; fields: true; branch: true } };
-        bearingClearance: {
-          include: {
-            outerBefore: true;
-            outerData: true;
-            innerBefore: true;
-            innerData: true;
-          };
-        };
-        slide: {
-          include: {
-            outerBefore: true;
-            outerData: true;
-            innerBefore: true;
-            innerData: true;
-          };
-        };
-        gibs: {
-          include: {
-            outerBeforeAdjustment: true;
-            outerAfterAdjustment: true;
-            outerFreeHangingAfterInstall: true;
-            innerBeforeAdjustment: true;
-            innerAfterAdjustment: true;
-            innerBeforeToolInstallation: true;
-            innerAfterToolInstallation: true;
-          };
-        };
-        lubricationHydraulics: {
-          include: { data: { include: { gauges: true } } };
-        };
-        clutch: { include: { data: true } };
-        counterbalanceCylinderAirbag: {
-          include: { outerData: true; innerData: true };
-        };
-        tramming: {
-          include: { outerData: true; innerData: true };
-        };
-        pistons: {
-          include: { outerData: true; innerData: true };
-        };
-      };
-    }>[]
-  > {
+  async findAll(): Promise<any[]> {
     return this.prisma.machineService.findMany({
       include: {
         machine: {
@@ -292,23 +234,11 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
-        gibs: {
-          include: {
-            outerBeforeAdjustment: true,
-            outerAfterAdjustment: true,
-            outerFreeHangingAfterInstall: true,
-            innerBeforeAdjustment: true,
-            innerAfterAdjustment: true,
-            innerBeforeToolInstallation: true,
-            innerAfterToolInstallation: true,
-          },
-        },
+        gibs: true,
         lubricationHydraulics: {
           include: {
             data: {
@@ -348,53 +278,7 @@ export class ServicesService {
     });
   }
 
-  async findOne(id: string): Promise<
-    Prisma.MachineServiceGetPayload<{
-      include: {
-        machine: { include: { blueprint: true; fields: true } };
-        bearingClearance: {
-          include: {
-            outerBefore: true;
-            outerData: true;
-            innerBefore: true;
-            innerData: true;
-          };
-        };
-        slide: {
-          include: {
-            outerBefore: true;
-            outerData: true;
-            innerBefore: true;
-            innerData: true;
-          };
-        };
-        gibs: {
-          include: {
-            outerBeforeAdjustment: true;
-            outerAfterAdjustment: true;
-            outerFreeHangingAfterInstall: true;
-            innerBeforeAdjustment: true;
-            innerAfterAdjustment: true;
-            innerBeforeToolInstallation: true;
-            innerAfterToolInstallation: true;
-          };
-        };
-        lubricationHydraulics: {
-          include: { data: { include: { gauges: true } } };
-        };
-        clutch: { include: { data: true } };
-        counterbalanceCylinderAirbag: {
-          include: { outerData: true; innerData: true };
-        };
-        tramming: {
-          include: { outerData: true; innerData: true };
-        };
-        pistons: {
-          include: { outerData: true; innerData: true };
-        };
-      };
-    }>
-  > {
+  async findOne(id: string): Promise<any> {
     const inspection = await this.prisma.machineService.findUnique({
       where: { id },
       include: {
@@ -415,23 +299,11 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
-        gibs: {
-          include: {
-            outerBeforeAdjustment: true,
-            outerAfterAdjustment: true,
-            outerFreeHangingAfterInstall: true,
-            innerBeforeAdjustment: true,
-            innerAfterAdjustment: true,
-            innerBeforeToolInstallation: true,
-            innerAfterToolInstallation: true,
-          },
-        },
+        gibs: true,
         lubricationHydraulics: {
           include: {
             data: {
@@ -474,53 +346,7 @@ export class ServicesService {
     return inspection;
   }
 
-  async findByMachine(machineId: string): Promise<
-    Prisma.MachineServiceGetPayload<{
-      include: {
-        machine: { include: { blueprint: true; fields: true } };
-        bearingClearance: {
-          include: {
-            outerBefore: true;
-            outerData: true;
-            innerBefore: true;
-            innerData: true;
-          };
-        };
-        slide: {
-          include: {
-            outerBefore: true;
-            outerData: true;
-            innerBefore: true;
-            innerData: true;
-          };
-        };
-        gibs: {
-          include: {
-            outerBeforeAdjustment: true;
-            outerAfterAdjustment: true;
-            outerFreeHangingAfterInstall: true;
-            innerBeforeAdjustment: true;
-            innerAfterAdjustment: true;
-            innerBeforeToolInstallation: true;
-            innerAfterToolInstallation: true;
-          };
-        };
-        lubricationHydraulics: {
-          include: { data: { include: { gauges: true } } };
-        };
-        clutch: { include: { data: true } };
-        counterbalanceCylinderAirbag: {
-          include: { outerData: true; innerData: true };
-        };
-        tramming: {
-          include: { outerData: true; innerData: true };
-        };
-        pistons: {
-          include: { outerData: true; innerData: true };
-        };
-      };
-    }>[]
-  > {
+  async findByMachine(machineId: string): Promise<any[]> {
     const machine = await this.prisma.machine.findUnique({
       where: { id: machineId },
     });
@@ -549,23 +375,11 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
-        gibs: {
-          include: {
-            outerBeforeAdjustment: true,
-            outerAfterAdjustment: true,
-            outerFreeHangingAfterInstall: true,
-            innerBeforeAdjustment: true,
-            innerAfterAdjustment: true,
-            innerBeforeToolInstallation: true,
-            innerAfterToolInstallation: true,
-          },
-        },
+        gibs: true,
         lubricationHydraulics: {
           include: {
             data: {
@@ -625,7 +439,7 @@ export class ServicesService {
     }
 
     // 2. Fetch all services for this machine, ordered by date DESC
-    const services = await this.prisma.machineService.findMany({
+    const services: any[] = await this.prisma.machineService.findMany({
       where: { machineId },
       include: {
         bearingClearance: {
@@ -638,23 +452,11 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
-        gibs: {
-          include: {
-            outerBeforeAdjustment: true,
-            outerAfterAdjustment: true,
-            outerFreeHangingAfterInstall: true,
-            innerBeforeAdjustment: true,
-            innerAfterAdjustment: true,
-            innerBeforeToolInstallation: true,
-            innerAfterToolInstallation: true,
-          },
-        },
+        gibs: true,
         lubricationHydraulics: {
           include: {
             data: {
@@ -900,7 +702,7 @@ export class ServicesService {
     await this.prisma.$transaction(async (tx) => {
       const existingRecord = service.slide?.[0];
 
-      // Helper function to upsert nested slide data
+      // Helper function to upsert nested slide data (now contains all fields)
       const upsertData = async (
         data: any,
         existingId: string | null | undefined,
@@ -923,53 +725,21 @@ export class ServicesService {
 
       if (existingRecord) {
         // Update existing slide record
-        const outerBeforeId = await upsertData(
-          updateDto.outerBefore,
-          existingRecord.outerBeforeId,
-        );
         const outerDataId = await upsertData(
           updateDto.outerData,
           existingRecord.outerDataId,
-        );
-        const innerBeforeId = await upsertData(
-          updateDto.innerBefore,
-          existingRecord.innerBeforeId,
         );
         const innerDataId = await upsertData(
           updateDto.innerData,
           existingRecord.innerDataId,
         );
 
-        // Build update payload with IDs and metadata
+        // Build update payload with IDs and notes
         const updatePayload: any = {
-          ...(outerBeforeId && { outerBeforeId }),
           ...(outerDataId && { outerDataId }),
-          ...(innerBeforeId && { innerBeforeId }),
           ...(innerDataId && { innerDataId }),
+          ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
         };
-
-        // Handle metadata fields
-        const metadataFields = [
-          'outerParallelism',
-          'outerHasParallelismBeenAdjusted',
-          'innerParallelism',
-          'innerHasParallelismBeenAdjusted',
-          'outerShutheightIndicatorsChecked',
-          'outerOverloadsOnTonnageMonitor',
-          'outerShutheightActualSh',
-          'outerIndicatorReading',
-          'innerShutheightIndicatorsChecked',
-          'innerOverloadsOnTonnageMonitor',
-          'innerShutheightActualSh',
-          'innerIndicatorReading',
-          'notes',
-        ];
-
-        metadataFields.forEach((field) => {
-          if ((updateDto as any)[field] !== undefined) {
-            updatePayload[field] = (updateDto as any)[field];
-          }
-        });
 
         await tx.machineServiceSlide.update({
           where: { id: existingRecord.id },
@@ -977,25 +747,18 @@ export class ServicesService {
         });
       } else {
         // Create new slide record
-        const { outerBefore, outerData, innerBefore, innerData, ...metadata } =
-          updateDto;
+        const { outerData, innerData, notes } = updateDto;
 
         await tx.machineServiceSlide.create({
           data: {
             machineService: { connect: { id: serviceId } },
-            ...(outerBefore && {
-              outerBefore: { create: outerBefore as any },
-            }),
             ...(outerData && {
               outerData: { create: outerData as any },
-            }),
-            ...(innerBefore && {
-              innerBefore: { create: innerBefore as any },
             }),
             ...(innerData && {
               innerData: { create: innerData as any },
             }),
-            ...metadata,
+            ...(notes && { notes }),
           },
         });
       }
@@ -1022,7 +785,7 @@ export class ServicesService {
    * @param fieldName The field name for the ID in the updatePayload
    */
   private async upsertGibsStage(
-    tx: Prisma.TransactionClient,
+    tx: any,
     stageData: any,
     existingId: string | null | undefined,
     updatePayload: Record<string, any>,
@@ -1031,12 +794,12 @@ export class ServicesService {
     if (!stageData) return;
 
     if (existingId) {
-      await tx.gibsStageData.update({
+      await tx.service_data_gibs_stage.update({
         where: { id: existingId },
         data: stageData,
       });
     } else {
-      const created = await tx.gibsStageData.create({
+      const created = await tx.service_data_gibs_stage.create({
         data: stageData,
       });
       updatePayload[fieldName] = created.id;
@@ -1061,7 +824,7 @@ export class ServicesService {
       ? completedSections
       : [...completedSections, 'GIBS'];
 
-    const existingRecord = service.gibs?.[0];
+    const existingRecord: any = service.gibs?.[0];
 
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
@@ -1152,42 +915,49 @@ export class ServicesService {
           gibs: {
             create: {
               ...(updateDto.outerBeforeAdjustment && {
-                outerBeforeAdjustment: {
-                  create: updateDto.outerBeforeAdjustment,
-                },
+                service_data_gibs_stage_machine_service_gibs_outerBeforeAdjustmentIdToservice_data_gibs_stage:
+                  {
+                    create: updateDto.outerBeforeAdjustment,
+                  },
               }),
               ...(updateDto.outerAfterAdjustment && {
-                outerAfterAdjustment: {
-                  create: updateDto.outerAfterAdjustment,
-                },
+                service_data_gibs_stage_machine_service_gibs_outerAfterAdjustmentIdToservice_data_gibs_stage:
+                  {
+                    create: updateDto.outerAfterAdjustment,
+                  },
               }),
               ...(updateDto.outerFreeHangingAfterInstall && {
-                outerFreeHangingAfterInstall: {
-                  create: updateDto.outerFreeHangingAfterInstall,
-                },
+                service_data_gibs_stage_machine_service_gibs_outerFreeHangingAfterInstallIdToservice_data_gibs_stage:
+                  {
+                    create: updateDto.outerFreeHangingAfterInstall,
+                  },
               }),
               ...(updateDto.innerBeforeAdjustment && {
-                innerBeforeAdjustment: {
-                  create: updateDto.innerBeforeAdjustment,
-                },
+                service_data_gibs_stage_machine_service_gibs_innerBeforeAdjustmentIdToservice_data_gibs_stage:
+                  {
+                    create: updateDto.innerBeforeAdjustment,
+                  },
               }),
               ...(updateDto.innerAfterAdjustment && {
-                innerAfterAdjustment: {
-                  create: updateDto.innerAfterAdjustment,
-                },
+                service_data_gibs_stage_machine_service_gibs_innerAfterAdjustmentIdToservice_data_gibs_stage:
+                  {
+                    create: updateDto.innerAfterAdjustment,
+                  },
               }),
               ...(updateDto.innerBeforeToolInstallation && {
-                innerBeforeToolInstallation: {
-                  create: updateDto.innerBeforeToolInstallation,
-                },
+                service_data_gibs_stage_machine_service_gibs_innerBeforeToolInstallationIdToservice_data_gibs_stage:
+                  {
+                    create: updateDto.innerBeforeToolInstallation,
+                  },
               }),
               ...(updateDto.innerAfterToolInstallation && {
-                innerAfterToolInstallation: {
-                  create: updateDto.innerAfterToolInstallation,
-                },
+                service_data_gibs_stage_machine_service_gibs_innerAfterToolInstallationIdToservice_data_gibs_stage:
+                  {
+                    create: updateDto.innerAfterToolInstallation,
+                  },
               }),
               ...(updateDto.notes && { notes: updateDto.notes }),
-            },
+            } as any,
           },
         },
       });
@@ -1198,7 +968,7 @@ export class ServicesService {
 
   async updateLubricationHydraulics(
     serviceId: string,
-    updateDto: LubricationHydraulicsData,
+    updateDto: LubricationHydraulicsCheck,
   ): Promise<any> {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
@@ -1223,6 +993,7 @@ export class ServicesService {
         ];
 
     const existingRecord = service.lubricationHydraulics?.[0];
+    const { data: lubData, notes } = updateDto;
 
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
@@ -1232,7 +1003,7 @@ export class ServicesService {
             where: { lubricationHydraulicsDataId: existingRecord.dataId },
           });
 
-          const { gauges, ...restData } = updateDto;
+          const { gauges, ...restData } = lubData;
 
           await tx.lubricationHydraulicsData.update({
             where: { id: existingRecord.dataId },
@@ -1244,13 +1015,20 @@ export class ServicesService {
                   : undefined,
             },
           });
+
+          // Update notes in junction table
+          await tx.machineServiceLubricationHydraulics.update({
+            where: { id: existingRecord.id },
+            data: { notes },
+          });
         } else {
           // Create new data record
-          const { gauges, ...restData } = updateDto;
+          const { gauges, ...restData } = lubData;
 
           await tx.machineServiceLubricationHydraulics.update({
             where: { id: existingRecord.id },
             data: {
+              notes,
               data: {
                 create: {
                   ...restData,
@@ -1273,7 +1051,7 @@ export class ServicesService {
         });
       });
     } else {
-      const { gauges, ...restData } = updateDto;
+      const { gauges, ...restData } = lubData;
 
       await this.prisma.machineService.update({
         where: { id: serviceId },
@@ -1282,6 +1060,7 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           lubricationHydraulics: {
             create: {
+              notes,
               data: {
                 create: {
                   ...restData,
@@ -1419,6 +1198,11 @@ export class ServicesService {
           }
         }
 
+        // Handle notes at the service level
+        if (updateDto.notes !== undefined) {
+          updatePayload.notes = updateDto.notes;
+        }
+
         if (Object.keys(updatePayload).length > 0) {
           await tx.machineServiceCounterbalanceCylinderAirbag.update({
             where: { id: existingRecord.id },
@@ -1442,6 +1226,7 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           counterbalanceCylinderAirbag: {
             create: {
+              ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
               ...(updateDto.outerData && {
                 outerData: { create: updateDto.outerData as any },
               }),
@@ -1616,7 +1401,7 @@ export class ServicesService {
 
         // Handle metadata fields
         const metadataFields = [
-          'guidSeals',
+          'guideSeals',
           'pistonSeals',
           'vacuumSystem',
           'vacuumSystemAirPressureSetting',
@@ -1660,7 +1445,7 @@ export class ServicesService {
               ...(updateDto.innerData && {
                 innerData: { create: updateDto.innerData as any },
               }),
-              ...(updateDto.guidSeals && { guidSeals: updateDto.guidSeals }),
+              ...(updateDto.guideSeals && { guideSeals: updateDto.guideSeals }),
               ...(updateDto.pistonSeals && {
                 pistonSeals: updateDto.pistonSeals,
               }),
@@ -1739,23 +1524,11 @@ export class ServicesService {
         },
         slide: {
           include: {
-            outerBefore: true,
             outerData: true,
-            innerBefore: true,
             innerData: true,
           },
         },
-        gibs: {
-          include: {
-            outerBeforeAdjustment: true,
-            outerAfterAdjustment: true,
-            outerFreeHangingAfterInstall: true,
-            innerBeforeAdjustment: true,
-            innerAfterAdjustment: true,
-            innerBeforeToolInstallation: true,
-            innerAfterToolInstallation: true,
-          },
-        },
+        gibs: true,
         lubricationHydraulics: {
           include: { data: { include: { gauges: true } } },
         },
