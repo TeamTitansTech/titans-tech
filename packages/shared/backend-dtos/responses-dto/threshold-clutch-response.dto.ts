@@ -2,25 +2,30 @@ export class ThresholdClutchResponseDto {
   id: string;
   blueprintId: string;
 
-  // Gear Backlash thresholds
-  gearBacklash_greenMin: number;
-  gearBacklash_yellowMin: number;
-  gearBacklash_redMin: number;
+  // Hyd Clutch Clearance Total thresholds
+  hydClutchClearanceTotal_greenMin: number;
+  hydClutchClearanceTotal_yellowMin: number;
+  hydClutchClearanceTotal_redMin: number;
 
-  // Crank Endplay thresholds
-  crankEndplay_greenMin: number;
-  crankEndplay_yellowMin: number;
-  crankEndplay_redMin: number;
+  // Hyd Clutch Clearance Rear thresholds
+  hydClutchClearanceRear_greenMin: number;
+  hydClutchClearanceRear_yellowMin: number;
+  hydClutchClearanceRear_redMin: number;
 
-  // Brake Clearance thresholds
-  brakeClearance_greenMin: number;
-  brakeClearance_yellowMin: number;
-  brakeClearance_redMin: number;
+  // F-B (Front-Back) thresholds
+  fb_greenMin: number;
+  fb_yellowMin: number;
+  fb_redMin: number;
 
-  // Hydraulic Clutch Clearance thresholds
-  hydClutchClearance_greenMin: number;
-  hydClutchClearance_yellowMin: number;
-  hydClutchClearance_redMin: number;
+  // F-TB (Front Top-Bottom) thresholds
+  fTB_greenMin: number;
+  fTB_yellowMin: number;
+  fTB_redMin: number;
+
+  // R-TB (Rear Top-Bottom) thresholds
+  rTB_greenMin: number;
+  rTB_yellowMin: number;
+  rTB_redMin: number;
 
   createdAt: Date;
   updatedAt: Date;
@@ -30,18 +35,21 @@ export class ThresholdClutchResponseDto {
 
     // Convert Decimal to number
     const decimalFields = [
-      'gearBacklash_greenMin',
-      'gearBacklash_yellowMin',
-      'gearBacklash_redMin',
-      'crankEndplay_greenMin',
-      'crankEndplay_yellowMin',
-      'crankEndplay_redMin',
-      'brakeClearance_greenMin',
-      'brakeClearance_yellowMin',
-      'brakeClearance_redMin',
-      'hydClutchClearance_greenMin',
-      'hydClutchClearance_yellowMin',
-      'hydClutchClearance_redMin',
+      'hydClutchClearanceTotal_greenMin',
+      'hydClutchClearanceTotal_yellowMin',
+      'hydClutchClearanceTotal_redMin',
+      'hydClutchClearanceRear_greenMin',
+      'hydClutchClearanceRear_yellowMin',
+      'hydClutchClearanceRear_redMin',
+      'fb_greenMin',
+      'fb_yellowMin',
+      'fb_redMin',
+      'fTB_greenMin',
+      'fTB_yellowMin',
+      'fTB_redMin',
+      'rTB_greenMin',
+      'rTB_yellowMin',
+      'rTB_redMin',
     ];
 
     decimalFields.forEach((field) => {

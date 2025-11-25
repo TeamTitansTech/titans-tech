@@ -527,25 +527,30 @@ model ThresholdClutch {
   id          String @id @default(cuid())
   blueprintId String @unique
 
-  // Gear Backlash thresholds (Before/After differential)
-  gearBacklash_greenMin  Decimal @db.Decimal(10, 4)
-  gearBacklash_yellowMin Decimal @db.Decimal(10, 4)
-  gearBacklash_redMin    Decimal @db.Decimal(10, 4)
+  // Hyd Clutch Clearance Total thresholds
+  hydClutchClearanceTotal_greenMin  Decimal @db.Decimal(10, 4)
+  hydClutchClearanceTotal_yellowMin Decimal @db.Decimal(10, 4)
+  hydClutchClearanceTotal_redMin    Decimal @db.Decimal(10, 4)
 
-  // Crank Endplay thresholds (Before/After differential)
-  crankEndplay_greenMin  Decimal @db.Decimal(10, 4)
-  crankEndplay_yellowMin Decimal @db.Decimal(10, 4)
-  crankEndplay_redMin    Decimal @db.Decimal(10, 4)
+  // Hyd Clutch Clearance Rear thresholds
+  hydClutchClearanceRear_greenMin  Decimal @db.Decimal(10, 4)
+  hydClutchClearanceRear_yellowMin Decimal @db.Decimal(10, 4)
+  hydClutchClearanceRear_redMin    Decimal @db.Decimal(10, 4)
 
-  // Brake Clearance thresholds (Total/Rear differential)
-  brakeClearance_greenMin  Decimal @db.Decimal(10, 4)
-  brakeClearance_yellowMin Decimal @db.Decimal(10, 4)
-  brakeClearance_redMin    Decimal @db.Decimal(10, 4)
+  // F-B (Front-Back) thresholds
+  fb_greenMin  Decimal @db.Decimal(10, 4)
+  fb_yellowMin Decimal @db.Decimal(10, 4)
+  fb_redMin    Decimal @db.Decimal(10, 4)
 
-  // Hydraulic Clutch Clearance thresholds (Total/Rear differential)
-  hydClutchClearance_greenMin  Decimal @db.Decimal(10, 4)
-  hydClutchClearance_yellowMin Decimal @db.Decimal(10, 4)
-  hydClutchClearance_redMin    Decimal @db.Decimal(10, 4)
+  // F-TB (Front Top-Bottom) thresholds
+  fTB_greenMin  Decimal @db.Decimal(10, 4)
+  fTB_yellowMin Decimal @db.Decimal(10, 4)
+  fTB_redMin    Decimal @db.Decimal(10, 4)
+
+  // R-TB (Rear Top-Bottom) thresholds
+  rTB_greenMin  Decimal @db.Decimal(10, 4)
+  rTB_yellowMin Decimal @db.Decimal(10, 4)
+  rTB_redMin    Decimal @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -689,21 +694,25 @@ model AlertClutch {
   id               String @id @default(cuid())
   machineServiceId String @unique
 
-  // Gear Backlash alert - differential between Before and After
-  gearBacklash_differential Decimal       @db.Decimal(10, 4)
-  gearBacklash_severity     AlertSeverity
+  // Hyd Clutch Clearance Total alert
+  hydClutchClearanceTotal_value    Decimal       @db.Decimal(10, 4)
+  hydClutchClearanceTotal_severity AlertSeverity
 
-  // Crank Endplay alert - differential between Before and After
-  crankEndplay_differential Decimal       @db.Decimal(10, 4)
-  crankEndplay_severity     AlertSeverity
+  // Hyd Clutch Clearance Rear alert
+  hydClutchClearanceRear_value    Decimal       @db.Decimal(10, 4)
+  hydClutchClearanceRear_severity AlertSeverity
 
-  // Brake Clearance alert - differential between Total and Rear
-  brakeClearance_differential Decimal       @db.Decimal(10, 4)
-  brakeClearance_severity     AlertSeverity
+  // F-B (Front-Back) alert
+  fb_value    Decimal       @db.Decimal(10, 4)
+  fb_severity AlertSeverity
 
-  // Hydraulic Clutch Clearance alert - differential between Total and Rear
-  hydClutchClearance_differential Decimal       @db.Decimal(10, 4)
-  hydClutchClearance_severity     AlertSeverity
+  // F-TB (Front Top-Bottom) alert
+  fTB_value    Decimal       @db.Decimal(10, 4)
+  fTB_severity AlertSeverity
+
+  // R-TB (Rear Top-Bottom) alert
+  rTB_value    Decimal       @db.Decimal(10, 4)
+  rTB_severity AlertSeverity
 
   // Optional snapshot of thresholds used in calculation (for auditing)
   thresholdSnapshot Json?

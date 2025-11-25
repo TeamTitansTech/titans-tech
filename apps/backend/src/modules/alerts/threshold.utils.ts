@@ -76,20 +76,29 @@ export function convertPartialThresholdToDecimal<T extends Record<string, any>>(
 
 /**
  * List of all clutch threshold field names
+ * Monitors 5 measurement points from the Clutch & Brake dashboard:
+ * 1. Hyd Clutch Clearance Total
+ * 2. Hyd Clutch Clearance Rear
+ * 3. F-B (Front-Back)
+ * 4. F-TB (Front Top-Bottom)
+ * 5. R-TB (Rear Top-Bottom)
  */
 export const CLUTCH_THRESHOLD_FIELDS = [
-  'gearBacklash_greenMin',
-  'gearBacklash_yellowMin',
-  'gearBacklash_redMin',
-  'crankEndplay_greenMin',
-  'crankEndplay_yellowMin',
-  'crankEndplay_redMin',
-  'brakeClearance_greenMin',
-  'brakeClearance_yellowMin',
-  'brakeClearance_redMin',
-  'hydClutchClearance_greenMin',
-  'hydClutchClearance_yellowMin',
-  'hydClutchClearance_redMin',
+  'hydClutchClearanceTotal_greenMin',
+  'hydClutchClearanceTotal_yellowMin',
+  'hydClutchClearanceTotal_redMin',
+  'hydClutchClearanceRear_greenMin',
+  'hydClutchClearanceRear_yellowMin',
+  'hydClutchClearanceRear_redMin',
+  'fb_greenMin',
+  'fb_yellowMin',
+  'fb_redMin',
+  'fTB_greenMin',
+  'fTB_yellowMin',
+  'fTB_redMin',
+  'rTB_greenMin',
+  'rTB_yellowMin',
+  'rTB_redMin',
 ] as const;
 
 export type ClutchThresholdFieldName = (typeof CLUTCH_THRESHOLD_FIELDS)[number];

@@ -467,42 +467,43 @@ export class AlertsService {
 
     const mergedData = {
       blueprintId,
-      gearBacklash_greenMin:
-        dto.gearBacklash_greenMin ??
-        currentThreshold.gearBacklash_greenMin.toNumber(),
-      gearBacklash_yellowMin:
-        dto.gearBacklash_yellowMin ??
-        currentThreshold.gearBacklash_yellowMin.toNumber(),
-      gearBacklash_redMin:
-        dto.gearBacklash_redMin ??
-        currentThreshold.gearBacklash_redMin.toNumber(),
-      crankEndplay_greenMin:
-        dto.crankEndplay_greenMin ??
-        currentThreshold.crankEndplay_greenMin.toNumber(),
-      crankEndplay_yellowMin:
-        dto.crankEndplay_yellowMin ??
-        currentThreshold.crankEndplay_yellowMin.toNumber(),
-      crankEndplay_redMin:
-        dto.crankEndplay_redMin ??
-        currentThreshold.crankEndplay_redMin.toNumber(),
-      brakeClearance_greenMin:
-        dto.brakeClearance_greenMin ??
-        currentThreshold.brakeClearance_greenMin.toNumber(),
-      brakeClearance_yellowMin:
-        dto.brakeClearance_yellowMin ??
-        currentThreshold.brakeClearance_yellowMin.toNumber(),
-      brakeClearance_redMin:
-        dto.brakeClearance_redMin ??
-        currentThreshold.brakeClearance_redMin.toNumber(),
-      hydClutchClearance_greenMin:
-        dto.hydClutchClearance_greenMin ??
-        currentThreshold.hydClutchClearance_greenMin.toNumber(),
-      hydClutchClearance_yellowMin:
-        dto.hydClutchClearance_yellowMin ??
-        currentThreshold.hydClutchClearance_yellowMin.toNumber(),
-      hydClutchClearance_redMin:
-        dto.hydClutchClearance_redMin ??
-        currentThreshold.hydClutchClearance_redMin.toNumber(),
+      // Hyd Clutch Clearance Total
+      hydClutchClearanceTotal_greenMin:
+        dto.hydClutchClearanceTotal_greenMin ??
+        currentThreshold.hydClutchClearanceTotal_greenMin.toNumber(),
+      hydClutchClearanceTotal_yellowMin:
+        dto.hydClutchClearanceTotal_yellowMin ??
+        currentThreshold.hydClutchClearanceTotal_yellowMin.toNumber(),
+      hydClutchClearanceTotal_redMin:
+        dto.hydClutchClearanceTotal_redMin ??
+        currentThreshold.hydClutchClearanceTotal_redMin.toNumber(),
+      // Hyd Clutch Clearance Rear
+      hydClutchClearanceRear_greenMin:
+        dto.hydClutchClearanceRear_greenMin ??
+        currentThreshold.hydClutchClearanceRear_greenMin.toNumber(),
+      hydClutchClearanceRear_yellowMin:
+        dto.hydClutchClearanceRear_yellowMin ??
+        currentThreshold.hydClutchClearanceRear_yellowMin.toNumber(),
+      hydClutchClearanceRear_redMin:
+        dto.hydClutchClearanceRear_redMin ??
+        currentThreshold.hydClutchClearanceRear_redMin.toNumber(),
+      // F-B
+      fb_greenMin: dto.fb_greenMin ?? currentThreshold.fb_greenMin.toNumber(),
+      fb_yellowMin:
+        dto.fb_yellowMin ?? currentThreshold.fb_yellowMin.toNumber(),
+      fb_redMin: dto.fb_redMin ?? currentThreshold.fb_redMin.toNumber(),
+      // F-TB
+      fTB_greenMin:
+        dto.fTB_greenMin ?? currentThreshold.fTB_greenMin.toNumber(),
+      fTB_yellowMin:
+        dto.fTB_yellowMin ?? currentThreshold.fTB_yellowMin.toNumber(),
+      fTB_redMin: dto.fTB_redMin ?? currentThreshold.fTB_redMin.toNumber(),
+      // R-TB
+      rTB_greenMin:
+        dto.rTB_greenMin ?? currentThreshold.rTB_greenMin.toNumber(),
+      rTB_yellowMin:
+        dto.rTB_yellowMin ?? currentThreshold.rTB_yellowMin.toNumber(),
+      rTB_redMin: dto.rTB_redMin ?? currentThreshold.rTB_redMin.toNumber(),
     };
 
     // Validate merged data (ensures greenMin < yellowMin < redMin for all fields)
@@ -582,60 +583,73 @@ export class AlertsService {
       return null;
     }
 
-    // Calculate alerts for each field
-    const gearBacklash = this.calculateClutchFieldAlert(
-      clutchData.gearBacklashBefore,
-      clutchData.gearBacklashAfter,
-      threshold.gearBacklash_greenMin,
-      threshold.gearBacklash_yellowMin,
-      threshold.gearBacklash_redMin,
-    );
-
-    const crankEndplay = this.calculateClutchFieldAlert(
-      clutchData.crankEndplayBefore,
-      clutchData.crankEndplayAfter,
-      threshold.crankEndplay_greenMin,
-      threshold.crankEndplay_yellowMin,
-      threshold.crankEndplay_redMin,
-    );
-
-    const brakeClearance = this.calculateClutchFieldAlert(
-      clutchData.brakeClearanceTotal,
-      clutchData.brakeClearanceRear,
-      threshold.brakeClearance_greenMin,
-      threshold.brakeClearance_yellowMin,
-      threshold.brakeClearance_redMin,
-    );
-
-    const hydClutchClearance = this.calculateClutchFieldAlert(
+    // Calculate alerts for each of the 5 measurement points
+    const hydClutchClearanceTotal = this.calculateClutchFieldAlert(
       clutchData.hydClutchClearanceTotal,
+      null,
+      threshold.hydClutchClearanceTotal_greenMin,
+      threshold.hydClutchClearanceTotal_yellowMin,
+      threshold.hydClutchClearanceTotal_redMin,
+    );
+
+    const hydClutchClearanceRear = this.calculateClutchFieldAlert(
       clutchData.hydClutchClearanceRear,
-      threshold.hydClutchClearance_greenMin,
-      threshold.hydClutchClearance_yellowMin,
-      threshold.hydClutchClearance_redMin,
+      null,
+      threshold.hydClutchClearanceRear_greenMin,
+      threshold.hydClutchClearanceRear_yellowMin,
+      threshold.hydClutchClearanceRear_redMin,
+    );
+
+    const fb = this.calculateClutchFieldAlert(
+      clutchData.brakeSpringFB,
+      null,
+      threshold.fb_greenMin,
+      threshold.fb_yellowMin,
+      threshold.fb_redMin,
+    );
+
+    const fTB = this.calculateClutchFieldAlert(
+      clutchData.brakeSpringFTB,
+      null,
+      threshold.fTB_greenMin,
+      threshold.fTB_yellowMin,
+      threshold.fTB_redMin,
+    );
+
+    const rTB = this.calculateClutchFieldAlert(
+      clutchData.brakeSpringRTB,
+      null,
+      threshold.rTB_greenMin,
+      threshold.rTB_yellowMin,
+      threshold.rTB_redMin,
     );
 
     const thresholdSnapshot = {
       blueprintId: threshold.blueprintId,
-      gearBacklash: {
-        greenMin: threshold.gearBacklash_greenMin.toNumber(),
-        yellowMin: threshold.gearBacklash_yellowMin.toNumber(),
-        redMin: threshold.gearBacklash_redMin.toNumber(),
+      hydClutchClearanceTotal: {
+        greenMin: threshold.hydClutchClearanceTotal_greenMin.toNumber(),
+        yellowMin: threshold.hydClutchClearanceTotal_yellowMin.toNumber(),
+        redMin: threshold.hydClutchClearanceTotal_redMin.toNumber(),
       },
-      crankEndplay: {
-        greenMin: threshold.crankEndplay_greenMin.toNumber(),
-        yellowMin: threshold.crankEndplay_yellowMin.toNumber(),
-        redMin: threshold.crankEndplay_redMin.toNumber(),
+      hydClutchClearanceRear: {
+        greenMin: threshold.hydClutchClearanceRear_greenMin.toNumber(),
+        yellowMin: threshold.hydClutchClearanceRear_yellowMin.toNumber(),
+        redMin: threshold.hydClutchClearanceRear_redMin.toNumber(),
       },
-      brakeClearance: {
-        greenMin: threshold.brakeClearance_greenMin.toNumber(),
-        yellowMin: threshold.brakeClearance_yellowMin.toNumber(),
-        redMin: threshold.brakeClearance_redMin.toNumber(),
+      fb: {
+        greenMin: threshold.fb_greenMin.toNumber(),
+        yellowMin: threshold.fb_yellowMin.toNumber(),
+        redMin: threshold.fb_redMin.toNumber(),
       },
-      hydClutchClearance: {
-        greenMin: threshold.hydClutchClearance_greenMin.toNumber(),
-        yellowMin: threshold.hydClutchClearance_yellowMin.toNumber(),
-        redMin: threshold.hydClutchClearance_redMin.toNumber(),
+      fTB: {
+        greenMin: threshold.fTB_greenMin.toNumber(),
+        yellowMin: threshold.fTB_yellowMin.toNumber(),
+        redMin: threshold.fTB_redMin.toNumber(),
+      },
+      rTB: {
+        greenMin: threshold.rTB_greenMin.toNumber(),
+        yellowMin: threshold.rTB_yellowMin.toNumber(),
+        redMin: threshold.rTB_redMin.toNumber(),
       },
     };
 
@@ -643,25 +657,29 @@ export class AlertsService {
       where: { machineServiceId },
       create: {
         machineServiceId,
-        gearBacklash_differential: gearBacklash.differential,
-        gearBacklash_severity: gearBacklash.severity,
-        crankEndplay_differential: crankEndplay.differential,
-        crankEndplay_severity: crankEndplay.severity,
-        brakeClearance_differential: brakeClearance.differential,
-        brakeClearance_severity: brakeClearance.severity,
-        hydClutchClearance_differential: hydClutchClearance.differential,
-        hydClutchClearance_severity: hydClutchClearance.severity,
+        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value1,
+        hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
+        hydClutchClearanceRear_value: hydClutchClearanceRear.value1,
+        hydClutchClearanceRear_severity: hydClutchClearanceRear.severity,
+        fb_value: fb.value1,
+        fb_severity: fb.severity,
+        fTB_value: fTB.value1,
+        fTB_severity: fTB.severity,
+        rTB_value: rTB.value1,
+        rTB_severity: rTB.severity,
         thresholdSnapshot,
       },
       update: {
-        gearBacklash_differential: gearBacklash.differential,
-        gearBacklash_severity: gearBacklash.severity,
-        crankEndplay_differential: crankEndplay.differential,
-        crankEndplay_severity: crankEndplay.severity,
-        brakeClearance_differential: brakeClearance.differential,
-        brakeClearance_severity: brakeClearance.severity,
-        hydClutchClearance_differential: hydClutchClearance.differential,
-        hydClutchClearance_severity: hydClutchClearance.severity,
+        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value1,
+        hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
+        hydClutchClearanceRear_value: hydClutchClearanceRear.value1,
+        hydClutchClearanceRear_severity: hydClutchClearanceRear.severity,
+        fb_value: fb.value1,
+        fb_severity: fb.severity,
+        fTB_value: fTB.value1,
+        fTB_severity: fTB.severity,
+        rTB_value: rTB.value1,
+        rTB_severity: rTB.severity,
         thresholdSnapshot,
       },
     });

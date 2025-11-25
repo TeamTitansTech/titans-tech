@@ -4,73 +4,39 @@ export class AlertClutchResponseDto {
   id: string;
   machineServiceId: string;
 
-  // Gear Backlash alert
-  gearBacklash_before: number;
-  gearBacklash_after: number;
-  gearBacklash_differential: number;
-  gearBacklash_severity: AlertSeverity;
+  // Hyd Clutch Clearance Total alert
+  hydClutchClearanceTotal_value: number;
+  hydClutchClearanceTotal_severity: AlertSeverity;
 
-  // Crank Endplay alert
-  crankEndplay_before: number;
-  crankEndplay_after: number;
-  crankEndplay_differential: number;
-  crankEndplay_severity: AlertSeverity;
+  // Hyd Clutch Clearance Rear alert
+  hydClutchClearanceRear_value: number;
+  hydClutchClearanceRear_severity: AlertSeverity;
 
-  // Brake Clearance alert
-  brakeClearance_total: number;
-  brakeClearance_rear: number;
-  brakeClearance_differential: number;
-  brakeClearance_severity: AlertSeverity;
+  // F-B (Front-Back) alert
+  fb_value: number;
+  fb_severity: AlertSeverity;
 
-  // Hydraulic Clutch Clearance alert
-  hydClutchClearance_total: number;
-  hydClutchClearance_rear: number;
-  hydClutchClearance_differential: number;
-  hydClutchClearance_severity: AlertSeverity;
+  // F-TB (Front Top-Bottom) alert
+  fTB_value: number;
+  fTB_severity: AlertSeverity;
+
+  // R-TB (Rear Top-Bottom) alert
+  rTB_value: number;
+  rTB_severity: AlertSeverity;
 
   createdAt: Date;
   updatedAt: Date;
 
-  constructor(partial: Partial<AlertClutchResponseDto> & { clutchData?: any }) {
-    // Extract clutchData if present
-    const { clutchData, ...alertData } = partial as any;
+  constructor(partial: Partial<AlertClutchResponseDto>) {
+    Object.assign(this, partial);
 
-    // Assign alert data (differential, severity, timestamps, etc)
-    Object.assign(this, alertData);
-
-    // If clutchData is provided, extract Before/After and Total/Rear values from it
-    if (clutchData) {
-      // Gear Backlash (Before/After)
-      this.gearBacklash_before =
-        clutchData.gearBacklashBefore?.toNumber?.() ?? clutchData.gearBacklashBefore;
-      this.gearBacklash_after =
-        clutchData.gearBacklashAfter?.toNumber?.() ?? clutchData.gearBacklashAfter;
-
-      // Crank Endplay (Before/After)
-      this.crankEndplay_before =
-        clutchData.crankEndplayBefore?.toNumber?.() ?? clutchData.crankEndplayBefore;
-      this.crankEndplay_after =
-        clutchData.crankEndplayAfter?.toNumber?.() ?? clutchData.crankEndplayAfter;
-
-      // Brake Clearance (Total/Rear)
-      this.brakeClearance_total =
-        clutchData.brakeClearanceTotal?.toNumber?.() ?? clutchData.brakeClearanceTotal;
-      this.brakeClearance_rear =
-        clutchData.brakeClearanceRear?.toNumber?.() ?? clutchData.brakeClearanceRear;
-
-      // Hydraulic Clutch Clearance (Total/Rear)
-      this.hydClutchClearance_total =
-        clutchData.hydClutchClearanceTotal?.toNumber?.() ?? clutchData.hydClutchClearanceTotal;
-      this.hydClutchClearance_rear =
-        clutchData.hydClutchClearanceRear?.toNumber?.() ?? clutchData.hydClutchClearanceRear;
-    }
-
-    // Convert Decimal to number for differential fields
+    // Convert Decimal to number for value fields
     const decimalFields = [
-      'gearBacklash_differential',
-      'crankEndplay_differential',
-      'brakeClearance_differential',
-      'hydClutchClearance_differential',
+      'hydClutchClearanceTotal_value',
+      'hydClutchClearanceRear_value',
+      'fb_value',
+      'fTB_value',
+      'rTB_value',
     ];
 
     decimalFields.forEach((field) => {

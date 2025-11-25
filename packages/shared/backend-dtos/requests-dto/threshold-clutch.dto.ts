@@ -2,38 +2,44 @@ import { z } from 'zod';
 
 /**
  * Schema for clutch thresholds validation
- * Monitors 4 differential-based measurements:
- * 1. Gear Backlash (Before/After differential)
- * 2. Crank Endplay (Before/After differential)
- * 3. Brake Clearance (Total/Rear differential)
- * 4. Hydraulic Clutch Clearance (Total/Rear differential)
+ * Monitors 5 measurement points from the Clutch & Brake dashboard:
+ * 1. Hyd Clutch Clearance Total
+ * 2. Hyd Clutch Clearance Rear
+ * 3. F-B (Front-Back)
+ * 4. F-TB (Front Top-Bottom)
+ * 5. R-TB (Rear Top-Bottom)
  */
 export const ClutchThresholdsSchema = z
   .object({
-    // Gear Backlash thresholds (Before/After differential)
-    gearBacklash_greenMin: z.number().positive(),
-    gearBacklash_yellowMin: z.number().positive(),
-    gearBacklash_redMin: z.number().positive(),
+    // Hyd Clutch Clearance Total thresholds
+    hydClutchClearanceTotal_greenMin: z.number().positive(),
+    hydClutchClearanceTotal_yellowMin: z.number().positive(),
+    hydClutchClearanceTotal_redMin: z.number().positive(),
 
-    // Crank Endplay thresholds (Before/After differential)
-    crankEndplay_greenMin: z.number().positive(),
-    crankEndplay_yellowMin: z.number().positive(),
-    crankEndplay_redMin: z.number().positive(),
+    // Hyd Clutch Clearance Rear thresholds
+    hydClutchClearanceRear_greenMin: z.number().positive(),
+    hydClutchClearanceRear_yellowMin: z.number().positive(),
+    hydClutchClearanceRear_redMin: z.number().positive(),
 
-    // Brake Clearance thresholds (Total/Rear differential)
-    brakeClearance_greenMin: z.number().positive(),
-    brakeClearance_yellowMin: z.number().positive(),
-    brakeClearance_redMin: z.number().positive(),
+    // F-B (Front-Back) thresholds
+    fb_greenMin: z.number().positive(),
+    fb_yellowMin: z.number().positive(),
+    fb_redMin: z.number().positive(),
 
-    // Hydraulic Clutch Clearance thresholds (Total/Rear differential)
-    hydClutchClearance_greenMin: z.number().positive(),
-    hydClutchClearance_yellowMin: z.number().positive(),
-    hydClutchClearance_redMin: z.number().positive(),
+    // F-TB (Front Top-Bottom) thresholds
+    fTB_greenMin: z.number().positive(),
+    fTB_yellowMin: z.number().positive(),
+    fTB_redMin: z.number().positive(),
+
+    // R-TB (Rear Top-Bottom) thresholds
+    rTB_greenMin: z.number().positive(),
+    rTB_yellowMin: z.number().positive(),
+    rTB_redMin: z.number().positive(),
   })
   .refine(
     (data) => {
       // Validate that yellowMin > greenMin and redMin > yellowMin for each field
-      const fields = ['gearBacklash', 'crankEndplay', 'brakeClearance', 'hydClutchClearance'];
+      const fields = ['hydClutchClearanceTotal', 'hydClutchClearanceRear', 'fb', 'fTB', 'rTB'];
 
       for (const field of fields) {
         const greenMin = data[`${field}_greenMin` as keyof typeof data] as number;
