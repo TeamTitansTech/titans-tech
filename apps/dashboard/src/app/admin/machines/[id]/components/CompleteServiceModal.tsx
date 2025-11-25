@@ -312,12 +312,7 @@ export function CompleteServiceModal({
             )}
 
             {blueprintSections.includes('SLIDE') && (
-              <SlideSection
-                ref={slideRef}
-                isOpen={slideOpen}
-                onOpenChange={setSlideOpen}
-                serviceType={serviceType}
-              />
+              <SlideSection ref={slideRef} isOpen={slideOpen} onOpenChange={setSlideOpen} />
             )}
 
             {blueprintSections.includes('GIBS') && (
