@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { createBlueprint } from '@/data/services/blueprints.api';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
+import { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
 import { type Field } from '../types';
 
 // Client-safe slug to enum mapping
@@ -39,12 +40,30 @@ const INITIAL_THRESHOLDS: BearingClearanceThresholdsData = {
   slideAdjNutToScrewSleeve_redMin: 0.003,
 };
 
+const INITIAL_CLUTCH_THRESHOLDS: ClutchThresholdsData = {
+  gearBacklash_greenMin: 0.001,
+  gearBacklash_yellowMin: 0.003,
+  gearBacklash_redMin: 0.005,
+  crankEndplay_greenMin: 0.001,
+  crankEndplay_yellowMin: 0.003,
+  crankEndplay_redMin: 0.005,
+  brakeClearance_greenMin: 0.001,
+  brakeClearance_yellowMin: 0.003,
+  brakeClearance_redMin: 0.005,
+  hydClutchClearance_greenMin: 0.001,
+  hydClutchClearance_yellowMin: 0.003,
+  hydClutchClearance_redMin: 0.005,
+};
+
 export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const t = useTranslations('models');
   const [name, setName] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [thresholdsOpen, setThresholdsOpen] = useState(false);
   const [thresholds, setThresholds] = useState<BearingClearanceThresholdsData>(INITIAL_THRESHOLDS);
+  const [clutchThresholdsOpen, setClutchThresholdsOpen] = useState(false);
+  const [clutchThresholds, setClutchThresholds] =
+    useState<ClutchThresholdsData>(INITIAL_CLUTCH_THRESHOLDS);
 
   const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
 
@@ -61,9 +80,15 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
       if (hasThresholdChanges) return true;
 
+      const hasClutchThresholdChanges = (
+        Object.keys(clutchThresholds) as Array<keyof ClutchThresholdsData>
+      ).some((key) => clutchThresholds[key] !== INITIAL_CLUTCH_THRESHOLDS[key]);
+
+      if (hasClutchThresholdChanges) return true;
+
       return false;
     },
-    [name, selectedSections, thresholds],
+    [name, selectedSections, thresholds, clutchThresholds],
   );
 
   const toggleSection = (section: string) => {
@@ -81,6 +106,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     e.preventDefault();
 
     const hasBearingClearance = selectedSections.includes('bearing_clearance');
+    const hasClutch = selectedSections.includes('clutch');
 
     interface BlueprintField {
       fieldName: string;
@@ -94,6 +120,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       sections: string[];
       fields: BlueprintField[];
       thresholds?: BearingClearanceThresholdsData;
+      clutchThresholds?: ClutchThresholdsData;
     }
 
     const payload: CreateBlueprintPayload = {
@@ -123,6 +150,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       payload.thresholds = thresholds;
     }
 
+    if (hasClutch) {
+      payload.clutchThresholds = clutchThresholds;
+    }
+
     const response = await submitBlueprint(payload);
 
     if (response.data) {
@@ -130,6 +161,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       setName('');
       setSelectedSections([]);
       setThresholdsOpen(false);
+      setClutchThresholdsOpen(false);
       resetThresholds();
       resetFields();
       resetOptions();
@@ -140,12 +172,14 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
   const resetThresholds = useCallback(() => {
     setThresholds(INITIAL_THRESHOLDS);
+    setClutchThresholds(INITIAL_CLUTCH_THRESHOLDS);
   }, []);
 
   const reset = useCallback(() => {
     setName('');
     setSelectedSections([]);
     setThresholdsOpen(false);
+    setClutchThresholdsOpen(false);
     resetThresholds();
   }, [resetThresholds]);
 
@@ -158,6 +192,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setThresholdsOpen,
     thresholds,
     setThresholds,
+    clutchThresholdsOpen,
+    setClutchThresholdsOpen,
+    clutchThresholds,
+    setClutchThresholds,
     isLoading,
     result,
     handleSubmit,

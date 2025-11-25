@@ -1612,6 +1612,13 @@
       "wristPinToBushing": "Wrist Pin to Bushing",
       "slideAdjNutToScrewSleeve": "Slide Adj Nut to Screw/Sleeve"
     },
+    "clutch": {
+      "title": "CLUTCH - Alert Configuration",
+      "gearBacklash": "Gear Backlash (Before/After Differential)",
+      "crankEndplay": "Crank Endplay (Before/After Differential)",
+      "brakeClearance": "Brake Clearance (Total/Rear Differential)",
+      "hydClutchClearance": "Hydraulic Clutch Clearance (Total/Rear Differential)"
+    },
     "thresholds": {
       "greenStartMin": "Green Start (Min)",
       "yellowStartMin": "Yellow Start (Min)",

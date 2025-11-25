@@ -60,7 +60,10 @@ export type {
   InspectionModalProps,
 } from '@titans-tech/shared/types/services';
 
-import type { BearingClearanceData as BearingData } from '@titans-tech/shared/types/services';
+import type {
+  BearingClearanceData as BearingData,
+  ClutchData,
+} from '@titans-tech/shared/types/services';
 
 export interface LatestBearingClearance {
   latestServiceId: string;
@@ -83,6 +86,23 @@ export interface LatestBearingClearance {
   };
 }
 
+export interface LatestClutch {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: ClutchData;
+  alert?: {
+    gearBacklash_differential: number;
+    gearBacklash_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    crankEndplay_differential: number;
+    crankEndplay_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    brakeClearance_differential: number;
+    brakeClearance_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    hydClutchClearance_differential: number;
+    hydClutchClearance_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+  };
+}
+
 export interface LatestReport {
   machineId: string;
   machineName: string;
@@ -97,7 +117,7 @@ export interface LatestReport {
     SLIDE: null;
     GIBS: null;
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null;
-    CLUTCH: null;
+    CLUTCH: LatestClutch | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: null;
   };
 }

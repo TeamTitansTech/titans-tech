@@ -1690,6 +1690,13 @@
       "wristPinToBushing": "Pino de Pulso à Bucha",
       "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide ao Parafuso/Manguito"
     },
+    "clutch": {
+      "title": "EMBREAGEM - Configuração de Alerta",
+      "gearBacklash": "Folga da Engrenagem (Diferencial Antes/Depois)",
+      "crankEndplay": "Folga do Virabrequim (Diferencial Antes/Depois)",
+      "brakeClearance": "Folga do Freio (Diferencial Total/Traseira)",
+      "hydClutchClearance": "Folga da Embreagem Hidráulica (Diferencial Total/Traseira)"
+    },
     "thresholds": {
       "greenStartMin": "Início Verde (Mín)",
       "yellowStartMin": "Início Amarelo (Mín)",

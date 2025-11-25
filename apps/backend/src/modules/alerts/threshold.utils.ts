@@ -73,3 +73,71 @@ export function convertPartialThresholdToDecimal<T extends Record<string, any>>(
   });
   return data as PartialThresholdDecimalData;
 }
+
+/**
+ * List of all clutch threshold field names
+ */
+export const CLUTCH_THRESHOLD_FIELDS = [
+  'gearBacklash_greenMin',
+  'gearBacklash_yellowMin',
+  'gearBacklash_redMin',
+  'crankEndplay_greenMin',
+  'crankEndplay_yellowMin',
+  'crankEndplay_redMin',
+  'brakeClearance_greenMin',
+  'brakeClearance_yellowMin',
+  'brakeClearance_redMin',
+  'hydClutchClearance_greenMin',
+  'hydClutchClearance_yellowMin',
+  'hydClutchClearance_redMin',
+] as const;
+
+export type ClutchThresholdFieldName = (typeof CLUTCH_THRESHOLD_FIELDS)[number];
+
+/**
+ * Type for complete clutch threshold data with Decimal fields
+ */
+export type ClutchThresholdDecimalData = {
+  [K in ClutchThresholdFieldName]: Decimal;
+};
+
+/**
+ * Type for partial clutch threshold data with Decimal fields
+ */
+export type PartialClutchThresholdDecimalData = {
+  [K in ClutchThresholdFieldName]?: Decimal;
+};
+
+/**
+ * Converts clutch threshold DTO fields to Decimal type for Prisma (all fields)
+ *
+ * @param dto - Clutch threshold data object with all fields
+ * @returns Object with all Decimal-converted clutch threshold fields
+ */
+export function convertClutchThresholdToDecimal<T extends Record<string, any>>(
+  dto: T,
+): ClutchThresholdDecimalData {
+  return CLUTCH_THRESHOLD_FIELDS.reduce((acc, field) => {
+    acc[field] = new Decimal(dto[field]);
+    return acc;
+  }, {} as any) as ClutchThresholdDecimalData;
+}
+
+/**
+ * Converts partial clutch threshold DTO fields to Decimal type for Prisma
+ *
+ * @param dto - Partial clutch threshold data object
+ * @returns Object with Decimal-converted clutch threshold fields (only provided fields)
+ */
+export function convertPartialClutchThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): PartialClutchThresholdDecimalData {
+  const data: any = {};
+  Object.keys(dto).forEach((key) => {
+    const value = dto[key];
+    if (value !== undefined && CLUTCH_THRESHOLD_FIELDS.includes(key as any)) {
+      data[key] = new Decimal(value);
+    }
+  });
+  return data as PartialClutchThresholdDecimalData;
+}

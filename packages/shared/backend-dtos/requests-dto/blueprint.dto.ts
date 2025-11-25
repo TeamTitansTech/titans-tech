@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ServiceSection } from '@titans-tech/db/enums';
+import { ClutchThresholdsSchema } from './threshold-clutch.dto';
 
 // Schema existente para Blueprint
 export const CreateBlueprintSchema = z.object({
@@ -75,6 +76,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     fields: z.array(z.any()),
     sections: z.array(z.nativeEnum(ServiceSection)),
     thresholds: ThresholdsSchema.optional(),
+    clutchThresholds: ClutchThresholdsSchema.optional(),
   })
   .refine(
     (data) => {
@@ -82,10 +84,14 @@ export const CreateBlueprintWithThresholdsSchema = z
       if (data.thresholds && !data.sections.includes(ServiceSection.BEARING_CLEARANCE)) {
         return false;
       }
+      // Se clutchThresholds fornecidos, CLUTCH deve estar em sections
+      if (data.clutchThresholds && !data.sections.includes(ServiceSection.CLUTCH)) {
+        return false;
+      }
       return true;
     },
     {
-      message: 'Thresholds can only be configured if BEARING_CLEARANCE is in sections',
+      message: 'Thresholds can only be configured if corresponding section is selected',
       path: ['thresholds'],
     },
   );

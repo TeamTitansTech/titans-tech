@@ -9,6 +9,7 @@ import { PrismaService } from '../shared/prisma.service';
 import {
   LatestReportResponseDto,
   LatestBearingClearanceDto,
+  LatestClutchDto,
   CreateServiceDto,
   UpdateServicePayload,
   CompleteServiceDto,
@@ -732,7 +733,44 @@ export class ServicesService {
       }
     }
 
-    // 4. Build response
+    // 4. Process Clutch section
+    let clutchData: LatestClutchDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.CLUTCH)) {
+      // Find the most recent service with Clutch data
+      const latestClutchService = services.find(
+        (service) => service.clutch && service.clutch.length > 0,
+      );
+
+      if (latestClutchService) {
+        const clutchMeasurements = latestClutchService.clutch[0].data;
+
+        if (clutchMeasurements) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getClutchAlertByService(
+              latestClutchService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+            console.log(
+              `ℹ️ [SERVICES] No clutch alert found for service ${latestClutchService.id}`,
+            );
+          }
+
+          clutchData = new LatestClutchDto({
+            latestServiceId: latestClutchService.id,
+            latestServiceDate: latestClutchService.date,
+            serviceType: latestClutchService.type,
+            data: clutchMeasurements,
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 5. Build response
     return new LatestReportResponseDto({
       machineId: machine.id,
       machineName: machine.name,
@@ -747,7 +785,7 @@ export class ServicesService {
         SLIDE: null,
         GIBS: null,
         LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null,
-        CLUTCH: null,
+        CLUTCH: clutchData,
         COUNTERBALANCE_CYLINDER_AIRBAG: null,
       },
     });

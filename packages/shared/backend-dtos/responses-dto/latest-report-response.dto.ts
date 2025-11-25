@@ -1,6 +1,7 @@
 import { ServiceType, ServiceSection } from '@titans-tech/db/enums';
-import { BearingClearanceData } from '@titans-tech/db';
+import { BearingClearanceData, ClutchData } from '@titans-tech/db';
 import { AlertBearingClearanceResponseDto } from './alert-bearing-clearance-response.dto';
+import { AlertClutchResponseDto } from './alert-clutch-response.dto';
 
 /**
  * DTO for the latest BearingClearance data in a machine
@@ -13,6 +14,21 @@ export class LatestBearingClearanceDto {
   alert?: AlertBearingClearanceResponseDto; // Alert if exists
 
   constructor(partial: Partial<LatestBearingClearanceDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
+ * DTO for the latest Clutch data in a machine
+ */
+export class LatestClutchDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType; // INSPECTION | MAINTENANCE
+  data: ClutchData; // Clutch data
+  alert?: AlertClutchResponseDto; // Alert if exists
+
+  constructor(partial: Partial<LatestClutchDto>) {
     Object.assign(this, partial);
   }
 }
@@ -35,7 +51,7 @@ export class LatestReportResponseDto {
     SLIDE: null; // Future implementation
     GIBS: null; // Future implementation
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null; // Future implementation
-    CLUTCH: null; // Future implementation
+    CLUTCH: LatestClutchDto | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: null; // Future implementation
   };
 

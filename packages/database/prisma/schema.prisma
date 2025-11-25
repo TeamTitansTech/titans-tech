@@ -476,6 +476,7 @@ model Blueprint {
 
   machines                  Machine[]
   thresholdBearingClearance ThresholdBearingClearance?
+  thresholdClutch           ThresholdClutch?
 
   @@map("blueprints")
 }
@@ -520,6 +521,38 @@ model ThresholdBearingClearance {
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
   @@map("threshold_bearing_clearance")
+}
+
+model ThresholdClutch {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Gear Backlash thresholds (Before/After differential)
+  gearBacklash_greenMin  Decimal @db.Decimal(10, 4)
+  gearBacklash_yellowMin Decimal @db.Decimal(10, 4)
+  gearBacklash_redMin    Decimal @db.Decimal(10, 4)
+
+  // Crank Endplay thresholds (Before/After differential)
+  crankEndplay_greenMin  Decimal @db.Decimal(10, 4)
+  crankEndplay_yellowMin Decimal @db.Decimal(10, 4)
+  crankEndplay_redMin    Decimal @db.Decimal(10, 4)
+
+  // Brake Clearance thresholds (Total/Rear differential)
+  brakeClearance_greenMin  Decimal @db.Decimal(10, 4)
+  brakeClearance_yellowMin Decimal @db.Decimal(10, 4)
+  brakeClearance_redMin    Decimal @db.Decimal(10, 4)
+
+  // Hydraulic Clutch Clearance thresholds (Total/Rear differential)
+  hydClutchClearance_greenMin  Decimal @db.Decimal(10, 4)
+  hydClutchClearance_yellowMin Decimal @db.Decimal(10, 4)
+  hydClutchClearance_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_clutch")
 }
 
 model Machine {
@@ -608,6 +641,7 @@ model MachineService {
   tramming                     MachineServiceTramming[]
   pistons                      MachineServicePistons[]
   alertBearingClearance        AlertBearingClearance?
+  alertClutch                  AlertClutch?
 
   @@map("machine_services")
 }
@@ -649,6 +683,37 @@ model AlertBearingClearance {
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
   @@map("alert_bearing_clearance")
+}
+
+model AlertClutch {
+  id               String @id @default(cuid())
+  machineServiceId String @unique
+
+  // Gear Backlash alert - differential between Before and After
+  gearBacklash_differential Decimal       @db.Decimal(10, 4)
+  gearBacklash_severity     AlertSeverity
+
+  // Crank Endplay alert - differential between Before and After
+  crankEndplay_differential Decimal       @db.Decimal(10, 4)
+  crankEndplay_severity     AlertSeverity
+
+  // Brake Clearance alert - differential between Total and Rear
+  brakeClearance_differential Decimal       @db.Decimal(10, 4)
+  brakeClearance_severity     AlertSeverity
+
+  // Hydraulic Clutch Clearance alert - differential between Total and Rear
+  hydClutchClearance_differential Decimal       @db.Decimal(10, 4)
+  hydClutchClearance_severity     AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_clutch")
 }
 
 // BEARING_CLEARANCE Section
