@@ -163,6 +163,7 @@ export class AlertsService {
             blueprint: {
               include: {
                 thresholdBearingClearance: true,
+                thresholdClutch: true,
               },
             },
           },
@@ -171,6 +172,11 @@ export class AlertsService {
           include: {
             outerData: true,
             innerData: true,
+          },
+        },
+        clutch: {
+          include: {
+            data: true,
           },
         },
       },
@@ -327,6 +333,19 @@ export class AlertsService {
         thresholdSnapshot,
       },
     });
+
+    // Also generate clutch alerts if clutch data exists
+    if (service.clutch && service.clutch.length > 0) {
+      const clutchThreshold = service.machine.blueprint.thresholdClutch;
+      const clutchData = service.clutch[0].data;
+
+      if (clutchThreshold && clutchData) {
+        console.log(
+          `ℹ️ [ALERTS] Generating clutch alerts for service ${machineServiceId}`,
+        );
+        await this.generateClutchAlertsForService(machineServiceId);
+      }
+    }
 
     return new AlertBearingClearanceResponseDto({
       ...alert,
