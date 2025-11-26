@@ -76,7 +76,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                       {translateFieldName(key)}
                     </TableCell>
                     <TableCell className="py-1.5 text-center">
-                      {displayValue(data[key as keyof LubricationHydraulicsData], key)}
+                      {displayValue(data[key as keyof LubricationHydraulicsData])}
                     </TableCell>
                   </TableRow>
                 ))}
