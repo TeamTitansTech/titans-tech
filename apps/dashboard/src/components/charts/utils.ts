@@ -88,7 +88,7 @@ export function getSeverityLabel(severity: AlertSeverity): string {
 }
 
 /**
- * Get the CSS variable name for a threshold line color
+ * Get color for threshold lines
  */
 export function getThresholdColor(level: 'green' | 'yellow' | 'red'): string {
   switch (level) {

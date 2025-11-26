@@ -37,6 +37,94 @@ const DEFAULT_COLORS = [
   'hsl(var(--chart-5))',
 ];
 
+// Custom tooltip component - defined outside to avoid recreation on each render
+interface MultiLineTooltipProps {
+  active?: boolean;
+  payload?: any[];
+  label?: string;
+  lines: MultiLineThresholdChartProps['lines'];
+  sharedThreshold: MultiLineThresholdChartProps['sharedThreshold'];
+  valueUnit?: string;
+}
+
+function CustomTooltip({
+  active,
+  payload,
+  label,
+  lines,
+  sharedThreshold,
+  valueUnit,
+}: MultiLineTooltipProps) {
+  if (!active || !payload || payload.length === 0) return null;
+
+  return (
+    <div className="bg-card border rounded-lg shadow-lg p-3 min-w-[220px]">
+      <Typography variant="small" className="font-medium mb-2">
+        {label}
+      </Typography>
+      <div className="space-y-2">
+        {payload.map((entry: any, index: number) => {
+          const value = entry.value as number;
+          const lineConfig = lines.find((l) => l.dataKey === entry.dataKey);
+          const threshold = lineConfig?.threshold || sharedThreshold || null;
+          const severity = calculateSeverity(value, threshold);
+          const severityColors = getSeverityColor(severity);
+
+          return (
+            <div key={index} className="space-y-1">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
+                <Typography variant="small" className="font-medium">
+                  {entry.name}
+                </Typography>
+              </div>
+              <div className="pl-5">
+                <Typography variant="large" className="font-semibold">
+                  {formatMeasurementValue(value, 4, valueUnit)}
+                </Typography>
+                {threshold && (
+                  <div
+                    className={`inline-block px-2 py-0.5 rounded text-xs font-medium mt-1 ${severityColors.bg} ${severityColors.text}`}
+                  >
+                    {getSeverityLabel(severity)}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {sharedThreshold && (
+          <div className="text-xs space-y-1 pt-2 mt-2 border-t">
+            <Typography variant="small" className="text-muted-foreground font-medium">
+              Thresholds:
+            </Typography>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Green:</span>
+              <span className="font-mono">
+                &lt; {formatMeasurementValue(sharedThreshold.yellowMin, 4, valueUnit)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Yellow:</span>
+              <span className="font-mono">
+                {formatMeasurementValue(sharedThreshold.yellowMin, 4, valueUnit)} -{' '}
+                {formatMeasurementValue(sharedThreshold.redMin, 4, valueUnit)}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Red:</span>
+              <span className="font-mono">
+                ≥ {formatMeasurementValue(sharedThreshold.redMin, 4, valueUnit)}
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
   const {
     data,
@@ -56,78 +144,6 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
   const [showGreen, setShowGreen] = useState(showGreenLine);
   const [showYellow, setShowYellow] = useState(showYellowLine);
   const [showRed, setShowRed] = useState(showRedLine);
-
-  // Custom tooltip component
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (!active || !payload || payload.length === 0) return null;
-
-    return (
-      <div className="bg-card border rounded-lg shadow-lg p-3 min-w-[220px]">
-        <Typography variant="small" className="font-medium mb-2">
-          {label}
-        </Typography>
-        <div className="space-y-2">
-          {payload.map((entry: any, index: number) => {
-            const value = entry.value as number;
-            const lineConfig = lines.find((l) => l.dataKey === entry.dataKey);
-            const threshold = lineConfig?.threshold || sharedThreshold || null;
-            const severity = calculateSeverity(value, threshold);
-            const severityColors = getSeverityColor(severity);
-
-            return (
-              <div key={index} className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-                  <Typography variant="small" className="font-medium">
-                    {entry.name}
-                  </Typography>
-                </div>
-                <div className="pl-5">
-                  <Typography variant="large" className="font-semibold">
-                    {formatMeasurementValue(value, 4, valueUnit)}
-                  </Typography>
-                  {threshold && (
-                    <div
-                      className={`inline-block px-2 py-0.5 rounded text-xs font-medium mt-1 ${severityColors.bg} ${severityColors.text}`}
-                    >
-                      {getSeverityLabel(severity)}
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-
-          {sharedThreshold && (
-            <div className="text-xs space-y-1 pt-2 mt-2 border-t">
-              <Typography variant="small" className="text-muted-foreground font-medium">
-                Thresholds:
-              </Typography>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Green:</span>
-                <span className="font-mono">
-                  &lt; {formatMeasurementValue(sharedThreshold.yellowMin, 4, valueUnit)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Yellow:</span>
-                <span className="font-mono">
-                  {formatMeasurementValue(sharedThreshold.yellowMin, 4, valueUnit)} -{' '}
-                  {formatMeasurementValue(sharedThreshold.redMin, 4, valueUnit)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Red:</span>
-                <span className="font-mono">
-                  ≥ {formatMeasurementValue(sharedThreshold.redMin, 4, valueUnit)}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  };
 
   // No data fallback
   if (!data || data.length === 0) {
@@ -205,7 +221,16 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
                 style: { fontSize: 12 },
               }}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip
+              content={(props) => (
+                <CustomTooltip
+                  {...props}
+                  lines={lines}
+                  sharedThreshold={sharedThreshold}
+                  valueUnit={valueUnit}
+                />
+              )}
+            />
             <Legend />
 
             {/* Threshold lines */}
