@@ -5,7 +5,6 @@ import { useTranslations } from 'next-intl';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronDown } from 'lucide-react';
 import { type GibsStageData } from '@/data/types/services.types';
 import { MeasurementSection } from './MeasurementSection';
@@ -40,8 +39,7 @@ export function GibsForm({
   const [afterAdjustmentOpen, setAfterAdjustmentOpen] = useState(false);
   const [afterInstallOpen, setAfterInstallOpen] = useState(false);
   const [includeAdjustmentPrevious, setIncludeAdjustmentPrevious] = useState(false);
-  const [adjustmentBeforeOpen, setAdjustmentBeforeOpen] = useState(false);
-  const [adjustmentAfterOpen, setAdjustmentAfterOpen] = useState(false);
+  const [installationOpen, setInstallationOpen] = useState(false);
 
   if (slideType === 'outer') {
     return (
@@ -59,220 +57,175 @@ export function GibsForm({
             {t('form.gibs.includePreviousMeasurements')}
           </Label>
         </div>
-
-        {includePreviousMeasurements ? (
-          <>
-            {beforeAdjustment?.data && beforeAdjustment?.onUpdate && (
-              <Collapsible open={beforeAdjustmentOpen} onOpenChange={setBeforeAdjustmentOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                  <span className="text-sm font-medium">{t('form.gibs.beforeAdjustment')}</span>
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${beforeAdjustmentOpen ? 'rotate-180' : ''}`}
-                  />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-4 space-y-4">
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                    <MeasurementSection
-                      data={beforeAdjustment.data!}
-                      updateFn={beforeAdjustment.onUpdate!}
-                      handleBlur={beforeAdjustment.handleBlur || (() => {})}
-                      errors={beforeAdjustment.errors || {}}
-                      diagramType="frontToBack"
-                      t={t}
-                    />
-                    <MeasurementSection
-                      data={beforeAdjustment.data!}
-                      updateFn={beforeAdjustment.onUpdate!}
-                      handleBlur={beforeAdjustment.handleBlur || (() => {})}
-                      errors={beforeAdjustment.errors || {}}
-                      diagramType="leftToRight"
-                      t={t}
-                    />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            )}
-
-            {afterAdjustment?.data && afterAdjustment?.onUpdate && (
-              <Collapsible open={afterAdjustmentOpen} onOpenChange={setAfterAdjustmentOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                  <span className="text-sm font-medium">{t('form.gibs.afterAdjustment')}</span>
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${afterAdjustmentOpen ? 'rotate-180' : ''}`}
-                  />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-4 space-y-4">
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                    <MeasurementSection
-                      data={afterAdjustment.data!}
-                      updateFn={afterAdjustment.onUpdate!}
-                      handleBlur={afterAdjustment.handleBlur || (() => {})}
-                      errors={afterAdjustment.errors || {}}
-                      diagramType="frontToBack"
-                      t={t}
-                    />
-                    <MeasurementSection
-                      data={afterAdjustment.data!}
-                      updateFn={afterAdjustment.onUpdate!}
-                      handleBlur={afterAdjustment.handleBlur || (() => {})}
-                      errors={afterAdjustment.errors || {}}
-                      diagramType="leftToRight"
-                      t={t}
-                    />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            )}
-
-            {afterInstall?.data && afterInstall?.onUpdate && (
-              <Collapsible open={afterInstallOpen} onOpenChange={setAfterInstallOpen}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                  <span className="text-sm font-medium">
-                    {t('form.gibs.freeHangingAfterInstall')}
-                  </span>
-                  <ChevronDown
-                    className={`h-4 w-4 transition-transform ${afterInstallOpen ? 'rotate-180' : ''}`}
-                  />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-4 space-y-4">
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                    <MeasurementSection
-                      data={afterInstall.data!}
-                      updateFn={afterInstall.onUpdate!}
-                      handleBlur={afterInstall.handleBlur || (() => {})}
-                      errors={afterInstall.errors || {}}
-                      diagramType="topView"
-                      t={t}
-                    />
-                    <MeasurementSection
-                      data={afterInstall.data!}
-                      updateFn={afterInstall.onUpdate!}
-                      handleBlur={afterInstall.handleBlur || (() => {})}
-                      errors={afterInstall.errors || {}}
-                      diagramType="leftToRight"
-                      t={t}
-                    />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            )}
-          </>
-        ) : (
-          afterInstall?.data &&
-          afterInstall?.onUpdate && (
-            <div className="space-y-4">
-              <h4 className="text-sm font-semibold">{t('form.gibs.freeHangingAfterInstall')}</h4>
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                <MeasurementSection
-                  data={afterInstall.data!}
-                  updateFn={afterInstall.onUpdate!}
-                  handleBlur={afterInstall.handleBlur || (() => {})}
-                  errors={afterInstall.errors || {}}
-                  diagramType="topView"
-                  t={t}
+        <>
+          {includePreviousMeasurements && beforeAdjustment?.data && beforeAdjustment?.onUpdate && (
+            <Collapsible open={beforeAdjustmentOpen} onOpenChange={setBeforeAdjustmentOpen}>
+              <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                <span className="text-sm font-medium">{t('form.gibs.beforeAdjustment')}</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${beforeAdjustmentOpen ? 'rotate-180' : ''}`}
                 />
-                <MeasurementSection
-                  data={afterInstall.data!}
-                  updateFn={afterInstall.onUpdate!}
-                  handleBlur={afterInstall.handleBlur || (() => {})}
-                  errors={afterInstall.errors || {}}
-                  diagramType="leftToRight"
-                  t={t}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4 space-y-4">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  <MeasurementSection
+                    data={beforeAdjustment.data!}
+                    updateFn={beforeAdjustment.onUpdate!}
+                    handleBlur={beforeAdjustment.handleBlur || (() => {})}
+                    errors={beforeAdjustment.errors || {}}
+                    diagramType="frontToBack"
+                    t={t}
+                  />
+                  <MeasurementSection
+                    data={beforeAdjustment.data!}
+                    updateFn={beforeAdjustment.onUpdate!}
+                    handleBlur={beforeAdjustment.handleBlur || (() => {})}
+                    errors={beforeAdjustment.errors || {}}
+                    diagramType="leftToRight"
+                    t={t}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
+          {afterAdjustment?.data && afterAdjustment?.onUpdate && (
+            <Collapsible open={afterAdjustmentOpen} onOpenChange={setAfterAdjustmentOpen}>
+              <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                <span className="text-sm font-medium">{t('form.gibs.afterAdjustment')}</span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${afterAdjustmentOpen ? 'rotate-180' : ''}`}
                 />
-              </div>
-            </div>
-          )
-        )}
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4 space-y-4">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  <MeasurementSection
+                    data={afterAdjustment.data!}
+                    updateFn={afterAdjustment.onUpdate!}
+                    handleBlur={afterAdjustment.handleBlur || (() => {})}
+                    errors={afterAdjustment.errors || {}}
+                    diagramType="frontToBack"
+                    t={t}
+                  />
+                  <MeasurementSection
+                    data={afterAdjustment.data!}
+                    updateFn={afterAdjustment.onUpdate!}
+                    handleBlur={afterAdjustment.handleBlur || (() => {})}
+                    errors={afterAdjustment.errors || {}}
+                    diagramType="leftToRight"
+                    t={t}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+
+          {afterInstall?.data && afterInstall?.onUpdate && (
+            <Collapsible open={afterInstallOpen} onOpenChange={setAfterInstallOpen}>
+              <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+                <span className="text-sm font-medium">
+                  {t('form.gibs.freeHangingAfterInstall')}
+                </span>
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${afterInstallOpen ? 'rotate-180' : ''}`}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-4 space-y-4">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                  <MeasurementSection
+                    data={afterInstall.data!}
+                    updateFn={afterInstall.onUpdate!}
+                    handleBlur={afterInstall.handleBlur || (() => {})}
+                    errors={afterInstall.errors || {}}
+                    diagramType="topView"
+                    t={t}
+                  />
+                  <MeasurementSection
+                    data={afterInstall.data!}
+                    updateFn={afterInstall.onUpdate!}
+                    handleBlur={afterInstall.handleBlur || (() => {})}
+                    errors={afterInstall.errors || {}}
+                    diagramType="leftToRight"
+                    t={t}
+                    hideUsable={true}
+                  />
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+          )}
+        </>
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <Tabs defaultValue="adjustment" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="adjustment">{t('form.gibs.adjustment')}</TabsTrigger>
-          <TabsTrigger value="installation">{t('form.gibs.installation')}</TabsTrigger>
-        </TabsList>
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="include-adjustment-previous"
+          checked={includeAdjustmentPrevious}
+          onCheckedChange={(checked) => setIncludeAdjustmentPrevious(checked as boolean)}
+        />
+        <Label
+          htmlFor="include-adjustment-previous"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          {t('form.gibs.includePreviousMeasurements')}
+        </Label>
+      </div>
 
-        <TabsContent value="adjustment" className="space-y-4 mt-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="include-adjustment-previous"
-              checked={includeAdjustmentPrevious}
-              onCheckedChange={(checked) => setIncludeAdjustmentPrevious(checked as boolean)}
+      {includeAdjustmentPrevious && beforeAdjustment?.data && beforeAdjustment?.onUpdate && (
+        <Collapsible open={beforeAdjustmentOpen} onOpenChange={setBeforeAdjustmentOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+            <span className="text-sm font-medium">{t('form.gibs.beforeAdjustment')}</span>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${beforeAdjustmentOpen ? 'rotate-180' : ''}`}
             />
-            <Label
-              htmlFor="include-adjustment-previous"
-              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-            >
-              {t('form.gibs.includePreviousMeasurements')}
-            </Label>
-          </div>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4 space-y-4">
+            <MeasurementSection
+              data={beforeAdjustment.data!}
+              updateFn={beforeAdjustment.onUpdate!}
+              handleBlur={beforeAdjustment.handleBlur || (() => {})}
+              errors={beforeAdjustment.errors || {}}
+              diagramType="leftToRight"
+              t={t}
+              hideUsable={true}
+            />
+          </CollapsibleContent>
+        </Collapsible>
+      )}
 
-          {includeAdjustmentPrevious ? (
-            <>
-              {beforeAdjustment?.data && beforeAdjustment?.onUpdate && (
-                <Collapsible open={adjustmentBeforeOpen} onOpenChange={setAdjustmentBeforeOpen}>
-                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                    <span className="text-sm font-medium">{t('form.gibs.beforeAdjustment')}</span>
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${adjustmentBeforeOpen ? 'rotate-180' : ''}`}
-                    />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-4 space-y-4">
-                    <MeasurementSection
-                      data={beforeAdjustment.data!}
-                      updateFn={beforeAdjustment.onUpdate!}
-                      handleBlur={beforeAdjustment.handleBlur || (() => {})}
-                      errors={beforeAdjustment.errors || {}}
-                      diagramType="leftToRight"
-                      t={t}
-                    />
-                  </CollapsibleContent>
-                </Collapsible>
-              )}
+      {afterAdjustment?.data && afterAdjustment?.onUpdate && (
+        <Collapsible open={afterAdjustmentOpen} onOpenChange={setAfterAdjustmentOpen}>
+          <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+            <span className="text-sm font-medium">{t('form.gibs.afterAdjustment')}</span>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform ${afterAdjustmentOpen ? 'rotate-180' : ''}`}
+            />
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4 space-y-4">
+            <MeasurementSection
+              data={afterAdjustment.data!}
+              updateFn={afterAdjustment.onUpdate!}
+              handleBlur={afterAdjustment.handleBlur || (() => {})}
+              errors={afterAdjustment.errors || {}}
+              diagramType="leftToRight"
+              t={t}
+              hideUsable={true}
+            />
+          </CollapsibleContent>
+        </Collapsible>
+      )}
 
-              {afterAdjustment?.data && afterAdjustment?.onUpdate && (
-                <Collapsible open={adjustmentAfterOpen} onOpenChange={setAdjustmentAfterOpen}>
-                  <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
-                    <span className="text-sm font-medium">{t('form.gibs.afterAdjustment')}</span>
-                    <ChevronDown
-                      className={`h-4 w-4 transition-transform ${adjustmentAfterOpen ? 'rotate-180' : ''}`}
-                    />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-4 space-y-4">
-                    <MeasurementSection
-                      data={afterAdjustment.data!}
-                      updateFn={afterAdjustment.onUpdate!}
-                      handleBlur={afterAdjustment.handleBlur || (() => {})}
-                      errors={afterAdjustment.errors || {}}
-                      diagramType="leftToRight"
-                      t={t}
-                    />
-                  </CollapsibleContent>
-                </Collapsible>
-              )}
-            </>
-          ) : (
-            afterAdjustment?.data &&
-            afterAdjustment?.onUpdate && (
-              <div className="space-y-4">
-                <h4 className="text-sm font-semibold">{t('form.gibs.afterAdjustment')}</h4>
-                <MeasurementSection
-                  data={afterAdjustment.data!}
-                  updateFn={afterAdjustment.onUpdate!}
-                  handleBlur={afterAdjustment.handleBlur || (() => {})}
-                  errors={afterAdjustment.errors || {}}
-                  diagramType="leftToRight"
-                  t={t}
-                />
-              </div>
-            )
-          )}
-        </TabsContent>
-
-        <TabsContent value="installation" className="space-y-4 mt-4">
+      <Collapsible open={installationOpen} onOpenChange={setInstallationOpen}>
+        <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-muted rounded-lg hover:bg-muted/80 transition-colors">
+          <span className="text-sm font-medium">{t('form.gibs.installation')}</span>
+          <ChevronDown
+            className={`h-4 w-4 transition-transform ${installationOpen ? 'rotate-180' : ''}`}
+          />
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-4 space-y-4">
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {beforeToolInstall?.data && beforeToolInstall?.onUpdate && (
               <MeasurementSection
@@ -282,6 +235,7 @@ export function GibsForm({
                 errors={beforeToolInstall.errors || {}}
                 diagramType="beforeTool"
                 t={t}
+                hideUsable={true}
               />
             )}
 
@@ -293,11 +247,12 @@ export function GibsForm({
                 errors={afterToolInstall.errors || {}}
                 diagramType="afterTool"
                 t={t}
+                hideUsable={true}
               />
             )}
           </div>
-        </TabsContent>
-      </Tabs>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }

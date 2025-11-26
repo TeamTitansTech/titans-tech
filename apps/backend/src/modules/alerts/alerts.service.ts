@@ -22,6 +22,10 @@ import {
   UpdateThresholdSlideDto,
   ThresholdSlideResponseDto,
   AlertSlideResponseDto,
+  CreateThresholdGibsDto,
+  UpdateThresholdGibsDto,
+  ThresholdGibsResponseDto,
+  AlertGibsResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertSeverity } from '@titans-tech/shared/enums';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -32,6 +36,8 @@ import {
   convertPartialClutchThresholdToDecimal,
   convertSlideThresholdToDecimal,
   convertPartialSlideThresholdToDecimal,
+  convertGibsThresholdToDecimal,
+  convertPartialGibsThresholdToDecimal,
 } from './threshold.utils';
 
 @Injectable()
@@ -1195,6 +1201,320 @@ export class AlertsService {
         outer: slideData.outerData,
         inner: slideData.innerData,
       },
+    } as any);
+  }
+
+  // ==================== GIBS THRESHOLD METHODS ====================
+
+  async createGibsThreshold(dto: CreateThresholdGibsDto) {
+    // Validate blueprint exists
+    const blueprint = await this.prisma.blueprint.findUnique({
+      where: { id: dto.blueprintId },
+    });
+
+    if (!blueprint) {
+      throw new NotFoundException(`Blueprint ${dto.blueprintId} not found`);
+    }
+
+    // Check if threshold already exists for this blueprint
+    const existingThreshold = await this.prisma.thresholdGibs.findUnique({
+      where: { blueprintId: dto.blueprintId },
+    });
+
+    if (existingThreshold) {
+      throw new BadRequestException(
+        `GIBS threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+      );
+    }
+
+    const threshold = await this.prisma.thresholdGibs.create({
+      data: {
+        blueprintId: dto.blueprintId,
+        ...convertGibsThresholdToDecimal(dto),
+      },
+    });
+
+    return new ThresholdGibsResponseDto(threshold as any);
+  }
+
+  async getGibsThresholdByBlueprint(blueprintId: string) {
+    const threshold = await this.prisma.thresholdGibs.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `GIBS threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    return new ThresholdGibsResponseDto(threshold as any);
+  }
+
+  async updateGibsThreshold(blueprintId: string, dto: UpdateThresholdGibsDto) {
+    // Check if threshold exists
+    const existingThreshold = await this.prisma.thresholdGibs.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!existingThreshold) {
+      throw new NotFoundException(
+        `GIBS threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    // Validate that yellowMin > greenMin and redMin > yellowMin if all fields provided
+    const mergedData = {
+      ...existingThreshold,
+      ...dto,
+    };
+
+    const greenMin = Number(mergedData.usable_greenMin);
+    const yellowMin = Number(mergedData.usable_yellowMin);
+    const redMin = Number(mergedData.usable_redMin);
+
+    if (yellowMin <= greenMin || redMin <= yellowMin) {
+      throw new BadRequestException(
+        'Invalid threshold values: must have greenMin < yellowMin < redMin',
+      );
+    }
+
+    // Update threshold
+    const threshold = await this.prisma.thresholdGibs.update({
+      where: { blueprintId },
+      data: convertPartialGibsThresholdToDecimal(dto),
+    });
+
+    return new ThresholdGibsResponseDto(threshold as any);
+  }
+
+  async deleteGibsThreshold(blueprintId: string) {
+    const threshold = await this.prisma.thresholdGibs.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `GIBS threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    await this.prisma.thresholdGibs.delete({
+      where: { blueprintId },
+    });
+
+    return { message: 'GIBS threshold deleted successfully' };
+  }
+
+  // ==================== GIBS ALERT GENERATION ====================
+
+  async generateAlertsForGibs(serviceId: string) {
+    // Fetch service with GIBS data and blueprint with thresholds
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: {
+        machine: {
+          include: {
+            blueprint: {
+              include: {
+                thresholdGibs: true,
+              },
+            },
+          },
+        },
+        gibs: {
+          include: {
+            outerData: true,
+          },
+        },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service ${serviceId} not found`);
+    }
+
+    if (!service.gibs || service.gibs.length === 0) {
+      throw new NotFoundException(
+        `GIBS data not found for service ${serviceId}`,
+      );
+    }
+
+    const threshold = service.machine.blueprint.thresholdGibs;
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `GIBS threshold not found for blueprint ${service.machine.blueprint.id}`,
+      );
+    }
+
+    const gibsData = service.gibs[0];
+    const outerData = gibsData.outerData;
+
+    if (!outerData) {
+      throw new NotFoundException(
+        `Outer Data (After Adjustment) not found for service ${serviceId}`,
+      );
+    }
+
+    // Calculate usable value from outerData (Left to Right measurement)
+    const usableValue = this.calculateGibsUsable(outerData);
+
+    if (usableValue === null) {
+      throw new BadRequestException(
+        `Cannot calculate usable value from GIBS data`,
+      );
+    }
+
+    // Determine severity
+    const severity = this.determineSeverity(
+      usableValue,
+      threshold.usable_greenMin,
+      threshold.usable_yellowMin,
+      threshold.usable_redMin,
+    );
+
+    // Upsert alert
+    const alert = await this.prisma.alertGibs.upsert({
+      where: { machineServiceId: serviceId },
+      create: {
+        machineServiceId: serviceId,
+        usable_value: usableValue,
+        usable_severity: severity,
+        thresholdSnapshot: {
+          usable_greenMin: threshold.usable_greenMin.toNumber(),
+          usable_yellowMin: threshold.usable_yellowMin.toNumber(),
+          usable_redMin: threshold.usable_redMin.toNumber(),
+        },
+      },
+      update: {
+        usable_value: usableValue,
+        usable_severity: severity,
+        thresholdSnapshot: {
+          usable_greenMin: threshold.usable_greenMin.toNumber(),
+          usable_yellowMin: threshold.usable_yellowMin.toNumber(),
+          usable_redMin: threshold.usable_redMin.toNumber(),
+        },
+      },
+    });
+
+    return new AlertGibsResponseDto({
+      ...alert,
+      gibsData: outerData,
+    } as any);
+  }
+
+  /**
+   * Calculates the "usable" value from GIBS outerData (After Adjustment) data
+   * Based on the gibsCalculations.ts logic for Left to Right measurements
+   */
+  private calculateGibsUsable(data: any): Decimal | null {
+    const toNum = (val: any): number =>
+      val && typeof val.toNumber === 'function'
+        ? val.toNumber()
+        : Number(val) || 0;
+    const isNum = (val: any): boolean => {
+      const num =
+        val && typeof val.toNumber === 'function'
+          ? val.toNumber()
+          : Number(val);
+      return typeof num === 'number' && !isNaN(num);
+    };
+
+    // All 8 points for usable: 13, 9, 14, 10, 15, 16, 11, 12
+    const allPointsCount = [
+      data.point13,
+      data.point9,
+      data.point14,
+      data.point10,
+      data.point15,
+      data.point16,
+      data.point11,
+      data.point12,
+    ].filter(isNum).length;
+
+    // Back points: 13, 14, 15, 16
+    const backPointsCount = [
+      data.point13,
+      data.point14,
+      data.point15,
+      data.point16,
+    ].filter(isNum).length;
+
+    // Front points: 9, 11, 10, 12
+    const frontPointsCount = [
+      data.point9,
+      data.point11,
+      data.point10,
+      data.point12,
+    ].filter(isNum).length;
+
+    let usable: number | null = null;
+
+    // Excel formula logic:
+    // IF(COUNT(13,9,14,10,15,16,11,12)=8, MIN(13,9,15,11)+MIN(14,10,16,12),
+    //   IF(COUNT(13,14,15,16)=4, MIN(13,15)+MIN(14,16),
+    //     IF(COUNT(9,11,10,12)=4, MIN(9,11)+MIN(10,12), "")))
+    if (allPointsCount === 8) {
+      const minLeft = Math.min(
+        toNum(data.point13),
+        toNum(data.point9),
+        toNum(data.point15),
+        toNum(data.point11),
+      );
+      const minRight = Math.min(
+        toNum(data.point14),
+        toNum(data.point10),
+        toNum(data.point16),
+        toNum(data.point12),
+      );
+      usable = minLeft + minRight;
+    } else if (backPointsCount === 4) {
+      const minBackLeft = Math.min(toNum(data.point13), toNum(data.point15));
+      const minBackRight = Math.min(toNum(data.point14), toNum(data.point16));
+      usable = minBackLeft + minBackRight;
+    } else if (frontPointsCount === 4) {
+      const minFrontLeft = Math.min(toNum(data.point9), toNum(data.point11));
+      const minFrontRight = Math.min(toNum(data.point10), toNum(data.point12));
+      usable = minFrontLeft + minFrontRight;
+    }
+
+    return usable !== null ? new Decimal(usable) : null;
+  }
+
+  async getGibsAlertByService(machineServiceId: string) {
+    const alert = await this.prisma.alertGibs.findUnique({
+      where: { machineServiceId },
+      include: {
+        machineService: {
+          include: {
+            gibs: {
+              include: {
+                outerData: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!alert) {
+      throw new NotFoundException(
+        `GIBS alert not found for service ${machineServiceId}`,
+      );
+    }
+
+    const gibsData = alert.machineService.gibs[0]?.outerData;
+
+    if (!gibsData) {
+      throw new NotFoundException(
+        `GIBS data not found for service ${machineServiceId}`,
+      );
+    }
+
+    return new AlertGibsResponseDto({
+      ...alert,
+      gibsData,
     } as any);
   }
 }

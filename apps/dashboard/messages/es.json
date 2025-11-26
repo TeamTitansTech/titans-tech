@@ -862,6 +862,9 @@
     "description": "Crear una nueva inspección de holgura de cojinete",
     "createdSuccessfully": "Inspección creada exitosamente",
     "form": {
+      "placeholders": {
+        "select": "Seleccionar"
+      },
       "date": {
         "label": "Fecha de Inspección",
         "placeholder": "Seleccionar fecha"
@@ -1643,6 +1646,14 @@
       "fb": "F-B (Frente-Atrás)",
       "fTB": "F-TB (Frente Superior-Inferior)",
       "rTB": "R-TB (Trasera Superior-Inferior)"
+    },
+    "slide": {
+      "title": "SLIDE - Configuración de Alerta",
+      "maxDeviation": "Desviación Máxima"
+    },
+    "gibs": {
+      "title": "GIBS - Configuración de Alerta",
+      "usable": "Utilizable"
     },
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",

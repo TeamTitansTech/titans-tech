@@ -27,6 +27,10 @@ import {
   UpdateThresholdSlideDto,
   CreateThresholdSlideSchema,
   UpdateThresholdSlideSchema,
+  CreateThresholdGibsDto,
+  UpdateThresholdGibsDto,
+  CreateThresholdGibsSchema,
+  UpdateThresholdGibsSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, Authenticated } from '../auth/auth.decorators';
@@ -223,5 +227,54 @@ export class AlertsSlideController {
   @Post('service/:serviceId/generate')
   async generateSlideAlerts(@Param('serviceId') serviceId: string) {
     return this.alertsService.generateAlertsForSlide(serviceId);
+  }
+}
+
+@Controller('alerts/gibs')
+@UseInterceptors(ClassSerializerInterceptor)
+export class AlertsGibsController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getGibsThresholdByBlueprint(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.getGibsThresholdByBlueprint(blueprintId);
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createGibsThreshold(
+    @Body(new ZodValidationPipe(CreateThresholdGibsSchema))
+    dto: CreateThresholdGibsDto,
+  ) {
+    return this.alertsService.createGibsThreshold(dto);
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updateGibsThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(new ZodValidationPipe(UpdateThresholdGibsSchema))
+    dto: UpdateThresholdGibsDto,
+  ) {
+    return this.alertsService.updateGibsThreshold(blueprintId, dto);
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deleteGibsThreshold(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.deleteGibsThreshold(blueprintId);
+  }
+
+  @Authenticated()
+  @Get('service/:serviceId')
+  async getGibsAlertByService(@Param('serviceId') serviceId: string) {
+    return this.alertsService.getGibsAlertByService(serviceId);
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generateGibsAlerts(@Param('serviceId') serviceId: string) {
+    return this.alertsService.generateAlertsForGibs(serviceId);
   }
 }
