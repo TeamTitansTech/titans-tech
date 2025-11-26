@@ -53,15 +53,15 @@ export function ThresholdRangeInput({
       <div className="h-10 w-full rounded-md overflow-hidden border border-gray-200">
         <div className="flex h-full">
           <div className="bg-green-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            &lt; {yellowMin}
+            {greenMin.toFixed(4)} - {(yellowMin - 0.0001).toFixed(4)}
           </div>
 
           <div className="bg-yellow-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            {yellowMin} - &lt; {redMin}
+            {yellowMin.toFixed(4)} - {(redMin - 0.0001).toFixed(4)}
           </div>
 
           <div className="bg-red-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
-            ≥ {redMin}
+            ≥ {redMin.toFixed(4)}
           </div>
         </div>
       </div>
