@@ -236,64 +236,71 @@ export class AlertsService {
       return null;
     }
 
-    const bearingData =
-      service.bearingClearance[0].outerData ||
-      service.bearingClearance[0].innerData;
+    const outerData = service.bearingClearance[0].outerData;
+    const innerData = service.bearingClearance[0].innerData;
 
-    if (!bearingData) {
+    if (!outerData && !innerData) {
       console.log(
         '⚠️ [ALERTS] No outerData or innerData found - skipping alert generation',
       );
       return null;
     }
 
-    const totalClearance = this.calculateFieldAlert(
-      bearingData.totalClearance_RH,
-      bearingData.totalClearance_LH,
-      threshold.totalClearance_greenMin,
-      threshold.totalClearance_yellowMin,
-      threshold.totalClearance_redMin,
-    );
+    // Helper function to calculate all 6 field alerts for a given data set
+    const calculateAllFieldAlerts = (data: any) => ({
+      totalClearance: this.calculateFieldAlert(
+        data.totalClearance_RH,
+        data.totalClearance_LH,
+        threshold.totalClearance_greenMin,
+        threshold.totalClearance_yellowMin,
+        threshold.totalClearance_redMin,
+      ),
+      mainBearings: this.calculateFieldAlert(
+        data.mainBearings_RH,
+        data.mainBearings_LH,
+        threshold.mainBearings_greenMin,
+        threshold.mainBearings_yellowMin,
+        threshold.mainBearings_redMin,
+      ),
+      upperConnectionBearings: this.calculateFieldAlert(
+        data.upperConnectionBearings_RH,
+        data.upperConnectionBearings_LH,
+        threshold.upperConnectionBearings_greenMin,
+        threshold.upperConnectionBearings_yellowMin,
+        threshold.upperConnectionBearings_redMin,
+      ),
+      wristPinToMatingPart: this.calculateFieldAlert(
+        data.wristPinToMatingPart_RH,
+        data.wristPinToMatingPart_LH,
+        threshold.wristPinToMatingPart_greenMin,
+        threshold.wristPinToMatingPart_yellowMin,
+        threshold.wristPinToMatingPart_redMin,
+      ),
+      wristPinToBushing: this.calculateFieldAlert(
+        data.wristPinToBushing_RH,
+        data.wristPinToBushing_LH,
+        threshold.wristPinToBushing_greenMin,
+        threshold.wristPinToBushing_yellowMin,
+        threshold.wristPinToBushing_redMin,
+      ),
+      slideAdjNutToScrewSleeve: this.calculateFieldAlert(
+        data.slideAdjNutToScrewSleeve_RH,
+        data.slideAdjNutToScrewSleeve_LH,
+        threshold.slideAdjNutToScrewSleeve_greenMin,
+        threshold.slideAdjNutToScrewSleeve_yellowMin,
+        threshold.slideAdjNutToScrewSleeve_redMin,
+      ),
+    });
 
-    const mainBearings = this.calculateFieldAlert(
-      bearingData.mainBearings_RH,
-      bearingData.mainBearings_LH,
-      threshold.mainBearings_greenMin,
-      threshold.mainBearings_yellowMin,
-      threshold.mainBearings_redMin,
-    );
+    // Calculate alerts for outer and inner data
+    const outerAlerts = outerData ? calculateAllFieldAlerts(outerData) : null;
+    const innerAlerts = innerData ? calculateAllFieldAlerts(innerData) : null;
 
-    const upperConnectionBearings = this.calculateFieldAlert(
-      bearingData.upperConnectionBearings_RH,
-      bearingData.upperConnectionBearings_LH,
-      threshold.upperConnectionBearings_greenMin,
-      threshold.upperConnectionBearings_yellowMin,
-      threshold.upperConnectionBearings_redMin,
-    );
-
-    const wristPinToMatingPart = this.calculateFieldAlert(
-      bearingData.wristPinToMatingPart_RH,
-      bearingData.wristPinToMatingPart_LH,
-      threshold.wristPinToMatingPart_greenMin,
-      threshold.wristPinToMatingPart_yellowMin,
-      threshold.wristPinToMatingPart_redMin,
-    );
-
-    const wristPinToBushing = this.calculateFieldAlert(
-      bearingData.wristPinToBushing_RH,
-      bearingData.wristPinToBushing_LH,
-      threshold.wristPinToBushing_greenMin,
-      threshold.wristPinToBushing_yellowMin,
-      threshold.wristPinToBushing_redMin,
-    );
-
-    const slideAdjNutToScrewSleeve = this.calculateFieldAlert(
-      bearingData.slideAdjNutToScrewSleeve_RH,
-      bearingData.slideAdjNutToScrewSleeve_LH,
-      threshold.slideAdjNutToScrewSleeve_greenMin,
-      threshold.slideAdjNutToScrewSleeve_yellowMin,
-      threshold.slideAdjNutToScrewSleeve_redMin,
-    );
+    // Default values for missing data (use 0 differential and NONE severity)
+    const defaultAlert = {
+      differential: new Decimal(0),
+      severity: AlertSeverity.NONE,
+    };
 
     const thresholdSnapshot = {
       blueprintId: threshold.blueprintId,
@@ -329,42 +336,182 @@ export class AlertsService {
       },
     };
 
+    const alertData = {
+      // OUTER alerts
+      outer_totalClearance_differential: (
+        outerAlerts?.totalClearance || defaultAlert
+      ).differential,
+      outer_totalClearance_severity: (
+        outerAlerts?.totalClearance || defaultAlert
+      ).severity,
+      outer_mainBearings_differential: (
+        outerAlerts?.mainBearings || defaultAlert
+      ).differential,
+      outer_mainBearings_severity: (outerAlerts?.mainBearings || defaultAlert)
+        .severity,
+      outer_upperConnectionBearings_differential: (
+        outerAlerts?.upperConnectionBearings || defaultAlert
+      ).differential,
+      outer_upperConnectionBearings_severity: (
+        outerAlerts?.upperConnectionBearings || defaultAlert
+      ).severity,
+      outer_wristPinToMatingPart_differential: (
+        outerAlerts?.wristPinToMatingPart || defaultAlert
+      ).differential,
+      outer_wristPinToMatingPart_severity: (
+        outerAlerts?.wristPinToMatingPart || defaultAlert
+      ).severity,
+      outer_wristPinToBushing_differential: (
+        outerAlerts?.wristPinToBushing || defaultAlert
+      ).differential,
+      outer_wristPinToBushing_severity: (
+        outerAlerts?.wristPinToBushing || defaultAlert
+      ).severity,
+      outer_slideAdjNutToScrewSleeve_differential: (
+        outerAlerts?.slideAdjNutToScrewSleeve || defaultAlert
+      ).differential,
+      outer_slideAdjNutToScrewSleeve_severity: (
+        outerAlerts?.slideAdjNutToScrewSleeve || defaultAlert
+      ).severity,
+      // INNER alerts
+      inner_totalClearance_differential: (
+        innerAlerts?.totalClearance || defaultAlert
+      ).differential,
+      inner_totalClearance_severity: (
+        innerAlerts?.totalClearance || defaultAlert
+      ).severity,
+      inner_mainBearings_differential: (
+        innerAlerts?.mainBearings || defaultAlert
+      ).differential,
+      inner_mainBearings_severity: (innerAlerts?.mainBearings || defaultAlert)
+        .severity,
+      inner_upperConnectionBearings_differential: (
+        innerAlerts?.upperConnectionBearings || defaultAlert
+      ).differential,
+      inner_upperConnectionBearings_severity: (
+        innerAlerts?.upperConnectionBearings || defaultAlert
+      ).severity,
+      inner_wristPinToMatingPart_differential: (
+        innerAlerts?.wristPinToMatingPart || defaultAlert
+      ).differential,
+      inner_wristPinToMatingPart_severity: (
+        innerAlerts?.wristPinToMatingPart || defaultAlert
+      ).severity,
+      inner_wristPinToBushing_differential: (
+        innerAlerts?.wristPinToBushing || defaultAlert
+      ).differential,
+      inner_wristPinToBushing_severity: (
+        innerAlerts?.wristPinToBushing || defaultAlert
+      ).severity,
+      inner_slideAdjNutToScrewSleeve_differential: (
+        innerAlerts?.slideAdjNutToScrewSleeve || defaultAlert
+      ).differential,
+      inner_slideAdjNutToScrewSleeve_severity: (
+        innerAlerts?.slideAdjNutToScrewSleeve || defaultAlert
+      ).severity,
+      thresholdSnapshot,
+    };
+
     const alert = await this.prisma.alertBearingClearance.upsert({
       where: { machineServiceId },
       create: {
-        machineServiceId,
-        totalClearance_differential: totalClearance.differential,
-        totalClearance_severity: totalClearance.severity,
-        mainBearings_differential: mainBearings.differential,
-        mainBearings_severity: mainBearings.severity,
-        upperConnectionBearings_differential:
-          upperConnectionBearings.differential,
-        upperConnectionBearings_severity: upperConnectionBearings.severity,
-        wristPinToMatingPart_differential: wristPinToMatingPart.differential,
-        wristPinToMatingPart_severity: wristPinToMatingPart.severity,
-        wristPinToBushing_differential: wristPinToBushing.differential,
-        wristPinToBushing_severity: wristPinToBushing.severity,
-        slideAdjNutToScrewSleeve_differential:
-          slideAdjNutToScrewSleeve.differential,
-        slideAdjNutToScrewSleeve_severity: slideAdjNutToScrewSleeve.severity,
-        thresholdSnapshot,
+        machineService: { connect: { id: machineServiceId } },
+        // OUTER alerts
+        outer_totalClearance_differential:
+          alertData.outer_totalClearance_differential,
+        outer_totalClearance_severity: alertData.outer_totalClearance_severity,
+        outer_mainBearings_differential:
+          alertData.outer_mainBearings_differential,
+        outer_mainBearings_severity: alertData.outer_mainBearings_severity,
+        outer_upperConnectionBearings_differential:
+          alertData.outer_upperConnectionBearings_differential,
+        outer_upperConnectionBearings_severity:
+          alertData.outer_upperConnectionBearings_severity,
+        outer_wristPinToMatingPart_differential:
+          alertData.outer_wristPinToMatingPart_differential,
+        outer_wristPinToMatingPart_severity:
+          alertData.outer_wristPinToMatingPart_severity,
+        outer_wristPinToBushing_differential:
+          alertData.outer_wristPinToBushing_differential,
+        outer_wristPinToBushing_severity:
+          alertData.outer_wristPinToBushing_severity,
+        outer_slideAdjNutToScrewSleeve_differential:
+          alertData.outer_slideAdjNutToScrewSleeve_differential,
+        outer_slideAdjNutToScrewSleeve_severity:
+          alertData.outer_slideAdjNutToScrewSleeve_severity,
+        // INNER alerts
+        inner_totalClearance_differential:
+          alertData.inner_totalClearance_differential,
+        inner_totalClearance_severity: alertData.inner_totalClearance_severity,
+        inner_mainBearings_differential:
+          alertData.inner_mainBearings_differential,
+        inner_mainBearings_severity: alertData.inner_mainBearings_severity,
+        inner_upperConnectionBearings_differential:
+          alertData.inner_upperConnectionBearings_differential,
+        inner_upperConnectionBearings_severity:
+          alertData.inner_upperConnectionBearings_severity,
+        inner_wristPinToMatingPart_differential:
+          alertData.inner_wristPinToMatingPart_differential,
+        inner_wristPinToMatingPart_severity:
+          alertData.inner_wristPinToMatingPart_severity,
+        inner_wristPinToBushing_differential:
+          alertData.inner_wristPinToBushing_differential,
+        inner_wristPinToBushing_severity:
+          alertData.inner_wristPinToBushing_severity,
+        inner_slideAdjNutToScrewSleeve_differential:
+          alertData.inner_slideAdjNutToScrewSleeve_differential,
+        inner_slideAdjNutToScrewSleeve_severity:
+          alertData.inner_slideAdjNutToScrewSleeve_severity,
+        thresholdSnapshot: alertData.thresholdSnapshot,
       },
       update: {
-        totalClearance_differential: totalClearance.differential,
-        totalClearance_severity: totalClearance.severity,
-        mainBearings_differential: mainBearings.differential,
-        mainBearings_severity: mainBearings.severity,
-        upperConnectionBearings_differential:
-          upperConnectionBearings.differential,
-        upperConnectionBearings_severity: upperConnectionBearings.severity,
-        wristPinToMatingPart_differential: wristPinToMatingPart.differential,
-        wristPinToMatingPart_severity: wristPinToMatingPart.severity,
-        wristPinToBushing_differential: wristPinToBushing.differential,
-        wristPinToBushing_severity: wristPinToBushing.severity,
-        slideAdjNutToScrewSleeve_differential:
-          slideAdjNutToScrewSleeve.differential,
-        slideAdjNutToScrewSleeve_severity: slideAdjNutToScrewSleeve.severity,
-        thresholdSnapshot,
+        // OUTER alerts
+        outer_totalClearance_differential:
+          alertData.outer_totalClearance_differential,
+        outer_totalClearance_severity: alertData.outer_totalClearance_severity,
+        outer_mainBearings_differential:
+          alertData.outer_mainBearings_differential,
+        outer_mainBearings_severity: alertData.outer_mainBearings_severity,
+        outer_upperConnectionBearings_differential:
+          alertData.outer_upperConnectionBearings_differential,
+        outer_upperConnectionBearings_severity:
+          alertData.outer_upperConnectionBearings_severity,
+        outer_wristPinToMatingPart_differential:
+          alertData.outer_wristPinToMatingPart_differential,
+        outer_wristPinToMatingPart_severity:
+          alertData.outer_wristPinToMatingPart_severity,
+        outer_wristPinToBushing_differential:
+          alertData.outer_wristPinToBushing_differential,
+        outer_wristPinToBushing_severity:
+          alertData.outer_wristPinToBushing_severity,
+        outer_slideAdjNutToScrewSleeve_differential:
+          alertData.outer_slideAdjNutToScrewSleeve_differential,
+        outer_slideAdjNutToScrewSleeve_severity:
+          alertData.outer_slideAdjNutToScrewSleeve_severity,
+        // INNER alerts
+        inner_totalClearance_differential:
+          alertData.inner_totalClearance_differential,
+        inner_totalClearance_severity: alertData.inner_totalClearance_severity,
+        inner_mainBearings_differential:
+          alertData.inner_mainBearings_differential,
+        inner_mainBearings_severity: alertData.inner_mainBearings_severity,
+        inner_upperConnectionBearings_differential:
+          alertData.inner_upperConnectionBearings_differential,
+        inner_upperConnectionBearings_severity:
+          alertData.inner_upperConnectionBearings_severity,
+        inner_wristPinToMatingPart_differential:
+          alertData.inner_wristPinToMatingPart_differential,
+        inner_wristPinToMatingPart_severity:
+          alertData.inner_wristPinToMatingPart_severity,
+        inner_wristPinToBushing_differential:
+          alertData.inner_wristPinToBushing_differential,
+        inner_wristPinToBushing_severity:
+          alertData.inner_wristPinToBushing_severity,
+        inner_slideAdjNutToScrewSleeve_differential:
+          alertData.inner_slideAdjNutToScrewSleeve_differential,
+        inner_slideAdjNutToScrewSleeve_severity:
+          alertData.inner_slideAdjNutToScrewSleeve_severity,
+        thresholdSnapshot: alertData.thresholdSnapshot,
       },
     });
 
@@ -381,7 +528,8 @@ export class AlertsService {
     return new AlertBearingClearanceResponseDto({
       ...alert,
       // Include bearing data for the DTO
-      bearingData,
+      outerData,
+      innerData,
     } as any);
   }
 

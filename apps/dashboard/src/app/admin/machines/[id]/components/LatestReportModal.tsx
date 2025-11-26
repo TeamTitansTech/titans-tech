@@ -48,41 +48,44 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
       case 'YELLOW':
         return <Badge className="bg-yellow-500 hover:bg-yellow-600">Atenção</Badge>;
       case 'GREEN':
-        return <Badge className="bg-green-500 hover:bg-green-600">OK</Badge>;
       case 'NONE':
-        return <Badge variant="outline">Normal</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600">OK</Badge>;
       default:
         return <Badge variant="outline">-</Badge>;
     }
   };
 
-  // Extract bearing clearance measurement rows
+  // Extract bearing clearance measurement rows for outer or inner
   const extractBearingRows = (
-    data: BearingClearanceData,
-    alert?: LatestBearingClearance['alert'],
+    data: BearingClearanceData | undefined,
+    alert: LatestBearingClearance['alert'] | undefined,
+    prefix: 'outer' | 'inner',
   ) => {
+    if (!data) return [];
+
     return BEARING_FIELD_NAMES.map((field) => {
-      // Type-safe access to RH/LH values
+      // Type-safe access to RH/LH values for calculating differential if no alert
       const lhKey = `${field}_LH` as keyof BearingClearanceData;
       const rhKey = `${field}_RH` as keyof BearingClearanceData;
       const lh = data[lhKey] as number | undefined;
       const rh = data[rhKey] as number | undefined;
 
-      // Type-safe access to alert data
+      // Type-safe access to alert data with outer_/inner_ prefix
+      const differentialKey = `${prefix}_${field}_differential` as keyof NonNullable<typeof alert>;
+      const severityKey = `${prefix}_${field}_severity` as keyof NonNullable<typeof alert>;
+
       const differential = alert
-        ? (alert[`${field}_differential` as keyof typeof alert] as number | undefined)
-        : lh && rh
-          ? Math.abs(rh - lh)
+        ? (alert[differentialKey] as number | undefined)
+        : lh !== undefined && rh !== undefined
+          ? Math.abs(Number(rh) - Number(lh))
           : undefined;
 
       const severity = alert
-        ? (alert[`${field}_severity` as keyof typeof alert] as 'NONE' | 'GREEN' | 'YELLOW' | 'RED')
+        ? (alert[severityKey] as 'NONE' | 'GREEN' | 'YELLOW' | 'RED')
         : ('NONE' as const);
 
       return {
         field: BEARING_FIELD_LABELS[field],
-        lh: typeof lh === 'number' ? lh.toFixed(3) : '-',
-        rh: typeof rh === 'number' ? rh.toFixed(3) : '-',
         differential: typeof differential === 'number' ? differential.toFixed(3) : '-',
         severity,
       };
@@ -148,40 +151,62 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   const slide = report.sections.SLIDE;
   const gibs = report.sections.GIBS;
 
-  // Get overall worst severity for bearing clearance
-  const getOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+  // Get overall worst severity for bearing clearance (outer or inner)
+  const getBearingSeverity = (prefix: 'outer' | 'inner'): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
     if (!bearingClearance?.alert) return 'NONE';
 
-    const severities = [
-      bearingClearance.alert.totalClearance_severity,
-      bearingClearance.alert.mainBearings_severity,
-      bearingClearance.alert.upperConnectionBearings_severity,
-      bearingClearance.alert.wristPinToMatingPart_severity,
-      bearingClearance.alert.wristPinToBushing_severity,
-      bearingClearance.alert.slideAdjNutToScrewSleeve_severity,
-    ];
+    const alert = bearingClearance.alert;
+    const severities =
+      prefix === 'outer'
+        ? new Set([
+            alert.outer_totalClearance_severity,
+            alert.outer_mainBearings_severity,
+            alert.outer_upperConnectionBearings_severity,
+            alert.outer_wristPinToMatingPart_severity,
+            alert.outer_wristPinToBushing_severity,
+            alert.outer_slideAdjNutToScrewSleeve_severity,
+          ])
+        : new Set([
+            alert.inner_totalClearance_severity,
+            alert.inner_mainBearings_severity,
+            alert.inner_upperConnectionBearings_severity,
+            alert.inner_wristPinToMatingPart_severity,
+            alert.inner_wristPinToBushing_severity,
+            alert.inner_slideAdjNutToScrewSleeve_severity,
+          ]);
 
-    if (severities.includes('RED')) return 'RED';
-    if (severities.includes('YELLOW')) return 'YELLOW';
-    if (severities.includes('GREEN')) return 'GREEN';
-    return 'NONE';
+    if (severities.has('RED')) return 'RED';
+    if (severities.has('YELLOW')) return 'YELLOW';
+    if (severities.has('GREEN')) return 'GREEN';
+    return 'GREEN';
+  };
+
+  // Get overall worst severity for bearing clearance (both outer and inner)
+  const getOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    const outerSeverity = getBearingSeverity('outer');
+    const innerSeverity = getBearingSeverity('inner');
+
+    if (outerSeverity === 'RED' || innerSeverity === 'RED') return 'RED';
+    if (outerSeverity === 'YELLOW' || innerSeverity === 'YELLOW') return 'YELLOW';
+    if (outerSeverity === 'GREEN' || innerSeverity === 'GREEN') return 'GREEN';
+    return 'GREEN';
   };
 
   // Get overall worst severity for clutch
   const getClutchOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
     if (!clutch?.alert) return 'NONE';
 
-    const severities = [
+    const severities = new Set([
       clutch.alert.hydClutchClearanceTotal_severity,
       clutch.alert.hydClutchClearanceRear_severity,
       clutch.alert.fb_severity,
       clutch.alert.fTB_severity,
       clutch.alert.rTB_severity,
-    ];
+    ]);
 
-    if (severities.includes('RED')) return 'RED';
-    if (severities.includes('YELLOW')) return 'YELLOW';
-    if (severities.includes('GREEN')) return 'GREEN';
+    if (severities.has('RED')) return 'RED';
+    if (severities.has('YELLOW')) return 'YELLOW';
+    if (severities.has('GREEN')) return 'GREEN';
     return 'NONE';
   };
 
@@ -189,14 +214,14 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   const getSlideOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
     if (!slide?.alert) return 'NONE';
 
-    const severities = [
+    const severities = new Set([
       slide.alert.maxDeviationOuter_severity,
       slide.alert.maxDeviationInner_severity,
-    ];
+    ]);
 
-    if (severities.includes('RED')) return 'RED';
-    if (severities.includes('YELLOW')) return 'YELLOW';
-    if (severities.includes('GREEN')) return 'GREEN';
+    if (severities.has('RED')) return 'RED';
+    if (severities.has('YELLOW')) return 'YELLOW';
+    if (severities.has('GREEN')) return 'GREEN';
     return 'NONE';
   };
 
@@ -243,7 +268,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
   // Extract GIBS measurement points
   const extractGibsPoints = (data: GibsStageData) => {
-    const toFixed = (val: any) => {
+    const toFixed = (val: number | null | undefined) => {
       if (val === null || val === undefined) return '-';
       const num = typeof val === 'number' ? val : Number(val);
       return isNaN(num) ? '-' : num.toFixed(3);
@@ -273,22 +298,14 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <DialogTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5" />
-                Relatório Atualizado - {report.machineName}
-              </DialogTitle>
-              <DialogDescription>
-                Modelo: {report.blueprint.name} · Última atualização:{' '}
-                {format(new Date(report.generatedAt), 'dd/MM/yyyy', { locale: ptBR })}
-              </DialogDescription>
-            </div>
-            <Button variant="outline" size="sm" className="gap-2">
-              <Download className="w-4 h-4" />
-              Baixar PDF
-            </Button>
-          </div>
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            Relatório Atualizado - {report.machineName}
+          </DialogTitle>
+          <DialogDescription>
+            Modelo: {report.blueprint.name} · Última atualização:{' '}
+            {format(new Date(report.generatedAt), 'dd/MM/yyyy', { locale: ptBR })}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto px-1 py-4">
@@ -309,33 +326,78 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                     </div>
                   </div>
 
-                  <div className="border rounded-md overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/50">
-                          <TableHead className="font-semibold">Measurement</TableHead>
-                          <TableHead className="text-center font-semibold">LH</TableHead>
-                          <TableHead className="text-center font-semibold">RH</TableHead>
-                          <TableHead className="text-center font-semibold">Differential</TableHead>
-                          <TableHead className="text-center font-semibold">Status</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {extractBearingRows(bearingClearance.data, bearingClearance.alert).map(
-                          (row, idx) => (
-                            <TableRow key={idx} className="hover:bg-muted/30">
-                              <TableCell className="font-medium">{row.field}</TableCell>
-                              <TableCell className="text-center">{row.lh}</TableCell>
-                              <TableCell className="text-center">{row.rh}</TableCell>
-                              <TableCell className="text-center">{row.differential}</TableCell>
-                              <TableCell className="text-center">
-                                {getSeverityBadge(row.severity)}
-                              </TableCell>
+                  <div className="space-y-4">
+                    {/* Outer Section */}
+                    {bearingClearance.outerData && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>Outer</span>
+                          {getSeverityBadge(getBearingSeverity('outer'))}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">Measurement</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Differential
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
                             </TableRow>
-                          ),
-                        )}
-                      </TableBody>
-                    </Table>
+                          </TableHeader>
+                          <TableBody>
+                            {extractBearingRows(
+                              bearingClearance.outerData,
+                              bearingClearance.alert,
+                              'outer',
+                            ).map((row, idx) => (
+                              <TableRow key={idx} className="hover:bg-muted/30">
+                                <TableCell className="font-medium">{row.field}</TableCell>
+                                <TableCell className="text-center">{row.differential}</TableCell>
+                                <TableCell className="text-center">
+                                  {getSeverityBadge(row.severity)}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+
+                    {/* Inner Section */}
+                    {bearingClearance.innerData && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>Inner</span>
+                          {getSeverityBadge(getBearingSeverity('inner'))}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">Measurement</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Differential
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {extractBearingRows(
+                              bearingClearance.innerData,
+                              bearingClearance.alert,
+                              'inner',
+                            ).map((row, idx) => (
+                              <TableRow key={idx} className="hover:bg-muted/30">
+                                <TableCell className="font-medium">{row.field}</TableCell>
+                                <TableCell className="text-center">{row.differential}</TableCell>
+                                <TableCell className="text-center">
+                                  {getSeverityBadge(row.severity)}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
@@ -666,7 +728,11 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
           )}
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 px-4 border-t">
+        <div className="flex justify-between pt-4 px-4 border-t">
+          <Button variant="outline" size="sm" className="gap-2">
+            <Download className="w-4 h-4" />
+            Baixar PDF
+          </Button>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Fechar
           </Button>

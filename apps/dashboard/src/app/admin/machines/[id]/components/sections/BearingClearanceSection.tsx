@@ -42,37 +42,36 @@ export const defaultBearingData: BearingClearanceData = {
   matingPart: MatingPartType.BUSHING,
 };
 
-// Validation function
-export const validateBearingClearanceData = (data: BearingClearanceData): string[] => {
-  const errors: string[] = [];
-  const requiredNumericFields: (keyof BearingClearanceData)[] = [
-    'totalClearance_RH',
-    'totalClearance_LH',
-    'mainBearings_RH',
-    'mainBearings_LH',
-    'upperConnectionBearings_RH',
-    'upperConnectionBearings_LH',
-    'wristPinToMatingPart_RH',
-    'wristPinToMatingPart_LH',
-    'wristPinToBushing_RH',
-    'wristPinToBushing_LH',
-    'slideAdjNutToScrewSleeve_RH',
-    'slideAdjNutToScrewSleeve_LH',
-    'extraDoubleLockOpen_RH',
-    'extraDoubleLockOpen_LH',
-    'ballBoxArea_RH',
-    'ballBoxArea_LH',
-  ];
+// Fields that have alerts (required)
+const ALERT_REQUIRED_FIELDS: (keyof BearingClearanceData)[] = [
+  'totalClearance_RH',
+  'totalClearance_LH',
+  'mainBearings_RH',
+  'mainBearings_LH',
+  'upperConnectionBearings_RH',
+  'upperConnectionBearings_LH',
+  'wristPinToMatingPart_RH',
+  'wristPinToMatingPart_LH',
+  'wristPinToBushing_RH',
+  'wristPinToBushing_LH',
+  'slideAdjNutToScrewSleeve_RH',
+  'slideAdjNutToScrewSleeve_LH',
+];
 
-  requiredNumericFields.forEach((field) => {
+// Validation function - only validates alert fields as required
+// Returns field keys that are missing (not full error messages)
+export const validateBearingClearanceData = (data: BearingClearanceData): string[] => {
+  const missingFields: string[] = [];
+
+  // Validate required alert fields (the 6 fields that generate alerts)
+  ALERT_REQUIRED_FIELDS.forEach((field) => {
     const value = data[field];
-    // Only validate if field exists in data
-    if (value !== undefined && (typeof value !== 'number' || isNaN(value))) {
-      errors.push(`${String(field)} is required and must be a valid number`);
+    if (value === undefined || value === null || (typeof value === 'number' && isNaN(value))) {
+      missingFields.push(String(field));
     }
   });
 
-  return errors;
+  return missingFields;
 };
 
 export interface BearingClearanceSectionData {
@@ -166,33 +165,33 @@ export const BearingClearanceSection = forwardRef<
   // Wrapper update functions to call onSectionTouched
   const updateOuterBeforeField = (
     field: keyof BearingClearanceData,
-    value: string | number | boolean,
+    value: string | number | boolean | undefined,
   ) => {
-    baseUpdateOuterBefore(field, value);
+    baseUpdateOuterBefore(field, value as string | number | boolean);
     onSectionTouched();
   };
 
   const updateOuterAfterField = (
     field: keyof BearingClearanceData,
-    value: string | number | boolean,
+    value: string | number | boolean | undefined,
   ) => {
-    baseUpdateOuterAfter(field, value);
+    baseUpdateOuterAfter(field, value as string | number | boolean);
     onSectionTouched();
   };
 
   const updateInnerBeforeField = (
     field: keyof BearingClearanceData,
-    value: string | number | boolean,
+    value: string | number | boolean | undefined,
   ) => {
-    baseUpdateInnerBefore(field, value);
+    baseUpdateInnerBefore(field, value as string | number | boolean);
     onSectionTouched();
   };
 
   const updateInnerAfterField = (
     field: keyof BearingClearanceData,
-    value: string | number | boolean,
+    value: string | number | boolean | undefined,
   ) => {
-    baseUpdateInnerAfter(field, value);
+    baseUpdateInnerAfter(field, value as string | number | boolean);
     onSectionTouched();
   };
 
@@ -321,6 +320,16 @@ export const BearingClearanceSection = forwardRef<
 
     validate: (serviceType: ServiceType): string[] => {
       const errors: string[] = [];
+      const v = t.raw('form.bearingClearance.validation') as Record<string, string>;
+      const fields = t.raw('form.bearingClearance.fields') as Record<string, string>;
+
+      // Helper to format field validation errors
+      const formatFieldErrors = (missingFields: string[], prefix: string) => {
+        return missingFields.map((fieldKey) => {
+          const fieldName = fields[fieldKey] || fieldKey;
+          return `${prefix}: ${v.fieldRequired.replace('{field}', fieldName)}`;
+        });
+      };
 
       const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
       const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
@@ -331,37 +340,27 @@ export const BearingClearanceSection = forwardRef<
       if (includeBeforeMeasurements) {
         if (serviceType === ServiceType.MAINTENANCE) {
           if (!outerBeforeTouched || !innerBeforeTouched) {
-            errors.push(
-              'Bearing Clearance: When "Include Before Measurements" is enabled for maintenance, you must fill all "Before" sections (Outer Before and Inner Before)',
-            );
+            errors.push(v.beforeMeasurementsRequired);
           } else {
             errors.push(
-              ...validateBearingClearanceData(outerBeforeData).map((e) => `Outer Before: ${e}`),
+              ...formatFieldErrors(validateBearingClearanceData(outerBeforeData), v.outerBefore),
             );
             errors.push(
-              ...validateBearingClearanceData(innerBeforeData).map((e) => `Inner Before: ${e}`),
+              ...formatFieldErrors(validateBearingClearanceData(innerBeforeData), v.innerBefore),
             );
           }
         }
 
         if (outerBeforeTouched) {
           errors.push(
-            ...validateBearingClearanceData(outerBeforeData).map((e) => `Outer Before: ${e}`),
+            ...formatFieldErrors(validateBearingClearanceData(outerBeforeData), v.outerBefore),
           );
         }
         if (innerBeforeTouched) {
           errors.push(
-            ...validateBearingClearanceData(innerBeforeData).map((e) => `Inner Before: ${e}`),
+            ...formatFieldErrors(validateBearingClearanceData(innerBeforeData), v.innerBefore),
           );
         }
-      }
-
-      // Validate after measurements
-      if (outerAfterTouched) {
-        errors.push(...validateBearingClearanceData(outerAfterData).map((e) => `Outer Data: ${e}`));
-      }
-      if (innerAfterTouched) {
-        errors.push(...validateBearingClearanceData(innerAfterData).map((e) => `Inner Data: ${e}`));
       }
 
       // Check if there's any existing data (either initial or modified)
@@ -370,10 +369,25 @@ export const BearingClearanceSection = forwardRef<
       const hasInnerData =
         innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
 
-      // Validate at least one measurement set (either initial or new)
-      if (!hasOuterData && !hasInnerData) {
+      // Both outer AND inner are required for alert generation
+      if (!hasOuterData) {
+        errors.push(v.outerDataRequired);
+      }
+      if (!hasInnerData) {
+        errors.push(v.innerDataRequired);
+      }
+
+      // Validate required alert fields for both outer and inner
+      if (hasOuterData) {
+        const outerDataToValidate = outerAfterTouched ? outerAfterData : initialOuterAfterData;
         errors.push(
-          'Bearing Clearance: You must fill at least one measurement section (Outer Data or Inner Data)',
+          ...formatFieldErrors(validateBearingClearanceData(outerDataToValidate), v.outerData),
+        );
+      }
+      if (hasInnerData) {
+        const innerDataToValidate = innerAfterTouched ? innerAfterData : initialInnerAfterData;
+        errors.push(
+          ...formatFieldErrors(validateBearingClearanceData(innerDataToValidate), v.innerData),
         );
       }
 
@@ -409,6 +423,17 @@ export const BearingClearanceSection = forwardRef<
       serviceType: ServiceType,
     ): { isValid: boolean; errors: string[]; data?: BearingClearanceSectionData } => {
       const errors: string[] = [];
+      const v = t.raw('form.bearingClearance.validation') as Record<string, string>;
+      const fields = t.raw('form.bearingClearance.fields') as Record<string, string>;
+
+      // Helper to format field validation errors
+      const formatFieldErrors = (missingFields: string[], prefix: string) => {
+        return missingFields.map((fieldKey) => {
+          const fieldName = fields[fieldKey] || fieldKey;
+          return `${prefix}: ${v.fieldRequired.replace('{field}', fieldName)}`;
+        });
+      };
+
       const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
       const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
       const innerBeforeTouched = isDataTouched(innerBeforeData, initialInnerBeforeData);
@@ -418,37 +443,27 @@ export const BearingClearanceSection = forwardRef<
       if (includeBeforeMeasurements) {
         if (serviceType === ServiceType.MAINTENANCE) {
           if (!outerBeforeTouched || !innerBeforeTouched) {
-            errors.push(
-              'Bearing Clearance: When "Include Before Measurements" is enabled for maintenance, you must fill all "Before" sections (Outer Before and Inner Before)',
-            );
+            errors.push(v.beforeMeasurementsRequired);
           } else {
             errors.push(
-              ...validateBearingClearanceData(outerBeforeData).map((e) => `Outer Before: ${e}`),
+              ...formatFieldErrors(validateBearingClearanceData(outerBeforeData), v.outerBefore),
             );
             errors.push(
-              ...validateBearingClearanceData(innerBeforeData).map((e) => `Inner Before: ${e}`),
+              ...formatFieldErrors(validateBearingClearanceData(innerBeforeData), v.innerBefore),
             );
           }
         }
 
         if (outerBeforeTouched) {
           errors.push(
-            ...validateBearingClearanceData(outerBeforeData).map((e) => `Outer Before: ${e}`),
+            ...formatFieldErrors(validateBearingClearanceData(outerBeforeData), v.outerBefore),
           );
         }
         if (innerBeforeTouched) {
           errors.push(
-            ...validateBearingClearanceData(innerBeforeData).map((e) => `Inner Before: ${e}`),
+            ...formatFieldErrors(validateBearingClearanceData(innerBeforeData), v.innerBefore),
           );
         }
-      }
-
-      // Validate after measurements
-      if (outerAfterTouched) {
-        errors.push(...validateBearingClearanceData(outerAfterData).map((e) => `Outer Data: ${e}`));
-      }
-      if (innerAfterTouched) {
-        errors.push(...validateBearingClearanceData(innerAfterData).map((e) => `Inner Data: ${e}`));
       }
 
       // Check if there's any existing data (either initial or modified)
@@ -457,10 +472,25 @@ export const BearingClearanceSection = forwardRef<
       const hasInnerData =
         innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
 
-      // Validate at least one measurement set (either initial or new)
-      if (!hasOuterData && !hasInnerData) {
+      // Both outer AND inner are required for alert generation
+      if (!hasOuterData) {
+        errors.push(v.outerDataRequired);
+      }
+      if (!hasInnerData) {
+        errors.push(v.innerDataRequired);
+      }
+
+      // Validate required alert fields for both outer and inner
+      if (hasOuterData) {
+        const outerDataToValidate = outerAfterTouched ? outerAfterData : initialOuterAfterData;
         errors.push(
-          'Bearing Clearance: You must fill at least one measurement section (Outer Data or Inner Data)',
+          ...formatFieldErrors(validateBearingClearanceData(outerDataToValidate), v.outerData),
+        );
+      }
+      if (hasInnerData) {
+        const innerDataToValidate = innerAfterTouched ? innerAfterData : initialInnerAfterData;
+        errors.push(
+          ...formatFieldErrors(validateBearingClearanceData(innerDataToValidate), v.innerData),
         );
       }
 

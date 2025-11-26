@@ -1002,6 +1002,16 @@
           "ball_box_area_LH": "Área da Caixa de Esferas LH",
           "Ball_box_area_RH": "Área da Caixa de Esferas RH",
           "Ball_box_area_LH": "Área da Caixa de Esferas LH"
+        },
+        "validation": {
+          "outerDataRequired": "Folga de Rolamento: Dados Externos são obrigatórios",
+          "innerDataRequired": "Folga de Rolamento: Dados Internos são obrigatórios",
+          "beforeMeasurementsRequired": "Folga de Rolamento: Quando 'Incluir Medições Antes' está habilitado para manutenção, você deve preencher todas as seções 'Antes' (Externo Antes e Interno Antes)",
+          "fieldRequired": "{field} é obrigatório",
+          "outerBefore": "Externo Antes",
+          "outerData": "Dados Externos",
+          "innerBefore": "Interno Antes",
+          "innerData": "Dados Internos"
         }
       },
       "slide": {

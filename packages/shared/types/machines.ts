@@ -68,30 +68,35 @@ export interface Machine {
 export interface AlertBearingClearance {
   id: string;
   machineServiceId: string;
-  totalClearance_RH: number;
-  totalClearance_LH: number;
-  totalClearance_differential: number;
-  totalClearance_severity: AlertSeverity;
-  mainBearings_RH: number;
-  mainBearings_LH: number;
-  mainBearings_differential: number;
-  mainBearings_severity: AlertSeverity;
-  upperConnectionBearings_RH: number;
-  upperConnectionBearings_LH: number;
-  upperConnectionBearings_differential: number;
-  upperConnectionBearings_severity: AlertSeverity;
-  wristPinToMatingPart_RH: number;
-  wristPinToMatingPart_LH: number;
-  wristPinToMatingPart_differential: number;
-  wristPinToMatingPart_severity: AlertSeverity;
-  wristPinToBushing_RH: number;
-  wristPinToBushing_LH: number;
-  wristPinToBushing_differential: number;
-  wristPinToBushing_severity: AlertSeverity;
-  slideAdjNutToScrewSleeve_RH: number;
-  slideAdjNutToScrewSleeve_LH: number;
-  slideAdjNutToScrewSleeve_differential: number;
-  slideAdjNutToScrewSleeve_severity: AlertSeverity;
+
+  // OUTER alerts
+  outer_totalClearance_differential: number;
+  outer_totalClearance_severity: AlertSeverity;
+  outer_mainBearings_differential: number;
+  outer_mainBearings_severity: AlertSeverity;
+  outer_upperConnectionBearings_differential: number;
+  outer_upperConnectionBearings_severity: AlertSeverity;
+  outer_wristPinToMatingPart_differential: number;
+  outer_wristPinToMatingPart_severity: AlertSeverity;
+  outer_wristPinToBushing_differential: number;
+  outer_wristPinToBushing_severity: AlertSeverity;
+  outer_slideAdjNutToScrewSleeve_differential: number;
+  outer_slideAdjNutToScrewSleeve_severity: AlertSeverity;
+
+  // INNER alerts
+  inner_totalClearance_differential: number;
+  inner_totalClearance_severity: AlertSeverity;
+  inner_mainBearings_differential: number;
+  inner_mainBearings_severity: AlertSeverity;
+  inner_upperConnectionBearings_differential: number;
+  inner_upperConnectionBearings_severity: AlertSeverity;
+  inner_wristPinToMatingPart_differential: number;
+  inner_wristPinToMatingPart_severity: AlertSeverity;
+  inner_wristPinToBushing_differential: number;
+  inner_wristPinToBushing_severity: AlertSeverity;
+  inner_slideAdjNutToScrewSleeve_differential: number;
+  inner_slideAdjNutToScrewSleeve_severity: AlertSeverity;
+
   createdAt: string;
   updatedAt: string;
 }

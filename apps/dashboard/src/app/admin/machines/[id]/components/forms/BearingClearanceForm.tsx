@@ -2,10 +2,21 @@
 
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
+import { useNumericInput } from '@/hooks/useNumericInput';
 import {
   type BearingClearanceData,
   type BearingClearanceFormProps,
 } from '@/data/types/services.types';
+
+// Fields that have alerts (required)
+const ALERT_FIELDS = [
+  'totalClearance',
+  'mainBearings',
+  'upperConnectionBearings',
+  'wristPinToMatingPart',
+  'wristPinToBushing',
+  'slideAdjNutToScrewSleeve',
+];
 
 const MEASUREMENT_ROWS = [
   { key: 'totalClearance', rhField: 'totalClearance_RH', lhField: 'totalClearance_LH' },
@@ -34,6 +45,50 @@ const MEASUREMENT_ROWS = [
   { key: 'ballBoxArea', rhField: 'ballBoxArea_RH', lhField: 'ballBoxArea_LH' },
 ] as const;
 
+interface BearingNumericInputProps {
+  id: string;
+  value: number | undefined;
+  onChange: (value: number | undefined) => void;
+  onBlur: () => void;
+  error?: string;
+  className?: string;
+  required?: boolean;
+}
+
+function BearingNumericInput({
+  id,
+  value,
+  onChange,
+  onBlur,
+  error,
+  className = '',
+  required = false,
+}: BearingNumericInputProps) {
+  const [displayValue, handleChange, handleBlur] = useNumericInput(value, onChange, {
+    maxDecimals: 4,
+    min: 0,
+    max: 999999.9999,
+    required,
+  });
+
+  return (
+    <Input
+      id={id}
+      type="number"
+      step="0.0001"
+      min="0"
+      max="999999.9999"
+      value={displayValue}
+      onChange={handleChange}
+      onBlur={() => {
+        handleBlur();
+        onBlur();
+      }}
+      className={`${className} ${error ? 'border-destructive' : ''}`}
+    />
+  );
+}
+
 export function BearingClearanceForm({
   data,
   updateFn,
@@ -44,10 +99,15 @@ export function BearingClearanceForm({
   const t = useTranslations('inspections');
 
   const calculateDifferential = (rhField: string, lhField: string): string => {
-    const rh = Number(data[rhField as keyof BearingClearanceData]) || 0;
-    const lh = Number(data[lhField as keyof BearingClearanceData]) || 0;
-    const diff = Math.abs(rh - lh);
+    const rh = data[rhField as keyof BearingClearanceData];
+    const lh = data[lhField as keyof BearingClearanceData];
+    if (rh === undefined || lh === undefined) return '';
+    const diff = Math.abs(Number(rh) - Number(lh));
     return diff.toFixed(4);
+  };
+
+  const isFieldRequired = (key: string): boolean => {
+    return ALERT_FIELDS.includes(key);
   };
 
   return (
@@ -63,130 +123,118 @@ export function BearingClearanceForm({
           <div className="text-xs font-semibold text-center">Diff.</div>
         </div>
 
-        {MEASUREMENT_ROWS.map(({ key, rhField, lhField }) => (
-          <div key={key}>
-            {/* Mobile Layout - Stacked vertically */}
-            <div className="sm:hidden space-y-3 border rounded-lg p-3 bg-muted/30">
-              <div className="text-xs font-semibold text-foreground/80">
-                {t(`form.bearingClearance.fields.${key}`)}
+        {MEASUREMENT_ROWS.map(({ key, rhField, lhField }) => {
+          const required = isFieldRequired(key);
+
+          return (
+            <div key={key}>
+              {/* Mobile Layout - Stacked vertically */}
+              <div className="sm:hidden space-y-3 border rounded-lg p-3 bg-muted/30">
+                <div className="text-xs font-semibold text-foreground/80">
+                  {t(`form.bearingClearance.fields.${key}`)}
+                  {required && <span className="text-destructive ml-1">*</span>}
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-medium text-muted-foreground block text-center">
+                      LH
+                    </label>
+                    <BearingNumericInput
+                      id={`${lhField}-${title}-mobile`}
+                      value={data[lhField as keyof BearingClearanceData] as number | undefined}
+                      onChange={(val) => updateFn(lhField as keyof BearingClearanceData, val)}
+                      onBlur={() => handleBlur(lhField as keyof BearingClearanceData)}
+                      error={errors[lhField]}
+                      className="text-xs h-9"
+                      required={required}
+                    />
+                    {errors[lhField] && (
+                      <p className="text-[10px] text-destructive mt-0.5">{errors[lhField]}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-medium text-muted-foreground block text-center">
+                      RH
+                    </label>
+                    <BearingNumericInput
+                      id={`${rhField}-${title}-mobile`}
+                      value={data[rhField as keyof BearingClearanceData] as number | undefined}
+                      onChange={(val) => updateFn(rhField as keyof BearingClearanceData, val)}
+                      onBlur={() => handleBlur(rhField as keyof BearingClearanceData)}
+                      error={errors[rhField]}
+                      className="text-xs h-9"
+                      required={required}
+                    />
+                    {errors[rhField] && (
+                      <p className="text-[10px] text-destructive mt-0.5">{errors[rhField]}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-medium text-muted-foreground block text-center">
+                      Diff
+                    </label>
+                    <Input
+                      value={calculateDifferential(rhField, lhField)}
+                      readOnly
+                      disabled
+                      className="text-xs h-9 bg-muted"
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                <div className="space-y-1">
-                  <label className="text-[10px] font-medium text-muted-foreground block text-center">
-                    LH
-                  </label>
-                  <Input
-                    id={`${lhField}-${title}-mobile`}
-                    type="number"
-                    step="0.0001"
-                    min="0"
-                    max="999999.9999"
-                    value={Number(data[lhField as keyof BearingClearanceData])}
-                    onChange={(e) =>
-                      updateFn(lhField as keyof BearingClearanceData, Number(e.target.value))
-                    }
+              {/* Desktop/Tablet Layout - Grid */}
+              <div className="hidden sm:grid sm:grid-cols-4 gap-4 items-center">
+                <div className="text-xs font-medium">
+                  {t(`form.bearingClearance.fields.${key}`)}
+                  {required && <span className="text-destructive ml-1">*</span>}
+                </div>
+
+                <div>
+                  <BearingNumericInput
+                    id={`${lhField}-${title}`}
+                    value={data[lhField as keyof BearingClearanceData] as number | undefined}
+                    onChange={(val) => updateFn(lhField as keyof BearingClearanceData, val)}
                     onBlur={() => handleBlur(lhField as keyof BearingClearanceData)}
-                    className={`text-xs h-9 ${errors[lhField] ? 'border-destructive' : ''}`}
-                    required
+                    error={errors[lhField]}
+                    className="text-sm"
+                    required={required}
                   />
                   {errors[lhField] && (
-                    <p className="text-[10px] text-destructive mt-0.5">{errors[lhField]}</p>
+                    <p className="text-xs text-destructive mt-1">{errors[lhField]}</p>
                   )}
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] font-medium text-muted-foreground block text-center">
-                    RH
-                  </label>
-                  <Input
-                    id={`${rhField}-${title}-mobile`}
-                    type="number"
-                    step="0.0001"
-                    min="0"
-                    max="999999.9999"
-                    value={Number(data[rhField as keyof BearingClearanceData])}
-                    onChange={(e) =>
-                      updateFn(rhField as keyof BearingClearanceData, Number(e.target.value))
-                    }
+                <div>
+                  <BearingNumericInput
+                    id={`${rhField}-${title}`}
+                    value={data[rhField as keyof BearingClearanceData] as number | undefined}
+                    onChange={(val) => updateFn(rhField as keyof BearingClearanceData, val)}
                     onBlur={() => handleBlur(rhField as keyof BearingClearanceData)}
-                    className={`text-xs h-9 ${errors[rhField] ? 'border-destructive' : ''}`}
-                    required
+                    error={errors[rhField]}
+                    className="text-sm"
+                    required={required}
                   />
                   {errors[rhField] && (
-                    <p className="text-[10px] text-destructive mt-0.5">{errors[rhField]}</p>
+                    <p className="text-xs text-destructive mt-1">{errors[rhField]}</p>
                   )}
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] font-medium text-muted-foreground block text-center">
-                    Diff
-                  </label>
+                <div>
                   <Input
                     value={calculateDifferential(rhField, lhField)}
                     readOnly
                     disabled
-                    className="text-xs h-9 bg-muted"
+                    className="text-sm bg-muted"
                   />
                 </div>
               </div>
             </div>
-
-            {/* Desktop/Tablet Layout - Grid */}
-            <div className="hidden sm:grid sm:grid-cols-4 gap-4 items-center">
-              <div className="text-xs font-medium">{t(`form.bearingClearance.fields.${key}`)}</div>
-
-              <div>
-                <Input
-                  id={`${lhField}-${title}`}
-                  type="number"
-                  step="0.0001"
-                  min="0"
-                  max="999999.9999"
-                  value={Number(data[lhField as keyof BearingClearanceData])}
-                  onChange={(e) =>
-                    updateFn(lhField as keyof BearingClearanceData, Number(e.target.value))
-                  }
-                  onBlur={() => handleBlur(lhField as keyof BearingClearanceData)}
-                  className={`text-sm ${errors[lhField] ? 'border-destructive' : ''}`}
-                  required
-                />
-                {errors[lhField] && (
-                  <p className="text-xs text-destructive mt-1">{errors[lhField]}</p>
-                )}
-              </div>
-
-              <div>
-                <Input
-                  id={`${rhField}-${title}`}
-                  type="number"
-                  step="0.0001"
-                  min="0"
-                  max="999999.9999"
-                  value={Number(data[rhField as keyof BearingClearanceData])}
-                  onChange={(e) =>
-                    updateFn(rhField as keyof BearingClearanceData, Number(e.target.value))
-                  }
-                  onBlur={() => handleBlur(rhField as keyof BearingClearanceData)}
-                  className={`text-sm ${errors[rhField] ? 'border-destructive' : ''}`}
-                  required
-                />
-                {errors[rhField] && (
-                  <p className="text-xs text-destructive mt-1">{errors[rhField]}</p>
-                )}
-              </div>
-
-              <div>
-                <Input
-                  value={calculateDifferential(rhField, lhField)}
-                  readOnly
-                  disabled
-                  className="text-sm bg-muted"
-                />
-              </div>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

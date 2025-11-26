@@ -929,6 +929,16 @@
           "ball_box_area_LH": "Área de Caja de Bolas LH",
           "Ball_box_area_RH": "Área de Caja de Bolas RH",
           "Ball_box_area_LH": "Área de Caja de Bolas LH"
+        },
+        "validation": {
+          "outerDataRequired": "Holgura de Rodamiento: Datos Externos son requeridos",
+          "innerDataRequired": "Holgura de Rodamiento: Datos Internos son requeridos",
+          "beforeMeasurementsRequired": "Holgura de Rodamiento: Cuando 'Incluir Mediciones Antes' está habilitado para mantenimiento, debe completar todas las secciones 'Antes' (Externo Antes e Interno Antes)",
+          "fieldRequired": "{field} es requerido",
+          "outerBefore": "Externo Antes",
+          "outerData": "Datos Externos",
+          "innerBefore": "Interno Antes",
+          "innerData": "Datos Internos"
         }
       },
       "slide": {

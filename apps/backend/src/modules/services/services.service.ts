@@ -557,12 +557,12 @@ export class ServicesService {
       );
 
       if (latestBearingService) {
-        // Follow same logic as alerts: outerData || innerData
-        const bearingData =
-          latestBearingService.bearingClearance[0].outerData ||
-          latestBearingService.bearingClearance[0].innerData;
+        const bearingRecord = latestBearingService.bearingClearance[0];
+        const outerData = bearingRecord.outerData;
+        const innerData = bearingRecord.innerData;
 
-        if (bearingData) {
+        // Only proceed if we have at least one data set
+        if (outerData || innerData) {
           // Try to fetch alert for this service
           let alert = undefined;
           try {
@@ -580,7 +580,8 @@ export class ServicesService {
             latestServiceId: latestBearingService.id,
             latestServiceDate: latestBearingService.date,
             serviceType: latestBearingService.type,
-            data: bearingData,
+            outerData: outerData || undefined,
+            innerData: innerData || undefined,
             alert: alert || undefined,
           });
         }

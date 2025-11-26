@@ -929,6 +929,16 @@
           "ball_box_area_LH": "Ball Box Area LH",
           "Ball_box_area_RH": "Ball Box Area RH",
           "Ball_box_area_LH": "Ball Box Area LH"
+        },
+        "validation": {
+          "outerDataRequired": "Bearing Clearance: Outer Data is required",
+          "innerDataRequired": "Bearing Clearance: Inner Data is required",
+          "beforeMeasurementsRequired": "Bearing Clearance: When 'Include Before Measurements' is enabled for maintenance, you must fill all 'Before' sections (Outer Before and Inner Before)",
+          "fieldRequired": "{field} is required",
+          "outerBefore": "Outer Before",
+          "outerData": "Outer Data",
+          "innerBefore": "Inner Before",
+          "innerData": "Inner Data"
         }
       },
       "slide": {

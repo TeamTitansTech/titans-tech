@@ -658,7 +658,10 @@ export type ServiceHistoryItem = z.infer<typeof ServiceHistoryItemSchema>;
 
 export interface BearingClearanceFormProps {
   data: BearingClearanceData;
-  updateFn: (field: keyof BearingClearanceData, value: string | number | boolean) => void;
+  updateFn: (
+    field: keyof BearingClearanceData,
+    value: string | number | boolean | undefined,
+  ) => void;
   errors: Record<string, string>;
   handleBlur: (field: keyof BearingClearanceData) => void;
   title: string;

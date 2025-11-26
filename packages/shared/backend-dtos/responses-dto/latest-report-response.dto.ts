@@ -12,8 +12,9 @@ export class LatestBearingClearanceDto {
   latestServiceId: string;
   latestServiceDate: Date;
   serviceType: ServiceType; // INSPECTION | MAINTENANCE
-  data: BearingClearanceData; // Data from outerData || innerData
-  alert?: AlertBearingClearanceResponseDto; // Alert if exists
+  outerData?: BearingClearanceData; // Outer bearing clearance data
+  innerData?: BearingClearanceData; // Inner bearing clearance data
+  alert?: AlertBearingClearanceResponseDto; // Alert if exists (with outer_/inner_ prefixed fields)
 
   constructor(partial: Partial<LatestBearingClearanceDto>) {
     Object.assign(this, partial);
