@@ -34,9 +34,20 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
     );
   }
 
+  // Collect severities from CLUTCH section
+  if (latestReport.sections.CLUTCH?.alert) {
+    const alert = latestReport.sections.CLUTCH.alert;
+    allSeverities.push(
+      alert.hydClutchClearanceTotal_severity,
+      alert.hydClutchClearanceRear_severity,
+      alert.fb_severity,
+      alert.fTB_severity,
+      alert.rTB_severity,
+    );
+  }
+
   // TODO: Add other sections when their alert logic is implemented
   // if (latestReport.sections.SLIDE?.alert) { ... }
-  // if (latestReport.sections.CLUTCH?.alert) { ... }
 
   // Return the most critical severity
   if (allSeverities.includes('RED')) return 'critical';
@@ -116,6 +127,34 @@ export const getSectionStatusFromReport = (
       return 'unknown';
     }
 
+    case 'CLUTCH': {
+      const clutchData = latestReport.sections.CLUTCH;
+      if (!clutchData?.alert) {
+        return 'unknown';
+      }
+
+      const alert = clutchData.alert;
+
+      // Check all clutch fields for worst severity
+      const severities = [
+        alert.hydClutchClearanceTotal_severity,
+        alert.hydClutchClearanceRear_severity,
+        alert.fb_severity,
+        alert.fTB_severity,
+        alert.rTB_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      } else if (severities.includes('GREEN')) {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
     // TODO: Add other sections when their alert logic is implemented
     // case 'SLIDE':
     // case 'GIBS':
@@ -155,6 +194,31 @@ export const getSectionStatus = (
       } else if (severity === 'YELLOW') {
         return 'warning';
       } else if (severity === 'GREEN') {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
+    case 'CLUTCH': {
+      const alert = latestService?.alertClutch;
+      if (!alert) {
+        return 'unknown';
+      }
+
+      const severities = [
+        alert.hydClutchClearanceTotal_severity,
+        alert.hydClutchClearanceRear_severity,
+        alert.fb_severity,
+        alert.fTB_severity,
+        alert.rTB_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      } else if (severities.includes('GREEN')) {
         return 'ok';
       }
 

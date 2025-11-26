@@ -628,41 +628,36 @@ export class AlertsService {
     }
 
     // Calculate alerts for each of the 5 measurement points
-    const hydClutchClearanceTotal = this.calculateClutchFieldAlert(
+    const hydClutchClearanceTotal = this.evaluateSingleValueAlert(
       clutchData.hydClutchClearanceTotal,
-      null,
       threshold.hydClutchClearanceTotal_greenMin,
       threshold.hydClutchClearanceTotal_yellowMin,
       threshold.hydClutchClearanceTotal_redMin,
     );
 
-    const hydClutchClearanceRear = this.calculateClutchFieldAlert(
+    const hydClutchClearanceRear = this.evaluateSingleValueAlert(
       clutchData.hydClutchClearanceRear,
-      null,
       threshold.hydClutchClearanceRear_greenMin,
       threshold.hydClutchClearanceRear_yellowMin,
       threshold.hydClutchClearanceRear_redMin,
     );
 
-    const fb = this.calculateClutchFieldAlert(
+    const fb = this.evaluateSingleValueAlert(
       clutchData.brakeSpringFB,
-      null,
       threshold.fb_greenMin,
       threshold.fb_yellowMin,
       threshold.fb_redMin,
     );
 
-    const fTB = this.calculateClutchFieldAlert(
+    const fTB = this.evaluateSingleValueAlert(
       clutchData.brakeSpringFTB,
-      null,
       threshold.fTB_greenMin,
       threshold.fTB_yellowMin,
       threshold.fTB_redMin,
     );
 
-    const rTB = this.calculateClutchFieldAlert(
+    const rTB = this.evaluateSingleValueAlert(
       clutchData.brakeSpringRTB,
-      null,
       threshold.rTB_greenMin,
       threshold.rTB_yellowMin,
       threshold.rTB_redMin,
@@ -701,28 +696,28 @@ export class AlertsService {
       where: { machineServiceId },
       create: {
         machineServiceId,
-        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value1,
+        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value,
         hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
-        hydClutchClearanceRear_value: hydClutchClearanceRear.value1,
+        hydClutchClearanceRear_value: hydClutchClearanceRear.value,
         hydClutchClearanceRear_severity: hydClutchClearanceRear.severity,
-        fb_value: fb.value1,
+        fb_value: fb.value,
         fb_severity: fb.severity,
-        fTB_value: fTB.value1,
+        fTB_value: fTB.value,
         fTB_severity: fTB.severity,
-        rTB_value: rTB.value1,
+        rTB_value: rTB.value,
         rTB_severity: rTB.severity,
         thresholdSnapshot,
       },
       update: {
-        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value1,
+        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value,
         hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
-        hydClutchClearanceRear_value: hydClutchClearanceRear.value1,
+        hydClutchClearanceRear_value: hydClutchClearanceRear.value,
         hydClutchClearanceRear_severity: hydClutchClearanceRear.severity,
-        fb_value: fb.value1,
+        fb_value: fb.value,
         fb_severity: fb.severity,
-        fTB_value: fTB.value1,
+        fTB_value: fTB.value,
         fTB_severity: fTB.severity,
-        rTB_value: rTB.value1,
+        rTB_value: rTB.value,
         rTB_severity: rTB.severity,
         thresholdSnapshot,
       },
@@ -735,37 +730,29 @@ export class AlertsService {
     } as any);
   }
 
-  private calculateClutchFieldAlert(
-    value1: Decimal | null,
-    value2: Decimal | null,
+  /**
+   * Evaluates a single measurement value against thresholds
+   * Used for clutch measurements (no before/after comparison needed)
+   */
+  private evaluateSingleValueAlert(
+    value: Decimal | null,
     greenMin: Decimal,
     yellowMin: Decimal,
     redMin: Decimal,
-  ) {
-    // If either value is null, return NONE severity with 0 differential
-    if (value1 === null || value2 === null) {
+  ): { value: Decimal; severity: AlertSeverity } {
+    // If value is null, return NONE severity with 0
+    if (value === null) {
       return {
-        value1: value1 || new Decimal(0),
-        value2: value2 || new Decimal(0),
-        differential: new Decimal(0),
+        value: new Decimal(0),
         severity: AlertSeverity.NONE,
       };
     }
 
-    // Calculate differential: |value1 - value2| using Decimal arithmetic for precision
-    const differential = value1.minus(value2).abs();
-
-    const severity = this.determineSeverity(
-      differential,
-      greenMin,
-      yellowMin,
-      redMin,
-    );
+    // Compare single value directly against thresholds
+    const severity = this.determineSeverity(value, greenMin, yellowMin, redMin);
 
     return {
-      value1,
-      value2,
-      differential,
+      value,
       severity,
     };
   }

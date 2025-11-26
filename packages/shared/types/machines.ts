@@ -96,6 +96,24 @@ export interface AlertBearingClearance {
   updatedAt: string;
 }
 
+// Alert Clutch (for clutch service alerts)
+export interface AlertClutch {
+  id: string;
+  machineServiceId: string;
+  hydClutchClearanceTotal_value: number;
+  hydClutchClearanceTotal_severity: AlertSeverity;
+  hydClutchClearanceRear_value: number;
+  hydClutchClearanceRear_severity: AlertSeverity;
+  fb_value: number;
+  fb_severity: AlertSeverity;
+  fTB_value: number;
+  fTB_severity: AlertSeverity;
+  rTB_value: number;
+  rTB_severity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Basic Service Info (for machine response)
 export interface MachineService {
   id: string;
@@ -103,6 +121,7 @@ export interface MachineService {
   isMaintenance: boolean;
   performedBy: string;
   alertBearingClearance?: AlertBearingClearance;
+  alertClutch?: AlertClutch;
 }
 
 // Machine Inspection (detailed service data for inspections)

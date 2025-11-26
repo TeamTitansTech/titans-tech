@@ -117,11 +117,11 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     ];
 
     return clutchFields.map((field) => {
-      const value = typeof field.value === 'number' ? field.value : undefined;
-
-      const differential = alert
-        ? (alert[`${field.key}_differential` as keyof typeof alert] as number | undefined)
-        : undefined;
+      // Handle Decimal values from Prisma (could be number, string, or object)
+      let numericValue: number | undefined;
+      if (field.value !== null && field.value !== undefined) {
+        numericValue = typeof field.value === 'number' ? field.value : Number(field.value);
+      }
 
       const severity = alert
         ? (alert[`${field.key}_severity` as keyof typeof alert] as
@@ -133,8 +133,8 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
       return {
         field: field.label,
-        value: typeof value === 'number' ? value.toFixed(3) : '-',
-        differential: typeof differential === 'number' ? differential.toFixed(3) : '-',
+        value: numericValue !== undefined && !isNaN(numericValue) ? numericValue.toFixed(3) : '-',
+        differential: '-', // Clutch doesn't use differential (single values, not before/after)
         severity,
       };
     });
@@ -271,7 +271,6 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                         <TableRow className="bg-muted/50">
                           <TableHead className="font-semibold">Measurement</TableHead>
                           <TableHead className="text-center font-semibold">Value</TableHead>
-                          <TableHead className="text-center font-semibold">Differential</TableHead>
                           <TableHead className="text-center font-semibold">Status</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -280,7 +279,6 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                           <TableRow key={idx} className="hover:bg-muted/30">
                             <TableCell className="font-medium">{row.field}</TableCell>
                             <TableCell className="text-center">{row.value}</TableCell>
-                            <TableCell className="text-center">{row.differential}</TableCell>
                             <TableCell className="text-center">
                               {getSeverityBadge(row.severity)}
                             </TableCell>
