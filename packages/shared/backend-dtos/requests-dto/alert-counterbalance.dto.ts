@@ -7,12 +7,12 @@ import { CounterbalanceAlertField } from '@titans-tech/db/enums';
  */
 export const CreateAlertCounterbalanceCylinderAirbagSchema = z.object({
   fieldName: z.nativeEnum(CounterbalanceAlertField, {
-    message: 'Campo inválido',
+    message: 'Invalid field',
   }),
   justification: z
     .string()
-    .min(1, 'Justificativa é obrigatória')
-    .max(1000, 'Justificativa muito longa (máximo 1000 caracteres)'),
+    .min(1, 'Justification is required')
+    .max(1000, 'Justification too long (maximum 1000 characters)'),
 });
 
 export type CreateAlertCounterbalanceCylinderAirbagDto = z.infer<
