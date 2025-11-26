@@ -6,18 +6,21 @@ import { ThresholdRangeInput } from './ThresholdRangeInput';
 import { useTranslations } from 'next-intl';
 
 export interface ClutchThresholdsData {
-  gearBacklash_greenMin: number;
-  gearBacklash_yellowMin: number;
-  gearBacklash_redMin: number;
-  crankEndplay_greenMin: number;
-  crankEndplay_yellowMin: number;
-  crankEndplay_redMin: number;
-  brakeClearance_greenMin: number;
-  brakeClearance_yellowMin: number;
-  brakeClearance_redMin: number;
-  hydClutchClearance_greenMin: number;
-  hydClutchClearance_yellowMin: number;
-  hydClutchClearance_redMin: number;
+  hydClutchClearanceTotal_greenMin: number;
+  hydClutchClearanceTotal_yellowMin: number;
+  hydClutchClearanceTotal_redMin: number;
+  hydClutchClearanceRear_greenMin: number;
+  hydClutchClearanceRear_yellowMin: number;
+  hydClutchClearanceRear_redMin: number;
+  fb_greenMin: number;
+  fb_yellowMin: number;
+  fb_redMin: number;
+  fTB_greenMin: number;
+  fTB_yellowMin: number;
+  fTB_redMin: number;
+  rTB_greenMin: number;
+  rTB_yellowMin: number;
+  rTB_redMin: number;
 }
 
 interface ClutchThresholdsProps {
@@ -50,43 +53,53 @@ export function ClutchThresholds({ open, onOpenChange, data, onChange }: ClutchT
       <CollapsibleContent>
         <div className="border border-t-0 rounded-b-lg p-6 bg-white space-y-6">
           <ThresholdRangeInput
-            label={t('gearBacklash')}
-            greenMin={data.gearBacklash_greenMin}
-            yellowMin={data.gearBacklash_yellowMin}
-            redMin={data.gearBacklash_redMin}
-            onGreenMinChange={(v) => updateField('gearBacklash_greenMin', v)}
-            onYellowMinChange={(v) => updateField('gearBacklash_yellowMin', v)}
-            onRedMinChange={(v) => updateField('gearBacklash_redMin', v)}
+            label={t('hydClutchClearanceTotal')}
+            greenMin={data.hydClutchClearanceTotal_greenMin}
+            yellowMin={data.hydClutchClearanceTotal_yellowMin}
+            redMin={data.hydClutchClearanceTotal_redMin}
+            onGreenMinChange={(v) => updateField('hydClutchClearanceTotal_greenMin', v)}
+            onYellowMinChange={(v) => updateField('hydClutchClearanceTotal_yellowMin', v)}
+            onRedMinChange={(v) => updateField('hydClutchClearanceTotal_redMin', v)}
           />
 
           <ThresholdRangeInput
-            label={t('crankEndplay')}
-            greenMin={data.crankEndplay_greenMin}
-            yellowMin={data.crankEndplay_yellowMin}
-            redMin={data.crankEndplay_redMin}
-            onGreenMinChange={(v) => updateField('crankEndplay_greenMin', v)}
-            onYellowMinChange={(v) => updateField('crankEndplay_yellowMin', v)}
-            onRedMinChange={(v) => updateField('crankEndplay_redMin', v)}
+            label={t('hydClutchClearanceRear')}
+            greenMin={data.hydClutchClearanceRear_greenMin}
+            yellowMin={data.hydClutchClearanceRear_yellowMin}
+            redMin={data.hydClutchClearanceRear_redMin}
+            onGreenMinChange={(v) => updateField('hydClutchClearanceRear_greenMin', v)}
+            onYellowMinChange={(v) => updateField('hydClutchClearanceRear_yellowMin', v)}
+            onRedMinChange={(v) => updateField('hydClutchClearanceRear_redMin', v)}
           />
 
           <ThresholdRangeInput
-            label={t('brakeClearance')}
-            greenMin={data.brakeClearance_greenMin}
-            yellowMin={data.brakeClearance_yellowMin}
-            redMin={data.brakeClearance_redMin}
-            onGreenMinChange={(v) => updateField('brakeClearance_greenMin', v)}
-            onYellowMinChange={(v) => updateField('brakeClearance_yellowMin', v)}
-            onRedMinChange={(v) => updateField('brakeClearance_redMin', v)}
+            label={t('fb')}
+            greenMin={data.fb_greenMin}
+            yellowMin={data.fb_yellowMin}
+            redMin={data.fb_redMin}
+            onGreenMinChange={(v) => updateField('fb_greenMin', v)}
+            onYellowMinChange={(v) => updateField('fb_yellowMin', v)}
+            onRedMinChange={(v) => updateField('fb_redMin', v)}
           />
 
           <ThresholdRangeInput
-            label={t('hydClutchClearance')}
-            greenMin={data.hydClutchClearance_greenMin}
-            yellowMin={data.hydClutchClearance_yellowMin}
-            redMin={data.hydClutchClearance_redMin}
-            onGreenMinChange={(v) => updateField('hydClutchClearance_greenMin', v)}
-            onYellowMinChange={(v) => updateField('hydClutchClearance_yellowMin', v)}
-            onRedMinChange={(v) => updateField('hydClutchClearance_redMin', v)}
+            label={t('fTB')}
+            greenMin={data.fTB_greenMin}
+            yellowMin={data.fTB_yellowMin}
+            redMin={data.fTB_redMin}
+            onGreenMinChange={(v) => updateField('fTB_greenMin', v)}
+            onYellowMinChange={(v) => updateField('fTB_yellowMin', v)}
+            onRedMinChange={(v) => updateField('fTB_redMin', v)}
+          />
+
+          <ThresholdRangeInput
+            label={t('rTB')}
+            greenMin={data.rTB_greenMin}
+            yellowMin={data.rTB_yellowMin}
+            redMin={data.rTB_redMin}
+            onGreenMinChange={(v) => updateField('rTB_greenMin', v)}
+            onYellowMinChange={(v) => updateField('rTB_yellowMin', v)}
+            onRedMinChange={(v) => updateField('rTB_redMin', v)}
           />
         </div>
       </CollapsibleContent>

@@ -41,18 +41,21 @@ const INITIAL_THRESHOLDS: BearingClearanceThresholdsData = {
 };
 
 const INITIAL_CLUTCH_THRESHOLDS: ClutchThresholdsData = {
-  gearBacklash_greenMin: 0.001,
-  gearBacklash_yellowMin: 0.003,
-  gearBacklash_redMin: 0.005,
-  crankEndplay_greenMin: 0.001,
-  crankEndplay_yellowMin: 0.003,
-  crankEndplay_redMin: 0.005,
-  brakeClearance_greenMin: 0.001,
-  brakeClearance_yellowMin: 0.003,
-  brakeClearance_redMin: 0.005,
-  hydClutchClearance_greenMin: 0.001,
-  hydClutchClearance_yellowMin: 0.003,
-  hydClutchClearance_redMin: 0.005,
+  hydClutchClearanceTotal_greenMin: 0.06,
+  hydClutchClearanceTotal_yellowMin: 0.12,
+  hydClutchClearanceTotal_redMin: 0.188,
+  hydClutchClearanceRear_greenMin: 0.015,
+  hydClutchClearanceRear_yellowMin: 0.078,
+  hydClutchClearanceRear_redMin: 0.105,
+  fb_greenMin: 0.045,
+  fb_yellowMin: 0.052,
+  fb_redMin: 0.055,
+  fTB_greenMin: 0.005,
+  fTB_yellowMin: 0.012,
+  fTB_redMin: 0.015,
+  rTB_greenMin: 0.005,
+  rTB_yellowMin: 0.012,
+  rTB_redMin: 0.015,
 };
 
 export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {

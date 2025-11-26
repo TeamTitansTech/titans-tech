@@ -1692,10 +1692,11 @@
     },
     "clutch": {
       "title": "EMBREAGEM - Configuração de Alerta",
-      "gearBacklash": "Folga da Engrenagem (Diferencial Antes/Depois)",
-      "crankEndplay": "Folga do Virabrequim (Diferencial Antes/Depois)",
-      "brakeClearance": "Folga do Freio (Diferencial Total/Traseira)",
-      "hydClutchClearance": "Folga da Embreagem Hidráulica (Diferencial Total/Traseira)"
+      "hydClutchClearanceTotal": "Folga da Embreagem Hidráulica Total",
+      "hydClutchClearanceRear": "Folga da Embreagem Hidráulica Traseira",
+      "fb": "F-B (Frente-Trás)",
+      "fTB": "F-TB (Frente Topo-Base)",
+      "rTB": "R-TB (Traseira Topo-Base)"
     },
     "thresholds": {
       "greenStartMin": "Início Verde (Mín)",

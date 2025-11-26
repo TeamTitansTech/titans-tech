@@ -92,14 +92,16 @@ export interface LatestClutch {
   serviceType: 'INSPECTION' | 'MAINTENANCE';
   data: ClutchData;
   alert?: {
-    gearBacklash_differential: number;
-    gearBacklash_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
-    crankEndplay_differential: number;
-    crankEndplay_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
-    brakeClearance_differential: number;
-    brakeClearance_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
-    hydClutchClearance_differential: number;
-    hydClutchClearance_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    hydClutchClearanceTotal_differential: number;
+    hydClutchClearanceTotal_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    hydClutchClearanceRear_differential: number;
+    hydClutchClearanceRear_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    fb_differential: number;
+    fb_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    fTB_differential: number;
+    fTB_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    rTB_differential: number;
+    rTB_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
   };
 }
 

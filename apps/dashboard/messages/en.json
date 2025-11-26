@@ -1614,10 +1614,11 @@
     },
     "clutch": {
       "title": "CLUTCH - Alert Configuration",
-      "gearBacklash": "Gear Backlash (Before/After Differential)",
-      "crankEndplay": "Crank Endplay (Before/After Differential)",
-      "brakeClearance": "Brake Clearance (Total/Rear Differential)",
-      "hydClutchClearance": "Hydraulic Clutch Clearance (Total/Rear Differential)"
+      "hydClutchClearanceTotal": "Hydraulic Clutch Clearance Total",
+      "hydClutchClearanceRear": "Hydraulic Clutch Clearance Rear",
+      "fb": "F-B (Front-Back)",
+      "fTB": "F-TB (Front Top-Bottom)",
+      "rTB": "R-TB (Rear Top-Bottom)"
     },
     "thresholds": {
       "greenStartMin": "Green Start (Min)",

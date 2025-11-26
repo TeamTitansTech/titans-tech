@@ -90,40 +90,38 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   const extractClutchRows = (data: ClutchData, alert?: LatestClutch['alert']) => {
     const clutchFields = [
       {
-        key: 'gearBacklash',
-        label: 'Gear Backlash (Before/After)',
-        before: data.gearBacklashBefore,
-        after: data.gearBacklashAfter,
+        key: 'hydClutchClearanceTotal',
+        label: 'Hyd. Clutch Clearance Total',
+        value: data.hydClutchClearanceTotal,
       },
       {
-        key: 'crankEndplay',
-        label: 'Crank Endplay (Before/After)',
-        before: data.crankEndplayBefore,
-        after: data.crankEndplayAfter,
+        key: 'hydClutchClearanceRear',
+        label: 'Hyd. Clutch Clearance Rear',
+        value: data.hydClutchClearanceRear,
       },
       {
-        key: 'brakeClearance',
-        label: 'Brake Clearance (Total/Rear)',
-        before: data.brakeClearanceTotal,
-        after: data.brakeClearanceRear,
+        key: 'fb',
+        label: 'F-B (Front-Back)',
+        value: data.brakeSpringFB,
       },
       {
-        key: 'hydClutchClearance',
-        label: 'Hyd. Clutch Clearance (Total/Rear)',
-        before: data.hydClutchClearanceTotal,
-        after: data.hydClutchClearanceRear,
+        key: 'fTB',
+        label: 'F-TB (Front Top-Bottom)',
+        value: data.brakeSpringFTB,
+      },
+      {
+        key: 'rTB',
+        label: 'R-TB (Rear Top-Bottom)',
+        value: data.brakeSpringRTB,
       },
     ];
 
     return clutchFields.map((field) => {
-      const before = typeof field.before === 'number' ? field.before : undefined;
-      const after = typeof field.after === 'number' ? field.after : undefined;
+      const value = typeof field.value === 'number' ? field.value : undefined;
 
       const differential = alert
         ? (alert[`${field.key}_differential` as keyof typeof alert] as number | undefined)
-        : before && after
-          ? Math.abs(before - after)
-          : undefined;
+        : undefined;
 
       const severity = alert
         ? (alert[`${field.key}_severity` as keyof typeof alert] as
@@ -135,8 +133,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
       return {
         field: field.label,
-        before: typeof before === 'number' ? before.toFixed(3) : '-',
-        after: typeof after === 'number' ? after.toFixed(3) : '-',
+        value: typeof value === 'number' ? value.toFixed(3) : '-',
         differential: typeof differential === 'number' ? differential.toFixed(3) : '-',
         severity,
       };
@@ -170,10 +167,11 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     if (!clutch?.alert) return 'NONE';
 
     const severities = [
-      clutch.alert.gearBacklash_severity,
-      clutch.alert.crankEndplay_severity,
-      clutch.alert.brakeClearance_severity,
-      clutch.alert.hydClutchClearance_severity,
+      clutch.alert.hydClutchClearanceTotal_severity,
+      clutch.alert.hydClutchClearanceRear_severity,
+      clutch.alert.fb_severity,
+      clutch.alert.fTB_severity,
+      clutch.alert.rTB_severity,
     ];
 
     if (severities.includes('RED')) return 'RED';
@@ -272,8 +270,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                       <TableHeader>
                         <TableRow className="bg-muted/50">
                           <TableHead className="font-semibold">Measurement</TableHead>
-                          <TableHead className="text-center font-semibold">Value 1</TableHead>
-                          <TableHead className="text-center font-semibold">Value 2</TableHead>
+                          <TableHead className="text-center font-semibold">Value</TableHead>
                           <TableHead className="text-center font-semibold">Differential</TableHead>
                           <TableHead className="text-center font-semibold">Status</TableHead>
                         </TableRow>
@@ -282,8 +279,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                         {extractClutchRows(clutch.data, clutch.alert).map((row, idx) => (
                           <TableRow key={idx} className="hover:bg-muted/30">
                             <TableCell className="font-medium">{row.field}</TableCell>
-                            <TableCell className="text-center">{row.before}</TableCell>
-                            <TableCell className="text-center">{row.after}</TableCell>
+                            <TableCell className="text-center">{row.value}</TableCell>
                             <TableCell className="text-center">{row.differential}</TableCell>
                             <TableCell className="text-center">
                               {getSeverityBadge(row.severity)}

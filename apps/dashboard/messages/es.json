@@ -1603,10 +1603,11 @@
     },
     "clutch": {
       "title": "EMBRAGUE - Configuración de Alerta",
-      "gearBacklash": "Holgura de Engranaje (Diferencial Antes/Después)",
-      "crankEndplay": "Juego del Cigüeñal (Diferencial Antes/Después)",
-      "brakeClearance": "Holgura del Freno (Diferencial Total/Trasera)",
-      "hydClutchClearance": "Holgura del Embrague Hidráulico (Diferencial Total/Trasera)"
+      "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico Total",
+      "hydClutchClearanceRear": "Holgura del Embrague Hidráulico Trasera",
+      "fb": "F-B (Frente-Atrás)",
+      "fTB": "F-TB (Frente Superior-Inferior)",
+      "rTB": "R-TB (Trasera Superior-Inferior)"
     },
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",
