@@ -1,7 +1,8 @@
 import { ServiceType, ServiceSection } from '@titans-tech/db/enums';
-import { BearingClearanceData, ClutchData } from '@titans-tech/db';
+import { BearingClearanceData, ClutchData, SlideData } from '@titans-tech/db';
 import { AlertBearingClearanceResponseDto } from './alert-bearing-clearance-response.dto';
 import { AlertClutchResponseDto } from './alert-clutch-response.dto';
+import { AlertSlideResponseDto } from './alert-slide-response.dto';
 
 /**
  * DTO for the latest BearingClearance data in a machine
@@ -34,6 +35,24 @@ export class LatestClutchDto {
 }
 
 /**
+ * DTO for the latest Slide data in a machine
+ */
+export class LatestSlideDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType; // INSPECTION | MAINTENANCE
+  data: {
+    outerData?: SlideData;
+    innerData?: SlideData;
+  }; // Slide data with outer and inner measurements
+  alert?: AlertSlideResponseDto; // Alert if exists
+
+  constructor(partial: Partial<LatestSlideDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
  * DTO for the complete latest report of a machine
  * Shows the most recent data for each section based on the blueprint
  */
@@ -48,7 +67,7 @@ export class LatestReportResponseDto {
   generatedAt: Date;
   sections: {
     BEARING_CLEARANCE: LatestBearingClearanceDto | null;
-    SLIDE: null; // Future implementation
+    SLIDE: LatestSlideDto | null;
     GIBS: null; // Future implementation
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null; // Future implementation
     CLUTCH: LatestClutchDto | null;

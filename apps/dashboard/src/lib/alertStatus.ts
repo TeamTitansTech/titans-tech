@@ -46,8 +46,11 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
     );
   }
 
-  // TODO: Add other sections when their alert logic is implemented
-  // if (latestReport.sections.SLIDE?.alert) { ... }
+  // Collect severities from SLIDE section
+  if (latestReport.sections.SLIDE?.alert) {
+    const alert = latestReport.sections.SLIDE.alert;
+    allSeverities.push(alert.maxDeviationOuter_severity, alert.maxDeviationInner_severity);
+  }
 
   // Return the most critical severity
   if (allSeverities.includes('RED')) return 'critical';
@@ -155,8 +158,29 @@ export const getSectionStatusFromReport = (
       return 'unknown';
     }
 
+    case 'SLIDE': {
+      const slideData = latestReport.sections.SLIDE;
+      if (!slideData?.alert) {
+        return 'unknown';
+      }
+
+      const alert = slideData.alert;
+
+      // Check all slide fields for worst severity
+      const severities = [alert.maxDeviationOuter_severity, alert.maxDeviationInner_severity];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      } else if (severities.includes('GREEN')) {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
     // TODO: Add other sections when their alert logic is implemented
-    // case 'SLIDE':
     // case 'GIBS':
     // etc.
 
@@ -225,8 +249,26 @@ export const getSectionStatus = (
       return 'unknown';
     }
 
+    case 'SLIDE': {
+      const alert = latestService?.alertSlide;
+      if (!alert) {
+        return 'unknown';
+      }
+
+      const severities = [alert.maxDeviationOuter_severity, alert.maxDeviationInner_severity];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      } else if (severities.includes('GREEN')) {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
     // TODO: Add other sections when their alert logic is implemented
-    // case 'SLIDE':
     // case 'GIBS':
     // etc.
 

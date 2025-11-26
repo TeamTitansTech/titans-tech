@@ -114,6 +114,18 @@ export interface AlertClutch {
   updatedAt: string;
 }
 
+// Alert Slide (for slide service alerts)
+export interface AlertSlide {
+  id: string;
+  machineServiceId: string;
+  maxDeviationOuter_differential: number;
+  maxDeviationOuter_severity: AlertSeverity;
+  maxDeviationInner_differential: number;
+  maxDeviationInner_severity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Basic Service Info (for machine response)
 export interface MachineService {
   id: string;
@@ -122,6 +134,7 @@ export interface MachineService {
   performedBy: string;
   alertBearingClearance?: AlertBearingClearance;
   alertClutch?: AlertClutch;
+  alertSlide?: AlertSlide;
 }
 
 // Machine Inspection (detailed service data for inspections)

@@ -68,6 +68,7 @@ export type {
 import type {
   BearingClearanceData as BearingData,
   ClutchData,
+  SlideData,
 } from '@titans-tech/shared/types/services';
 
 export interface LatestBearingClearance {
@@ -110,6 +111,22 @@ export interface LatestClutch {
   };
 }
 
+export interface LatestSlide {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: {
+    outerData?: SlideData;
+    innerData?: SlideData;
+  };
+  alert?: {
+    maxDeviationOuter_differential: number;
+    maxDeviationOuter_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    maxDeviationInner_differential: number;
+    maxDeviationInner_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+  };
+}
+
 export interface LatestReport {
   machineId: string;
   machineName: string;
@@ -121,7 +138,7 @@ export interface LatestReport {
   generatedAt: string;
   sections: {
     BEARING_CLEARANCE: LatestBearingClearance | null;
-    SLIDE: null;
+    SLIDE: LatestSlide | null;
     GIBS: null;
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null;
     CLUTCH: LatestClutch | null;

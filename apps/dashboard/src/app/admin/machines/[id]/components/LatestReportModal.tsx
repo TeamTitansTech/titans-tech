@@ -27,6 +27,8 @@ import type {
   BearingClearanceData,
   LatestClutch,
   ClutchData,
+  LatestSlide,
+  SlideData,
 } from '@/data/types/services.types';
 import { BEARING_FIELD_NAMES, BEARING_FIELD_LABELS } from '@titans-tech/shared/types';
 
@@ -142,6 +144,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
   const bearingClearance = report.sections.BEARING_CLEARANCE;
   const clutch = report.sections.CLUTCH;
+  const slide = report.sections.SLIDE;
 
   // Get overall worst severity for bearing clearance
   const getOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
@@ -178,6 +181,56 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     if (severities.includes('YELLOW')) return 'YELLOW';
     if (severities.includes('GREEN')) return 'GREEN';
     return 'NONE';
+  };
+
+  // Get overall worst severity for slide
+  const getSlideOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!slide?.alert) return 'NONE';
+
+    const severities = [
+      slide.alert.maxDeviationOuter_severity,
+      slide.alert.maxDeviationInner_severity,
+    ];
+
+    if (severities.includes('RED')) return 'RED';
+    if (severities.includes('YELLOW')) return 'YELLOW';
+    if (severities.includes('GREEN')) return 'GREEN';
+    return 'NONE';
+  };
+
+  // Extract slide measurement rows
+  const extractSlideRows = (
+    data: { outerData?: SlideData; innerData?: SlideData },
+    alert?: LatestSlide['alert'],
+  ) => {
+    const sections = [
+      {
+        name: 'Outer',
+        positions: [
+          data.outerData?.position1,
+          data.outerData?.position2,
+          data.outerData?.position3,
+          data.outerData?.position4,
+          data.outerData?.position5,
+        ],
+        maxDeviation: alert?.maxDeviationOuter_differential,
+        severity: alert?.maxDeviationOuter_severity || 'NONE',
+      },
+      {
+        name: 'Inner',
+        positions: [
+          data.innerData?.position1,
+          data.innerData?.position2,
+          data.innerData?.position3,
+          data.innerData?.position4,
+          data.innerData?.position5,
+        ],
+        maxDeviation: alert?.maxDeviationInner_differential,
+        severity: alert?.maxDeviationInner_severity || 'NONE',
+      },
+    ];
+
+    return sections;
   };
 
   return (
@@ -290,12 +343,75 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                 </div>
               )}
 
+              {slide && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Typography variant="h4" className="font-semibold">
+                      Slide
+                    </Typography>
+                    <div className="flex items-center gap-3">
+                      {getSeverityBadge(getSlideOverallSeverity())}
+                      <span className="text-sm text-muted-foreground">
+                        Atualizado em {format(new Date(slide.latestServiceDate), 'dd-MM-yyyy')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {extractSlideRows(slide.data, slide.alert).map((section, idx) => (
+                      <div key={idx} className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>{section.name}</span>
+                          {getSeverityBadge(
+                            section.severity as 'NONE' | 'GREEN' | 'YELLOW' | 'RED',
+                          )}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="text-center font-semibold">Pos 1</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 2</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 3</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 4</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 5</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Max Deviation
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            <TableRow className="hover:bg-muted/30">
+                              {section.positions.map((pos, posIdx) => (
+                                <TableCell key={posIdx} className="text-center">
+                                  {pos !== null && pos !== undefined
+                                    ? typeof pos === 'number'
+                                      ? pos.toFixed(3)
+                                      : Number(pos).toFixed(3)
+                                    : '-'}
+                                </TableCell>
+                              ))}
+                              <TableCell className="text-center font-medium">
+                                {section.maxDeviation !== null && section.maxDeviation !== undefined
+                                  ? typeof section.maxDeviation === 'number'
+                                    ? section.maxDeviation.toFixed(3)
+                                    : Number(section.maxDeviation).toFixed(3)
+                                  : '-'}
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="border rounded-lg p-4">
                 <Typography variant="h4" className="font-semibold mb-2">
                   Outras Seções
                 </Typography>
                 <Typography variant="muted" className="text-sm">
-                  Slide, Gibs e outras seções serão adicionadas em breve.
+                  Gibs e outras seções serão adicionadas em breve.
                 </Typography>
               </div>
             </div>
