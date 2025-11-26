@@ -34,6 +34,7 @@ export async function BearingClearanceSectionWrapper({
 }: BearingClearanceSectionWrapperProps) {
   let inspections: InspectionData[] = [];
   let machineName = '';
+  let blueprintId = '';
 
   try {
     const [inspectionsResponse, machineResponse] = await Promise.all([
@@ -51,13 +52,16 @@ export async function BearingClearanceSectionWrapper({
     if (machineResponse.errors) {
       console.error('Errors fetching machine:', machineResponse.errors);
       machineName = '';
+      blueprintId = '';
     } else {
       machineName = machineResponse.data?.name || '';
+      blueprintId = machineResponse.data?.blueprintId || '';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
     inspections = [];
     machineName = '';
+    blueprintId = '';
   }
 
   return (
@@ -65,6 +69,7 @@ export async function BearingClearanceSectionWrapper({
       machineId={machineId}
       inspections={inspections}
       machineName={machineName}
+      blueprintId={blueprintId}
     />
   );
 }
