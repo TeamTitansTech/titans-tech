@@ -11,6 +11,7 @@ import {
   LatestBearingClearanceDto,
   LatestClutchDto,
   LatestSlideDto,
+  LatestGibsDto,
   CreateServiceDto,
   UpdateServicePayload,
   CompleteServiceDto,
@@ -663,7 +664,44 @@ export class ServicesService {
       }
     }
 
-    // 6. Build response
+    // 6. Process GIBS section
+    let gibsData: LatestGibsDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.GIBS)) {
+      // Find the most recent service with GIBS data
+      const latestGibsService = services.find(
+        (service) => service.gibs && service.gibs.length > 0,
+      );
+
+      if (latestGibsService) {
+        const gibsRecord = latestGibsService.gibs[0];
+
+        if (gibsRecord && gibsRecord.outerAfterAdjustment) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getGibsAlertByService(
+              latestGibsService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+            console.log(
+              `ℹ️ [SERVICES] No GIBS alert found for service ${latestGibsService.id}`,
+            );
+          }
+
+          gibsData = new LatestGibsDto({
+            latestServiceId: latestGibsService.id,
+            latestServiceDate: latestGibsService.date,
+            serviceType: latestGibsService.type,
+            data: gibsRecord.outerAfterAdjustment,
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 7. Build response
     return new LatestReportResponseDto({
       machineId: machine.id,
       machineName: machine.name,
@@ -676,7 +714,7 @@ export class ServicesService {
       sections: {
         BEARING_CLEARANCE: bearingClearanceData,
         SLIDE: slideData,
-        GIBS: null,
+        GIBS: gibsData,
         LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null,
         CLUTCH: clutchData,
         COUNTERBALANCE_CYLINDER_AIRBAG: null,

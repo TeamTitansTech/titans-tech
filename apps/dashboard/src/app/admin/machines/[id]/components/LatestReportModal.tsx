@@ -29,6 +29,8 @@ import type {
   ClutchData,
   LatestSlide,
   SlideData,
+  LatestGibs,
+  GibsStageData,
 } from '@/data/types/services.types';
 import { BEARING_FIELD_NAMES, BEARING_FIELD_LABELS } from '@titans-tech/shared/types';
 
@@ -145,6 +147,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   const bearingClearance = report.sections.BEARING_CLEARANCE;
   const clutch = report.sections.CLUTCH;
   const slide = report.sections.SLIDE;
+  const gibs = report.sections.GIBS;
 
   // Get overall worst severity for bearing clearance
   const getOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
@@ -233,6 +236,40 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     return sections;
   };
 
+  // Get overall worst severity for GIBS
+  const getGibsOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!gibs?.alert) return 'NONE';
+    return gibs.alert.usable_severity;
+  };
+
+  // Extract GIBS measurement points
+  const extractGibsPoints = (data: GibsStageData) => {
+    const toFixed = (val: any) => {
+      if (val === null || val === undefined) return '-';
+      const num = typeof val === 'number' ? val : Number(val);
+      return isNaN(num) ? '-' : num.toFixed(3);
+    };
+
+    return [
+      { label: 'Point 1', value: toFixed(data.point1) },
+      { label: 'Point 2', value: toFixed(data.point2) },
+      { label: 'Point 3', value: toFixed(data.point3) },
+      { label: 'Point 4', value: toFixed(data.point4) },
+      { label: 'Point 5', value: toFixed(data.point5) },
+      { label: 'Point 6', value: toFixed(data.point6) },
+      { label: 'Point 7', value: toFixed(data.point7) },
+      { label: 'Point 8', value: toFixed(data.point8) },
+      { label: 'Point 9', value: toFixed(data.point9) },
+      { label: 'Point 10', value: toFixed(data.point10) },
+      { label: 'Point 11', value: toFixed(data.point11) },
+      { label: 'Point 12', value: toFixed(data.point12) },
+      { label: 'Point 13', value: toFixed(data.point13) },
+      { label: 'Point 14', value: toFixed(data.point14) },
+      { label: 'Point 15', value: toFixed(data.point15) },
+      { label: 'Point 16', value: toFixed(data.point16) },
+    ];
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
@@ -256,7 +293,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto px-1 py-4">
-          {bearingClearance || clutch ? (
+          {bearingClearance || clutch || slide || gibs ? (
             <div className="space-y-4">
               {bearingClearance && (
                 <div className="border rounded-lg p-4">
@@ -406,14 +443,53 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                 </div>
               )}
 
-              <div className="border rounded-lg p-4">
-                <Typography variant="h4" className="font-semibold mb-2">
-                  Outras Seções
-                </Typography>
-                <Typography variant="muted" className="text-sm">
-                  Gibs e outras seções serão adicionadas em breve.
-                </Typography>
-              </div>
+              {gibs && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Typography variant="h4" className="font-semibold">
+                      GIBS - Outer After Adjustment
+                    </Typography>
+                    <div className="flex items-center gap-3">
+                      {getSeverityBadge(getGibsOverallSeverity())}
+                      <span className="text-sm text-muted-foreground">
+                        Atualizado em {format(new Date(gibs.latestServiceDate), 'dd-MM-yyyy')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {/* Display usable value from alert if available */}
+                    {gibs.alert && (
+                      <div className="border rounded-md p-3 bg-muted/30">
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold">Usable Value</span>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">
+                              {typeof gibs.alert.usable_value === 'number'
+                                ? gibs.alert.usable_value.toFixed(3)
+                                : Number(gibs.alert.usable_value).toFixed(3)}
+                            </span>
+                            {getSeverityBadge(gibs.alert.usable_severity)}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Display measurement points in a grid */}
+                    <div className="border rounded-md overflow-hidden">
+                      <div className="bg-muted/30 px-4 py-2 font-semibold">Measurement Points</div>
+                      <div className="grid grid-cols-4 gap-2 p-4">
+                        {extractGibsPoints(gibs.data).map((point, idx) => (
+                          <div key={idx} className="text-center">
+                            <div className="text-xs text-muted-foreground mb-1">{point.label}</div>
+                            <div className="font-medium">{point.value}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="border rounded-lg p-8 text-center">
