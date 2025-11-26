@@ -175,58 +175,6 @@ export class ClutchAlertsController {
   }
 }
 
-@Controller('alerts/clutch')
-@UseInterceptors(ClassSerializerInterceptor)
-export class ClutchAlertsController {
-  constructor(private readonly alertsService: AlertsService) {}
-
-  @Authenticated()
-  @Get('thresholds/blueprint/:blueprintId')
-  async getClutchThresholdByBlueprint(
-    @Param('blueprintId') blueprintId: string,
-  ) {
-    return this.alertsService.getClutchThresholdByBlueprint(blueprintId);
-  }
-
-  @Admin()
-  @Post('thresholds')
-  async createClutchThreshold(
-    @Body(new ZodValidationPipe(CreateThresholdClutchSchema))
-    dto: CreateThresholdClutchDto,
-  ) {
-    return this.alertsService.createClutchThreshold(dto);
-  }
-
-  @Admin()
-  @Put('thresholds/blueprint/:blueprintId')
-  async updateClutchThreshold(
-    @Param('blueprintId') blueprintId: string,
-    @Body(new ZodValidationPipe(UpdateThresholdClutchSchema))
-    dto: UpdateThresholdClutchDto,
-  ) {
-    return this.alertsService.updateClutchThreshold(blueprintId, dto);
-  }
-
-  @Admin()
-  @Delete('thresholds/blueprint/:blueprintId')
-  async deleteClutchThreshold(@Param('blueprintId') blueprintId: string) {
-    await this.alertsService.deleteClutchThreshold(blueprintId);
-    return { message: 'Clutch threshold deleted successfully' };
-  }
-
-  @Authenticated()
-  @Get('service/:serviceId')
-  async getClutchAlertByService(@Param('serviceId') serviceId: string) {
-    return this.alertsService.getClutchAlertByService(serviceId);
-  }
-
-  @Admin()
-  @Post('service/:serviceId/generate')
-  async generateClutchAlerts(@Param('serviceId') serviceId: string) {
-    return this.alertsService.generateClutchAlertsForService(serviceId);
-  }
-}
-
 @Controller('alerts/slide')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AlertsSlideController {
