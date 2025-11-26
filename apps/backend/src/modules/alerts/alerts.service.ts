@@ -365,9 +365,6 @@ export class AlertsService {
       const clutchData = service.clutch[0].data;
 
       if (clutchThreshold && clutchData) {
-        console.log(
-          `ℹ️ [ALERTS] Generating clutch alerts for service ${machineServiceId}`,
-        );
         await this.generateClutchAlertsForService(machineServiceId);
       }
     }
@@ -465,10 +462,6 @@ export class AlertsService {
       bearingData,
     } as any);
   }
-
-  // ============================================
-  // CLUTCH ALERT METHODS
-  // ============================================
 
   async createClutchThreshold(dto: CreateThresholdClutchDto) {
     const threshold = await this.prisma.thresholdClutch.create({
