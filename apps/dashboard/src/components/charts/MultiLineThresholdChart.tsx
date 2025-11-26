@@ -15,7 +15,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   ReferenceLine,
-  ReferenceArea,
   Legend,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -49,7 +48,6 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
     showGreenLine = true,
     showYellowLine = true,
     showRedLine = true,
-    showZones = false,
     allowToggle = true,
     height = 300,
     onDataPointClick,
@@ -58,7 +56,6 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
   const [showGreen, setShowGreen] = useState(showGreenLine);
   const [showYellow, setShowYellow] = useState(showYellowLine);
   const [showRed, setShowRed] = useState(showRedLine);
-  const [showThresholdZones, setShowThresholdZones] = useState(showZones);
 
   // Custom tooltip component
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -159,13 +156,6 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
           {allowToggle && sharedThreshold && (
             <div className="flex gap-2 flex-wrap">
               <Button
-                variant={showThresholdZones ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowThresholdZones(!showThresholdZones)}
-              >
-                Zones
-              </Button>
-              <Button
                 variant={showGreen ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setShowGreen(!showGreen)}
@@ -217,33 +207,6 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
-
-            {/* Threshold zones (background shading) */}
-            {sharedThreshold && showThresholdZones && (
-              <>
-                <ReferenceArea
-                  y1={0}
-                  y2={sharedThreshold.yellowMin}
-                  fill={getThresholdColor('green')}
-                  fillOpacity={0.1}
-                  ifOverflow="extendDomain"
-                />
-                <ReferenceArea
-                  y1={sharedThreshold.yellowMin}
-                  y2={sharedThreshold.redMin}
-                  fill={getThresholdColor('yellow')}
-                  fillOpacity={0.1}
-                  ifOverflow="extendDomain"
-                />
-                <ReferenceArea
-                  y1={sharedThreshold.redMin}
-                  y2="dataMax"
-                  fill={getThresholdColor('red')}
-                  fillOpacity={0.1}
-                  ifOverflow="extendDomain"
-                />
-              </>
-            )}
 
             {/* Threshold lines */}
             {sharedThreshold && showGreen && (

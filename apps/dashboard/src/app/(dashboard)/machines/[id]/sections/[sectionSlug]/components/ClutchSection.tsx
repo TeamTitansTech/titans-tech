@@ -261,7 +261,6 @@ export function ClutchSection({
                 ]}
                 sharedThreshold={hydClearanceThreshold}
                 valueUnit="mm"
-                showZones={true}
                 allowToggle={true}
                 height={300}
               />
@@ -288,7 +287,6 @@ export function ClutchSection({
                 ]}
                 sharedThreshold={fbThreshold}
                 valueUnit="in"
-                showZones={true}
                 allowToggle={true}
                 height={300}
               />

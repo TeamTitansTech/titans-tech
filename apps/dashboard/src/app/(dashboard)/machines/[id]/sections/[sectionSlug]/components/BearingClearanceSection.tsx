@@ -374,7 +374,6 @@ export function BearingClearanceSection({
                   ]}
                   sharedThreshold={threshold}
                   valueUnit="mm"
-                  showZones={true}
                   allowToggle={true}
                   height={300}
                 />
@@ -396,7 +395,6 @@ export function BearingClearanceSection({
                   ]}
                   sharedThreshold={threshold}
                   valueUnit="mm"
-                  showZones={true}
                   allowToggle={true}
                   height={300}
                 />

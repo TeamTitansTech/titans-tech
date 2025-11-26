@@ -5,11 +5,7 @@
 
 import { format } from 'date-fns';
 import type { MeasurementDataPoint, MultiLineMeasurementData, ThresholdConfig } from './types';
-import type {
-  BearingClearanceData,
-  ClutchData,
-  SlideData,
-} from '@titans-tech/shared/types/services';
+import type { BearingClearanceData, ClutchData } from '@titans-tech/shared/types/services';
 
 /**
  * Transform bearing clearance inspection data to single-line chart format

@@ -13,9 +13,7 @@ import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import type { ClutchInspectionData } from './ClutchSectionWrapper';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
-import { ThresholdLineChart } from '@/components/charts/ThresholdLineChart';
 import {
-  transformClutchToChartData,
   transformClutchToMultiLineData,
   extractThresholdConfig,
 } from '@/components/charts/dataTransformers';
@@ -262,7 +260,6 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
               ]}
               sharedThreshold={hydClearanceThreshold}
               valueUnit="mm"
-              showZones={true}
               allowToggle={true}
               height={300}
             />
@@ -289,7 +286,6 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
               ]}
               sharedThreshold={fbThreshold}
               valueUnit="in"
-              showZones={true}
               allowToggle={true}
               height={300}
             />

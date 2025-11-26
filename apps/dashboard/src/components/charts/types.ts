@@ -31,7 +31,6 @@ export interface ThresholdLineChartProps {
   showGreenLine?: boolean; // Default: true
   showYellowLine?: boolean; // Default: true
   showRedLine?: boolean; // Default: true
-  showZones?: boolean; // Default: false (shaded regions)
   allowToggle?: boolean; // Default: true (show toggle controls)
 
   // Chart styling
@@ -70,7 +69,6 @@ export interface MultiLineThresholdChartProps {
   showGreenLine?: boolean;
   showYellowLine?: boolean;
   showRedLine?: boolean;
-  showZones?: boolean;
   allowToggle?: boolean;
 
   // Chart styling

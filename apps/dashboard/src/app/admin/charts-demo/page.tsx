@@ -116,7 +116,6 @@ export default function ChartsDemoPage() {
           data={mockSingleLineData}
           threshold={mockThreshold}
           valueUnit="mm"
-          showZones={true}
           allowToggle={true}
           height={350}
         />
@@ -157,7 +156,6 @@ export default function ChartsDemoPage() {
           ]}
           sharedThreshold={mockThreshold}
           valueUnit="mm"
-          showZones={true}
           allowToggle={true}
           height={350}
         />
@@ -199,7 +197,6 @@ export default function ChartsDemoPage() {
           ]}
           sharedThreshold={mockPistonThreshold}
           valueUnit="mm"
-          showZones={true}
           allowToggle={true}
           height={350}
         />
@@ -273,7 +270,6 @@ const threshold = await getSlideThresholdByBlueprint(blueprintId);
   data={chartData}
   threshold={threshold}
   valueUnit="mm"
-  showZones={true}
   height={300}
 />`}
           </pre>
