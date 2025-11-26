@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-import { Typography } from '@/components/ui/typography';
 import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { SECTION_REGISTRY } from '../sections/registry';
 import type { SectionComponentRef } from '../sections/types';
@@ -79,26 +78,20 @@ export function SectionsStep({
 
       <div className="flex-1 overflow-y-auto py-2">
         <div key={componentKey} className="space-y-4">
-          <Typography variant="h3" className="text-lg font-semibold">
-            {translations.getSectionName(sectionConfig.metadata.i18nKey)}
-          </Typography>
-
-          <div className="border rounded-lg">
-            <SectionComponent
-              key={componentKey}
-              ref={(ref: SectionComponentRef | null) => {
-                if (ref) {
-                  registerSectionRef(currentSectionKey, ref);
-                }
-              }}
-              onSectionTouched={() => onSectionTouched(currentSectionKey)}
-              serviceType={currentServiceType}
-              isOpen={true}
-              onOpenChange={() => {}}
-              initialData={sectionData}
-              serviceId={serviceId}
-            />
-          </div>
+          <SectionComponent
+            key={componentKey}
+            ref={(ref: SectionComponentRef | null) => {
+              if (ref) {
+                registerSectionRef(currentSectionKey, ref);
+              }
+            }}
+            onSectionTouched={() => onSectionTouched(currentSectionKey)}
+            serviceType={currentServiceType}
+            isOpen={true}
+            onOpenChange={() => {}}
+            initialData={sectionData}
+            serviceId={serviceId}
+          />
         </div>
 
         {error && (

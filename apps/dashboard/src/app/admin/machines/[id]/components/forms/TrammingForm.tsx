@@ -29,7 +29,6 @@ export function TrammingForm({
   errors,
   updateField,
   handleBlur,
-  title,
   readOnly = false,
 }: TrammingFormProps) {
   const t = useTranslations('inspections.form.tramming');

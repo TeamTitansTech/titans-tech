@@ -36,7 +36,7 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
   return (
     <div className="flex items-start flex-shrink-0 lg:flex-1 lg:last:flex-none">
       <div
-        className="flex flex-col items-center flex-shrink-0"
+        className="flex flex-col items-center flex-shrink-0 relative"
         ref={stepRef}
         data-step-status={step.status}
       >
@@ -64,7 +64,7 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
 
         <div
           className={cn(
-            'text-[10px] sm:text-xs font-medium mt-1.5 sm:mt-2 text-center w-[70px] sm:w-[100px] line-clamp-2',
+            'text-[10px] sm:text-xs font-medium mt-1.5 sm:mt-2 text-center w-[70px] sm:w-[100px] min-h-[28px] sm:min-h-[32px] line-clamp-2',
             step.status === 'pending' && 'text-gray-500 dark:text-gray-400',
             step.status === 'current' && 'text-foreground font-semibold',
             step.status === 'completed' && 'text-green-700 dark:text-green-400',
@@ -95,12 +95,9 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
         )}
       </div>
 
-      {/* Connecting Line */}
+      {/* Connecting Line - positioned between steps */}
       {!isLast && (
-        <div
-          className="h-0.5 bg-blue-500 mx-3 sm:mx-4 lg:flex-1 w-[40px] sm:w-[50px] lg:w-auto"
-          style={{ marginTop: '20px' }}
-        />
+        <div className="h-0.5 bg-blue-500 flex-shrink-0 w-[40px] sm:w-[50px] lg:flex-1 self-start mt-[15px] sm:mt-[19px]" />
       )}
     </div>
   );
@@ -124,7 +121,7 @@ export function Stepper({ steps, onStepClick }: StepperProps) {
   }, [steps]);
 
   return (
-    <div className="w-full p-1 sm:p-2 bg-muted/30 rounded-lg border relative">
+    <div className="w-full p-4 sm:p-4 bg-muted/30 rounded-lg border relative">
       <div ref={containerRef} className="hide-scrollbar flex items-center overflow-x-auto">
         {steps.map((step, index) => (
           <StepperItem

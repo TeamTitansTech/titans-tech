@@ -199,11 +199,7 @@ function BeforeToolTable({
 }
 
 // Tabela para After Tool Installation
-function AfterToolTable({
-  data,
-  t,
-  hideUsable = false,
-}: CalculatedTableProps & { hideUsable?: boolean }) {
+function AfterToolTable({ data, t }: CalculatedTableProps & { hideUsable?: boolean }) {
   const addPoints = (a: number | undefined, b: number | undefined): string => {
     const numA = typeof a === 'number' ? a : 0;
     const numB = typeof b === 'number' ? b : 0;

@@ -231,16 +231,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     const t = useTranslations('inspections');
     const tCommon = useTranslations('common');
 
-    // Update notes and haveInnerGibsBeenAdjusted when initialData changes
-    useEffect(() => {
-      if (initialData?.notes !== undefined) {
-        setNotes(initialData.notes);
-      }
-      if (initialData?.haveInnerGibsBeenAdjusted !== undefined) {
-        setHaveInnerGibsBeenAdjusted(initialData.haveInnerGibsBeenAdjusted);
-      }
-    }, [initialData?.notes, initialData?.haveInnerGibsBeenAdjusted]);
-
     const wrapUpdateFn = (updateFn: (field: keyof GibsStageData, value: number) => void) => {
       return (field: keyof GibsStageData, value: number) => {
         updateFn(field, value);

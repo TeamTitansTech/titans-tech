@@ -142,7 +142,7 @@ export const LubricationHydraulicsSection = forwardRef<
   }));
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <LubricationHydraulicsForm
         data={{ ...data.data, notes: data.notes }}
         updateFn={updateField}

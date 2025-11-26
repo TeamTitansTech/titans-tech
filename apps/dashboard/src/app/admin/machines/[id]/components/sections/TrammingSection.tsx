@@ -241,7 +241,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
     const tMeasurements = useTranslations('measurements');
 
     return (
-      <div className="space-y-6 p-4">
+      <div className="space-y-6">
         {/* Slide Tram Dropdown */}
         <div className="flex items-center gap-2">
           <Label htmlFor="slideTram" className="text-sm font-medium whitespace-nowrap">
