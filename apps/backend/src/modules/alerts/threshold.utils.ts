@@ -212,7 +212,7 @@ export function convertPartialSlideThresholdToDecimal<
 
 /**
  * List of all GIBS threshold field names
- * Monitors the "usable" calculation from outerAfterAdjustment Left to Right
+ * Monitors the "usable" calculation from outerData Left to Right
  */
 export const GIBS_THRESHOLD_FIELDS = [
   'usable_greenMin',

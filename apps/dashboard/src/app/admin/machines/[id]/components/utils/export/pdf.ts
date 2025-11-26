@@ -918,11 +918,7 @@ function renderGibs(
   };
 
   // Outer stages
-  if (
-    gibsData.outerBeforeAdjustment ||
-    gibsData.outerAfterAdjustment ||
-    gibsData.outerFreeHangingAfterInstall
-  ) {
+  if (gibsData.outerBefore || gibsData.outerData || gibsData.outerFreeHangingData) {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.text(
@@ -931,18 +927,10 @@ function renderGibs(
       yPosition,
     );
     yPosition += 5;
+    renderGibsStage(gibsData.outerBefore, t.getGibsFieldTranslation('beforeAdjustment'), true);
+    renderGibsStage(gibsData.outerData, t.getGibsFieldTranslation('afterAdjustment'), true);
     renderGibsStage(
-      gibsData.outerBeforeAdjustment,
-      t.getGibsFieldTranslation('beforeAdjustment'),
-      true,
-    );
-    renderGibsStage(
-      gibsData.outerAfterAdjustment,
-      t.getGibsFieldTranslation('afterAdjustment'),
-      true,
-    );
-    renderGibsStage(
-      gibsData.outerFreeHangingAfterInstall,
+      gibsData.outerFreeHangingData,
       t.getGibsFieldTranslation('freeHangingAfterInstall'),
       true,
     );
@@ -950,10 +938,10 @@ function renderGibs(
 
   // Inner stages
   if (
-    gibsData.innerBeforeAdjustment ||
-    gibsData.innerAfterAdjustment ||
-    gibsData.innerBeforeToolInstallation ||
-    gibsData.innerAfterToolInstallation
+    gibsData.innerBefore ||
+    gibsData.innerData ||
+    gibsData.innerBeforeTool ||
+    gibsData.innerDataTool
   ) {
     checkPageBreak(20);
     doc.setFontSize(10);
@@ -964,16 +952,10 @@ function renderGibs(
       yPosition,
     );
     yPosition += 5;
-    renderGibsStage(gibsData.innerBeforeAdjustment, t.getGibsFieldTranslation('beforeAdjustment'));
-    renderGibsStage(gibsData.innerAfterAdjustment, t.getGibsFieldTranslation('afterAdjustment'));
-    renderGibsStage(
-      gibsData.innerBeforeToolInstallation,
-      t.getGibsFieldTranslation('beforeToolInstallation'),
-    );
-    renderGibsStage(
-      gibsData.innerAfterToolInstallation,
-      t.getGibsFieldTranslation('afterToolInstallation'),
-    );
+    renderGibsStage(gibsData.innerBefore, t.getGibsFieldTranslation('beforeAdjustment'));
+    renderGibsStage(gibsData.innerData, t.getGibsFieldTranslation('afterAdjustment'));
+    renderGibsStage(gibsData.innerBeforeTool, t.getGibsFieldTranslation('beforeToolInstallation'));
+    renderGibsStage(gibsData.innerDataTool, t.getGibsFieldTranslation('afterToolInstallation'));
   }
 
   if (gibsData.notes) {

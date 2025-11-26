@@ -367,13 +367,13 @@ export function exportToExcel(data: ExportData): void {
         }
       };
 
-      renderGibsStage(gibsData.outerBeforeAdjustment, 'Outer - Before Adjustment');
-      renderGibsStage(gibsData.outerAfterAdjustment, 'Outer - After Adjustment');
-      renderGibsStage(gibsData.outerFreeHangingAfterInstall, 'Outer - Free Hanging After Install');
-      renderGibsStage(gibsData.innerBeforeAdjustment, 'Inner - Before Adjustment');
-      renderGibsStage(gibsData.innerAfterAdjustment, 'Inner - After Adjustment');
-      renderGibsStage(gibsData.innerBeforeToolInstallation, 'Inner - Before Tool Installation');
-      renderGibsStage(gibsData.innerAfterToolInstallation, 'Inner - After Tool Installation');
+      renderGibsStage(gibsData.outerBefore, 'Outer - Before Adjustment');
+      renderGibsStage(gibsData.outerData, 'Outer - After Adjustment');
+      renderGibsStage(gibsData.outerFreeHangingData, 'Outer - Free Hanging After Install');
+      renderGibsStage(gibsData.innerBefore, 'Inner - Before Adjustment');
+      renderGibsStage(gibsData.innerData, 'Inner - After Adjustment');
+      renderGibsStage(gibsData.innerBeforeTool, 'Inner - Before Tool Installation');
+      renderGibsStage(gibsData.innerDataTool, 'Inner - After Tool Installation');
 
       if (gibsData.notes) {
         sheetData.push(['Notes', gibsData.notes]);

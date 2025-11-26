@@ -73,13 +73,14 @@ export interface GibsStageData {
 }
 
 export interface GibsSectionData {
-  outerBeforeAdjustment?: GibsStageData;
-  outerAfterAdjustment?: GibsStageData;
-  outerFreeHangingAfterInstall?: GibsStageData;
-  innerBeforeAdjustment?: GibsStageData;
-  innerAfterAdjustment?: GibsStageData;
-  innerBeforeToolInstallation?: GibsStageData;
-  innerAfterToolInstallation?: GibsStageData;
+  outerBefore?: GibsStageData;
+  outerData?: GibsStageData;
+  outerFreeHangingData?: GibsStageData;
+  innerBefore?: GibsStageData;
+  innerData?: GibsStageData;
+  innerBeforeTool?: GibsStageData;
+  innerDataTool?: GibsStageData;
+  haveInnerGibsBeenAdjusted?: string;
   notes?: string;
 }
 
