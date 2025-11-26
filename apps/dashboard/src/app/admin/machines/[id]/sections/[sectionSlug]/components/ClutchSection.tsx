@@ -73,18 +73,23 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
   }, [blueprintId]);
 
   const filteredInspections = useMemo(() => {
-    return (
+    const filtered =
       inspections?.filter((inspection) => {
         const inspectionDate = new Date(inspection.date);
         if (date?.from && inspectionDate < date.from) return false;
         if (date?.to && inspectionDate > date.to) return false;
         return true;
-      }) ?? []
-    );
+      }) ?? [];
+
+    // Sort by date descending so latest is first
+    return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
   const latestInspection = filteredInspections[0];
   const latestClutchData = latestInspection?.clutch?.[0]?.data;
+
+  console.log('📊 Latest inspection:', latestInspection);
+  console.log('📊 Latest clutch data:', latestClutchData);
 
   // Transform data for charts
   const hydClearanceChartData = useMemo(() => {

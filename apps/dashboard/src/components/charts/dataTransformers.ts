@@ -99,16 +99,12 @@ export function transformSlideToChartData(
   return inspections
     .filter((inspection) => {
       const slideData =
-        type === 'outer'
-          ? inspection.slideChecks?.[0]?.outerData
-          : inspection.slideChecks?.[0]?.innerData;
+        type === 'outer' ? inspection.slide?.[0]?.outerData : inspection.slide?.[0]?.innerData;
       return slideData;
     })
     .map((inspection) => {
       const slideData =
-        type === 'outer'
-          ? inspection.slideChecks[0].outerData!
-          : inspection.slideChecks[0].innerData!;
+        type === 'outer' ? inspection.slide[0].outerData! : inspection.slide[0].innerData!;
 
       // Calculate max deviation from 5 positions
       const positions = [
@@ -141,16 +137,12 @@ export function transformSlidePositionsToMultiLineData(
   return inspections
     .filter((inspection) => {
       const slideData =
-        type === 'outer'
-          ? inspection.slideChecks?.[0]?.outerData
-          : inspection.slideChecks?.[0]?.innerData;
+        type === 'outer' ? inspection.slide?.[0]?.outerData : inspection.slide?.[0]?.innerData;
       return slideData;
     })
     .map((inspection) => {
       const slideData =
-        type === 'outer'
-          ? inspection.slideChecks[0].outerData!
-          : inspection.slideChecks[0].innerData!;
+        type === 'outer' ? inspection.slide[0].outerData! : inspection.slide[0].innerData!;
 
       return {
         date: format(new Date(inspection.date), 'dd/MM/yyyy'),

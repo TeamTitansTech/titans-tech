@@ -20,6 +20,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
+import { cn } from '@/lib/utils';
 import type { MultiLineThresholdChartProps } from './types';
 import {
   calculateSeverity,
@@ -172,26 +173,41 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
           {allowToggle && sharedThreshold && (
             <div className="flex gap-2 flex-wrap">
               <Button
-                variant={showGreen ? 'default' : 'outline'}
+                variant="outline"
                 size="sm"
                 onClick={() => setShowGreen(!showGreen)}
-                className="text-green-700 border-green-600 hover:bg-green-50 dark:text-green-400 dark:border-green-500 dark:hover:bg-green-950"
+                className={cn(
+                  'border-green-500',
+                  showGreen
+                    ? 'bg-green-500 text-white hover:bg-green-600 hover:text-white'
+                    : 'text-green-600 hover:bg-green-500 hover:text-white',
+                )}
               >
                 Green
               </Button>
               <Button
-                variant={showYellow ? 'default' : 'outline'}
+                variant="outline"
                 size="sm"
                 onClick={() => setShowYellow(!showYellow)}
-                className="text-yellow-700 border-yellow-600 hover:bg-yellow-50 dark:text-yellow-400 dark:border-yellow-500 dark:hover:bg-yellow-950"
+                className={cn(
+                  'border-yellow-500',
+                  showYellow
+                    ? 'bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white'
+                    : 'text-yellow-600 hover:bg-yellow-500 hover:text-white',
+                )}
               >
                 Yellow
               </Button>
               <Button
-                variant={showRed ? 'default' : 'outline'}
+                variant="outline"
                 size="sm"
                 onClick={() => setShowRed(!showRed)}
-                className="text-red-700 border-red-600 hover:bg-red-50 dark:text-red-400 dark:border-red-500 dark:hover:bg-red-950"
+                className={cn(
+                  'border-red-500',
+                  showRed
+                    ? 'bg-red-500 text-white hover:bg-red-600 hover:text-white'
+                    : 'text-red-600 hover:bg-red-500 hover:text-white',
+                )}
               >
                 Red
               </Button>
