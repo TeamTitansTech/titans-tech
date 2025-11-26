@@ -147,7 +147,7 @@ export const validateSlideFormData = (data: SlideFormData): string[] => {
 
   afterFields.forEach((field) => {
     const value = data[field];
-    if (value === undefined || typeof value !== 'number' || isNaN(value)) {
+    if (value === undefined || value === null || typeof value !== 'number' || isNaN(value)) {
       errors.push(`${String(field)} is required and must be a valid number`);
     }
   });
