@@ -20,6 +20,7 @@ interface SectionsStepProps {
   onNext: () => void;
   getSectionRef: (sectionKey: string) => SectionComponentRef | undefined;
   completedSections: Set<string>;
+  serviceId?: string;
   translations: {
     getSectionName: (i18nKey: string) => string;
     previous: string;
@@ -42,6 +43,7 @@ export function SectionsStep({
   onNext,
   getSectionRef,
   completedSections,
+  serviceId,
   translations,
 }: SectionsStepProps) {
   const currentSectionKey = selectedSectionsArray[currentSectionIndex];
@@ -77,19 +79,26 @@ export function SectionsStep({
 
       <div className="flex-1 overflow-y-auto py-2">
         <div key={componentKey} className="space-y-4">
-          <SectionComponent
-            key={componentKey}
-            ref={(ref: SectionComponentRef | null) => {
-              if (ref) {
-                registerSectionRef(currentSectionKey, ref);
-              }
-            }}
-            onSectionTouched={() => onSectionTouched(currentSectionKey)}
-            serviceType={currentServiceType}
-            isOpen={true}
-            onOpenChange={() => {}}
-            initialData={sectionData}
-          />
+          <Typography variant="h3" className="text-lg font-semibold">
+            {translations.getSectionName(sectionConfig.metadata.i18nKey)}
+          </Typography>
+
+          <div className="border rounded-lg">
+            <SectionComponent
+              key={componentKey}
+              ref={(ref: SectionComponentRef | null) => {
+                if (ref) {
+                  registerSectionRef(currentSectionKey, ref);
+                }
+              }}
+              onSectionTouched={() => onSectionTouched(currentSectionKey)}
+              serviceType={currentServiceType}
+              isOpen={true}
+              onOpenChange={() => {}}
+              initialData={sectionData}
+              serviceId={serviceId}
+            />
+          </div>
         </div>
 
         {error && (

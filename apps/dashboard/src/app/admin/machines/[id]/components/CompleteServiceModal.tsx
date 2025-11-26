@@ -333,6 +333,7 @@ export function CompleteServiceModal({
               <CounterbalanceCylinderSection
                 ref={counterbalanceRef}
                 onSectionTouched={() => markSectionTouched('COUNTERBALANCE_CYLINDER_AIRBAG')}
+                serviceId={serviceId}
               />
             )}
             <div className="flex justify-end space-x-3 pt-4">
