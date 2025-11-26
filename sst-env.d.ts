@@ -75,6 +75,16 @@ declare global {
       class Router {
         constructor(name: string, props?: any);
       }
+
+      class Nextjs {
+        constructor(name: string, props?: any);
+        url: string;
+      }
+
+      class Function {
+        constructor(name: string, props?: any);
+        url: string;
+      }
     }
   }
 }
