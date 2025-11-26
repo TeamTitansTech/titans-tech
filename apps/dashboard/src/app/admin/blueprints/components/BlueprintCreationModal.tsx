@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { SERVICE_SECTION_SLUGS } from '@titans-tech/db/client';
 import { BearingClearanceThresholds } from '@/components/alerts/BearingClearanceThresholds';
+import { ClutchThresholds } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholds } from '@/components/alerts/SlideThresholds';
 import { type BlueprintCreationModalProps } from './types';
 import { useBlueprintForm } from './hooks/useBlueprintForm';
@@ -44,6 +45,10 @@ export const BlueprintCreationModal = ({
     setThresholdsOpen,
     thresholds,
     setThresholds,
+    clutchThresholdsOpen,
+    setClutchThresholdsOpen,
+    clutchThresholds,
+    setClutchThresholds,
     slideThresholdsOpen,
     setSlideThresholdsOpen,
     slideThresholds,
@@ -170,6 +175,20 @@ export const BlueprintCreationModal = ({
                       onOpenChange={setThresholdsOpen}
                       data={thresholds}
                       onChange={setThresholds}
+                    />
+                  </section>
+                </>
+              )}
+
+              {selectedSections.includes('clutch') && (
+                <>
+                  <Separator />
+                  <section className="space-y-4">
+                    <ClutchThresholds
+                      open={clutchThresholdsOpen}
+                      onOpenChange={setClutchThresholdsOpen}
+                      data={clutchThresholds}
+                      onChange={setClutchThresholds}
                     />
                   </section>
                 </>
