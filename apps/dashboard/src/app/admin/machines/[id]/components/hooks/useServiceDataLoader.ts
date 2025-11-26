@@ -133,9 +133,25 @@ export function useServiceDataLoader(
               return hasNestedData;
             });
             const rawData = recordWithData || relationData[relationData.length - 1];
-            // Convert Decimal strings to numbers for GIBS section
-            loadedSectionData[sectionKey] =
-              sectionKey === 'GIBS' ? convertDecimalsToNumbers(rawData) : rawData;
+
+            // Handle sections with nested data structure
+            if (sectionKey === 'GIBS') {
+              // Convert Decimal strings to numbers for GIBS section
+              loadedSectionData[sectionKey] = convertDecimalsToNumbers(rawData);
+            } else if (sectionKey === 'CLUTCH') {
+              // Clutch stores data in nested 'data' property
+              const clutchRecord = rawData as Record<string, unknown>;
+              loadedSectionData[sectionKey] = clutchRecord.data || clutchRecord;
+            } else if (sectionKey === 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') {
+              // Lubrication expects { data: {...}, notes: '...' } structure
+              const lubRecord = rawData as Record<string, unknown>;
+              loadedSectionData[sectionKey] = {
+                data: lubRecord.data || {},
+                notes: (lubRecord.notes as string) || '',
+              } as AnySectionData;
+            } else {
+              loadedSectionData[sectionKey] = rawData;
+            }
           }
         });
 
