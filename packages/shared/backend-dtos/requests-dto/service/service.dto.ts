@@ -260,17 +260,17 @@ export const GibsDataSchema = GibsStageDataSchema;
 export type GibsData = GibsStageData;
 
 /**
- * Gibs Check Schema - 7-stage GIBS structure
+ * Gibs Check Schema - 7-stage GIBS structure (following outerBefore/outerData pattern)
  */
 export const GibsCheckSchema = z.object({
-  outerBeforeAdjustment: GibsStageDataSchema.optional(),
-  outerAfterAdjustment: GibsStageDataSchema.optional(),
-  outerFreeHangingAfterInstall: GibsStageDataSchema.optional(),
+  outerBefore: GibsStageDataSchema.optional(),
+  outerData: GibsStageDataSchema.optional(),
+  outerFreeHangingData: GibsStageDataSchema.optional(),
   haveInnerGibsBeenAdjusted: z.nativeEnum(PrismaYesNoDncType).optional(),
-  innerBeforeAdjustment: GibsStageDataSchema.optional(),
-  innerAfterAdjustment: GibsStageDataSchema.optional(),
-  innerBeforeToolInstallation: GibsStageDataSchema.optional(),
-  innerAfterToolInstallation: GibsStageDataSchema.optional(),
+  innerBefore: GibsStageDataSchema.optional(),
+  innerData: GibsStageDataSchema.optional(),
+  innerBeforeTool: GibsStageDataSchema.optional(),
+  innerDataTool: GibsStageDataSchema.optional(),
   notes: z.string().optional(),
 });
 

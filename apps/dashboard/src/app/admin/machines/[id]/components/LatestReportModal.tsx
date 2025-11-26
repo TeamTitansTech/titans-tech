@@ -29,7 +29,6 @@ import type {
   ClutchData,
   LatestSlide,
   SlideData,
-  LatestGibs,
   GibsStageData,
 } from '@/data/types/services.types';
 import { BEARING_FIELD_NAMES, BEARING_FIELD_LABELS } from '@titans-tech/shared/types';
@@ -475,16 +474,185 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                       </div>
                     )}
 
-                    {/* Display measurement points in a grid */}
+                    {/* Display measurement points with diagram */}
                     <div className="border rounded-md overflow-hidden">
                       <div className="bg-muted/30 px-4 py-2 font-semibold">Measurement Points</div>
-                      <div className="grid grid-cols-4 gap-2 p-4">
-                        {extractGibsPoints(gibs.data).map((point, idx) => (
-                          <div key={idx} className="text-center">
-                            <div className="text-xs text-muted-foreground mb-1">{point.label}</div>
-                            <div className="font-medium">{point.value}</div>
+
+                      {/* Mobile layout: Image first, then two columns */}
+                      <div className="flex flex-col sm:hidden gap-4 p-4">
+                        <div className="flex justify-center items-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/assets/gibs/front-to-back.png"
+                            alt="GIBS measurement diagram"
+                            className="aspect-square max-h-[200px]"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Left column - points 2,1,4,3 */}
+                          <div className="space-y-3">
+                            {[2, 1, 4, 3].map((pointNum) => {
+                              const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                              return (
+                                <div key={pointNum}>
+                                  <div className="text-xs text-muted-foreground mb-1">
+                                    {point.label}
+                                  </div>
+                                  <div className="font-medium">{point.value}</div>
+                                </div>
+                              );
+                            })}
                           </div>
-                        ))}
+                          {/* Right column - points 6,5,8,7 */}
+                          <div className="space-y-3">
+                            {[6, 5, 8, 7].map((pointNum) => {
+                              const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                              return (
+                                <div key={pointNum}>
+                                  <div className="text-xs text-muted-foreground mb-1">
+                                    {point.label}
+                                  </div>
+                                  <div className="font-medium">{point.value}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Desktop layout: Left column, image, right column */}
+                      <div className="hidden sm:grid grid-cols-7 items-center p-4">
+                        {/* Left column - points 2,1,4,3 */}
+                        <div className="space-y-3">
+                          {[2, 1, 4, 3].map((pointNum) => {
+                            const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                            return (
+                              <div key={pointNum}>
+                                <div className="text-xs text-muted-foreground mb-1">
+                                  {point.label}
+                                </div>
+                                <div className="font-medium">{point.value}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Center - image */}
+                        <div className="col-span-5 h-full flex justify-center items-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/assets/gibs/front-to-back.png"
+                            alt="GIBS measurement diagram"
+                            className="aspect-square max-h-[250px]"
+                          />
+                        </div>
+
+                        {/* Right column - points 6,5,8,7 */}
+                        <div className="space-y-3">
+                          {[6, 5, 8, 7].map((pointNum) => {
+                            const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                            return (
+                              <div key={pointNum}>
+                                <div className="text-xs text-muted-foreground mb-1">
+                                  {point.label}
+                                </div>
+                                <div className="font-medium">{point.value}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Second section: Points 9-16 (Left to Right) */}
+                    <div className="border rounded-md overflow-hidden mt-3">
+                      <div className="bg-muted/30 px-4 py-2 font-semibold">
+                        Left to Right Measurements
+                      </div>
+
+                      {/* Mobile layout: Image first, then two columns */}
+                      <div className="flex flex-col sm:hidden gap-4 p-4">
+                        <div className="flex justify-center items-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/assets/gibs/left-to-right.png"
+                            alt="GIBS Left-to-Right measurement diagram"
+                            className="aspect-square max-h-[200px]"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          {/* Left column - points 13,9,15,11 */}
+                          <div className="space-y-3">
+                            {[13, 9, 15, 11].map((pointNum) => {
+                              const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                              return (
+                                <div key={pointNum}>
+                                  <div className="text-xs text-muted-foreground mb-1">
+                                    {point.label}
+                                  </div>
+                                  <div className="font-medium">{point.value}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          {/* Right column - points 14,10,16,12 */}
+                          <div className="space-y-3">
+                            {[14, 10, 16, 12].map((pointNum) => {
+                              const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                              return (
+                                <div key={pointNum}>
+                                  <div className="text-xs text-muted-foreground mb-1">
+                                    {point.label}
+                                  </div>
+                                  <div className="font-medium">{point.value}</div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Desktop layout: Left column, image, right column */}
+                      <div className="hidden sm:grid grid-cols-7 items-center p-4">
+                        {/* Left column - points 13,9,15,11 */}
+                        <div className="space-y-3">
+                          {[13, 9, 15, 11].map((pointNum) => {
+                            const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                            return (
+                              <div key={pointNum}>
+                                <div className="text-xs text-muted-foreground mb-1">
+                                  {point.label}
+                                </div>
+                                <div className="font-medium">{point.value}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Center - image */}
+                        <div className="col-span-5 h-full flex justify-center items-center">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src="/assets/gibs/left-to-right.png"
+                            alt="GIBS Left-to-Right measurement diagram"
+                            className="aspect-square max-h-[250px]"
+                          />
+                        </div>
+
+                        {/* Right column - points 14,10,16,12 */}
+                        <div className="space-y-3">
+                          {[14, 10, 16, 12].map((pointNum) => {
+                            const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                            return (
+                              <div key={pointNum}>
+                                <div className="text-xs text-muted-foreground mb-1">
+                                  {point.label}
+                                </div>
+                                <div className="font-medium">{point.value}</div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     </div>
                   </div>

@@ -123,13 +123,13 @@ export function useServiceDataLoader(
                 record.innerData ||
                 record.data ||
                 // GIBS-specific nested data
-                record.outerBeforeAdjustment ||
-                record.outerAfterAdjustment ||
-                record.outerFreeHangingAfterInstall ||
-                record.innerBeforeAdjustment ||
-                record.innerAfterAdjustment ||
-                record.innerBeforeToolInstallation ||
-                record.innerAfterToolInstallation;
+                record.outerBefore ||
+                record.outerData ||
+                record.outerFreeHangingData ||
+                record.innerBefore ||
+                record.innerData ||
+                record.innerBeforeTool ||
+                record.innerDataTool;
               return hasNestedData;
             });
             const rawData = recordWithData || relationData[relationData.length - 1];

@@ -1324,7 +1324,7 @@ export class AlertsService {
         },
         gibs: {
           include: {
-            outerAfterAdjustment: true,
+            outerData: true,
           },
         },
       },
@@ -1349,16 +1349,16 @@ export class AlertsService {
     }
 
     const gibsData = service.gibs[0];
-    const outerAfterAdjustment = gibsData.outerAfterAdjustment;
+    const outerData = gibsData.outerData;
 
-    if (!outerAfterAdjustment) {
+    if (!outerData) {
       throw new NotFoundException(
-        `Outer After Adjustment data not found for service ${serviceId}`,
+        `Outer Data (After Adjustment) not found for service ${serviceId}`,
       );
     }
 
-    // Calculate usable value from outerAfterAdjustment (Left to Right measurement)
-    const usableValue = this.calculateGibsUsable(outerAfterAdjustment);
+    // Calculate usable value from outerData (Left to Right measurement)
+    const usableValue = this.calculateGibsUsable(outerData);
 
     if (usableValue === null) {
       throw new BadRequestException(
@@ -1400,12 +1400,12 @@ export class AlertsService {
 
     return new AlertGibsResponseDto({
       ...alert,
-      gibsData: outerAfterAdjustment,
+      gibsData: outerData,
     } as any);
   }
 
   /**
-   * Calculates the "usable" value from GIBS outerAfterAdjustment data
+   * Calculates the "usable" value from GIBS outerData (After Adjustment) data
    * Based on the gibsCalculations.ts logic for Left to Right measurements
    */
   private calculateGibsUsable(data: any): Decimal | null {
@@ -1490,7 +1490,7 @@ export class AlertsService {
           include: {
             gibs: {
               include: {
-                outerAfterAdjustment: true,
+                outerData: true,
               },
             },
           },
@@ -1504,7 +1504,7 @@ export class AlertsService {
       );
     }
 
-    const gibsData = alert.machineService.gibs[0]?.outerAfterAdjustment;
+    const gibsData = alert.machineService.gibs[0]?.outerData;
 
     if (!gibsData) {
       throw new NotFoundException(
