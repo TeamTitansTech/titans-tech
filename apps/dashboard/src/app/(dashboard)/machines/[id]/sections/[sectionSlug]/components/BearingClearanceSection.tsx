@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,13 +67,17 @@ export function BearingClearanceSection({
   // Fetch threshold data
   useEffect(() => {
     async function fetchThreshold() {
-      if (!blueprintId) return;
+      if (!blueprintId) {
+        return;
+      }
 
       try {
         const response = await getThresholdByBlueprint(blueprintId);
         if (response.data) {
           // Extract threshold for upperConnectionBearings (CB)
-          setThreshold(extractThresholdConfig(response.data, 'upperConnectionBearings'));
+          const extracted = extractThresholdConfig(response.data, 'upperConnectionBearings');
+          setThreshold(extracted);
+        } else {
         }
       } catch (error) {
         console.error('Failed to fetch threshold:', error);
@@ -95,24 +98,29 @@ export function BearingClearanceSection({
   }, [inspections, date]);
 
   const latestInspection = filteredInspections[0];
-  const latestBearingCheck = latestInspection?.bearingClearanceChecks?.[0]?.after;
+  const latestBearingCheck = latestInspection?.bearingClearance?.[0]?.outerData;
 
   // Transform data for new threshold charts
   const cbChartData = useMemo(() => {
-    return transformBearingClearanceToMultiLineData(filteredInspections, 'upperConnectionBearings');
+    const data = transformBearingClearanceToMultiLineData(
+      filteredInspections,
+      'upperConnectionBearings',
+    );
+    return data;
   }, [filteredInspections]);
 
   const totalClearanceChartData = useMemo(() => {
-    return transformBearingClearanceToMultiLineData(filteredInspections, 'totalClearance');
+    const data = transformBearingClearanceToMultiLineData(filteredInspections, 'totalClearance');
+    return data;
   }, [filteredInspections]);
 
   // Keep old chartData format for export functions compatibility
   const chartData = useMemo(() => {
     return filteredInspections
-      .filter((inspection) => inspection.bearingClearanceChecks?.[0]?.after)
+      .filter((inspection) => inspection.bearingClearance?.[0]?.outerData)
       .map((inspection) => {
-        const after = inspection.bearingClearanceChecks[0].after!;
-        const before = inspection.bearingClearanceChecks[0].before;
+        const after = inspection.bearingClearance[0]!.outerData!;
+        const before = inspection.bearingClearance[0]!.outerBefore;
 
         return {
           date: format(new Date(inspection.date), 'dd/MM/yyyy'),

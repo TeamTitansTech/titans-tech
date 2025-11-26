@@ -22,10 +22,12 @@ interface BearingClearanceData {
 export interface InspectionData {
   id: string;
   date: string;
-  bearingClearanceChecks: Array<{
+  bearingClearance: Array<{
     id: string;
-    after: BearingClearanceData | null;
-    before: BearingClearanceData | null;
+    outerData: BearingClearanceData | null;
+    outerBefore: BearingClearanceData | null;
+    innerData: BearingClearanceData | null;
+    innerBefore: BearingClearanceData | null;
   }>;
 }
 

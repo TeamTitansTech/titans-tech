@@ -19,10 +19,10 @@ export function transformBearingClearanceToChartData(
   measurementField: keyof BearingClearanceData,
 ): MeasurementDataPoint[] {
   return inspections
-    .filter((inspection) => inspection.bearingClearanceChecks?.[0]?.after)
+    .filter((inspection) => inspection.bearingClearance?.[0]?.outerData)
     .map((inspection) => ({
       date: format(new Date(inspection.date), 'dd/MM/yyyy'),
-      value: Number(inspection.bearingClearanceChecks[0].after![measurementField]),
+      value: Number(inspection.bearingClearance[0].outerData![measurementField]),
       label: format(new Date(inspection.date), 'dd/MM/yyyy'),
     }))
     .reverse(); // Oldest to newest
@@ -36,9 +36,9 @@ export function transformBearingClearanceToMultiLineData(
   baseFieldName: string, // e.g., 'totalClearance', 'mainBearings'
 ): MultiLineMeasurementData[] {
   return inspections
-    .filter((inspection) => inspection.bearingClearanceChecks?.[0]?.after)
+    .filter((inspection) => inspection.bearingClearance?.[0]?.outerData)
     .map((inspection) => {
-      const after = inspection.bearingClearanceChecks[0].after!;
+      const after = inspection.bearingClearance[0].outerData!;
       return {
         date: format(new Date(inspection.date), 'dd/MM/yyyy'),
         [`${baseFieldName}_RH`]: Number(after[`${baseFieldName}_RH` as keyof BearingClearanceData]),

@@ -63,13 +63,18 @@ export function BearingClearanceSection({
   // Fetch threshold data
   useEffect(() => {
     async function fetchThreshold() {
-      if (!blueprintId) return;
+      if (!blueprintId) {
+        return;
+      }
 
       try {
         const response = await getThresholdByBlueprint(blueprintId);
         if (response.data) {
           // Extract threshold for upperConnectionBearings (CB)
-          setThreshold(extractThresholdConfig(response.data, 'upperConnectionBearings'));
+          const extracted = extractThresholdConfig(response.data, 'upperConnectionBearings');
+          setThreshold(extracted);
+        } else {
+          console.log('⚠️  No threshold data in response');
         }
       } catch (error) {
         console.error('Failed to fetch threshold:', error);
@@ -90,24 +95,34 @@ export function BearingClearanceSection({
   }, [inspections, date]);
 
   const latestInspection = filteredInspections[0];
-  const latestBearingCheck = latestInspection?.bearingClearanceChecks?.[0]?.after;
+  const latestBearingCheck = latestInspection?.bearingClearance?.[0]?.outerData;
 
   // Transform data for new threshold charts
   const cbChartData = useMemo(() => {
-    return transformBearingClearanceToMultiLineData(filteredInspections, 'upperConnectionBearings');
+    console.log('📊 Filtered Inspections:', filteredInspections);
+    console.log('📊 First inspection:', filteredInspections[0]);
+    console.log('📊 Bearing clearance:', filteredInspections[0]?.bearingClearance);
+    const data = transformBearingClearanceToMultiLineData(
+      filteredInspections,
+      'upperConnectionBearings',
+    );
+    console.log('📊 Transformed CB Chart Data:', data);
+    return data;
   }, [filteredInspections]);
 
   const totalClearanceChartData = useMemo(() => {
-    return transformBearingClearanceToMultiLineData(filteredInspections, 'totalClearance');
+    const data = transformBearingClearanceToMultiLineData(filteredInspections, 'totalClearance');
+    console.log('📊 Transformed Total Clearance Chart Data:', data);
+    return data;
   }, [filteredInspections]);
 
   // Keep old chartData format for export functions compatibility
   const chartData = useMemo(() => {
     return filteredInspections
-      .filter((inspection) => inspection.bearingClearanceChecks?.[0]?.after)
+      .filter((inspection) => inspection.bearingClearance?.[0]?.outerData)
       .map((inspection) => {
-        const after = inspection.bearingClearanceChecks[0].after!;
-        const before = inspection.bearingClearanceChecks[0].before;
+        const after = inspection.bearingClearance[0]!.outerData!;
+        const before = inspection.bearingClearance[0]!.outerBefore;
 
         return {
           date: format(new Date(inspection.date), 'dd/MM/yyyy'),
