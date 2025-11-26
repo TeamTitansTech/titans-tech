@@ -12,12 +12,18 @@ import {
   CreateThresholdBearingClearanceSchema,
   CreateAlertCounterbalanceCylinderAirbagDto,
   AlertCounterbalanceCylinderAirbagResponseDto,
+  CreateThresholdSlideDto,
+  UpdateThresholdSlideDto,
+  ThresholdSlideResponseDto,
+  AlertSlideResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertSeverity } from '@titans-tech/shared/enums';
 import { Decimal } from '@prisma/client/runtime/library';
 import {
   convertThresholdToDecimal,
   convertPartialThresholdToDecimal,
+  convertSlideThresholdToDecimal,
+  convertPartialSlideThresholdToDecimal,
 } from './threshold.utils';
 
 @Injectable()
@@ -25,6 +31,25 @@ export class AlertsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createThreshold(dto: CreateThresholdBearingClearanceDto) {
+    const blueprint = await this.prisma.blueprint.findUnique({
+      where: { id: dto.blueprintId },
+    });
+
+    if (!blueprint) {
+      throw new NotFoundException(`Blueprint ${dto.blueprintId} not found`);
+    }
+
+    const existingThreshold =
+      await this.prisma.thresholdBearingClearance.findUnique({
+        where: { blueprintId: dto.blueprintId },
+      });
+
+    if (existingThreshold) {
+      throw new BadRequestException(
+        `Threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+      );
+    }
+
     const threshold = await this.prisma.thresholdBearingClearance.create({
       data: {
         blueprintId: dto.blueprintId,
@@ -487,5 +512,289 @@ export class AlertsService {
     return alerts.map(
       (alert) => new AlertCounterbalanceCylinderAirbagResponseDto(alert),
     );
+  }
+
+  // ==================== SLIDE THRESHOLD METHODS ====================
+
+  async createSlideThreshold(dto: CreateThresholdSlideDto) {
+    // Validate blueprint exists
+    const blueprint = await this.prisma.blueprint.findUnique({
+      where: { id: dto.blueprintId },
+    });
+
+    if (!blueprint) {
+      throw new NotFoundException(`Blueprint ${dto.blueprintId} not found`);
+    }
+
+    // Check if threshold already exists for this blueprint
+    const existingThreshold = await this.prisma.thresholdSlide.findUnique({
+      where: { blueprintId: dto.blueprintId },
+    });
+
+    if (existingThreshold) {
+      throw new BadRequestException(
+        `Slide threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+      );
+    }
+
+    const threshold = await this.prisma.thresholdSlide.create({
+      data: {
+        blueprintId: dto.blueprintId,
+        ...convertSlideThresholdToDecimal(dto),
+      },
+    });
+
+    return new ThresholdSlideResponseDto(threshold as any);
+  }
+
+  async getSlideThresholdByBlueprint(blueprintId: string) {
+    const threshold = await this.prisma.thresholdSlide.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `Slide threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    return new ThresholdSlideResponseDto(threshold as any);
+  }
+
+  async updateSlideThreshold(
+    blueprintId: string,
+    dto: UpdateThresholdSlideDto,
+  ) {
+    // Check if threshold exists
+    const existingThreshold = await this.prisma.thresholdSlide.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!existingThreshold) {
+      throw new NotFoundException(
+        `Slide threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    // Validate that yellowMin > greenMin and redMin > yellowMin if all fields provided
+    const mergedData = {
+      ...existingThreshold,
+      ...dto,
+    };
+
+    const greenMin = Number(mergedData.maxDeviation_greenMin);
+    const yellowMin = Number(mergedData.maxDeviation_yellowMin);
+    const redMin = Number(mergedData.maxDeviation_redMin);
+
+    if (yellowMin <= greenMin || redMin <= yellowMin) {
+      throw new BadRequestException(
+        'Invalid threshold values: must have greenMin < yellowMin < redMin',
+      );
+    }
+
+    // Update threshold
+    const threshold = await this.prisma.thresholdSlide.update({
+      where: { blueprintId },
+      data: convertPartialSlideThresholdToDecimal(dto),
+    });
+
+    return new ThresholdSlideResponseDto(threshold as any);
+  }
+
+  async deleteSlideThreshold(blueprintId: string) {
+    const threshold = await this.prisma.thresholdSlide.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `Slide threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    await this.prisma.thresholdSlide.delete({
+      where: { blueprintId },
+    });
+
+    return { message: 'Slide threshold deleted successfully' };
+  }
+
+  // ==================== SLIDE ALERT GENERATION ====================
+
+  async generateAlertsForSlide(serviceId: string) {
+    // Fetch service with slide data and blueprint with thresholds
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: {
+        machine: {
+          include: {
+            blueprint: {
+              include: {
+                thresholdSlide: true,
+              },
+            },
+          },
+        },
+        slide: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service ${serviceId} not found`);
+    }
+
+    if (!service.slide || service.slide.length === 0) {
+      throw new NotFoundException(
+        `Slide data not found for service ${serviceId}`,
+      );
+    }
+
+    const threshold = service.machine.blueprint.thresholdSlide;
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `Slide threshold not found for blueprint ${service.machine.blueprint.id}`,
+      );
+    }
+
+    const slideData = service.slide[0];
+
+    // Calculate max deviation for outer and inner
+    const outerAlert = this.calculateSlideMaxDeviationAlert(
+      slideData.outerData,
+      threshold,
+    );
+
+    const innerAlert = this.calculateSlideMaxDeviationAlert(
+      slideData.innerData,
+      threshold,
+    );
+
+    // Upsert alert
+    const alert = await this.prisma.alertSlide.upsert({
+      where: { machineServiceId: serviceId },
+      create: {
+        machineServiceId: serviceId,
+        maxDeviationOuter_differential: outerAlert.differential,
+        maxDeviationOuter_severity: outerAlert.severity,
+        maxDeviationInner_differential: innerAlert.differential,
+        maxDeviationInner_severity: innerAlert.severity,
+        thresholdSnapshot: {
+          maxDeviation_greenMin: threshold.maxDeviation_greenMin.toNumber(),
+          maxDeviation_yellowMin: threshold.maxDeviation_yellowMin.toNumber(),
+          maxDeviation_redMin: threshold.maxDeviation_redMin.toNumber(),
+        },
+      },
+      update: {
+        maxDeviationOuter_differential: outerAlert.differential,
+        maxDeviationOuter_severity: outerAlert.severity,
+        maxDeviationInner_differential: innerAlert.differential,
+        maxDeviationInner_severity: innerAlert.severity,
+        thresholdSnapshot: {
+          maxDeviation_greenMin: threshold.maxDeviation_greenMin.toNumber(),
+          maxDeviation_yellowMin: threshold.maxDeviation_yellowMin.toNumber(),
+          maxDeviation_redMin: threshold.maxDeviation_redMin.toNumber(),
+        },
+      },
+    });
+
+    return new AlertSlideResponseDto({
+      ...alert,
+      slideData: {
+        outer: slideData.outerData,
+        inner: slideData.innerData,
+      },
+    } as any);
+  }
+
+  /**
+   * Calculates max deviation from 5 position measurements
+   */
+  private calculateSlideMaxDeviationAlert(
+    data: any,
+    threshold: any,
+  ): { differential: Decimal; severity: AlertSeverity } {
+    if (!data) {
+      return {
+        differential: new Decimal(0),
+        severity: AlertSeverity.NONE,
+      };
+    }
+
+    // Get all 5 positions
+    const positions = [
+      data.position1,
+      data.position2,
+      data.position3,
+      data.position4,
+      data.position5,
+    ].filter((p) => p !== null && p !== undefined);
+
+    if (positions.length === 0) {
+      return {
+        differential: new Decimal(0),
+        severity: AlertSeverity.NONE,
+      };
+    }
+
+    // Calculate max deviation (max - min)
+    const max = Decimal.max(...positions);
+    const min = Decimal.min(...positions);
+    const differential = max.minus(min).abs();
+
+    // Determine severity
+    const severity = this.determineSeverity(
+      differential,
+      threshold.maxDeviation_greenMin,
+      threshold.maxDeviation_yellowMin,
+      threshold.maxDeviation_redMin,
+    );
+
+    return { differential, severity };
+  }
+
+  async getSlideAlertByService(machineServiceId: string) {
+    const alert = await this.prisma.alertSlide.findUnique({
+      where: { machineServiceId },
+      include: {
+        machineService: {
+          include: {
+            slide: {
+              include: {
+                outerData: true,
+                innerData: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!alert) {
+      throw new NotFoundException(
+        `Slide alert not found for service ${machineServiceId}`,
+      );
+    }
+
+    const slideData = alert.machineService.slide[0];
+
+    if (!slideData) {
+      throw new NotFoundException(
+        `Slide data not found for service ${machineServiceId}`,
+      );
+    }
+
+    return new AlertSlideResponseDto({
+      ...alert,
+      slideData: {
+        outer: slideData.outerData,
+        inner: slideData.innerData,
+      },
+    } as any);
   }
 }
