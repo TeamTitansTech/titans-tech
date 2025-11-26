@@ -369,7 +369,38 @@ export function MeasurementSection({
         <CardTitle className="text-sm">{getTitle()}</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-center">
+        {/* Mobile layout (< sm): Image first, then inputs side by side */}
+        <div className="flex flex-col sm:hidden gap-4">
+          <div className="flex justify-center items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={diagramPath}
+              alt={`GIBS measurement diagram`}
+              className="aspect-square max-h-[250px]"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <MeasurementInputs
+              points={relevantPointsLeft}
+              data={data}
+              updateFn={updateFn}
+              handleBlur={handleBlur}
+              errors={errors}
+              t={t}
+            />
+            <MeasurementInputs
+              points={relevantPointsRight}
+              data={data}
+              updateFn={updateFn}
+              handleBlur={handleBlur}
+              errors={errors}
+              t={t}
+            />
+          </div>
+        </div>
+
+        {/* Desktop layout (>= sm): Left inputs, image, right inputs */}
+        <div className="hidden sm:grid grid-cols-7 items-center">
           <MeasurementInputs
             points={relevantPointsLeft}
             data={data}
@@ -378,13 +409,12 @@ export function MeasurementSection({
             errors={errors}
             t={t}
           />
-          <div className="flex justify-center items-center">
+          <div className="col-span-5 h-full flex justify-center items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={diagramPath}
               alt={`GIBS measurement diagram`}
-              className="max-w-full h-auto"
-              style={{ maxHeight: '300px' }}
+              className="aspect-square max-h-[250px]"
             />
           </div>
           <MeasurementInputs

@@ -91,6 +91,26 @@ export function useServiceDataLoader(
 
         const loadedSectionData: Record<string, AnySectionData> = {};
 
+        // Helper to convert string/Decimal values to numbers in nested objects
+        const convertDecimalsToNumbers = (obj: any): any => {
+          if (!obj || typeof obj !== 'object') return obj;
+          if (Array.isArray(obj)) return obj.map(convertDecimalsToNumbers);
+
+          const converted: any = {};
+          for (const [key, value] of Object.entries(obj)) {
+            if (typeof value === 'string' && !isNaN(Number(value)) && value.trim() !== '') {
+              // Convert numeric strings to numbers
+              converted[key] = Number(value);
+            } else if (typeof value === 'object' && value !== null) {
+              // Recursively convert nested objects
+              converted[key] = convertDecimalsToNumbers(value);
+            } else {
+              converted[key] = value;
+            }
+          }
+          return converted;
+        };
+
         // Extract data from each relation
         Object.entries(RELATION_TO_SECTION_KEY).forEach(([relationKey, sectionKey]) => {
           const relationData = service[relationKey];
@@ -101,10 +121,21 @@ export function useServiceDataLoader(
                 record.outerData ||
                 record.innerBefore ||
                 record.innerData ||
-                record.data;
+                record.data ||
+                // GIBS-specific nested data
+                record.outerBeforeAdjustment ||
+                record.outerAfterAdjustment ||
+                record.outerFreeHangingAfterInstall ||
+                record.innerBeforeAdjustment ||
+                record.innerAfterAdjustment ||
+                record.innerBeforeToolInstallation ||
+                record.innerAfterToolInstallation;
               return hasNestedData;
             });
-            loadedSectionData[sectionKey] = recordWithData || relationData[relationData.length - 1];
+            const rawData = recordWithData || relationData[relationData.length - 1];
+            // Convert Decimal strings to numbers for GIBS section
+            loadedSectionData[sectionKey] =
+              sectionKey === 'GIBS' ? convertDecimalsToNumbers(rawData) : rawData;
           }
         });
 

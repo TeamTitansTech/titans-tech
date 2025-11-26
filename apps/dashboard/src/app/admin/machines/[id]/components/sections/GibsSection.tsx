@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
 import {
@@ -163,6 +163,15 @@ function useStageState(initialData?: GibsStageData) {
   const [data, setData] = useState<GibsStageData>(initialData || defaultGibsStageData);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
+  // Update state when initialData changes (e.g., when loading saved data)
+  // Use JSON.stringify for deep comparison since initialData is an object
+  useEffect(() => {
+    if (initialData && JSON.stringify(initialData) !== JSON.stringify(data)) {
+      setData(initialData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(initialData)]);
+
   const updateField = (field: keyof GibsStageData, value: number) => {
     setData((prev: GibsStageData) => ({ ...prev, [field]: value }));
     const fieldKey = String(field);
@@ -221,6 +230,16 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     >(initialData?.haveInnerGibsBeenAdjusted);
     const t = useTranslations('inspections');
     const tCommon = useTranslations('common');
+
+    // Update notes and haveInnerGibsBeenAdjusted when initialData changes
+    useEffect(() => {
+      if (initialData?.notes !== undefined) {
+        setNotes(initialData.notes);
+      }
+      if (initialData?.haveInnerGibsBeenAdjusted !== undefined) {
+        setHaveInnerGibsBeenAdjusted(initialData.haveInnerGibsBeenAdjusted);
+      }
+    }, [initialData?.notes, initialData?.haveInnerGibsBeenAdjusted]);
 
     const wrapUpdateFn = (updateFn: (field: keyof GibsStageData, value: number) => void) => {
       return (field: keyof GibsStageData, value: number) => {
@@ -433,13 +452,12 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     }));
 
     return (
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         <Tabs defaultValue="outer" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="outer">{t('form.common.outer')}</TabsTrigger>
             <TabsTrigger value="inner">{t('form.common.inner')}</TabsTrigger>
           </TabsList>
-
           <TabsContent value="outer" className="space-y-4">
             <GibsForm
               slideType="outer"
@@ -484,7 +502,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
               </Select>
             </div>
           </TabsContent>
-
           <TabsContent value="inner" className="space-y-4">
             <GibsForm
               slideType="inner"

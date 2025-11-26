@@ -935,6 +935,9 @@
     "description": "Criar nova vistoria de bearing clearance",
     "createdSuccessfully": "Vistoria criada com sucesso",
     "form": {
+      "placeholders": {
+        "select": "Selecionar"
+      },
       "date": {
         "label": "Data da Vistoria",
         "placeholder": "Selecione a data"
@@ -1703,6 +1706,14 @@
       "fb": "F-B (Frente-Trás)",
       "fTB": "F-TB (Frente Topo-Base)",
       "rTB": "R-TB (Traseira Topo-Base)"
+    },
+    "slide": {
+      "title": "SLIDE - Configuração de Alerta",
+      "maxDeviation": "Desvio Máximo"
+    },
+    "gibs": {
+      "title": "GIBS - Configuração de Alerta",
+      "usable": "Utilizável"
     },
     "thresholds": {
       "greenStartMin": "Início Verde (Mín)",

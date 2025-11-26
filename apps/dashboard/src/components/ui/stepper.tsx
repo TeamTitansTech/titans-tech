@@ -124,8 +124,8 @@ export function Stepper({ steps, onStepClick }: StepperProps) {
   }, [steps]);
 
   return (
-    <div className="w-full pt-6 pb-4 px-2 bg-muted/30 rounded-lg border relative">
-      <div ref={containerRef} className="flex items-start overflow-x-auto scrollbar-hide py-2">
+    <div className="w-full p-1 sm:p-2 bg-muted/30 rounded-lg border relative">
+      <div ref={containerRef} className="hide-scrollbar flex items-center overflow-x-auto">
         {steps.map((step, index) => (
           <StepperItem
             key={step.key}

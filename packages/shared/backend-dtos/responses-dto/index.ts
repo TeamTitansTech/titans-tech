@@ -6,6 +6,8 @@ export * from './alert-bearing-clearance-response.dto';
 export * from './alert-clutch-response.dto';
 export * from './threshold-slide-response.dto';
 export * from './alert-slide-response.dto';
+export * from './threshold-gibs-response.dto';
+export * from './alert-gibs-response.dto';
 export * from './notification-response.dto';
 export * from './latest-report-response.dto';
 export * from './permission-template-response.dto';

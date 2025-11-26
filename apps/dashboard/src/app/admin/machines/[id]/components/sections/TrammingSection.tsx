@@ -18,44 +18,30 @@ import {
 } from '@/components/ui/select';
 
 export const defaultTrammingData: TrammingData = {
-  // OUTER SECTION
-  outerTopTop: 0,
-  outerTopBottom: 0,
-  outerTopLeft: 0,
-  outerTopRight: 0,
-  outerBottomTop: 0,
-  outerBottomBottom: 0,
-  outerBottomLeft: 0,
-  outerBottomRight: 0,
-  outerLeftTop: 0,
-  outerLeftBottom: 0,
-  outerLeftLeft: 0,
-  outerLeftRight: 0,
-  outerRightTop: 0,
-  outerRightBottom: 0,
-  outerRightLeft: 0,
-  outerRightRight: 0,
-  // INNER SECTION
-  innerTopTop: 0,
-  innerTopBottom: 0,
-  innerTopLeft: 0,
-  innerTopRight: 0,
-  innerBottomTop: 0,
-  innerBottomBottom: 0,
-  innerBottomLeft: 0,
-  innerBottomRight: 0,
-  innerLeftTop: 0,
-  innerLeftBottom: 0,
-  innerLeftLeft: 0,
-  innerLeftRight: 0,
-  innerRightTop: 0,
-  innerRightBottom: 0,
-  innerRightLeft: 0,
-  innerRightRight: 0,
+  // Top Position (4 measurements around trim pin)
+  topTop: 0,
+  topBottom: 0,
+  topLeft: 0,
+  topRight: 0,
+  // Bottom Position (4 measurements around trim pin)
+  bottomTop: 0,
+  bottomBottom: 0,
+  bottomLeft: 0,
+  bottomRight: 0,
+  // Left Position (4 measurements around trim pin)
+  leftTop: 0,
+  leftBottom: 0,
+  leftLeft: 0,
+  leftRight: 0,
+  // Right Position (4 measurements around trim pin)
+  rightTop: 0,
+  rightBottom: 0,
+  rightLeft: 0,
+  rightRight: 0,
 };
 
 export const validateTrammingData = (data: TrammingData): string[] => {
-  return validateNumericFields(data, ['outer', 'inner']);
+  return validateNumericFields(data, ['top', 'bottom', 'left', 'right']);
 };
 
 export interface TrammingSectionData {

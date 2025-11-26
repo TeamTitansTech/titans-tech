@@ -177,7 +177,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
+          },
+        },
         lubricationHydraulics: {
           include: {
             data: {
@@ -240,7 +250,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
+          },
+        },
         lubricationHydraulics: {
           include: {
             data: {
@@ -305,7 +325,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
+          },
+        },
         lubricationHydraulics: {
           include: {
             data: {
@@ -381,7 +411,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
+          },
+        },
         lubricationHydraulics: {
           include: {
             data: {
@@ -458,7 +498,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
+          },
+        },
         lubricationHydraulics: {
           include: {
             data: {
@@ -898,12 +948,12 @@ export class ServicesService {
     if (!stageData) return;
 
     if (existingId) {
-      await tx.service_data_gibs_stage.update({
+      await tx.gibsStageData.update({
         where: { id: existingId },
         data: stageData,
       });
     } else {
-      const created = await tx.service_data_gibs_stage.create({
+      const created = await tx.gibsStageData.create({
         data: stageData,
       });
       updatePayload[fieldName] = created.id;
@@ -1066,6 +1116,15 @@ export class ServicesService {
           },
         },
       });
+    }
+
+    // Generate GIBS alerts if outerAfterAdjustment data was updated
+    if (updateDto.outerAfterAdjustment) {
+      try {
+        await this.alertsService.generateAlertsForGibs(serviceId);
+      } catch (error) {
+        console.error('Error generating GIBS alerts:', error);
+      }
     }
 
     return this.findOne(serviceId);
@@ -1640,7 +1699,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBeforeAdjustment: true,
+            outerAfterAdjustment: true,
+            outerFreeHangingAfterInstall: true,
+            innerBeforeAdjustment: true,
+            innerAfterAdjustment: true,
+            innerBeforeToolInstallation: true,
+            innerAfterToolInstallation: true,
+          },
+        },
         lubricationHydraulics: {
           include: { data: { include: { gauges: true } } },
         },
@@ -1657,7 +1726,35 @@ export class ServicesService {
       },
     });
 
-    this.alertsService.generateAlertsForService(serviceId);
+    // Generate all alerts for completed service
+    const completedSectionsList = updatedService.completedSections as string[];
+
+    if (completedSectionsList.includes('BEARING_CLEARANCE')) {
+      this.alertsService.generateAlertsForService(serviceId).catch((error) => {
+        console.error('Error generating bearing clearance alerts:', error);
+      });
+    }
+
+    if (completedSectionsList.includes('CLUTCH')) {
+      this.alertsService
+        .generateClutchAlertsForService(serviceId)
+        .catch((error) => {
+          console.error('Error generating clutch alerts:', error);
+        });
+    }
+
+    if (completedSectionsList.includes('SLIDE')) {
+      this.alertsService.generateAlertsForSlide(serviceId).catch((error) => {
+        console.error('Error generating slide alerts:', error);
+      });
+    }
+
+    if (completedSectionsList.includes('GIBS')) {
+      this.alertsService.generateAlertsForGibs(serviceId).catch((error) => {
+        console.error('Error generating GIBS alerts:', error);
+      });
+    }
+
     return updatedService;
   }
 

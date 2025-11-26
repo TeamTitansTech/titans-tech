@@ -862,6 +862,9 @@
     "description": "Create a new bearing clearance inspection",
     "createdSuccessfully": "Inspection created successfully",
     "form": {
+      "placeholders": {
+        "select": "Select"
+      },
       "date": {
         "label": "Inspection Date",
         "placeholder": "Select date"
@@ -1626,6 +1629,14 @@
       "fb": "F-B (Front-Back)",
       "fTB": "F-TB (Front Top-Bottom)",
       "rTB": "R-TB (Rear Top-Bottom)"
+    },
+    "slide": {
+      "title": "SLIDE - Alert Configuration",
+      "maxDeviation": "Max Deviation"
+    },
+    "gibs": {
+      "title": "GIBS - Alert Configuration",
+      "usable": "Usable"
     },
     "thresholds": {
       "greenStartMin": "Green Start (Min)",

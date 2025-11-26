@@ -415,53 +415,29 @@ export type CounterbalanceCylinderCheck = z.infer<typeof CounterbalanceCylinderC
  * Tramming Data Schema
  */
 export const TrammingDataSchema = z.object({
-  // OUTER SECTION - Top Position (4 measurements)
-  outerTopTop: z.number(),
-  outerTopBottom: z.number(),
-  outerTopLeft: z.number(),
-  outerTopRight: z.number(),
+  // Top Position (4 measurements around trim pin)
+  topTop: z.number(),
+  topBottom: z.number(),
+  topLeft: z.number(),
+  topRight: z.number(),
 
-  // OUTER SECTION - Bottom Position (4 measurements)
-  outerBottomTop: z.number(),
-  outerBottomBottom: z.number(),
-  outerBottomLeft: z.number(),
-  outerBottomRight: z.number(),
+  // Bottom Position (4 measurements around trim pin)
+  bottomTop: z.number(),
+  bottomBottom: z.number(),
+  bottomLeft: z.number(),
+  bottomRight: z.number(),
 
-  // OUTER SECTION - Left Position (4 measurements)
-  outerLeftTop: z.number(),
-  outerLeftBottom: z.number(),
-  outerLeftLeft: z.number(),
-  outerLeftRight: z.number(),
+  // Left Position (4 measurements around trim pin)
+  leftTop: z.number(),
+  leftBottom: z.number(),
+  leftLeft: z.number(),
+  leftRight: z.number(),
 
-  // OUTER SECTION - Right Position (4 measurements)
-  outerRightTop: z.number(),
-  outerRightBottom: z.number(),
-  outerRightLeft: z.number(),
-  outerRightRight: z.number(),
-
-  // INNER SECTION - Top Position (4 measurements)
-  innerTopTop: z.number(),
-  innerTopBottom: z.number(),
-  innerTopLeft: z.number(),
-  innerTopRight: z.number(),
-
-  // INNER SECTION - Bottom Position (4 measurements)
-  innerBottomTop: z.number(),
-  innerBottomBottom: z.number(),
-  innerBottomLeft: z.number(),
-  innerBottomRight: z.number(),
-
-  // INNER SECTION - Left Position (4 measurements)
-  innerLeftTop: z.number(),
-  innerLeftBottom: z.number(),
-  innerLeftLeft: z.number(),
-  innerLeftRight: z.number(),
-
-  // INNER SECTION - Right Position (4 measurements)
-  innerRightTop: z.number(),
-  innerRightBottom: z.number(),
-  innerRightLeft: z.number(),
-  innerRightRight: z.number(),
+  // Right Position (4 measurements around trim pin)
+  rightTop: z.number(),
+  rightBottom: z.number(),
+  rightLeft: z.number(),
+  rightRight: z.number(),
 });
 
 export type TrammingData = z.infer<typeof TrammingDataSchema>;

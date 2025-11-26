@@ -71,31 +71,25 @@ export function SectionsStep({
   return (
     <>
       {/* Stepper */}
-      <div className="px-4 pb-2">
+      <div className="pb-2">
         <Stepper steps={stepperSteps} onStepClick={onStepClick} />
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-2">
+      <div className="flex-1 overflow-y-auto py-2">
         <div key={componentKey} className="space-y-4">
-          <Typography variant="h3" className="text-lg font-semibold">
-            {translations.getSectionName(sectionConfig.metadata.i18nKey)}
-          </Typography>
-
-          <div className="border rounded-lg">
-            <SectionComponent
-              key={componentKey}
-              ref={(ref: SectionComponentRef | null) => {
-                if (ref) {
-                  registerSectionRef(currentSectionKey, ref);
-                }
-              }}
-              onSectionTouched={() => onSectionTouched(currentSectionKey)}
-              serviceType={currentServiceType}
-              isOpen={true}
-              onOpenChange={() => {}}
-              initialData={sectionData}
-            />
-          </div>
+          <SectionComponent
+            key={componentKey}
+            ref={(ref: SectionComponentRef | null) => {
+              if (ref) {
+                registerSectionRef(currentSectionKey, ref);
+              }
+            }}
+            onSectionTouched={() => onSectionTouched(currentSectionKey)}
+            serviceType={currentServiceType}
+            isOpen={true}
+            onOpenChange={() => {}}
+            initialData={sectionData}
+          />
         </div>
 
         {error && (

@@ -499,6 +499,7 @@ model Blueprint {
   thresholdBearingClearance ThresholdBearingClearance?
   thresholdClutch           ThresholdClutch?
   thresholdSlide            ThresholdSlide?
+  thresholdGibs             ThresholdGibs?
 
   @@map("blueprints")
 }
@@ -599,6 +600,23 @@ model ThresholdSlide {
   @@map("threshold_slide")
 }
 
+model ThresholdGibs {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Usable thresholds (single field with green/yellow/red levels)
+  usable_greenMin  Decimal @db.Decimal(10, 4)
+  usable_yellowMin Decimal @db.Decimal(10, 4)
+  usable_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_gibs")
+}
+
 model Machine {
   id          String @id @default(cuid())
   blueprintId String
@@ -687,6 +705,7 @@ model MachineService {
   alertBearingClearance        AlertBearingClearance?
   alertClutch                  AlertClutch?
   alertSlide                   AlertSlide?
+  alertGibs                    AlertGibs?
 
   @@map("machine_services")
 }
@@ -786,6 +805,25 @@ model AlertSlide {
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
   @@map("alert_slide")
+}
+
+model AlertGibs {
+  id               String @id @default(cuid())
+  machineServiceId String @unique
+
+  // Usable value and severity (based on single threshold)
+  usable_value    Decimal       @db.Decimal(10, 4)
+  usable_severity AlertSeverity
+
+  // Optional snapshot of threshold used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_gibs")
 }
 
 // BEARING_CLEARANCE Section
