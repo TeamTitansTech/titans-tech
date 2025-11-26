@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ServiceSection } from '@titans-tech/db/enums';
+import { ClutchThresholdsSchema } from './threshold-clutch.dto';
 
 // Schema existente para Blueprint
 export const CreateBlueprintSchema = z.object({
@@ -100,6 +101,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     fields: z.array(z.any()),
     sections: z.array(z.nativeEnum(ServiceSection)),
     thresholds: ThresholdsSchema.optional(),
+    clutchThresholds: ClutchThresholdsSchema.optional(),
     slideThresholds: SlideThresholdsSchema.optional(),
   })
   .refine(
@@ -108,15 +110,10 @@ export const CreateBlueprintWithThresholdsSchema = z
       if (data.thresholds && !data.sections.includes(ServiceSection.BEARING_CLEARANCE)) {
         return false;
       }
-      return true;
-    },
-    {
-      message: 'Thresholds can only be configured if BEARING_CLEARANCE is in sections',
-      path: ['thresholds'],
-    },
-  )
-  .refine(
-    (data) => {
+      // Se clutchThresholds fornecidos, CLUTCH deve estar em sections
+      if (data.clutchThresholds && !data.sections.includes(ServiceSection.CLUTCH)) {
+        return false;
+      }
       // Se slideThresholds fornecidos, SLIDE deve estar em sections
       if (data.slideThresholds && !data.sections.includes(ServiceSection.SLIDE)) {
         return false;
@@ -124,8 +121,8 @@ export const CreateBlueprintWithThresholdsSchema = z
       return true;
     },
     {
-      message: 'Slide thresholds can only be configured if SLIDE is in sections',
-      path: ['slideThresholds'],
+      message: 'Thresholds can only be configured if corresponding section is selected',
+      path: ['thresholds'],
     },
   );
 

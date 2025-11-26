@@ -1696,6 +1696,14 @@
       "wristPinToBushing": "Pino de Pulso à Bucha",
       "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide ao Parafuso/Manguito"
     },
+    "clutch": {
+      "title": "EMBREAGEM - Configuração de Alerta",
+      "hydClutchClearanceTotal": "Folga da Embreagem Hidráulica Total",
+      "hydClutchClearanceRear": "Folga da Embreagem Hidráulica Traseira",
+      "fb": "F-B (Frente-Trás)",
+      "fTB": "F-TB (Frente Topo-Base)",
+      "rTB": "R-TB (Traseira Topo-Base)"
+    },
     "thresholds": {
       "greenStartMin": "Início Verde (Mín)",
       "yellowStartMin": "Início Amarelo (Mín)",

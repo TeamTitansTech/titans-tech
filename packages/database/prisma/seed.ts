@@ -584,7 +584,41 @@ async function main() {
   console.log(`✓ Created/Updated Pistons Blueprint`);
 
   // ========================================
-  // 8. Create Example Machines
+  // 8. Create Clutch Thresholds for Blueprints
+  // ========================================
+
+  // Clutch thresholds for bearing blueprint (based on dashboard graphs)
+  await prisma.thresholdClutch.upsert({
+    where: { blueprintId: bearingBlueprint.id },
+    update: {},
+    create: {
+      blueprintId: bearingBlueprint.id,
+      // Hyd Clutch Clearance Total: lower=0.0600, upper=0.1880
+      hydClutchClearanceTotal_greenMin: 0.06,
+      hydClutchClearanceTotal_yellowMin: 0.12, // 70% between green and red
+      hydClutchClearanceTotal_redMin: 0.188,
+      // Hyd Clutch Clearance Rear: lower=0.015, upper=0.105
+      hydClutchClearanceRear_greenMin: 0.015,
+      hydClutchClearanceRear_yellowMin: 0.078, // 70% between green and red
+      hydClutchClearanceRear_redMin: 0.105,
+      // F-B (Front-Back): lower=0.0450, upper=0.0550
+      fb_greenMin: 0.045,
+      fb_yellowMin: 0.052, // 70% between green and red
+      fb_redMin: 0.055,
+      // F-TB (Front Top-Bottom): lower=0.0050, upper=0.0150
+      fTB_greenMin: 0.005,
+      fTB_yellowMin: 0.012, // 70% between green and red
+      fTB_redMin: 0.015,
+      // R-TB (Rear Top-Bottom): lower=0.005, upper=0.015
+      rTB_greenMin: 0.005,
+      rTB_yellowMin: 0.012, // 70% between green and red
+      rTB_redMin: 0.015,
+    },
+  });
+  console.log(`✓ Created/Updated Clutch Thresholds for Bearing Blueprint`);
+
+  // ========================================
+  // 9. Create Example Machines
   // ========================================
   const machine1 = await prisma.machine.upsert({
     where: { id: 'example-machine-1' },
@@ -661,7 +695,7 @@ async function main() {
   console.log(`✓ Created/Updated Machine: ${machine4.name}`);
 
   console.log('\n========================================');
-  console.log('Seeding completed successfully!');
+  console.log('✅ Seeding completed successfully!');
   console.log('========================================');
   console.log('\n📝 Default Credentials:');
   console.log('  SysAdmin:');
