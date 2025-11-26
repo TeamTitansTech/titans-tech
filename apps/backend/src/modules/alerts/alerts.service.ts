@@ -29,6 +29,25 @@ export class AlertsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createThreshold(dto: CreateThresholdBearingClearanceDto) {
+    const blueprint = await this.prisma.blueprint.findUnique({
+      where: { id: dto.blueprintId },
+    });
+
+    if (!blueprint) {
+      throw new NotFoundException(`Blueprint ${dto.blueprintId} not found`);
+    }
+
+    const existingThreshold =
+      await this.prisma.thresholdBearingClearance.findUnique({
+        where: { blueprintId: dto.blueprintId },
+      });
+
+    if (existingThreshold) {
+      throw new BadRequestException(
+        `Threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+      );
+    }
+
     const threshold = await this.prisma.thresholdBearingClearance.create({
       data: {
         blueprintId: dto.blueprintId,
@@ -424,6 +443,26 @@ export class AlertsService {
   // ==================== SLIDE THRESHOLD METHODS ====================
 
   async createSlideThreshold(dto: CreateThresholdSlideDto) {
+    // Validate blueprint exists
+    const blueprint = await this.prisma.blueprint.findUnique({
+      where: { id: dto.blueprintId },
+    });
+
+    if (!blueprint) {
+      throw new NotFoundException(`Blueprint ${dto.blueprintId} not found`);
+    }
+
+    // Check if threshold already exists for this blueprint
+    const existingThreshold = await this.prisma.thresholdSlide.findUnique({
+      where: { blueprintId: dto.blueprintId },
+    });
+
+    if (existingThreshold) {
+      throw new BadRequestException(
+        `Slide threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+      );
+    }
+
     const threshold = await this.prisma.thresholdSlide.create({
       data: {
         blueprintId: dto.blueprintId,
