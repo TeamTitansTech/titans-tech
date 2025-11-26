@@ -1242,13 +1242,11 @@ export class ServicesService {
       });
     }
 
-    // Generate clutch alerts if data was provided
-    if (updateDto) {
-      try {
-        await this.alertsService.generateClutchAlertsForService(serviceId);
-      } catch (error) {
-        console.error('Error generating clutch alerts:', error);
-      }
+    // Generate clutch alerts
+    try {
+      await this.alertsService.generateClutchAlertsForService(serviceId);
+    } catch (error) {
+      console.error('Error generating clutch alerts:', error);
     }
 
     return this.findOne(serviceId);
