@@ -43,16 +43,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
   };
 
   // Helper function to display value with translations
-  const displayValue = (value: unknown, key?: string): string => {
-    if (key === 'oilTemperature') {
-      const temp = data.oilTemperature;
-      const unit = data.oilTemperatureUnit;
-      if (temp === null || temp === undefined) {
-        return '-';
-      }
-      const unitSymbol = unit === 'FAHRENHEIT' ? '°F' : unit === 'CELSIUS' ? '°C' : '';
-      return `${temp}${unitSymbol}`;
-    }
+  const displayValue = (value: unknown): string => {
     return translateEnumValue(value, tCommon);
   };
 
