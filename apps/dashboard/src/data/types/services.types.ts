@@ -66,7 +66,11 @@ export type {
   InspectionModalProps,
 } from '@titans-tech/shared/types/services';
 
-import type { BearingClearanceData as BearingData } from '@titans-tech/shared/types/services';
+import type {
+  BearingClearanceData as BearingData,
+  ClutchData,
+  SlideData,
+} from '@titans-tech/shared/types/services';
 
 export interface LatestBearingClearance {
   latestServiceId: string;
@@ -89,6 +93,41 @@ export interface LatestBearingClearance {
   };
 }
 
+export interface LatestClutch {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: ClutchData;
+  alert?: {
+    hydClutchClearanceTotal_value: number;
+    hydClutchClearanceTotal_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    hydClutchClearanceRear_value: number;
+    hydClutchClearanceRear_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    fb_value: number;
+    fb_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    fTB_value: number;
+    fTB_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    rTB_value: number;
+    rTB_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+  };
+}
+
+export interface LatestSlide {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: {
+    outerData?: SlideData;
+    innerData?: SlideData;
+  };
+  alert?: {
+    maxDeviationOuter_differential: number;
+    maxDeviationOuter_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    maxDeviationInner_differential: number;
+    maxDeviationInner_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+  };
+}
+
 export interface LatestReport {
   machineId: string;
   machineName: string;
@@ -100,10 +139,10 @@ export interface LatestReport {
   generatedAt: string;
   sections: {
     BEARING_CLEARANCE: LatestBearingClearance | null;
-    SLIDE: null;
+    SLIDE: LatestSlide | null;
     GIBS: null;
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null;
-    CLUTCH: null;
+    CLUTCH: LatestClutch | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: null;
   };
 }

@@ -1654,6 +1654,14 @@
       "wristPinToBushing": "Wrist Pin to Bushing",
       "slideAdjNutToScrewSleeve": "Slide Adj Nut to Screw/Sleeve"
     },
+    "clutch": {
+      "title": "CLUTCH - Alert Configuration",
+      "hydClutchClearanceTotal": "Hydraulic Clutch Clearance Total",
+      "hydClutchClearanceRear": "Hydraulic Clutch Clearance Rear",
+      "fb": "F-B (Front-Back)",
+      "fTB": "F-TB (Front Top-Bottom)",
+      "rTB": "R-TB (Rear Top-Bottom)"
+    },
     "thresholds": {
       "greenStartMin": "Green Start (Min)",
       "yellowStartMin": "Yellow Start (Min)",

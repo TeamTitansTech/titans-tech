@@ -10,6 +10,11 @@ import {
   ThresholdBearingClearanceResponseDto,
   AlertBearingClearanceResponseDto,
   CreateThresholdBearingClearanceSchema,
+  CreateThresholdClutchDto,
+  UpdateThresholdClutchDto,
+  ThresholdClutchResponseDto,
+  AlertClutchResponseDto,
+  CreateThresholdClutchSchema,
   CreateAlertCounterbalanceCylinderAirbagDto,
   UpdateAlertCounterbalanceCylinderAirbagDto,
   AlertCounterbalanceCylinderAirbagResponseDto,
@@ -23,6 +28,8 @@ import { Decimal } from '@prisma/client/runtime/library';
 import {
   convertThresholdToDecimal,
   convertPartialThresholdToDecimal,
+  convertClutchThresholdToDecimal,
+  convertPartialClutchThresholdToDecimal,
   convertSlideThresholdToDecimal,
   convertPartialSlideThresholdToDecimal,
 } from './threshold.utils';
@@ -184,6 +191,7 @@ export class AlertsService {
             blueprint: {
               include: {
                 thresholdBearingClearance: true,
+                thresholdClutch: true,
               },
             },
           },
@@ -192,6 +200,11 @@ export class AlertsService {
           include: {
             outerData: true,
             innerData: true,
+          },
+        },
+        clutch: {
+          include: {
+            data: true,
           },
         },
       },
@@ -349,6 +362,16 @@ export class AlertsService {
       },
     });
 
+    // Also generate clutch alerts if clutch data exists
+    if (service.clutch && service.clutch.length > 0) {
+      const clutchThreshold = service.machine.blueprint.thresholdClutch;
+      const clutchData = service.clutch[0].data;
+
+      if (clutchThreshold && clutchData) {
+        await this.generateClutchAlertsForService(machineServiceId);
+      }
+    }
+
     return new AlertBearingClearanceResponseDto({
       ...alert,
       // Include bearing data for the DTO
@@ -440,6 +463,329 @@ export class AlertsService {
     return new AlertBearingClearanceResponseDto({
       ...alert,
       bearingData,
+    } as any);
+  }
+
+  async createClutchThreshold(dto: CreateThresholdClutchDto) {
+    const threshold = await this.prisma.thresholdClutch.create({
+      data: {
+        blueprintId: dto.blueprintId,
+        ...convertClutchThresholdToDecimal(dto),
+      },
+    });
+
+    return new ThresholdClutchResponseDto(threshold as any);
+  }
+
+  async getClutchThresholdByBlueprint(blueprintId: string) {
+    const threshold = await this.prisma.thresholdClutch.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `Clutch threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    return new ThresholdClutchResponseDto(threshold as any);
+  }
+
+  async updateClutchThreshold(
+    blueprintId: string,
+    dto: UpdateThresholdClutchDto,
+  ) {
+    const currentThreshold = await this.prisma.thresholdClutch.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!currentThreshold) {
+      throw new NotFoundException(
+        `Clutch threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    const mergedData = {
+      blueprintId,
+      // Hyd Clutch Clearance Total
+      hydClutchClearanceTotal_greenMin:
+        dto.hydClutchClearanceTotal_greenMin ??
+        currentThreshold.hydClutchClearanceTotal_greenMin.toNumber(),
+      hydClutchClearanceTotal_yellowMin:
+        dto.hydClutchClearanceTotal_yellowMin ??
+        currentThreshold.hydClutchClearanceTotal_yellowMin.toNumber(),
+      hydClutchClearanceTotal_redMin:
+        dto.hydClutchClearanceTotal_redMin ??
+        currentThreshold.hydClutchClearanceTotal_redMin.toNumber(),
+      // Hyd Clutch Clearance Rear
+      hydClutchClearanceRear_greenMin:
+        dto.hydClutchClearanceRear_greenMin ??
+        currentThreshold.hydClutchClearanceRear_greenMin.toNumber(),
+      hydClutchClearanceRear_yellowMin:
+        dto.hydClutchClearanceRear_yellowMin ??
+        currentThreshold.hydClutchClearanceRear_yellowMin.toNumber(),
+      hydClutchClearanceRear_redMin:
+        dto.hydClutchClearanceRear_redMin ??
+        currentThreshold.hydClutchClearanceRear_redMin.toNumber(),
+      // F-B
+      fb_greenMin: dto.fb_greenMin ?? currentThreshold.fb_greenMin.toNumber(),
+      fb_yellowMin:
+        dto.fb_yellowMin ?? currentThreshold.fb_yellowMin.toNumber(),
+      fb_redMin: dto.fb_redMin ?? currentThreshold.fb_redMin.toNumber(),
+      // F-TB
+      fTB_greenMin:
+        dto.fTB_greenMin ?? currentThreshold.fTB_greenMin.toNumber(),
+      fTB_yellowMin:
+        dto.fTB_yellowMin ?? currentThreshold.fTB_yellowMin.toNumber(),
+      fTB_redMin: dto.fTB_redMin ?? currentThreshold.fTB_redMin.toNumber(),
+      // R-TB
+      rTB_greenMin:
+        dto.rTB_greenMin ?? currentThreshold.rTB_greenMin.toNumber(),
+      rTB_yellowMin:
+        dto.rTB_yellowMin ?? currentThreshold.rTB_yellowMin.toNumber(),
+      rTB_redMin: dto.rTB_redMin ?? currentThreshold.rTB_redMin.toNumber(),
+    };
+
+    // Validate merged data (ensures greenMin < yellowMin < redMin for all fields)
+    try {
+      CreateThresholdClutchSchema.parse(mergedData);
+    } catch (error) {
+      throw new BadRequestException(
+        'Invalid clutch threshold values: ' + error.message,
+      );
+    }
+
+    // Convert to Decimal and update
+    const data = convertPartialClutchThresholdToDecimal(dto);
+
+    const threshold = await this.prisma.thresholdClutch.update({
+      where: { blueprintId },
+      data,
+    });
+
+    return new ThresholdClutchResponseDto(threshold as any);
+  }
+
+  async deleteClutchThreshold(blueprintId: string) {
+    await this.prisma.thresholdClutch.delete({
+      where: { blueprintId },
+    });
+  }
+
+  async generateClutchAlertsForService(machineServiceId: string) {
+    // 1. Fetch service with threshold and clutch data
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: machineServiceId },
+      include: {
+        machine: {
+          include: {
+            blueprint: {
+              include: {
+                thresholdClutch: true,
+              },
+            },
+          },
+        },
+        clutch: {
+          include: {
+            data: true,
+          },
+        },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    const threshold = service.machine.blueprint.thresholdClutch;
+
+    if (!threshold) {
+      console.log(
+        '⚠️ [CLUTCH ALERTS] No threshold configured for this blueprint - skipping alert generation',
+      );
+      return null;
+    }
+
+    if (!service.clutch || service.clutch.length === 0) {
+      console.log(
+        '⚠️ [CLUTCH ALERTS] No clutch data - skipping alert generation',
+      );
+      return null;
+    }
+
+    const clutchData = service.clutch[0].data;
+
+    if (!clutchData) {
+      console.log(
+        '⚠️ [CLUTCH ALERTS] No clutch measurement data found - skipping alert generation',
+      );
+      return null;
+    }
+
+    // Calculate alerts for each of the 5 measurement points
+    const hydClutchClearanceTotal = this.evaluateSingleValueAlert(
+      clutchData.hydClutchClearanceTotal,
+      threshold.hydClutchClearanceTotal_greenMin,
+      threshold.hydClutchClearanceTotal_yellowMin,
+      threshold.hydClutchClearanceTotal_redMin,
+    );
+
+    const hydClutchClearanceRear = this.evaluateSingleValueAlert(
+      clutchData.hydClutchClearanceRear,
+      threshold.hydClutchClearanceRear_greenMin,
+      threshold.hydClutchClearanceRear_yellowMin,
+      threshold.hydClutchClearanceRear_redMin,
+    );
+
+    const fb = this.evaluateSingleValueAlert(
+      clutchData.brakeSpringFB,
+      threshold.fb_greenMin,
+      threshold.fb_yellowMin,
+      threshold.fb_redMin,
+    );
+
+    const fTB = this.evaluateSingleValueAlert(
+      clutchData.brakeSpringFTB,
+      threshold.fTB_greenMin,
+      threshold.fTB_yellowMin,
+      threshold.fTB_redMin,
+    );
+
+    const rTB = this.evaluateSingleValueAlert(
+      clutchData.brakeSpringRTB,
+      threshold.rTB_greenMin,
+      threshold.rTB_yellowMin,
+      threshold.rTB_redMin,
+    );
+
+    const thresholdSnapshot = {
+      blueprintId: threshold.blueprintId,
+      hydClutchClearanceTotal: {
+        greenMin: threshold.hydClutchClearanceTotal_greenMin.toNumber(),
+        yellowMin: threshold.hydClutchClearanceTotal_yellowMin.toNumber(),
+        redMin: threshold.hydClutchClearanceTotal_redMin.toNumber(),
+      },
+      hydClutchClearanceRear: {
+        greenMin: threshold.hydClutchClearanceRear_greenMin.toNumber(),
+        yellowMin: threshold.hydClutchClearanceRear_yellowMin.toNumber(),
+        redMin: threshold.hydClutchClearanceRear_redMin.toNumber(),
+      },
+      fb: {
+        greenMin: threshold.fb_greenMin.toNumber(),
+        yellowMin: threshold.fb_yellowMin.toNumber(),
+        redMin: threshold.fb_redMin.toNumber(),
+      },
+      fTB: {
+        greenMin: threshold.fTB_greenMin.toNumber(),
+        yellowMin: threshold.fTB_yellowMin.toNumber(),
+        redMin: threshold.fTB_redMin.toNumber(),
+      },
+      rTB: {
+        greenMin: threshold.rTB_greenMin.toNumber(),
+        yellowMin: threshold.rTB_yellowMin.toNumber(),
+        redMin: threshold.rTB_redMin.toNumber(),
+      },
+    };
+
+    const alert = await this.prisma.alertClutch.upsert({
+      where: { machineServiceId },
+      create: {
+        machineServiceId,
+        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value,
+        hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
+        hydClutchClearanceRear_value: hydClutchClearanceRear.value,
+        hydClutchClearanceRear_severity: hydClutchClearanceRear.severity,
+        fb_value: fb.value,
+        fb_severity: fb.severity,
+        fTB_value: fTB.value,
+        fTB_severity: fTB.severity,
+        rTB_value: rTB.value,
+        rTB_severity: rTB.severity,
+        thresholdSnapshot,
+      },
+      update: {
+        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value,
+        hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
+        hydClutchClearanceRear_value: hydClutchClearanceRear.value,
+        hydClutchClearanceRear_severity: hydClutchClearanceRear.severity,
+        fb_value: fb.value,
+        fb_severity: fb.severity,
+        fTB_value: fTB.value,
+        fTB_severity: fTB.severity,
+        rTB_value: rTB.value,
+        rTB_severity: rTB.severity,
+        thresholdSnapshot,
+      },
+    });
+
+    return new AlertClutchResponseDto({
+      ...alert,
+      // Include clutch data for the DTO
+      clutchData,
+    } as any);
+  }
+
+  /**
+   * Evaluates a single measurement value against thresholds
+   * Used for clutch measurements (no before/after comparison needed)
+   */
+  private evaluateSingleValueAlert(
+    value: Decimal | null,
+    greenMin: Decimal,
+    yellowMin: Decimal,
+    redMin: Decimal,
+  ): { value: Decimal; severity: AlertSeverity } {
+    // If value is null, return NONE severity with 0
+    if (value === null) {
+      return {
+        value: new Decimal(0),
+        severity: AlertSeverity.NONE,
+      };
+    }
+
+    // Compare single value directly against thresholds
+    const severity = this.determineSeverity(value, greenMin, yellowMin, redMin);
+
+    return {
+      value,
+      severity,
+    };
+  }
+
+  async getClutchAlertByService(machineServiceId: string) {
+    const alert = await this.prisma.alertClutch.findUnique({
+      where: { machineServiceId },
+      include: {
+        machineService: {
+          include: {
+            clutch: {
+              include: {
+                data: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!alert) {
+      throw new NotFoundException(
+        `Clutch alert not found for service ${machineServiceId}`,
+      );
+    }
+
+    const clutchData = alert.machineService.clutch[0]?.data;
+
+    if (!clutchData) {
+      throw new NotFoundException(
+        `Clutch data not found for service ${machineServiceId}`,
+      );
+    }
+
+    return new AlertClutchResponseDto({
+      ...alert,
+      clutchData,
     } as any);
   }
 

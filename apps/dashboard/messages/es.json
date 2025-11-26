@@ -1636,6 +1636,14 @@
       "wristPinToBushing": "Pasador de Muñeca a Casquillo",
       "slideAdjNutToScrewSleeve": "Tuerca de Ajuste de Corredera a Tornillo/Manguito"
     },
+    "clutch": {
+      "title": "EMBRAGUE - Configuración de Alerta",
+      "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico Total",
+      "hydClutchClearanceRear": "Holgura del Embrague Hidráulico Trasera",
+      "fb": "F-B (Frente-Atrás)",
+      "fTB": "F-TB (Frente Superior-Inferior)",
+      "rTB": "R-TB (Trasera Superior-Inferior)"
+    },
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",
       "yellowStartMin": "Inicio Amarillo (Mín)",

@@ -507,6 +507,7 @@ model Blueprint {
 
   machines                  Machine[]
   thresholdBearingClearance ThresholdBearingClearance?
+  thresholdClutch           ThresholdClutch?
   thresholdSlide            ThresholdSlide?
 
   @@map("blueprints")
@@ -552,6 +553,43 @@ model ThresholdBearingClearance {
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
   @@map("threshold_bearing_clearance")
+}
+
+model ThresholdClutch {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Hyd Clutch Clearance Total thresholds
+  hydClutchClearanceTotal_greenMin  Decimal @db.Decimal(10, 4)
+  hydClutchClearanceTotal_yellowMin Decimal @db.Decimal(10, 4)
+  hydClutchClearanceTotal_redMin    Decimal @db.Decimal(10, 4)
+
+  // Hyd Clutch Clearance Rear thresholds
+  hydClutchClearanceRear_greenMin  Decimal @db.Decimal(10, 4)
+  hydClutchClearanceRear_yellowMin Decimal @db.Decimal(10, 4)
+  hydClutchClearanceRear_redMin    Decimal @db.Decimal(10, 4)
+
+  // F-B (Front-Back) thresholds
+  fb_greenMin  Decimal @db.Decimal(10, 4)
+  fb_yellowMin Decimal @db.Decimal(10, 4)
+  fb_redMin    Decimal @db.Decimal(10, 4)
+
+  // F-TB (Front Top-Bottom) thresholds
+  fTB_greenMin  Decimal @db.Decimal(10, 4)
+  fTB_yellowMin Decimal @db.Decimal(10, 4)
+  fTB_redMin    Decimal @db.Decimal(10, 4)
+
+  // R-TB (Rear Top-Bottom) thresholds
+  rTB_greenMin  Decimal @db.Decimal(10, 4)
+  rTB_yellowMin Decimal @db.Decimal(10, 4)
+  rTB_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_clutch")
 }
 
 model ThresholdSlide {
@@ -658,6 +696,7 @@ model MachineService {
   pistons                           MachineServicePistons[]
   alertBearingClearance             AlertBearingClearance?
   alertCounterbalanceCylinderAirbag AlertCounterbalanceCylinderAirbag[]
+  alertClutch                       AlertClutch?
   alertSlide                        AlertSlide?
 
   @@map("machine_services")
@@ -715,6 +754,41 @@ model AlertCounterbalanceCylinderAirbag {
 
   @@unique([machineServiceId, fieldName])
   @@map("alert_counterbalance_cylinder_airbag")
+}
+
+model AlertClutch {
+  id               String @id @default(cuid())
+  machineServiceId String @unique
+
+  // Hyd Clutch Clearance Total alert
+  hydClutchClearanceTotal_value    Decimal       @db.Decimal(10, 4)
+  hydClutchClearanceTotal_severity AlertSeverity
+
+  // Hyd Clutch Clearance Rear alert
+  hydClutchClearanceRear_value    Decimal       @db.Decimal(10, 4)
+  hydClutchClearanceRear_severity AlertSeverity
+
+  // F-B (Front-Back) alert
+  fb_value    Decimal       @db.Decimal(10, 4)
+  fb_severity AlertSeverity
+
+  // F-TB (Front Top-Bottom) alert
+  fTB_value    Decimal       @db.Decimal(10, 4)
+  fTB_severity AlertSeverity
+
+  // R-TB (Rear Top-Bottom) alert
+  rTB_value    Decimal       @db.Decimal(10, 4)
+  rTB_severity AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_clutch")
 }
 
 model AlertSlide {
