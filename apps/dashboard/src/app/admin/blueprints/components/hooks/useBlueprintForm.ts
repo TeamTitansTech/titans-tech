@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { createBlueprint } from '@/data/services/blueprints.api';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
+import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
 import { type Field } from '../types';
 
 // Client-safe slug to enum mapping
@@ -39,12 +40,21 @@ const INITIAL_THRESHOLDS: BearingClearanceThresholdsData = {
   slideAdjNutToScrewSleeve_redMin: 0.003,
 };
 
+const INITIAL_SLIDE_THRESHOLDS: SlideThresholdsData = {
+  maxDeviation_greenMin: 0.001,
+  maxDeviation_yellowMin: 0.002,
+  maxDeviation_redMin: 0.003,
+};
+
 export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const t = useTranslations('models');
   const [name, setName] = useState('');
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [thresholdsOpen, setThresholdsOpen] = useState(false);
   const [thresholds, setThresholds] = useState<BearingClearanceThresholdsData>(INITIAL_THRESHOLDS);
+  const [slideThresholdsOpen, setSlideThresholdsOpen] = useState(false);
+  const [slideThresholds, setSlideThresholds] =
+    useState<SlideThresholdsData>(INITIAL_SLIDE_THRESHOLDS);
 
   const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
 
@@ -61,9 +71,15 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
       if (hasThresholdChanges) return true;
 
+      const hasSlideThresholdChanges = (
+        Object.keys(slideThresholds) as Array<keyof SlideThresholdsData>
+      ).some((key) => slideThresholds[key] !== INITIAL_SLIDE_THRESHOLDS[key]);
+
+      if (hasSlideThresholdChanges) return true;
+
       return false;
     },
-    [name, selectedSections, thresholds],
+    [name, selectedSections, thresholds, slideThresholds],
   );
 
   const toggleSection = (section: string) => {
@@ -81,6 +97,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     e.preventDefault();
 
     const hasBearingClearance = selectedSections.includes('bearing_clearance');
+    const hasSlide = selectedSections.includes('slide');
 
     interface BlueprintField {
       fieldName: string;
@@ -94,6 +111,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       sections: string[];
       fields: BlueprintField[];
       thresholds?: BearingClearanceThresholdsData;
+      slideThresholds?: SlideThresholdsData;
     }
 
     const payload: CreateBlueprintPayload = {
@@ -123,6 +141,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       payload.thresholds = thresholds;
     }
 
+    if (hasSlide) {
+      payload.slideThresholds = slideThresholds;
+    }
+
     const response = await submitBlueprint(payload);
 
     if (response.data) {
@@ -130,7 +152,9 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       setName('');
       setSelectedSections([]);
       setThresholdsOpen(false);
+      setSlideThresholdsOpen(false);
       resetThresholds();
+      resetSlideThresholds();
       resetFields();
       resetOptions();
       onSuccess?.();
@@ -142,12 +166,18 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setThresholds(INITIAL_THRESHOLDS);
   }, []);
 
+  const resetSlideThresholds = useCallback(() => {
+    setSlideThresholds(INITIAL_SLIDE_THRESHOLDS);
+  }, []);
+
   const reset = useCallback(() => {
     setName('');
     setSelectedSections([]);
     setThresholdsOpen(false);
+    setSlideThresholdsOpen(false);
     resetThresholds();
-  }, [resetThresholds]);
+    resetSlideThresholds();
+  }, [resetThresholds, resetSlideThresholds]);
 
   return {
     name,
@@ -158,6 +188,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setThresholdsOpen,
     thresholds,
     setThresholds,
+    slideThresholdsOpen,
+    setSlideThresholdsOpen,
+    slideThresholds,
+    setSlideThresholds,
     isLoading,
     result,
     handleSubmit,
