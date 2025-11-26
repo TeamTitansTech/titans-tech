@@ -279,7 +279,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
     const tMeasurements = useTranslations('measurements');
 
     return (
-      <div className="space-y-6 p-4">
+      <div className="space-y-6">
         {/* Top-level fields */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">

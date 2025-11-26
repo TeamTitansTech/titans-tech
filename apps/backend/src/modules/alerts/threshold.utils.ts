@@ -209,3 +209,63 @@ export function convertPartialSlideThresholdToDecimal<
   });
   return data as PartialSlideThresholdDecimalData;
 }
+
+/**
+ * List of all GIBS threshold field names
+ * Monitors the "usable" calculation from outerAfterAdjustment Left to Right
+ */
+export const GIBS_THRESHOLD_FIELDS = [
+  'usable_greenMin',
+  'usable_yellowMin',
+  'usable_redMin',
+] as const;
+
+export type GibsThresholdFieldName = (typeof GIBS_THRESHOLD_FIELDS)[number];
+
+/**
+ * Type for complete GIBS threshold data with Decimal fields
+ */
+export type GibsThresholdDecimalData = {
+  [K in GibsThresholdFieldName]: Decimal;
+};
+
+/**
+ * Type for partial GIBS threshold data with Decimal fields
+ */
+export type PartialGibsThresholdDecimalData = {
+  [K in GibsThresholdFieldName]?: Decimal;
+};
+
+/**
+ * Converts GIBS threshold DTO fields to Decimal type for Prisma (all fields)
+ *
+ * @param dto - GIBS threshold data object with all fields
+ * @returns Object with all Decimal-converted threshold fields
+ */
+export function convertGibsThresholdToDecimal<T extends Record<string, any>>(
+  dto: T,
+): GibsThresholdDecimalData {
+  return GIBS_THRESHOLD_FIELDS.reduce((acc, field) => {
+    acc[field] = new Decimal(dto[field]);
+    return acc;
+  }, {} as any) as GibsThresholdDecimalData;
+}
+
+/**
+ * Converts partial GIBS threshold DTO fields to Decimal type for Prisma
+ *
+ * @param dto - Partial GIBS threshold data object
+ * @returns Object with Decimal-converted threshold fields (only provided fields)
+ */
+export function convertPartialGibsThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): PartialGibsThresholdDecimalData {
+  const data: any = {};
+  Object.keys(dto).forEach((key) => {
+    const value = dto[key];
+    if (value !== undefined && GIBS_THRESHOLD_FIELDS.includes(key as any)) {
+      data[key] = new Decimal(value);
+    }
+  });
+  return data as PartialGibsThresholdDecimalData;
+}

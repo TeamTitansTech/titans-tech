@@ -126,6 +126,16 @@ export interface AlertSlide {
   updatedAt: string;
 }
 
+// Alert GIBS (for GIBS service alerts)
+export interface AlertGibs {
+  id: string;
+  machineServiceId: string;
+  usable_value: number;
+  usable_severity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Basic Service Info (for machine response)
 export interface MachineService {
   id: string;
@@ -135,6 +145,7 @@ export interface MachineService {
   alertBearingClearance?: AlertBearingClearance;
   alertClutch?: AlertClutch;
   alertSlide?: AlertSlide;
+  alertGibs?: AlertGibs;
 }
 
 // Machine Inspection (detailed service data for inspections)

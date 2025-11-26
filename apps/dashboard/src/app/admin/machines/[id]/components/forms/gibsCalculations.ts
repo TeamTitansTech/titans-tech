@@ -15,50 +15,79 @@ export interface GibsCalculatedFields {
 export function calculateGibsFields(data: GibsStageData): GibsCalculatedFields {
   const toNum = (val: number | undefined): number => (typeof val === 'number' ? val : 0);
 
+  // Front to Back calculations
+  // top left: 1 + 2
+  // top right: 6 + 5
+  // bottom left: 3 + 4
+  // bottom right: 7 + 8
   const frontTop = toNum(data.point1) + toNum(data.point2);
   const frontBottom = toNum(data.point3) + toNum(data.point4);
-  const backTop = toNum(data.point5) + toNum(data.point6);
+  const backTop = toNum(data.point6) + toNum(data.point5);
   const backBottom = toNum(data.point7) + toNum(data.point8);
 
-  const leftTop = toNum(data.point9) + toNum(data.point13);
-  const leftBottom = toNum(data.point11) + toNum(data.point15);
-  const rightTop = toNum(data.point10) + toNum(data.point14);
-  const rightBottom = toNum(data.point12) + toNum(data.point16);
+  // Left to Right calculations
+  // front top: 9 + 10
+  // front bottom: 11 + 12
+  // back top: 13 + 14
+  // back bottom: 15 + 16
+  const leftTop = toNum(data.point9) + toNum(data.point10);
+  const leftBottom = toNum(data.point11) + toNum(data.point12);
+  const rightTop = toNum(data.point13) + toNum(data.point14);
+  const rightBottom = toNum(data.point15) + toNum(data.point16);
 
   const isNum = (val: number | undefined): boolean => typeof val === 'number' && !isNaN(val);
 
-  const topPointsCount = [data.point9, data.point10, data.point13, data.point14].filter(
+  // Count how many values we have for usable calculation
+  // All 8 points: 13, 9, 14, 10, 15, 16, 11, 12
+  const allPointsCount = [
+    data.point13,
+    data.point9,
+    data.point14,
+    data.point10,
+    data.point15,
+    data.point16,
+    data.point11,
+    data.point12,
+  ].filter(isNum).length;
+
+  // Back points: 13, 14, 15, 16
+  const backPointsCount = [data.point13, data.point14, data.point15, data.point16].filter(
     isNum,
   ).length;
 
-  const bottomPointsCount = [data.point11, data.point12, data.point15, data.point16].filter(
+  // Front points: 9, 11, 10, 12
+  const frontPointsCount = [data.point9, data.point11, data.point10, data.point12].filter(
     isNum,
   ).length;
 
   let usable: number | undefined;
 
-  if (topPointsCount === 4 && bottomPointsCount === 4) {
+  // Excel formula logic:
+  // IF(COUNT(13,9,14,10,15,16,11,12)=8, MIN(13,9,15,11)+MIN(14,10,16,12),
+  //   IF(COUNT(13,14,15,16)=4, MIN(13,15)+MIN(14,16),
+  //     IF(COUNT(9,11,10,12)=4, MIN(9,11)+MIN(10,12), "")))
+  if (allPointsCount === 8) {
     const minLeft = Math.min(
-      toNum(data.point9),
-      toNum(data.point11),
       toNum(data.point13),
+      toNum(data.point9),
       toNum(data.point15),
+      toNum(data.point11),
     );
     const minRight = Math.min(
-      toNum(data.point10),
-      toNum(data.point12),
       toNum(data.point14),
+      toNum(data.point10),
       toNum(data.point16),
+      toNum(data.point12),
     );
     usable = minLeft + minRight;
-  } else if (topPointsCount === 4) {
-    const minTopLeft = Math.min(toNum(data.point9), toNum(data.point13));
-    const minTopRight = Math.min(toNum(data.point10), toNum(data.point14));
-    usable = minTopLeft + minTopRight;
-  } else if (bottomPointsCount === 4) {
-    const minBottomLeft = Math.min(toNum(data.point11), toNum(data.point15));
-    const minBottomRight = Math.min(toNum(data.point12), toNum(data.point16));
-    usable = minBottomLeft + minBottomRight;
+  } else if (backPointsCount === 4) {
+    const minBackLeft = Math.min(toNum(data.point13), toNum(data.point15));
+    const minBackRight = Math.min(toNum(data.point14), toNum(data.point16));
+    usable = minBackLeft + minBackRight;
+  } else if (frontPointsCount === 4) {
+    const minFrontLeft = Math.min(toNum(data.point9), toNum(data.point11));
+    const minFrontRight = Math.min(toNum(data.point10), toNum(data.point12));
+    usable = minFrontLeft + minFrontRight;
   }
 
   return {

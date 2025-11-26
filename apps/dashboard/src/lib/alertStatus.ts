@@ -52,6 +52,12 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
     allSeverities.push(alert.maxDeviationOuter_severity, alert.maxDeviationInner_severity);
   }
 
+  // Collect severities from GIBS section
+  if (latestReport.sections.GIBS?.alert) {
+    const alert = latestReport.sections.GIBS.alert;
+    allSeverities.push(alert.usable_severity);
+  }
+
   // Return the most critical severity
   if (allSeverities.includes('RED')) return 'critical';
   if (allSeverities.includes('YELLOW')) return 'warning';
@@ -180,8 +186,29 @@ export const getSectionStatusFromReport = (
       return 'unknown';
     }
 
+    case 'GIBS': {
+      const gibsData = latestReport.sections.GIBS;
+      if (!gibsData?.alert) {
+        return 'unknown';
+      }
+
+      const alert = gibsData.alert;
+      const severity = alert.usable_severity;
+
+      if (severity === 'RED') {
+        return 'alert';
+      } else if (severity === 'YELLOW') {
+        return 'warning';
+      } else if (severity === 'GREEN') {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
     // TODO: Add other sections when their alert logic is implemented
-    // case 'GIBS':
+    // case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
+    // case 'COUNTERBALANCE_CYLINDER_AIRBAG':
     // etc.
 
     default:
@@ -268,8 +295,28 @@ export const getSectionStatus = (
       return 'unknown';
     }
 
+    case 'GIBS': {
+      const alert = latestService?.alertGibs;
+      if (!alert) {
+        return 'unknown';
+      }
+
+      const severity = alert.usable_severity;
+
+      if (severity === 'RED') {
+        return 'alert';
+      } else if (severity === 'YELLOW') {
+        return 'warning';
+      } else if (severity === 'GREEN') {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
     // TODO: Add other sections when their alert logic is implemented
-    // case 'GIBS':
+    // case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
+    // case 'COUNTERBALANCE_CYLINDER_AIRBAG':
     // etc.
 
     default:

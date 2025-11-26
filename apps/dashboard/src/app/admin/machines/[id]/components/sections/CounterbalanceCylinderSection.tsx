@@ -229,7 +229,7 @@ export const CounterbalanceCylinderSection = forwardRef<
   }));
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <Tabs defaultValue="outer" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="outer">{t('outer')}</TabsTrigger>

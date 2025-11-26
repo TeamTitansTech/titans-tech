@@ -418,7 +418,7 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       <Collapsible open={isOpen} onOpenChange={onOpenChange}>
         <CollapsibleTrigger className="w-full"></CollapsibleTrigger>
         <CollapsibleContent>
-          <div className="border border-t-0 rounded-b-lg px-6 pb-6 pt-4 bg-card">
+          <div className="border border-t-0 rounded-b-lg bg-card">
             <SlideForm
               data={formData}
               updateFn={updateField}
