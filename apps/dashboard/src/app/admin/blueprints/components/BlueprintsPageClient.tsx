@@ -5,9 +5,12 @@ import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { BlueprintCard } from './BlueprintCard';
 import { BlueprintCreationModal } from './BlueprintCreationModal';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Typography } from '@/components/ui/typography';
+import { deleteBlueprint } from '@/data/services/blueprints.api';
+import { toast } from 'sonner';
 
 interface Blueprint {
   id: string;
@@ -25,11 +28,34 @@ interface BlueprintsPageClientProps {
 
 export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [blueprintToDelete, setBlueprintToDelete] = useState<string | null>(null);
   const router = useInternalRouter();
   const t = useTranslations('models');
 
   const handleSuccess = () => {
     router.refresh();
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setBlueprintToDelete(id);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!blueprintToDelete) return;
+
+    const response = await deleteBlueprint(blueprintToDelete);
+
+    if (response.errors) {
+      toast.error(t('deleteError'));
+    } else {
+      toast.success(t('deleteSuccess'));
+      router.refresh();
+    }
+
+    setDeleteDialogOpen(false);
+    setBlueprintToDelete(null);
   };
 
   return (
@@ -60,6 +86,7 @@ export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) 
                 description={blueprint.sections.join(', ') || t('noDescription')}
                 machineCount={blueprint._count?.machines || 0}
                 fieldCount={blueprint.fields.length}
+                onDelete={handleDeleteClick}
               />
             ))}
           </div>
@@ -70,6 +97,16 @@ export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={handleSuccess}
+      />
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        title={t('deleteConfirm.title')}
+        description={t('deleteConfirm.description')}
+        confirmText={t('deleteConfirm.confirm')}
+        cancelText={t('deleteConfirm.cancel')}
       />
     </>
   );

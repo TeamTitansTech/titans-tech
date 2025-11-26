@@ -58,3 +58,9 @@ export const createBlueprint = async (payload: CreateBlueprintPayload) => {
 export const getBlueprints = async () => {
   return await responseHandler<Blueprint[]>('/blueprints');
 };
+
+export const deleteBlueprint = async (id: string) => {
+  return await responseHandler<Blueprint>(`/blueprints/${id}`, {
+    method: 'DELETE',
+  });
+};

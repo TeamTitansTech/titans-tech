@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Boxes, Edit, Copy, Trash2 } from 'lucide-react';
-import Link from 'next/link';
+import { Boxes, Edit, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 interface BlueprintCardProps {
@@ -14,6 +13,7 @@ interface BlueprintCardProps {
   description: string;
   machineCount: number;
   fieldCount: number;
+  onDelete: (id: string) => void;
 }
 
 export function BlueprintCard({
@@ -22,6 +22,7 @@ export function BlueprintCard({
   description,
   machineCount,
   fieldCount,
+  onDelete,
 }: BlueprintCardProps) {
   const t = useTranslations('models');
 
@@ -58,16 +59,21 @@ export function BlueprintCard({
             </Badge>
           </div>
           <div className="flex gap-2">
-            <Button asChild variant="outline" className="flex-1" size="sm">
-              <Link href={`/admin/blueprints/${id}`}>
-                <Edit className="w-4 h-4 mr-2" />
-                {t('edit')}
-              </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled
+              className="flex-1 cursor-not-allowed opacity-50"
+            >
+              <Edit className="w-4 h-4 mr-2" />
+              {t('edit')}
             </Button>
-            <Button variant="outline" size="sm">
-              <Copy className="w-4 h-4" />
-            </Button>
-            <Button variant="outline" size="sm">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onDelete(id)}
+              className="text-destructive hover:bg-destructive/10"
+            >
               <Trash2 className="w-4 h-4" />
             </Button>
           </div>

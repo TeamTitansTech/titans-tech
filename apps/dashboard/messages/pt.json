@@ -680,6 +680,15 @@
     "field": "campo",
     "fields": "campos",
     "edit": "Editar",
+    "delete": "Excluir",
+    "deleteSuccess": "Modelo excluído com sucesso",
+    "deleteError": "Erro ao excluir modelo",
+    "deleteConfirm": {
+      "title": "Excluir modelo?",
+      "description": "Esta ação não pode ser desfeita. O modelo será excluído permanentemente.",
+      "confirm": "Sim, excluir",
+      "cancel": "Cancelar"
+    },
     "form": {
       "basicInfo": {
         "title": "Informações Básicas"
