@@ -255,6 +255,11 @@ export function ServiceCompletionModal({
     e?.stopPropagation();
 
     if (currentStep === 'details') {
+      if (isCompletingService && (!performedBy || performedBy.trim() === '')) {
+        toast.error(tErrors('performedByRequired'), { duration: 5000 });
+        return;
+      }
+
       // Create or update service
       if (!currentServiceId) {
         // Create new service
