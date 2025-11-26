@@ -150,7 +150,11 @@ function FrontToBackTable({ data, t }: CalculatedTableProps) {
 }
 
 // Tabela para Before Tool Installation
-function BeforeToolTable({ data, t }: CalculatedTableProps) {
+function BeforeToolTable({
+  data,
+  t,
+  hideUsable = false,
+}: CalculatedTableProps & { hideUsable?: boolean }) {
   const calculated = useMemo(() => calculateGibsFields(data), [data]);
 
   return (
@@ -179,12 +183,14 @@ function BeforeToolTable({ data, t }: CalculatedTableProps) {
                 {calculated.backBottom.toFixed(4)}
               </td>
             </tr>
-            <tr>
-              <td className="border p-2 font-medium bg-muted">{t('form.gibs.usable')}</td>
-              <td className="border p-2 text-center font-mono" colSpan={2}>
-                {calculated.usable?.toFixed(4) ?? '0.0000'}
-              </td>
-            </tr>
+            {!hideUsable && (
+              <tr>
+                <td className="border p-2 font-medium bg-muted">{t('form.gibs.usable')}</td>
+                <td className="border p-2 text-center font-mono" colSpan={2}>
+                  {calculated.usable?.toFixed(4) ?? '0.0000'}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -193,7 +199,11 @@ function BeforeToolTable({ data, t }: CalculatedTableProps) {
 }
 
 // Tabela para After Tool Installation
-function AfterToolTable({ data, t }: CalculatedTableProps) {
+function AfterToolTable({
+  data,
+  t,
+  hideUsable = false,
+}: CalculatedTableProps & { hideUsable?: boolean }) {
   const addPoints = (a: number | undefined, b: number | undefined): string => {
     const numA = typeof a === 'number' ? a : 0;
     const numB = typeof b === 'number' ? b : 0;
@@ -229,7 +239,11 @@ function AfterToolTable({ data, t }: CalculatedTableProps) {
 }
 
 // Tabela para Left to Right (inner adjustment e outer after install)
-function LeftToRightTable({ data, t }: CalculatedTableProps) {
+function LeftToRightTable({
+  data,
+  t,
+  hideUsable = false,
+}: CalculatedTableProps & { hideUsable?: boolean }) {
   const calculated = useMemo(() => calculateGibsFields(data), [data]);
 
   return (
@@ -258,7 +272,7 @@ function LeftToRightTable({ data, t }: CalculatedTableProps) {
                 {calculated.rightBottom.toFixed(4)}
               </td>
             </tr>
-            {calculated.usable !== undefined && (
+            {!hideUsable && calculated.usable !== undefined && (
               <tr>
                 <td className="border p-2 font-medium bg-muted">{t('form.gibs.usable')}</td>
                 <td className="border p-2 text-center font-mono" colSpan={2}>
@@ -280,6 +294,7 @@ interface MeasurementSectionProps {
   errors: Record<string, string>;
   diagramType: 'frontToBack' | 'leftToRight' | 'topView' | 'beforeTool' | 'afterTool';
   t: TranslationFunction;
+  hideUsable?: boolean;
 }
 
 export function MeasurementSection({
@@ -289,6 +304,7 @@ export function MeasurementSection({
   errors,
   diagramType,
   t,
+  hideUsable = false,
 }: MeasurementSectionProps) {
   const diagramPath = useMemo(() => {
     if (diagramType === 'topView') return '/assets/gibs/top.png';
@@ -337,11 +353,11 @@ export function MeasurementSection({
       case 'frontToBack':
         return <FrontToBackTable data={data} t={t} />;
       case 'beforeTool':
-        return <BeforeToolTable data={data} t={t} />;
+        return <BeforeToolTable data={data} t={t} hideUsable={hideUsable} />;
       case 'afterTool':
-        return <AfterToolTable data={data} t={t} />;
+        return <AfterToolTable data={data} t={t} hideUsable={hideUsable} />;
       case 'leftToRight':
-        return <LeftToRightTable data={data} t={t} />;
+        return <LeftToRightTable data={data} t={t} hideUsable={hideUsable} />;
       default:
         return null;
     }
@@ -362,7 +378,6 @@ export function MeasurementSection({
             errors={errors}
             t={t}
           />
-
           <div className="flex justify-center items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -372,7 +387,6 @@ export function MeasurementSection({
               style={{ maxHeight: '300px' }}
             />
           </div>
-
           <MeasurementInputs
             points={relevantPointsRight}
             data={data}

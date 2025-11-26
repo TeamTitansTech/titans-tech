@@ -840,6 +840,7 @@ model MachineServiceGibs {
   outerBeforeAdjustmentId        String?
   outerAfterAdjustmentId         String?
   outerFreeHangingAfterInstallId String?
+  haveInnerGibsBeenAdjusted      YesNoDncType?
   innerBeforeAdjustmentId        String?
   innerAfterAdjustmentId         String?
   innerBeforeToolInstallationId  String?

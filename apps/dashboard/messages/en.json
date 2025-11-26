@@ -1023,7 +1023,8 @@
         "beforeToolInstallation": "Before Tool Installation",
         "afterToolInstallation": "After Tool Installation",
         "adjustment": "Adjustment",
-        "installation": "Installation"
+        "installation": "Installation",
+        "haveInnerGibsBeenAdjusted": "Have Inner gibs been adjusted"
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "System Pressures (PSI)",

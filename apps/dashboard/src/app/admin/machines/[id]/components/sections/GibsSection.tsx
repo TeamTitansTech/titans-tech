@@ -3,7 +3,15 @@
 import { forwardRef, useImperativeHandle, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type { GibsStageData } from '@/data/types/services.types';
+import { YesNoDncType } from '@/data/types/services.types';
 import { GibsForm } from '../forms/GibsForm';
 import { isDataTouched } from './utils';
 import { useTranslations } from 'next-intl';
@@ -126,6 +134,7 @@ export interface GibsSectionData {
   outerBeforeAdjustment?: GibsStageData;
   outerAfterAdjustment?: GibsStageData;
   outerFreeHangingAfterInstall?: GibsStageData;
+  haveInnerGibsBeenAdjusted?: 'YES' | 'NO' | 'DNC';
   innerBeforeAdjustment?: GibsStageData;
   innerAfterAdjustment?: GibsStageData;
   innerBeforeToolInstallation?: GibsStageData;
@@ -207,7 +216,11 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     const innerAfterToolInstallation = useStageState(initialData?.innerAfterToolInstallation);
 
     const [notes, setNotes] = useState(initialData?.notes || '');
+    const [haveInnerGibsBeenAdjusted, setHaveInnerGibsBeenAdjusted] = useState<
+      'YES' | 'NO' | 'DNC' | undefined
+    >(initialData?.haveInnerGibsBeenAdjusted);
     const t = useTranslations('inspections');
+    const tCommon = useTranslations('common');
 
     const wrapUpdateFn = (updateFn: (field: keyof GibsStageData, value: number) => void) => {
       return (field: keyof GibsStageData, value: number) => {
@@ -291,6 +304,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
               outerFreeHangingAfterInstall: stages.outerFreeHangingAfterInstall
                 ? outerFreeHangingAfterInstall.data
                 : undefined,
+              haveInnerGibsBeenAdjusted,
               innerBeforeAdjustment: stages.innerBeforeAdjustment
                 ? innerBeforeAdjustment.data
                 : undefined,
@@ -342,6 +356,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           outerFreeHangingAfterInstall: stages.outerFreeHangingAfterInstall
             ? outerFreeHangingAfterInstall.data
             : undefined,
+          haveInnerGibsBeenAdjusted,
           innerBeforeAdjustment: stages.innerBeforeAdjustment
             ? innerBeforeAdjustment.data
             : undefined,
@@ -408,6 +423,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
         outerBeforeAdjustment.setData(defaultGibsStageData);
         outerAfterAdjustment.setData(defaultGibsStageData);
         outerFreeHangingAfterInstall.setData(defaultGibsStageData);
+        setHaveInnerGibsBeenAdjusted(undefined);
         innerBeforeAdjustment.setData(defaultGibsStageData);
         innerAfterAdjustment.setData(defaultGibsStageData);
         innerBeforeToolInstallation.setData(defaultGibsStageData);
@@ -446,6 +462,27 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
                 handleBlur: outerFreeHangingAfterInstall.handleBlur,
               }}
             />
+            <div className="mt-4">
+              <Label htmlFor="have-inner-gibs-been-adjusted" className="text-xs">
+                {t('form.gibs.haveInnerGibsBeenAdjusted')}
+              </Label>
+              <Select
+                value={haveInnerGibsBeenAdjusted}
+                onValueChange={(value) => {
+                  setHaveInnerGibsBeenAdjusted(value as 'YES' | 'NO' | 'DNC');
+                  onSectionTouched?.();
+                }}
+              >
+                <SelectTrigger className="mt-1" id="have-inner-gibs-been-adjusted">
+                  <SelectValue placeholder={t('form.placeholders.select')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={YesNoDncType.YES}>{tCommon('status.yes')}</SelectItem>
+                  <SelectItem value={YesNoDncType.NO}>{tCommon('status.no')}</SelectItem>
+                  <SelectItem value={YesNoDncType.DNC}>{tCommon('status.dnc')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </TabsContent>
 
           <TabsContent value="inner" className="space-y-4">

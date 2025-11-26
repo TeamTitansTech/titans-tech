@@ -912,6 +912,11 @@ export class ServicesService {
           'innerAfterToolInstallationId',
         );
 
+        if (updateDto.haveInnerGibsBeenAdjusted !== undefined) {
+          updatePayload.haveInnerGibsBeenAdjusted =
+            updateDto.haveInnerGibsBeenAdjusted;
+        }
+
         if (updateDto.notes !== undefined) {
           updatePayload.notes = updateDto.notes;
         }
@@ -940,49 +945,45 @@ export class ServicesService {
           gibs: {
             create: {
               ...(updateDto.outerBeforeAdjustment && {
-                service_data_gibs_stage_machine_service_gibs_outerBeforeAdjustmentIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.outerBeforeAdjustment,
-                  },
+                outerBeforeAdjustment: {
+                  create: updateDto.outerBeforeAdjustment,
+                },
               }),
               ...(updateDto.outerAfterAdjustment && {
-                service_data_gibs_stage_machine_service_gibs_outerAfterAdjustmentIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.outerAfterAdjustment,
-                  },
+                outerAfterAdjustment: {
+                  create: updateDto.outerAfterAdjustment,
+                },
               }),
               ...(updateDto.outerFreeHangingAfterInstall && {
-                service_data_gibs_stage_machine_service_gibs_outerFreeHangingAfterInstallIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.outerFreeHangingAfterInstall,
-                  },
+                outerFreeHangingAfterInstall: {
+                  create: updateDto.outerFreeHangingAfterInstall,
+                },
+              }),
+              ...(updateDto.haveInnerGibsBeenAdjusted && {
+                haveInnerGibsBeenAdjusted: updateDto.haveInnerGibsBeenAdjusted,
               }),
               ...(updateDto.innerBeforeAdjustment && {
-                service_data_gibs_stage_machine_service_gibs_innerBeforeAdjustmentIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.innerBeforeAdjustment,
-                  },
+                innerBeforeAdjustment: {
+                  create: updateDto.innerBeforeAdjustment,
+                },
               }),
               ...(updateDto.innerAfterAdjustment && {
-                service_data_gibs_stage_machine_service_gibs_innerAfterAdjustmentIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.innerAfterAdjustment,
-                  },
+                innerAfterAdjustment: {
+                  create: updateDto.innerAfterAdjustment,
+                },
               }),
               ...(updateDto.innerBeforeToolInstallation && {
-                service_data_gibs_stage_machine_service_gibs_innerBeforeToolInstallationIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.innerBeforeToolInstallation,
-                  },
+                innerBeforeToolInstallation: {
+                  create: updateDto.innerBeforeToolInstallation,
+                },
               }),
               ...(updateDto.innerAfterToolInstallation && {
-                service_data_gibs_stage_machine_service_gibs_innerAfterToolInstallationIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.innerAfterToolInstallation,
-                  },
+                innerAfterToolInstallation: {
+                  create: updateDto.innerAfterToolInstallation,
+                },
               }),
               ...(updateDto.notes && { notes: updateDto.notes }),
-            } as any,
+            },
           },
         },
       });

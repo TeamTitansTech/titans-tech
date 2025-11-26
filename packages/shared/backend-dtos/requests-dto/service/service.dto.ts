@@ -266,6 +266,7 @@ export const GibsCheckSchema = z.object({
   outerBeforeAdjustment: GibsStageDataSchema.optional(),
   outerAfterAdjustment: GibsStageDataSchema.optional(),
   outerFreeHangingAfterInstall: GibsStageDataSchema.optional(),
+  haveInnerGibsBeenAdjusted: z.nativeEnum(PrismaYesNoDncType).optional(),
   innerBeforeAdjustment: GibsStageDataSchema.optional(),
   innerAfterAdjustment: GibsStageDataSchema.optional(),
   innerBeforeToolInstallation: GibsStageDataSchema.optional(),
