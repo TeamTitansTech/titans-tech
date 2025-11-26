@@ -103,21 +103,6 @@ export function BackendStack() {
     link: [database, redis],
   });
 
-  // Create S3 bucket for file uploads
-  const bucket = new sst.aws.Bucket('Uploads', {
-    public: false,
-    cors: {
-      maxAge: '1 day',
-      allowedOrigins: isProd
-        ? ['https://app.titans-tech.com', 'https://www.titans-tech.com']
-        : isStaging
-          ? ['https://staging.titans-tech.com']
-          : ['http://localhost:3000'],
-      allowedMethods: ['GET', 'PUT', 'POST', 'DELETE'],
-      allowedHeaders: ['*'],
-    },
-  });
-
   // Create CloudFront CDN for static assets
   const cdn = new sst.aws.Cdn('BackendCdn', {
     origin: backend.url,
@@ -144,6 +129,5 @@ export function BackendStack() {
       host: redis.host,
       port: redis.port,
     },
-    bucket: bucket.name,
   };
 }
