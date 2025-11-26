@@ -23,10 +23,6 @@ import {
 } from '@titans-tech/shared/backend-dtos';
 import { AlertsService } from '../alerts/alerts.service';
 
-// Note: Tramming and Pistons data schemas now match Prisma directly
-// (fields like topTop, lhTop instead of outerTopTop, outerLhTop)
-// No transformation is needed - outerData/innerData are handled by the parent Check schema
-
 @Injectable()
 export class ServicesService {
   constructor(
