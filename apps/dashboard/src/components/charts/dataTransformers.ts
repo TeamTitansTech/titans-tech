@@ -49,19 +49,46 @@ export function transformBearingClearanceToMultiLineData(
 }
 
 /**
- * Transform clutch inspection data to chart format
+ * Transform clutch inspection data to single-line chart format
  */
 export function transformClutchToChartData(
   inspections: any[],
   measurementField: keyof ClutchData,
 ): MeasurementDataPoint[] {
   return inspections
-    .filter((inspection) => inspection.clutchChecks?.[0]?.data)
+    .filter((inspection) => inspection.clutch?.[0]?.data)
     .map((inspection) => ({
       date: format(new Date(inspection.date), 'dd/MM/yyyy'),
-      value: Number(inspection.clutchChecks[0].data![measurementField]),
+      value: Number(inspection.clutch[0].data![measurementField]),
       label: format(new Date(inspection.date), 'dd/MM/yyyy'),
     }))
+    .reverse();
+}
+
+/**
+ * Transform clutch inspection data to multi-line chart format
+ * @param inspections - Array of inspection data
+ * @param measurementFields - Array of field names to include in the chart
+ */
+export function transformClutchToMultiLineData(
+  inspections: any[],
+  measurementFields: (keyof ClutchData)[],
+): MultiLineMeasurementData[] {
+  return inspections
+    .filter((inspection) => inspection.clutch?.[0]?.data)
+    .map((inspection) => {
+      const clutchData = inspection.clutch[0].data!;
+      const result: MultiLineMeasurementData = {
+        date: format(new Date(inspection.date), 'dd/MM/yyyy'),
+      };
+
+      measurementFields.forEach((field) => {
+        const value = clutchData[field];
+        result[field as string] = value !== null && value !== undefined ? Number(value) : 0;
+      });
+
+      return result;
+    })
     .reverse();
 }
 
