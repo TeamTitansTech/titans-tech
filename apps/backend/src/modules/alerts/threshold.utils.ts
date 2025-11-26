@@ -150,3 +150,62 @@ export function convertPartialClutchThresholdToDecimal<
   });
   return data as PartialClutchThresholdDecimalData;
 }
+
+/**
+ * List of all slide threshold field names
+ */
+export const SLIDE_THRESHOLD_FIELDS = [
+  'maxDeviation_greenMin',
+  'maxDeviation_yellowMin',
+  'maxDeviation_redMin',
+] as const;
+
+export type SlideThresholdFieldName = (typeof SLIDE_THRESHOLD_FIELDS)[number];
+
+/**
+ * Type for complete slide threshold data with Decimal fields
+ */
+export type SlideThresholdDecimalData = {
+  [K in SlideThresholdFieldName]: Decimal;
+};
+
+/**
+ * Type for partial slide threshold data with Decimal fields
+ */
+export type PartialSlideThresholdDecimalData = {
+  [K in SlideThresholdFieldName]?: Decimal;
+};
+
+/**
+ * Converts slide threshold DTO fields to Decimal type for Prisma (all fields)
+ *
+ * @param dto - Slide threshold data object with all fields
+ * @returns Object with all Decimal-converted threshold fields
+ */
+export function convertSlideThresholdToDecimal<T extends Record<string, any>>(
+  dto: T,
+): SlideThresholdDecimalData {
+  return SLIDE_THRESHOLD_FIELDS.reduce((acc, field) => {
+    acc[field] = new Decimal(dto[field]);
+    return acc;
+  }, {} as any) as SlideThresholdDecimalData;
+}
+
+/**
+ * Converts partial slide threshold DTO fields to Decimal type for Prisma
+ *
+ * @param dto - Partial slide threshold data object
+ * @returns Object with Decimal-converted threshold fields (only provided fields)
+ */
+export function convertPartialSlideThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): PartialSlideThresholdDecimalData {
+  const data: any = {};
+  Object.keys(dto).forEach((key) => {
+    const value = dto[key];
+    if (value !== undefined && SLIDE_THRESHOLD_FIELDS.includes(key as any)) {
+      data[key] = new Decimal(value);
+    }
+  });
+  return data as PartialSlideThresholdDecimalData;
+}

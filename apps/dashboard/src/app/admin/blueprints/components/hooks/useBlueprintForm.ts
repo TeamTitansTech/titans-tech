@@ -5,6 +5,7 @@ import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { createBlueprint } from '@/data/services/blueprints.api';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
+import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
 import { type Field } from '../types';
 
 // Client-safe slug to enum mapping
@@ -58,6 +59,12 @@ const INITIAL_CLUTCH_THRESHOLDS: ClutchThresholdsData = {
   rTB_redMin: 0.015,
 };
 
+const INITIAL_SLIDE_THRESHOLDS: SlideThresholdsData = {
+  maxDeviation_greenMin: 0.001,
+  maxDeviation_yellowMin: 0.002,
+  maxDeviation_redMin: 0.003,
+};
+
 export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const t = useTranslations('models');
   const [name, setName] = useState('');
@@ -67,6 +74,9 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const [clutchThresholdsOpen, setClutchThresholdsOpen] = useState(false);
   const [clutchThresholds, setClutchThresholds] =
     useState<ClutchThresholdsData>(INITIAL_CLUTCH_THRESHOLDS);
+  const [slideThresholdsOpen, setSlideThresholdsOpen] = useState(false);
+  const [slideThresholds, setSlideThresholds] =
+    useState<SlideThresholdsData>(INITIAL_SLIDE_THRESHOLDS);
 
   const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
 
@@ -89,9 +99,15 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
       if (hasClutchThresholdChanges) return true;
 
+      const hasSlideThresholdChanges = (
+        Object.keys(slideThresholds) as Array<keyof SlideThresholdsData>
+      ).some((key) => slideThresholds[key] !== INITIAL_SLIDE_THRESHOLDS[key]);
+
+      if (hasSlideThresholdChanges) return true;
+
       return false;
     },
-    [name, selectedSections, thresholds, clutchThresholds],
+    [name, selectedSections, thresholds, clutchThresholds, slideThresholds],
   );
 
   const toggleSection = (section: string) => {
@@ -110,6 +126,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
     const hasBearingClearance = selectedSections.includes('bearing_clearance');
     const hasClutch = selectedSections.includes('clutch');
+    const hasSlide = selectedSections.includes('slide');
 
     interface BlueprintField {
       fieldName: string;
@@ -124,6 +141,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       fields: BlueprintField[];
       thresholds?: BearingClearanceThresholdsData;
       clutchThresholds?: ClutchThresholdsData;
+      slideThresholds?: SlideThresholdsData;
     }
 
     const payload: CreateBlueprintPayload = {
@@ -157,6 +175,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       payload.clutchThresholds = clutchThresholds;
     }
 
+    if (hasSlide) {
+      payload.slideThresholds = slideThresholds;
+    }
+
     const response = await submitBlueprint(payload);
 
     if (response.data) {
@@ -165,7 +187,9 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       setSelectedSections([]);
       setThresholdsOpen(false);
       setClutchThresholdsOpen(false);
+      setSlideThresholdsOpen(false);
       resetThresholds();
+      resetSlideThresholds();
       resetFields();
       resetOptions();
       onSuccess?.();
@@ -176,6 +200,11 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const resetThresholds = useCallback(() => {
     setThresholds(INITIAL_THRESHOLDS);
     setClutchThresholds(INITIAL_CLUTCH_THRESHOLDS);
+    setSlideThresholds(INITIAL_SLIDE_THRESHOLDS);
+  }, []);
+
+  const resetSlideThresholds = useCallback(() => {
+    setSlideThresholds(INITIAL_SLIDE_THRESHOLDS);
   }, []);
 
   const reset = useCallback(() => {
@@ -183,8 +212,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setSelectedSections([]);
     setThresholdsOpen(false);
     setClutchThresholdsOpen(false);
+    setSlideThresholdsOpen(false);
     resetThresholds();
-  }, [resetThresholds]);
+    resetSlideThresholds();
+  }, [resetThresholds, resetSlideThresholds]);
 
   return {
     name,
@@ -199,6 +230,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setClutchThresholdsOpen,
     clutchThresholds,
     setClutchThresholds,
+    slideThresholdsOpen,
+    setSlideThresholdsOpen,
+    slideThresholds,
+    setSlideThresholds,
     isLoading,
     result,
     handleSubmit,

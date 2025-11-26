@@ -69,6 +69,31 @@ export const ThresholdsSchema = z
 
 export type ThresholdsDto = z.infer<typeof ThresholdsSchema>;
 
+// Schema para thresholds do Slide
+export const SlideThresholdsSchema = z
+  .object({
+    maxDeviation_greenMin: z.number().positive(),
+    maxDeviation_yellowMin: z.number().positive(),
+    maxDeviation_redMin: z.number().positive(),
+  })
+  .refine(
+    (data) => {
+      // Validate that yellowMin > greenMin and redMin > yellowMin
+      if (
+        data.maxDeviation_yellowMin <= data.maxDeviation_greenMin ||
+        data.maxDeviation_redMin <= data.maxDeviation_yellowMin
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Must have greenMin < yellowMin < redMin',
+    },
+  );
+
+export type SlideThresholdsDto = z.infer<typeof SlideThresholdsSchema>;
+
 // Schema combinado: Blueprint + Thresholds opcionais
 export const CreateBlueprintWithThresholdsSchema = z
   .object({
@@ -77,6 +102,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     sections: z.array(z.nativeEnum(ServiceSection)),
     thresholds: ThresholdsSchema.optional(),
     clutchThresholds: ClutchThresholdsSchema.optional(),
+    slideThresholds: SlideThresholdsSchema.optional(),
   })
   .refine(
     (data) => {
@@ -86,6 +112,10 @@ export const CreateBlueprintWithThresholdsSchema = z
       }
       // Se clutchThresholds fornecidos, CLUTCH deve estar em sections
       if (data.clutchThresholds && !data.sections.includes(ServiceSection.CLUTCH)) {
+        return false;
+      }
+      // Se slideThresholds fornecidos, SLIDE deve estar em sections
+      if (data.slideThresholds && !data.sections.includes(ServiceSection.SLIDE)) {
         return false;
       }
       return true;

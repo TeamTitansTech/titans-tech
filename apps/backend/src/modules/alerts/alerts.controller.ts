@@ -19,6 +19,10 @@ import {
   CreateThresholdClutchDto,
   UpdateThresholdClutchSchema,
   UpdateThresholdClutchDto,
+  CreateThresholdSlideDto,
+  UpdateThresholdSlideDto,
+  CreateThresholdSlideSchema,
+  UpdateThresholdSlideSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, Authenticated } from '../auth/auth.decorators';
@@ -122,5 +126,56 @@ export class ClutchAlertsController {
   @Post('service/:serviceId/generate')
   async generateClutchAlerts(@Param('serviceId') serviceId: string) {
     return this.alertsService.generateClutchAlertsForService(serviceId);
+  }
+}
+
+@Controller('alerts/slide')
+@UseInterceptors(ClassSerializerInterceptor)
+export class AlertsSlideController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getSlideThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getSlideThresholdByBlueprint(blueprintId);
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createSlideThreshold(
+    @Body(new ZodValidationPipe(CreateThresholdSlideSchema))
+    dto: CreateThresholdSlideDto,
+  ) {
+    return this.alertsService.createSlideThreshold(dto);
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updateSlideThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(new ZodValidationPipe(UpdateThresholdSlideSchema))
+    dto: UpdateThresholdSlideDto,
+  ) {
+    return this.alertsService.updateSlideThreshold(blueprintId, dto);
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deleteSlideThreshold(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.deleteSlideThreshold(blueprintId);
+  }
+
+  @Authenticated()
+  @Get('service/:serviceId')
+  async getSlideAlertByService(@Param('serviceId') serviceId: string) {
+    return this.alertsService.getSlideAlertByService(serviceId);
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generateSlideAlerts(@Param('serviceId') serviceId: string) {
+    return this.alertsService.generateAlertsForSlide(serviceId);
   }
 }

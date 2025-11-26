@@ -15,8 +15,9 @@ export {
   SlideSection,
   type SlideSectionRef,
   type SlideSectionData,
-  defaultSlideData,
-  validateSlideData,
+  type SlideFormData,
+  defaultSlideFormData,
+  validateSlideFormData,
 } from './SlideSection';
 
 export {
@@ -30,8 +31,8 @@ export {
 export {
   LubricationHydraulicsSection,
   type LubricationHydraulicsSectionRef,
-  defaultLubricationHydraulicsData,
-  validateLubricationHydraulicsData,
+  defaultLubricationHydraulicsCheck,
+  validateLubricationHydraulicsCheck,
 } from './LubricationHydraulicsSection';
 
 export {

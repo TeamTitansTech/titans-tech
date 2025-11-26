@@ -13,6 +13,7 @@ import {
 import {
   convertThresholdToDecimal,
   convertClutchThresholdToDecimal,
+  convertSlideThresholdToDecimal,
 } from '../alerts/threshold.utils';
 
 @Injectable()
@@ -52,6 +53,16 @@ export class BlueprintsService {
           data: {
             blueprintId: blueprint.id,
             ...convertClutchThresholdToDecimal(dto.clutchThresholds),
+          },
+        });
+      }
+
+      // 4. Create Slide Thresholds if provided
+      if (dto.slideThresholds) {
+        await tx.thresholdSlide.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertSlideThresholdToDecimal(dto.slideThresholds),
           },
         });
       }

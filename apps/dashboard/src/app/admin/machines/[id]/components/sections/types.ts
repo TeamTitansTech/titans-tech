@@ -3,7 +3,7 @@ import type {
   BearingClearanceCheck,
   SlideCheck,
   GibsCheck,
-  LubricationHydraulicsData,
+  LubricationHydraulicsCheck,
   ClutchData,
   CounterbalanceCylinderCheck,
   TrammingCheck,
@@ -18,7 +18,7 @@ export type SectionData =
   | BearingClearanceCheck
   | SlideCheck
   | GibsCheck
-  | LubricationHydraulicsData
+  | LubricationHydraulicsCheck
   | ClutchData
   | CounterbalanceCylinderCheck
   | TrammingCheck

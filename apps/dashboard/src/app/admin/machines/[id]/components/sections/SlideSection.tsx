@@ -12,32 +12,163 @@ import {
 import { SlideForm } from '../forms/SlideForm';
 import { isDataTouched } from './utils';
 
-export const defaultSlideData: SlideData = {
-  position1: 0,
-  position2: 0,
-  position3: 0,
-  position4: 0,
-  position5: 0,
-  position6: 0,
+// UI type that combines before/after in one object for easier form handling
+export interface SlideFormData {
+  // Metadata (shared)
+  parallelism: ParallelismType;
+  hasParallelismBeenAdjusted: YesNoNaDncType;
+  shutheightIndicatorsChecked: YesNoDncType;
+  overloadsOnTonnageMonitor: string;
+  shutheightActualSh: string;
+  indicatorReading: string;
+
+  // Before measurements (optional)
+  beforePosition1?: number;
+  beforePosition2?: number;
+  beforePosition3?: number;
+  beforePosition4?: number;
+  beforePosition5?: number;
+
+  // After/Current measurements (required)
+  afterPosition1: number;
+  afterPosition2: number;
+  afterPosition3: number;
+  afterPosition4: number;
+  afterPosition5: number;
+}
+
+export const defaultSlideFormData: SlideFormData = {
+  parallelism: ParallelismType.DNC,
+  hasParallelismBeenAdjusted: YesNoNaDncType.DNC,
+  shutheightIndicatorsChecked: YesNoDncType.DNC,
+  overloadsOnTonnageMonitor: '',
+  shutheightActualSh: '',
+  indicatorReading: '',
+  beforePosition1: undefined,
+  beforePosition2: undefined,
+  beforePosition3: undefined,
+  beforePosition4: undefined,
+  beforePosition5: undefined,
+  afterPosition1: 0,
+  afterPosition2: 0,
+  afterPosition3: 0,
+  afterPosition4: 0,
+  afterPosition5: 0,
 };
 
-export const validateSlideData = (data: SlideData): string[] => {
+// Convert API data (4 separate SlideData objects) to UI form data
+function convertToFormData(
+  beforeData: SlideData | undefined,
+  afterData: SlideData | undefined,
+): SlideFormData {
+  const metadata = afterData || beforeData || ({} as Partial<SlideData>);
+
+  return {
+    // Metadata from either record (prefer afterData)
+    parallelism: metadata.parallelism || ParallelismType.DNC,
+    hasParallelismBeenAdjusted: metadata.hasParallelismBeenAdjusted || YesNoNaDncType.DNC,
+    shutheightIndicatorsChecked: metadata.shutheightIndicatorsChecked || YesNoDncType.DNC,
+    overloadsOnTonnageMonitor: metadata.overloadsOnTonnageMonitor || '',
+    shutheightActualSh: metadata.shutheightActualSh || '',
+    indicatorReading: metadata.indicatorReading || '',
+
+    // Before measurements
+    beforePosition1: beforeData?.position1,
+    beforePosition2: beforeData?.position2,
+    beforePosition3: beforeData?.position3,
+    beforePosition4: beforeData?.position4,
+    beforePosition5: beforeData?.position5,
+
+    // After measurements
+    afterPosition1: afterData?.position1 || 0,
+    afterPosition2: afterData?.position2 || 0,
+    afterPosition3: afterData?.position3 || 0,
+    afterPosition4: afterData?.position4 || 0,
+    afterPosition5: afterData?.position5 || 0,
+  };
+}
+
+// Convert UI form data to API data (2 separate SlideData objects)
+function convertFromFormData(formData: SlideFormData): {
+  beforeData: SlideData | undefined;
+  afterData: SlideData;
+} {
+  const metadata = {
+    parallelism: formData.parallelism,
+    hasParallelismBeenAdjusted: formData.hasParallelismBeenAdjusted,
+    shutheightIndicatorsChecked: formData.shutheightIndicatorsChecked,
+    overloadsOnTonnageMonitor: formData.overloadsOnTonnageMonitor,
+    shutheightActualSh: formData.shutheightActualSh,
+    indicatorReading: formData.indicatorReading,
+  };
+
+  const hasBeforeData =
+    formData.beforePosition1 !== undefined &&
+    formData.beforePosition2 !== undefined &&
+    formData.beforePosition3 !== undefined &&
+    formData.beforePosition4 !== undefined &&
+    formData.beforePosition5 !== undefined;
+
+  const beforeData: SlideData | undefined = hasBeforeData
+    ? {
+        ...metadata,
+        position1: formData.beforePosition1!,
+        position2: formData.beforePosition2!,
+        position3: formData.beforePosition3!,
+        position4: formData.beforePosition4!,
+        position5: formData.beforePosition5!,
+      }
+    : undefined;
+
+  const afterData: SlideData = {
+    ...metadata,
+    position1: formData.afterPosition1,
+    position2: formData.afterPosition2,
+    position3: formData.afterPosition3,
+    position4: formData.afterPosition4,
+    position5: formData.afterPosition5,
+  };
+
+  return { beforeData, afterData };
+}
+
+// Validate form data (with before/after fields)
+export const validateSlideFormData = (data: SlideFormData): string[] => {
   const errors: string[] = [];
-  const requiredFields: (keyof SlideData)[] = [
-    'position1',
-    'position2',
-    'position3',
-    'position4',
-    'position5',
+
+  // After positions are always required
+  const afterFields: Array<keyof SlideFormData> = [
+    'afterPosition1',
+    'afterPosition2',
+    'afterPosition3',
+    'afterPosition4',
+    'afterPosition5',
   ];
 
-  requiredFields.forEach((field) => {
+  afterFields.forEach((field) => {
     const value = data[field];
-    // Only validate if field exists in data
-    if (value !== undefined && (typeof value !== 'number' || isNaN(value))) {
+    if (value === undefined || value === null || typeof value !== 'number' || isNaN(value)) {
       errors.push(`${String(field)} is required and must be a valid number`);
     }
   });
+
+  // If hasParallelismBeenAdjusted is YES, before measurements should be filled
+  if (data.hasParallelismBeenAdjusted === YesNoNaDncType.YES) {
+    const beforeFields: Array<keyof SlideFormData> = [
+      'beforePosition1',
+      'beforePosition2',
+      'beforePosition3',
+      'beforePosition4',
+      'beforePosition5',
+    ];
+
+    beforeFields.forEach((field) => {
+      const value = data[field];
+      if (value === undefined || value === null || isNaN(value as number)) {
+        errors.push(`${String(field)} is required when hasParallelismBeenAdjusted is YES`);
+      }
+    });
+  }
 
   return errors;
 };
@@ -47,18 +178,6 @@ export interface SlideSectionData {
   outerData?: SlideData;
   innerBefore?: SlideData;
   innerData?: SlideData;
-  outerParallelism?: ParallelismType;
-  outerHasParallelismBeenAdjusted?: YesNoNaDncType;
-  innerParallelism?: ParallelismType;
-  innerHasParallelismBeenAdjusted?: YesNoNaDncType;
-  outerShutheightIndicatorsChecked?: YesNoDncType;
-  outerOverloadsOnTonnageMonitor?: string;
-  outerShutheightActualSh?: string;
-  outerIndicatorReading?: string;
-  innerShutheightIndicatorsChecked?: YesNoDncType;
-  innerOverloadsOnTonnageMonitor?: string;
-  innerShutheightActualSh?: string;
-  innerIndicatorReading?: string;
   notes?: string;
 }
 
@@ -78,55 +197,38 @@ interface SlideSectionProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSectionTouched?: () => void;
-  serviceType: ServiceType;
   initialData?: SlideSectionData;
 }
 
 export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
-  ({ isOpen, onOpenChange, onSectionTouched, serviceType, initialData }, ref) => {
+  ({ isOpen, onOpenChange, onSectionTouched, initialData }, ref) => {
+    // Convert API data (4 objects) to form data (2 objects with before/after fields)
+    const initialOuterFormData = convertToFormData(
+      initialData?.outerBefore,
+      initialData?.outerData,
+    );
+    const initialInnerFormData = convertToFormData(
+      initialData?.innerBefore,
+      initialData?.innerData,
+    );
+
     // Store initial loaded data for "touched" detection
     const [initialFormData] = useState({
-      outerBeforeData: initialData?.outerBefore || defaultSlideData,
-      outerAfterData: initialData?.outerData || defaultSlideData,
-      innerBeforeData: initialData?.innerBefore || defaultSlideData,
-      innerAfterData: initialData?.innerData || defaultSlideData,
+      outerData: initialOuterFormData,
+      innerData: initialInnerFormData,
     });
 
     // All slide data in a single state object
     const [formData, setFormData] = useState({
-      outerBeforeData: initialData?.outerBefore || defaultSlideData,
-      outerAfterData: initialData?.outerData || defaultSlideData,
-      innerBeforeData: initialData?.innerBefore || defaultSlideData,
-      innerAfterData: initialData?.innerData || defaultSlideData,
-      outerParallelism: initialData?.outerParallelism || ParallelismType.DNC,
-      outerHasParallelismBeenAdjusted:
-        initialData?.outerHasParallelismBeenAdjusted || YesNoNaDncType.DNC,
-      innerParallelism: initialData?.innerParallelism || ParallelismType.DNC,
-      innerHasParallelismBeenAdjusted:
-        initialData?.innerHasParallelismBeenAdjusted || YesNoNaDncType.DNC,
-      outerShutheightIndicatorsChecked:
-        initialData?.outerShutheightIndicatorsChecked || YesNoDncType.DNC,
-      outerOverloadsOnTonnageMonitor: initialData?.outerOverloadsOnTonnageMonitor || '',
-      outerShutheightActualSh: initialData?.outerShutheightActualSh || '',
-      outerIndicatorReading: initialData?.outerIndicatorReading || '',
-      innerShutheightIndicatorsChecked:
-        initialData?.innerShutheightIndicatorsChecked || YesNoDncType.DNC,
-      innerOverloadsOnTonnageMonitor: initialData?.innerOverloadsOnTonnageMonitor || '',
-      innerShutheightActualSh: initialData?.innerShutheightActualSh || '',
-      innerIndicatorReading: initialData?.innerIndicatorReading || '',
+      outerData: initialOuterFormData,
+      innerData: initialInnerFormData,
       notes: initialData?.notes || '',
     });
 
     const [errors, setErrors] = useState({
-      outerBefore: {} as Record<string, string>,
-      outerAfter: {} as Record<string, string>,
-      innerBefore: {} as Record<string, string>,
-      innerAfter: {} as Record<string, string>,
+      outer: {} as Record<string, string>,
+      inner: {} as Record<string, string>,
     });
-
-    const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(
-      !!(initialData?.outerBefore || initialData?.innerBefore),
-    );
 
     // Generic update function for any field in formData
     const updateField = <K extends keyof typeof formData>(
@@ -146,27 +248,10 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
     };
 
     // Handle blur for position fields to validate
-    const handleBlur = (
-      section: 'outerBefore' | 'outerAfter' | 'innerBefore' | 'innerAfter',
-      field: keyof SlideData,
-    ) => {
-      let dataToValidate: SlideData;
-      switch (section) {
-        case 'outerBefore':
-          dataToValidate = formData.outerBeforeData;
-          break;
-        case 'outerAfter':
-          dataToValidate = formData.outerAfterData;
-          break;
-        case 'innerBefore':
-          dataToValidate = formData.innerBeforeData;
-          break;
-        case 'innerAfter':
-          dataToValidate = formData.innerAfterData;
-          break;
-      }
-
-      const error = validateField(dataToValidate[field]);
+    const handleBlur = (section: 'outer' | 'inner', field: keyof SlideFormData) => {
+      const dataToValidate = section === 'outer' ? formData.outerData : formData.innerData;
+      const value = (dataToValidate as any)[field];
+      const error = validateField(value);
       setErrors((prev) => ({
         ...prev,
         [section]: { ...prev[section], [field]: error },
@@ -175,84 +260,39 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
 
     useImperativeHandle(ref, () => ({
       isTouched: (): boolean => {
-        const outerBeforeTouched = isDataTouched(
-          formData.outerBeforeData,
-          initialFormData.outerBeforeData,
-        );
-        const outerDataTouched = isDataTouched(
-          formData.outerAfterData,
-          initialFormData.outerAfterData,
-        );
-        const innerBeforeTouched = isDataTouched(
-          formData.innerBeforeData,
-          initialFormData.innerBeforeData,
-        );
-        const innerDataTouched = isDataTouched(
-          formData.innerAfterData,
-          initialFormData.innerAfterData,
-        );
+        const outerDataTouched = isDataTouched(formData.outerData, initialFormData.outerData);
+        const innerDataTouched = isDataTouched(formData.innerData, initialFormData.innerData);
 
-        // Check if any data has been touched
-        return outerBeforeTouched || outerDataTouched || innerBeforeTouched || innerDataTouched;
+        return outerDataTouched || innerDataTouched;
       },
 
       validateAndGetData: (
-        serviceType: ServiceType,
+        _serviceType: ServiceType,
       ): { isValid: boolean; errors: string[]; data?: SlideSectionData } => {
         const validationErrors: string[] = [];
 
-        const outerBeforeTouched = isDataTouched(
-          formData.outerBeforeData,
-          initialFormData.outerBeforeData,
-        );
-        const outerDataTouched = isDataTouched(
-          formData.outerAfterData,
-          initialFormData.outerAfterData,
-        );
-        const innerBeforeTouched = isDataTouched(
-          formData.innerBeforeData,
-          initialFormData.innerBeforeData,
-        );
-        const innerDataTouched = isDataTouched(
-          formData.innerAfterData,
-          initialFormData.innerAfterData,
-        );
+        const outerDataTouched = isDataTouched(formData.outerData, initialFormData.outerData);
+        const innerDataTouched = isDataTouched(formData.innerData, initialFormData.innerData);
 
-        // For maintenance, check if before measurements are included
-        if (serviceType === ServiceType.MAINTENANCE && (outerBeforeTouched || innerBeforeTouched)) {
-          if (!outerBeforeTouched || !innerBeforeTouched) {
-            validationErrors.push(
-              'Slide: When "Include measurements before maintenance" is checked, you must fill all "Before" sections (Outer Before and Inner Before)',
-            );
-          } else {
-            validationErrors.push(
-              ...validateSlideData(formData.outerBeforeData).map((e) => `Slide Outer Before: ${e}`),
-            );
-            validationErrors.push(
-              ...validateSlideData(formData.innerBeforeData).map((e) => `Slide Inner Before: ${e}`),
-            );
-          }
-        }
-
-        // Validate current/after data if touched
+        // Validate current data if touched
         if (outerDataTouched) {
           validationErrors.push(
-            ...validateSlideData(formData.outerAfterData).map((e) => `Slide Outer: ${e}`),
+            ...validateSlideFormData(formData.outerData).map((e) => `Slide Outer: ${e}`),
           );
         }
         if (innerDataTouched) {
           validationErrors.push(
-            ...validateSlideData(formData.innerAfterData).map((e) => `Slide Inner: ${e}`),
+            ...validateSlideFormData(formData.innerData).map((e) => `Slide Inner: ${e}`),
           );
         }
 
         // Check if there's any existing data (either initial or modified)
         const hasOuterData =
-          outerDataTouched || isDataTouched(initialFormData.outerAfterData, defaultSlideData);
+          outerDataTouched || isDataTouched(initialFormData.outerData, defaultSlideFormData);
         const hasInnerData =
-          innerDataTouched || isDataTouched(initialFormData.innerAfterData, defaultSlideData);
+          innerDataTouched || isDataTouched(initialFormData.innerData, defaultSlideFormData);
 
-        // For inspections and maintenance, require at least one section to be filled (either initial or new)
+        // For inspections and maintenance, require at least one section to be filled
         if (!hasOuterData && !hasInnerData) {
           validationErrors.push('Slide: You must fill at least one section (Outer or Inner)');
         }
@@ -261,34 +301,29 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
 
         // Only return data if valid
         if (isValid) {
+          // Convert form data (with before/after fields) back to API format (4 separate objects)
+          const outerFormDataToUse = outerDataTouched
+            ? formData.outerData
+            : initialFormData.outerData;
+          const innerFormDataToUse = innerDataTouched
+            ? formData.innerData
+            : initialFormData.innerData;
+
+          const outer = hasOuterData
+            ? convertFromFormData(outerFormDataToUse)
+            : { beforeData: undefined, afterData: undefined };
+          const inner = hasInnerData
+            ? convertFromFormData(innerFormDataToUse)
+            : { beforeData: undefined, afterData: undefined };
+
           return {
             isValid: true,
             errors: [],
             data: {
-              outerBefore: outerBeforeTouched ? formData.outerBeforeData : undefined,
-              outerData: hasOuterData
-                ? outerDataTouched
-                  ? formData.outerAfterData
-                  : initialFormData.outerAfterData
-                : undefined,
-              innerBefore: innerBeforeTouched ? formData.innerBeforeData : undefined,
-              innerData: hasInnerData
-                ? innerDataTouched
-                  ? formData.innerAfterData
-                  : initialFormData.innerAfterData
-                : undefined,
-              outerParallelism: formData.outerParallelism,
-              outerHasParallelismBeenAdjusted: formData.outerHasParallelismBeenAdjusted,
-              innerParallelism: formData.innerParallelism,
-              innerHasParallelismBeenAdjusted: formData.innerHasParallelismBeenAdjusted,
-              outerShutheightIndicatorsChecked: formData.outerShutheightIndicatorsChecked,
-              outerOverloadsOnTonnageMonitor: formData.outerOverloadsOnTonnageMonitor || undefined,
-              outerShutheightActualSh: formData.outerShutheightActualSh || undefined,
-              outerIndicatorReading: formData.outerIndicatorReading || undefined,
-              innerShutheightIndicatorsChecked: formData.innerShutheightIndicatorsChecked,
-              innerOverloadsOnTonnageMonitor: formData.innerOverloadsOnTonnageMonitor || undefined,
-              innerShutheightActualSh: formData.innerShutheightActualSh || undefined,
-              innerIndicatorReading: formData.innerIndicatorReading || undefined,
+              outerBefore: outer.beforeData,
+              outerData: outer.afterData,
+              innerBefore: inner.beforeData,
+              innerData: inner.afterData,
               notes: formData.notes || undefined,
             },
           };
@@ -301,115 +336,64 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
       },
 
       getData: (): SlideSectionData => {
-        const outerBeforeTouched = isDataTouched(
-          formData.outerBeforeData,
-          initialFormData.outerBeforeData,
-        );
-        const outerDataTouched = isDataTouched(
-          formData.outerAfterData,
-          initialFormData.outerAfterData,
-        );
-        const innerBeforeTouched = isDataTouched(
-          formData.innerBeforeData,
-          initialFormData.innerBeforeData,
-        );
-        const innerDataTouched = isDataTouched(
-          formData.innerAfterData,
-          initialFormData.innerAfterData,
-        );
+        const outerDataTouched = isDataTouched(formData.outerData, initialFormData.outerData);
+        const innerDataTouched = isDataTouched(formData.innerData, initialFormData.innerData);
 
         // Check if there's any existing data (either initial or modified)
         const hasOuterData =
-          outerDataTouched || isDataTouched(initialFormData.outerAfterData, defaultSlideData);
+          outerDataTouched || isDataTouched(initialFormData.outerData, defaultSlideFormData);
         const hasInnerData =
-          innerDataTouched || isDataTouched(initialFormData.innerAfterData, defaultSlideData);
+          innerDataTouched || isDataTouched(initialFormData.innerData, defaultSlideFormData);
+
+        // Convert form data back to API format (4 separate objects)
+        const outerFormDataToUse = outerDataTouched
+          ? formData.outerData
+          : initialFormData.outerData;
+        const innerFormDataToUse = innerDataTouched
+          ? formData.innerData
+          : initialFormData.innerData;
+
+        const outer = hasOuterData
+          ? convertFromFormData(outerFormDataToUse)
+          : { beforeData: undefined, afterData: undefined };
+        const inner = hasInnerData
+          ? convertFromFormData(innerFormDataToUse)
+          : { beforeData: undefined, afterData: undefined };
 
         return {
-          outerBefore: outerBeforeTouched ? formData.outerBeforeData : undefined,
-          outerData: hasOuterData
-            ? outerDataTouched
-              ? formData.outerAfterData
-              : initialFormData.outerAfterData
-            : undefined,
-          innerBefore: innerBeforeTouched ? formData.innerBeforeData : undefined,
-          innerData: hasInnerData
-            ? innerDataTouched
-              ? formData.innerAfterData
-              : initialFormData.innerAfterData
-            : undefined,
-          outerParallelism: formData.outerParallelism,
-          outerHasParallelismBeenAdjusted: formData.outerHasParallelismBeenAdjusted,
-          innerParallelism: formData.innerParallelism,
-          innerHasParallelismBeenAdjusted: formData.innerHasParallelismBeenAdjusted,
-          outerShutheightIndicatorsChecked: formData.outerShutheightIndicatorsChecked,
-          outerOverloadsOnTonnageMonitor: formData.outerOverloadsOnTonnageMonitor || undefined,
-          outerShutheightActualSh: formData.outerShutheightActualSh || undefined,
-          outerIndicatorReading: formData.outerIndicatorReading || undefined,
-          innerShutheightIndicatorsChecked: formData.innerShutheightIndicatorsChecked,
-          innerOverloadsOnTonnageMonitor: formData.innerOverloadsOnTonnageMonitor || undefined,
-          innerShutheightActualSh: formData.innerShutheightActualSh || undefined,
-          innerIndicatorReading: formData.innerIndicatorReading || undefined,
+          outerBefore: outer.beforeData,
+          outerData: outer.afterData,
+          innerBefore: inner.beforeData,
+          innerData: inner.afterData,
           notes: formData.notes || undefined,
         };
       },
 
-      validate: (serviceType: ServiceType): string[] => {
+      validate: (_serviceType: ServiceType): string[] => {
         const validationErrors: string[] = [];
 
-        const outerBeforeTouched = isDataTouched(
-          formData.outerBeforeData,
-          initialFormData.outerBeforeData,
-        );
-        const outerDataTouched = isDataTouched(
-          formData.outerAfterData,
-          initialFormData.outerAfterData,
-        );
-        const innerBeforeTouched = isDataTouched(
-          formData.innerBeforeData,
-          initialFormData.innerBeforeData,
-        );
-        const innerDataTouched = isDataTouched(
-          formData.innerAfterData,
-          initialFormData.innerAfterData,
-        );
+        const outerDataTouched = isDataTouched(formData.outerData, initialFormData.outerData);
+        const innerDataTouched = isDataTouched(formData.innerData, initialFormData.innerData);
 
-        // For maintenance, check if before measurements are included (this would need to be tracked)
-        // Since SlideForm handles the checkbox internally, we'll check if before data is touched
-        if (serviceType === ServiceType.MAINTENANCE && (outerBeforeTouched || innerBeforeTouched)) {
-          // If any before data is touched, both must be filled
-          if (!outerBeforeTouched || !innerBeforeTouched) {
-            validationErrors.push(
-              'Slide: When "Include measurements before maintenance" is checked, you must fill all "Before" sections (Outer Before and Inner Before)',
-            );
-          } else {
-            validationErrors.push(
-              ...validateSlideData(formData.outerBeforeData).map((e) => `Slide Outer Before: ${e}`),
-            );
-            validationErrors.push(
-              ...validateSlideData(formData.innerBeforeData).map((e) => `Slide Inner Before: ${e}`),
-            );
-          }
-        }
-
-        // Validate current/after data if touched
+        // Validate current data if touched
         if (outerDataTouched) {
           validationErrors.push(
-            ...validateSlideData(formData.outerAfterData).map((e) => `Slide Outer: ${e}`),
+            ...validateSlideFormData(formData.outerData).map((e) => `Slide Outer: ${e}`),
           );
         }
         if (innerDataTouched) {
           validationErrors.push(
-            ...validateSlideData(formData.innerAfterData).map((e) => `Slide Inner: ${e}`),
+            ...validateSlideFormData(formData.innerData).map((e) => `Slide Inner: ${e}`),
           );
         }
 
         // Check if there's any existing data (either initial or modified)
         const hasOuterData =
-          outerDataTouched || isDataTouched(initialFormData.outerAfterData, defaultSlideData);
+          outerDataTouched || isDataTouched(initialFormData.outerData, defaultSlideFormData);
         const hasInnerData =
-          innerDataTouched || isDataTouched(initialFormData.innerAfterData, defaultSlideData);
+          innerDataTouched || isDataTouched(initialFormData.innerData, defaultSlideFormData);
 
-        // For inspections and maintenance, require at least one section to be filled (either initial or new)
+        // For inspections and maintenance, require at least one section to be filled
         if (!hasOuterData && !hasInnerData) {
           validationErrors.push('Slide: You must fill at least one section (Outer or Inner)');
         }
@@ -419,29 +403,13 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
 
       reset: () => {
         setFormData({
-          outerBeforeData: defaultSlideData,
-          outerAfterData: defaultSlideData,
-          innerBeforeData: defaultSlideData,
-          innerAfterData: defaultSlideData,
-          outerParallelism: ParallelismType.DNC,
-          outerHasParallelismBeenAdjusted: YesNoNaDncType.DNC,
-          innerParallelism: ParallelismType.DNC,
-          innerHasParallelismBeenAdjusted: YesNoNaDncType.DNC,
-          outerShutheightIndicatorsChecked: YesNoDncType.DNC,
-          outerOverloadsOnTonnageMonitor: '',
-          outerShutheightActualSh: '',
-          outerIndicatorReading: '',
-          innerShutheightIndicatorsChecked: YesNoDncType.DNC,
-          innerOverloadsOnTonnageMonitor: '',
-          innerShutheightActualSh: '',
-          innerIndicatorReading: '',
+          outerData: defaultSlideFormData,
+          innerData: defaultSlideFormData,
           notes: '',
         });
         setErrors({
-          outerBefore: {},
-          outerAfter: {},
-          innerBefore: {},
-          innerAfter: {},
+          outer: {},
+          inner: {},
         });
       },
     }));
@@ -456,10 +424,7 @@ export const SlideSection = forwardRef<SlideSectionRef, SlideSectionProps>(
               updateFn={updateField}
               errors={errors}
               handleBlur={handleBlur}
-              serviceType={serviceType}
               onSectionTouched={onSectionTouched}
-              includeBeforeMeasurements={includeBeforeMeasurements}
-              onIncludeBeforeMeasurementsChange={setIncludeBeforeMeasurements}
             />
           </div>
         </CollapsibleContent>

@@ -1005,6 +1005,8 @@
         "parallelismConfiguration": "Configurações de Paralelismo",
         "parallelismAppliesNote": "Estes valores se aplicam tanto antes quanto após a manutenção",
         "parallelism": "Paralelismo",
+        "shutheightIndicatorsChecked": "Indicadores de Altura Verificados?",
+        "shutheightActualSh": "SH Atual",
         "hasBeenAdjusted": "Foi Ajustado",
         "position1": "Posição 1",
         "position2": "Posição 2",
@@ -1016,7 +1018,9 @@
         "outer": "Externo",
         "inner": "Interno",
         "beforeMaintenance": "Antes da Manutenção",
+        "beforeAdjustment": "Antes do Ajuste",
         "afterMaintenance": "Após a Manutenção",
+        "afterAdjustment": "Após o Ajuste",
         "measurements": "Medições",
         "positionMeasurements": "Medições de Posição",
         "shutheightInformation": "Informações de Altura de Fechamento",
@@ -1112,7 +1116,8 @@
         },
         "oilInfoTitle": "Informações do Óleo",
         "changedOil": "Óleo Trocado",
-        "oilTemperatureF": "Temperatura do Óleo (°F)",
+        "oilTemperature": "Temperatura do Óleo",
+        "oilTemperatureUnit": "Unidade",
         "oilMfgType": "Fabricante/Tipo do Óleo",
         "filterTitle": "Filtro",
         "changedFilter": "Filtro Trocado",
@@ -1201,7 +1206,7 @@
           "hydraulicPressure": "Pressão Hidráulica",
           "accumulator": "Acumulador",
           "flexDisc": "Disco Flexível",
-          "notes": "Observações"
+          "notes": "Notas"
         },
         "sections": {
           "basicInformation": "Informações Básicas",
@@ -1280,13 +1285,14 @@
         "notes": "Notas"
       },
       "pistons": {
-        "guidSeals": "Vedações de Guia",
+        "guideSeals": "Vedações de Guia",
         "pistonSeals": "Vedações de Pistão",
         "vacuumSystem": "Sistema de Vácuo",
         "vacuumSystemAirPressureSetting": "Configuração de Pressão de Ar do Sistema de Vácuo",
         "unit": "Unidade",
         "piston": "Pistão",
-        "front": "Frente",
+        "top": "Superior",
+        "bottom": "Inferior",
         "notes": "Notas (Opcional)"
       },
       "cancel": "Cancelar",
@@ -1736,7 +1742,8 @@
     "submit": "Enviar",
     "submitting": "Enviando...",
     "loading": "Carregando...",
-    "close": "Fechar"
+    "close": "Fechar",
+    "previous": "Anterior"
   },
   "messages": {
     "noUsersFound": "Nenhum usuário encontrado. Crie um para começar.",
