@@ -18,3 +18,18 @@ export const CreateAlertCounterbalanceCylinderAirbagSchema = z.object({
 export type CreateAlertCounterbalanceCylinderAirbagDto = z.infer<
   typeof CreateAlertCounterbalanceCylinderAirbagSchema
 >;
+
+/**
+ * Schema for updating a counterbalance cylinder airbag alert
+ * Only justification can be updated (fieldName is immutable due to unique constraint)
+ */
+export const UpdateAlertCounterbalanceCylinderAirbagSchema = z.object({
+  justification: z
+    .string()
+    .min(1, 'Justificativa é obrigatória')
+    .max(1000, 'Justificativa muito longa (máximo 1000 caracteres)'),
+});
+
+export type UpdateAlertCounterbalanceCylinderAirbagDto = z.infer<
+  typeof UpdateAlertCounterbalanceCylinderAirbagSchema
+>;

@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Loader2, Plus, X, AlertTriangle } from 'lucide-react';
+import { Loader2, Plus, X, AlertTriangle, Pencil, Trash2, Check } from 'lucide-react';
 import { CounterbalanceAlertField } from '@/data/types/services.types';
 import { responseHandler } from '@/data/helpers/responseHandler';
 
@@ -43,6 +43,12 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
   const [selectedField, setSelectedField] = useState<CounterbalanceAlertField | ''>('');
   const [justification, setJustification] = useState('');
   const [isSavingAlert, setIsSavingAlert] = useState(false);
+
+  // Edit state
+  const [editingAlertId, setEditingAlertId] = useState<string | null>(null);
+  const [editJustification, setEditJustification] = useState('');
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
 
   const fetchAlerts = useCallback(async () => {
     if (!serviceId) return;
@@ -118,6 +124,80 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
     return t(`fieldLabels.${field}`);
   };
 
+  const handleEditClick = (alert: CounterbalanceCylinderAlert) => {
+    setEditingAlertId(alert.id);
+    setEditJustification(alert.justification);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingAlertId(null);
+    setEditJustification('');
+  };
+
+  const handleSaveEdit = async (alertId: string) => {
+    if (!editJustification.trim()) {
+      toast.error(t('toast.justificationRequired'));
+      return;
+    }
+
+    setIsSavingEdit(true);
+    try {
+      const response = await responseHandler<CounterbalanceCylinderAlert>(
+        `/alerts/counterbalance/${alertId}`,
+        {
+          method: 'PUT',
+          body: {
+            justification: editJustification.trim(),
+          },
+        },
+      );
+
+      if (response.data) {
+        setAlerts((prev) => prev.map((alert) => (alert.id === alertId ? response.data! : alert)));
+        setEditingAlertId(null);
+        setEditJustification('');
+        toast.success(t('toast.updateSuccess'));
+      } else if (response.errors) {
+        toast.error(response.errors[0] || t('toast.updateError'));
+      }
+    } catch (error) {
+      console.error('Failed to update alert:', error);
+      toast.error(t('toast.updateError'));
+    } finally {
+      setIsSavingEdit(false);
+    }
+  };
+
+  const handleDelete = async (alertId: string, fieldName: string) => {
+    // Confirm deletion
+    if (
+      !confirm(
+        t('toast.confirmDelete', { field: getFieldLabel(fieldName as CounterbalanceAlertField) }),
+      )
+    ) {
+      return;
+    }
+
+    setIsDeletingId(alertId);
+    try {
+      const response = await responseHandler(`/alerts/counterbalance/${alertId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.data || !response.errors) {
+        setAlerts((prev) => prev.filter((alert) => alert.id !== alertId));
+        toast.success(t('toast.deleteSuccess'));
+      } else if (response.errors) {
+        toast.error(response.errors[0] || t('toast.deleteError'));
+      }
+    } catch (error) {
+      console.error('Failed to delete alert:', error);
+      toast.error(t('toast.deleteError'));
+    } finally {
+      setIsDeletingId(null);
+    }
+  };
+
   // Don't render if serviceId is missing
   if (!serviceId) {
     return null;
@@ -143,19 +223,102 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
           <div className="space-y-3">
             {alerts.map((alert) => (
               <Card key={alert.id} className="p-4 border-red-200 bg-red-50/50">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 space-y-1">
+                {editingAlertId === alert.id ? (
+                  // Edit mode
+                  <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <Badge variant="destructive" className="text-xs">
                         {getFieldLabel(alert.fieldName)}
                       </Badge>
+                      <span className="text-xs text-muted-foreground">({t('editing')})</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">{alert.justification}</p>
+                    <Textarea
+                      value={editJustification}
+                      onChange={(e) => setEditJustification(e.target.value)}
+                      placeholder={t('justificationPlaceholder')}
+                      className="text-sm"
+                      rows={3}
+                      maxLength={1000}
+                    />
                     <p className="text-xs text-muted-foreground">
-                      {t('createdAt')}: {new Date(alert.createdAt).toLocaleDateString()}
+                      {editJustification.length}/1000 {t('characters')}
                     </p>
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleCancelEdit}
+                        disabled={isSavingEdit}
+                        className="flex-1"
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        {t('cancel')}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="default"
+                        size="sm"
+                        onClick={() => handleSaveEdit(alert.id)}
+                        disabled={isSavingEdit || !editJustification.trim()}
+                        className="flex-1"
+                      >
+                        {isSavingEdit ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            {t('saving')}
+                          </>
+                        ) : (
+                          <>
+                            <Check className="h-4 w-4 mr-2" />
+                            {t('save')}
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  // View mode
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="destructive" className="text-xs">
+                          {getFieldLabel(alert.fieldName)}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{alert.justification}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {t('createdAt')}: {new Date(alert.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditClick(alert)}
+                        disabled={isDeletingId === alert.id}
+                        className="h-8 w-8 p-0"
+                      >
+                        <Pencil className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(alert.id, alert.fieldName)}
+                        disabled={isDeletingId === alert.id}
+                        className="h-8 w-8 p-0"
+                      >
+                        {isDeletingId === alert.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin text-destructive" />
+                        ) : (
+                          <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </Card>
             ))}
           </div>

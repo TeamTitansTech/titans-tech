@@ -17,6 +17,8 @@ import {
   UpdateThresholdBearingClearanceDto,
   CreateAlertCounterbalanceCylinderAirbagSchema,
   CreateAlertCounterbalanceCylinderAirbagDto,
+  UpdateAlertCounterbalanceCylinderAirbagSchema,
+  UpdateAlertCounterbalanceCylinderAirbagDto,
   CreateThresholdSlideDto,
   UpdateThresholdSlideDto,
   CreateThresholdSlideSchema,
@@ -99,56 +101,21 @@ export class AlertsController {
   ) {
     return this.alertsService.getCounterbalanceAlertsForService(serviceId);
   }
-}
 
-@Controller('alerts/slide')
-@UseInterceptors(ClassSerializerInterceptor)
-export class AlertsSlideController {
-  constructor(private readonly alertsService: AlertsService) {}
-
-  @Authenticated()
-  @Get('thresholds/blueprint/:blueprintId')
-  async getSlideThresholdByBlueprint(
-    @Param('blueprintId') blueprintId: string,
+  @Admin()
+  @Put('counterbalance/:alertId')
+  async updateCounterbalanceAlert(
+    @Param('alertId') alertId: string,
+    @Body(new ZodValidationPipe(UpdateAlertCounterbalanceCylinderAirbagSchema))
+    dto: UpdateAlertCounterbalanceCylinderAirbagDto,
   ) {
-    return this.alertsService.getSlideThresholdByBlueprint(blueprintId);
+    return this.alertsService.updateCounterbalanceAlert(alertId, dto);
   }
 
   @Admin()
-  @Post('thresholds')
-  async createSlideThreshold(
-    @Body(new ZodValidationPipe(CreateThresholdSlideSchema))
-    dto: CreateThresholdSlideDto,
-  ) {
-    return this.alertsService.createSlideThreshold(dto);
-  }
-
-  @Admin()
-  @Put('thresholds/blueprint/:blueprintId')
-  async updateSlideThreshold(
-    @Param('blueprintId') blueprintId: string,
-    @Body(new ZodValidationPipe(UpdateThresholdSlideSchema))
-    dto: UpdateThresholdSlideDto,
-  ) {
-    return this.alertsService.updateSlideThreshold(blueprintId, dto);
-  }
-
-  @Admin()
-  @Delete('thresholds/blueprint/:blueprintId')
-  async deleteSlideThreshold(@Param('blueprintId') blueprintId: string) {
-    return this.alertsService.deleteSlideThreshold(blueprintId);
-  }
-
-  @Authenticated()
-  @Get('service/:serviceId')
-  async getSlideAlertByService(@Param('serviceId') serviceId: string) {
-    return this.alertsService.getSlideAlertByService(serviceId);
-  }
-
-  @Admin()
-  @Post('service/:serviceId/generate')
-  async generateSlideAlerts(@Param('serviceId') serviceId: string) {
-    return this.alertsService.generateAlertsForSlide(serviceId);
+  @Delete('counterbalance/:alertId')
+  async deleteCounterbalanceAlert(@Param('alertId') alertId: string) {
+    return this.alertsService.deleteCounterbalanceAlert(alertId);
   }
 }
 

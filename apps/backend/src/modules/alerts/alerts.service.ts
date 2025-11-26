@@ -11,6 +11,7 @@ import {
   AlertBearingClearanceResponseDto,
   CreateThresholdBearingClearanceSchema,
   CreateAlertCounterbalanceCylinderAirbagDto,
+  UpdateAlertCounterbalanceCylinderAirbagDto,
   AlertCounterbalanceCylinderAirbagResponseDto,
   CreateThresholdSlideDto,
   UpdateThresholdSlideDto,
@@ -512,6 +513,59 @@ export class AlertsService {
     return alerts.map(
       (alert) => new AlertCounterbalanceCylinderAirbagResponseDto(alert),
     );
+  }
+
+  /**
+   * Updates the justification of a counterbalance cylinder airbag alert
+   * @param alertId - The alert ID
+   * @param dto - Update data (justification only)
+   * @returns Updated alert
+   * @throws NotFoundException if alert doesn't exist
+   */
+  async updateCounterbalanceAlert(
+    alertId: string,
+    dto: UpdateAlertCounterbalanceCylinderAirbagDto,
+  ) {
+    // Verify alert exists
+    const existingAlert =
+      await this.prisma.alertCounterbalanceCylinderAirbag.findUnique({
+        where: { id: alertId },
+      });
+
+    if (!existingAlert) {
+      throw new NotFoundException(`Alert ${alertId} not found`);
+    }
+
+    // Update justification only (fieldName is immutable)
+    const alert = await this.prisma.alertCounterbalanceCylinderAirbag.update({
+      where: { id: alertId },
+      data: { justification: dto.justification },
+    });
+
+    return new AlertCounterbalanceCylinderAirbagResponseDto(alert);
+  }
+
+  /**
+   * Deletes a counterbalance cylinder airbag alert
+   * @param alertId - The alert ID
+   * @throws NotFoundException if alert doesn't exist
+   */
+  async deleteCounterbalanceAlert(alertId: string) {
+    // Verify alert exists
+    const alert =
+      await this.prisma.alertCounterbalanceCylinderAirbag.findUnique({
+        where: { id: alertId },
+      });
+
+    if (!alert) {
+      throw new NotFoundException(`Alert ${alertId} not found`);
+    }
+
+    await this.prisma.alertCounterbalanceCylinderAirbag.delete({
+      where: { id: alertId },
+    });
+
+    return { message: 'Alert deleted successfully' };
   }
 
   // ==================== SLIDE THRESHOLD METHODS ====================
