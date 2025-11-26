@@ -862,6 +862,9 @@
     "description": "Crear una nueva inspección de holgura de cojinete",
     "createdSuccessfully": "Inspección creada exitosamente",
     "form": {
+      "placeholders": {
+        "select": "Seleccionar"
+      },
       "date": {
         "label": "Fecha de Inspección",
         "placeholder": "Seleccionar fecha"
@@ -932,6 +935,8 @@
         "parallelismConfiguration": "Configuración de Paralelismo",
         "parallelismAppliesNote": "Estos valores se aplican tanto antes como después del mantenimiento",
         "parallelism": "Paralelismo",
+        "shutheightIndicatorsChecked": "Indicadores de Altura de Cierre Verificados",
+        "shutheightActualSh": "SH Real de Altura de Cierre",
         "hasBeenAdjusted": "Ha Sido Ajustado",
         "position1": "Posición 1",
         "position2": "Posición 2",
@@ -943,7 +948,9 @@
         "outer": "Externo",
         "inner": "Interno",
         "beforeMaintenance": "Antes del Mantenimiento",
+        "beforeAdjustment": "Antes del Ajuste",
         "afterMaintenance": "Después del Mantenimiento",
+        "afterAdjustment": "Después del Ajuste",
         "measurements": "Mediciones",
         "positionMeasurements": "Mediciones de Posición",
         "shutheightInformation": "Información de Altura de Cierre",
@@ -1042,7 +1049,8 @@
         "otherGauges": "Otros Medidores",
         "oilInfoTitle": "Información del Aceite",
         "changedOil": "Aceite Cambiado",
-        "oilTemperatureF": "Temperatura del Aceite (°F)",
+        "oilTemperature": "Temperatura del Aceite",
+        "oilTemperatureUnit": "Unidad",
         "oilMfgType": "Fabricante/Tipo de Aceite",
         "filterTitle": "Filtro",
         "changedFilter": "Filtro Cambiado",
@@ -1185,6 +1193,35 @@
         "counterbalanceTypes": {
           "cylinder": "Cilindro",
           "airbag": "Bolsa de Aire"
+        },
+        "alerts": {
+          "title": "Alertas Críticas",
+          "noAlerts": "No hay alertas críticas registradas",
+          "addNew": "Agregar Nueva Alerta",
+          "allFieldsHaveAlerts": "Todos los campos ya tienen alertas registradas",
+          "fieldWithProblem": "Campo con Problema",
+          "selectField": "Seleccione un campo...",
+          "justification": "Justificación",
+          "justificationPlaceholder": "Describa el problema (ej: fuga debido a rotura de engranaje)",
+          "characters": "caracteres",
+          "cancel": "Cancelar",
+          "save": "Guardar Alerta",
+          "saving": "Guardando...",
+          "createdAt": "Creado el",
+          "toast": {
+            "selectFieldAndJustification": "Seleccione un campo y proporcione una justificación",
+            "createSuccess": "Alerta creada con éxito",
+            "createError": "Error al crear alerta"
+          },
+          "fieldLabels": {
+            "AIRBAG_PISTON_SEALS": "Sellos de Bolsa de Aire/Pistón",
+            "REGULATOR": "Regulador",
+            "GAUGE": "Medidor",
+            "PNEUMATICS_PLUMBING": "Neumática/Plomería",
+            "ROD_SEALS": "Sellos de Varilla",
+            "ROD_BUSHING": "Casquillo de Varilla",
+            "OIL_WICK": "Mecha de Aceite"
+          }
         }
       },
       "tramming": {
@@ -1210,13 +1247,14 @@
         "notes": "Notas"
       },
       "pistons": {
-        "guidSeals": "Sellos de Guía",
+        "guideSeals": "Sellos de Guía",
         "pistonSeals": "Sellos de Pistón",
         "vacuumSystem": "Sistema de Vacío",
         "vacuumSystemAirPressureSetting": "Configuración de Presión de Aire del Sistema de Vacío",
         "unit": "Unidad",
         "piston": "Pistón",
-        "front": "Frente",
+        "top": "Superior",
+        "bottom": "Inferior",
         "notes": "Notas (Opcional)"
       },
       "cancel": "Cancelar",
@@ -1601,6 +1639,22 @@
       "wristPinToBushing": "Pasador de Muñeca a Casquillo",
       "slideAdjNutToScrewSleeve": "Tuerca de Ajuste de Corredera a Tornillo/Manguito"
     },
+    "clutch": {
+      "title": "EMBRAGUE - Configuración de Alerta",
+      "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico Total",
+      "hydClutchClearanceRear": "Holgura del Embrague Hidráulico Trasera",
+      "fb": "F-B (Frente-Atrás)",
+      "fTB": "F-TB (Frente Superior-Inferior)",
+      "rTB": "R-TB (Trasera Superior-Inferior)"
+    },
+    "slide": {
+      "title": "SLIDE - Configuración de Alerta",
+      "maxDeviation": "Desviación Máxima"
+    },
+    "gibs": {
+      "title": "GIBS - Configuración de Alerta",
+      "usable": "Utilizable"
+    },
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",
       "yellowStartMin": "Inicio Amarillo (Mín)",
@@ -1630,7 +1684,7 @@
     "savePermissions": "Guardar Permisos",
     "cancel": "Cancelar",
     "delete": "Eliminar",
-    "cancel": "Cancelar",
+    "previous": "Anterior",
     "deleting": "Eliminando...",
     "edit": "Editar",
     "create": "Crear",

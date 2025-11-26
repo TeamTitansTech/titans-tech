@@ -11,7 +11,12 @@ import {
   CreateBlueprintDto,
 } from '@titans-tech/shared/backend-dtos';
 import { UpdateBlueprintDto } from '../../blueprints/dto/update-blueprint.dto';
-import { convertThresholdToDecimal } from '../alerts/threshold.utils';
+import {
+  convertThresholdToDecimal,
+  convertClutchThresholdToDecimal,
+  convertSlideThresholdToDecimal,
+  convertGibsThresholdToDecimal,
+} from '../alerts/threshold.utils';
 
 @Injectable()
 export class BlueprintsService {
@@ -41,6 +46,36 @@ export class BlueprintsService {
           data: {
             blueprintId: blueprint.id,
             ...convertThresholdToDecimal(dto.thresholds),
+          },
+        });
+      }
+
+      // 3. Create Clutch Thresholds if provided
+      if (dto.clutchThresholds) {
+        await tx.thresholdClutch.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertClutchThresholdToDecimal(dto.clutchThresholds),
+          },
+        });
+      }
+
+      // 4. Create Slide Thresholds if provided
+      if (dto.slideThresholds) {
+        await tx.thresholdSlide.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertSlideThresholdToDecimal(dto.slideThresholds),
+          },
+        });
+      }
+
+      // 5. Create GIBS Thresholds if provided
+      if (dto.gibsThresholds) {
+        await tx.thresholdGibs.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertGibsThresholdToDecimal(dto.gibsThresholds),
           },
         });
       }

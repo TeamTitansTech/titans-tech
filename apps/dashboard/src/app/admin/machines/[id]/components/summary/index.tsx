@@ -9,7 +9,7 @@ import type {
   TrammingCheck,
   PistonsCheck,
   ClutchData,
-  LubricationHydraulicsData,
+  LubricationHydraulicsCheck,
 } from '@/data/types/services.types';
 import { BearingClearanceSummary } from './BearingClearanceSummary';
 import { GenericSectionSummary } from './GenericSectionSummary';
@@ -57,7 +57,7 @@ export function SectionSummary({ sectionKey, data }: { sectionKey: string; data:
       return <ClutchSummary data={data as ClutchData} />;
 
     case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
-      return <LubricationSummary data={data as LubricationHydraulicsData} />;
+      return <LubricationSummary data={(data as LubricationHydraulicsCheck).data} />;
 
     // For all other sections, use the generic summary component
     // This displays data in a readable format instead of raw JSON

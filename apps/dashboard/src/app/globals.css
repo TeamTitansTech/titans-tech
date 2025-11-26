@@ -136,5 +136,18 @@ body {
     'Noto Color Emoji';
   font-weight: 500;
   /* Prevent scrollbar from being removed */
+}
+
+body[data-scroll-locked],
+body[data-scroll-locked='1'],
+body[data-scroll-locked='2'],
+body[data-scroll-locked='3'],
+body[data-scroll-locked='4'] {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+  margin-right: 0 !important;
+  margin-left: 0 !important;
   overflow-y: auto !important;
+  overflow-x: hidden !important;
+  width: 100% !important;
 }

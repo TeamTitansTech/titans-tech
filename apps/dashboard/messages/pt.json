@@ -935,6 +935,9 @@
     "description": "Criar nova vistoria de bearing clearance",
     "createdSuccessfully": "Vistoria criada com sucesso",
     "form": {
+      "placeholders": {
+        "select": "Selecionar"
+      },
       "date": {
         "label": "Data da Vistoria",
         "placeholder": "Selecione a data"
@@ -1005,6 +1008,8 @@
         "parallelismConfiguration": "Configurações de Paralelismo",
         "parallelismAppliesNote": "Estes valores se aplicam tanto antes quanto após a manutenção",
         "parallelism": "Paralelismo",
+        "shutheightIndicatorsChecked": "Indicadores de Altura Verificados?",
+        "shutheightActualSh": "SH Atual",
         "hasBeenAdjusted": "Foi Ajustado",
         "position1": "Posição 1",
         "position2": "Posição 2",
@@ -1016,7 +1021,9 @@
         "outer": "Externo",
         "inner": "Interno",
         "beforeMaintenance": "Antes da Manutenção",
+        "beforeAdjustment": "Antes do Ajuste",
         "afterMaintenance": "Após a Manutenção",
+        "afterAdjustment": "Após o Ajuste",
         "measurements": "Medições",
         "positionMeasurements": "Medições de Posição",
         "shutheightInformation": "Informações de Altura de Fechamento",
@@ -1112,7 +1119,8 @@
         },
         "oilInfoTitle": "Informações do Óleo",
         "changedOil": "Óleo Trocado",
-        "oilTemperatureF": "Temperatura do Óleo (°F)",
+        "oilTemperature": "Temperatura do Óleo",
+        "oilTemperatureUnit": "Unidade",
         "oilMfgType": "Fabricante/Tipo do Óleo",
         "filterTitle": "Filtro",
         "changedFilter": "Filtro Trocado",
@@ -1201,7 +1209,7 @@
           "hydraulicPressure": "Pressão Hidráulica",
           "accumulator": "Acumulador",
           "flexDisc": "Disco Flexível",
-          "notes": "Observações"
+          "notes": "Notas"
         },
         "sections": {
           "basicInformation": "Informações Básicas",
@@ -1255,6 +1263,42 @@
         "counterbalanceTypes": {
           "cylinder": "Cilindro",
           "airbag": "Airbag"
+        },
+        "alerts": {
+          "title": "Alertas Críticos",
+          "noAlerts": "Nenhum alerta crítico registrado",
+          "addNew": "Adicionar Novo Alerta",
+          "allFieldsHaveAlerts": "Todos os campos já possuem alertas registrados",
+          "fieldWithProblem": "Campo com Problema",
+          "selectField": "Selecione um campo...",
+          "justification": "Justificativa",
+          "justificationPlaceholder": "Descreva o problema (ex: vazamento devido a quebra de engrenagem)",
+          "characters": "caracteres",
+          "cancel": "Cancelar",
+          "save": "Salvar Alerta",
+          "saving": "Salvando...",
+          "createdAt": "Criado em",
+          "editing": "editando",
+          "toast": {
+            "selectFieldAndJustification": "Selecione um campo e forneça uma justificativa",
+            "justificationRequired": "A justificativa é obrigatória",
+            "createSuccess": "Alerta criado com sucesso",
+            "createError": "Erro ao criar alerta",
+            "updateSuccess": "Alerta atualizado com sucesso",
+            "updateError": "Erro ao atualizar alerta",
+            "deleteSuccess": "Alerta deletado com sucesso",
+            "deleteError": "Erro ao deletar alerta",
+            "confirmDelete": "Tem certeza que deseja deletar o alerta do campo \"{field}\"?"
+          },
+          "fieldLabels": {
+            "AIRBAG_PISTON_SEALS": "Vedações do Airbag/Pistão",
+            "REGULATOR": "Regulador",
+            "GAUGE": "Medidor",
+            "PNEUMATICS_PLUMBING": "Pneumática/Encanamento",
+            "ROD_SEALS": "Vedações da Haste",
+            "ROD_BUSHING": "Bucha da Haste",
+            "OIL_WICK": "Pavio de Óleo"
+          }
         }
       },
       "tramming": {
@@ -1280,13 +1324,14 @@
         "notes": "Notas"
       },
       "pistons": {
-        "guidSeals": "Vedações de Guia",
+        "guideSeals": "Vedações de Guia",
         "pistonSeals": "Vedações de Pistão",
         "vacuumSystem": "Sistema de Vácuo",
         "vacuumSystemAirPressureSetting": "Configuração de Pressão de Ar do Sistema de Vácuo",
         "unit": "Unidade",
         "piston": "Pistão",
-        "front": "Frente",
+        "top": "Superior",
+        "bottom": "Inferior",
         "notes": "Notas (Opcional)"
       },
       "cancel": "Cancelar",
@@ -1690,6 +1735,22 @@
       "wristPinToBushing": "Pino de Pulso à Bucha",
       "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide ao Parafuso/Manguito"
     },
+    "clutch": {
+      "title": "EMBREAGEM - Configuração de Alerta",
+      "hydClutchClearanceTotal": "Folga da Embreagem Hidráulica Total",
+      "hydClutchClearanceRear": "Folga da Embreagem Hidráulica Traseira",
+      "fb": "F-B (Frente-Trás)",
+      "fTB": "F-TB (Frente Topo-Base)",
+      "rTB": "R-TB (Traseira Topo-Base)"
+    },
+    "slide": {
+      "title": "SLIDE - Configuração de Alerta",
+      "maxDeviation": "Desvio Máximo"
+    },
+    "gibs": {
+      "title": "GIBS - Configuração de Alerta",
+      "usable": "Utilizável"
+    },
     "thresholds": {
       "greenStartMin": "Início Verde (Mín)",
       "yellowStartMin": "Início Amarelo (Mín)",
@@ -1728,7 +1789,8 @@
     "submit": "Enviar",
     "submitting": "Enviando...",
     "loading": "Carregando...",
-    "close": "Fechar"
+    "close": "Fechar",
+    "previous": "Anterior"
   },
   "messages": {
     "noUsersFound": "Nenhum usuário encontrado. Crie um para começar.",

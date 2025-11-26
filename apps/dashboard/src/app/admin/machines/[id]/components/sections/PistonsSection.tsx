@@ -3,18 +3,13 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { type PistonsData, ServiceType } from '@/data/types/services.types';
-
-// TODO: Este enum precisa ser adicionado ao Prisma ou revisado
-// Valores DAMAGED e WORN não existem nos enums do Prisma
-enum SealConditionType {
-  OK = 'OK',
-  NA = 'NA',
-  DNC = 'DNC',
-  DAMAGED = 'DAMAGED',
-  LEAKING = 'LEAKING',
-  WORN = 'WORN',
-}
+import {
+  type PistonsData,
+  ServiceType,
+  SealConditionType,
+  VacuumSystemConditionType,
+  PressureUnit,
+} from '@/data/types/services.types';
 import { PistonsForm } from '../forms/PistonsForm';
 import { isDataTouched } from './utils';
 import { validateNumericFields } from '../utils/validateNumericFields';
@@ -31,23 +26,23 @@ import {
 
 export const defaultPistonsData: PistonsData = {
   // OUTER SECTION - LH Piston
-  outerLhFrontTop: 0,
-  outerLhFrontBottom: 0,
+  outerLhTop: 0,
+  outerLhBottom: 0,
   outerLhLeft: 0,
   outerLhRight: 0,
   // OUTER SECTION - RH Piston
-  outerRhFrontTop: 0,
-  outerRhFrontBottom: 0,
+  outerRhTop: 0,
+  outerRhBottom: 0,
   outerRhLeft: 0,
   outerRhRight: 0,
   // INNER SECTION - LH Piston
-  innerLhFrontTop: 0,
-  innerLhFrontBottom: 0,
+  innerLhTop: 0,
+  innerLhBottom: 0,
   innerLhLeft: 0,
   innerLhRight: 0,
   // INNER SECTION - RH Piston
-  innerRhFrontTop: 0,
-  innerRhFrontBottom: 0,
+  innerRhTop: 0,
+  innerRhBottom: 0,
   innerRhLeft: 0,
   innerRhRight: 0,
 };
@@ -59,11 +54,11 @@ export const validatePistonsData = (data: PistonsData): string[] => {
 export interface PistonsSectionData {
   outerData?: PistonsData;
   innerData?: PistonsData;
-  guidSeals?: string;
-  pistonSeals?: string;
-  vacuumSystem?: string;
+  guideSeals?: SealConditionType;
+  pistonSeals?: SealConditionType;
+  vacuumSystem?: VacuumSystemConditionType;
   vacuumSystemAirPressureSetting?: number;
-  vacuumSystemAirPressureUnit?: string;
+  vacuumSystemAirPressureUnit?: PressureUnit;
   unit?: 'inches' | 'mm' | 'cm';
   notes?: string;
 }
@@ -99,15 +94,21 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
     const [innerData, setInnerData] = useState<PistonsData>(
       initialData?.innerData || defaultPistonsData,
     );
-    const [guidSeals, setGuidSeals] = useState<string>(initialData?.guidSeals || '');
-    const [pistonSeals, setPistonSeals] = useState<string>(initialData?.pistonSeals || '');
-    const [vacuumSystem, setVacuumSystem] = useState<string>(initialData?.vacuumSystem || '');
+    const [guideSeals, setGuideSeals] = useState<SealConditionType | undefined>(
+      initialData?.guideSeals,
+    );
+    const [pistonSeals, setPistonSeals] = useState<SealConditionType | undefined>(
+      initialData?.pistonSeals,
+    );
+    const [vacuumSystem, setVacuumSystem] = useState<VacuumSystemConditionType | undefined>(
+      initialData?.vacuumSystem,
+    );
     const [vacuumSystemAirPressureSetting, setVacuumSystemAirPressureSetting] = useState<
       number | undefined
     >(initialData?.vacuumSystemAirPressureSetting);
-    const [vacuumSystemAirPressureUnit, setVacuumSystemAirPressureUnit] = useState<string>(
-      initialData?.vacuumSystemAirPressureUnit || 'PSI',
-    );
+    const [vacuumSystemAirPressureUnit, setVacuumSystemAirPressureUnit] = useState<
+      PressureUnit | undefined
+    >(initialData?.vacuumSystemAirPressureUnit);
     const [unit, setUnit] = useState<'inches' | 'mm' | 'cm'>(initialData?.unit || 'inches');
     const [notes, setNotes] = useState<string>(initialData?.notes || '');
     const [outerErrors, setOuterErrors] = useState<Record<string, string>>({});
@@ -147,9 +148,9 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
         const innerTouched = isDataTouched(innerData, initialInnerData);
         const initialNotes = initialData?.notes || '';
         const topFieldsTouched =
-          guidSeals !== (initialData?.guidSeals || '') ||
-          pistonSeals !== (initialData?.pistonSeals || '') ||
-          vacuumSystem !== (initialData?.vacuumSystem || '') ||
+          guideSeals !== initialData?.guideSeals ||
+          pistonSeals !== initialData?.pistonSeals ||
+          vacuumSystem !== initialData?.vacuumSystem ||
           vacuumSystemAirPressureSetting !== initialData?.vacuumSystemAirPressureSetting;
         return (
           outerTouched || innerTouched || notes.trim() !== initialNotes.trim() || topFieldsTouched
@@ -197,9 +198,9 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
             data: {
               outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
               innerData: hasInnerData ? (innerTouched ? innerData : initialInnerData) : undefined,
-              guidSeals: guidSeals || undefined,
-              pistonSeals: pistonSeals || undefined,
-              vacuumSystem: vacuumSystem || undefined,
+              guideSeals: guideSeals,
+              pistonSeals: pistonSeals,
+              vacuumSystem: vacuumSystem,
               vacuumSystemAirPressureSetting: vacuumSystemAirPressureSetting,
               vacuumSystemAirPressureUnit: vacuumSystemAirPressureUnit,
               unit: unit,
@@ -223,9 +224,9 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
         return {
           outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
           innerData: hasInnerData ? (innerTouched ? innerData : initialInnerData) : undefined,
-          guidSeals: guidSeals || undefined,
-          pistonSeals: pistonSeals || undefined,
-          vacuumSystem: vacuumSystem || undefined,
+          guideSeals: guideSeals,
+          pistonSeals: pistonSeals,
+          vacuumSystem: vacuumSystem,
           vacuumSystemAirPressureSetting: vacuumSystemAirPressureSetting,
           vacuumSystemAirPressureUnit: vacuumSystemAirPressureUnit,
           unit: unit,
@@ -259,9 +260,9 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
       reset: () => {
         setOuterData(defaultPistonsData);
         setInnerData(defaultPistonsData);
-        setGuidSeals('');
-        setPistonSeals('');
-        setVacuumSystem('');
+        setGuideSeals(undefined);
+        setPistonSeals(undefined);
+        setVacuumSystem(undefined);
         setVacuumSystemAirPressureSetting(undefined);
         setVacuumSystemAirPressureUnit('PSI');
         setUnit('inches');
@@ -275,26 +276,25 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
     const tMeasurements = useTranslations('measurements');
 
     return (
-      <div className="space-y-6 p-4">
+      <div className="space-y-6">
         {/* Top-level fields */}
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="guidSeals">{t('guidSeals')}</Label>
+            <Label htmlFor="guideSeals">{t('guideSeals')}</Label>
             <Select
-              value={guidSeals}
+              value={guideSeals}
               onValueChange={(value) => {
-                setGuidSeals(value);
+                setGuideSeals(value as SealConditionType);
                 onSectionTouched?.();
               }}
             >
-              <SelectTrigger id="guidSeals">
+              <SelectTrigger id="guideSeals">
                 <SelectValue placeholder="Select condition" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value={SealConditionType.OK}>OK</SelectItem>
                 <SelectItem value={SealConditionType.NA}>N/A</SelectItem>
                 <SelectItem value={SealConditionType.DNC}>DNC</SelectItem>
-                <SelectItem value={SealConditionType.DAMAGED}>Damaged</SelectItem>
                 <SelectItem value={SealConditionType.LEAKING}>Leaking</SelectItem>
                 <SelectItem value={SealConditionType.WORN}>Worn</SelectItem>
               </SelectContent>
@@ -306,7 +306,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
             <Select
               value={pistonSeals}
               onValueChange={(value) => {
-                setPistonSeals(value);
+                setPistonSeals(value as SealConditionType);
                 onSectionTouched?.();
               }}
             >
@@ -317,7 +317,6 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
                 <SelectItem value={SealConditionType.OK}>OK</SelectItem>
                 <SelectItem value={SealConditionType.NA}>N/A</SelectItem>
                 <SelectItem value={SealConditionType.DNC}>DNC</SelectItem>
-                <SelectItem value={SealConditionType.DAMAGED}>Damaged</SelectItem>
                 <SelectItem value={SealConditionType.LEAKING}>Leaking</SelectItem>
                 <SelectItem value={SealConditionType.WORN}>Worn</SelectItem>
               </SelectContent>
@@ -329,7 +328,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
             <Select
               value={vacuumSystem}
               onValueChange={(value) => {
-                setVacuumSystem(value);
+                setVacuumSystem(value as VacuumSystemConditionType);
                 onSectionTouched?.();
               }}
             >
@@ -337,12 +336,11 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
                 <SelectValue placeholder="Select condition" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={SealConditionType.OK}>OK</SelectItem>
-                <SelectItem value={SealConditionType.NA}>N/A</SelectItem>
-                <SelectItem value={SealConditionType.DNC}>DNC</SelectItem>
-                <SelectItem value={SealConditionType.DAMAGED}>Damaged</SelectItem>
-                <SelectItem value={SealConditionType.LEAKING}>Leaking</SelectItem>
-                <SelectItem value={SealConditionType.WORN}>Worn</SelectItem>
+                <SelectItem value={VacuumSystemConditionType.OK}>OK</SelectItem>
+                <SelectItem value={VacuumSystemConditionType.NA}>N/A</SelectItem>
+                <SelectItem value={VacuumSystemConditionType.DNC}>DNC</SelectItem>
+                <SelectItem value={VacuumSystemConditionType.DAMAGED}>Damaged</SelectItem>
+                <SelectItem value={VacuumSystemConditionType.LEAKING}>Leaking</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -367,7 +365,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
               <Select
                 value={vacuumSystemAirPressureUnit}
                 onValueChange={(value) => {
-                  setVacuumSystemAirPressureUnit(value);
+                  setVacuumSystemAirPressureUnit(value as PressureUnit);
                   onSectionTouched?.();
                 }}
               >
@@ -375,9 +373,9 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PSI">PSI</SelectItem>
-                  <SelectItem value="BAR">BAR</SelectItem>
-                  <SelectItem value="KPA">KPA</SelectItem>
+                  <SelectItem value={PressureUnit.PSI}>PSI</SelectItem>
+                  <SelectItem value={PressureUnit.BAR}>BAR</SelectItem>
+                  <SelectItem value={PressureUnit.MPA}>MPa</SelectItem>
                 </SelectContent>
               </Select>
             </div>

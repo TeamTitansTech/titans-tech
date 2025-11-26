@@ -14,6 +14,7 @@ export {
   // Measurement enums
   MeasurementUnit,
   PressureUnit,
+  TemperatureUnit,
 
   // Yes/No/NA/DNC variants
   YesNoNaDncType,
@@ -29,6 +30,8 @@ export {
   OkNaDncNotOperationalLeakingType,
   OkNaDncDarkOilType,
   OkNaDncNeedReplacedType,
+  SealConditionType,
+  VacuumSystemConditionType,
 
   // Bearing/Slide enums
   MatingPartType,
@@ -70,4 +73,5 @@ export {
 
   // Alert enums
   AlertSeverity,
+  CounterbalanceAlertField,
 } from '@titans-tech/db/enums';

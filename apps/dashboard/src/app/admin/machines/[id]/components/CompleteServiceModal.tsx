@@ -302,7 +302,6 @@ export function CompleteServiceModal({
                 </p>
               </div>
             </div>
-
             {blueprintSections.includes('BEARING_CLEARANCE') && (
               <BearingClearanceSection
                 ref={bearingClearanceRef}
@@ -310,20 +309,12 @@ export function CompleteServiceModal({
                 serviceType={serviceType}
               />
             )}
-
             {blueprintSections.includes('SLIDE') && (
-              <SlideSection
-                ref={slideRef}
-                isOpen={slideOpen}
-                onOpenChange={setSlideOpen}
-                serviceType={serviceType}
-              />
+              <SlideSection ref={slideRef} isOpen={slideOpen} onOpenChange={setSlideOpen} />
             )}
-
             {blueprintSections.includes('GIBS') && (
               <GibsSection ref={gibsRef} onSectionTouched={() => markSectionTouched('GIBS')} />
             )}
-
             {blueprintSections.includes('LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') && (
               <LubricationHydraulicsSection
                 ref={lubricationRef}
@@ -332,21 +323,19 @@ export function CompleteServiceModal({
                 }
               />
             )}
-
             {blueprintSections.includes('CLUTCH') && (
               <ClutchSection
                 ref={clutchRef}
                 onSectionTouched={() => markSectionTouched('CLUTCH')}
               />
             )}
-
             {blueprintSections.includes('COUNTERBALANCE_CYLINDER_AIRBAG') && (
               <CounterbalanceCylinderSection
                 ref={counterbalanceRef}
                 onSectionTouched={() => markSectionTouched('COUNTERBALANCE_CYLINDER_AIRBAG')}
+                serviceId={serviceId}
               />
             )}
-
             <div className="flex justify-end space-x-3 pt-4">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 {t('form.cancel')}

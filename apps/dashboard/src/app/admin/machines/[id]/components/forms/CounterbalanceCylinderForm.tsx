@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -67,7 +66,6 @@ export function CounterbalanceCylinderForm({
   updateFn,
   errors,
   title,
-  hideNotes = false,
 }: CounterbalanceCylinderFormProps) {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
   const tCommon = useTranslations('common.status');
@@ -157,24 +155,6 @@ export function CounterbalanceCylinderForm({
           );
         })}
       </div>
-
-      {!hideNotes && (
-        <div className="grid grid-cols-2 gap-4 items-start pt-2">
-          <div className="text-xs font-medium">{t('notes')}</div>
-          <div>
-            <Textarea
-              id={`notes-${title}`}
-              value={data.notes || ''}
-              onChange={(e) => updateFn('notes', e.target.value)}
-              className={`text-sm ${errors.notes ? 'border-destructive' : ''}`}
-              rows={3}
-            />
-            {errors.notes && (
-              <p className="text-xs text-destructive mt-1">{tValidation('required')}</p>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   ServiceType,
 } from '@/data/types/services.types';
 import { CounterbalanceCylinderForm } from '../forms/CounterbalanceCylinderForm';
+import { CounterbalanceAlertsSection } from './CounterbalanceAlertsSection';
 import { isDataTouched } from './utils';
 
 export const defaultCounterbalanceCylinderData: CounterbalanceCylinderData = {
@@ -23,7 +24,6 @@ export const defaultCounterbalanceCylinderData: CounterbalanceCylinderData = {
   rodSeals: undefined,
   rodBushing: undefined,
   oilWick: undefined,
-  notes: '',
 };
 
 export const validateCounterbalanceCylinderData = (data: CounterbalanceCylinderData): string[] => {
@@ -79,12 +79,13 @@ interface CounterbalanceCylinderSectionProps {
   initialData?: CounterbalanceCylinderCheck;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  serviceId?: string;
 }
 
 export const CounterbalanceCylinderSection = forwardRef<
   CounterbalanceCylinderSectionRef,
   CounterbalanceCylinderSectionProps
->(({ onSectionTouched, initialData }, ref) => {
+>(({ onSectionTouched, initialData, serviceId }, ref) => {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
 
   // Store initial loaded data for "touched" detection
@@ -101,9 +102,7 @@ export const CounterbalanceCylinderSection = forwardRef<
   const [innerData, setInnerData] = useState<CounterbalanceCylinderData>(
     initialData?.innerData || defaultCounterbalanceCylinderData,
   );
-  const [sharedNotes, setSharedNotes] = useState<string>(
-    initialData?.outerData?.notes || initialData?.innerData?.notes || '',
-  );
+  const [sharedNotes, setSharedNotes] = useState<string>(initialData?.notes || '');
   const [errors, setErrors] = useState<{
     outer: Record<string, string>;
     inner: Record<string, string>;
@@ -116,11 +115,7 @@ export const CounterbalanceCylinderSection = forwardRef<
     field: keyof CounterbalanceCylinderData,
     value: string | number | undefined,
   ) => {
-    if (field === 'notes') {
-      setSharedNotes(value as string);
-    } else {
-      setOuterData((prev) => ({ ...prev, [field]: value }));
-    }
+    setOuterData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, outer: { ...prev.outer, [field]: '' } }));
     onSectionTouched();
   };
@@ -129,11 +124,7 @@ export const CounterbalanceCylinderSection = forwardRef<
     field: keyof CounterbalanceCylinderData,
     value: string | number | undefined,
   ) => {
-    if (field === 'notes') {
-      setSharedNotes(value as string);
-    } else {
-      setInnerData((prev) => ({ ...prev, [field]: value }));
-    }
+    setInnerData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, inner: { ...prev.inner, [field]: '' } }));
     onSectionTouched();
   };
@@ -181,12 +172,9 @@ export const CounterbalanceCylinderSection = forwardRef<
           isValid: true,
           errors: [],
           data: {
-            outerData: hasOuterData
-              ? { ...(outerTouched ? outerData : initialOuterData), notes: sharedNotes }
-              : undefined,
-            innerData: hasInnerData
-              ? { ...(innerTouched ? innerData : initialInnerData), notes: sharedNotes }
-              : undefined,
+            outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
+            innerData: hasInnerData ? (innerTouched ? innerData : initialInnerData) : undefined,
+            notes: sharedNotes,
           },
         };
       }
@@ -212,12 +200,9 @@ export const CounterbalanceCylinderSection = forwardRef<
       }
 
       return {
-        outerData: hasOuterData
-          ? { ...(outerTouched ? outerData : initialOuterData), notes: sharedNotes }
-          : undefined,
-        innerData: hasInnerData
-          ? { ...(innerTouched ? innerData : initialInnerData), notes: sharedNotes }
-          : undefined,
+        outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
+        innerData: hasInnerData ? (innerTouched ? innerData : initialInnerData) : undefined,
+        notes: sharedNotes,
       };
     },
 
@@ -244,7 +229,7 @@ export const CounterbalanceCylinderSection = forwardRef<
   }));
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <Tabs defaultValue="outer" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="outer">{t('outer')}</TabsTrigger>
@@ -257,7 +242,6 @@ export const CounterbalanceCylinderSection = forwardRef<
             updateFn={updateOuterField}
             errors={errors.outer}
             title=""
-            hideNotes
           />
         </TabsContent>
 
@@ -267,7 +251,6 @@ export const CounterbalanceCylinderSection = forwardRef<
             updateFn={updateInnerField}
             errors={errors.inner}
             title=""
-            hideNotes
           />
         </TabsContent>
       </Tabs>
@@ -288,6 +271,8 @@ export const CounterbalanceCylinderSection = forwardRef<
           rows={3}
         />
       </div>
+
+      <CounterbalanceAlertsSection serviceId={serviceId} />
     </div>
   );
 });

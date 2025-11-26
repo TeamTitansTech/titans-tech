@@ -32,6 +32,9 @@ import {
   FlexDiscType as PrismaFlexDiscType,
   DriveBeltConditionType as PrismaDriveBeltConditionType,
   ProtectiveCoversStatusType as PrismaProtectiveCoversStatusType,
+  TemperatureUnit as PrismaTemperatureUnit,
+  SealConditionType as PrismaSealConditionType,
+  VacuumSystemConditionType as PrismaVacuumSystemConditionType,
 } from '@titans-tech/db/enums';
 
 // ============================================================================
@@ -66,6 +69,9 @@ export {
   PrismaFlexDiscType as FlexDiscType,
   PrismaDriveBeltConditionType as DriveBeltConditionType,
   PrismaProtectiveCoversStatusType as ProtectiveCoversStatusType,
+  PrismaTemperatureUnit as TemperatureUnit,
+  PrismaSealConditionType as SealConditionType,
+  PrismaVacuumSystemConditionType as VacuumSystemConditionType,
 };
 
 // Note: These custom enums are not in Prisma yet
@@ -99,15 +105,6 @@ export enum AirbagPistonSealsType {
   NA = 'NA',
   DNC = 'DNC',
   LEAKING = 'LEAKING',
-}
-
-export enum SealConditionType {
-  OK = 'OK',
-  NA = 'NA',
-  DNC = 'DNC',
-  DAMAGED = 'DAMAGED',
-  LEAKING = 'LEAKING',
-  WORN = 'WORN',
 }
 
 export enum RegulatorGaugeType {
@@ -196,38 +193,38 @@ export type BearingClearanceCheck = z.infer<typeof BearingClearanceCheckSchema>;
 
 /**
  * Slide Data Schema
+ * Each SlideData represents ONE measurement (5 positions) with metadata
  */
 export const SlideDataSchema = z.object({
+  // Parallelism configuration
+  parallelism: z.nativeEnum(PrismaParallelismType).optional(),
+  hasParallelismBeenAdjusted: z.nativeEnum(PrismaYesNoNaDncType).optional(),
+
+  // Shutheight fields
+  shutheightIndicatorsChecked: z.nativeEnum(PrismaYesNoDncType).optional(),
+  overloadsOnTonnageMonitor: z.string().optional(),
+  shutheightActualSh: z.string().optional(),
+  indicatorReading: z.string().optional(),
+
+  // Measurements (5 positions)
   position1: z.number(),
   position2: z.number(),
   position3: z.number(),
   position4: z.number(),
   position5: z.number(),
-  position6: z.number(),
 });
 
 export type SlideData = z.infer<typeof SlideDataSchema>;
 
 /**
  * Slide Check Schema
+ * Four separate SlideData records (outerBefore, outerData, innerBefore, innerData)
  */
 export const SlideCheckSchema = z.object({
   outerBefore: SlideDataSchema.optional(),
   outerData: SlideDataSchema.optional(),
   innerBefore: SlideDataSchema.optional(),
   innerData: SlideDataSchema.optional(),
-  outerParallelism: z.nativeEnum(PrismaParallelismType).optional(),
-  outerHasParallelismBeenAdjusted: z.nativeEnum(PrismaYesNoNaDncType).optional(),
-  innerParallelism: z.nativeEnum(PrismaParallelismType).optional(),
-  innerHasParallelismBeenAdjusted: z.nativeEnum(PrismaYesNoNaDncType).optional(),
-  outerShutheightIndicatorsChecked: z.nativeEnum(PrismaYesNoDncType).optional(),
-  outerOverloadsOnTonnageMonitor: z.string().optional(),
-  outerShutheightActualSh: z.string().optional(),
-  outerIndicatorReading: z.string().optional(),
-  innerShutheightIndicatorsChecked: z.nativeEnum(PrismaYesNoDncType).optional(),
-  innerOverloadsOnTonnageMonitor: z.string().optional(),
-  innerShutheightActualSh: z.string().optional(),
-  innerIndicatorReading: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -263,16 +260,17 @@ export const GibsDataSchema = GibsStageDataSchema;
 export type GibsData = GibsStageData;
 
 /**
- * Gibs Check Schema - 7-stage GIBS structure
+ * Gibs Check Schema - 7-stage GIBS structure (following outerBefore/outerData pattern)
  */
 export const GibsCheckSchema = z.object({
-  outerBeforeAdjustment: GibsStageDataSchema.optional(),
-  outerAfterAdjustment: GibsStageDataSchema.optional(),
-  outerFreeHangingAfterInstall: GibsStageDataSchema.optional(),
-  innerBeforeAdjustment: GibsStageDataSchema.optional(),
-  innerAfterAdjustment: GibsStageDataSchema.optional(),
-  innerBeforeToolInstallation: GibsStageDataSchema.optional(),
-  innerAfterToolInstallation: GibsStageDataSchema.optional(),
+  outerBefore: GibsStageDataSchema.optional(),
+  outerData: GibsStageDataSchema.optional(),
+  outerFreeHangingData: GibsStageDataSchema.optional(),
+  haveInnerGibsBeenAdjusted: z.nativeEnum(PrismaYesNoDncType).optional(),
+  innerBefore: GibsStageDataSchema.optional(),
+  innerData: GibsStageDataSchema.optional(),
+  innerBeforeTool: GibsStageDataSchema.optional(),
+  innerDataTool: GibsStageDataSchema.optional(),
   notes: z.string().optional(),
 });
 
@@ -284,7 +282,7 @@ export type GibsCheck = z.infer<typeof GibsCheckSchema>;
 export const LubricationHydraulicsGaugeSchema = z.object({
   id: z.string().optional(),
   system: z.nativeEnum(PrismaLubeHydMonitorFlowPressSwGibType),
-  gauge: z.string().optional(),
+  gaugeSwitchIdentifier: z.string().optional(),
   psi: z.nativeEnum(OkNaDncDamageType).optional(),
 });
 
@@ -296,13 +294,20 @@ export type LubricationHydraulicsGauge = z.infer<typeof LubricationHydraulicsGau
 export const LubricationHydraulicsDataSchema = z.object({
   gauges: z.array(LubricationHydraulicsGaugeSchema),
   changedOil: z.nativeEnum(PrismaYesNoDncType),
-  oilTemperatureF: z.number().optional(),
+  oilTemperature: z.number().optional(),
+  oilTemperatureUnit: z.nativeEnum(PrismaTemperatureUnit).optional(),
   oilMfgType: z.string().optional(),
   changedFilter: z.nativeEnum(PrismaYesNoDncType),
-  notes: z.string().optional(),
 });
 
 export type LubricationHydraulicsData = z.infer<typeof LubricationHydraulicsDataSchema>;
+
+export const LubricationHydraulicsCheckSchema = z.object({
+  data: LubricationHydraulicsDataSchema,
+  notes: z.string().optional(),
+});
+
+export type LubricationHydraulicsCheck = z.infer<typeof LubricationHydraulicsCheckSchema>;
 
 /**
  * Clutch Data Schema
@@ -391,7 +396,6 @@ export const CounterbalanceCylinderDataSchema = z.object({
   rodSeals: z.string().optional(),
   rodBushing: z.string().optional(),
   oilWick: z.string().optional(),
-  notes: z.string().optional(),
 });
 
 export type CounterbalanceCylinderData = z.infer<typeof CounterbalanceCylinderDataSchema>;
@@ -402,6 +406,7 @@ export type CounterbalanceCylinderData = z.infer<typeof CounterbalanceCylinderDa
 export const CounterbalanceCylinderCheckSchema = z.object({
   outerData: CounterbalanceCylinderDataSchema.optional(),
   innerData: CounterbalanceCylinderDataSchema.optional(),
+  notes: z.string().optional(),
 });
 
 export type CounterbalanceCylinderCheck = z.infer<typeof CounterbalanceCylinderCheckSchema>;
@@ -410,53 +415,29 @@ export type CounterbalanceCylinderCheck = z.infer<typeof CounterbalanceCylinderC
  * Tramming Data Schema
  */
 export const TrammingDataSchema = z.object({
-  // OUTER SECTION - Top Position (4 measurements)
-  outerTopTop: z.number(),
-  outerTopBottom: z.number(),
-  outerTopLeft: z.number(),
-  outerTopRight: z.number(),
+  // Top Position (4 measurements around trim pin)
+  topTop: z.number(),
+  topBottom: z.number(),
+  topLeft: z.number(),
+  topRight: z.number(),
 
-  // OUTER SECTION - Bottom Position (4 measurements)
-  outerBottomTop: z.number(),
-  outerBottomBottom: z.number(),
-  outerBottomLeft: z.number(),
-  outerBottomRight: z.number(),
+  // Bottom Position (4 measurements around trim pin)
+  bottomTop: z.number(),
+  bottomBottom: z.number(),
+  bottomLeft: z.number(),
+  bottomRight: z.number(),
 
-  // OUTER SECTION - Left Position (4 measurements)
-  outerLeftTop: z.number(),
-  outerLeftBottom: z.number(),
-  outerLeftLeft: z.number(),
-  outerLeftRight: z.number(),
+  // Left Position (4 measurements around trim pin)
+  leftTop: z.number(),
+  leftBottom: z.number(),
+  leftLeft: z.number(),
+  leftRight: z.number(),
 
-  // OUTER SECTION - Right Position (4 measurements)
-  outerRightTop: z.number(),
-  outerRightBottom: z.number(),
-  outerRightLeft: z.number(),
-  outerRightRight: z.number(),
-
-  // INNER SECTION - Top Position (4 measurements)
-  innerTopTop: z.number(),
-  innerTopBottom: z.number(),
-  innerTopLeft: z.number(),
-  innerTopRight: z.number(),
-
-  // INNER SECTION - Bottom Position (4 measurements)
-  innerBottomTop: z.number(),
-  innerBottomBottom: z.number(),
-  innerBottomLeft: z.number(),
-  innerBottomRight: z.number(),
-
-  // INNER SECTION - Left Position (4 measurements)
-  innerLeftTop: z.number(),
-  innerLeftBottom: z.number(),
-  innerLeftLeft: z.number(),
-  innerLeftRight: z.number(),
-
-  // INNER SECTION - Right Position (4 measurements)
-  innerRightTop: z.number(),
-  innerRightBottom: z.number(),
-  innerRightLeft: z.number(),
-  innerRightRight: z.number(),
+  // Right Position (4 measurements around trim pin)
+  rightTop: z.number(),
+  rightBottom: z.number(),
+  rightLeft: z.number(),
+  rightRight: z.number(),
 });
 
 export type TrammingData = z.infer<typeof TrammingDataSchema>;
@@ -479,26 +460,26 @@ export type TrammingCheck = z.infer<typeof TrammingCheckSchema>;
  */
 export const PistonsDataSchema = z.object({
   // OUTER SECTION - LH Piston (4 measurements)
-  outerLhFrontTop: z.number(),
-  outerLhFrontBottom: z.number(),
+  outerLhTop: z.number(),
+  outerLhBottom: z.number(),
   outerLhLeft: z.number(),
   outerLhRight: z.number(),
 
   // OUTER SECTION - RH Piston (4 measurements)
-  outerRhFrontTop: z.number(),
-  outerRhFrontBottom: z.number(),
+  outerRhTop: z.number(),
+  outerRhBottom: z.number(),
   outerRhLeft: z.number(),
   outerRhRight: z.number(),
 
   // INNER SECTION - LH Piston (4 measurements)
-  innerLhFrontTop: z.number(),
-  innerLhFrontBottom: z.number(),
+  innerLhTop: z.number(),
+  innerLhBottom: z.number(),
   innerLhLeft: z.number(),
   innerLhRight: z.number(),
 
   // INNER SECTION - RH Piston (4 measurements)
-  innerRhFrontTop: z.number(),
-  innerRhFrontBottom: z.number(),
+  innerRhTop: z.number(),
+  innerRhBottom: z.number(),
   innerRhLeft: z.number(),
   innerRhRight: z.number(),
 });
@@ -511,11 +492,11 @@ export type PistonsData = z.infer<typeof PistonsDataSchema>;
 export const PistonsCheckSchema = z.object({
   outerData: PistonsDataSchema.optional(),
   innerData: PistonsDataSchema.optional(),
-  guidSeals: z.string().optional(),
-  pistonSeals: z.string().optional(),
-  vacuumSystem: z.string().optional(),
+  guideSeals: z.nativeEnum(PrismaSealConditionType).optional(),
+  pistonSeals: z.nativeEnum(PrismaSealConditionType).optional(),
+  vacuumSystem: z.nativeEnum(PrismaVacuumSystemConditionType).optional(),
   vacuumSystemAirPressureSetting: z.number().optional(),
-  vacuumSystemAirPressureUnit: z.string().optional(),
+  vacuumSystemAirPressureUnit: z.nativeEnum(PrismaPressureUnit).optional(),
   unit: z.enum(['inches', 'mm', 'cm']).optional(),
   notes: z.string().optional(),
 });
@@ -571,7 +552,7 @@ export const CreateServicePayloadSchema = z.object({
   bearingClearance: BearingClearanceCheckSchema.optional(),
   slide: SlideCheckSchema.optional(),
   gibs: GibsCheckSchema.optional(),
-  lubricationHydraulics: LubricationHydraulicsDataSchema.optional(),
+  lubricationHydraulics: LubricationHydraulicsCheckSchema.optional(),
   clutch: ClutchDataSchema.optional(),
   counterbalanceCylinder: CounterbalanceCylinderCheckSchema.optional(),
   tramming: TrammingCheckSchema.optional(),
@@ -606,7 +587,7 @@ export const UpdateServicePayloadSchema = z.object({
   bearingClearance: BearingClearanceCheckSchema.optional(),
   slide: SlideCheckSchema.optional(),
   gibs: GibsCheckSchema.optional(),
-  lubricationHydraulics: LubricationHydraulicsDataSchema.optional(),
+  lubricationHydraulics: LubricationHydraulicsCheckSchema.optional(),
   clutch: ClutchDataSchema.optional(),
   counterbalanceCylinder: CounterbalanceCylinderCheckSchema.optional(),
   tramming: TrammingCheckSchema.optional(),
@@ -702,14 +683,15 @@ export interface GibsFormProps {
 }
 
 export interface LubricationHydraulicsFormProps {
-  data: LubricationHydraulicsData;
+  data: LubricationHydraulicsData & { notes?: string };
   updateFn: (
-    field: keyof LubricationHydraulicsData,
+    field: keyof LubricationHydraulicsData | 'notes',
     value:
       | string
       | number
       | boolean
       | PrismaYesNoDncType
+      | PrismaTemperatureUnit
       | LubricationHydraulicsGauge[]
       | undefined,
   ) => void;
@@ -729,7 +711,6 @@ export interface CounterbalanceCylinderFormProps {
   updateFn: (field: keyof CounterbalanceCylinderData, value: string | number | undefined) => void;
   errors: Record<string, string>;
   title: string;
-  hideNotes?: boolean;
 }
 
 export interface TrammingFormProps {

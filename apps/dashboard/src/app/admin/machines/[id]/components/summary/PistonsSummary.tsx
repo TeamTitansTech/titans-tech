@@ -28,9 +28,9 @@ export function PistonsSummary({ data }: PistonsSummaryProps): React.ReactElemen
           <div className="border rounded-md overflow-hidden">
             <div className="p-2 space-y-1.5 text-[11px]">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">{tPistons('guidSeals')}:</span>
+                <span className="text-muted-foreground">{tPistons('guideSeals')}:</span>
                 <span className="font-medium">
-                  {displayValue(data.guidSeals, tCommon('yes'), tCommon('no'))}
+                  {displayValue(data.guideSeals, tCommon('yes'), tCommon('no'))}
                 </span>
               </div>
               <div className="flex justify-between">
