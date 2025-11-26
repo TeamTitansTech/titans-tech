@@ -354,6 +354,16 @@ enum AlertSeverity {
   NONE
 }
 
+enum CounterbalanceAlertField {
+  AIRBAG_PISTON_SEALS
+  REGULATOR
+  GAUGE
+  PNEUMATICS_PLUMBING
+  ROD_SEALS
+  ROD_BUSHING
+  OIL_WICK
+}
+
 model SysAdmin {
   id                     String   @id @default(cuid())
   email                  String   @unique
@@ -675,18 +685,19 @@ model MachineService {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  machine                      Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
-  bearingClearance             MachineServiceBearingClearance[]
-  slide                        MachineServiceSlide[]
-  gibs                         MachineServiceGibs[]
-  lubricationHydraulics        MachineServiceLubricationHydraulics[]
-  clutch                       MachineServiceClutch[]
-  counterbalanceCylinderAirbag MachineServiceCounterbalanceCylinderAirbag[]
-  tramming                     MachineServiceTramming[]
-  pistons                      MachineServicePistons[]
-  alertBearingClearance        AlertBearingClearance?
-  alertClutch                  AlertClutch?
-  alertSlide                   AlertSlide?
+  machine                           Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  bearingClearance                  MachineServiceBearingClearance[]
+  slide                             MachineServiceSlide[]
+  gibs                              MachineServiceGibs[]
+  lubricationHydraulics             MachineServiceLubricationHydraulics[]
+  clutch                            MachineServiceClutch[]
+  counterbalanceCylinderAirbag      MachineServiceCounterbalanceCylinderAirbag[]
+  tramming                          MachineServiceTramming[]
+  pistons                           MachineServicePistons[]
+  alertBearingClearance             AlertBearingClearance?
+  alertCounterbalanceCylinderAirbag AlertCounterbalanceCylinderAirbag[]
+  alertClutch                       AlertClutch?
+  alertSlide                        AlertSlide?
 
   @@map("machine_services")
 }
@@ -728,6 +739,21 @@ model AlertBearingClearance {
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
   @@map("alert_bearing_clearance")
+}
+
+model AlertCounterbalanceCylinderAirbag {
+  id               String                   @id @default(cuid())
+  machineServiceId String
+  fieldName        CounterbalanceAlertField
+  justification    String                   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@unique([machineServiceId, fieldName])
+  @@map("alert_counterbalance_cylinder_airbag")
 }
 
 model AlertClutch {

@@ -20,6 +20,7 @@ interface SectionsStepProps {
   onNext: () => void;
   getSectionRef: (sectionKey: string) => SectionComponentRef | undefined;
   completedSections: Set<string>;
+  serviceId?: string;
   translations: {
     getSectionName: (i18nKey: string) => string;
     previous: string;
@@ -42,6 +43,7 @@ export function SectionsStep({
   onNext,
   getSectionRef,
   completedSections,
+  serviceId,
   translations,
 }: SectionsStepProps) {
   const currentSectionKey = selectedSectionsArray[currentSectionIndex];
@@ -94,6 +96,7 @@ export function SectionsStep({
               isOpen={true}
               onOpenChange={() => {}}
               initialData={sectionData}
+              serviceId={serviceId}
             />
           </div>
         </div>
