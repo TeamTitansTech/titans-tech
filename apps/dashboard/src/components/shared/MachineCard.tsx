@@ -4,16 +4,16 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Typography } from '@/components/ui/typography';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Wrench, Calendar, Pencil, Trash2, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
-const statusClassNames = {
-  operational: 'bg-green-600 dark:bg-green-500',
-  maintenance: 'bg-yellow-600 dark:bg-yellow-500',
-  offline: 'bg-red-600 dark:bg-red-500',
-};
+// const statusClassNames = {
+//   operational: 'bg-green-600 dark:bg-green-500',
+//   maintenance: 'bg-yellow-600 dark:bg-yellow-500',
+//   offline: 'bg-red-600 dark:bg-red-500',
+// };
 
 const statusBadgeClassNames = {
   operational: 'bg-green-600 text-white dark:bg-green-500',
@@ -61,7 +61,7 @@ export function MachineCard({
       }`}
     >
       {/* Status Indicator */}
-      {!showStatusBadge && (
+      {/* {!showStatusBadge && (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -78,7 +78,7 @@ export function MachineCard({
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
-      )}
+      )} */}
 
       <CardContent className="p-[clamp(1.25rem,3vw,2rem)]">
         <div className="space-y-[clamp(0.875rem,2.5vw,1.25rem)]">
