@@ -17,11 +17,9 @@ import {
   UpdateThresholdBearingClearanceDto,
   CreateThresholdSlideDto,
   UpdateThresholdSlideDto,
-} from '@titans-tech/shared/backend-dtos';
-import {
   CreateThresholdSlideSchema,
   UpdateThresholdSlideSchema,
-} from '@titans-tech/shared/backend-dtos/requests-dto';
+} from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, Authenticated } from '../auth/auth.decorators';
 

@@ -1,9 +1,11 @@
 import { z } from 'zod';
 import { SlideThresholdsSchema } from './blueprint.dto';
 
-export const CreateThresholdSlideSchema = SlideThresholdsSchema.extend({
-  blueprintId: z.string(),
-});
+export const CreateThresholdSlideSchema = SlideThresholdsSchema.merge(
+  z.object({
+    blueprintId: z.string(),
+  }),
+);
 
 export type CreateThresholdSlideDto = z.infer<typeof CreateThresholdSlideSchema>;
 

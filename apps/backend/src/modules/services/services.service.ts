@@ -790,6 +790,14 @@ export class ServicesService {
       });
     });
 
+    if (updateDto.outerData || updateDto.innerData) {
+      try {
+        await this.alertsService.generateAlertsForSlide(serviceId);
+      } catch (error) {
+        console.error('Error generating slide alerts:', error);
+      }
+    }
+
     return this.findOne(serviceId);
   }
 
