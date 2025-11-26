@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 export const GibsThresholdsSchema = z
   .object({
-    usable_greenMin: z.number().positive(),
-    usable_yellowMin: z.number().positive(),
-    usable_redMin: z.number().positive(),
+    usable_greenMin: z.number(),
+    usable_yellowMin: z.number(),
+    usable_redMin: z.number(),
   })
   .refine(
     (data) => {
