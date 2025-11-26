@@ -14,6 +14,7 @@ import {
   convertThresholdToDecimal,
   convertClutchThresholdToDecimal,
   convertSlideThresholdToDecimal,
+  convertGibsThresholdToDecimal,
 } from '../alerts/threshold.utils';
 
 @Injectable()
@@ -63,6 +64,16 @@ export class BlueprintsService {
           data: {
             blueprintId: blueprint.id,
             ...convertSlideThresholdToDecimal(dto.slideThresholds),
+          },
+        });
+      }
+
+      // 5. Create GIBS Thresholds if provided
+      if (dto.gibsThresholds) {
+        await tx.thresholdGibs.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertGibsThresholdToDecimal(dto.gibsThresholds),
           },
         });
       }

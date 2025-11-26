@@ -29,6 +29,7 @@ export {
   SealConditionType,
   VacuumSystemConditionType,
   PressureUnit,
+  CounterbalanceAlertField,
 } from '@titans-tech/shared/types/services';
 
 export type {
@@ -69,6 +70,7 @@ import type {
   BearingClearanceData as BearingData,
   ClutchData,
   SlideData,
+  GibsStageData,
 } from '@titans-tech/shared/types/services';
 
 export interface LatestBearingClearance {
@@ -127,6 +129,17 @@ export interface LatestSlide {
   };
 }
 
+export interface LatestGibs {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: GibsStageData; // Outer After Adjustment data (used for alerts)
+  alert?: {
+    usable_value: number;
+    usable_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+  };
+}
+
 export interface LatestReport {
   machineId: string;
   machineName: string;
@@ -139,7 +152,7 @@ export interface LatestReport {
   sections: {
     BEARING_CLEARANCE: LatestBearingClearance | null;
     SLIDE: LatestSlide | null;
-    GIBS: null;
+    GIBS: LatestGibs | null;
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null;
     CLUTCH: LatestClutch | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: null;

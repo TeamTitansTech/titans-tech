@@ -6,6 +6,7 @@ import { createBlueprint } from '@/data/services/blueprints.api';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
+import { GibsThresholdsData } from '@/components/alerts/GibsThresholds';
 import { type Field } from '../types';
 
 // Client-safe slug to enum mapping
@@ -65,6 +66,12 @@ const INITIAL_SLIDE_THRESHOLDS: SlideThresholdsData = {
   maxDeviation_redMin: 0.003,
 };
 
+const INITIAL_GIBS_THRESHOLDS: GibsThresholdsData = {
+  usable_greenMin: 0.001,
+  usable_yellowMin: 0.002,
+  usable_redMin: 0.003,
+};
+
 export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const t = useTranslations('models');
   const [name, setName] = useState('');
@@ -77,6 +84,8 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const [slideThresholdsOpen, setSlideThresholdsOpen] = useState(false);
   const [slideThresholds, setSlideThresholds] =
     useState<SlideThresholdsData>(INITIAL_SLIDE_THRESHOLDS);
+  const [gibsThresholdsOpen, setGibsThresholdsOpen] = useState(false);
+  const [gibsThresholds, setGibsThresholds] = useState<GibsThresholdsData>(INITIAL_GIBS_THRESHOLDS);
 
   const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
 
@@ -105,9 +114,15 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
       if (hasSlideThresholdChanges) return true;
 
+      const hasGibsThresholdChanges = (
+        Object.keys(gibsThresholds) as Array<keyof GibsThresholdsData>
+      ).some((key) => gibsThresholds[key] !== INITIAL_GIBS_THRESHOLDS[key]);
+
+      if (hasGibsThresholdChanges) return true;
+
       return false;
     },
-    [name, selectedSections, thresholds, clutchThresholds, slideThresholds],
+    [name, selectedSections, thresholds, clutchThresholds, slideThresholds, gibsThresholds],
   );
 
   const toggleSection = (section: string) => {
@@ -127,6 +142,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     const hasBearingClearance = selectedSections.includes('bearing_clearance');
     const hasClutch = selectedSections.includes('clutch');
     const hasSlide = selectedSections.includes('slide');
+    const hasGibs = selectedSections.includes('gibs');
 
     interface BlueprintField {
       fieldName: string;
@@ -142,6 +158,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       thresholds?: BearingClearanceThresholdsData;
       clutchThresholds?: ClutchThresholdsData;
       slideThresholds?: SlideThresholdsData;
+      gibsThresholds?: GibsThresholdsData;
     }
 
     const payload: CreateBlueprintPayload = {
@@ -179,6 +196,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       payload.slideThresholds = slideThresholds;
     }
 
+    if (hasGibs) {
+      payload.gibsThresholds = gibsThresholds;
+    }
+
     const response = await submitBlueprint(payload);
 
     if (response.data) {
@@ -188,6 +209,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       setThresholdsOpen(false);
       setClutchThresholdsOpen(false);
       setSlideThresholdsOpen(false);
+      setGibsThresholdsOpen(false);
       resetThresholds();
       resetSlideThresholds();
       resetFields();
@@ -201,6 +223,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setThresholds(INITIAL_THRESHOLDS);
     setClutchThresholds(INITIAL_CLUTCH_THRESHOLDS);
     setSlideThresholds(INITIAL_SLIDE_THRESHOLDS);
+    setGibsThresholds(INITIAL_GIBS_THRESHOLDS);
   }, []);
 
   const resetSlideThresholds = useCallback(() => {
@@ -213,6 +236,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setThresholdsOpen(false);
     setClutchThresholdsOpen(false);
     setSlideThresholdsOpen(false);
+    setGibsThresholdsOpen(false);
     resetThresholds();
     resetSlideThresholds();
   }, [resetThresholds, resetSlideThresholds]);
@@ -234,6 +258,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setSlideThresholdsOpen,
     slideThresholds,
     setSlideThresholds,
+    gibsThresholdsOpen,
+    setGibsThresholdsOpen,
+    gibsThresholds,
+    setGibsThresholds,
     isLoading,
     result,
     handleSubmit,

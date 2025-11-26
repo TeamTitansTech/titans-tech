@@ -11,6 +11,7 @@ import {
   ServiceType,
 } from '@/data/types/services.types';
 import { CounterbalanceCylinderForm } from '../forms/CounterbalanceCylinderForm';
+import { CounterbalanceAlertsSection } from './CounterbalanceAlertsSection';
 import { isDataTouched } from './utils';
 
 export const defaultCounterbalanceCylinderData: CounterbalanceCylinderData = {
@@ -78,12 +79,13 @@ interface CounterbalanceCylinderSectionProps {
   initialData?: CounterbalanceCylinderCheck;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  serviceId?: string;
 }
 
 export const CounterbalanceCylinderSection = forwardRef<
   CounterbalanceCylinderSectionRef,
   CounterbalanceCylinderSectionProps
->(({ onSectionTouched, initialData }, ref) => {
+>(({ onSectionTouched, initialData, serviceId }, ref) => {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
 
   // Store initial loaded data for "touched" detection
@@ -227,7 +229,7 @@ export const CounterbalanceCylinderSection = forwardRef<
   }));
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       <Tabs defaultValue="outer" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="outer">{t('outer')}</TabsTrigger>
@@ -269,6 +271,8 @@ export const CounterbalanceCylinderSection = forwardRef<
           rows={3}
         />
       </div>
+
+      <CounterbalanceAlertsSection serviceId={serviceId} />
     </div>
   );
 });

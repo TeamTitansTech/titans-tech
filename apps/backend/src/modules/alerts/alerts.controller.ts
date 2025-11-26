@@ -19,27 +19,39 @@ import {
   CreateThresholdClutchDto,
   UpdateThresholdClutchSchema,
   UpdateThresholdClutchDto,
+  CreateAlertCounterbalanceCylinderAirbagSchema,
+  CreateAlertCounterbalanceCylinderAirbagDto,
+  UpdateAlertCounterbalanceCylinderAirbagSchema,
+  UpdateAlertCounterbalanceCylinderAirbagDto,
   CreateThresholdSlideDto,
   UpdateThresholdSlideDto,
   CreateThresholdSlideSchema,
   UpdateThresholdSlideSchema,
+  CreateThresholdGibsDto,
+  UpdateThresholdGibsDto,
+  CreateThresholdGibsSchema,
+  UpdateThresholdGibsSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, Authenticated } from '../auth/auth.decorators';
 
-@Controller('alerts/bearing-clearance')
+@Controller('alerts')
 @UseInterceptors(ClassSerializerInterceptor)
 export class AlertsController {
   constructor(private readonly alertsService: AlertsService) {}
 
+  // ============================================================================
+  // BEARING CLEARANCE - Threshold & Auto-Generated Alerts
+  // ============================================================================
+
   @Authenticated()
-  @Get('thresholds/blueprint/:blueprintId')
+  @Get('bearing-clearance/thresholds/blueprint/:blueprintId')
   async getThresholdByBlueprint(@Param('blueprintId') blueprintId: string) {
     return this.alertsService.getThresholdByBlueprint(blueprintId);
   }
 
   @Admin()
-  @Post('thresholds')
+  @Post('bearing-clearance/thresholds')
   async createThreshold(
     @Body(new ZodValidationPipe(CreateThresholdBearingClearanceSchema))
     dto: CreateThresholdBearingClearanceDto,
@@ -48,7 +60,7 @@ export class AlertsController {
   }
 
   @Admin()
-  @Put('thresholds/blueprint/:blueprintId')
+  @Put('bearing-clearance/thresholds/blueprint/:blueprintId')
   async updateThreshold(
     @Param('blueprintId') blueprintId: string,
     @Body(new ZodValidationPipe(UpdateThresholdBearingClearanceSchema))
@@ -58,22 +70,60 @@ export class AlertsController {
   }
 
   @Admin()
-  @Delete('thresholds/blueprint/:blueprintId')
+  @Delete('bearing-clearance/thresholds/blueprint/:blueprintId')
   async deleteThreshold(@Param('blueprintId') blueprintId: string) {
     await this.alertsService.deleteThreshold(blueprintId);
     return { message: 'Threshold deleted successfully' };
   }
 
   @Authenticated()
-  @Get('service/:serviceId')
+  @Get('bearing-clearance/service/:serviceId')
   async getAlertByService(@Param('serviceId') serviceId: string) {
     return this.alertsService.getAlertByService(serviceId);
   }
 
   @Admin()
-  @Post('service/:serviceId/generate')
+  @Post('bearing-clearance/service/:serviceId/generate')
   async generateAlerts(@Param('serviceId') serviceId: string) {
     return this.alertsService.generateAlertsForService(serviceId);
+  }
+
+  // ============================================================================
+  // COUNTERBALANCE CYLINDER AIRBAG - Manual Alerts
+  // ============================================================================
+
+  @Admin()
+  @Post('counterbalance/service/:serviceId')
+  async createCounterbalanceAlert(
+    @Param('serviceId') serviceId: string,
+    @Body(new ZodValidationPipe(CreateAlertCounterbalanceCylinderAirbagSchema))
+    dto: CreateAlertCounterbalanceCylinderAirbagDto,
+  ) {
+    return this.alertsService.createCounterbalanceAlert(serviceId, dto);
+  }
+
+  @Authenticated()
+  @Get('counterbalance/service/:serviceId')
+  async getCounterbalanceAlertsForService(
+    @Param('serviceId') serviceId: string,
+  ) {
+    return this.alertsService.getCounterbalanceAlertsForService(serviceId);
+  }
+
+  @Admin()
+  @Put('counterbalance/:alertId')
+  async updateCounterbalanceAlert(
+    @Param('alertId') alertId: string,
+    @Body(new ZodValidationPipe(UpdateAlertCounterbalanceCylinderAirbagSchema))
+    dto: UpdateAlertCounterbalanceCylinderAirbagDto,
+  ) {
+    return this.alertsService.updateCounterbalanceAlert(alertId, dto);
+  }
+
+  @Admin()
+  @Delete('counterbalance/:alertId')
+  async deleteCounterbalanceAlert(@Param('alertId') alertId: string) {
+    return this.alertsService.deleteCounterbalanceAlert(alertId);
   }
 }
 
@@ -177,5 +227,54 @@ export class AlertsSlideController {
   @Post('service/:serviceId/generate')
   async generateSlideAlerts(@Param('serviceId') serviceId: string) {
     return this.alertsService.generateAlertsForSlide(serviceId);
+  }
+}
+
+@Controller('alerts/gibs')
+@UseInterceptors(ClassSerializerInterceptor)
+export class AlertsGibsController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getGibsThresholdByBlueprint(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.getGibsThresholdByBlueprint(blueprintId);
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createGibsThreshold(
+    @Body(new ZodValidationPipe(CreateThresholdGibsSchema))
+    dto: CreateThresholdGibsDto,
+  ) {
+    return this.alertsService.createGibsThreshold(dto);
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updateGibsThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(new ZodValidationPipe(UpdateThresholdGibsSchema))
+    dto: UpdateThresholdGibsDto,
+  ) {
+    return this.alertsService.updateGibsThreshold(blueprintId, dto);
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deleteGibsThreshold(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.deleteGibsThreshold(blueprintId);
+  }
+
+  @Authenticated()
+  @Get('service/:serviceId')
+  async getGibsAlertByService(@Param('serviceId') serviceId: string) {
+    return this.alertsService.getGibsAlertByService(serviceId);
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generateGibsAlerts(@Param('serviceId') serviceId: string) {
+    return this.alertsService.generateAlertsForGibs(serviceId);
   }
 }

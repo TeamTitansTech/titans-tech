@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ServiceSection } from '@titans-tech/db/enums';
 import { ClutchThresholdsSchema } from './threshold-clutch.dto';
+import { GibsThresholdsSchema } from './threshold-gibs.dto';
 
 // Schema existente para Blueprint
 export const CreateBlueprintSchema = z.object({
@@ -103,6 +104,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     thresholds: ThresholdsSchema.optional(),
     clutchThresholds: ClutchThresholdsSchema.optional(),
     slideThresholds: SlideThresholdsSchema.optional(),
+    gibsThresholds: GibsThresholdsSchema.optional(),
   })
   .refine(
     (data) => {
@@ -116,6 +118,10 @@ export const CreateBlueprintWithThresholdsSchema = z
       }
       // Se slideThresholds fornecidos, SLIDE deve estar em sections
       if (data.slideThresholds && !data.sections.includes(ServiceSection.SLIDE)) {
+        return false;
+      }
+      // Se gibsThresholds fornecidos, GIBS deve estar em sections
+      if (data.gibsThresholds && !data.sections.includes(ServiceSection.GIBS)) {
         return false;
       }
       return true;

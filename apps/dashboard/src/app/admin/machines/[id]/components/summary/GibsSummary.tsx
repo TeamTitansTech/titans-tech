@@ -265,19 +265,17 @@ export function GibsSummary({ data }: GibsSummaryProps) {
 
   return (
     <div className="space-y-4 text-xs">
-      {(data.outerBeforeAdjustment ||
-        data.outerAfterAdjustment ||
-        data.outerFreeHangingAfterInstall) && (
+      {(data.outerBefore || data.outerData || data.outerFreeHangingData) && (
         <div className="border-t pt-3">
           <div className="font-semibold mb-2 text-sm flex items-center gap-2">
             <div className="w-1 h-5 bg-primary rounded" />
             {tTable('outer')} {tGibsFields('directionalTitle')}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-2">
-            {renderStageTable(data.outerBeforeAdjustment, tGibsFields('beforeAdjustment'), true)}
-            {renderStageTable(data.outerAfterAdjustment, tGibsFields('afterAdjustment'), true)}
+            {renderStageTable(data.outerBefore, tGibsFields('beforeAdjustment'), true)}
+            {renderStageTable(data.outerData, tGibsFields('afterAdjustment'), true)}
             {renderStageTable(
-              data.outerFreeHangingAfterInstall,
+              data.outerFreeHangingData,
               tGibsFields('freeHangingAfterInstall'),
               true,
             )}
@@ -285,24 +283,18 @@ export function GibsSummary({ data }: GibsSummaryProps) {
         </div>
       )}
 
-      {(data.innerBeforeAdjustment ||
-        data.innerAfterAdjustment ||
-        data.innerBeforeToolInstallation ||
-        data.innerAfterToolInstallation) && (
+      {(data.innerBefore || data.innerData || data.innerBeforeTool || data.innerDataTool) && (
         <div className="border-t pt-3">
           <div className="font-semibold mb-2 text-sm flex items-center gap-2">
             <div className="w-1 h-5 bg-secondary rounded" />
             {tTable('inner')} {tGibsFields('directionalTitle')}
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-            {renderStageTable(data.innerBeforeAdjustment, tGibsFields('beforeAdjustment'))}
-            {renderStageTable(data.innerAfterAdjustment, tGibsFields('afterAdjustment'))}
+            {renderStageTable(data.innerBefore, tGibsFields('beforeAdjustment'))}
+            {renderStageTable(data.innerData, tGibsFields('afterAdjustment'))}
+            {renderStageTable(data.innerBeforeTool, tGibsFields('beforeToolInstallation'))}
             {renderStageTable(
-              data.innerBeforeToolInstallation,
-              tGibsFields('beforeToolInstallation'),
-            )}
-            {renderStageTable(
-              data.innerAfterToolInstallation,
+              data.innerDataTool,
               tGibsFields('afterToolInstallation'),
               false,
               true,

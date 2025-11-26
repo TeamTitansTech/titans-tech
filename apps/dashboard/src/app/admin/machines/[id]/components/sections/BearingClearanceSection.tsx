@@ -549,7 +549,7 @@ export const BearingClearanceSection = forwardRef<
   }));
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Include Before Measurements Checkbox - Only for Maintenance */}
       {serviceType === ServiceType.MAINTENANCE && (
         <div className="flex items-center space-x-2 pb-4 border-b">
