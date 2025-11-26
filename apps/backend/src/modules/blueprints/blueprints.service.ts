@@ -10,7 +10,11 @@ import {
   CreateBlueprintWithThresholdsDto,
   CreateBlueprintDto,
 } from '@titans-tech/shared/backend-dtos';
-import { convertThresholdToDecimal } from '../alerts/threshold.utils';
+import {
+  convertThresholdToDecimal,
+  convertClutchThresholdToDecimal,
+  convertSlideThresholdToDecimal,
+} from '../alerts/threshold.utils';
 
 @Injectable()
 export class BlueprintsService {
@@ -39,6 +43,26 @@ export class BlueprintsService {
           data: {
             blueprintId: blueprint.id,
             ...convertThresholdToDecimal(dto.thresholds),
+          },
+        });
+      }
+
+      // 3. Create Clutch Thresholds if provided
+      if (dto.clutchThresholds) {
+        await tx.thresholdClutch.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertClutchThresholdToDecimal(dto.clutchThresholds),
+          },
+        });
+      }
+
+      // 4. Create Slide Thresholds if provided
+      if (dto.slideThresholds) {
+        await tx.thresholdSlide.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertSlideThresholdToDecimal(dto.slideThresholds),
           },
         });
       }

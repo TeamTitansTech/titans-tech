@@ -180,6 +180,8 @@ export class ProductionLinesService {
                   },
                   include: {
                     alertBearingClearance: true,
+                    alertClutch: true,
+                    alertSlide: true,
                   },
                 },
               },
@@ -214,6 +216,8 @@ export class ProductionLinesService {
                   },
                   include: {
                     alertBearingClearance: true,
+                    alertClutch: true,
+                    alertSlide: true,
                   },
                 },
               },
@@ -339,6 +343,8 @@ export class ProductionLinesService {
                   },
                   include: {
                     alertBearingClearance: true,
+                    alertClutch: true,
+                    alertSlide: true,
                   },
                 },
               },

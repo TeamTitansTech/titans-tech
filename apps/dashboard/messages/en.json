@@ -1187,6 +1187,42 @@
         "counterbalanceTypes": {
           "cylinder": "Cylinder",
           "airbag": "Airbag"
+        },
+        "alerts": {
+          "title": "Critical Alerts",
+          "noAlerts": "No critical alerts registered",
+          "addNew": "Add New Alert",
+          "allFieldsHaveAlerts": "All fields already have registered alerts",
+          "fieldWithProblem": "Field with Problem",
+          "selectField": "Select a field...",
+          "justification": "Justification",
+          "justificationPlaceholder": "Describe the problem (e.g., leak due to gear breakage)",
+          "characters": "characters",
+          "cancel": "Cancel",
+          "save": "Save Alert",
+          "saving": "Saving...",
+          "editing": "Editing...",
+          "createdAt": "Created at",
+          "toast": {
+            "selectFieldAndJustification": "Select a field and provide a justification",
+            "createSuccess": "Alert created successfully",
+            "createError": "Error creating alert",
+            "justificationRequired": "Justification is required",
+            "updateSuccess": "Alert updated successfully",
+            "updateError": "Error updating alert",
+            "deleteSuccess": "Alert deleted successfully",
+            "deleteError": "Error deleting alert",
+            "confirmDelete": "Are you sure you want to delete this alert?"
+          },
+          "fieldLabels": {
+            "AIRBAG_PISTON_SEALS": "Airbag/Piston Seals",
+            "REGULATOR": "Regulator",
+            "GAUGE": "Gauge",
+            "PNEUMATICS_PLUMBING": "Pneumatics/Plumbing",
+            "ROD_SEALS": "Rod Seals",
+            "ROD_BUSHING": "Rod Bushing",
+            "OIL_WICK": "Oil Wick"
+          }
         }
       },
       "tramming": {
@@ -1617,6 +1653,14 @@
       "wristPinToMatingPart": "Wrist Pin to Mating Part",
       "wristPinToBushing": "Wrist Pin to Bushing",
       "slideAdjNutToScrewSleeve": "Slide Adj Nut to Screw/Sleeve"
+    },
+    "clutch": {
+      "title": "CLUTCH - Alert Configuration",
+      "hydClutchClearanceTotal": "Hydraulic Clutch Clearance Total",
+      "hydClutchClearanceRear": "Hydraulic Clutch Clearance Rear",
+      "fb": "F-B (Front-Back)",
+      "fTB": "F-TB (Front Top-Bottom)",
+      "rTB": "R-TB (Rear Top-Bottom)"
     },
     "thresholds": {
       "greenStartMin": "Green Start (Min)",

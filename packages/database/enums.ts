@@ -73,4 +73,5 @@ export {
 
   // Alert enums
   AlertSeverity,
+  CounterbalanceAlertField,
 } from './generated/prisma/enums';

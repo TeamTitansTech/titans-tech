@@ -89,6 +89,15 @@ CREATE TYPE "ClutchSealsType" AS ENUM ('OK', 'NA', 'DNC', 'LEAKING', 'SLOW_RESPO
 CREATE TYPE "PressureUnit" AS ENUM ('BAR', 'MPA', 'PSI');
 
 -- CreateEnum
+CREATE TYPE "TemperatureUnit" AS ENUM ('FAHRENHEIT', 'CELSIUS');
+
+-- CreateEnum
+CREATE TYPE "SealConditionType" AS ENUM ('OK', 'NA', 'DNC', 'LEAKING', 'WORN');
+
+-- CreateEnum
+CREATE TYPE "VacuumSystemConditionType" AS ENUM ('OK', 'NA', 'DNC', 'DAMAGED', 'LEAKING');
+
+-- CreateEnum
 CREATE TYPE "SplinesConditionType" AS ENUM ('OK', 'NA', 'DNC', 'BROKEN', 'NOT_VISIBLE', 'WEAR_VISIBLE');
 
 -- CreateEnum
@@ -133,6 +142,15 @@ CREATE TYPE "ServiceSection" AS ENUM ('BEARING_CLEARANCE', 'SLIDE', 'GIBS', 'LUB
 -- CreateEnum
 CREATE TYPE "AlertSeverity" AS ENUM ('GREEN', 'YELLOW', 'RED', 'NONE');
 
+-- CreateEnum
+CREATE TYPE "NotificationType" AS ENUM ('URGENT_SERVICE_REQUEST', 'SERVICE_REMINDER', 'SERVICE_OVERDUE', 'SERVICE_COMPLETED');
+
+-- CreateEnum
+CREATE TYPE "EmailStatus" AS ENUM ('PENDING', 'SENT', 'FAILED');
+
+-- CreateEnum
+CREATE TYPE "EmailProvider" AS ENUM ('SENDGRID', 'AWS_SES');
+
 -- CreateTable
 CREATE TABLE "sys_admins" (
     "id" TEXT NOT NULL,
@@ -157,6 +175,19 @@ CREATE TABLE "companies" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "companies_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "permission_templates" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "permissions" JSONB NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "companyId" TEXT NOT NULL,
+
+    CONSTRAINT "permission_templates_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -214,6 +245,10 @@ CREATE TABLE "user_branches" (
     "createServices" BOOLEAN NOT NULL DEFAULT false,
     "updateServices" BOOLEAN NOT NULL DEFAULT false,
     "deleteServices" BOOLEAN NOT NULL DEFAULT false,
+    "readProductionLines" BOOLEAN NOT NULL DEFAULT false,
+    "createProductionLines" BOOLEAN NOT NULL DEFAULT false,
+    "updateProductionLines" BOOLEAN NOT NULL DEFAULT false,
+    "deleteProductionLines" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "user_branches_pkey" PRIMARY KEY ("userId","branchId")
 );
@@ -266,7 +301,6 @@ CREATE TABLE "machines" (
     "branchId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
     "manufacturer" TEXT,
-    "model" TEXT,
     "sizeTonnage" TEXT,
     "serialNumber" TEXT,
     "stroke" TEXT,
@@ -398,18 +432,6 @@ CREATE TABLE "machine_service_slide" (
     "outerDataId" TEXT,
     "innerBeforeId" TEXT,
     "innerDataId" TEXT,
-    "outerParallelism" "ParallelismType",
-    "outerHasParallelismBeenAdjusted" "YesNoNaDncType",
-    "innerParallelism" "ParallelismType",
-    "innerHasParallelismBeenAdjusted" "YesNoNaDncType",
-    "outerShutheightIndicatorsChecked" "YesNoDncType",
-    "outerOverloadsOnTonnageMonitor" TEXT,
-    "outerShutheightActualSh" TEXT,
-    "outerIndicatorReading" TEXT,
-    "innerShutheightIndicatorsChecked" "YesNoDncType",
-    "innerOverloadsOnTonnageMonitor" TEXT,
-    "innerShutheightActualSh" TEXT,
-    "innerIndicatorReading" TEXT,
     "notes" TEXT,
 
     CONSTRAINT "machine_service_slide_pkey" PRIMARY KEY ("id")
@@ -418,12 +440,17 @@ CREATE TABLE "machine_service_slide" (
 -- CreateTable
 CREATE TABLE "service_data_slide" (
     "id" TEXT NOT NULL,
+    "parallelism" "ParallelismType",
+    "hasParallelismBeenAdjusted" "YesNoNaDncType",
+    "shutheightIndicatorsChecked" "YesNoDncType",
+    "overloadsOnTonnageMonitor" TEXT,
+    "shutheightActualSh" TEXT,
+    "indicatorReading" TEXT,
     "position1" DECIMAL(10,4) NOT NULL,
     "position2" DECIMAL(10,4) NOT NULL,
     "position3" DECIMAL(10,4) NOT NULL,
     "position4" DECIMAL(10,4) NOT NULL,
     "position5" DECIMAL(10,4) NOT NULL,
-    "position6" DECIMAL(10,4) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -434,18 +461,21 @@ CREATE TABLE "service_data_slide" (
 CREATE TABLE "machine_service_gibs" (
     "id" TEXT NOT NULL,
     "machineServiceId" TEXT NOT NULL,
-    "outerBeforeId" TEXT,
-    "outerDataId" TEXT,
-    "innerBeforeId" TEXT,
-    "innerDataId" TEXT,
+    "outerBeforeAdjustmentId" TEXT,
+    "outerAfterAdjustmentId" TEXT,
+    "outerFreeHangingAfterInstallId" TEXT,
+    "innerBeforeAdjustmentId" TEXT,
+    "innerAfterAdjustmentId" TEXT,
+    "innerBeforeToolInstallationId" TEXT,
+    "innerAfterToolInstallationId" TEXT,
+    "notes" TEXT,
 
     CONSTRAINT "machine_service_gibs_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "service_data_gibs" (
+CREATE TABLE "service_data_gibs_stage" (
     "id" TEXT NOT NULL,
-    "hasBeenAdjusted" "YesNoDncType",
     "point1" DECIMAL(10,4) NOT NULL,
     "point2" DECIMAL(10,4) NOT NULL,
     "point3" DECIMAL(10,4) NOT NULL,
@@ -462,19 +492,10 @@ CREATE TABLE "service_data_gibs" (
     "point14" DECIMAL(10,4) NOT NULL,
     "point15" DECIMAL(10,4) NOT NULL,
     "point16" DECIMAL(10,4) NOT NULL,
-    "leftTop" DECIMAL(10,4),
-    "leftBottom" DECIMAL(10,4),
-    "rightTop" DECIMAL(10,4),
-    "rightBottom" DECIMAL(10,4),
-    "frontTop" DECIMAL(10,4),
-    "frontBottom" DECIMAL(10,4),
-    "backTop" DECIMAL(10,4),
-    "backBottom" DECIMAL(10,4),
-    "usable" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "service_data_gibs_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "service_data_gibs_stage_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -482,6 +503,7 @@ CREATE TABLE "machine_service_lubrication_hydraulics" (
     "id" TEXT NOT NULL,
     "machineServiceId" TEXT NOT NULL,
     "dataId" TEXT,
+    "notes" TEXT,
 
     CONSTRAINT "machine_service_lubrication_hydraulics_pkey" PRIMARY KEY ("id")
 );
@@ -490,10 +512,10 @@ CREATE TABLE "machine_service_lubrication_hydraulics" (
 CREATE TABLE "service_data_lubrication_hydraulics" (
     "id" TEXT NOT NULL,
     "changedOil" "YesNoDncType" NOT NULL DEFAULT 'DNC',
-    "oilTemperatureF" INTEGER,
+    "oilTemperature" INTEGER,
+    "oilTemperatureUnit" "TemperatureUnit" NOT NULL DEFAULT 'FAHRENHEIT',
     "oilMfgType" TEXT,
     "changedFilter" "YesNoDncType" NOT NULL DEFAULT 'DNC',
-    "notes" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -505,7 +527,7 @@ CREATE TABLE "lubrication_hydraulics_gauges" (
     "id" TEXT NOT NULL,
     "lubricationHydraulicsDataId" TEXT NOT NULL,
     "system" "LubeHydMonitorFlowPressSwGibType" NOT NULL,
-    "gauge" TEXT,
+    "gaugeSwitchIdentifier" TEXT,
     "psi" "OkNaDncDamageType",
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -576,6 +598,7 @@ CREATE TABLE "machine_service_counterbalance_cylinder_airbag" (
     "machineServiceId" TEXT NOT NULL,
     "outerDataId" TEXT,
     "innerDataId" TEXT,
+    "notes" TEXT,
 
     CONSTRAINT "machine_service_counterbalance_cylinder_airbag_pkey" PRIMARY KEY ("id")
 );
@@ -592,11 +615,62 @@ CREATE TABLE "service_data_counterbalance_cylinder_airbag" (
     "rodSeals" "OkNaDncLeakingType",
     "rodBushing" "OkNaDncDarkOilType",
     "oilWick" "OkNaDncNeedReplacedType",
-    "notes" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "service_data_counterbalance_cylinder_airbag_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "admin_notifications" (
+    "id" TEXT NOT NULL,
+    "machineId" TEXT NOT NULL,
+    "message" TEXT NOT NULL,
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "type" "NotificationType" NOT NULL DEFAULT 'URGENT_SERVICE_REQUEST',
+    "createdByUserId" TEXT NOT NULL,
+    "metadata" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "admin_notifications_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "client_notifications" (
+    "id" TEXT NOT NULL,
+    "userId" TEXT NOT NULL,
+    "machineId" TEXT,
+    "message" TEXT NOT NULL,
+    "isRead" BOOLEAN NOT NULL DEFAULT false,
+    "redirectUrl" TEXT,
+    "type" "NotificationType" NOT NULL,
+    "metadata" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "client_notifications_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "emails" (
+    "id" TEXT NOT NULL,
+    "to" TEXT NOT NULL,
+    "from" TEXT NOT NULL,
+    "subject" TEXT NOT NULL,
+    "body" TEXT NOT NULL,
+    "type" "NotificationType" NOT NULL,
+    "status" "EmailStatus" NOT NULL DEFAULT 'PENDING',
+    "provider" "EmailProvider" NOT NULL,
+    "externalId" TEXT,
+    "error" TEXT,
+    "sentAt" TIMESTAMP(3),
+    "machineId" TEXT,
+    "metadata" JSONB,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "emails_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -605,7 +679,7 @@ CREATE TABLE "machine_service_tramming" (
     "machineServiceId" TEXT NOT NULL,
     "outerDataId" TEXT,
     "innerDataId" TEXT,
-    "slideTram" "YesNoDncType",
+    "slideTram" "DncToBedToBolsterType",
     "notes" TEXT,
 
     CONSTRAINT "machine_service_tramming_pkey" PRIMARY KEY ("id")
@@ -614,38 +688,22 @@ CREATE TABLE "machine_service_tramming" (
 -- CreateTable
 CREATE TABLE "service_data_tramming" (
     "id" TEXT NOT NULL,
-    "outerTopTop" DECIMAL(10,4) NOT NULL,
-    "outerTopBottom" DECIMAL(10,4) NOT NULL,
-    "outerTopLeft" DECIMAL(10,4) NOT NULL,
-    "outerTopRight" DECIMAL(10,4) NOT NULL,
-    "outerBottomTop" DECIMAL(10,4) NOT NULL,
-    "outerBottomBottom" DECIMAL(10,4) NOT NULL,
-    "outerBottomLeft" DECIMAL(10,4) NOT NULL,
-    "outerBottomRight" DECIMAL(10,4) NOT NULL,
-    "outerLeftTop" DECIMAL(10,4) NOT NULL,
-    "outerLeftBottom" DECIMAL(10,4) NOT NULL,
-    "outerLeftLeft" DECIMAL(10,4) NOT NULL,
-    "outerLeftRight" DECIMAL(10,4) NOT NULL,
-    "outerRightTop" DECIMAL(10,4) NOT NULL,
-    "outerRightBottom" DECIMAL(10,4) NOT NULL,
-    "outerRightLeft" DECIMAL(10,4) NOT NULL,
-    "outerRightRight" DECIMAL(10,4) NOT NULL,
-    "innerTopTop" DECIMAL(10,4) NOT NULL,
-    "innerTopBottom" DECIMAL(10,4) NOT NULL,
-    "innerTopLeft" DECIMAL(10,4) NOT NULL,
-    "innerTopRight" DECIMAL(10,4) NOT NULL,
-    "innerBottomTop" DECIMAL(10,4) NOT NULL,
-    "innerBottomBottom" DECIMAL(10,4) NOT NULL,
-    "innerBottomLeft" DECIMAL(10,4) NOT NULL,
-    "innerBottomRight" DECIMAL(10,4) NOT NULL,
-    "innerLeftTop" DECIMAL(10,4) NOT NULL,
-    "innerLeftBottom" DECIMAL(10,4) NOT NULL,
-    "innerLeftLeft" DECIMAL(10,4) NOT NULL,
-    "innerLeftRight" DECIMAL(10,4) NOT NULL,
-    "innerRightTop" DECIMAL(10,4) NOT NULL,
-    "innerRightBottom" DECIMAL(10,4) NOT NULL,
-    "innerRightLeft" DECIMAL(10,4) NOT NULL,
-    "innerRightRight" DECIMAL(10,4) NOT NULL,
+    "topTop" DECIMAL(10,4) NOT NULL,
+    "topBottom" DECIMAL(10,4) NOT NULL,
+    "topLeft" DECIMAL(10,4) NOT NULL,
+    "topRight" DECIMAL(10,4) NOT NULL,
+    "bottomTop" DECIMAL(10,4) NOT NULL,
+    "bottomBottom" DECIMAL(10,4) NOT NULL,
+    "bottomLeft" DECIMAL(10,4) NOT NULL,
+    "bottomRight" DECIMAL(10,4) NOT NULL,
+    "leftTop" DECIMAL(10,4) NOT NULL,
+    "leftBottom" DECIMAL(10,4) NOT NULL,
+    "leftLeft" DECIMAL(10,4) NOT NULL,
+    "leftRight" DECIMAL(10,4) NOT NULL,
+    "rightTop" DECIMAL(10,4) NOT NULL,
+    "rightBottom" DECIMAL(10,4) NOT NULL,
+    "rightLeft" DECIMAL(10,4) NOT NULL,
+    "rightRight" DECIMAL(10,4) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -658,11 +716,11 @@ CREATE TABLE "machine_service_pistons" (
     "machineServiceId" TEXT NOT NULL,
     "outerDataId" TEXT,
     "innerDataId" TEXT,
-    "guidSeals" TEXT,
-    "pistonSeals" TEXT,
-    "vacuumSystem" TEXT,
+    "guideSeals" "SealConditionType",
+    "pistonSeals" "SealConditionType",
+    "vacuumSystem" "VacuumSystemConditionType",
     "vacuumSystemAirPressureSetting" DECIMAL(10,4),
-    "vacuumSystemAirPressureUnit" TEXT DEFAULT 'PSI',
+    "vacuumSystemAirPressureUnit" "PressureUnit",
     "unit" TEXT DEFAULT 'inches',
     "notes" TEXT,
 
@@ -672,26 +730,40 @@ CREATE TABLE "machine_service_pistons" (
 -- CreateTable
 CREATE TABLE "service_data_pistons" (
     "id" TEXT NOT NULL,
-    "outerLhFrontTop" DECIMAL(10,4) NOT NULL,
-    "outerLhFrontBottom" DECIMAL(10,4) NOT NULL,
-    "outerLhLeft" DECIMAL(10,4) NOT NULL,
-    "outerLhRight" DECIMAL(10,4) NOT NULL,
-    "outerRhFrontTop" DECIMAL(10,4) NOT NULL,
-    "outerRhFrontBottom" DECIMAL(10,4) NOT NULL,
-    "outerRhLeft" DECIMAL(10,4) NOT NULL,
-    "outerRhRight" DECIMAL(10,4) NOT NULL,
-    "innerLhFrontTop" DECIMAL(10,4) NOT NULL,
-    "innerLhFrontBottom" DECIMAL(10,4) NOT NULL,
-    "innerLhLeft" DECIMAL(10,4) NOT NULL,
-    "innerLhRight" DECIMAL(10,4) NOT NULL,
-    "innerRhFrontTop" DECIMAL(10,4) NOT NULL,
-    "innerRhFrontBottom" DECIMAL(10,4) NOT NULL,
-    "innerRhLeft" DECIMAL(10,4) NOT NULL,
-    "innerRhRight" DECIMAL(10,4) NOT NULL,
+    "lhTop" DECIMAL(10,4) NOT NULL,
+    "lhBottom" DECIMAL(10,4) NOT NULL,
+    "lhLeft" DECIMAL(10,4) NOT NULL,
+    "lhRight" DECIMAL(10,4) NOT NULL,
+    "rhTop" DECIMAL(10,4) NOT NULL,
+    "rhBottom" DECIMAL(10,4) NOT NULL,
+    "rhLeft" DECIMAL(10,4) NOT NULL,
+    "rhRight" DECIMAL(10,4) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "service_data_pistons_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "production_lines" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "branchId" TEXT NOT NULL,
+    "createdBy" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "production_lines_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "machine_production_lines" (
+    "machineId" TEXT NOT NULL,
+    "productionLineId" TEXT NOT NULL,
+    "order" INTEGER NOT NULL,
+    "addedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "machine_production_lines_pkey" PRIMARY KEY ("machineId","productionLineId")
 );
 
 -- CreateIndex
@@ -711,6 +783,30 @@ CREATE UNIQUE INDEX "machine_fields_machineId_fieldSlug_key" ON "machine_fields"
 
 -- CreateIndex
 CREATE UNIQUE INDEX "alert_bearing_clearance_machineServiceId_key" ON "alert_bearing_clearance"("machineServiceId");
+
+-- CreateIndex
+CREATE INDEX "admin_notifications_isRead_idx" ON "admin_notifications"("isRead");
+
+-- CreateIndex
+CREATE INDEX "admin_notifications_createdAt_idx" ON "admin_notifications"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "client_notifications_userId_isRead_idx" ON "client_notifications"("userId", "isRead");
+
+-- CreateIndex
+CREATE INDEX "client_notifications_createdAt_idx" ON "client_notifications"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "emails_status_idx" ON "emails"("status");
+
+-- CreateIndex
+CREATE INDEX "emails_type_idx" ON "emails"("type");
+
+-- CreateIndex
+CREATE INDEX "emails_createdAt_idx" ON "emails"("createdAt");
+
+-- AddForeignKey
+ALTER TABLE "permission_templates" ADD CONSTRAINT "permission_templates_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "company_branches" ADD CONSTRAINT "company_branches_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "companies"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -776,16 +872,25 @@ ALTER TABLE "machine_service_slide" ADD CONSTRAINT "machine_service_slide_innerD
 ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_machineServiceId_fkey" FOREIGN KEY ("machineServiceId") REFERENCES "machine_services"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_outerBeforeId_fkey" FOREIGN KEY ("outerBeforeId") REFERENCES "service_data_gibs"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_outerBeforeAdjustmentId_fkey" FOREIGN KEY ("outerBeforeAdjustmentId") REFERENCES "service_data_gibs_stage"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_outerDataId_fkey" FOREIGN KEY ("outerDataId") REFERENCES "service_data_gibs"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_outerAfterAdjustmentId_fkey" FOREIGN KEY ("outerAfterAdjustmentId") REFERENCES "service_data_gibs_stage"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_innerBeforeId_fkey" FOREIGN KEY ("innerBeforeId") REFERENCES "service_data_gibs"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_outerFreeHangingAfterInstallId_fkey" FOREIGN KEY ("outerFreeHangingAfterInstallId") REFERENCES "service_data_gibs_stage"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_innerDataId_fkey" FOREIGN KEY ("innerDataId") REFERENCES "service_data_gibs"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_innerBeforeAdjustmentId_fkey" FOREIGN KEY ("innerBeforeAdjustmentId") REFERENCES "service_data_gibs_stage"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_innerAfterAdjustmentId_fkey" FOREIGN KEY ("innerAfterAdjustmentId") REFERENCES "service_data_gibs_stage"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_innerBeforeToolInstallationId_fkey" FOREIGN KEY ("innerBeforeToolInstallationId") REFERENCES "service_data_gibs_stage"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "machine_service_gibs" ADD CONSTRAINT "machine_service_gibs_innerAfterToolInstallationId_fkey" FOREIGN KEY ("innerAfterToolInstallationId") REFERENCES "service_data_gibs_stage"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "machine_service_lubrication_hydraulics" ADD CONSTRAINT "machine_service_lubrication_hydraulics_machineServiceId_fkey" FOREIGN KEY ("machineServiceId") REFERENCES "machine_services"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -812,6 +917,21 @@ ALTER TABLE "machine_service_counterbalance_cylinder_airbag" ADD CONSTRAINT "mac
 ALTER TABLE "machine_service_counterbalance_cylinder_airbag" ADD CONSTRAINT "machine_service_counterbalance_cylinder_airbag_innerDataId_fkey" FOREIGN KEY ("innerDataId") REFERENCES "service_data_counterbalance_cylinder_airbag"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "admin_notifications" ADD CONSTRAINT "admin_notifications_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "admin_notifications" ADD CONSTRAINT "admin_notifications_createdByUserId_fkey" FOREIGN KEY ("createdByUserId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "client_notifications" ADD CONSTRAINT "client_notifications_userId_fkey" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "client_notifications" ADD CONSTRAINT "client_notifications_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "emails" ADD CONSTRAINT "emails_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "machine_service_tramming" ADD CONSTRAINT "machine_service_tramming_machineServiceId_fkey" FOREIGN KEY ("machineServiceId") REFERENCES "machine_services"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -828,3 +948,12 @@ ALTER TABLE "machine_service_pistons" ADD CONSTRAINT "machine_service_pistons_ou
 
 -- AddForeignKey
 ALTER TABLE "machine_service_pistons" ADD CONSTRAINT "machine_service_pistons_innerDataId_fkey" FOREIGN KEY ("innerDataId") REFERENCES "service_data_pistons"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "production_lines" ADD CONSTRAINT "production_lines_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "company_branches"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "machine_production_lines" ADD CONSTRAINT "machine_production_lines_machineId_fkey" FOREIGN KEY ("machineId") REFERENCES "machines"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "machine_production_lines" ADD CONSTRAINT "machine_production_lines_productionLineId_fkey" FOREIGN KEY ("productionLineId") REFERENCES "production_lines"("id") ON DELETE CASCADE ON UPDATE CASCADE;

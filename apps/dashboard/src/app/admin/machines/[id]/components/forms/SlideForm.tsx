@@ -12,28 +12,27 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  type SlideData,
-  ParallelismType,
-  YesNoNaDncType,
-  YesNoDncType,
-} from '@/data/types/services.types';
+import { ParallelismType, YesNoNaDncType, YesNoDncType } from '@/data/types/services.types';
 import { useNumericInput } from '@/hooks/useNumericInput';
+import { type SlideFormData } from '../sections/SlideSection';
 
-interface SlideFormData {
-  outerData: SlideData;
-  innerData: SlideData;
+interface SlideFormWrapperData {
+  outerData: SlideFormData;
+  innerData: SlideFormData;
   notes: string;
 }
 
 export interface SlideFormProps {
-  data: SlideFormData;
-  updateFn: <K extends keyof SlideFormData>(field: K, value: SlideFormData[K]) => void;
+  data: SlideFormWrapperData;
+  updateFn: <K extends keyof SlideFormWrapperData>(
+    field: K,
+    value: SlideFormWrapperData[K],
+  ) => void;
   errors: {
     outer: Record<string, string>;
     inner: Record<string, string>;
   };
-  handleBlur: (section: 'outer' | 'inner', field: keyof SlideData) => void;
+  handleBlur: (section: 'outer' | 'inner', field: keyof SlideFormData) => void;
   onSectionTouched?: () => void;
 }
 
@@ -45,21 +44,21 @@ function PositionFields({
   title,
   fieldPrefix,
 }: {
-  data: SlideData;
-  updateFn: (field: keyof SlideData, value: number | undefined) => void;
+  data: SlideFormData;
+  updateFn: (field: keyof SlideFormData, value: number | undefined) => void;
   errors: Record<string, string>;
-  handleBlur: (field: keyof SlideData) => void;
+  handleBlur: (field: keyof SlideFormData) => void;
   title: string;
   fieldPrefix: 'before' | 'after';
 }) {
   const t = useTranslations('inspections.form.slide');
 
   // Build the actual field names based on prefix
-  const pos1Field = `${fieldPrefix}Position1` as keyof SlideData;
-  const pos2Field = `${fieldPrefix}Position2` as keyof SlideData;
-  const pos3Field = `${fieldPrefix}Position3` as keyof SlideData;
-  const pos4Field = `${fieldPrefix}Position4` as keyof SlideData;
-  const pos5Field = `${fieldPrefix}Position5` as keyof SlideData;
+  const pos1Field = `${fieldPrefix}Position1` as keyof SlideFormData;
+  const pos2Field = `${fieldPrefix}Position2` as keyof SlideFormData;
+  const pos3Field = `${fieldPrefix}Position3` as keyof SlideFormData;
+  const pos4Field = `${fieldPrefix}Position4` as keyof SlideFormData;
+  const pos5Field = `${fieldPrefix}Position5` as keyof SlideFormData;
 
   // Use numeric input hook for each position
   const [position1Value, handlePosition1Change, handlePosition1Blur] = useNumericInput(
@@ -373,10 +372,10 @@ function SlideDataFields({
   handleBlur,
 }: {
   type: 'outer' | 'inner';
-  data: SlideData;
-  handleFieldUpdate: (field: keyof SlideData, value: any) => void;
+  data: SlideFormData;
+  handleFieldUpdate: (field: keyof SlideFormData, value: any) => void;
   errors: Record<string, string>;
-  handleBlur: (field: keyof SlideData) => void;
+  handleBlur: (field: keyof SlideFormData) => void;
 }) {
   const t = useTranslations('inspections.form.slide');
 
@@ -541,7 +540,7 @@ export function SlideForm({
 
   const handleFieldUpdate = (
     side: 'outerData' | 'innerData',
-    field: keyof SlideData,
+    field: keyof SlideFormData,
     value: any,
   ) => {
     const newData = { ...data[side], [field]: value };

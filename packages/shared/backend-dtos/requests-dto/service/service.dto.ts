@@ -193,7 +193,7 @@ export type BearingClearanceCheck = z.infer<typeof BearingClearanceCheckSchema>;
 
 /**
  * Slide Data Schema
- * Consolidated schema with parallelism config, shutheight fields, and before/after measurements
+ * Each SlideData represents ONE measurement (5 positions) with metadata
  */
 export const SlideDataSchema = z.object({
   // Parallelism configuration
@@ -206,29 +206,24 @@ export const SlideDataSchema = z.object({
   shutheightActualSh: z.string().optional(),
   indicatorReading: z.string().optional(),
 
-  // Before measurements (only filled if hasParallelismBeenAdjusted = YES)
-  beforePosition1: z.number().optional(),
-  beforePosition2: z.number().optional(),
-  beforePosition3: z.number().optional(),
-  beforePosition4: z.number().optional(),
-  beforePosition5: z.number().optional(),
-
-  // After/Current measurements (always required)
-  afterPosition1: z.number(),
-  afterPosition2: z.number(),
-  afterPosition3: z.number(),
-  afterPosition4: z.number(),
-  afterPosition5: z.number(),
+  // Measurements (5 positions)
+  position1: z.number(),
+  position2: z.number(),
+  position3: z.number(),
+  position4: z.number(),
+  position5: z.number(),
 });
 
 export type SlideData = z.infer<typeof SlideDataSchema>;
 
 /**
  * Slide Check Schema
- * Simplified with only outerData and innerData (no separate before/after)
+ * Four separate SlideData records (outerBefore, outerData, innerBefore, innerData)
  */
 export const SlideCheckSchema = z.object({
+  outerBefore: SlideDataSchema.optional(),
   outerData: SlideDataSchema.optional(),
+  innerBefore: SlideDataSchema.optional(),
   innerData: SlideDataSchema.optional(),
   notes: z.string().optional(),
 });

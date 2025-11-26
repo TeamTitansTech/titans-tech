@@ -9,6 +9,8 @@ import { PrismaService } from '../shared/prisma.service';
 import {
   LatestReportResponseDto,
   LatestBearingClearanceDto,
+  LatestClutchDto,
+  LatestSlideDto,
   CreateServiceDto,
   UpdateServicePayload,
   CompleteServiceDto,
@@ -534,7 +536,84 @@ export class ServicesService {
       }
     }
 
-    // 4. Build response
+    // 4. Process Clutch section
+    let clutchData: LatestClutchDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.CLUTCH)) {
+      // Find the most recent service with Clutch data
+      const latestClutchService = services.find(
+        (service) => service.clutch && service.clutch.length > 0,
+      );
+
+      if (latestClutchService) {
+        const clutchMeasurements = latestClutchService.clutch[0].data;
+
+        if (clutchMeasurements) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getClutchAlertByService(
+              latestClutchService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+            console.log(
+              `ℹ️ [SERVICES] No clutch alert found for service ${latestClutchService.id}`,
+            );
+          }
+
+          clutchData = new LatestClutchDto({
+            latestServiceId: latestClutchService.id,
+            latestServiceDate: latestClutchService.date,
+            serviceType: latestClutchService.type,
+            data: clutchMeasurements,
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 5. Process Slide section
+    let slideData: LatestSlideDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.SLIDE)) {
+      // Find the most recent service with Slide data
+      const latestSlideService = services.find(
+        (service) => service.slide && service.slide.length > 0,
+      );
+
+      if (latestSlideService) {
+        const slideRecord = latestSlideService.slide[0];
+
+        if (slideRecord) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getSlideAlertByService(
+              latestSlideService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+            console.log(
+              `ℹ️ [SERVICES] No slide alert found for service ${latestSlideService.id}`,
+            );
+          }
+
+          slideData = new LatestSlideDto({
+            latestServiceId: latestSlideService.id,
+            latestServiceDate: latestSlideService.date,
+            serviceType: latestSlideService.type,
+            data: {
+              outerData: slideRecord.outerData,
+              innerData: slideRecord.innerData,
+            },
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 6. Build response
     return new LatestReportResponseDto({
       machineId: machine.id,
       machineName: machine.name,
@@ -546,10 +625,10 @@ export class ServicesService {
       generatedAt: new Date(),
       sections: {
         BEARING_CLEARANCE: bearingClearanceData,
-        SLIDE: null,
+        SLIDE: slideData,
         GIBS: null,
         LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null,
-        CLUTCH: null,
+        CLUTCH: clutchData,
         COUNTERBALANCE_CYLINDER_AIRBAG: null,
       },
     });
@@ -702,7 +781,7 @@ export class ServicesService {
     await this.prisma.$transaction(async (tx) => {
       const existingRecord = service.slide?.[0];
 
-      // Helper function to upsert nested slide data (now contains all fields)
+      // Helper function to upsert nested slide data
       const upsertData = async (
         data: any,
         existingId: string | null | undefined,
@@ -724,10 +803,18 @@ export class ServicesService {
       };
 
       if (existingRecord) {
-        // Update existing slide record
+        // Update existing slide record (now with 4 possible FKs)
+        const outerBeforeId = await upsertData(
+          updateDto.outerBefore,
+          existingRecord.outerBeforeId,
+        );
         const outerDataId = await upsertData(
           updateDto.outerData,
           existingRecord.outerDataId,
+        );
+        const innerBeforeId = await upsertData(
+          updateDto.innerBefore,
+          existingRecord.innerBeforeId,
         );
         const innerDataId = await upsertData(
           updateDto.innerData,
@@ -736,7 +823,9 @@ export class ServicesService {
 
         // Build update payload with IDs and notes
         const updatePayload: any = {
+          ...(outerBeforeId && { outerBeforeId }),
           ...(outerDataId && { outerDataId }),
+          ...(innerBeforeId && { innerBeforeId }),
           ...(innerDataId && { innerDataId }),
           ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
         };
@@ -746,14 +835,21 @@ export class ServicesService {
           data: updatePayload,
         });
       } else {
-        // Create new slide record
-        const { outerData, innerData, notes } = updateDto;
+        // Create new slide record with 4 possible SlideData records
+        const { outerBefore, outerData, innerBefore, innerData, notes } =
+          updateDto;
 
         await tx.machineServiceSlide.create({
           data: {
             machineService: { connect: { id: serviceId } },
+            ...(outerBefore && {
+              outerBefore: { create: outerBefore as any },
+            }),
             ...(outerData && {
               outerData: { create: outerData as any },
+            }),
+            ...(innerBefore && {
+              innerBefore: { create: innerBefore as any },
             }),
             ...(innerData && {
               innerData: { create: innerData as any },
@@ -772,6 +868,14 @@ export class ServicesService {
         },
       });
     });
+
+    if (updateDto.outerData || updateDto.innerData) {
+      try {
+        await this.alertsService.generateAlertsForSlide(serviceId);
+      } catch (error) {
+        console.error('Error generating slide alerts:', error);
+      }
+    }
 
     return this.findOne(serviceId);
   }
@@ -1129,6 +1233,13 @@ export class ServicesService {
           },
         },
       });
+    }
+
+    // Generate clutch alerts
+    try {
+      await this.alertsService.generateClutchAlertsForService(serviceId);
+    } catch (error) {
+      console.error('Error generating clutch alerts:', error);
     }
 
     return this.findOne(serviceId);
