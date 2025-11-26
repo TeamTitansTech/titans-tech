@@ -185,7 +185,6 @@ sst console --stage production
 
 ### Health Checks
 
-- Frontend: `GET /api/health`
 - Backend: `GET /health`
 
 ## Comandos Úteis
