@@ -118,7 +118,6 @@ export class AuthGuard implements CanActivate {
     }
 
     // From this point on, we know the user is a regular user (not SysAdmin)
-
     const currentUser: CurrentUserInfo = await this.prisma.user.findUnique({
       where: { id: payload.id },
       select: {
@@ -164,7 +163,8 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    const branchId = request.params?.branchId;
+    // Extract branchId from params (URL) or body (POST requests)
+    const branchId = request.params?.branchId || request.body?.branchId;
     const companyId = request.params?.companyId;
 
     this.validateCorrectRouteConfiguration({
@@ -182,7 +182,11 @@ export class AuthGuard implements CanActivate {
     }
 
     if (companyId) {
-      return this.validateCompanyAccess(currentUser, companyId);
+      return this.validateCompanyAccess(
+        currentUser,
+        companyId,
+        requiredPermission,
+      );
     }
 
     // TODO: Handle other cases
@@ -250,6 +254,7 @@ export class AuthGuard implements CanActivate {
   private async validateCompanyAccess(
     payload: CurrentUserInfo,
     companyId: string,
+    requiredPermission?: BranchPermissionType,
   ): Promise<boolean> {
     if (payload.companyId !== companyId) {
       throw new ForbiddenException(
@@ -257,9 +262,42 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    if (!payload.isCompanyAdmin && !payload.isCompanyManager) {
+    // If user is company admin or manager, grant access
+    if (payload.isCompanyAdmin || payload.isCompanyManager) {
+      return true;
+    }
+
+    // If no specific permission required, deny access (requires admin/manager)
+    if (!requiredPermission) {
       throw new ForbiddenException(
         'Access denied: Only company administrators or managers can access this resource',
+      );
+    }
+
+    // Check if user has the required permission in ANY branch of the company
+    const userBranches = await this.prisma.userBranch.findMany({
+      where: {
+        userId: payload.id,
+        branch: {
+          companyId: companyId,
+        },
+      },
+    });
+
+    if (userBranches.length === 0) {
+      throw new ForbiddenException(
+        'Access denied: User not part of any branch in this company',
+      );
+    }
+
+    // Check if user has the required permission in at least one branch
+    const hasPermission = userBranches.some(
+      (userBranch) => userBranch[requiredPermission],
+    );
+
+    if (!hasPermission) {
+      throw new ForbiddenException(
+        `Access denied: Missing required permission '${requiredPermission}' in all branches`,
       );
     }
 

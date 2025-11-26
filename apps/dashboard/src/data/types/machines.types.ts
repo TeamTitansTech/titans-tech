@@ -23,9 +23,10 @@ export type FieldValue = {
 };
 
 // Component props types
-import type { Machine } from '@titans-tech/shared/types';
+// Using Machine type from API service which includes branch relation
+import type { Machine as ApiMachine } from '@/data/services/machines.api';
 export interface MachineDetailsProps {
-  machine: Machine;
+  machine: ApiMachine;
 }
 
 export interface MachineCardProps {

@@ -52,7 +52,7 @@ export interface ServiceCompletionModalProps {
 
 export interface SectionDataState {
   completedSections: Set<string>;
-  completedSectionData: Partial<SectionDataMap>;
+  completedSectionData: Record<string, AnySectionData>;
 }
 
 export interface ServiceFormState {

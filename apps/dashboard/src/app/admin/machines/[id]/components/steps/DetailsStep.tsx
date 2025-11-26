@@ -15,7 +15,12 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { ServiceType } from '@/data/types/services.types';
-import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services';
+import {
+  YesNoNaDncType,
+  YesNoDncType,
+  DriveBeltConditionType,
+  ProtectiveCoversStatusType,
+} from '@titans-tech/shared/enums';
 import { WhyNotCoveredType } from '@titans-tech/shared/types';
 import { SECTION_REGISTRY } from '../sections/registry';
 
@@ -37,9 +42,9 @@ interface DetailsStepProps {
   // Inspection observation fields
   isPressLevel?: YesNoNaDncType;
   setIsPressLevel: (value: YesNoNaDncType | undefined) => void;
-  driveBeltCondition: string;
+  driveBeltCondition: DriveBeltConditionType | undefined;
   setDriveBeltCondition: (value: string) => void;
-  areAllProtectiveCovers: string;
+  areAllProtectiveCovers: ProtectiveCoversStatusType | undefined;
   setAreAllProtectiveCovers: (value: string) => void;
   protectiveCoversExplanation: string;
   setProtectiveCoversExplanation: (value: string) => void;
@@ -51,13 +56,12 @@ interface DetailsStepProps {
   setIsMainMotorSecure: (value: YesNoDncType | undefined) => void;
   isMotorPlateSecure?: YesNoDncType;
   setIsMotorPlateSecure: (value: YesNoDncType | undefined) => void;
-  whyNotCovered: string;
+  whyNotCovered: WhyNotCoveredType | undefined;
   setWhyNotCovered: (value: string) => void;
 
   // Optional machine data (for read-only display)
   machine?: {
     manufacturer?: string;
-    model?: string;
     sizeTonnage?: string;
     serialNumber?: string;
     stroke?: string;
@@ -83,7 +87,6 @@ interface DetailsStepProps {
     // Machine information
     machineInformationTitle: string;
     manufacturer: string;
-    model: string;
     sizeTonnage: string;
     serialNumber: string;
     stroke: string;
@@ -209,12 +212,6 @@ export function DetailsStep({
                 <div>
                   <span className="text-muted-foreground">{translations.manufacturer}:</span>
                   <span className="ml-2 font-medium">{machine.manufacturer}</span>
-                </div>
-              )}
-              {machine.model && (
-                <div>
-                  <span className="text-muted-foreground">{translations.model}:</span>
-                  <span className="ml-2 font-medium">{machine.model}</span>
                 </div>
               )}
               {machine.sizeTonnage && (

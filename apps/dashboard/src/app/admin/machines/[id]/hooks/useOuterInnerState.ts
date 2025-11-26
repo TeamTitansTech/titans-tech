@@ -7,6 +7,7 @@ import { useState, useCallback } from 'react';
  * Note: Using `Record<string, any>` here is intentional to allow interfaces with optional properties.
  * TypeScript's `Record<string, unknown>` doesn't support optional fields, which most data interfaces have.
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useOuterInnerState<T extends Record<string, any>>(
   initialData: T,
   loadedData?: {

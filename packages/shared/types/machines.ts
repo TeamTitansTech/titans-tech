@@ -1,6 +1,20 @@
 /**
  * Shared Machine Types
  * Used by both frontend and backend
+ *
+ * TODO: This file should be refactored to re-export types from Prisma instead of
+ * manually defining interfaces. This would ensure single source of truth and prevent
+ * schema drift. Current issues:
+ * - branchId field is missing (exists in Prisma schema)
+ * - Some fields like imageUrl, client, location don't exist in Prisma schema
+ * - inspections[] doesn't exist (should use services[] which already exists)
+ *
+ * Proper approach: Re-export types from @titans-tech/db and create helper types
+ * for common includes (e.g., MachineWithBlueprint, MachineWithRelations)
+ *
+ * Related files that need migration:
+ * - apps/dashboard/src/data/services/machines.api.ts
+ * - apps/dashboard/src/data/types/machines.types.ts
  */
 
 import { Blueprint } from './blueprints';
@@ -13,6 +27,7 @@ import {
   MachineFeaturesType,
 } from './enums';
 import type { ServiceType, BearingClearanceCheck } from './services';
+import type { AlertSeverity } from '../enums';
 
 // Machine Field Definition
 export interface MachineField {
@@ -30,7 +45,6 @@ export interface Machine {
 
   // Machine specifications
   manufacturer?: string;
-  model?: string;
   sizeTonnage?: string;
   serialNumber?: string;
   stroke?: string;
@@ -50,12 +64,45 @@ export interface Machine {
   inspections?: MachineInspection[];
 }
 
+// Alert Bearing Clearance (for service alerts)
+export interface AlertBearingClearance {
+  id: string;
+  machineServiceId: string;
+  totalClearance_RH: number;
+  totalClearance_LH: number;
+  totalClearance_differential: number;
+  totalClearance_severity: AlertSeverity;
+  mainBearings_RH: number;
+  mainBearings_LH: number;
+  mainBearings_differential: number;
+  mainBearings_severity: AlertSeverity;
+  upperConnectionBearings_RH: number;
+  upperConnectionBearings_LH: number;
+  upperConnectionBearings_differential: number;
+  upperConnectionBearings_severity: AlertSeverity;
+  wristPinToMatingPart_RH: number;
+  wristPinToMatingPart_LH: number;
+  wristPinToMatingPart_differential: number;
+  wristPinToMatingPart_severity: AlertSeverity;
+  wristPinToBushing_RH: number;
+  wristPinToBushing_LH: number;
+  wristPinToBushing_differential: number;
+  wristPinToBushing_severity: AlertSeverity;
+  slideAdjNutToScrewSleeve_RH: number;
+  slideAdjNutToScrewSleeve_LH: number;
+  slideAdjNutToScrewSleeve_differential: number;
+  slideAdjNutToScrewSleeve_severity: AlertSeverity;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Basic Service Info (for machine response)
 export interface MachineService {
   id: string;
   date: string;
   isMaintenance: boolean;
   performedBy: string;
+  alertBearingClearance?: AlertBearingClearance;
 }
 
 // Machine Inspection (detailed service data for inspections)
@@ -75,7 +122,6 @@ export interface CreateMachinePayload {
 
   // Optional machine specifications
   manufacturer?: string;
-  model?: string;
   sizeTonnage?: string;
   serialNumber?: string;
   stroke?: string;
@@ -95,7 +141,6 @@ export interface UpdateMachinePayload {
 
   // Optional machine specifications
   manufacturer?: string;
-  model?: string;
   sizeTonnage?: string;
   serialNumber?: string;
   stroke?: string;

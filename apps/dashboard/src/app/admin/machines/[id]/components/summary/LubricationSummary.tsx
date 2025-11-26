@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Typography } from '@/components/ui/typography';
+import { translateEnumValue } from './utils/translateEnum';
 
 interface LubricationSummaryProps {
   data: LubricationHydraulicsData;
@@ -43,20 +44,6 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
 
   // Helper function to display value with translations
   const displayValue = (value: unknown, key?: string): string => {
-    if (value === null || value === undefined || value === '') {
-      return '-';
-    }
-    if (typeof value === 'boolean') {
-      return value ? tCommon('yes') : tCommon('no');
-    }
-    // Translate enum values
-    const stringValue = String(value);
-    if (stringValue === 'YES') return tCommon('yes');
-    if (stringValue === 'NO') return tCommon('no');
-    if (stringValue === 'DNC') return tCommon('dnc');
-    if (stringValue === 'NA') return tCommon('na');
-
-    // Special handling for temperature with unit
     if (key === 'oilTemperature') {
       const temp = data.oilTemperature;
       const unit = data.oilTemperatureUnit;
@@ -66,8 +53,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
       const unitSymbol = unit === 'FAHRENHEIT' ? '°F' : unit === 'CELSIUS' ? '°C' : '';
       return `${temp}${unitSymbol}`;
     }
-
-    return stringValue;
+    return translateEnumValue(value, tCommon);
   };
 
   // Define all scalar fields that should be shown (excluding oilTemperatureUnit as it's shown with temperature)

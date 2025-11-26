@@ -1,6 +1,12 @@
 import { useState, useCallback } from 'react';
 import { ServiceType } from '@/data/types/services.types';
-import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services';
+import {
+  YesNoNaDncType,
+  YesNoDncType,
+  DriveBeltConditionType,
+  ProtectiveCoversStatusType,
+} from '@titans-tech/shared/enums';
+import { WhyNotCoveredType } from '@titans-tech/shared/types';
 
 const getTomorrowDate = () => {
   const tomorrow = new Date();
@@ -30,14 +36,31 @@ export function useServiceForm(
 
   // Inspection observation fields
   const [isPressLevel, setIsPressLevel] = useState<YesNoNaDncType | undefined>();
-  const [driveBeltCondition, setDriveBeltCondition] = useState<string>('');
-  const [areAllProtectiveCovers, setAreAllProtectiveCovers] = useState<string>('');
+  const [driveBeltCondition, setDriveBeltConditionInternal] = useState<
+    DriveBeltConditionType | undefined
+  >();
+  const [areAllProtectiveCovers, setAreAllProtectiveCoversInternal] = useState<
+    ProtectiveCoversStatusType | undefined
+  >();
   const [protectiveCoversExplanation, setProtectiveCoversExplanation] = useState<string>('');
   const [areCracksVisible, setAreCracksVisible] = useState<YesNoDncType | undefined>();
   const [cracksLocation, setCracksLocation] = useState<string>('');
   const [isMainMotorSecure, setIsMainMotorSecure] = useState<YesNoDncType | undefined>();
   const [isMotorPlateSecure, setIsMotorPlateSecure] = useState<YesNoDncType | undefined>();
-  const [whyNotCovered, setWhyNotCovered] = useState<string>('');
+  const [whyNotCovered, setWhyNotCoveredInternal] = useState<WhyNotCoveredType | undefined>();
+
+  // Wrapper functions for Select components (which pass string values)
+  const setDriveBeltCondition = useCallback((value: string) => {
+    setDriveBeltConditionInternal(value ? (value as DriveBeltConditionType) : undefined);
+  }, []);
+
+  const setAreAllProtectiveCovers = useCallback((value: string) => {
+    setAreAllProtectiveCoversInternal(value ? (value as ProtectiveCoversStatusType) : undefined);
+  }, []);
+
+  const setWhyNotCovered = useCallback((value: string) => {
+    setWhyNotCoveredInternal(value ? (value as WhyNotCoveredType) : undefined);
+  }, []);
 
   // Use the prop serviceType if provided (completing service), otherwise use internal state (creating new)
   const currentServiceType = serviceType || selectedServiceType;
@@ -50,14 +73,14 @@ export function useServiceForm(
     setError(null);
     // Reset inspection fields
     setIsPressLevel(undefined);
-    setDriveBeltCondition('');
-    setAreAllProtectiveCovers('');
+    setDriveBeltConditionInternal(undefined);
+    setAreAllProtectiveCoversInternal(undefined);
     setProtectiveCoversExplanation('');
     setAreCracksVisible(undefined);
     setCracksLocation('');
     setIsMainMotorSecure(undefined);
     setIsMotorPlateSecure(undefined);
-    setWhyNotCovered('');
+    setWhyNotCoveredInternal(undefined);
   };
 
   return {

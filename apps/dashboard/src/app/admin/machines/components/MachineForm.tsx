@@ -53,7 +53,6 @@ export function MachineForm() {
 
   // Machine specification fields
   const [manufacturer, setManufacturer] = useState('');
-  const [model, setModel] = useState('');
   const [sizeTonnage, setSizeTonnage] = useState('');
   const [serialNumber, setSerialNumber] = useState('');
   const [stroke, setStroke] = useState('');
@@ -151,7 +150,6 @@ export function MachineForm() {
       fields,
       // Machine specifications (optional)
       manufacturer: manufacturer || undefined,
-      model: model || undefined,
       sizeTonnage: sizeTonnage || undefined,
       serialNumber: serialNumber || undefined,
       stroke: stroke || undefined,
@@ -347,18 +345,6 @@ export function MachineForm() {
                         value={manufacturer}
                         onChange={(e) => setManufacturer(e.target.value)}
                         placeholder="Enter manufacturer"
-                      />
-                    </div>
-
-                    {/* Model */}
-                    <div className="space-y-2">
-                      <Label htmlFor="model">Model</Label>
-                      <Input
-                        id="model"
-                        type="text"
-                        value={model}
-                        onChange={(e) => setModel(e.target.value)}
-                        placeholder="Enter model"
                       />
                     </div>
 

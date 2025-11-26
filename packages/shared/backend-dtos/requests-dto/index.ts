@@ -9,3 +9,6 @@ export * from './mark-notification-read.dto';
 export * from './auth.dto';
 export * from './machine.dto';
 export * from './service';
+export * from './create-permission-template.dto';
+export * from './update-permission-template.dto';
+export * from './production-line.dto';

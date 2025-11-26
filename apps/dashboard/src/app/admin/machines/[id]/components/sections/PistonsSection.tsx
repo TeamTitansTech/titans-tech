@@ -114,13 +114,13 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
     const [outerErrors, setOuterErrors] = useState<Record<string, string>>({});
     const [innerErrors, setInnerErrors] = useState<Record<string, string>>({});
 
-    const updateOuterField = (field: keyof PistonsData, value: number) => {
-      setOuterData((prev) => ({ ...prev, [field]: value }));
+    const updateOuterField = (field: keyof PistonsData, value: number | undefined) => {
+      setOuterData((prev) => ({ ...prev, [field]: value ?? 0 }));
       onSectionTouched?.();
     };
 
-    const updateInnerField = (field: keyof PistonsData, value: number) => {
-      setInnerData((prev) => ({ ...prev, [field]: value }));
+    const updateInnerField = (field: keyof PistonsData, value: number | undefined) => {
+      setInnerData((prev) => ({ ...prev, [field]: value ?? 0 }));
       onSectionTouched?.();
     };
 

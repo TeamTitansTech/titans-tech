@@ -38,8 +38,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
 
   return (
     <div className="space-y-6 p-4">
-      {/* TODO: Fix type mismatch between API Machine and shared Machine types */}
-      <MachineDetails machine={response.data as any} />
+      <MachineDetails machine={response.data} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <UpcomingServices
           machineId={id}

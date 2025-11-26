@@ -1,6 +1,5 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import { ServiceType } from '@/data/types/services.types';
 import {
   FoundationType,
   FrameType,
@@ -8,6 +7,8 @@ import {
   PneumaticSystemType,
   PressMountingType,
   MachineFeaturesType,
+  type MachineInspection as SharedMachineInspection,
+  type MachineService as SharedMachineService,
 } from '@titans-tech/shared/types';
 
 interface MachineField {
@@ -22,7 +23,6 @@ interface CreateMachinePayload {
   fields: MachineField[];
   // Machine specifications
   manufacturer?: string;
-  model?: string;
   sizeTonnage?: string;
   serialNumber?: string;
   stroke?: string;
@@ -40,7 +40,6 @@ interface UpdateMachinePayload {
   fields?: MachineField[];
   // Machine specifications
   manufacturer?: string;
-  model?: string;
   sizeTonnage?: string;
   serialNumber?: string;
   stroke?: string;
@@ -52,40 +51,25 @@ interface UpdateMachinePayload {
   features?: MachineFeaturesType;
 }
 
-interface BearingClearance {
-  id: string;
-  totalClearance_RH: number;
-  totalClearance_LH: number;
-  mainBearings_RH: number;
-  mainBearings_LH: number;
-  upperConnectionBearings_RH: number;
-  upperConnectionBearings_LH: number;
-  wristPinToMatingPart_RH: number;
-  wristPinToMatingPart_LH: number;
-  wristPinToBushing_RH: number;
-  wristPinToBushing_LH: number;
-}
-
-interface BearingClearanceCheck {
-  id: string;
-  before: BearingClearance | null;
-  after: BearingClearance | null;
-}
-
-interface MachineInspection {
-  id: string;
-  date: string;
-  type: ServiceType;
-  performedBy: string;
-  bearingClearanceChecks: BearingClearanceCheck | null;
-}
-
-interface Machine {
+export interface Machine {
   id: string;
   blueprintId: string;
   branchId: string;
   name: string;
+  imageUrl?: string;
   fields: MachineField[];
+  // Machine specifications
+  manufacturer?: string;
+  model?: string;
+  sizeTonnage?: string;
+  serialNumber?: string;
+  stroke?: string;
+  foundationType?: FoundationType;
+  frameType?: FrameType;
+  clutchType?: MachineClutchType;
+  pneumaticSystem?: PneumaticSystemType;
+  pressMounting?: PressMountingType;
+  features?: MachineFeaturesType;
   createdAt: string;
   updatedAt: string;
   blueprint?: Blueprint;
@@ -94,7 +78,10 @@ interface Machine {
     name: string;
     companyId: string;
   };
-  inspections?: MachineInspection[];
+  client?: string;
+  location?: string;
+  services?: SharedMachineService[];
+  inspections?: SharedMachineInspection[];
 }
 
 interface BlueprintField {

@@ -3,7 +3,7 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useTranslations } from 'next-intl';
-import { useState, useEffect } from 'react';
+import { useNumericInput } from '@/hooks/useNumericInput';
 
 interface ThresholdRangeInputProps {
   label: string;
@@ -26,57 +26,25 @@ export function ThresholdRangeInput({
 }: ThresholdRangeInputProps) {
   const t = useTranslations('alerts.thresholds');
 
-  // Estado local para permitir digitação de valores temporários como "-"
-  const [greenValue, setGreenValue] = useState(greenMin.toString());
-  const [yellowValue, setYellowValue] = useState(yellowMin.toString());
-  const [redValue, setRedValue] = useState(redMin.toString());
+  // Use numeric input hook for each threshold
+  // Wrap the onChange callbacks to ensure number (never undefined) since thresholds are required
+  const [greenValue, handleGreenChange, handleGreenBlur] = useNumericInput(
+    greenMin,
+    (val) => val !== undefined && onGreenMinChange(val),
+    { maxDecimals: 4, allowNegative: true, required: true },
+  );
 
-  // Função para validar máximo de 4 casas decimais
-  const hasMaxFourDecimals = (value: string): boolean => {
-    const parts = value.split('.');
-    if (parts.length <= 1) return true; // Sem decimais ou apenas parte inteira
-    return parts[1].length <= 4;
-  };
+  const [yellowValue, handleYellowChange, handleYellowBlur] = useNumericInput(
+    yellowMin,
+    (val) => val !== undefined && onYellowMinChange(val),
+    { maxDecimals: 4, allowNegative: true, min: greenMin, required: true },
+  );
 
-  // Handler genérico para onChange
-  const handleChange =
-    (setValue: (value: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = e.target.value;
-      if (hasMaxFourDecimals(newValue)) {
-        setValue(newValue);
-      }
-    };
-
-  // Handler genérico para onBlur
-  const handleBlur =
-    (
-      value: string,
-      setValue: (value: string) => void,
-      onChange: (value: number) => void,
-      fallbackValue: number,
-    ) =>
-    () => {
-      const numValue = parseFloat(value);
-      if (!isNaN(numValue)) {
-        onChange(numValue);
-      } else {
-        // Reseta para o valor anterior se inválido
-        setValue(fallbackValue.toString());
-      }
-    };
-
-  // Sincroniza com props quando valores externos mudam
-  useEffect(() => {
-    setGreenValue(greenMin.toString());
-  }, [greenMin]);
-
-  useEffect(() => {
-    setYellowValue(yellowMin.toString());
-  }, [yellowMin]);
-
-  useEffect(() => {
-    setRedValue(redMin.toString());
-  }, [redMin]);
+  const [redValue, handleRedChange, handleRedBlur] = useNumericInput(
+    redMin,
+    (val) => val !== undefined && onRedMinChange(val),
+    { maxDecimals: 4, allowNegative: true, min: yellowMin, required: true },
+  );
 
   return (
     <div className="space-y-3">
@@ -108,8 +76,8 @@ export function ThresholdRangeInput({
             type="number"
             step="0.0001"
             value={greenValue}
-            onChange={handleChange(setGreenValue)}
-            onBlur={handleBlur(greenValue, setGreenValue, onGreenMinChange, greenMin)}
+            onChange={handleGreenChange}
+            onBlur={handleGreenBlur}
             className="text-sm"
           />
         </div>
@@ -124,8 +92,8 @@ export function ThresholdRangeInput({
             step="0.0001"
             min={greenMin}
             value={yellowValue}
-            onChange={handleChange(setYellowValue)}
-            onBlur={handleBlur(yellowValue, setYellowValue, onYellowMinChange, yellowMin)}
+            onChange={handleYellowChange}
+            onBlur={handleYellowBlur}
             className="text-sm"
           />
         </div>
@@ -140,8 +108,8 @@ export function ThresholdRangeInput({
             step="0.0001"
             min={yellowMin}
             value={redValue}
-            onChange={handleChange(setRedValue)}
-            onBlur={handleBlur(redValue, setRedValue, onRedMinChange, redMin)}
+            onChange={handleRedChange}
+            onBlur={handleRedBlur}
             className="text-sm"
           />
         </div>

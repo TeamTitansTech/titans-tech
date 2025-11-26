@@ -20,5 +20,8 @@ export * from './machines';
 // Bearing Clearance Field Types (safe for client)
 export * from './bearing-fields';
 
+// Permission Types and Presets (safe for client)
+export * from './permissions';
+
 // NOTE: './services' is NOT exported here because it pulls in Prisma dependencies.
 // Server code can import from '@titans-tech/shared/types/services' directly.
