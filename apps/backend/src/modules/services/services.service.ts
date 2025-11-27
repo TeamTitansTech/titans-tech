@@ -1474,33 +1474,37 @@ export class ServicesService {
 
     const existingRecord = service.tramming?.[0];
 
+    // DTO data now matches Prisma schema directly (fields like topTop, bottomTop, etc.)
+    const outerPrismaData = updateDto.outerData || null;
+    const innerPrismaData = updateDto.innerData || null;
+
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
         const updatePayload: any = {};
 
-        if (updateDto.outerData) {
+        if (outerPrismaData) {
           if (existingRecord.outerDataId) {
             await tx.trammingData.update({
               where: { id: existingRecord.outerDataId },
-              data: updateDto.outerData as any,
+              data: outerPrismaData as any,
             });
           } else {
             const created = await tx.trammingData.create({
-              data: updateDto.outerData as any,
+              data: outerPrismaData as any,
             });
             updatePayload.outerDataId = created.id;
           }
         }
 
-        if (updateDto.innerData) {
+        if (innerPrismaData) {
           if (existingRecord.innerDataId) {
             await tx.trammingData.update({
               where: { id: existingRecord.innerDataId },
-              data: updateDto.innerData as any,
+              data: innerPrismaData as any,
             });
           } else {
             const created = await tx.trammingData.create({
-              data: updateDto.innerData as any,
+              data: innerPrismaData as any,
             });
             updatePayload.innerDataId = created.id;
           }
@@ -1536,11 +1540,11 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           tramming: {
             create: {
-              ...(updateDto.outerData && {
-                outerData: { create: updateDto.outerData as any },
+              ...(outerPrismaData && {
+                outerData: { create: outerPrismaData as any },
               }),
-              ...(updateDto.innerData && {
-                innerData: { create: updateDto.innerData as any },
+              ...(innerPrismaData && {
+                innerData: { create: innerPrismaData as any },
               }),
               ...(updateDto.slideTram && { slideTram: updateDto.slideTram }),
               ...(updateDto.notes && { notes: updateDto.notes }),
@@ -1576,33 +1580,37 @@ export class ServicesService {
 
     const existingRecord = service.pistons?.[0];
 
+    // DTO data now matches Prisma schema directly (fields like lhTop, rhTop, etc.)
+    const outerPrismaData = updateDto.outerData || null;
+    const innerPrismaData = updateDto.innerData || null;
+
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
         const updatePayload: any = {};
 
-        if (updateDto.outerData) {
+        if (outerPrismaData) {
           if (existingRecord.outerDataId) {
             await tx.pistonsData.update({
               where: { id: existingRecord.outerDataId },
-              data: updateDto.outerData as any,
+              data: outerPrismaData as any,
             });
           } else {
             const created = await tx.pistonsData.create({
-              data: updateDto.outerData as any,
+              data: outerPrismaData as any,
             });
             updatePayload.outerDataId = created.id;
           }
         }
 
-        if (updateDto.innerData) {
+        if (innerPrismaData) {
           if (existingRecord.innerDataId) {
             await tx.pistonsData.update({
               where: { id: existingRecord.innerDataId },
-              data: updateDto.innerData as any,
+              data: innerPrismaData as any,
             });
           } else {
             const created = await tx.pistonsData.create({
-              data: updateDto.innerData as any,
+              data: innerPrismaData as any,
             });
             updatePayload.innerDataId = created.id;
           }
@@ -1648,11 +1656,11 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           pistons: {
             create: {
-              ...(updateDto.outerData && {
-                outerData: { create: updateDto.outerData as any },
+              ...(outerPrismaData && {
+                outerData: { create: outerPrismaData as any },
               }),
-              ...(updateDto.innerData && {
-                innerData: { create: updateDto.innerData as any },
+              ...(innerPrismaData && {
+                innerData: { create: innerPrismaData as any },
               }),
               ...(updateDto.guideSeals && { guideSeals: updateDto.guideSeals }),
               ...(updateDto.pistonSeals && {

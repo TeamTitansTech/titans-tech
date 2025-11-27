@@ -72,11 +72,11 @@ export function SectionsStep({
   return (
     <>
       {/* Stepper */}
-      <div className="pb-2">
+      <div className="pb-4 px-4">
         <Stepper steps={stepperSteps} onStepClick={onStepClick} />
       </div>
 
-      <div className="flex-1 overflow-y-auto py-2">
+      <div className="flex-1 overflow-y-auto py-4 px-4">
         <div key={componentKey} className="space-y-4">
           <SectionComponent
             key={componentKey}

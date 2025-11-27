@@ -56,8 +56,12 @@ export function SectionSummary({ sectionKey, data }: { sectionKey: string; data:
     case 'CLUTCH':
       return <ClutchSummary data={data as ClutchData} />;
 
-    case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
-      return <LubricationSummary data={(data as LubricationHydraulicsCheck).data} />;
+    case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER': {
+      // Handle both wrapped and unwrapped data structures
+      const lubData = data as LubricationHydraulicsCheck;
+      const innerData = lubData?.data ?? lubData;
+      return <LubricationSummary data={innerData as LubricationHydraulicsCheck['data']} />;
+    }
 
     // For all other sections, use the generic summary component
     // This displays data in a readable format instead of raw JSON
