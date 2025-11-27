@@ -462,10 +462,7 @@ function addClutchData(sheetData: unknown[][], data: ClutchSectionData) {
   if (data.airRegulatorValue !== undefined) {
     sheetData.push([]);
     sheetData.push(['Sistema de Ar']);
-    sheetData.push([
-      'Regulador de Ar:',
-      `${displayValue(data.airRegulatorValue)} ${data.airRegulatorUnit || ''}`,
-    ]);
+    sheetData.push(['Regulador de Ar:', displayValue(data.airRegulatorValue)]);
     sheetData.push(['Curso Embreagem Ar:', displayValue(data.airClutchTravel)]);
     sheetData.push(['Configuração Lubrificador:', displayValue(data.airLineOilerSetting)]);
   }
@@ -475,14 +472,8 @@ function addClutchData(sheetData: unknown[][], data: ClutchSectionData) {
     sheetData.push(['Sistema Hidráulico']);
     sheetData.push(['Folga Total Hid:', displayValue(data.hydClutchClearanceTotal)]);
     sheetData.push(['Folga Traseira Hid:', displayValue(data.hydClutchClearanceRear)]);
-    sheetData.push([
-      'Pressão Hidráulica:',
-      `${displayValue(data.hydraulicPressureValue)} ${data.hydraulicPressureUnit || ''}`,
-    ]);
-    sheetData.push([
-      'Acumulador:',
-      `${displayValue(data.accumulatorValue)} ${data.accumulatorUnit || ''}`,
-    ]);
+    sheetData.push(['Pressão Hidráulica:', displayValue(data.hydraulicPressureValue)]);
+    sheetData.push(['Acumulador:', displayValue(data.accumulatorValue)]);
   }
 
   if (data.notes) sheetData.push(['Observações:', data.notes]);

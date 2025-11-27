@@ -552,14 +552,6 @@ export function SlideForm({
 
   return (
     <div className="space-y-6">
-      {/* Info Note */}
-      <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
-        <div className="flex-shrink-0 w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold mt-0.5">
-          i
-        </div>
-        <p className="text-xs text-blue-900 dark:text-blue-100">{t('parallelismAppliesNote')}</p>
-      </div>
-
       <Tabs defaultValue="outer" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4 bg-transparent p-0 gap-2">
           <TabsTrigger

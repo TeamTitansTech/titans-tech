@@ -353,7 +353,6 @@ export const ClutchDataSchema = z.object({
 
   // Air system
   airRegulatorValue: z.number().optional(),
-  airRegulatorUnit: z.nativeEnum(PrismaPressureUnit).optional(),
   airClutchTravel: z.number().optional(),
   airLineOilerSetting: z.nativeEnum(PrismaAirLineOilerSettingType).optional(),
 
@@ -367,9 +366,7 @@ export const ClutchDataSchema = z.object({
   hydClutchClearanceTotal: z.number().optional(),
   hydClutchClearanceRear: z.number().optional(),
   hydraulicPressureValue: z.number().optional(),
-  hydraulicPressureUnit: z.nativeEnum(PrismaPressureUnit).optional(),
   accumulatorValue: z.number().optional(),
-  accumulatorUnit: z.nativeEnum(PrismaPressureUnit).optional(),
 
   // Separate Brake Seals
   separateBrakeSeals: z.nativeEnum(PrismaSeparateBrakeSealsType).optional(),

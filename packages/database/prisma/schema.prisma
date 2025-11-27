@@ -1145,7 +1145,6 @@ model ClutchData {
 
   // Air system
   airRegulatorValue   Decimal?                 @db.Decimal(10, 2)
-  airRegulatorUnit    PressureUnit?
   airClutchTravel     Decimal?                 @db.Decimal(10, 4)
   airLineOilerSetting AirLineOilerSettingType?
 
@@ -1156,12 +1155,10 @@ model ClutchData {
   adjustingNutLockSecure AdjustingNutLockType?
 
   // Hydraulic system
-  hydClutchClearanceTotal Decimal?      @db.Decimal(10, 4)
-  hydClutchClearanceRear  Decimal?      @db.Decimal(10, 4)
-  hydraulicPressureValue  Decimal?      @db.Decimal(10, 2)
-  hydraulicPressureUnit   PressureUnit?
-  accumulatorValue        Decimal?      @db.Decimal(10, 2)
-  accumulatorUnit         PressureUnit?
+  hydClutchClearanceTotal Decimal? @db.Decimal(10, 4)
+  hydClutchClearanceRear  Decimal? @db.Decimal(10, 4)
+  hydraulicPressureValue  Decimal? @db.Decimal(10, 2)
+  accumulatorValue        Decimal? @db.Decimal(10, 2)
 
   // Separate Brake Seals
   separateBrakeSeals SeparateBrakeSealsType?

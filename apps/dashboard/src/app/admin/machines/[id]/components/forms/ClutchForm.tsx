@@ -21,7 +21,6 @@ import {
   RotaryUnionType,
   ClutchLiningType,
   ClutchSealsType,
-  PressureUnit,
   SplinesConditionType,
   AdjustingNutLockType,
   AirLineOilerSettingType,
@@ -467,32 +466,14 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <Label htmlFor="airRegulatorValue">{tClutch('airRegulator')}</Label>
-            <div className="flex gap-2">
-              <Input
-                id="airRegulatorValue"
-                type="number"
-                step="0.01"
-                value={data.airRegulatorValue ?? ''}
-                onChange={(e) => handleNumberChange('airRegulatorValue', e.target.value)}
-                onBlur={() => handleBlur('airRegulatorValue')}
-                className="flex-1"
-              />
-              <Select
-                value={data.airRegulatorUnit || PressureUnit.PSI}
-                onValueChange={(value) => handleSelectChange('airRegulatorUnit', value)}
-              >
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(PressureUnit).map((unit) => (
-                    <SelectItem key={unit} value={unit}>
-                      {unit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Input
+              id="airRegulatorValue"
+              type="number"
+              step="0.01"
+              value={data.airRegulatorValue ?? ''}
+              onChange={(e) => handleNumberChange('airRegulatorValue', e.target.value)}
+              onBlur={() => handleBlur('airRegulatorValue')}
+            />
           </div>
 
           <div className="space-y-2">
@@ -614,62 +595,26 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
 
           <div className="space-y-2">
             <Label htmlFor="hydraulicPressureValue">{tClutch('hydraulicPressure')}</Label>
-            <div className="flex gap-2">
-              <Input
-                id="hydraulicPressureValue"
-                type="number"
-                step="0.01"
-                value={data.hydraulicPressureValue ?? ''}
-                onChange={(e) => handleNumberChange('hydraulicPressureValue', e.target.value)}
-                onBlur={() => handleBlur('hydraulicPressureValue')}
-                className="flex-1"
-              />
-              <Select
-                value={data.hydraulicPressureUnit || PressureUnit.PSI}
-                onValueChange={(value) => handleSelectChange('hydraulicPressureUnit', value)}
-              >
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(PressureUnit).map((unit) => (
-                    <SelectItem key={unit} value={unit}>
-                      {unit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Input
+              id="hydraulicPressureValue"
+              type="number"
+              step="0.01"
+              value={data.hydraulicPressureValue ?? ''}
+              onChange={(e) => handleNumberChange('hydraulicPressureValue', e.target.value)}
+              onBlur={() => handleBlur('hydraulicPressureValue')}
+            />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="accumulatorValue">{tClutch('accumulator')}</Label>
-            <div className="flex gap-2">
-              <Input
-                id="accumulatorValue"
-                type="number"
-                step="0.01"
-                value={data.accumulatorValue ?? ''}
-                onChange={(e) => handleNumberChange('accumulatorValue', e.target.value)}
-                onBlur={() => handleBlur('accumulatorValue')}
-                className="flex-1"
-              />
-              <Select
-                value={data.accumulatorUnit || PressureUnit.PSI}
-                onValueChange={(value) => handleSelectChange('accumulatorUnit', value)}
-              >
-                <SelectTrigger className="w-24">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.values(PressureUnit).map((unit) => (
-                    <SelectItem key={unit} value={unit}>
-                      {unit}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <Input
+              id="accumulatorValue"
+              type="number"
+              step="0.01"
+              value={data.accumulatorValue ?? ''}
+              onChange={(e) => handleNumberChange('accumulatorValue', e.target.value)}
+              onBlur={() => handleBlur('accumulatorValue')}
+            />
           </div>
 
           <div className="space-y-2">
