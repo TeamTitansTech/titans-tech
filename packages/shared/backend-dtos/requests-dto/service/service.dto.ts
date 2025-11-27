@@ -412,7 +412,8 @@ export const CounterbalanceCylinderCheckSchema = z.object({
 export type CounterbalanceCylinderCheck = z.infer<typeof CounterbalanceCylinderCheckSchema>;
 
 /**
- * Tramming Data Schema
+ * Tramming Data Schema (matches Prisma TrammingData model)
+ * Note: The outer/inner distinction is handled by TrammingCheckSchema's outerData/innerData fields
  */
 export const TrammingDataSchema = z.object({
   // Top Position (4 measurements around trim pin)
@@ -456,32 +457,21 @@ export const TrammingCheckSchema = z.object({
 export type TrammingCheck = z.infer<typeof TrammingCheckSchema>;
 
 /**
- * Pistons Data Schema
+ * Pistons Data Schema (matches Prisma PistonsData model)
+ * Note: The outer/inner distinction is handled by PistonsCheckSchema's outerData/innerData fields
  */
 export const PistonsDataSchema = z.object({
-  // OUTER SECTION - LH Piston (4 measurements)
-  outerLhTop: z.number(),
-  outerLhBottom: z.number(),
-  outerLhLeft: z.number(),
-  outerLhRight: z.number(),
+  // LH Piston (4 measurements)
+  lhTop: z.number(),
+  lhBottom: z.number(),
+  lhLeft: z.number(),
+  lhRight: z.number(),
 
-  // OUTER SECTION - RH Piston (4 measurements)
-  outerRhTop: z.number(),
-  outerRhBottom: z.number(),
-  outerRhLeft: z.number(),
-  outerRhRight: z.number(),
-
-  // INNER SECTION - LH Piston (4 measurements)
-  innerLhTop: z.number(),
-  innerLhBottom: z.number(),
-  innerLhLeft: z.number(),
-  innerLhRight: z.number(),
-
-  // INNER SECTION - RH Piston (4 measurements)
-  innerRhTop: z.number(),
-  innerRhBottom: z.number(),
-  innerRhLeft: z.number(),
-  innerRhRight: z.number(),
+  // RH Piston (4 measurements)
+  rhTop: z.number(),
+  rhBottom: z.number(),
+  rhLeft: z.number(),
+  rhRight: z.number(),
 });
 
 export type PistonsData = z.infer<typeof PistonsDataSchema>;

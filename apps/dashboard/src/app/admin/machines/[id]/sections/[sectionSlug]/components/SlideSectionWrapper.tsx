@@ -1,40 +1,39 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
-import { BearingClearanceSection } from './BearingClearanceSection';
+import { SlideSection } from './SlideSection';
 
-interface BearingClearanceSectionWrapperProps {
+interface SlideSectionWrapperProps {
   machineId: string;
 }
 
-interface BearingClearanceData {
-  totalClearance_RH: number;
-  totalClearance_LH: number;
-  mainBearings_RH: number;
-  mainBearings_LH: number;
-  upperConnectionBearings_RH: number;
-  upperConnectionBearings_LH: number;
-  wristPinToMatingPart_RH: number;
-  wristPinToMatingPart_LH: number;
-  wristPinToBushing_RH: number;
-  wristPinToBushing_LH: number;
+interface SlideData {
+  position1: number | null;
+  position2: number | null;
+  position3: number | null;
+  position4: number | null;
+  position5: number | null;
+  parallelism: number | null;
+  hasParallelismBeenAdjusted: boolean | null;
+  shutheightIndicatorsChecked: boolean | null;
+  overloadsOnTonnageMonitor: boolean | null;
+  shutheightActualSh: number | null;
+  indicatorReading: number | null;
 }
 
-export interface InspectionData {
+export interface SlideInspectionData {
   id: string;
   date: string;
-  bearingClearance: Array<{
+  slide: Array<{
     id: string;
-    outerData: BearingClearanceData | null;
-    outerBefore: BearingClearanceData | null;
-    innerData: BearingClearanceData | null;
-    innerBefore: BearingClearanceData | null;
+    outerData: SlideData | null;
+    innerData: SlideData | null;
+    outerBefore: SlideData | null;
+    innerBefore: SlideData | null;
   }>;
 }
 
-export async function BearingClearanceSectionWrapper({
-  machineId,
-}: BearingClearanceSectionWrapperProps) {
-  let inspections: InspectionData[] = [];
+export async function SlideSectionWrapper({ machineId }: SlideSectionWrapperProps) {
+  let inspections: SlideInspectionData[] = [];
   let machineName = '';
   let blueprintId = '';
 
@@ -48,7 +47,7 @@ export async function BearingClearanceSectionWrapper({
       console.error('Errors fetching inspections:', inspectionsResponse.errors);
       inspections = [];
     } else {
-      inspections = (inspectionsResponse.data || []) as unknown as InspectionData[];
+      inspections = (inspectionsResponse.data || []) as unknown as SlideInspectionData[];
     }
 
     if (machineResponse.errors) {
@@ -67,7 +66,7 @@ export async function BearingClearanceSectionWrapper({
   }
 
   return (
-    <BearingClearanceSection
+    <SlideSection
       machineId={machineId}
       inspections={inspections}
       machineName={machineName}

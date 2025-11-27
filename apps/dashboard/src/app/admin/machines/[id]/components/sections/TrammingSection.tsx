@@ -3,8 +3,8 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { type TrammingData, ServiceType, YesNoDncType } from '@/data/types/services.types';
-import { TrammingForm } from '../forms/TrammingForm';
+import { ServiceType, YesNoDncType } from '@/data/types/services.types';
+import { TrammingForm, type TrammingDbData } from '../forms/TrammingForm';
 import { isDataTouched } from './utils';
 import { validateNumericFields } from '../utils/validateNumericFields';
 import { Label } from '@/components/ui/label';
@@ -17,36 +17,41 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
-export const defaultTrammingData: TrammingData = {
-  // Top Position (4 measurements around trim pin)
+// Default tramming data using DB format (without outer/inner prefix)
+export const defaultTrammingDbData: TrammingDbData = {
   topTop: 0,
   topBottom: 0,
   topLeft: 0,
   topRight: 0,
-  // Bottom Position (4 measurements around trim pin)
   bottomTop: 0,
   bottomBottom: 0,
   bottomLeft: 0,
   bottomRight: 0,
-  // Left Position (4 measurements around trim pin)
   leftTop: 0,
   leftBottom: 0,
   leftLeft: 0,
   leftRight: 0,
-  // Right Position (4 measurements around trim pin)
   rightTop: 0,
   rightBottom: 0,
   rightLeft: 0,
   rightRight: 0,
 };
 
-export const validateTrammingData = (data: TrammingData): string[] => {
-  return validateNumericFields(data, ['top', 'bottom', 'left', 'right']);
+// Merge partial data with defaults to ensure all fields have number values
+const mergeWithDefaults = (data: Partial<TrammingDbData> | undefined): TrammingDbData => ({
+  ...defaultTrammingDbData,
+  ...Object.fromEntries(
+    Object.entries(data || {}).filter(([_, v]) => v !== undefined && v !== null),
+  ),
+});
+
+export const validateTrammingDbData = (data: TrammingDbData): string[] => {
+  return validateNumericFields(data as Record<string, unknown>, ['top', 'bottom', 'left', 'right']);
 };
 
 export interface TrammingSectionData {
-  outerData?: TrammingData;
-  innerData?: TrammingData;
+  outerData?: TrammingDbData;
+  innerData?: TrammingDbData;
   slideTram?: YesNoDncType;
   notes?: string;
 }
@@ -73,18 +78,18 @@ interface TrammingSectionProps {
 export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionProps>(
   ({ isOpen: _isOpen, onOpenChange: _onOpenChange, onSectionTouched, initialData }, ref) => {
     // Store the initial loaded data to compare against for "touched" detection
-    const [initialOuterData] = useState<TrammingData>(
-      initialData?.outerData || defaultTrammingData,
+    const [initialOuterData] = useState<TrammingDbData>(() =>
+      mergeWithDefaults(initialData?.outerData as Partial<TrammingDbData>),
     );
-    const [initialInnerData] = useState<TrammingData>(
-      initialData?.innerData || defaultTrammingData,
+    const [initialInnerData] = useState<TrammingDbData>(() =>
+      mergeWithDefaults(initialData?.innerData as Partial<TrammingDbData>),
     );
 
-    const [outerData, setOuterData] = useState<TrammingData>(
-      initialData?.outerData || defaultTrammingData,
+    const [outerData, setOuterData] = useState<TrammingDbData>(() =>
+      mergeWithDefaults(initialData?.outerData as Partial<TrammingDbData>),
     );
-    const [innerData, setInnerData] = useState<TrammingData>(
-      initialData?.innerData || defaultTrammingData,
+    const [innerData, setInnerData] = useState<TrammingDbData>(() =>
+      mergeWithDefaults(initialData?.innerData as Partial<TrammingDbData>),
     );
     const [slideTram, setSlideTram] = useState<YesNoDncType>(
       initialData?.slideTram || YesNoDncType.DNC,
@@ -93,12 +98,12 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
     const [outerErrors, setOuterErrors] = useState<Record<string, string>>({});
     const [innerErrors, setInnerErrors] = useState<Record<string, string>>({});
 
-    const updateOuterField = (field: keyof TrammingData, value: number | undefined) => {
+    const updateOuterField = (field: keyof TrammingDbData, value: number | undefined) => {
       setOuterData((prev) => ({ ...prev, [field]: value ?? 0 }));
       onSectionTouched?.();
     };
 
-    const updateInnerField = (field: keyof TrammingData, value: number | undefined) => {
+    const updateInnerField = (field: keyof TrammingDbData, value: number | undefined) => {
       setInnerData((prev) => ({ ...prev, [field]: value ?? 0 }));
       onSectionTouched?.();
     };
@@ -108,7 +113,8 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
       onSectionTouched?.();
     };
 
-    const validateField = (value: number): string => {
+    const validateField = (value: number | undefined): string => {
+      if (value === undefined) return '';
       const numValue = Number(value);
       if (isNaN(numValue)) {
         return 'Invalid number';
@@ -116,12 +122,12 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
       return '';
     };
 
-    const handleBlurOuter = (field: keyof TrammingData) => {
+    const handleBlurOuter = (field: keyof TrammingDbData) => {
       const error = validateField(outerData[field]);
       setOuterErrors((prev) => ({ ...prev, [field]: error }));
     };
 
-    const handleBlurInner = (field: keyof TrammingData) => {
+    const handleBlurInner = (field: keyof TrammingDbData) => {
       const error = validateField(innerData[field]);
       setInnerErrors((prev) => ({ ...prev, [field]: error }));
     };
@@ -145,18 +151,18 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
         // Validate touched data (only validate if user has modified the data)
         if (outerTouched) {
           validationErrors.push(
-            ...validateTrammingData(outerData).map((e) => `Tramming Outer: ${e}`),
+            ...validateTrammingDbData(outerData).map((e) => `Tramming Outer: ${e}`),
           );
         }
         if (innerTouched) {
           validationErrors.push(
-            ...validateTrammingData(innerData).map((e) => `Tramming Inner: ${e}`),
+            ...validateTrammingDbData(innerData).map((e) => `Tramming Inner: ${e}`),
           );
         }
 
         // Check if there's any existing data (either initial or modified)
-        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultTrammingData);
-        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultTrammingData);
+        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultTrammingDbData);
+        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultTrammingDbData);
 
         // Require at least one section to be filled (either initial or new)
         if (!hasOuterData && !hasInnerData) {
@@ -167,8 +173,10 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
 
         if (isValid) {
           // Return modified data OR initial data if it exists
-          const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultTrammingData);
-          const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultTrammingData);
+          const hasOuterData =
+            outerTouched || isDataTouched(initialOuterData, defaultTrammingDbData);
+          const hasInnerData =
+            innerTouched || isDataTouched(initialInnerData, defaultTrammingDbData);
 
           return {
             isValid: true,
@@ -191,8 +199,8 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
       getData: (): TrammingSectionData => {
         const outerTouched = isDataTouched(outerData, initialOuterData);
         const innerTouched = isDataTouched(innerData, initialInnerData);
-        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultTrammingData);
-        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultTrammingData);
+        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultTrammingDbData);
+        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultTrammingDbData);
 
         return {
           outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
@@ -210,15 +218,15 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
 
         // Only validate if user has modified the data
         if (outerTouched) {
-          errors.push(...validateTrammingData(outerData).map((e) => `Tramming Outer: ${e}`));
+          errors.push(...validateTrammingDbData(outerData).map((e) => `Tramming Outer: ${e}`));
         }
         if (innerTouched) {
-          errors.push(...validateTrammingData(innerData).map((e) => `Tramming Inner: ${e}`));
+          errors.push(...validateTrammingDbData(innerData).map((e) => `Tramming Inner: ${e}`));
         }
 
         // Check if there's any existing data (either initial or modified)
-        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultTrammingData);
-        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultTrammingData);
+        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultTrammingDbData);
+        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultTrammingDbData);
 
         // Require at least one section to be filled (either initial or new)
         if (!hasOuterData && !hasInnerData) {
@@ -229,8 +237,8 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
       },
 
       reset: () => {
-        setOuterData(defaultTrammingData);
-        setInnerData(defaultTrammingData);
+        setOuterData(defaultTrammingDbData);
+        setInnerData(defaultTrammingDbData);
         setSlideTram(YesNoDncType.DNC);
         setNotes('');
         setOuterErrors({});
@@ -281,7 +289,6 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
               errors={outerErrors}
               updateField={updateOuterField}
               handleBlur={handleBlurOuter}
-              title="Outer"
             />
           </TabsContent>
 
@@ -291,7 +298,6 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
               errors={innerErrors}
               updateField={updateInnerField}
               handleBlur={handleBlurInner}
-              title="Inner"
             />
           </TabsContent>
         </Tabs>

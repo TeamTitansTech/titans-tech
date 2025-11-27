@@ -23,6 +23,19 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
   const tLubricationFields = useTranslations('inspections.form.lubricationHydraulics');
   const tCommon = useTranslations('common.status');
 
+  // Guard against undefined data
+  if (!data) {
+    return (
+      <div className="text-xs space-y-3">
+        <div className="border-t pt-2">
+          <Typography variant="muted" className="text-center py-4 text-xs">
+            {tServicesSummary('noDataAvailable')}
+          </Typography>
+        </div>
+      </div>
+    );
+  }
+
   // Helper function to translate field names
   const translateFieldName = (key: string): string => {
     const translation = tLubricationFields(key);
@@ -129,7 +142,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
       {scalarFieldKeys.length === 0 && gauges.length === 0 && (
         <div className="border-t pt-2">
           <Typography variant="muted" className="text-center py-4 text-xs">
-            Nenhum dado disponível
+            {tServicesSummary('noDataAvailable')}
           </Typography>
         </div>
       )}
