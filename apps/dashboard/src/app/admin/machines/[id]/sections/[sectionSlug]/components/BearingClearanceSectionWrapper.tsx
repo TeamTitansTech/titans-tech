@@ -22,10 +22,12 @@ interface BearingClearanceData {
 export interface InspectionData {
   id: string;
   date: string;
-  bearingClearanceChecks: Array<{
+  bearingClearance: Array<{
     id: string;
-    after: BearingClearanceData | null;
-    before: BearingClearanceData | null;
+    outerData: BearingClearanceData | null;
+    outerBefore: BearingClearanceData | null;
+    innerData: BearingClearanceData | null;
+    innerBefore: BearingClearanceData | null;
   }>;
 }
 
@@ -34,6 +36,7 @@ export async function BearingClearanceSectionWrapper({
 }: BearingClearanceSectionWrapperProps) {
   let inspections: InspectionData[] = [];
   let machineName = '';
+  let blueprintId = '';
 
   try {
     const [inspectionsResponse, machineResponse] = await Promise.all([
@@ -51,13 +54,16 @@ export async function BearingClearanceSectionWrapper({
     if (machineResponse.errors) {
       console.error('Errors fetching machine:', machineResponse.errors);
       machineName = '';
+      blueprintId = '';
     } else {
       machineName = machineResponse.data?.name || '';
+      blueprintId = machineResponse.data?.blueprintId || '';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
     inspections = [];
     machineName = '';
+    blueprintId = '';
   }
 
   return (
@@ -65,6 +71,7 @@ export async function BearingClearanceSectionWrapper({
       machineId={machineId}
       inspections={inspections}
       machineName={machineName}
+      blueprintId={blueprintId}
     />
   );
 }

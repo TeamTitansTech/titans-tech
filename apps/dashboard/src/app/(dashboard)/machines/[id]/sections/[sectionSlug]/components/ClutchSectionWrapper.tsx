@@ -1,40 +1,34 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
-import { BearingClearanceSection } from './BearingClearanceSection';
+import { ClutchSection } from './ClutchSection';
 
-interface BearingClearanceSectionWrapperProps {
+interface ClutchSectionWrapperProps {
   machineId: string;
 }
 
-interface BearingClearanceData {
-  totalClearance_RH: number;
-  totalClearance_LH: number;
-  mainBearings_RH: number;
-  mainBearings_LH: number;
-  upperConnectionBearings_RH: number;
-  upperConnectionBearings_LH: number;
-  wristPinToMatingPart_RH: number;
-  wristPinToMatingPart_LH: number;
-  wristPinToBushing_RH: number;
-  wristPinToBushing_LH: number;
+interface ClutchData {
+  hydClutchClearanceTotal: number | null;
+  hydClutchClearanceRear: number | null;
+  brakeSpringFB: number | null;
+  brakeSpringFTB: number | null;
+  brakeSpringRTB: number | null;
+  brakeSpringBrake: number | null;
+  brakeSpringClutch: number | null;
+  brakeClearanceTotal: number | null;
+  brakeClearanceRear: number | null;
 }
 
-export interface InspectionData {
+export interface ClutchInspectionData {
   id: string;
   date: string;
-  bearingClearance: Array<{
+  clutch: Array<{
     id: string;
-    outerData: BearingClearanceData | null;
-    outerBefore: BearingClearanceData | null;
-    innerData: BearingClearanceData | null;
-    innerBefore: BearingClearanceData | null;
+    data: ClutchData | null;
   }>;
 }
 
-export async function BearingClearanceSectionWrapper({
-  machineId,
-}: BearingClearanceSectionWrapperProps) {
-  let inspections: InspectionData[] = [];
+export async function ClutchSectionWrapper({ machineId }: ClutchSectionWrapperProps) {
+  let inspections: ClutchInspectionData[] = [];
   let machineName = '';
   let blueprintId = '';
 
@@ -48,7 +42,7 @@ export async function BearingClearanceSectionWrapper({
       console.error('Errors fetching inspections:', inspectionsResponse.errors);
       inspections = [];
     } else {
-      inspections = (inspectionsResponse.data || []) as unknown as InspectionData[];
+      inspections = (inspectionsResponse.data || []) as unknown as ClutchInspectionData[];
     }
 
     if (machineResponse.errors) {
@@ -67,7 +61,7 @@ export async function BearingClearanceSectionWrapper({
   }
 
   return (
-    <BearingClearanceSection
+    <ClutchSection
       machineId={machineId}
       inspections={inspections}
       machineName={machineName}

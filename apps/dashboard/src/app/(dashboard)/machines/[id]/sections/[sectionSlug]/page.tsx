@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { BearingClearanceSectionWrapper } from './components/BearingClearanceSectionWrapper';
+import { ClutchSectionWrapper } from './components/ClutchSectionWrapper';
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -32,8 +33,9 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
       </div>
 
       {sectionSlug === 'bearing_clearance' && <BearingClearanceSectionWrapper machineId={id} />}
+      {sectionSlug === 'clutch' && <ClutchSectionWrapper machineId={id} />}
 
-      {sectionSlug !== 'bearing_clearance' && (
+      {sectionSlug !== 'bearing_clearance' && sectionSlug !== 'clutch' && (
         <div className="text-center py-12">
           <Typography variant="muted">{t('comingSoon', { section: sectionSlug })}</Typography>
         </div>

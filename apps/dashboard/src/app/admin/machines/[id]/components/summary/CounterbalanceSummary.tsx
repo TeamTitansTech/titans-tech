@@ -14,6 +14,19 @@ export function CounterbalanceSummary({ data }: CounterbalanceSummaryProps) {
   const tCounterbalanceFields = useTranslations('inspections.form.counterbalanceCylinder');
   const tCommon = useTranslations('common.status');
 
+  // Guard against undefined data
+  if (!data) {
+    return (
+      <div className="text-xs space-y-3">
+        <div className="border-t pt-2">
+          <div className="text-muted-foreground text-center py-4 text-xs">
+            {tServicesSummary('noDataAvailable')}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Helper function to translate field names
   const translateFieldName = (key: string): string => {
     const translation = tCounterbalanceFields(key);
