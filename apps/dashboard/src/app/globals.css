@@ -58,6 +58,13 @@
   --sidebar-accent-foreground: 0 0% 98%;
   --sidebar-border: 217 20% 28%;
   --sidebar-ring: 24 95% 53%; /* Orange ring */
+
+  /* Chart colors */
+  --chart-1: 215 70% 50%;  /* Primary line color */
+  --chart-2: 136 70% 45%;  /* Secondary line */
+  --chart-3: 38 92% 50%;   /* Tertiary line */
+  --chart-4: 0 72% 51%;    /* Quaternary line */
+  --chart-5: 210 10% 50%;  /* Quinary line */
 }
 
 .dark {
@@ -116,6 +123,13 @@
   --sidebar-accent-foreground: 0 0% 98%;
   --sidebar-border: 217 20% 20%;
   --sidebar-ring: 24 95% 53%; /* Orange ring */
+
+  /* Chart colors (brighter in dark mode) */
+  --chart-1: 215 80% 60%;  /* Primary line color */
+  --chart-2: 142 70% 50%;  /* Secondary line */
+  --chart-3: 38 92% 55%;   /* Tertiary line */
+  --chart-4: 0 72% 55%;    /* Quaternary line */
+  --chart-5: 217 25% 60%;  /* Quinary line */
 }
 
 * {

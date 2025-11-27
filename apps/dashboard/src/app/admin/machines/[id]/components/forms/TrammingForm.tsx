@@ -2,25 +2,43 @@
 
 import { useTranslations } from 'next-intl';
 import { Label } from '@/components/ui/label';
-import { type TrammingData } from '@/data/types/services.types';
 import { MeasurementInput } from '../shared/MeasurementInput';
 
+// Database format for tramming data (matches Prisma TrammingData model)
+export interface TrammingDbData {
+  topTop?: number;
+  topBottom?: number;
+  topLeft?: number;
+  topRight?: number;
+  bottomTop?: number;
+  bottomBottom?: number;
+  bottomLeft?: number;
+  bottomRight?: number;
+  leftTop?: number;
+  leftBottom?: number;
+  leftLeft?: number;
+  leftRight?: number;
+  rightTop?: number;
+  rightBottom?: number;
+  rightLeft?: number;
+  rightRight?: number;
+}
+
 interface TrammingFormProps {
-  data: TrammingData;
+  data: TrammingDbData;
   errors: Record<string, string>;
-  updateField: (field: keyof TrammingData, value: number | undefined) => void;
-  handleBlur: (field: keyof TrammingData) => void;
-  title: string;
+  updateField: (field: keyof TrammingDbData, value: number | undefined) => void;
+  handleBlur: (field: keyof TrammingDbData) => void;
   readOnly?: boolean;
 }
 
 interface MeasurementPoint {
   label: string;
   fields: {
-    top: keyof TrammingData;
-    bottom: keyof TrammingData;
-    left: keyof TrammingData;
-    right: keyof TrammingData;
+    top: keyof TrammingDbData;
+    bottom: keyof TrammingDbData;
+    left: keyof TrammingDbData;
+    right: keyof TrammingDbData;
   };
 }
 
@@ -33,7 +51,7 @@ export function TrammingForm({
 }: TrammingFormProps) {
   const t = useTranslations('inspections.form.tramming');
 
-  // Measurement points are the same for both Outer and Inner
+  // Same field names for both outer and inner - the title prop indicates context
   const measurementPoints: MeasurementPoint[] = [
     {
       label: t('top'),
@@ -73,7 +91,7 @@ export function TrammingForm({
     },
   ];
 
-  const renderInput = (field: keyof TrammingData) => (
+  const renderInput = (field: keyof TrammingDbData) => (
     <MeasurementInput
       field={field}
       value={data[field]}

@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,38 +19,36 @@ import {
   FileSpreadsheet,
   ChevronDown,
 } from 'lucide-react';
-import { useState, useMemo } from 'react';
-import {
-  AreaChart,
-  Area,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from 'recharts';
+import { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import { InspectionData } from './BearingClearanceSectionWrapper';
 import { toast } from 'sonner';
 import { exportToExcel, exportToPDF, exportToWord } from '../utils/exportBearingClearance';
+import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
+import {
+  transformBearingClearanceToMultiLineData,
+  extractThresholdConfig,
+} from '@/components/charts/dataTransformers';
+import { getThresholdByBlueprint } from '@/actions/alerts';
+import type { ThresholdConfig } from '@/components/charts/types';
 
 interface BearingClearanceSectionProps {
   machineId: string;
   inspections: InspectionData[];
   machineName: string;
+  blueprintId: string;
 }
 
 export function BearingClearanceSection({
   inspections,
   machineName,
+  blueprintId,
 }: BearingClearanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
+  const [threshold, setThreshold] = useState<ThresholdConfig | null>(null);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -62,6 +59,29 @@ export function BearingClearanceSection({
     }
     return undefined;
   });
+
+  // Fetch threshold data
+  useEffect(() => {
+    async function fetchThreshold() {
+      if (!blueprintId) {
+        return;
+      }
+
+      try {
+        const response = await getThresholdByBlueprint(blueprintId);
+        if (response.data) {
+          // Extract threshold for upperConnectionBearings (CB)
+          const extracted = extractThresholdConfig(response.data, 'upperConnectionBearings');
+          setThreshold(extracted);
+        } else {
+          console.log('⚠️  No threshold data in response');
+        }
+      } catch (error) {
+        console.error('Failed to fetch threshold:', error);
+      }
+    }
+    fetchThreshold();
+  }, [blueprintId]);
 
   const filteredInspections = useMemo(() => {
     return (
@@ -75,14 +95,34 @@ export function BearingClearanceSection({
   }, [inspections, date]);
 
   const latestInspection = filteredInspections[0];
-  const latestBearingCheck = latestInspection?.bearingClearanceChecks?.[0]?.after;
+  const latestBearingCheck = latestInspection?.bearingClearance?.[0]?.outerData;
 
+  // Transform data for new threshold charts
+  const cbChartData = useMemo(() => {
+    console.log('📊 Filtered Inspections:', filteredInspections);
+    console.log('📊 First inspection:', filteredInspections[0]);
+    console.log('📊 Bearing clearance:', filteredInspections[0]?.bearingClearance);
+    const data = transformBearingClearanceToMultiLineData(
+      filteredInspections,
+      'upperConnectionBearings',
+    );
+    console.log('📊 Transformed CB Chart Data:', data);
+    return data;
+  }, [filteredInspections]);
+
+  const totalClearanceChartData = useMemo(() => {
+    const data = transformBearingClearanceToMultiLineData(filteredInspections, 'totalClearance');
+    console.log('📊 Transformed Total Clearance Chart Data:', data);
+    return data;
+  }, [filteredInspections]);
+
+  // Keep old chartData format for export functions compatibility
   const chartData = useMemo(() => {
     return filteredInspections
-      .filter((inspection) => inspection.bearingClearanceChecks?.[0]?.after)
+      .filter((inspection) => inspection.bearingClearance?.[0]?.outerData)
       .map((inspection) => {
-        const after = inspection.bearingClearanceChecks[0].after!;
-        const before = inspection.bearingClearanceChecks[0].before;
+        const after = inspection.bearingClearance[0]!.outerData!;
+        const before = inspection.bearingClearance[0]!.outerBefore;
 
         return {
           date: format(new Date(inspection.date), 'dd/MM/yyyy'),
@@ -351,168 +391,47 @@ export function BearingClearanceSection({
               </div>
 
               <div className="flex-1 space-y-4">
-                <Tabs defaultValue="area" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-4">
-                    <TabsTrigger value="area">{t('areaChart')}</TabsTrigger>
-                    <TabsTrigger value="bar">{t('barChart')}</TabsTrigger>
-                  </TabsList>
+                <MultiLineThresholdChart
+                  title={t('chartConnectionBearing')}
+                  data={cbChartData}
+                  lines={[
+                    {
+                      dataKey: 'upperConnectionBearings_RH',
+                      label: 'CB RH',
+                      color: '#8884d8',
+                    },
+                    {
+                      dataKey: 'upperConnectionBearings_LH',
+                      label: 'CB LH',
+                      color: '#82ca9d',
+                    },
+                  ]}
+                  sharedThreshold={threshold}
+                  valueUnit="mm"
+                  allowToggle={true}
+                  height={300}
+                />
 
-                  <TabsContent value="area" className="space-y-4">
-                    <Card>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium">
-                          {t('chartConnectionBearing')}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {chartData.length > 0 ? (
-                          <ResponsiveContainer width="100%" height={250}>
-                            <AreaChart data={chartData}>
-                              <defs>
-                                <linearGradient id="colorCBRH" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8} />
-                                  <stop offset="95%" stopColor="#8884d8" stopOpacity={0} />
-                                </linearGradient>
-                                <linearGradient id="colorCBLH" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8} />
-                                  <stop offset="95%" stopColor="#82ca9d" stopOpacity={0} />
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                              <YAxis tick={{ fontSize: 12 }} />
-                              <Tooltip />
-                              <Legend />
-                              <Area
-                                type="linear"
-                                dataKey="CB RH"
-                                stroke="#8884d8"
-                                fillOpacity={1}
-                                fill="url(#colorCBRH)"
-                              />
-                              <Area
-                                type="linear"
-                                dataKey="CB LH"
-                                stroke="#82ca9d"
-                                fillOpacity={1}
-                                fill="url(#colorCBLH)"
-                              />
-                            </AreaChart>
-                          </ResponsiveContainer>
-                        ) : (
-                          <div className="aspect-video bg-muted rounded flex items-center justify-center">
-                            <Typography variant="muted">{t('noDataAvailable')}</Typography>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium">
-                          {t('chartDifference')}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {chartData.length > 0 ? (
-                          <ResponsiveContainer width="100%" height={250}>
-                            <AreaChart data={chartData}>
-                              <defs>
-                                <linearGradient id="colorDiffRH" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#ffc658" stopOpacity={0.8} />
-                                  <stop offset="95%" stopColor="#ffc658" stopOpacity={0} />
-                                </linearGradient>
-                                <linearGradient id="colorDiffLH" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#ff7300" stopOpacity={0.8} />
-                                  <stop offset="95%" stopColor="#ff7300" stopOpacity={0} />
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                              <YAxis tick={{ fontSize: 12 }} />
-                              <Tooltip />
-                              <Legend />
-                              <Area
-                                type="linear"
-                                dataKey="Difference RH"
-                                stroke="#ffc658"
-                                fillOpacity={1}
-                                fill="url(#colorDiffRH)"
-                              />
-                              <Area
-                                type="linear"
-                                dataKey="Difference LH"
-                                stroke="#ff7300"
-                                fillOpacity={1}
-                                fill="url(#colorDiffLH)"
-                              />
-                            </AreaChart>
-                          </ResponsiveContainer>
-                        ) : (
-                          <div className="aspect-video bg-muted rounded flex items-center justify-center">
-                            <Typography variant="muted">{t('noDataAvailable')}</Typography>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-
-                  <TabsContent value="bar" className="space-y-4">
-                    <Card>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium">
-                          {t('chartConnectionBearing')}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {chartData.length > 0 ? (
-                          <ResponsiveContainer width="100%" height={250}>
-                            <BarChart data={chartData}>
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                              <YAxis tick={{ fontSize: 12 }} />
-                              <Tooltip />
-                              <Legend />
-                              <Bar dataKey="CB RH" fill="#8884d8" />
-                              <Bar dataKey="CB LH" fill="#82ca9d" />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        ) : (
-                          <div className="aspect-video bg-muted rounded flex items-center justify-center">
-                            <Typography variant="muted">{t('noDataAvailable')}</Typography>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader className="pb-3">
-                        <CardTitle className="text-sm font-medium">
-                          {t('chartDifference')}
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {chartData.length > 0 ? (
-                          <ResponsiveContainer width="100%" height={250}>
-                            <BarChart data={chartData}>
-                              <CartesianGrid strokeDasharray="3 3" />
-                              <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                              <YAxis tick={{ fontSize: 12 }} />
-                              <Tooltip />
-                              <Legend />
-                              <Bar dataKey="Difference RH" fill="#ffc658" />
-                              <Bar dataKey="Difference LH" fill="#ff7300" />
-                            </BarChart>
-                          </ResponsiveContainer>
-                        ) : (
-                          <div className="aspect-video bg-muted rounded flex items-center justify-center">
-                            <Typography variant="muted">{t('noDataAvailable')}</Typography>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </TabsContent>
-                </Tabs>
+                <MultiLineThresholdChart
+                  title={t('chartTotalClearance') || 'Total Clearance'}
+                  data={totalClearanceChartData}
+                  lines={[
+                    {
+                      dataKey: 'totalClearance_RH',
+                      label: 'TC RH',
+                      color: '#ffc658',
+                    },
+                    {
+                      dataKey: 'totalClearance_LH',
+                      label: 'TC LH',
+                      color: '#ff7300',
+                    },
+                  ]}
+                  sharedThreshold={threshold}
+                  valueUnit="mm"
+                  allowToggle={true}
+                  height={300}
+                />
               </div>
             </div>
           </CardContent>

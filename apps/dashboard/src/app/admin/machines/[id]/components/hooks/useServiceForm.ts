@@ -30,7 +30,7 @@ export function useServiceForm(
   const [selectedServiceType, setSelectedServiceType] = useState<ServiceType>(
     serviceType || ServiceType.MAINTENANCE,
   );
-  const [performedBy, setPerformedBy] = useState(initialPerformedBy || '');
+  const [performedBy, setPerformedBy] = useState(initialPerformedBy || 'Julio');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,7 +68,7 @@ export function useServiceForm(
   const reset = () => {
     setDate(getTomorrowDate());
     setSelectedServiceType(ServiceType.MAINTENANCE);
-    setPerformedBy('');
+    setPerformedBy('Julio');
     setIsSubmitting(false);
     setError(null);
     // Reset inspection fields
