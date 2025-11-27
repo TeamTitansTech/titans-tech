@@ -371,90 +371,146 @@ export class NotificationsService {
     const sections: AlertNotificationTemplateData['sections'] = [];
     let highestSeverity: 'YELLOW' | 'RED' = 'YELLOW';
 
-    // Process Bearing Clearance alerts
+    // Process Bearing Clearance alerts with subsections (Outer/Inner)
     if (service.alertBearingClearance) {
       const alert = service.alertBearingClearance;
-      const alerts: Array<{ fieldLabel: string; value: string }> = [];
       let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
 
-      const fields = [
+      const outerFields = [
         {
-          label: 'Total Clearance (Outer)',
+          name: 'Folga Total',
           severity: alert.outer_totalClearance_severity,
-          value: alert.outer_totalClearance_differential,
+          differential: alert.outer_totalClearance_differential,
         },
         {
-          label: 'Main Bearings (Outer)',
+          name: 'Mancais Principais',
           severity: alert.outer_mainBearings_severity,
-          value: alert.outer_mainBearings_differential,
+          differential: alert.outer_mainBearings_differential,
         },
         {
-          label: 'Upper Connection Bearings (Outer)',
+          name: 'Mancais de Conexão Superior',
           severity: alert.outer_upperConnectionBearings_severity,
-          value: alert.outer_upperConnectionBearings_differential,
+          differential: alert.outer_upperConnectionBearings_differential,
         },
         {
-          label: 'Wrist Pin to Mating Part (Outer)',
+          name: 'Pino do Punho para Peça de Acoplamento',
           severity: alert.outer_wristPinToMatingPart_severity,
-          value: alert.outer_wristPinToMatingPart_differential,
+          differential: alert.outer_wristPinToMatingPart_differential,
         },
         {
-          label: 'Wrist Pin to Bushing (Outer)',
+          name: 'Pino do Punho para Bucha',
           severity: alert.outer_wristPinToBushing_severity,
-          value: alert.outer_wristPinToBushing_differential,
+          differential: alert.outer_wristPinToBushing_differential,
         },
         {
-          label: 'Slide Adj Nut to Screw Sleeve (Outer)',
+          name: 'Porca de Ajuste do Slide para Luva do Parafuso',
           severity: alert.outer_slideAdjNutToScrewSleeve_severity,
-          value: alert.outer_slideAdjNutToScrewSleeve_differential,
-        },
-        {
-          label: 'Total Clearance (Inner)',
-          severity: alert.inner_totalClearance_severity,
-          value: alert.inner_totalClearance_differential,
-        },
-        {
-          label: 'Main Bearings (Inner)',
-          severity: alert.inner_mainBearings_severity,
-          value: alert.inner_mainBearings_differential,
-        },
-        {
-          label: 'Upper Connection Bearings (Inner)',
-          severity: alert.inner_upperConnectionBearings_severity,
-          value: alert.inner_upperConnectionBearings_differential,
-        },
-        {
-          label: 'Wrist Pin to Mating Part (Inner)',
-          severity: alert.inner_wristPinToMatingPart_severity,
-          value: alert.inner_wristPinToMatingPart_differential,
-        },
-        {
-          label: 'Wrist Pin to Bushing (Inner)',
-          severity: alert.inner_wristPinToBushing_severity,
-          value: alert.inner_wristPinToBushing_differential,
-        },
-        {
-          label: 'Slide Adj Nut to Screw Sleeve (Inner)',
-          severity: alert.inner_slideAdjNutToScrewSleeve_severity,
-          value: alert.inner_slideAdjNutToScrewSleeve_differential,
+          differential: alert.outer_slideAdjNutToScrewSleeve_differential,
         },
       ];
 
-      for (const f of fields) {
+      const innerFields = [
+        {
+          name: 'Folga Total',
+          severity: alert.inner_totalClearance_severity,
+          differential: alert.inner_totalClearance_differential,
+        },
+        {
+          name: 'Mancais Principais',
+          severity: alert.inner_mainBearings_severity,
+          differential: alert.inner_mainBearings_differential,
+        },
+        {
+          name: 'Mancais de Conexão Superior',
+          severity: alert.inner_upperConnectionBearings_severity,
+          differential: alert.inner_upperConnectionBearings_differential,
+        },
+        {
+          name: 'Pino do Punho para Peça de Acoplamento',
+          severity: alert.inner_wristPinToMatingPart_severity,
+          differential: alert.inner_wristPinToMatingPart_differential,
+        },
+        {
+          name: 'Pino do Punho para Bucha',
+          severity: alert.inner_wristPinToBushing_severity,
+          differential: alert.inner_wristPinToBushing_differential,
+        },
+        {
+          name: 'Porca de Ajuste do Slide para Luva do Parafuso',
+          severity: alert.inner_slideAdjNutToScrewSleeve_severity,
+          differential: alert.inner_slideAdjNutToScrewSleeve_differential,
+        },
+      ];
+
+      const outerMeasurements: Array<{
+        name: string;
+        differential: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
+      let outerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      for (const f of outerFields) {
         if (f.severity === 'YELLOW' || f.severity === 'RED') {
-          alerts.push({
-            fieldLabel: f.label,
-            value: f.value?.toString() || '0',
+          outerMeasurements.push({
+            name: f.name,
+            differential: f.differential?.toFixed(3) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
           });
-          if (f.severity === 'RED') sectionSeverity = 'RED';
+          if (f.severity === 'RED') outerSeverity = 'RED';
         }
       }
 
-      if (alerts.length > 0) {
+      const innerMeasurements: Array<{
+        name: string;
+        differential: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
+      let innerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      for (const f of innerFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          innerMeasurements.push({
+            name: f.name,
+            differential: f.differential?.toFixed(3) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
+          });
+          if (f.severity === 'RED') innerSeverity = 'RED';
+        }
+      }
+
+      const subsections: Array<{
+        name: string;
+        severity: 'YELLOW' | 'RED';
+        measurements: Array<{
+          name: string;
+          differential: string;
+          status: 'YELLOW' | 'RED';
+        }>;
+      }> = [];
+
+      if (outerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Outer',
+          severity: outerSeverity,
+          measurements: outerMeasurements,
+        });
+        if (outerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (innerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Inner',
+          severity: innerSeverity,
+          measurements: innerMeasurements,
+        });
+        if (innerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (subsections.length > 0) {
         sections.push({
           sectionName: 'Bearing Clearance',
           severity: sectionSeverity,
-          alerts,
+          subsections,
         });
         if (sectionSeverity === 'RED') highestSeverity = 'RED';
       }
@@ -463,32 +519,36 @@ export class NotificationsService {
     // Process Clutch alerts
     if (service.alertClutch) {
       const alert = service.alertClutch;
-      const alerts: Array<{ fieldLabel: string; value: string }> = [];
+      const alerts: Array<{
+        fieldLabel: string;
+        value: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
       let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
 
       const fields = [
         {
-          label: 'Hyd Clutch Clearance Total',
+          label: 'Folga Total da Embreagem Hidráulica',
           severity: alert.hydClutchClearanceTotal_severity,
           value: alert.hydClutchClearanceTotal_value,
         },
         {
-          label: 'Hyd Clutch Clearance Rear',
+          label: 'Folga Traseira da Embreagem Hidráulica',
           severity: alert.hydClutchClearanceRear_severity,
           value: alert.hydClutchClearanceRear_value,
         },
         {
-          label: 'F-B (Front-Back)',
+          label: 'F-B (Frente-Trás)',
           severity: alert.fb_severity,
           value: alert.fb_value,
         },
         {
-          label: 'F-TB (Front Top-Bottom)',
+          label: 'F-TB (Frente Cima-Baixo)',
           severity: alert.fTB_severity,
           value: alert.fTB_value,
         },
         {
-          label: 'R-TB (Rear Top-Bottom)',
+          label: 'R-TB (Trás Cima-Baixo)',
           severity: alert.rTB_severity,
           value: alert.rTB_value,
         },
@@ -498,7 +558,8 @@ export class NotificationsService {
         if (f.severity === 'YELLOW' || f.severity === 'RED') {
           alerts.push({
             fieldLabel: f.label,
-            value: f.value?.toString() || '0',
+            value: f.value?.toFixed(3) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
           });
           if (f.severity === 'RED') sectionSeverity = 'RED';
         }
@@ -517,17 +578,21 @@ export class NotificationsService {
     // Process Slide alerts
     if (service.alertSlide) {
       const alert = service.alertSlide;
-      const alerts: Array<{ fieldLabel: string; value: string }> = [];
+      const alerts: Array<{
+        fieldLabel: string;
+        value: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
       let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
 
       const fields = [
         {
-          label: 'Max Deviation (Outer)',
+          label: 'Desvio Máximo (Outer)',
           severity: alert.maxDeviationOuter_severity,
           value: alert.maxDeviationOuter_differential,
         },
         {
-          label: 'Max Deviation (Inner)',
+          label: 'Desvio Máximo (Inner)',
           severity: alert.maxDeviationInner_severity,
           value: alert.maxDeviationInner_differential,
         },
@@ -537,7 +602,8 @@ export class NotificationsService {
         if (f.severity === 'YELLOW' || f.severity === 'RED') {
           alerts.push({
             fieldLabel: f.label,
-            value: f.value?.toString() || '0',
+            value: f.value?.toFixed(3) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
           });
           if (f.severity === 'RED') sectionSeverity = 'RED';
         }
@@ -565,8 +631,9 @@ export class NotificationsService {
           severity: alert.usable_severity as 'YELLOW' | 'RED',
           alerts: [
             {
-              fieldLabel: 'Usable',
-              value: alert.usable_value?.toString() || '0',
+              fieldLabel: 'Utilizável',
+              value: alert.usable_value?.toFixed(3) || '0',
+              status: alert.usable_severity as 'YELLOW' | 'RED',
             },
           ],
         });
@@ -582,6 +649,7 @@ export class NotificationsService {
       const alerts = service.alertCounterbalanceCylinderAirbag.map((a) => ({
         fieldLabel: a.fieldName.replace(/_/g, ' '),
         value: a.justification,
+        status: 'RED' as const,
       }));
       sections.push({
         sectionName: 'Counterbalance Cylinder / Airbag',
