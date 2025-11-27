@@ -16,3 +16,4 @@ export * from './service';
 export * from './create-permission-template.dto';
 export * from './update-permission-template.dto';
 export * from './production-line.dto';
+export * from './send-alert-notification.dto';

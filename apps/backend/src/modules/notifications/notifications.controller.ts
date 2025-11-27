@@ -22,6 +22,8 @@ import {
   AdminNotificationResponseDto,
   ClientNotificationResponseDto,
   NotificationStatsResponseDto,
+  SendAlertNotificationDto,
+  SendAlertNotificationDtoSchema,
 } from '@titans-tech/shared/backend-dtos';
 
 @Controller('notifications')
@@ -121,5 +123,17 @@ export class NotificationsController {
   ): Promise<{ success: boolean; count: number }> {
     const userId = req.user.id;
     return this.notificationsService.markAllClientNotificationsAsRead(userId);
+  }
+
+  @Post('alert-notification')
+  @Authenticated()
+  @HttpCode(HttpStatus.CREATED)
+  @UsePipes(new ZodValidationPipe(SendAlertNotificationDtoSchema))
+  async sendAlertNotification(@Body() dto: SendAlertNotificationDto): Promise<{
+    success: boolean;
+    emailsSent: number;
+    notificationsCreated: number;
+  }> {
+    return this.notificationsService.sendAlertNotification(dto);
   }
 }

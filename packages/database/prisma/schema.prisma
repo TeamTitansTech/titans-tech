@@ -1235,6 +1235,7 @@ enum NotificationType {
   SERVICE_REMINDER
   SERVICE_OVERDUE
   SERVICE_COMPLETED
+  INSPECTION_ALERT
 }
 
 enum EmailStatus {

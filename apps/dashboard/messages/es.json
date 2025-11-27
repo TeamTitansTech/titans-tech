@@ -81,6 +81,26 @@
     "loading": "Cargando",
     "noNotifications": "No hay notificaciones"
   },
+  "alertNotification": {
+    "title": "Alertas Detectadas en la Inspección",
+    "description": "La inspección generó {count} alerta(s). Seleccione los destinatarios para la notificación.",
+    "alertsSummary": "Resumen de Alertas",
+    "alertCount": "{count} alerta(s)",
+    "selectRecipients": "Seleccionar Destinatarios",
+    "adminsAndManagers": "Administradores y Gerentes",
+    "noAdminsFound": "No se encontró ningún administrador o gerente",
+    "admin": "Admin",
+    "manager": "Gerente",
+    "additionalEmails": "Emails Adicionales",
+    "emailPlaceholder": "email@ejemplo.com",
+    "addEmail": "Agregar Email",
+    "skip": "Omitir",
+    "sendNotifications": "Enviar Notificaciones",
+    "sending": "Enviando...",
+    "selectAtLeastOne": "Seleccione al menos un destinatario o agregue un email",
+    "errorSending": "Error al enviar notificaciones",
+    "successMessage": "¡Notificaciones enviadas! {emails} email(s) enviado(s), {notifications} notificación(es) creada(s)"
+  },
   "settings": {
     "title": "Configuración",
     "description": "Administre sus preferencias y configuraciones de la aplicación",

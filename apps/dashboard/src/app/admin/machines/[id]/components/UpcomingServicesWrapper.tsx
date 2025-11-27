@@ -26,12 +26,14 @@ interface UpcomingServicesWrapperProps {
   machineId: string;
   blueprintSections: string[];
   services: Service[];
+  companyId?: string;
 }
 
 export function UpcomingServicesWrapper({
   machineId,
   blueprintSections,
   services,
+  companyId,
 }: UpcomingServicesWrapperProps) {
   const t = useTranslations('machines');
   const tActions = useTranslations('actions');
@@ -174,6 +176,7 @@ export function UpcomingServicesWrapper({
           serviceType={selectedService.type}
           initialDate={selectedService.date}
           initialPerformedBy={selectedService.performedBy ?? undefined}
+          companyId={companyId}
         />
       )}
       {selectedService && selectedService.type === 'INSPECTION' && (
@@ -186,6 +189,7 @@ export function UpcomingServicesWrapper({
           serviceType={selectedService.type}
           initialDate={selectedService.date}
           initialPerformedBy={selectedService.performedBy ?? undefined}
+          companyId={companyId}
         />
       )}
       <AlertDialog open={!!serviceToDelete} onOpenChange={() => setServiceToDelete(null)}>

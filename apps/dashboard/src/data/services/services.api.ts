@@ -7,6 +7,7 @@ import type {
   Service,
   LatestReport,
 } from '@/data/types/services.types';
+import type { AlertsSummaryResponseDto } from '@titans-tech/shared/backend-dtos';
 
 export const createService = async (payload: CreateServicePayload) => {
   const response = await responseHandler<Service>('/services', {
@@ -175,4 +176,13 @@ export const deleteService = async (serviceId: string, machineId?: string) => {
   }
 
   return response;
+};
+
+/**
+ * Get alerts summary for a service
+ */
+export const getAlertsSummary = async (serviceId: string) => {
+  return await responseHandler<AlertsSummaryResponseDto>(`/services/${serviceId}/alerts-summary`, {
+    method: 'GET',
+  });
 };

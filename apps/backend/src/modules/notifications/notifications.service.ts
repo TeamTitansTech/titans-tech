@@ -9,7 +9,9 @@ import type {
   ClientNotificationResponseDto,
   NotificationStatsResponseDto,
   CreateUrgentRequestDto,
+  SendAlertNotificationDto,
 } from '@titans-tech/shared/backend-dtos';
+import type { AlertNotificationTemplateData } from '../email/templates/alert-notification.template';
 
 @Injectable()
 export class NotificationsService {
@@ -327,6 +329,356 @@ export class NotificationsService {
     return {
       success: true,
       count: result.count,
+    };
+  }
+
+  async sendAlertNotification(dto: SendAlertNotificationDto): Promise<{
+    success: boolean;
+    emailsSent: number;
+    notificationsCreated: number;
+  }> {
+    const { serviceId, machineId, selectedUserIds, extraEmails } = dto;
+
+    // Fetch service with alerts
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: {
+        machine: {
+          include: {
+            branch: {
+              include: {
+                company: true,
+              },
+            },
+          },
+        },
+        alertBearingClearance: true,
+        alertClutch: true,
+        alertSlide: true,
+        alertGibs: true,
+        alertCounterbalanceCylinderAirbag: true,
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    const machine = service.machine;
+    const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${machineId}`;
+
+    // Build alerts summary for email
+    const sections: AlertNotificationTemplateData['sections'] = [];
+    let highestSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+    // Process Bearing Clearance alerts
+    if (service.alertBearingClearance) {
+      const alert = service.alertBearingClearance;
+      const alerts: Array<{ fieldLabel: string; value: string }> = [];
+      let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      const fields = [
+        {
+          label: 'Total Clearance (Outer)',
+          severity: alert.outer_totalClearance_severity,
+          value: alert.outer_totalClearance_differential,
+        },
+        {
+          label: 'Main Bearings (Outer)',
+          severity: alert.outer_mainBearings_severity,
+          value: alert.outer_mainBearings_differential,
+        },
+        {
+          label: 'Upper Connection Bearings (Outer)',
+          severity: alert.outer_upperConnectionBearings_severity,
+          value: alert.outer_upperConnectionBearings_differential,
+        },
+        {
+          label: 'Wrist Pin to Mating Part (Outer)',
+          severity: alert.outer_wristPinToMatingPart_severity,
+          value: alert.outer_wristPinToMatingPart_differential,
+        },
+        {
+          label: 'Wrist Pin to Bushing (Outer)',
+          severity: alert.outer_wristPinToBushing_severity,
+          value: alert.outer_wristPinToBushing_differential,
+        },
+        {
+          label: 'Slide Adj Nut to Screw Sleeve (Outer)',
+          severity: alert.outer_slideAdjNutToScrewSleeve_severity,
+          value: alert.outer_slideAdjNutToScrewSleeve_differential,
+        },
+        {
+          label: 'Total Clearance (Inner)',
+          severity: alert.inner_totalClearance_severity,
+          value: alert.inner_totalClearance_differential,
+        },
+        {
+          label: 'Main Bearings (Inner)',
+          severity: alert.inner_mainBearings_severity,
+          value: alert.inner_mainBearings_differential,
+        },
+        {
+          label: 'Upper Connection Bearings (Inner)',
+          severity: alert.inner_upperConnectionBearings_severity,
+          value: alert.inner_upperConnectionBearings_differential,
+        },
+        {
+          label: 'Wrist Pin to Mating Part (Inner)',
+          severity: alert.inner_wristPinToMatingPart_severity,
+          value: alert.inner_wristPinToMatingPart_differential,
+        },
+        {
+          label: 'Wrist Pin to Bushing (Inner)',
+          severity: alert.inner_wristPinToBushing_severity,
+          value: alert.inner_wristPinToBushing_differential,
+        },
+        {
+          label: 'Slide Adj Nut to Screw Sleeve (Inner)',
+          severity: alert.inner_slideAdjNutToScrewSleeve_severity,
+          value: alert.inner_slideAdjNutToScrewSleeve_differential,
+        },
+      ];
+
+      for (const f of fields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            fieldLabel: f.label,
+            value: f.value?.toString() || '0',
+          });
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionName: 'Bearing Clearance',
+          severity: sectionSeverity,
+          alerts,
+        });
+        if (sectionSeverity === 'RED') highestSeverity = 'RED';
+      }
+    }
+
+    // Process Clutch alerts
+    if (service.alertClutch) {
+      const alert = service.alertClutch;
+      const alerts: Array<{ fieldLabel: string; value: string }> = [];
+      let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      const fields = [
+        {
+          label: 'Hyd Clutch Clearance Total',
+          severity: alert.hydClutchClearanceTotal_severity,
+          value: alert.hydClutchClearanceTotal_value,
+        },
+        {
+          label: 'Hyd Clutch Clearance Rear',
+          severity: alert.hydClutchClearanceRear_severity,
+          value: alert.hydClutchClearanceRear_value,
+        },
+        {
+          label: 'F-B (Front-Back)',
+          severity: alert.fb_severity,
+          value: alert.fb_value,
+        },
+        {
+          label: 'F-TB (Front Top-Bottom)',
+          severity: alert.fTB_severity,
+          value: alert.fTB_value,
+        },
+        {
+          label: 'R-TB (Rear Top-Bottom)',
+          severity: alert.rTB_severity,
+          value: alert.rTB_value,
+        },
+      ];
+
+      for (const f of fields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            fieldLabel: f.label,
+            value: f.value?.toString() || '0',
+          });
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionName: 'Clutch',
+          severity: sectionSeverity,
+          alerts,
+        });
+        if (sectionSeverity === 'RED') highestSeverity = 'RED';
+      }
+    }
+
+    // Process Slide alerts
+    if (service.alertSlide) {
+      const alert = service.alertSlide;
+      const alerts: Array<{ fieldLabel: string; value: string }> = [];
+      let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      const fields = [
+        {
+          label: 'Max Deviation (Outer)',
+          severity: alert.maxDeviationOuter_severity,
+          value: alert.maxDeviationOuter_differential,
+        },
+        {
+          label: 'Max Deviation (Inner)',
+          severity: alert.maxDeviationInner_severity,
+          value: alert.maxDeviationInner_differential,
+        },
+      ];
+
+      for (const f of fields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            fieldLabel: f.label,
+            value: f.value?.toString() || '0',
+          });
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionName: 'Slide',
+          severity: sectionSeverity,
+          alerts,
+        });
+        if (sectionSeverity === 'RED') highestSeverity = 'RED';
+      }
+    }
+
+    // Process Gibs alerts
+    if (service.alertGibs) {
+      const alert = service.alertGibs;
+      if (
+        alert.usable_severity === 'YELLOW' ||
+        alert.usable_severity === 'RED'
+      ) {
+        sections.push({
+          sectionName: 'Gibs',
+          severity: alert.usable_severity as 'YELLOW' | 'RED',
+          alerts: [
+            {
+              fieldLabel: 'Usable',
+              value: alert.usable_value?.toString() || '0',
+            },
+          ],
+        });
+        if (alert.usable_severity === 'RED') highestSeverity = 'RED';
+      }
+    }
+
+    // Process Counterbalance alerts
+    if (
+      service.alertCounterbalanceCylinderAirbag &&
+      service.alertCounterbalanceCylinderAirbag.length > 0
+    ) {
+      const alerts = service.alertCounterbalanceCylinderAirbag.map((a) => ({
+        fieldLabel: a.fieldName.replace(/_/g, ' '),
+        value: a.justification,
+      }));
+      sections.push({
+        sectionName: 'Counterbalance Cylinder / Airbag',
+        severity: 'RED',
+        alerts,
+      });
+      highestSeverity = 'RED';
+    }
+
+    // Prepare email data
+    const emailData: AlertNotificationTemplateData = {
+      machineName: machine.name,
+      companyName: machine.branch.company.name,
+      branchName: machine.branch.name,
+      inspectionDate: service.date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      performedBy: service.performedBy || 'Not specified',
+      machineUrl,
+      highestSeverity,
+      sections,
+    };
+
+    // Get selected users' emails
+    const selectedUsers =
+      selectedUserIds && selectedUserIds.length > 0
+        ? await this.prisma.user.findMany({
+            where: { id: { in: selectedUserIds } },
+            select: { id: true, email: true, name: true },
+          })
+        : [];
+
+    // Compile all email recipients
+    const allEmails: string[] = [
+      ...selectedUsers.map((u) => u.email),
+      ...(extraEmails || []),
+    ];
+
+    let emailsSent = 0;
+    let notificationsCreated = 0;
+
+    // Create ClientNotification for each selected user
+    for (const user of selectedUsers) {
+      try {
+        await this.prisma.clientNotification.create({
+          data: {
+            userId: user.id,
+            machineId,
+            message: `Inspection alert for machine "${machine.name}" - ${highestSeverity === 'RED' ? 'Critical' : 'Warning'}`,
+            redirectUrl: machineUrl,
+            type: NotificationType.INSPECTION_ALERT,
+            metadata: {
+              serviceId,
+              highestSeverity,
+              sectionsCount: sections.length,
+            },
+          },
+        });
+        notificationsCreated++;
+      } catch (error) {
+        this.logger.error(
+          `Failed to create notification for user ${user.id}`,
+          error,
+        );
+      }
+    }
+
+    // Send email to all recipients
+    if (allEmails.length > 0) {
+      this.logger.log(
+        `[Alert Notification] Attempting to send email to: ${allEmails.join(', ')}`,
+      );
+      try {
+        await this.emailService.sendAlertNotificationEmail(
+          allEmails,
+          emailData,
+          machineId,
+        );
+        emailsSent = allEmails.length;
+        this.logger.log(
+          `[Alert Notification] Email sent successfully to ${emailsSent} recipient(s)`,
+        );
+      } catch (error) {
+        this.logger.error('[Alert Notification] Failed to send email:', error);
+      }
+    } else {
+      this.logger.warn('[Alert Notification] No recipients to send email to');
+    }
+
+    return {
+      success: true,
+      emailsSent,
+      notificationsCreated,
     };
   }
 }

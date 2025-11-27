@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { useTranslations } from 'next-intl';
+import type { AlertsSummaryResponseDto } from '@titans-tech/shared/backend-dtos';
 import {
   Dialog,
   DialogContent,
@@ -23,7 +24,9 @@ import {
   updateService,
   updateServiceSection,
   completeService,
+  getAlertsSummary,
 } from '@/data/services/services.api';
+import { AlertNotificationModal } from './AlertNotificationModal';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { toast } from 'sonner';
 import { SECTION_REGISTRY } from './sections/registry';
@@ -48,6 +51,7 @@ export function ServiceCompletionModal({
   serviceType,
   initialDate,
   initialPerformedBy,
+  companyId,
 }: ServiceCompletionModalProps) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
@@ -55,6 +59,10 @@ export function ServiceCompletionModal({
   const tSuccess = useTranslations('errors.successMessages');
   const tActions = useTranslations('actions');
   const router = useInternalRouter();
+
+  const [showAlertNotificationModal, setShowAlertNotificationModal] = useState(false);
+  const [alertsSummary, setAlertsSummary] = useState<AlertsSummaryResponseDto | null>(null);
+  const [completedServiceId, setCompletedServiceId] = useState<string | null>(null);
 
   // Helper function to translate error messages
   const translateError = (error: string): string => {
@@ -596,6 +604,38 @@ export function ServiceCompletionModal({
 
       toast.success(tSuccess('serviceCompleted'), { duration: 3000 });
 
+      if (serviceType !== ServiceType.INSPECTION || !companyId) {
+        resetForm();
+        resetSectionData();
+        setIsSubmitting(false);
+        onOpenChange(false);
+        router.refresh();
+        return;
+      }
+
+      try {
+        const { data } = await getAlertsSummary(currentServiceId);
+
+        if (!data?.hasAlerts || data.highestSeverity === 'GREEN') {
+          resetForm();
+          resetSectionData();
+          setIsSubmitting(false);
+          onOpenChange(false);
+          router.refresh();
+          return;
+        }
+
+        setAlertsSummary(data);
+        setCompletedServiceId(currentServiceId);
+        setShowAlertNotificationModal(true);
+        resetForm();
+        resetSectionData();
+        setIsSubmitting(false);
+        return;
+      } catch (alertError) {
+        console.error('Error fetching alerts summary:', alertError);
+      }
+
       resetForm();
       resetSectionData();
       setIsSubmitting(false);
@@ -648,179 +688,202 @@ export function ServiceCompletionModal({
     return steps;
   };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="p-2 pt-6 sm:p-6 w-full md:w-[1200px] h-[86vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle>{getDialogTitle()}</DialogTitle>
-          <DialogDescription>{getDialogDescription()}</DialogDescription>
-        </DialogHeader>
+  const handleAlertNotificationModalClose = (isOpen: boolean) => {
+    setShowAlertNotificationModal(isOpen);
+    if (!isOpen) {
+      setAlertsSummary(null);
+      setCompletedServiceId(null);
+      onOpenChange(false);
+      router.refresh();
+    }
+  };
 
-        {isLoadingServiceData && serviceId && !hasLoadedInitialData.current ? (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center space-y-3">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-              <Typography variant="muted">Carregando dados do serviço...</Typography>
+  return (
+    <>
+      <Dialog open={open && !showAlertNotificationModal} onOpenChange={onOpenChange}>
+        <DialogContent className="p-2 pt-6 sm:p-6 w-full md:w-[1200px] h-[86vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle>{getDialogTitle()}</DialogTitle>
+            <DialogDescription>{getDialogDescription()}</DialogDescription>
+          </DialogHeader>
+
+          {isLoadingServiceData && serviceId && !hasLoadedInitialData.current ? (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center space-y-3">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+                <Typography variant="muted">Carregando dados do serviço...</Typography>
+              </div>
             </div>
-          </div>
-        ) : currentStep === 'selection' ? (
-          <SelectionStep
-            machineSections={machineSections}
-            selectedSections={selectedSections}
-            toggleSection={toggleSection}
-            onCancel={() => onOpenChange(false)}
-            onContinue={handleProceedToDetails}
-            translations={{
-              getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
-              areasSelected: (count) =>
-                `${count} ${count === 1 ? 'área selecionada' : 'áreas selecionadas'}`,
-              selectAreasAbove: tServices('modal.selectAreasAbove'),
-              cancel: tActions('cancel'),
-              continue: tActions('continue'),
-            }}
-          />
-        ) : currentStep === 'details' ? (
-          <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
-            <DetailsStep
-              date={date}
-              performedBy={performedBy}
-              setPerformedBy={setPerformedBy}
-              selectedServiceType={selectedServiceType}
-              setSelectedServiceType={setSelectedServiceType}
+          ) : currentStep === 'selection' ? (
+            <SelectionStep
+              machineSections={machineSections}
               selectedSections={selectedSections}
-              error={error}
-              isCompletingService={isCompletingService}
-              shouldSkipSelection={shouldSkipSelection}
-              stepperSteps={getStepperSteps()}
-              onStepClick={handleStepClick}
-              onBack={() => setCurrentStep('selection')}
-              onNext={handleNext}
-              // Inspection observation fields
-              isPressLevel={isPressLevel}
-              setIsPressLevel={setIsPressLevel}
-              driveBeltCondition={driveBeltCondition}
-              setDriveBeltCondition={setDriveBeltCondition}
-              areAllProtectiveCovers={areAllProtectiveCovers}
-              setAreAllProtectiveCovers={setAreAllProtectiveCovers}
-              protectiveCoversExplanation={protectiveCoversExplanation}
-              setProtectiveCoversExplanation={setProtectiveCoversExplanation}
-              areCracksVisible={areCracksVisible}
-              setAreCracksVisible={setAreCracksVisible}
-              cracksLocation={cracksLocation}
-              setCracksLocation={setCracksLocation}
-              isMainMotorSecure={isMainMotorSecure}
-              setIsMainMotorSecure={setIsMainMotorSecure}
-              isMotorPlateSecure={isMotorPlateSecure}
-              setIsMotorPlateSecure={setIsMotorPlateSecure}
-              whyNotCovered={whyNotCovered}
-              setWhyNotCovered={setWhyNotCovered}
-              translations={{
-                dateLabel: isCompletingService
-                  ? tServices('modal.realizationDate')
-                  : tServices('serviceDate'),
-                performedByLabel: tServices('modal.performedBy'),
-                performedByPlaceholder: tServices('modal.technicianName'),
-                serviceTypeLabel: tServices('serviceType'),
-                inspectionType: tServices('types.inspection'),
-                maintenanceType: tServices('types.maintenance'),
-                selectedAreasTitle: isInspection
-                  ? tServices('modal.inspectionAreas')
-                  : tServices('modal.selectedAreas'),
-                getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
-                back: tServices('modal.back'),
-                continue: tServices('modal.continue'),
-                // Machine information
-                machineInformationTitle: tServices('modal.machineInformation.title'),
-                manufacturer: tServices('modal.machineInformation.manufacturer'),
-                sizeTonnage: tServices('modal.machineInformation.sizeTonnage'),
-                serialNumber: tServices('modal.machineInformation.serialNumber'),
-                stroke: tServices('modal.machineInformation.stroke'),
-                foundationType: tServices('modal.machineInformation.foundationType'),
-                frameType: tServices('modal.machineInformation.frameType'),
-                clutchType: tServices('modal.machineInformation.clutchType'),
-                pneumaticSystem: tServices('modal.machineInformation.pneumaticSystem'),
-                pressMounting: tServices('modal.machineInformation.pressMounting'),
-                features: tServices('modal.machineInformation.features'),
-                // Inspection observations
-                inspectionObservationsTitle: tServices('modal.inspectionObservations.title'),
-                isPressLevel: tServices('modal.inspectionObservations.isPressLevel'),
-                driveBeltCondition: tServices('modal.inspectionObservations.driveBeltCondition'),
-                areAllProtectiveCovers: tServices(
-                  'modal.inspectionObservations.areAllProtectiveCovers',
-                ),
-                protectiveCoversExplanation: tServices(
-                  'modal.inspectionObservations.protectiveCoversExplanation',
-                ),
-                areCracksVisible: tServices('modal.inspectionObservations.areCracksVisible'),
-                cracksLocation: tServices('modal.inspectionObservations.cracksLocation'),
-                isMainMotorSecure: tServices('modal.inspectionObservations.isMainMotorSecure'),
-                isMotorPlateSecure: tServices('modal.inspectionObservations.isMotorPlateSecure'),
-                whyNotCovered: tServices('modal.inspectionObservations.whyNotCovered'),
-              }}
-            />
-          </form>
-        ) : currentStep === 'sections' ? (
-          <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
-            <SectionsStep
-              selectedSectionsArray={getSelectedSectionsArray()}
-              currentSectionIndex={currentSectionIndex}
-              completedSectionData={completedSectionData}
-              currentServiceType={currentServiceType}
-              error={error}
-              stepperSteps={getStepperSteps()}
-              onStepClick={handleStepClick}
-              onSectionTouched={handleSectionTouched}
-              registerSectionRef={registerRef}
-              onPrevious={handlePrevious}
-              onNext={handleNext}
-              getSectionRef={getRef}
-              completedSections={completedSections}
-              serviceId={currentServiceId ?? undefined}
+              toggleSection={toggleSection}
+              onCancel={() => onOpenChange(false)}
+              onContinue={handleProceedToDetails}
               translations={{
                 getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
-                previous: tActions('previous'),
-                save: tActions('save'),
+                areasSelected: (count) =>
+                  `${count} ${count === 1 ? 'área selecionada' : 'áreas selecionadas'}`,
+                selectAreasAbove: tServices('modal.selectAreasAbove'),
+                cancel: tActions('cancel'),
                 continue: tActions('continue'),
               }}
             />
-          </form>
-        ) : (
-          <SummaryStep
-            date={date}
-            performedBy={performedBy}
-            completedSections={completedSections}
-            completedSectionData={completedSectionData}
-            isSubmitting={isSubmitting}
-            error={error}
-            stepperSteps={getStepperSteps()}
-            onStepClick={handleStepClick}
-            onSubmit={handleSubmit}
-            // Inspection observation fields
-            isPressLevel={isPressLevel}
-            driveBeltCondition={driveBeltCondition}
-            areAllProtectiveCovers={areAllProtectiveCovers}
-            protectiveCoversExplanation={protectiveCoversExplanation}
-            areCracksVisible={areCracksVisible}
-            cracksLocation={cracksLocation}
-            isMainMotorSecure={isMainMotorSecure}
-            isMotorPlateSecure={isMotorPlateSecure}
-            whyNotCovered={whyNotCovered}
-            translations={{
-              title: isInspection
-                ? tServices('modal.inspectionSummary')
-                : tServices('modal.maintenanceSummary'),
-              serviceDetailsTitle: 'Detalhes do Serviço',
-              realizationDate: tServices('modal.realizationDate'),
-              performedBy: tServices('modal.performedBy'),
-              completedAreasTitle: 'Áreas Preenchidas',
-              detailedDataTitle: 'Dados Preenchidos',
-              getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
-              completeService: isInspection ? 'Concluir Inspeção' : 'Concluir Manutenção',
-              completing: 'Concluindo...',
-            }}
-          />
-        )}
-      </DialogContent>
-    </Dialog>
+          ) : currentStep === 'details' ? (
+            <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+              <DetailsStep
+                date={date}
+                performedBy={performedBy}
+                setPerformedBy={setPerformedBy}
+                selectedServiceType={selectedServiceType}
+                setSelectedServiceType={setSelectedServiceType}
+                selectedSections={selectedSections}
+                error={error}
+                isCompletingService={isCompletingService}
+                shouldSkipSelection={shouldSkipSelection}
+                stepperSteps={getStepperSteps()}
+                onStepClick={handleStepClick}
+                onBack={() => setCurrentStep('selection')}
+                onNext={handleNext}
+                // Inspection observation fields
+                isPressLevel={isPressLevel}
+                setIsPressLevel={setIsPressLevel}
+                driveBeltCondition={driveBeltCondition}
+                setDriveBeltCondition={setDriveBeltCondition}
+                areAllProtectiveCovers={areAllProtectiveCovers}
+                setAreAllProtectiveCovers={setAreAllProtectiveCovers}
+                protectiveCoversExplanation={protectiveCoversExplanation}
+                setProtectiveCoversExplanation={setProtectiveCoversExplanation}
+                areCracksVisible={areCracksVisible}
+                setAreCracksVisible={setAreCracksVisible}
+                cracksLocation={cracksLocation}
+                setCracksLocation={setCracksLocation}
+                isMainMotorSecure={isMainMotorSecure}
+                setIsMainMotorSecure={setIsMainMotorSecure}
+                isMotorPlateSecure={isMotorPlateSecure}
+                setIsMotorPlateSecure={setIsMotorPlateSecure}
+                whyNotCovered={whyNotCovered}
+                setWhyNotCovered={setWhyNotCovered}
+                translations={{
+                  dateLabel: isCompletingService
+                    ? tServices('modal.realizationDate')
+                    : tServices('serviceDate'),
+                  performedByLabel: tServices('modal.performedBy'),
+                  performedByPlaceholder: tServices('modal.technicianName'),
+                  serviceTypeLabel: tServices('serviceType'),
+                  inspectionType: tServices('types.inspection'),
+                  maintenanceType: tServices('types.maintenance'),
+                  selectedAreasTitle: isInspection
+                    ? tServices('modal.inspectionAreas')
+                    : tServices('modal.selectedAreas'),
+                  getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
+                  back: tServices('modal.back'),
+                  continue: tServices('modal.continue'),
+                  // Machine information
+                  machineInformationTitle: tServices('modal.machineInformation.title'),
+                  manufacturer: tServices('modal.machineInformation.manufacturer'),
+                  sizeTonnage: tServices('modal.machineInformation.sizeTonnage'),
+                  serialNumber: tServices('modal.machineInformation.serialNumber'),
+                  stroke: tServices('modal.machineInformation.stroke'),
+                  foundationType: tServices('modal.machineInformation.foundationType'),
+                  frameType: tServices('modal.machineInformation.frameType'),
+                  clutchType: tServices('modal.machineInformation.clutchType'),
+                  pneumaticSystem: tServices('modal.machineInformation.pneumaticSystem'),
+                  pressMounting: tServices('modal.machineInformation.pressMounting'),
+                  features: tServices('modal.machineInformation.features'),
+                  // Inspection observations
+                  inspectionObservationsTitle: tServices('modal.inspectionObservations.title'),
+                  isPressLevel: tServices('modal.inspectionObservations.isPressLevel'),
+                  driveBeltCondition: tServices('modal.inspectionObservations.driveBeltCondition'),
+                  areAllProtectiveCovers: tServices(
+                    'modal.inspectionObservations.areAllProtectiveCovers',
+                  ),
+                  protectiveCoversExplanation: tServices(
+                    'modal.inspectionObservations.protectiveCoversExplanation',
+                  ),
+                  areCracksVisible: tServices('modal.inspectionObservations.areCracksVisible'),
+                  cracksLocation: tServices('modal.inspectionObservations.cracksLocation'),
+                  isMainMotorSecure: tServices('modal.inspectionObservations.isMainMotorSecure'),
+                  isMotorPlateSecure: tServices('modal.inspectionObservations.isMotorPlateSecure'),
+                  whyNotCovered: tServices('modal.inspectionObservations.whyNotCovered'),
+                }}
+              />
+            </form>
+          ) : currentStep === 'sections' ? (
+            <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+              <SectionsStep
+                selectedSectionsArray={getSelectedSectionsArray()}
+                currentSectionIndex={currentSectionIndex}
+                completedSectionData={completedSectionData}
+                currentServiceType={currentServiceType}
+                error={error}
+                stepperSteps={getStepperSteps()}
+                onStepClick={handleStepClick}
+                onSectionTouched={handleSectionTouched}
+                registerSectionRef={registerRef}
+                onPrevious={handlePrevious}
+                onNext={handleNext}
+                getSectionRef={getRef}
+                completedSections={completedSections}
+                serviceId={currentServiceId ?? undefined}
+                translations={{
+                  getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
+                  previous: tActions('previous'),
+                  save: tActions('save'),
+                  continue: tActions('continue'),
+                }}
+              />
+            </form>
+          ) : (
+            <SummaryStep
+              date={date}
+              performedBy={performedBy}
+              completedSections={completedSections}
+              completedSectionData={completedSectionData}
+              isSubmitting={isSubmitting}
+              error={error}
+              stepperSteps={getStepperSteps()}
+              onStepClick={handleStepClick}
+              onSubmit={handleSubmit}
+              // Inspection observation fields
+              isPressLevel={isPressLevel}
+              driveBeltCondition={driveBeltCondition}
+              areAllProtectiveCovers={areAllProtectiveCovers}
+              protectiveCoversExplanation={protectiveCoversExplanation}
+              areCracksVisible={areCracksVisible}
+              cracksLocation={cracksLocation}
+              isMainMotorSecure={isMainMotorSecure}
+              isMotorPlateSecure={isMotorPlateSecure}
+              whyNotCovered={whyNotCovered}
+              translations={{
+                title: isInspection
+                  ? tServices('modal.inspectionSummary')
+                  : tServices('modal.maintenanceSummary'),
+                serviceDetailsTitle: 'Detalhes do Serviço',
+                realizationDate: tServices('modal.realizationDate'),
+                performedBy: tServices('modal.performedBy'),
+                completedAreasTitle: 'Áreas Preenchidas',
+                detailedDataTitle: 'Dados Preenchidos',
+                getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
+                completeService: isInspection ? 'Concluir Inspeção' : 'Concluir Manutenção',
+                completing: 'Concluindo...',
+              }}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {alertsSummary && completedServiceId && companyId && (
+        <AlertNotificationModal
+          open={showAlertNotificationModal}
+          onOpenChange={handleAlertNotificationModalClose}
+          serviceId={completedServiceId}
+          machineId={machineId}
+          companyId={companyId}
+          alertsSummary={alertsSummary}
+        />
+      )}
+    </>
   );
 }

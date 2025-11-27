@@ -1,6 +1,10 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-import { CreateCompanyDto, UpdateCompanyDto } from '@titans-tech/shared/backend-dtos';
+import {
+  CreateCompanyDto,
+  UpdateCompanyDto,
+  AdminManagerUserResponseDto,
+} from '@titans-tech/shared/backend-dtos';
 
 export interface Company {
   id: string;
@@ -56,4 +60,13 @@ export const deleteCompany = async (args: { companyId: string }) => {
   return await responseHandler<void>(`/companies/${args.companyId}`, {
     method: 'DELETE',
   });
+};
+
+export const getAdminManagerUsers = async (companyId: string) => {
+  return await responseHandler<AdminManagerUserResponseDto[]>(
+    `/companies/${companyId}/admin-manager-users`,
+    {
+      method: 'GET',
+    },
+  );
 };

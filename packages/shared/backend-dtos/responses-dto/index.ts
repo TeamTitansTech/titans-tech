@@ -12,3 +12,5 @@ export * from './alert-counterbalance-response.dto';
 export * from './notification-response.dto';
 export * from './latest-report-response.dto';
 export * from './permission-template-response.dto';
+export * from './admin-manager-users-response.dto';
+export * from './alerts-summary-response.dto';
