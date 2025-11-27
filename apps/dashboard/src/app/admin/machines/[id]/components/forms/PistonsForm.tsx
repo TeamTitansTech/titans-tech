@@ -2,25 +2,35 @@
 
 import { useTranslations } from 'next-intl';
 import { Label } from '@/components/ui/label';
-import { type PistonsData } from '@/data/types/services.types';
 import { MeasurementInput } from '../shared/MeasurementInput';
 
+// Database format for pistons data (matches Prisma PistonsData model)
+export interface PistonsDbData {
+  lhTop?: number;
+  lhBottom?: number;
+  lhLeft?: number;
+  lhRight?: number;
+  rhTop?: number;
+  rhBottom?: number;
+  rhLeft?: number;
+  rhRight?: number;
+}
+
 interface PistonsFormProps {
-  data: PistonsData;
+  data: PistonsDbData;
   errors: Record<string, string>;
-  updateField: (field: keyof PistonsData, value: number | undefined) => void;
-  handleBlur: (field: keyof PistonsData) => void;
-  title: string;
+  updateField: (field: keyof PistonsDbData, value: number | undefined) => void;
+  handleBlur: (field: keyof PistonsDbData) => void;
   readOnly?: boolean;
 }
 
 interface PistonPoint {
   label: string;
   fields: {
-    top: keyof PistonsData;
-    bottom: keyof PistonsData;
-    left: keyof PistonsData;
-    right: keyof PistonsData;
+    top: keyof PistonsDbData;
+    bottom: keyof PistonsDbData;
+    left: keyof PistonsDbData;
+    right: keyof PistonsDbData;
   };
 }
 
@@ -29,57 +39,33 @@ export function PistonsForm({
   errors,
   updateField,
   handleBlur,
-  title,
   readOnly = false,
 }: PistonsFormProps) {
   const t = useTranslations('inspections.form.pistons');
 
-  // Determine which fields to use based on the title (Outer vs Inner)
-  const isOuter = title === 'Outer';
+  // Same field names for both outer and inner - the title prop indicates context
+  const pistonPoints: PistonPoint[] = [
+    {
+      label: 'LH',
+      fields: {
+        top: 'lhTop',
+        bottom: 'lhBottom',
+        left: 'lhLeft',
+        right: 'lhRight',
+      },
+    },
+    {
+      label: 'RH',
+      fields: {
+        top: 'rhTop',
+        bottom: 'rhBottom',
+        left: 'rhLeft',
+        right: 'rhRight',
+      },
+    },
+  ];
 
-  const pistonPoints: PistonPoint[] = isOuter
-    ? [
-        {
-          label: 'LH',
-          fields: {
-            top: 'outerLhTop',
-            bottom: 'outerLhBottom',
-            left: 'outerLhLeft',
-            right: 'outerLhRight',
-          },
-        },
-        {
-          label: 'RH',
-          fields: {
-            top: 'outerRhTop',
-            bottom: 'outerRhBottom',
-            left: 'outerRhLeft',
-            right: 'outerRhRight',
-          },
-        },
-      ]
-    : [
-        {
-          label: 'LH',
-          fields: {
-            top: 'innerLhTop',
-            bottom: 'innerLhBottom',
-            left: 'innerLhLeft',
-            right: 'innerLhRight',
-          },
-        },
-        {
-          label: 'RH',
-          fields: {
-            top: 'innerRhTop',
-            bottom: 'innerRhBottom',
-            left: 'innerRhLeft',
-            right: 'innerRhRight',
-          },
-        },
-      ];
-
-  const renderInput = (field: keyof PistonsData) => (
+  const renderInput = (field: keyof PistonsDbData) => (
     <MeasurementInput
       field={field}
       value={data[field]}
@@ -139,7 +125,9 @@ export function PistonsForm({
       <div className="bg-muted/20 dark:bg-slate-700/40 border border-border/50 dark:border-slate-600/50 rounded-lg p-4">
         {/* Grid layout: 1 piston per row on mobile, 2 side by side on larger screens */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-2xl mx-auto">
-          {pistonPoints.map((piston) => renderPiston(piston))}
+          {pistonPoints.map((piston) => (
+            <div key={piston.label}>{renderPiston(piston)}</div>
+          ))}
         </div>
       </div>
     </div>

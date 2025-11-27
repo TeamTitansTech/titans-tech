@@ -91,4 +91,5 @@ export const RELATION_TO_SECTION_KEY: Record<string, string> = {
   clutch: 'CLUTCH',
   counterbalanceCylinderAirbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
   tramming: 'TRAMMING',
+  pistons: 'PISTONS',
 };

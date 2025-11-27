@@ -4,7 +4,7 @@ import React from 'react';
 import { useTranslations } from 'next-intl';
 import type { PistonsCheck } from '@/data/types/services.types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { PistonsForm } from '../forms/PistonsForm';
+import { PistonsForm, type PistonsDbData } from '../forms/PistonsForm';
 import { displayValue } from '../utils/displayHelpers';
 
 interface PistonsSummaryProps {
@@ -84,11 +84,10 @@ export function PistonsSummary({ data }: PistonsSummaryProps): React.ReactElemen
           {data?.outerData && (
             <TabsContent value="outer">
               <PistonsForm
-                data={data.outerData}
+                data={data.outerData as unknown as PistonsDbData}
                 errors={{}}
                 updateField={() => {}}
                 handleBlur={() => {}}
-                title="Outer"
                 readOnly={true}
               />
             </TabsContent>
@@ -97,11 +96,10 @@ export function PistonsSummary({ data }: PistonsSummaryProps): React.ReactElemen
           {data?.innerData && (
             <TabsContent value="inner">
               <PistonsForm
-                data={data.innerData}
+                data={data.innerData as unknown as PistonsDbData}
                 errors={{}}
                 updateField={() => {}}
                 handleBlur={() => {}}
-                title="Inner"
                 readOnly={true}
               />
             </TabsContent>

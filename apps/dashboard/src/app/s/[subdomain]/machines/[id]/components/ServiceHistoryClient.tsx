@@ -112,6 +112,7 @@ export function ServiceHistoryClient({ services }: ServiceHistoryClientProps) {
           service={selectedService}
           open={isModalOpen}
           onOpenChange={handleCloseModal}
+          hideExcelExport={true}
         />
       )}
     </>
