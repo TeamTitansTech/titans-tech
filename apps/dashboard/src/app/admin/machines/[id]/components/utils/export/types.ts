@@ -241,7 +241,7 @@ export interface ExportData {
   completedSections: string[];
   completedSectionData: Record<string, Record<string, unknown>>;
   sectionRegistry: Record<string, unknown>;
-  translationCallbacks: TranslationCallbacks;
+  translationCallbacks?: TranslationCallbacks;
 }
 
 // PDF-specific types

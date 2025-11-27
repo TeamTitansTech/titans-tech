@@ -31,7 +31,26 @@ import {
 // Export to PDF
 export function exportToPDF(data: ExportData): void {
   const { service, completedSections, completedSectionData, translationCallbacks } = data;
-  const t = translationCallbacks;
+
+  // Default translation callbacks if not provided
+  const t: TranslationCallbacks = translationCallbacks || {
+    getSectionName: (key: string) => key,
+    getServiceTypeName: () => service.type || 'Service',
+    getTableTranslation: (key: string) => key,
+    getBearingFieldTranslation: (key: string) => formatFieldName(key),
+    getSlideFieldTranslation: (key: string) => formatFieldName(key),
+    getGibsFieldTranslation: (key: string) => formatFieldName(key),
+    getLubricationFieldTranslation: (key: string) => formatFieldName(key),
+    getClutchFieldTranslation: (key: string) => formatFieldName(key),
+    getClutchSectionTranslation: (key: string) => formatFieldName(key),
+    getCounterbalanceFieldTranslation: (key: string) => formatFieldName(key),
+    getTrammingFieldTranslation: (key: string) => formatFieldName(key),
+    getPistonsFieldTranslation: (key: string) => formatFieldName(key),
+    getServiceTranslation: (key: string) => formatFieldName(key),
+    getCommonStatusTranslation: (key: string) => key,
+    getMeasurementsTranslation: (key: string) => formatFieldName(key),
+    getInspectionEnumTranslation: (_enumType: string, value: string) => value || '-',
+  };
 
   const doc = new jsPDF({
     orientation: 'portrait',

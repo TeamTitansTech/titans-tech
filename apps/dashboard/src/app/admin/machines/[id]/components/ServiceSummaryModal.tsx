@@ -1,6 +1,9 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 import {
   Dialog,
   DialogContent,
@@ -11,12 +14,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { Label } from '@/components/ui/label';
-import { Check, ChevronUp, FileSpreadsheet, FileText } from 'lucide-react';
+import { Check, ChevronUp, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ServiceType, type Service } from '@/data/types/services.types';
 import { format } from 'date-fns';
 import { SECTION_REGISTRY } from './sections/registry';
-import { exportToExcel, exportToPDF } from './utils/serviceExportUtils';
+import { exportToExcel } from './utils/serviceExportUtils';
 import { SectionSummary } from './summary';
 import type { AnySectionData } from './types/service-completion.types';
 
@@ -38,20 +41,12 @@ export function ServiceSummaryModal({
   const tServicesSummary = useTranslations('services.modal.summary');
   const tActions = useTranslations('actions');
   const tInspections = useTranslations('inspections.form.enums');
-  const tTable = useTranslations('table');
-  const tBearingFields = useTranslations('machines.bearingFields');
-  const tSlideFields = useTranslations('inspections.form.slide');
-  const tGibsFields = useTranslations('machines.gibsFields');
-  const tLubricationFields = useTranslations('inspections.form.lubricationHydraulics');
-  const tClutchFields = useTranslations('inspections.form.clutch.fields');
-  const tClutchSections = useTranslations('inspections.form.clutch.sections');
-  const tCounterbalanceFields = useTranslations('inspections.form.counterbalanceCylinder');
-  const tTrammingFields = useTranslations('inspections.form.tramming');
-  const tPistonsFields = useTranslations('inspections.form.pistons');
-  const tCommonStatus = useTranslations('common.status');
-  const tMeasurements = useTranslations('measurements');
 
   const isInspection = service.type === ServiceType.INSPECTION;
+
+  // Ref for the content to capture as PDF
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
 
   // Helper function to format enum values for display
   const formatEnumValue = (value: string | undefined, enumType: string) => {
@@ -142,15 +137,6 @@ export function ServiceSummaryModal({
         extractedData = extractedData.data as AnySectionData;
       }
 
-      // Debug logging for bearing clearance
-      if (key === 'bearingClearance') {
-        console.log('Bearing Clearance Data:', {
-          raw: value,
-          extracted: extractedData,
-          hasDataContent: hasDataContent(extractedData as Record<string, unknown>),
-        });
-      }
-
       // For inspections, show all sections even if empty
       // For maintenance, only show sections with actual data
       if (isInspection || hasDataContent(extractedData as Record<string, unknown>)) {
@@ -160,42 +146,6 @@ export function ServiceSummaryModal({
     }
   });
 
-  // Build translation callbacks once for both exports
-  const translationCallbacks = {
-    getSectionName: (key: string) => {
-      const sectionConfig = SECTION_REGISTRY[key];
-      return sectionConfig ? t(`sectionNames.${sectionConfig.metadata.i18nKey}`) : key;
-    },
-    getServiceTypeName: () => {
-      return isInspection
-        ? tServices('modal.inspectionSummary')
-        : tServices('modal.maintenanceSummary');
-    },
-    getTableTranslation: (key: string) => tTable(key),
-    getBearingFieldTranslation: (key: string) => tBearingFields(key),
-    getSlideFieldTranslation: (key: string) => tSlideFields(key),
-    getGibsFieldTranslation: (key: string) => tGibsFields(key),
-    getLubricationFieldTranslation: (key: string) => tLubricationFields(key),
-    getClutchFieldTranslation: (key: string) => tClutchFields(key),
-    getClutchSectionTranslation: (key: string) => tClutchSections(key),
-    getCounterbalanceFieldTranslation: (key: string) => tCounterbalanceFields(key),
-    getTrammingFieldTranslation: (key: string) => tTrammingFields(key),
-    getPistonsFieldTranslation: (key: string) => tPistonsFields(key),
-    getServiceTranslation: (key: string) => tServices(`modal.${key}`),
-    getCommonStatusTranslation: (key: string) => tCommonStatus(key),
-    getMeasurementsTranslation: (key: string) => tMeasurements(key),
-    getInspectionEnumTranslation: (enumType: string, value: string) => {
-      if (!value) return '-';
-      const translationKey = `${enumType}.${value}`;
-      const translated = tInspections(translationKey);
-      // If translation key is returned as-is, return the original value
-      if (translated === translationKey || translated.includes('inspections.form.enums')) {
-        return value || '-';
-      }
-      return translated;
-    },
-  };
-
   // Handle export to Excel
   const handleExportToExcel = () => {
     exportToExcel({
@@ -203,19 +153,75 @@ export function ServiceSummaryModal({
       completedSections,
       completedSectionData,
       sectionRegistry: SECTION_REGISTRY,
-      translationCallbacks,
     });
   };
 
-  // Handle export to PDF
-  const handleExportToPDF = () => {
-    exportToPDF({
-      service,
-      completedSections,
-      completedSectionData,
-      sectionRegistry: SECTION_REGISTRY,
-      translationCallbacks,
-    });
+  // Handle export to PDF - captures the rendered component
+  const handleExportToPDF = async () => {
+    if (!contentRef.current) return;
+
+    setIsExportingPDF(true);
+    try {
+      const element = contentRef.current;
+
+      // Store original styles
+      const originalStyle = {
+        height: element.style.height,
+        overflow: element.style.overflow,
+        maxHeight: element.style.maxHeight,
+      };
+
+      // Temporarily expand to show all content
+      element.style.height = 'auto';
+      element.style.overflow = 'visible';
+      element.style.maxHeight = 'none';
+
+      // Wait for styles to apply
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+      });
+
+      // Restore original styles
+      element.style.height = originalStyle.height;
+      element.style.overflow = originalStyle.overflow;
+      element.style.maxHeight = originalStyle.maxHeight;
+
+      const imgData = canvas.toDataURL('image/png');
+
+      // Calculate dimensions for a pageless PDF (single continuous page)
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const pdfWidth = 210; // A4 width in mm
+      const margin = 10;
+      const contentWidth = pdfWidth - 2 * margin;
+      const ratio = contentWidth / imgWidth;
+      const scaledHeight = imgHeight * ratio;
+      const pdfHeight = scaledHeight + 2 * margin;
+
+      // Create PDF with custom height to fit all content
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight],
+      });
+
+      // Add the entire image on one page
+      pdf.addImage(imgData, 'PNG', margin, margin, contentWidth, scaledHeight);
+
+      const filename = `${isInspection ? 'Inspecao' : 'Manutencao'}_${format(new Date(service.date || new Date()), 'yyyy-MM-dd')}.pdf`;
+      pdf.save(filename);
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+    } finally {
+      setIsExportingPDF(false);
+    }
   };
 
   return (
@@ -232,7 +238,7 @@ export function ServiceSummaryModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-4 py-4">
+        <div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-4 bg-white">
           {/* Service Details Summary */}
           <div className="border rounded-lg p-4 mb-4">
             <Typography variant="h4" className="font-semibold mb-3">
@@ -413,9 +419,14 @@ export function ServiceSummaryModal({
               type="button"
               variant="outline"
               onClick={handleExportToPDF}
+              disabled={isExportingPDF}
               className="flex items-center gap-2"
             >
-              <FileText className="w-4 h-4" />
+              {isExportingPDF ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <FileText className="w-4 h-4" />
+              )}
               {tServicesSummary('exportPDF')}
             </Button>
           </div>
