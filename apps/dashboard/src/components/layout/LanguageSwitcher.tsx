@@ -1,6 +1,6 @@
 'use client';
 
-import { useLocale } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Globe } from 'lucide-react';
 import {
   DropdownMenu,
@@ -20,6 +20,7 @@ const languages = [
 ];
 
 export function LanguageSwitcher() {
+  const t = useTranslations('header');
   const locale = useLocale();
   const router = useInternalRouter();
   const [_isPending, startTransition] = useTransition();
@@ -44,7 +45,7 @@ export function LanguageSwitcher() {
             </button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
-        <TooltipContent>Language / Idioma</TooltipContent>
+        <TooltipContent>{t('languageTooltip')}</TooltipContent>
         <DropdownMenuContent align="end" className="w-48">
           {languages.map((language) => (
             <DropdownMenuItem

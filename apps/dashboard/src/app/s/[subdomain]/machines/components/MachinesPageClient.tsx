@@ -304,7 +304,7 @@ export function MachinesPageClient() {
             <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
               <SelectTrigger className="w-[200px]">
                 <MapPin className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Filter by branch" />
+                <SelectValue placeholder={t('filterByBranch')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t('allBranches')}</SelectItem>
@@ -341,7 +341,7 @@ export function MachinesPageClient() {
 
         {isLoading ? (
           <div className="text-center py-12">
-            <Typography variant="muted">Loading machines...</Typography>
+            <Typography variant="muted">{t('loading')}</Typography>
           </div>
         ) : error ? (
           errorStatus === 403 ? (
@@ -356,7 +356,7 @@ export function MachinesPageClient() {
         ) : filteredMachines.length === 0 ? (
           <div className="text-center py-12">
             <Typography variant="muted">
-              {selectedBranchFilter === 'all' ? t('emptyState') : 'No machines in this branch'}
+              {selectedBranchFilter === 'all' ? t('emptyState') : t('noMachinesInBranch')}
             </Typography>
           </div>
         ) : (
