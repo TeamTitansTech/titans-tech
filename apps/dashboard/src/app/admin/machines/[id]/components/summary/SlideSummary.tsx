@@ -56,14 +56,19 @@ export function SlideSummary({ data }: SlideSummaryProps) {
   };
 
   // Calculate max deviation for positions
-  const calculateMaxDeviation = (slideData: SlideData, fieldPrefix: 'before' | 'after'): string => {
-    const positions = [1, 2, 3, 4, 5].map((pos) => {
-      const fieldName = `${fieldPrefix}Position${pos}` as keyof SlideData;
-      return slideData[fieldName] as number | undefined;
-    });
+  const calculateMaxDeviation = (slideData: SlideData | undefined): string => {
+    if (!slideData) return '-';
+
+    const positions = [
+      slideData.position1,
+      slideData.position2,
+      slideData.position3,
+      slideData.position4,
+      slideData.position5,
+    ];
 
     const validValues = positions.filter(
-      (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
+      (val) => val !== undefined && val !== null && !isNaN(Number(val)) && val !== 0,
     ) as number[];
 
     if (validValues.length > 1) {
@@ -75,11 +80,16 @@ export function SlideSummary({ data }: SlideSummaryProps) {
   };
 
   // Render position measurements table
-  const renderPositionsTable = (slideData: SlideData, fieldPrefix: 'before' | 'after') => {
-    const positions = [1, 2, 3, 4, 5].map((pos) => {
-      const fieldName = `${fieldPrefix}Position${pos}` as keyof SlideData;
-      return slideData[fieldName] as number | undefined;
-    });
+  const renderPositionsTable = (slideData: SlideData | undefined) => {
+    if (!slideData) return null;
+
+    const positions = [
+      slideData.position1,
+      slideData.position2,
+      slideData.position3,
+      slideData.position4,
+      slideData.position5,
+    ];
 
     return (
       <Table>
@@ -103,7 +113,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
               </TableCell>
             ))}
             <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
-              {calculateMaxDeviation(slideData, fieldPrefix)}
+              {calculateMaxDeviation(slideData)}
             </TableCell>
           </TableRow>
         </TableBody>
@@ -112,7 +122,9 @@ export function SlideSummary({ data }: SlideSummaryProps) {
   };
 
   // Render metadata fields
-  const renderMetadataTable = (slideData: SlideData) => {
+  const renderMetadataTable = (slideData: SlideData | undefined) => {
+    if (!slideData) return null;
+
     const metadataFields = [
       { key: 'parallelism', label: translateFieldName('parallelism') },
       {
@@ -159,80 +171,78 @@ export function SlideSummary({ data }: SlideSummaryProps) {
   return (
     <div className="text-xs space-y-3">
       {/* Outer Data */}
-      {data.outerData && (
+      {(data.outerData || data.outerBefore) && (
         <div className="border-t pt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {tMeasurements('outerMeasurements')}
           </div>
 
-          {/* Outer Metadata */}
+          {/* Outer Metadata (from outerData or outerBefore) */}
           <div className="border rounded-md overflow-hidden mb-3">
-            {renderMetadataTable(data.outerData)}
+            {renderMetadataTable(data.outerData || data.outerBefore)}
           </div>
 
-          {/* Outer Before Measurements (if adjusted) */}
-          {data.outerData.hasParallelismBeenAdjusted === 'YES' &&
-            data.outerData.beforePosition1 !== undefined && (
-              <div className="mb-3">
-                <div className="font-medium text-muted-foreground mb-2 text-[10px]">
-                  {tSlide('beforeAdjustment')}
-                </div>
-                <div className="border rounded-md overflow-hidden">
-                  {renderPositionsTable(data.outerData, 'before')}
-                </div>
+          {/* Outer Before Measurements (if exists) */}
+          {data.outerBefore && (
+            <div className="mb-3">
+              <div className="font-medium text-muted-foreground mb-2 text-[10px]">
+                {tSlide('beforeAdjustment')}
               </div>
-            )}
+              <div className="border rounded-md overflow-hidden">
+                {renderPositionsTable(data.outerBefore)}
+              </div>
+            </div>
+          )}
 
           {/* Outer After/Current Measurements */}
-          <div>
-            <div className="font-medium text-muted-foreground mb-2 text-[10px]">
-              {data.outerData.hasParallelismBeenAdjusted === 'YES'
-                ? tSlide('afterAdjustment')
-                : tSlide('measurements')}
+          {data.outerData && (
+            <div>
+              <div className="font-medium text-muted-foreground mb-2 text-[10px]">
+                {data.outerBefore ? tSlide('afterAdjustment') : tSlide('measurements')}
+              </div>
+              <div className="border rounded-md overflow-hidden">
+                {renderPositionsTable(data.outerData)}
+              </div>
             </div>
-            <div className="border rounded-md overflow-hidden">
-              {renderPositionsTable(data.outerData, 'after')}
-            </div>
-          </div>
+          )}
         </div>
       )}
 
       {/* Inner Data */}
-      {data.innerData && (
+      {(data.innerData || data.innerBefore) && (
         <div className="border-t pt-3 mt-3">
           <div className="font-medium text-muted-foreground mb-2 text-[11px]">
             {tMeasurements('innerMeasurements')}
           </div>
 
-          {/* Inner Metadata */}
+          {/* Inner Metadata (from innerData or innerBefore) */}
           <div className="border rounded-md overflow-hidden mb-3">
-            {renderMetadataTable(data.innerData)}
+            {renderMetadataTable(data.innerData || data.innerBefore)}
           </div>
 
-          {/* Inner Before Measurements (if adjusted) */}
-          {data.innerData.hasParallelismBeenAdjusted === 'YES' &&
-            data.innerData.beforePosition1 !== undefined && (
-              <div className="mb-3">
-                <div className="font-medium text-muted-foreground mb-2 text-[10px]">
-                  {tSlide('beforeAdjustment')}
-                </div>
-                <div className="border rounded-md overflow-hidden">
-                  {renderPositionsTable(data.innerData, 'before')}
-                </div>
+          {/* Inner Before Measurements (if exists) */}
+          {data.innerBefore && (
+            <div className="mb-3">
+              <div className="font-medium text-muted-foreground mb-2 text-[10px]">
+                {tSlide('beforeAdjustment')}
               </div>
-            )}
+              <div className="border rounded-md overflow-hidden">
+                {renderPositionsTable(data.innerBefore)}
+              </div>
+            </div>
+          )}
 
           {/* Inner After/Current Measurements */}
-          <div>
-            <div className="font-medium text-muted-foreground mb-2 text-[10px]">
-              {data.innerData.hasParallelismBeenAdjusted === 'YES'
-                ? tSlide('afterAdjustment')
-                : tSlide('measurements')}
+          {data.innerData && (
+            <div>
+              <div className="font-medium text-muted-foreground mb-2 text-[10px]">
+                {data.innerBefore ? tSlide('afterAdjustment') : tSlide('measurements')}
+              </div>
+              <div className="border rounded-md overflow-hidden">
+                {renderPositionsTable(data.innerData)}
+              </div>
             </div>
-            <div className="border rounded-md overflow-hidden">
-              {renderPositionsTable(data.innerData, 'after')}
-            </div>
-          </div>
+          )}
         </div>
       )}
 

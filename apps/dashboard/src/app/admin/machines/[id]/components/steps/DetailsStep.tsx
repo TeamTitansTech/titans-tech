@@ -151,13 +151,13 @@ export function DetailsStep({
   return (
     <>
       {/* Stepper */}
-      <div className="px-4 pb-2 pt-2">
+      <div className="mt-2 px-4">
         <Stepper steps={stepperSteps} onStepClick={onStepClick} />
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 space-y-6 py-4">
         {/* Basic Service Info */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="date">{translations.dateLabel}</Label>
             <div className="flex items-center gap-2 mt-1 h-10 px-3 py-2 border rounded-md">
@@ -273,7 +273,7 @@ export function DetailsStep({
         )}
 
         {/* Inspection Observation Fields */}
-        <div className="border rounded-lg p-4">
+        <div className="sm:border rounded-lg sm:p-4">
           <Typography variant="h4" className="mb-4">
             {translations.inspectionObservationsTitle}
           </Typography>
@@ -442,7 +442,7 @@ export function DetailsStep({
         </div>
 
         {/* Display selected sections summary */}
-        <div className="border rounded-lg p-4">
+        <div className="sm:border rounded-lg sm:p-4">
           <Typography variant="h4" className="mb-3">
             {translations.selectedAreasTitle}
           </Typography>

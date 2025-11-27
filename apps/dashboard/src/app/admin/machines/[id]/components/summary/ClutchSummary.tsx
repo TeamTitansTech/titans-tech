@@ -15,6 +15,19 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
   const tClutchSections = useTranslations('inspections.form.clutch.sections');
   const tCommon = useTranslations('common.status');
 
+  // Guard against undefined data
+  if (!data) {
+    return (
+      <div className="text-xs space-y-3">
+        <div className="border-t pt-2">
+          <Typography variant="muted" className="text-center py-4 text-xs">
+            {tServicesSummary('noDataAvailable')}
+          </Typography>
+        </div>
+      </div>
+    );
+  }
+
   // Helper function to translate field names
   const translateFieldName = (key: string): string => {
     const translation = tClutchFields(key);
@@ -90,7 +103,7 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
     return (
       <div className="border-t pt-2">
         <Typography variant="muted" className="text-center py-4 text-xs">
-          Nenhum dado disponível
+          {tServicesSummary('noDataAvailable')}
         </Typography>
       </div>
     );

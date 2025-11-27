@@ -12,28 +12,27 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  type SlideData,
-  ParallelismType,
-  YesNoNaDncType,
-  YesNoDncType,
-} from '@/data/types/services.types';
+import { ParallelismType, YesNoNaDncType, YesNoDncType } from '@/data/types/services.types';
 import { useNumericInput } from '@/hooks/useNumericInput';
+import { type SlideFormData } from '../sections/SlideSection';
 
-interface SlideFormData {
-  outerData: SlideData;
-  innerData: SlideData;
+interface SlideFormWrapperData {
+  outerData: SlideFormData;
+  innerData: SlideFormData;
   notes: string;
 }
 
 export interface SlideFormProps {
-  data: SlideFormData;
-  updateFn: <K extends keyof SlideFormData>(field: K, value: SlideFormData[K]) => void;
+  data: SlideFormWrapperData;
+  updateFn: <K extends keyof SlideFormWrapperData>(
+    field: K,
+    value: SlideFormWrapperData[K],
+  ) => void;
   errors: {
     outer: Record<string, string>;
     inner: Record<string, string>;
   };
-  handleBlur: (section: 'outer' | 'inner', field: keyof SlideData) => void;
+  handleBlur: (section: 'outer' | 'inner', field: keyof SlideFormData) => void;
   onSectionTouched?: () => void;
 }
 
@@ -45,21 +44,21 @@ function PositionFields({
   title,
   fieldPrefix,
 }: {
-  data: SlideData;
-  updateFn: (field: keyof SlideData, value: number | undefined) => void;
+  data: SlideFormData;
+  updateFn: (field: keyof SlideFormData, value: number | undefined) => void;
   errors: Record<string, string>;
-  handleBlur: (field: keyof SlideData) => void;
+  handleBlur: (field: keyof SlideFormData) => void;
   title: string;
   fieldPrefix: 'before' | 'after';
 }) {
   const t = useTranslations('inspections.form.slide');
 
   // Build the actual field names based on prefix
-  const pos1Field = `${fieldPrefix}Position1` as keyof SlideData;
-  const pos2Field = `${fieldPrefix}Position2` as keyof SlideData;
-  const pos3Field = `${fieldPrefix}Position3` as keyof SlideData;
-  const pos4Field = `${fieldPrefix}Position4` as keyof SlideData;
-  const pos5Field = `${fieldPrefix}Position5` as keyof SlideData;
+  const pos1Field = `${fieldPrefix}Position1` as keyof SlideFormData;
+  const pos2Field = `${fieldPrefix}Position2` as keyof SlideFormData;
+  const pos3Field = `${fieldPrefix}Position3` as keyof SlideFormData;
+  const pos4Field = `${fieldPrefix}Position4` as keyof SlideFormData;
+  const pos5Field = `${fieldPrefix}Position5` as keyof SlideFormData;
 
   // Use numeric input hook for each position
   const [position1Value, handlePosition1Change, handlePosition1Blur] = useNumericInput(
@@ -373,10 +372,10 @@ function SlideDataFields({
   handleBlur,
 }: {
   type: 'outer' | 'inner';
-  data: SlideData;
-  handleFieldUpdate: (field: keyof SlideData, value: any) => void;
+  data: SlideFormData;
+  handleFieldUpdate: (field: keyof SlideFormData, value: any) => void;
   errors: Record<string, string>;
-  handleBlur: (field: keyof SlideData) => void;
+  handleBlur: (field: keyof SlideFormData) => void;
 }) {
   const t = useTranslations('inspections.form.slide');
 
@@ -385,7 +384,7 @@ function SlideDataFields({
   return (
     <div className="space-y-6">
       {/* Parallelism Configuration */}
-      <div className="border border-border rounded-lg p-4 space-y-4 bg-card">
+      <div className="space-y-4">
         <h4 className="font-semibold text-sm text-foreground">{t('parallelismConfiguration')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -434,7 +433,7 @@ function SlideDataFields({
       {/* Before Measurements - Only show if adjusted = YES */}
       {showBeforeMeasurements && (
         <div className="space-y-4">
-          <h4 className="text-md font-semibold pb-2 border-b">{t('beforeAdjustment')}</h4>
+          <h4 className="text-sm font-semibold text-muted-foreground">{t('beforeAdjustment')}</h4>
           <PositionFields
             data={data}
             updateFn={handleFieldUpdate}
@@ -448,7 +447,7 @@ function SlideDataFields({
 
       {/* After/Current Measurements - Always show */}
       <div className="space-y-4">
-        <h4 className="text-md font-semibold pb-2 border-b">
+        <h4 className="text-sm font-semibold text-muted-foreground">
           {showBeforeMeasurements ? t('afterAdjustment') : t('measurements')}
         </h4>
         <PositionFields
@@ -462,8 +461,10 @@ function SlideDataFields({
       </div>
 
       {/* Shutheight Information */}
-      <div className="border border-border rounded-lg p-4 space-y-4 bg-card mt-6">
-        <h5 className="font-medium text-sm">{t('shutheightInformation')}</h5>
+      <div className="space-y-4 mt-2">
+        <h4 className="text-sm font-semibold text-muted-foreground">
+          {t('shutheightInformation')}
+        </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor={`${type}-shutheightIndicatorsChecked`} className="text-xs">
@@ -541,7 +542,7 @@ export function SlideForm({
 
   const handleFieldUpdate = (
     side: 'outerData' | 'innerData',
-    field: keyof SlideData,
+    field: keyof SlideFormData,
     value: any,
   ) => {
     const newData = { ...data[side], [field]: value };
@@ -552,7 +553,7 @@ export function SlideForm({
   return (
     <div className="space-y-6">
       {/* Info Note */}
-      <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <div className="flex-shrink-0 w-4 h-4 rounded-full bg-blue-500 text-white flex items-center justify-center text-xs font-bold mt-0.5">
           i
         </div>
@@ -560,9 +561,19 @@ export function SlideForm({
       </div>
 
       <Tabs defaultValue="outer" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger value="outer">{t('outer')}</TabsTrigger>
-          <TabsTrigger value="inner">{t('inner')}</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 mb-4 bg-transparent p-0 gap-2">
+          <TabsTrigger
+            value="outer"
+            className="border border-border data-[state=active]:border-primary"
+          >
+            {t('outer')}
+          </TabsTrigger>
+          <TabsTrigger
+            value="inner"
+            className="border border-border data-[state=active]:border-primary"
+          >
+            {t('inner')}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="outer" className="space-y-6">
@@ -586,9 +597,9 @@ export function SlideForm({
         </TabsContent>
       </Tabs>
 
-      <div className="space-y-4 border-t pt-6">
+      <div className="space-y-4 pt-2">
         <div>
-          <Label htmlFor="notes" className="text-xs">
+          <Label htmlFor="notes" className="text-sm font-semibold text-muted-foreground">
             {t('notes')}
           </Label>
           <Textarea

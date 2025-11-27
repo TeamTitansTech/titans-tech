@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { ServiceSection } from '@titans-tech/db/enums';
+import { ClutchThresholdsSchema } from './threshold-clutch.dto';
+import { GibsThresholdsSchema } from './threshold-gibs.dto';
 
 // Schema existente para Blueprint
 export const CreateBlueprintSchema = z.object({
@@ -68,6 +70,31 @@ export const ThresholdsSchema = z
 
 export type ThresholdsDto = z.infer<typeof ThresholdsSchema>;
 
+// Schema para thresholds do Slide
+export const SlideThresholdsSchema = z
+  .object({
+    maxDeviation_greenMin: z.number().positive(),
+    maxDeviation_yellowMin: z.number().positive(),
+    maxDeviation_redMin: z.number().positive(),
+  })
+  .refine(
+    (data) => {
+      // Validate that yellowMin > greenMin and redMin > yellowMin
+      if (
+        data.maxDeviation_yellowMin <= data.maxDeviation_greenMin ||
+        data.maxDeviation_redMin <= data.maxDeviation_yellowMin
+      ) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Must have greenMin < yellowMin < redMin',
+    },
+  );
+
+export type SlideThresholdsDto = z.infer<typeof SlideThresholdsSchema>;
+
 // Schema combinado: Blueprint + Thresholds opcionais
 export const CreateBlueprintWithThresholdsSchema = z
   .object({
@@ -75,6 +102,9 @@ export const CreateBlueprintWithThresholdsSchema = z
     fields: z.array(z.any()),
     sections: z.array(z.nativeEnum(ServiceSection)),
     thresholds: ThresholdsSchema.optional(),
+    clutchThresholds: ClutchThresholdsSchema.optional(),
+    slideThresholds: SlideThresholdsSchema.optional(),
+    gibsThresholds: GibsThresholdsSchema.optional(),
   })
   .refine(
     (data) => {
@@ -82,10 +112,22 @@ export const CreateBlueprintWithThresholdsSchema = z
       if (data.thresholds && !data.sections.includes(ServiceSection.BEARING_CLEARANCE)) {
         return false;
       }
+      // Se clutchThresholds fornecidos, CLUTCH deve estar em sections
+      if (data.clutchThresholds && !data.sections.includes(ServiceSection.CLUTCH)) {
+        return false;
+      }
+      // Se slideThresholds fornecidos, SLIDE deve estar em sections
+      if (data.slideThresholds && !data.sections.includes(ServiceSection.SLIDE)) {
+        return false;
+      }
+      // Se gibsThresholds fornecidos, GIBS deve estar em sections
+      if (data.gibsThresholds && !data.sections.includes(ServiceSection.GIBS)) {
+        return false;
+      }
       return true;
     },
     {
-      message: 'Thresholds can only be configured if BEARING_CLEARANCE is in sections',
+      message: 'Thresholds can only be configured if corresponding section is selected',
       path: ['thresholds'],
     },
   );

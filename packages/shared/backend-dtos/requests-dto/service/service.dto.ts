@@ -193,7 +193,7 @@ export type BearingClearanceCheck = z.infer<typeof BearingClearanceCheckSchema>;
 
 /**
  * Slide Data Schema
- * Consolidated schema with parallelism config, shutheight fields, and before/after measurements
+ * Each SlideData represents ONE measurement (5 positions) with metadata
  */
 export const SlideDataSchema = z.object({
   // Parallelism configuration
@@ -206,29 +206,24 @@ export const SlideDataSchema = z.object({
   shutheightActualSh: z.string().optional(),
   indicatorReading: z.string().optional(),
 
-  // Before measurements (only filled if hasParallelismBeenAdjusted = YES)
-  beforePosition1: z.number().optional(),
-  beforePosition2: z.number().optional(),
-  beforePosition3: z.number().optional(),
-  beforePosition4: z.number().optional(),
-  beforePosition5: z.number().optional(),
-
-  // After/Current measurements (always required)
-  afterPosition1: z.number(),
-  afterPosition2: z.number(),
-  afterPosition3: z.number(),
-  afterPosition4: z.number(),
-  afterPosition5: z.number(),
+  // Measurements (5 positions)
+  position1: z.number(),
+  position2: z.number(),
+  position3: z.number(),
+  position4: z.number(),
+  position5: z.number(),
 });
 
 export type SlideData = z.infer<typeof SlideDataSchema>;
 
 /**
  * Slide Check Schema
- * Simplified with only outerData and innerData (no separate before/after)
+ * Four separate SlideData records (outerBefore, outerData, innerBefore, innerData)
  */
 export const SlideCheckSchema = z.object({
+  outerBefore: SlideDataSchema.optional(),
   outerData: SlideDataSchema.optional(),
+  innerBefore: SlideDataSchema.optional(),
   innerData: SlideDataSchema.optional(),
   notes: z.string().optional(),
 });
@@ -265,16 +260,17 @@ export const GibsDataSchema = GibsStageDataSchema;
 export type GibsData = GibsStageData;
 
 /**
- * Gibs Check Schema - 7-stage GIBS structure
+ * Gibs Check Schema - 7-stage GIBS structure (following outerBefore/outerData pattern)
  */
 export const GibsCheckSchema = z.object({
-  outerBeforeAdjustment: GibsStageDataSchema.optional(),
-  outerAfterAdjustment: GibsStageDataSchema.optional(),
-  outerFreeHangingAfterInstall: GibsStageDataSchema.optional(),
-  innerBeforeAdjustment: GibsStageDataSchema.optional(),
-  innerAfterAdjustment: GibsStageDataSchema.optional(),
-  innerBeforeToolInstallation: GibsStageDataSchema.optional(),
-  innerAfterToolInstallation: GibsStageDataSchema.optional(),
+  outerBefore: GibsStageDataSchema.optional(),
+  outerData: GibsStageDataSchema.optional(),
+  outerFreeHangingData: GibsStageDataSchema.optional(),
+  haveInnerGibsBeenAdjusted: z.nativeEnum(PrismaYesNoDncType).optional(),
+  innerBefore: GibsStageDataSchema.optional(),
+  innerData: GibsStageDataSchema.optional(),
+  innerBeforeTool: GibsStageDataSchema.optional(),
+  innerDataTool: GibsStageDataSchema.optional(),
   notes: z.string().optional(),
 });
 
@@ -416,56 +412,33 @@ export const CounterbalanceCylinderCheckSchema = z.object({
 export type CounterbalanceCylinderCheck = z.infer<typeof CounterbalanceCylinderCheckSchema>;
 
 /**
- * Tramming Data Schema
+ * Tramming Data Schema (matches Prisma TrammingData model)
+ * Note: The outer/inner distinction is handled by TrammingCheckSchema's outerData/innerData fields
  */
 export const TrammingDataSchema = z.object({
-  // OUTER SECTION - Top Position (4 measurements)
-  outerTopTop: z.number(),
-  outerTopBottom: z.number(),
-  outerTopLeft: z.number(),
-  outerTopRight: z.number(),
+  // Top Position (4 measurements around trim pin)
+  topTop: z.number(),
+  topBottom: z.number(),
+  topLeft: z.number(),
+  topRight: z.number(),
 
-  // OUTER SECTION - Bottom Position (4 measurements)
-  outerBottomTop: z.number(),
-  outerBottomBottom: z.number(),
-  outerBottomLeft: z.number(),
-  outerBottomRight: z.number(),
+  // Bottom Position (4 measurements around trim pin)
+  bottomTop: z.number(),
+  bottomBottom: z.number(),
+  bottomLeft: z.number(),
+  bottomRight: z.number(),
 
-  // OUTER SECTION - Left Position (4 measurements)
-  outerLeftTop: z.number(),
-  outerLeftBottom: z.number(),
-  outerLeftLeft: z.number(),
-  outerLeftRight: z.number(),
+  // Left Position (4 measurements around trim pin)
+  leftTop: z.number(),
+  leftBottom: z.number(),
+  leftLeft: z.number(),
+  leftRight: z.number(),
 
-  // OUTER SECTION - Right Position (4 measurements)
-  outerRightTop: z.number(),
-  outerRightBottom: z.number(),
-  outerRightLeft: z.number(),
-  outerRightRight: z.number(),
-
-  // INNER SECTION - Top Position (4 measurements)
-  innerTopTop: z.number(),
-  innerTopBottom: z.number(),
-  innerTopLeft: z.number(),
-  innerTopRight: z.number(),
-
-  // INNER SECTION - Bottom Position (4 measurements)
-  innerBottomTop: z.number(),
-  innerBottomBottom: z.number(),
-  innerBottomLeft: z.number(),
-  innerBottomRight: z.number(),
-
-  // INNER SECTION - Left Position (4 measurements)
-  innerLeftTop: z.number(),
-  innerLeftBottom: z.number(),
-  innerLeftLeft: z.number(),
-  innerLeftRight: z.number(),
-
-  // INNER SECTION - Right Position (4 measurements)
-  innerRightTop: z.number(),
-  innerRightBottom: z.number(),
-  innerRightLeft: z.number(),
-  innerRightRight: z.number(),
+  // Right Position (4 measurements around trim pin)
+  rightTop: z.number(),
+  rightBottom: z.number(),
+  rightLeft: z.number(),
+  rightRight: z.number(),
 });
 
 export type TrammingData = z.infer<typeof TrammingDataSchema>;
@@ -484,32 +457,21 @@ export const TrammingCheckSchema = z.object({
 export type TrammingCheck = z.infer<typeof TrammingCheckSchema>;
 
 /**
- * Pistons Data Schema
+ * Pistons Data Schema (matches Prisma PistonsData model)
+ * Note: The outer/inner distinction is handled by PistonsCheckSchema's outerData/innerData fields
  */
 export const PistonsDataSchema = z.object({
-  // OUTER SECTION - LH Piston (4 measurements)
-  outerLhTop: z.number(),
-  outerLhBottom: z.number(),
-  outerLhLeft: z.number(),
-  outerLhRight: z.number(),
+  // LH Piston (4 measurements)
+  lhTop: z.number(),
+  lhBottom: z.number(),
+  lhLeft: z.number(),
+  lhRight: z.number(),
 
-  // OUTER SECTION - RH Piston (4 measurements)
-  outerRhTop: z.number(),
-  outerRhBottom: z.number(),
-  outerRhLeft: z.number(),
-  outerRhRight: z.number(),
-
-  // INNER SECTION - LH Piston (4 measurements)
-  innerLhTop: z.number(),
-  innerLhBottom: z.number(),
-  innerLhLeft: z.number(),
-  innerLhRight: z.number(),
-
-  // INNER SECTION - RH Piston (4 measurements)
-  innerRhTop: z.number(),
-  innerRhBottom: z.number(),
-  innerRhLeft: z.number(),
-  innerRhRight: z.number(),
+  // RH Piston (4 measurements)
+  rhTop: z.number(),
+  rhBottom: z.number(),
+  rhLeft: z.number(),
+  rhRight: z.number(),
 });
 
 export type PistonsData = z.infer<typeof PistonsDataSchema>;

@@ -862,6 +862,9 @@
     "description": "Crear una nueva inspección de holgura de cojinete",
     "createdSuccessfully": "Inspección creada exitosamente",
     "form": {
+      "placeholders": {
+        "select": "Seleccionar"
+      },
       "date": {
         "label": "Fecha de Inspección",
         "placeholder": "Seleccionar fecha"
@@ -1190,6 +1193,35 @@
         "counterbalanceTypes": {
           "cylinder": "Cilindro",
           "airbag": "Bolsa de Aire"
+        },
+        "alerts": {
+          "title": "Alertas Críticas",
+          "noAlerts": "No hay alertas críticas registradas",
+          "addNew": "Agregar Nueva Alerta",
+          "allFieldsHaveAlerts": "Todos los campos ya tienen alertas registradas",
+          "fieldWithProblem": "Campo con Problema",
+          "selectField": "Seleccione un campo...",
+          "justification": "Justificación",
+          "justificationPlaceholder": "Describa el problema (ej: fuga debido a rotura de engranaje)",
+          "characters": "caracteres",
+          "cancel": "Cancelar",
+          "save": "Guardar Alerta",
+          "saving": "Guardando...",
+          "createdAt": "Creado el",
+          "toast": {
+            "selectFieldAndJustification": "Seleccione un campo y proporcione una justificación",
+            "createSuccess": "Alerta creada con éxito",
+            "createError": "Error al crear alerta"
+          },
+          "fieldLabels": {
+            "AIRBAG_PISTON_SEALS": "Sellos de Bolsa de Aire/Pistón",
+            "REGULATOR": "Regulador",
+            "GAUGE": "Medidor",
+            "PNEUMATICS_PLUMBING": "Neumática/Plomería",
+            "ROD_SEALS": "Sellos de Varilla",
+            "ROD_BUSHING": "Casquillo de Varilla",
+            "OIL_WICK": "Mecha de Aceite"
+          }
         }
       },
       "tramming": {
@@ -1606,6 +1638,22 @@
       "wristPinToMatingPart": "Pasador de Muñeca a Pieza de Acoplamiento",
       "wristPinToBushing": "Pasador de Muñeca a Casquillo",
       "slideAdjNutToScrewSleeve": "Tuerca de Ajuste de Corredera a Tornillo/Manguito"
+    },
+    "clutch": {
+      "title": "EMBRAGUE - Configuración de Alerta",
+      "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico Total",
+      "hydClutchClearanceRear": "Holgura del Embrague Hidráulico Trasera",
+      "fb": "F-B (Frente-Atrás)",
+      "fTB": "F-TB (Frente Superior-Inferior)",
+      "rTB": "R-TB (Trasera Superior-Inferior)"
+    },
+    "slide": {
+      "title": "SLIDE - Configuración de Alerta",
+      "maxDeviation": "Desviación Máxima"
+    },
+    "gibs": {
+      "title": "GIBS - Configuración de Alerta",
+      "usable": "Utilizable"
     },
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",

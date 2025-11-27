@@ -119,6 +119,9 @@ export class MachinesService {
               };
             };
             alertBearingClearance: true;
+            alertClutch: true;
+            alertSlide: true;
+            alertGibs: true;
           };
         };
       };
@@ -143,6 +146,9 @@ export class MachinesService {
               },
             },
             alertBearingClearance: true,
+            alertClutch: true,
+            alertSlide: true,
+            alertGibs: true,
           },
         },
       },

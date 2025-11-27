@@ -13,6 +13,9 @@ import { Separator } from '@/components/ui/separator';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { SERVICE_SECTION_SLUGS } from '@titans-tech/db/client';
 import { BearingClearanceThresholds } from '@/components/alerts/BearingClearanceThresholds';
+import { ClutchThresholds } from '@/components/alerts/ClutchThresholds';
+import { SlideThresholds } from '@/components/alerts/SlideThresholds';
+import { GibsThresholds } from '@/components/alerts/GibsThresholds';
 import { type BlueprintCreationModalProps } from './types';
 import { useBlueprintForm } from './hooks/useBlueprintForm';
 import { useFieldsManager } from './hooks/useFieldsManager';
@@ -43,6 +46,18 @@ export const BlueprintCreationModal = ({
     setThresholdsOpen,
     thresholds,
     setThresholds,
+    clutchThresholdsOpen,
+    setClutchThresholdsOpen,
+    clutchThresholds,
+    setClutchThresholds,
+    slideThresholdsOpen,
+    setSlideThresholdsOpen,
+    slideThresholds,
+    setSlideThresholds,
+    gibsThresholdsOpen,
+    setGibsThresholdsOpen,
+    gibsThresholds,
+    setGibsThresholds,
     handleSubmit,
     isLoading,
     result,
@@ -165,6 +180,48 @@ export const BlueprintCreationModal = ({
                       onOpenChange={setThresholdsOpen}
                       data={thresholds}
                       onChange={setThresholds}
+                    />
+                  </section>
+                </>
+              )}
+
+              {selectedSections.includes('clutch') && (
+                <>
+                  <Separator />
+                  <section className="space-y-4">
+                    <ClutchThresholds
+                      open={clutchThresholdsOpen}
+                      onOpenChange={setClutchThresholdsOpen}
+                      data={clutchThresholds}
+                      onChange={setClutchThresholds}
+                    />
+                  </section>
+                </>
+              )}
+
+              {selectedSections.includes('slide') && (
+                <>
+                  <Separator />
+                  <section className="space-y-4">
+                    <SlideThresholds
+                      open={slideThresholdsOpen}
+                      onOpenChange={setSlideThresholdsOpen}
+                      data={slideThresholds}
+                      onChange={setSlideThresholds}
+                    />
+                  </section>
+                </>
+              )}
+
+              {selectedSections.includes('gibs') && (
+                <>
+                  <Separator />
+                  <section className="space-y-4">
+                    <GibsThresholds
+                      open={gibsThresholdsOpen}
+                      onOpenChange={setGibsThresholdsOpen}
+                      data={gibsThresholds}
+                      onChange={setGibsThresholds}
                     />
                   </section>
                 </>

@@ -9,6 +9,9 @@ import { PrismaService } from '../shared/prisma.service';
 import {
   LatestReportResponseDto,
   LatestBearingClearanceDto,
+  LatestClutchDto,
+  LatestSlideDto,
+  LatestGibsDto,
   CreateServiceDto,
   UpdateServicePayload,
   CompleteServiceDto,
@@ -175,7 +178,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            outerFreeHangingData: true,
+            innerBefore: true,
+            innerData: true,
+            innerBeforeTool: true,
+            innerDataTool: true,
+          },
+        },
         lubricationHydraulics: {
           include: {
             data: {
@@ -238,7 +251,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            outerFreeHangingData: true,
+            innerBefore: true,
+            innerData: true,
+            innerBeforeTool: true,
+            innerDataTool: true,
+          },
+        },
         lubricationHydraulics: {
           include: {
             data: {
@@ -303,7 +326,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            outerFreeHangingData: true,
+            innerBefore: true,
+            innerData: true,
+            innerBeforeTool: true,
+            innerDataTool: true,
+          },
+        },
         lubricationHydraulics: {
           include: {
             data: {
@@ -379,7 +412,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            outerFreeHangingData: true,
+            innerBefore: true,
+            innerData: true,
+            innerBeforeTool: true,
+            innerDataTool: true,
+          },
+        },
         lubricationHydraulics: {
           include: {
             data: {
@@ -456,7 +499,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            outerFreeHangingData: true,
+            innerBefore: true,
+            innerData: true,
+            innerBeforeTool: true,
+            innerDataTool: true,
+          },
+        },
         lubricationHydraulics: {
           include: {
             data: {
@@ -534,7 +587,121 @@ export class ServicesService {
       }
     }
 
-    // 4. Build response
+    // 4. Process Clutch section
+    let clutchData: LatestClutchDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.CLUTCH)) {
+      // Find the most recent service with Clutch data
+      const latestClutchService = services.find(
+        (service) => service.clutch && service.clutch.length > 0,
+      );
+
+      if (latestClutchService) {
+        const clutchMeasurements = latestClutchService.clutch[0].data;
+
+        if (clutchMeasurements) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getClutchAlertByService(
+              latestClutchService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+            console.log(
+              `ℹ️ [SERVICES] No clutch alert found for service ${latestClutchService.id}`,
+            );
+          }
+
+          clutchData = new LatestClutchDto({
+            latestServiceId: latestClutchService.id,
+            latestServiceDate: latestClutchService.date,
+            serviceType: latestClutchService.type,
+            data: clutchMeasurements,
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 5. Process Slide section
+    let slideData: LatestSlideDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.SLIDE)) {
+      // Find the most recent service with Slide data
+      const latestSlideService = services.find(
+        (service) => service.slide && service.slide.length > 0,
+      );
+
+      if (latestSlideService) {
+        const slideRecord = latestSlideService.slide[0];
+
+        if (slideRecord) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getSlideAlertByService(
+              latestSlideService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+            console.log(
+              `ℹ️ [SERVICES] No slide alert found for service ${latestSlideService.id}`,
+            );
+          }
+
+          slideData = new LatestSlideDto({
+            latestServiceId: latestSlideService.id,
+            latestServiceDate: latestSlideService.date,
+            serviceType: latestSlideService.type,
+            data: {
+              outerData: slideRecord.outerData,
+              innerData: slideRecord.innerData,
+            },
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 6. Process GIBS section
+    let gibsData: LatestGibsDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.GIBS)) {
+      // Find the most recent service with GIBS data
+      const latestGibsService = services.find(
+        (service) => service.gibs && service.gibs.length > 0,
+      );
+
+      if (latestGibsService) {
+        const gibsRecord = latestGibsService.gibs[0];
+
+        if (gibsRecord && gibsRecord.outerData) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getGibsAlertByService(
+              latestGibsService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+            console.log(
+              `ℹ️ [SERVICES] No GIBS alert found for service ${latestGibsService.id}`,
+            );
+          }
+
+          gibsData = new LatestGibsDto({
+            latestServiceId: latestGibsService.id,
+            latestServiceDate: latestGibsService.date,
+            serviceType: latestGibsService.type,
+            data: gibsRecord.outerData,
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 7. Build response
     return new LatestReportResponseDto({
       machineId: machine.id,
       machineName: machine.name,
@@ -546,10 +713,10 @@ export class ServicesService {
       generatedAt: new Date(),
       sections: {
         BEARING_CLEARANCE: bearingClearanceData,
-        SLIDE: null,
-        GIBS: null,
+        SLIDE: slideData,
+        GIBS: gibsData,
         LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null,
-        CLUTCH: null,
+        CLUTCH: clutchData,
         COUNTERBALANCE_CYLINDER_AIRBAG: null,
       },
     });
@@ -702,7 +869,7 @@ export class ServicesService {
     await this.prisma.$transaction(async (tx) => {
       const existingRecord = service.slide?.[0];
 
-      // Helper function to upsert nested slide data (now contains all fields)
+      // Helper function to upsert nested slide data
       const upsertData = async (
         data: any,
         existingId: string | null | undefined,
@@ -724,10 +891,18 @@ export class ServicesService {
       };
 
       if (existingRecord) {
-        // Update existing slide record
+        // Update existing slide record (now with 4 possible FKs)
+        const outerBeforeId = await upsertData(
+          updateDto.outerBefore,
+          existingRecord.outerBeforeId,
+        );
         const outerDataId = await upsertData(
           updateDto.outerData,
           existingRecord.outerDataId,
+        );
+        const innerBeforeId = await upsertData(
+          updateDto.innerBefore,
+          existingRecord.innerBeforeId,
         );
         const innerDataId = await upsertData(
           updateDto.innerData,
@@ -736,7 +911,9 @@ export class ServicesService {
 
         // Build update payload with IDs and notes
         const updatePayload: any = {
+          ...(outerBeforeId && { outerBeforeId }),
           ...(outerDataId && { outerDataId }),
+          ...(innerBeforeId && { innerBeforeId }),
           ...(innerDataId && { innerDataId }),
           ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
         };
@@ -746,14 +923,21 @@ export class ServicesService {
           data: updatePayload,
         });
       } else {
-        // Create new slide record
-        const { outerData, innerData, notes } = updateDto;
+        // Create new slide record with 4 possible SlideData records
+        const { outerBefore, outerData, innerBefore, innerData, notes } =
+          updateDto;
 
         await tx.machineServiceSlide.create({
           data: {
             machineService: { connect: { id: serviceId } },
+            ...(outerBefore && {
+              outerBefore: { create: outerBefore as any },
+            }),
             ...(outerData && {
               outerData: { create: outerData as any },
+            }),
+            ...(innerBefore && {
+              innerBefore: { create: innerBefore as any },
             }),
             ...(innerData && {
               innerData: { create: innerData as any },
@@ -772,6 +956,14 @@ export class ServicesService {
         },
       });
     });
+
+    if (updateDto.outerData || updateDto.innerData) {
+      try {
+        await this.alertsService.generateAlertsForSlide(serviceId);
+      } catch (error) {
+        console.error('Error generating slide alerts:', error);
+      }
+    }
 
     return this.findOne(serviceId);
   }
@@ -794,12 +986,12 @@ export class ServicesService {
     if (!stageData) return;
 
     if (existingId) {
-      await tx.service_data_gibs_stage.update({
+      await tx.gibsStageData.update({
         where: { id: existingId },
         data: stageData,
       });
     } else {
-      const created = await tx.service_data_gibs_stage.create({
+      const created = await tx.gibsStageData.create({
         data: stageData,
       });
       updatePayload[fieldName] = created.id;
@@ -833,59 +1025,64 @@ export class ServicesService {
         // Handle all 7 GIBS stages using the helper method
         await this.upsertGibsStage(
           tx,
-          updateDto.outerBeforeAdjustment,
-          existingRecord.outerBeforeAdjustmentId,
+          updateDto.outerBefore,
+          existingRecord.outerBeforeId,
           updatePayload,
-          'outerBeforeAdjustmentId',
+          'outerBeforeId',
         );
 
         await this.upsertGibsStage(
           tx,
-          updateDto.outerAfterAdjustment,
-          existingRecord.outerAfterAdjustmentId,
+          updateDto.outerData,
+          existingRecord.outerDataId,
           updatePayload,
-          'outerAfterAdjustmentId',
+          'outerDataId',
         );
 
         await this.upsertGibsStage(
           tx,
-          updateDto.outerFreeHangingAfterInstall,
-          existingRecord.outerFreeHangingAfterInstallId,
+          updateDto.outerFreeHangingData,
+          existingRecord.outerFreeHangingDataId,
           updatePayload,
-          'outerFreeHangingAfterInstallId',
+          'outerFreeHangingDataId',
         );
 
         await this.upsertGibsStage(
           tx,
-          updateDto.innerBeforeAdjustment,
-          existingRecord.innerBeforeAdjustmentId,
+          updateDto.innerBefore,
+          existingRecord.innerBeforeId,
           updatePayload,
-          'innerBeforeAdjustmentId',
+          'innerBeforeId',
         );
 
         await this.upsertGibsStage(
           tx,
-          updateDto.innerAfterAdjustment,
-          existingRecord.innerAfterAdjustmentId,
+          updateDto.innerData,
+          existingRecord.innerDataId,
           updatePayload,
-          'innerAfterAdjustmentId',
+          'innerDataId',
         );
 
         await this.upsertGibsStage(
           tx,
-          updateDto.innerBeforeToolInstallation,
-          existingRecord.innerBeforeToolInstallationId,
+          updateDto.innerBeforeTool,
+          existingRecord.innerBeforeToolId,
           updatePayload,
-          'innerBeforeToolInstallationId',
+          'innerBeforeToolId',
         );
 
         await this.upsertGibsStage(
           tx,
-          updateDto.innerAfterToolInstallation,
-          existingRecord.innerAfterToolInstallationId,
+          updateDto.innerDataTool,
+          existingRecord.innerDataToolId,
           updatePayload,
-          'innerAfterToolInstallationId',
+          'innerDataToolId',
         );
+
+        if (updateDto.haveInnerGibsBeenAdjusted !== undefined) {
+          updatePayload.haveInnerGibsBeenAdjusted =
+            updateDto.haveInnerGibsBeenAdjusted;
+        }
 
         if (updateDto.notes !== undefined) {
           updatePayload.notes = updateDto.notes;
@@ -914,53 +1111,58 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           gibs: {
             create: {
-              ...(updateDto.outerBeforeAdjustment && {
-                service_data_gibs_stage_machine_service_gibs_outerBeforeAdjustmentIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.outerBeforeAdjustment,
-                  },
+              ...(updateDto.outerBefore && {
+                outerBefore: {
+                  create: updateDto.outerBefore,
+                },
               }),
-              ...(updateDto.outerAfterAdjustment && {
-                service_data_gibs_stage_machine_service_gibs_outerAfterAdjustmentIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.outerAfterAdjustment,
-                  },
+              ...(updateDto.outerData && {
+                outerData: {
+                  create: updateDto.outerData,
+                },
               }),
-              ...(updateDto.outerFreeHangingAfterInstall && {
-                service_data_gibs_stage_machine_service_gibs_outerFreeHangingAfterInstallIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.outerFreeHangingAfterInstall,
-                  },
+              ...(updateDto.outerFreeHangingData && {
+                outerFreeHangingData: {
+                  create: updateDto.outerFreeHangingData,
+                },
               }),
-              ...(updateDto.innerBeforeAdjustment && {
-                service_data_gibs_stage_machine_service_gibs_innerBeforeAdjustmentIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.innerBeforeAdjustment,
-                  },
+              ...(updateDto.haveInnerGibsBeenAdjusted && {
+                haveInnerGibsBeenAdjusted: updateDto.haveInnerGibsBeenAdjusted,
               }),
-              ...(updateDto.innerAfterAdjustment && {
-                service_data_gibs_stage_machine_service_gibs_innerAfterAdjustmentIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.innerAfterAdjustment,
-                  },
+              ...(updateDto.innerBefore && {
+                innerBefore: {
+                  create: updateDto.innerBefore,
+                },
               }),
-              ...(updateDto.innerBeforeToolInstallation && {
-                service_data_gibs_stage_machine_service_gibs_innerBeforeToolInstallationIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.innerBeforeToolInstallation,
-                  },
+              ...(updateDto.innerData && {
+                innerData: {
+                  create: updateDto.innerData,
+                },
               }),
-              ...(updateDto.innerAfterToolInstallation && {
-                service_data_gibs_stage_machine_service_gibs_innerAfterToolInstallationIdToservice_data_gibs_stage:
-                  {
-                    create: updateDto.innerAfterToolInstallation,
-                  },
+              ...(updateDto.innerBeforeTool && {
+                innerBeforeTool: {
+                  create: updateDto.innerBeforeTool,
+                },
+              }),
+              ...(updateDto.innerDataTool && {
+                innerDataTool: {
+                  create: updateDto.innerDataTool,
+                },
               }),
               ...(updateDto.notes && { notes: updateDto.notes }),
-            } as any,
+            },
           },
         },
       });
+    }
+
+    // Generate GIBS alerts if outerData (after adjustment) was updated
+    if (updateDto.outerData) {
+      try {
+        await this.alertsService.generateAlertsForGibs(serviceId);
+      } catch (error) {
+        console.error('Error generating GIBS alerts:', error);
+      }
     }
 
     return this.findOne(serviceId);
@@ -1138,6 +1340,13 @@ export class ServicesService {
       });
     }
 
+    // Generate clutch alerts
+    try {
+      await this.alertsService.generateClutchAlertsForService(serviceId);
+    } catch (error) {
+      console.error('Error generating clutch alerts:', error);
+    }
+
     return this.findOne(serviceId);
   }
 
@@ -1265,33 +1474,37 @@ export class ServicesService {
 
     const existingRecord = service.tramming?.[0];
 
+    // DTO data now matches Prisma schema directly (fields like topTop, bottomTop, etc.)
+    const outerPrismaData = updateDto.outerData || null;
+    const innerPrismaData = updateDto.innerData || null;
+
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
         const updatePayload: any = {};
 
-        if (updateDto.outerData) {
+        if (outerPrismaData) {
           if (existingRecord.outerDataId) {
             await tx.trammingData.update({
               where: { id: existingRecord.outerDataId },
-              data: updateDto.outerData as any,
+              data: outerPrismaData as any,
             });
           } else {
             const created = await tx.trammingData.create({
-              data: updateDto.outerData as any,
+              data: outerPrismaData as any,
             });
             updatePayload.outerDataId = created.id;
           }
         }
 
-        if (updateDto.innerData) {
+        if (innerPrismaData) {
           if (existingRecord.innerDataId) {
             await tx.trammingData.update({
               where: { id: existingRecord.innerDataId },
-              data: updateDto.innerData as any,
+              data: innerPrismaData as any,
             });
           } else {
             const created = await tx.trammingData.create({
-              data: updateDto.innerData as any,
+              data: innerPrismaData as any,
             });
             updatePayload.innerDataId = created.id;
           }
@@ -1327,11 +1540,11 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           tramming: {
             create: {
-              ...(updateDto.outerData && {
-                outerData: { create: updateDto.outerData as any },
+              ...(outerPrismaData && {
+                outerData: { create: outerPrismaData as any },
               }),
-              ...(updateDto.innerData && {
-                innerData: { create: updateDto.innerData as any },
+              ...(innerPrismaData && {
+                innerData: { create: innerPrismaData as any },
               }),
               ...(updateDto.slideTram && { slideTram: updateDto.slideTram }),
               ...(updateDto.notes && { notes: updateDto.notes }),
@@ -1367,33 +1580,37 @@ export class ServicesService {
 
     const existingRecord = service.pistons?.[0];
 
+    // DTO data now matches Prisma schema directly (fields like lhTop, rhTop, etc.)
+    const outerPrismaData = updateDto.outerData || null;
+    const innerPrismaData = updateDto.innerData || null;
+
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
         const updatePayload: any = {};
 
-        if (updateDto.outerData) {
+        if (outerPrismaData) {
           if (existingRecord.outerDataId) {
             await tx.pistonsData.update({
               where: { id: existingRecord.outerDataId },
-              data: updateDto.outerData as any,
+              data: outerPrismaData as any,
             });
           } else {
             const created = await tx.pistonsData.create({
-              data: updateDto.outerData as any,
+              data: outerPrismaData as any,
             });
             updatePayload.outerDataId = created.id;
           }
         }
 
-        if (updateDto.innerData) {
+        if (innerPrismaData) {
           if (existingRecord.innerDataId) {
             await tx.pistonsData.update({
               where: { id: existingRecord.innerDataId },
-              data: updateDto.innerData as any,
+              data: innerPrismaData as any,
             });
           } else {
             const created = await tx.pistonsData.create({
-              data: updateDto.innerData as any,
+              data: innerPrismaData as any,
             });
             updatePayload.innerDataId = created.id;
           }
@@ -1439,11 +1656,11 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           pistons: {
             create: {
-              ...(updateDto.outerData && {
-                outerData: { create: updateDto.outerData as any },
+              ...(outerPrismaData && {
+                outerData: { create: outerPrismaData as any },
               }),
-              ...(updateDto.innerData && {
-                innerData: { create: updateDto.innerData as any },
+              ...(innerPrismaData && {
+                innerData: { create: innerPrismaData as any },
               }),
               ...(updateDto.guideSeals && { guideSeals: updateDto.guideSeals }),
               ...(updateDto.pistonSeals && {
@@ -1528,7 +1745,17 @@ export class ServicesService {
             innerData: true,
           },
         },
-        gibs: true,
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            outerFreeHangingData: true,
+            innerBefore: true,
+            innerData: true,
+            innerBeforeTool: true,
+            innerDataTool: true,
+          },
+        },
         lubricationHydraulics: {
           include: { data: { include: { gauges: true } } },
         },
@@ -1545,7 +1772,35 @@ export class ServicesService {
       },
     });
 
-    this.alertsService.generateAlertsForService(serviceId);
+    // Generate all alerts for completed service
+    const completedSectionsList = updatedService.completedSections as string[];
+
+    if (completedSectionsList.includes('BEARING_CLEARANCE')) {
+      this.alertsService.generateAlertsForService(serviceId).catch((error) => {
+        console.error('Error generating bearing clearance alerts:', error);
+      });
+    }
+
+    if (completedSectionsList.includes('CLUTCH')) {
+      this.alertsService
+        .generateClutchAlertsForService(serviceId)
+        .catch((error) => {
+          console.error('Error generating clutch alerts:', error);
+        });
+    }
+
+    if (completedSectionsList.includes('SLIDE')) {
+      this.alertsService.generateAlertsForSlide(serviceId).catch((error) => {
+        console.error('Error generating slide alerts:', error);
+      });
+    }
+
+    if (completedSectionsList.includes('GIBS')) {
+      this.alertsService.generateAlertsForGibs(serviceId).catch((error) => {
+        console.error('Error generating GIBS alerts:', error);
+      });
+    }
+
     return updatedService;
   }
 

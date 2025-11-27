@@ -1,9 +1,17 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import type { GibsStageData } from '@/data/types/services.types';
+import { YesNoDncType } from '@/data/types/services.types';
 import { GibsForm } from '../forms/GibsForm';
 import { isDataTouched } from './utils';
 import { useTranslations } from 'next-intl';
@@ -61,13 +69,13 @@ export const validateGibsStageData = (data: GibsStageData): string[] => {
 };
 
 export const defaultGibsData: GibsSectionData = {
-  outerBeforeAdjustment: undefined,
-  outerAfterAdjustment: undefined,
-  outerFreeHangingAfterInstall: undefined,
-  innerBeforeAdjustment: undefined,
-  innerAfterAdjustment: undefined,
-  innerBeforeToolInstallation: undefined,
-  innerAfterToolInstallation: undefined,
+  outerBefore: undefined,
+  outerData: undefined,
+  outerFreeHangingData: undefined,
+  innerBefore: undefined,
+  innerData: undefined,
+  innerBeforeTool: undefined,
+  innerDataTool: undefined,
   notes: undefined,
 };
 
@@ -75,13 +83,13 @@ export const validateGibsData = (data: GibsSectionData): string[] => {
   const errors: string[] = [];
 
   const stages = {
-    outerBeforeAdjustment: !!data.outerBeforeAdjustment,
-    outerAfterAdjustment: !!data.outerAfterAdjustment,
-    outerFreeHangingAfterInstall: !!data.outerFreeHangingAfterInstall,
-    innerBeforeAdjustment: !!data.innerBeforeAdjustment,
-    innerAfterAdjustment: !!data.innerAfterAdjustment,
-    innerBeforeToolInstallation: !!data.innerBeforeToolInstallation,
-    innerAfterToolInstallation: !!data.innerAfterToolInstallation,
+    outerBefore: !!data.outerBefore,
+    outerData: !!data.outerData,
+    outerFreeHangingData: !!data.outerFreeHangingData,
+    innerBefore: !!data.innerBefore,
+    innerData: !!data.innerData,
+    innerBeforeTool: !!data.innerBeforeTool,
+    innerDataTool: !!data.innerDataTool,
   };
 
   const hasAnyStage = Object.values(stages).some((stage) => stage);
@@ -90,46 +98,47 @@ export const validateGibsData = (data: GibsSectionData): string[] => {
     errors.push('GIBS: You must fill at least one measurement section');
   }
 
-  if (data.outerBeforeAdjustment) {
-    const stageErrors = validateGibsStageData(data.outerBeforeAdjustment);
-    errors.push(...stageErrors.map((e) => `GIBS outerBeforeAdjustment: ${e}`));
+  if (data.outerBefore) {
+    const stageErrors = validateGibsStageData(data.outerBefore);
+    errors.push(...stageErrors.map((e) => `GIBS outerBefore: ${e}`));
   }
-  if (data.outerAfterAdjustment) {
-    const stageErrors = validateGibsStageData(data.outerAfterAdjustment);
-    errors.push(...stageErrors.map((e) => `GIBS outerAfterAdjustment: ${e}`));
+  if (data.outerData) {
+    const stageErrors = validateGibsStageData(data.outerData);
+    errors.push(...stageErrors.map((e) => `GIBS outerData: ${e}`));
   }
-  if (data.outerFreeHangingAfterInstall) {
-    const stageErrors = validateGibsStageData(data.outerFreeHangingAfterInstall);
-    errors.push(...stageErrors.map((e) => `GIBS outerFreeHangingAfterInstall: ${e}`));
+  if (data.outerFreeHangingData) {
+    const stageErrors = validateGibsStageData(data.outerFreeHangingData);
+    errors.push(...stageErrors.map((e) => `GIBS outerFreeHangingData: ${e}`));
   }
-  if (data.innerBeforeAdjustment) {
-    const stageErrors = validateGibsStageData(data.innerBeforeAdjustment);
-    errors.push(...stageErrors.map((e) => `GIBS innerBeforeAdjustment: ${e}`));
+  if (data.innerBefore) {
+    const stageErrors = validateGibsStageData(data.innerBefore);
+    errors.push(...stageErrors.map((e) => `GIBS innerBefore: ${e}`));
   }
-  if (data.innerAfterAdjustment) {
-    const stageErrors = validateGibsStageData(data.innerAfterAdjustment);
-    errors.push(...stageErrors.map((e) => `GIBS innerAfterAdjustment: ${e}`));
+  if (data.innerData) {
+    const stageErrors = validateGibsStageData(data.innerData);
+    errors.push(...stageErrors.map((e) => `GIBS innerData: ${e}`));
   }
-  if (data.innerBeforeToolInstallation) {
-    const stageErrors = validateGibsStageData(data.innerBeforeToolInstallation);
-    errors.push(...stageErrors.map((e) => `GIBS innerBeforeToolInstallation: ${e}`));
+  if (data.innerBeforeTool) {
+    const stageErrors = validateGibsStageData(data.innerBeforeTool);
+    errors.push(...stageErrors.map((e) => `GIBS innerBeforeTool: ${e}`));
   }
-  if (data.innerAfterToolInstallation) {
-    const stageErrors = validateGibsStageData(data.innerAfterToolInstallation);
-    errors.push(...stageErrors.map((e) => `GIBS innerAfterToolInstallation: ${e}`));
+  if (data.innerDataTool) {
+    const stageErrors = validateGibsStageData(data.innerDataTool);
+    errors.push(...stageErrors.map((e) => `GIBS innerDataTool: ${e}`));
   }
 
   return errors;
 };
 
 export interface GibsSectionData {
-  outerBeforeAdjustment?: GibsStageData;
-  outerAfterAdjustment?: GibsStageData;
-  outerFreeHangingAfterInstall?: GibsStageData;
-  innerBeforeAdjustment?: GibsStageData;
-  innerAfterAdjustment?: GibsStageData;
-  innerBeforeToolInstallation?: GibsStageData;
-  innerAfterToolInstallation?: GibsStageData;
+  outerBefore?: GibsStageData;
+  outerData?: GibsStageData;
+  outerFreeHangingData?: GibsStageData;
+  haveInnerGibsBeenAdjusted?: 'YES' | 'NO' | 'DNC';
+  innerBefore?: GibsStageData;
+  innerData?: GibsStageData;
+  innerBeforeTool?: GibsStageData;
+  innerDataTool?: GibsStageData;
   notes?: string;
 }
 
@@ -153,6 +162,15 @@ interface GibsSectionProps {
 function useStageState(initialData?: GibsStageData) {
   const [data, setData] = useState<GibsStageData>(initialData || defaultGibsStageData);
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Update state when initialData changes (e.g., when loading saved data)
+  // Use JSON.stringify for deep comparison since initialData is an object
+  useEffect(() => {
+    if (initialData && JSON.stringify(initialData) !== JSON.stringify(data)) {
+      setData(initialData);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(initialData)]);
 
   const updateField = (field: keyof GibsStageData, value: number) => {
     setData((prev: GibsStageData) => ({ ...prev, [field]: value }));
@@ -198,16 +216,20 @@ function useStageState(initialData?: GibsStageData) {
 
 export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
   ({ onSectionTouched, initialData }, ref) => {
-    const outerBeforeAdjustment = useStageState(initialData?.outerBeforeAdjustment);
-    const outerAfterAdjustment = useStageState(initialData?.outerAfterAdjustment);
-    const outerFreeHangingAfterInstall = useStageState(initialData?.outerFreeHangingAfterInstall);
-    const innerBeforeAdjustment = useStageState(initialData?.innerBeforeAdjustment);
-    const innerAfterAdjustment = useStageState(initialData?.innerAfterAdjustment);
-    const innerBeforeToolInstallation = useStageState(initialData?.innerBeforeToolInstallation);
-    const innerAfterToolInstallation = useStageState(initialData?.innerAfterToolInstallation);
+    const outerBefore = useStageState(initialData?.outerBefore);
+    const outerData = useStageState(initialData?.outerData);
+    const outerFreeHangingData = useStageState(initialData?.outerFreeHangingData);
+    const innerBefore = useStageState(initialData?.innerBefore);
+    const innerData = useStageState(initialData?.innerData);
+    const innerBeforeTool = useStageState(initialData?.innerBeforeTool);
+    const innerDataTool = useStageState(initialData?.innerDataTool);
 
     const [notes, setNotes] = useState(initialData?.notes || '');
+    const [haveInnerGibsBeenAdjusted, setHaveInnerGibsBeenAdjusted] = useState<
+      'YES' | 'NO' | 'DNC' | undefined
+    >(initialData?.haveInnerGibsBeenAdjusted);
     const t = useTranslations('inspections');
+    const tCommon = useTranslations('common');
 
     const wrapUpdateFn = (updateFn: (field: keyof GibsStageData, value: number) => void) => {
       return (field: keyof GibsStageData, value: number) => {
@@ -219,13 +241,13 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     useImperativeHandle(ref, () => ({
       isTouched: (): boolean => {
         return (
-          isDataTouched(outerBeforeAdjustment.data, defaultGibsStageData) ||
-          isDataTouched(outerAfterAdjustment.data, defaultGibsStageData) ||
-          isDataTouched(outerFreeHangingAfterInstall.data, defaultGibsStageData) ||
-          isDataTouched(innerBeforeAdjustment.data, defaultGibsStageData) ||
-          isDataTouched(innerAfterAdjustment.data, defaultGibsStageData) ||
-          isDataTouched(innerBeforeToolInstallation.data, defaultGibsStageData) ||
-          isDataTouched(innerAfterToolInstallation.data, defaultGibsStageData) ||
+          isDataTouched(outerBefore.data, defaultGibsStageData) ||
+          isDataTouched(outerData.data, defaultGibsStageData) ||
+          isDataTouched(outerFreeHangingData.data, defaultGibsStageData) ||
+          isDataTouched(innerBefore.data, defaultGibsStageData) ||
+          isDataTouched(innerData.data, defaultGibsStageData) ||
+          isDataTouched(innerBeforeTool.data, defaultGibsStageData) ||
+          isDataTouched(innerDataTool.data, defaultGibsStageData) ||
           !!notes
         );
       },
@@ -234,22 +256,13 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
         const validationErrors: string[] = [];
 
         const stages = {
-          outerBeforeAdjustment: isDataTouched(outerBeforeAdjustment.data, defaultGibsStageData),
-          outerAfterAdjustment: isDataTouched(outerAfterAdjustment.data, defaultGibsStageData),
-          outerFreeHangingAfterInstall: isDataTouched(
-            outerFreeHangingAfterInstall.data,
-            defaultGibsStageData,
-          ),
-          innerBeforeAdjustment: isDataTouched(innerBeforeAdjustment.data, defaultGibsStageData),
-          innerAfterAdjustment: isDataTouched(innerAfterAdjustment.data, defaultGibsStageData),
-          innerBeforeToolInstallation: isDataTouched(
-            innerBeforeToolInstallation.data,
-            defaultGibsStageData,
-          ),
-          innerAfterToolInstallation: isDataTouched(
-            innerAfterToolInstallation.data,
-            defaultGibsStageData,
-          ),
+          outerBefore: isDataTouched(outerBefore.data, defaultGibsStageData),
+          outerData: isDataTouched(outerData.data, defaultGibsStageData),
+          outerFreeHangingData: isDataTouched(outerFreeHangingData.data, defaultGibsStageData),
+          innerBefore: isDataTouched(innerBefore.data, defaultGibsStageData),
+          innerData: isDataTouched(innerData.data, defaultGibsStageData),
+          innerBeforeTool: isDataTouched(innerBeforeTool.data, defaultGibsStageData),
+          innerDataTool: isDataTouched(innerDataTool.data, defaultGibsStageData),
         };
 
         const hasAnyStage = Object.values(stages).some((stage) => stage);
@@ -260,14 +273,14 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
 
         Object.entries(stages).forEach(([stageName, isTouched]) => {
           if (isTouched) {
-            const stageMap: Record<string, typeof outerBeforeAdjustment> = {
-              outerBeforeAdjustment,
-              outerAfterAdjustment,
-              outerFreeHangingAfterInstall,
-              innerBeforeAdjustment,
-              innerAfterAdjustment,
-              innerBeforeToolInstallation,
-              innerAfterToolInstallation,
+            const stageMap: Record<string, typeof outerBefore> = {
+              outerBefore,
+              outerData,
+              outerFreeHangingData,
+              innerBefore,
+              innerData,
+              innerBeforeTool,
+              innerDataTool,
             };
 
             const stageErrors = validateGibsStageData(stageMap[stageName].data);
@@ -282,27 +295,16 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
             isValid: true,
             errors: [],
             data: {
-              outerBeforeAdjustment: stages.outerBeforeAdjustment
-                ? outerBeforeAdjustment.data
+              outerBefore: stages.outerBefore ? outerBefore.data : undefined,
+              outerData: stages.outerData ? outerData.data : undefined,
+              outerFreeHangingData: stages.outerFreeHangingData
+                ? outerFreeHangingData.data
                 : undefined,
-              outerAfterAdjustment: stages.outerAfterAdjustment
-                ? outerAfterAdjustment.data
-                : undefined,
-              outerFreeHangingAfterInstall: stages.outerFreeHangingAfterInstall
-                ? outerFreeHangingAfterInstall.data
-                : undefined,
-              innerBeforeAdjustment: stages.innerBeforeAdjustment
-                ? innerBeforeAdjustment.data
-                : undefined,
-              innerAfterAdjustment: stages.innerAfterAdjustment
-                ? innerAfterAdjustment.data
-                : undefined,
-              innerBeforeToolInstallation: stages.innerBeforeToolInstallation
-                ? innerBeforeToolInstallation.data
-                : undefined,
-              innerAfterToolInstallation: stages.innerAfterToolInstallation
-                ? innerAfterToolInstallation.data
-                : undefined,
+              haveInnerGibsBeenAdjusted,
+              innerBefore: stages.innerBefore ? innerBefore.data : undefined,
+              innerData: stages.innerData ? innerData.data : undefined,
+              innerBeforeTool: stages.innerBeforeTool ? innerBeforeTool.data : undefined,
+              innerDataTool: stages.innerDataTool ? innerDataTool.data : undefined,
               notes: notes || undefined,
             },
           };
@@ -316,42 +318,24 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
 
       getData: (): GibsSectionData => {
         const stages = {
-          outerBeforeAdjustment: isDataTouched(outerBeforeAdjustment.data, defaultGibsStageData),
-          outerAfterAdjustment: isDataTouched(outerAfterAdjustment.data, defaultGibsStageData),
-          outerFreeHangingAfterInstall: isDataTouched(
-            outerFreeHangingAfterInstall.data,
-            defaultGibsStageData,
-          ),
-          innerBeforeAdjustment: isDataTouched(innerBeforeAdjustment.data, defaultGibsStageData),
-          innerAfterAdjustment: isDataTouched(innerAfterAdjustment.data, defaultGibsStageData),
-          innerBeforeToolInstallation: isDataTouched(
-            innerBeforeToolInstallation.data,
-            defaultGibsStageData,
-          ),
-          innerAfterToolInstallation: isDataTouched(
-            innerAfterToolInstallation.data,
-            defaultGibsStageData,
-          ),
+          outerBefore: isDataTouched(outerBefore.data, defaultGibsStageData),
+          outerData: isDataTouched(outerData.data, defaultGibsStageData),
+          outerFreeHangingData: isDataTouched(outerFreeHangingData.data, defaultGibsStageData),
+          innerBefore: isDataTouched(innerBefore.data, defaultGibsStageData),
+          innerData: isDataTouched(innerData.data, defaultGibsStageData),
+          innerBeforeTool: isDataTouched(innerBeforeTool.data, defaultGibsStageData),
+          innerDataTool: isDataTouched(innerDataTool.data, defaultGibsStageData),
         };
 
         return {
-          outerBeforeAdjustment: stages.outerBeforeAdjustment
-            ? outerBeforeAdjustment.data
-            : undefined,
-          outerAfterAdjustment: stages.outerAfterAdjustment ? outerAfterAdjustment.data : undefined,
-          outerFreeHangingAfterInstall: stages.outerFreeHangingAfterInstall
-            ? outerFreeHangingAfterInstall.data
-            : undefined,
-          innerBeforeAdjustment: stages.innerBeforeAdjustment
-            ? innerBeforeAdjustment.data
-            : undefined,
-          innerAfterAdjustment: stages.innerAfterAdjustment ? innerAfterAdjustment.data : undefined,
-          innerBeforeToolInstallation: stages.innerBeforeToolInstallation
-            ? innerBeforeToolInstallation.data
-            : undefined,
-          innerAfterToolInstallation: stages.innerAfterToolInstallation
-            ? innerAfterToolInstallation.data
-            : undefined,
+          outerBefore: stages.outerBefore ? outerBefore.data : undefined,
+          outerData: stages.outerData ? outerData.data : undefined,
+          outerFreeHangingData: stages.outerFreeHangingData ? outerFreeHangingData.data : undefined,
+          haveInnerGibsBeenAdjusted,
+          innerBefore: stages.innerBefore ? innerBefore.data : undefined,
+          innerData: stages.innerData ? innerData.data : undefined,
+          innerBeforeTool: stages.innerBeforeTool ? innerBeforeTool.data : undefined,
+          innerDataTool: stages.innerDataTool ? innerDataTool.data : undefined,
           notes: notes || undefined,
         };
       },
@@ -360,22 +344,13 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
         const validationErrors: string[] = [];
 
         const stages = {
-          outerBeforeAdjustment: isDataTouched(outerBeforeAdjustment.data, defaultGibsStageData),
-          outerAfterAdjustment: isDataTouched(outerAfterAdjustment.data, defaultGibsStageData),
-          outerFreeHangingAfterInstall: isDataTouched(
-            outerFreeHangingAfterInstall.data,
-            defaultGibsStageData,
-          ),
-          innerBeforeAdjustment: isDataTouched(innerBeforeAdjustment.data, defaultGibsStageData),
-          innerAfterAdjustment: isDataTouched(innerAfterAdjustment.data, defaultGibsStageData),
-          innerBeforeToolInstallation: isDataTouched(
-            innerBeforeToolInstallation.data,
-            defaultGibsStageData,
-          ),
-          innerAfterToolInstallation: isDataTouched(
-            innerAfterToolInstallation.data,
-            defaultGibsStageData,
-          ),
+          outerBefore: isDataTouched(outerBefore.data, defaultGibsStageData),
+          outerData: isDataTouched(outerData.data, defaultGibsStageData),
+          outerFreeHangingData: isDataTouched(outerFreeHangingData.data, defaultGibsStageData),
+          innerBefore: isDataTouched(innerBefore.data, defaultGibsStageData),
+          innerData: isDataTouched(innerData.data, defaultGibsStageData),
+          innerBeforeTool: isDataTouched(innerBeforeTool.data, defaultGibsStageData),
+          innerDataTool: isDataTouched(innerDataTool.data, defaultGibsStageData),
         };
 
         const hasAnyStage = Object.values(stages).some((stage) => stage);
@@ -386,14 +361,14 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
 
         Object.entries(stages).forEach(([stageName, isTouched]) => {
           if (isTouched) {
-            const stageMap: Record<string, typeof outerBeforeAdjustment> = {
-              outerBeforeAdjustment,
-              outerAfterAdjustment,
-              outerFreeHangingAfterInstall,
-              innerBeforeAdjustment,
-              innerAfterAdjustment,
-              innerBeforeToolInstallation,
-              innerAfterToolInstallation,
+            const stageMap: Record<string, typeof outerBefore> = {
+              outerBefore,
+              outerData,
+              outerFreeHangingData,
+              innerBefore,
+              innerData,
+              innerBeforeTool,
+              innerDataTool,
             };
 
             const stageErrors = validateGibsStageData(stageMap[stageName].data);
@@ -405,75 +380,95 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
       },
 
       reset: () => {
-        outerBeforeAdjustment.setData(defaultGibsStageData);
-        outerAfterAdjustment.setData(defaultGibsStageData);
-        outerFreeHangingAfterInstall.setData(defaultGibsStageData);
-        innerBeforeAdjustment.setData(defaultGibsStageData);
-        innerAfterAdjustment.setData(defaultGibsStageData);
-        innerBeforeToolInstallation.setData(defaultGibsStageData);
-        innerAfterToolInstallation.setData(defaultGibsStageData);
+        outerBefore.setData(defaultGibsStageData);
+        outerData.setData(defaultGibsStageData);
+        outerFreeHangingData.setData(defaultGibsStageData);
+        setHaveInnerGibsBeenAdjusted(undefined);
+        innerBefore.setData(defaultGibsStageData);
+        innerData.setData(defaultGibsStageData);
+        innerBeforeTool.setData(defaultGibsStageData);
+        innerDataTool.setData(defaultGibsStageData);
         setNotes('');
       },
     }));
 
     return (
-      <div className="p-6 space-y-6">
+      <div className="space-y-6">
         <Tabs defaultValue="outer" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value="outer">{t('form.common.outer')}</TabsTrigger>
             <TabsTrigger value="inner">{t('form.common.inner')}</TabsTrigger>
           </TabsList>
-
           <TabsContent value="outer" className="space-y-4">
             <GibsForm
               slideType="outer"
               beforeAdjustment={{
-                data: outerBeforeAdjustment.data,
-                onUpdate: wrapUpdateFn(outerBeforeAdjustment.updateField),
-                errors: outerBeforeAdjustment.errors,
-                handleBlur: outerBeforeAdjustment.handleBlur,
+                data: outerBefore.data,
+                onUpdate: wrapUpdateFn(outerBefore.updateField),
+                errors: outerBefore.errors,
+                handleBlur: outerBefore.handleBlur,
               }}
               afterAdjustment={{
-                data: outerAfterAdjustment.data,
-                onUpdate: wrapUpdateFn(outerAfterAdjustment.updateField),
-                errors: outerAfterAdjustment.errors,
-                handleBlur: outerAfterAdjustment.handleBlur,
+                data: outerData.data,
+                onUpdate: wrapUpdateFn(outerData.updateField),
+                errors: outerData.errors,
+                handleBlur: outerData.handleBlur,
               }}
               afterInstall={{
-                data: outerFreeHangingAfterInstall.data,
-                onUpdate: wrapUpdateFn(outerFreeHangingAfterInstall.updateField),
-                errors: outerFreeHangingAfterInstall.errors,
-                handleBlur: outerFreeHangingAfterInstall.handleBlur,
+                data: outerFreeHangingData.data,
+                onUpdate: wrapUpdateFn(outerFreeHangingData.updateField),
+                errors: outerFreeHangingData.errors,
+                handleBlur: outerFreeHangingData.handleBlur,
               }}
             />
+            <div className="mt-4">
+              <Label htmlFor="have-inner-gibs-been-adjusted" className="text-xs">
+                {t('form.gibs.haveInnerGibsBeenAdjusted')}
+              </Label>
+              <Select
+                value={haveInnerGibsBeenAdjusted}
+                onValueChange={(value) => {
+                  setHaveInnerGibsBeenAdjusted(value as 'YES' | 'NO' | 'DNC');
+                  onSectionTouched?.();
+                }}
+              >
+                <SelectTrigger className="mt-1" id="have-inner-gibs-been-adjusted">
+                  <SelectValue placeholder={t('form.placeholders.select')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={YesNoDncType.YES}>{tCommon('status.yes')}</SelectItem>
+                  <SelectItem value={YesNoDncType.NO}>{tCommon('status.no')}</SelectItem>
+                  <SelectItem value={YesNoDncType.DNC}>{tCommon('status.dnc')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </TabsContent>
-
           <TabsContent value="inner" className="space-y-4">
             <GibsForm
               slideType="inner"
               beforeAdjustment={{
-                data: innerBeforeAdjustment.data,
-                onUpdate: wrapUpdateFn(innerBeforeAdjustment.updateField),
-                errors: innerBeforeAdjustment.errors,
-                handleBlur: innerBeforeAdjustment.handleBlur,
+                data: innerBefore.data,
+                onUpdate: wrapUpdateFn(innerBefore.updateField),
+                errors: innerBefore.errors,
+                handleBlur: innerBefore.handleBlur,
               }}
               afterAdjustment={{
-                data: innerAfterAdjustment.data,
-                onUpdate: wrapUpdateFn(innerAfterAdjustment.updateField),
-                errors: innerAfterAdjustment.errors,
-                handleBlur: innerAfterAdjustment.handleBlur,
+                data: innerData.data,
+                onUpdate: wrapUpdateFn(innerData.updateField),
+                errors: innerData.errors,
+                handleBlur: innerData.handleBlur,
               }}
               beforeToolInstall={{
-                data: innerBeforeToolInstallation.data,
-                onUpdate: wrapUpdateFn(innerBeforeToolInstallation.updateField),
-                errors: innerBeforeToolInstallation.errors,
-                handleBlur: innerBeforeToolInstallation.handleBlur,
+                data: innerBeforeTool.data,
+                onUpdate: wrapUpdateFn(innerBeforeTool.updateField),
+                errors: innerBeforeTool.errors,
+                handleBlur: innerBeforeTool.handleBlur,
               }}
               afterToolInstall={{
-                data: innerAfterToolInstallation.data,
-                onUpdate: wrapUpdateFn(innerAfterToolInstallation.updateField),
-                errors: innerAfterToolInstallation.errors,
-                handleBlur: innerAfterToolInstallation.handleBlur,
+                data: innerDataTool.data,
+                onUpdate: wrapUpdateFn(innerDataTool.updateField),
+                errors: innerDataTool.errors,
+                handleBlur: innerDataTool.handleBlur,
               }}
             />
           </TabsContent>
