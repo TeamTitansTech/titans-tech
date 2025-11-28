@@ -3,6 +3,7 @@ import { PrismaService } from '../shared/prisma.service';
 import {
   CreateCompanyDto,
   UpdateCompanyDto,
+  AdminManagerUserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { FieldsErr } from '../../errors/err';
 
@@ -124,5 +125,25 @@ export class CompaniesService {
     if (existingCompany && existingCompany.id !== excludeId) {
       throw FieldsErr({ slug: 'This slug is already in use' });
     }
+  }
+
+  async getAdminManagerUsers(
+    companyId: string,
+  ): Promise<AdminManagerUserResponseDto[]> {
+    const users = await this.prisma.user.findMany({
+      where: {
+        companyId,
+        OR: [{ isCompanyAdmin: true }, { isCompanyManager: true }],
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        isCompanyAdmin: true,
+        isCompanyManager: true,
+      },
+    });
+
+    return users;
   }
 }

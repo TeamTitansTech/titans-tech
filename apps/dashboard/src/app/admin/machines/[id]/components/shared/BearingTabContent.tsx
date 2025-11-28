@@ -24,7 +24,10 @@ interface BearingTabContentProps {
 
   // BearingClearanceForm props
   bearingData: BearingClearanceData;
-  updateFn: (field: keyof BearingClearanceData, value: string | number | boolean) => void;
+  updateFn: (
+    field: keyof BearingClearanceData,
+    value: string | number | boolean | undefined,
+  ) => void;
   errors: Partial<Record<keyof BearingClearanceData, string>>;
   handleBlur: (field: keyof BearingClearanceData) => void;
 }

@@ -5,6 +5,7 @@ export const NotificationTypeDtoSchema = z.enum([
   'SERVICE_REMINDER',
   'SERVICE_OVERDUE',
   'SERVICE_COMPLETED',
+  'INSPECTION_ALERT',
 ]);
 
 export const AdminNotificationResponseDtoSchema = z.object({
