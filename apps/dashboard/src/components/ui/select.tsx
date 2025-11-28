@@ -5,8 +5,60 @@ import * as SelectPrimitive from '@radix-ui/react-select';
 import { cn } from '@/lib/utils';
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from '@radix-ui/react-icons';
 
-// Just re-export Select from Radix UI
-const Select = SelectPrimitive.Root;
+// Custom event to close other selects when one opens
+const CLOSE_SELECTS_EVENT = 'close-other-selects';
+
+interface SelectProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Root> {
+  children: React.ReactNode;
+}
+
+function Select({ children, open, onOpenChange, ...props }: SelectProps) {
+  const selectId = React.useId();
+  const [internalOpen, setInternalOpen] = React.useState(false);
+
+  const isControlled = open !== undefined;
+  const isOpen = isControlled ? open : internalOpen;
+
+  const handleOpenChange = React.useCallback(
+    (newOpen: boolean) => {
+      if (newOpen) {
+        // Dispatch event to close other selects
+        window.dispatchEvent(
+          new CustomEvent(CLOSE_SELECTS_EVENT, { detail: { exceptId: selectId } }),
+        );
+      }
+
+      if (isControlled) {
+        onOpenChange?.(newOpen);
+      } else {
+        setInternalOpen(newOpen);
+      }
+    },
+    [selectId, isControlled, onOpenChange],
+  );
+
+  React.useEffect(() => {
+    const handleCloseOthers = (e: Event) => {
+      const customEvent = e as CustomEvent<{ exceptId: string }>;
+      if (customEvent.detail.exceptId !== selectId && isOpen) {
+        if (isControlled) {
+          onOpenChange?.(false);
+        } else {
+          setInternalOpen(false);
+        }
+      }
+    };
+
+    window.addEventListener(CLOSE_SELECTS_EVENT, handleCloseOthers);
+    return () => window.removeEventListener(CLOSE_SELECTS_EVENT, handleCloseOthers);
+  }, [selectId, isOpen, isControlled, onOpenChange]);
+
+  return (
+    <SelectPrimitive.Root open={isOpen} onOpenChange={handleOpenChange} {...props}>
+      {children}
+    </SelectPrimitive.Root>
+  );
+}
 
 const SelectGroup = SelectPrimitive.Group;
 
@@ -63,10 +115,15 @@ SelectScrollDownButton.displayName = SelectPrimitive.ScrollDownButton.displayNam
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
->(({ className, children, position = 'popper', ...props }, ref) => (
+>(({ className, children, position = 'popper', onCloseAutoFocus, ...props }, ref) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
+      onCloseAutoFocus={(e) => {
+        // Always prevent auto-focus back to trigger - let the browser handle focus naturally
+        e.preventDefault();
+        onCloseAutoFocus?.(e);
+      }}
       className={cn(
         'relative z-[9999] max-h-[--radix-select-content-available-height] min-w-[8rem] overflow-y-auto overflow-x-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 origin-[--radix-select-content-transform-origin]',
         position === 'popper' &&

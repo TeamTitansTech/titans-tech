@@ -2,7 +2,8 @@
 
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
-import { useNumericInput } from '@/hooks/useNumericInput';
+import { LengthInput } from '@/components/ui/forms/LengthInput';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 import {
   type BearingClearanceData,
   type BearingClearanceFormProps,
@@ -45,50 +46,6 @@ const MEASUREMENT_ROWS = [
   { key: 'ballBoxArea', rhField: 'ballBoxArea_RH', lhField: 'ballBoxArea_LH' },
 ] as const;
 
-interface BearingNumericInputProps {
-  id: string;
-  value: number | undefined;
-  onChange: (value: number | undefined) => void;
-  onBlur: () => void;
-  error?: string;
-  className?: string;
-  required?: boolean;
-}
-
-function BearingNumericInput({
-  id,
-  value,
-  onChange,
-  onBlur,
-  error,
-  className = '',
-  required = false,
-}: BearingNumericInputProps) {
-  const [displayValue, handleChange, handleBlur] = useNumericInput(value, onChange, {
-    maxDecimals: 4,
-    min: 0,
-    max: 999999.9999,
-    required,
-  });
-
-  return (
-    <Input
-      id={id}
-      type="number"
-      step="0.0001"
-      min="0"
-      max="999999.9999"
-      value={displayValue}
-      onChange={handleChange}
-      onBlur={() => {
-        handleBlur();
-        onBlur();
-      }}
-      className={`${className} ${error ? 'border-destructive' : ''}`}
-    />
-  );
-}
-
 export function BearingClearanceForm({
   data,
   updateFn,
@@ -97,13 +54,16 @@ export function BearingClearanceForm({
   title,
 }: BearingClearanceFormProps) {
   const t = useTranslations('inspections');
+  const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 
   const calculateDifferential = (rhField: string, lhField: string): string => {
     const rh = data[rhField as keyof BearingClearanceData];
     const lh = data[lhField as keyof BearingClearanceData];
     if (rh === undefined || lh === undefined) return '';
-    const diff = Math.abs(Number(rh) - Number(lh));
-    return diff.toFixed(4);
+    // Values are stored in mm, calculate diff in mm then convert to display unit
+    const diffInMm = Math.abs(Number(rh) - Number(lh));
+    const diffInDisplayUnit = convertLengthFromDefault(diffInMm);
+    return diffInDisplayUnit.toFixed(4);
   };
 
   const isFieldRequired = (key: string): boolean => {
@@ -140,41 +100,37 @@ export function BearingClearanceForm({
                     <label className="text-[10px] font-medium text-muted-foreground block text-center">
                       LH
                     </label>
-                    <BearingNumericInput
+                    <LengthInput
                       id={`${lhField}-${title}-mobile`}
-                      value={data[lhField as keyof BearingClearanceData] as number | undefined}
+                      value={data[lhField as keyof BearingClearanceData] ?? 0}
                       onChange={(val) => updateFn(lhField as keyof BearingClearanceData, val)}
                       onBlur={() => handleBlur(lhField as keyof BearingClearanceData)}
                       error={errors[lhField]}
-                      className="text-xs h-9"
+                      inputClassName="text-xs h-9"
                       required={required}
+                      showLabel={false}
                     />
-                    {errors[lhField] && (
-                      <p className="text-[10px] text-destructive mt-0.5">{errors[lhField]}</p>
-                    )}
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-[10px] font-medium text-muted-foreground block text-center">
                       RH
                     </label>
-                    <BearingNumericInput
+                    <LengthInput
                       id={`${rhField}-${title}-mobile`}
-                      value={data[rhField as keyof BearingClearanceData] as number | undefined}
+                      value={data[rhField as keyof BearingClearanceData] ?? 0}
                       onChange={(val) => updateFn(rhField as keyof BearingClearanceData, val)}
                       onBlur={() => handleBlur(rhField as keyof BearingClearanceData)}
                       error={errors[rhField]}
-                      className="text-xs h-9"
+                      inputClassName="text-xs h-9"
                       required={required}
+                      showLabel={false}
                     />
-                    {errors[rhField] && (
-                      <p className="text-[10px] text-destructive mt-0.5">{errors[rhField]}</p>
-                    )}
                   </div>
 
                   <div className="space-y-1">
                     <label className="text-[10px] font-medium text-muted-foreground block text-center">
-                      Diff
+                      Diff ({getLengthUnitLabel()})
                     </label>
                     <Input
                       value={calculateDifferential(rhField, lhField)}
@@ -193,43 +149,38 @@ export function BearingClearanceForm({
                   {required && <span className="text-destructive ml-1">*</span>}
                 </div>
 
-                <div>
-                  <BearingNumericInput
-                    id={`${lhField}-${title}`}
-                    value={data[lhField as keyof BearingClearanceData] as number | undefined}
-                    onChange={(val) => updateFn(lhField as keyof BearingClearanceData, val)}
-                    onBlur={() => handleBlur(lhField as keyof BearingClearanceData)}
-                    error={errors[lhField]}
-                    className="text-sm"
-                    required={required}
-                  />
-                  {errors[lhField] && (
-                    <p className="text-xs text-destructive mt-1">{errors[lhField]}</p>
-                  )}
-                </div>
+                <LengthInput
+                  id={`${lhField}-${title}`}
+                  value={data[lhField as keyof BearingClearanceData] ?? 0}
+                  onChange={(val) => updateFn(lhField as keyof BearingClearanceData, val)}
+                  onBlur={() => handleBlur(lhField as keyof BearingClearanceData)}
+                  error={errors[lhField]}
+                  inputClassName="text-sm"
+                  required={required}
+                  showLabel={false}
+                />
 
-                <div>
-                  <BearingNumericInput
-                    id={`${rhField}-${title}`}
-                    value={data[rhField as keyof BearingClearanceData] as number | undefined}
-                    onChange={(val) => updateFn(rhField as keyof BearingClearanceData, val)}
-                    onBlur={() => handleBlur(rhField as keyof BearingClearanceData)}
-                    error={errors[rhField]}
-                    className="text-sm"
-                    required={required}
-                  />
-                  {errors[rhField] && (
-                    <p className="text-xs text-destructive mt-1">{errors[rhField]}</p>
-                  )}
-                </div>
+                <LengthInput
+                  id={`${rhField}-${title}`}
+                  value={data[rhField as keyof BearingClearanceData] ?? 0}
+                  onChange={(val) => updateFn(rhField as keyof BearingClearanceData, val)}
+                  onBlur={() => handleBlur(rhField as keyof BearingClearanceData)}
+                  error={errors[rhField]}
+                  inputClassName="text-sm"
+                  required={required}
+                  showLabel={false}
+                />
 
-                <div>
+                <div className="relative">
                   <Input
                     value={calculateDifferential(rhField, lhField)}
                     readOnly
                     disabled
-                    className="text-sm bg-muted"
+                    className="text-sm bg-muted pr-10"
                   />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+                    {getLengthUnitLabel()}
+                  </span>
                 </div>
               </div>
             </div>

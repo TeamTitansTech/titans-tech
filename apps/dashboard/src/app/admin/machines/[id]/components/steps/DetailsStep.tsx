@@ -15,6 +15,9 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { ServiceType } from '@/data/types/services.types';
+import { UnitSelector } from '@/components/ui/forms/UnitSelector';
+import { TemperatureUnitSelector } from '@/components/ui/forms/TemperatureUnitSelector';
+import { PressureUnitSelector } from '@/components/ui/forms/PressureUnitSelector';
 import {
   YesNoNaDncType,
   YesNoDncType,
@@ -153,6 +156,13 @@ export function DetailsStep({
       {/* Stepper */}
       <div className="mt-2 px-4">
         <Stepper steps={stepperSteps} onStepClick={onStepClick} />
+      </div>
+
+      {/* Unit Selectors */}
+      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4 px-4 py-4 border-b">
+        <UnitSelector />
+        <TemperatureUnitSelector />
+        <PressureUnitSelector />
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 space-y-6 py-4">

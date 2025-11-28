@@ -11,6 +11,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { LengthInput } from '@/components/ui/forms/LengthInput';
+import { PressureInput } from '@/components/ui/forms/PressureInput';
 import {
   ClutchType,
   ClutchLocation,
@@ -239,41 +241,29 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="brakeClearing">{tClutch('brakeClearing')}</Label>
-            <Input
-              id="brakeClearing"
-              type="number"
-              step="0.0001"
-              value={data.brakeClearing ?? ''}
-              onChange={(e) => handleNumberChange('brakeClearing', e.target.value)}
-              onBlur={() => handleBlur('brakeClearing')}
-            />
-          </div>
+          <LengthInput
+            id="brakeClearing"
+            label={tClutch('brakeClearing')}
+            value={data.brakeClearing ?? 0}
+            onChange={(val) => updateFn('brakeClearing', val)}
+            onBlur={() => handleBlur('brakeClearing')}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="brakeClearanceTotal">{tClutch('brakeClearanceTotal')}</Label>
-            <Input
-              id="brakeClearanceTotal"
-              type="number"
-              step="0.0001"
-              value={data.brakeClearanceTotal ?? ''}
-              onChange={(e) => handleNumberChange('brakeClearanceTotal', e.target.value)}
-              onBlur={() => handleBlur('brakeClearanceTotal')}
-            />
-          </div>
+          <LengthInput
+            id="brakeClearanceTotal"
+            label={tClutch('brakeClearanceTotal')}
+            value={data.brakeClearanceTotal ?? 0}
+            onChange={(val) => updateFn('brakeClearanceTotal', val)}
+            onBlur={() => handleBlur('brakeClearanceTotal')}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="brakeClearanceRear">{tClutch('brakeClearanceRear')}</Label>
-            <Input
-              id="brakeClearanceRear"
-              type="number"
-              step="0.0001"
-              value={data.brakeClearanceRear ?? ''}
-              onChange={(e) => handleNumberChange('brakeClearanceRear', e.target.value)}
-              onBlur={() => handleBlur('brakeClearanceRear')}
-            />
-          </div>
+          <LengthInput
+            id="brakeClearanceRear"
+            label={tClutch('brakeClearanceRear')}
+            value={data.brakeClearanceRear ?? 0}
+            onChange={(val) => updateFn('brakeClearanceRear', val)}
+            onBlur={() => handleBlur('brakeClearanceRear')}
+          />
         </div>
       </div>
 
@@ -411,82 +401,58 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <span className="text-xs text-muted-foreground ml-2">{tNotes('gearBacklashCheck')}</span>
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="gearBacklashBefore">{tClutch('gearBacklashBefore')}</Label>
-            <Input
-              id="gearBacklashBefore"
-              type="number"
-              step="0.0001"
-              value={data.gearBacklashBefore ?? ''}
-              onChange={(e) => handleNumberChange('gearBacklashBefore', e.target.value)}
-              onBlur={() => handleBlur('gearBacklashBefore')}
-            />
-          </div>
+          <LengthInput
+            id="gearBacklashBefore"
+            label={tClutch('gearBacklashBefore')}
+            value={data.gearBacklashBefore ?? 0}
+            onChange={(val) => updateFn('gearBacklashBefore', val)}
+            onBlur={() => handleBlur('gearBacklashBefore')}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="gearBacklashAfter">{tClutch('gearBacklashAfter')}</Label>
-            <Input
-              id="gearBacklashAfter"
-              type="number"
-              step="0.0001"
-              value={data.gearBacklashAfter ?? ''}
-              onChange={(e) => handleNumberChange('gearBacklashAfter', e.target.value)}
-              onBlur={() => handleBlur('gearBacklashAfter')}
-            />
-          </div>
+          <LengthInput
+            id="gearBacklashAfter"
+            label={tClutch('gearBacklashAfter')}
+            value={data.gearBacklashAfter ?? 0}
+            onChange={(val) => updateFn('gearBacklashAfter', val)}
+            onBlur={() => handleBlur('gearBacklashAfter')}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="crankEndplayBefore">{tClutch('crankEndplayBefore')}</Label>
-            <Input
-              id="crankEndplayBefore"
-              type="number"
-              step="0.0001"
-              value={data.crankEndplayBefore ?? ''}
-              onChange={(e) => handleNumberChange('crankEndplayBefore', e.target.value)}
-              onBlur={() => handleBlur('crankEndplayBefore')}
-            />
-          </div>
+          <LengthInput
+            id="crankEndplayBefore"
+            label={tClutch('crankEndplayBefore')}
+            value={data.crankEndplayBefore ?? 0}
+            onChange={(val) => updateFn('crankEndplayBefore', val)}
+            onBlur={() => handleBlur('crankEndplayBefore')}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="crankEndplayAfter">{tClutch('crankEndplayAfter')}</Label>
-            <Input
-              id="crankEndplayAfter"
-              type="number"
-              step="0.0001"
-              value={data.crankEndplayAfter ?? ''}
-              onChange={(e) => handleNumberChange('crankEndplayAfter', e.target.value)}
-              onBlur={() => handleBlur('crankEndplayAfter')}
-            />
-          </div>
+          <LengthInput
+            id="crankEndplayAfter"
+            label={tClutch('crankEndplayAfter')}
+            value={data.crankEndplayAfter ?? 0}
+            onChange={(val) => updateFn('crankEndplayAfter', val)}
+            onBlur={() => handleBlur('crankEndplayAfter')}
+          />
         </div>
       </div>
 
       <div className="space-y-4">
         <h4 className="font-semibold text-sm">{tSections('airSystem')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="airRegulatorValue">{tClutch('airRegulator')}</Label>
-            <Input
-              id="airRegulatorValue"
-              type="number"
-              step="0.01"
-              value={data.airRegulatorValue ?? ''}
-              onChange={(e) => handleNumberChange('airRegulatorValue', e.target.value)}
-              onBlur={() => handleBlur('airRegulatorValue')}
-            />
-          </div>
+          <PressureInput
+            id="airRegulatorValue"
+            label={tClutch('airRegulator')}
+            value={data.airRegulatorValue ?? 0}
+            onChange={(val) => updateFn('airRegulatorValue', val)}
+            onBlur={() => handleBlur('airRegulatorValue')}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="airClutchTravel">{tClutch('airClutchTravelClearance')}</Label>
-            <Input
-              id="airClutchTravel"
-              type="number"
-              step="0.0001"
-              value={data.airClutchTravel ?? ''}
-              onChange={(e) => handleNumberChange('airClutchTravel', e.target.value)}
-              onBlur={() => handleBlur('airClutchTravel')}
-            />
-          </div>
+          <LengthInput
+            id="airClutchTravel"
+            label={tClutch('airClutchTravelClearance')}
+            value={data.airClutchTravel ?? 0}
+            onChange={(val) => updateFn('airClutchTravel', val)}
+            onBlur={() => handleBlur('airClutchTravel')}
+          />
 
           <div className="space-y-2">
             <Label htmlFor="airLineOilerSetting">{tClutch('airLineOilerSetting')}</Label>
@@ -569,41 +535,29 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
       <div className="space-y-4">
         <h4 className="font-semibold text-sm">{tSections('hydraulicSystem')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="hydClutchClearanceTotal">{tClutch('hydClutchClearanceTotal')}</Label>
-            <Input
-              id="hydClutchClearanceTotal"
-              type="number"
-              step="0.0001"
-              value={data.hydClutchClearanceTotal ?? ''}
-              onChange={(e) => handleNumberChange('hydClutchClearanceTotal', e.target.value)}
-              onBlur={() => handleBlur('hydClutchClearanceTotal')}
-            />
-          </div>
+          <LengthInput
+            id="hydClutchClearanceTotal"
+            label={tClutch('hydClutchClearanceTotal')}
+            value={data.hydClutchClearanceTotal ?? 0}
+            onChange={(val) => updateFn('hydClutchClearanceTotal', val)}
+            onBlur={() => handleBlur('hydClutchClearanceTotal')}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="hydClutchClearanceRear">{tClutch('hydClutchClearanceRear')}</Label>
-            <Input
-              id="hydClutchClearanceRear"
-              type="number"
-              step="0.0001"
-              value={data.hydClutchClearanceRear ?? ''}
-              onChange={(e) => handleNumberChange('hydClutchClearanceRear', e.target.value)}
-              onBlur={() => handleBlur('hydClutchClearanceRear')}
-            />
-          </div>
+          <LengthInput
+            id="hydClutchClearanceRear"
+            label={tClutch('hydClutchClearanceRear')}
+            value={data.hydClutchClearanceRear ?? 0}
+            onChange={(val) => updateFn('hydClutchClearanceRear', val)}
+            onBlur={() => handleBlur('hydClutchClearanceRear')}
+          />
 
-          <div className="space-y-2">
-            <Label htmlFor="hydraulicPressureValue">{tClutch('hydraulicPressure')}</Label>
-            <Input
-              id="hydraulicPressureValue"
-              type="number"
-              step="0.01"
-              value={data.hydraulicPressureValue ?? ''}
-              onChange={(e) => handleNumberChange('hydraulicPressureValue', e.target.value)}
-              onBlur={() => handleBlur('hydraulicPressureValue')}
-            />
-          </div>
+          <PressureInput
+            id="hydraulicPressureValue"
+            label={tClutch('hydraulicPressure')}
+            value={data.hydraulicPressureValue ?? 0}
+            onChange={(val) => updateFn('hydraulicPressureValue', val)}
+            onBlur={() => handleBlur('hydraulicPressureValue')}
+          />
 
           <div className="space-y-2">
             <Label htmlFor="accumulatorValue">{tClutch('accumulator')}</Label>

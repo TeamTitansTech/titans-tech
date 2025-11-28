@@ -1801,6 +1801,47 @@
       "includeBefore": "Incluir medições antes da manutenção",
       "beforeMaintenance": "Antes da Manutenção",
       "afterMaintenance": "Após a Manutenção"
+    },
+    "units": {
+      "length": {
+        "label": "Unidade de Comprimento",
+        "mm": "mm",
+        "inches": "polegadas",
+        "inchesShort": "pol",
+        "mmFull": "Milímetros (mm)",
+        "inchesFull": "Polegadas (pol)"
+      },
+      "temperature": {
+        "label": "Unidade de Temperatura",
+        "celsius": "°C",
+        "fahrenheit": "°F",
+        "celsiusFull": "Celsius (°C)",
+        "fahrenheitFull": "Fahrenheit (°F)"
+      },
+      "pressure": {
+        "label": "Unidade de Pressão",
+        "atm": "atm",
+        "bar": "bar",
+        "psi": "psi",
+        "atmFull": "Atmosferas (atm)",
+        "barFull": "Bar (bar)",
+        "psiFull": "Libras por Polegada Quadrada (psi)"
+      },
+      "dialog": {
+        "changeLengthUnit": "Alterar Unidade de Comprimento",
+        "changeTemperatureUnit": "Alterar Unidade de Temperatura",
+        "changePressureUnit": "Alterar Unidade de Pressão",
+        "changingFrom": "Você está alterando de",
+        "to": "para",
+        "convertQuestion": "Deseja converter os valores existentes?",
+        "example": "Exemplo",
+        "convert": "Converter",
+        "dontConvert": "Não Converter",
+        "convertValues": "Converter Valores",
+        "cancel": "Cancelar",
+        "convertDescription": "A medida física permanece a mesma",
+        "dontConvertDescription": "O número permanece o mesmo, apenas a unidade muda"
+      }
     }
   },
   "actions": {
