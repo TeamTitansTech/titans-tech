@@ -4,6 +4,7 @@ import { ClutchSection } from './ClutchSection';
 
 interface ClutchSectionWrapperProps {
   machineId: string;
+  hideThresholdValues?: boolean;
 }
 
 interface ClutchData {
@@ -27,7 +28,10 @@ export interface ClutchInspectionData {
   }>;
 }
 
-export async function ClutchSectionWrapper({ machineId }: ClutchSectionWrapperProps) {
+export async function ClutchSectionWrapper({
+  machineId,
+  hideThresholdValues = false,
+}: ClutchSectionWrapperProps) {
   let inspections: ClutchInspectionData[] = [];
   let machineName = '';
   let blueprintId = '';
@@ -66,6 +70,7 @@ export async function ClutchSectionWrapper({ machineId }: ClutchSectionWrapperPr
       inspections={inspections}
       machineName={machineName}
       blueprintId={blueprintId}
+      hideThresholdValues={hideThresholdValues}
     />
   );
 }

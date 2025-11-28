@@ -263,7 +263,7 @@ export function ClutchSection({
                   {
                     dataKey: 'hydClutchClearanceRear',
                     label: 'Hyd Rear',
-                    color: '#82ca9d',
+                    color: '#06b6d4',
                     threshold: hydRearThreshold ?? undefined,
                   },
                 ]}
@@ -280,19 +280,19 @@ export function ClutchSection({
                   {
                     dataKey: 'brakeSpringFB',
                     label: 'F-B',
-                    color: '#ffc658',
+                    color: '#3b82f6',
                     threshold: fbThreshold ?? undefined,
                   },
                   {
                     dataKey: 'brakeSpringFTB',
                     label: 'F-TB',
-                    color: '#ff7300',
+                    color: '#ec4899',
                     threshold: fTBThreshold ?? undefined,
                   },
                   {
                     dataKey: 'brakeSpringRTB',
                     label: 'R-TB',
-                    color: '#00C49F',
+                    color: '#6366f1',
                     threshold: rTBThreshold ?? undefined,
                   },
                 ]}

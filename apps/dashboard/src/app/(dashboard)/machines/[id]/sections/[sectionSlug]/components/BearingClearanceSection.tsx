@@ -372,7 +372,7 @@ export function BearingClearanceSection({
                     {
                       dataKey: 'upperConnectionBearings_LH',
                       label: 'CB LH',
-                      color: '#82ca9d',
+                      color: '#06b6d4',
                     },
                   ]}
                   sharedThreshold={cbThreshold}
@@ -388,12 +388,12 @@ export function BearingClearanceSection({
                     {
                       dataKey: 'totalClearance_RH',
                       label: 'TC RH',
-                      color: '#ffc658',
+                      color: '#3b82f6',
                     },
                     {
                       dataKey: 'totalClearance_LH',
                       label: 'TC LH',
-                      color: '#ff7300',
+                      color: '#ec4899',
                     },
                   ]}
                   sharedThreshold={totalClearanceThreshold}

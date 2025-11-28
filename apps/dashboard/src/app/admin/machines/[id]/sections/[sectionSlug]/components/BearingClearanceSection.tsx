@@ -26,12 +26,14 @@ interface BearingClearanceSectionProps {
   inspections: InspectionData[];
   machineName: string;
   blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
 export function BearingClearanceSection({
   inspections,
   machineName,
   blueprintId,
+  hideThresholdValues = false,
 }: BearingClearanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
@@ -275,7 +277,7 @@ export function BearingClearanceSection({
                 {
                   dataKey: 'totalClearance_diff',
                   label: 'TC Diff',
-                  color: '#ffc658',
+                  color: '#3b82f6',
                   threshold: totalClearanceThreshold ?? undefined,
                 },
                 {
@@ -287,12 +289,13 @@ export function BearingClearanceSection({
                 {
                   dataKey: 'mainBearings_diff',
                   label: 'MB Diff',
-                  color: '#82ca9d',
+                  color: '#06b6d4',
                 },
               ]}
               sharedThreshold={totalClearanceThreshold}
               valueUnit="mm"
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={350}
             />
           </div>

@@ -26,9 +26,15 @@ interface ClutchSectionProps {
   inspections: ClutchInspectionData[];
   machineName: string;
   blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
-export function ClutchSection({ inspections, machineName, blueprintId }: ClutchSectionProps) {
+export function ClutchSection({
+  inspections,
+  machineName,
+  blueprintId,
+  hideThresholdValues = false,
+}: ClutchSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
   // Thresholds for hydraulic clutch clearance
@@ -288,13 +294,14 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
                 {
                   dataKey: 'hydClutchClearanceRear',
                   label: 'Hyd Rear',
-                  color: '#82ca9d',
+                  color: '#06b6d4',
                   threshold: hydRearThreshold ?? undefined,
                 },
               ]}
               sharedThreshold={hydTotalThreshold}
               valueUnit="mm"
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={300}
             />
 
@@ -305,25 +312,26 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
                 {
                   dataKey: 'brakeSpringFB',
                   label: 'F-B',
-                  color: '#ffc658',
+                  color: '#3b82f6',
                   threshold: fbThreshold ?? undefined,
                 },
                 {
                   dataKey: 'brakeSpringFTB',
                   label: 'F-TB',
-                  color: '#ff7300',
+                  color: '#ec4899',
                   threshold: fTBThreshold ?? undefined,
                 },
                 {
                   dataKey: 'brakeSpringRTB',
                   label: 'R-TB',
-                  color: '#00C49F',
+                  color: '#6366f1',
                   threshold: rTBThreshold ?? undefined,
                 },
               ]}
               sharedThreshold={fbThreshold}
               valueUnit="in"
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={300}
             />
           </div>

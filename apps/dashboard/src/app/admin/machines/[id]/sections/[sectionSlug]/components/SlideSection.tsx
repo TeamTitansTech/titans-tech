@@ -35,9 +35,15 @@ interface SlideSectionProps {
   inspections: SlideInspectionData[];
   machineName: string;
   blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
-export function SlideSection({ inspections, machineName, blueprintId }: SlideSectionProps) {
+export function SlideSection({
+  inspections,
+  machineName,
+  blueprintId,
+  hideThresholdValues = false,
+}: SlideSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
   const [positionThreshold, setPositionThreshold] = useState<ThresholdConfig | null>(null);
@@ -385,11 +391,12 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
               data={maxDeviationChartData}
               lines={[
                 { dataKey: 'outerMaxDeviation', label: 'Outer Max Deviation', color: '#8884d8' },
-                { dataKey: 'innerMaxDeviation', label: 'Inner Max Deviation', color: '#82ca9d' },
+                { dataKey: 'innerMaxDeviation', label: 'Inner Max Deviation', color: '#06b6d4' },
               ]}
               sharedThreshold={positionThreshold}
               valueUnit="mm"
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={300}
             />
 
@@ -398,10 +405,10 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
               data={outerPositionsChartData}
               lines={[
                 { dataKey: 'position1', label: 'Position 1', color: '#8884d8' },
-                { dataKey: 'position2', label: 'Position 2', color: '#82ca9d' },
-                { dataKey: 'position3', label: 'Position 3', color: '#ffc658' },
-                { dataKey: 'position4', label: 'Position 4', color: '#ff7300' },
-                { dataKey: 'position5', label: 'Position 5', color: '#00C49F' },
+                { dataKey: 'position2', label: 'Position 2', color: '#06b6d4' },
+                { dataKey: 'position3', label: 'Position 3', color: '#3b82f6' },
+                { dataKey: 'position4', label: 'Position 4', color: '#ec4899' },
+                { dataKey: 'position5', label: 'Position 5', color: '#6366f1' },
               ]}
               valueUnit="mm"
               allowToggle={false}
@@ -413,10 +420,10 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
               data={innerPositionsChartData}
               lines={[
                 { dataKey: 'position1', label: 'Position 1', color: '#8884d8' },
-                { dataKey: 'position2', label: 'Position 2', color: '#82ca9d' },
-                { dataKey: 'position3', label: 'Position 3', color: '#ffc658' },
-                { dataKey: 'position4', label: 'Position 4', color: '#ff7300' },
-                { dataKey: 'position5', label: 'Position 5', color: '#00C49F' },
+                { dataKey: 'position2', label: 'Position 2', color: '#06b6d4' },
+                { dataKey: 'position3', label: 'Position 3', color: '#3b82f6' },
+                { dataKey: 'position4', label: 'Position 4', color: '#ec4899' },
+                { dataKey: 'position5', label: 'Position 5', color: '#6366f1' },
               ]}
               valueUnit="mm"
               allowToggle={false}
