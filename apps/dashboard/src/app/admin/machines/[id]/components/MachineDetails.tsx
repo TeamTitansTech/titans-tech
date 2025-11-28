@@ -15,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { LatestReportModal } from './LatestReportModal';
 import { getLatestReport } from '@/data/services/services.api';
 import type { LatestReport } from '@/data/types/services.types';
-import { QRCodeGenerator } from '@/components/machines/QRCodeGenerator';
 
 export function MachineDetails({ machine }: MachineDetailsProps) {
   const t = useTranslations('machines');
@@ -66,18 +65,10 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
               </Typography>
             </ConditionalTooltip>
           </div>
-          <div className="flex gap-2 shrink-0">
-            <QRCodeGenerator
-              machineId={machine.id}
-              machineName={machine.name}
-              machineSerialNumber={machine.serialNumber}
-              variant="outline"
-            />
-            <Button onClick={handleOpenReport} disabled={isLoadingReport} className="gap-2">
-              <FileText className="w-4 h-4" />
-              {isLoadingReport ? 'Carregando...' : 'Ver Relatório Atualizado'}
-            </Button>
-          </div>
+          <Button onClick={handleOpenReport} disabled={isLoadingReport} className="gap-2 shrink-0">
+            <FileText className="w-4 h-4" />
+            {isLoadingReport ? 'Carregando...' : 'Ver Relatório Atualizado'}
+          </Button>
         </div>
       </div>
 

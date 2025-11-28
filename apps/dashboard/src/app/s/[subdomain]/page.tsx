@@ -7,7 +7,6 @@ import { redirect } from 'next/navigation';
 
 interface PageProps {
   params: Promise<{ subdomain?: string }>;
-  searchParams: Promise<{ redirect?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -28,12 +27,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function Page({ params, searchParams }: PageProps) {
+export default async function Page({ params }: PageProps) {
   const authToken = await getCookie('auth_token');
-  const { redirect: redirectPath } = await searchParams;
 
   if (authToken) {
-    redirect(redirectPath || '/home');
+    redirect('/home');
   }
 
   const { subdomain } = await params;
@@ -47,7 +45,6 @@ export default async function Page({ params, searchParams }: PageProps) {
       brandTitle={subdomainResult.data.name}
       brandSubtitle="Industrial Management & Inspection Platform"
       loginType="client"
-      redirectPath={redirectPath}
     />
   );
 }

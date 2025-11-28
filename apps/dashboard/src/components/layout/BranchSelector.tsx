@@ -9,10 +9,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { MapPin } from 'lucide-react';
-import { useTranslations } from 'next-intl';
 
 export function BranchSelector() {
-  const t = useTranslations('header');
   const { companyUser } = useCompanyUser();
   const { selectedBranchId, setSelectedBranchId } = useBranch();
 
@@ -32,7 +30,7 @@ export function BranchSelector() {
     >
       <SelectTrigger className="w-full">
         <MapPin className="w-4 h-4 mr-2" />
-        <SelectValue placeholder={t('selectBranch')} />
+        <SelectValue placeholder="Selecionar filial" />
       </SelectTrigger>
       <SelectContent>
         {accessibleBranches.map((userBranch) => (

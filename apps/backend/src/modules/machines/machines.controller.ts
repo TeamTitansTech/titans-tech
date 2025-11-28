@@ -55,16 +55,6 @@ export class MachinesController {
     return this.machinesService.findAll();
   }
 
-  @Authenticated()
-  @Get(':id/company')
-  getMachineCompanyInfo(@Param('id') id: string): Promise<{
-    companyId: string;
-    companyName: string;
-    companySlug: string;
-  }> {
-    return this.machinesService.getMachineCompanyInfo(id);
-  }
-
   /**
    * Get machine by ID
    * TODO: Add @BranchPermission('readMachines') with resource lookup

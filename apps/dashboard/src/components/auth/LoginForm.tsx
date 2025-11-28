@@ -18,7 +18,6 @@ type LoginFormProps = {
   brandIcon?: LucideIcon;
   loginType: 'admin' | 'client';
   companyId?: string;
-  redirectPath?: string;
 };
 
 export function LoginForm({
@@ -27,7 +26,6 @@ export function LoginForm({
   brandIcon: BrandIcon,
   loginType,
   companyId,
-  redirectPath,
 }: LoginFormProps) {
   const t = useTranslations('login');
   const router = useInternalRouter();
@@ -66,7 +64,7 @@ export function LoginForm({
       if (response?.data?.accessToken) {
         await setCookie('auth_token', response.data.accessToken);
         setCompanyUser(response.data.user);
-        window.location.href = redirectPath || '/home';
+        window.location.href = '/home';
       }
     }
   };
