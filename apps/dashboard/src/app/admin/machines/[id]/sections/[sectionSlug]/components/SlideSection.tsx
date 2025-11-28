@@ -94,9 +94,15 @@ export function SlideSection({
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestOuterData = latestInspection?.slide?.[0]?.outerData;
-  const latestInnerData = latestInspection?.slide?.[0]?.innerData;
+  // Find the latest inspection that actually has slide data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find(
+      (inspection) => inspection.slide?.[0]?.outerData || inspection.slide?.[0]?.innerData,
+    );
+  }, [filteredInspections]);
+
+  const latestOuterData = latestInspectionWithData?.slide?.[0]?.outerData;
+  const latestInnerData = latestInspectionWithData?.slide?.[0]?.innerData;
 
   // Transform data for charts
   const outerPositionsChartData = useMemo(() => {
@@ -166,7 +172,9 @@ export function SlideSection({
           </CardHeader>
           <CardContent>
             <Typography variant="large">
-              {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
             </Typography>
           </CardContent>
         </Card>

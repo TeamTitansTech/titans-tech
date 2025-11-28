@@ -93,7 +93,10 @@ export function BearingClearanceSection({
     );
   }, [filteredInspections]);
 
-  const latestInspection = sortedInspections[0];
+  // Find the latest inspection that actually has bearing clearance data (for date display)
+  const latestInspectionWithData = useMemo(() => {
+    return sortedInspections.find((inspection) => inspection.bearingClearance?.[0]?.outerData);
+  }, [sortedInspections]);
 
   // Find the most recent value for each bearing field across all inspections
   const getLatestFieldValue = (fieldName: string): number | null => {
@@ -169,7 +172,9 @@ export function BearingClearanceSection({
           </CardHeader>
           <CardContent>
             <Typography variant="large">
-              {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
             </Typography>
           </CardContent>
         </Card>

@@ -100,8 +100,12 @@ export function BearingClearanceSection({
     );
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestBearingCheck = latestInspection?.bearingClearance?.[0]?.outerData;
+  // Find the latest inspection that actually has bearing clearance data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find((inspection) => inspection.bearingClearance?.[0]?.outerData);
+  }, [filteredInspections]);
+
+  const latestBearingCheck = latestInspectionWithData?.bearingClearance?.[0]?.outerData;
 
   // Transform data for new threshold charts
   const cbChartData = useMemo(() => {
@@ -214,7 +218,9 @@ export function BearingClearanceSection({
             </CardHeader>
             <CardContent>
               <Typography variant="large">
-                {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+                {latestInspectionWithData
+                  ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                  : '-'}
               </Typography>
             </CardContent>
           </Card>

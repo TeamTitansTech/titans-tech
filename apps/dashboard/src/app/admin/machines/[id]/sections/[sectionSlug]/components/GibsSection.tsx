@@ -102,9 +102,15 @@ export function GibsSection({
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestOuterData = latestInspection?.gibs?.[0]?.outerData;
-  const latestInnerData = latestInspection?.gibs?.[0]?.innerData;
+  // Find the latest inspection that actually has gibs data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find(
+      (inspection) => inspection.gibs?.[0]?.outerData || inspection.gibs?.[0]?.innerData,
+    );
+  }, [filteredInspections]);
+
+  const latestOuterData = latestInspectionWithData?.gibs?.[0]?.outerData;
+  const latestInnerData = latestInspectionWithData?.gibs?.[0]?.innerData;
 
   // Transform data for charts
   const innerGibsChartData = useMemo(() => {
@@ -272,7 +278,9 @@ export function GibsSection({
           </CardHeader>
           <CardContent>
             <Typography variant="large">
-              {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
             </Typography>
           </CardContent>
         </Card>

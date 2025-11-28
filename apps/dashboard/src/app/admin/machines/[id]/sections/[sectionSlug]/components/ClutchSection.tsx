@@ -97,7 +97,10 @@ export function ClutchSection({
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
+  // Find the latest inspection that actually has clutch data (for date display)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find((inspection) => inspection.clutch?.[0]?.data);
+  }, [filteredInspections]);
 
   // Find the most recent value for each clutch field across all inspections
   // This handles cases where different inspections have different fields filled
@@ -166,7 +169,9 @@ export function ClutchSection({
           </CardHeader>
           <CardContent>
             <Typography variant="large">
-              {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
             </Typography>
           </CardContent>
         </Card>

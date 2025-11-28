@@ -89,8 +89,12 @@ export function ClutchSection({
     );
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestClutchData = latestInspection?.clutch?.[0]?.data;
+  // Find the latest inspection that actually has clutch data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find((inspection) => inspection.clutch?.[0]?.data);
+  }, [filteredInspections]);
+
+  const latestClutchData = latestInspectionWithData?.clutch?.[0]?.data;
 
   // Transform data for charts
   const hydClearanceChartData = useMemo(() => {
@@ -136,7 +140,9 @@ export function ClutchSection({
             </CardHeader>
             <CardContent>
               <Typography variant="large">
-                {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+                {latestInspectionWithData
+                  ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                  : '-'}
               </Typography>
             </CardContent>
           </Card>
