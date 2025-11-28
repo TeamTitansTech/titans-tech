@@ -499,6 +499,7 @@ model UserBranch {
 model Blueprint {
   id        String           @id @default(cuid())
   name      String
+  imageUrl  String?
   fields    Json // Array of { fieldName, fieldSlug, fieldType, fieldOptions? }
   sections  ServiceSection[] // Array of service sections
   deletedAt DateTime? // Soft delete to preserve historical data
@@ -628,10 +629,11 @@ model ThresholdGibs {
 }
 
 model Machine {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   blueprintId String
   branchId    String
   name        String // Machine name/identifier
+  imageUrl    String? // Inherited from blueprint or custom image
 
   // Machine specifications
   manufacturer    String?

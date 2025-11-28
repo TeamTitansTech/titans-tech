@@ -50,6 +50,7 @@ interface Machine {
   name: string;
   blueprintId: string;
   branchId: string;
+  imageUrl?: string | null;
   createdAt: string;
   updatedAt: string;
   fields: { fieldSlug: string; value: string | number }[];
@@ -371,6 +372,7 @@ export function MachinesPageClient() {
                   id={machine.id}
                   name={machine.name}
                   blueprintName={machine.blueprint?.name || t('noBlueprint')}
+                  imageUrl={machine.imageUrl}
                   location={machine.branch?.name}
                   lastInspection={machine.lastInspection}
                   status={cardStatus}

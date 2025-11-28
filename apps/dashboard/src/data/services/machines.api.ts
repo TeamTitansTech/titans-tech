@@ -22,6 +22,7 @@ interface CreateMachinePayload {
   name: string;
   fields: MachineField[];
   // Machine specifications
+  imageUrl?: string;
   manufacturer?: string;
   sizeTonnage?: string;
   serialNumber?: string;
@@ -39,6 +40,7 @@ interface UpdateMachinePayload {
   name?: string;
   fields?: MachineField[];
   // Machine specifications
+  imageUrl?: string;
   manufacturer?: string;
   sizeTonnage?: string;
   serialNumber?: string;
@@ -94,6 +96,7 @@ interface BlueprintField {
 interface Blueprint {
   id: string;
   name: string;
+  imageUrl?: string;
   sections: string[];
   fields: BlueprintField[];
   createdAt: string;

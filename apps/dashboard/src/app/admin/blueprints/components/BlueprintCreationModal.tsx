@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
+import { Label } from '@/components/ui/label';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { SERVICE_SECTION_SLUGS } from '@titans-tech/db/client';
 import { BearingClearanceThresholds } from '@/components/alerts/BearingClearanceThresholds';
@@ -25,6 +26,7 @@ import { SectionsSelector } from './form-sections/SectionsSelector';
 import { CustomFieldsList } from './form-sections/CustomFieldsList';
 import { ErrorDisplay } from './form-sections/ErrorDisplay';
 import { FormActions } from './form-sections/FormActions';
+import { ImageUpload } from '@/components/ui/image-upload';
 
 const AVAILABLE_SECTIONS = SERVICE_SECTION_SLUGS;
 
@@ -40,6 +42,8 @@ export const BlueprintCreationModal = ({
   const {
     name,
     setName,
+    imageUrl,
+    setImageUrl,
     selectedSections,
     toggleSection,
     thresholdsOpen,
@@ -130,6 +134,16 @@ export const BlueprintCreationModal = ({
                   namePlaceholder: t('form.name.placeholder'),
                 }}
               />
+
+              <div className="space-y-2">
+                <Label htmlFor="image">{t('form.image.label')}</Label>
+                <ImageUpload
+                  value={imageUrl || undefined}
+                  onChange={setImageUrl}
+                  disabled={isLoading}
+                />
+                <p className="text-xs text-muted-foreground">{t('form.image.description')}</p>
+              </div>
 
               <Separator />
 

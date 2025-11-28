@@ -1,0 +1,37 @@
+import {
+  Controller,
+  Post,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UploadService } from './upload.service';
+import { Public } from 'src/modules/auth/auth.decorators';
+
+@Controller('upload')
+export class UploadController {
+  constructor(private readonly uploadService: UploadService) {}
+
+  @Public()
+  @Post('image')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      limits: {
+        fileSize: 10 * 1024 * 1024,
+      },
+    }),
+  )
+  async uploadImage(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ url: string }> {
+    if (!file) {
+      throw new BadRequestException('No image file provided');
+    }
+
+    this.uploadService.validateFile(file);
+    const url = await this.uploadService.uploadImage(file);
+
+    return { url };
+  }
+}

@@ -6,6 +6,7 @@ interface MachineCardProps {
   id: string;
   name: string;
   blueprintName: string;
+  imageUrl?: string | null;
   location?: string;
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';

@@ -3,6 +3,12 @@
     "companyName": "InspectPro",
     "companySubtitle": "Admin Portal",
     "unsavedChanges": "You have unsaved changes. Are you sure you want to close?",
+    "confirmClose": {
+      "title": "Discard changes?",
+      "description": "You have unsaved changes. If you close now, all entered data will be lost.",
+      "confirm": "Yes, discard",
+      "cancel": "Continue editing"
+    },
     "noPermission": {
       "title": "No Permission",
       "description": "You don't have permission to access this page or resource.",
@@ -42,6 +48,14 @@
       "needs_reset": "Needs Reset",
       "buckled": "Buckled",
       "cracked": "Cracked"
+    },
+    "imageUpload": {
+      "onlyJpgPngAllowed": "Only JPG and PNG images are allowed",
+      "fileTooLarge": "File too large. Maximum size: {size}MB",
+      "uploadFailed": "Image upload failed",
+      "uploading": "Uploading...",
+      "clickToUpload": "Click to upload",
+      "jpgOrPngMax": "JPG or PNG (max. 10MB)"
     }
   },
   "validation": {
@@ -284,7 +298,8 @@
         "branchManagement": "Branch Management",
         "blueprintManagement": "Machine Blueprints",
         "machineManagement": "Machine Management",
-        "serviceManagement": "Service Records"
+        "serviceManagement": "Service Records",
+        "productionLineManagement": "Production Lines"
       },
       "actions": {
         "selectAll": "Select All",
@@ -310,7 +325,11 @@
         "readServices": "View Services",
         "createServices": "Create Services",
         "updateServices": "Edit Services",
-        "deleteServices": "Delete Services"
+        "deleteServices": "Delete Services",
+        "readProductionLines": "View Production Lines",
+        "createProductionLines": "Create Production Lines",
+        "updateProductionLines": "Edit Production Lines",
+        "deleteProductionLines": "Delete Production Lines"
       },
       "descriptions": {
         "readUsers": "See the list of users and their information",
@@ -332,7 +351,11 @@
         "readServices": "View inspection and maintenance records",
         "createServices": "Add new inspection/maintenance records",
         "updateServices": "Modify existing service records",
-        "deleteServices": "Remove service records"
+        "deleteServices": "Remove service records",
+        "readProductionLines": "View production lines and their machines",
+        "createProductionLines": "Create new production lines",
+        "updateProductionLines": "Modify existing production lines",
+        "deleteProductionLines": "Remove production lines"
       },
       "permissionCount": "{count} permissions enabled",
       "templates": "Templates"
@@ -621,6 +644,42 @@
         "viewReportsDesc": "Access service history and analytics",
         "settings": "Settings",
         "settingsDesc": "Manage your account and preferences"
+      },
+      "overview": {
+        "machines": "Machines",
+        "services": "Services",
+        "alerts": "Alerts",
+        "operating": "Operating",
+        "scheduled": "Scheduled",
+        "scheduled_plural": "Scheduled",
+        "allOk": "All OK",
+        "requiresAttention": "Requires Attention"
+      },
+      "requiresAttention": {
+        "title": "Requires Attention",
+        "more": "+{count} more"
+      },
+      "timeline": {
+        "title": "Next 7 Days",
+        "noServices": "No services scheduled",
+        "today": "Today",
+        "tomorrow": "Tomorrow",
+        "maintenance": "Maintenance",
+        "inspection": "Inspection"
+      },
+      "performance": {
+        "title": "Monthly Performance",
+        "availability": "Availability",
+        "preventive": "Preventive",
+        "corrective": "Corrective"
+      },
+      "machineHealth": {
+        "title": "Machine Status",
+        "more": "additional machines"
+      },
+      "weeklyActivity": {
+        "title": "Weekly Activity",
+        "description": "Services completed in the last 7 days"
       }
     }
   },
@@ -652,6 +711,10 @@
       "name": {
         "label": "Blueprint Name",
         "placeholder": "e.g., Heavy Machinery Blueprint"
+      },
+      "image": {
+        "label": "Model Image",
+        "description": "Optional: Add a representative image of the blueprint"
       },
       "sections": {
         "label": "Sections *"
@@ -686,8 +749,19 @@
       },
       "response": {
         "title": "Response:"
+      },
+      "confirmClose": {
+        "title": "Discard changes?",
+        "description": "You have unsaved changes. If you close now, all entered data will be lost.",
+        "confirm": "Yes, discard",
+        "cancel": "Continue editing"
       }
-    }
+    },
+    "machine": "machine",
+    "machines": "machines",
+    "field": "field",
+    "fields": "fields",
+    "edit": "Edit"
   },
   "machines": {
     "title": "Create Machine",
@@ -736,6 +810,17 @@
     "viewMaintenanceLog": "View Maintenance Log",
     "downloadReports": "Download Reports",
     "requestUrgentService": "Request Urgent Service",
+    "urgentServiceDescription": "Request an urgent service for {machineName}. Our team will be notified immediately.",
+    "machine": "Machine",
+    "additionalNotes": "Additional Notes",
+    "optional": "optional",
+    "urgentServiceNotesPlaceholder": "Describe the problem or urgency...",
+    "urgentServiceNotesHint": "Provide details to help our team better understand the situation.",
+    "urgentServiceRequestSent": "Request sent successfully! Our team has been notified.",
+    "urgentServiceRequestError": "Error sending request. Please try again.",
+    "urgentServiceWarning": "This request will immediately notify the company administrators.",
+    "requestSent": "Request Sent",
+    "sendUrgentRequest": "Send Request",
     "serviceHistory": "Service History",
     "technician": "Technician",
     "completed": "Completed",
@@ -874,6 +959,50 @@
       },
       "response": {
         "title": "Response:"
+      },
+      "specifications": {
+        "title": "Machine Specifications",
+        "allFieldsOptional": "All fields are optional",
+        "manufacturer": {
+          "label": "Manufacturer",
+          "placeholder": "Enter manufacturer"
+        },
+        "sizeTonnage": {
+          "label": "Size/Tonnage",
+          "placeholder": "Enter size/tonnage"
+        },
+        "serialNumber": {
+          "label": "Serial Number",
+          "placeholder": "Enter serial number"
+        },
+        "stroke": {
+          "label": "Stroke",
+          "placeholder": "Enter stroke"
+        },
+        "foundationType": {
+          "label": "Foundation Type",
+          "placeholder": "Select foundation type"
+        },
+        "frameType": {
+          "label": "Frame Type",
+          "placeholder": "Select frame type"
+        },
+        "clutchType": {
+          "label": "Clutch Type",
+          "placeholder": "Select clutch type"
+        },
+        "pneumaticSystem": {
+          "label": "Pneumatic System",
+          "placeholder": "Select pneumatic system"
+        },
+        "pressMounting": {
+          "label": "Press Mounting",
+          "placeholder": "Select press mounting"
+        },
+        "features": {
+          "label": "Features",
+          "placeholder": "Select features"
+        }
       }
     }
   },
@@ -1075,6 +1204,11 @@
           "press_sw": "Press SW",
           "gib": "Gib"
         },
+        "lubePSI": "Lube PSI",
+        "monitorflowPSI": "Monitorflow PSI",
+        "hydPSI": "Hyd PSI",
+        "pressSWPSI": "Press SW PSI",
+        "otherGauges": "Other Gauges",
         "oilInfoTitle": "Oil Information",
         "changedOil": "Changed Oil",
         "oilTemperature": "Oil Temperature",
@@ -1341,6 +1475,11 @@
           "atLeastOneSectionRequired": "Bearing Clearance: You must fill at least one measurement section (Outer Data or Inner Data)",
           "hasBeenAdjustedRequired": "Bearing Clearance: The \"Has Been Adjusted\" field is required"
         }
+      },
+      "gibsSection": {
+        "includeBeforeMeasurements": "Include Before Measurements",
+        "beforeMaintenance": "Before Maintenance",
+        "afterMaintenance": "After Maintenance"
       },
       "enums": {
         "yesNoNaDnc": {

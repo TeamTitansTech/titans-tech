@@ -11,6 +11,7 @@ import { CompaniesModule } from './modules/companies/companies.module';
 import { CompanyBranchesModule } from './modules/company-branches/company-branches.module';
 import { UsersModule } from './modules/users/users.module';
 import { AlertsModule } from './modules/alerts/alerts.module';
+import { UploadModule } from './modules/upload/upload.module';
 import { EmailModule } from './modules/email/email.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { TasksModule } from './modules/tasks/tasks.module';
@@ -25,6 +26,7 @@ import { PermissionTemplatesModule } from './modules/permission-templates/permis
     CompaniesModule,
     CompanyBranchesModule,
     UsersModule,
+    UploadModule,
     BlueprintsModule,
     MachinesModule,
     ServicesModule,
