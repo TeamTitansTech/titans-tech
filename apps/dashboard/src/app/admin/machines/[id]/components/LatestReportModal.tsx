@@ -62,6 +62,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
       title: `${report.machineName} - ${t('title')}`,
       filename: `${report.machineName}_Relatorio`,
       convertSvgs: false, // LatestReportModal doesn't have Recharts
+      pageless: true, // Single page PDF with all content
     });
 
     if (result.success) {
