@@ -266,22 +266,22 @@ export function ViewTab({
                 </SortableContext>
               </div>
             ) : (
-              <div className="relative">
+              <div className="relative flex items-center">
                 <SortableContext items={machineOrder} strategy={horizontalListSortingStrategy}>
-                  <div className="flex justify-between items-end gap-8">
+                  <div className="flex items-center gap-8">
                     {orderedMachines.map((productionLineMachine) => (
                       <SortableMachineCard
                         key={productionLineMachine.machineId}
                         productionLineMachine={productionLineMachine}
                         canViewDetails={canViewMachineDetails}
                         canEdit={canEdit}
-                        showArrow="up"
+                        showArrow={null}
                       />
                     ))}
                   </div>
                 </SortableContext>
 
-                <div className="relative h-1">
+                <div className="relative h-1 flex-1 ml-4">
                   <div className="absolute top-0 left-0 right-0 h-1 bg-green-500" />
                 </div>
               </div>
