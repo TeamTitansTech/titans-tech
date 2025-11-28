@@ -65,15 +65,17 @@
     "zod": "^4.1.12",
     "autoprefixer": "^10.4.21",
     "postcss": "^8.4.31",
-    "tailwindcss": "^3.4.18"
+    "tailwindcss": "^3.4.18",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "next": "^16.0.1",
+    "typescript": "^5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.39.1",
     "@next/eslint-plugin-next": "^16.0.1",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "doctrine": "^2.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
@@ -87,8 +89,6 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^16.4.0",
     "jsx-ast-utils": "^3.3.5",
-    "next": "^16.0.1",
-    "typescript": "^5",
     "typescript-eslint": "^8.46.3",
     "zod-validation-error": "^5.0.0"
   }
