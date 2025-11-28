@@ -561,12 +561,63 @@
     "description": "Aplicação do Painel de Administração",
     "admin": {
       "title": "Portal Administrativo",
-      "description": "Gerenciar empresas, máquinas e modelos",
+      "description": "Visão geral do sistema e gerenciamento de empresas",
       "stats": {
-        "totalModels": "Total de Modelos",
-        "activeCompanies": "Empresas Ativas",
+        "totalModels": "Modelos",
+        "activeCompanies": "Empresas",
         "machines": "Máquinas",
-        "pendingServices": "Serviços Pendentes"
+        "pendingServices": "Serviços Pendentes",
+        "totalBranches": "Filiais",
+        "completedServices": "Serviços Concluídos"
+      },
+      "overview": {
+        "companies": "Empresas",
+        "registered": "cadastradas",
+        "machines": "Máquinas",
+        "operating": "em operação",
+        "services": "Serviços",
+        "pending": "pendentes",
+        "thisMonth": "este mês"
+      },
+      "companiesOverview": {
+        "title": "Empresas Cadastradas",
+        "description": "Visão geral de todas as empresas no sistema",
+        "branches": "filiais",
+        "machines": "máquinas",
+        "services": "serviços",
+        "viewDetails": "Ver detalhes",
+        "noCompanies": "Nenhuma empresa cadastrada"
+      },
+      "recentActivity": {
+        "title": "Atividade Recente",
+        "description": "Últimos serviços realizados no sistema",
+        "noActivity": "Nenhuma atividade recente",
+        "inspection": "Inspeção",
+        "maintenance": "Manutenção",
+        "completed": "Concluído",
+        "pending": "Pendente",
+        "viewAll": "Ver todos"
+      },
+      "serviceTrends": {
+        "title": "Tendências de Serviços",
+        "description": "Serviços realizados nos últimos 6 meses em todas as empresas",
+        "legend": {
+          "inspections": "Inspeções",
+          "maintenance": "Manutenções"
+        },
+        "stats": {
+          "totalInspections": "Total de Inspeções",
+          "totalMaintenance": "Total de Manutenções",
+          "totalServices": "Total de Serviços"
+        }
+      },
+      "machineHealth": {
+        "title": "Saúde das Máquinas",
+        "description": "Distribuição de status de todas as máquinas",
+        "healthy": "Saudável",
+        "attention": "Atenção",
+        "critical": "Crítico",
+        "unknown": "Sem dados"
       }
     },
     "client": {
@@ -904,6 +955,7 @@
       "powerCordHoses": "Cabo de Energia/Mangueiras",
       "chainsGearsSprockets": "Correntes e Engrenagens/Rodas Dentadas",
       "chartConnectionBearing": "Folga de Rolamento de Conexão (CB)",
+      "chartTotalClearance": "Folga Total (TC)",
       "chartDifference": "Diferença",
       "noDataAvailable": "Nenhum dado disponível",
       "exportData": "Exportar Dados",
@@ -921,7 +973,104 @@
       "exportExcelError": "Falha ao exportar arquivo Excel",
       "areaChart": "Gráfico de Área",
       "barChart": "Gráfico de Barras",
-      "createInspection": "Criar Vistoria"
+      "createInspection": "Criar Vistoria",
+      "sectionTitles": {
+        "clutchMeasurements": "Medições da Embreagem",
+        "slideMeasurements": "Medições do Martelo",
+        "gibsMeasurements": "Medições das Guias",
+        "lubricationStatus": "Status de Lubrificação e Hidráulica",
+        "counterbalanceStatus": "Status do Contrapeso"
+      },
+      "chartTitles": {
+        "hydraulicClutchClearance": "Folga da Embreagem Hidráulica",
+        "brakeSpringMeasurements": "Medições da Mola do Freio (F-B, F-TB, R-TB)",
+        "slideMaxDeviation": "Desvio Máximo do Martelo (Externo vs Interno)",
+        "outerSlidePositions": "Posições do Martelo Externo (Posição 1-5)",
+        "innerSlidePositions": "Posições do Martelo Interno (Posição 1-5)",
+        "gibsUsableValue": "Guias - Valor Utilizável",
+        "innerGibsDirectional": "Guias Internas - Somas Direcionais",
+        "outerGibsDirectional": "Guias Externas - Somas Direcionais",
+        "issuesTrend": "Tendência de Problemas ao Longo do Tempo",
+        "bearingClearanceDifferentials": "Diferenciais de Folga do Rolamento"
+      },
+      "labels": {
+        "outer": "Externo",
+        "inner": "Interno",
+        "issues": "Problemas",
+        "inspections": "Vistorias",
+        "inspectionHistory": "Histórico de Vistorias",
+        "oilChanged": "Óleo Trocado",
+        "oilTemp": "Temp. Óleo",
+        "oilMfgType": "Fabricante/Tipo do Óleo",
+        "filterChanged": "Filtro Trocado",
+        "hydClutchTotal": "Embreagem Hid. Total",
+        "hydClutchRear": "Embreagem Hid. Traseira",
+        "leakLocation": "Local do Vazamento",
+        "outerIssues": "Problemas Externos",
+        "innerIssues": "Problemas Internos",
+        "customAlerts": "Alertas Personalizados",
+        "createdAt": "Criado em",
+        "date": "Data",
+        "outerType": "Tipo Externo",
+        "innerType": "Tipo Interno",
+        "noLubricationData": "Nenhum dado de lubrificação disponível",
+        "noCounterbalanceData": "Nenhum dado de contrapeso disponível"
+      }
+    },
+    "latestReport": {
+      "updatedAt": "Atualizado em",
+      "problems": "Problema(s)",
+      "severity": {
+        "critical": "Crítico",
+        "warning": "Atenção",
+        "ok": "OK",
+        "normal": "Normal"
+      },
+      "yesNoDnc": {
+        "yes": "Sim",
+        "no": "Não",
+        "dnc": "DNC"
+      },
+      "counterbalance": {
+        "cylinder": "Cilindro",
+        "airbag": "Airbag",
+        "outer": "Outer",
+        "inner": "Inner",
+        "pistonSeals": "Vedações do Pistão",
+        "regulator": "Regulador",
+        "gauge": "Manômetro",
+        "pneumaticsPlumbing": "Pneumática/Tubulação",
+        "rodSeals": "Vedações da Haste",
+        "rodBushing": "Bucha da Haste",
+        "oilWick": "Pavio de Óleo",
+        "status": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Vazando",
+          "notOperational": "Não Operacional",
+          "darkOil": "Óleo Escuro",
+          "needsReplaced": "Precisa Trocar"
+        }
+      },
+      "lubrication": {
+        "title": "Lubrication & Hydraulics",
+        "field": "Campo",
+        "value": "Valor",
+        "oilChanged": "Óleo Trocado",
+        "oilTemperature": "Temperatura do Óleo",
+        "oilMfgType": "Tipo/Fabricante do Óleo",
+        "filterChanged": "Filtro Trocado",
+        "systemGauges": "Medidores do Sistema",
+        "system": "Sistema",
+        "identifier": "Identificador",
+        "status": "Status"
+      },
+      "bearingClearance": {
+        "measurement": "Measurement",
+        "differential": "Differential",
+        "status": "Status"
+      }
     },
     "form": {
       "cancel": "Cancelar",
@@ -1956,6 +2105,10 @@
     "saveConfig": "Salvar Configurações",
     "savingConfig": "Salvando...",
     "configSaved": "Configurações salvas com sucesso",
+    "orderSaved": "Ordem das máquinas salva com sucesso",
+    "unsavedChanges": "Você tem alterações não salvas na ordem das máquinas",
+    "saveOrder": "Salvar Ordem",
+    "saving": "Salvando...",
     "lineName": "Nome da Linha",
     "lineNamePlaceholder": "Ex: Linha Principal",
     "lineNameRequired": "Nome da linha é obrigatório",

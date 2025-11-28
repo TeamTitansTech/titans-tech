@@ -12,7 +12,29 @@ import { Prisma } from '@titans-tech/db';
 export class CompanyBranchesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(companyId: string) {
+  /**
+   * Get all branches across all companies (SysAdmin only)
+   */
+  async findAll() {
+    return this.prisma.companyBranch.findMany({
+      include: {
+        company: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        _count: {
+          select: {
+            machines: true,
+          },
+        },
+      },
+      orderBy: [{ company: { name: 'asc' } }, { name: 'asc' }],
+    });
+  }
+
+  async findAllByCompany(companyId: string) {
     return this.prisma.companyBranch.findMany({
       where: { companyId },
       include: {

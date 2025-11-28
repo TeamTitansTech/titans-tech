@@ -141,6 +141,15 @@ export interface AlertGibs {
   updatedAt: string;
 }
 
+export interface AlertCounterbalance {
+  id: string;
+  machineServiceId: string;
+  fieldName: string;
+  justification: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // Basic Service Info (for machine response)
 export interface MachineService {
   id: string;
@@ -151,6 +160,7 @@ export interface MachineService {
   alertClutch?: AlertClutch;
   alertSlide?: AlertSlide;
   alertGibs?: AlertGibs;
+  alertCounterbalanceCylinderAirbag?: AlertCounterbalance[];
 }
 
 // Machine Inspection (detailed service data for inspections)

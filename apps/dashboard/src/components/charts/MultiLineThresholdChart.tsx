@@ -247,7 +247,12 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
                 />
               )}
             />
-            <Legend />
+            <Legend
+              layout="horizontal"
+              verticalAlign="bottom"
+              align="center"
+              wrapperStyle={{ paddingTop: 10 }}
+            />
 
             {/* Threshold lines */}
             {sharedThreshold && showGreen && (

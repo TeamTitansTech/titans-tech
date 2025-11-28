@@ -23,6 +23,7 @@ interface SummaryStepProps {
   stepperSteps: StepperStep[];
   onStepClick: (index: number) => void;
   onSubmit: (e: React.FormEvent) => void;
+  serviceId?: string;
   // Inspection observation fields
   isPressLevel?: YesNoNaDncType;
   driveBeltCondition?: string;
@@ -56,6 +57,7 @@ export function SummaryStep({
   stepperSteps,
   onStepClick,
   onSubmit,
+  serviceId,
   // Inspection observation fields
   isPressLevel,
   driveBeltCondition,
@@ -293,7 +295,7 @@ export function SummaryStep({
                     <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="p-3 pt-0 text-sm">
-                    <SectionSummary sectionKey={sectionKey} data={data} />
+                    <SectionSummary sectionKey={sectionKey} data={data} serviceId={serviceId} />
                   </CollapsibleContent>
                 </div>
               </Collapsible>

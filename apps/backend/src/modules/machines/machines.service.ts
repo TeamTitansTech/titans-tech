@@ -124,6 +124,7 @@ export class MachinesService {
             alertClutch: true;
             alertSlide: true;
             alertGibs: true;
+            alertCounterbalanceCylinderAirbag: true;
           };
         };
       };
@@ -151,6 +152,7 @@ export class MachinesService {
             alertClutch: true,
             alertSlide: true,
             alertGibs: true,
+            alertCounterbalanceCylinderAirbag: true,
           },
         },
       },

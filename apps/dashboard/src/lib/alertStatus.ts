@@ -68,6 +68,20 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
     allSeverities.push(alert.usable_severity);
   }
 
+  // Check for COUNTERBALANCE custom alerts (any alert = RED severity)
+  if (
+    latestReport.sections.COUNTERBALANCE_CYLINDER_AIRBAG?.alerts &&
+    latestReport.sections.COUNTERBALANCE_CYLINDER_AIRBAG.alerts.length > 0
+  ) {
+    allSeverities.push('RED');
+  }
+
+  // Check for LUBRICATION oil change alert
+  if (latestReport.sections.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER?.alert) {
+    const alert = latestReport.sections.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER.alert;
+    allSeverities.push(alert.severity);
+  }
+
   // Return the most critical severity
   if (allSeverities.includes('RED')) return 'critical';
   if (allSeverities.includes('YELLOW')) return 'warning';
@@ -240,10 +254,41 @@ export const getSectionStatusFromReport = (
       return 'unknown';
     }
 
-    // TODO: Add other sections when their alert logic is implemented
-    // case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
-    // case 'COUNTERBALANCE_CYLINDER_AIRBAG':
-    // etc.
+    case 'COUNTERBALANCE_CYLINDER_AIRBAG': {
+      const counterbalanceData = latestReport.sections.COUNTERBALANCE_CYLINDER_AIRBAG;
+      // If there are any custom alerts, return 'alert' (red)
+      if (counterbalanceData?.alerts && counterbalanceData.alerts.length > 0) {
+        return 'alert';
+      }
+      // If there's data but no alerts, return 'ok'
+      if (counterbalanceData?.data) {
+        return 'ok';
+      }
+      return 'unknown';
+    }
+
+    case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER': {
+      const lubricationData =
+        latestReport.sections.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER;
+      if (!lubricationData?.alert) {
+        // No alert means either no oil change tracked or within normal range
+        if (lubricationData?.data) {
+          return 'ok';
+        }
+        return 'unknown';
+      }
+
+      const severity = lubricationData.alert.severity;
+      if (severity === 'RED') {
+        return 'alert';
+      } else if (severity === 'YELLOW') {
+        return 'warning';
+      } else if (severity === 'GREEN') {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
 
     default:
       return 'ok';
@@ -364,10 +409,22 @@ export const getSectionStatus = (
       return 'unknown';
     }
 
-    // TODO: Add other sections when their alert logic is implemented
-    // case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER':
-    // case 'COUNTERBALANCE_CYLINDER_AIRBAG':
-    // etc.
+    case 'COUNTERBALANCE_CYLINDER_AIRBAG': {
+      const alerts = latestService?.alertCounterbalanceCylinderAirbag;
+      // If there are any custom alerts, return 'alert' (red)
+      if (alerts && alerts.length > 0) {
+        return 'alert';
+      }
+      // No alerts means ok status
+      return 'ok';
+    }
+
+    case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER': {
+      // Oil change alert requires looking at all services to find last oil change
+      // This is calculated in the LatestReport - use getSectionStatusFromReport instead
+      // For this deprecated function, return 'ok' as default
+      return 'ok';
+    }
 
     default:
       return 'ok';

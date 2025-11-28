@@ -40,6 +40,11 @@ export function ProductionLineDetail({
     router.refresh();
   };
 
+  const handleOrderChange = (updatedLine: ProductionLine) => {
+    setProductionLine(updatedLine);
+    router.refresh();
+  };
+
   return (
     <div className="space-y-6 p-8">
       <div className="flex items-center gap-6">
@@ -75,7 +80,12 @@ export function ProductionLineDetail({
         </TabsList>
 
         <TabsContent value="view" className="mt-6">
-          <ViewTab productionLine={productionLine} canViewMachineDetails={canViewMachineDetails} />
+          <ViewTab
+            productionLine={productionLine}
+            canViewMachineDetails={canViewMachineDetails}
+            canEdit={canEditProductionLine}
+            onOrderChange={handleOrderChange}
+          />
         </TabsContent>
 
         {canEditProductionLine && (

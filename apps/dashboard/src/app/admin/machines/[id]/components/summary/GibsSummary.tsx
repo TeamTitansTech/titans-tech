@@ -13,6 +13,11 @@ export function GibsSummary({ data }: GibsSummaryProps) {
   const tGibsFields = useTranslations('machines.gibsFields');
   const tServicesSummary = useTranslations('services.modal.summary');
 
+  // Return null if no data provided
+  if (!data) {
+    return null;
+  }
+
   const calculateGibsFields = (stageData: GibsStageData) => {
     const toNum = (val: number | undefined) => (typeof val === 'number' ? val : 0);
     const isNum = (val: number | undefined): boolean => typeof val === 'number' && !isNaN(val);

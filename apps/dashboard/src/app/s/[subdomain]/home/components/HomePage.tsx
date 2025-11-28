@@ -7,7 +7,6 @@ import { OverviewHeroSection } from './OverviewHeroSection';
 import { RequiresAttention } from './RequiresAttention';
 import { Next7DaysTimeline } from './Next7DaysTimeline';
 import { MonthPerformance } from './MonthPerformance';
-import { MachineHealthGrid } from './MachineHealthGrid';
 import { ServiceTrendsChart } from './ServiceTrendsChart';
 import { ProductionLinesCarousel } from './ProductionLinesCarousel';
 import { getServices, getLatestReport } from '@/data/services/services.api';
@@ -239,9 +238,6 @@ export function HomePage() {
 
       {/* Requires Attention - Only shows when there are alerts */}
       <RequiresAttention alerts={dashboardData.alerts} />
-
-      {/* Machine Health Grid - Full width */}
-      <MachineHealthGrid machines={machines} />
 
       {/* Production Lines Carousel - Only show if user has permission */}
       {canViewProductionLines && <ProductionLinesCarousel />}

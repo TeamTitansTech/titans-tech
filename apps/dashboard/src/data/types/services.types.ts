@@ -71,6 +71,8 @@ import type {
   ClutchData,
   SlideData,
   GibsStageData,
+  LubricationHydraulicsData,
+  CounterbalanceCylinderData,
 } from '@titans-tech/shared/types/services';
 
 type AlertSeverity = 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
@@ -157,6 +159,42 @@ export interface LatestGibs {
   };
 }
 
+export interface OilChangeAlert {
+  lastOilChangeDate: string | null;
+  daysSinceChange: number | null;
+  daysUntilDue: number | null;
+  severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+}
+
+export interface LatestLubrication {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: LubricationHydraulicsData;
+  alert?: OilChangeAlert;
+}
+
+export interface CounterbalanceAlert {
+  id: string;
+  machineServiceId: string;
+  fieldName: string;
+  justification: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LatestCounterbalance {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: {
+    outerData?: CounterbalanceCylinderData;
+    innerData?: CounterbalanceCylinderData;
+    notes?: string;
+  };
+  alerts?: CounterbalanceAlert[];
+}
+
 export interface LatestReport {
   machineId: string;
   machineName: string;
@@ -170,8 +208,8 @@ export interface LatestReport {
     BEARING_CLEARANCE: LatestBearingClearance | null;
     SLIDE: LatestSlide | null;
     GIBS: LatestGibs | null;
-    LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null;
+    LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LatestLubrication | null;
     CLUTCH: LatestClutch | null;
-    COUNTERBALANCE_CYLINDER_AIRBAG: null;
+    COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalance | null;
   };
 }

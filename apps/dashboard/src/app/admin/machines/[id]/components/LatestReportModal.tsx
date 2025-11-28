@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -18,9 +19,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Download, FileText } from 'lucide-react';
+import { Download, FileText, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useTranslations } from 'next-intl';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
+import { toast } from 'sonner';
 import type {
   LatestReport,
   LatestBearingClearance,
@@ -30,6 +35,7 @@ import type {
   LatestSlide,
   SlideData,
   GibsStageData,
+  CounterbalanceCylinderData,
 } from '@/data/types/services.types';
 import { BEARING_FIELD_NAMES, BEARING_FIELD_LABELS } from '@titans-tech/shared/types';
 
@@ -40,16 +46,178 @@ interface LatestReportModalProps {
 }
 
 export function LatestReportModal({ report, open, onOpenChange }: LatestReportModalProps) {
+  const t = useTranslations('machines.latestReport');
+  const contentRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const handleExportPDF = async () => {
+    if (!contentRef.current) {
+      toast.error('Erro ao exportar PDF');
+      return;
+    }
+
+    setIsExporting(true);
+
+    try {
+      const element = contentRef.current;
+
+      // Store original styles
+      const originalStyle = {
+        height: element.style.height,
+        overflow: element.style.overflow,
+        maxHeight: element.style.maxHeight,
+        position: element.style.position,
+      };
+
+      // Temporarily expand to show all content
+      element.style.height = 'auto';
+      element.style.overflow = 'visible';
+      element.style.maxHeight = 'none';
+
+      // Force layout recalculation
+      void element.offsetHeight;
+
+      // Wait for any animations to complete
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // Get the actual full dimensions after expansion
+      const fullWidth = Math.max(element.scrollWidth, element.offsetWidth, element.clientWidth);
+      const fullHeight = Math.max(element.scrollHeight, element.offsetHeight, element.clientHeight);
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: fullWidth,
+        height: fullHeight,
+        windowWidth: fullWidth,
+        windowHeight: fullHeight,
+        scrollX: 0,
+        scrollY: 0,
+        imageTimeout: 15000,
+        onclone: (clonedDoc, clonedElement) => {
+          clonedElement.style.height = 'auto';
+          clonedElement.style.overflow = 'visible';
+          clonedElement.style.maxHeight = 'none';
+          clonedElement.style.position = 'relative';
+
+          // Hide export buttons in the cloned document
+          const exportButtons = clonedDoc.querySelectorAll('[data-export-button]');
+          exportButtons.forEach((btn) => {
+            (btn as HTMLElement).style.display = 'none';
+          });
+        },
+      });
+
+      // Restore original styles
+      element.style.height = originalStyle.height;
+      element.style.overflow = originalStyle.overflow;
+      element.style.maxHeight = originalStyle.maxHeight;
+      element.style.position = originalStyle.position;
+
+      // Calculate dimensions - A4 landscape with pagination
+      const pdfWidth = 297; // A4 landscape width in mm
+      const pdfPageHeight = 210; // A4 landscape height in mm
+      const margin = 15;
+      const headerHeight = 20;
+      const contentWidth = pdfWidth - 2 * margin;
+      const contentPageHeight = pdfPageHeight - headerHeight - margin;
+
+      // Calculate image scaling
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = contentWidth / imgWidth;
+      const scaledHeight = imgHeight * ratio;
+
+      // Determine number of pages needed
+      const totalPages = Math.ceil(scaledHeight / contentPageHeight);
+
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      // Add content across pages
+      for (let page = 0; page < totalPages; page++) {
+        if (page > 0) {
+          pdf.addPage();
+        }
+
+        // Add simple header with title
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(`${report.machineName} - Relatório Atualizado`, margin, 12);
+
+        // Add a subtle line under header
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(0.5);
+        pdf.line(margin, headerHeight - 2, pdfWidth - margin, headerHeight - 2);
+
+        // Calculate which portion of the image to draw
+        const sourceY = (page * contentPageHeight) / ratio;
+        const sourceHeight = Math.min(contentPageHeight / ratio, imgHeight - sourceY);
+        const destHeight = sourceHeight * ratio;
+
+        // Create a temporary canvas for this page's portion
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = imgWidth;
+        tempCanvas.height = sourceHeight;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        if (tempCtx) {
+          tempCtx.drawImage(
+            canvas,
+            0,
+            sourceY,
+            imgWidth,
+            sourceHeight,
+            0,
+            0,
+            imgWidth,
+            sourceHeight,
+          );
+
+          const pageImgData = tempCanvas.toDataURL('image/png', 1.0);
+          pdf.addImage(pageImgData, 'PNG', margin, headerHeight, contentWidth, destHeight);
+        }
+
+        // Add page number in footer (only if multiple pages)
+        if (totalPages > 1) {
+          pdf.setTextColor(128, 128, 128);
+          pdf.setFontSize(8);
+          const pageText = `${page + 1} / ${totalPages}`;
+          pdf.text(pageText, pdfWidth / 2 - pdf.getTextWidth(pageText) / 2, pdfPageHeight - 5);
+        }
+      }
+
+      const filename = `${report.machineName}_Relatorio_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
+      pdf.save(filename);
+
+      toast.success('PDF exportado com sucesso!');
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      toast.error('Erro ao exportar PDF');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   // Get severity badge color and text
   const getSeverityBadge = (severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED') => {
     switch (severity) {
       case 'RED':
-        return <Badge variant="destructive">Crítico</Badge>;
+        return <Badge variant="destructive">{t('severity.critical')}</Badge>;
       case 'YELLOW':
-        return <Badge className="bg-yellow-500 hover:bg-yellow-600">Atenção</Badge>;
+        return <Badge className="bg-yellow-500 hover:bg-yellow-600">{t('severity.warning')}</Badge>;
       case 'GREEN':
+        return <Badge className="bg-green-500 hover:bg-green-600">{t('severity.ok')}</Badge>;
       case 'NONE':
-        return <Badge className="bg-green-500 hover:bg-green-600">OK</Badge>;
+        return <Badge variant="outline">{t('severity.normal')}</Badge>;
       default:
         return <Badge variant="outline">-</Badge>;
     }
@@ -150,6 +318,8 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   const clutch = report.sections.CLUTCH;
   const slide = report.sections.SLIDE;
   const gibs = report.sections.GIBS;
+  const lubrication = report.sections.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER;
+  const counterbalance = report.sections.COUNTERBALANCE_CYLINDER_AIRBAG;
 
   // Get overall worst severity for bearing clearance (outer or inner)
   const getBearingSeverity = (prefix: 'outer' | 'inner'): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
@@ -266,6 +436,56 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     return gibs.alert.usable_severity;
   };
 
+  // Format Yes/No/DNC values for lubrication
+  const formatYesNoDnc = (value: string | undefined | null): string => {
+    if (!value) return '-';
+    const labels: Record<string, string> = {
+      YES: t('yesNoDnc.yes'),
+      NO: t('yesNoDnc.no'),
+      DNC: t('yesNoDnc.dnc'),
+    };
+    return labels[value] || value;
+  };
+
+  // Format counterbalance status values
+  const formatCounterbalanceStatus = (
+    value: string | undefined | null,
+  ): { text: string; isIssue: boolean } => {
+    if (!value || value === 'DNC') return { text: t('counterbalance.status.dnc'), isIssue: false };
+    if (value === 'OK') return { text: t('counterbalance.status.ok'), isIssue: false };
+    if (value === 'NA') return { text: t('counterbalance.status.na'), isIssue: false };
+    // Issue statuses
+    const issueLabels: Record<string, string> = {
+      LEAKING: t('counterbalance.status.leaking'),
+      NOT_OPERATIONAL: t('counterbalance.status.notOperational'),
+      DARK_OIL: t('counterbalance.status.darkOil'),
+      NEEDS_REPLACED: t('counterbalance.status.needsReplaced'),
+    };
+    return { text: issueLabels[value] || value, isIssue: true };
+  };
+
+  // Count counterbalance issues
+  const countCounterbalanceIssues = (data: CounterbalanceCylinderData | undefined): number => {
+    if (!data) return 0;
+    let issues = 0;
+    const fields = [
+      'airbagPistonSeals',
+      'regulator',
+      'gauge',
+      'pneumaticsPlumbing',
+      'rodSeals',
+      'rodBushing',
+      'oilWick',
+    ];
+    fields.forEach((field) => {
+      const value = data[field as keyof CounterbalanceCylinderData];
+      if (value && value !== 'OK' && value !== 'NA' && value !== 'DNC') {
+        issues++;
+      }
+    });
+    return issues;
+  };
+
   // Extract GIBS measurement points
   const extractGibsPoints = (data: GibsStageData) => {
     const toFixed = (val: number | null | undefined) => {
@@ -308,8 +528,8 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-1 py-4">
-          {bearingClearance || clutch || slide || gibs ? (
+        <div ref={contentRef} className="flex-1 overflow-y-auto px-1 py-4">
+          {bearingClearance || clutch || slide || gibs || lubrication || counterbalance ? (
             <div className="space-y-4">
               {bearingClearance && (
                 <div className="border rounded-lg p-4">
@@ -320,7 +540,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                     <div className="flex items-center gap-3">
                       {getSeverityBadge(getOverallSeverity())}
                       <span className="text-sm text-muted-foreground">
-                        Atualizado em{' '}
+                        {t('updatedAt')}{' '}
                         {format(new Date(bearingClearance.latestServiceDate), 'dd-MM-yyyy')}
                       </span>
                     </div>
@@ -411,7 +631,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                     <div className="flex items-center gap-3">
                       {getSeverityBadge(getClutchOverallSeverity())}
                       <span className="text-sm text-muted-foreground">
-                        Atualizado em {format(new Date(clutch.latestServiceDate), 'dd-MM-yyyy')}
+                        {t('updatedAt')} {format(new Date(clutch.latestServiceDate), 'dd-MM-yyyy')}
                       </span>
                     </div>
                   </div>
@@ -450,7 +670,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                     <div className="flex items-center gap-3">
                       {getSeverityBadge(getSlideOverallSeverity())}
                       <span className="text-sm text-muted-foreground">
-                        Atualizado em {format(new Date(slide.latestServiceDate), 'dd-MM-yyyy')}
+                        {t('updatedAt')} {format(new Date(slide.latestServiceDate), 'dd-MM-yyyy')}
                       </span>
                     </div>
                   </div>
@@ -513,7 +733,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                     <div className="flex items-center gap-3">
                       {getSeverityBadge(getGibsOverallSeverity())}
                       <span className="text-sm text-muted-foreground">
-                        Atualizado em {format(new Date(gibs.latestServiceDate), 'dd-MM-yyyy')}
+                        {t('updatedAt')} {format(new Date(gibs.latestServiceDate), 'dd-MM-yyyy')}
                       </span>
                     </div>
                   </div>
@@ -720,6 +940,258 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                   </div>
                 </div>
               )}
+
+              {lubrication && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Typography variant="h4" className="font-semibold">
+                      {t('lubrication.title')}
+                    </Typography>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-muted-foreground">
+                        {t('updatedAt')}{' '}
+                        {format(new Date(lubrication.latestServiceDate), 'dd-MM-yyyy')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="border rounded-md overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-muted/50">
+                          <TableHead className="font-semibold">{t('lubrication.field')}</TableHead>
+                          <TableHead className="text-center font-semibold">
+                            {t('lubrication.value')}
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">
+                            {t('lubrication.oilChanged')}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {formatYesNoDnc(lubrication.data.changedOil)}
+                          </TableCell>
+                        </TableRow>
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">
+                            {t('lubrication.oilTemperature')}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {lubrication.data.oilTemperature
+                              ? `${lubrication.data.oilTemperature}${lubrication.data.oilTemperatureUnit === 'CELSIUS' ? '°C' : '°F'}`
+                              : '-'}
+                          </TableCell>
+                        </TableRow>
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">
+                            {t('lubrication.oilMfgType')}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {lubrication.data.oilMfgType || '-'}
+                          </TableCell>
+                        </TableRow>
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">
+                            {t('lubrication.filterChanged')}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {formatYesNoDnc(lubrication.data.changedFilter)}
+                          </TableCell>
+                        </TableRow>
+                      </TableBody>
+                    </Table>
+                  </div>
+
+                  {lubrication.data.gauges && lubrication.data.gauges.length > 0 && (
+                    <div className="mt-3">
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold">
+                          {t('lubrication.systemGauges')}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">
+                                {t('lubrication.system')}
+                              </TableHead>
+                              <TableHead className="font-semibold">
+                                {t('lubrication.identifier')}
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">
+                                {t('lubrication.status')}
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {lubrication.data.gauges.map((gauge, idx) => (
+                              <TableRow key={idx} className="hover:bg-muted/30">
+                                <TableCell className="font-medium">{gauge.system || '-'}</TableCell>
+                                <TableCell>{gauge.gaugeSwitchIdentifier || '-'}</TableCell>
+                                <TableCell className="text-center">{gauge.psi || '-'}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {counterbalance && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Typography variant="h4" className="font-semibold">
+                      Counterbalance Cylinder/Airbag
+                    </Typography>
+                    <div className="flex items-center gap-3">
+                      {(countCounterbalanceIssues(counterbalance.data.outerData) > 0 ||
+                        countCounterbalanceIssues(counterbalance.data.innerData) > 0) && (
+                        <Badge variant="destructive">
+                          {countCounterbalanceIssues(counterbalance.data.outerData) +
+                            countCounterbalanceIssues(counterbalance.data.innerData)}{' '}
+                          {t('problems')}
+                        </Badge>
+                      )}
+                      <span className="text-sm text-muted-foreground">
+                        {t('updatedAt')}{' '}
+                        {format(new Date(counterbalance.latestServiceDate), 'dd-MM-yyyy')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {counterbalance.data.outerData && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>{t('counterbalance.outer')}</span>
+                          <Badge variant="outline">
+                            {counterbalance.data.outerData.counterbalanceType === 'CYLINDER'
+                              ? t('counterbalance.cylinder')
+                              : t('counterbalance.airbag')}
+                          </Badge>
+                        </div>
+                        <div className="p-3 space-y-2 text-sm">
+                          {[
+                            { key: 'airbagPistonSeals', labelKey: 'pistonSeals' },
+                            { key: 'regulator', labelKey: 'regulator' },
+                            { key: 'gauge', labelKey: 'gauge' },
+                            { key: 'pneumaticsPlumbing', labelKey: 'pneumaticsPlumbing' },
+                            { key: 'rodSeals', labelKey: 'rodSeals' },
+                            { key: 'rodBushing', labelKey: 'rodBushing' },
+                            { key: 'oilWick', labelKey: 'oilWick' },
+                          ].map(({ key, labelKey }) => {
+                            const value =
+                              counterbalance.data.outerData?.[
+                                key as keyof CounterbalanceCylinderData
+                              ];
+                            const status = formatCounterbalanceStatus(value as string);
+                            return (
+                              <div key={key} className="flex justify-between items-center">
+                                <span className="text-muted-foreground">
+                                  {t(`counterbalance.${labelKey}`)}
+                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    status.isIssue
+                                      ? 'bg-red-100 text-red-800 border-red-200'
+                                      : status.text === t('counterbalance.status.ok')
+                                        ? 'bg-green-100 text-green-800 border-green-200'
+                                        : ''
+                                  }
+                                >
+                                  {status.text}
+                                </Badge>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {counterbalance.data.innerData && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>{t('counterbalance.inner')}</span>
+                          <Badge variant="outline">
+                            {counterbalance.data.innerData.counterbalanceType === 'CYLINDER'
+                              ? t('counterbalance.cylinder')
+                              : t('counterbalance.airbag')}
+                          </Badge>
+                        </div>
+                        <div className="p-3 space-y-2 text-sm">
+                          {[
+                            { key: 'airbagPistonSeals', labelKey: 'pistonSeals' },
+                            { key: 'regulator', labelKey: 'regulator' },
+                            { key: 'gauge', labelKey: 'gauge' },
+                            { key: 'pneumaticsPlumbing', labelKey: 'pneumaticsPlumbing' },
+                            { key: 'rodSeals', labelKey: 'rodSeals' },
+                            { key: 'rodBushing', labelKey: 'rodBushing' },
+                            { key: 'oilWick', labelKey: 'oilWick' },
+                          ].map(({ key, labelKey }) => {
+                            const value =
+                              counterbalance.data.innerData?.[
+                                key as keyof CounterbalanceCylinderData
+                              ];
+                            const status = formatCounterbalanceStatus(value as string);
+                            return (
+                              <div key={key} className="flex justify-between items-center">
+                                <span className="text-muted-foreground">
+                                  {t(`counterbalance.${labelKey}`)}
+                                </span>
+                                <Badge
+                                  variant="outline"
+                                  className={
+                                    status.isIssue
+                                      ? 'bg-red-100 text-red-800 border-red-200'
+                                      : status.text === t('counterbalance.status.ok')
+                                        ? 'bg-green-100 text-green-800 border-green-200'
+                                        : ''
+                                  }
+                                >
+                                  {status.text}
+                                </Badge>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {counterbalance.data.notes && (
+                    <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                      <span className="text-sm font-medium">Notas: </span>
+                      <span className="text-sm">{counterbalance.data.notes}</span>
+                    </div>
+                  )}
+
+                  {counterbalance.alerts && counterbalance.alerts.length > 0 && (
+                    <div className="mt-3 border rounded-md overflow-hidden">
+                      <div className="bg-red-50 px-4 py-2 font-semibold flex items-center gap-2 text-red-800">
+                        <span>Alertas Personalizados</span>
+                        <Badge variant="destructive">{counterbalance.alerts.length}</Badge>
+                      </div>
+                      <div className="p-3 space-y-2">
+                        {counterbalance.alerts.map((alert) => (
+                          <div
+                            key={alert.id}
+                            className="p-2 bg-red-50 border border-red-200 rounded text-sm"
+                          >
+                            <div className="font-medium text-red-800">
+                              {alert.fieldName.replace(/_/g, ' ')}
+                            </div>
+                            <div className="text-red-600 mt-1">{alert.justification}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : (
             <div className="border rounded-lg p-8 text-center">
@@ -729,8 +1201,19 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
         </div>
 
         <div className="flex justify-between pt-4 px-4 border-t">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Download className="w-4 h-4" />
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={handleExportPDF}
+            disabled={isExporting}
+            data-export-button
+          >
+            {isExporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
             Baixar PDF
           </Button>
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

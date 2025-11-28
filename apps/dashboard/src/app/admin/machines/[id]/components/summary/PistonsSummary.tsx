@@ -11,11 +11,16 @@ interface PistonsSummaryProps {
   data: PistonsCheck;
 }
 
-export function PistonsSummary({ data }: PistonsSummaryProps): React.ReactElement {
+export function PistonsSummary({ data }: PistonsSummaryProps): React.ReactElement | null {
   const tServicesSummary = useTranslations('services.modal.summary');
   const tPistons = useTranslations('inspections.form.pistons');
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common.status');
+
+  // Return null if no data provided
+  if (!data) {
+    return null;
+  }
 
   // Helper to display values with translations
   const display = (value: unknown): string => displayValue(value, tCommon('yes'), tCommon('no'));

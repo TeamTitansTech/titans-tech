@@ -52,7 +52,11 @@ export function BearingClearanceSection({
   const t = useTranslations('machines.sectionDetails');
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
   const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
-  const [threshold, setThreshold] = useState<ThresholdConfig | null>(null);
+  // Separate thresholds for each measurement type
+  const [cbThreshold, setCbThreshold] = useState<ThresholdConfig | null>(null);
+  const [totalClearanceThreshold, setTotalClearanceThreshold] = useState<ThresholdConfig | null>(
+    null,
+  );
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -74,10 +78,9 @@ export function BearingClearanceSection({
       try {
         const response = await getThresholdByBlueprint(blueprintId);
         if (response.data) {
-          // Extract threshold for upperConnectionBearings (CB)
-          const extracted = extractThresholdConfig(response.data, 'upperConnectionBearings');
-          setThreshold(extracted);
-        } else {
+          // Extract thresholds for each measurement type
+          setCbThreshold(extractThresholdConfig(response.data, 'upperConnectionBearings'));
+          setTotalClearanceThreshold(extractThresholdConfig(response.data, 'totalClearance'));
         }
       } catch (error) {
         console.error('Failed to fetch threshold:', error);
@@ -372,7 +375,7 @@ export function BearingClearanceSection({
                       color: '#82ca9d',
                     },
                   ]}
-                  sharedThreshold={threshold}
+                  sharedThreshold={cbThreshold}
                   valueUnit="mm"
                   allowToggle={true}
                   height={300}
@@ -393,7 +396,7 @@ export function BearingClearanceSection({
                       color: '#ff7300',
                     },
                   ]}
-                  sharedThreshold={threshold}
+                  sharedThreshold={totalClearanceThreshold}
                   valueUnit="mm"
                   allowToggle={true}
                   height={300}

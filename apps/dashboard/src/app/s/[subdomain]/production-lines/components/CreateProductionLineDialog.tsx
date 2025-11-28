@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { useSysAdmin } from '@/contexts/SysAdminContext';
 import {
   Dialog,
   DialogContent,
@@ -40,6 +41,7 @@ export function CreateProductionLineDialog({
   const t = useTranslations('productionLines');
   const router = useInternalRouter();
   const { companyUser } = useCompanyUser();
+  const { sysAdminUser } = useSysAdmin();
 
   const schema = useMemo(
     () =>
@@ -72,7 +74,7 @@ export function CreateProductionLineDialog({
         name: data.name,
         branchId: branchId,
         machineIds: [],
-        createdBy: companyUser?.id,
+        createdBy: sysAdminUser?.id || companyUser?.id,
       });
 
       if (response.errors) {

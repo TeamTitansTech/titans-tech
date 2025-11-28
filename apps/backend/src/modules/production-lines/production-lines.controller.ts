@@ -18,7 +18,7 @@ import {
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Authenticated, BranchPermission } from '../auth/auth.decorators';
-import { ReqWithAuthUser } from '../../types/request';
+import { ReqWithAuthUser, isSysAdmin } from '../../types/request';
 
 @Controller('production-lines')
 export class ProductionLinesController {
@@ -57,6 +57,9 @@ export class ProductionLinesController {
       };
     }>[]
   > {
+    if (isSysAdmin(req.user)) {
+      return this.productionLinesService.findAllForSysAdmin();
+    }
     return this.productionLinesService.findAll(req.user.id);
   }
 
@@ -73,6 +76,9 @@ export class ProductionLinesController {
       };
     }>
   > {
+    if (isSysAdmin(req.user)) {
+      return this.productionLinesService.findOneForSysAdmin(id);
+    }
     return this.productionLinesService.findOne(req.user.id, id);
   }
 
@@ -93,6 +99,12 @@ export class ProductionLinesController {
       };
     }>
   > {
+    if (isSysAdmin(req.user)) {
+      return this.productionLinesService.updateForSysAdmin(
+        id,
+        updateProductionLineDto,
+      );
+    }
     return this.productionLinesService.update(
       req.user.id,
       id,
@@ -106,6 +118,9 @@ export class ProductionLinesController {
     @Request() req: ReqWithAuthUser,
     @Param('id') id: string,
   ): Promise<void> {
+    if (isSysAdmin(req.user)) {
+      return this.productionLinesService.removeForSysAdmin(id);
+    }
     return this.productionLinesService.remove(req.user.id, id);
   }
 }
