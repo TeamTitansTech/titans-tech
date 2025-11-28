@@ -136,7 +136,7 @@ export const BlueprintCreationModal = ({
               />
 
               <div className="space-y-2">
-                <Label htmlFor="image">Imagem do Blueprint</Label>
+                <Label htmlFor="image">Imagem do Modelo</Label>
                 <ImageUpload
                   value={imageUrl || undefined}
                   onChange={setImageUrl}

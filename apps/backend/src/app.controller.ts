@@ -13,15 +13,6 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('health')
-  getHealth() {
-    return {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      service: 'backend',
-    };
-  }
-
   @Get('error')
   getError() {
     // eslint-disable-next-line no-restricted-syntax
