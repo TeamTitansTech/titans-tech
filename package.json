@@ -18,7 +18,7 @@
     "docker:clean": "docker compose down -v",
     "db:setup": "npm run docker:up && sleep 3 && prisma generate --schema=packages/database/prisma/schema.prisma && prisma db push --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
     "db:reset": "npm run docker:up && sleep 3 && prisma migrate reset --force --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
-    "prepare": "node -e \"if (process.env.CI !== 'true') require('husky')()\" || true"
+    "prepare": "husky || true"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
