@@ -26,9 +26,15 @@ interface ClutchSectionProps {
   inspections: ClutchInspectionData[];
   machineName: string;
   blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
-export function ClutchSection({ inspections, machineName, blueprintId }: ClutchSectionProps) {
+export function ClutchSection({
+  inspections,
+  machineName,
+  blueprintId,
+  hideThresholdValues = false,
+}: ClutchSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
   // Thresholds for hydraulic clutch clearance
@@ -91,7 +97,10 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
+  // Find the latest inspection that actually has clutch data (for date display)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find((inspection) => inspection.clutch?.[0]?.data);
+  }, [filteredInspections]);
 
   // Find the most recent value for each clutch field across all inspections
   // This handles cases where different inspections have different fields filled
@@ -160,7 +169,9 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
           </CardHeader>
           <CardContent>
             <Typography variant="large">
-              {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
             </Typography>
           </CardContent>
         </Card>
@@ -288,13 +299,14 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
                 {
                   dataKey: 'hydClutchClearanceRear',
                   label: 'Hyd Rear',
-                  color: '#82ca9d',
+                  color: '#06b6d4',
                   threshold: hydRearThreshold ?? undefined,
                 },
               ]}
               sharedThreshold={hydTotalThreshold}
               valueUnit="mm"
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={300}
             />
 
@@ -305,25 +317,26 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
                 {
                   dataKey: 'brakeSpringFB',
                   label: 'F-B',
-                  color: '#ffc658',
+                  color: '#3b82f6',
                   threshold: fbThreshold ?? undefined,
                 },
                 {
                   dataKey: 'brakeSpringFTB',
                   label: 'F-TB',
-                  color: '#ff7300',
+                  color: '#ec4899',
                   threshold: fTBThreshold ?? undefined,
                 },
                 {
                   dataKey: 'brakeSpringRTB',
                   label: 'R-TB',
-                  color: '#00C49F',
+                  color: '#6366f1',
                   threshold: rTBThreshold ?? undefined,
                 },
               ]}
               sharedThreshold={fbThreshold}
               valueUnit="in"
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={300}
             />
           </div>

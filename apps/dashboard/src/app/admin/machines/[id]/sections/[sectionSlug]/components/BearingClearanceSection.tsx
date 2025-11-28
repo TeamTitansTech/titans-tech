@@ -26,12 +26,14 @@ interface BearingClearanceSectionProps {
   inspections: InspectionData[];
   machineName: string;
   blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
 export function BearingClearanceSection({
   inspections,
   machineName,
   blueprintId,
+  hideThresholdValues = false,
 }: BearingClearanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
@@ -91,7 +93,10 @@ export function BearingClearanceSection({
     );
   }, [filteredInspections]);
 
-  const latestInspection = sortedInspections[0];
+  // Find the latest inspection that actually has bearing clearance data (for date display)
+  const latestInspectionWithData = useMemo(() => {
+    return sortedInspections.find((inspection) => inspection.bearingClearance?.[0]?.outerData);
+  }, [sortedInspections]);
 
   // Find the most recent value for each bearing field across all inspections
   const getLatestFieldValue = (fieldName: string): number | null => {
@@ -167,7 +172,9 @@ export function BearingClearanceSection({
           </CardHeader>
           <CardContent>
             <Typography variant="large">
-              {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
             </Typography>
           </CardContent>
         </Card>
@@ -275,7 +282,7 @@ export function BearingClearanceSection({
                 {
                   dataKey: 'totalClearance_diff',
                   label: 'TC Diff',
-                  color: '#ffc658',
+                  color: '#3b82f6',
                   threshold: totalClearanceThreshold ?? undefined,
                 },
                 {
@@ -287,12 +294,13 @@ export function BearingClearanceSection({
                 {
                   dataKey: 'mainBearings_diff',
                   label: 'MB Diff',
-                  color: '#82ca9d',
+                  color: '#06b6d4',
                 },
               ]}
               sharedThreshold={totalClearanceThreshold}
               valueUnit="mm"
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={350}
             />
           </div>
