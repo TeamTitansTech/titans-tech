@@ -34,6 +34,7 @@ export function SectionExportButton({
       title: `${machineName} - ${sectionName}`,
       filename: `${machineName}_${sectionName}`,
       convertSvgs: true, // Section pages have Recharts SVGs
+      pageless: true, // Single page PDF with all content
     });
 
     if (result.success) {
