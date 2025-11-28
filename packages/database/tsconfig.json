@@ -6,7 +6,8 @@
     "module": "commonjs",
     "target": "ES2021",
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "types": ["node"]
   },
   "include": ["index.ts", "client.ts", "client-safe.ts", "enums.ts"],
   "exclude": ["node_modules", "dist", "prisma"]
