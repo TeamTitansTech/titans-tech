@@ -62,7 +62,10 @@
     "tailwind-merge": "^3.3.1",
     "use-intl": "^4.5.0",
     "xlsx": "^0.18.5",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.4.31",
+    "tailwindcss": "^3.4.18"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -71,7 +74,6 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "autoprefixer": "^10.4.21",
     "doctrine": "^2.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
@@ -86,8 +88,6 @@
     "globals": "^16.4.0",
     "jsx-ast-utils": "^3.3.5",
     "next": "^16.0.1",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.4.18",
     "typescript": "^5",
     "typescript-eslint": "^8.46.3",
     "zod-validation-error": "^5.0.0"
