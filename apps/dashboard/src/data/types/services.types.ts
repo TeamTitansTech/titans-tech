@@ -73,24 +73,41 @@ import type {
   GibsStageData,
 } from '@titans-tech/shared/types/services';
 
+type AlertSeverity = 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+
 export interface LatestBearingClearance {
   latestServiceId: string;
   latestServiceDate: string;
   serviceType: 'INSPECTION' | 'MAINTENANCE';
-  data: BearingData;
+  outerData?: BearingData;
+  innerData?: BearingData;
   alert?: {
-    totalClearance_differential: number;
-    totalClearance_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
-    mainBearings_differential: number;
-    mainBearings_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
-    upperConnectionBearings_differential: number;
-    upperConnectionBearings_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
-    wristPinToMatingPart_differential: number;
-    wristPinToMatingPart_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
-    wristPinToBushing_differential: number;
-    wristPinToBushing_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
-    slideAdjNutToScrewSleeve_differential: number;
-    slideAdjNutToScrewSleeve_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+    // Outer alerts
+    outer_totalClearance_differential: number;
+    outer_totalClearance_severity: AlertSeverity;
+    outer_mainBearings_differential: number;
+    outer_mainBearings_severity: AlertSeverity;
+    outer_upperConnectionBearings_differential: number;
+    outer_upperConnectionBearings_severity: AlertSeverity;
+    outer_wristPinToMatingPart_differential: number;
+    outer_wristPinToMatingPart_severity: AlertSeverity;
+    outer_wristPinToBushing_differential: number;
+    outer_wristPinToBushing_severity: AlertSeverity;
+    outer_slideAdjNutToScrewSleeve_differential: number;
+    outer_slideAdjNutToScrewSleeve_severity: AlertSeverity;
+    // Inner alerts
+    inner_totalClearance_differential: number;
+    inner_totalClearance_severity: AlertSeverity;
+    inner_mainBearings_differential: number;
+    inner_mainBearings_severity: AlertSeverity;
+    inner_upperConnectionBearings_differential: number;
+    inner_upperConnectionBearings_severity: AlertSeverity;
+    inner_wristPinToMatingPart_differential: number;
+    inner_wristPinToMatingPart_severity: AlertSeverity;
+    inner_wristPinToBushing_differential: number;
+    inner_wristPinToBushing_severity: AlertSeverity;
+    inner_slideAdjNutToScrewSleeve_differential: number;
+    inner_slideAdjNutToScrewSleeve_severity: AlertSeverity;
   };
 }
 

@@ -9,7 +9,9 @@ import type {
   ClientNotificationResponseDto,
   NotificationStatsResponseDto,
   CreateUrgentRequestDto,
+  SendAlertNotificationDto,
 } from '@titans-tech/shared/backend-dtos';
+import type { AlertNotificationTemplateData } from '../email/templates/alert-notification.template';
 
 @Injectable()
 export class NotificationsService {
@@ -327,6 +329,424 @@ export class NotificationsService {
     return {
       success: true,
       count: result.count,
+    };
+  }
+
+  async sendAlertNotification(dto: SendAlertNotificationDto): Promise<{
+    success: boolean;
+    emailsSent: number;
+    notificationsCreated: number;
+  }> {
+    const { serviceId, machineId, selectedUserIds, extraEmails } = dto;
+
+    // Fetch service with alerts
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: {
+        machine: {
+          include: {
+            branch: {
+              include: {
+                company: true,
+              },
+            },
+          },
+        },
+        alertBearingClearance: true,
+        alertClutch: true,
+        alertSlide: true,
+        alertGibs: true,
+        alertCounterbalanceCylinderAirbag: true,
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    const machine = service.machine;
+    const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${machineId}`;
+
+    // Build alerts summary for email
+    const sections: AlertNotificationTemplateData['sections'] = [];
+    let highestSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+    // Process Bearing Clearance alerts with subsections (Outer/Inner)
+    if (service.alertBearingClearance) {
+      const alert = service.alertBearingClearance;
+      let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      const outerFields = [
+        {
+          name: 'Folga Total',
+          severity: alert.outer_totalClearance_severity,
+          differential: alert.outer_totalClearance_differential,
+        },
+        {
+          name: 'Mancais Principais',
+          severity: alert.outer_mainBearings_severity,
+          differential: alert.outer_mainBearings_differential,
+        },
+        {
+          name: 'Mancais de Conexão Superior',
+          severity: alert.outer_upperConnectionBearings_severity,
+          differential: alert.outer_upperConnectionBearings_differential,
+        },
+        {
+          name: 'Pino do Punho para Peça de Acoplamento',
+          severity: alert.outer_wristPinToMatingPart_severity,
+          differential: alert.outer_wristPinToMatingPart_differential,
+        },
+        {
+          name: 'Pino do Punho para Bucha',
+          severity: alert.outer_wristPinToBushing_severity,
+          differential: alert.outer_wristPinToBushing_differential,
+        },
+        {
+          name: 'Porca de Ajuste do Slide para Luva do Parafuso',
+          severity: alert.outer_slideAdjNutToScrewSleeve_severity,
+          differential: alert.outer_slideAdjNutToScrewSleeve_differential,
+        },
+      ];
+
+      const innerFields = [
+        {
+          name: 'Folga Total',
+          severity: alert.inner_totalClearance_severity,
+          differential: alert.inner_totalClearance_differential,
+        },
+        {
+          name: 'Mancais Principais',
+          severity: alert.inner_mainBearings_severity,
+          differential: alert.inner_mainBearings_differential,
+        },
+        {
+          name: 'Mancais de Conexão Superior',
+          severity: alert.inner_upperConnectionBearings_severity,
+          differential: alert.inner_upperConnectionBearings_differential,
+        },
+        {
+          name: 'Pino do Punho para Peça de Acoplamento',
+          severity: alert.inner_wristPinToMatingPart_severity,
+          differential: alert.inner_wristPinToMatingPart_differential,
+        },
+        {
+          name: 'Pino do Punho para Bucha',
+          severity: alert.inner_wristPinToBushing_severity,
+          differential: alert.inner_wristPinToBushing_differential,
+        },
+        {
+          name: 'Porca de Ajuste do Slide para Luva do Parafuso',
+          severity: alert.inner_slideAdjNutToScrewSleeve_severity,
+          differential: alert.inner_slideAdjNutToScrewSleeve_differential,
+        },
+      ];
+
+      const outerMeasurements: Array<{
+        name: string;
+        differential: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
+      let outerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      for (const f of outerFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          outerMeasurements.push({
+            name: f.name,
+            differential: f.differential?.toFixed(3) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
+          });
+          if (f.severity === 'RED') outerSeverity = 'RED';
+        }
+      }
+
+      const innerMeasurements: Array<{
+        name: string;
+        differential: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
+      let innerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      for (const f of innerFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          innerMeasurements.push({
+            name: f.name,
+            differential: f.differential?.toFixed(3) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
+          });
+          if (f.severity === 'RED') innerSeverity = 'RED';
+        }
+      }
+
+      const subsections: Array<{
+        name: string;
+        severity: 'YELLOW' | 'RED';
+        measurements: Array<{
+          name: string;
+          differential: string;
+          status: 'YELLOW' | 'RED';
+        }>;
+      }> = [];
+
+      if (outerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Outer',
+          severity: outerSeverity,
+          measurements: outerMeasurements,
+        });
+        if (outerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (innerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Inner',
+          severity: innerSeverity,
+          measurements: innerMeasurements,
+        });
+        if (innerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (subsections.length > 0) {
+        sections.push({
+          sectionName: 'Bearing Clearance',
+          severity: sectionSeverity,
+          subsections,
+        });
+        if (sectionSeverity === 'RED') highestSeverity = 'RED';
+      }
+    }
+
+    // Process Clutch alerts
+    if (service.alertClutch) {
+      const alert = service.alertClutch;
+      const alerts: Array<{
+        fieldLabel: string;
+        value: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
+      let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      const fields = [
+        {
+          label: 'Folga Total da Embreagem Hidráulica',
+          severity: alert.hydClutchClearanceTotal_severity,
+          value: alert.hydClutchClearanceTotal_value,
+        },
+        {
+          label: 'Folga Traseira da Embreagem Hidráulica',
+          severity: alert.hydClutchClearanceRear_severity,
+          value: alert.hydClutchClearanceRear_value,
+        },
+        {
+          label: 'F-B (Frente-Trás)',
+          severity: alert.fb_severity,
+          value: alert.fb_value,
+        },
+        {
+          label: 'F-TB (Frente Cima-Baixo)',
+          severity: alert.fTB_severity,
+          value: alert.fTB_value,
+        },
+        {
+          label: 'R-TB (Trás Cima-Baixo)',
+          severity: alert.rTB_severity,
+          value: alert.rTB_value,
+        },
+      ];
+
+      for (const f of fields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            fieldLabel: f.label,
+            value: f.value?.toFixed(3) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
+          });
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionName: 'Clutch',
+          severity: sectionSeverity,
+          alerts,
+        });
+        if (sectionSeverity === 'RED') highestSeverity = 'RED';
+      }
+    }
+
+    // Process Slide alerts
+    if (service.alertSlide) {
+      const alert = service.alertSlide;
+      const alerts: Array<{
+        fieldLabel: string;
+        value: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
+      let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      const fields = [
+        {
+          label: 'Desvio Máximo (Outer)',
+          severity: alert.maxDeviationOuter_severity,
+          value: alert.maxDeviationOuter_differential,
+        },
+        {
+          label: 'Desvio Máximo (Inner)',
+          severity: alert.maxDeviationInner_severity,
+          value: alert.maxDeviationInner_differential,
+        },
+      ];
+
+      for (const f of fields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            fieldLabel: f.label,
+            value: f.value?.toFixed(3) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
+          });
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionName: 'Slide',
+          severity: sectionSeverity,
+          alerts,
+        });
+        if (sectionSeverity === 'RED') highestSeverity = 'RED';
+      }
+    }
+
+    // Process Gibs alerts
+    if (service.alertGibs) {
+      const alert = service.alertGibs;
+      if (
+        alert.usable_severity === 'YELLOW' ||
+        alert.usable_severity === 'RED'
+      ) {
+        sections.push({
+          sectionName: 'Gibs',
+          severity: alert.usable_severity as 'YELLOW' | 'RED',
+          alerts: [
+            {
+              fieldLabel: 'Utilizável',
+              value: alert.usable_value?.toFixed(3) || '0',
+              status: alert.usable_severity as 'YELLOW' | 'RED',
+            },
+          ],
+        });
+        if (alert.usable_severity === 'RED') highestSeverity = 'RED';
+      }
+    }
+
+    // Process Counterbalance alerts
+    if (
+      service.alertCounterbalanceCylinderAirbag &&
+      service.alertCounterbalanceCylinderAirbag.length > 0
+    ) {
+      const alerts = service.alertCounterbalanceCylinderAirbag.map((a) => ({
+        fieldLabel: a.fieldName.replace(/_/g, ' '),
+        value: a.justification,
+        status: 'RED' as const,
+      }));
+      sections.push({
+        sectionName: 'Counterbalance Cylinder / Airbag',
+        severity: 'RED',
+        alerts,
+      });
+      highestSeverity = 'RED';
+    }
+
+    // Prepare email data
+    const emailData: AlertNotificationTemplateData = {
+      machineName: machine.name,
+      companyName: machine.branch.company.name,
+      branchName: machine.branch.name,
+      inspectionDate: service.date.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      performedBy: service.performedBy || 'Not specified',
+      machineUrl,
+      highestSeverity,
+      sections,
+    };
+
+    // Get selected users' emails
+    const selectedUsers =
+      selectedUserIds && selectedUserIds.length > 0
+        ? await this.prisma.user.findMany({
+            where: { id: { in: selectedUserIds } },
+            select: { id: true, email: true, name: true },
+          })
+        : [];
+
+    // Compile all email recipients
+    const allEmails: string[] = [
+      ...selectedUsers.map((u) => u.email),
+      ...(extraEmails || []),
+    ];
+
+    let emailsSent = 0;
+    let notificationsCreated = 0;
+
+    // Create ClientNotification for each selected user
+    for (const user of selectedUsers) {
+      try {
+        await this.prisma.clientNotification.create({
+          data: {
+            userId: user.id,
+            machineId,
+            message: `Inspection alert for machine "${machine.name}" - ${highestSeverity === 'RED' ? 'Critical' : 'Warning'}`,
+            redirectUrl: machineUrl,
+            type: NotificationType.INSPECTION_ALERT,
+            metadata: {
+              serviceId,
+              highestSeverity,
+              sectionsCount: sections.length,
+            },
+          },
+        });
+        notificationsCreated++;
+      } catch (error) {
+        this.logger.error(
+          `Failed to create notification for user ${user.id}`,
+          error,
+        );
+      }
+    }
+
+    // Send email to all recipients
+    if (allEmails.length > 0) {
+      this.logger.log(
+        `[Alert Notification] Attempting to send email to: ${allEmails.join(', ')}`,
+      );
+      try {
+        await this.emailService.sendAlertNotificationEmail(
+          allEmails,
+          emailData,
+          machineId,
+        );
+        emailsSent = allEmails.length;
+        this.logger.log(
+          `[Alert Notification] Email sent successfully to ${emailsSent} recipient(s)`,
+        );
+      } catch (error) {
+        this.logger.error('[Alert Notification] Failed to send email:', error);
+      }
+    } else {
+      this.logger.warn('[Alert Notification] No recipients to send email to');
+    }
+
+    return {
+      success: true,
+      emailsSent,
+      notificationsCreated,
     };
   }
 }

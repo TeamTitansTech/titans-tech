@@ -81,6 +81,26 @@
     "loading": "Loading",
     "noNotifications": "No notifications"
   },
+  "alertNotification": {
+    "title": "Alerts Detected in Inspection",
+    "description": "The inspection generated {count} alert(s). Select recipients for notification.",
+    "alertsSummary": "Alerts Summary",
+    "alertCount": "{count} alert(s)",
+    "selectRecipients": "Select Recipients",
+    "adminsAndManagers": "Administrators and Managers",
+    "noAdminsFound": "No administrator or manager found",
+    "admin": "Admin",
+    "manager": "Manager",
+    "additionalEmails": "Additional Emails",
+    "emailPlaceholder": "email@example.com",
+    "addEmail": "Add Email",
+    "skip": "Skip",
+    "sendNotifications": "Send Notifications",
+    "sending": "Sending...",
+    "selectAtLeastOne": "Select at least one recipient or add an email",
+    "errorSending": "Error sending notifications",
+    "successMessage": "Notifications sent! {emails} email(s) sent, {notifications} notification(s) created"
+  },
   "settings": {
     "title": "Settings",
     "description": "Manage your application preferences and settings",
@@ -929,6 +949,16 @@
           "ball_box_area_LH": "Ball Box Area LH",
           "Ball_box_area_RH": "Ball Box Area RH",
           "Ball_box_area_LH": "Ball Box Area LH"
+        },
+        "validation": {
+          "outerDataRequired": "Bearing Clearance: Outer Data is required",
+          "innerDataRequired": "Bearing Clearance: Inner Data is required",
+          "beforeMeasurementsRequired": "Bearing Clearance: When 'Include Before Measurements' is enabled for maintenance, you must fill all 'Before' sections (Outer Before and Inner Before)",
+          "fieldRequired": "{field} is required",
+          "outerBefore": "Outer Before",
+          "outerData": "Outer Data",
+          "innerBefore": "Inner Before",
+          "innerData": "Inner Data"
         }
       },
       "slide": {
