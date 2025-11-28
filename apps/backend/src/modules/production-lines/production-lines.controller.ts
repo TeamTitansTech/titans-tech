@@ -27,6 +27,23 @@ export class ProductionLinesController {
   ) {}
 
   /**
+   * Helper to dispatch operations based on user type
+   * @param user - The authenticated user from the request
+   * @param sysAdminAction - Action to execute for SysAdmin users
+   * @param userAction - Action to execute for regular users (receives userId)
+   */
+  private dispatchByUserType<T>(
+    user: ReqWithAuthUser['user'],
+    sysAdminAction: () => T,
+    userAction: (userId: string) => T,
+  ): T {
+    if (isSysAdmin(user)) {
+      return sysAdminAction();
+    }
+    return userAction(user.id);
+  }
+
+  /**
    * Create a new production line
    * Requires createProductionLines permission for the target branch (branchId in body)
    */
@@ -57,10 +74,11 @@ export class ProductionLinesController {
       };
     }>[]
   > {
-    if (isSysAdmin(req.user)) {
-      return this.productionLinesService.findAllForSysAdmin();
-    }
-    return this.productionLinesService.findAll(req.user.id);
+    return this.dispatchByUserType(
+      req.user,
+      () => this.productionLinesService.findAllForSysAdmin(),
+      (userId) => this.productionLinesService.findAll(userId),
+    );
   }
 
   @Authenticated()
@@ -76,10 +94,11 @@ export class ProductionLinesController {
       };
     }>
   > {
-    if (isSysAdmin(req.user)) {
-      return this.productionLinesService.findOneForSysAdmin(id);
-    }
-    return this.productionLinesService.findOne(req.user.id, id);
+    return this.dispatchByUserType(
+      req.user,
+      () => this.productionLinesService.findOneForSysAdmin(id),
+      (userId) => this.productionLinesService.findOne(userId, id),
+    );
   }
 
   @Authenticated()
@@ -99,16 +118,15 @@ export class ProductionLinesController {
       };
     }>
   > {
-    if (isSysAdmin(req.user)) {
-      return this.productionLinesService.updateForSysAdmin(
-        id,
-        updateProductionLineDto,
-      );
-    }
-    return this.productionLinesService.update(
-      req.user.id,
-      id,
-      updateProductionLineDto,
+    return this.dispatchByUserType(
+      req.user,
+      () =>
+        this.productionLinesService.updateForSysAdmin(
+          id,
+          updateProductionLineDto,
+        ),
+      (userId) =>
+        this.productionLinesService.update(userId, id, updateProductionLineDto),
     );
   }
 
@@ -118,9 +136,10 @@ export class ProductionLinesController {
     @Request() req: ReqWithAuthUser,
     @Param('id') id: string,
   ): Promise<void> {
-    if (isSysAdmin(req.user)) {
-      return this.productionLinesService.removeForSysAdmin(id);
-    }
-    return this.productionLinesService.remove(req.user.id, id);
+    return this.dispatchByUserType(
+      req.user,
+      () => this.productionLinesService.removeForSysAdmin(id),
+      (userId) => this.productionLinesService.remove(userId, id),
+    );
   }
 }

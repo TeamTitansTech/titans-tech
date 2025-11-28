@@ -1018,6 +1018,9 @@
       }
     },
     "latestReport": {
+      "title": "Relatório Atualizado",
+      "exportError": "Erro ao exportar PDF",
+      "exportSuccess": "PDF exportado com sucesso!",
       "updatedAt": "Atualizado em",
       "problems": "Problema(s)",
       "severity": {

@@ -25,16 +25,16 @@ import {
 } from '@/lib/alertStatus';
 import { TooltipProvider } from '@/components/ui/tooltip';
 
-// Section labels in Portuguese
-const SECTION_LABELS: Record<string, string> = {
-  BEARING_CLEARANCE: 'Folga de Rolamento',
-  SLIDE: 'Deslizamento',
-  GIBS: 'Guias',
-  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'Lubrificação / Hidráulica',
-  CLUTCH: 'Folga de Embreagem e Freio',
-  COUNTERBALANCE_CYLINDER_AIRBAG: 'Cilindro de Contrapeso / Airb...',
-  TRAMMING: 'Tramming',
-  PISTONS: 'Pistões',
+// Map section enum values to i18n keys (matching machines.sectionNames in translations)
+const SECTION_I18N_KEYS: Record<string, string> = {
+  BEARING_CLEARANCE: 'bearingClearance',
+  SLIDE: 'slide',
+  GIBS: 'gibs',
+  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
+  CLUTCH: 'clutch',
+  COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
+  TRAMMING: 'tramming',
+  PISTONS: 'pistons',
 };
 
 const sectionStatusDotColors: Record<SectionStatus, string> = {
@@ -46,6 +46,7 @@ const sectionStatusDotColors: Record<SectionStatus, string> = {
 
 // Helper component to render section list for a machine
 function MachineSectionList({ machine }: { machine: MachineWithStatus }) {
+  const tSections = useTranslations('machines.sectionNames');
   const sections = (machine.blueprint?.sections as string[]) || [];
 
   if (sections.length === 0) return null;
@@ -54,7 +55,8 @@ function MachineSectionList({ machine }: { machine: MachineWithStatus }) {
     <div className="flex flex-col gap-0.5 mt-1.5">
       {sections.map((section) => {
         const status = getSectionStatus(section, machine);
-        const label = SECTION_LABELS[section] || section;
+        const i18nKey = SECTION_I18N_KEYS[section];
+        const label = i18nKey ? tSections(i18nKey) : section;
 
         return (
           <div key={section} className="flex items-center gap-1.5">

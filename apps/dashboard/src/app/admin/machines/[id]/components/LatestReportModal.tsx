@@ -23,9 +23,8 @@ import { Download, FileText, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useTranslations } from 'next-intl';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import { toast } from 'sonner';
+import { exportToPDF } from '@/lib/pdfExport';
 import type {
   LatestReport,
   LatestBearingClearance,
@@ -52,159 +51,27 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
   const handleExportPDF = async () => {
     if (!contentRef.current) {
-      toast.error('Erro ao exportar PDF');
+      toast.error(t('exportError'));
       return;
     }
 
     setIsExporting(true);
 
-    try {
-      const element = contentRef.current;
+    const result = await exportToPDF({
+      element: contentRef.current,
+      title: `${report.machineName} - ${t('title')}`,
+      filename: `${report.machineName}_Relatorio`,
+      convertSvgs: false, // LatestReportModal doesn't have Recharts
+    });
 
-      // Store original styles
-      const originalStyle = {
-        height: element.style.height,
-        overflow: element.style.overflow,
-        maxHeight: element.style.maxHeight,
-        position: element.style.position,
-      };
-
-      // Temporarily expand to show all content
-      element.style.height = 'auto';
-      element.style.overflow = 'visible';
-      element.style.maxHeight = 'none';
-
-      // Force layout recalculation
-      void element.offsetHeight;
-
-      // Wait for any animations to complete
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      // Get the actual full dimensions after expansion
-      const fullWidth = Math.max(element.scrollWidth, element.offsetWidth, element.clientWidth);
-      const fullHeight = Math.max(element.scrollHeight, element.offsetHeight, element.clientHeight);
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        width: fullWidth,
-        height: fullHeight,
-        windowWidth: fullWidth,
-        windowHeight: fullHeight,
-        scrollX: 0,
-        scrollY: 0,
-        imageTimeout: 15000,
-        onclone: (clonedDoc, clonedElement) => {
-          clonedElement.style.height = 'auto';
-          clonedElement.style.overflow = 'visible';
-          clonedElement.style.maxHeight = 'none';
-          clonedElement.style.position = 'relative';
-
-          // Hide export buttons in the cloned document
-          const exportButtons = clonedDoc.querySelectorAll('[data-export-button]');
-          exportButtons.forEach((btn) => {
-            (btn as HTMLElement).style.display = 'none';
-          });
-        },
-      });
-
-      // Restore original styles
-      element.style.height = originalStyle.height;
-      element.style.overflow = originalStyle.overflow;
-      element.style.maxHeight = originalStyle.maxHeight;
-      element.style.position = originalStyle.position;
-
-      // Calculate dimensions - A4 landscape with pagination
-      const pdfWidth = 297; // A4 landscape width in mm
-      const pdfPageHeight = 210; // A4 landscape height in mm
-      const margin = 15;
-      const headerHeight = 20;
-      const contentWidth = pdfWidth - 2 * margin;
-      const contentPageHeight = pdfPageHeight - headerHeight - margin;
-
-      // Calculate image scaling
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = contentWidth / imgWidth;
-      const scaledHeight = imgHeight * ratio;
-
-      // Determine number of pages needed
-      const totalPages = Math.ceil(scaledHeight / contentPageHeight);
-
-      // Create PDF
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      // Add content across pages
-      for (let page = 0; page < totalPages; page++) {
-        if (page > 0) {
-          pdf.addPage();
-        }
-
-        // Add simple header with title
-        pdf.setTextColor(0, 0, 0);
-        pdf.setFontSize(14);
-        pdf.setFont('helvetica', 'bold');
-        pdf.text(`${report.machineName} - Relatório Atualizado`, margin, 12);
-
-        // Add a subtle line under header
-        pdf.setDrawColor(200, 200, 200);
-        pdf.setLineWidth(0.5);
-        pdf.line(margin, headerHeight - 2, pdfWidth - margin, headerHeight - 2);
-
-        // Calculate which portion of the image to draw
-        const sourceY = (page * contentPageHeight) / ratio;
-        const sourceHeight = Math.min(contentPageHeight / ratio, imgHeight - sourceY);
-        const destHeight = sourceHeight * ratio;
-
-        // Create a temporary canvas for this page's portion
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = imgWidth;
-        tempCanvas.height = sourceHeight;
-        const tempCtx = tempCanvas.getContext('2d');
-
-        if (tempCtx) {
-          tempCtx.drawImage(
-            canvas,
-            0,
-            sourceY,
-            imgWidth,
-            sourceHeight,
-            0,
-            0,
-            imgWidth,
-            sourceHeight,
-          );
-
-          const pageImgData = tempCanvas.toDataURL('image/png', 1.0);
-          pdf.addImage(pageImgData, 'PNG', margin, headerHeight, contentWidth, destHeight);
-        }
-
-        // Add page number in footer (only if multiple pages)
-        if (totalPages > 1) {
-          pdf.setTextColor(128, 128, 128);
-          pdf.setFontSize(8);
-          const pageText = `${page + 1} / ${totalPages}`;
-          pdf.text(pageText, pdfWidth / 2 - pdf.getTextWidth(pageText) / 2, pdfPageHeight - 5);
-        }
-      }
-
-      const filename = `${report.machineName}_Relatorio_${format(new Date(), 'yyyy-MM-dd')}.pdf`;
-      pdf.save(filename);
-
-      toast.success('PDF exportado com sucesso!');
-    } catch (error) {
-      console.error('Error exporting to PDF:', error);
-      toast.error('Erro ao exportar PDF');
-    } finally {
-      setIsExporting(false);
+    if (result.success) {
+      toast.success(t('exportSuccess'));
+    } else {
+      console.error('Error exporting to PDF:', result.error);
+      toast.error(t('exportError'));
     }
+
+    setIsExporting(false);
   };
 
   // Get severity badge color and text
@@ -1087,7 +954,9 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                               counterbalance.data.outerData?.[
                                 key as keyof CounterbalanceCylinderData
                               ];
-                            const status = formatCounterbalanceStatus(value as string);
+                            // Type guard: only pass string values to formatCounterbalanceStatus
+                            const stringValue = typeof value === 'string' ? value : undefined;
+                            const status = formatCounterbalanceStatus(stringValue);
                             return (
                               <div key={key} className="flex justify-between items-center">
                                 <span className="text-muted-foreground">
@@ -1136,7 +1005,9 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                               counterbalance.data.innerData?.[
                                 key as keyof CounterbalanceCylinderData
                               ];
-                            const status = formatCounterbalanceStatus(value as string);
+                            // Type guard: only pass string values to formatCounterbalanceStatus
+                            const stringValue = typeof value === 'string' ? value : undefined;
+                            const status = formatCounterbalanceStatus(stringValue);
                             return (
                               <div key={key} className="flex justify-between items-center">
                                 <span className="text-muted-foreground">
