@@ -31,14 +31,23 @@ interface BearingClearanceThresholds {
 
 interface CreateBlueprintPayload {
   name: string;
+  imageUrl?: string;
   sections: string[];
   fields: BlueprintField[];
   thresholds?: BearingClearanceThresholds;
 }
 
+interface UpdateBlueprintPayload {
+  name?: string;
+  imageUrl?: string;
+  sections?: string[];
+  fields?: BlueprintField[];
+}
+
 interface Blueprint {
   id: string;
   name: string;
+  imageUrl?: string;
   sections: string[];
   fields: BlueprintField[];
   createdAt: string;
@@ -57,4 +66,11 @@ export const createBlueprint = async (payload: CreateBlueprintPayload) => {
 
 export const getBlueprints = async () => {
   return await responseHandler<Blueprint[]>('/blueprints');
+};
+
+export const updateBlueprint = async (id: string, payload: UpdateBlueprintPayload) => {
+  return await responseHandler<Blueprint>(`/blueprints/${id}`, {
+    method: 'PATCH',
+    body: payload,
+  });
 };

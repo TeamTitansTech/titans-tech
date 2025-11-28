@@ -35,6 +35,7 @@ interface Machine {
   id: string;
   name: string;
   blueprintId: string;
+  imageUrl?: string | null;
   fields: { fieldSlug: string; value: string | number }[];
   blueprint?: {
     name: string;
@@ -136,6 +137,7 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
                 id={machine.id}
                 name={machine.name}
                 blueprintName={machine.blueprint?.name || t('noBlueprint')}
+                imageUrl={machine.imageUrl}
                 location={machine.location}
                 lastInspection={machine.lastInspection}
                 status={machine.status}

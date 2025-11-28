@@ -49,6 +49,7 @@ export const CreateMachineSchema = z.object({
   fields: z.array(MachineFieldSchema).min(1, 'At least one field is required'),
 
   // Optional machine specifications
+  imageUrl: z.string().optional(),
   manufacturer: z.string().optional(),
   sizeTonnage: z.string().optional(),
   serialNumber: z.string().optional(),
@@ -76,6 +77,7 @@ export const UpdateMachineSchema = z.object({
   fields: z.array(MachineFieldSchema).optional(),
 
   // Optional machine specifications
+  imageUrl: z.string().optional(),
   manufacturer: z.string().optional(),
   sizeTonnage: z.string().optional(),
   serialNumber: z.string().optional(),

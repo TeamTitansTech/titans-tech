@@ -3,6 +3,12 @@
     "companyName": "InspectPro",
     "companySubtitle": "Portal de Administración",
     "unsavedChanges": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?",
+    "confirmClose": {
+      "title": "¿Descartar cambios?",
+      "description": "Tiene cambios sin guardar. Si cierra ahora, todos los datos ingresados se perderán.",
+      "confirm": "Sí, descartar",
+      "cancel": "Continuar editando"
+    },
     "noPermission": {
       "title": "Sin Permiso",
       "description": "No tiene permiso para acceder a esta página o recurso.",
@@ -42,6 +48,14 @@
       "needs_reset": "Necesita Reset",
       "buckled": "Pandeado",
       "cracked": "Agrietado"
+    },
+    "imageUpload": {
+      "onlyJpgPngAllowed": "Solo se permiten imágenes JPG y PNG",
+      "fileTooLarge": "Archivo muy grande. Tamaño máximo: {size}MB",
+      "uploadFailed": "Error al subir la imagen",
+      "uploading": "Subiendo...",
+      "clickToUpload": "Haga clic para subir",
+      "jpgOrPngMax": "JPG o PNG (máx. 10MB)"
     }
   },
   "validation": {
@@ -284,7 +298,8 @@
         "branchManagement": "Gestión de Sucursales",
         "blueprintManagement": "Modelos de Máquinas",
         "machineManagement": "Gestión de Máquinas",
-        "serviceManagement": "Registros de Servicios"
+        "serviceManagement": "Registros de Servicios",
+        "productionLineManagement": "Líneas de Producción"
       },
       "actions": {
         "selectAll": "Seleccionar Todo",
@@ -310,7 +325,11 @@
         "readServices": "Ver Servicios",
         "createServices": "Crear Servicios",
         "updateServices": "Editar Servicios",
-        "deleteServices": "Eliminar Servicios"
+        "deleteServices": "Eliminar Servicios",
+        "readProductionLines": "Ver Líneas de Producción",
+        "createProductionLines": "Crear Líneas de Producción",
+        "updateProductionLines": "Editar Líneas de Producción",
+        "deleteProductionLines": "Eliminar Líneas de Producción"
       },
       "descriptions": {
         "readUsers": "Ver la lista de usuarios y su información",
@@ -332,7 +351,11 @@
         "readServices": "Ver registros de inspección y mantenimiento",
         "createServices": "Agregar nuevos registros de inspección/mantenimiento",
         "updateServices": "Modificar registros de servicio existentes",
-        "deleteServices": "Remover registros de servicio"
+        "deleteServices": "Remover registros de servicio",
+        "readProductionLines": "Ver líneas de producción y sus máquinas",
+        "createProductionLines": "Crear nuevas líneas de producción",
+        "updateProductionLines": "Modificar líneas de producción existentes",
+        "deleteProductionLines": "Eliminar líneas de producción"
       },
       "permissionCount": "{count} permisos habilitados",
       "templates": "Plantillas"
@@ -621,6 +644,42 @@
         "viewReportsDesc": "Acceda al historial de servicios y análisis",
         "settings": "Configuración",
         "settingsDesc": "Administre su cuenta y preferencias"
+      },
+      "overview": {
+        "machines": "Máquinas",
+        "services": "Servicios",
+        "alerts": "Alertas",
+        "operating": "Operando",
+        "scheduled": "Programado",
+        "scheduled_plural": "Programados",
+        "allOk": "Todo OK",
+        "requiresAttention": "Requiere Atención"
+      },
+      "requiresAttention": {
+        "title": "Requiere Atención",
+        "more": "+{count} más"
+      },
+      "timeline": {
+        "title": "Próximos 7 Días",
+        "noServices": "No hay servicios programados",
+        "today": "Hoy",
+        "tomorrow": "Mañana",
+        "maintenance": "Mantenimiento",
+        "inspection": "Inspección"
+      },
+      "performance": {
+        "title": "Rendimiento del Mes",
+        "availability": "Disponibilidad",
+        "preventive": "Preventivo",
+        "corrective": "Correctivo"
+      },
+      "machineHealth": {
+        "title": "Estado de las Máquinas",
+        "more": "máquinas adicionales"
+      },
+      "weeklyActivity": {
+        "title": "Actividad Semanal",
+        "description": "Servicios completados en los últimos 7 días"
       }
     }
   },
@@ -652,6 +711,10 @@
       "name": {
         "label": "Nombre de la Plantilla",
         "placeholder": "ej., Plantilla de Maquinaria Pesada"
+      },
+      "image": {
+        "label": "Imagen del Modelo",
+        "description": "Opcional: Agregue una imagen representativa del blueprint"
       },
       "sections": {
         "label": "Secciones *"
@@ -686,8 +749,19 @@
       },
       "response": {
         "title": "Respuesta:"
+      },
+      "confirmClose": {
+        "title": "¿Descartar cambios?",
+        "description": "Tienes cambios sin guardar. Si cierras ahora, todos los datos ingresados se perderán.",
+        "confirm": "Sí, descartar",
+        "cancel": "Continuar editando"
       }
-    }
+    },
+    "machine": "máquina",
+    "machines": "máquinas",
+    "field": "campo",
+    "fields": "campos",
+    "edit": "Editar"
   },
   "machines": {
     "title": "Crear Máquina",
@@ -736,6 +810,17 @@
     "viewMaintenanceLog": "Ver Registro de Mantenimiento",
     "downloadReports": "Descargar Informes",
     "requestUrgentService": "Solicitar Servicio Urgente",
+    "urgentServiceDescription": "Solicitar un servicio urgente para {machineName}. Nuestro equipo será notificado inmediatamente.",
+    "machine": "Máquina",
+    "additionalNotes": "Notas Adicionales",
+    "optional": "opcional",
+    "urgentServiceNotesPlaceholder": "Describa el problema o la urgencia...",
+    "urgentServiceNotesHint": "Proporcione detalles para ayudar a nuestro equipo a comprender mejor la situación.",
+    "urgentServiceRequestSent": "¡Solicitud enviada con éxito! Nuestro equipo ha sido notificado.",
+    "urgentServiceRequestError": "Error al enviar la solicitud. Por favor, inténtelo de nuevo.",
+    "urgentServiceWarning": "Esta solicitud notificará inmediatamente a los administradores de la empresa.",
+    "requestSent": "Solicitud Enviada",
+    "sendUrgentRequest": "Enviar Solicitud",
     "serviceHistory": "Historial de Servicio",
     "technician": "Técnico",
     "completed": "Completado",
@@ -874,6 +959,50 @@
       },
       "response": {
         "title": "Respuesta:"
+      },
+      "specifications": {
+        "title": "Especificaciones de la Máquina",
+        "allFieldsOptional": "Todos los campos son opcionales",
+        "manufacturer": {
+          "label": "Fabricante",
+          "placeholder": "Ingrese el fabricante"
+        },
+        "sizeTonnage": {
+          "label": "Tamaño/Tonelaje",
+          "placeholder": "Ingrese el tamaño/tonelaje"
+        },
+        "serialNumber": {
+          "label": "Número de Serie",
+          "placeholder": "Ingrese el número de serie"
+        },
+        "stroke": {
+          "label": "Carrera",
+          "placeholder": "Ingrese la carrera"
+        },
+        "foundationType": {
+          "label": "Tipo de Fundación",
+          "placeholder": "Seleccione el tipo de fundación"
+        },
+        "frameType": {
+          "label": "Tipo de Estructura",
+          "placeholder": "Seleccione el tipo de estructura"
+        },
+        "clutchType": {
+          "label": "Tipo de Embrague",
+          "placeholder": "Seleccione el tipo de embrague"
+        },
+        "pneumaticSystem": {
+          "label": "Sistema Neumático",
+          "placeholder": "Seleccione el sistema neumático"
+        },
+        "pressMounting": {
+          "label": "Montaje de la Prensa",
+          "placeholder": "Seleccione el montaje de la prensa"
+        },
+        "features": {
+          "label": "Características",
+          "placeholder": "Seleccione las características"
+        }
       }
     }
   },
@@ -1054,7 +1183,10 @@
         "usable": "Utilizable",
         "rear": "Trasera",
         "beforeToolInstallation": "Antes de la Instalación de la Herramienta",
-        "afterToolInstallation": "Después de la Instalación de la Herramienta"
+        "afterToolInstallation": "Después de la Instalación de la Herramienta",
+        "adjustment": "Ajuste",
+        "installation": "Instalación",
+        "haveInnerGibsBeenAdjusted": "Las guías internas han sido ajustadas"
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Presiones del Sistema (PSI)",
@@ -1237,11 +1369,18 @@
           "cancel": "Cancelar",
           "save": "Guardar Alerta",
           "saving": "Guardando...",
+          "editing": "Editando...",
           "createdAt": "Creado el",
           "toast": {
             "selectFieldAndJustification": "Seleccione un campo y proporcione una justificación",
+            "justificationRequired": "La justificación es obligatoria",
             "createSuccess": "Alerta creada con éxito",
-            "createError": "Error al crear alerta"
+            "createError": "Error al crear alerta",
+            "updateSuccess": "Alerta actualizada con éxito",
+            "updateError": "Error al actualizar alerta",
+            "deleteSuccess": "Alerta eliminada con éxito",
+            "deleteError": "Error al eliminar alerta",
+            "confirmDelete": "¿Está seguro de que desea eliminar esta alerta?"
           },
           "fieldLabels": {
             "AIRBAG_PISTON_SEALS": "Sellos de Bolsa de Aire/Pistón",
@@ -1601,10 +1740,17 @@
     "companyNotFound": "Empresa no encontrada",
     "branchesSubtitle": "Sucursales",
     "noBranches": "No se encontraron sucursales para esta empresa",
+    "noBranchesDescription": "Las sucursales se mostrarán aquí cuando se creen",
     "branch": "sucursal",
     "branches": "sucursales",
     "machine": "máquina",
     "machines": "máquinas",
+    "noMachines": "Sin máquinas",
+    "totalBranches": "Total de Sucursales",
+    "totalMachines": "Total de Máquinas",
+    "brandColor": "Color de Marca",
+    "primaryColor": "Color primario de la empresa",
+    "companyAdmin": "Administrador de la Empresa",
     "mainBranch": "Sucursal Principal",
     "viewMachines": "Ver Máquinas",
     "createBranch": {
@@ -1639,6 +1785,18 @@
     "blueprint": "Modelo",
     "fields": "campos",
     "mainBranch": "Sucursal Principal"
+  },
+  "permissions": {
+    "readMachines": "Ver Máquinas",
+    "createMachines": "Crear Máquinas",
+    "updateMachines": "Editar Máquinas",
+    "deleteMachines": "Eliminar Máquinas",
+    "readServices": "Ver Servicios",
+    "createServices": "Crear Servicios",
+    "updateServices": "Editar Servicios",
+    "deleteServices": "Eliminar Servicios",
+    "readBranches": "Ver Sucursales",
+    "updateBranches": "Editar Sucursales"
   },
   "login": {
     "title": "Bienvenido de nuevo",

@@ -7,10 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Boxes, Edit, Copy, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
 
 interface BlueprintCardProps {
   id: string;
   name: string;
+  imageUrl?: string;
   description: string;
   machineCount: number;
   fieldCount: number;
@@ -19,6 +21,7 @@ interface BlueprintCardProps {
 export function BlueprintCard({
   id,
   name,
+  imageUrl,
   description,
   machineCount,
   fieldCount,
@@ -30,9 +33,22 @@ export function BlueprintCard({
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3 min-w-0 flex-1">
-            <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-              <Boxes className="w-5 h-5 text-accent" />
-            </div>
+            {imageUrl ? (
+              <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border">
+                <Image
+                  src={imageUrl}
+                  alt={name}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
+              </div>
+            ) : (
+              <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                <Boxes className="w-5 h-5 text-accent" />
+              </div>
+            )}
             <div className="min-w-0 flex-1">
               <ConditionalTooltip content={name}>
                 <CardTitle className="text-lg truncate">{name}</CardTitle>
