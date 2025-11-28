@@ -686,8 +686,19 @@
       },
       "response": {
         "title": "Response:"
+      },
+      "confirmClose": {
+        "title": "Discard changes?",
+        "description": "You have unsaved changes. If you close now, all entered data will be lost.",
+        "confirm": "Yes, discard",
+        "cancel": "Continue editing"
       }
-    }
+    },
+    "machine": "machine",
+    "machines": "machines",
+    "field": "field",
+    "fields": "fields",
+    "edit": "Edit"
   },
   "machines": {
     "title": "Create Machine",

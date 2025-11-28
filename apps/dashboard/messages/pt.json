@@ -749,7 +749,12 @@
         "confirm": "Sim, descartar",
         "cancel": "Continuar editando"
       }
-    }
+    },
+    "machine": "máquina",
+    "machines": "máquinas",
+    "field": "campo",
+    "fields": "campos",
+    "edit": "Editar"
   },
   "machines": {
     "title": "Criar Máquina",

@@ -686,8 +686,19 @@
       },
       "response": {
         "title": "Respuesta:"
+      },
+      "confirmClose": {
+        "title": "¿Descartar cambios?",
+        "description": "Tienes cambios sin guardar. Si cierras ahora, todos los datos ingresados se perderán.",
+        "confirm": "Sí, descartar",
+        "cancel": "Continuar editando"
       }
-    }
+    },
+    "machine": "máquina",
+    "machines": "máquinas",
+    "field": "campo",
+    "fields": "campos",
+    "edit": "Editar"
   },
   "machines": {
     "title": "Crear Máquina",

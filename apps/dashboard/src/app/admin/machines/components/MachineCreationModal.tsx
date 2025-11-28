@@ -36,6 +36,7 @@ import {
   PressMountingType,
   MachineFeaturesType,
 } from '@titans-tech/shared/types/enums';
+import Image from 'next/image';
 
 interface BlueprintField {
   fieldName: string;
@@ -47,6 +48,7 @@ interface BlueprintField {
 interface Blueprint {
   id: string;
   name: string;
+  imageUrl?: string;
   sections: string[];
   fields: BlueprintField[];
   createdAt: string;
@@ -388,7 +390,22 @@ export function MachineCreationModal({
                           <div className="flex items-start justify-between">
                             <div className="flex items-start gap-3 flex-1">
                               <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
-                                <Boxes className="w-5 h-5 text-orange-500" />
+                                {blueprint.imageUrl ? (
+                                  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 border border-border">
+                                    <Image
+                                      src={blueprint.imageUrl}
+                                      alt={blueprint.name}
+                                      width={40}
+                                      height={40}
+                                      className="w-full h-full object-cover"
+                                      unoptimized
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
+                                    <Boxes className="w-5 h-5 text-accent" />
+                                  </div>
+                                )}
                               </div>
                               <div className="flex-1">
                                 <Typography variant="h4" className="text-sm">
