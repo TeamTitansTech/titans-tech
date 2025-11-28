@@ -1,9 +1,18 @@
 import { ServiceType, ServiceSection } from '@titans-tech/db/enums';
-import { BearingClearanceData, ClutchData, SlideData, GibsStageData } from '@titans-tech/db';
+import {
+  BearingClearanceData,
+  ClutchData,
+  SlideData,
+  GibsStageData,
+  LubricationHydraulicsData,
+  LubricationHydraulicsGauge,
+  CounterbalanceCylinderAirbagData,
+} from '@titans-tech/db';
 import { AlertBearingClearanceResponseDto } from './alert-bearing-clearance-response.dto';
 import { AlertClutchResponseDto } from './alert-clutch-response.dto';
 import { AlertSlideResponseDto } from './alert-slide-response.dto';
 import { AlertGibsResponseDto } from './alert-gibs-response.dto';
+import { AlertCounterbalanceCylinderAirbagResponseDto } from './alert-counterbalance-response.dto';
 
 /**
  * DTO for the latest BearingClearance data in a machine
@@ -70,6 +79,62 @@ export class LatestGibsDto {
 }
 
 /**
+ * DTO for Lubrication data with gauges
+ */
+export interface LubricationDataWithGauges extends LubricationHydraulicsData {
+  gauges: LubricationHydraulicsGauge[];
+}
+
+/**
+ * Alert severity for oil change status
+ */
+export type OilChangeAlertSeverity = 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+
+/**
+ * Alert data for oil change status
+ */
+export interface OilChangeAlert {
+  lastOilChangeDate: Date | null;
+  daysSinceChange: number | null;
+  daysUntilDue: number | null;
+  severity: OilChangeAlertSeverity;
+}
+
+/**
+ * DTO for the latest Lubrication & Hydraulics data in a machine
+ */
+export class LatestLubricationDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType; // INSPECTION | MAINTENANCE
+  data: LubricationDataWithGauges; // Lubrication data with gauges
+  alert?: OilChangeAlert; // Oil change status alert
+
+  constructor(partial: Partial<LatestLubricationDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
+ * DTO for the latest Counterbalance Cylinder/Airbag data in a machine
+ */
+export class LatestCounterbalanceDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType; // INSPECTION | MAINTENANCE
+  data: {
+    outerData?: CounterbalanceCylinderAirbagData;
+    innerData?: CounterbalanceCylinderAirbagData;
+    notes?: string;
+  };
+  alerts?: AlertCounterbalanceCylinderAirbagResponseDto[]; // Manual alerts for counterbalance
+
+  constructor(partial: Partial<LatestCounterbalanceDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
  * DTO for the complete latest report of a machine
  * Shows the most recent data for each section based on the blueprint
  */
@@ -86,9 +151,9 @@ export class LatestReportResponseDto {
     BEARING_CLEARANCE: LatestBearingClearanceDto | null;
     SLIDE: LatestSlideDto | null;
     GIBS: LatestGibsDto | null;
-    LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null; // Future implementation
+    LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LatestLubricationDto | null;
     CLUTCH: LatestClutchDto | null;
-    COUNTERBALANCE_CYLINDER_AIRBAG: null; // Future implementation
+    COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalanceDto | null;
   };
 
   constructor(partial: Partial<LatestReportResponseDto>) {

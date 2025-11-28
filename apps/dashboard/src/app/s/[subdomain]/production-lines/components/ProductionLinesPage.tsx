@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useOptimistic, startTransition, useMemo } from 'react';
+import { useState, useOptimistic, startTransition, useMemo, useEffect } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { ProductionLineCard } from './ProductionLineCard';
@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Plus, MapPin } from 'lucide-react';
 import { type ProductionLine } from '@/data/types/production-lines.types';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { useSysAdmin } from '@/contexts/SysAdminContext';
 import {
   Select,
   SelectContent,
@@ -18,6 +19,10 @@ import {
 } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { getBranchesWithPermission, filterByBranchPermission } from '@/lib/branchFilters';
+import {
+  getAllBranchesForSysAdmin,
+  type CompanyBranch,
+} from '@/data/services/company-branches.api';
 
 interface ProductionLinesPageProps {
   productionLines: ProductionLine[];
@@ -26,34 +31,61 @@ interface ProductionLinesPageProps {
 export function ProductionLinesPage({ productionLines }: ProductionLinesPageProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>('all');
+  const [allBranchesForSysAdmin, setAllBranchesForSysAdmin] = useState<CompanyBranch[]>([]);
   const router = useInternalRouter();
   const t = useTranslations('productionLines');
   const { companyUser } = useCompanyUser();
+  const { sysAdminUser } = useSysAdmin();
+  const isSysAdmin = !!sysAdminUser;
   const [optimisticLines, addOptimisticLine] = useOptimistic(
     productionLines,
     (state, newLine: ProductionLine) => [...state, newLine],
   );
 
+  // Fetch all branches for sysadmin
+  useEffect(() => {
+    if (isSysAdmin) {
+      getAllBranchesForSysAdmin().then((response) => {
+        if (response.data) {
+          setAllBranchesForSysAdmin(response.data);
+        }
+      });
+    }
+  }, [isSysAdmin]);
+
   // Get branches where user has permission to read production lines
-  const userBranches = useMemo(
-    () => getBranchesWithPermission(companyUser, 'readProductionLines'),
-    [companyUser],
-  );
+  // For sysadmin, use all branches fetched from API
+  const userBranches = useMemo(() => {
+    if (isSysAdmin) {
+      // Use all branches fetched from API, formatted with company name
+      return allBranchesForSysAdmin.map((branch) => ({
+        id: branch.id,
+        name: branch.company ? `${branch.company.name} - ${branch.name}` : branch.name,
+      }));
+    }
+    return getBranchesWithPermission(companyUser, 'readProductionLines');
+  }, [companyUser, isSysAdmin, allBranchesForSysAdmin]);
 
   // Filter production lines by selected branch
-  const filteredProductionLines = useMemo(
-    () =>
-      filterByBranchPermission(
-        optimisticLines,
-        companyUser,
-        selectedBranchFilter,
-        'readProductionLines',
-      ),
-    [optimisticLines, selectedBranchFilter, companyUser],
-  );
+  const filteredProductionLines = useMemo(() => {
+    if (isSysAdmin) {
+      // Sysadmin sees all, just filter by branch if selected
+      if (selectedBranchFilter === 'all') return optimisticLines;
+      return optimisticLines.filter((line) => line.branchId === selectedBranchFilter);
+    }
+    return filterByBranchPermission(
+      optimisticLines,
+      companyUser,
+      selectedBranchFilter,
+      'readProductionLines',
+    );
+  }, [optimisticLines, selectedBranchFilter, companyUser, isSysAdmin]);
 
   // Check if user has permission to create production lines in ANY branch (to show/hide button)
   const hasCreateProductionLinesPermission = useMemo(() => {
+    // Sysadmin can do everything
+    if (isSysAdmin) return true;
+
     if (!companyUser) return false;
 
     // Company admin and manager can create production lines
@@ -61,10 +93,13 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
 
     // Check if user has createProductionLines permission in at least one branch
     return companyUser.branches.some((ub) => ub.createProductionLines);
-  }, [companyUser]);
+  }, [companyUser, isSysAdmin]);
 
   // Check if user can create production lines in the currently selected branch (to enable/disable button)
   const canCreateInSelectedBranch = () => {
+    // Sysadmin can create in any selected branch
+    if (isSysAdmin) return selectedBranchFilter !== 'all';
+
     if (!companyUser) return false;
     if (selectedBranchFilter === 'all') return false; // Need to select a specific branch to create
 

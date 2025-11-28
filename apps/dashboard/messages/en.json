@@ -561,12 +561,63 @@
     "description": "Admin Dashboard Application",
     "admin": {
       "title": "Admin Portal",
-      "description": "Manage companies, machines, and models",
+      "description": "System overview and company management",
       "stats": {
-        "totalModels": "Total Models",
-        "activeCompanies": "Active Companies",
+        "totalModels": "Models",
+        "activeCompanies": "Companies",
         "machines": "Machines",
-        "pendingServices": "Pending Services"
+        "pendingServices": "Pending Services",
+        "totalBranches": "Branches",
+        "completedServices": "Completed Services"
+      },
+      "overview": {
+        "companies": "Companies",
+        "registered": "registered",
+        "machines": "Machines",
+        "operating": "operating",
+        "services": "Services",
+        "pending": "pending",
+        "thisMonth": "this month"
+      },
+      "companiesOverview": {
+        "title": "Registered Companies",
+        "description": "Overview of all companies in the system",
+        "branches": "branches",
+        "machines": "machines",
+        "services": "services",
+        "viewDetails": "View details",
+        "noCompanies": "No companies registered"
+      },
+      "recentActivity": {
+        "title": "Recent Activity",
+        "description": "Latest services performed across the system",
+        "noActivity": "No recent activity",
+        "inspection": "Inspection",
+        "maintenance": "Maintenance",
+        "completed": "Completed",
+        "pending": "Pending",
+        "viewAll": "View all"
+      },
+      "serviceTrends": {
+        "title": "Service Trends",
+        "description": "Services completed in the last 6 months across all companies",
+        "legend": {
+          "inspections": "Inspections",
+          "maintenance": "Maintenance"
+        },
+        "stats": {
+          "totalInspections": "Total Inspections",
+          "totalMaintenance": "Total Maintenance",
+          "totalServices": "Total Services"
+        }
+      },
+      "machineHealth": {
+        "title": "Machine Health",
+        "description": "Distribution of all machine statuses",
+        "healthy": "Healthy",
+        "attention": "Attention",
+        "critical": "Critical",
+        "unknown": "No data"
       }
     },
     "client": {
@@ -899,6 +950,7 @@
       "powerCordHoses": "Power Cord/Hoses",
       "chainsGearsSprockets": "Chains & Gears/Sprockets",
       "chartConnectionBearing": "Connection Bearing Clearance (CB)",
+      "chartTotalClearance": "Total Clearance (TC)",
       "chartDifference": "Difference",
       "noDataAvailable": "No data available",
       "exportData": "Export Data",
@@ -916,7 +968,107 @@
       "exportExcelError": "Failed to export Excel file",
       "areaChart": "Area Chart",
       "barChart": "Bar Chart",
-      "createInspection": "Create Inspection"
+      "createInspection": "Create Inspection",
+      "sectionTitles": {
+        "clutchMeasurements": "Clutch Measurements",
+        "slideMeasurements": "Slide Measurements",
+        "gibsMeasurements": "Gibs Measurements",
+        "lubricationStatus": "Lubrication & Hydraulics Status",
+        "counterbalanceStatus": "Counterbalance Status"
+      },
+      "chartTitles": {
+        "hydraulicClutchClearance": "Hydraulic Clutch Clearance",
+        "brakeSpringMeasurements": "Brake Spring Measurements (F-B, F-TB, R-TB)",
+        "slideMaxDeviation": "Slide Max Deviation (Outer vs Inner)",
+        "outerSlidePositions": "Outer Slide Positions (Position 1-5)",
+        "innerSlidePositions": "Inner Slide Positions (Position 1-5)",
+        "gibsUsableValue": "Gibs - Usable Value",
+        "innerGibsDirectional": "Inner Gibs - Directional Sums",
+        "outerGibsDirectional": "Outer Gibs - Directional Sums",
+        "issuesTrend": "Issues Trend Over Time",
+        "bearingClearanceDifferentials": "Bearing Clearance Differentials"
+      },
+      "labels": {
+        "outer": "Outer",
+        "inner": "Inner",
+        "issues": "Issues",
+        "inspections": "Inspections",
+        "inspectionHistory": "Inspection History",
+        "oilChanged": "Oil Changed",
+        "oilTemp": "Oil Temp",
+        "oilMfgType": "Oil MFG/Type",
+        "filterChanged": "Filter Changed",
+        "hydClutchTotal": "Hyd Clutch Total",
+        "hydClutchRear": "Hyd Clutch Rear",
+        "leakLocation": "Leak Location",
+        "outerIssues": "Outer Issues",
+        "innerIssues": "Inner Issues",
+        "customAlerts": "Custom Alerts",
+        "createdAt": "Created on",
+        "date": "Date",
+        "outerType": "Outer Type",
+        "innerType": "Inner Type",
+        "noLubricationData": "No lubrication data available",
+        "noCounterbalanceData": "No counterbalance data available"
+      }
+    },
+    "latestReport": {
+      "title": "Latest Report",
+      "exportError": "Error exporting PDF",
+      "exportSuccess": "PDF exported successfully!",
+      "updatedAt": "Updated on",
+      "problems": "Problem(s)",
+      "severity": {
+        "critical": "Critical",
+        "warning": "Warning",
+        "ok": "OK",
+        "normal": "Normal"
+      },
+      "yesNoDnc": {
+        "yes": "Yes",
+        "no": "No",
+        "dnc": "DNC"
+      },
+      "counterbalance": {
+        "cylinder": "Cylinder",
+        "airbag": "Airbag",
+        "outer": "Outer",
+        "inner": "Inner",
+        "pistonSeals": "Piston Seals",
+        "regulator": "Regulator",
+        "gauge": "Gauge",
+        "pneumaticsPlumbing": "Pneumatics/Plumbing",
+        "rodSeals": "Rod Seals",
+        "rodBushing": "Rod Bushing",
+        "oilWick": "Oil Wick",
+        "status": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Leaking",
+          "notOperational": "Not Operational",
+          "darkOil": "Dark Oil",
+          "needsReplaced": "Needs Replaced"
+        }
+      },
+      "lubrication": {
+        "title": "Lubrication & Hydraulics",
+        "field": "Field",
+        "value": "Value",
+        "oilChanged": "Oil Changed",
+        "oilTemperature": "Oil Temperature",
+        "oilMfgType": "Oil Mfg/Type",
+        "filterChanged": "Filter Changed",
+        "systemGauges": "System Gauges",
+        "system": "System",
+        "identifier": "Identifier",
+        "status": "Status"
+      },
+      "bearingClearance": {
+        "measurement": "Measurement",
+        "differential": "Differential",
+        "status": "Status"
+      }
     },
     "form": {
       "cancel": "Cancel",
@@ -1951,6 +2103,10 @@
     "saveConfig": "Save Configuration",
     "savingConfig": "Saving...",
     "configSaved": "Configuration saved successfully",
+    "orderSaved": "Machine order saved successfully",
+    "unsavedChanges": "You have unsaved changes to the machine order",
+    "saveOrder": "Save Order",
+    "saving": "Saving...",
     "lineName": "Line Name",
     "lineNamePlaceholder": "Ex: Main Line",
     "lineNameRequired": "Line name is required",

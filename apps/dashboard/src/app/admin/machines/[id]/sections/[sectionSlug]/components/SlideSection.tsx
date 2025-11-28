@@ -5,9 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { useTranslations } from 'next-intl';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
@@ -15,10 +23,12 @@ import type { SlideInspectionData } from './SlideSectionWrapper';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
 import {
   transformSlidePositionsToMultiLineData,
+  transformSlideMaxDeviationToMultiLineData,
   extractThresholdConfig,
 } from '@/components/charts/dataTransformers';
 import { getSlideThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
+import { SectionExportButton } from '@/components/shared/SectionExportButton';
 
 interface SlideSectionProps {
   machineId: string;
@@ -29,6 +39,7 @@ interface SlideSectionProps {
 
 export function SlideSection({ inspections, machineName, blueprintId }: SlideSectionProps) {
   const t = useTranslations('machines.sectionDetails');
+  const contentRef = useRef<HTMLDivElement>(null);
   const [positionThreshold, setPositionThreshold] = useState<ThresholdConfig | null>(null);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
@@ -50,12 +61,12 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
 
       try {
         const response = await getSlideThresholdByBlueprint(blueprintId);
-        console.log('📊 SlideSection: API Response:', response);
         if (response.data) {
-          // Extract thresholds for position measurements
-          const threshold = extractThresholdConfig(response.data, 'position');
+          // Extract threshold for max deviation (single threshold for all positions)
+          const threshold = extractThresholdConfig(response.data, 'maxDeviation');
           setPositionThreshold(threshold);
         } else {
+          console.log('📊 SlideSection: No data in response');
         }
       } catch (error) {
         console.error('Failed to fetch slide threshold:', error);
@@ -90,13 +101,45 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
     return transformSlidePositionsToMultiLineData(filteredInspections, 'inner');
   }, [filteredInspections]);
 
+  // Transform data for max deviation chart
+  const maxDeviationChartData = useMemo(() => {
+    return transformSlideMaxDeviationToMultiLineData(filteredInspections);
+  }, [filteredInspections]);
+
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
     if (value === null || value === undefined) return '-';
-    return Number(value).toFixed(decimals);
+    const numValue = Number(value);
+    if (isNaN(numValue)) return '-';
+    return numValue.toFixed(decimals);
   };
 
+  // Calculate max deviation from positions (max - min)
+  const calculateMaxDeviation = (data: typeof latestOuterData): number | null => {
+    if (!data) return null;
+
+    const rawPositions = [
+      data.position1,
+      data.position2,
+      data.position3,
+      data.position4,
+      data.position5,
+    ];
+
+    // Filter out null/undefined values first, then convert to numbers
+    const positions = rawPositions
+      .filter((p): p is NonNullable<typeof p> => p != null)
+      .map((p) => Number(p))
+      .filter((p) => !isNaN(p));
+
+    if (positions.length === 0) return null;
+    return Math.max(...positions) - Math.min(...positions);
+  };
+
+  const outerMaxDeviation = calculateMaxDeviation(latestOuterData);
+  const innerMaxDeviation = calculateMaxDeviation(latestInnerData);
+
   return (
-    <div className="space-y-6">
+    <div ref={contentRef} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
@@ -182,138 +225,167 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
 
       <Card>
         <CardHeader>
-          <CardTitle>Slide Measurements</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>{t('sectionTitles.slideMeasurements')}</CardTitle>
+            <SectionExportButton
+              contentRef={contentRef}
+              sectionName="Slide"
+              machineName={machineName}
+            />
+          </div>
         </CardHeader>
         <CardContent>
           {/* Outer Slide Values */}
           <div className="mb-8">
             <Typography variant="h4" className="mb-4">
-              Outer Slide
+              {t('labels.outer')} Slide
             </Typography>
-            <div className="text-center">
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Position 1
-                  </Typography>
-                  <Typography variant="large">{formatValue(latestOuterData?.position1)}</Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Position 2
-                  </Typography>
-                  <Typography variant="large">{formatValue(latestOuterData?.position2)}</Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Position 3
-                  </Typography>
-                  <Typography variant="large">{formatValue(latestOuterData?.position3)}</Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Position 4
-                  </Typography>
-                  <Typography variant="large">{formatValue(latestOuterData?.position4)}</Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Position 5
-                  </Typography>
-                  <Typography variant="large">{formatValue(latestOuterData?.position5)}</Typography>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Parallelism
-                  </Typography>
-                  <Typography variant="large">
-                    {formatValue(latestOuterData?.parallelism)}
-                  </Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Shutheight (Actual)
-                  </Typography>
-                  <Typography variant="large">
-                    {formatValue(latestOuterData?.shutheightActualSh)}
-                  </Typography>
-                </div>
-              </div>
+            <div className="border rounded-md overflow-hidden mb-4">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="h-10 text-xs font-semibold text-center">Pos 1</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center">Pos 2</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center">Pos 3</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center">Pos 4</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center">Pos 5</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center bg-blue-50 dark:bg-blue-950">
+                      Max Deviation
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="py-3 text-center font-medium">
+                      {formatValue(latestOuterData?.position1)}
+                    </TableCell>
+                    <TableCell className="py-3 text-center font-medium">
+                      {formatValue(latestOuterData?.position2)}
+                    </TableCell>
+                    <TableCell className="py-3 text-center font-medium">
+                      {formatValue(latestOuterData?.position3)}
+                    </TableCell>
+                    <TableCell className="py-3 text-center font-medium">
+                      {formatValue(latestOuterData?.position4)}
+                    </TableCell>
+                    <TableCell className="py-3 text-center font-medium">
+                      {formatValue(latestOuterData?.position5)}
+                    </TableCell>
+                    <TableCell className="py-3 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+                      {formatValue(outerMaxDeviation)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+            <div className="border rounded-md overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="h-10 text-xs font-semibold">Field</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center">Value</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="py-2 font-medium bg-muted/20">Parallelism</TableCell>
+                    <TableCell className="py-2 text-center">
+                      {formatValue(latestOuterData?.parallelism)}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="py-2 font-medium bg-muted/20">
+                      Shutheight (Actual)
+                    </TableCell>
+                    <TableCell className="py-2 text-center">
+                      {formatValue(latestOuterData?.shutheightActualSh)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
           </div>
 
           {/* Inner Slide Values */}
           <div className="mb-6">
             <Typography variant="h4" className="mb-4">
-              Inner Slide
+              {t('labels.inner')} Slide
             </Typography>
-            <div className="text-center">
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Position 1
-                  </Typography>
-                  <Typography variant="large">{formatValue(latestInnerData?.position1)}</Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Position 2
-                  </Typography>
-                  <Typography variant="large">{formatValue(latestInnerData?.position2)}</Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Position 3
-                  </Typography>
-                  <Typography variant="large">{formatValue(latestInnerData?.position3)}</Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Position 4
-                  </Typography>
-                  <Typography variant="large">{formatValue(latestInnerData?.position4)}</Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Position 5
-                  </Typography>
-                  <Typography variant="large">{formatValue(latestInnerData?.position5)}</Typography>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Parallelism
-                  </Typography>
-                  <Typography variant="large">
-                    {formatValue(latestInnerData?.parallelism)}
-                  </Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    Shutheight (Actual)
-                  </Typography>
-                  <Typography variant="large">
-                    {formatValue(latestInnerData?.shutheightActualSh)}
-                  </Typography>
-                </div>
-              </div>
+            <div className="border rounded-md overflow-hidden mb-4">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="h-10 text-xs font-semibold text-center">Pos 1</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center">Pos 2</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center">Pos 3</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center">Pos 4</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center">Pos 5</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center bg-blue-50 dark:bg-blue-950">
+                      Max Deviation
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="py-3 text-center font-medium">
+                      {formatValue(latestInnerData?.position1)}
+                    </TableCell>
+                    <TableCell className="py-3 text-center font-medium">
+                      {formatValue(latestInnerData?.position2)}
+                    </TableCell>
+                    <TableCell className="py-3 text-center font-medium">
+                      {formatValue(latestInnerData?.position3)}
+                    </TableCell>
+                    <TableCell className="py-3 text-center font-medium">
+                      {formatValue(latestInnerData?.position4)}
+                    </TableCell>
+                    <TableCell className="py-3 text-center font-medium">
+                      {formatValue(latestInnerData?.position5)}
+                    </TableCell>
+                    <TableCell className="py-3 text-center font-semibold bg-blue-50 dark:bg-blue-950">
+                      {formatValue(innerMaxDeviation)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+            <div className="border rounded-md overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="h-10 text-xs font-semibold">Field</TableHead>
+                    <TableHead className="h-10 text-xs font-semibold text-center">Value</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="py-2 font-medium bg-muted/20">Parallelism</TableCell>
+                    <TableCell className="py-2 text-center">
+                      {formatValue(latestInnerData?.parallelism)}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="py-2 font-medium bg-muted/20">
+                      Shutheight (Actual)
+                    </TableCell>
+                    <TableCell className="py-2 text-center">
+                      {formatValue(latestInnerData?.shutheightActualSh)}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </div>
           </div>
 
           {/* Charts */}
           <div className="space-y-6">
+            {/* Max Deviation Chart - Main threshold chart */}
             <MultiLineThresholdChart
-              title="Outer Slide Positions (Position 1-5)"
-              data={outerPositionsChartData}
+              title={t('chartTitles.slideMaxDeviation')}
+              data={maxDeviationChartData}
               lines={[
-                { dataKey: 'position1', label: 'Position 1', color: '#8884d8' },
-                { dataKey: 'position2', label: 'Position 2', color: '#82ca9d' },
-                { dataKey: 'position3', label: 'Position 3', color: '#ffc658' },
-                { dataKey: 'position4', label: 'Position 4', color: '#ff7300' },
-                { dataKey: 'position5', label: 'Position 5', color: '#00C49F' },
+                { dataKey: 'outerMaxDeviation', label: 'Outer Max Deviation', color: '#8884d8' },
+                { dataKey: 'innerMaxDeviation', label: 'Inner Max Deviation', color: '#82ca9d' },
               ]}
               sharedThreshold={positionThreshold}
               valueUnit="mm"
@@ -322,7 +394,22 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
             />
 
             <MultiLineThresholdChart
-              title="Inner Slide Positions (Position 1-5)"
+              title={t('chartTitles.outerSlidePositions')}
+              data={outerPositionsChartData}
+              lines={[
+                { dataKey: 'position1', label: 'Position 1', color: '#8884d8' },
+                { dataKey: 'position2', label: 'Position 2', color: '#82ca9d' },
+                { dataKey: 'position3', label: 'Position 3', color: '#ffc658' },
+                { dataKey: 'position4', label: 'Position 4', color: '#ff7300' },
+                { dataKey: 'position5', label: 'Position 5', color: '#00C49F' },
+              ]}
+              valueUnit="mm"
+              allowToggle={false}
+              height={300}
+            />
+
+            <MultiLineThresholdChart
+              title={t('chartTitles.innerSlidePositions')}
               data={innerPositionsChartData}
               lines={[
                 { dataKey: 'position1', label: 'Position 1', color: '#8884d8' },
@@ -331,9 +418,8 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
                 { dataKey: 'position4', label: 'Position 4', color: '#ff7300' },
                 { dataKey: 'position5', label: 'Position 5', color: '#00C49F' },
               ]}
-              sharedThreshold={positionThreshold}
               valueUnit="mm"
-              allowToggle={true}
+              allowToggle={false}
               height={300}
             />
           </div>

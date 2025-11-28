@@ -36,8 +36,13 @@ export function ClutchSection({
 }: ClutchSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
-  const [hydClearanceThreshold, setHydClearanceThreshold] = useState<ThresholdConfig | null>(null);
+  // Thresholds for hydraulic clutch clearance
+  const [hydTotalThreshold, setHydTotalThreshold] = useState<ThresholdConfig | null>(null);
+  const [hydRearThreshold, setHydRearThreshold] = useState<ThresholdConfig | null>(null);
+  // Thresholds for brake spring measurements
   const [fbThreshold, setFbThreshold] = useState<ThresholdConfig | null>(null);
+  const [fTBThreshold, setFTBThreshold] = useState<ThresholdConfig | null>(null);
+  const [rTBThreshold, setRTBThreshold] = useState<ThresholdConfig | null>(null);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -59,11 +64,12 @@ export function ClutchSection({
       try {
         const response = await getClutchThresholdByBlueprint(blueprintId);
         if (response.data) {
-          // Extract thresholds for different measurements
-          setHydClearanceThreshold(
-            extractThresholdConfig(response.data, 'hydClutchClearanceTotal'),
-          );
+          // Extract all 5 thresholds
+          setHydTotalThreshold(extractThresholdConfig(response.data, 'hydClutchClearanceTotal'));
+          setHydRearThreshold(extractThresholdConfig(response.data, 'hydClutchClearanceRear'));
           setFbThreshold(extractThresholdConfig(response.data, 'fb'));
+          setFTBThreshold(extractThresholdConfig(response.data, 'fTB'));
+          setRTBThreshold(extractThresholdConfig(response.data, 'rTB'));
         }
       } catch (error) {
         console.error('Failed to fetch clutch threshold:', error);
@@ -252,14 +258,16 @@ export function ClutchSection({
                     dataKey: 'hydClutchClearanceTotal',
                     label: 'Hyd Total',
                     color: '#8884d8',
+                    threshold: hydTotalThreshold ?? undefined,
                   },
                   {
                     dataKey: 'hydClutchClearanceRear',
                     label: 'Hyd Rear',
                     color: '#82ca9d',
+                    threshold: hydRearThreshold ?? undefined,
                   },
                 ]}
-                sharedThreshold={hydClearanceThreshold}
+                sharedThreshold={hydTotalThreshold}
                 valueUnit="mm"
                 allowToggle={true}
                 height={300}
@@ -273,16 +281,19 @@ export function ClutchSection({
                     dataKey: 'brakeSpringFB',
                     label: 'F-B',
                     color: '#ffc658',
+                    threshold: fbThreshold ?? undefined,
                   },
                   {
                     dataKey: 'brakeSpringFTB',
                     label: 'F-TB',
                     color: '#ff7300',
+                    threshold: fTBThreshold ?? undefined,
                   },
                   {
                     dataKey: 'brakeSpringRTB',
                     label: 'R-TB',
                     color: '#00C49F',
+                    threshold: rTBThreshold ?? undefined,
                   },
                 ]}
                 sharedThreshold={fbThreshold}

@@ -114,3 +114,25 @@ export async function getSlideThresholdByBlueprint(blueprintId: string) {
     };
   }
 }
+
+/**
+ * Get gibs threshold by blueprint ID
+ */
+export async function getGibsThresholdByBlueprint(blueprintId: string) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/alerts/gibs/thresholds/blueprint/${blueprintId}`, {
+      method: 'GET',
+      headers,
+      cache: 'no-store',
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to fetch gibs threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}

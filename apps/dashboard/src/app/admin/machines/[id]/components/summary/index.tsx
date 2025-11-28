@@ -33,7 +33,15 @@ export { ClutchSummary };
 export { LubricationSummary };
 
 // Main component that routes to appropriate summary based on section key
-export function SectionSummary({ sectionKey, data }: { sectionKey: string; data: AnySectionData }) {
+export function SectionSummary({
+  sectionKey,
+  data,
+  serviceId,
+}: {
+  sectionKey: string;
+  data: AnySectionData;
+  serviceId?: string;
+}) {
   switch (sectionKey) {
     case 'BEARING_CLEARANCE':
       return <BearingClearanceSummary data={data as BearingClearanceCheck} />;
@@ -45,7 +53,9 @@ export function SectionSummary({ sectionKey, data }: { sectionKey: string; data:
       return <GibsSummary data={data as GibsCheck} />;
 
     case 'COUNTERBALANCE_CYLINDER_AIRBAG':
-      return <CounterbalanceSummary data={data as CounterbalanceCylinderCheck} />;
+      return (
+        <CounterbalanceSummary data={data as CounterbalanceCylinderCheck} serviceId={serviceId} />
+      );
 
     case 'TRAMMING':
       return <TrammingSummary data={data as TrammingCheck} />;

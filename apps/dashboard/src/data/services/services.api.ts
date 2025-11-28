@@ -6,6 +6,7 @@ import type {
   UpdateServicePayload,
   Service,
   LatestReport,
+  CounterbalanceAlert,
 } from '@/data/types/services.types';
 import type { AlertsSummaryResponseDto } from '@titans-tech/shared/backend-dtos';
 
@@ -176,6 +177,18 @@ export const deleteService = async (serviceId: string, machineId?: string) => {
   }
 
   return response;
+};
+
+/**
+ * Get counterbalance alerts for a specific service
+ */
+export const getCounterbalanceAlertsForService = async (serviceId: string) => {
+  return await responseHandler<CounterbalanceAlert[]>(
+    `/alerts/counterbalance/service/${serviceId}`,
+    {
+      method: 'GET',
+    },
+  );
 };
 
 /**

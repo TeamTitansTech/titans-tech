@@ -7,8 +7,10 @@ export const useInternalRouter = () => {
 
   const handlePush: typeof router.push = (href, options) => {
     isSysAdminPanel().then((isAdmin) => {
-      if (href.startsWith('/')) {
+      // Only add /admin prefix if href starts with / but NOT with /admin
+      if (href.startsWith('/') && !href.startsWith('/admin')) {
         router.push(`${isAdmin ? '/admin' : ''}${href}`, options);
+        return;
       }
 
       router.push(href, options);
@@ -17,8 +19,10 @@ export const useInternalRouter = () => {
 
   const handleReplace: typeof router.replace = (href, options) => {
     isSysAdminPanel().then((isAdmin) => {
-      if (href.startsWith('/')) {
+      // Only add /admin prefix if href starts with / but NOT with /admin
+      if (href.startsWith('/') && !href.startsWith('/admin')) {
         router.replace(`${isAdmin ? '/admin' : ''}${href}`, options);
+        return;
       }
 
       router.replace(href, options);

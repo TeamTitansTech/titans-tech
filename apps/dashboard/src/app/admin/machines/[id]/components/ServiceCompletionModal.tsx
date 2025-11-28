@@ -852,6 +852,7 @@ export function ServiceCompletionModal({
                 stepperSteps={getStepperSteps()}
                 onStepClick={handleStepClick}
                 onSubmit={handleSubmit}
+                serviceId={serviceId}
                 // Inspection observation fields
                 isPressLevel={isPressLevel}
                 driveBeltCondition={driveBeltCondition}
