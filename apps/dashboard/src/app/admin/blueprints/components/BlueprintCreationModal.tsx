@@ -136,15 +136,13 @@ export const BlueprintCreationModal = ({
               />
 
               <div className="space-y-2">
-                <Label htmlFor="image">Imagem do Modelo</Label>
+                <Label htmlFor="image">{t('form.image.label')}</Label>
                 <ImageUpload
                   value={imageUrl || undefined}
                   onChange={setImageUrl}
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Opcional: Adicione uma imagem representativa do blueprint
-                </p>
+                <p className="text-xs text-muted-foreground">{t('form.image.description')}</p>
               </div>
 
               <Separator />

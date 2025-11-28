@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, ChangeEvent } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button } from './button';
 import { X, Upload, Loader2 } from 'lucide-react';
 import { uploadImage } from '@/data/services/upload.api';
@@ -16,6 +17,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
 
 export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
+  const t = useTranslations('common.imageUpload');
   const [preview, setPreview] = useState<string | null>(value || null);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +25,11 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
 
   const validateFile = (file: File): string | null => {
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return 'Apenas imagens JPG e PNG são permitidas';
+      return t('onlyJpgPngAllowed');
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return `Arquivo muito grande. Tamanho máximo: ${MAX_FILE_SIZE / 1024 / 1024}MB`;
+      return t('fileTooLarge', { size: MAX_FILE_SIZE / 1024 / 1024 });
     }
 
     return null;
@@ -63,7 +65,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
         onChange(result.url);
       }
     } catch {
-      setError('Falha no upload da imagem');
+      setError(t('uploadFailed'));
       setPreview(value || null);
       onChange(value || null);
     } finally {
@@ -125,7 +127,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
             <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
               <div className="flex flex-col items-center gap-2 text-white">
                 <Loader2 className="h-8 w-8 animate-spin" />
-                <p className="text-sm">Fazendo upload...</p>
+                <p className="text-sm">{t('uploading')}</p>
               </div>
             </div>
           )}
@@ -139,8 +141,8 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
         >
           <Upload className="h-8 w-8" />
           <div className="text-sm text-center px-4">
-            <p className="font-medium">Clique para fazer upload</p>
-            <p className="text-xs text-gray-400 mt-1">JPG ou PNG (máx. 10MB)</p>
+            <p className="font-medium">{t('clickToUpload')}</p>
+            <p className="text-xs text-gray-400 mt-1">{t('jpgOrPngMax')}</p>
           </div>
         </button>
       )}

@@ -438,69 +438,77 @@ export function MachineCreationModal({
 
             {/* Machine Specifications - Always visible */}
             <section className="space-y-4">
-              <Typography variant="h3">Machine Specifications</Typography>
+              <Typography variant="h3">{t('form.specifications.title')}</Typography>
               <Typography variant="small" className="text-xs text-muted-foreground">
-                All fields are optional
+                {t('form.specifications.allFieldsOptional')}
               </Typography>
 
               <div className="grid grid-cols-2 gap-4">
                 {/* Manufacturer */}
                 <div className="space-y-2">
-                  <Label htmlFor="manufacturer">Manufacturer</Label>
+                  <Label htmlFor="manufacturer">
+                    {t('form.specifications.manufacturer.label')}
+                  </Label>
                   <Input
                     id="manufacturer"
                     type="text"
                     value={manufacturer}
                     onChange={(e) => setManufacturer(e.target.value)}
-                    placeholder="Enter manufacturer"
+                    placeholder={t('form.specifications.manufacturer.placeholder')}
                   />
                 </div>
 
                 {/* Size/Tonnage */}
                 <div className="space-y-2">
-                  <Label htmlFor="sizeTonnage">Size/Tonnage</Label>
+                  <Label htmlFor="sizeTonnage">{t('form.specifications.sizeTonnage.label')}</Label>
                   <Input
                     id="sizeTonnage"
                     type="text"
                     value={sizeTonnage}
                     onChange={(e) => setSizeTonnage(e.target.value)}
-                    placeholder="Enter size/tonnage"
+                    placeholder={t('form.specifications.sizeTonnage.placeholder')}
                   />
                 </div>
 
                 {/* Serial Number */}
                 <div className="space-y-2">
-                  <Label htmlFor="serialNumber">Serial Number</Label>
+                  <Label htmlFor="serialNumber">
+                    {t('form.specifications.serialNumber.label')}
+                  </Label>
                   <Input
                     id="serialNumber"
                     type="text"
                     value={serialNumber}
                     onChange={(e) => setSerialNumber(e.target.value)}
-                    placeholder="Enter serial number"
+                    placeholder={t('form.specifications.serialNumber.placeholder')}
                   />
                 </div>
 
                 {/* Stroke */}
                 <div className="space-y-2">
-                  <Label htmlFor="stroke">Stroke</Label>
+                  <Label htmlFor="stroke">{t('form.specifications.stroke.label')}</Label>
                   <Input
                     id="stroke"
                     type="text"
                     value={stroke}
                     onChange={(e) => setStroke(e.target.value)}
-                    placeholder="Enter stroke"
+                    placeholder={t('form.specifications.stroke.placeholder')}
                   />
                 </div>
 
                 {/* Foundation Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="foundationType">Foundation Type</Label>
+                  <Label htmlFor="foundationType">
+                    {t('form.specifications.foundationType.label')}
+                  </Label>
                   <Select
                     value={foundationType}
                     onValueChange={(val) => setFoundationType(val as FoundationType)}
                   >
                     <SelectTrigger id="foundationType">
-                      <SelectValue placeholder="Select foundation type" />
+                      <SelectValue
+                        placeholder={t('form.specifications.foundationType.placeholder')}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={FoundationType.PLANT_FLOOR}>
@@ -515,10 +523,10 @@ export function MachineCreationModal({
 
                 {/* Frame Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="frameType">Frame Type</Label>
+                  <Label htmlFor="frameType">{t('form.specifications.frameType.label')}</Label>
                   <Select value={frameType} onValueChange={(val) => setFrameType(val as FrameType)}>
                     <SelectTrigger id="frameType">
-                      <SelectValue placeholder="Select frame type" />
+                      <SelectValue placeholder={t('form.specifications.frameType.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={FrameType.GAP}>{tInspections('frameType.gap')}</SelectItem>
@@ -531,13 +539,13 @@ export function MachineCreationModal({
 
                 {/* Clutch Type */}
                 <div className="space-y-2">
-                  <Label htmlFor="clutchType">Clutch Type</Label>
+                  <Label htmlFor="clutchType">{t('form.specifications.clutchType.label')}</Label>
                   <Select
                     value={clutchType}
                     onValueChange={(val) => setClutchType(val as MachineClutchType)}
                   >
                     <SelectTrigger id="clutchType">
-                      <SelectValue placeholder="Select clutch type" />
+                      <SelectValue placeholder={t('form.specifications.clutchType.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={MachineClutchType.JH5}>
@@ -552,13 +560,17 @@ export function MachineCreationModal({
 
                 {/* Pneumatic System */}
                 <div className="space-y-2">
-                  <Label htmlFor="pneumaticSystem">Pneumatic System</Label>
+                  <Label htmlFor="pneumaticSystem">
+                    {t('form.specifications.pneumaticSystem.label')}
+                  </Label>
                   <Select
                     value={pneumaticSystem}
                     onValueChange={(val) => setPneumaticSystem(val as PneumaticSystemType)}
                   >
                     <SelectTrigger id="pneumaticSystem">
-                      <SelectValue placeholder="Select pneumatic system" />
+                      <SelectValue
+                        placeholder={t('form.specifications.pneumaticSystem.placeholder')}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={PneumaticSystemType.AIR}>
@@ -579,13 +591,17 @@ export function MachineCreationModal({
 
                 {/* Press Mounting */}
                 <div className="space-y-2">
-                  <Label htmlFor="pressMounting">Press Mounting</Label>
+                  <Label htmlFor="pressMounting">
+                    {t('form.specifications.pressMounting.label')}
+                  </Label>
                   <Select
                     value={pressMounting}
                     onValueChange={(val) => setPressMounting(val as PressMountingType)}
                   >
                     <SelectTrigger id="pressMounting">
-                      <SelectValue placeholder="Select press mounting" />
+                      <SelectValue
+                        placeholder={t('form.specifications.pressMounting.placeholder')}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={PressMountingType.ADJUSTABLE}>
@@ -606,13 +622,13 @@ export function MachineCreationModal({
 
                 {/* Features */}
                 <div className="space-y-2">
-                  <Label htmlFor="features">Features</Label>
+                  <Label htmlFor="features">{t('form.specifications.features.label')}</Label>
                   <Select
                     value={features}
                     onValueChange={(val) => setFeatures(val as MachineFeaturesType)}
                   >
                     <SelectTrigger id="features">
-                      <SelectValue placeholder="Select features" />
+                      <SelectValue placeholder={t('form.specifications.features.placeholder')} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={MachineFeaturesType.AIM}>
