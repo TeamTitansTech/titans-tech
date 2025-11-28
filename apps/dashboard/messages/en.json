@@ -1863,6 +1863,47 @@
       "includeBefore": "Include measurements before maintenance",
       "beforeMaintenance": "Before Maintenance",
       "afterMaintenance": "After Maintenance"
+    },
+    "units": {
+      "length": {
+        "label": "Length Unit",
+        "mm": "mm",
+        "inches": "inches",
+        "inchesShort": "in",
+        "mmFull": "Millimeters (mm)",
+        "inchesFull": "Inches (in)"
+      },
+      "temperature": {
+        "label": "Temperature Unit",
+        "celsius": "°C",
+        "fahrenheit": "°F",
+        "celsiusFull": "Celsius (°C)",
+        "fahrenheitFull": "Fahrenheit (°F)"
+      },
+      "pressure": {
+        "label": "Pressure Unit",
+        "atm": "atm",
+        "bar": "bar",
+        "psi": "psi",
+        "atmFull": "Atmospheres (atm)",
+        "barFull": "Bar (bar)",
+        "psiFull": "Pounds per Square Inch (psi)"
+      },
+      "dialog": {
+        "changeLengthUnit": "Change Length Unit",
+        "changeTemperatureUnit": "Change Temperature Unit",
+        "changePressureUnit": "Change Pressure Unit",
+        "changingFrom": "You are changing from",
+        "to": "to",
+        "convertQuestion": "Would you like to convert the existing values?",
+        "example": "Example",
+        "convert": "Convert",
+        "dontConvert": "Don't Convert",
+        "convertValues": "Convert Values",
+        "cancel": "Cancel",
+        "convertDescription": "The physical measurement stays the same",
+        "dontConvertDescription": "The number stays the same, only the unit changes"
+      }
     }
   },
   "actions": {

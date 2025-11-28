@@ -2,11 +2,11 @@
 
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { type GibsStageData } from '@/data/types/services.types';
 import { calculateGibsFields } from './gibsCalculations';
+import { LengthInput } from '@/components/ui/forms/LengthInput';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 type TranslationFunction = ReturnType<typeof useTranslations>;
 
@@ -47,24 +47,16 @@ function MeasurementInputs({
       {points.map((field) => {
         const pointNumber = field.replace('point', '');
         return (
-          <div key={field}>
-            <Label htmlFor={field} className="text-xs">
-              {t('form.gibs.point', { number: pointNumber })}
-            </Label>
-            <Input
-              id={field}
-              type="number"
-              step="0.0001"
-              min="0"
-              max="999999.9999"
-              value={Number(data[field as keyof GibsStageData])}
-              onChange={(e) => updateFn(field as keyof GibsStageData, Number(e.target.value))}
-              onBlur={() => handleBlur(field as keyof GibsStageData)}
-              className={`mt-1 ${errors[field] ? 'border-destructive' : ''}`}
-              required
-            />
-            {errors[field] && <p className="text-xs text-destructive mt-1">{errors[field]}</p>}
-          </div>
+          <LengthInput
+            key={field}
+            id={field}
+            label={t('form.gibs.point', { number: pointNumber })}
+            value={data[field as keyof GibsStageData] ?? 0}
+            onChange={(val) => updateFn(field as keyof GibsStageData, val)}
+            onBlur={() => handleBlur(field as keyof GibsStageData)}
+            error={errors[field]}
+            required
+          />
         );
       })}
     </div>
@@ -74,14 +66,17 @@ function MeasurementInputs({
 interface CalculatedTableProps {
   data: GibsStageData;
   t: TranslationFunction;
+  convertFromDefault: (value: number) => number;
+  unitLabel: string;
 }
 
 // Tabela para Top View (outer after install)
-function TopViewTable({ data, t }: CalculatedTableProps) {
+function TopViewTable({ data, t, convertFromDefault, unitLabel }: CalculatedTableProps) {
   const addPoints = (a: number | undefined, b: number | undefined): string => {
     const numA = typeof a === 'number' ? a : 0;
     const numB = typeof b === 'number' ? b : 0;
-    return (numA + numB).toFixed(4);
+    const sumInMm = numA + numB;
+    return convertFromDefault(sumInMm).toFixed(4);
   };
 
   return (
@@ -91,8 +86,12 @@ function TopViewTable({ data, t }: CalculatedTableProps) {
           <thead>
             <tr className="bg-muted">
               <th className="border p-2 font-medium"></th>
-              <th className="border p-2 font-medium">{t('form.gibs.left')}</th>
-              <th className="border p-2 font-medium">{t('form.gibs.right')}</th>
+              <th className="border p-2 font-medium">
+                {t('form.gibs.left')} ({unitLabel})
+              </th>
+              <th className="border p-2 font-medium">
+                {t('form.gibs.right')} ({unitLabel})
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -113,7 +112,7 @@ function TopViewTable({ data, t }: CalculatedTableProps) {
 }
 
 // Tabela para Front to Back (outer before/after adjustment)
-function FrontToBackTable({ data, t }: CalculatedTableProps) {
+function FrontToBackTable({ data, t, convertFromDefault, unitLabel }: CalculatedTableProps) {
   const calculated = useMemo(() => calculateGibsFields(data), [data]);
 
   return (
@@ -123,23 +122,31 @@ function FrontToBackTable({ data, t }: CalculatedTableProps) {
           <thead>
             <tr className="bg-muted">
               <th className="border p-2 font-medium"></th>
-              <th className="border p-2 font-medium">{t('form.gibs.left')}</th>
-              <th className="border p-2 font-medium">{t('form.gibs.right')}</th>
+              <th className="border p-2 font-medium">
+                {t('form.gibs.left')} ({unitLabel})
+              </th>
+              <th className="border p-2 font-medium">
+                {t('form.gibs.right')} ({unitLabel})
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
-              <td className="border p-2 text-center font-mono">{calculated.frontTop.toFixed(4)}</td>
-              <td className="border p-2 text-center font-mono">{calculated.backTop.toFixed(4)}</td>
+              <td className="border p-2 text-center font-mono">
+                {convertFromDefault(calculated.frontTop).toFixed(4)}
+              </td>
+              <td className="border p-2 text-center font-mono">
+                {convertFromDefault(calculated.backTop).toFixed(4)}
+              </td>
             </tr>
             <tr>
               <td className="border p-2 font-medium bg-muted">{t('form.gibs.bottom')}</td>
               <td className="border p-2 text-center font-mono">
-                {calculated.frontBottom.toFixed(4)}
+                {convertFromDefault(calculated.frontBottom).toFixed(4)}
               </td>
               <td className="border p-2 text-center font-mono">
-                {calculated.backBottom.toFixed(4)}
+                {convertFromDefault(calculated.backBottom).toFixed(4)}
               </td>
             </tr>
           </tbody>
@@ -153,6 +160,8 @@ function FrontToBackTable({ data, t }: CalculatedTableProps) {
 function BeforeToolTable({
   data,
   t,
+  convertFromDefault,
+  unitLabel,
   hideUsable = false,
 }: CalculatedTableProps & { hideUsable?: boolean }) {
   const calculated = useMemo(() => calculateGibsFields(data), [data]);
@@ -164,30 +173,40 @@ function BeforeToolTable({
           <thead>
             <tr className="bg-muted">
               <th className="border p-2 font-medium"></th>
-              <th className="border p-2 font-medium">{t('form.gibs.left')}</th>
-              <th className="border p-2 font-medium">{t('form.gibs.right')}</th>
+              <th className="border p-2 font-medium">
+                {t('form.gibs.left')} ({unitLabel})
+              </th>
+              <th className="border p-2 font-medium">
+                {t('form.gibs.right')} ({unitLabel})
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td className="border p-2 font-medium bg-muted">{t('form.gibs.top')}</td>
-              <td className="border p-2 text-center font-mono">{calculated.frontTop.toFixed(4)}</td>
-              <td className="border p-2 text-center font-mono">{calculated.backTop.toFixed(4)}</td>
+              <td className="border p-2 text-center font-mono">
+                {convertFromDefault(calculated.frontTop).toFixed(4)}
+              </td>
+              <td className="border p-2 text-center font-mono">
+                {convertFromDefault(calculated.backTop).toFixed(4)}
+              </td>
             </tr>
             <tr>
               <td className="border p-2 font-medium bg-muted">{t('form.gibs.bottom')}</td>
               <td className="border p-2 text-center font-mono">
-                {calculated.frontBottom.toFixed(4)}
+                {convertFromDefault(calculated.frontBottom).toFixed(4)}
               </td>
               <td className="border p-2 text-center font-mono">
-                {calculated.backBottom.toFixed(4)}
+                {convertFromDefault(calculated.backBottom).toFixed(4)}
               </td>
             </tr>
             {!hideUsable && (
               <tr>
                 <td className="border p-2 font-medium bg-muted">{t('form.gibs.usable')}</td>
                 <td className="border p-2 text-center font-mono" colSpan={2}>
-                  {calculated.usable?.toFixed(4) ?? '0.0000'}
+                  {calculated.usable !== undefined
+                    ? convertFromDefault(calculated.usable).toFixed(4)
+                    : '0.0000'}
                 </td>
               </tr>
             )}
@@ -199,11 +218,17 @@ function BeforeToolTable({
 }
 
 // Tabela para After Tool Installation
-function AfterToolTable({ data, t }: CalculatedTableProps & { hideUsable?: boolean }) {
+function AfterToolTable({
+  data,
+  t,
+  convertFromDefault,
+  unitLabel,
+}: CalculatedTableProps & { hideUsable?: boolean }) {
   const addPoints = (a: number | undefined, b: number | undefined): string => {
     const numA = typeof a === 'number' ? a : 0;
     const numB = typeof b === 'number' ? b : 0;
-    return (numA + numB).toFixed(4);
+    const sumInMm = numA + numB;
+    return convertFromDefault(sumInMm).toFixed(4);
   };
 
   return (
@@ -213,8 +238,12 @@ function AfterToolTable({ data, t }: CalculatedTableProps & { hideUsable?: boole
           <thead>
             <tr className="bg-muted">
               <th className="border p-2 font-medium"></th>
-              <th className="border p-2 font-medium">{t('form.gibs.front')}</th>
-              <th className="border p-2 font-medium">{t('form.gibs.rear')}</th>
+              <th className="border p-2 font-medium">
+                {t('form.gibs.front')} ({unitLabel})
+              </th>
+              <th className="border p-2 font-medium">
+                {t('form.gibs.rear')} ({unitLabel})
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -238,6 +267,8 @@ function AfterToolTable({ data, t }: CalculatedTableProps & { hideUsable?: boole
 function LeftToRightTable({
   data,
   t,
+  convertFromDefault,
+  unitLabel,
   hideUsable = false,
 }: CalculatedTableProps & { hideUsable?: boolean }) {
   const calculated = useMemo(() => calculateGibsFields(data), [data]);
@@ -249,30 +280,38 @@ function LeftToRightTable({
           <thead>
             <tr className="bg-muted">
               <th className="border p-2 font-medium"></th>
-              <th className="border p-2 font-medium">{t('form.gibs.top')}</th>
-              <th className="border p-2 font-medium">{t('form.gibs.bottom')}</th>
+              <th className="border p-2 font-medium">
+                {t('form.gibs.top')} ({unitLabel})
+              </th>
+              <th className="border p-2 font-medium">
+                {t('form.gibs.bottom')} ({unitLabel})
+              </th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td className="border p-2 font-medium bg-muted">{t('form.gibs.front')}</td>
-              <td className="border p-2 text-center font-mono">{calculated.leftTop.toFixed(4)}</td>
               <td className="border p-2 text-center font-mono">
-                {calculated.leftBottom.toFixed(4)}
+                {convertFromDefault(calculated.leftTop).toFixed(4)}
+              </td>
+              <td className="border p-2 text-center font-mono">
+                {convertFromDefault(calculated.leftBottom).toFixed(4)}
               </td>
             </tr>
             <tr>
               <td className="border p-2 font-medium bg-muted">{t('form.gibs.back')}</td>
-              <td className="border p-2 text-center font-mono">{calculated.rightTop.toFixed(4)}</td>
               <td className="border p-2 text-center font-mono">
-                {calculated.rightBottom.toFixed(4)}
+                {convertFromDefault(calculated.rightTop).toFixed(4)}
+              </td>
+              <td className="border p-2 text-center font-mono">
+                {convertFromDefault(calculated.rightBottom).toFixed(4)}
               </td>
             </tr>
             {!hideUsable && calculated.usable !== undefined && (
               <tr>
                 <td className="border p-2 font-medium bg-muted">{t('form.gibs.usable')}</td>
                 <td className="border p-2 text-center font-mono" colSpan={2}>
-                  {calculated.usable.toFixed(4)}
+                  {convertFromDefault(calculated.usable).toFixed(4)}
                 </td>
               </tr>
             )}
@@ -302,6 +341,9 @@ export function MeasurementSection({
   t,
   hideUsable = false,
 }: MeasurementSectionProps) {
+  const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
+  const unitLabel = getLengthUnitLabel();
+
   const diagramPath = useMemo(() => {
     if (diagramType === 'topView') return '/assets/gibs/top.png';
     if (diagramType === 'beforeTool') return '/assets/gibs/before-tool-instalation.png';
@@ -343,17 +385,24 @@ export function MeasurementSection({
   };
 
   const renderTable = () => {
+    const tableProps = {
+      data,
+      t,
+      convertFromDefault: convertLengthFromDefault,
+      unitLabel,
+    };
+
     switch (diagramType) {
       case 'topView':
-        return <TopViewTable data={data} t={t} />;
+        return <TopViewTable {...tableProps} />;
       case 'frontToBack':
-        return <FrontToBackTable data={data} t={t} />;
+        return <FrontToBackTable {...tableProps} />;
       case 'beforeTool':
-        return <BeforeToolTable data={data} t={t} hideUsable={hideUsable} />;
+        return <BeforeToolTable {...tableProps} hideUsable={hideUsable} />;
       case 'afterTool':
-        return <AfterToolTable data={data} t={t} hideUsable={hideUsable} />;
+        return <AfterToolTable {...tableProps} hideUsable={hideUsable} />;
       case 'leftToRight':
-        return <LeftToRightTable data={data} t={t} hideUsable={hideUsable} />;
+        return <LeftToRightTable {...tableProps} hideUsable={hideUsable} />;
       default:
         return null;
     }
@@ -396,7 +445,7 @@ export function MeasurementSection({
         </div>
 
         {/* Desktop layout (>= sm): Left inputs, image, right inputs */}
-        <div className="hidden sm:grid grid-cols-7 items-center">
+        <div className="hidden sm:grid grid-cols-5 items-center">
           <MeasurementInputs
             points={relevantPointsLeft}
             data={data}
@@ -405,7 +454,7 @@ export function MeasurementSection({
             errors={errors}
             t={t}
           />
-          <div className="col-span-5 h-full flex justify-center items-center">
+          <div className="col-span-3 h-full flex justify-center items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={diagramPath}
