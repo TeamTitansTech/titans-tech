@@ -81,12 +81,18 @@ interface MachineWithStatus extends Machine {
   alertStatus?: AlertStatus;
 }
 
-export function MachinesPageClient() {
+interface MachinesPageClientProps {
+  initialBranchFilter?: string;
+}
+
+export function MachinesPageClient({ initialBranchFilter }: MachinesPageClientProps) {
   const [machines, setMachines] = useState<MachineWithStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
-  const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>('all');
+  const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>(
+    initialBranchFilter || 'all',
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
