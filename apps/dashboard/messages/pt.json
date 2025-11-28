@@ -89,6 +89,26 @@
     "selectBranch": "Selecionar filial",
     "languageTooltip": "Idioma"
   },
+  "alertNotification": {
+    "title": "Alertas Detectados na Inspeção",
+    "description": "A inspeção gerou {count} alerta(s). Selecione os destinatários para notificação.",
+    "alertsSummary": "Resumo dos Alertas",
+    "alertCount": "{count} alerta(s)",
+    "selectRecipients": "Selecionar Destinatários",
+    "adminsAndManagers": "Administradores e Gerentes",
+    "noAdminsFound": "Nenhum administrador ou gerente encontrado",
+    "admin": "Admin",
+    "manager": "Gerente",
+    "additionalEmails": "Emails Adicionais",
+    "emailPlaceholder": "email@exemplo.com",
+    "addEmail": "Adicionar Email",
+    "skip": "Pular",
+    "sendNotifications": "Enviar Notificações",
+    "sending": "Enviando...",
+    "selectAtLeastOne": "Selecione pelo menos um destinatário ou adicione um email",
+    "errorSending": "Erro ao enviar notificações",
+    "successMessage": "Notificações enviadas! {emails} email(s) enviado(s), {notifications} notificação(ões) criada(s)"
+  },
   "settings": {
     "title": "Configurações",
     "description": "Gerencie suas preferências e configurações do aplicativo",
@@ -1033,6 +1053,16 @@
           "ball_box_area_LH": "Área da Caixa de Esferas LH",
           "Ball_box_area_RH": "Área da Caixa de Esferas RH",
           "Ball_box_area_LH": "Área da Caixa de Esferas LH"
+        },
+        "validation": {
+          "outerDataRequired": "Folga de Rolamento: Dados Externos são obrigatórios",
+          "innerDataRequired": "Folga de Rolamento: Dados Internos são obrigatórios",
+          "beforeMeasurementsRequired": "Folga de Rolamento: Quando 'Incluir Medições Antes' está habilitado para manutenção, você deve preencher todas as seções 'Antes' (Externo Antes e Interno Antes)",
+          "fieldRequired": "{field} é obrigatório",
+          "outerBefore": "Externo Antes",
+          "outerData": "Dados Externos",
+          "innerBefore": "Interno Antes",
+          "innerData": "Dados Internos"
         }
       },
       "slide": {

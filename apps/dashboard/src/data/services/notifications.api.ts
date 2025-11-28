@@ -5,6 +5,7 @@ import type {
   AdminNotificationResponseDto,
   ClientNotificationResponseDto,
   NotificationStatsResponseDto,
+  SendAlertNotificationDto,
 } from '@titans-tech/shared/backend-dtos';
 
 export const createUrgentRequest = async (data: CreateUrgentRequestDto) => {
@@ -77,4 +78,15 @@ export const markAllClientNotificationsAsRead = async () => {
       method: 'PATCH',
     },
   );
+};
+
+export const sendAlertNotification = async (data: SendAlertNotificationDto) => {
+  return await responseHandler<{
+    success: boolean;
+    emailsSent: number;
+    notificationsCreated: number;
+  }>('/notifications/alert-notification', {
+    method: 'POST',
+    body: data,
+  });
 };

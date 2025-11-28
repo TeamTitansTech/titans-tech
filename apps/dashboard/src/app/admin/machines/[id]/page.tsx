@@ -43,6 +43,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
         <UpcomingServices
           machineId={id}
           blueprintSections={response.data.blueprint?.sections || []}
+          companyId={response.data.branch?.companyId}
         />
         <ServiceHistory
           machineId={id}

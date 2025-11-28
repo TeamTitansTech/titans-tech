@@ -727,29 +727,33 @@ model AlertBearingClearance {
   id               String @id @default(cuid())
   machineServiceId String @unique
 
-  // Total Clearance alert - only differential and severity
-  totalClearance_differential Decimal       @db.Decimal(10, 4)
-  totalClearance_severity     AlertSeverity
+  // OUTER alerts
+  outer_totalClearance_differential           Decimal       @db.Decimal(10, 4)
+  outer_totalClearance_severity               AlertSeverity
+  outer_mainBearings_differential             Decimal       @db.Decimal(10, 4)
+  outer_mainBearings_severity                 AlertSeverity
+  outer_upperConnectionBearings_differential  Decimal       @db.Decimal(10, 4)
+  outer_upperConnectionBearings_severity      AlertSeverity
+  outer_wristPinToMatingPart_differential     Decimal       @db.Decimal(10, 4)
+  outer_wristPinToMatingPart_severity         AlertSeverity
+  outer_wristPinToBushing_differential        Decimal       @db.Decimal(10, 4)
+  outer_wristPinToBushing_severity            AlertSeverity
+  outer_slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
+  outer_slideAdjNutToScrewSleeve_severity     AlertSeverity
 
-  // Main Bearings alert - only differential and severity
-  mainBearings_differential Decimal       @db.Decimal(10, 4)
-  mainBearings_severity     AlertSeverity
-
-  // Upper Connection Bearings alert - only differential and severity
-  upperConnectionBearings_differential Decimal       @db.Decimal(10, 4)
-  upperConnectionBearings_severity     AlertSeverity
-
-  // Wrist Pin to Mating Part alert - only differential and severity
-  wristPinToMatingPart_differential Decimal       @db.Decimal(10, 4)
-  wristPinToMatingPart_severity     AlertSeverity
-
-  // Wrist Pin to Bushing alert - only differential and severity
-  wristPinToBushing_differential Decimal       @db.Decimal(10, 4)
-  wristPinToBushing_severity     AlertSeverity
-
-  // Slide Adj Nut to Screw/Sleeve alert - only differential and severity
-  slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
-  slideAdjNutToScrewSleeve_severity     AlertSeverity
+  // INNER alerts
+  inner_totalClearance_differential           Decimal       @db.Decimal(10, 4)
+  inner_totalClearance_severity               AlertSeverity
+  inner_mainBearings_differential             Decimal       @db.Decimal(10, 4)
+  inner_mainBearings_severity                 AlertSeverity
+  inner_upperConnectionBearings_differential  Decimal       @db.Decimal(10, 4)
+  inner_upperConnectionBearings_severity      AlertSeverity
+  inner_wristPinToMatingPart_differential     Decimal       @db.Decimal(10, 4)
+  inner_wristPinToMatingPart_severity         AlertSeverity
+  inner_wristPinToBushing_differential        Decimal       @db.Decimal(10, 4)
+  inner_wristPinToBushing_severity            AlertSeverity
+  inner_slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
+  inner_slideAdjNutToScrewSleeve_severity     AlertSeverity
 
   // Optional snapshot of thresholds used in calculation (for auditing)
   thresholdSnapshot Json?
@@ -1143,7 +1147,6 @@ model ClutchData {
 
   // Air system
   airRegulatorValue   Decimal?                 @db.Decimal(10, 2)
-  airRegulatorUnit    PressureUnit?
   airClutchTravel     Decimal?                 @db.Decimal(10, 4)
   airLineOilerSetting AirLineOilerSettingType?
 
@@ -1154,12 +1157,10 @@ model ClutchData {
   adjustingNutLockSecure AdjustingNutLockType?
 
   // Hydraulic system
-  hydClutchClearanceTotal Decimal?      @db.Decimal(10, 4)
-  hydClutchClearanceRear  Decimal?      @db.Decimal(10, 4)
-  hydraulicPressureValue  Decimal?      @db.Decimal(10, 2)
-  hydraulicPressureUnit   PressureUnit?
-  accumulatorValue        Decimal?      @db.Decimal(10, 2)
-  accumulatorUnit         PressureUnit?
+  hydClutchClearanceTotal Decimal? @db.Decimal(10, 4)
+  hydClutchClearanceRear  Decimal? @db.Decimal(10, 4)
+  hydraulicPressureValue  Decimal? @db.Decimal(10, 2)
+  accumulatorValue        Decimal? @db.Decimal(10, 2)
 
   // Separate Brake Seals
   separateBrakeSeals SeparateBrakeSealsType?
@@ -1233,6 +1234,7 @@ enum NotificationType {
   SERVICE_REMINDER
   SERVICE_OVERDUE
   SERVICE_COMPLETED
+  INSPECTION_ALERT
 }
 
 enum EmailStatus {

@@ -21,16 +21,26 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
 
   const allSeverities: AlertSeverity[] = [];
 
-  // Collect severities from BEARING_CLEARANCE section
+  // Collect severities from BEARING_CLEARANCE section (outer and inner)
   if (latestReport.sections.BEARING_CLEARANCE?.alert) {
     const alert = latestReport.sections.BEARING_CLEARANCE.alert;
+    // Outer severities
     allSeverities.push(
-      alert.totalClearance_severity,
-      alert.mainBearings_severity,
-      alert.upperConnectionBearings_severity,
-      alert.wristPinToMatingPart_severity,
-      alert.wristPinToBushing_severity,
-      alert.slideAdjNutToScrewSleeve_severity,
+      alert.outer_totalClearance_severity,
+      alert.outer_mainBearings_severity,
+      alert.outer_upperConnectionBearings_severity,
+      alert.outer_wristPinToMatingPart_severity,
+      alert.outer_wristPinToBushing_severity,
+      alert.outer_slideAdjNutToScrewSleeve_severity,
+    );
+    // Inner severities
+    allSeverities.push(
+      alert.inner_totalClearance_severity,
+      alert.inner_mainBearings_severity,
+      alert.inner_upperConnectionBearings_severity,
+      alert.inner_wristPinToMatingPart_severity,
+      alert.inner_wristPinToBushing_severity,
+      alert.inner_slideAdjNutToScrewSleeve_severity,
     );
   }
 
@@ -82,13 +92,29 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
     return 'unknown';
   }
 
-  const severity = alert.totalClearance_severity;
+  // Check all bearing fields for worst severity (outer and inner)
+  const severities = [
+    // Outer
+    alert.outer_totalClearance_severity,
+    alert.outer_mainBearings_severity,
+    alert.outer_upperConnectionBearings_severity,
+    alert.outer_wristPinToMatingPart_severity,
+    alert.outer_wristPinToBushing_severity,
+    alert.outer_slideAdjNutToScrewSleeve_severity,
+    // Inner
+    alert.inner_totalClearance_severity,
+    alert.inner_mainBearings_severity,
+    alert.inner_upperConnectionBearings_severity,
+    alert.inner_wristPinToMatingPart_severity,
+    alert.inner_wristPinToBushing_severity,
+    alert.inner_slideAdjNutToScrewSleeve_severity,
+  ];
 
-  if (severity === 'RED') {
+  if (severities.includes('RED')) {
     return 'critical';
-  } else if (severity === 'YELLOW') {
+  } else if (severities.includes('YELLOW')) {
     return 'warning';
-  } else if (severity === 'GREEN') {
+  } else if (severities.includes('GREEN')) {
     return 'ok';
   }
 
@@ -115,14 +141,22 @@ export const getSectionStatusFromReport = (
 
       const alert = bearingData.alert;
 
-      // Check all bearing fields for worst severity
+      // Check all bearing fields for worst severity (outer and inner)
       const severities = [
-        alert.totalClearance_severity,
-        alert.mainBearings_severity,
-        alert.upperConnectionBearings_severity,
-        alert.wristPinToMatingPart_severity,
-        alert.wristPinToBushing_severity,
-        alert.slideAdjNutToScrewSleeve_severity,
+        // Outer
+        alert.outer_totalClearance_severity,
+        alert.outer_mainBearings_severity,
+        alert.outer_upperConnectionBearings_severity,
+        alert.outer_wristPinToMatingPart_severity,
+        alert.outer_wristPinToBushing_severity,
+        alert.outer_slideAdjNutToScrewSleeve_severity,
+        // Inner
+        alert.inner_totalClearance_severity,
+        alert.inner_mainBearings_severity,
+        alert.inner_upperConnectionBearings_severity,
+        alert.inner_wristPinToMatingPart_severity,
+        alert.inner_wristPinToBushing_severity,
+        alert.inner_slideAdjNutToScrewSleeve_severity,
       ];
 
       if (severities.includes('RED')) {
@@ -238,13 +272,29 @@ export const getSectionStatus = (
         return 'unknown';
       }
 
-      const severity = alert.totalClearance_severity;
+      // Check all bearing fields for worst severity (outer and inner)
+      const severities = [
+        // Outer
+        alert.outer_totalClearance_severity,
+        alert.outer_mainBearings_severity,
+        alert.outer_upperConnectionBearings_severity,
+        alert.outer_wristPinToMatingPart_severity,
+        alert.outer_wristPinToBushing_severity,
+        alert.outer_slideAdjNutToScrewSleeve_severity,
+        // Inner
+        alert.inner_totalClearance_severity,
+        alert.inner_mainBearings_severity,
+        alert.inner_upperConnectionBearings_severity,
+        alert.inner_wristPinToMatingPart_severity,
+        alert.inner_wristPinToBushing_severity,
+        alert.inner_slideAdjNutToScrewSleeve_severity,
+      ];
 
-      if (severity === 'RED') {
+      if (severities.includes('RED')) {
         return 'alert';
-      } else if (severity === 'YELLOW') {
+      } else if (severities.includes('YELLOW')) {
         return 'warning';
-      } else if (severity === 'GREEN') {
+      } else if (severities.includes('GREEN')) {
         return 'ok';
       }
 

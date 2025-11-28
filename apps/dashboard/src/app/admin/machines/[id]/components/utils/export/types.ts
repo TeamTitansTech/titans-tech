@@ -128,15 +128,12 @@ export interface ClutchSectionData extends Record<string, unknown> {
   crankEndplayBefore?: number;
   crankEndplayAfter?: number;
   airRegulatorValue?: number;
-  airRegulatorUnit?: string;
   airClutchTravel?: string;
   airLineOilerSetting?: string;
   hydClutchClearanceTotal?: number;
   hydClutchClearanceRear?: number;
   hydraulicPressureValue?: number;
-  hydraulicPressureUnit?: string;
   accumulatorValue?: number;
-  accumulatorUnit?: string;
   notes?: string;
 }
 

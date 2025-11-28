@@ -33,6 +33,7 @@ import {
   PistonsCheck,
   PistonsCheckSchema,
   LatestReportResponseDto,
+  AlertsSummaryResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { Authenticated } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
@@ -204,5 +205,12 @@ export class ServicesController {
   @Delete(':id')
   delete(@Param('id') id: string): Promise<void> {
     return this.servicesService.delete(id);
+  }
+
+  // Get alerts summary for a service
+  @Authenticated()
+  @Get(':id/alerts-summary')
+  getAlertsSummary(@Param('id') id: string): Promise<AlertsSummaryResponseDto> {
+    return this.servicesService.getAlertsSummary(id);
   }
 }

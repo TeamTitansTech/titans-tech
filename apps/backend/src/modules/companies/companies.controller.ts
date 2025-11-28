@@ -135,4 +135,10 @@ export class CompaniesController {
   ) {
     return this.companyBranchesService.create(companyId, createBranchDto);
   }
+
+  @Authenticated()
+  @Get(':companyId/admin-manager-users')
+  getAdminManagerUsers(@Param('companyId') companyId: string) {
+    return this.companiesService.getAdminManagerUsers(companyId);
+  }
 }

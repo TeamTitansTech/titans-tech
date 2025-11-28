@@ -5,9 +5,14 @@ import { UpcomingServicesWrapper } from './UpcomingServicesWrapper';
 interface UpcomingServicesProps {
   machineId: string;
   blueprintSections: string[];
+  companyId?: string;
 }
 
-export async function UpcomingServices({ machineId, blueprintSections }: UpcomingServicesProps) {
+export async function UpcomingServices({
+  machineId,
+  blueprintSections,
+  companyId,
+}: UpcomingServicesProps) {
   let services: Service[] = [];
 
   try {
@@ -29,6 +34,7 @@ export async function UpcomingServices({ machineId, blueprintSections }: Upcomin
       machineId={machineId}
       blueprintSections={blueprintSections}
       services={services}
+      companyId={companyId}
     />
   );
 }

@@ -23,6 +23,10 @@ import {
   CounterbalanceCylinderCheck,
   TrammingCheck,
   PistonsCheck,
+  AlertsSummaryResponseDto,
+  SectionAlertDto,
+  AlertDetailDto,
+  AlertSeverityDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertsService } from '../alerts/alerts.service';
 
@@ -557,12 +561,12 @@ export class ServicesService {
       );
 
       if (latestBearingService) {
-        // Follow same logic as alerts: outerData || innerData
-        const bearingData =
-          latestBearingService.bearingClearance[0].outerData ||
-          latestBearingService.bearingClearance[0].innerData;
+        const bearingRecord = latestBearingService.bearingClearance[0];
+        const outerData = bearingRecord.outerData;
+        const innerData = bearingRecord.innerData;
 
-        if (bearingData) {
+        // Only proceed if we have at least one data set
+        if (outerData || innerData) {
           // Try to fetch alert for this service
           let alert = undefined;
           try {
@@ -580,7 +584,8 @@ export class ServicesService {
             latestServiceId: latestBearingService.id,
             latestServiceDate: latestBearingService.date,
             serviceType: latestBearingService.type,
-            data: bearingData,
+            outerData: outerData || undefined,
+            innerData: innerData || undefined,
             alert: alert || undefined,
           });
         }
@@ -1818,5 +1823,332 @@ export class ServicesService {
     await this.prisma.machineService.delete({
       where: { id },
     });
+  }
+
+  async getAlertsSummary(serviceId: string): Promise<AlertsSummaryResponseDto> {
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: {
+        alertBearingClearance: true,
+        alertClutch: true,
+        alertSlide: true,
+        alertGibs: true,
+        alertCounterbalanceCylinderAirbag: true,
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const sections: SectionAlertDto[] = [];
+    let highestSeverity: AlertSeverityDto = 'NONE';
+    let alertCount = 0;
+
+    const updateHighestSeverity = (severity: AlertSeverityDto) => {
+      if (severity === 'RED') {
+        highestSeverity = 'RED';
+      } else if (severity === 'YELLOW' && highestSeverity !== 'RED') {
+        highestSeverity = 'YELLOW';
+      } else if (severity === 'GREEN' && highestSeverity === 'NONE') {
+        highestSeverity = 'GREEN';
+      }
+    };
+
+    if (service.alertBearingClearance) {
+      const alert = service.alertBearingClearance;
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const bcFields = [
+        {
+          field: 'outer_totalClearance',
+          label: 'Total Clearance (Outer)',
+          severity: alert.outer_totalClearance_severity as AlertSeverityDto,
+          value: alert.outer_totalClearance_differential?.toString() || '0',
+        },
+        {
+          field: 'outer_mainBearings',
+          label: 'Main Bearings (Outer)',
+          severity: alert.outer_mainBearings_severity as AlertSeverityDto,
+          value: alert.outer_mainBearings_differential?.toString() || '0',
+        },
+        {
+          field: 'outer_upperConnectionBearings',
+          label: 'Upper Connection Bearings (Outer)',
+          severity:
+            alert.outer_upperConnectionBearings_severity as AlertSeverityDto,
+          value:
+            alert.outer_upperConnectionBearings_differential?.toString() || '0',
+        },
+        {
+          field: 'outer_wristPinToMatingPart',
+          label: 'Wrist Pin to Mating Part (Outer)',
+          severity:
+            alert.outer_wristPinToMatingPart_severity as AlertSeverityDto,
+          value:
+            alert.outer_wristPinToMatingPart_differential?.toString() || '0',
+        },
+        {
+          field: 'outer_wristPinToBushing',
+          label: 'Wrist Pin to Bushing (Outer)',
+          severity: alert.outer_wristPinToBushing_severity as AlertSeverityDto,
+          value: alert.outer_wristPinToBushing_differential?.toString() || '0',
+        },
+        {
+          field: 'outer_slideAdjNutToScrewSleeve',
+          label: 'Slide Adj Nut to Screw Sleeve (Outer)',
+          severity:
+            alert.outer_slideAdjNutToScrewSleeve_severity as AlertSeverityDto,
+          value:
+            alert.outer_slideAdjNutToScrewSleeve_differential?.toString() ||
+            '0',
+        },
+        {
+          field: 'inner_totalClearance',
+          label: 'Total Clearance (Inner)',
+          severity: alert.inner_totalClearance_severity as AlertSeverityDto,
+          value: alert.inner_totalClearance_differential?.toString() || '0',
+        },
+        {
+          field: 'inner_mainBearings',
+          label: 'Main Bearings (Inner)',
+          severity: alert.inner_mainBearings_severity as AlertSeverityDto,
+          value: alert.inner_mainBearings_differential?.toString() || '0',
+        },
+        {
+          field: 'inner_upperConnectionBearings',
+          label: 'Upper Connection Bearings (Inner)',
+          severity:
+            alert.inner_upperConnectionBearings_severity as AlertSeverityDto,
+          value:
+            alert.inner_upperConnectionBearings_differential?.toString() || '0',
+        },
+        {
+          field: 'inner_wristPinToMatingPart',
+          label: 'Wrist Pin to Mating Part (Inner)',
+          severity:
+            alert.inner_wristPinToMatingPart_severity as AlertSeverityDto,
+          value:
+            alert.inner_wristPinToMatingPart_differential?.toString() || '0',
+        },
+        {
+          field: 'inner_wristPinToBushing',
+          label: 'Wrist Pin to Bushing (Inner)',
+          severity: alert.inner_wristPinToBushing_severity as AlertSeverityDto,
+          value: alert.inner_wristPinToBushing_differential?.toString() || '0',
+        },
+        {
+          field: 'inner_slideAdjNutToScrewSleeve',
+          label: 'Slide Adj Nut to Screw Sleeve (Inner)',
+          severity:
+            alert.inner_slideAdjNutToScrewSleeve_severity as AlertSeverityDto,
+          value:
+            alert.inner_slideAdjNutToScrewSleeve_differential?.toString() ||
+            '0',
+        },
+      ];
+
+      for (const f of bcFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value,
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'BEARING_CLEARANCE',
+          sectionName: 'Bearing Clearance',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Process Clutch alerts
+    if (service.alertClutch) {
+      const alert = service.alertClutch;
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const clutchFields = [
+        {
+          field: 'hydClutchClearanceTotal',
+          label: 'Hyd Clutch Clearance Total',
+          severity: alert.hydClutchClearanceTotal_severity as AlertSeverityDto,
+          value: alert.hydClutchClearanceTotal_value?.toString() || '0',
+        },
+        {
+          field: 'hydClutchClearanceRear',
+          label: 'Hyd Clutch Clearance Rear',
+          severity: alert.hydClutchClearanceRear_severity as AlertSeverityDto,
+          value: alert.hydClutchClearanceRear_value?.toString() || '0',
+        },
+        {
+          field: 'fb',
+          label: 'F-B (Front-Back)',
+          severity: alert.fb_severity as AlertSeverityDto,
+          value: alert.fb_value?.toString() || '0',
+        },
+        {
+          field: 'fTB',
+          label: 'F-TB (Front Top-Bottom)',
+          severity: alert.fTB_severity as AlertSeverityDto,
+          value: alert.fTB_value?.toString() || '0',
+        },
+        {
+          field: 'rTB',
+          label: 'R-TB (Rear Top-Bottom)',
+          severity: alert.rTB_severity as AlertSeverityDto,
+          value: alert.rTB_value?.toString() || '0',
+        },
+      ];
+
+      for (const f of clutchFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value,
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'CLUTCH',
+          sectionName: 'Clutch',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Process Slide alerts
+    if (service.alertSlide) {
+      const alert = service.alertSlide;
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const slideFields = [
+        {
+          field: 'maxDeviationOuter',
+          label: 'Max Deviation (Outer)',
+          severity: alert.maxDeviationOuter_severity as AlertSeverityDto,
+          value: alert.maxDeviationOuter_differential?.toString() || '0',
+        },
+        {
+          field: 'maxDeviationInner',
+          label: 'Max Deviation (Inner)',
+          severity: alert.maxDeviationInner_severity as AlertSeverityDto,
+          value: alert.maxDeviationInner_differential?.toString() || '0',
+        },
+      ];
+
+      for (const f of slideFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value,
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'SLIDE',
+          sectionName: 'Slide',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Process Gibs alerts
+    if (service.alertGibs) {
+      const alert = service.alertGibs;
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const severity = alert.usable_severity as AlertSeverityDto;
+      if (severity === 'YELLOW' || severity === 'RED') {
+        alerts.push({
+          field: 'usable',
+          fieldLabel: 'Usable',
+          value: alert.usable_value?.toString() || '0',
+          severity,
+        });
+        alertCount++;
+        sectionSeverity = severity;
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'GIBS',
+          sectionName: 'Gibs',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Process Counterbalance Cylinder Airbag alerts (these are always RED when present)
+    if (
+      service.alertCounterbalanceCylinderAirbag &&
+      service.alertCounterbalanceCylinderAirbag.length > 0
+    ) {
+      const alerts: AlertDetailDto[] = [];
+
+      for (const alert of service.alertCounterbalanceCylinderAirbag) {
+        alerts.push({
+          field: alert.fieldName,
+          fieldLabel: alert.fieldName.replace(/_/g, ' '),
+          value: alert.justification,
+          severity: 'RED',
+        });
+        alertCount++;
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'COUNTERBALANCE_CYLINDER',
+          sectionName: 'Counterbalance Cylinder / Airbag',
+          severity: 'RED',
+          alerts,
+        });
+        updateHighestSeverity('RED');
+      }
+    }
+
+    return {
+      hasAlerts: alertCount > 0,
+      alertCount,
+      highestSeverity,
+      sections,
+    };
   }
 }

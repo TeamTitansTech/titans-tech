@@ -168,16 +168,7 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
     }
   };
 
-  const handleDelete = async (alertId: string, fieldName: string) => {
-    // Confirm deletion
-    if (
-      !confirm(
-        t('toast.confirmDelete', { field: getFieldLabel(fieldName as CounterbalanceAlertField) }),
-      )
-    ) {
-      return;
-    }
-
+  const handleDelete = async (alertId: string) => {
     setIsDeletingId(alertId);
     try {
       const response = await responseHandler(`/alerts/counterbalance/${alertId}`, {
@@ -306,7 +297,7 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDelete(alert.id, alert.fieldName)}
+                        onClick={() => handleDelete(alert.id)}
                         disabled={isDeletingId === alert.id}
                         className="h-8 w-8 p-0"
                       >
