@@ -5,6 +5,7 @@ import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { BlueprintCard } from './BlueprintCard';
 import { BlueprintCreationModal } from './BlueprintCreationModal';
+import { BlueprintEditModal } from './BlueprintEditModal';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -28,6 +29,8 @@ interface BlueprintsPageClientProps {
 
 export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [blueprintToEdit, setBlueprintToEdit] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [blueprintToDelete, setBlueprintToDelete] = useState<string | null>(null);
   const router = useInternalRouter();
@@ -35,6 +38,16 @@ export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) 
 
   const handleSuccess = () => {
     router.refresh();
+  };
+
+  const handleEditClick = (id: string) => {
+    setBlueprintToEdit(id);
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+    setBlueprintToEdit(null);
   };
 
   const handleDeleteClick = (id: string) => {
@@ -86,6 +99,7 @@ export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) 
                 description={blueprint.sections.join(', ') || t('noDescription')}
                 machineCount={blueprint._count?.machines || 0}
                 fieldCount={blueprint.fields.length}
+                onEdit={handleEditClick}
                 onDelete={handleDeleteClick}
               />
             ))}
@@ -96,6 +110,13 @@ export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) 
       <BlueprintCreationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onSuccess={handleSuccess}
+      />
+
+      <BlueprintEditModal
+        isOpen={isEditModalOpen}
+        blueprintId={blueprintToEdit}
+        onClose={handleCloseEditModal}
         onSuccess={handleSuccess}
       />
 

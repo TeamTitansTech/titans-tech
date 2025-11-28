@@ -5,6 +5,7 @@ interface SectionsSelectorProps {
   selectedSections: string[];
   availableSections: readonly string[];
   toggleSection: (section: string) => void;
+  disabled?: boolean;
   translations: {
     title: string;
     getSectionName: (section: string) => string;
@@ -15,6 +16,7 @@ export const SectionsSelector = ({
   selectedSections,
   availableSections,
   toggleSection,
+  disabled = false,
   translations,
 }: SectionsSelectorProps) => {
   return (
@@ -32,6 +34,7 @@ export const SectionsSelector = ({
                 type="button"
                 variant="outline"
                 size="sm"
+                disabled={disabled}
                 onClick={() => toggleSection(section)}
                 className={
                   isSelected

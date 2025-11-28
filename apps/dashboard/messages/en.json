@@ -623,7 +623,25 @@
     "noDescription": "No description",
     "errorLoading": "Error loading models",
     "createdSuccessfully": "Model created successfully",
+    "updatedSuccessfully": "Model updated successfully",
+    "invalidBlueprintId": "Invalid blueprint ID",
     "description": "Create a new machine model",
+    "editTitle": "Edit Model",
+    "editDescription": "Edit machine model information",
+    "machine": "machine",
+    "machines": "machines",
+    "field": "field",
+    "fields": "fields",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteSuccess": "Model deleted successfully",
+    "deleteError": "Error deleting model",
+    "deleteConfirm": {
+      "title": "Delete model?",
+      "description": "This action cannot be undone. The model will be permanently deleted.",
+      "confirm": "Yes, delete",
+      "cancel": "Cancel"
+    },
     "form": {
       "basicInfo": {
         "title": "Basic Information"
@@ -659,7 +677,16 @@
       },
       "submit": {
         "idle": "Create Blueprint",
-        "loading": "Sending..."
+        "loading": "Sending...",
+        "update": "Update Model",
+        "updating": "Updating..."
+      },
+      "hasMachinesWarning": "This model has linked machines. Only the name and thresholds can be edited.",
+      "confirmClose": {
+        "title": "Discard changes?",
+        "description": "You have unsaved changes. If you close now, all filled data will be lost.",
+        "confirm": "Yes, discard",
+        "cancel": "Continue editing"
       },
       "error": {
         "title": "Error:"

@@ -17,6 +17,7 @@ import { EnumOptionsManager } from './EnumOptionsManager';
 interface CustomFieldCardProps {
   field: Field;
   index: number;
+  disabled?: boolean;
   onRemove: (index: number) => void;
   onUpdate: (index: number, key: keyof Field, value: string | string[]) => void;
   enumHandlers: {
@@ -43,6 +44,7 @@ interface CustomFieldCardProps {
 export const CustomFieldCard = ({
   field,
   index,
+  disabled = false,
   onRemove,
   onUpdate,
   enumHandlers,
@@ -59,6 +61,7 @@ export const CustomFieldCard = ({
             <Button
               type="button"
               onClick={() => onRemove(index)}
+              disabled={disabled}
               variant="ghost"
               size="sm"
               className="hover:bg-orange-500 hover:text-white transition-all"
@@ -75,6 +78,7 @@ export const CustomFieldCard = ({
                 type="text"
                 value={field.fieldName}
                 onChange={(e) => onUpdate(index, 'fieldName', e.target.value)}
+                disabled={disabled}
                 required
                 placeholder={translations.fieldNamePlaceholder}
               />
@@ -85,6 +89,7 @@ export const CustomFieldCard = ({
               <Select
                 value={field.fieldType}
                 onValueChange={(value) => onUpdate(index, 'fieldType', value as FieldType)}
+                disabled={disabled}
               >
                 <SelectTrigger id={`field-type-${index}`}>
                   <SelectValue />
@@ -105,6 +110,7 @@ export const CustomFieldCard = ({
                 onAdd={enumHandlers.onAdd}
                 onRemove={enumHandlers.onRemove}
                 onValueChange={enumHandlers.onValueChange}
+                disabled={disabled}
                 translations={{
                   label: translations.fieldOptionsLabel,
                   placeholder: translations.fieldOptionsPlaceholder,

@@ -712,18 +712,18 @@ model MachineService {
   counterbalanceCylinderAirbag      MachineServiceCounterbalanceCylinderAirbag[]
   tramming                          MachineServiceTramming[]
   pistons                           MachineServicePistons[]
-  alertBearingClearance             AlertBearingClearance?
+  alertBearingClearance             AlertBearingClearance[]
   alertCounterbalanceCylinderAirbag AlertCounterbalanceCylinderAirbag[]
-  alertClutch                       AlertClutch?
-  alertSlide                        AlertSlide?
-  alertGibs                         AlertGibs?
+  alertClutch                       AlertClutch[]
+  alertSlide                        AlertSlide[]
+  alertGibs                         AlertGibs[]
 
   @@map("machine_services")
 }
 
 model AlertBearingClearance {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String // Removed @unique to allow multiple alerts per service (historical tracking)
 
   // Total Clearance alert - only differential and severity
   totalClearance_differential Decimal       @db.Decimal(10, 4)
@@ -757,6 +757,8 @@ model AlertBearingClearance {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  // Index for efficient querying of alerts by service and creation date
+  @@index([machineServiceId, createdAt(sort: Desc)])
   @@map("alert_bearing_clearance")
 }
 
@@ -777,7 +779,7 @@ model AlertCounterbalanceCylinderAirbag {
 
 model AlertClutch {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String // Removed @unique to allow multiple alerts per service (historical tracking)
 
   // Hyd Clutch Clearance Total alert
   hydClutchClearanceTotal_value    Decimal       @db.Decimal(10, 4)
@@ -807,12 +809,14 @@ model AlertClutch {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  // Index for efficient querying of alerts by service and creation date
+  @@index([machineServiceId, createdAt(sort: Desc)])
   @@map("alert_clutch")
 }
 
 model AlertSlide {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String // Removed @unique to allow multiple alerts per service (historical tracking)
 
   // Outer Max Deviation alert
   maxDeviationOuter_differential Decimal       @db.Decimal(10, 4)
@@ -830,12 +834,14 @@ model AlertSlide {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  // Index for efficient querying of alerts by service and creation date
+  @@index([machineServiceId, createdAt(sort: Desc)])
   @@map("alert_slide")
 }
 
 model AlertGibs {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String // Removed @unique to allow multiple alerts per service (historical tracking)
 
   // Usable value and severity (based on single threshold)
   usable_value    Decimal       @db.Decimal(10, 4)
@@ -849,6 +855,8 @@ model AlertGibs {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  // Index for efficient querying of alerts by service and creation date
+  @@index([machineServiceId, createdAt(sort: Desc)])
   @@map("alert_gibs")
 }
 

@@ -623,7 +623,25 @@
     "noDescription": "Sin descripción",
     "errorLoading": "Error al cargar modelos",
     "createdSuccessfully": "Modelo creado exitosamente",
+    "updatedSuccessfully": "Modelo actualizado exitosamente",
+    "invalidBlueprintId": "ID de modelo inválido",
     "description": "Crear un nuevo modelo de máquina",
+    "editTitle": "Editar Modelo",
+    "editDescription": "Editar información del modelo de máquina",
+    "machine": "máquina",
+    "machines": "máquinas",
+    "field": "campo",
+    "fields": "campos",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "deleteSuccess": "Modelo eliminado exitosamente",
+    "deleteError": "Error al eliminar modelo",
+    "deleteConfirm": {
+      "title": "¿Eliminar modelo?",
+      "description": "Esta acción no se puede deshacer. El modelo será eliminado permanentemente.",
+      "confirm": "Sí, eliminar",
+      "cancel": "Cancelar"
+    },
     "form": {
       "basicInfo": {
         "title": "Información Básica"
@@ -659,7 +677,16 @@
       },
       "submit": {
         "idle": "Crear Plantilla",
-        "loading": "Enviando..."
+        "loading": "Enviando...",
+        "update": "Actualizar Modelo",
+        "updating": "Actualizando..."
+      },
+      "hasMachinesWarning": "Este modelo tiene máquinas vinculadas. Solo el nombre y los umbrales pueden ser editados.",
+      "confirmClose": {
+        "title": "¿Descartar cambios?",
+        "description": "Tiene cambios no guardados. Si cierra ahora, todos los datos ingresados se perderán.",
+        "confirm": "Sí, descartar",
+        "cancel": "Continuar editando"
       },
       "error": {
         "title": "Error:"

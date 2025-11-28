@@ -9,6 +9,7 @@ import { PrismaService } from '../shared/prisma.service';
 import {
   CreateBlueprintWithThresholdsDto,
   CreateBlueprintDto,
+  UpdateBlueprintDto,
 } from '@titans-tech/shared/backend-dtos';
 import {
   convertThresholdToDecimal,
@@ -16,10 +17,14 @@ import {
   convertSlideThresholdToDecimal,
   convertGibsThresholdToDecimal,
 } from '../alerts/threshold.utils';
+import { AlertsService } from '../alerts/alerts.service';
 
 @Injectable()
 export class BlueprintsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private alertsService: AlertsService,
+  ) {}
 
   async create(
     createBlueprintDto: CreateBlueprintDto | CreateBlueprintWithThresholdsDto,
@@ -123,7 +128,10 @@ export class BlueprintsService {
 
   async findOne(id: string): Promise<
     Prisma.BlueprintGetPayload<{
-      include: { machines: { include: { fields: true } } };
+      include: {
+        machines: { include: { fields: true } };
+        _count: { select: { machines: true } };
+      };
     }>
   > {
     const blueprint = await this.prisma.blueprint.findUnique({
@@ -134,11 +142,171 @@ export class BlueprintsService {
             fields: true,
           },
         },
+        _count: {
+          select: {
+            machines: true,
+          },
+        },
       },
     });
 
     if (!blueprint || blueprint.deletedAt) {
       throw new NotFoundException(`Blueprint with ID ${id} not found`);
+    }
+
+    return blueprint;
+  }
+
+  async update(
+    id: string,
+    updateBlueprintDto: UpdateBlueprintDto,
+  ): Promise<
+    Prisma.BlueprintGetPayload<{
+      include: { _count: { select: { machines: true } } };
+    }>
+  > {
+    // 1. Check if blueprint exists
+    const existingBlueprint = await this.prisma.blueprint.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: { machines: true },
+        },
+      },
+    });
+
+    if (!existingBlueprint || existingBlueprint.deletedAt) {
+      throw new NotFoundException(`Blueprint with ID ${id} not found`);
+    }
+
+    const hasMachines = existingBlueprint._count.machines > 0;
+
+    // 2. If blueprint has machines, only allow name and threshold updates
+    if (hasMachines) {
+      if (updateBlueprintDto.fields || updateBlueprintDto.sections) {
+        throw new BadRequestException(
+          'Cannot update fields or sections for blueprints with associated machines. Only name and thresholds can be updated.',
+        );
+      }
+    }
+
+    // 3. Validate sections if provided
+    const sections = updateBlueprintDto.sections
+      ? this.validateSections(updateBlueprintDto.sections)
+      : undefined;
+
+    // 4. Use transaction to update Blueprint and Thresholds
+    const blueprint = await this.prisma.$transaction(async (tx) => {
+      // Update Blueprint base fields
+      const updateData: Prisma.BlueprintUpdateInput = {};
+
+      if (updateBlueprintDto.name !== undefined) {
+        updateData.name = updateBlueprintDto.name;
+      }
+      if (updateBlueprintDto.fields !== undefined) {
+        updateData.fields =
+          updateBlueprintDto.fields as unknown as Prisma.InputJsonValue;
+      }
+      if (sections !== undefined) {
+        updateData.sections = sections;
+      }
+
+      const blueprint = await tx.blueprint.update({
+        where: { id },
+        data: updateData,
+        include: {
+          _count: {
+            select: { machines: true },
+          },
+        },
+      });
+
+      // Update Thresholds (upsert: create if not exists, update if exists)
+      if (updateBlueprintDto.thresholds) {
+        await tx.thresholdBearingClearance.upsert({
+          where: { blueprintId: id },
+          create: {
+            blueprintId: id,
+            ...convertThresholdToDecimal(updateBlueprintDto.thresholds),
+          },
+          update: convertThresholdToDecimal(updateBlueprintDto.thresholds),
+        });
+      }
+
+      if (updateBlueprintDto.clutchThresholds) {
+        await tx.thresholdClutch.upsert({
+          where: { blueprintId: id },
+          create: {
+            blueprintId: id,
+            ...convertClutchThresholdToDecimal(
+              updateBlueprintDto.clutchThresholds,
+            ),
+          },
+          update: convertClutchThresholdToDecimal(
+            updateBlueprintDto.clutchThresholds,
+          ),
+        });
+      }
+
+      if (updateBlueprintDto.slideThresholds) {
+        await tx.thresholdSlide.upsert({
+          where: { blueprintId: id },
+          create: {
+            blueprintId: id,
+            ...convertSlideThresholdToDecimal(
+              updateBlueprintDto.slideThresholds,
+            ),
+          },
+          update: convertSlideThresholdToDecimal(
+            updateBlueprintDto.slideThresholds,
+          ),
+        });
+      }
+
+      if (updateBlueprintDto.gibsThresholds) {
+        await tx.thresholdGibs.upsert({
+          where: { blueprintId: id },
+          create: {
+            blueprintId: id,
+            ...convertGibsThresholdToDecimal(updateBlueprintDto.gibsThresholds),
+          },
+          update: convertGibsThresholdToDecimal(
+            updateBlueprintDto.gibsThresholds,
+          ),
+        });
+      }
+
+      return blueprint;
+    });
+
+    // 5. Regenerate alerts only for sections with updated thresholds
+    const updatedSections: string[] = [];
+
+    if (updateBlueprintDto.thresholds) {
+      updatedSections.push('BEARING_CLEARANCE');
+    }
+    if (updateBlueprintDto.clutchThresholds) {
+      updatedSections.push('CLUTCH');
+    }
+    if (updateBlueprintDto.slideThresholds) {
+      updatedSections.push('SLIDE');
+    }
+    if (updateBlueprintDto.gibsThresholds) {
+      updatedSections.push('GIBS');
+    }
+
+    if (updatedSections.length > 0) {
+      // Run alert regeneration asynchronously (don't block the response)
+      // Only regenerate alerts for the specific sections that were updated
+      this.alertsService
+        .regenerateAlertsForBlueprint(id, updatedSections)
+        .catch((error) => {
+          // Log error but don't fail the request
+          console.error(
+            `Failed to regenerate alerts for blueprint ${id}:`,
+            error,
+          );
+        });
     }
 
     return blueprint;

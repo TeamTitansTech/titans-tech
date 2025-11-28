@@ -134,5 +134,49 @@ export const CreateBlueprintWithThresholdsSchema = z
 
 export type CreateBlueprintWithThresholdsDto = z.infer<typeof CreateBlueprintWithThresholdsSchema>;
 
-export const UpdateBlueprintSchema = CreateBlueprintSchema.partial();
+// Schema para update de Blueprint (com thresholds opcionais)
+export const UpdateBlueprintSchema = z
+  .object({
+    name: z.string().min(1, 'Blueprint name is required').optional(),
+    fields: z.array(z.any()).optional(),
+    sections: z.array(z.nativeEnum(ServiceSection)).optional(),
+    thresholds: ThresholdsSchema.optional(),
+    clutchThresholds: ClutchThresholdsSchema.optional(),
+    slideThresholds: SlideThresholdsSchema.optional(),
+    gibsThresholds: GibsThresholdsSchema.optional(),
+  })
+  .refine(
+    (data) => {
+      // Se thresholds fornecidos, BEARING_CLEARANCE deve estar em sections (se sections fornecido)
+      if (
+        data.thresholds &&
+        data.sections &&
+        !data.sections.includes(ServiceSection.BEARING_CLEARANCE)
+      ) {
+        return false;
+      }
+      // Se clutchThresholds fornecidos, CLUTCH deve estar em sections (se sections fornecido)
+      if (
+        data.clutchThresholds &&
+        data.sections &&
+        !data.sections.includes(ServiceSection.CLUTCH)
+      ) {
+        return false;
+      }
+      // Se slideThresholds fornecidos, SLIDE deve estar em sections (se sections fornecido)
+      if (data.slideThresholds && data.sections && !data.sections.includes(ServiceSection.SLIDE)) {
+        return false;
+      }
+      // Se gibsThresholds fornecidos, GIBS deve estar em sections (se sections fornecido)
+      if (data.gibsThresholds && data.sections && !data.sections.includes(ServiceSection.GIBS)) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: 'Thresholds can only be configured if corresponding section is selected',
+      path: ['thresholds'],
+    },
+  );
+
 export type UpdateBlueprintDto = z.infer<typeof UpdateBlueprintSchema>;

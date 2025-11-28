@@ -1,10 +1,20 @@
-import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+} from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { BlueprintsService } from './blueprints.service';
 import {
   CreateBlueprintWithThresholdsDto,
   CreateBlueprintDto,
   CreateBlueprintWithThresholdsSchema,
+  UpdateBlueprintDto,
+  UpdateBlueprintSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { Admin, Authenticated } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
@@ -36,10 +46,27 @@ export class BlueprintsController {
   @Get(':id')
   findOne(@Param('id') id: string): Promise<
     Prisma.BlueprintGetPayload<{
-      include: { machines: { include: { fields: true } } };
+      include: {
+        machines: { include: { fields: true } };
+        _count: { select: { machines: true } };
+      };
     }>
   > {
     return this.blueprintsService.findOne(id);
+  }
+
+  @Admin()
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(UpdateBlueprintSchema))
+    updateBlueprintDto: UpdateBlueprintDto,
+  ): Promise<
+    Prisma.BlueprintGetPayload<{
+      include: { _count: { select: { machines: true } } };
+    }>
+  > {
+    return this.blueprintsService.update(id, updateBlueprintDto);
   }
 
   @Admin()

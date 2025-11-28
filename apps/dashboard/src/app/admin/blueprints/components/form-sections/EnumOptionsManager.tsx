@@ -7,6 +7,7 @@ interface EnumOptionsManagerProps {
   fieldIndex: number;
   options?: string[];
   newValue: string;
+  disabled?: boolean;
   onAdd: () => void;
   onRemove: (optionIndex: number) => void;
   onValueChange: (value: string) => void;
@@ -22,6 +23,7 @@ export const EnumOptionsManager = ({
   fieldIndex: _fieldIndex,
   options,
   newValue,
+  disabled = false,
   onAdd,
   onRemove,
   onValueChange,
@@ -43,6 +45,7 @@ export const EnumOptionsManager = ({
                 type="button"
                 variant="ghost"
                 size="sm"
+                disabled={disabled}
                 onClick={() => onRemove(optionIndex)}
                 className="h-5 w-5 p-0 hover:bg-destructive/10 hover:text-destructive"
               >
@@ -57,6 +60,7 @@ export const EnumOptionsManager = ({
         <Input
           type="text"
           value={newValue}
+          disabled={disabled}
           onChange={(e) => onValueChange(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -67,7 +71,7 @@ export const EnumOptionsManager = ({
           placeholder={translations.placeholder}
           className="flex-1"
         />
-        <Button type="button" onClick={onAdd} variant="outline" size="sm">
+        <Button type="button" onClick={onAdd} disabled={disabled} variant="outline" size="sm">
           {translations.addButton}
         </Button>
       </div>

@@ -21,6 +21,7 @@ interface CustomFieldsListProps {
     updateField: (index: number, key: keyof Field, value: string | string[]) => void,
   ) => void;
   updateNewOptionValue: (fieldIndex: number, value: string) => void;
+  disabled?: boolean;
   translations: {
     title: string;
     addButton: string;
@@ -47,6 +48,7 @@ export const CustomFieldsList = ({
   addOption,
   removeOption,
   updateNewOptionValue,
+  disabled = false,
   translations,
 }: CustomFieldsListProps) => {
   return (
@@ -56,6 +58,7 @@ export const CustomFieldsList = ({
         <Button
           type="button"
           onClick={addField}
+          disabled={disabled}
           variant="outline"
           size="sm"
           className="hover:bg-orange-500 hover:text-white transition-all"
@@ -70,6 +73,7 @@ export const CustomFieldsList = ({
             key={index}
             field={field}
             index={index}
+            disabled={disabled}
             onRemove={removeField}
             onUpdate={updateField}
             enumHandlers={{

@@ -13,6 +13,7 @@ interface BlueprintCardProps {
   description: string;
   machineCount: number;
   fieldCount: number;
+  onEdit: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -22,6 +23,7 @@ export function BlueprintCard({
   description,
   machineCount,
   fieldCount,
+  onEdit,
   onDelete,
 }: BlueprintCardProps) {
   const t = useTranslations('models');
@@ -59,12 +61,7 @@ export function BlueprintCard({
             </Badge>
           </div>
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled
-              className="flex-1 cursor-not-allowed opacity-50"
-            >
+            <Button variant="outline" size="sm" onClick={() => onEdit(id)} className="flex-1">
               <Edit className="w-4 h-4 mr-2" />
               {t('edit')}
             </Button>
