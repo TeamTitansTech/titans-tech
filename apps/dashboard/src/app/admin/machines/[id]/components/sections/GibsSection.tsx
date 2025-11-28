@@ -310,16 +310,6 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           };
         }
 
-        console.log(validationErrors, {
-          outerBefore,
-          outerData,
-          outerFreeHangingData,
-          innerBefore,
-          innerData,
-          innerBeforeTool,
-          innerDataTool,
-        });
-
         return {
           isValid: false,
           errors: validationErrors,
