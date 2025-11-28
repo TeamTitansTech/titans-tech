@@ -16,6 +16,7 @@ import { toast } from 'sonner';
 interface Blueprint {
   id: string;
   name: string;
+  imageUrl?: string;
   sections: string[];
   fields: { fieldName: string }[];
   _count?: {
@@ -96,6 +97,7 @@ export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) 
                 key={blueprint.id}
                 id={blueprint.id}
                 name={blueprint.name}
+                imageUrl={blueprint.imageUrl}
                 description={blueprint.sections.join(', ') || t('noDescription')}
                 machineCount={blueprint._count?.machines || 0}
                 fieldCount={blueprint.fields.length}

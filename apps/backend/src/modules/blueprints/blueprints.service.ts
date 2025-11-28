@@ -11,6 +11,7 @@ import {
   CreateBlueprintDto,
   UpdateBlueprintDto,
 } from '@titans-tech/shared/backend-dtos';
+import { UpdateBlueprintDto } from '../../blueprints/dto/update-blueprint.dto';
 import {
   convertThresholdToDecimal,
   convertClutchThresholdToDecimal,
@@ -37,6 +38,7 @@ export class BlueprintsService {
       const blueprint = await tx.blueprint.create({
         data: {
           name: createBlueprintDto.name,
+          imageUrl: createBlueprintDto.imageUrl,
           fields: createBlueprintDto.fields as unknown as Prisma.InputJsonValue,
           sections: sections,
         },
@@ -111,7 +113,7 @@ export class BlueprintsService {
   > {
     return this.prisma.blueprint.findMany({
       where: {
-        deletedAt: null, // Only return non-deleted blueprints
+        deletedAt: null,
       },
       include: {
         _count: {
@@ -181,11 +183,11 @@ export class BlueprintsService {
 
     const hasMachines = existingBlueprint._count.machines > 0;
 
-    // 2. If blueprint has machines, only allow name and threshold updates
+    // 2. If blueprint has machines, only allow name, imageUrl and threshold updates
     if (hasMachines) {
       if (updateBlueprintDto.fields || updateBlueprintDto.sections) {
         throw new BadRequestException(
-          'Cannot update fields or sections for blueprints with associated machines. Only name and thresholds can be updated.',
+          'Cannot update fields or sections for blueprints with associated machines. Only name, imageUrl and thresholds can be updated.',
         );
       }
     }
@@ -202,6 +204,9 @@ export class BlueprintsService {
 
       if (updateBlueprintDto.name !== undefined) {
         updateData.name = updateBlueprintDto.name;
+      }
+      if (updateBlueprintDto.imageUrl !== undefined) {
+        updateData.imageUrl = updateBlueprintDto.imageUrl;
       }
       if (updateBlueprintDto.fields !== undefined) {
         updateData.fields =

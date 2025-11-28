@@ -61,6 +61,7 @@ export interface GibsThresholds {
 
 export interface CreateBlueprintPayload {
   name: string;
+  imageUrl?: string;
   sections: string[];
   fields: BlueprintField[];
   thresholds?: BearingClearanceThresholds;
@@ -71,6 +72,7 @@ export interface CreateBlueprintPayload {
 
 export interface UpdateBlueprintPayload {
   name?: string;
+  imageUrl?: string;
   sections?: string[];
   fields?: BlueprintField[];
   thresholds?: BearingClearanceThresholds;
@@ -82,6 +84,7 @@ export interface UpdateBlueprintPayload {
 export interface Blueprint {
   id: string;
   name: string;
+  imageUrl?: string;
   sections: string[];
   fields: BlueprintField[];
   createdAt: string;

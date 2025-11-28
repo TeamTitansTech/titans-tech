@@ -47,57 +47,68 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
 
   return (
     <>
-      <div className="flex items-center gap-6 mb-6">
+      <div className="flex items-center gap-3 sm:gap-6 mb-4 sm:mb-6">
         <Link href={'/admin/machines'} className="shrink-0">
           <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
         </Link>
-        <div className="flex items-center justify-between w-full min-w-0 gap-4">
+        <div className="flex items-center justify-between w-full min-w-0 gap-2 sm:gap-4">
           <div className="min-w-0 flex-1 overflow-hidden">
             <ConditionalTooltip content={machine.name} className="block">
-              <Typography variant="h2">{machine.name}</Typography>
+              <Typography variant="h2" className="text-lg sm:text-2xl">
+                {machine.name}
+              </Typography>
             </ConditionalTooltip>
             <ConditionalTooltip
               content={machine.blueprint?.name || t('noBlueprintAssigned')}
               className="mt-1 truncate block"
             >
-              <Typography variant="muted">
+              <Typography variant="muted" className="text-xs sm:text-sm">
                 {machine.blueprint?.name || t('noBlueprintAssigned')}
               </Typography>
             </ConditionalTooltip>
           </div>
-          <Button onClick={handleOpenReport} disabled={isLoadingReport} className="gap-2 shrink-0">
+          <Button
+            onClick={handleOpenReport}
+            disabled={isLoadingReport}
+            className="gap-1 sm:gap-2 shrink-0 text-xs sm:text-sm px-2 sm:px-4"
+            size="sm"
+          >
             <FileText className="w-4 h-4" />
-            {isLoadingReport ? 'Carregando...' : 'Ver Relatório Atualizado'}
+            <span className="hidden sm:inline">
+              {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
+            </span>
           </Button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] lg:grid-cols-[280px_1fr] gap-4 lg:gap-6">
         <Card className="bg-muted">
           <CardContent className="p-0">
-            <div className="relative aspect-[3/4] bg-muted flex items-center justify-center">
+            <div className="relative aspect-[16/9] md:aspect-[3/4] bg-muted flex items-center justify-center">
               {machine.imageUrl ? (
                 <Image
                   src={machine.imageUrl}
                   alt={machine.name}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 400px"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 200px, 280px"
                 />
               ) : (
-                <div className="text-center p-6">
-                  <Box className="w-16 h-16 mx-auto text-muted-foreground mb-2" />
-                  <Typography variant="muted">{t('noImageAvailable')}</Typography>
+                <div className="text-center p-3 md:p-4">
+                  <Box className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-1 md:mb-2" />
+                  <Typography variant="muted" className="text-xs md:text-sm">
+                    {t('noImageAvailable')}
+                  </Typography>
                 </div>
               )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="pt-6">
+        <Card className="overflow-visible">
+          <CardContent className="p-2 sm:p-3 lg:pt-6 lg:px-6">
             {machine.blueprint?.sections && machine.blueprint.sections.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-1.5 sm:gap-3">
                 {machine.blueprint.sections.map((section) => (
                   <SectionCard
                     key={section}

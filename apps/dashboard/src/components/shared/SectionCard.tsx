@@ -97,19 +97,19 @@ export function SectionCard({ sectionKey, machine, onClick, isLoading = false }:
         />
       </div>
 
-      <div className="aspect-[4/3] bg-slate-400 dark:bg-slate-600 flex items-center justify-center relative px-5">
+      <div className="aspect-[2/1] bg-slate-400 dark:bg-slate-600 flex items-center justify-center relative px-3">
         {imageUrl ? (
           <Image
             src={getImageUrl(imageUrl)}
             alt={title}
-            width={300}
-            height={225}
+            width={150}
+            height={150}
             className="object-contain max-w-full max-h-full brightness-0 invert"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             unoptimized
           />
         ) : (
-          <div className="w-24 h-24 border-2 border-dashed border-border rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 border-2 border-dashed border-border rounded-lg flex items-center justify-center">
             <span className="text-muted-foreground text-xs">No Image</span>
           </div>
         )}

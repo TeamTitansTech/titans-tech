@@ -13,7 +13,8 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { ParallelismType, YesNoNaDncType, YesNoDncType } from '@/data/types/services.types';
-import { useNumericInput } from '@/hooks/useNumericInput';
+import { LengthInput } from '@/components/ui/forms/LengthInput';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 import { type SlideFormData } from '../sections/SlideSection';
 
 interface SlideFormWrapperData {
@@ -52,6 +53,7 @@ function PositionFields({
   fieldPrefix: 'before' | 'after';
 }) {
   const t = useTranslations('inspections.form.slide');
+  const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 
   // Build the actual field names based on prefix
   const pos1Field = `${fieldPrefix}Position1` as keyof SlideFormData;
@@ -60,34 +62,8 @@ function PositionFields({
   const pos4Field = `${fieldPrefix}Position4` as keyof SlideFormData;
   const pos5Field = `${fieldPrefix}Position5` as keyof SlideFormData;
 
-  // Use numeric input hook for each position
-  const [position1Value, handlePosition1Change, handlePosition1Blur] = useNumericInput(
-    data[pos1Field] as number | undefined,
-    (val) => updateFn(pos1Field, val),
-    { maxDecimals: 4, required: fieldPrefix === 'after' },
-  );
-  const [position2Value, handlePosition2Change, handlePosition2Blur] = useNumericInput(
-    data[pos2Field] as number | undefined,
-    (val) => updateFn(pos2Field, val),
-    { maxDecimals: 4, required: fieldPrefix === 'after' },
-  );
-  const [position3Value, handlePosition3Change, handlePosition3Blur] = useNumericInput(
-    data[pos3Field] as number | undefined,
-    (val) => updateFn(pos3Field, val),
-    { maxDecimals: 4, required: fieldPrefix === 'after' },
-  );
-  const [position4Value, handlePosition4Change, handlePosition4Blur] = useNumericInput(
-    data[pos4Field] as number | undefined,
-    (val) => updateFn(pos4Field, val),
-    { maxDecimals: 4, required: fieldPrefix === 'after' },
-  );
-  const [position5Value, handlePosition5Change, handlePosition5Blur] = useNumericInput(
-    data[pos5Field] as number | undefined,
-    (val) => updateFn(pos5Field, val),
-    { maxDecimals: 4, required: fieldPrefix === 'after' },
-  );
-
   // Calculate max deviation: MAX - MIN of positions 1-5 if more than 1 value exists
+  // Values are stored in mm, so we calculate diff in mm then convert for display
   const calculateMaxDeviation = (): string => {
     const positions = [
       data[pos1Field] as number | undefined,
@@ -103,7 +79,9 @@ function PositionFields({
     if (validValues.length > 1) {
       const max = Math.max(...(validValues as number[]));
       const min = Math.min(...(validValues as number[]));
-      return (max - min).toFixed(4);
+      const diffInMm = max - min;
+      const diffInDisplayUnit = convertLengthFromDefault(diffInMm);
+      return diffInDisplayUnit.toFixed(4);
     }
     return '';
   };
@@ -115,249 +93,140 @@ function PositionFields({
       {/* Big screens: 3 columns + deviation */}
       <div className="hidden lg:grid lg:grid-cols-4 gap-2">
         {/* Row 1: position1, position2, position3, deviation label */}
-        <div>
-          <Input
-            id={`position1-${title}`}
-            type="number"
-            step="0.0001"
-            max="999999.9999"
-            value={position1Value}
-            onChange={handlePosition1Change}
-            onBlur={() => {
-              handlePosition1Blur();
-              handleBlur(pos1Field);
-            }}
-            className={errors[pos1Field] ? 'border-destructive' : ''}
-            required={fieldPrefix === 'after'}
-          />
-          {errors[pos1Field] && (
-            <p className="text-xs text-destructive mt-1">{errors[pos1Field]}</p>
-          )}
-        </div>
-        <div>
-          <Input
-            id={`position2-${title}`}
-            type="number"
-            step="0.0001"
-            max="999999.9999"
-            value={position2Value}
-            onChange={handlePosition2Change}
-            onBlur={() => {
-              handlePosition2Blur();
-              handleBlur(pos2Field);
-            }}
-            className={errors[pos2Field] ? 'border-destructive' : ''}
-            required={fieldPrefix === 'after'}
-          />
-          {errors[pos2Field] && (
-            <p className="text-xs text-destructive mt-1">{errors[pos2Field]}</p>
-          )}
-        </div>
-        <div>
-          <Input
-            id={`position3-${title}`}
-            type="number"
-            step="0.0001"
-            max="999999.9999"
-            value={position3Value}
-            onChange={handlePosition3Change}
-            onBlur={() => {
-              handlePosition3Blur();
-              handleBlur(pos3Field);
-            }}
-            className={errors[pos3Field] ? 'border-destructive' : ''}
-            required={fieldPrefix === 'after'}
-          />
-          {errors[pos3Field] && (
-            <p className="text-xs text-destructive mt-1">{errors[pos3Field]}</p>
-          )}
-        </div>
+        <LengthInput
+          id={`position1-${title}`}
+          value={data[pos1Field] ?? 0}
+          onChange={(val) => updateFn(pos1Field, val)}
+          onBlur={() => handleBlur(pos1Field)}
+          error={errors[pos1Field]}
+          required={fieldPrefix === 'after'}
+          showLabel={false}
+        />
+        <LengthInput
+          id={`position2-${title}`}
+          value={data[pos2Field] ?? 0}
+          onChange={(val) => updateFn(pos2Field, val)}
+          onBlur={() => handleBlur(pos2Field)}
+          error={errors[pos2Field]}
+          required={fieldPrefix === 'after'}
+          showLabel={false}
+        />
+        <LengthInput
+          id={`position3-${title}`}
+          value={data[pos3Field] ?? 0}
+          onChange={(val) => updateFn(pos3Field, val)}
+          onBlur={() => handleBlur(pos3Field)}
+          error={errors[pos3Field]}
+          required={fieldPrefix === 'after'}
+          showLabel={false}
+        />
         <div>
           <Input
             type="text"
             value={t('maxDeviation')}
             disabled
-            className="bg-muted text-center font-medium"
+            className="bg-muted text-center font-medium h-9"
             readOnly
           />
         </div>
 
         {/* Row 2: position4, position5, empty, deviation calc */}
-        <div>
-          <Input
-            id={`position4-${title}`}
-            type="number"
-            step="0.0001"
-            max="999999.9999"
-            value={position4Value}
-            onChange={handlePosition4Change}
-            onBlur={() => {
-              handlePosition4Blur();
-              handleBlur(pos4Field);
-            }}
-            className={errors[pos4Field] ? 'border-destructive' : ''}
-            required={fieldPrefix === 'after'}
-          />
-          {errors[pos4Field] && (
-            <p className="text-xs text-destructive mt-1">{errors[pos4Field]}</p>
-          )}
-        </div>
-        <div>
-          <Input
-            id={`position5-${title}`}
-            type="number"
-            step="0.0001"
-            max="999999.9999"
-            value={position5Value}
-            onChange={handlePosition5Change}
-            onBlur={() => {
-              handlePosition5Blur();
-              handleBlur(pos5Field);
-            }}
-            className={errors[pos5Field] ? 'border-destructive' : ''}
-            required={fieldPrefix === 'after'}
-          />
-          {errors[pos5Field] && (
-            <p className="text-xs text-destructive mt-1">{errors[pos5Field]}</p>
-          )}
-        </div>
+        <LengthInput
+          id={`position4-${title}`}
+          value={data[pos4Field] ?? 0}
+          onChange={(val) => updateFn(pos4Field, val)}
+          onBlur={() => handleBlur(pos4Field)}
+          error={errors[pos4Field]}
+          required={fieldPrefix === 'after'}
+          showLabel={false}
+        />
+        <LengthInput
+          id={`position5-${title}`}
+          value={data[pos5Field] ?? 0}
+          onChange={(val) => updateFn(pos5Field, val)}
+          onBlur={() => handleBlur(pos5Field)}
+          error={errors[pos5Field]}
+          required={fieldPrefix === 'after'}
+          showLabel={false}
+        />
         <div></div>
-        <div>
+        <div className="relative">
           <Input
             type="text"
             value={calculateMaxDeviation()}
             disabled
-            className="bg-muted text-center font-medium"
+            className="bg-muted text-center font-medium h-9 pr-10"
             readOnly
           />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+            {getLengthUnitLabel()}
+          </span>
         </div>
       </div>
 
       {/* Medium and Small screens: 2 columns */}
       <div className="grid lg:hidden grid-cols-2 gap-2">
-        <div>
-          <Label htmlFor={`position1-${title}-sm`} className="text-xs">
-            Pos 1
-          </Label>
-          <Input
-            id={`position1-${title}-sm`}
-            type="number"
-            step="0.0001"
-            max="999999.9999"
-            value={position1Value}
-            onChange={handlePosition1Change}
-            onBlur={() => {
-              handlePosition1Blur();
-              handleBlur(pos1Field);
-            }}
-            className={errors[pos1Field] ? 'border-destructive' : ''}
-            required={fieldPrefix === 'after'}
-          />
-          {errors[pos1Field] && (
-            <p className="text-xs text-destructive mt-1">{errors[pos1Field]}</p>
-          )}
-        </div>
-        <div>
-          <Label htmlFor={`position2-${title}-sm`} className="text-xs">
-            Pos 2
-          </Label>
-          <Input
-            id={`position2-${title}-sm`}
-            type="number"
-            step="0.0001"
-            max="999999.9999"
-            value={position2Value}
-            onChange={handlePosition2Change}
-            onBlur={() => {
-              handlePosition2Blur();
-              handleBlur(pos2Field);
-            }}
-            className={errors[pos2Field] ? 'border-destructive' : ''}
-            required={fieldPrefix === 'after'}
-          />
-          {errors[pos2Field] && (
-            <p className="text-xs text-destructive mt-1">{errors[pos2Field]}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor={`position3-${title}-sm`} className="text-xs">
-            Pos 3
-          </Label>
-          <Input
-            id={`position3-${title}-sm`}
-            type="number"
-            step="0.0001"
-            max="999999.9999"
-            value={position3Value}
-            onChange={handlePosition3Change}
-            onBlur={() => {
-              handlePosition3Blur();
-              handleBlur(pos3Field);
-            }}
-            className={errors[pos3Field] ? 'border-destructive' : ''}
-            required={fieldPrefix === 'after'}
-          />
-          {errors[pos3Field] && (
-            <p className="text-xs text-destructive mt-1">{errors[pos3Field]}</p>
-          )}
-        </div>
-        <div>
-          <Label htmlFor={`position4-${title}-sm`} className="text-xs">
-            Pos 4
-          </Label>
-          <Input
-            id={`position4-${title}-sm`}
-            type="number"
-            step="0.0001"
-            max="999999.9999"
-            value={position4Value}
-            onChange={handlePosition4Change}
-            onBlur={() => {
-              handlePosition4Blur();
-              handleBlur(pos4Field);
-            }}
-            className={errors[pos4Field] ? 'border-destructive' : ''}
-            required={fieldPrefix === 'after'}
-          />
-          {errors[pos4Field] && (
-            <p className="text-xs text-destructive mt-1">{errors[pos4Field]}</p>
-          )}
-        </div>
-
-        <div>
-          <Label htmlFor={`position5-${title}-sm`} className="text-xs">
-            Pos 5
-          </Label>
-          <Input
-            id={`position5-${title}-sm`}
-            type="number"
-            step="0.0001"
-            max="999999.9999"
-            value={position5Value}
-            onChange={handlePosition5Change}
-            onBlur={() => {
-              handlePosition5Blur();
-              handleBlur(pos5Field);
-            }}
-            className={errors[pos5Field] ? 'border-destructive' : ''}
-            required={fieldPrefix === 'after'}
-          />
-          {errors[pos5Field] && (
-            <p className="text-xs text-destructive mt-1">{errors[pos5Field]}</p>
-          )}
-        </div>
+        <LengthInput
+          id={`position1-${title}-sm`}
+          label="Pos 1"
+          value={data[pos1Field] ?? 0}
+          onChange={(val) => updateFn(pos1Field, val)}
+          onBlur={() => handleBlur(pos1Field)}
+          error={errors[pos1Field]}
+          required={fieldPrefix === 'after'}
+        />
+        <LengthInput
+          id={`position2-${title}-sm`}
+          label="Pos 2"
+          value={data[pos2Field] ?? 0}
+          onChange={(val) => updateFn(pos2Field, val)}
+          onBlur={() => handleBlur(pos2Field)}
+          error={errors[pos2Field]}
+          required={fieldPrefix === 'after'}
+        />
+        <LengthInput
+          id={`position3-${title}-sm`}
+          label="Pos 3"
+          value={data[pos3Field] ?? 0}
+          onChange={(val) => updateFn(pos3Field, val)}
+          onBlur={() => handleBlur(pos3Field)}
+          error={errors[pos3Field]}
+          required={fieldPrefix === 'after'}
+        />
+        <LengthInput
+          id={`position4-${title}-sm`}
+          label="Pos 4"
+          value={data[pos4Field] ?? 0}
+          onChange={(val) => updateFn(pos4Field, val)}
+          onBlur={() => handleBlur(pos4Field)}
+          error={errors[pos4Field]}
+          required={fieldPrefix === 'after'}
+        />
+        <LengthInput
+          id={`position5-${title}-sm`}
+          label="Pos 5"
+          value={data[pos5Field] ?? 0}
+          onChange={(val) => updateFn(pos5Field, val)}
+          onBlur={() => handleBlur(pos5Field)}
+          error={errors[pos5Field]}
+          required={fieldPrefix === 'after'}
+        />
 
         {/* Deviation display */}
-        <div className="col-span-1">
+        <div className="col-span-1 space-y-1">
           <Label className="text-xs">{t('maxDeviation')}</Label>
-          <Input
-            type="text"
-            value={calculateMaxDeviation()}
-            disabled
-            className="bg-muted text-center font-medium"
-            readOnly
-          />
+          <div className="relative">
+            <Input
+              type="text"
+              value={calculateMaxDeviation()}
+              disabled
+              className="bg-muted text-center font-medium h-9 pr-10"
+              readOnly
+            />
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground pointer-events-none">
+              {getLengthUnitLabel()}
+            </span>
+          </div>
         </div>
       </div>
     </div>

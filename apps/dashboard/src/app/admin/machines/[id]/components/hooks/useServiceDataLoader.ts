@@ -91,6 +91,58 @@ export function useServiceDataLoader(
 
         const loadedSectionData: Record<string, AnySectionData> = {};
 
+        // Known numeric field suffixes (measurement fields from Prisma Decimal type)
+        const numericFieldPatterns = [
+          '_RH',
+          '_LH',
+          'Clearance',
+          'Bearings',
+          'Connection',
+          'WristPin',
+          'Bushing',
+          'SlideAdj',
+          'Lock',
+          'Box',
+          // Slide fields
+          'Position',
+          'front',
+          'center',
+          'rear',
+          // Gibs fields - point1, point2, etc.
+          'point',
+          'bottom',
+          'top',
+          'Measurement',
+          // Tramming fields
+          'LF',
+          'RF',
+          'LR',
+          'RR',
+          // Pistons fields
+          'diameter',
+          'rodSize',
+          'length',
+          'stroke',
+          // Clutch fields
+          'travel',
+          'pressure',
+          'wear',
+          'gap',
+          'thickness',
+          'height',
+          'dimension',
+          // Temperature and pressure
+          'temperature',
+          'Temperature',
+        ];
+
+        // Helper to check if a field should be numeric
+        const isNumericField = (key: string): boolean => {
+          return numericFieldPatterns.some(
+            (pattern) => key.includes(pattern) || key.endsWith(pattern),
+          );
+        };
+
         // Helper to convert string/Decimal values to numbers in nested objects
         const convertDecimalsToNumbers = (obj: any): any => {
           if (!obj || typeof obj !== 'object') return obj;
@@ -98,8 +150,13 @@ export function useServiceDataLoader(
 
           const converted: any = {};
           for (const [key, value] of Object.entries(obj)) {
-            if (typeof value === 'string' && !isNaN(Number(value)) && value.trim() !== '') {
-              // Convert numeric strings to numbers
+            if (
+              typeof value === 'string' &&
+              !isNaN(Number(value)) &&
+              value.trim() !== '' &&
+              isNumericField(key)
+            ) {
+              // Convert numeric strings to numbers only for known numeric fields
               converted[key] = Number(value);
             } else if (typeof value === 'object' && value !== null) {
               // Recursively convert nested objects
@@ -135,22 +192,23 @@ export function useServiceDataLoader(
             const rawData = recordWithData || relationData[relationData.length - 1];
 
             // Handle sections with nested data structure
-            if (sectionKey === 'GIBS') {
-              // Convert Decimal strings to numbers for GIBS section
-              loadedSectionData[sectionKey] = convertDecimalsToNumbers(rawData);
-            } else if (sectionKey === 'CLUTCH') {
+            // Always convert Decimal strings to numbers for all sections
+            if (sectionKey === 'CLUTCH') {
               // Clutch stores data in nested 'data' property
               const clutchRecord = rawData as Record<string, unknown>;
-              loadedSectionData[sectionKey] = clutchRecord.data || clutchRecord;
+              loadedSectionData[sectionKey] = convertDecimalsToNumbers(
+                clutchRecord.data || clutchRecord,
+              );
             } else if (sectionKey === 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER') {
               // Lubrication expects { data: {...}, notes: '...' } structure
               const lubRecord = rawData as Record<string, unknown>;
               loadedSectionData[sectionKey] = {
-                data: lubRecord.data || {},
+                data: convertDecimalsToNumbers(lubRecord.data || {}),
                 notes: (lubRecord.notes as string) || '',
               } as AnySectionData;
             } else {
-              loadedSectionData[sectionKey] = rawData;
+              // All other sections (GIBS, BEARING_CLEARANCE, SLIDE, etc.)
+              loadedSectionData[sectionKey] = convertDecimalsToNumbers(rawData);
             }
           }
         });

@@ -48,6 +48,14 @@
       "needs_reset": "Precisa de Reset",
       "buckled": "Empenado",
       "cracked": "Rachado"
+    },
+    "imageUpload": {
+      "onlyJpgPngAllowed": "Apenas imagens JPG e PNG são permitidas",
+      "fileTooLarge": "Arquivo muito grande. Tamanho máximo: {size}MB",
+      "uploadFailed": "Falha no upload da imagem",
+      "uploading": "Fazendo upload...",
+      "clickToUpload": "Clique para fazer upload",
+      "jpgOrPngMax": "JPG ou PNG (máx. 10MB)"
     }
   },
   "validation": {
@@ -722,6 +730,10 @@
         "label": "Nome",
         "placeholder": "DACH"
       },
+      "image": {
+        "label": "Imagem do Modelo",
+        "description": "Opcional: Adicione uma imagem representativa do blueprint"
+      },
       "sections": {
         "label": "Áreas de inspeção"
       },
@@ -765,7 +777,12 @@
         "confirm": "Sim, descartar",
         "cancel": "Continuar editando"
       }
-    }
+    },
+    "machine": "máquina",
+    "machines": "máquinas",
+    "field": "campo",
+    "fields": "campos",
+    "edit": "Editar"
   },
   "machines": {
     "title": "Criar Máquina",
@@ -963,6 +980,50 @@
       },
       "response": {
         "title": "Resposta:"
+      },
+      "specifications": {
+        "title": "Especificações da Máquina",
+        "allFieldsOptional": "Todos os campos são opcionais",
+        "manufacturer": {
+          "label": "Fabricante",
+          "placeholder": "Digite o fabricante"
+        },
+        "sizeTonnage": {
+          "label": "Tamanho/Tonelagem",
+          "placeholder": "Digite o tamanho/tonelagem"
+        },
+        "serialNumber": {
+          "label": "Número de Série",
+          "placeholder": "Digite o número de série"
+        },
+        "stroke": {
+          "label": "Curso",
+          "placeholder": "Digite o curso"
+        },
+        "foundationType": {
+          "label": "Tipo de Fundação",
+          "placeholder": "Selecione o tipo de fundação"
+        },
+        "frameType": {
+          "label": "Tipo de Estrutura",
+          "placeholder": "Selecione o tipo de estrutura"
+        },
+        "clutchType": {
+          "label": "Tipo de Embreagem",
+          "placeholder": "Selecione o tipo de embreagem"
+        },
+        "pneumaticSystem": {
+          "label": "Sistema Pneumático",
+          "placeholder": "Selecione o sistema pneumático"
+        },
+        "pressMounting": {
+          "label": "Montagem da Prensa",
+          "placeholder": "Selecione a montagem da prensa"
+        },
+        "features": {
+          "label": "Recursos",
+          "placeholder": "Selecione os recursos"
+        }
       }
     }
   },
@@ -1145,7 +1206,8 @@
         "beforeToolInstallation": "Antes da Instalação da Ferramenta",
         "afterToolInstallation": "Após Instalação da Ferramenta",
         "adjustment": "Ajuste",
-        "installation": "Instalação"
+        "installation": "Instalação",
+        "haveInnerGibsBeenAdjusted": "Guias internas foram ajustadas"
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Pressões do Sistema (PSI)",
@@ -1163,6 +1225,11 @@
           "press_sw": "Press SW",
           "gib": "Gib"
         },
+        "lubePSI": "PSI de Lubrificação",
+        "monitorflowPSI": "PSI do Monitorflow",
+        "hydPSI": "PSI Hidráulico",
+        "pressSWPSI": "PSI do Interruptor de Pressão",
+        "otherGauges": "Outros Medidores",
         "oilInfoTitle": "Informações do Óleo",
         "changedOil": "Óleo Trocado",
         "oilTemperature": "Temperatura do Óleo",
@@ -1817,6 +1884,47 @@
       "includeBefore": "Incluir medições antes da manutenção",
       "beforeMaintenance": "Antes da Manutenção",
       "afterMaintenance": "Após a Manutenção"
+    },
+    "units": {
+      "length": {
+        "label": "Unidade de Comprimento",
+        "mm": "mm",
+        "inches": "polegadas",
+        "inchesShort": "pol",
+        "mmFull": "Milímetros (mm)",
+        "inchesFull": "Polegadas (pol)"
+      },
+      "temperature": {
+        "label": "Unidade de Temperatura",
+        "celsius": "°C",
+        "fahrenheit": "°F",
+        "celsiusFull": "Celsius (°C)",
+        "fahrenheitFull": "Fahrenheit (°F)"
+      },
+      "pressure": {
+        "label": "Unidade de Pressão",
+        "atm": "atm",
+        "bar": "bar",
+        "psi": "psi",
+        "atmFull": "Atmosferas (atm)",
+        "barFull": "Bar (bar)",
+        "psiFull": "Libras por Polegada Quadrada (psi)"
+      },
+      "dialog": {
+        "changeLengthUnit": "Alterar Unidade de Comprimento",
+        "changeTemperatureUnit": "Alterar Unidade de Temperatura",
+        "changePressureUnit": "Alterar Unidade de Pressão",
+        "changingFrom": "Você está alterando de",
+        "to": "para",
+        "convertQuestion": "Deseja converter os valores existentes?",
+        "example": "Exemplo",
+        "convert": "Converter",
+        "dontConvert": "Não Converter",
+        "convertValues": "Converter Valores",
+        "cancel": "Cancelar",
+        "convertDescription": "A medida física permanece a mesma",
+        "dontConvertDescription": "O número permanece o mesmo, apenas a unidade muda"
+      }
     }
   },
   "actions": {

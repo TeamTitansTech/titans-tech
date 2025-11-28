@@ -4,6 +4,7 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -13,6 +14,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'media.tenor.com',
+      },
+      // AWS S3 bucket for blueprint and machine images
+      {
+        protocol: 'https',
+        hostname: '*.s3.*.amazonaws.com',
+        pathname: '/**',
       },
       // Allow localhost for subdomain image loading in development
       {

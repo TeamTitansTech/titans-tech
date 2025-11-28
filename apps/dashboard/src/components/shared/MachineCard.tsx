@@ -4,8 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Typography } from '@/components/ui/typography';
-// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Wrench, Calendar, Pencil, Trash2, ChevronRight } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Box, Calendar, Pencil, Trash2, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 
@@ -25,6 +26,7 @@ export interface MachineCardProps {
   id: string;
   name: string;
   blueprintName: string;
+  imageUrl?: string | null;
   location?: string;
   lastInspection?: string;
   status?: 'operational' | 'maintenance' | 'offline';
@@ -42,6 +44,7 @@ export function MachineCard({
   id,
   name,
   blueprintName,
+  imageUrl,
   location,
   lastInspection,
   status = 'operational',
@@ -87,8 +90,12 @@ export function MachineCard({
             <div
               className={`flex items-start gap-[clamp(0.625rem,2vw,0.875rem)] min-w-0 flex-1 ${!showStatusBadge ? 'pr-5' : 'mr-2'}`}
             >
-              <div className="w-[clamp(2.25rem,9vw,2.75rem)] h-[clamp(2.25rem,9vw,2.75rem)] rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
-                <Wrench className="w-[clamp(1.125rem,4.5vw,1.375rem)] h-[clamp(1.125rem,4.5vw,1.375rem)] text-accent" />
+              <div className="w-[clamp(2.25rem,9vw,2.75rem)] h-[clamp(2.25rem,9vw,2.75rem)] rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden relative">
+                {imageUrl ? (
+                  <Image src={imageUrl} alt={name} fill className="object-cover" sizes="44px" />
+                ) : (
+                  <Box className="w-[clamp(1.125rem,4.5vw,1.375rem)] h-[clamp(1.125rem,4.5vw,1.375rem)] text-muted-foreground" />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <ConditionalTooltip content={name}>

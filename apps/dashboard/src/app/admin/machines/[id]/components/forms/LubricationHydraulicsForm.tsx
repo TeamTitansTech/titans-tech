@@ -12,12 +12,12 @@ import {
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
+import { TemperatureInput } from '@/components/ui/forms/TemperatureInput';
 import {
   type LubricationHydraulicsFormProps,
   LubeHydMonitorFlowPressSwGibType,
   OkNaDncDamageType,
   YesNoDncType,
-  TemperatureUnit,
   type LubricationHydraulicsGauge,
 } from '@/data/types/services.types';
 
@@ -190,44 +190,14 @@ export function LubricationHydraulicsForm({
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <Label htmlFor="oilTemperature" className="text-xs">
-                {t('form.lubricationHydraulics.oilTemperature')}
-              </Label>
-              <Input
-                id="oilTemperature"
-                type="number"
-                step="1"
-                value={data.oilTemperature || ''}
-                onChange={(e) =>
-                  updateFn('oilTemperature', e.target.value ? Number(e.target.value) : undefined)
-                }
-                onBlur={() => handleBlur('oilTemperature')}
-                className={`mt-1 ${errors.oilTemperature ? 'border-destructive' : ''}`}
-              />
-              {errors.oilTemperature && (
-                <p className="text-xs text-destructive mt-1">{errors.oilTemperature}</p>
-              )}
-            </div>
-            <div>
-              <Label htmlFor="oilTemperatureUnit" className="text-xs">
-                {t('form.lubricationHydraulics.oilTemperatureUnit')}
-              </Label>
-              <Select
-                value={data.oilTemperatureUnit || TemperatureUnit.FAHRENHEIT}
-                onValueChange={(value) => updateFn('oilTemperatureUnit', value as TemperatureUnit)}
-              >
-                <SelectTrigger id="oilTemperatureUnit" className="mt-1 h-10 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={TemperatureUnit.FAHRENHEIT}>°F</SelectItem>
-                  <SelectItem value={TemperatureUnit.CELSIUS}>°C</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+          <TemperatureInput
+            id="oilTemperature"
+            label={t('form.lubricationHydraulics.oilTemperature')}
+            value={data.oilTemperature ?? 0}
+            onChange={(val) => updateFn('oilTemperature', val)}
+            onBlur={() => handleBlur('oilTemperature')}
+            error={errors.oilTemperature}
+          />
 
           <div>
             <Label htmlFor="oilMfgType" className="text-xs">
