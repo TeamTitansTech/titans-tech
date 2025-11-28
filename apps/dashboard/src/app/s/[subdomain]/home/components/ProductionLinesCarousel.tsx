@@ -200,108 +200,161 @@ export function ProductionLinesCarousel() {
 
                           {/* Production Line Visualization */}
                           {machineCount > 0 ? (
-                            <div className="relative overflow-x-auto py-4">
-                              <div className="flex flex-col min-w-max px-4">
-                                {/* Top row - even indexed machines */}
-                                <div className="flex justify-center gap-4 mb-1">
-                                  {filteredMachines.map((productionLineMachine, index) => {
-                                    const machine = productionLineMachine.machine!;
-                                    const isTop = index % 2 === 0;
-                                    if (!isTop) {
+                            <>
+                              {/* Desktop layout - horizontal with alternating rows */}
+                              <div className="hidden md:block relative overflow-x-auto py-4">
+                                <div className="flex flex-col min-w-max px-4">
+                                  {/* Top row - even indexed machines */}
+                                  <div className="flex justify-center gap-4 mb-1">
+                                    {filteredMachines.map((productionLineMachine, index) => {
+                                      const machine = productionLineMachine.machine!;
+                                      const isTop = index % 2 === 0;
+                                      if (!isTop) {
+                                        return (
+                                          <div
+                                            key={productionLineMachine.machineId}
+                                            className="w-40"
+                                          />
+                                        );
+                                      }
                                       return (
                                         <div
                                           key={productionLineMachine.machineId}
-                                          className="w-40"
-                                        />
-                                      );
-                                    }
-                                    return (
-                                      <div
-                                        key={productionLineMachine.machineId}
-                                        className="flex flex-col items-center"
-                                      >
-                                        <div className="w-40 bg-background rounded-lg overflow-hidden border shadow-sm">
-                                          <div className="relative h-16 bg-muted flex items-center justify-center">
-                                            <div
-                                              className={`absolute top-2 right-2 w-2.5 h-2.5 rounded-full ${statusColors[getAlertStatus(machine)]} z-10`}
-                                            />
-                                            {machine.imageUrl ? (
-                                              <Image
-                                                src={machine.imageUrl}
-                                                alt={machine.name}
-                                                fill
-                                                className="object-cover"
-                                                sizes="160px"
+                                          className="flex flex-col items-center"
+                                        >
+                                          <div className="w-40 bg-background rounded-lg overflow-hidden border shadow-sm">
+                                            <div className="relative h-16 bg-muted flex items-center justify-center">
+                                              <div
+                                                className={`absolute top-2 right-2 w-2.5 h-2.5 rounded-full ${statusColors[getAlertStatus(machine)]} z-10`}
                                               />
-                                            ) : (
-                                              <Box className="w-8 h-8 text-muted-foreground" />
-                                            )}
+                                              {machine.imageUrl ? (
+                                                <Image
+                                                  src={machine.imageUrl}
+                                                  alt={machine.name}
+                                                  fill
+                                                  className="object-cover"
+                                                  sizes="160px"
+                                                />
+                                              ) : (
+                                                <Box className="w-8 h-8 text-muted-foreground" />
+                                              )}
+                                            </div>
+                                            <div className="px-2 py-2 border-t bg-background">
+                                              <p className="text-xs font-medium text-center line-clamp-1">
+                                                {machine.name}
+                                              </p>
+                                              <MachineSectionList machine={machine} />
+                                            </div>
                                           </div>
-                                          <div className="px-2 py-2 border-t bg-background">
-                                            <p className="text-xs font-medium text-center line-clamp-1">
-                                              {machine.name}
-                                            </p>
-                                            <MachineSectionList machine={machine} />
-                                          </div>
+                                          <MoveDown className="w-3 h-3 text-green-500 mt-1" />
                                         </div>
-                                        <MoveDown className="w-3 h-3 text-green-500 mt-1" />
-                                      </div>
-                                    );
-                                  })}
-                                </div>
+                                      );
+                                    })}
+                                  </div>
 
-                                {/* Production Line */}
-                                <div className="h-1.5 bg-green-500 rounded-full mx-2" />
+                                  {/* Production Line */}
+                                  <div className="h-1.5 bg-green-500 rounded-full mx-2" />
 
-                                {/* Bottom row - odd indexed machines */}
-                                <div className="flex justify-center gap-4 mt-1">
-                                  {filteredMachines.map((productionLineMachine, index) => {
-                                    const machine = productionLineMachine.machine!;
-                                    const isBottom = index % 2 === 1;
-                                    if (!isBottom) {
+                                  {/* Bottom row - odd indexed machines */}
+                                  <div className="flex justify-center gap-4 mt-1">
+                                    {filteredMachines.map((productionLineMachine, index) => {
+                                      const machine = productionLineMachine.machine!;
+                                      const isBottom = index % 2 === 1;
+                                      if (!isBottom) {
+                                        return (
+                                          <div
+                                            key={productionLineMachine.machineId}
+                                            className="w-40"
+                                          />
+                                        );
+                                      }
                                       return (
                                         <div
                                           key={productionLineMachine.machineId}
-                                          className="w-40"
-                                        />
-                                      );
-                                    }
-                                    return (
-                                      <div
-                                        key={productionLineMachine.machineId}
-                                        className="flex flex-col items-center"
-                                      >
-                                        <MoveUp className="w-3 h-3 text-green-500 mb-1" />
-                                        <div className="w-40 bg-background rounded-lg overflow-hidden border shadow-sm">
-                                          <div className="relative h-16 bg-muted flex items-center justify-center">
-                                            <div
-                                              className={`absolute top-2 right-2 w-2.5 h-2.5 rounded-full ${statusColors[getAlertStatus(machine)]} z-10`}
-                                            />
-                                            {machine.imageUrl ? (
-                                              <Image
-                                                src={machine.imageUrl}
-                                                alt={machine.name}
-                                                fill
-                                                className="object-cover"
-                                                sizes="160px"
+                                          className="flex flex-col items-center"
+                                        >
+                                          <MoveUp className="w-3 h-3 text-green-500 mb-1" />
+                                          <div className="w-40 bg-background rounded-lg overflow-hidden border shadow-sm">
+                                            <div className="relative h-16 bg-muted flex items-center justify-center">
+                                              <div
+                                                className={`absolute top-2 right-2 w-2.5 h-2.5 rounded-full ${statusColors[getAlertStatus(machine)]} z-10`}
                                               />
-                                            ) : (
-                                              <Box className="w-8 h-8 text-muted-foreground" />
-                                            )}
-                                          </div>
-                                          <div className="px-2 py-2 border-t bg-background">
-                                            <p className="text-xs font-medium text-center line-clamp-1">
-                                              {machine.name}
-                                            </p>
-                                            <MachineSectionList machine={machine} />
+                                              {machine.imageUrl ? (
+                                                <Image
+                                                  src={machine.imageUrl}
+                                                  alt={machine.name}
+                                                  fill
+                                                  className="object-cover"
+                                                  sizes="160px"
+                                                />
+                                              ) : (
+                                                <Box className="w-8 h-8 text-muted-foreground" />
+                                              )}
+                                            </div>
+                                            <div className="px-2 py-2 border-t bg-background">
+                                              <p className="text-xs font-medium text-center line-clamp-1">
+                                                {machine.name}
+                                              </p>
+                                              <MachineSectionList machine={machine} />
+                                            </div>
                                           </div>
                                         </div>
-                                      </div>
-                                    );
-                                  })}
+                                      );
+                                    })}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
+
+                              {/* Mobile layout - vertical line */}
+                              <div className="md:hidden py-4">
+                                <div className="relative flex">
+                                  {/* Vertical production line */}
+                                  <div className="absolute left-6 top-0 bottom-0 w-1 bg-green-500 rounded-full" />
+
+                                  <div className="flex flex-col gap-4 pl-6">
+                                    {filteredMachines.map((productionLineMachine) => {
+                                      const machine = productionLineMachine.machine!;
+                                      return (
+                                        <div
+                                          key={productionLineMachine.machineId}
+                                          className="relative flex items-center"
+                                        >
+                                          {/* Connection dot */}
+                                          <div className="absolute left-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-green-600 -translate-x-1/2" />
+                                          {/* Connection line */}
+                                          <div className="h-1 w-8 bg-green-500" />
+                                          {/* Machine card */}
+                                          <div className="flex-1 max-w-[200px] bg-background rounded-lg overflow-hidden border shadow-sm">
+                                            <div className="relative h-14 bg-muted flex items-center justify-center">
+                                              <div
+                                                className={`absolute top-2 right-2 w-2 h-2 rounded-full ${statusColors[getAlertStatus(machine)]} z-10`}
+                                              />
+                                              {machine.imageUrl ? (
+                                                <Image
+                                                  src={machine.imageUrl}
+                                                  alt={machine.name}
+                                                  fill
+                                                  className="object-cover"
+                                                  sizes="200px"
+                                                />
+                                              ) : (
+                                                <Box className="w-6 h-6 text-muted-foreground" />
+                                              )}
+                                            </div>
+                                            <div className="px-2 py-1.5 border-t bg-background">
+                                              <p className="text-xs font-medium line-clamp-1">
+                                                {machine.name}
+                                              </p>
+                                              <MachineSectionList machine={machine} />
+                                            </div>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              </div>
+                            </>
                           ) : (
                             <div className="py-8 text-center">
                               <Factory className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
