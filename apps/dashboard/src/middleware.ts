@@ -8,8 +8,8 @@ export const config = {
      * Match all paths except for:
      * 1. /api routes
      * 2. /_next (Next.js internals)
-     * 3. all root files inside /public (e.g. /favicon.ico)
+     * 3. Static files (images, fonts, etc.)
      */
-    '/((?!api|_next|[\\w-]+\\.\\w+).*)',
+    '/((?!api|_next|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|eot)$).*)',
   ],
 };
