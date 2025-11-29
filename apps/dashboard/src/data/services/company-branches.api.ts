@@ -14,10 +14,23 @@ export interface CompanyBranch {
   companyId: string;
   createdAt: Date;
   updatedAt: Date;
+  company?: {
+    id: string;
+    name: string;
+  };
   _count?: {
     machines: number;
   };
 }
+
+/**
+ * Get all branches across all companies (SysAdmin only)
+ */
+export const getAllBranchesForSysAdmin = async () => {
+  return await responseHandler<CompanyBranch[]>(`/company-branches`, {
+    method: 'GET',
+  });
+};
 
 export const getAllBranches = async (args: { companyId: string }) => {
   return await responseHandler<CompanyBranch[]>(`/companies/${args.companyId}/branches`, {

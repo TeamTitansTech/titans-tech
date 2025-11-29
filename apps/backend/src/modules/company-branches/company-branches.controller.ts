@@ -43,6 +43,15 @@ export class CompanyBranchesController {
     private readonly machinesService: MachinesService,
   ) {}
 
+  /**
+   * Get all branches across all companies (SysAdmin only)
+   */
+  @Admin()
+  @Get()
+  findAll() {
+    return this.companyBranchesService.findAll();
+  }
+
   @BranchPermission('readBranches')
   @Get(':branchId')
   findOne(@Param('branchId') branchId: string) {

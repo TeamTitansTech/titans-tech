@@ -26,6 +26,11 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
   const tServicesSummary = useTranslations('services.modal.summary');
   const tCommon = useTranslations('common.status');
 
+  // Return null if no data provided
+  if (!data) {
+    return null;
+  }
+
   // Access nested properties with proper types
   const outerData = data?.outerData;
   const innerData = data?.innerData;

@@ -6,6 +6,7 @@ import {
   Delete,
   Body,
   Param,
+  Request,
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { MachinesService } from './machines.service';
@@ -17,10 +18,28 @@ import {
 } from '@titans-tech/shared/backend-dtos';
 import { Authenticated, BranchPermission } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
+import { ReqWithAuthUser, isSysAdmin } from '../../types/request';
 
 @Controller('machines')
 export class MachinesController {
   constructor(private readonly machinesService: MachinesService) {}
+
+  /**
+   * Helper to dispatch operations based on user type
+   * @param user - The authenticated user from the request
+   * @param sysAdminAction - Action to execute for SysAdmin users
+   * @param userAction - Action to execute for regular users (receives userId)
+   */
+  private dispatchByUserType<T>(
+    user: ReqWithAuthUser['user'],
+    sysAdminAction: () => T,
+    userAction: (userId: string) => T,
+  ): T {
+    if (isSysAdmin(user)) {
+      return sysAdminAction();
+    }
+    return userAction(user.id);
+  }
 
   /**
    * Create a new machine
@@ -39,12 +58,12 @@ export class MachinesController {
 
   /**
    * Get all machines
-   * TODO: Add @BranchPermission('readMachines') and filter by accessible branches
-   * Current: Requires authentication only, returns all machines (should filter by user's branches)
+   * Filters by user's accessible branches for regular users
+   * Returns all machines for SysAdmin
    */
   @Authenticated()
   @Get()
-  findAll(): Promise<
+  findAll(@Request() req: ReqWithAuthUser): Promise<
     Prisma.MachineGetPayload<{
       include: {
         blueprint: true;
@@ -52,17 +71,23 @@ export class MachinesController {
       };
     }>[]
   > {
-    return this.machinesService.findAll();
+    return this.dispatchByUserType(
+      req.user,
+      () => this.machinesService.findAllForSysAdmin(),
+      (userId) => this.machinesService.findAll(userId),
+    );
   }
 
   /**
    * Get machine by ID
-   * TODO: Add @BranchPermission('readMachines') with resource lookup
-   * Current: Requires authentication only
+   * Validates user has access to the machine's branch
    */
   @Authenticated()
   @Get(':id')
-  findOne(@Param('id') id: string): Promise<
+  findOne(
+    @Request() req: ReqWithAuthUser,
+    @Param('id') id: string,
+  ): Promise<
     Prisma.MachineGetPayload<{
       include: {
         blueprint: true;
@@ -82,34 +107,48 @@ export class MachinesController {
       };
     }>
   > {
-    return this.machinesService.findOne(id);
+    return this.dispatchByUserType(
+      req.user,
+      () => this.machinesService.findOneForSysAdmin(id),
+      (userId) => this.machinesService.findOne(userId, id),
+    );
   }
 
   /**
    * Update machine
-   * TODO: Add @BranchPermission('updateMachines') with resource lookup
-   * Current: Requires authentication only
+   * Validates user has access to the machine's branch
    */
   @Authenticated()
   @Put(':id')
   update(
+    @Request() req: ReqWithAuthUser,
     @Param('id') id: string,
     @Body(new ZodValidationPipe(UpdateMachineSchema))
     updateMachineDto: UpdateMachineDto,
   ): Promise<
     Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
   > {
-    return this.machinesService.update(id, updateMachineDto);
+    return this.dispatchByUserType(
+      req.user,
+      () => this.machinesService.updateForSysAdmin(id, updateMachineDto),
+      (userId) => this.machinesService.update(userId, id, updateMachineDto),
+    );
   }
 
   /**
    * Delete machine
-   * TODO: Add @BranchPermission('deleteMachines') with resource lookup
-   * Current: Requires authentication only
+   * Validates user has access to the machine's branch
    */
   @Authenticated()
   @Delete(':id')
-  delete(@Param('id') id: string): Promise<void> {
-    return this.machinesService.delete(id);
+  delete(
+    @Request() req: ReqWithAuthUser,
+    @Param('id') id: string,
+  ): Promise<void> {
+    return this.dispatchByUserType(
+      req.user,
+      () => this.machinesService.deleteForSysAdmin(id),
+      (userId) => this.machinesService.delete(userId, id),
+    );
   }
 }

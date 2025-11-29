@@ -21,6 +21,11 @@ export function SlideSummary({ data }: SlideSummaryProps) {
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common.status');
 
+  // Return null if no data provided
+  if (!data) {
+    return null;
+  }
+
   // Helper function to translate field names
   const translateFieldName = (key: string): string => {
     const translation = tSlide(key);
@@ -38,6 +43,14 @@ export function SlideSummary({ data }: SlideSummaryProps) {
   // Helper function to display value with translations
   const displayValue = (value: unknown): string => {
     if (value === null || value === undefined || value === '') {
+      return '-';
+    }
+    // Handle NaN values
+    if (typeof value === 'number' && isNaN(value)) {
+      return '-';
+    }
+    // Handle string 'NaN'
+    if (String(value) === 'NaN') {
       return '-';
     }
     if (typeof value === 'boolean') {

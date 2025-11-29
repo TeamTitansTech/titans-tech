@@ -12,6 +12,8 @@ import {
   LatestClutchDto,
   LatestSlideDto,
   LatestGibsDto,
+  LatestLubricationDto,
+  LatestCounterbalanceDto,
   CreateServiceDto,
   UpdateServicePayload,
   CompleteServiceDto,
@@ -29,6 +31,10 @@ import {
   AlertSeverityDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertsService } from '../alerts/alerts.service';
+import {
+  OIL_CHANGE_INTERVAL_DAYS,
+  OIL_CHANGE_WARNING_THRESHOLD_DAYS,
+} from './services.constants';
 
 @Injectable()
 export class ServicesService {
@@ -575,9 +581,6 @@ export class ServicesService {
             );
           } catch {
             // Alert might not exist, that's fine
-            console.log(
-              `ℹ️ [SERVICES] No alert found for service ${latestBearingService.id}`,
-            );
           }
 
           bearingClearanceData = new LatestBearingClearanceDto({
@@ -613,9 +616,6 @@ export class ServicesService {
             );
           } catch {
             // Alert might not exist, that's fine
-            console.log(
-              `ℹ️ [SERVICES] No clutch alert found for service ${latestClutchService.id}`,
-            );
           }
 
           clutchData = new LatestClutchDto({
@@ -650,9 +650,6 @@ export class ServicesService {
             );
           } catch {
             // Alert might not exist, that's fine
-            console.log(
-              `ℹ️ [SERVICES] No slide alert found for service ${latestSlideService.id}`,
-            );
           }
 
           slideData = new LatestSlideDto({
@@ -690,9 +687,6 @@ export class ServicesService {
             );
           } catch {
             // Alert might not exist, that's fine
-            console.log(
-              `ℹ️ [SERVICES] No GIBS alert found for service ${latestGibsService.id}`,
-            );
           }
 
           gibsData = new LatestGibsDto({
@@ -706,7 +700,132 @@ export class ServicesService {
       }
     }
 
-    // 7. Build response
+    // 7. Process Lubrication & Hydraulics section
+    let lubricationData: LatestLubricationDto | null = null;
+
+    if (
+      machine.blueprint.sections.includes(
+        ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
+      )
+    ) {
+      // Find the most recent service with Lubrication data
+      const latestLubricationService = services.find(
+        (service) =>
+          service.lubricationHydraulics &&
+          service.lubricationHydraulics.length > 0 &&
+          service.lubricationHydraulics[0].data,
+      );
+
+      if (latestLubricationService) {
+        const lubricationRecord =
+          latestLubricationService.lubricationHydraulics[0];
+
+        if (lubricationRecord && lubricationRecord.data) {
+          // Calculate oil change alert
+
+          // Find the last service where oil was changed
+          let oilChangeAlert: {
+            lastOilChangeDate: Date | null;
+            daysSinceChange: number | null;
+            daysUntilDue: number | null;
+            severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+          } = {
+            lastOilChangeDate: null,
+            daysSinceChange: null,
+            daysUntilDue: null,
+            severity: 'NONE',
+          };
+
+          // Search all services for last oil change
+          for (const service of services) {
+            const lubData = service.lubricationHydraulics?.[0]?.data;
+            if (lubData?.changedOil === 'YES') {
+              const changeDate = new Date(service.date);
+              const today = new Date();
+              const daysSinceChange = Math.floor(
+                (today.getTime() - changeDate.getTime()) /
+                  (1000 * 60 * 60 * 24),
+              );
+              const daysUntilDue = OIL_CHANGE_INTERVAL_DAYS - daysSinceChange;
+
+              let severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED' = 'GREEN';
+              if (daysUntilDue < 0) {
+                severity = 'RED';
+              } else if (daysUntilDue <= OIL_CHANGE_WARNING_THRESHOLD_DAYS) {
+                severity = 'YELLOW';
+              }
+
+              oilChangeAlert = {
+                lastOilChangeDate: changeDate,
+                daysSinceChange,
+                daysUntilDue,
+                severity,
+              };
+              break; // Found the most recent oil change
+            }
+          }
+
+          lubricationData = new LatestLubricationDto({
+            latestServiceId: latestLubricationService.id,
+            latestServiceDate: latestLubricationService.date,
+            serviceType: latestLubricationService.type,
+            data: {
+              ...lubricationRecord.data,
+              gauges: lubricationRecord.data.gauges || [],
+            },
+            alert:
+              oilChangeAlert.severity !== 'NONE' ? oilChangeAlert : undefined,
+          });
+        }
+      }
+    }
+
+    // 8. Process Counterbalance Cylinder/Airbag section
+    let counterbalanceData: LatestCounterbalanceDto | null = null;
+
+    if (
+      machine.blueprint.sections.includes(
+        ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG,
+      )
+    ) {
+      // Find the most recent service with Counterbalance data
+      const latestCounterbalanceService = services.find(
+        (service) =>
+          service.counterbalanceCylinderAirbag &&
+          service.counterbalanceCylinderAirbag.length > 0,
+      );
+
+      if (latestCounterbalanceService) {
+        const counterbalanceRecord =
+          latestCounterbalanceService.counterbalanceCylinderAirbag[0];
+
+        if (counterbalanceRecord) {
+          // Try to fetch alerts for this service
+          let alerts = undefined;
+          try {
+            alerts = await this.alertsService.getCounterbalanceAlertsForService(
+              latestCounterbalanceService.id,
+            );
+          } catch {
+            // Alerts might not exist, that's fine
+          }
+
+          counterbalanceData = new LatestCounterbalanceDto({
+            latestServiceId: latestCounterbalanceService.id,
+            latestServiceDate: latestCounterbalanceService.date,
+            serviceType: latestCounterbalanceService.type,
+            data: {
+              outerData: counterbalanceRecord.outerData || undefined,
+              innerData: counterbalanceRecord.innerData || undefined,
+              notes: counterbalanceRecord.notes || undefined,
+            },
+            alerts: alerts && alerts.length > 0 ? alerts : undefined,
+          });
+        }
+      }
+    }
+
+    // 9. Build response
     return new LatestReportResponseDto({
       machineId: machine.id,
       machineName: machine.name,
@@ -720,9 +839,9 @@ export class ServicesService {
         BEARING_CLEARANCE: bearingClearanceData,
         SLIDE: slideData,
         GIBS: gibsData,
-        LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: null,
+        LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: lubricationData,
         CLUTCH: clutchData,
-        COUNTERBALANCE_CYLINDER_AIRBAG: null,
+        COUNTERBALANCE_CYLINDER_AIRBAG: counterbalanceData,
       },
     });
   }

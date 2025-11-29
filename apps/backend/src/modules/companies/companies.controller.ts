@@ -123,7 +123,7 @@ export class CompaniesController {
   @Authenticated()
   @Get(':companyId/branches')
   findAllBranches(@Param('companyId') companyId: string) {
-    return this.companyBranchesService.findAll(companyId);
+    return this.companyBranchesService.findAllByCompany(companyId);
   }
 
   @Admin()

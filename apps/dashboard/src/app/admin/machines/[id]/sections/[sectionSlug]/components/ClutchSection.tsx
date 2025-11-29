@@ -7,7 +7,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
@@ -19,18 +19,31 @@ import {
 } from '@/components/charts/dataTransformers';
 import { getClutchThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
+import { SectionExportButton } from '@/components/shared/SectionExportButton';
 
 interface ClutchSectionProps {
   machineId: string;
   inspections: ClutchInspectionData[];
   machineName: string;
   blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
-export function ClutchSection({ inspections, machineName, blueprintId }: ClutchSectionProps) {
+export function ClutchSection({
+  inspections,
+  machineName,
+  blueprintId,
+  hideThresholdValues = false,
+}: ClutchSectionProps) {
   const t = useTranslations('machines.sectionDetails');
-  const [hydClearanceThreshold, setHydClearanceThreshold] = useState<ThresholdConfig | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  // Thresholds for hydraulic clutch clearance
+  const [hydTotalThreshold, setHydTotalThreshold] = useState<ThresholdConfig | null>(null);
+  const [hydRearThreshold, setHydRearThreshold] = useState<ThresholdConfig | null>(null);
+  // Thresholds for brake spring measurements
   const [fbThreshold, setFbThreshold] = useState<ThresholdConfig | null>(null);
+  const [fTBThreshold, setFTBThreshold] = useState<ThresholdConfig | null>(null);
+  const [rTBThreshold, setRTBThreshold] = useState<ThresholdConfig | null>(null);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -55,13 +68,12 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
         const response = await getClutchThresholdByBlueprint(blueprintId);
         console.log('📊 ClutchSection: API Response:', response);
         if (response.data) {
-          // Extract thresholds for different measurements
-          const hydThreshold = extractThresholdConfig(response.data, 'hydClutchClearanceTotal');
-          const fbThresholdData = extractThresholdConfig(response.data, 'fb');
-          console.log('📊 ClutchSection: Hyd Threshold:', hydThreshold);
-          console.log('📊 ClutchSection: FB Threshold:', fbThresholdData);
-          setHydClearanceThreshold(hydThreshold);
-          setFbThreshold(fbThresholdData);
+          // Extract all 5 thresholds
+          setHydTotalThreshold(extractThresholdConfig(response.data, 'hydClutchClearanceTotal'));
+          setHydRearThreshold(extractThresholdConfig(response.data, 'hydClutchClearanceRear'));
+          setFbThreshold(extractThresholdConfig(response.data, 'fb'));
+          setFTBThreshold(extractThresholdConfig(response.data, 'fTB'));
+          setRTBThreshold(extractThresholdConfig(response.data, 'rTB'));
         } else {
           console.log('📊 ClutchSection: No data in response, error:', response.error);
         }
@@ -85,11 +97,34 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestClutchData = latestInspection?.clutch?.[0]?.data;
+  // Find the latest inspection that actually has clutch data (for date display)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find((inspection) => inspection.clutch?.[0]?.data);
+  }, [filteredInspections]);
 
-  console.log('📊 Latest inspection:', latestInspection);
-  console.log('📊 Latest clutch data:', latestClutchData);
+  // Find the most recent value for each clutch field across all inspections
+  // This handles cases where different inspections have different fields filled
+  const getLatestFieldValue = (fieldName: string): number | null => {
+    for (const inspection of filteredInspections) {
+      const clutchData = inspection?.clutch?.[0]?.data;
+      if (clutchData) {
+        const value = clutchData[fieldName as keyof typeof clutchData];
+        if (value !== null && value !== undefined) {
+          return typeof value === 'number' ? value : Number(value);
+        }
+      }
+    }
+    return null;
+  };
+
+  // Get latest values for each field
+  const latestValues = {
+    hydClutchClearanceTotal: getLatestFieldValue('hydClutchClearanceTotal'),
+    hydClutchClearanceRear: getLatestFieldValue('hydClutchClearanceRear'),
+    brakeSpringFB: getLatestFieldValue('brakeSpringFB'),
+    brakeSpringFTB: getLatestFieldValue('brakeSpringFTB'),
+    brakeSpringRTB: getLatestFieldValue('brakeSpringRTB'),
+  };
 
   // Transform data for charts
   const hydClearanceChartData = useMemo(() => {
@@ -113,7 +148,7 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
   };
 
   return (
-    <div className="space-y-6">
+    <div ref={contentRef} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-3">
@@ -134,7 +169,9 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
           </CardHeader>
           <CardContent>
             <Typography variant="large">
-              {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
             </Typography>
           </CardContent>
         </Card>
@@ -199,99 +236,107 @@ export function ClutchSection({ inspections, machineName, blueprintId }: ClutchS
 
       <Card>
         <CardHeader>
-          <CardTitle>Clutch Measurements</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>{t('sectionTitles.clutchMeasurements')}</CardTitle>
+            <SectionExportButton
+              contentRef={contentRef}
+              sectionName="Clutch"
+              machineName={machineName}
+            />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="text-center mb-6">
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               <div>
                 <Typography variant="muted" className="mb-1">
-                  Hyd Clutch Total
+                  {t('labels.hydClutchTotal')}
                 </Typography>
                 <Typography variant="large">
-                  {formatValue(latestClutchData?.hydClutchClearanceTotal)}
+                  {formatValue(latestValues.hydClutchClearanceTotal)}
                 </Typography>
               </div>
               <div>
                 <Typography variant="muted" className="mb-1">
-                  Hyd Clutch Rear
+                  {t('labels.hydClutchRear')}
                 </Typography>
                 <Typography variant="large">
-                  {formatValue(latestClutchData?.hydClutchClearanceRear)}
+                  {formatValue(latestValues.hydClutchClearanceRear)}
                 </Typography>
               </div>
               <div>
                 <Typography variant="muted" className="mb-1">
                   F-B
                 </Typography>
-                <Typography variant="large">
-                  {formatValue(latestClutchData?.brakeSpringFB)}
-                </Typography>
+                <Typography variant="large">{formatValue(latestValues.brakeSpringFB)}</Typography>
               </div>
               <div>
                 <Typography variant="muted" className="mb-1">
                   F-TB
                 </Typography>
-                <Typography variant="large">
-                  {formatValue(latestClutchData?.brakeSpringFTB)}
-                </Typography>
+                <Typography variant="large">{formatValue(latestValues.brakeSpringFTB)}</Typography>
               </div>
               <div>
                 <Typography variant="muted" className="mb-1">
                   R-TB
                 </Typography>
-                <Typography variant="large">
-                  {formatValue(latestClutchData?.brakeSpringRTB)}
-                </Typography>
+                <Typography variant="large">{formatValue(latestValues.brakeSpringRTB)}</Typography>
               </div>
             </div>
           </div>
 
           <div className="space-y-6">
             <MultiLineThresholdChart
-              title="Hydraulic Clutch Clearance"
+              title={t('chartTitles.hydraulicClutchClearance')}
               data={hydClearanceChartData}
               lines={[
                 {
                   dataKey: 'hydClutchClearanceTotal',
                   label: 'Hyd Total',
                   color: '#8884d8',
+                  threshold: hydTotalThreshold ?? undefined,
                 },
                 {
                   dataKey: 'hydClutchClearanceRear',
                   label: 'Hyd Rear',
-                  color: '#82ca9d',
+                  color: '#06b6d4',
+                  threshold: hydRearThreshold ?? undefined,
                 },
               ]}
-              sharedThreshold={hydClearanceThreshold}
+              sharedThreshold={hydTotalThreshold}
               valueUnit="mm"
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={300}
             />
 
             <MultiLineThresholdChart
-              title="Brake Spring Measurements (F-B, F-TB, R-TB)"
+              title={t('chartTitles.brakeSpringMeasurements')}
               data={brakeSpringChartData}
               lines={[
                 {
                   dataKey: 'brakeSpringFB',
                   label: 'F-B',
-                  color: '#ffc658',
+                  color: '#3b82f6',
+                  threshold: fbThreshold ?? undefined,
                 },
                 {
                   dataKey: 'brakeSpringFTB',
                   label: 'F-TB',
-                  color: '#ff7300',
+                  color: '#ec4899',
+                  threshold: fTBThreshold ?? undefined,
                 },
                 {
                   dataKey: 'brakeSpringRTB',
                   label: 'R-TB',
-                  color: '#00C49F',
+                  color: '#6366f1',
+                  threshold: rTBThreshold ?? undefined,
                 },
               ]}
               sharedThreshold={fbThreshold}
               valueUnit="in"
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={300}
             />
           </div>

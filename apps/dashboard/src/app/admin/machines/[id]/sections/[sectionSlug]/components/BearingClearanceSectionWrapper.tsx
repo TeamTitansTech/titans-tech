@@ -4,6 +4,7 @@ import { BearingClearanceSection } from './BearingClearanceSection';
 
 interface BearingClearanceSectionWrapperProps {
   machineId: string;
+  hideThresholdValues?: boolean;
 }
 
 interface BearingClearanceData {
@@ -33,6 +34,7 @@ export interface InspectionData {
 
 export async function BearingClearanceSectionWrapper({
   machineId,
+  hideThresholdValues = false,
 }: BearingClearanceSectionWrapperProps) {
   let inspections: InspectionData[] = [];
   let machineName = '';
@@ -72,6 +74,7 @@ export async function BearingClearanceSectionWrapper({
       inspections={inspections}
       machineName={machineName}
       blueprintId={blueprintId}
+      hideThresholdValues={hideThresholdValues}
     />
   );
 }

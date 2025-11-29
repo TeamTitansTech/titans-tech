@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { format, parseISO, isToday, isTomorrow, addDays, startOfDay } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import type { ServiceType as ServiceTypeEnum } from '@titans-tech/shared/enums';
+import { useInternalRouter } from '@/hooks/useInternalRouter';
 
 interface UpcomingService {
   id: string;
@@ -22,6 +23,7 @@ interface Next7DaysTimelineProps {
 
 export function Next7DaysTimeline({ services }: Next7DaysTimelineProps) {
   const t = useTranslations('dashboard.client');
+  const router = useInternalRouter();
 
   // Filter services for next 7 days
   const today = startOfDay(new Date());
@@ -42,6 +44,10 @@ export function Next7DaysTimeline({ services }: Next7DaysTimelineProps) {
     return format(date, 'EEE, dd MMM', { locale: pt });
   };
 
+  const handleServiceClick = (machineId: string) => {
+    router.push(`/machines/${machineId}`);
+  };
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -58,7 +64,11 @@ export function Next7DaysTimeline({ services }: Next7DaysTimelineProps) {
         ) : (
           <div className="space-y-3">
             {upcomingServices.map((service, index) => (
-              <div key={service.id} className="flex items-start gap-3">
+              <div
+                key={service.id}
+                className="flex items-start gap-3 cursor-pointer hover:bg-muted/50 rounded-lg p-2 -mx-2 transition-colors"
+                onClick={() => handleServiceClick(service.machineId)}
+              >
                 <div className="flex flex-col items-center">
                   <div className="w-2 h-2 rounded-full bg-primary" />
                   {index < upcomingServices.length - 1 && (

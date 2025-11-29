@@ -27,7 +27,8 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
   const handleSectionClick = async (section: string) => {
     setLoadingSection(section);
     const sectionSlug = section.toLowerCase();
-    router.push(`/admin/machines/${machine.id}/sections/${sectionSlug}`);
+    // useInternalRouter auto-adds /admin prefix, so don't include it here
+    router.push(`/machines/${machine.id}/sections/${sectionSlug}`);
   };
 
   const handleOpenReport = async () => {

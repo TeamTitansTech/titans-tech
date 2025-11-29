@@ -35,5 +35,14 @@ export default async function AdminProductionLineDetailPage({
     notFound();
   }
 
-  return <ProductionLineDetail productionLine={response.data} initialTab={tab} />;
+  // SysAdmin has full access to all features
+  return (
+    <ProductionLineDetail
+      productionLine={response.data}
+      initialTab={tab}
+      canViewMachineDetails={true}
+      canEditProductionLine={true}
+      canDeleteProductionLine={true}
+    />
+  );
 }

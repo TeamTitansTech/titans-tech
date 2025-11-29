@@ -5,50 +5,43 @@ import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
-import {
-  Calendar as CalendarIcon,
-  FileDown,
-  FileText,
-  FileSpreadsheet,
-  ChevronDown,
-} from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { Calendar as CalendarIcon } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import { InspectionData } from './BearingClearanceSectionWrapper';
-import { toast } from 'sonner';
-import { exportToExcel, exportToPDF, exportToWord } from '../utils/exportBearingClearance';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
 import {
-  transformBearingClearanceToMultiLineData,
+  transformBearingClearanceToDifferentialData,
   extractThresholdConfig,
 } from '@/components/charts/dataTransformers';
 import { getThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
+import { SectionExportButton } from '@/components/shared/SectionExportButton';
 
 interface BearingClearanceSectionProps {
   machineId: string;
   inspections: InspectionData[];
   machineName: string;
   blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
 export function BearingClearanceSection({
   inspections,
   machineName,
   blueprintId,
+  hideThresholdValues = false,
 }: BearingClearanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
-  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
-  const [threshold, setThreshold] = useState<ThresholdConfig | null>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  // Separate thresholds for each measurement type
+  const [cbThreshold, setCbThreshold] = useState<ThresholdConfig | null>(null);
+  const [totalClearanceThreshold, setTotalClearanceThreshold] = useState<ThresholdConfig | null>(
+    null,
+  );
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -70,9 +63,9 @@ export function BearingClearanceSection({
       try {
         const response = await getThresholdByBlueprint(blueprintId);
         if (response.data) {
-          // Extract threshold for upperConnectionBearings (CB)
-          const extracted = extractThresholdConfig(response.data, 'upperConnectionBearings');
-          setThreshold(extracted);
+          // Extract thresholds for each measurement type
+          setCbThreshold(extractThresholdConfig(response.data, 'upperConnectionBearings'));
+          setTotalClearanceThreshold(extractThresholdConfig(response.data, 'totalClearance'));
         } else {
           console.log('⚠️  No threshold data in response');
         }
@@ -94,349 +87,225 @@ export function BearingClearanceSection({
     );
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestBearingCheck = latestInspection?.bearingClearance?.[0]?.outerData;
-
-  // Transform data for new threshold charts
-  const cbChartData = useMemo(() => {
-    console.log('📊 Filtered Inspections:', filteredInspections);
-    console.log('📊 First inspection:', filteredInspections[0]);
-    console.log('📊 Bearing clearance:', filteredInspections[0]?.bearingClearance);
-    const data = transformBearingClearanceToMultiLineData(
-      filteredInspections,
-      'upperConnectionBearings',
+  const sortedInspections = useMemo(() => {
+    return [...filteredInspections].sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
     );
-    console.log('📊 Transformed CB Chart Data:', data);
-    return data;
   }, [filteredInspections]);
 
-  const totalClearanceChartData = useMemo(() => {
-    const data = transformBearingClearanceToMultiLineData(filteredInspections, 'totalClearance');
-    console.log('📊 Transformed Total Clearance Chart Data:', data);
-    return data;
+  // Find the latest inspection that actually has bearing clearance data (for date display)
+  const latestInspectionWithData = useMemo(() => {
+    return sortedInspections.find((inspection) => inspection.bearingClearance?.[0]?.outerData);
+  }, [sortedInspections]);
+
+  // Find the most recent value for each bearing field across all inspections
+  const getLatestFieldValue = (fieldName: string): number | null => {
+    for (const inspection of sortedInspections) {
+      const bearingData = inspection?.bearingClearance?.[0]?.outerData;
+      if (bearingData) {
+        const value = bearingData[fieldName as keyof typeof bearingData];
+        if (value !== null && value !== undefined) {
+          return typeof value === 'number' ? value : Number(value);
+        }
+      }
+    }
+    return null;
+  };
+
+  // Get latest values for each field
+  const latestValues = {
+    mainBearings_LH: getLatestFieldValue('mainBearings_LH'),
+    mainBearings_RH: getLatestFieldValue('mainBearings_RH'),
+    upperConnectionBearings_LH: getLatestFieldValue('upperConnectionBearings_LH'),
+    upperConnectionBearings_RH: getLatestFieldValue('upperConnectionBearings_RH'),
+    totalClearance_LH: getLatestFieldValue('totalClearance_LH'),
+    totalClearance_RH: getLatestFieldValue('totalClearance_RH'),
+  };
+
+  // Calculate differentials (what matters for alerts)
+  const calculateDifferential = (lh: number | null, rh: number | null): number | null => {
+    if (lh === null || rh === null) return null;
+    return Math.abs(rh - lh);
+  };
+
+  const differentials = {
+    totalClearance: calculateDifferential(
+      latestValues.totalClearance_LH,
+      latestValues.totalClearance_RH,
+    ),
+    upperConnectionBearings: calculateDifferential(
+      latestValues.upperConnectionBearings_LH,
+      latestValues.upperConnectionBearings_RH,
+    ),
+    mainBearings: calculateDifferential(latestValues.mainBearings_LH, latestValues.mainBearings_RH),
+  };
+
+  const formatValue = (value: number | null | undefined, decimals = 4): string => {
+    if (value === null || value === undefined) return '-';
+    return Number(value).toFixed(decimals);
+  };
+
+  // Transform data for differential chart (shows all differentials over time)
+  const differentialChartData = useMemo(() => {
+    return transformBearingClearanceToDifferentialData(filteredInspections);
   }, [filteredInspections]);
-
-  // Keep old chartData format for export functions compatibility
-  const chartData = useMemo(() => {
-    return filteredInspections
-      .filter((inspection) => inspection.bearingClearance?.[0]?.outerData)
-      .map((inspection) => {
-        const after = inspection.bearingClearance[0]!.outerData!;
-        const before = inspection.bearingClearance[0]!.outerBefore;
-
-        return {
-          date: format(new Date(inspection.date), 'dd/MM/yyyy'),
-          'CB RH': Number(after.upperConnectionBearings_RH),
-          'CB LH': Number(after.upperConnectionBearings_LH),
-          'Difference RH': before
-            ? Number(after.totalClearance_RH) - Number(before.totalClearance_RH)
-            : 0,
-          'Difference LH': before
-            ? Number(after.totalClearance_LH) - Number(before.totalClearance_LH)
-            : 0,
-        };
-      })
-      .reverse();
-  }, [filteredInspections]);
-
-  const handleExportPDF = async () => {
-    toast.promise(
-      exportToPDF(
-        machineName,
-        date,
-        filteredInspections.length,
-        latestBearingCheck ?? undefined,
-        chartData,
-      ),
-      {
-        loading: t('exportingToPDF'),
-        success: t('exportedPDFSuccess'),
-        error: t('exportPDFError'),
-      },
-    );
-  };
-
-  const handleExportWord = async () => {
-    toast.promise(
-      exportToWord(
-        machineName,
-        date,
-        filteredInspections.length,
-        latestBearingCheck ?? undefined,
-        chartData,
-      ),
-      {
-        loading: t('exportingToWord'),
-        success: t('exportedWordSuccess'),
-        error: t('exportWordError'),
-      },
-    );
-  };
-
-  const handleExportExcel = async () => {
-    toast.promise(
-      exportToExcel(
-        machineName,
-        date,
-        filteredInspections.length,
-        latestBearingCheck ?? undefined,
-        chartData,
-      ),
-      {
-        loading: t('exportingToExcel'),
-        success: t('exportedExcelSuccess'),
-        error: t('exportExcelError'),
-      },
-    );
-  };
 
   return (
-    <>
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {t('press')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Typography variant="large">{machineName || '-'}</Typography>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {t('lastDateMeasurement')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Typography variant="large">
-                {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
-              </Typography>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {t('totalMeasurements')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Typography variant="large">{filteredInspections.length}</Typography>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {t('dateRange')}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="date"
-                    variant={'outline'}
-                    size="sm"
-                    className={cn(
-                      'w-full justify-start text-left font-normal h-8 pr-3',
-                      !date && 'text-muted-foreground',
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-3 w-3 shrink-0" />
-                    {date?.from ? (
-                      date.to ? (
-                        <span className="text-xs truncate">
-                          {format(date.from, 'dd/MM/yyyy')} - {format(date.to, 'dd/MM/yyyy')}
-                        </span>
-                      ) : (
-                        <span className="text-xs truncate">{format(date.from, 'dd/MM/yyyy')}</span>
-                      )
-                    ) : (
-                      <span className="text-xs truncate">{t('pickDate')}</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={date?.from}
-                    selected={date}
-                    onSelect={setDate}
-                    numberOfMonths={2}
-                  />
-                </PopoverContent>
-              </Popover>
-            </CardContent>
-          </Card>
-        </div>
-
+    <div ref={contentRef} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>{t('connectionBearingClearance')}</CardTitle>
-              <DropdownMenu open={isExportDropdownOpen} onOpenChange={setIsExportDropdownOpen}>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="focus-visible:ring-0 focus-visible:ring-offset-0"
-                  >
-                    <FileDown className="w-4 h-4 mr-2" />
-                    {t('exportData')}
-                    <ChevronDown className="w-4 h-4 ml-2" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  className="overflow-visible data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=open]:duration-150 data-[state=closed]:duration-100"
-                >
-                  <DropdownMenuItem onClick={handleExportPDF}>
-                    <FileText className="w-4 h-4 mr-2" />
-                    {t('exportAsPDF')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleExportWord}>
-                    <FileText className="w-4 h-4 mr-2" />
-                    {t('exportAsWord')}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleExportExcel}>
-                    <FileSpreadsheet className="w-4 h-4 mr-2" />
-                    {t('exportAsExcel')}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('press')}
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-center mb-6">
-              <Typography variant="h3" className="mb-2">
-                LH / RH
-              </Typography>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    MB (Main Bearings)
-                  </Typography>
-                  <Typography variant="large">
-                    {latestBearingCheck
-                      ? `${Number(latestBearingCheck.mainBearings_LH).toFixed(4)} / ${Number(latestBearingCheck.mainBearings_RH).toFixed(4)}`
-                      : '-'}
-                  </Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    UCB (Upper Connection)
-                  </Typography>
-                  <Typography variant="large">
-                    {latestBearingCheck
-                      ? `${Number(latestBearingCheck.upperConnectionBearings_LH).toFixed(4)} / ${Number(latestBearingCheck.upperConnectionBearings_RH).toFixed(4)}`
-                      : '-'}
-                  </Typography>
-                </div>
-                <div>
-                  <Typography variant="muted" className="mb-1">
-                    TC (Total Clearance)
-                  </Typography>
-                  <Typography variant="large">
-                    {latestBearingCheck
-                      ? `${Number(latestBearingCheck.totalClearance_LH).toFixed(4)} / ${Number(latestBearingCheck.totalClearance_RH).toFixed(4)}`
-                      : '-'}
-                  </Typography>
-                </div>
-              </div>
-            </div>
+            <Typography variant="large">{machineName || '-'}</Typography>
+          </CardContent>
+        </Card>
 
-            <div className="flex gap-6">
-              <div className="w-1/3 flex-shrink-0">
-                <div className="bg-muted rounded-lg p-6 space-y-4">
-                  <div className="aspect-square bg-background rounded border-2 border-dashed border-border flex items-center justify-center">
-                    <Typography variant="muted">{t('measurementDiagram')}</Typography>
-                  </div>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('lastDateMeasurement')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Typography variant="large">
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
+            </Typography>
+          </CardContent>
+        </Card>
 
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-muted-foreground" />
-                      <Typography variant="small" className="flex-1">
-                        {t('slideMotorMounts')}
-                      </Typography>
-                      <Typography variant="small" className="text-muted-foreground">
-                        -
-                      </Typography>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-muted-foreground" />
-                      <Typography variant="small" className="flex-1">
-                        {t('powerCordHoses')}
-                      </Typography>
-                      <Typography variant="small" className="text-muted-foreground">
-                        -
-                      </Typography>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full bg-muted-foreground" />
-                      <Typography variant="small" className="flex-1">
-                        {t('chainsGearsSprockets')}
-                      </Typography>
-                      <Typography variant="small" className="text-muted-foreground">
-                        -
-                      </Typography>
-                    </div>
-                  </div>
-                </div>
-              </div>
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('totalMeasurements')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Typography variant="large">{filteredInspections.length}</Typography>
+          </CardContent>
+        </Card>
 
-              <div className="flex-1 space-y-4">
-                <MultiLineThresholdChart
-                  title={t('chartConnectionBearing')}
-                  data={cbChartData}
-                  lines={[
-                    {
-                      dataKey: 'upperConnectionBearings_RH',
-                      label: 'CB RH',
-                      color: '#8884d8',
-                    },
-                    {
-                      dataKey: 'upperConnectionBearings_LH',
-                      label: 'CB LH',
-                      color: '#82ca9d',
-                    },
-                  ]}
-                  sharedThreshold={threshold}
-                  valueUnit="mm"
-                  allowToggle={true}
-                  height={300}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {t('dateRange')}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  id="date"
+                  variant={'outline'}
+                  size="sm"
+                  className={cn(
+                    'w-full justify-start text-left font-normal h-8 pr-3',
+                    !date && 'text-muted-foreground',
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-3 w-3 shrink-0" />
+                  {date?.from ? (
+                    date.to ? (
+                      <span className="text-xs truncate">
+                        {format(date.from, 'dd/MM/yyyy')} - {format(date.to, 'dd/MM/yyyy')}
+                      </span>
+                    ) : (
+                      <span className="text-xs truncate">{format(date.from, 'dd/MM/yyyy')}</span>
+                    )
+                  ) : (
+                    <span className="text-xs truncate">{t('pickDate')}</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  initialFocus
+                  mode="range"
+                  defaultMonth={date?.from}
+                  selected={date}
+                  onSelect={setDate}
+                  numberOfMonths={2}
                 />
-
-                <MultiLineThresholdChart
-                  title={t('chartTotalClearance') || 'Total Clearance'}
-                  data={totalClearanceChartData}
-                  lines={[
-                    {
-                      dataKey: 'totalClearance_RH',
-                      label: 'TC RH',
-                      color: '#ffc658',
-                    },
-                    {
-                      dataKey: 'totalClearance_LH',
-                      label: 'TC LH',
-                      color: '#ff7300',
-                    },
-                  ]}
-                  sharedThreshold={threshold}
-                  valueUnit="mm"
-                  allowToggle={true}
-                  height={300}
-                />
-              </div>
-            </div>
+              </PopoverContent>
+            </Popover>
           </CardContent>
         </Card>
       </div>
-    </>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>{t('connectionBearingClearance')}</CardTitle>
+            <SectionExportButton
+              contentRef={contentRef}
+              sectionName="BearingClearance"
+              machineName={machineName}
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center mb-6">
+            <div className="grid grid-cols-3 gap-4 max-w-lg mx-auto">
+              <div>
+                <Typography variant="muted" className="mb-1">
+                  TC Differential
+                </Typography>
+                <Typography variant="large">{formatValue(differentials.totalClearance)}</Typography>
+              </div>
+              <div>
+                <Typography variant="muted" className="mb-1">
+                  UCB Differential
+                </Typography>
+                <Typography variant="large">
+                  {formatValue(differentials.upperConnectionBearings)}
+                </Typography>
+              </div>
+              <div>
+                <Typography variant="muted" className="mb-1">
+                  MB Differential
+                </Typography>
+                <Typography variant="large">{formatValue(differentials.mainBearings)}</Typography>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <MultiLineThresholdChart
+              title="Bearing Clearance Differentials"
+              data={differentialChartData}
+              lines={[
+                {
+                  dataKey: 'totalClearance_diff',
+                  label: 'TC Diff',
+                  color: '#3b82f6',
+                  threshold: totalClearanceThreshold ?? undefined,
+                },
+                {
+                  dataKey: 'upperConnectionBearings_diff',
+                  label: 'UCB Diff',
+                  color: '#8884d8',
+                  threshold: cbThreshold ?? undefined,
+                },
+                {
+                  dataKey: 'mainBearings_diff',
+                  label: 'MB Diff',
+                  color: '#06b6d4',
+                },
+              ]}
+              sharedThreshold={totalClearanceThreshold}
+              valueUnit="mm"
+              allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
+              height={350}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

@@ -137,9 +137,8 @@ export function ServiceSummaryModal({
         extractedData = extractedData.data as AnySectionData;
       }
 
-      // For inspections, show all sections even if empty
-      // For maintenance, only show sections with actual data
-      if (isInspection || hasDataContent(extractedData as Record<string, unknown>)) {
+      // Only show sections that have actual data
+      if (hasDataContent(extractedData as Record<string, unknown>)) {
         completedSections.push(registryKey);
         completedSectionData[registryKey] = extractedData;
       }

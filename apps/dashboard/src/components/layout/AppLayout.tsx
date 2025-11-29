@@ -35,9 +35,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       <BranchProvider>
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
-          <SidebarInset>
+          <SidebarInset className="min-w-0 overflow-hidden">
             <AppHeader />
-            <main className="flex-1 min-h-screen bg-background">{children}</main>
+            <div className="flex-1 min-h-screen bg-background overflow-auto">{children}</div>
           </SidebarInset>
         </SidebarProvider>
       </BranchProvider>

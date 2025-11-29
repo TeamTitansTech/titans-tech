@@ -926,6 +926,7 @@
       "powerCordHoses": "Cable de Alimentación/Mangueras",
       "chainsGearsSprockets": "Cadenas y Engranajes/Piñones",
       "chartConnectionBearing": "Holgura de Cojinete de Conexión (CB)",
+      "chartTotalClearance": "Holgura Total (TC)",
       "chartDifference": "Diferencia",
       "noDataAvailable": "No hay datos disponibles",
       "exportData": "Exportar Datos",
@@ -943,7 +944,107 @@
       "exportExcelError": "Error al exportar archivo Excel",
       "areaChart": "Gráfico de Área",
       "barChart": "Gráfico de Barras",
-      "createInspection": "Crear Inspección"
+      "createInspection": "Crear Inspección",
+      "sectionTitles": {
+        "clutchMeasurements": "Mediciones del Embrague",
+        "slideMeasurements": "Mediciones del Carro",
+        "gibsMeasurements": "Mediciones de las Guías",
+        "lubricationStatus": "Estado de Lubricación e Hidráulica",
+        "counterbalanceStatus": "Estado del Contrapeso"
+      },
+      "chartTitles": {
+        "hydraulicClutchClearance": "Holgura del Embrague Hidráulico",
+        "brakeSpringMeasurements": "Mediciones del Resorte del Freno (F-B, F-TB, R-TB)",
+        "slideMaxDeviation": "Desviación Máxima del Carro (Externo vs Interno)",
+        "outerSlidePositions": "Posiciones del Carro Externo (Posición 1-5)",
+        "innerSlidePositions": "Posiciones del Carro Interno (Posición 1-5)",
+        "gibsUsableValue": "Guías - Valor Utilizable",
+        "innerGibsDirectional": "Guías Internas - Sumas Direccionales",
+        "outerGibsDirectional": "Guías Externas - Sumas Direccionales",
+        "issuesTrend": "Tendencia de Problemas a lo Largo del Tiempo",
+        "bearingClearanceDifferentials": "Diferenciales de Holgura del Rodamiento"
+      },
+      "labels": {
+        "outer": "Externo",
+        "inner": "Interno",
+        "issues": "Problemas",
+        "inspections": "Inspecciones",
+        "inspectionHistory": "Historial de Inspecciones",
+        "oilChanged": "Aceite Cambiado",
+        "oilTemp": "Temp. Aceite",
+        "oilMfgType": "Fabricante/Tipo de Aceite",
+        "filterChanged": "Filtro Cambiado",
+        "hydClutchTotal": "Embrague Hid. Total",
+        "hydClutchRear": "Embrague Hid. Trasero",
+        "leakLocation": "Ubicación de Fuga",
+        "outerIssues": "Problemas Externos",
+        "innerIssues": "Problemas Internos",
+        "customAlerts": "Alertas Personalizadas",
+        "createdAt": "Creado el",
+        "date": "Fecha",
+        "outerType": "Tipo Externo",
+        "innerType": "Tipo Interno",
+        "noLubricationData": "No hay datos de lubricación disponibles",
+        "noCounterbalanceData": "No hay datos de contrapeso disponibles"
+      }
+    },
+    "latestReport": {
+      "title": "Informe Actualizado",
+      "exportError": "Error al exportar PDF",
+      "exportSuccess": "¡PDF exportado con éxito!",
+      "updatedAt": "Actualizado el",
+      "problems": "Problema(s)",
+      "severity": {
+        "critical": "Crítico",
+        "warning": "Atención",
+        "ok": "OK",
+        "normal": "Normal"
+      },
+      "yesNoDnc": {
+        "yes": "Sí",
+        "no": "No",
+        "dnc": "DNC"
+      },
+      "counterbalance": {
+        "cylinder": "Cilindro",
+        "airbag": "Airbag",
+        "outer": "Outer",
+        "inner": "Inner",
+        "pistonSeals": "Sellos del Pistón",
+        "regulator": "Regulador",
+        "gauge": "Manómetro",
+        "pneumaticsPlumbing": "Neumática/Tubería",
+        "rodSeals": "Sellos del Vástago",
+        "rodBushing": "Casquillo del Vástago",
+        "oilWick": "Mecha de Aceite",
+        "status": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Fuga",
+          "notOperational": "No Operacional",
+          "darkOil": "Aceite Oscuro",
+          "needsReplaced": "Necesita Reemplazo"
+        }
+      },
+      "lubrication": {
+        "title": "Lubricación e Hidráulica",
+        "field": "Campo",
+        "value": "Valor",
+        "oilChanged": "Aceite Cambiado",
+        "oilTemperature": "Temperatura del Aceite",
+        "oilMfgType": "Tipo/Fabricante del Aceite",
+        "filterChanged": "Filtro Cambiado",
+        "systemGauges": "Medidores del Sistema",
+        "system": "Sistema",
+        "identifier": "Identificador",
+        "status": "Estado"
+      },
+      "bearingClearance": {
+        "measurement": "Medición",
+        "differential": "Diferencial",
+        "status": "Estado"
+      }
     },
     "form": {
       "cancel": "Cancelar",
@@ -1978,6 +2079,10 @@
     "saveConfig": "Guardar Configuración",
     "savingConfig": "Guardando...",
     "configSaved": "Configuración guardada exitosamente",
+    "orderSaved": "Orden de máquinas guardado exitosamente",
+    "unsavedChanges": "Tiene cambios no guardados en el orden de las máquinas",
+    "saveOrder": "Guardar Orden",
+    "saving": "Guardando...",
     "lineName": "Nombre de la Línea",
     "lineNamePlaceholder": "Ej: Línea Principal",
     "lineNameRequired": "El nombre de la línea es obligatorio",

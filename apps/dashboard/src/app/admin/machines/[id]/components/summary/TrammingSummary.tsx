@@ -16,6 +16,11 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common.status');
 
+  // Return null if no data provided
+  if (!data) {
+    return null;
+  }
+
   // Helper to display values with translations
   const display = (value: unknown) => displayValue(value, tCommon('yes'), tCommon('no'));
 

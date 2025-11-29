@@ -1,5 +1,10 @@
 import { getTranslations } from 'next-intl/server';
-import { BearingClearanceSectionWrapper } from '@/app/(dashboard)/machines/[id]/sections/[sectionSlug]/components/BearingClearanceSectionWrapper';
+import { BearingClearanceSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/BearingClearanceSectionWrapper';
+import { ClutchSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/ClutchSectionWrapper';
+import { SlideSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideSectionWrapper';
+import { GibsSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/GibsSectionWrapper';
+import { LubricationSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/LubricationSectionWrapper';
+import { CounterbalanceSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/CounterbalanceSectionWrapper';
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -32,13 +37,29 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
         </div>
       </div>
 
-      {sectionSlug === 'bearing_clearance' && <BearingClearanceSectionWrapper machineId={id} />}
-
-      {sectionSlug !== 'bearing_clearance' && (
-        <div className="text-center py-12">
-          <Typography variant="muted">{t('comingSoon', { section: sectionSlug })}</Typography>
-        </div>
+      {sectionSlug === 'bearing_clearance' && (
+        <BearingClearanceSectionWrapper machineId={id} hideThresholdValues />
       )}
+      {sectionSlug === 'clutch' && <ClutchSectionWrapper machineId={id} hideThresholdValues />}
+      {sectionSlug === 'slide' && <SlideSectionWrapper machineId={id} hideThresholdValues />}
+      {sectionSlug === 'gibs' && <GibsSectionWrapper machineId={id} hideThresholdValues />}
+      {sectionSlug === 'lubrication_hydraulics_pressure_switches_oil_filter' && (
+        <LubricationSectionWrapper machineId={id} />
+      )}
+      {sectionSlug === 'counterbalance_cylinder_airbag' && (
+        <CounterbalanceSectionWrapper machineId={id} />
+      )}
+
+      {sectionSlug !== 'bearing_clearance' &&
+        sectionSlug !== 'clutch' &&
+        sectionSlug !== 'slide' &&
+        sectionSlug !== 'gibs' &&
+        sectionSlug !== 'lubrication_hydraulics_pressure_switches_oil_filter' &&
+        sectionSlug !== 'counterbalance_cylinder_airbag' && (
+          <div className="text-center py-12">
+            <Typography variant="muted">{t('comingSoon', { section: sectionSlug })}</Typography>
+          </div>
+        )}
     </div>
   );
 }
