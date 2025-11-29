@@ -50,7 +50,7 @@ export function ThresholdRangeInput({
     <div className="space-y-3">
       <Label className="text-sm font-medium">{label}</Label>
 
-      <div className="h-10 w-full rounded-md overflow-hidden border border-gray-200">
+      <div className="h-10 w-full rounded-md overflow-hidden border border-border">
         <div className="flex h-full">
           <div className="bg-green-500 flex items-center justify-center text-white text-xs font-medium w-1/3">
             &lt; {yellowMin}
@@ -68,7 +68,7 @@ export function ThresholdRangeInput({
 
       <div className="grid grid-cols-3 gap-4">
         <div className="space-y-1">
-          <Label className="text-xs text-gray-600 flex items-center gap-1">
+          <Label className="text-xs text-muted-foreground flex items-center gap-1">
             <span className="w-3 h-3 bg-green-500 rounded-full" />
             {t('greenStartMin')}
           </Label>
@@ -83,7 +83,7 @@ export function ThresholdRangeInput({
         </div>
 
         <div className="space-y-1">
-          <Label className="text-xs text-gray-600 flex items-center gap-1">
+          <Label className="text-xs text-muted-foreground flex items-center gap-1">
             <span className="w-3 h-3 bg-yellow-500 rounded-full" />
             {t('yellowStartMin')}
           </Label>
@@ -99,7 +99,7 @@ export function ThresholdRangeInput({
         </div>
 
         <div className="space-y-1">
-          <Label className="text-xs text-gray-600 flex items-center gap-1">
+          <Label className="text-xs text-muted-foreground flex items-center gap-1">
             <span className="w-3 h-3 bg-red-500 rounded-full" />
             {t('redStartMin')}
           </Label>

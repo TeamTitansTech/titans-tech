@@ -95,7 +95,7 @@ export function LubricationHydraulicsForm({
                 key={index}
                 className={`grid grid-cols-10 gap-4 p-3 items-center ${
                   index !== data.gauges.length - 1 ? 'border-b' : ''
-                } ${index % 2 === 0 ? 'bg-white' : 'bg-muted/20'}`}
+                } ${index % 2 === 0 ? 'bg-card' : 'bg-muted/20'}`}
               >
                 <div className="col-span-3">
                   <Select
