@@ -372,8 +372,7 @@ model SysAdmin {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 
-  notifications     AdminNotification[] @relation("AdminNotificationsTargets")
-  readNotifications AdminNotification[] @relation("AdminNotificationsRead")
+  notifications AdminNotificationRecipient[]
 
   @@map("sys_admins")
 }
@@ -1267,12 +1266,26 @@ model AdminNotification {
   createdAt       DateTime              @default(now())
   updatedAt       DateTime              @updatedAt
 
-  createdBy User       @relation("AdminNotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
-  targets   SysAdmin[] @relation("AdminNotificationsTargets")
-  readBy    SysAdmin[] @relation("AdminNotificationsRead")
+  createdBy  User                         @relation("AdminNotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  recipients AdminNotificationRecipient[]
 
   @@index([createdAt])
   @@map("admin_notifications")
+}
+
+model AdminNotificationRecipient {
+  notificationId String
+  sysAdminId     String
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  notification AdminNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  sysAdmin     SysAdmin          @relation(fields: [sysAdminId], references: [id], onDelete: Cascade)
+
+  @@id([notificationId, sysAdminId])
+  @@index([sysAdminId, isRead])
+  @@map("admin_notification_recipients")
 }
 
 model ClientNotification {

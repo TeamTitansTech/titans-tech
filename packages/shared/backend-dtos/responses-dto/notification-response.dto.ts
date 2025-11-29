@@ -49,8 +49,16 @@ export const NotificationStatsResponseDtoSchema = z.object({
   overdue: z.number(),
 });
 
-export type AdminNotificationResponse = Prisma.AdminNotificationGetPayload<{}> & {
-  metatada: UrgentRequestNotificationMetadataDto | SimpleSchemaToTestEnum;
+const adminNotificationInclude = {
+  recipients: true,
+} satisfies Prisma.AdminNotificationInclude;
+
+export type AdminNotificationResponse = Prisma.AdminNotificationGetPayload<{
+  include: typeof adminNotificationInclude;
+}>;
+
+export type AdminNotificationResponseWithMetadata = AdminNotificationResponse & {
+  metadata: UrgentRequestNotificationMetadataDto | SimpleSchemaToTestEnum | null;
 };
 
 export type NotificationTypeDto = z.infer<typeof NotificationTypeDtoSchema>;

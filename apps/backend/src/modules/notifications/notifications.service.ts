@@ -74,15 +74,25 @@ export class NotificationsService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+
+    const admins = await this.prisma.sysAdmin.findMany({
+      select: { id: true },
+    });
+
     const notification = await this.prisma.adminNotification.create({
+      include: {
+        recipients: true,
+      },
       data: {
         type: NotificationType.URGENT_SERVICE_REQUEST,
         createdByUserId: userId,
         metadata: parsedMetadata.data,
-        targets: {
-          connect: await this.prisma.sysAdmin.findMany({
-            select: { id: true },
-          }),
+        recipients: {
+          createMany: {
+            data: admins.map((admin) => ({
+              sysAdminId: admin.id,
+            })),
+          },
         },
       },
     });
@@ -91,13 +101,7 @@ export class NotificationsService {
       `Created urgent request notification ${notification.id} for machine ${machineId}`,
     );
 
-    const notificationDto: AdminNotificationResponse = {
-      ...notification,
-      metatada: notification.metadata as AdminNotificationResponse['metatada'],
-    };
-
-    // Broadcast notification to all connected admins via WebSocket
-    this.notificationsGateway.handleNewNotification(notificationDto);
+    this.notificationsGateway.handleNewNotification(notification);
 
     const adminEmails = 'tedewa3616@feralrex.com';
     const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${machineId}?openServiceModal=true`;
@@ -134,23 +138,18 @@ export class NotificationsService {
     userId: string,
     limit: number = 50,
     includeRead: boolean = false,
-  ) {
+  ): Promise<AdminNotificationResponse[]> {
     const notifications = await this.prisma.adminNotification.findMany({
+      include: {
+        recipients: true,
+      },
       where: {
-        targets: {
+        recipients: {
           some: {
-            id: {
-              equals: userId,
-            },
+            sysAdminId: userId,
+            isRead: includeRead ? undefined : false,
           },
         },
-        ...(includeRead
-          ? {}
-          : {
-              readBy: {
-                none: { id: userId },
-              },
-            }),
       },
       orderBy: {
         createdAt: 'desc',
@@ -199,9 +198,14 @@ export class NotificationsService {
     notificationId: string;
     userId: string;
   }): Promise<{ success: boolean }> {
-    await this.prisma.adminNotification.update({
-      where: { id: args.notificationId },
-      data: { readBy: { connect: { id: args.userId } } },
+    await this.prisma.adminNotificationRecipient.update({
+      where: {
+        notificationId_sysAdminId: {
+          notificationId: args.notificationId,
+          sysAdminId: args.userId,
+        },
+      },
+      data: { isRead: true },
     });
 
     return { success: true };
@@ -221,22 +225,13 @@ export class NotificationsService {
   async markAllAdminNotificationsAsRead(
     userId: string,
   ): Promise<{ success: boolean; count: number }> {
-    const result = await this.prisma.adminNotification.updateMany({
+    const result = await this.prisma.adminNotificationRecipient.updateMany({
       where: {
-        targets: {
-          some: {
-            id: userId,
-          },
-        },
-        readBy: {
-          none: { id: userId },
-        },
+        sysAdminId: userId,
+        isRead: false,
       },
       data: {
-        // @ts-ignore
-        readBy: {
-          connect: { id: userId },
-        },
+        isRead: true,
       },
     });
 
