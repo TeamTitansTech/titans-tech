@@ -167,13 +167,13 @@ export const BearingClearanceDataSchema = z.object({
   extraDoubleLockOpen_LH: z.number(),
   ballBoxArea_RH: z.number(),
   ballBoxArea_LH: z.number(),
-  hasBeenAdjusted: z.nativeEnum(PrismaYesNoNaDncType),
+  hasBeenAdjusted: z.enum(PrismaYesNoNaDncType),
   combinedWith: z.string().optional(),
-  matingPart: z.nativeEnum(PrismaMatingPartType).optional(),
-  slideMotorMounts: z.nativeEnum(PrismaConditionOkNaDncBrokenWornType).optional(),
-  powerCordHoses: z.nativeEnum(PrismaConditionOkNaDncDamagedType).optional(),
-  chainsGearsSprockets: z.nativeEnum(PrismaConditionOkNaDncBrokenLooseType).optional(),
-  lockingClamps: z.nativeEnum(PrismaConditionOkNaDncDamagedType).optional(),
+  matingPart: z.enum(PrismaMatingPartType).optional(),
+  slideMotorMounts: z.enum(PrismaConditionOkNaDncBrokenWornType).optional(),
+  powerCordHoses: z.enum(PrismaConditionOkNaDncDamagedType).optional(),
+  chainsGearsSprockets: z.enum(PrismaConditionOkNaDncBrokenLooseType).optional(),
+  lockingClamps: z.enum(PrismaConditionOkNaDncDamagedType).optional(),
   notes: z.string().optional(),
 });
 
@@ -197,11 +197,11 @@ export type BearingClearanceCheck = z.infer<typeof BearingClearanceCheckSchema>;
  */
 export const SlideDataSchema = z.object({
   // Parallelism configuration
-  parallelism: z.nativeEnum(PrismaParallelismType).optional(),
-  hasParallelismBeenAdjusted: z.nativeEnum(PrismaYesNoNaDncType).optional(),
+  parallelism: z.enum(PrismaParallelismType).optional(),
+  hasParallelismBeenAdjusted: z.enum(PrismaYesNoNaDncType).optional(),
 
   // Shutheight fields
-  shutheightIndicatorsChecked: z.nativeEnum(PrismaYesNoDncType).optional(),
+  shutheightIndicatorsChecked: z.enum(PrismaYesNoDncType).optional(),
   overloadsOnTonnageMonitor: z.string().optional(),
   shutheightActualSh: z.string().optional(),
   indicatorReading: z.string().optional(),
@@ -266,7 +266,7 @@ export const GibsCheckSchema = z.object({
   outerBefore: GibsStageDataSchema.optional(),
   outerData: GibsStageDataSchema.optional(),
   outerFreeHangingData: GibsStageDataSchema.optional(),
-  haveInnerGibsBeenAdjusted: z.nativeEnum(PrismaYesNoDncType).optional(),
+  haveInnerGibsBeenAdjusted: z.enum(PrismaYesNoDncType).optional(),
   innerBefore: GibsStageDataSchema.optional(),
   innerData: GibsStageDataSchema.optional(),
   innerBeforeTool: GibsStageDataSchema.optional(),
@@ -281,9 +281,9 @@ export type GibsCheck = z.infer<typeof GibsCheckSchema>;
  */
 export const LubricationHydraulicsGaugeSchema = z.object({
   id: z.string().optional(),
-  system: z.nativeEnum(PrismaLubeHydMonitorFlowPressSwGibType),
+  system: z.enum(PrismaLubeHydMonitorFlowPressSwGibType),
   gaugeSwitchIdentifier: z.string().optional(),
-  psi: z.nativeEnum(OkNaDncDamageType).optional(),
+  psi: z.enum(OkNaDncDamageType).optional(),
 });
 
 export type LubricationHydraulicsGauge = z.infer<typeof LubricationHydraulicsGaugeSchema>;
@@ -293,11 +293,11 @@ export type LubricationHydraulicsGauge = z.infer<typeof LubricationHydraulicsGau
  */
 export const LubricationHydraulicsDataSchema = z.object({
   gauges: z.array(LubricationHydraulicsGaugeSchema),
-  changedOil: z.nativeEnum(PrismaYesNoDncType),
+  changedOil: z.enum(PrismaYesNoDncType),
   oilTemperature: z.number().optional(),
-  oilTemperatureUnit: z.nativeEnum(PrismaTemperatureUnit).optional(),
+  oilTemperatureUnit: z.enum(PrismaTemperatureUnit).optional(),
   oilMfgType: z.string().optional(),
-  changedFilter: z.nativeEnum(PrismaYesNoDncType),
+  changedFilter: z.enum(PrismaYesNoDncType),
 });
 
 export type LubricationHydraulicsData = z.infer<typeof LubricationHydraulicsDataSchema>;
@@ -314,8 +314,8 @@ export type LubricationHydraulicsCheck = z.infer<typeof LubricationHydraulicsChe
  */
 export const ClutchDataSchema = z.object({
   // Clutch Type and Location
-  clutchType: z.nativeEnum(PrismaClutchType).optional(),
-  clutchLocation: z.nativeEnum(PrismaClutchLocation).optional(),
+  clutchType: z.enum(PrismaClutchType).optional(),
+  clutchLocation: z.enum(PrismaClutchLocation).optional(),
 
   // Brake Spring Settings (in inches)
   brakeSpringBrake: z.number().optional(),
@@ -323,27 +323,27 @@ export const ClutchDataSchema = z.object({
   brakeSpringFB: z.number().optional(),
   brakeSpringFTB: z.number().optional(),
   brakeSpringRTB: z.number().optional(),
-  brakeSpringStudBolt: z.nativeEnum(PrismaBrakeSpringStudBoltType).optional(),
+  brakeSpringStudBolt: z.enum(PrismaBrakeSpringStudBoltType).optional(),
 
   // Brake measurements
   brakeStoppingTime: z.number().optional(),
-  brakeLining: z.nativeEnum(PrismaBrakeLiningType).optional(),
+  brakeLining: z.enum(PrismaBrakeLiningType).optional(),
   brakeClearing: z.number().optional(),
   brakeClearanceTotal: z.number().optional(),
   brakeClearanceRear: z.number().optional(),
 
   // Flywheel
   flywheelStoppingTime: z.number().optional(),
-  flywheelBearings: z.nativeEnum(PrismaFlywheelBearingsType).optional(),
-  flywheelBrake: z.nativeEnum(PrismaFlywheelBrakeType).optional(),
+  flywheelBearings: z.enum(PrismaFlywheelBearingsType).optional(),
+  flywheelBrake: z.enum(PrismaFlywheelBrakeType).optional(),
 
   // Rotary Union
-  rotaryUnion: z.nativeEnum(PrismaRotaryUnionType).optional(),
+  rotaryUnion: z.enum(PrismaRotaryUnionType).optional(),
 
   // Clutch details
   clutchEngagements: z.number().optional(),
-  clutchLining: z.nativeEnum(PrismaClutchLiningType).optional(),
-  clutchSeals: z.nativeEnum(PrismaClutchSealsType).optional(),
+  clutchLining: z.enum(PrismaClutchLiningType).optional(),
+  clutchSeals: z.enum(PrismaClutchSealsType).optional(),
 
   // Gear and measurements (*Check only if excessive noise and/or vibration is present)
   gearBacklashBefore: z.number().optional(),
@@ -354,13 +354,13 @@ export const ClutchDataSchema = z.object({
   // Air system
   airRegulatorValue: z.number().optional(),
   airClutchTravel: z.number().optional(),
-  airLineOilerSetting: z.nativeEnum(PrismaAirLineOilerSettingType).optional(),
+  airLineOilerSetting: z.enum(PrismaAirLineOilerSettingType).optional(),
 
   // Splines
-  splinesDriveRingDisc: z.nativeEnum(PrismaSplinesConditionType).optional(),
+  splinesDriveRingDisc: z.enum(PrismaSplinesConditionType).optional(),
 
   // Adjusting Nut/Lock
-  adjustingNutLockSecure: z.nativeEnum(PrismaAdjustingNutLockType).optional(),
+  adjustingNutLockSecure: z.enum(PrismaAdjustingNutLockType).optional(),
 
   // Hydraulic system
   hydClutchClearanceTotal: z.number().optional(),
@@ -369,10 +369,10 @@ export const ClutchDataSchema = z.object({
   accumulatorValue: z.number().optional(),
 
   // Separate Brake Seals
-  separateBrakeSeals: z.nativeEnum(PrismaSeparateBrakeSealsType).optional(),
+  separateBrakeSeals: z.enum(PrismaSeparateBrakeSealsType).optional(),
 
   // Flex Disc
-  flexDisc: z.nativeEnum(PrismaFlexDiscType).optional(),
+  flexDisc: z.enum(PrismaFlexDiscType).optional(),
 
   // Notes
   notes: z.string().optional(),
@@ -446,7 +446,7 @@ export type TrammingData = z.infer<typeof TrammingDataSchema>;
 export const TrammingCheckSchema = z.object({
   outerData: TrammingDataSchema.optional(),
   innerData: TrammingDataSchema.optional(),
-  slideTram: z.nativeEnum(PrismaYesNoDncType).optional(),
+  slideTram: z.enum(PrismaYesNoDncType).optional(),
   unit: z.enum(['inches', 'mm', 'cm']).optional(),
   notes: z.string().optional(),
 });
@@ -479,11 +479,11 @@ export type PistonsData = z.infer<typeof PistonsDataSchema>;
 export const PistonsCheckSchema = z.object({
   outerData: PistonsDataSchema.optional(),
   innerData: PistonsDataSchema.optional(),
-  guideSeals: z.nativeEnum(PrismaSealConditionType).optional(),
-  pistonSeals: z.nativeEnum(PrismaSealConditionType).optional(),
-  vacuumSystem: z.nativeEnum(PrismaVacuumSystemConditionType).optional(),
+  guideSeals: z.enum(PrismaSealConditionType).optional(),
+  pistonSeals: z.enum(PrismaSealConditionType).optional(),
+  vacuumSystem: z.enum(PrismaVacuumSystemConditionType).optional(),
   vacuumSystemAirPressureSetting: z.number().optional(),
-  vacuumSystemAirPressureUnit: z.nativeEnum(PrismaPressureUnit).optional(),
+  vacuumSystemAirPressureUnit: z.enum(PrismaPressureUnit).optional(),
   unit: z.enum(['inches', 'mm', 'cm']).optional(),
   notes: z.string().optional(),
 });
@@ -499,12 +499,12 @@ export type PistonsCheck = z.infer<typeof PistonsCheckSchema>;
  */
 export const CreateServiceSchema = z.object({
   machineId: z.string().min(1, 'Machine ID is required'),
-  date: z.string().datetime('Invalid date format'),
-  type: z.nativeEnum(PrismaServiceType),
+  date: z.iso.datetime({ message: 'Invalid date format' }),
+  type: z.enum(PrismaServiceType),
   performedBy: z.string().min(1, 'Performed by is required').optional(),
   isMaintenance: z.boolean().default(false),
   notes: z.string().optional(),
-  status: z.nativeEnum(PrismaServiceStatus).optional(),
+  status: z.enum(PrismaServiceStatus).optional(),
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),
@@ -518,22 +518,22 @@ export type CreateServiceDto = z.infer<typeof CreateServiceSchema>;
 export const CreateServicePayloadSchema = z.object({
   machineId: z.string(),
   date: z.string(),
-  type: z.nativeEnum(PrismaServiceType),
-  status: z.nativeEnum(PrismaServiceStatus).optional(),
+  type: z.enum(PrismaServiceType),
+  status: z.enum(PrismaServiceStatus).optional(),
   performedBy: z.string().optional(),
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),
 
   // Inspection observation fields
-  isPressLevel: z.nativeEnum(PrismaYesNoNaDncType).optional(),
-  driveBeltCondition: z.nativeEnum(PrismaDriveBeltConditionType).optional(),
-  areAllProtectiveCovers: z.nativeEnum(PrismaProtectiveCoversStatusType).optional(),
+  isPressLevel: z.enum(PrismaYesNoNaDncType).optional(),
+  driveBeltCondition: z.enum(PrismaDriveBeltConditionType).optional(),
+  areAllProtectiveCovers: z.enum(PrismaProtectiveCoversStatusType).optional(),
   protectiveCoversExplanation: z.string().optional(),
-  areCracksVisible: z.nativeEnum(PrismaYesNoDncType).optional(),
+  areCracksVisible: z.enum(PrismaYesNoDncType).optional(),
   cracksLocation: z.string().optional(),
-  isMainMotorSecure: z.nativeEnum(PrismaYesNoDncType).optional(),
-  isMotorPlateSecure: z.nativeEnum(PrismaYesNoDncType).optional(),
+  isMainMotorSecure: z.enum(PrismaYesNoDncType).optional(),
+  isMotorPlateSecure: z.enum(PrismaYesNoDncType).optional(),
   whyNotCovered: z.string().optional(),
 
   bearingClearance: BearingClearanceCheckSchema.optional(),
@@ -553,22 +553,22 @@ export type CreateServicePayload = z.infer<typeof CreateServicePayloadSchema>;
  */
 export const UpdateServicePayloadSchema = z.object({
   date: z.string().optional(),
-  type: z.nativeEnum(PrismaServiceType).optional(),
-  status: z.nativeEnum(PrismaServiceStatus).optional(),
+  type: z.enum(PrismaServiceType).optional(),
+  status: z.enum(PrismaServiceStatus).optional(),
   performedBy: z.string().optional(),
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),
 
   // Inspection observation fields
-  isPressLevel: z.nativeEnum(PrismaYesNoNaDncType).optional(),
-  driveBeltCondition: z.nativeEnum(PrismaDriveBeltConditionType).optional(),
-  areAllProtectiveCovers: z.nativeEnum(PrismaProtectiveCoversStatusType).optional(),
+  isPressLevel: z.enum(PrismaYesNoNaDncType).optional(),
+  driveBeltCondition: z.enum(PrismaDriveBeltConditionType).optional(),
+  areAllProtectiveCovers: z.enum(PrismaProtectiveCoversStatusType).optional(),
   protectiveCoversExplanation: z.string().optional(),
-  areCracksVisible: z.nativeEnum(PrismaYesNoDncType).optional(),
+  areCracksVisible: z.enum(PrismaYesNoDncType).optional(),
   cracksLocation: z.string().optional(),
-  isMainMotorSecure: z.nativeEnum(PrismaYesNoDncType).optional(),
-  isMotorPlateSecure: z.nativeEnum(PrismaYesNoDncType).optional(),
+  isMainMotorSecure: z.enum(PrismaYesNoDncType).optional(),
+  isMotorPlateSecure: z.enum(PrismaYesNoDncType).optional(),
   whyNotCovered: z.string().optional(),
 
   bearingClearance: BearingClearanceCheckSchema.optional(),
@@ -587,9 +587,9 @@ export type UpdateServicePayload = z.infer<typeof UpdateServicePayloadSchema>;
  * Complete Service Request Validation
  */
 export const CompleteServiceSchema = z.object({
-  completedAt: z.string().datetime('Invalid date format').optional(),
+  completedAt: z.iso.datetime({ message: 'Invalid date format' }).optional(),
   notes: z.string().optional(),
-  status: z.nativeEnum(PrismaServiceStatus).optional(),
+  status: z.enum(PrismaServiceStatus).optional(),
   completedBy: z.string().optional(),
 });
 
@@ -602,22 +602,22 @@ export const ServiceSchema = z.object({
   id: z.string(),
   machineId: z.string(),
   date: z.string(),
-  type: z.nativeEnum(PrismaServiceType),
-  status: z.nativeEnum(PrismaServiceStatus),
+  type: z.enum(PrismaServiceType),
+  status: z.enum(PrismaServiceStatus),
   performedBy: z.string().optional(),
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),
 
   // Inspection observation fields
-  isPressLevel: z.nativeEnum(PrismaYesNoNaDncType).optional(),
-  driveBeltCondition: z.nativeEnum(PrismaDriveBeltConditionType).optional(),
-  areAllProtectiveCovers: z.nativeEnum(PrismaProtectiveCoversStatusType).optional(),
+  isPressLevel: z.enum(PrismaYesNoNaDncType).optional(),
+  driveBeltCondition: z.enum(PrismaDriveBeltConditionType).optional(),
+  areAllProtectiveCovers: z.enum(PrismaProtectiveCoversStatusType).optional(),
   protectiveCoversExplanation: z.string().optional(),
-  areCracksVisible: z.nativeEnum(PrismaYesNoDncType).optional(),
+  areCracksVisible: z.enum(PrismaYesNoDncType).optional(),
   cracksLocation: z.string().optional(),
-  isMainMotorSecure: z.nativeEnum(PrismaYesNoDncType).optional(),
-  isMotorPlateSecure: z.nativeEnum(PrismaYesNoDncType).optional(),
+  isMainMotorSecure: z.enum(PrismaYesNoDncType).optional(),
+  isMotorPlateSecure: z.enum(PrismaYesNoDncType).optional(),
   whyNotCovered: z.string().optional(),
 
   createdAt: z.string(),
