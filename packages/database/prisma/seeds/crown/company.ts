@@ -9,12 +9,21 @@ export async function seedCrownCompany(prisma: PrismaClient) {
     where: { id: 'crown-company' },
     update: {
       slug: 'crown',
+      logo: 'https://titechjf-bucket.s3.us-east-2.amazonaws.com/logos/pMjnBuUyhJ1HR0vwQzbKD-1764422902020.png',
+      loginLogo:
+        'https://titechjf-bucket.s3.us-east-2.amazonaws.com/logos/Euf6hz3Re_dVatp_cAPQe-1764423186513.png',
+      brandColor: '#1e6b3a',
+      accentColor: '#b8985b',
     },
     create: {
       id: 'crown-company',
       name: 'Crown',
       slug: 'crown',
-      brandColor: '#1e40af',
+      logo: 'https://titechjf-bucket.s3.us-east-2.amazonaws.com/logos/pMjnBuUyhJ1HR0vwQzbKD-1764422902020.png',
+      loginLogo:
+        'https://titechjf-bucket.s3.us-east-2.amazonaws.com/logos/Euf6hz3Re_dVatp_cAPQe-1764423186513.png',
+      brandColor: '#1e6b3a',
+      accentColor: '#b8985b',
       description: 'Industrial press equipment manufacturer',
     },
   });

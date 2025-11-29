@@ -120,8 +120,9 @@ function getSidebarHSL(hex: string, isDark: boolean): string {
     }
   }
 
-  // Light mode: dark sidebar with brand color tint
-  return `${Math.round(h * 360)} ${Math.round(s * 30)}% 12%`;
+  // Light mode: dark sidebar with visible brand color tint
+  // Higher saturation (50%) and lightness (18%) to make brand color more visible
+  return `${Math.round(h * 360)} ${Math.round(s * 50)}% 18%`;
 }
 
 /**
@@ -164,7 +165,7 @@ function getSidebarAccentHSL(hex: string, isDark: boolean): string {
   }
 
   // Light mode: slightly lighter than sidebar for hover states
-  return `${Math.round(h * 360)} ${Math.round(s * 25)}% 18%`;
+  return `${Math.round(h * 360)} ${Math.round(s * 45)}% 25%`;
 }
 
 function applyPrimaryColor(brandColor: string, isDark: boolean = false) {
@@ -337,10 +338,20 @@ export function ThemeProvider({ children, subdomain }: ThemeProviderProps) {
   );
 }
 
-export function useTheme() {
+// Default values for when useTheme is called outside of ThemeProvider (e.g., admin routes)
+const defaultThemeContext: ThemeContextType = {
+  companyInfo: null,
+  isLoading: false,
+  updateBrandColor: () => {},
+  updateAccentColor: () => {},
+  updateColors: () => {},
+};
+
+export function useTheme(): ThemeContextType {
   const context = useContext(ThemeContext);
+  // Return default context if used outside ThemeProvider (e.g., admin routes)
   if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
+    return defaultThemeContext;
   }
   return context;
 }

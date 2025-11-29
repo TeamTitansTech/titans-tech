@@ -44,6 +44,8 @@ export default async function Page({ params }: PageProps) {
       companyId={subdomainResult.data.id}
       brandTitle={subdomainResult.data.name}
       brandSubtitle="Industrial Management & Inspection Platform"
+      brandColor={subdomainResult.data.brandColor}
+      brandLogo={subdomainResult.data.loginLogo}
       loginType="client"
     />
   );

@@ -380,6 +380,7 @@ model Company {
   name        String
   slug        String   @unique
   logo        String?
+  loginLogo   String?
   brandColor  String?
   accentColor String?
   description String?

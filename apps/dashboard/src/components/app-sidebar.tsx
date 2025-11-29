@@ -15,9 +15,11 @@ import {
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { hasPermissionInAnyBranch } from '@/lib/permissions';
 
 import {
@@ -36,9 +38,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const t = useTranslations();
   const { sysAdminUser } = useSysAdmin();
   const { companyUser } = useCompanyUser();
+  const { companyInfo } = useTheme();
 
   // Check if we're on an admin route or if sysAdminUser is set
   const isAdmin = pathname.startsWith('/admin') || !!sysAdminUser;
+
+  // Get the company logo URL from theme context (only for client/company routes)
+  const companyLogo = !isAdmin ? companyInfo?.logo : null;
 
   // Helper function to check if a navigation item is active
   const checkIsActive = (itemUrl: string, itemTitle: string) => {
@@ -187,11 +193,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="offcanvas" className="shadow-lg" {...props}>
       <SidebarHeader className="p-5 border-b border-slate-700/50">
         <Link href={dashboardUrl} className="flex items-center gap-3">
-          <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-accent text-accent-foreground shrink-0">
-            <data.company.logo className="size-6" />
-          </div>
+          {companyLogo ? (
+            <div className="relative aspect-square size-10 rounded-lg overflow-hidden bg-white/10 shrink-0">
+              <Image
+                src={companyLogo}
+                alt={companyInfo?.name || 'Company Logo'}
+                fill
+                className="object-contain p-1"
+              />
+            </div>
+          ) : (
+            <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-accent text-accent-foreground shrink-0">
+              <data.company.logo className="size-6" />
+            </div>
+          )}
           <div className="grid flex-1 text-left leading-tight min-w-0">
-            <span className="truncate font-bold text-base text-white">{data.company.name}</span>
+            <span className="truncate font-bold text-base text-white">
+              {!isAdmin && companyInfo?.name ? companyInfo.name : data.company.name}
+            </span>
             <span className="truncate text-[10px] uppercase tracking-wider font-medium text-gray-500">
               {data.company.subtitle}
             </span>

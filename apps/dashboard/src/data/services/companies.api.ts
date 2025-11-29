@@ -11,6 +11,7 @@ export interface Company {
   slug: string;
   name: string;
   logo?: string | null;
+  loginLogo?: string | null;
   brandColor?: string | null;
   accentColor?: string | null;
   description?: string | null;

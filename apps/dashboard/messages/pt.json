@@ -66,7 +66,9 @@
     "invalidHexColor": "Deve ser uma cor hexadecimal válida",
     "branchNameRequired": "Nome da filial é obrigatório",
     "fullNameRequired": "Nome completo é obrigatório",
-    "invalidEmail": "Endereço de email inválido"
+    "invalidEmail": "Endereço de email inválido",
+    "invalidImageType": "Apenas imagens JPG e PNG são permitidas",
+    "fileTooLarge": "Tamanho do arquivo excede o limite de 10MB"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -451,8 +453,12 @@
           "placeholder": "ex., acme-manufacturing"
         },
         "logo": {
-          "label": "URL do Logo (Opcional)",
-          "placeholder": "ex., https://exemplo.com/logo.png"
+          "label": "Logo (Opcional)",
+          "placeholder": "ex., https://exemplo.com/logo.png",
+          "uploadHint": "Clique para enviar logo (JPG ou PNG)",
+          "uploading": "Enviando...",
+          "uploadSuccess": "Logo enviado com sucesso",
+          "uploadError": "Falha ao enviar logo"
         },
         "brandColor": {
           "label": "Cor Primária (Opcional)",

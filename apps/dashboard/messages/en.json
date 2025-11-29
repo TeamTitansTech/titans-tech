@@ -66,7 +66,9 @@
     "invalidHexColor": "Must be a valid hex color",
     "branchNameRequired": "Branch name is required",
     "fullNameRequired": "Full name is required",
-    "invalidEmail": "Invalid email address"
+    "invalidEmail": "Invalid email address",
+    "invalidImageType": "Only JPG and PNG images are allowed",
+    "fileTooLarge": "File size exceeds 10MB limit"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -451,8 +453,12 @@
           "placeholder": "e.g., acme-manufacturing"
         },
         "logo": {
-          "label": "Logo URL (Optional)",
-          "placeholder": "e.g., https://example.com/logo.png"
+          "label": "Logo (Optional)",
+          "placeholder": "e.g., https://example.com/logo.png",
+          "uploadHint": "Click to upload logo (JPG or PNG)",
+          "uploading": "Uploading...",
+          "uploadSuccess": "Logo uploaded successfully",
+          "uploadError": "Failed to upload logo"
         },
         "brandColor": {
           "label": "Primary Color (Optional)",

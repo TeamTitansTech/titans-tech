@@ -2,6 +2,7 @@
 import { FormEvent, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { LucideIcon } from 'lucide-react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,17 +17,47 @@ type LoginFormProps = {
   brandTitle: string;
   brandSubtitle: string;
   brandIcon?: LucideIcon;
+  brandColor?: string | null;
+  brandLogo?: string | null;
   loginType: 'admin' | 'client';
   companyId?: string;
 };
+
+/**
+ * Adjusts the brightness of a hex color
+ * @param hex - Hex color string (e.g., "#1e6b3a")
+ * @param percent - Percentage to adjust (-100 to 100)
+ */
+function adjustColorBrightness(hex: string, percent: number): string {
+  hex = hex.replace(/^#/, '');
+  const num = parseInt(hex, 16);
+  const r = Math.min(255, Math.max(0, (num >> 16) + Math.round(2.55 * percent)));
+  const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00ff) + Math.round(2.55 * percent)));
+  const b = Math.min(255, Math.max(0, (num & 0x0000ff) + Math.round(2.55 * percent)));
+  return `#${((r << 16) | (g << 8) | b).toString(16).padStart(6, '0')}`;
+}
 
 export function LoginForm({
   brandTitle,
   brandSubtitle,
   brandIcon: BrandIcon,
+  brandColor,
+  brandLogo,
   loginType,
   companyId,
 }: LoginFormProps) {
+  // Generate gradient colors from brand color
+  const bgStyle = brandColor
+    ? {
+        background: `linear-gradient(to bottom right, ${brandColor}, ${adjustColorBrightness(brandColor, -20)}, ${brandColor})`,
+      }
+    : undefined;
+
+  const buttonStyle = brandColor
+    ? {
+        backgroundColor: brandColor,
+      }
+    : undefined;
   const t = useTranslations('login');
   const router = useInternalRouter();
   const [email, setEmail] = useState('');
@@ -71,7 +102,10 @@ export function LoginForm({
 
   return (
     <div className="flex min-h-screen">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 relative overflow-hidden">
+      <div
+        className={`hidden lg:flex lg:w-1/2 relative overflow-hidden ${!bgStyle ? 'bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900' : ''}`}
+        style={bgStyle}
+      >
         <div
           className="absolute inset-0 opacity-30"
           style={{
@@ -80,22 +114,38 @@ export function LoginForm({
           }}
         />
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-12 text-white">
-          <div className="mb-8 p-6 bg-white/10 rounded-full backdrop-blur-sm">
-            {BrandIcon && <BrandIcon className="w-16 h-16" strokeWidth={1.5} />}
-          </div>
-          <h1 className="text-4xl font-bold mb-4 text-center">{brandTitle}</h1>
-          <p className="text-xl text-blue-100 text-center max-w-md">{brandSubtitle}</p>
+          {brandLogo ? (
+            <div className="mb-8 relative w-96 h-96">
+              <Image src={brandLogo} alt={brandTitle} fill className="object-contain" />
+            </div>
+          ) : (
+            <>
+              <div className="mb-8 p-6 bg-white/10 rounded-full backdrop-blur-sm">
+                {BrandIcon && <BrandIcon className="w-16 h-16" strokeWidth={1.5} />}
+              </div>
+              <h1 className="text-4xl font-bold mb-4 text-center">{brandTitle}</h1>
+              <p className="text-xl text-white/80 text-center max-w-md">{brandSubtitle}</p>
+            </>
+          )}
         </div>
       </div>
 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center lg:hidden mb-8">
-            <div className="inline-flex mb-4 p-4 bg-primary/10 rounded-full">
-              {BrandIcon && <BrandIcon className="w-12 h-12 text-primary" strokeWidth={1.5} />}
-            </div>
-            <h2 className="text-2xl font-bold text-foreground">{brandTitle}</h2>
-            <p className="text-muted-foreground mt-2">{brandSubtitle}</p>
+            {brandLogo ? (
+              <div className="relative w-32 h-32 mx-auto mb-4">
+                <Image src={brandLogo} alt={brandTitle} fill className="object-contain" />
+              </div>
+            ) : (
+              <>
+                <div className="inline-flex mb-4 p-4 bg-primary/10 rounded-full">
+                  {BrandIcon && <BrandIcon className="w-12 h-12 text-primary" strokeWidth={1.5} />}
+                </div>
+                <h2 className="text-2xl font-bold text-foreground">{brandTitle}</h2>
+                <p className="text-muted-foreground mt-2">{brandSubtitle}</p>
+              </>
+            )}
           </div>
 
           <div>
@@ -182,7 +232,8 @@ export function LoginForm({
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-blue-800 hover:bg-blue-900 text-white h-12 text-base"
+              className={`w-full text-white h-12 text-base ${!buttonStyle ? 'bg-blue-800 hover:bg-blue-900' : 'hover:opacity-90'}`}
+              style={buttonStyle}
             >
               {isLoading ? t('form.submitting') : t('form.submit')}
             </Button>
