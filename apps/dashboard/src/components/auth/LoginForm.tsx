@@ -46,18 +46,21 @@ export function LoginForm({
   loginType,
   companyId,
 }: LoginFormProps) {
-  // Generate gradient colors from brand color
-  const bgStyle = brandColor
-    ? {
-        background: `linear-gradient(to bottom right, ${brandColor}, ${adjustColorBrightness(brandColor, -20)}, ${brandColor})`,
-      }
-    : undefined;
+  // Default blue color for admin login or companies without brand color
+  const defaultColor = '#1e40af';
 
-  const buttonStyle = brandColor
-    ? {
-        backgroundColor: brandColor,
-      }
-    : undefined;
+  // Use brand color or default
+  const bgColor = brandColor || defaultColor;
+  const bgColorDark = brandColor ? adjustColorBrightness(brandColor, -20) : '#1e3a8a';
+
+  // Always use inline styles to prevent hydration flash
+  const bgStyle = {
+    background: `linear-gradient(to bottom right, ${bgColor}, ${bgColorDark}, ${bgColor})`,
+  };
+
+  const buttonStyle = {
+    backgroundColor: bgColor,
+  };
   const t = useTranslations('login');
   const router = useInternalRouter();
   const [email, setEmail] = useState('');
@@ -102,10 +105,7 @@ export function LoginForm({
 
   return (
     <div className="flex min-h-screen">
-      <div
-        className={`hidden lg:flex lg:w-1/2 relative overflow-hidden ${!bgStyle ? 'bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900' : ''}`}
-        style={bgStyle}
-      >
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={bgStyle}>
         <div
           className="absolute inset-0 opacity-30"
           style={{
@@ -232,7 +232,7 @@ export function LoginForm({
             <Button
               type="submit"
               disabled={isLoading}
-              className={`w-full text-white h-12 text-base ${!buttonStyle ? 'bg-blue-800 hover:bg-blue-900' : 'hover:opacity-90'}`}
+              className="w-full text-white h-12 text-base hover:opacity-90"
               style={buttonStyle}
             >
               {isLoading ? t('form.submitting') : t('form.submit')}

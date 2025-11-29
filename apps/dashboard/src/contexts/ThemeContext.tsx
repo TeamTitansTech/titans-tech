@@ -238,20 +238,73 @@ function clearThemeColors() {
 interface ThemeProviderProps {
   children: ReactNode;
   subdomain: string;
+  initialColors?: {
+    brandColor?: string;
+    accentColor?: string;
+  };
 }
 
-export function ThemeProvider({ children, subdomain }: ThemeProviderProps) {
+/**
+ * Generate initial CSS for server-side rendering to prevent color flash
+ */
+function generateInitialCSS(brandColor?: string, accentColor?: string): string {
+  if (!brandColor && !accentColor) return '';
+
+  const cssVars: string[] = [];
+
+  if (brandColor) {
+    const primaryHSL = hexToHSL(brandColor);
+    const foregroundHSL = getForegroundHSL(brandColor);
+    // For initial render, use light mode sidebar colors (will be adjusted by JS for dark mode)
+    const sidebarHSL = getSidebarHSL(brandColor, false);
+    const sidebarAccentHSL = getSidebarAccentHSL(brandColor, false);
+
+    cssVars.push(`--primary: ${primaryHSL}`);
+    cssVars.push(`--primary-foreground: ${foregroundHSL}`);
+    cssVars.push(`--ring: ${primaryHSL}`);
+    cssVars.push(`--sidebar-primary: ${primaryHSL}`);
+    cssVars.push(`--sidebar-primary-foreground: ${foregroundHSL}`);
+    cssVars.push(`--sidebar: ${sidebarHSL}`);
+    cssVars.push(`--sidebar-background: ${sidebarHSL}`);
+    cssVars.push(`--sidebar-accent: ${sidebarAccentHSL}`);
+    cssVars.push(`--sidebar-border: ${sidebarAccentHSL}`);
+  }
+
+  if (accentColor) {
+    const accentHSL = hexToHSL(accentColor);
+    const foregroundHSL = getForegroundHSL(accentColor);
+
+    cssVars.push(`--accent: ${accentHSL}`);
+    cssVars.push(`--accent-foreground: ${foregroundHSL}`);
+    cssVars.push(`--action-orange: ${accentHSL}`);
+    cssVars.push(`--sidebar-ring: ${accentHSL}`);
+  }
+
+  return `:root { ${cssVars.join('; ')} }`;
+}
+
+export function ThemeProvider({ children, subdomain, initialColors }: ThemeProviderProps) {
   const [companyInfo, setCompanyInfo] = useState<ThemeContextType['companyInfo']>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!initialColors);
   const { resolvedTheme } = useNextTheme();
-  const colorsRef = useRef<{ brandColor?: string; accentColor?: string }>({});
+  const colorsRef = useRef<{ brandColor?: string; accentColor?: string }>(initialColors || {});
 
   const isDark = resolvedTheme === 'dark';
 
-  // Fetch company theme on mount
+  // Generate initial CSS for server-side rendering
+  const initialCSS = generateInitialCSS(initialColors?.brandColor, initialColors?.accentColor);
+
+  // Apply colors on mount and when initial colors are provided
+  useEffect(() => {
+    if (initialColors?.brandColor || initialColors?.accentColor) {
+      applyThemeColors(initialColors.brandColor, initialColors.accentColor, isDark);
+    }
+  }, [initialColors, isDark]);
+
+  // Fetch company theme on mount (only if no initial colors provided)
   useEffect(() => {
     async function fetchCompanyTheme() {
-      if (!subdomain) {
+      if (!subdomain || initialColors) {
         setIsLoading(false);
         return;
       }
@@ -289,7 +342,7 @@ export function ThemeProvider({ children, subdomain }: ThemeProviderProps) {
     return () => {
       clearThemeColors();
     };
-  }, [subdomain, isDark]);
+  }, [subdomain, isDark, initialColors]);
 
   // Re-apply colors when dark/light mode changes
   useEffect(() => {
@@ -333,6 +386,8 @@ export function ThemeProvider({ children, subdomain }: ThemeProviderProps) {
     <ThemeContext.Provider
       value={{ companyInfo, isLoading, updateBrandColor, updateAccentColor, updateColors }}
     >
+      {/* Inject initial CSS to prevent color flash during hydration */}
+      {initialCSS && <style dangerouslySetInnerHTML={{ __html: initialCSS }} />}
       {children}
     </ThemeContext.Provider>
   );
