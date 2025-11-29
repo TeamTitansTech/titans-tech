@@ -160,6 +160,20 @@
       "branches": "Filiais",
       "subdomain": "Subdomínio"
     },
+    "brandColor": {
+      "title": "Cores do Tema",
+      "description": "Personalize as cores do tema da sua empresa",
+      "primaryColor": "Cor Primária",
+      "primaryColorDescription": "Cor principal usada em botões, links e destaques",
+      "accentColor": "Cor de Destaque",
+      "accentColorDescription": "Cor secundária usada em estados de hover e ações",
+      "reset": "Redefinir",
+      "save": "Salvar",
+      "saving": "Salvando...",
+      "success": "Cores do tema atualizadas com sucesso",
+      "error": "Falha ao atualizar as cores do tema",
+      "previewNote": "Pré-visualização ativa. Clique em Salvar para aplicar as alterações."
+    },
     "branches": {
       "title": "Filiais",
       "loading": "Carregando filiais...",
@@ -441,8 +455,12 @@
           "placeholder": "ex., https://exemplo.com/logo.png"
         },
         "brandColor": {
-          "label": "Cor da Marca (Opcional)",
-          "placeholder": "#FF5733"
+          "label": "Cor Primária (Opcional)",
+          "placeholder": "#1e3a5f"
+        },
+        "accentColor": {
+          "label": "Cor de Destaque (Opcional)",
+          "placeholder": "#f97415"
         },
         "description": {
           "label": "Descrição (Opcional)",
@@ -461,6 +479,26 @@
     "companyCard": {
       "administrator": "Administrador",
       "unknownUser": "Desconhecido"
+    },
+    "companyColors": {
+      "title": "Cores do Tema da Empresa",
+      "description": "Personalize as cores da marca para o subdomínio de cada empresa",
+      "selectCompany": "Selecionar Empresa",
+      "selectCompanyPlaceholder": "Escolha uma empresa para personalizar",
+      "brandColor": "Cor Primária",
+      "brandColorDescription": "Cor principal usada em botões, links e destaques",
+      "accentColor": "Cor de Destaque",
+      "accentColorDescription": "Cor secundária usada em estados de hover e ações",
+      "preview": "Pré-visualização",
+      "previewPrimary": "Botão Primário",
+      "previewOutline": "Botão Outline",
+      "previewAccent": "Botão Destaque",
+      "previewHighlight": "Realce",
+      "reset": "Redefinir",
+      "save": "Salvar Cores",
+      "saving": "Salvando...",
+      "success": "Cores da empresa atualizadas com sucesso",
+      "error": "Falha ao atualizar as cores da empresa"
     },
     "userManagement": {
       "title": "Contas de Usuário",

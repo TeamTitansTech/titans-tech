@@ -187,7 +187,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="offcanvas" className="shadow-lg" {...props}>
       <SidebarHeader className="p-5 border-b border-slate-700/50">
         <Link href={dashboardUrl} className="flex items-center gap-3">
-          <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-orange-500 text-white shrink-0">
+          <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-accent text-accent-foreground shrink-0">
             <data.company.logo className="size-6" />
           </div>
           <div className="grid flex-1 text-left leading-tight min-w-0">
@@ -211,8 +211,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     isActive={isActive}
                     className={
                       isActive
-                        ? 'bg-orange-500/15 text-orange-400 hover:bg-orange-500/30 border-l-4 border-orange-500 rounded-l-none font-bold transition-all duration-200'
-                        : 'text-white hover:bg-orange-500/20 hover:text-orange-400 border-l-4 border-transparent hover:border-orange-500/50 rounded-l-none font-medium transition-all duration-200'
+                        ? 'bg-accent/15 text-accent hover:bg-accent/30 border-l-4 border-accent rounded-l-none font-bold transition-all duration-200'
+                        : 'text-white hover:bg-accent/20 hover:text-accent border-l-4 border-transparent hover:border-accent/50 rounded-l-none font-medium transition-all duration-200'
                     }
                   >
                     <Link href={item.url} className="flex items-center gap-4 px-4 py-3.5">
@@ -238,8 +238,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     isActive={isActive}
                     className={
                       isActive
-                        ? 'bg-orange-500/15 text-orange-400 hover:bg-orange-500/30 border-l-4 border-orange-500 rounded-l-none font-bold transition-all duration-200'
-                        : 'text-white hover:bg-orange-500/20 hover:text-orange-400 border-l-4 border-transparent hover:border-orange-500/50 rounded-l-none font-medium transition-all duration-200'
+                        ? 'bg-accent/15 text-accent hover:bg-accent/30 border-l-4 border-accent rounded-l-none font-bold transition-all duration-200'
+                        : 'text-white hover:bg-accent/20 hover:text-accent border-l-4 border-transparent hover:border-accent/50 rounded-l-none font-medium transition-all duration-200'
                     }
                   >
                     <Link href={item.url} className="flex items-center gap-4 px-4 py-3.5">
@@ -255,7 +255,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter className="border-t border-slate-700/50 p-3">
         <div className="flex items-center gap-3">
-          <div className="flex aspect-square size-12 items-center justify-center rounded-lg bg-orange-500/20 text-orange-400 shrink-0">
+          <div className="flex aspect-square size-12 items-center justify-center rounded-lg bg-accent/20 text-accent shrink-0">
             <User className="size-6" />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">

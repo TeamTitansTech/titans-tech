@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Separator } from '@/components/ui/separator';
 import { GeneralSettingsSection } from './GeneralSettingsSection';
 import { CompanyManagementSection } from './CompanyManagementSection';
+import { CompanyColorsSection } from './CompanyColorsSection';
 import { getAllCompanies, type Company } from '@/data/services/companies.api';
 import { toast } from 'sonner';
 
@@ -55,6 +56,10 @@ export function AdminSettings() {
         isLoading={isLoadingCompanies}
         selectedCompany={selectedCompany}
       />
+
+      <Separator />
+
+      <CompanyColorsSection companies={companies} isLoading={isLoadingCompanies} />
     </div>
   );
 }

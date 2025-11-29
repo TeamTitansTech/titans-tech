@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Separator } from '@/components/ui/separator';
 import { CompanyInfoSection } from './CompanyInfoSection';
+import { BrandColorSection } from './BrandColorSection';
 import { BranchesSection } from './BranchesSection';
 import { BranchUserManagement } from './BranchUserManagement';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
@@ -30,6 +31,8 @@ export function CompanySettings() {
       <Separator />
 
       <CompanyInfoSection />
+
+      <BrandColorSection />
 
       {canViewBranches && (
         <>

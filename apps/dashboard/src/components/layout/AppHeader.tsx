@@ -49,7 +49,7 @@ export function AppHeader() {
           <TooltipTrigger asChild>
             <button
               onClick={toggleSidebar}
-              className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200"
+              className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200"
             >
               <PanelLeft className="h-5 w-5" />
             </button>
@@ -63,7 +63,7 @@ export function AppHeader() {
             <input
               type="search"
               placeholder={t('searchPlaceholder')}
-              className="w-full h-10 pl-10 pr-4 rounded-md border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder:text-muted-foreground"
+              className="w-full h-10 pl-10 pr-4 rounded-md border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200 placeholder:text-muted-foreground"
             />
           </div>
         </div>
@@ -77,7 +77,7 @@ export function AppHeader() {
             <TooltipTrigger asChild>
               <button
                 onClick={toggleTheme}
-                className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200"
+                className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200"
                 aria-label={t('toggleTheme')}
               >
                 <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
@@ -89,7 +89,7 @@ export function AppHeader() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200">
+              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200">
                 <UserCircle className="h-5 w-5" />
               </button>
             </DropdownMenuTrigger>
@@ -103,7 +103,7 @@ export function AppHeader() {
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => setIsSettingsModalOpen(true)}
-                className="cursor-pointer hover:bg-orange-100 hover:text-orange-500"
+                className="cursor-pointer hover:bg-accent/10 hover:text-accent"
               >
                 <Settings className="mr-2 h-4 w-4" />
                 <span>{t('settings')}</span>

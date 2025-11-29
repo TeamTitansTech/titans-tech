@@ -160,6 +160,20 @@
       "branches": "Branches",
       "subdomain": "Subdomain"
     },
+    "brandColor": {
+      "title": "Theme Colors",
+      "description": "Customize your company's color theme",
+      "primaryColor": "Primary Color",
+      "primaryColorDescription": "Main color used for buttons, links, and highlights",
+      "accentColor": "Accent Color",
+      "accentColorDescription": "Secondary color used for hover states and actions",
+      "reset": "Reset",
+      "save": "Save",
+      "saving": "Saving...",
+      "success": "Theme colors updated successfully",
+      "error": "Failed to update theme colors",
+      "previewNote": "Preview is active. Click Save to apply changes."
+    },
     "branches": {
       "title": "Branches",
       "loading": "Loading branches...",
@@ -441,8 +455,12 @@
           "placeholder": "e.g., https://example.com/logo.png"
         },
         "brandColor": {
-          "label": "Brand Color (Optional)",
-          "placeholder": "#FF5733"
+          "label": "Primary Color (Optional)",
+          "placeholder": "#1e3a5f"
+        },
+        "accentColor": {
+          "label": "Accent Color (Optional)",
+          "placeholder": "#f97415"
         },
         "description": {
           "label": "Description (Optional)",
@@ -461,6 +479,26 @@
     "companyCard": {
       "administrator": "Administrator",
       "unknownUser": "Unknown"
+    },
+    "companyColors": {
+      "title": "Company Theme Colors",
+      "description": "Customize the brand colors for each company's subdomain",
+      "selectCompany": "Select Company",
+      "selectCompanyPlaceholder": "Choose a company to customize",
+      "brandColor": "Primary Color",
+      "brandColorDescription": "Main color used for buttons, links, and highlights",
+      "accentColor": "Accent Color",
+      "accentColorDescription": "Secondary color used for hover states and actions",
+      "preview": "Preview",
+      "previewPrimary": "Primary Button",
+      "previewOutline": "Outline Button",
+      "previewAccent": "Accent Button",
+      "previewHighlight": "Highlight",
+      "reset": "Reset",
+      "save": "Save Colors",
+      "saving": "Saving...",
+      "success": "Company colors updated successfully",
+      "error": "Failed to update company colors"
     },
     "userManagement": {
       "title": "User Accounts",

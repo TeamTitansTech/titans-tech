@@ -5,6 +5,7 @@ export const CreateCompanySchema = z.object({
   slug: z.string().min(1),
   logo: z.string().optional(),
   brandColor: z.string().optional(),
+  accentColor: z.string().optional(),
   description: z.string().optional(),
 });
 
@@ -15,6 +16,7 @@ export const UpdateCompanySchema = z.object({
   slug: z.string().min(1).optional(),
   logo: z.string().optional(),
   brandColor: z.string().optional(),
+  accentColor: z.string().optional(),
   description: z.string().optional(),
 });
 

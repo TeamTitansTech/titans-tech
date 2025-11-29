@@ -46,6 +46,11 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
           .regex(/^#[0-9A-Fa-f]{6}$/, tValidation('invalidHexColor'))
           .optional()
           .or(z.literal('')),
+        accentColor: z
+          .string()
+          .regex(/^#[0-9A-Fa-f]{6}$/, tValidation('invalidHexColor'))
+          .optional()
+          .or(z.literal('')),
         description: z.string().optional().or(z.literal('')),
       }),
     [tValidation],
@@ -64,14 +69,21 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
   } = useForm<CompanyFormData>({
     resolver: zodResolver(companySchema),
     defaultValues: {
-      brandColor: '#000000',
+      brandColor: '#1e3a5f',
+      accentColor: '#f97415',
     },
   });
 
   const brandColor = useWatch({
     control,
     name: 'brandColor',
-    defaultValue: '#000000',
+    defaultValue: '#1e3a5f',
+  });
+
+  const accentColor = useWatch({
+    control,
+    name: 'accentColor',
+    defaultValue: '#f97415',
   });
 
   const handleClose = () => {
@@ -184,6 +196,35 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
               </Popover>
               {errors.brandColor && (
                 <p className="text-sm text-destructive">{errors.brandColor.message}</p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="accentColor">{t('form.accentColor.label')}</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    disabled={isSubmitting}
+                    type="button"
+                  >
+                    <div
+                      className="w-6 h-6 rounded border mr-2"
+                      style={{ backgroundColor: accentColor }}
+                    />
+                    {accentColor}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-3">
+                  <HexColorPicker
+                    color={accentColor}
+                    onChange={(color) => setValue('accentColor', color, { shouldDirty: true })}
+                  />
+                </PopoverContent>
+              </Popover>
+              {errors.accentColor && (
+                <p className="text-sm text-destructive">{errors.accentColor.message}</p>
               )}
             </div>
 

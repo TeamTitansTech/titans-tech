@@ -51,6 +51,7 @@ export class CompaniesService {
         name: true,
         logo: true,
         brandColor: true,
+        accentColor: true,
       },
     });
 

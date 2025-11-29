@@ -381,6 +381,7 @@ model Company {
   slug        String   @unique
   logo        String?
   brandColor  String?
+  accentColor String?
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
