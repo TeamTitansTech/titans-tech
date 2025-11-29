@@ -1,23 +1,17 @@
-import {
-  HttpStatus,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
 import { EmailService } from '../email/email.service';
 import { NotificationsGateway } from './notifications.gateway';
 import { appEnv } from '../../config/env';
-import { NotificationType } from '@titans-tech/db';
+import { AdminNotificationType, NotificationType } from '@titans-tech/db';
 import {
   type ClientNotificationResponseDto,
   type CreateUrgentRequestDto,
   type SendAlertNotificationDto,
-  UrgentRequestNotificationMetadataDtoSchema,
   AdminNotificationResponse,
+  UrgentRequestNotificationMetadataDto,
 } from '@titans-tech/shared/backend-dtos';
 import type { AlertNotificationTemplateData } from '../email/templates/alert-notification.template';
-import { SimpleErr } from 'src/errors/err';
 
 @Injectable()
 export class NotificationsService {
@@ -57,23 +51,14 @@ export class NotificationsService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
-    const parsedMetadata = UrgentRequestNotificationMetadataDtoSchema.safeParse(
-      {
-        machineId,
-        machineName: machine.name,
-        requestedByUserId: userId,
-        requestedByName: user.name,
-        notes: notes,
-      },
-    );
-
-    if (!parsedMetadata.success) {
-      throw SimpleErr(
-        'Failed to request urgent service',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    const metadata: UrgentRequestNotificationMetadataDto = {
+      type: AdminNotificationType.URGENT_SERVICE_REQUEST,
+      machineId,
+      machineName: machine.name,
+      requestedByUserId: userId,
+      requestedByName: user.name,
+      notes: notes,
+    };
 
     const admins = await this.prisma.sysAdmin.findMany({
       select: { id: true },
@@ -86,7 +71,7 @@ export class NotificationsService {
       data: {
         type: NotificationType.URGENT_SERVICE_REQUEST,
         createdByUserId: userId,
-        metadata: parsedMetadata.data,
+        metadata,
         recipients: {
           createMany: {
             data: admins.map((admin) => ({

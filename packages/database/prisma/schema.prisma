@@ -1296,7 +1296,7 @@ model ClientNotification {
   isRead      Boolean          @default(false)
   redirectUrl String? // e.g., "/s/company-slug/machines/123?openServiceModal=true"
   type        NotificationType
-  metadata    Json? // Store additional contextual data
+  metadata    Json // Store additional contextual data
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
