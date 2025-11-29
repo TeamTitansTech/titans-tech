@@ -7,7 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
-import type { AdminNotificationResponseDto } from '@titans-tech/shared/backend-dtos';
+import type { AdminNotificationResponse } from '@titans-tech/shared/backend-dtos';
 
 @WebSocketGateway({
   cors: {
@@ -47,7 +47,7 @@ export class NotificationsGateway
    * Broadcast a new notification to all connected admins
    * This is called from the NotificationsService
    */
-  handleNewNotification(notification: AdminNotificationResponseDto) {
+  handleNewNotification(notification: AdminNotificationResponse) {
     const roomSize =
       this.server.sockets.adapter.rooms.get('admin-notifications')?.size || 0;
     this.logger.log(
@@ -57,20 +57,5 @@ export class NotificationsGateway
     this.server
       .to('admin-notifications')
       .emit('notification:new', notification);
-  }
-
-  broadcastStatsUpdate(stats: {
-    totalUnread: number;
-    urgentRequests: number;
-    reminders: number;
-    overdue: number;
-  }) {
-    const roomSize =
-      this.server.sockets.adapter.rooms.get('admin-notifications')?.size || 0;
-    this.logger.log(
-      `📊 Broadcasting stats update to ${roomSize} clients: ${stats.totalUnread} unread`,
-    );
-
-    this.server.to('admin-notifications').emit('notification:stats', stats);
   }
 }

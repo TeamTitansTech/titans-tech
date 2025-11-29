@@ -73,11 +73,6 @@ export function NotificationsSocketProvider({
       setUnreadCount((prev) => prev + 1);
     });
 
-    socketInstance.on('notification:stats', (stats: { totalUnread: number }) => {
-      console.log('[NotificationsSocket] 📊 Stats update received:', stats);
-      setUnreadCount(stats.totalUnread);
-    });
-
     socketInstance.on('connect_error', (error) => {
       console.error('[NotificationsSocket] ⚠️ Connection error:', error);
     });

@@ -1,4 +1,9 @@
+import { Prisma } from '@titans-tech/db';
 import { z } from 'zod';
+import {
+  SimpleSchemaToTestEnum,
+  UrgentRequestNotificationMetadataDto,
+} from './notifications/admin';
 
 export const NotificationTypeDtoSchema = z.enum([
   'URGENT_SERVICE_REQUEST',
@@ -43,6 +48,10 @@ export const NotificationStatsResponseDtoSchema = z.object({
   reminders: z.number(),
   overdue: z.number(),
 });
+
+export type AdminNotificationResponse = Prisma.AdminNotificationGetPayload<{}> & {
+  metatada: UrgentRequestNotificationMetadataDto | SimpleSchemaToTestEnum;
+};
 
 export type NotificationTypeDto = z.infer<typeof NotificationTypeDtoSchema>;
 export type AdminNotificationResponseDto = z.infer<typeof AdminNotificationResponseDtoSchema>;

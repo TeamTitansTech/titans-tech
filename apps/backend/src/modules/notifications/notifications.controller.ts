@@ -12,16 +12,13 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { Authenticated, CompanyManager } from '../auth/auth.decorators';
+import { Admin, Authenticated, CompanyManager } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import type { ReqWithAuthUser } from '../../types/request';
-import { isRegularUser } from '../../types/request';
 import {
   CreateUrgentRequestDto,
   CreateUrgentRequestDtoSchema,
-  AdminNotificationResponseDto,
   ClientNotificationResponseDto,
-  NotificationStatsResponseDto,
   SendAlertNotificationDto,
   SendAlertNotificationDtoSchema,
 } from '@titans-tech/shared/backend-dtos';
@@ -43,30 +40,20 @@ export class NotificationsController {
   }
 
   @Get('admin')
-  @CompanyManager()
+  @Admin()
   async getAdminNotifications(
     @Req() req: ReqWithAuthUser,
     @Query('limit') limit?: string,
     @Query('includeRead') includeRead?: string,
-  ): Promise<AdminNotificationResponseDto[]> {
-    const companyId = isRegularUser(req.user) ? req.user.companyId : null;
+  ) {
     const limitNum = limit ? parseInt(limit, 10) : 50;
     const includeReadBool = includeRead === 'true';
 
     return this.notificationsService.getAdminNotifications(
-      companyId,
+      req.user.id,
       limitNum,
       includeReadBool,
     );
-  }
-
-  @Get('admin/stats')
-  @CompanyManager()
-  async getAdminNotificationStats(
-    @Req() req: ReqWithAuthUser,
-  ): Promise<NotificationStatsResponseDto> {
-    const companyId = isRegularUser(req.user) ? req.user.companyId : null;
-    return this.notificationsService.getAdminNotificationStats(companyId);
   }
 
   @Get('client')
@@ -88,12 +75,16 @@ export class NotificationsController {
   }
 
   @Patch('admin/:id/read')
-  @CompanyManager()
+  @Admin()
   @HttpCode(HttpStatus.OK)
   async markAdminNotificationAsRead(
     @Param('id') id: string,
+    @Req() req: ReqWithAuthUser,
   ): Promise<{ success: boolean }> {
-    return this.notificationsService.markAdminNotificationAsRead(id);
+    return this.notificationsService.markAdminNotificationAsRead({
+      notificationId: id,
+      userId: req.user.id,
+    });
   }
 
   @Patch('client/:id/read')
@@ -111,8 +102,9 @@ export class NotificationsController {
   async markAllAdminNotificationsAsRead(
     @Req() req: ReqWithAuthUser,
   ): Promise<{ success: boolean; count: number }> {
-    const companyId = isRegularUser(req.user) ? req.user.companyId : null;
-    return this.notificationsService.markAllAdminNotificationsAsRead(companyId);
+    return this.notificationsService.markAllAdminNotificationsAsRead(
+      req.user.id,
+    );
   }
 
   @Patch('client/read-all')

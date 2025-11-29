@@ -4,7 +4,6 @@ import type {
   CreateUrgentRequestDto,
   AdminNotificationResponseDto,
   ClientNotificationResponseDto,
-  NotificationStatsResponseDto,
   SendAlertNotificationDto,
 } from '@titans-tech/shared/backend-dtos';
 
@@ -27,10 +26,6 @@ export const getAdminNotifications = async (limit?: number, includeRead?: boolea
   const url = `/notifications/admin${queryString ? `?${queryString}` : ''}`;
 
   return await responseHandler<AdminNotificationResponseDto[]>(url);
-};
-
-export const getAdminNotificationStats = async () => {
-  return await responseHandler<NotificationStatsResponseDto>('/notifications/admin/stats');
 };
 
 export const getClientNotifications = async (limit?: number, includeRead?: boolean) => {

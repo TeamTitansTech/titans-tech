@@ -1,17 +1,23 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
 import { EmailService } from '../email/email.service';
 import { NotificationsGateway } from './notifications.gateway';
 import { appEnv } from '../../config/env';
 import { NotificationType } from '@titans-tech/db';
-import type {
-  AdminNotificationResponseDto,
-  ClientNotificationResponseDto,
-  NotificationStatsResponseDto,
-  CreateUrgentRequestDto,
-  SendAlertNotificationDto,
+import {
+  type ClientNotificationResponseDto,
+  type CreateUrgentRequestDto,
+  type SendAlertNotificationDto,
+  UrgentRequestNotificationMetadataDtoSchema,
+  AdminNotificationResponse,
 } from '@titans-tech/shared/backend-dtos';
 import type { AlertNotificationTemplateData } from '../email/templates/alert-notification.template';
+import { SimpleErr } from 'src/errors/err';
 
 @Injectable()
 export class NotificationsService {
@@ -52,16 +58,31 @@ export class NotificationsService {
       throw new NotFoundException('User not found');
     }
 
+    const parsedMetadata = UrgentRequestNotificationMetadataDtoSchema.safeParse(
+      {
+        machineId,
+        machineName: machine.name,
+        requestedByUserId: userId,
+        requestedByName: user.name,
+        notes: notes,
+      },
+    );
+
+    if (!parsedMetadata.success) {
+      throw SimpleErr(
+        'Failed to request urgent service',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
     const notification = await this.prisma.adminNotification.create({
       data: {
-        machineId,
-        message: `Urgent service request from ${user.name || user.email} for machine "${machine.name}"`,
         type: NotificationType.URGENT_SERVICE_REQUEST,
         createdByUserId: userId,
-        metadata: {
-          notes: notes || '',
-          companyId: machine.branch.companyId,
-          branchId: machine.branchId,
+        metadata: parsedMetadata.data,
+        targets: {
+          connect: await this.prisma.sysAdmin.findMany({
+            select: { id: true },
+          }),
         },
       },
     });
@@ -70,29 +91,13 @@ export class NotificationsService {
       `Created urgent request notification ${notification.id} for machine ${machineId}`,
     );
 
-    const notificationDto: AdminNotificationResponseDto = {
-      id: notification.id,
-      machineId: notification.machineId,
-      machineName: machine.name,
-      message: notification.message,
-      isRead: notification.isRead,
-      type: notification.type as any,
-      createdByUserId: notification.createdByUserId,
-      createdByName: user.name || user.email,
-      createdByEmail: user.email,
-      metadata: notification.metadata as Record<string, any> | null,
-      createdAt: notification.createdAt.toISOString(),
-      updatedAt: notification.updatedAt.toISOString(),
+    const notificationDto: AdminNotificationResponse = {
+      ...notification,
+      metatada: notification.metadata as AdminNotificationResponse['metatada'],
     };
 
     // Broadcast notification to all connected admins via WebSocket
     this.notificationsGateway.handleNewNotification(notificationDto);
-
-    // Get updated stats and broadcast them
-    const stats = await this.getAdminNotificationStats(
-      machine.branch.companyId,
-    );
-    this.notificationsGateway.broadcastStatsUpdate(stats);
 
     const adminEmails = 'tedewa3616@feralrex.com';
     const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${machineId}?openServiceModal=true`;
@@ -126,36 +131,26 @@ export class NotificationsService {
   }
 
   async getAdminNotifications(
-    companyId: string | null,
+    userId: string,
     limit: number = 50,
     includeRead: boolean = false,
-  ): Promise<AdminNotificationResponseDto[]> {
-    const where = {
-      ...(companyId
-        ? {
-            machine: {
-              branch: {
-                companyId,
-              },
-            },
-          }
-        : {}),
-      ...(includeRead ? {} : { isRead: false }),
-    };
-
+  ) {
     const notifications = await this.prisma.adminNotification.findMany({
-      where,
-      include: {
-        machine: {
-          include: {
-            branch: {
-              include: {
-                company: true,
-              },
+      where: {
+        targets: {
+          some: {
+            id: {
+              equals: userId,
             },
           },
         },
-        createdBy: true,
+        ...(includeRead
+          ? {}
+          : {
+              readBy: {
+                none: { id: userId },
+              },
+            }),
       },
       orderBy: {
         createdAt: 'desc',
@@ -163,69 +158,7 @@ export class NotificationsService {
       take: limit,
     });
 
-    return notifications.map((notification) => ({
-      id: notification.id,
-      machineId: notification.machineId,
-      machineName: notification.machine.name,
-      message: notification.message,
-      isRead: notification.isRead,
-      type: notification.type as any,
-      createdByUserId: notification.createdByUserId,
-      createdByName:
-        notification.createdBy.name || notification.createdBy.email,
-      createdByEmail: notification.createdBy.email,
-      metadata: notification.metadata as Record<string, any> | null,
-      createdAt: notification.createdAt.toISOString(),
-      updatedAt: notification.updatedAt.toISOString(),
-    }));
-  }
-
-  async getAdminNotificationStats(
-    companyId: string | null,
-  ): Promise<NotificationStatsResponseDto> {
-    const companyFilter = companyId
-      ? { machine: { branch: { companyId } } }
-      : {};
-    const userCompanyFilter = companyId ? { user: { companyId } } : {};
-
-    const [totalUnread, urgentRequests, reminders, overdue] = await Promise.all(
-      [
-        this.prisma.adminNotification.count({
-          where: {
-            ...companyFilter,
-            isRead: false,
-          },
-        }),
-        this.prisma.adminNotification.count({
-          where: {
-            ...companyFilter,
-            isRead: false,
-            type: NotificationType.URGENT_SERVICE_REQUEST,
-          },
-        }),
-        this.prisma.clientNotification.count({
-          where: {
-            ...userCompanyFilter,
-            isRead: false,
-            type: NotificationType.SERVICE_REMINDER,
-          },
-        }),
-        this.prisma.clientNotification.count({
-          where: {
-            ...userCompanyFilter,
-            isRead: false,
-            type: NotificationType.SERVICE_OVERDUE,
-          },
-        }),
-      ],
-    );
-
-    return {
-      totalUnread,
-      urgentRequests,
-      reminders,
-      overdue,
-    };
+    return notifications;
   }
 
   async getClientNotifications(
@@ -262,12 +195,13 @@ export class NotificationsService {
     }));
   }
 
-  async markAdminNotificationAsRead(
-    notificationId: string,
-  ): Promise<{ success: boolean }> {
+  async markAdminNotificationAsRead(args: {
+    notificationId: string;
+    userId: string;
+  }): Promise<{ success: boolean }> {
     await this.prisma.adminNotification.update({
-      where: { id: notificationId },
-      data: { isRead: true },
+      where: { id: args.notificationId },
+      data: { readBy: { connect: { id: args.userId } } },
     });
 
     return { success: true };
@@ -285,25 +219,24 @@ export class NotificationsService {
   }
 
   async markAllAdminNotificationsAsRead(
-    companyId: string | null,
+    userId: string,
   ): Promise<{ success: boolean; count: number }> {
-    const where = {
-      ...(companyId
-        ? {
-            machine: {
-              branch: {
-                companyId,
-              },
-            },
-          }
-        : {}),
-      isRead: false,
-    };
-
     const result = await this.prisma.adminNotification.updateMany({
-      where,
+      where: {
+        targets: {
+          some: {
+            id: userId,
+          },
+        },
+        readBy: {
+          none: { id: userId },
+        },
+      },
       data: {
-        isRead: true,
+        // @ts-ignore
+        readBy: {
+          connect: { id: userId },
+        },
       },
     });
 

@@ -66,7 +66,9 @@ export class SysAdminService {
     // Buscar quantidade de notificações não lidas (AdminNotification para sysadmin)
     const unreadNotifications = await this.prisma.adminNotification.count({
       where: {
-        isRead: false,
+        readBy: {
+          none: { id: userId },
+        },
       },
     });
 
