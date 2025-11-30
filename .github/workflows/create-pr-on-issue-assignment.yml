@@ -16,8 +16,8 @@ jobs:
 
       - name: Set up Git
         run: |
-          git config --global user.name {{ secrets.CLI_GITHUB_GIT_NAME }}
-          git config --global user.email {{ secrets.CLI_GITHUB_GIT_EMAIL }}
+          git config --global user.name ${{ secrets.CLI_GITHUB_GIT_NAME }}
+          git config --global user.email ${{ secrets.CLI_GITHUB_GIT_EMAIL }}
 
       - name: Get Issue Details
         id: issue
