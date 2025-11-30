@@ -106,7 +106,7 @@ export function CompanyInfoSection() {
             </div>
           </div>
           {company.isActive && (
-            <Badge className="ml-2 bg-green-100 text-green-800 hover:bg-green-100">
+            <Badge className="ml-2 bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-900/30 dark:text-green-400">
               {t('active')}
             </Badge>
           )}
@@ -166,8 +166,8 @@ export function CompanyInfoSection() {
         {companyAdmin && (
           <div className="pt-4 border-t">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100">
-                <Lock className="h-5 w-5 text-purple-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-100 dark:bg-purple-900/30">
+                <Lock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
@@ -178,7 +178,7 @@ export function CompanyInfoSection() {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Lock className="h-3.5 w-3.5 text-gray-400 cursor-help" />
+                        <Lock className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
                       <TooltipContent side="right" className="max-w-xs">
                         <p className="text-xs">
@@ -200,8 +200,8 @@ export function CompanyInfoSection() {
         {companyManagers.length > 0 && (
           <div className="pt-4 border-t">
             <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100">
-                <Shield className="h-5 w-5 text-blue-600" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-2">
@@ -221,9 +221,9 @@ export function CompanyInfoSection() {
                     return (
                       <div
                         key={manager.id}
-                        className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-200"
+                        className="flex items-center gap-2 p-2 rounded-lg bg-muted border border-border"
                       >
-                        <User className="h-4 w-4 text-gray-500" />
+                        <User className="h-4 w-4 text-muted-foreground" />
                         <div className="flex-1">
                           <p className="text-sm font-medium">{manager.name || t('unknownUser')}</p>
                           <p className="text-xs text-muted-foreground">{manager.email}</p>

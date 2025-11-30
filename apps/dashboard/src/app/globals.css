@@ -68,26 +68,26 @@
 }
 
 .dark {
-  --background: 222 47% 11%; /* Dark navy background */
-  --foreground: 210 20% 98%;
+  --background: 0 0% 7%; /* Neutral dark background */
+  --foreground: 0 0% 95%;
 
-  --card: 217 33% 17%; /* Slightly lighter than background */
-  --card-foreground: 210 20% 98%;
+  --card: 0 0% 10%; /* Slightly lighter than background */
+  --card-foreground: 0 0% 95%;
 
-  --popover: 217 33% 17%;
-  --popover-foreground: 210 20% 98%;
+  --popover: 0 0% 10%;
+  --popover-foreground: 0 0% 95%;
 
   /* Industrial blue - primary brand (brighter in dark) */
   --primary: 215 80% 50%;
   --primary-foreground: 0 0% 98%;
 
-  /* Steel gray - secondary */
-  --secondary: 217 25% 23%;
+  /* Neutral gray - secondary */
+  --secondary: 0 0% 15%;
   --secondary-foreground: 0 0% 98%;
 
   /* Muted backgrounds */
-  --muted: 217 25% 20%;
-  --muted-foreground: 215 20% 70%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 65%;
 
   /* Safety orange - accent for actions */
   --accent: 24 95% 53%; /* rgb(249, 116, 21) */
@@ -104,8 +104,8 @@
   --warning: 38 92% 50%;
   --warning-foreground: 0 0% 10%;
 
-  --border: 217 25% 25%;
-  --input: 217 25% 25%;
+  --border: 0 0% 18%;
+  --input: 0 0% 18%;
   --ring: 24 95% 53%; /* Orange ring */
 
   --radius: 0.5rem;
@@ -113,15 +113,15 @@
   /* Action orange - for interactive hovers */
   --action-orange: 24 95% 53%; /* rgb(249, 116, 21) */
 
-  /* Sidebar - darker in dark mode */
-  --sidebar: 222 47% 8%; /* Darker than background */
-  --sidebar-background: 222 47% 8%;
-  --sidebar-foreground: 215 20% 90%;
+  /* Sidebar - neutral dark in dark mode */
+  --sidebar: 0 0% 5%; /* Very dark neutral */
+  --sidebar-background: 0 0% 5%;
+  --sidebar-foreground: 0 0% 90%;
   --sidebar-primary: 24 95% 53%; /* Orange for active state */
   --sidebar-primary-foreground: 0 0% 98%;
-  --sidebar-accent: 217 25% 15%;
+  --sidebar-accent: 0 0% 12%;
   --sidebar-accent-foreground: 0 0% 98%;
-  --sidebar-border: 217 20% 20%;
+  --sidebar-border: 0 0% 15%;
   --sidebar-ring: 24 95% 53%; /* Orange ring */
 
   /* Chart colors (brighter in dark mode) */
@@ -129,7 +129,7 @@
   --chart-2: 142 70% 50%;  /* Secondary line */
   --chart-3: 38 92% 55%;   /* Tertiary line */
   --chart-4: 0 72% 55%;    /* Quaternary line */
-  --chart-5: 217 25% 60%;  /* Quinary line */
+  --chart-5: 0 0% 60%;  /* Quinary line */
 }
 
 * {

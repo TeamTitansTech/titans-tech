@@ -11,7 +11,9 @@ export interface Company {
   slug: string;
   name: string;
   logo?: string | null;
+  loginLogo?: string | null;
   brandColor?: string | null;
+  accentColor?: string | null;
   description?: string | null;
   address?: string | null;
   phone?: string | null;
@@ -39,6 +41,7 @@ export const getCompany = async (args: { companyId: string }) => {
 export const getCompanyPublicInfo = async (args: { companySlug: string }) => {
   return await responseHandler<Company>(`/companies/public/${args.companySlug}`, {
     method: 'GET',
+    cache: 'no-store', // Always fetch fresh theme colors
   });
 };
 

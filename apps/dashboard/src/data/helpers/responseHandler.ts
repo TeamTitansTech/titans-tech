@@ -17,6 +17,7 @@ export async function responseHandler<T>(
     body?: unknown;
     headers?: Record<string, string>;
     tags?: string[];
+    cache?: RequestCache;
   },
 ): Promise<
   | { data: T; errors: null; rawErrors: null; status: number }
@@ -24,7 +25,13 @@ export async function responseHandler<T>(
 > {
   try {
     const token = await getCookie('auth_token');
-    const { body: requestBody, headers: customHeaders, method = 'GET', tags } = options || {};
+    const {
+      body: requestBody,
+      headers: customHeaders,
+      method = 'GET',
+      tags,
+      cache,
+    } = options || {};
 
     const headers: Record<string, string> = {
       ...customHeaders,
@@ -45,6 +52,7 @@ export async function responseHandler<T>(
       headers,
       body: requestBody ? JSON.stringify(requestBody) : undefined,
       next: tags ? { tags } : undefined,
+      cache,
     });
 
     if (!response.ok) {
