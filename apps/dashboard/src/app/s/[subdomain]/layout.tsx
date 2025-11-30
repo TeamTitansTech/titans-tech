@@ -11,17 +11,12 @@ interface DashboardLayoutProps {
 export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
   const { subdomain } = await params;
 
-  // Fetch company info server-side to prevent color flickering
+  // Fetch company info server-side to prevent color flickering and provide logo
   const companyResult = await getCompanyPublicInfo({ companySlug: subdomain });
-  const initialColors = companyResult.data
-    ? {
-        brandColor: companyResult.data.brandColor || undefined,
-        accentColor: companyResult.data.accentColor || undefined,
-      }
-    : undefined;
+  const initialCompanyInfo = companyResult.data || null;
 
   return (
-    <ThemeProvider subdomain={subdomain} initialColors={initialColors}>
+    <ThemeProvider subdomain={subdomain} initialCompanyInfo={initialCompanyInfo}>
       <AppLayout>{children}</AppLayout>
     </ThemeProvider>
   );

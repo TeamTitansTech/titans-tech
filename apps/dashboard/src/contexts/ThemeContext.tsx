@@ -235,6 +235,8 @@ function clearThemeColors() {
   document.documentElement.style.removeProperty('--sidebar-ring');
 }
 
+type CompanyInfo = NonNullable<ThemeContextType['companyInfo']>;
+
 interface ThemeProviderProps {
   children: ReactNode;
   subdomain: string;
@@ -242,6 +244,7 @@ interface ThemeProviderProps {
     brandColor?: string;
     accentColor?: string;
   };
+  initialCompanyInfo?: CompanyInfo | null;
 }
 
 /**
@@ -283,28 +286,49 @@ function generateInitialCSS(brandColor?: string, accentColor?: string): string {
   return `:root { ${cssVars.join('; ')} }`;
 }
 
-export function ThemeProvider({ children, subdomain, initialColors }: ThemeProviderProps) {
-  const [companyInfo, setCompanyInfo] = useState<ThemeContextType['companyInfo']>(null);
-  const [isLoading, setIsLoading] = useState(!initialColors);
+export function ThemeProvider({
+  children,
+  subdomain,
+  initialColors,
+  initialCompanyInfo,
+}: ThemeProviderProps) {
+  const [companyInfo, setCompanyInfo] = useState<ThemeContextType['companyInfo']>(
+    initialCompanyInfo || null,
+  );
+  const [isLoading, setIsLoading] = useState(!initialColors && !initialCompanyInfo);
   const { resolvedTheme } = useNextTheme();
-  const colorsRef = useRef<{ brandColor?: string; accentColor?: string }>(initialColors || {});
+  const colorsRef = useRef<{ brandColor?: string; accentColor?: string }>(
+    initialColors || {
+      brandColor: initialCompanyInfo?.brandColor || undefined,
+      accentColor: initialCompanyInfo?.accentColor || undefined,
+    },
+  );
 
   const isDark = resolvedTheme === 'dark';
 
   // Generate initial CSS for server-side rendering
-  const initialCSS = generateInitialCSS(initialColors?.brandColor, initialColors?.accentColor);
+  const initialCSS = generateInitialCSS(
+    initialColors?.brandColor || initialCompanyInfo?.brandColor || undefined,
+    initialColors?.accentColor || initialCompanyInfo?.accentColor || undefined,
+  );
 
   // Apply colors on mount and when initial colors are provided
   useEffect(() => {
     if (initialColors?.brandColor || initialColors?.accentColor) {
       applyThemeColors(initialColors.brandColor, initialColors.accentColor, isDark);
+    } else if (initialCompanyInfo?.brandColor || initialCompanyInfo?.accentColor) {
+      applyThemeColors(
+        initialCompanyInfo.brandColor || undefined,
+        initialCompanyInfo.accentColor || undefined,
+        isDark,
+      );
     }
-  }, [initialColors, isDark]);
+  }, [initialColors, initialCompanyInfo, isDark]);
 
-  // Fetch company theme on mount (only if no initial colors provided)
+  // Fetch company theme on mount (only if no initial data provided)
   useEffect(() => {
     async function fetchCompanyTheme() {
-      if (!subdomain || initialColors) {
+      if (!subdomain || initialColors || initialCompanyInfo) {
         setIsLoading(false);
         return;
       }
@@ -342,7 +366,7 @@ export function ThemeProvider({ children, subdomain, initialColors }: ThemeProvi
     return () => {
       clearThemeColors();
     };
-  }, [subdomain, isDark, initialColors]);
+  }, [subdomain, isDark, initialColors, initialCompanyInfo]);
 
   // Re-apply colors when dark/light mode changes
   useEffect(() => {
