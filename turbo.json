@@ -23,6 +23,12 @@
     },
     "db:push": {
       "cache": false
+    },
+    "db:format:check": {
+      "cache": false
+    },
+    "db:validate": {
+      "cache": false
     }
   }
 }
