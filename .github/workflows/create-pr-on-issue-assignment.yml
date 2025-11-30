@@ -18,7 +18,7 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://oauth2:${{ secrets.CLI_GITHUB_TOKEN }}@github.com/TeamTitansTech/titans-tech.git
+          git remote set-url origin https://RubensRafael:${{ secrets.CLI_GITHUB_TOKEN }}@github.com/TeamTitansTech/titans-tech.git
 
       - name: Get Issue Details
         id: issue
