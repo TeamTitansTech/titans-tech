@@ -31,6 +31,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -39,6 +40,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { sysAdminUser } = useSysAdmin();
   const { companyUser } = useCompanyUser();
   const { companyInfo } = useTheme();
+  const { setOpenMobile, isMobile } = useSidebar();
+
+  // Close sidebar on mobile when navigating
+  const handleLinkClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   // Check if we're on an admin route or if sysAdminUser is set
   const isAdmin = pathname.startsWith('/admin') || !!sysAdminUser;
@@ -234,7 +243,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         : 'text-white hover:bg-accent/20 hover:text-accent border-l-4 border-transparent hover:border-accent/50 rounded-l-none font-medium transition-all duration-200'
                     }
                   >
-                    <Link href={item.url} className="flex items-center gap-4 px-4 py-3.5">
+                    <Link
+                      href={item.url}
+                      onClick={handleLinkClick}
+                      className="flex items-center gap-4 px-4 py-3.5"
+                    >
                       <item.icon className="size-5 shrink-0" />
                       <span className="text-sm">{item.title}</span>
                     </Link>
@@ -261,7 +274,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         : 'text-white hover:bg-accent/20 hover:text-accent border-l-4 border-transparent hover:border-accent/50 rounded-l-none font-medium transition-all duration-200'
                     }
                   >
-                    <Link href={item.url} className="flex items-center gap-4 px-4 py-3.5">
+                    <Link
+                      href={item.url}
+                      onClick={handleLinkClick}
+                      className="flex items-center gap-4 px-4 py-3.5"
+                    >
                       <item.icon className="size-5 shrink-0" />
                       <span className="text-sm">{item.title}</span>
                     </Link>
