@@ -34,7 +34,9 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:crown": "tsx prisma/seeds/crown/index.ts",
     "db:create-sys-admin": "tsx scripts/create-sys-admin.ts",
-    "db:create-test-user": "tsx scripts/create-test-user.ts"
+    "db:create-test-user": "tsx scripts/create-test-user.ts",
+    "db:format:check": "prisma format --check",
+    "db:validate": "prisma validate"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
