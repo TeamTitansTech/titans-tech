@@ -1,15 +1,8 @@
-import { deleteCookie, getCookie } from '@/lib/cookies';
+import { getCookie } from '@/lib/cookies';
 import { BackendErrorResponse, formatErrors } from './errorFormatter';
+import { redirect } from 'next/navigation';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
-
-/**
- * Handle authentication errors by clearing auth cookies.
- */
-async function handleAuthError() {
-  await deleteCookie('auth_token');
-  await deleteCookie('is_sys_panel');
-}
 
 export async function responseHandler<T>(
   path: string,
@@ -65,15 +58,9 @@ export async function responseHandler<T>(
         });
       }
 
-      // Handle 401 Unauthorized - Invalid or missing token
+      // Handle 401 Unauthorized - Redirect to logout
       if (response.status === 401) {
-        await handleAuthError();
-        return {
-          data: null,
-          errors: ['Session expired. Please log in again.'],
-          rawErrors: errorData,
-          status: response.status,
-        };
+        redirect('/logout');
       }
 
       // Format errors using the error formatter
