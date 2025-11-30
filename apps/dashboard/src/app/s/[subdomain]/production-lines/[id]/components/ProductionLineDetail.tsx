@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { ArrowLeft, Eye, Settings, Trash2 } from 'lucide-react';
-import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Typography } from '@/components/ui/typography';
 import { Button } from '@/components/ui/button';
@@ -48,9 +47,9 @@ export function ProductionLineDetail({
   return (
     <div className="space-y-6 p-8">
       <div className="flex items-center gap-6">
-        <Link href={'/production-lines'} className="shrink-0">
+        <button onClick={() => router.push('/production-lines')} className="shrink-0">
           <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
-        </Link>
+        </button>
         <div className="flex-1">
           <Typography variant="h2">{productionLine.name}</Typography>
           <Typography variant="muted" className="mt-1">

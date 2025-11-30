@@ -11,9 +11,10 @@ import { seedCrownServices } from './services';
 // Load environment variables from the database package .env file
 dotenv.config({ path: path.join(__dirname, '../../../.env') });
 
-const prisma = new PrismaClient();
-
-async function main() {
+/**
+ * Seed Crown company data - can be called from main seed or run standalone
+ */
+export async function seedCrown(prisma: PrismaClient) {
   console.log('========================================');
   console.log('🏭 Starting Crown seed data...');
   console.log('========================================\n');
@@ -49,11 +50,15 @@ async function main() {
   console.log('========================================\n');
 }
 
-main()
-  .catch((e) => {
-    console.error('❌ Crown seed failed:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+// Allow running as standalone script
+if (require.main === module) {
+  const prisma = new PrismaClient();
+  seedCrown(prisma)
+    .catch((e) => {
+      console.error('❌ Crown seed failed:', e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}

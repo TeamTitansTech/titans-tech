@@ -43,7 +43,7 @@ export function ClutchThresholds({ open, onOpenChange, data, onChange }: ClutchT
   return (
     <Collapsible open={open} onOpenChange={onOpenChange}>
       <CollapsibleTrigger className="w-full">
-        <div className="border rounded-lg p-4 bg-white hover:bg-slate-50 transition-colors flex items-center justify-between">
+        <div className="border rounded-lg p-4 bg-card hover:bg-muted transition-colors flex items-center justify-between">
           <h3 className="text-base font-semibold">{t('title')}</h3>
           <ChevronDown
             className={`h-5 w-5 transition-transform ${open ? 'transform rotate-180' : ''}`}
@@ -51,7 +51,7 @@ export function ClutchThresholds({ open, onOpenChange, data, onChange }: ClutchT
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-white space-y-6">
+        <div className="border border-t-0 rounded-b-lg p-6 bg-card space-y-6">
           <ThresholdRangeInput
             label={t('hydClutchClearanceTotal')}
             greenMin={data.hydClutchClearanceTotal_greenMin}

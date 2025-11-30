@@ -101,16 +101,16 @@ export function DeleteUserDialog({
 
         <div className="space-y-4 py-4">
           {/* Warning */}
-          <div className="rounded-lg bg-red-50 p-3 border border-red-200">
-            <p className="text-sm font-medium text-red-800">{t('warning')}</p>
+          <div className="rounded-lg bg-destructive/10 p-3 border border-destructive/20">
+            <p className="text-sm font-medium text-destructive">{t('warning')}</p>
           </div>
 
           {/* User Info */}
           <div className="space-y-2">
-            <p className="text-sm font-medium text-gray-700">{t('userInfo')}</p>
-            <div className="rounded-lg bg-gray-50 p-3 border border-gray-200">
-              <p className="text-sm font-semibold text-gray-900">{user.name}</p>
-              <p className="text-xs text-gray-600">{user.email}</p>
+            <p className="text-sm font-medium text-foreground">{t('userInfo')}</p>
+            <div className="rounded-lg bg-muted p-3 border border-border">
+              <p className="text-sm font-semibold text-foreground">{user.name}</p>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
             </div>
           </div>
 
@@ -131,13 +131,17 @@ export function DeleteUserDialog({
                 <SelectItem value="branch">
                   <div className="space-y-0.5">
                     <div className="font-medium">{t('scopeOptions.branch')}</div>
-                    <div className="text-xs text-gray-500">{t('scopeDescriptions.branch')}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('scopeDescriptions.branch')}
+                    </div>
                   </div>
                 </SelectItem>
                 <SelectItem value="company">
                   <div className="space-y-0.5">
                     <div className="font-medium">{t('scopeOptions.company')}</div>
-                    <div className="text-xs text-gray-500">{t('scopeDescriptions.company')}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t('scopeDescriptions.company')}
+                    </div>
                   </div>
                 </SelectItem>
               </SelectContent>

@@ -22,22 +22,22 @@ export function ServiceStatsCards({
       label: t('totalServices'),
       value: totalServices,
       icon: Calendar,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      color: 'text-blue-600 dark:text-blue-400',
+      bgColor: 'bg-blue-100 dark:bg-blue-900/30',
     },
     {
       label: t('upcomingServices'),
       value: upcomingServices,
       icon: Clock,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100',
+      color: 'text-orange-600 dark:text-orange-400',
+      bgColor: 'bg-orange-100 dark:bg-orange-900/30',
     },
     {
       label: t('completedThisMonth'),
       value: completedThisMonth,
       icon: CheckCircle2,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100',
+      color: 'text-green-600 dark:text-green-400',
+      bgColor: 'bg-green-100 dark:bg-green-900/30',
     },
   ];
 
@@ -53,7 +53,7 @@ export function ServiceStatsCards({
                   <Icon className={`h-6 w-6 ${stat.color}`} />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">{stat.label}</p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
                   <p className="text-2xl font-bold">{stat.value}</p>
                 </div>
               </div>

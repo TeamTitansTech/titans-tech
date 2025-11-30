@@ -66,7 +66,9 @@
     "invalidHexColor": "Must be a valid hex color",
     "branchNameRequired": "Branch name is required",
     "fullNameRequired": "Full name is required",
-    "invalidEmail": "Invalid email address"
+    "invalidEmail": "Invalid email address",
+    "invalidImageType": "Only JPG and PNG images are allowed",
+    "fileTooLarge": "File size exceeds 10MB limit"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -159,6 +161,20 @@
       "lastUpdated": "Last Updated",
       "branches": "Branches",
       "subdomain": "Subdomain"
+    },
+    "brandColor": {
+      "title": "Theme Colors",
+      "description": "Customize your company's color theme",
+      "primaryColor": "Primary Color",
+      "primaryColorDescription": "Main color used for buttons, links, and highlights",
+      "accentColor": "Accent Color",
+      "accentColorDescription": "Secondary color used for hover states and actions",
+      "reset": "Reset",
+      "save": "Save",
+      "saving": "Saving...",
+      "success": "Theme colors updated successfully",
+      "error": "Failed to update theme colors",
+      "previewNote": "Preview is active. Click Save to apply changes."
     },
     "branches": {
       "title": "Branches",
@@ -437,12 +453,20 @@
           "placeholder": "e.g., acme-manufacturing"
         },
         "logo": {
-          "label": "Logo URL (Optional)",
-          "placeholder": "e.g., https://example.com/logo.png"
+          "label": "Logo (Optional)",
+          "placeholder": "e.g., https://example.com/logo.png",
+          "uploadHint": "Click to upload logo (JPG or PNG)",
+          "uploading": "Uploading...",
+          "uploadSuccess": "Logo uploaded successfully",
+          "uploadError": "Failed to upload logo"
         },
         "brandColor": {
-          "label": "Brand Color (Optional)",
-          "placeholder": "#FF5733"
+          "label": "Primary Color (Optional)",
+          "placeholder": "#1e3a5f"
+        },
+        "accentColor": {
+          "label": "Accent Color (Optional)",
+          "placeholder": "#f97415"
         },
         "description": {
           "label": "Description (Optional)",
@@ -461,6 +485,26 @@
     "companyCard": {
       "administrator": "Administrator",
       "unknownUser": "Unknown"
+    },
+    "companyColors": {
+      "title": "Company Theme Colors",
+      "description": "Customize the brand colors for each company's subdomain",
+      "selectCompany": "Select Company",
+      "selectCompanyPlaceholder": "Choose a company to customize",
+      "brandColor": "Primary Color",
+      "brandColorDescription": "Main color used for buttons, links, and highlights",
+      "accentColor": "Accent Color",
+      "accentColorDescription": "Secondary color used for hover states and actions",
+      "preview": "Preview",
+      "previewPrimary": "Primary Button",
+      "previewOutline": "Outline Button",
+      "previewAccent": "Accent Button",
+      "previewHighlight": "Highlight",
+      "reset": "Reset",
+      "save": "Save Colors",
+      "saving": "Saving...",
+      "success": "Company colors updated successfully",
+      "error": "Failed to update company colors"
     },
     "userManagement": {
       "title": "User Accounts",

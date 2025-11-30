@@ -160,6 +160,20 @@
       "branches": "Sucursales",
       "subdomain": "Subdominio"
     },
+    "brandColor": {
+      "title": "Colores del Tema",
+      "description": "Personaliza los colores del tema de tu empresa",
+      "primaryColor": "Color Primario",
+      "primaryColorDescription": "Color principal usado en botones, enlaces y destacados",
+      "accentColor": "Color de Acento",
+      "accentColorDescription": "Color secundario usado en estados hover y acciones",
+      "reset": "Restablecer",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "success": "Colores del tema actualizados correctamente",
+      "error": "Error al actualizar los colores del tema",
+      "previewNote": "Vista previa activa. Haz clic en Guardar para aplicar los cambios."
+    },
     "branches": {
       "title": "Sucursales",
       "loading": "Cargando sucursales...",
@@ -441,8 +455,12 @@
           "placeholder": "ej., https://ejemplo.com/logo.png"
         },
         "brandColor": {
-          "label": "Color de Marca (Opcional)",
-          "placeholder": "#FF5733"
+          "label": "Color Primario (Opcional)",
+          "placeholder": "#1e3a5f"
+        },
+        "accentColor": {
+          "label": "Color de Acento (Opcional)",
+          "placeholder": "#f97415"
         },
         "description": {
           "label": "Descripción (Opcional)",
@@ -461,6 +479,26 @@
     "companyCard": {
       "administrator": "Administrador",
       "unknownUser": "Desconocido"
+    },
+    "companyColors": {
+      "title": "Colores del Tema de la Empresa",
+      "description": "Personaliza los colores de marca para el subdominio de cada empresa",
+      "selectCompany": "Seleccionar Empresa",
+      "selectCompanyPlaceholder": "Elige una empresa para personalizar",
+      "brandColor": "Color Primario",
+      "brandColorDescription": "Color principal usado en botones, enlaces y destacados",
+      "accentColor": "Color de Acento",
+      "accentColorDescription": "Color secundario usado en estados hover y acciones",
+      "preview": "Vista Previa",
+      "previewPrimary": "Botón Primario",
+      "previewOutline": "Botón Outline",
+      "previewAccent": "Botón Acento",
+      "previewHighlight": "Resaltado",
+      "reset": "Restablecer",
+      "save": "Guardar Colores",
+      "saving": "Guardando...",
+      "success": "Colores de la empresa actualizados correctamente",
+      "error": "Error al actualizar los colores de la empresa"
     },
     "userManagement": {
       "title": "Cuentas de Usuario",

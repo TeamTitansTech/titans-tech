@@ -3,6 +3,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { MachineCard } from './MachineCard';
+import { MachineCardSkeleton } from './MachineCardSkeleton';
+import { BrandedSkeleton } from '@/components/ui/branded-skeleton';
 import { MachineCreationModal } from './MachineCreationModal';
 import { MachineEditModal } from './MachineEditModal';
 import { Button } from '@/components/ui/button';
@@ -340,9 +342,13 @@ export function MachinesPageClient() {
         </div>
 
         {isLoading ? (
-          <div className="text-center py-12">
-            <Typography variant="muted">Loading machines...</Typography>
-          </div>
+          <BrandedSkeleton>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <MachineCardSkeleton key={i} />
+              ))}
+            </div>
+          </BrandedSkeleton>
         ) : error ? (
           errorStatus === 403 ? (
             <NoPermission />
