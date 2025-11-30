@@ -62,7 +62,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
         <div className="space-y-6 py-4">
           <section className="space-y-4">
             <div className="flex items-center gap-2">
-              <Languages className="h-5 w-5 text-orange-500" />
+              <Languages className="h-5 w-5 text-accent" />
               <h3 className="text-lg font-semibold">{t('language.title')}</h3>
             </div>
             <div className="space-y-2">
@@ -99,7 +99,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
             variant="outline"
             onClick={onClose}
             disabled={isPending}
-            className="hover:bg-orange-100 hover:text-orange-500 hover:border-orange-500"
+            className="hover:bg-accent/10 hover:text-accent hover:border-accent"
           >
             {t('close')}
           </Button>
@@ -107,7 +107,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         {isPending && (
           <div className="absolute inset-0 bg-background/50 backdrop-blur-sm flex items-center justify-center rounded-lg">
-            <div className="flex items-center gap-2 text-orange-500">
+            <div className="flex items-center gap-2 text-accent">
               <Loader2 className="h-6 w-6 animate-spin" />
               <span className="text-sm font-medium">{t('applying')}</span>
             </div>

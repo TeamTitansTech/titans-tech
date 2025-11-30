@@ -14,6 +14,7 @@ import {
 import { CompanyCard } from './CompanyCard';
 import { BranchesSection } from './BranchesSection';
 import { BranchUserManagement } from './BranchUserManagement';
+import { CompanyColorsSection } from './CompanyColorsSection';
 import { type Company } from '@/data/services/companies.api';
 import { useState } from 'react';
 import { CompanyCreationModal } from './CompanyCreationModal';
@@ -73,6 +74,8 @@ export function CompanyManagementSection({
           </div>
 
           {selectedCompany && <CompanyCard company={selectedCompany} />}
+
+          <CompanyColorsSection selectedCompany={selectedCompany} />
 
           {selectedCompanyId && (
             <BranchesSection

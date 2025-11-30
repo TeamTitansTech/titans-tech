@@ -90,17 +90,17 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-6">
-        <Card>
-          <CardContent className="p-0">
-            <div className="aspect-[3/4] bg-muted flex items-center justify-center relative">
+      <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[350px_1fr] gap-6">
+        <Card className="bg-muted h-full">
+          <CardContent className="p-0 h-full">
+            <div className="relative aspect-[16/9] md:aspect-auto md:h-full md:min-h-[300px] bg-muted flex items-center justify-center">
               {machine.imageUrl ? (
                 <Image
                   src={machine.imageUrl}
                   alt={machine.name}
                   fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 400px"
+                  className="object-contain"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 280px, 350px"
                 />
               ) : (
                 <div className="text-center p-6">
