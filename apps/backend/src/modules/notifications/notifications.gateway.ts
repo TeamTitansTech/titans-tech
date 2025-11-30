@@ -47,11 +47,11 @@ export class NotificationsGateway
    * Broadcast a new notification to all connected admins
    * This is called from the NotificationsService
    */
-  handleNewNotification(notification: AdminNotificationResponse) {
+  handleNewNotification(notification: AdminNotificationResponse[]) {
     const roomSize =
       this.server.sockets.adapter.rooms.get('admin-notifications')?.size || 0;
     this.logger.log(
-      `📤 Broadcasting notification ${notification.id} to ${roomSize} clients`,
+      `📤 Broadcasting notification ${notification.map((n) => n.notification.id).join(', ')} to ${roomSize} clients`,
     );
 
     this.server

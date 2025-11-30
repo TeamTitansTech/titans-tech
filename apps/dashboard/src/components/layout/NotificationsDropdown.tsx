@@ -14,11 +14,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import {
-  getAdminNotifications,
   markAdminNotificationAsRead,
   markAllAdminNotificationsAsRead,
 } from '@/data/services/notifications.api';
-import type { AdminNotificationResponseDto } from '@titans-tech/shared/backend-dtos';
+import type { AdminNotificationResponseWithMetadata } from '@titans-tech/shared/backend-dtos';
 import { Button } from '@/components/ui/button';
 import { useNotificationsSocket } from '@/contexts/NotificationsSocketContext';
 
@@ -33,45 +32,36 @@ export function NotificationsDropdown() {
     unreadCount,
     markAsRead: wsMarkAsRead,
     clearAll: wsClearAll,
-    addNotification,
+    loadInitialData,
   } = useNotificationsSocket();
-
-  const loadInitialData = async () => {
-    setIsLoading(true);
-    try {
-      const notificationsResult = await getAdminNotifications(10, false);
-
-      if (notificationsResult.data) {
-        notificationsResult.data.forEach((notification) => {
-          addNotification(notification);
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load initial notifications:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Load notifications when dropdown opens
   useEffect(() => {
-    if (isOpen && notifications.length === 0) {
-      loadInitialData();
+    if (isOpen) {
+      setIsLoading(true);
+      loadInitialData().finally(() => setIsLoading(false));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  const handleNotificationClick = async (notification: AdminNotificationResponseDto) => {
+  const handleNotificationClick = async (notification: AdminNotificationResponseWithMetadata) => {
     try {
-      await markAdminNotificationAsRead(notification.id);
+      await markAdminNotificationAsRead(notification.notificationId);
 
-      wsMarkAsRead(notification.id);
+      wsMarkAsRead(notification.notificationId);
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
     }
 
     setIsOpen(false);
-    router.push(`/admin/machines/${notification.machineId}`);
+    switch (notification.metadata?.type) {
+      case 'URGENT_SERVICE_REQUEST':
+        router.push(`/admin/machines/${notification.metadata.machineId}`);
+        break;
+      default:
+        console.warn('Unknown notification type:', notification.metadata?.type);
+        break;
+    }
   };
 
   const handleMarkAllAsRead = async () => {
@@ -129,7 +119,7 @@ export function NotificationsDropdown() {
           ) : (
             notifications.map((notification) => (
               <DropdownMenuItem
-                key={notification.id}
+                key={notification.notificationId}
                 onClick={() => handleNotificationClick(notification)}
                 className={`cursor-pointer p-4 focus:bg-orange-50 dark:focus:bg-orange-500/10 ${
                   !notification.isRead ? 'bg-orange-50/50 dark:bg-orange-500/5' : ''
@@ -137,13 +127,15 @@ export function NotificationsDropdown() {
               >
                 <div className="flex flex-col gap-1 w-full">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium leading-tight">{notification.machineName}</p>
+                    <p className="text-sm font-medium leading-tight">
+                      {notification.notification.metadata.machineName}
+                    </p>
                     {!notification.isRead && (
                       <span className="flex h-2 w-2 shrink-0 rounded-full bg-orange-500 mt-1" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground line-clamp-2">
-                    {notification.message}
+                    {notification.notification.type}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {new Date(notification.createdAt).toLocaleString()}

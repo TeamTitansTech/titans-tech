@@ -2,9 +2,9 @@
 import { responseHandler } from '@/data/helpers/responseHandler';
 import type {
   CreateUrgentRequestDto,
-  AdminNotificationResponseDto,
   ClientNotificationResponseDto,
   SendAlertNotificationDto,
+  AdminNotificationResponseWithMetadata,
 } from '@titans-tech/shared/backend-dtos';
 
 export const createUrgentRequest = async (data: CreateUrgentRequestDto) => {
@@ -25,7 +25,7 @@ export const getAdminNotifications = async (limit?: number, includeRead?: boolea
   const queryString = params.toString();
   const url = `/notifications/admin${queryString ? `?${queryString}` : ''}`;
 
-  return await responseHandler<AdminNotificationResponseDto[]>(url);
+  return await responseHandler<AdminNotificationResponseWithMetadata[]>(url);
 };
 
 export const getClientNotifications = async (limit?: number, includeRead?: boolean) => {

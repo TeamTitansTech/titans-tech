@@ -65,9 +65,6 @@ export class NotificationsService {
     });
 
     const notification = await this.prisma.adminNotification.create({
-      include: {
-        recipients: true,
-      },
       data: {
         type: NotificationType.URGENT_SERVICE_REQUEST,
         createdByUserId: userId,
@@ -86,7 +83,11 @@ export class NotificationsService {
       `Created urgent request notification ${notification.id} for machine ${machineId}`,
     );
 
-    this.notificationsGateway.handleNewNotification(notification);
+    const recipients = await this.prisma.adminNotificationRecipient.findMany({
+      include: { notification: true },
+      where: { notificationId: notification.id },
+    });
+    this.notificationsGateway.handleNewNotification(recipients);
 
     const adminEmails = 'tedewa3616@feralrex.com';
     const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${machineId}?openServiceModal=true`;
@@ -124,25 +125,21 @@ export class NotificationsService {
     limit: number = 50,
     includeRead: boolean = false,
   ): Promise<AdminNotificationResponse[]> {
-    const notifications = await this.prisma.adminNotification.findMany({
-      include: {
-        recipients: true,
-      },
+    return await this.prisma.adminNotificationRecipient.findMany({
       where: {
-        recipients: {
-          some: {
-            sysAdminId: userId,
-            isRead: includeRead ? undefined : false,
-          },
-        },
+        sysAdminId: userId,
+        ...(includeRead ? {} : { isRead: false }),
+      },
+      include: {
+        notification: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        notification: {
+          createdAt: 'desc',
+        },
       },
       take: limit,
     });
-
-    return notifications;
   }
 
   async getClientNotifications(

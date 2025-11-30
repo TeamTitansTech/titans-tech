@@ -49,12 +49,12 @@ export const NotificationStatsResponseDtoSchema = z.object({
   overdue: z.number(),
 });
 
-const adminNotificationInclude = {
-  recipients: true,
-} satisfies Prisma.AdminNotificationInclude;
+const adminNotificationRecipientInclude = {
+  notification: true,
+} satisfies Prisma.AdminNotificationRecipientInclude;
 
-export type AdminNotificationResponse = Prisma.AdminNotificationGetPayload<{
-  include: typeof adminNotificationInclude;
+export type AdminNotificationResponse = Prisma.AdminNotificationRecipientGetPayload<{
+  include: typeof adminNotificationRecipientInclude;
 }>;
 
 export type AdminNotificationResponseWithMetadata = AdminNotificationResponse & {
