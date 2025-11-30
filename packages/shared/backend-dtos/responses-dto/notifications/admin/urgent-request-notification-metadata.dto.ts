@@ -1,8 +1,8 @@
-import { AdminNotificationType } from '@titans-tech/db';
+import { NotificationType } from '@titans-tech/db';
 import { z } from 'zod';
 
 export const UrgentRequestNotificationMetadataDtoSchema = z.object({
-  type: z.literal(AdminNotificationType.URGENT_SERVICE_REQUEST),
+  type: z.literal(NotificationType.URGENT_SERVICE_REQUEST),
   machineId: z.string(),
   machineName: z.string(),
   requestedByUserId: z.string(),

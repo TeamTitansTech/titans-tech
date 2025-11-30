@@ -1236,10 +1236,6 @@ enum NotificationType {
   INSPECTION_ALERT
 }
 
-enum AdminNotificationType {
-  URGENT_SERVICE_REQUEST
-}
-
 enum EmailStatus {
   PENDING
   SENT
@@ -1254,11 +1250,11 @@ enum EmailProvider {
 model AdminNotification {
   id String @id @default(cuid())
 
-  type            AdminNotificationType @default(URGENT_SERVICE_REQUEST)
+  type            NotificationType @default(URGENT_SERVICE_REQUEST)
   createdByUserId String
   metadata        Json? // Store additional data like notes, urgency level, etc.
-  createdAt       DateTime              @default(now())
-  updatedAt       DateTime              @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   createdBy  User                         @relation("AdminNotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
   recipients AdminNotificationRecipient[]

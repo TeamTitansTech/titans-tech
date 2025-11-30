@@ -3,7 +3,7 @@ import { PrismaService } from '../shared/prisma.service';
 import { EmailService } from '../email/email.service';
 import { NotificationsGateway } from './notifications.gateway';
 import { appEnv } from '../../config/env';
-import { AdminNotificationType, NotificationType } from '@titans-tech/db';
+import { NotificationType } from '@titans-tech/db';
 import {
   type ClientNotificationResponseDto,
   type CreateUrgentRequestDto,
@@ -52,7 +52,7 @@ export class NotificationsService {
       throw new NotFoundException('User not found');
     }
     const metadata: UrgentRequestNotificationMetadataDto = {
-      type: AdminNotificationType.URGENT_SERVICE_REQUEST,
+      type: NotificationType.URGENT_SERVICE_REQUEST,
       machineId,
       machineName: machine.name,
       requestedByUserId: userId,
@@ -66,7 +66,7 @@ export class NotificationsService {
 
     const notification = await this.prisma.adminNotification.create({
       data: {
-        type: AdminNotificationType.URGENT_SERVICE_REQUEST,
+        type: NotificationType.URGENT_SERVICE_REQUEST,
         createdByUserId: userId,
         metadata,
         recipients: {
