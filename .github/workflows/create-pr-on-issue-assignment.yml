@@ -14,11 +14,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Login to GitHub CLI
+        run: gh auth login --with-token <<<"${{ secrets.CLI_GITHUB_TOKEN }}"
+
       - name: Set up Git
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git remote set-url origin https://RubensRafael:${{ secrets.CLI_GITHUB_TOKEN }}@github.com/TeamTitansTech/titans-tech.git
 
       - name: Get Issue Details
         id: issue
