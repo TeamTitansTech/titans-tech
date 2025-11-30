@@ -123,50 +123,51 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
 
   return (
     <>
-      <div className="space-y-6 p-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
-            <p className="text-muted-foreground">{t('pageDescription')}</p>
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
+              <p className="text-muted-foreground text-sm sm:text-base">{t('pageDescription')}</p>
+            </div>
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+              {hasCreateProductionLinesPermission && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div>
+                      <Button
+                        onClick={() => setIsCreateDialogOpen(true)}
+                        disabled={!canCreateInSelectedBranch()}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        {t('newButton')}
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  {!canCreateInSelectedBranch() && (
+                    <TooltipContent>
+                      <p>{t('selectBranchToCreate')}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            {/* Branch Filter */}
-            <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
-              <SelectTrigger className="w-[200px]">
-                <MapPin className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Filter by branch" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('allBranches')}</SelectItem>
-                {userBranches.map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id}>
-                    {branch.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {hasCreateProductionLinesPermission && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Button
-                      onClick={() => setIsCreateDialogOpen(true)}
-                      disabled={!canCreateInSelectedBranch()}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      {t('newButton')}
-                    </Button>
-                  </div>
-                </TooltipTrigger>
-                {!canCreateInSelectedBranch() && (
-                  <TooltipContent>
-                    <p>{t('selectBranchToCreate')}</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            )}
-          </div>
+          {/* Branch Filter - Full width on mobile */}
+          <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
+            <SelectTrigger className="w-full sm:w-[250px]">
+              <MapPin className="w-4 h-4 mr-2 shrink-0" />
+              <SelectValue placeholder="Filter by branch" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('allBranches')}</SelectItem>
+              {userBranches.map((branch) => (
+                <SelectItem key={branch.id} value={branch.id}>
+                  {branch.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {filteredProductionLines.length === 0 ? (
