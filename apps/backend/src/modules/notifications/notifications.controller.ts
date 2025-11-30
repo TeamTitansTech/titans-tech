@@ -40,7 +40,7 @@ export class NotificationsController {
 
   @Get()
   @Admin()
-  async getAdminNotifications(
+  async getNotifications(
     @Req() req: ReqWithAuthUser,
     @Query('limit') limit?: string,
     @Query('includeRead') includeRead?: string,
@@ -48,7 +48,7 @@ export class NotificationsController {
     const limitNum = limit ? parseInt(limit, 10) : 50;
     const includeReadBool = includeRead === 'true';
 
-    return this.notificationsService.getAdminNotifications(
+    return this.notificationsService.getNotifications(
       req.user.id,
       limitNum,
       includeReadBool,
@@ -58,11 +58,11 @@ export class NotificationsController {
   @Patch(':id/read')
   @Admin()
   @HttpCode(HttpStatus.OK)
-  async markAdminNotificationAsRead(
+  async markNotificationAsRead(
     @Param('id') id: string,
     @Req() req: ReqWithAuthUser,
   ): Promise<{ success: boolean }> {
-    return this.notificationsService.markAdminNotificationAsRead({
+    return this.notificationsService.markNotificationAsRead({
       notificationId: id,
       userId: req.user.id,
     });
@@ -71,12 +71,10 @@ export class NotificationsController {
   @Patch('read-all')
   @CompanyManager()
   @HttpCode(HttpStatus.OK)
-  async markAllAdminNotificationsAsRead(
+  async markAllNotificationsAsRead(
     @Req() req: ReqWithAuthUser,
   ): Promise<{ success: boolean; count: number }> {
-    return this.notificationsService.markAllAdminNotificationsAsRead(
-      req.user.id,
-    );
+    return this.notificationsService.markAllNotificationsAsRead(req.user.id);
   }
 
   @Post('alert-notification')

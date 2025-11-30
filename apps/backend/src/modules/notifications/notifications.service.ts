@@ -131,7 +131,7 @@ export class NotificationsService {
     };
   }
 
-  async getAdminNotifications(
+  async getNotifications(
     userId: string,
     limit: number = 50,
     includeRead: boolean = false,
@@ -153,7 +153,7 @@ export class NotificationsService {
     });
   }
 
-  async markAdminNotificationAsRead(args: {
+  async markNotificationAsRead(args: {
     notificationId: string;
     userId: string;
   }): Promise<{ success: boolean }> {
@@ -170,7 +170,7 @@ export class NotificationsService {
     return { success: true };
   }
 
-  async markAllAdminNotificationsAsRead(
+  async markAllNotificationsAsRead(
     userId: string,
   ): Promise<{ success: boolean; count: number }> {
     const result = await this.prisma.adminNotificationRecipient.updateMany({
