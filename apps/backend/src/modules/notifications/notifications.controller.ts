@@ -38,7 +38,7 @@ export class NotificationsController {
     return this.notificationsService.createUrgentRequest(userId, dto);
   }
 
-  @Get('admin')
+  @Get()
   @Admin()
   async getAdminNotifications(
     @Req() req: ReqWithAuthUser,
@@ -55,7 +55,7 @@ export class NotificationsController {
     );
   }
 
-  @Patch('admin/:id/read')
+  @Patch(':id/read')
   @Admin()
   @HttpCode(HttpStatus.OK)
   async markAdminNotificationAsRead(
@@ -68,7 +68,7 @@ export class NotificationsController {
     });
   }
 
-  @Patch('admin/read-all')
+  @Patch('read-all')
   @CompanyManager()
   @HttpCode(HttpStatus.OK)
   async markAllAdminNotificationsAsRead(

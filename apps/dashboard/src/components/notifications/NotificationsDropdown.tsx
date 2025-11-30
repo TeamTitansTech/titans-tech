@@ -14,8 +14,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import {
-  markAdminNotificationAsRead,
-  markAllAdminNotificationsAsRead,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
 } from '@/data/services/notifications.api';
 import type { AdminNotificationResponseWithMetadata } from '@titans-tech/shared/backend-dtos';
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,7 @@ export function NotificationsDropdown() {
 
   const handleNotificationClick = async (notification: AdminNotificationResponseWithMetadata) => {
     try {
-      await markAdminNotificationAsRead(notification.notificationId);
+      await markNotificationAsRead(notification.notificationId);
 
       wsMarkAsRead(notification.notificationId);
     } catch (error) {
@@ -66,7 +66,7 @@ export function NotificationsDropdown() {
 
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllAdminNotificationsAsRead();
+      await markAllNotificationsAsRead();
 
       wsClearAll();
       setIsOpen(false);

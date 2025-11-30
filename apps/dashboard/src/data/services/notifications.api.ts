@@ -16,33 +16,27 @@ export const createUrgentRequest = async (data: CreateUrgentRequestDto) => {
   );
 };
 
-export const getAdminNotifications = async (limit?: number, includeRead?: boolean) => {
+export const getNotifications = async (limit?: number, includeRead?: boolean) => {
   const params = new URLSearchParams();
   if (limit) params.append('limit', limit.toString());
   if (includeRead !== undefined) params.append('includeRead', includeRead.toString());
 
   const queryString = params.toString();
-  const url = `/notifications/admin${queryString ? `?${queryString}` : ''}`;
+  const url = `/notifications${queryString ? `?${queryString}` : ''}`;
 
   return await responseHandler<AdminNotificationResponseWithMetadata[]>(url);
 };
 
-export const markAdminNotificationAsRead = async (notificationId: string) => {
-  return await responseHandler<{ success: boolean }>(
-    `/notifications/admin/${notificationId}/read`,
-    {
-      method: 'PATCH',
-    },
-  );
+export const markNotificationAsRead = async (notificationId: string) => {
+  return await responseHandler<{ success: boolean }>(`/notifications/${notificationId}/read`, {
+    method: 'PATCH',
+  });
 };
 
-export const markAllAdminNotificationsAsRead = async () => {
-  return await responseHandler<{ success: boolean; count: number }>(
-    '/notifications/admin/read-all',
-    {
-      method: 'PATCH',
-    },
-  );
+export const markAllNotificationsAsRead = async () => {
+  return await responseHandler<{ success: boolean; count: number }>('/notifications/read-all', {
+    method: 'PATCH',
+  });
 };
 
 export const sendAlertNotification = async (data: SendAlertNotificationDto) => {

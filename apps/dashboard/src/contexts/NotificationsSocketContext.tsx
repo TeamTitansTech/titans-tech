@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
 import type { AdminNotificationResponseWithMetadata } from '@titans-tech/shared/backend-dtos';
-import { getAdminNotifications } from '@/data/services/notifications.api';
+import { getNotifications } from '@/data/services/notifications.api';
 
 interface NotificationsSocketContextType {
   socket: Socket | null;
@@ -96,7 +96,7 @@ export function NotificationsSocketProvider({
     console.log('[NotificationsSocket] Manual loadInitialData called');
 
     try {
-      const notificationsResult = await getAdminNotifications(10, false);
+      const notificationsResult = await getNotifications(10, false);
       if (notificationsResult.data) {
         setNotifications(notificationsResult.data);
       }
