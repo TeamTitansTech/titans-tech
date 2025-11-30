@@ -1240,8 +1240,6 @@ enum NotificationType {
 
 enum AdminNotificationType {
   URGENT_SERVICE_REQUEST
-  SERVICE_REMINDER
-  SERVICE_OVERDUE
 }
 
 enum EmailStatus {
