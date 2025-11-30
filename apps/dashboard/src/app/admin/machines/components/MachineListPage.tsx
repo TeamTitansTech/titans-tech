@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { MachineCard } from './MachineCard';
+import { MachineCardSkeleton } from './MachineCardSkeleton';
 import { MachineCreationModal } from './MachineCreationModal';
 import { MachineEditModal } from './MachineEditModal';
 import { Button } from '@/components/ui/button';
@@ -188,8 +189,10 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
         </div>
 
         {isLoading ? (
-          <div className="text-center py-12">
-            <Typography variant="muted">{t('loading') || 'Loading...'}</Typography>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <MachineCardSkeleton key={i} />
+            ))}
           </div>
         ) : machines.length === 0 ? (
           <div className="text-center py-12">
