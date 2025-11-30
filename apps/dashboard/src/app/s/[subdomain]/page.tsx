@@ -17,13 +17,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!subdomainResult.data) {
     return {
       title: rootDomain,
+      icons: '/titans-tech.png',
     };
   }
 
   return {
-    title: `${subdomainResult.data.name} Dashboard`,
-    description: `${subdomainResult.data.name} Dashboard`,
-    icons: subdomainResult.data.logo,
+    title: subdomainResult.data.name,
+    description: `${subdomainResult.data.name} - Industrial Management & Inspection Platform`,
+    icons: subdomainResult.data.logo || '/titans-tech.png',
   };
 }
 
