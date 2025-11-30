@@ -50,7 +50,9 @@ export class CompaniesService {
         slug: true,
         name: true,
         logo: true,
+        loginLogo: true,
         brandColor: true,
+        accentColor: true,
       },
     });
 

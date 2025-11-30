@@ -40,12 +40,22 @@ export default async function Page({ params }: PageProps) {
   if (!subdomainResult.data) {
     return <div>Company not found</div>;
   }
+  const brandColor = subdomainResult.data.brandColor;
+
   return (
-    <LoginForm
-      companyId={subdomainResult.data.id}
-      brandTitle={subdomainResult.data.name}
-      brandSubtitle="Industrial Management & Inspection Platform"
-      loginType="client"
-    />
+    <div
+      style={
+        brandColor ? ({ '--login-brand-color': brandColor } as React.CSSProperties) : undefined
+      }
+    >
+      <LoginForm
+        companyId={subdomainResult.data.id}
+        brandTitle={subdomainResult.data.name}
+        brandSubtitle="Industrial Management & Inspection Platform"
+        brandColor={brandColor}
+        brandLogo={subdomainResult.data.loginLogo}
+        loginType="client"
+      />
+    </div>
   );
 }

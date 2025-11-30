@@ -1,27 +1,23 @@
 import { AppLayout } from '@/components/layout/AppLayout';
+import { ThemeProvider } from '@/contexts/ThemeContext';
 import { getCompanyPublicInfo } from '@/data/services/companies.api';
-import { Metadata } from 'next';
 import { ReactNode } from 'react';
 
-interface LayoutProps {
+interface DashboardLayoutProps {
   children: ReactNode;
   params: Promise<{ subdomain: string }>;
 }
 
-export async function generateMetadata({ params }: LayoutProps): Promise<Metadata> {
+export default async function DashboardLayout({ children, params }: DashboardLayoutProps) {
   const { subdomain } = await params;
+
+  // Fetch company info server-side to prevent color flickering and provide logo
   const companyResult = await getCompanyPublicInfo({ companySlug: subdomain });
+  const initialCompanyInfo = companyResult.data || null;
 
-  if (!companyResult.data) {
-    return {};
-  }
-
-  return {
-    title: `${companyResult.data.name} | Titans Tech`,
-    icons: companyResult.data.logo || '/titans-tech.png',
-  };
-}
-
-export default function DashboardLayout({ children }: LayoutProps) {
-  return <AppLayout>{children}</AppLayout>;
+  return (
+    <ThemeProvider subdomain={subdomain} initialCompanyInfo={initialCompanyInfo}>
+      <AppLayout>{children}</AppLayout>
+    </ThemeProvider>
+  );
 }

@@ -8,7 +8,11 @@ export class UploadService {
   private readonly s3Client: S3Client;
   private readonly bucketName: string;
   private readonly region: string;
-  private readonly ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png'];
+  private readonly ALLOWED_MIME_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+  ];
   private readonly MAX_FILE_SIZE = 10 * 1024 * 1024;
 
   constructor() {
@@ -24,10 +28,13 @@ export class UploadService {
     });
   }
 
-  async uploadImage(file: Express.Multer.File): Promise<string> {
+  async uploadImage(
+    file: Express.Multer.File,
+    folder: string = 'blueprints',
+  ): Promise<string> {
     if (!this.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       throw new BadRequestException(
-        `Invalid file type. Only JPG and PNG images are allowed. Received: ${file.mimetype}`,
+        `Invalid file type. Only JPG, PNG, and WebP images are allowed. Received: ${file.mimetype}`,
       );
     }
 
@@ -38,7 +45,7 @@ export class UploadService {
     }
 
     const fileExtension = file.originalname.split('.').pop();
-    const uniqueFilename = `blueprints/${nanoid()}-${Date.now()}.${fileExtension}`;
+    const uniqueFilename = `${folder}/${nanoid()}-${Date.now()}.${fileExtension}`;
 
     try {
       const command = new PutObjectCommand({
@@ -68,7 +75,7 @@ export class UploadService {
 
     if (!this.ALLOWED_MIME_TYPES.includes(file.mimetype)) {
       throw new BadRequestException(
-        'Invalid file type. Only JPG and PNG are allowed',
+        'Invalid file type. Only JPG, PNG, and WebP are allowed',
       );
     }
 

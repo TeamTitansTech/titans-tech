@@ -17,12 +17,17 @@ export async function seedCrownMachines(
   // Create Minster DAC Press #30645 (from Minster work order data)
   const dacMachine = await prisma.machine.upsert({
     where: { id: 'crown-dac-30645' },
-    update: {},
+    update: {
+      imageUrl:
+        'https://titechjf-bucket.s3.us-east-2.amazonaws.com/blueprints/3RT4yhr6b2xS85r1V9pkJ-1764421989599.webp',
+    },
     create: {
       id: 'crown-dac-30645',
       name: 'Minster DAC #30645',
       blueprintId: dacBlueprint.id,
       branchId: mainBranch.id,
+      imageUrl:
+        'https://titechjf-bucket.s3.us-east-2.amazonaws.com/blueprints/3RT4yhr6b2xS85r1V9pkJ-1764421989599.webp',
       // Machine specifications from Minster data
       manufacturer: 'Minster',
       sizeTonnage: '150',
