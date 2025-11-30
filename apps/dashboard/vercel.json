@@ -3,5 +3,11 @@
   "buildCommand": "cd ../.. && turbo run build --filter=@titans-tech/dashboard",
   "installCommand": "cd ../.. && npm install",
   "framework": "nextjs",
-  "outputDirectory": ".next"
+  "outputDirectory": ".next",
+  "git": {
+    "deploymentEnabled": {
+      "staging": true,
+      "main": false
+    }
+  }
 }
