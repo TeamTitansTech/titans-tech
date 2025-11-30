@@ -1,0 +1,66 @@
+name: Create PR on Issue Assignment
+
+on:
+  issues:
+    types: [assigned]
+
+jobs:
+  create_branch_and_pr:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get Issue Details
+        id: issue
+        run: |
+          echo "ISSUE_NUMBER=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+          echo "ISSUE_TITLE=${{ github.event.issue.title }}" >> $GITHUB_OUTPUT
+          echo "ASSIGNEE=${{ github.event.assignee.login }}" >> $GITHUB_OUTPUT
+
+      - name: Create Branch Name
+        id: branch
+        run: |
+          ISSUE_NUMBER="${{ steps.issue.outputs.ISSUE_NUMBER }}"
+          BRANCH_NAME="TT-${ISSUE_NUMBER}"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_OUTPUT
+          echo "Created branch name: $BRANCH_NAME"
+
+      - name: Check if Branch Exists
+        id: check-branch
+        run: |
+          if git ls-remote --heads origin ${{ steps.branch.outputs.BRANCH_NAME }} | grep -q ${{ steps.branch.outputs.BRANCH_NAME }}; then
+            echo "EXISTS=true" >> $GITHUB_OUTPUT
+            echo "Branch already exists"
+          else
+            echo "EXISTS=false" >> $GITHUB_OUTPUT
+            echo "Branch does not exist"
+          fi
+
+      - name: Create and Push Branch
+        if: steps.check-branch.outputs.EXISTS == 'false'
+        run: |
+          git checkout -b ${{ steps.branch.outputs.BRANCH_NAME }}
+          git commit --allow-empty -m "chore: initialize branch for issue #${{ steps.issue.outputs.ISSUE_NUMBER }}"
+          git push origin ${{ steps.branch.outputs.BRANCH_NAME }}
+
+      - name: Create Pull Request
+        if: steps.check-branch.outputs.EXISTS == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.CLI_GITHUB_TOKEN }}
+        run: |
+          PR_URL=$(gh pr create \
+            --base dev \
+            --head ${{ steps.branch.outputs.BRANCH_NAME }} \
+            --title "${{ steps.branch.outputs.BRANCH_NAME }} - ${{ github.event.issue.title }}" \
+            --assignee "${{ steps.issue.outputs.ASSIGNEE }}" \
+            --body "Closes #${{ steps.issue.outputs.ISSUE_NUMBER }}
+
