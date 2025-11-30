@@ -13,21 +13,6 @@ export const NotificationTypeDtoSchema = z.enum([
   'INSPECTION_ALERT',
 ]);
 
-export const AdminNotificationResponseDtoSchema = z.object({
-  id: z.string(),
-  machineId: z.string(),
-  machineName: z.string(),
-  message: z.string(),
-  isRead: z.boolean(),
-  type: NotificationTypeDtoSchema,
-  createdByUserId: z.string(),
-  createdByName: z.string(),
-  createdByEmail: z.string(),
-  metadata: z.record(z.string(), z.any()).nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
-
 export const ClientNotificationResponseDtoSchema = z.object({
   id: z.string(),
   userId: z.string(),
@@ -40,13 +25,6 @@ export const ClientNotificationResponseDtoSchema = z.object({
   metadata: z.record(z.string(), z.any()).nullable(),
   createdAt: z.string(),
   updatedAt: z.string(),
-});
-
-export const NotificationStatsResponseDtoSchema = z.object({
-  totalUnread: z.number(),
-  urgentRequests: z.number(),
-  reminders: z.number(),
-  overdue: z.number(),
 });
 
 const adminNotificationRecipientInclude = {
@@ -64,6 +42,4 @@ export type AdminNotificationResponseWithMetadata = AdminNotificationResponse & 
 };
 
 export type NotificationTypeDto = z.infer<typeof NotificationTypeDtoSchema>;
-export type AdminNotificationResponseDto = z.infer<typeof AdminNotificationResponseDtoSchema>;
 export type ClientNotificationResponseDto = z.infer<typeof ClientNotificationResponseDtoSchema>;
-export type NotificationStatsResponseDto = z.infer<typeof NotificationStatsResponseDtoSchema>;
