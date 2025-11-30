@@ -1251,12 +1251,12 @@ model AdminNotification {
   id String @id @default(cuid())
 
   type            NotificationType @default(URGENT_SERVICE_REQUEST)
-  createdByUserId String
+  createdByUserId String?
   metadata        Json? // Store additional data like notes, urgency level, etc.
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  createdBy  User                         @relation("AdminNotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  createdBy  User?                        @relation("AdminNotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
   recipients AdminNotificationRecipient[]
 
   @@index([createdAt])

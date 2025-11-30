@@ -9,6 +9,7 @@ import {
   type CreateUrgentRequestDto,
   type SendAlertNotificationDto,
   AdminNotificationResponse,
+  InspectionAlertNotificationMetadataDto,
   UrgentRequestNotificationMetadataDto,
 } from '@titans-tech/shared/backend-dtos';
 import type { AlertNotificationTemplateData } from '../email/templates/alert-notification.template';
@@ -605,30 +606,39 @@ export class NotificationsService {
     let emailsSent = 0;
     let notificationsCreated = 0;
 
-    // Create ClientNotification for each selected user
-    for (const user of selectedUsers) {
-      try {
-        await this.prisma.clientNotification.create({
-          data: {
-            userId: user.id,
-            machineId,
-            message: `Inspection alert for machine "${machine.name}" - ${highestSeverity === 'RED' ? 'Critical' : 'Warning'}`,
-            redirectUrl: machineUrl,
-            type: NotificationType.INSPECTION_ALERT,
-            metadata: {
-              serviceId,
-              highestSeverity,
-              sectionsCount: sections.length,
+    const metadata: InspectionAlertNotificationMetadataDto = {
+      type: NotificationType.INSPECTION_ALERT,
+      serviceId,
+      highestSeverity,
+      sectionsCount: sections.length,
+      machineId,
+      machineName: machine.name,
+    };
+
+    try {
+      const notification = await this.prisma.adminNotification.create({
+        include: {
+          recipients: {
+            select: {
+              notificationId: true,
             },
           },
-        });
-        notificationsCreated++;
-      } catch (error) {
-        this.logger.error(
-          `Failed to create notification for user ${user.id}`,
-          error,
-        );
-      }
+        },
+        data: {
+          type: NotificationType.INSPECTION_ALERT,
+          metadata,
+          recipients: {
+            createMany: {
+              data: selectedUsers.map((u) => ({
+                recipientId: u.id,
+              })),
+            },
+          },
+        },
+      });
+      notificationsCreated = notification.recipients.length;
+    } catch (error) {
+      this.logger.error(`Failed to create notification for users`, error);
     }
 
     // Send email to all recipients
