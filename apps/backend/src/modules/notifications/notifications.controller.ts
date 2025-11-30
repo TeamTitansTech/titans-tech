@@ -18,7 +18,6 @@ import type { ReqWithAuthUser } from '../../types/request';
 import {
   CreateUrgentRequestDto,
   CreateUrgentRequestDtoSchema,
-  ClientNotificationResponseDto,
   SendAlertNotificationDto,
   SendAlertNotificationDtoSchema,
 } from '@titans-tech/shared/backend-dtos';
@@ -56,24 +55,6 @@ export class NotificationsController {
     );
   }
 
-  @Get('client')
-  @Authenticated()
-  async getClientNotifications(
-    @Req() req: ReqWithAuthUser,
-    @Query('limit') limit?: string,
-    @Query('includeRead') includeRead?: string,
-  ): Promise<ClientNotificationResponseDto[]> {
-    const userId = req.user.id;
-    const limitNum = limit ? parseInt(limit, 10) : 50;
-    const includeReadBool = includeRead === 'true';
-
-    return this.notificationsService.getClientNotifications(
-      userId,
-      limitNum,
-      includeReadBool,
-    );
-  }
-
   @Patch('admin/:id/read')
   @Admin()
   @HttpCode(HttpStatus.OK)
@@ -87,15 +68,6 @@ export class NotificationsController {
     });
   }
 
-  @Patch('client/:id/read')
-  @Authenticated()
-  @HttpCode(HttpStatus.OK)
-  async markClientNotificationAsRead(
-    @Param('id') id: string,
-  ): Promise<{ success: boolean }> {
-    return this.notificationsService.markClientNotificationAsRead(id);
-  }
-
   @Patch('admin/read-all')
   @CompanyManager()
   @HttpCode(HttpStatus.OK)
@@ -105,16 +77,6 @@ export class NotificationsController {
     return this.notificationsService.markAllAdminNotificationsAsRead(
       req.user.id,
     );
-  }
-
-  @Patch('client/read-all')
-  @Authenticated()
-  @HttpCode(HttpStatus.OK)
-  async markAllClientNotificationsAsRead(
-    @Req() req: ReqWithAuthUser,
-  ): Promise<{ success: boolean; count: number }> {
-    const userId = req.user.id;
-    return this.notificationsService.markAllClientNotificationsAsRead(userId);
   }
 
   @Post('alert-notification')

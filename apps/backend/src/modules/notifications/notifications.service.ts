@@ -5,7 +5,6 @@ import { NotificationsGateway } from './notifications.gateway';
 import { appEnv } from '../../config/env';
 import { NotificationType } from '@titans-tech/db';
 import {
-  type ClientNotificationResponseDto,
   type CreateUrgentRequestDto,
   type SendAlertNotificationDto,
   AdminNotificationResponse,
@@ -52,6 +51,17 @@ export class NotificationsService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
+    /** 
+    * At the time that this refactor is being made (https://github.com/TeamTitansTech/titans-tech/issues/153),
+    * we do not use a message in the frontend for these notifications,
+    * so here is the message that should be used in the future if needed.
+    * Use it in the i18n logic on the frontend.
+    * 
+    Inspection alert for machine "${machine.name}" - ${highestSeverity === 'RED' ? 'Critical' : 'Warning'}`;
+    * 
+    */
+
     const metadata: UrgentRequestNotificationMetadataDto = {
       type: NotificationType.URGENT_SERVICE_REQUEST,
       machineId,
@@ -143,40 +153,6 @@ export class NotificationsService {
     });
   }
 
-  async getClientNotifications(
-    userId: string,
-    limit: number = 50,
-    includeRead: boolean = false,
-  ): Promise<ClientNotificationResponseDto[]> {
-    const notifications = await this.prisma.clientNotification.findMany({
-      where: {
-        userId,
-        ...(includeRead ? {} : { isRead: false }),
-      },
-      include: {
-        machine: true,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      take: limit,
-    });
-
-    return notifications.map((notification) => ({
-      id: notification.id,
-      userId: notification.userId,
-      machineId: notification.machineId,
-      machineName: notification.machine?.name || null,
-      message: notification.message,
-      isRead: notification.isRead,
-      redirectUrl: notification.redirectUrl,
-      type: notification.type as any,
-      metadata: notification.metadata as Record<string, any> | null,
-      createdAt: notification.createdAt.toISOString(),
-      updatedAt: notification.updatedAt.toISOString(),
-    }));
-  }
-
   async markAdminNotificationAsRead(args: {
     notificationId: string;
     userId: string;
@@ -194,42 +170,12 @@ export class NotificationsService {
     return { success: true };
   }
 
-  async markClientNotificationAsRead(
-    notificationId: string,
-  ): Promise<{ success: boolean }> {
-    await this.prisma.clientNotification.update({
-      where: { id: notificationId },
-      data: { isRead: true },
-    });
-
-    return { success: true };
-  }
-
   async markAllAdminNotificationsAsRead(
     userId: string,
   ): Promise<{ success: boolean; count: number }> {
     const result = await this.prisma.adminNotificationRecipient.updateMany({
       where: {
         recipientId: userId,
-        isRead: false,
-      },
-      data: {
-        isRead: true,
-      },
-    });
-
-    return {
-      success: true,
-      count: result.count,
-    };
-  }
-
-  async markAllClientNotificationsAsRead(
-    userId: string,
-  ): Promise<{ success: boolean; count: number }> {
-    const result = await this.prisma.clientNotification.updateMany({
-      where: {
-        userId,
         isRead: false,
       },
       data: {
