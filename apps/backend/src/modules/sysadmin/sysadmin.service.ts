@@ -67,7 +67,7 @@ export class SysAdminService {
     const unreadNotifications =
       await this.prisma.adminNotificationRecipient.count({
         where: {
-          sysAdminId: userId,
+          recipientId: userId,
           isRead: false,
         },
       });

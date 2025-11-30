@@ -372,8 +372,6 @@ model SysAdmin {
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
 
-  notifications AdminNotificationRecipient[]
-
   @@map("sys_admins")
 }
 
@@ -1271,16 +1269,18 @@ model AdminNotification {
 
 model AdminNotificationRecipient {
   notificationId String
-  sysAdminId     String
+  /**
+   * Id from sys admin or a regular user
+   */
+  recipientId    String
   isRead         Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
   notification AdminNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-  sysAdmin     SysAdmin          @relation(fields: [sysAdminId], references: [id], onDelete: Cascade)
 
-  @@id([notificationId, sysAdminId])
-  @@index([sysAdminId, isRead])
+  @@id([notificationId, recipientId])
+  @@index([recipientId, isRead])
   @@map("admin_notification_recipients")
 }
 

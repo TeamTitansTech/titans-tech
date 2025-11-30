@@ -47,7 +47,7 @@ export class NotificationsGateway
    */
   handleNewNotification(recipients: AdminNotificationResponse[]) {
     recipients.map((recipient) => {
-      this.server.to(recipient.sysAdminId).emit('notification:new', recipient);
+      this.server.to(recipient.recipientId).emit('notification:new', recipient);
     });
   }
 }

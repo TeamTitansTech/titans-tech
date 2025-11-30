@@ -72,7 +72,7 @@ export class NotificationsService {
         recipients: {
           createMany: {
             data: admins.map((admin) => ({
-              sysAdminId: admin.id,
+              recipientId: admin.id,
             })),
           },
         },
@@ -127,7 +127,7 @@ export class NotificationsService {
   ): Promise<AdminNotificationResponse[]> {
     return await this.prisma.adminNotificationRecipient.findMany({
       where: {
-        sysAdminId: userId,
+        recipientId: userId,
         ...(includeRead ? {} : { isRead: false }),
       },
       include: {
@@ -182,9 +182,9 @@ export class NotificationsService {
   }): Promise<{ success: boolean }> {
     await this.prisma.adminNotificationRecipient.update({
       where: {
-        notificationId_sysAdminId: {
+        notificationId_recipientId: {
           notificationId: args.notificationId,
-          sysAdminId: args.userId,
+          recipientId: args.userId,
         },
       },
       data: { isRead: true },
@@ -209,7 +209,7 @@ export class NotificationsService {
   ): Promise<{ success: boolean; count: number }> {
     const result = await this.prisma.adminNotificationRecipient.updateMany({
       where: {
-        sysAdminId: userId,
+        recipientId: userId,
         isRead: false,
       },
       data: {
