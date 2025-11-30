@@ -31,10 +31,8 @@ export class NotificationsGateway
     this.logger.log(`Client connected: ${client.id}, userId: ${userId}`);
 
     if (userId) {
-      client.join('admin-notifications');
-      this.logger.log(
-        `User ${userId} (${client.id}) joined admin-notifications room`,
-      );
+      client.join(userId);
+      this.logger.log(`User ${userId} (${client.id}) joined its unique room`);
     }
   }
 
@@ -44,18 +42,12 @@ export class NotificationsGateway
   }
 
   /**
-   * Broadcast a new notification to all connected admins
-   * This is called from the NotificationsService
+   * Broadcast a new notification to all connected users
+   * Each user has one room with the id
    */
-  handleNewNotification(notification: AdminNotificationResponse[]) {
-    const roomSize =
-      this.server.sockets.adapter.rooms.get('admin-notifications')?.size || 0;
-    this.logger.log(
-      `📤 Broadcasting notification ${notification.map((n) => n.notification.id).join(', ')} to ${roomSize} clients`,
-    );
-
-    this.server
-      .to('admin-notifications')
-      .emit('notification:new', notification);
+  handleNewNotification(recipients: AdminNotificationResponse[]) {
+    recipients.map((recipient) => {
+      this.server.to(recipient.sysAdminId).emit('notification:new', recipient);
+    });
   }
 }
