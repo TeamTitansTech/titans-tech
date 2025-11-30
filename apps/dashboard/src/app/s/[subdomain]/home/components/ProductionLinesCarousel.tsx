@@ -11,7 +11,7 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
-import { Factory, ArrowRight, MoveUp, MoveDown } from 'lucide-react';
+import { Factory, ArrowRight, MoveUp, MoveDown, Star } from 'lucide-react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { getProductionLines } from '@/data/services/production-lines.api';
 import type { ProductionLine } from '@/data/types/production-lines.types';
@@ -150,83 +150,85 @@ export function ProductionLinesCarousel() {
                           {machineCount > 0 ? (
                             <div className="relative overflow-x-auto py-4">
                               <div className="min-w-max px-4">
-                                {machineCount > 2 ? (
-                                  /* Alternating layout for 3+ machines */
-                                  <div className="flex flex-col">
-                                    {/* Top row - even indexed machines */}
-                                    <div className="flex justify-center gap-6 mb-1">
-                                      {filteredMachines.map((productionLineMachine, index) => {
-                                        const machine = productionLineMachine.machine!;
-                                        const isTop = index % 2 === 0;
-                                        if (!isTop) {
-                                          return (
-                                            <div
-                                              key={productionLineMachine.machineId}
-                                              className="w-[200px]"
-                                            />
-                                          );
-                                        }
-                                        return (
-                                          <div
-                                            key={productionLineMachine.machineId}
-                                            className="flex flex-col items-center"
-                                            onClick={(e) => e.stopPropagation()}
-                                          >
-                                            <MachineCardInLine machine={machine} />
-                                            <MoveDown className="w-4 h-4 text-green-500 mt-1" />
-                                          </div>
-                                        );
-                                      })}
+                                <div className="flex items-center gap-4">
+                                  {/* Main machine on the left */}
+                                  <div
+                                    className="relative flex flex-col items-center"
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium">
+                                      <Star className="w-3 h-3 fill-current" />
                                     </div>
-
-                                    {/* Production Line */}
-                                    <div className="h-1.5 bg-green-500 rounded-full mx-2" />
-
-                                    {/* Bottom row - odd indexed machines */}
-                                    <div className="flex justify-center gap-6 mt-1">
-                                      {filteredMachines.map((productionLineMachine, index) => {
-                                        const machine = productionLineMachine.machine!;
-                                        const isBottom = index % 2 === 1;
-                                        if (!isBottom) {
-                                          return (
-                                            <div
-                                              key={productionLineMachine.machineId}
-                                              className="w-[200px]"
-                                            />
-                                          );
-                                        }
-                                        return (
-                                          <div
-                                            key={productionLineMachine.machineId}
-                                            className="flex flex-col items-center"
-                                            onClick={(e) => e.stopPropagation()}
-                                          >
-                                            <MoveUp className="w-4 h-4 text-green-500 mb-1" />
-                                            <MachineCardInLine machine={machine} />
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
+                                    <MachineCardInLine machine={filteredMachines[0].machine!} />
                                   </div>
-                                ) : (
-                                  /* Horizontal layout for 1-2 machines */
-                                  <div className="flex items-center">
-                                    <div
-                                      className="flex items-center gap-6"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      {filteredMachines.map((productionLineMachine) => (
-                                        <MachineCardInLine
-                                          key={productionLineMachine.machineId}
-                                          machine={productionLineMachine.machine!}
-                                        />
-                                      ))}
+
+                                  {/* Connector line from main machine */}
+                                  {machineCount > 1 && <div className="h-1 w-8 bg-green-500" />}
+
+                                  {/* Rest of machines in alternating layout */}
+                                  {machineCount > 1 && (
+                                    <div className="relative flex flex-col flex-1">
+                                      {/* Top row - even indices after main (0, 2, 4...) */}
+                                      <div className="flex justify-start gap-6 items-end">
+                                        {filteredMachines
+                                          .slice(1)
+                                          .map((productionLineMachine, index) => {
+                                            if (index % 2 !== 0) {
+                                              return (
+                                                <div
+                                                  key={productionLineMachine.machineId}
+                                                  className="w-[200px]"
+                                                />
+                                              );
+                                            }
+                                            return (
+                                              <div
+                                                key={productionLineMachine.machineId}
+                                                className="flex flex-col items-center"
+                                                onClick={(e) => e.stopPropagation()}
+                                              >
+                                                <MachineCardInLine
+                                                  machine={productionLineMachine.machine!}
+                                                />
+                                                <MoveDown className="w-4 h-4 text-green-500 mt-1" />
+                                              </div>
+                                            );
+                                          })}
+                                      </div>
+
+                                      {/* Production Line */}
+                                      <div className="h-1 bg-green-500 w-full" />
+
+                                      {/* Bottom row - odd indices after main (1, 3, 5...) */}
+                                      <div className="flex justify-start gap-6 items-start">
+                                        {filteredMachines
+                                          .slice(1)
+                                          .map((productionLineMachine, index) => {
+                                            if (index % 2 === 0) {
+                                              return (
+                                                <div
+                                                  key={productionLineMachine.machineId}
+                                                  className="w-[200px]"
+                                                />
+                                              );
+                                            }
+                                            return (
+                                              <div
+                                                key={productionLineMachine.machineId}
+                                                className="flex flex-col items-center"
+                                                onClick={(e) => e.stopPropagation()}
+                                              >
+                                                <MoveUp className="w-4 h-4 text-green-500 mb-1" />
+                                                <MachineCardInLine
+                                                  machine={productionLineMachine.machine!}
+                                                />
+                                              </div>
+                                            );
+                                          })}
+                                      </div>
                                     </div>
-                                    <div className="relative h-1.5 flex-1 ml-4">
-                                      <div className="absolute top-0 left-0 right-0 h-1.5 bg-green-500 rounded-full" />
-                                    </div>
-                                  </div>
-                                )}
+                                  )}
+                                </div>
                               </div>
                             </div>
                           ) : (
