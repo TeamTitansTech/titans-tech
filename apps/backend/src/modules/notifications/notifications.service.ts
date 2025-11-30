@@ -7,7 +7,7 @@ import { NotificationType } from '@titans-tech/db';
 import {
   type CreateUrgentRequestDto,
   type SendAlertNotificationDto,
-  AdminNotificationResponse,
+  NotificationResponse,
   InspectionAlertNotificationMetadataDto,
   UrgentRequestNotificationMetadataDto,
 } from '@titans-tech/shared/backend-dtos';
@@ -75,7 +75,7 @@ export class NotificationsService {
       select: { id: true },
     });
 
-    const notification = await this.prisma.adminNotification.create({
+    const notification = await this.prisma.notification.create({
       data: {
         type: NotificationType.URGENT_SERVICE_REQUEST,
         createdByUserId: userId,
@@ -94,7 +94,7 @@ export class NotificationsService {
       `Created urgent request notification ${notification.id} for machine ${machineId}`,
     );
 
-    const recipients = await this.prisma.adminNotificationRecipient.findMany({
+    const recipients = await this.prisma.notificationRecipient.findMany({
       include: { notification: true },
       where: { notificationId: notification.id },
     });
@@ -135,8 +135,8 @@ export class NotificationsService {
     userId: string,
     limit: number = 50,
     includeRead: boolean = false,
-  ): Promise<AdminNotificationResponse[]> {
-    return await this.prisma.adminNotificationRecipient.findMany({
+  ): Promise<NotificationResponse[]> {
+    return await this.prisma.notificationRecipient.findMany({
       where: {
         recipientId: userId,
         ...(includeRead ? {} : { isRead: false }),
@@ -157,7 +157,7 @@ export class NotificationsService {
     notificationId: string;
     userId: string;
   }): Promise<{ success: boolean }> {
-    await this.prisma.adminNotificationRecipient.update({
+    await this.prisma.notificationRecipient.update({
       where: {
         notificationId_recipientId: {
           notificationId: args.notificationId,
@@ -173,7 +173,7 @@ export class NotificationsService {
   async markAllNotificationsAsRead(
     userId: string,
   ): Promise<{ success: boolean; count: number }> {
-    const result = await this.prisma.adminNotificationRecipient.updateMany({
+    const result = await this.prisma.notificationRecipient.updateMany({
       where: {
         recipientId: userId,
         isRead: false,
@@ -562,7 +562,7 @@ export class NotificationsService {
     };
 
     try {
-      const notification = await this.prisma.adminNotification.create({
+      const notification = await this.prisma.notification.create({
         include: {
           recipients: {
             select: {

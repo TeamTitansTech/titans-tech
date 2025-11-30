@@ -3,7 +3,7 @@ import { responseHandler } from '@/data/helpers/responseHandler';
 import type {
   CreateUrgentRequestDto,
   SendAlertNotificationDto,
-  AdminNotificationResponseWithMetadata,
+  NotificationResponseWithMetadata,
 } from '@titans-tech/shared/backend-dtos';
 
 export const createUrgentRequest = async (data: CreateUrgentRequestDto) => {
@@ -24,7 +24,7 @@ export const getNotifications = async (limit?: number, includeRead?: boolean) =>
   const queryString = params.toString();
   const url = `/notifications${queryString ? `?${queryString}` : ''}`;
 
-  return await responseHandler<AdminNotificationResponseWithMetadata[]>(url);
+  return await responseHandler<NotificationResponseWithMetadata[]>(url);
 };
 
 export const markNotificationAsRead = async (notificationId: string) => {

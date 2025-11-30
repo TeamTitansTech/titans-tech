@@ -437,10 +437,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company                   Company             @relation(fields: [companyId], references: [id])
-  companyId                 String
-  branches                  UserBranch[]
-  adminNotificationsCreated AdminNotification[] @relation("AdminNotificationsCreated")
+  company              Company        @relation(fields: [companyId], references: [id])
+  companyId            String
+  branches             UserBranch[]
+  notificationsCreated Notification[] @relation("NotificationsCreated")
 
   @@map("users")
 }
@@ -1245,7 +1245,7 @@ enum EmailProvider {
   AWS_SES
 }
 
-model AdminNotification {
+model Notification {
   id String @id @default(cuid())
 
   type            NotificationType @default(URGENT_SERVICE_REQUEST)
@@ -1254,14 +1254,14 @@ model AdminNotification {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  createdBy  User?                        @relation("AdminNotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
-  recipients AdminNotificationRecipient[]
+  createdBy  User?                   @relation("NotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  recipients NotificationRecipient[]
 
   @@index([createdAt])
   @@map("admin_notifications")
 }
 
-model AdminNotificationRecipient {
+model NotificationRecipient {
   notificationId String
   /**
    * Id from sys admin or a regular user
@@ -1271,7 +1271,7 @@ model AdminNotificationRecipient {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
-  notification AdminNotification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
   @@id([notificationId, recipientId])
   @@index([recipientId, isRead])

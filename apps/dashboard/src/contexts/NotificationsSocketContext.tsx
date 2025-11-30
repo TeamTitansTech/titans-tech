@@ -2,17 +2,17 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
-import type { AdminNotificationResponseWithMetadata } from '@titans-tech/shared/backend-dtos';
+import type { NotificationResponseWithMetadata } from '@titans-tech/shared/backend-dtos';
 import { getNotifications } from '@/data/services/notifications.api';
 
 interface NotificationsSocketContextType {
   socket: Socket | null;
   isConnected: boolean;
-  notifications: AdminNotificationResponseWithMetadata[];
+  notifications: NotificationResponseWithMetadata[];
   unreadCount: number;
   initialDataLoaded: boolean;
   loadInitialData: () => Promise<void>;
-  addNotification: (notification: AdminNotificationResponseWithMetadata) => void;
+  addNotification: (notification: NotificationResponseWithMetadata) => void;
   markAsRead: (notificationId: string) => void;
   clearAll: () => void;
 }
@@ -34,7 +34,7 @@ export function NotificationsSocketProvider({
 }: NotificationsSocketProviderProps) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [notifications, setNotifications] = useState<AdminNotificationResponseWithMetadata[]>([]);
+  const [notifications, setNotifications] = useState<NotificationResponseWithMetadata[]>([]);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
@@ -68,7 +68,7 @@ export function NotificationsSocketProvider({
       setIsConnected(false);
     });
 
-    socketInstance.on('notification:new', (notification: AdminNotificationResponseWithMetadata) => {
+    socketInstance.on('notification:new', (notification: NotificationResponseWithMetadata) => {
       console.log('[NotificationsSocket] 🔔 New notification received:', notification);
       setNotifications((prev) => [notification, ...prev]);
       setUnreadCount((prev) => prev + 1);
@@ -108,7 +108,7 @@ export function NotificationsSocketProvider({
     }
   };
 
-  const addNotification = (notification: AdminNotificationResponseWithMetadata) => {
+  const addNotification = (notification: NotificationResponseWithMetadata) => {
     setNotifications((prev) => [notification, ...prev]);
     if (!notification.isRead) {
       setUnreadCount((prev) => prev + 1);

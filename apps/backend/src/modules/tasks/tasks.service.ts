@@ -99,7 +99,7 @@ export class TasksService {
 
         for (const user of branchUsers) {
           const existingNotification =
-            await this.prisma.adminNotificationRecipient.findFirst({
+            await this.prisma.notificationRecipient.findFirst({
               select: { notificationId: true },
               where: {
                 recipientId: user.id,
@@ -151,7 +151,7 @@ export class TasksService {
               : `Machine "${machine.name}" is due for service.`;
            * 
            */
-          await this.prisma.adminNotification.create({
+          await this.prisma.notification.create({
             data: {
               type: notificationType,
               metadata,

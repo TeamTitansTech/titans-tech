@@ -10,16 +10,16 @@ export const NotificationTypeDtoSchema = z.enum([
   'INSPECTION_ALERT',
 ]);
 
-const adminNotificationRecipientInclude = {
+const notificationRecipientInclude = {
   notification: true,
-} satisfies Prisma.AdminNotificationRecipientInclude;
+} satisfies Prisma.NotificationRecipientInclude;
 
-export type AdminNotificationResponse = Prisma.AdminNotificationRecipientGetPayload<{
-  include: typeof adminNotificationRecipientInclude;
+export type NotificationResponse = Prisma.NotificationRecipientGetPayload<{
+  include: typeof notificationRecipientInclude;
 }>;
 
-export type AdminNotificationResponseWithMetadata = AdminNotificationResponse & {
-  notification: AdminNotificationResponse['notification'] & {
+export type NotificationResponseWithMetadata = NotificationResponse & {
+  notification: NotificationResponse['notification'] & {
     // TODO: remove noop when we have another metadata type, this is just to make TS identify the union properly
     metadata: UrgentRequestNotificationMetadataDto | { type: 'NOOP'; value: 'noop' };
   };

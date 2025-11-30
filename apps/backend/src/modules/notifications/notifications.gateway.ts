@@ -7,7 +7,7 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
-import type { AdminNotificationResponse } from '@titans-tech/shared/backend-dtos';
+import type { NotificationResponse } from '@titans-tech/shared/backend-dtos';
 
 @WebSocketGateway({
   cors: {
@@ -45,7 +45,7 @@ export class NotificationsGateway
    * Broadcast a new notification to all connected users
    * Each user has one room with the id
    */
-  handleNewNotification(recipients: AdminNotificationResponse[]) {
+  handleNewNotification(recipients: NotificationResponse[]) {
     recipients.map((recipient) => {
       this.server.to(recipient.recipientId).emit('notification:new', recipient);
     });

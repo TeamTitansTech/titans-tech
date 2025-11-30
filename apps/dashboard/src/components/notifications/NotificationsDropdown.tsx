@@ -17,7 +17,7 @@ import {
   markNotificationAsRead,
   markAllNotificationsAsRead,
 } from '@/data/services/notifications.api';
-import type { AdminNotificationResponseWithMetadata } from '@titans-tech/shared/backend-dtos';
+import type { NotificationResponseWithMetadata } from '@titans-tech/shared/backend-dtos';
 import { Button } from '@/components/ui/button';
 import { useNotificationsSocket } from '@/contexts/NotificationsSocketContext';
 
@@ -44,7 +44,7 @@ export function NotificationsDropdown() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  const handleNotificationClick = async (notification: AdminNotificationResponseWithMetadata) => {
+  const handleNotificationClick = async (notification: NotificationResponseWithMetadata) => {
     try {
       await markNotificationAsRead(notification.notificationId);
 
@@ -75,7 +75,7 @@ export function NotificationsDropdown() {
     }
   };
 
-  const getNotificationMessage = (notification: AdminNotificationResponseWithMetadata) => {
+  const getNotificationMessage = (notification: NotificationResponseWithMetadata) => {
     switch (notification.notification.metadata?.type) {
       case 'URGENT_SERVICE_REQUEST':
         return t('notificationsMessage.newUrgentRequest', {
