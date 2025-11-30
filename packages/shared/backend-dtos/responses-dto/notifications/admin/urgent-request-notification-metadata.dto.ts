@@ -13,11 +13,3 @@ export const UrgentRequestNotificationMetadataDtoSchema = z.object({
 export type UrgentRequestNotificationMetadataDto = z.infer<
   typeof UrgentRequestNotificationMetadataDtoSchema
 >;
-
-// TODO: remove this after testing
-export const SimpleSchemaToTestEnumSchema = z.object({
-  type: z.literal(AdminNotificationType.SERVICE_COMPLETED),
-  string: z.string(),
-});
-
-export type SimpleSchemaToTestEnum = z.infer<typeof SimpleSchemaToTestEnumSchema>;
