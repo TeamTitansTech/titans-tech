@@ -66,7 +66,7 @@ export class NotificationsService {
 
     const notification = await this.prisma.adminNotification.create({
       data: {
-        type: NotificationType.URGENT_SERVICE_REQUEST,
+        type: AdminNotificationType.URGENT_SERVICE_REQUEST,
         createdByUserId: userId,
         metadata,
         recipients: {
