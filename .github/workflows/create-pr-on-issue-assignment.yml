@@ -16,8 +16,9 @@ jobs:
 
       - name: Set up Git
         run: |
-          git config --global user.name ${{ secrets.CLI_GITHUB_GIT_NAME }}
-          git config --global user.email ${{ secrets.CLI_GITHUB_GIT_EMAIL }}
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://${{ secrets.CLI_GITHUB_TOKEN }}@github.com/TeamTitansTech/titans-tech.git
 
       - name: Get Issue Details
         id: issue
