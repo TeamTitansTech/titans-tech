@@ -39,7 +39,7 @@ export function LanguageSwitcher() {
       <DropdownMenu>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
-            <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200">
+            <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200">
               <Globe className="h-5 w-5" />
             </button>
           </DropdownMenuTrigger>
@@ -50,13 +50,13 @@ export function LanguageSwitcher() {
             <DropdownMenuItem
               key={language.code}
               onClick={() => handleLanguageChange(language.code)}
-              className={`cursor-pointer hover:bg-orange-100 hover:text-orange-500 ${
-                language.code === locale ? 'bg-orange-50 dark:bg-orange-500/10' : ''
+              className={`cursor-pointer hover:bg-accent/10 hover:text-accent ${
+                language.code === locale ? 'bg-accent/5 dark:bg-accent/10' : ''
               }`}
             >
               <span className="mr-2">{language.flag}</span>
               <span>{language.name}</span>
-              {language.code === locale && <span className="ml-auto text-orange-500">✓</span>}
+              {language.code === locale && <span className="ml-auto text-accent">✓</span>}
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>

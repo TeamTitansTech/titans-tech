@@ -32,8 +32,11 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:crown": "tsx prisma/seeds/crown/index.ts",
     "db:create-sys-admin": "tsx scripts/create-sys-admin.ts",
-    "db:create-test-user": "tsx scripts/create-test-user.ts"
+    "db:create-test-user": "tsx scripts/create-test-user.ts",
+    "db:format:check": "prisma format --check",
+    "db:validate": "prisma validate"
   },
   "dependencies": {
     "@prisma/client": "^6.0.0",
@@ -45,6 +48,7 @@
     "@titans-tech/tsconfig": "*",
     "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^20.0.0",
     "prisma": "^6.0.0",
     "tsx": "^4.19.0",
     "typescript": "^5.6.0"

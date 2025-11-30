@@ -4,7 +4,7 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // output: 'standalone', // Disabled due to Turbopack + middleware bug in Next.js 16
   images: {
     remotePatterns: [
       {
@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'media.tenor.com',
+      },
+      // Wikipedia for company logos
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+        pathname: '/**',
       },
       // AWS S3 bucket for blueprint and machine images
       {

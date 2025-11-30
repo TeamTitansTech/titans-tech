@@ -66,7 +66,9 @@
     "invalidHexColor": "Deve ser uma cor hexadecimal válida",
     "branchNameRequired": "Nome da filial é obrigatório",
     "fullNameRequired": "Nome completo é obrigatório",
-    "invalidEmail": "Endereço de email inválido"
+    "invalidEmail": "Endereço de email inválido",
+    "invalidImageType": "Apenas imagens JPG e PNG são permitidas",
+    "fileTooLarge": "Tamanho do arquivo excede o limite de 10MB"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -159,6 +161,20 @@
       "lastUpdated": "Última Atualização",
       "branches": "Filiais",
       "subdomain": "Subdomínio"
+    },
+    "brandColor": {
+      "title": "Cores do Tema",
+      "description": "Personalize as cores do tema da sua empresa",
+      "primaryColor": "Cor Primária",
+      "primaryColorDescription": "Cor principal usada em botões, links e destaques",
+      "accentColor": "Cor de Destaque",
+      "accentColorDescription": "Cor secundária usada em estados de hover e ações",
+      "reset": "Redefinir",
+      "save": "Salvar",
+      "saving": "Salvando...",
+      "success": "Cores do tema atualizadas com sucesso",
+      "error": "Falha ao atualizar as cores do tema",
+      "previewNote": "Pré-visualização ativa. Clique em Salvar para aplicar as alterações."
     },
     "branches": {
       "title": "Filiais",
@@ -437,12 +453,20 @@
           "placeholder": "ex., acme-manufacturing"
         },
         "logo": {
-          "label": "URL do Logo (Opcional)",
-          "placeholder": "ex., https://exemplo.com/logo.png"
+          "label": "Logo (Opcional)",
+          "placeholder": "ex., https://exemplo.com/logo.png",
+          "uploadHint": "Clique para enviar logo (JPG ou PNG)",
+          "uploading": "Enviando...",
+          "uploadSuccess": "Logo enviado com sucesso",
+          "uploadError": "Falha ao enviar logo"
         },
         "brandColor": {
-          "label": "Cor da Marca (Opcional)",
-          "placeholder": "#FF5733"
+          "label": "Cor Primária (Opcional)",
+          "placeholder": "#1e3a5f"
+        },
+        "accentColor": {
+          "label": "Cor de Destaque (Opcional)",
+          "placeholder": "#f97415"
         },
         "description": {
           "label": "Descrição (Opcional)",
@@ -461,6 +485,26 @@
     "companyCard": {
       "administrator": "Administrador",
       "unknownUser": "Desconhecido"
+    },
+    "companyColors": {
+      "title": "Cores do Tema da Empresa",
+      "description": "Personalize as cores da marca para o subdomínio de cada empresa",
+      "selectCompany": "Selecionar Empresa",
+      "selectCompanyPlaceholder": "Escolha uma empresa para personalizar",
+      "brandColor": "Cor Primária",
+      "brandColorDescription": "Cor principal usada em botões, links e destaques",
+      "accentColor": "Cor de Destaque",
+      "accentColorDescription": "Cor secundária usada em estados de hover e ações",
+      "preview": "Pré-visualização",
+      "previewPrimary": "Botão Primário",
+      "previewOutline": "Botão Outline",
+      "previewAccent": "Botão Destaque",
+      "previewHighlight": "Realce",
+      "reset": "Redefinir",
+      "save": "Salvar Cores",
+      "saving": "Salvando...",
+      "success": "Cores da empresa atualizadas com sucesso",
+      "error": "Falha ao atualizar as cores da empresa"
     },
     "userManagement": {
       "title": "Contas de Usuário",
@@ -2118,8 +2162,14 @@
     "machineCount": "máquina(s)",
     "noMachinesConfigured": "Nenhuma máquina configurada",
     "configureFirst": "Configure sua linha de produção primeiro",
+    "availableMachines": "Máquinas disponíveis",
+    "dropHere": "Soltar aqui",
+    "dragMachine": "Arraste uma máquina",
     "selectCompanyFirst": "Selecione uma empresa",
     "noMachinesAvailable": "Nenhuma máquina disponível",
+    "mainMachine": "Máquina Principal",
+    "mainMachineDescription": "Selecione a máquina que será exibida primeiro na linha de produção",
+    "selectMainMachine": "Selecione a máquina principal",
     "noMachineSelected": "Nenhuma máquina selecionada",
     "moveUp": "Mover para cima",
     "moveDown": "Mover para baixo",

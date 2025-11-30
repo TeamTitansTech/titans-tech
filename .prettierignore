@@ -5,3 +5,4 @@ build
 coverage
 .turbo
 packages/database/generated
+apps/dashboard/next-env.d.ts

@@ -35,9 +35,15 @@ interface SlideSectionProps {
   inspections: SlideInspectionData[];
   machineName: string;
   blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
-export function SlideSection({ inspections, machineName, blueprintId }: SlideSectionProps) {
+export function SlideSection({
+  inspections,
+  machineName,
+  blueprintId,
+  hideThresholdValues = false,
+}: SlideSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
   const [positionThreshold, setPositionThreshold] = useState<ThresholdConfig | null>(null);
@@ -88,9 +94,15 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestOuterData = latestInspection?.slide?.[0]?.outerData;
-  const latestInnerData = latestInspection?.slide?.[0]?.innerData;
+  // Find the latest inspection that actually has slide data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find(
+      (inspection) => inspection.slide?.[0]?.outerData || inspection.slide?.[0]?.innerData,
+    );
+  }, [filteredInspections]);
+
+  const latestOuterData = latestInspectionWithData?.slide?.[0]?.outerData;
+  const latestInnerData = latestInspectionWithData?.slide?.[0]?.innerData;
 
   // Transform data for charts
   const outerPositionsChartData = useMemo(() => {
@@ -160,7 +172,9 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
           </CardHeader>
           <CardContent>
             <Typography variant="large">
-              {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
             </Typography>
           </CardContent>
         </Card>
@@ -385,11 +399,12 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
               data={maxDeviationChartData}
               lines={[
                 { dataKey: 'outerMaxDeviation', label: 'Outer Max Deviation', color: '#8884d8' },
-                { dataKey: 'innerMaxDeviation', label: 'Inner Max Deviation', color: '#82ca9d' },
+                { dataKey: 'innerMaxDeviation', label: 'Inner Max Deviation', color: '#06b6d4' },
               ]}
               sharedThreshold={positionThreshold}
               valueUnit="mm"
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={300}
             />
 
@@ -398,10 +413,10 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
               data={outerPositionsChartData}
               lines={[
                 { dataKey: 'position1', label: 'Position 1', color: '#8884d8' },
-                { dataKey: 'position2', label: 'Position 2', color: '#82ca9d' },
-                { dataKey: 'position3', label: 'Position 3', color: '#ffc658' },
-                { dataKey: 'position4', label: 'Position 4', color: '#ff7300' },
-                { dataKey: 'position5', label: 'Position 5', color: '#00C49F' },
+                { dataKey: 'position2', label: 'Position 2', color: '#06b6d4' },
+                { dataKey: 'position3', label: 'Position 3', color: '#3b82f6' },
+                { dataKey: 'position4', label: 'Position 4', color: '#ec4899' },
+                { dataKey: 'position5', label: 'Position 5', color: '#6366f1' },
               ]}
               valueUnit="mm"
               allowToggle={false}
@@ -413,10 +428,10 @@ export function SlideSection({ inspections, machineName, blueprintId }: SlideSec
               data={innerPositionsChartData}
               lines={[
                 { dataKey: 'position1', label: 'Position 1', color: '#8884d8' },
-                { dataKey: 'position2', label: 'Position 2', color: '#82ca9d' },
-                { dataKey: 'position3', label: 'Position 3', color: '#ffc658' },
-                { dataKey: 'position4', label: 'Position 4', color: '#ff7300' },
-                { dataKey: 'position5', label: 'Position 5', color: '#00C49F' },
+                { dataKey: 'position2', label: 'Position 2', color: '#06b6d4' },
+                { dataKey: 'position3', label: 'Position 3', color: '#3b82f6' },
+                { dataKey: 'position4', label: 'Position 4', color: '#ec4899' },
+                { dataKey: 'position5', label: 'Position 5', color: '#6366f1' },
               ]}
               valueUnit="mm"
               allowToggle={false}

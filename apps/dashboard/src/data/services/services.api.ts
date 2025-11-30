@@ -17,7 +17,7 @@ export const createService = async (payload: CreateServicePayload) => {
   });
 
   if (!response.errors) {
-    revalidateTag(`services-${payload.machineId}`, 'max');
+    revalidateTag(`services-${payload.machineId}`);
     revalidatePath(`/machines/${payload.machineId}`);
     revalidatePath(`/machines/${payload.machineId}/sections/bearing_clearance`);
   }
@@ -62,7 +62,7 @@ export const updateService = async (
   });
 
   if (!response.errors && machineId) {
-    revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`services-${machineId}`);
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
@@ -132,7 +132,7 @@ export const updateServiceSection = async (
   });
 
   if (!response.errors && machineId) {
-    revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`services-${machineId}`);
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
@@ -154,7 +154,7 @@ export const completeService = async (
   });
 
   if (!response.errors && machineId) {
-    revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`services-${machineId}`);
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
@@ -171,7 +171,7 @@ export const deleteService = async (serviceId: string, machineId?: string) => {
   });
 
   if (!response.errors && machineId) {
-    revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`services-${machineId}`);
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }

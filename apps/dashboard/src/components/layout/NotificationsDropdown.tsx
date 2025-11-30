@@ -90,10 +90,10 @@ export function NotificationsDropdown() {
       <Tooltip>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
-            <button className="relative flex h-10 w-10 items-center justify-center rounded-md hover:bg-orange-100 dark:hover:bg-orange-500/20 text-muted-foreground hover:text-orange-500 transition-all duration-200">
+            <button className="relative flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200">
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+                <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
@@ -111,7 +111,7 @@ export function NotificationsDropdown() {
               variant="ghost"
               size="sm"
               onClick={handleMarkAllAsRead}
-              className="h-6 px-2 text-xs hover:bg-orange-100 hover:text-orange-500"
+              className="h-6 px-2 text-xs hover:bg-accent/10 hover:text-accent"
             >
               {t('markAllAsRead')}
             </Button>
@@ -131,15 +131,15 @@ export function NotificationsDropdown() {
               <DropdownMenuItem
                 key={notification.id}
                 onClick={() => handleNotificationClick(notification)}
-                className={`cursor-pointer p-4 focus:bg-orange-50 dark:focus:bg-orange-500/10 ${
-                  !notification.isRead ? 'bg-orange-50/50 dark:bg-orange-500/5' : ''
+                className={`cursor-pointer p-4 focus:bg-accent/5 dark:focus:bg-accent/10 ${
+                  !notification.isRead ? 'bg-accent/5 dark:bg-accent/5' : ''
                 }`}
               >
                 <div className="flex flex-col gap-1 w-full">
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm font-medium leading-tight">{notification.machineName}</p>
                     {!notification.isRead && (
-                      <span className="flex h-2 w-2 shrink-0 rounded-full bg-orange-500 mt-1" />
+                      <span className="flex h-2 w-2 shrink-0 rounded-full bg-accent mt-1" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground line-clamp-2">

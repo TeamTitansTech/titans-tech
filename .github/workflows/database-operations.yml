@@ -19,9 +19,9 @@ on:
         required: false
         type: string
 
-  # Automatic trigger only on merge to main
+  # Automatic trigger on merge to staging
   push:
-    branches: ['main']
+    branches: ['staging']
     paths:
       - 'packages/database/prisma/schema.prisma'
       - 'packages/database/prisma/migrations/**'
@@ -116,7 +116,7 @@ jobs:
     needs: validate-input
     if: |
       always() &&
-      ((github.event_name == 'push' && github.ref == 'refs/heads/main') ||
+      ((github.event_name == 'push' && github.ref == 'refs/heads/staging') ||
        (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-staging'))
     steps:
       - name: Checkout code
@@ -176,8 +176,7 @@ jobs:
     needs: migrate-staging
     if: |
       always() &&
-      ((github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.migrate-staging.result == 'success') ||
-       (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-production'))
+      (github.event_name == 'workflow_dispatch' && inputs.operation == 'migrate-production')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

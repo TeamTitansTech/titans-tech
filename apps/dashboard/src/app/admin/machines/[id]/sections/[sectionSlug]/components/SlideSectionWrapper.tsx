@@ -4,6 +4,7 @@ import { SlideSection } from './SlideSection';
 
 interface SlideSectionWrapperProps {
   machineId: string;
+  hideThresholdValues?: boolean;
 }
 
 interface SlideData {
@@ -32,7 +33,10 @@ export interface SlideInspectionData {
   }>;
 }
 
-export async function SlideSectionWrapper({ machineId }: SlideSectionWrapperProps) {
+export async function SlideSectionWrapper({
+  machineId,
+  hideThresholdValues = false,
+}: SlideSectionWrapperProps) {
   let inspections: SlideInspectionData[] = [];
   let machineName = '';
   let blueprintId = '';
@@ -71,6 +75,7 @@ export async function SlideSectionWrapper({ machineId }: SlideSectionWrapperProp
       inspections={inspections}
       machineName={machineName}
       blueprintId={blueprintId}
+      hideThresholdValues={hideThresholdValues}
     />
   );
 }
