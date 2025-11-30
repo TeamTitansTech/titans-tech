@@ -62,11 +62,5 @@ jobs:
         if: steps.check-branch.outputs.EXISTS == 'false'
         env:
           GH_TOKEN: ${{ secrets.CLI_GITHUB_TOKEN }}
-        run: |
-          PR_URL=$(gh pr create \
-            --base dev \
-            --head ${{ steps.branch.outputs.BRANCH_NAME }} \
-            --title "${{ steps.branch.outputs.BRANCH_NAME }} - ${{ github.event.issue.title }}" \
-            --assignee "${{ steps.issue.outputs.ASSIGNEE }}" \
-            --body "Closes #${{ steps.issue.outputs.ISSUE_NUMBER }}
+        run: gh pr create --base dev --head ${{ steps.branch.outputs.BRANCH_NAME }} --title "${{ steps.branch.outputs.BRANCH_NAME }} - ${{ github.event.issue.title }}" --assignee "${{ steps.issue.outputs.ASSIGNEE }}" --body "Closes ${{ steps.issue.outputs.ISSUE_NUMBER }}"
 
