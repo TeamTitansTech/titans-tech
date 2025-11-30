@@ -130,12 +130,13 @@ export class UsersService {
       });
 
       // Buscar quantidade de notificações não lidas
-      const unreadNotifications = await this.prisma.clientNotification.count({
-        where: {
-          userId,
-          isRead: false,
-        },
-      });
+      const unreadNotifications =
+        await this.prisma.adminNotificationRecipient.count({
+          where: {
+            recipientId: userId,
+            isRead: false,
+          },
+        });
 
       userResponse.unreadNotifications = unreadNotifications;
 
@@ -143,12 +144,13 @@ export class UsersService {
     }
 
     // Buscar quantidade de notificações não lidas
-    const unreadNotifications = await this.prisma.clientNotification.count({
-      where: {
-        userId,
-        isRead: false,
-      },
-    });
+    const unreadNotifications =
+      await this.prisma.adminNotificationRecipient.count({
+        where: {
+          recipientId: userId,
+          isRead: false,
+        },
+      });
 
     const userResponse = new UserResponseDto(user);
     userResponse.unreadNotifications = unreadNotifications;
