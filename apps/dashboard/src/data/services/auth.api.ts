@@ -52,6 +52,7 @@ export const updateSysAdminPassword = async (data: UpdatePasswordDto) => {
 
 export const logout = async () => {
   await deleteCookie('auth_token');
+  await deleteCookie('is_sys_panel');
 };
 
 export const getCurrentUser = async () => {

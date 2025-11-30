@@ -1,13 +1,14 @@
-import { getCookie } from '@/lib/cookies';
+import { deleteCookie, getCookie } from '@/lib/cookies';
 import { BackendErrorResponse, formatErrors } from './errorFormatter';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 /**
- * Handle authentication errors by redirecting to logout
+ * Handle authentication errors by clearing auth cookies.
  */
 async function handleAuthError() {
-  console.debug('TODO: Handle auth error - redirecting to logout');
+  await deleteCookie('auth_token');
+  await deleteCookie('is_sys_panel');
 }
 
 export async function responseHandler<T>(
