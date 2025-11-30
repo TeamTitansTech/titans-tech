@@ -58,7 +58,9 @@ export type AdminNotificationResponse = Prisma.AdminNotificationRecipientGetPayl
 }>;
 
 export type AdminNotificationResponseWithMetadata = AdminNotificationResponse & {
-  metadata: UrgentRequestNotificationMetadataDto | SimpleSchemaToTestEnum | null;
+  notification: AdminNotificationResponse['notification'] & {
+    metadata: UrgentRequestNotificationMetadataDto | SimpleSchemaToTestEnum | null;
+  };
 };
 
 export type NotificationTypeDto = z.infer<typeof NotificationTypeDtoSchema>;

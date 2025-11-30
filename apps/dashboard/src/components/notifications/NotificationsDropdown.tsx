@@ -54,12 +54,12 @@ export function NotificationsDropdown() {
     }
 
     setIsOpen(false);
-    switch (notification.metadata?.type) {
+    switch (notification.notification.metadata?.type) {
       case 'URGENT_SERVICE_REQUEST':
-        router.push(`/admin/machines/${notification.metadata.machineId}`);
+        router.push(`/admin/machines/${notification.notification.metadata.machineId}`);
         break;
       default:
-        console.warn('Unknown notification type:', notification.metadata?.type);
+        console.warn('Unknown notification type:', notification.notification.metadata?.type);
         break;
     }
   };
@@ -72,6 +72,18 @@ export function NotificationsDropdown() {
       setIsOpen(false);
     } catch (error) {
       console.error('Failed to mark all as read:', error);
+    }
+  };
+
+  const getNotificationMessage = (notification: AdminNotificationResponseWithMetadata) => {
+    switch (notification.notification.metadata?.type) {
+      case 'URGENT_SERVICE_REQUEST':
+        return t('notificationsMessage.newUrgentRequest', {
+          requestedByName: notification.notification.metadata?.requestedByName,
+          machineName: notification.notification.metadata?.machineName,
+        });
+      default:
+        return t('notificationsMessage.default', { type: notification.notification.type });
     }
   };
 
@@ -127,15 +139,12 @@ export function NotificationsDropdown() {
               >
                 <div className="flex flex-col gap-1 w-full">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium leading-tight">
-                      {notification.notification.metadata.machineName}
-                    </p>
                     {!notification.isRead && (
                       <span className="flex h-2 w-2 shrink-0 rounded-full bg-orange-500 mt-1" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground line-clamp-2">
-                    {notification.notification.type}
+                    {getNotificationMessage(notification)}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {new Date(notification.createdAt).toLocaleString()}
