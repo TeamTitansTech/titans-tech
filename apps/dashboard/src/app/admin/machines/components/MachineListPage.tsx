@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { MachineCard } from './MachineCard';
+import { MachineCardSkeleton } from './MachineCardSkeleton';
 import { MachineCreationModal } from './MachineCreationModal';
 import { MachineEditModal } from './MachineEditModal';
 import { Button } from '@/components/ui/button';
@@ -20,6 +21,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { deleteMachine } from '@/data/services/machines.api';
+import { getLatestReport } from '@/data/services/services.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { toast } from 'sonner';
 import {
@@ -30,6 +32,8 @@ import {
   PressMountingType,
   MachineFeaturesType,
 } from '@titans-tech/shared/types';
+import { calculateStatusFromLatestReport, type AlertStatus } from '@/lib/alertStatus';
+import type { LatestReport } from '@/data/types/services.types';
 
 interface Machine {
   id: string;
@@ -56,12 +60,34 @@ interface Machine {
   features?: MachineFeaturesType | null;
 }
 
+interface MachineWithStatus extends Machine {
+  latestReport?: LatestReport | null;
+  alertStatus?: AlertStatus;
+}
+
+// Helper to map alert status to machine card status
+const mapAlertStatusToCardStatus = (
+  alertStatus: AlertStatus,
+): 'operational' | 'maintenance' | 'offline' => {
+  switch (alertStatus) {
+    case 'ok':
+      return 'operational';
+    case 'warning':
+      return 'maintenance';
+    case 'critical':
+      return 'offline';
+    default:
+      return 'operational';
+  }
+};
+
 interface MachineListPageProps {
   machines: Machine[];
 }
 
 export function MachineListPage({ machines: initialMachines }: MachineListPageProps) {
-  const [machines, setMachines] = useState<Machine[]>(initialMachines);
+  const [machines, setMachines] = useState<MachineWithStatus[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -75,8 +101,45 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
     deleteMachine(id),
   );
 
+  // Fetch latest reports for all machines to calculate alert status
   useEffect(() => {
-    setMachines(initialMachines);
+    const fetchMachinesWithStatus = async () => {
+      if (initialMachines.length === 0) {
+        setMachines([]);
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+
+      const machinesWithStatus = await Promise.all(
+        initialMachines.map(async (machine) => {
+          try {
+            const reportResponse = await getLatestReport(machine.id);
+            const latestReport = reportResponse.data || null;
+            const alertStatus = calculateStatusFromLatestReport(latestReport);
+
+            return {
+              ...machine,
+              latestReport,
+              alertStatus,
+            };
+          } catch (error) {
+            console.error(`Failed to fetch report for machine ${machine.id}:`, error);
+            return {
+              ...machine,
+              latestReport: null,
+              alertStatus: 'unknown' as AlertStatus,
+            };
+          }
+        }),
+      );
+
+      setMachines(machinesWithStatus);
+      setIsLoading(false);
+    };
+
+    fetchMachinesWithStatus();
   }, [initialMachines]);
 
   const handleSuccess = () => {
@@ -125,26 +188,38 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
           </Button>
         </div>
 
-        {machines.length === 0 ? (
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <MachineCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : machines.length === 0 ? (
           <div className="text-center py-12">
             <Typography variant="muted">{t('emptyState')}</Typography>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {machines.map((machine) => (
-              <MachineCard
-                key={machine.id}
-                id={machine.id}
-                name={machine.name}
-                blueprintName={machine.blueprint?.name || t('noBlueprint')}
-                imageUrl={machine.imageUrl}
-                location={machine.location}
-                lastInspection={machine.lastInspection}
-                status={machine.status}
-                onEdit={() => handleEdit(machine)}
-                onDelete={() => handleDeleteClick({ id: machine.id, name: machine.name })}
-              />
-            ))}
+            {machines.map((machine) => {
+              // Use calculated alert status from latest report
+              const alertStatus = machine.alertStatus || 'unknown';
+              const cardStatus = mapAlertStatusToCardStatus(alertStatus);
+
+              return (
+                <MachineCard
+                  key={machine.id}
+                  id={machine.id}
+                  name={machine.name}
+                  blueprintName={machine.blueprint?.name || t('noBlueprint')}
+                  imageUrl={machine.imageUrl}
+                  location={machine.location}
+                  lastInspection={machine.lastInspection}
+                  status={cardStatus}
+                  onEdit={() => handleEdit(machine)}
+                  onDelete={() => handleDeleteClick({ id: machine.id, name: machine.name })}
+                />
+              );
+            })}
           </div>
         )}
       </div>

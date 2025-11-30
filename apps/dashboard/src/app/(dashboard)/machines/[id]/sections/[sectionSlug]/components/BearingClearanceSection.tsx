@@ -100,8 +100,12 @@ export function BearingClearanceSection({
     );
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestBearingCheck = latestInspection?.bearingClearance?.[0]?.outerData;
+  // Find the latest inspection that actually has bearing clearance data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find((inspection) => inspection.bearingClearance?.[0]?.outerData);
+  }, [filteredInspections]);
+
+  const latestBearingCheck = latestInspectionWithData?.bearingClearance?.[0]?.outerData;
 
   // Transform data for new threshold charts
   const cbChartData = useMemo(() => {
@@ -214,7 +218,9 @@ export function BearingClearanceSection({
             </CardHeader>
             <CardContent>
               <Typography variant="large">
-                {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+                {latestInspectionWithData
+                  ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                  : '-'}
               </Typography>
             </CardContent>
           </Card>
@@ -372,7 +378,7 @@ export function BearingClearanceSection({
                     {
                       dataKey: 'upperConnectionBearings_LH',
                       label: 'CB LH',
-                      color: '#82ca9d',
+                      color: '#06b6d4',
                     },
                   ]}
                   sharedThreshold={cbThreshold}
@@ -388,12 +394,12 @@ export function BearingClearanceSection({
                     {
                       dataKey: 'totalClearance_RH',
                       label: 'TC RH',
-                      color: '#ffc658',
+                      color: '#3b82f6',
                     },
                     {
                       dataKey: 'totalClearance_LH',
                       label: 'TC LH',
-                      color: '#ff7300',
+                      color: '#ec4899',
                     },
                   ]}
                   sharedThreshold={totalClearanceThreshold}

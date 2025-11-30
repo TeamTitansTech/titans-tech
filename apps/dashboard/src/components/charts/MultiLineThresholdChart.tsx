@@ -46,6 +46,7 @@ interface MultiLineTooltipProps {
   lines: MultiLineThresholdChartProps['lines'];
   sharedThreshold: MultiLineThresholdChartProps['sharedThreshold'];
   valueUnit?: string;
+  hideThresholdValues?: boolean;
 }
 
 function CustomTooltip({
@@ -55,6 +56,7 @@ function CustomTooltip({
   lines,
   sharedThreshold,
   valueUnit,
+  hideThresholdValues,
 }: MultiLineTooltipProps) {
   if (!active || !payload || payload.length === 0) return null;
 
@@ -95,7 +97,7 @@ function CustomTooltip({
           );
         })}
 
-        {sharedThreshold && (
+        {sharedThreshold && !hideThresholdValues && (
           <div className="text-xs space-y-1 pt-2 mt-2 border-t">
             <Typography variant="small" className="text-muted-foreground font-medium">
               Thresholds:
@@ -138,6 +140,7 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
     showYellowLine = true,
     showRedLine = true,
     allowToggle = true,
+    hideThresholdValues = false,
     height = 300,
     onDataPointClick,
   } = props;
@@ -170,7 +173,7 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <CardTitle>{title}</CardTitle>
-          {allowToggle && sharedThreshold && (
+          {allowToggle && sharedThreshold && !hideThresholdValues && (
             <div className="flex gap-2 flex-wrap">
               <Button
                 variant="outline"
@@ -244,6 +247,7 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
                   lines={lines}
                   sharedThreshold={sharedThreshold}
                   valueUnit={valueUnit}
+                  hideThresholdValues={hideThresholdValues}
                 />
               )}
             />
@@ -254,8 +258,8 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
               wrapperStyle={{ paddingTop: 10 }}
             />
 
-            {/* Threshold lines */}
-            {sharedThreshold && showGreen && (
+            {/* Threshold lines - hidden when hideThresholdValues is true */}
+            {sharedThreshold && showGreen && !hideThresholdValues && (
               <ReferenceLine
                 y={sharedThreshold.greenMin}
                 stroke={getThresholdColor('green')}
@@ -269,7 +273,7 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
                 }}
               />
             )}
-            {sharedThreshold && showYellow && (
+            {sharedThreshold && showYellow && !hideThresholdValues && (
               <ReferenceLine
                 y={sharedThreshold.yellowMin}
                 stroke={getThresholdColor('yellow')}
@@ -283,7 +287,7 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
                 }}
               />
             )}
-            {sharedThreshold && showRed && (
+            {sharedThreshold && showRed && !hideThresholdValues && (
               <ReferenceLine
                 y={sharedThreshold.redMin}
                 stroke={getThresholdColor('red')}

@@ -32,6 +32,7 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:crown": "tsx prisma/seeds/crown/index.ts",
     "db:create-sys-admin": "tsx scripts/create-sys-admin.ts",
     "db:create-test-user": "tsx scripts/create-test-user.ts"
   },

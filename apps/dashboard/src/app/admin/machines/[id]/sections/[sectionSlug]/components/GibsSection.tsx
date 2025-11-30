@@ -26,6 +26,7 @@ interface GibsSectionProps {
   inspections: GibsInspectionData[];
   machineName: string;
   blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
 interface GibsStageData {
@@ -47,7 +48,12 @@ interface GibsStageData {
   point16: number | null;
 }
 
-export function GibsSection({ inspections, machineName, blueprintId }: GibsSectionProps) {
+export function GibsSection({
+  inspections,
+  machineName,
+  blueprintId,
+  hideThresholdValues = false,
+}: GibsSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
   const tGibsFields = useTranslations('machines.gibsFields');
@@ -96,9 +102,15 @@ export function GibsSection({ inspections, machineName, blueprintId }: GibsSecti
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestOuterData = latestInspection?.gibs?.[0]?.outerData;
-  const latestInnerData = latestInspection?.gibs?.[0]?.innerData;
+  // Find the latest inspection that actually has gibs data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find(
+      (inspection) => inspection.gibs?.[0]?.outerData || inspection.gibs?.[0]?.innerData,
+    );
+  }, [filteredInspections]);
+
+  const latestOuterData = latestInspectionWithData?.gibs?.[0]?.outerData;
+  const latestInnerData = latestInspectionWithData?.gibs?.[0]?.innerData;
 
   // Transform data for charts
   const innerGibsChartData = useMemo(() => {
@@ -266,7 +278,9 @@ export function GibsSection({ inspections, machineName, blueprintId }: GibsSecti
           </CardHeader>
           <CardContent>
             <Typography variant="large">
-              {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
             </Typography>
           </CardContent>
         </Card>
@@ -595,12 +609,13 @@ export function GibsSection({ inspections, machineName, blueprintId }: GibsSecti
                     ? [{ dataKey: 'innerUsable', label: 'Inner Usable', color: '#8884d8' }]
                     : []),
                   ...(outerGibsChartData.length > 0
-                    ? [{ dataKey: 'outerUsable', label: 'Outer Usable', color: '#82ca9d' }]
+                    ? [{ dataKey: 'outerUsable', label: 'Outer Usable', color: '#06b6d4' }]
                     : []),
                 ]}
                 sharedThreshold={usableThreshold}
                 valueUnit="mm"
                 allowToggle={true}
+                hideThresholdValues={hideThresholdValues}
                 height={300}
               />
             )}
@@ -611,10 +626,10 @@ export function GibsSection({ inspections, machineName, blueprintId }: GibsSecti
                 title={t('chartTitles.innerGibsDirectional')}
                 data={innerGibsChartData}
                 lines={[
-                  { dataKey: 'leftTop', label: 'Front Top', color: '#82ca9d' },
-                  { dataKey: 'leftBottom', label: 'Front Bottom', color: '#ffc658' },
-                  { dataKey: 'rightTop', label: 'Back Top', color: '#ff7300' },
-                  { dataKey: 'rightBottom', label: 'Back Bottom', color: '#00C49F' },
+                  { dataKey: 'leftTop', label: 'Front Top', color: '#8884d8' },
+                  { dataKey: 'leftBottom', label: 'Front Bottom', color: '#06b6d4' },
+                  { dataKey: 'rightTop', label: 'Back Top', color: '#3b82f6' },
+                  { dataKey: 'rightBottom', label: 'Back Bottom', color: '#ec4899' },
                 ]}
                 valueUnit="mm"
                 allowToggle={false}
@@ -628,10 +643,10 @@ export function GibsSection({ inspections, machineName, blueprintId }: GibsSecti
                 title={t('chartTitles.outerGibsDirectional')}
                 data={outerGibsChartData}
                 lines={[
-                  { dataKey: 'leftTop', label: 'Front Top', color: '#82ca9d' },
-                  { dataKey: 'leftBottom', label: 'Front Bottom', color: '#ffc658' },
-                  { dataKey: 'rightTop', label: 'Back Top', color: '#ff7300' },
-                  { dataKey: 'rightBottom', label: 'Back Bottom', color: '#00C49F' },
+                  { dataKey: 'leftTop', label: 'Front Top', color: '#8884d8' },
+                  { dataKey: 'leftBottom', label: 'Front Bottom', color: '#06b6d4' },
+                  { dataKey: 'rightTop', label: 'Back Top', color: '#3b82f6' },
+                  { dataKey: 'rightBottom', label: 'Back Bottom', color: '#ec4899' },
                 ]}
                 valueUnit="mm"
                 allowToggle={false}

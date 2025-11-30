@@ -131,8 +131,8 @@ export function RolePresetSelector({
             className={cn(
               'flex items-start space-x-3 p-3 border rounded-lg cursor-pointer transition-colors',
               value === preset.value && !selectedTemplateId
-                ? 'border-blue-600 bg-blue-50'
-                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50',
+                ? 'border-primary bg-primary/10'
+                : 'border-border hover:border-muted-foreground/30 hover:bg-muted',
               disabled && 'opacity-50 cursor-not-allowed',
             )}
           >
@@ -148,11 +148,11 @@ export function RolePresetSelector({
                 }
               }}
               disabled={disabled}
-              className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+              className="mt-1 h-4 w-4 text-primary focus:ring-primary border-border"
             />
             <div className="flex-1">
-              <div className="font-medium text-sm text-gray-900">{preset.label}</div>
-              <div className="text-xs text-gray-500 mt-0.5">{preset.description}</div>
+              <div className="font-medium text-sm text-foreground">{preset.label}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{preset.description}</div>
             </div>
           </label>
         ))}
@@ -161,7 +161,9 @@ export function RolePresetSelector({
         {companyId && templates.length > 0 && (
           <>
             <div className="pt-2">
-              <Label className="text-xs font-medium text-gray-500">{tTemplates('title')}</Label>
+              <Label className="text-xs font-medium text-muted-foreground">
+                {tTemplates('title')}
+              </Label>
             </div>
             {templates.map((template) => (
               <label
@@ -169,8 +171,8 @@ export function RolePresetSelector({
                 className={cn(
                   'flex items-start space-x-3 p-3 border rounded-lg cursor-pointer transition-colors',
                   selectedTemplateId === template.id
-                    ? 'border-blue-600 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50',
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border hover:border-muted-foreground/30 hover:bg-muted',
                   disabled && 'opacity-50 cursor-not-allowed',
                 )}
               >
@@ -181,14 +183,16 @@ export function RolePresetSelector({
                   checked={selectedTemplateId === template.id}
                   onChange={() => handleTemplateSelect(template)}
                   disabled={disabled || isLoadingTemplates}
-                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                  className="mt-1 h-4 w-4 text-primary focus:ring-primary border-border"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm text-gray-900">{template.name}</div>
+                  <div className="font-medium text-sm text-foreground">{template.name}</div>
                   {template.description && (
-                    <div className="text-xs text-gray-500 mt-0.5">{template.description}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {template.description}
+                    </div>
                   )}
-                  <div className="text-xs text-gray-400 mt-1">
+                  <div className="text-xs text-muted-foreground/70 mt-1">
                     {Object.values(template.permissions).filter((v) => v === true).length}{' '}
                     {tTemplates('permissionsCount')}
                   </div>
@@ -214,7 +218,7 @@ export function RolePresetSelector({
 
         {/* Loading state */}
         {companyId && isLoadingTemplates && templates.length === 0 && (
-          <div className="text-center py-4 text-sm text-gray-500">
+          <div className="text-center py-4 text-sm text-muted-foreground">
             <Loader2 className="w-4 h-4 animate-spin mx-auto mb-2" />
             {tTemplates('loading')}
           </div>

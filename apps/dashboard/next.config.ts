@@ -15,6 +15,12 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'media.tenor.com',
       },
+      // Wikipedia for company logos
+      {
+        protocol: 'https',
+        hostname: 'upload.wikimedia.org',
+        pathname: '/**',
+      },
       // AWS S3 bucket for blueprint and machine images
       {
         protocol: 'https',

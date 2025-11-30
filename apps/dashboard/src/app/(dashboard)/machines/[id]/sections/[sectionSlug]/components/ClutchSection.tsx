@@ -89,8 +89,12 @@ export function ClutchSection({
     );
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestClutchData = latestInspection?.clutch?.[0]?.data;
+  // Find the latest inspection that actually has clutch data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return filteredInspections.find((inspection) => inspection.clutch?.[0]?.data);
+  }, [filteredInspections]);
+
+  const latestClutchData = latestInspectionWithData?.clutch?.[0]?.data;
 
   // Transform data for charts
   const hydClearanceChartData = useMemo(() => {
@@ -136,7 +140,9 @@ export function ClutchSection({
             </CardHeader>
             <CardContent>
               <Typography variant="large">
-                {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+                {latestInspectionWithData
+                  ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                  : '-'}
               </Typography>
             </CardContent>
           </Card>
@@ -263,7 +269,7 @@ export function ClutchSection({
                   {
                     dataKey: 'hydClutchClearanceRear',
                     label: 'Hyd Rear',
-                    color: '#82ca9d',
+                    color: '#06b6d4',
                     threshold: hydRearThreshold ?? undefined,
                   },
                 ]}
@@ -280,19 +286,19 @@ export function ClutchSection({
                   {
                     dataKey: 'brakeSpringFB',
                     label: 'F-B',
-                    color: '#ffc658',
+                    color: '#3b82f6',
                     threshold: fbThreshold ?? undefined,
                   },
                   {
                     dataKey: 'brakeSpringFTB',
                     label: 'F-TB',
-                    color: '#ff7300',
+                    color: '#ec4899',
                     threshold: fTBThreshold ?? undefined,
                   },
                   {
                     dataKey: 'brakeSpringRTB',
                     label: 'R-TB',
-                    color: '#00C49F',
+                    color: '#6366f1',
                     threshold: rTBThreshold ?? undefined,
                   },
                 ]}

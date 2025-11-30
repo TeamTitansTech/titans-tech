@@ -14,8 +14,9 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Typography } from '@/components/ui/typography';
 import { Badge } from '@/components/ui/badge';
-import { Loader2 } from 'lucide-react';
 import { getBlueprints } from '@/data/services/blueprints.api';
+import { DashboardSkeleton } from './DashboardSkeleton';
+import { Spinner } from '@/components/ui/spinner';
 import { getMachines } from '@/data/services/machines.api';
 import { getAllCompanies, type Company } from '@/data/services/companies.api';
 import { getServices, getServiceById } from '@/data/services/services.api';
@@ -227,11 +228,7 @@ export function AdminDashboard() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (
@@ -581,7 +578,7 @@ export function AdminDashboard() {
       {/* Loading overlay for service fetch */}
       {isLoadingService && (
         <div className="fixed inset-0 bg-background/50 flex items-center justify-center z-50">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <Spinner size="lg" className="text-primary" />
         </div>
       )}
     </div>

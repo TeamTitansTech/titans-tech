@@ -11,6 +11,10 @@ export interface PDFExportOptions {
    */
   convertSvgs?: boolean;
   /**
+   * If true, creates a single-page PDF sized to fit all content (no pagination)
+   */
+  pageless?: boolean;
+  /**
    * Additional cleanup for cloned document
    */
   onClone?: (clonedDoc: Document, clonedElement: HTMLElement) => void;
@@ -100,10 +104,10 @@ async function convertSvgsToCanvas(container: HTMLElement): Promise<() => void> 
 }
 
 /**
- * Export an HTML element to a paginated A4 landscape PDF
+ * Export an HTML element to PDF (paginated A4 landscape or pageless)
  */
 export async function exportToPDF(options: PDFExportOptions): Promise<PDFExportResult> {
-  const { element, title, filename, convertSvgs = false, onClone } = options;
+  const { element, title, filename, convertSvgs = false, pageless = false, onClone } = options;
 
   let restoreSvgs: (() => void) | null = null;
 
@@ -194,71 +198,111 @@ export async function exportToPDF(options: PDFExportOptions): Promise<PDFExportR
     element.style.maxHeight = originalStyle.maxHeight;
     element.style.position = originalStyle.position;
 
-    // Calculate dimensions - A4 landscape with pagination
-    const pdfWidth = 297; // A4 landscape width in mm
-    const pdfPageHeight = 210; // A4 landscape height in mm
+    // Common dimensions
     const margin = 15;
     const headerHeight = 20;
-    const contentWidth = pdfWidth - 2 * margin;
-    const contentPageHeight = pdfPageHeight - headerHeight - margin;
-
-    // Calculate image scaling
     const imgWidth = canvas.width;
     const imgHeight = canvas.height;
-    const ratio = contentWidth / imgWidth;
-    const scaledHeight = imgHeight * ratio;
 
-    // Determine number of pages needed
-    const totalPages = Math.ceil(scaledHeight / contentPageHeight);
+    let pdf: jsPDF;
 
-    // Create PDF
-    const pdf = new jsPDF({
-      orientation: 'landscape',
-      unit: 'mm',
-      format: 'a4',
-    });
+    if (pageless) {
+      // Pageless mode: create PDF sized to fit all content
+      const pdfWidth = 297; // Keep A4 width for consistency
+      const contentWidth = pdfWidth - 2 * margin;
+      const ratio = contentWidth / imgWidth;
+      const scaledHeight = imgHeight * ratio;
+      const pdfHeight = scaledHeight + headerHeight + margin;
 
-    // Add content across pages
-    for (let page = 0; page < totalPages; page++) {
-      if (page > 0) {
-        pdf.addPage();
-      }
+      pdf = new jsPDF({
+        orientation: pdfWidth > pdfHeight ? 'landscape' : 'portrait',
+        unit: 'mm',
+        format: [pdfWidth, pdfHeight],
+      });
 
-      // Add simple header with title
+      // Add header
       pdf.setTextColor(0, 0, 0);
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
       pdf.text(title, margin, 12);
 
-      // Add a subtle line under header
+      // Add header line
       pdf.setDrawColor(200, 200, 200);
       pdf.setLineWidth(0.5);
       pdf.line(margin, headerHeight - 2, pdfWidth - margin, headerHeight - 2);
 
-      // Calculate which portion of the image to draw
-      const sourceY = (page * contentPageHeight) / ratio;
-      const sourceHeight = Math.min(contentPageHeight / ratio, imgHeight - sourceY);
-      const destHeight = sourceHeight * ratio;
+      // Add entire content as single image
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      pdf.addImage(imgData, 'PNG', margin, headerHeight, contentWidth, scaledHeight);
+    } else {
+      // Paginated mode: A4 landscape with multiple pages
+      const pdfWidth = 297; // A4 landscape width in mm
+      const pdfPageHeight = 210; // A4 landscape height in mm
+      const contentWidth = pdfWidth - 2 * margin;
+      const contentPageHeight = pdfPageHeight - headerHeight - margin;
 
-      // Create a temporary canvas for this page's portion
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = imgWidth;
-      tempCanvas.height = sourceHeight;
-      const tempCtx = tempCanvas.getContext('2d');
+      const ratio = contentWidth / imgWidth;
+      const scaledHeight = imgHeight * ratio;
+      const totalPages = Math.ceil(scaledHeight / contentPageHeight);
 
-      if (tempCtx) {
-        tempCtx.drawImage(canvas, 0, sourceY, imgWidth, sourceHeight, 0, 0, imgWidth, sourceHeight);
+      pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4',
+      });
 
-        const pageImgData = tempCanvas.toDataURL('image/png', 1.0);
-        pdf.addImage(pageImgData, 'PNG', margin, headerHeight, contentWidth, destHeight);
-      }
+      // Add content across pages
+      for (let page = 0; page < totalPages; page++) {
+        if (page > 0) {
+          pdf.addPage();
+        }
 
-      // Add page number in footer (only if multiple pages)
-      if (totalPages > 1) {
-        pdf.setTextColor(128, 128, 128);
-        pdf.setFontSize(8);
-        const pageText = `${page + 1} / ${totalPages}`;
-        pdf.text(pageText, pdfWidth / 2 - pdf.getTextWidth(pageText) / 2, pdfPageHeight - 5);
+        // Add simple header with title
+        pdf.setTextColor(0, 0, 0);
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(title, margin, 12);
+
+        // Add a subtle line under header
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(0.5);
+        pdf.line(margin, headerHeight - 2, pdfWidth - margin, headerHeight - 2);
+
+        // Calculate which portion of the image to draw
+        const sourceY = (page * contentPageHeight) / ratio;
+        const sourceHeight = Math.min(contentPageHeight / ratio, imgHeight - sourceY);
+        const destHeight = sourceHeight * ratio;
+
+        // Create a temporary canvas for this page's portion
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = imgWidth;
+        tempCanvas.height = sourceHeight;
+        const tempCtx = tempCanvas.getContext('2d');
+
+        if (tempCtx) {
+          tempCtx.drawImage(
+            canvas,
+            0,
+            sourceY,
+            imgWidth,
+            sourceHeight,
+            0,
+            0,
+            imgWidth,
+            sourceHeight,
+          );
+
+          const pageImgData = tempCanvas.toDataURL('image/png', 1.0);
+          pdf.addImage(pageImgData, 'PNG', margin, headerHeight, contentWidth, destHeight);
+        }
+
+        // Add page number in footer (only if multiple pages)
+        if (totalPages > 1) {
+          pdf.setTextColor(128, 128, 128);
+          pdf.setFontSize(8);
+          const pageText = `${page + 1} / ${totalPages}`;
+          pdf.text(pageText, pdfWidth / 2 - pdf.getTextWidth(pageText) / 2, pdfPageHeight - 5);
+        }
       }
     }
 

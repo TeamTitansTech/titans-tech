@@ -62,3 +62,62 @@ export const uploadImage = async (
     };
   }
 };
+
+/**
+ * Upload a logo file to S3 via the backend API
+ * @param file - File object to upload
+ * @returns URL of the uploaded logo or error
+ */
+export const uploadLogo = async (
+  file: File,
+): Promise<{ url: string; error: null } | { url: null; error: string }> => {
+  try {
+    const token = await getCookie('auth_token');
+
+    const formData = new FormData();
+    formData.append('logo', file);
+
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/upload/logo`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      const errorMessage =
+        errorData.message || errorData.error || `Upload failed with status ${response.status}`;
+
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Logo Upload Error:', {
+          status: response.status,
+          errorData,
+        });
+      }
+
+      return {
+        url: null,
+        error: Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage,
+      };
+    }
+
+    const data: { url: string } = await response.json();
+
+    if (process.env.NODE_ENV === 'development') {
+      console.debug('Logo Upload Success:', data);
+    }
+
+    return { url: data.url, error: null };
+  } catch (error) {
+    console.error('Error uploading logo:', error);
+    return {
+      url: null,
+      error: error instanceof Error ? error.message : 'Failed to upload logo',
+    };
+  }
+};
