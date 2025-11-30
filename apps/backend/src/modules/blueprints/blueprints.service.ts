@@ -11,7 +11,6 @@ import {
   CreateBlueprintDto,
   UpdateBlueprintDto,
 } from '@titans-tech/shared/backend-dtos';
-import { UpdateBlueprintDto } from '../../blueprints/dto/update-blueprint.dto';
 import {
   convertThresholdToDecimal,
   convertClutchThresholdToDecimal,

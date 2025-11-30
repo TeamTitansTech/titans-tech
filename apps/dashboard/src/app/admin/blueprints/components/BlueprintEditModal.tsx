@@ -115,7 +115,14 @@ export const BlueprintEditModal = ({
 
             // Initialize fields
             if (blueprint.fields && Array.isArray(blueprint.fields)) {
-              initializeFields(blueprint.fields);
+              // Convert BlueprintField[] to Field[] with proper typing
+              const typedFields = blueprint.fields.map((field) => ({
+                fieldName: field.fieldName,
+                fieldSlug: field.fieldSlug,
+                fieldType: field.fieldType as 'string' | 'int' | 'enum',
+                fieldOptions: field.fieldOptions,
+              }));
+              initializeFields(typedFields);
             }
           }
         } catch (error) {
@@ -175,7 +182,7 @@ export const BlueprintEditModal = ({
 
               <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
                 {hasMachines && (
-                  <Alert variant="warning">
+                  <Alert variant="destructive">
                     <AlertTriangle className="h-4 w-4" />
                     <AlertDescription>{t('form.hasMachinesWarning')}</AlertDescription>
                   </Alert>

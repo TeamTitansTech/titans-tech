@@ -416,21 +416,7 @@ export class AlertsService {
     const alert = await this.prisma.alertBearingClearance.create({
       data: {
         machineServiceId,
-        totalClearance_differential: totalClearance.differential,
-        totalClearance_severity: totalClearance.severity,
-        mainBearings_differential: mainBearings.differential,
-        mainBearings_severity: mainBearings.severity,
-        upperConnectionBearings_differential:
-          upperConnectionBearings.differential,
-        upperConnectionBearings_severity: upperConnectionBearings.severity,
-        wristPinToMatingPart_differential: wristPinToMatingPart.differential,
-        wristPinToMatingPart_severity: wristPinToMatingPart.severity,
-        wristPinToBushing_differential: wristPinToBushing.differential,
-        wristPinToBushing_severity: wristPinToBushing.severity,
-        slideAdjNutToScrewSleeve_differential:
-          slideAdjNutToScrewSleeve.differential,
-        slideAdjNutToScrewSleeve_severity: slideAdjNutToScrewSleeve.severity,
-        thresholdSnapshot,
+        ...alertData,
       },
     });
 

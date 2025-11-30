@@ -16,7 +16,6 @@ import {
   UpdateBlueprintDto,
   UpdateBlueprintSchema,
 } from '@titans-tech/shared/backend-dtos';
-import { UpdateBlueprintDto } from '../../blueprints/dto/update-blueprint.dto';
 import { Admin, Authenticated } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 
@@ -54,15 +53,6 @@ export class BlueprintsController {
     }>
   > {
     return this.blueprintsService.findOne(id);
-  }
-
-  @Authenticated()
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateBlueprintDto: UpdateBlueprintDto,
-  ): Promise<Prisma.BlueprintGetPayload<object>> {
-    return this.blueprintsService.update(id, updateBlueprintDto);
   }
 
   @Admin()
