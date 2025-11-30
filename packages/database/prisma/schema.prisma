@@ -437,11 +437,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company                     Company              @relation(fields: [companyId], references: [id])
-  companyId                   String
-  branches                    UserBranch[]
-  adminNotificationsCreated   AdminNotification[]  @relation("AdminNotificationsCreated")
-  clientNotificationsReceived ClientNotification[] @relation("ClientNotificationsReceived")
+  company                   Company             @relation(fields: [companyId], references: [id])
+  companyId                 String
+  branches                  UserBranch[]
+  adminNotificationsCreated AdminNotification[] @relation("AdminNotificationsCreated")
 
   @@map("users")
 }
@@ -650,13 +649,12 @@ model Machine {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  blueprint           Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
-  branch              CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  fields              MachineField[]
-  services            MachineService[]
-  clientNotifications ClientNotification[]
-  emails              Email[]
-  productionLines     MachineProductionLine[]
+  blueprint       Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  branch          CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  fields          MachineField[]
+  services        MachineService[]
+  emails          Email[]
+  productionLines MachineProductionLine[]
 
   @@map("machines")
 }
@@ -1278,26 +1276,6 @@ model AdminNotificationRecipient {
   @@id([notificationId, recipientId])
   @@index([recipientId, isRead])
   @@map("admin_notification_recipients")
-}
-
-model ClientNotification {
-  id          String           @id @default(cuid())
-  userId      String
-  machineId   String?
-  message     String           @db.Text
-  isRead      Boolean          @default(false)
-  redirectUrl String? // e.g., "/s/company-slug/machines/123?openServiceModal=true"
-  type        NotificationType
-  metadata    Json // Store additional contextual data
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  user    User     @relation("ClientNotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
-  machine Machine? @relation(fields: [machineId], references: [id], onDelete: Cascade)
-
-  @@index([userId, isRead])
-  @@index([createdAt])
-  @@map("client_notifications")
 }
 
 model Email {
