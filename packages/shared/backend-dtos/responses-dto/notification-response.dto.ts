@@ -1,6 +1,10 @@
 import { Prisma } from '@titans-tech/db';
 import { z } from 'zod';
-import { UrgentRequestNotificationMetadataDto } from './notifications/admin';
+import {
+  InspectionAlertNotificationMetadataDto,
+  ServiceReminderOrOverdueNotificationMetadataDto,
+  UrgentRequestNotificationMetadataDto,
+} from './notifications/admin';
 
 export const NotificationTypeDtoSchema = z.enum([
   'URGENT_SERVICE_REQUEST',
@@ -20,8 +24,10 @@ export type NotificationResponse = Prisma.NotificationRecipientGetPayload<{
 
 export type NotificationResponseWithMetadata = NotificationResponse & {
   notification: NotificationResponse['notification'] & {
-    // TODO: remove noop when we have another metadata type, this is just to make TS identify the union properly
-    metadata: UrgentRequestNotificationMetadataDto | { type: 'NOOP'; value: 'noop' };
+    metadata:
+      | UrgentRequestNotificationMetadataDto
+      | InspectionAlertNotificationMetadataDto
+      | ServiceReminderOrOverdueNotificationMetadataDto;
   };
 };
 
