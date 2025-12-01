@@ -4,9 +4,10 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "npm run format && turbo run lint",
+    "lint": "npm run format:check && turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\" && prisma format --schema=packages/database/prisma/schema.prisma",
-    "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
+    "format:check": "turbo run db:format:check && prettier --check \"**/*.{ts,tsx,md,json}\"",
+    "local:ci:check": "npm run lint && npm run build",
     "clean": "npm run clean:cache",
     "clean:cache": "rm -rf .turbo apps/*/.turbo apps/dashboard/.next apps/dashboard/dist apps/backend/dist packages/*/dist",
     "clean:all": "npm run clean:cache && rm -rf node_modules apps/*/node_modules packages/*/node_modules",
@@ -18,7 +19,7 @@
     "docker:clean": "docker compose down -v",
     "db:setup": "npm run docker:up && sleep 3 && prisma generate --schema=packages/database/prisma/schema.prisma && prisma db push --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
     "db:reset": "npm run docker:up && sleep 3 && prisma migrate reset --force --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
-    "prepare": "husky"
+    "prepare": "husky || true"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
