@@ -37,10 +37,12 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
         </div>
       </div>
 
-      {sectionSlug === 'bearing_clearance' && <BearingClearanceSectionWrapper machineId={id} />}
-      {sectionSlug === 'clutch' && <ClutchSectionWrapper machineId={id} />}
-      {sectionSlug === 'slide' && <SlideSectionWrapper machineId={id} />}
-      {sectionSlug === 'gibs' && <GibsSectionWrapper machineId={id} />}
+      {sectionSlug === 'bearing_clearance' && (
+        <BearingClearanceSectionWrapper machineId={id} hideThresholdValues />
+      )}
+      {sectionSlug === 'clutch' && <ClutchSectionWrapper machineId={id} hideThresholdValues />}
+      {sectionSlug === 'slide' && <SlideSectionWrapper machineId={id} hideThresholdValues />}
+      {sectionSlug === 'gibs' && <GibsSectionWrapper machineId={id} hideThresholdValues />}
       {sectionSlug === 'lubrication_hydraulics_pressure_switches_oil_filter' && (
         <LubricationSectionWrapper machineId={id} />
       )}

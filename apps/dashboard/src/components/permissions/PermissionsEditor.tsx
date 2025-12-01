@@ -159,8 +159,8 @@ export function PermissionsEditor({
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h4 className="text-sm font-semibold text-gray-900">{t('permissions.title')}</h4>
-            <p className="text-xs text-gray-500 mt-0.5">{t('permissions.description')}</p>
+            <h4 className="text-sm font-semibold text-foreground">{t('permissions.title')}</h4>
+            <p className="text-xs text-muted-foreground mt-0.5">{t('permissions.description')}</p>
           </div>
           {companyId && (
             <Button
@@ -189,12 +189,12 @@ export function PermissionsEditor({
                 key={group.category}
                 className={cn(
                   'border rounded-lg p-4 space-y-3',
-                  someEnabled ? 'border-blue-200 bg-blue-50/30' : 'border-gray-200',
+                  someEnabled ? 'border-primary/30 bg-primary/5' : 'border-border',
                 )}
               >
                 {/* Category Header */}
                 <div className="flex items-center justify-between">
-                  <h5 className="text-sm font-medium text-gray-900">
+                  <h5 className="text-sm font-medium text-foreground">
                     {t(`permissions.categories.${group.category}`)}
                   </h5>
                   <div className="flex gap-2">
@@ -223,9 +223,9 @@ export function PermissionsEditor({
 
                 {/* Info message for userManagement category */}
                 {group.category === 'userManagement' && (
-                  <Alert className="bg-blue-50 border-blue-200">
-                    <Info className="h-4 w-4 text-blue-600" />
-                    <AlertDescription className="text-xs text-blue-800">
+                  <Alert className="bg-primary/10 border-primary/20">
+                    <Info className="h-4 w-4 text-primary" />
+                    <AlertDescription className="text-xs text-primary">
                       {t('permissions.userManagementInfo')}
                     </AlertDescription>
                   </Alert>
@@ -249,14 +249,14 @@ export function PermissionsEditor({
         </div>
 
         {/* Permission Summary */}
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-          <span className="text-sm text-gray-700">
+        <div className="flex items-center justify-between p-3 bg-muted rounded-lg border border-border">
+          <span className="text-sm text-foreground">
             {t('permissions.permissionCount', {
               count: Object.values(permissions).filter((v) => v === true).length,
             })}
           </span>
           {currentPreset !== RolePreset.CUSTOM && (
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-muted-foreground">
               {t(`permissions.preset.${currentPreset}`)}
             </span>
           )}

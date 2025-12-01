@@ -237,7 +237,7 @@ export function ServiceSummaryModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-4 bg-white">
+        <div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-4 bg-background">
           {/* Service Details Summary */}
           <div className="border rounded-lg p-4 mb-4">
             <Typography variant="h4" className="font-semibold mb-3">

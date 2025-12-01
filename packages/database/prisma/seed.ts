@@ -2,6 +2,7 @@ import { PrismaClient, ServiceSection } from '../generated/prisma/client';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as bcrypt from 'bcrypt';
+import { seedCrown } from './seeds/crown';
 
 // Load environment variables from the database package .env file
 dotenv.config({ path: path.join(__dirname, '../.env') });
@@ -694,6 +695,11 @@ async function main() {
   });
   console.log(`✓ Created/Updated Machine: ${machine4.name}`);
 
+  // ========================================
+  // 10. Run Crown Seed
+  // ========================================
+  await seedCrown(prisma);
+
   console.log('\n========================================');
   console.log('✅ Seeding completed successfully!');
   console.log('========================================');
@@ -722,7 +728,7 @@ async function main() {
   console.log('\n  ACME Test User (0 permissions):');
   console.log('    Email: test@acme-corp.com');
   console.log('    Password: password');
-  console.log('\n🏢 Company Subdomains: subdomain, acme-corp');
+  console.log('\n🏢 Company Subdomains: subdomain, acme-corp, crown');
   console.log('========================================\n');
 }
 

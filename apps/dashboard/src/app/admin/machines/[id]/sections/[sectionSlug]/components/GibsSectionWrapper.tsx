@@ -4,6 +4,7 @@ import { GibsSection } from './GibsSection';
 
 interface GibsSectionWrapperProps {
   machineId: string;
+  hideThresholdValues?: boolean;
 }
 
 interface GibsStageData {
@@ -41,7 +42,10 @@ export interface GibsInspectionData {
   }>;
 }
 
-export async function GibsSectionWrapper({ machineId }: GibsSectionWrapperProps) {
+export async function GibsSectionWrapper({
+  machineId,
+  hideThresholdValues = false,
+}: GibsSectionWrapperProps) {
   let inspections: GibsInspectionData[] = [];
   let machineName = '';
   let blueprintId = '';
@@ -80,6 +84,7 @@ export async function GibsSectionWrapper({ machineId }: GibsSectionWrapperProps)
       inspections={inspections}
       machineName={machineName}
       blueprintId={blueprintId}
+      hideThresholdValues={hideThresholdValues}
     />
   );
 }

@@ -26,7 +26,7 @@ async function bootstrap() {
   // Initialize WebSocket adapter AFTER CORS but BEFORE listen
   const socketAdapter = new SocketIOAdapter(app);
   app.useWebSocketAdapter(socketAdapter);
-  console.log('📡 WebSocket adapter configured');
+  console.log('📡 WebSocket adapter configured 1');
 
   // Start listening - this will trigger WebSocket initialization
   console.log(`🚀 Starting server on port ${appEnv.PORT}...`);

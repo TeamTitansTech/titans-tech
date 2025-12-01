@@ -34,4 +34,26 @@ export class UploadController {
 
     return { url };
   }
+
+  @Public()
+  @Post('logo')
+  @UseInterceptors(
+    FileInterceptor('logo', {
+      limits: {
+        fileSize: 10 * 1024 * 1024,
+      },
+    }),
+  )
+  async uploadLogo(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ url: string }> {
+    if (!file) {
+      throw new BadRequestException('No logo file provided');
+    }
+
+    this.uploadService.validateFile(file);
+    const url = await this.uploadService.uploadImage(file, 'logos');
+
+    return { url };
+  }
 }

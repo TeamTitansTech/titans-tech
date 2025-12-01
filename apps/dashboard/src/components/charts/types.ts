@@ -70,6 +70,7 @@ export interface MultiLineThresholdChartProps {
   showYellowLine?: boolean;
   showRedLine?: boolean;
   allowToggle?: boolean;
+  hideThresholdValues?: boolean; // Hide numeric threshold values in tooltips and reference lines
 
   // Chart styling
   height?: number;

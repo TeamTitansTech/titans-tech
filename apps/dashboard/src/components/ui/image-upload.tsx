@@ -99,7 +99,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
 
       {preview ? (
         <div className="relative group">
-          <div className="relative w-full h-48 rounded-lg border-2 border-dashed border-gray-300 overflow-hidden">
+          <div className="relative w-full h-48 rounded-lg border-2 border-dashed border-border overflow-hidden">
             <Image
               src={preview}
               alt="Preview"
@@ -137,12 +137,12 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
           type="button"
           onClick={handleClick}
           disabled={disabled || isUploading}
-          className="w-full h-48 rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 transition-colors flex flex-col items-center justify-center gap-2 text-gray-500 hover:text-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full h-48 rounded-lg border-2 border-dashed border-border hover:border-muted-foreground transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <Upload className="h-8 w-8" />
           <div className="text-sm text-center px-4">
             <p className="font-medium">{t('clickToUpload')}</p>
-            <p className="text-xs text-gray-400 mt-1">{t('jpgOrPngMax')}</p>
+            <p className="text-xs text-muted-foreground/70 mt-1">{t('jpgOrPngMax')}</p>
           </div>
         </button>
       )}

@@ -62,6 +62,13 @@ export async function proxy(request: NextRequest) {
   const subdomain = extractSubdomain(request);
   const publicPath = isPublicPath(pathname, !subdomain);
 
+  console.log('[Middleware]', {
+    pathname,
+    subdomain,
+    host: request.headers.get('host'),
+    url: request.url,
+  });
+
   const authToken = await getCookie('auth_token');
   const isLoggedIn = Boolean(authToken);
   await setCookie('is_sys_panel', String(!subdomain));
