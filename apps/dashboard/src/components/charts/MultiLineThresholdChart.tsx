@@ -5,7 +5,7 @@
  * Displays multiple measurement lines over time with shared threshold configuration
  */
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   LineChart,
   Line,
@@ -26,7 +26,6 @@ import {
   calculateSeverity,
   formatMeasurementValue,
   getSeverityColor,
-  getSeverityLabel,
   getThresholdColor,
 } from './utils';
 
@@ -61,11 +60,13 @@ function CustomTooltip({
   if (!active || !payload || payload.length === 0) return null;
 
   return (
-    <div className="bg-card border rounded-lg shadow-lg p-3 min-w-[220px]">
+    <div className="bg-card border rounded-lg shadow-lg p-3 min-w-[280px]">
       <Typography variant="small" className="font-medium mb-2">
         {label}
       </Typography>
-      <div className="space-y-2">
+
+      {/* Compact measurements display */}
+      <div className="space-y-1.5">
         {payload.map((entry: any, index: number) => {
           const value = entry.value as number;
           const lineConfig = lines.find((l) => l.dataKey === entry.dataKey);
@@ -74,56 +75,58 @@ function CustomTooltip({
           const severityColors = getSeverityColor(severity);
 
           return (
-            <div key={index} className="space-y-1">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
-                <Typography variant="small" className="font-medium">
-                  {entry.name}
-                </Typography>
+            <div key={index} className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5">
+                <div
+                  className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: entry.color }}
+                />
+                <span className="text-sm font-medium">{entry.name}:</span>
               </div>
-              <div className="pl-5">
-                <Typography variant="large" className="font-semibold">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm font-semibold">
                   {formatMeasurementValue(value, 4, valueUnit)}
-                </Typography>
+                </span>
                 {threshold && (
-                  <div
-                    className={`inline-block px-2 py-0.5 rounded text-xs font-medium mt-1 ${severityColors.bg} ${severityColors.text}`}
+                  <span
+                    className={`px-1.5 py-0.5 rounded text-xs font-medium ${severityColors.bg} ${severityColors.text}`}
                   >
-                    {getSeverityLabel(severity)}
-                  </div>
+                    {severity === 'GREEN' ? '✓' : severity === 'YELLOW' ? '⚠' : '✗'}
+                  </span>
                 )}
               </div>
             </div>
           );
         })}
-
-        {sharedThreshold && !hideThresholdValues && (
-          <div className="text-xs space-y-1 pt-2 mt-2 border-t">
-            <Typography variant="small" className="text-muted-foreground font-medium">
-              Thresholds:
-            </Typography>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Green:</span>
-              <span className="font-mono">
-                &lt; {formatMeasurementValue(sharedThreshold.yellowMin, 4, valueUnit)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Yellow:</span>
-              <span className="font-mono">
-                {formatMeasurementValue(sharedThreshold.yellowMin, 4, valueUnit)} -{' '}
-                {formatMeasurementValue(sharedThreshold.redMin, 4, valueUnit)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Red:</span>
-              <span className="font-mono">
-                ≥ {formatMeasurementValue(sharedThreshold.redMin, 4, valueUnit)}
-              </span>
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Thresholds section at bottom */}
+      {sharedThreshold && !hideThresholdValues && (
+        <div className="text-xs space-y-0.5 pt-2 mt-2 border-t">
+          <Typography variant="small" className="text-muted-foreground font-medium mb-1">
+            Thresholds:
+          </Typography>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Green:</span>
+            <span className="font-mono">
+              &lt; {formatMeasurementValue(sharedThreshold.yellowMin, 4, valueUnit)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Yellow:</span>
+            <span className="font-mono">
+              {formatMeasurementValue(sharedThreshold.yellowMin, 4, valueUnit)} -{' '}
+              {formatMeasurementValue(sharedThreshold.redMin, 4, valueUnit)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Red:</span>
+            <span className="font-mono">
+              ≥ {formatMeasurementValue(sharedThreshold.redMin, 4, valueUnit)}
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -148,6 +151,40 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
   const [showGreen, setShowGreen] = useState(showGreenLine);
   const [showYellow, setShowYellow] = useState(showYellowLine);
   const [showRed, setShowRed] = useState(showRedLine);
+
+  // Calculate Y-axis domain to include threshold values
+  const yAxisDomain = useMemo(() => {
+    if (!sharedThreshold || hideThresholdValues) return undefined;
+
+    // Get all data values
+    const dataValues: number[] = [];
+    data.forEach((point) => {
+      lines.forEach((line) => {
+        const value = point[line.dataKey];
+        if (typeof value === 'number' && !isNaN(value)) {
+          dataValues.push(value);
+        }
+      });
+    });
+
+    if (dataValues.length === 0) return undefined;
+
+    const dataMin = Math.min(...dataValues);
+    const dataMax = Math.max(...dataValues);
+
+    // Include threshold values in the range
+    const thresholdMax = Math.max(
+      sharedThreshold.greenMin || 0,
+      sharedThreshold.yellowMin || 0,
+      sharedThreshold.redMin || 0,
+    );
+
+    // Expand domain to include thresholds with some padding
+    const minValue = Math.min(dataMin, 0);
+    const maxValue = Math.max(dataMax, thresholdMax) * 1.1; // 10% padding above max
+
+    return [minValue, maxValue];
+  }, [data, lines, sharedThreshold, hideThresholdValues]);
 
   // No data fallback
   if (!data || data.length === 0) {
@@ -233,6 +270,7 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
             <YAxis
               tick={{ fontSize: 12 }}
               className="text-muted-foreground"
+              domain={yAxisDomain}
               label={{
                 value: valueUnit || '',
                 angle: -90,

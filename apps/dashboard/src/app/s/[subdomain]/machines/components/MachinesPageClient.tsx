@@ -5,9 +5,7 @@ import { useTranslations } from 'next-intl';
 import { MachineCard } from './MachineCard';
 import { MachineCardSkeleton } from './MachineCardSkeleton';
 import { BrandedSkeleton } from '@/components/ui/branded-skeleton';
-import { MachineCreationModal } from './MachineCreationModal';
 import { MachineEditModal } from './MachineEditModal';
-import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { NoPermission } from '@/components/no-permission/NoPermission';
 import { calculateStatusFromLatestReport, type AlertStatus } from '@/lib/alertStatus';
@@ -18,7 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, MapPin } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Search, Cog, Activity, MapPin } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,8 +28,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { useBranch } from '@/contexts/BranchContext';
 import { getMachines, deleteMachine } from '@/data/services/machines.api';
 import { getLatestReport } from '@/data/services/services.api';
 import { getBranchesWithPermission, filterByBranchPermission } from '@/lib/branchFilters';
@@ -88,8 +87,13 @@ export function MachinesPageClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
-  const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>('all');
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { selectedBranchId } = useBranch();
+  const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>(
+    selectedBranchId || 'all',
+  );
+  const [searchQuery, setSearchQuery] = useState('');
+  const [blueprintFilter, setBlueprintFilter] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
@@ -123,35 +127,52 @@ export function MachinesPageClient() {
     [companyUser],
   );
 
-  // Filter machines by selected branch
-  const filteredMachines = useMemo(
-    () => filterByBranchPermission(machines, companyUser, selectedBranchFilter, 'readMachines'),
-    [machines, selectedBranchFilter, companyUser],
-  );
+  // Get unique blueprints for filter dropdown
+  const blueprintOptions = useMemo(() => {
+    const blueprints = new Map<string, string>();
+    machines.forEach((m) => {
+      if (m.blueprint?.name && m.blueprintId) {
+        blueprints.set(m.blueprintId, m.blueprint.name);
+      }
+    });
+    return Array.from(blueprints.entries()).map(([id, name]) => ({ id, name }));
+  }, [machines]);
 
-  // Check if user has permission to create machines in ANY branch (to show/hide button)
-  const hasCreateMachinesPermission = useMemo(() => {
-    if (!companyUser) return false;
+  // Filter machines based on all filters
+  const filteredMachines = useMemo(() => {
+    // First apply branch permission filter
+    const branchFiltered = filterByBranchPermission(
+      machines,
+      companyUser,
+      selectedBranchFilter,
+      'readMachines',
+    );
 
-    // Company admin and manager can create machines
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+    // Then apply additional filters
+    return branchFiltered.filter((machine) => {
+      // Search filter - match name or blueprint name
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesName = machine.name.toLowerCase().includes(query);
+        const matchesBlueprint = machine.blueprint?.name?.toLowerCase().includes(query);
+        if (!matchesName && !matchesBlueprint) return false;
+      }
 
-    // Check if user has createMachines permission in at least one branch
-    return companyUser.branches.some((ub) => ub.createMachines);
-  }, [companyUser]);
+      // Blueprint filter
+      if (blueprintFilter !== 'all' && machine.blueprintId !== blueprintFilter) {
+        return false;
+      }
 
-  // Check if user can create machines in the currently selected branch (to enable/disable button)
-  const canCreateInSelectedBranch = () => {
-    if (!companyUser) return false;
-    if (selectedBranchFilter === 'all') return false; // Need to select a specific branch to create
+      // Status filter
+      if (statusFilter !== 'all') {
+        const alertStatus = machine.alertStatus || 'unknown';
+        const cardStatus = mapAlertStatusToCardStatus(alertStatus);
+        if (cardStatus !== statusFilter) return false;
+      }
 
-    // Company admin and manager can create machines
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
-
-    // Check branch-specific permission
-    const userBranch = companyUser.branches.find((ub) => ub.branchId === selectedBranchFilter);
-    return userBranch?.createMachines || false;
-  };
+      return true;
+    });
+  }, [machines, companyUser, selectedBranchFilter, searchQuery, blueprintFilter, statusFilter]);
 
   // Check if user has permission to update machines
   const canUpdateMachine = (machinebranchId: string) => {
@@ -301,44 +322,80 @@ export function MachinesPageClient() {
               {t('pageDescription')}
             </Typography>
           </div>
-          <div className="flex items-center gap-4">
-            {/* Branch Filter */}
-            <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
-              <SelectTrigger className="w-[200px]">
-                <MapPin className="w-4 h-4 mr-2" />
-                <SelectValue placeholder="Filter by branch" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">{t('allBranches')}</SelectItem>
-                {userBranches.map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id}>
-                    {branch.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        </div>
 
-            {hasCreateMachinesPermission && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Button
-                      onClick={() => setIsModalOpen(true)}
-                      disabled={!canCreateInSelectedBranch()}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      {t('newButton')}
-                    </Button>
-                  </div>
-                </TooltipTrigger>
-                {!canCreateInSelectedBranch() && (
-                  <TooltipContent>
-                    <p>{t('selectBranchToCreate')}</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
-            )}
+        {/* Filters */}
+        <div className="flex flex-wrap gap-4">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[200px] max-w-[300px]">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('searchPlaceholder') || 'Search machines...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
           </div>
+
+          {/* Branch Filter */}
+          <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
+            <SelectTrigger className="w-[200px] [&_.branch-location]:hidden">
+              <MapPin className="w-4 h-4 mr-2" />
+              <SelectValue placeholder={t('allBranches') || 'All Branches'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('allBranches')}</SelectItem>
+              {userBranches.map((branch) => (
+                <SelectItem key={branch.id} value={branch.id} textValue={branch.name}>
+                  <div className="flex flex-col">
+                    <span>{branch.name}</span>
+                    {branch.location && (
+                      <span className="branch-location text-xs text-muted-foreground truncate max-w-[180px]">
+                        {branch.location}
+                      </span>
+                    )}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Blueprint Filter */}
+          <Select value={blueprintFilter} onValueChange={setBlueprintFilter}>
+            <SelectTrigger className="w-[200px]">
+              <Cog className="w-4 h-4 mr-2" />
+              <SelectValue placeholder={t('filterByBlueprint') || 'All Models'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('allModels') || 'All Models'}</SelectItem>
+              {blueprintOptions.map((bp) => (
+                <SelectItem key={bp.id} value={bp.id}>
+                  {bp.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Status Filter */}
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <Activity className="w-4 h-4 mr-2" />
+              <SelectValue placeholder={t('filterByStatus') || 'All Status'} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('allStatus') || 'All Status'}</SelectItem>
+              <SelectItem value="operational">{t('statusOperational') || 'Operational'}</SelectItem>
+              <SelectItem value="maintenance">{t('statusMaintenance') || 'Warning'}</SelectItem>
+              <SelectItem value="offline">{t('statusOffline') || 'Critical'}</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Results count */}
+          {!isLoading && (
+            <div className="flex items-center text-sm text-muted-foreground">
+              {filteredMachines.length} of {machines.length} {t('machines') || 'machines'}
+            </div>
+          )}
         </div>
 
         {isLoading ? (
@@ -362,7 +419,9 @@ export function MachinesPageClient() {
         ) : filteredMachines.length === 0 ? (
           <div className="text-center py-12">
             <Typography variant="muted">
-              {selectedBranchFilter === 'all' ? t('emptyState') : 'No machines in this branch'}
+              {machines.length === 0
+                ? t('emptyState')
+                : t('noResults') || 'No machines match your filters'}
             </Typography>
           </div>
         ) : (
@@ -396,13 +455,6 @@ export function MachinesPageClient() {
           </div>
         )}
       </div>
-
-      <MachineCreationModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={handleSuccess}
-        branchId={selectedBranchFilter !== 'all' ? selectedBranchFilter : undefined}
-      />
 
       {selectedMachine && (
         <MachineEditModal

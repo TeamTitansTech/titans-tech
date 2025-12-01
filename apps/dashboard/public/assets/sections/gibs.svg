@@ -1,36 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Camada_1" data-name="Camada 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1534.01 704.61">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 90">
   <defs>
     <style>
-      .cls-1 {
+      .cube-line {
         fill: none;
         stroke: #fff;
-        stroke-miterlimit: 10;
-        stroke-width: 10px;
+        stroke-width: 2;
+        stroke-linejoin: round;
       }
     </style>
   </defs>
-  <g id="Press_Leveling_CP2" data-name="Press Leveling CP2">
-    <polyline class="cls-1" points="827.26 169.48 859.51 169.48 1469.26 169.48 1469.26 398.98 114.76 398.98 66.76 398.98 66.76 169.48 114.76 169.48 677.26 169.48 708.01 169.48"/>
-    <line class="cls-1" x1="114.76" y1="169.48" x2="114.76" y2="398.98"/>
-    <path class="cls-1" d="M1421.26,169.48v229.5-229.5Z"/>
-    <polyline class="cls-1" points="828.76 169.48 828.76 248.98 706.51 248.98 706.51 169.48"/>
-    <polyline class="cls-1" points="677.26 169.48 677.26 278.98 859.51 278.98 859.51 169.48"/>
-    <line class="cls-1" x1="706.51" y1="194.98" x2="828.76" y2="194.98"/>
-    <line class="cls-1" x1="706.51" y1="224.23" x2="828.76" y2="224.23"/>
-    <line class="cls-1" x1="743.49" y1="194.98" x2="743.49" y2="224.23"/>
-    <line class="cls-1" x1="792.24" y1="194.98" x2="792.24" y2="224.23"/>
-    <circle class="cls-1" cx="310.35" cy="284.53" r="84.36"/>
-    <circle class="cls-1" cx="1226.41" cy="284.53" r="84.36"/>
-    <circle class="cls-1" cx="1226.41" cy="284.53" r="54.39"/>
-    <circle class="cls-1" cx="310.35" cy="284.53" r="54.39"/>
-    <line class="cls-1" x1="296.24" y1="231.73" x2="296.24" y2="337.58"/>
-    <line class="cls-1" x1="325.74" y1="231.73" x2="325.74" y2="337.58"/>
-    <line class="cls-1" x1="296.24" y1="258.64" x2="325.74" y2="258.64"/>
-    <line class="cls-1" x1="296.24" y1="310.01" x2="325.74" y2="310.01"/>
-    <polyline class="cls-1" points="1178.54 258.64 1194.58 274.68 1252.03 332.13"/>
-    <line class="cls-1" x1="1197.95" y1="238.46" x2="1272.66" y2="313.16"/>
-    <line class="cls-1" x1="1196.96" y1="277.06" x2="1216.88" y2="257.39"/>
-    <line class="cls-1" x1="1231.21" y1="311.31" x2="1251.25" y2="291.76"/>
+
+  <!-- Left cube -->
+  <g transform="translate(17, 15)">
+    <!-- Back face -->
+    <polygon class="cube-line" points="10,8 50,8 50,55 10,55"/>
+    <!-- Top face -->
+    <polygon class="cube-line" points="10,8 25,0 65,0 50,8"/>
+    <!-- Right face -->
+    <polygon class="cube-line" points="50,8 65,0 65,47 50,55"/>
+    <!-- Front edges -->
+    <line class="cube-line" x1="10" y1="55" x2="25" y2="47"/>
+    <line class="cube-line" x1="25" y1="47" x2="65" y2="47"/>
+    <line class="cube-line" x1="25" y1="47" x2="25" y2="0"/>
+  </g>
+
+  <!-- Right cube with inner lines -->
+  <g transform="translate(107, 15)">
+    <!-- Back face -->
+    <polygon class="cube-line" points="10,8 50,8 50,55 10,55"/>
+    <!-- Top face -->
+    <polygon class="cube-line" points="10,8 25,0 65,0 50,8"/>
+    <!-- Right face -->
+    <polygon class="cube-line" points="50,8 65,0 65,47 50,55"/>
+    <!-- Front edges -->
+    <line class="cube-line" x1="10" y1="55" x2="25" y2="47"/>
+    <line class="cube-line" x1="25" y1="47" x2="65" y2="47"/>
+    <line class="cube-line" x1="25" y1="47" x2="25" y2="0"/>
+
+    <!-- Inner nested rectangle -->
+    <rect class="cube-line" x="18" y="16" width="25" height="32" stroke-dasharray="3,2"/>
   </g>
 </svg>
