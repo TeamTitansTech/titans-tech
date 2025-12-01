@@ -7,11 +7,11 @@ import {
   FolderKanban,
   Users,
   User,
-  Settings,
   ClipboardList,
   Shield,
   Building2,
   Factory,
+  Settings,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -100,8 +100,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: ClipboardList,
         url: '/admin/services',
       },
-    ],
-    navUtility: [
       {
         title: t('navigation.settings'),
         icon: Settings,
@@ -144,8 +142,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           icon: ClipboardList,
           url: '/services',
         },
-      ],
-      navUtility: [
         {
           title: t('navigation.settings'),
           icon: Settings,
@@ -221,33 +217,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup className="px-0">
           <SidebarMenu className="space-y-2.5">
             {data.navMain.map((item) => {
-              const isActive = checkIsActive(item.url, item.title);
-              return (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.title}
-                    isActive={isActive}
-                    className={
-                      isActive
-                        ? 'bg-accent/15 text-accent hover:bg-accent/30 border-l-4 border-accent rounded-l-none font-bold transition-all duration-200'
-                        : 'text-white hover:bg-accent/20 hover:text-accent border-l-4 border-transparent hover:border-accent/50 rounded-l-none font-medium transition-all duration-200'
-                    }
-                  >
-                    <Link href={item.url} className="flex items-center gap-4 px-4 py-3.5">
-                      <item.icon className="size-5 shrink-0" />
-                      <span className="text-sm">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
-        </SidebarGroup>
-
-        <SidebarGroup className="px-0 mt-6">
-          <SidebarMenu>
-            {data.navUtility.map((item) => {
               const isActive = checkIsActive(item.url, item.title);
               return (
                 <SidebarMenuItem key={item.title}>

@@ -1,8 +1,7 @@
 'use client';
 
-import { useState } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
-import { PanelLeft, Search, UserCircle, LogOut, Settings, Moon, Sun } from 'lucide-react';
+import { PanelLeft, UserCircle, LogOut, Moon, Sun } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
@@ -14,7 +13,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
-import { SettingsModal } from './SettingsModal';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { useTheme } from 'next-themes';
@@ -27,7 +25,6 @@ export function AppHeader() {
   const { toggleSidebar } = useSidebar();
   const t = useTranslations('header');
   const { theme, setTheme } = useTheme();
-  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const { setSysAdminUser } = useSysAdmin();
   const { setCompanyUser } = useCompanyUser();
 
@@ -56,17 +53,6 @@ export function AppHeader() {
           </TooltipTrigger>
           <TooltipContent>{t('toggleSidebar')}</TooltipContent>
         </Tooltip>
-
-        <div className="flex-1 max-w-md">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="search"
-              placeholder={t('searchPlaceholder')}
-              className="w-full h-10 pl-10 pr-4 rounded-md border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all duration-200 placeholder:text-muted-foreground"
-            />
-          </div>
-        </div>
 
         <div className="flex items-center gap-2 ml-auto">
           <NotificationsDropdown />
@@ -102,14 +88,6 @@ export function AppHeader() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => setIsSettingsModalOpen(true)}
-                className="cursor-pointer hover:bg-accent/10 hover:text-accent"
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                <span>{t('settings')}</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
                 onClick={handleLogout}
                 className="cursor-pointer hover:bg-red-100 hover:text-red-500"
               >
@@ -120,8 +98,6 @@ export function AppHeader() {
           </DropdownMenu>
         </div>
       </div>
-
-      <SettingsModal isOpen={isSettingsModalOpen} onClose={() => setIsSettingsModalOpen(false)} />
     </header>
   );
 }
