@@ -21,7 +21,7 @@ import { getClutchThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
 import { PartsListSelector } from '@/components/parts/PartsListSelector';
-import { CLUTCH_BRAKE_PARTS } from '@/data/parts/clutch-parts';
+import { CLUTCH_BRAKE_CLEARANCE_PARTS } from '@/data/parts/dac-parts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface ClutchSectionProps {
@@ -355,10 +355,10 @@ export function ClutchSection({
         <CollapsibleTrigger asChild>
           <Button
             variant="outline"
-            className="w-full justify-between border-orange-200 hover:bg-orange-50 dark:border-orange-800 dark:hover:bg-orange-950/20"
+            className="w-full justify-between border-primary/20 hover:bg-primary/5 dark:border-primary/30 dark:hover:bg-primary/10"
           >
             <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-orange-500" />
+              <Package className="h-4 w-4 text-primary" />
               <span>{tParts('clutchBrakeParts')}</span>
             </div>
             <ChevronDown
@@ -368,7 +368,7 @@ export function ClutchSection({
         </CollapsibleTrigger>
         <CollapsibleContent className="mt-4">
           <PartsListSelector
-            parts={CLUTCH_BRAKE_PARTS}
+            parts={CLUTCH_BRAKE_CLEARANCE_PARTS}
             title={tParts('clutchBrakeParts')}
             description={tParts('clutchBrakeDescription')}
             machineName={machineName}

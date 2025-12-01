@@ -6,8 +6,10 @@
 export interface Part {
   partNumber: string;
   description: string;
-  quantity: number;
+  quantity: number | string;
   unit: string;
+  location?: string;
+  notes?: string;
 }
 
 export const CLUTCH_BRAKE_PARTS: Part[] = [

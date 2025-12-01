@@ -4,12 +4,6 @@ import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
 import { type ClutchData, ServiceType } from '@/data/types/services.types';
 import { ClutchForm } from '../forms/ClutchForm';
 import { isDataTouched } from './utils';
-import { PartsListSelector } from '@/components/parts/PartsListSelector';
-import { CLUTCH_BRAKE_PARTS } from '@/data/parts/clutch-parts';
-import { useTranslations } from 'next-intl';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Button } from '@/components/ui/button';
-import { ChevronDown, Package } from 'lucide-react';
 
 export const defaultClutchData: ClutchData = {
   clutchType: undefined,
@@ -78,15 +72,10 @@ export interface ClutchSectionRef {
 interface ClutchSectionProps {
   onSectionTouched?: () => void;
   initialData?: ClutchData;
-  machineName?: string;
-  machineSerial?: string;
 }
 
 export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
-  ({ onSectionTouched, initialData, machineName, machineSerial }, ref) => {
-    const t = useTranslations('parts');
-    const [partsListOpen, setPartsListOpen] = useState(false);
-
+  ({ onSectionTouched, initialData }, ref) => {
     // Store initial loaded data for "touched" detection
     const [initialClutchData, setInitialClutchData] = useState<ClutchData>(
       initialData || defaultClutchData,
@@ -171,37 +160,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     }));
 
     return (
-      <div className="space-y-6">
-        <ClutchForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
-
-        {/* Parts Replacement List */}
-        <Collapsible open={partsListOpen} onOpenChange={setPartsListOpen}>
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="outline"
-              className="w-full justify-between border-orange-200 hover:bg-orange-50 dark:border-orange-800 dark:hover:bg-orange-950/20"
-            >
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-orange-500" />
-                <span>{t('clutchBrakeParts')}</span>
-              </div>
-              <ChevronDown
-                className={`h-4 w-4 transition-transform duration-200 ${partsListOpen ? 'rotate-180' : ''}`}
-              />
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="mt-4">
-            <PartsListSelector
-              parts={CLUTCH_BRAKE_PARTS}
-              title={t('clutchBrakeParts')}
-              description={t('clutchBrakeDescription')}
-              machineName={machineName}
-              machineSerial={machineSerial}
-              sectionName="Clutch & Brake"
-            />
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
+      <ClutchForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
     );
   },
 );

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { FileDown, Package, Check } from 'lucide-react';
+import { FileDown, Package, Check, Search, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   Table,
   TableBody,
@@ -14,12 +15,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import type { Part } from '@/data/parts/clutch-parts';
+import type { Part, SectionWithTabs } from '@/data/parts/dac-parts';
 
-interface PartsListSelectorProps {
-  parts: Part[];
+interface PartsListSelectorBaseProps {
   title: string;
   description?: string;
   machineName?: string;
@@ -28,8 +29,86 @@ interface PartsListSelectorProps {
   onSelectionChange?: (selectedParts: Part[]) => void;
 }
 
+interface PartsListSelectorWithParts extends PartsListSelectorBaseProps {
+  parts: Part[];
+  tabs?: never;
+}
+
+interface PartsListSelectorWithTabs extends PartsListSelectorBaseProps {
+  parts?: never;
+  tabs: SectionWithTabs;
+}
+
+type PartsListSelectorProps = PartsListSelectorWithParts | PartsListSelectorWithTabs;
+
+// Extracted table component for reuse in tabs
+interface PartsTableProps {
+  parts: Part[];
+  isPartSelected: (partNumber: string) => boolean;
+  onTogglePart: (partNumber: string) => void;
+  hasActiveSearch: boolean;
+  t: (key: string) => string;
+}
+
+function PartsTable({ parts, isPartSelected, onTogglePart, hasActiveSearch, t }: PartsTableProps) {
+  return (
+    <div className="border rounded-lg overflow-hidden min-h-[300px]">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            <TableHead className="w-12"></TableHead>
+            <TableHead className="font-semibold">{t('tableHeaders.partNumber')}</TableHead>
+            <TableHead className="font-semibold">{t('tableHeaders.description')}</TableHead>
+            <TableHead className="font-semibold text-right">{t('tableHeaders.quantity')}</TableHead>
+            <TableHead className="font-semibold text-center">{t('tableHeaders.unit')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {parts.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
+                {hasActiveSearch ? t('noResultsFound') : t('noPartsAvailable')}
+              </TableCell>
+            </TableRow>
+          ) : (
+            parts.map((part) => {
+              const isSelected = isPartSelected(part.partNumber);
+              return (
+                <TableRow
+                  key={part.partNumber}
+                  className={`cursor-pointer transition-colors ${isSelected ? 'bg-primary/5 dark:bg-primary/10' : 'hover:bg-muted/50'}`}
+                  onClick={() => onTogglePart(part.partNumber)}
+                >
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => onTogglePart(part.partNumber)}
+                      aria-label={`Select ${part.description}`}
+                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                    />
+                  </TableCell>
+                  <TableCell className="font-mono text-sm">{part.partNumber}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {part.description}
+                      {isSelected && <Check className="h-4 w-4 text-primary" />}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">{part.quantity}</TableCell>
+                  <TableCell className="text-center">{part.unit}</TableCell>
+                </TableRow>
+              );
+            })
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
 export function PartsListSelector({
   parts,
+  tabs,
   title,
   description,
   machineName = 'N/A',
@@ -38,47 +117,151 @@ export function PartsListSelector({
   onSelectionChange,
 }: PartsListSelectorProps) {
   const t = useTranslations('parts');
-  const [selectedPartNumbers, setSelectedPartNumbers] = useState<Set<string>>(new Set());
+  // Selection keys are in format "tab:partNumber" to differentiate same parts in different tabs
+  const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [isExporting, setIsExporting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<'outer' | 'inner'>('outer');
+
+  // Determine which parts to use based on props
+  // Only show tabs if both outer and inner have parts
+  const hasTabs = !!tabs && tabs.outer.length > 0 && tabs.inner.length > 0;
+
+  const currentTabParts = useMemo(() => {
+    if (hasTabs && tabs) {
+      return activeTab === 'outer' ? tabs.outer : tabs.inner;
+    }
+    // If tabs provided but only one has parts, return all available parts
+    if (tabs) {
+      return tabs.outer.length > 0 ? tabs.outer : tabs.inner;
+    }
+    return parts || [];
+  }, [hasTabs, tabs, parts, activeTab]);
+
+  // Helper to create selection key
+  const getSelectionKey = useCallback(
+    (partNumber: string, tab?: 'outer' | 'inner') => {
+      if (hasTabs) {
+        return `${tab || activeTab}:${partNumber}`;
+      }
+      return partNumber;
+    },
+    [hasTabs, activeTab],
+  );
+
+  // Check if a part is selected in current tab
+  const isPartSelected = useCallback(
+    (partNumber: string) => {
+      return selectedKeys.has(getSelectionKey(partNumber));
+    },
+    [selectedKeys, getSelectionKey],
+  );
+
+  // Filter parts based on search query
+  const filteredParts = useMemo(() => {
+    if (searchQuery === '') return currentTabParts;
+    return currentTabParts.filter(
+      (part) =>
+        part.partNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        part.description.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [currentTabParts, searchQuery]);
+
+  const hasActiveSearch = searchQuery !== '';
 
   const handleTogglePart = useCallback(
     (partNumber: string) => {
-      setSelectedPartNumbers((prev) => {
+      setSelectedKeys((prev) => {
+        const key = getSelectionKey(partNumber);
         const newSet = new Set(prev);
-        if (newSet.has(partNumber)) {
-          newSet.delete(partNumber);
+        if (newSet.has(key)) {
+          newSet.delete(key);
         } else {
-          newSet.add(partNumber);
+          newSet.add(key);
         }
 
-        // Notify parent of selection change
+        // Notify parent of selection change - extract actual parts from keys
         if (onSelectionChange) {
-          const selectedParts = parts.filter((p) => newSet.has(p.partNumber));
+          const selectedParts = getSelectedPartsFromKeys(newSet);
           onSelectionChange(selectedParts);
         }
 
         return newSet;
       });
     },
-    [parts, onSelectionChange],
+    [getSelectionKey, onSelectionChange],
   );
 
-  const handleSelectAll = useCallback(() => {
-    const allPartNumbers = new Set(parts.map((p) => p.partNumber));
-    setSelectedPartNumbers(allPartNumbers);
-    if (onSelectionChange) {
-      onSelectionChange(parts);
-    }
-  }, [parts, onSelectionChange]);
+  // Helper to extract parts from selection keys
+  const getSelectedPartsFromKeys = useCallback(
+    (keys: Set<string>): Part[] => {
+      const result: Part[] = [];
+      keys.forEach((key) => {
+        if (hasTabs && tabs) {
+          const [tab, partNumber] = key.split(':');
+          const tabParts = tab === 'outer' ? tabs.outer : tabs.inner;
+          const part = tabParts.find((p) => p.partNumber === partNumber);
+          if (part) result.push(part);
+        } else {
+          const part = (parts || []).find((p) => p.partNumber === key);
+          if (part) result.push(part);
+        }
+      });
+      return result;
+    },
+    [hasTabs, tabs, parts],
+  );
 
-  const handleDeselectAll = useCallback(() => {
-    setSelectedPartNumbers(new Set());
+  const selectedParts = useMemo(() => {
+    return getSelectedPartsFromKeys(selectedKeys);
+  }, [selectedKeys, getSelectedPartsFromKeys]);
+
+  // Count selected parts per tab
+  const outerSelectedCount = useMemo(() => {
+    if (!hasTabs || !tabs) return 0;
+    return tabs.outer.filter((p) => selectedKeys.has(`outer:${p.partNumber}`)).length;
+  }, [hasTabs, tabs, selectedKeys]);
+
+  const innerSelectedCount = useMemo(() => {
+    if (!hasTabs || !tabs) return 0;
+    return tabs.inner.filter((p) => selectedKeys.has(`inner:${p.partNumber}`)).length;
+  }, [hasTabs, tabs, selectedKeys]);
+
+  // Get selected parts separated by outer/inner for PDF export
+  const selectedOuterParts = useMemo(() => {
+    if (!hasTabs || !tabs) return [];
+    return tabs.outer.filter((p) => selectedKeys.has(`outer:${p.partNumber}`));
+  }, [hasTabs, tabs, selectedKeys]);
+
+  const selectedInnerParts = useMemo(() => {
+    if (!hasTabs || !tabs) return [];
+    return tabs.inner.filter((p) => selectedKeys.has(`inner:${p.partNumber}`));
+  }, [hasTabs, tabs, selectedKeys]);
+
+  // Select all parts in current tab (or all parts if no tabs)
+  const handleSelectAll = useCallback(() => {
+    setSelectedKeys((prev) => {
+      const newSet = new Set(prev);
+      currentTabParts.forEach((part) => {
+        newSet.add(getSelectionKey(part.partNumber));
+      });
+
+      if (onSelectionChange) {
+        const selectedParts = getSelectedPartsFromKeys(newSet);
+        onSelectionChange(selectedParts);
+      }
+
+      return newSet;
+    });
+  }, [currentTabParts, getSelectionKey, getSelectedPartsFromKeys, onSelectionChange]);
+
+  // Clear all selected parts
+  const handleClearAll = useCallback(() => {
+    setSelectedKeys(new Set());
     if (onSelectionChange) {
       onSelectionChange([]);
     }
   }, [onSelectionChange]);
-
-  const selectedParts = parts.filter((p) => selectedPartNumbers.has(p.partNumber));
 
   const exportToPDF = useCallback(async () => {
     if (selectedParts.length === 0) {
@@ -113,31 +296,24 @@ export function PartsListSelector({
       doc.text(`${t('date')}: ${new Date().toLocaleDateString()}`, 14, 52);
       doc.text(`${t('totalParts')}: ${selectedParts.length}`, 14, 58);
 
-      // Table
-      autoTable(doc, {
-        startY: 65,
-        head: [
-          [
-            t('tableHeaders.partNumber'),
-            t('tableHeaders.description'),
-            t('tableHeaders.quantity'),
-            t('tableHeaders.unit'),
-          ],
+      const tableHeaders = [
+        [
+          t('tableHeaders.partNumber'),
+          t('tableHeaders.description'),
+          t('tableHeaders.quantity'),
+          t('tableHeaders.unit'),
         ],
-        body: selectedParts.map((part) => [
-          part.partNumber,
-          part.description,
-          part.quantity.toFixed(2),
-          part.unit,
-        ]),
-        theme: 'striped',
+      ];
+
+      const tableStyles = {
+        theme: 'striped' as const,
         headStyles: {
-          fillColor: [249, 115, 22], // Orange-500
+          fillColor: [50, 50, 50] as [number, number, number],
           textColor: 255,
-          fontStyle: 'bold',
+          fontStyle: 'bold' as const,
         },
         alternateRowStyles: {
-          fillColor: [254, 243, 235], // Orange-50
+          fillColor: [245, 245, 245] as [number, number, number],
         },
         styles: {
           fontSize: 10,
@@ -145,17 +321,79 @@ export function PartsListSelector({
         },
         columnStyles: {
           0: { cellWidth: 35 },
-          1: { cellWidth: 'auto' },
-          2: { cellWidth: 25, halign: 'right' },
-          3: { cellWidth: 20, halign: 'center' },
+          1: { cellWidth: 'auto' as const },
+          2: { cellWidth: 25, halign: 'right' as const },
+          3: { cellWidth: 20, halign: 'center' as const },
         },
-      });
+      };
 
-      // Footer
-      const finalY = (doc as unknown as { lastAutoTable: { finalY: number } }).lastAutoTable.finalY;
-      doc.setFontSize(8);
-      doc.setTextColor(128);
-      doc.text(t('pdfFooter'), pageWidth / 2, finalY + 15, { align: 'center' });
+      // Check if we have tabs and should separate outer/inner
+      if (hasTabs && (selectedOuterParts.length > 0 || selectedInnerParts.length > 0)) {
+        let currentY = 65;
+
+        // Outer Slide section
+        if (selectedOuterParts.length > 0) {
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`${t('outerSlide')} (${selectedOuterParts.length})`, 14, currentY);
+          currentY += 5;
+
+          autoTable(doc, {
+            startY: currentY,
+            head: tableHeaders,
+            body: selectedOuterParts.map((part) => [
+              part.partNumber,
+              part.description,
+              typeof part.quantity === 'number' ? part.quantity.toString() : part.quantity,
+              part.unit,
+            ]),
+            ...tableStyles,
+          });
+
+          // Get the final Y position after the table
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          currentY = (doc as any).lastAutoTable.finalY + 15;
+        }
+
+        // Inner Slide section
+        if (selectedInnerParts.length > 0) {
+          // Check if we need a new page
+          if (currentY > 250) {
+            doc.addPage();
+            currentY = 20;
+          }
+
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`${t('innerSlide')} (${selectedInnerParts.length})`, 14, currentY);
+          currentY += 5;
+
+          autoTable(doc, {
+            startY: currentY,
+            head: tableHeaders,
+            body: selectedInnerParts.map((part) => [
+              part.partNumber,
+              part.description,
+              typeof part.quantity === 'number' ? part.quantity.toString() : part.quantity,
+              part.unit,
+            ]),
+            ...tableStyles,
+          });
+        }
+      } else {
+        // No tabs - single table with all parts
+        autoTable(doc, {
+          startY: 65,
+          head: tableHeaders,
+          body: selectedParts.map((part) => [
+            part.partNumber,
+            part.description,
+            typeof part.quantity === 'number' ? part.quantity.toString() : part.quantity,
+            part.unit,
+          ]),
+          ...tableStyles,
+        });
+      }
 
       // Save
       const filename = `parts-replacement-${machineName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
@@ -168,106 +406,168 @@ export function PartsListSelector({
     } finally {
       setIsExporting(false);
     }
-  }, [selectedParts, machineName, machineSerial, sectionName, t]);
-
-  const allSelected = selectedPartNumbers.size === parts.length;
-  const someSelected = selectedPartNumbers.size > 0 && !allSelected;
+  }, [
+    selectedParts,
+    selectedOuterParts,
+    selectedInnerParts,
+    hasTabs,
+    machineName,
+    machineSerial,
+    sectionName,
+    t,
+  ]);
 
   return (
-    <Card className="border-orange-200 dark:border-orange-800">
+    <Card className="border-primary/20 dark:border-primary/30">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Package className="h-5 w-5 text-orange-500" />
+            <Package className="h-5 w-5 text-primary" />
             <CardTitle className="text-lg">{title}</CardTitle>
           </div>
-          {selectedPartNumbers.size > 0 && (
-            <Badge variant="secondary" className="bg-orange-100 text-orange-700">
-              {selectedPartNumbers.size} {t('selected')}
+          {selectedKeys.size > 0 && (
+            <Badge variant="secondary" className="bg-primary/10 text-primary">
+              {selectedKeys.size} {t('selected')}
             </Badge>
           )}
         </div>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleSelectAll} disabled={allSelected}>
-              {t('selectAll')}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDeselectAll}
-              disabled={selectedPartNumbers.size === 0}
-            >
-              {t('deselectAll')}
-            </Button>
+        {/* Search Row */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder={t('searchPlaceholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 pr-9"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
           <Button
             onClick={exportToPDF}
-            disabled={selectedPartNumbers.size === 0 || isExporting}
-            className="bg-orange-500 hover:bg-orange-600"
+            disabled={selectedKeys.size === 0 || isExporting}
+            className="bg-primary hover:bg-primary/90"
           >
             <FileDown className="h-4 w-4 mr-2" />
             {isExporting ? t('exporting') : t('exportPDF')}
           </Button>
         </div>
 
-        <div className="border rounded-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/50">
-                <TableHead className="w-12">
-                  <Checkbox
-                    checked={allSelected}
-                    onCheckedChange={() => (allSelected ? handleDeselectAll() : handleSelectAll())}
-                    aria-label={t('selectAll')}
-                    className={someSelected ? 'data-[state=checked]:bg-orange-500' : ''}
-                  />
-                </TableHead>
-                <TableHead className="font-semibold">{t('tableHeaders.partNumber')}</TableHead>
-                <TableHead className="font-semibold">{t('tableHeaders.description')}</TableHead>
-                <TableHead className="font-semibold text-right">
-                  {t('tableHeaders.quantity')}
-                </TableHead>
-                <TableHead className="font-semibold text-center">
-                  {t('tableHeaders.unit')}
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {parts.map((part) => {
-                const isSelected = selectedPartNumbers.has(part.partNumber);
-                return (
-                  <TableRow
-                    key={part.partNumber}
-                    className={`cursor-pointer transition-colors ${isSelected ? 'bg-orange-50 dark:bg-orange-950/20' : 'hover:bg-muted/50'}`}
-                    onClick={() => handleTogglePart(part.partNumber)}
-                  >
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => handleTogglePart(part.partNumber)}
-                        aria-label={`Select ${part.description}`}
-                        className="data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
-                      />
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">{part.partNumber}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        {part.description}
-                        {isSelected && <Check className="h-4 w-4 text-orange-500" />}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">{part.quantity.toFixed(2)}</TableCell>
-                    <TableCell className="text-center">{part.unit}</TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+        {/* Select/Clear buttons */}
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={handleSelectAll}>
+            {t('selectAll')}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClearAll}
+            disabled={selectedKeys.size === 0}
+          >
+            {t('clearAll')}
+          </Button>
         </div>
+
+        {/* Tabs for Outer/Inner when available */}
+        {hasTabs ? (
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as 'outer' | 'inner')}
+            className="w-full"
+          >
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="outer" className="flex items-center gap-2">
+                {t('outerSlide')}
+                {outerSelectedCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className={`text-xs px-1.5 ${
+                      activeTab === 'outer'
+                        ? 'bg-primary-foreground/20 text-primary-foreground'
+                        : 'bg-primary/10 text-primary'
+                    }`}
+                  >
+                    {outerSelectedCount}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="inner" className="flex items-center gap-2">
+                {t('innerSlide')}
+                {innerSelectedCount > 0 && (
+                  <Badge
+                    variant="secondary"
+                    className={`text-xs px-1.5 ${
+                      activeTab === 'inner'
+                        ? 'bg-primary-foreground/20 text-primary-foreground'
+                        : 'bg-primary/10 text-primary'
+                    }`}
+                  >
+                    {innerSelectedCount}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Results count */}
+            {hasActiveSearch && (
+              <div className="text-sm text-muted-foreground mb-2">
+                {t('showingResults', {
+                  count: filteredParts.length,
+                  total: currentTabParts.length,
+                })}
+              </div>
+            )}
+
+            <TabsContent value="outer" className="mt-0" tabIndex={-1}>
+              <PartsTable
+                parts={activeTab === 'outer' ? filteredParts : []}
+                isPartSelected={isPartSelected}
+                onTogglePart={handleTogglePart}
+                hasActiveSearch={hasActiveSearch}
+                t={t}
+              />
+            </TabsContent>
+            <TabsContent value="inner" className="mt-0" tabIndex={-1}>
+              <PartsTable
+                parts={activeTab === 'inner' ? filteredParts : []}
+                isPartSelected={isPartSelected}
+                onTogglePart={handleTogglePart}
+                hasActiveSearch={hasActiveSearch}
+                t={t}
+              />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <>
+            {/* Results count */}
+            {hasActiveSearch && (
+              <div className="text-sm text-muted-foreground">
+                {t('showingResults', {
+                  count: filteredParts.length,
+                  total: currentTabParts.length,
+                })}
+              </div>
+            )}
+
+            <PartsTable
+              parts={filteredParts}
+              isPartSelected={isPartSelected}
+              onTogglePart={handleTogglePart}
+              hasActiveSearch={hasActiveSearch}
+              t={t}
+            />
+          </>
+        )}
       </CardContent>
     </Card>
   );

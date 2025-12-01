@@ -4,9 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar as CalendarIcon, ChevronDown, Package } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,8 @@ import {
 import { getThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import { PartsListSelector } from '@/components/parts/PartsListSelector';
+import { BEARING_CLEARANCE_TABS } from '@/data/parts/dac-parts';
 
 interface BearingClearanceSectionProps {
   machineId: string;
@@ -36,7 +39,9 @@ export function BearingClearanceSection({
   hideThresholdValues = false,
 }: BearingClearanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
+  const [partsListOpen, setPartsListOpen] = useState(false);
   // Separate thresholds for each measurement type
   const [cbThreshold, setCbThreshold] = useState<ThresholdConfig | null>(null);
   const [totalClearanceThreshold, setTotalClearanceThreshold] = useState<ThresholdConfig | null>(
@@ -306,6 +311,33 @@ export function BearingClearanceSection({
           </div>
         </CardContent>
       </Card>
+
+      {/* Parts Replacement List */}
+      <Collapsible open={partsListOpen} onOpenChange={setPartsListOpen}>
+        <CollapsibleTrigger asChild>
+          <Button
+            variant="outline"
+            className="w-full justify-between border-primary/20 hover:bg-primary/5 dark:border-primary/30 dark:hover:bg-primary/10"
+          >
+            <div className="flex items-center gap-2">
+              <Package className="h-4 w-4 text-primary" />
+              <span>{tParts('bearingClearanceParts')}</span>
+            </div>
+            <ChevronDown
+              className={`h-4 w-4 transition-transform duration-200 ${partsListOpen ? 'rotate-180' : ''}`}
+            />
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent className="mt-4">
+          <PartsListSelector
+            tabs={BEARING_CLEARANCE_TABS}
+            title={tParts('bearingClearanceParts')}
+            description={tParts('bearingClearanceDescription')}
+            machineName={machineName}
+            sectionName="Bearing Clearance"
+          />
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }
