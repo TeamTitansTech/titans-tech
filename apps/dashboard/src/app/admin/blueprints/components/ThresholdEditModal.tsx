@@ -19,7 +19,7 @@ import { ClutchThresholds } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholds } from '@/components/alerts/SlideThresholds';
 import { GibsThresholds } from '@/components/alerts/GibsThresholds';
 import {
-  getThresholdByBlueprint,
+  getBearingClearanceThresholdByBlueprint,
   getClutchThresholdByBlueprint,
   getSlideThresholdByBlueprint,
   getGibsThresholdByBlueprint,
@@ -94,7 +94,7 @@ export function ThresholdEditModal({
 
       if (hasBearingClearance) {
         promises.push(
-          getThresholdByBlueprint(blueprintId).then(
+          getBearingClearanceThresholdByBlueprint(blueprintId).then(
             (result): ThresholdResult => ({
               type: 'bearing',
               data: result.data as BearingClearanceThresholdsData | null,

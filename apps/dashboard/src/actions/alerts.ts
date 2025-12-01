@@ -49,7 +49,7 @@ async function handleResponse<T>(
 /**
  * Get bearing clearance threshold by blueprint ID
  */
-export async function getThresholdByBlueprint(blueprintId: string) {
+export async function getBearingClearanceThresholdByBlueprint(blueprintId: string) {
   try {
     const headers = await getAuthHeaders();
     const response = await fetch(

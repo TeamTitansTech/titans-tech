@@ -44,7 +44,9 @@ import {
 export class AlertsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createThreshold(dto: CreateThresholdBearingClearanceDto) {
+  async createBearingClearanceThreshold(
+    dto: CreateThresholdBearingClearanceDto,
+  ) {
     const blueprint = await this.prisma.blueprint.findUnique({
       where: { id: dto.blueprintId },
     });
@@ -74,7 +76,7 @@ export class AlertsService {
     return new ThresholdBearingClearanceResponseDto(threshold as any);
   }
 
-  async getThresholdByBlueprint(blueprintId: string) {
+  async getBearingClearanceThresholdByBlueprint(blueprintId: string) {
     const threshold = await this.prisma.thresholdBearingClearance.findUnique({
       where: { blueprintId },
     });
@@ -88,7 +90,7 @@ export class AlertsService {
     return new ThresholdBearingClearanceResponseDto(threshold as any);
   }
 
-  async updateThreshold(
+  async updateBearingClearanceThreshold(
     blueprintId: string,
     dto: UpdateThresholdBearingClearanceDto,
   ) {
@@ -181,7 +183,7 @@ export class AlertsService {
     return new ThresholdBearingClearanceResponseDto(threshold as any);
   }
 
-  async deleteThreshold(blueprintId: string) {
+  async deleteBearingClearanceThreshold(blueprintId: string) {
     await this.prisma.thresholdBearingClearance.delete({
       where: { blueprintId },
     });

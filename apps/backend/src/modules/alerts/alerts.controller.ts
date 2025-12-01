@@ -46,22 +46,26 @@ export class AlertsController {
 
   @Authenticated()
   @Get('bearing-clearance/thresholds/blueprint/:blueprintId')
-  async getThresholdByBlueprint(@Param('blueprintId') blueprintId: string) {
-    return this.alertsService.getThresholdByBlueprint(blueprintId);
+  async getBearingClearanceThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getBearingClearanceThresholdByBlueprint(
+      blueprintId,
+    );
   }
 
   @Admin()
   @Post('bearing-clearance/thresholds')
-  async createThreshold(
+  async createBearingClearanceThreshold(
     @Body(new ZodValidationPipe(CreateThresholdBearingClearanceSchema))
     dto: CreateThresholdBearingClearanceDto,
   ) {
-    return this.alertsService.createThreshold(dto);
+    return this.alertsService.createBearingClearanceThreshold(dto);
   }
 
   @Admin()
   @Put('bearing-clearance/thresholds/blueprint/:blueprintId')
-  async updateThreshold(
+  async updateBearingClearanceThreshold(
     @Param('blueprintId') blueprintId: string,
     @Body(new ZodValidationPipe(UpdateThresholdBearingClearanceSchema))
     dto: UpdateThresholdBearingClearanceDto,
@@ -69,7 +73,7 @@ export class AlertsController {
     const { recalculateAlerts, ...thresholdData } = dto;
 
     // Update the threshold
-    const threshold = await this.alertsService.updateThreshold(
+    const threshold = await this.alertsService.updateBearingClearanceThreshold(
       blueprintId,
       thresholdData,
     );
@@ -91,8 +95,10 @@ export class AlertsController {
 
   @Admin()
   @Delete('bearing-clearance/thresholds/blueprint/:blueprintId')
-  async deleteThreshold(@Param('blueprintId') blueprintId: string) {
-    await this.alertsService.deleteThreshold(blueprintId);
+  async deleteBearingClearanceThreshold(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    await this.alertsService.deleteBearingClearanceThreshold(blueprintId);
     return { message: 'Threshold deleted successfully' };
   }
 
