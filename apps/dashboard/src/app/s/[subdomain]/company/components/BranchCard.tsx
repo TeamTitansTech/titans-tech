@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Building2, MapPin, Package, ChevronRight, Eye } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
+import { useBranch } from '@/contexts/BranchContext';
 import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import type { CompanyBranch } from '@/data/services/company-branches.api';
 
@@ -18,14 +19,16 @@ interface BranchCardProps {
 export function BranchCard({ branch, machineCount, companyUser }: BranchCardProps) {
   const t = useTranslations();
   const router = useInternalRouter();
+  const { setSelectedBranchId } = useBranch();
 
   // Find user's permissions for this branch
   const userBranch = companyUser.branches?.find((b) => b.branchId === branch.id);
   const canViewMachines = userBranch?.readMachines ?? false;
 
   const handleViewMachines = () => {
-    // Navigate to machines page with branch filter
-    router.push(`/machines?branchId=${branch.id}`);
+    // Set branch in context, then navigate to machines page
+    setSelectedBranchId(branch.id);
+    router.push('/machines');
   };
 
   return (

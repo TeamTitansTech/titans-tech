@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { useBranch } from '@/contexts/BranchContext';
 import { getMachines, deleteMachine } from '@/data/services/machines.api';
 import { getLatestReport } from '@/data/services/services.api';
 import { getBranchesWithPermission, filterByBranchPermission } from '@/lib/branchFilters';
@@ -88,7 +89,10 @@ export function MachinesPageClient() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
-  const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>('all');
+  const { selectedBranchId } = useBranch();
+  const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>(
+    selectedBranchId || 'all',
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -304,15 +308,22 @@ export function MachinesPageClient() {
           <div className="flex items-center gap-4">
             {/* Branch Filter */}
             <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-[200px] [&_.branch-location]:hidden">
                 <MapPin className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Filter by branch" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t('allBranches')}</SelectItem>
                 {userBranches.map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id}>
-                    {branch.name}
+                  <SelectItem key={branch.id} value={branch.id} textValue={branch.name}>
+                    <div className="flex flex-col">
+                      <span>{branch.name}</span>
+                      {branch.location && (
+                        <span className="branch-location text-xs text-muted-foreground truncate max-w-[180px]">
+                          {branch.location}
+                        </span>
+                      )}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>

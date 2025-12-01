@@ -61,6 +61,7 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
       return allBranchesForSysAdmin.map((branch) => ({
         id: branch.id,
         name: branch.company ? `${branch.company.name} - ${branch.name}` : branch.name,
+        location: branch.location,
       }));
     }
     return getBranchesWithPermission(companyUser, 'readProductionLines');
@@ -132,15 +133,22 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
           <div className="flex items-center gap-4">
             {/* Branch Filter */}
             <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-[200px] [&_.branch-location]:hidden">
                 <MapPin className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Filter by branch" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t('allBranches')}</SelectItem>
                 {userBranches.map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id}>
-                    {branch.name}
+                  <SelectItem key={branch.id} value={branch.id} textValue={branch.name}>
+                    <div className="flex flex-col">
+                      <span>{branch.name}</span>
+                      {branch.location && (
+                        <span className="branch-location text-xs text-muted-foreground truncate max-w-[180px]">
+                          {branch.location}
+                        </span>
+                      )}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
