@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
-import { ClipboardCheck, Calendar as CalendarIcon } from 'lucide-react';
+import { ClipboardCheck, Calendar as CalendarIcon, ChevronDown, Package } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -20,11 +20,15 @@ import {
 } from '@/components/charts/dataTransformers';
 import { getClutchThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
+import { PartsListSelector } from '@/components/parts/PartsListSelector';
+import { CLUTCH_BRAKE_PARTS } from '@/data/parts/clutch-parts';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface ClutchSectionProps {
   machineId: string;
   inspections: ClutchInspectionData[];
   machineName: string;
+  machineSerial?: string;
   blueprintId: string;
 }
 
@@ -32,10 +36,13 @@ export function ClutchSection({
   machineId,
   inspections,
   machineName,
+  machineSerial,
   blueprintId,
 }: ClutchSectionProps) {
   const t = useTranslations('machines.sectionDetails');
+  const tParts = useTranslations('parts');
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+  const [partsListOpen, setPartsListOpen] = useState(false);
   // Thresholds for hydraulic clutch clearance
   const [hydTotalThreshold, setHydTotalThreshold] = useState<ThresholdConfig | null>(null);
   const [hydRearThreshold, setHydRearThreshold] = useState<ThresholdConfig | null>(null);
@@ -310,6 +317,34 @@ export function ClutchSection({
             </div>
           </CardContent>
         </Card>
+
+        {/* Parts Replacement List */}
+        <Collapsible open={partsListOpen} onOpenChange={setPartsListOpen}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full justify-between border-orange-200 hover:bg-orange-50 dark:border-orange-800 dark:hover:bg-orange-950/20"
+            >
+              <div className="flex items-center gap-2">
+                <Package className="h-4 w-4 text-orange-500" />
+                <span>{tParts('clutchBrakeParts')}</span>
+              </div>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${partsListOpen ? 'rotate-180' : ''}`}
+              />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-4">
+            <PartsListSelector
+              parts={CLUTCH_BRAKE_PARTS}
+              title={tParts('clutchBrakeParts')}
+              description={tParts('clutchBrakeDescription')}
+              machineName={machineName}
+              machineSerial={machineSerial}
+              sectionName="Clutch & Brake"
+            />
+          </CollapsibleContent>
+        </Collapsible>
 
         <div className="flex justify-end">
           <Button onClick={() => setIsInspectionModalOpen(true)}>
