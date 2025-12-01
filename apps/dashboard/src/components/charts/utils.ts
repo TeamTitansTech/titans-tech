@@ -16,9 +16,8 @@ export function calculateSeverity(
 
   if (value >= threshold.redMin) return 'RED';
   if (value >= threshold.yellowMin) return 'YELLOW';
-  if (value >= threshold.greenMin) return 'GREEN';
-
-  return 'NONE';
+  // Values below yellowMin are within specification (GREEN)
+  return 'GREEN';
 }
 
 /**
