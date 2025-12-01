@@ -127,7 +127,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   },
   {
     category: PermissionCategory.SERVICE_MANAGEMENT,
-    permissions: ['readServices'],
+    permissions: ['readServices', 'createServices', 'updateServices', 'deleteServices'],
   },
   {
     category: PermissionCategory.PRODUCTION_LINE_MANAGEMENT,
@@ -178,11 +178,11 @@ export const MANAGER_PERMISSIONS: Permissions = {
   updateMachines: true,
   deleteMachines: true,
 
-  // Service Management (read-only for regular users)
+  // Service Management
   readServices: true,
-  createServices: false,
-  updateServices: false,
-  deleteServices: false,
+  createServices: true,
+  updateServices: true,
+  deleteServices: true,
 
   // Production Line Management
   readProductionLines: true,

@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { getMachineById } from '@/data/services/machines.api';
 import { MachineDetails } from './components/MachineDetails';
-import { UpcomingServices } from './components/UpcomingServices';
+import { UpcomingServices } from '@/components/shared/services/UpcomingServices';
 import { ServiceHistory } from './components/ServiceHistory';
 import { notFound } from 'next/navigation';
 import { Typography } from '@/components/ui/typography';
