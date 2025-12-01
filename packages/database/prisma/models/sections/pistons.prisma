@@ -1,0 +1,69 @@
+// Pistons section-specific enums
+
+enum SealConditionType {
+  OK
+  NA
+  DNC
+  LEAKING
+  WORN
+}
+
+enum VacuumSystemConditionType {
+  OK
+  NA
+  DNC
+  DAMAGED
+  LEAKING
+}
+
+// Service section model
+
+model MachineServicePistons {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  outerDataId      String?
+  innerDataId      String?
+
+  // Top-level fields
+  guideSeals                     SealConditionType?
+  pistonSeals                    SealConditionType?
+  vacuumSystem                   VacuumSystemConditionType?
+  vacuumSystemAirPressureSetting Decimal?                   @db.Decimal(10, 4)
+  vacuumSystemAirPressureUnit    PressureUnit?
+  unit                           String?                    @default("inches") // inches, mm, cm
+
+  // Notes
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerData      PistonsData?   @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerData      PistonsData?   @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_pistons")
+}
+
+// Data model
+
+model PistonsData {
+  id String @id @default(cuid())
+
+  // LH Piston (4 measurements around piston)
+  lhTop    Decimal @db.Decimal(10, 4)
+  lhBottom Decimal @db.Decimal(10, 4)
+  lhLeft   Decimal @db.Decimal(10, 4)
+  lhRight  Decimal @db.Decimal(10, 4)
+
+  // RH Piston (4 measurements around piston)
+  rhTop    Decimal @db.Decimal(10, 4)
+  rhBottom Decimal @db.Decimal(10, 4)
+  rhLeft   Decimal @db.Decimal(10, 4)
+  rhRight  Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerServices MachineServicePistons[] @relation("OuterData")
+  innerServices MachineServicePistons[] @relation("InnerData")
+
+  @@map("service_data_pistons")
+}

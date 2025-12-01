@@ -1,0 +1,28 @@
+// Production Line models
+
+model ProductionLine {
+  id        String   @id @default(cuid())
+  name      String
+  branchId  String
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  branch   CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  machines MachineProductionLine[]
+
+  @@map("production_lines")
+}
+
+model MachineProductionLine {
+  machineId        String
+  productionLineId String
+  order            Int
+  addedAt          DateTime @default(now())
+
+  machine        Machine        @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  productionLine ProductionLine @relation(fields: [productionLineId], references: [id], onDelete: Cascade)
+
+  @@id([machineId, productionLineId])
+  @@map("machine_production_lines")
+}

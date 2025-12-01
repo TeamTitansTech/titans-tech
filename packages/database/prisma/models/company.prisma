@@ -1,0 +1,122 @@
+// Company, branch, user, and permission models
+
+model Company {
+    id          String   @id @default(cuid())
+    name        String
+    slug        String   @unique
+    logo        String?
+    loginLogo   String?
+    brandColor  String?
+    accentColor String?
+    description String?
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    branches            CompanyBranch[]
+    users               User[]
+    permissionTemplates PermissionTemplate[]
+
+    @@map("companies")
+}
+
+model PermissionTemplate {
+    id          String  @id @default(cuid())
+    name        String
+    description String?
+    permissions Json // Stores the Permissions object as JSON
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+    companyId String
+
+    @@map("permission_templates")
+}
+
+model CompanyBranch {
+    id           String  @id @default(cuid())
+    name         String
+    isMainBranch Boolean @default(false)
+    location     String?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    company         Company          @relation(fields: [companyId], references: [id])
+    companyId       String
+    users           UserBranch[]
+    machines        Machine[]
+    productionLines ProductionLine[]
+
+    @@map("company_branches")
+}
+
+model User {
+    id                     String  @id @default(cuid())
+    name                   String?
+    email                  String  @unique
+    password               String
+    isCompanyAdmin         Boolean @default(false)
+    isCompanyManager       Boolean @default(false)
+    isUsingDefaultPassword Boolean @default(true)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    company                     Company              @relation(fields: [companyId], references: [id])
+    companyId                   String
+    branches                    UserBranch[]
+    adminNotificationsCreated   AdminNotification[]  @relation("AdminNotificationsCreated")
+    clientNotificationsReceived ClientNotification[] @relation("ClientNotificationsReceived")
+
+    @@map("users")
+}
+
+model UserBranch {
+    user      User          @relation(fields: [userId], references: [id])
+    userId    String
+    branch    CompanyBranch @relation(fields: [branchId], references: [id])
+    branchId  String
+    createdAt DateTime      @default(now())
+    updatedAt DateTime      @updatedAt
+
+    // User Management Permissions
+    readUsers             Boolean @default(false)
+    createUsers           Boolean @default(false)
+    updateUsers           Boolean @default(false)
+    deleteUsers           Boolean @default(false)
+    manageUserPermissions Boolean @default(false)
+    assignUsersToBranches Boolean @default(false)
+
+    // Branch Management Permissions
+    readBranches   Boolean @default(false)
+    updateBranches Boolean @default(false)
+
+    // Blueprint Permissions
+    readBlueprints   Boolean @default(false)
+    createBlueprints Boolean @default(false)
+    updateBlueprints Boolean @default(false)
+    deleteBlueprints Boolean @default(false)
+
+    // Machine Permissions
+    readMachines   Boolean @default(false)
+    createMachines Boolean @default(false)
+    updateMachines Boolean @default(false)
+    deleteMachines Boolean @default(false)
+
+    // Service Permissions
+    readServices   Boolean @default(false)
+    createServices Boolean @default(false)
+    updateServices Boolean @default(false)
+    deleteServices Boolean @default(false)
+
+    // Production Line Permissions
+    readProductionLines   Boolean @default(false)
+    createProductionLines Boolean @default(false)
+    updateProductionLines Boolean @default(false)
+    deleteProductionLines Boolean @default(false)
+
+    @@id([userId, branchId])
+    @@map("user_branches")
+}

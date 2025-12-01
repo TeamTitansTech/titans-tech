@@ -1,0 +1,120 @@
+// Machine-specific enums
+enum FoundationType {
+    PLANT_FLOOR
+    ISOLATED_PAD
+}
+
+enum FrameType {
+    GAP
+    STRAIGHT_SIDE
+}
+
+enum MachineClutchType {
+    JH5
+    NA
+}
+
+enum PneumaticSystemType {
+    AIR
+    HYD
+    WET_AIR
+    WET_HYD
+}
+
+enum PressMountingType {
+    ADJUSTABLE
+    ON_FLOOR
+    SHIMS
+    OTHER
+}
+
+enum MachineFeaturesType {
+    AIM
+    ADJ_STROKE
+    DOUBLE_LOCKUP
+    NA
+}
+
+// Inspection-specific enums
+enum DriveBeltConditionType {
+    OK
+    NA
+    LOOSENED
+    TIGHTENED
+    WORN
+}
+
+enum ProtectiveCoversStatusType {
+    YES
+    NO
+    OK
+}
+
+// Blueprint and Machine models
+
+model Blueprint {
+    id        String           @id @default(cuid())
+    name      String
+    imageUrl  String?
+    fields    Json // Array of { fieldName, fieldSlug, fieldType, fieldOptions? }
+    sections  ServiceSection[] // Array of service sections
+    deletedAt DateTime? // Soft delete to preserve historical data
+    createdAt DateTime         @default(now())
+    updatedAt DateTime         @updatedAt
+
+    machines                  Machine[]
+    thresholdBearingClearance ThresholdBearingClearance?
+    thresholdClutch           ThresholdClutch?
+    thresholdSlide            ThresholdSlide?
+    thresholdGibs             ThresholdGibs?
+
+    @@map("blueprints")
+}
+
+model Machine {
+    id          String  @id @default(cuid())
+    blueprintId String
+    branchId    String
+    name        String // Machine name/identifier
+    imageUrl    String? // Inherited from blueprint or custom image
+
+    // Machine specifications
+    manufacturer    String?
+    sizeTonnage     String?
+    serialNumber    String?
+    stroke          String?
+    foundationType  FoundationType?
+    frameType       FrameType?
+    clutchType      MachineClutchType?
+    pneumaticSystem PneumaticSystemType?
+    pressMounting   PressMountingType?
+    features        MachineFeaturesType?
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    blueprint           Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+    branch              CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
+    fields              MachineField[]
+    services            MachineService[]
+    adminNotifications  AdminNotification[]
+    clientNotifications ClientNotification[]
+    emails              Email[]
+    productionLines     MachineProductionLine[]
+
+    @@map("machines")
+}
+
+model MachineField {
+    id        String   @id @default(cuid())
+    machineId String
+    fieldSlug String
+    value     String // Store as string, convert based on fieldType from blueprint
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
+
+    @@unique([machineId, fieldSlug])
+    @@map("machine_fields")
+}

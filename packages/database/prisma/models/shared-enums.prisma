@@ -1,0 +1,37 @@
+// Shared enums used across multiple sections
+
+enum AlertSeverity {
+    GREEN
+    YELLOW
+    RED
+    NONE
+}
+
+enum YesNoNaDncType {
+    YES
+    NO
+    NA
+    DNC
+}
+
+enum YesNoDncType {
+    YES
+    NO
+    DNC
+}
+
+enum MeasurementUnit {
+    INCHES
+    MM
+}
+
+enum PressureUnit {
+    BAR
+    MPA
+    PSI
+}
+
+enum TemperatureUnit {
+    FAHRENHEIT
+    CELSIUS
+}

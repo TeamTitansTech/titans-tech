@@ -1,0 +1,106 @@
+// Slide section-specific enums
+
+enum ParallelismType {
+  DNC
+  TO_BED
+  TO_BOLSTER
+}
+
+// Threshold model
+
+model ThresholdSlide {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Max Deviation thresholds (single threshold for both outer and inner)
+  maxDeviation_greenMin  Decimal @db.Decimal(10, 4)
+  maxDeviation_yellowMin Decimal @db.Decimal(10, 4)
+  maxDeviation_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_slide")
+}
+
+// Service section model
+
+model MachineServiceSlide {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  outerBeforeId    String?
+  outerDataId      String?
+  innerBeforeId    String?
+  innerDataId      String?
+
+  // Notes
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerBefore    SlideData?     @relation("OuterBeforeData", fields: [outerBeforeId], references: [id], onDelete: SetNull)
+  outerData      SlideData?     @relation("OuterAfterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerBefore    SlideData?     @relation("InnerBeforeData", fields: [innerBeforeId], references: [id], onDelete: SetNull)
+  innerData      SlideData?     @relation("InnerAfterData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_slide")
+}
+
+// Data model
+
+model SlideData {
+  id String @id @default(cuid())
+
+  // Parallelism configuration
+  parallelism                ParallelismType?
+  hasParallelismBeenAdjusted YesNoNaDncType?
+
+  // Shutheight fields
+  shutheightIndicatorsChecked YesNoDncType?
+  overloadsOnTonnageMonitor   String?
+  shutheightActualSh          String?
+  indicatorReading            String?
+
+  // Measurements (5 positions)
+  position1 Decimal @db.Decimal(10, 4)
+  position2 Decimal @db.Decimal(10, 4)
+  position3 Decimal @db.Decimal(10, 4)
+  position4 Decimal @db.Decimal(10, 4)
+  position5 Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerBeforeServices MachineServiceSlide[] @relation("OuterBeforeData")
+  outerAfterServices  MachineServiceSlide[] @relation("OuterAfterData")
+  innerBeforeServices MachineServiceSlide[] @relation("InnerBeforeData")
+  innerAfterServices  MachineServiceSlide[] @relation("InnerAfterData")
+
+  @@map("service_data_slide")
+}
+
+// Alert model
+
+model AlertSlide {
+  id               String @id @default(cuid())
+  machineServiceId String @unique
+
+  // Outer Max Deviation alert
+  maxDeviationOuter_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationOuter_severity     AlertSeverity
+
+  // Inner Max Deviation alert
+  maxDeviationInner_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationInner_severity     AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_slide")
+}
