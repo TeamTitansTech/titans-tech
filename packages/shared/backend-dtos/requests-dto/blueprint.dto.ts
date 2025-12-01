@@ -8,7 +8,7 @@ export const CreateBlueprintSchema = z.object({
   name: z.string().min(1, 'Blueprint name is required'),
   imageUrl: z.string().url().optional(),
   fields: z.array(z.any()),
-  sections: z.array(z.nativeEnum(ServiceSection)),
+  sections: z.array(z.enum(ServiceSection)),
 });
 
 export type CreateBlueprintDto = z.infer<typeof CreateBlueprintSchema>;
@@ -102,7 +102,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     name: z.string().min(1, 'Blueprint name is required'),
     imageUrl: z.string().url().optional(),
     fields: z.array(z.any()),
-    sections: z.array(z.nativeEnum(ServiceSection)),
+    sections: z.array(z.enum(ServiceSection)),
     thresholds: ThresholdsSchema.optional(),
     clutchThresholds: ClutchThresholdsSchema.optional(),
     slideThresholds: SlideThresholdsSchema.optional(),

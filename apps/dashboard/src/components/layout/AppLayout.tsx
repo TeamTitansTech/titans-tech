@@ -20,17 +20,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const unreadNotifications =
     companyUser?.unreadNotifications || sysAdminUser?.unreadNotifications || 0;
 
-  console.log('[AppLayout] Current pathname:', pathname);
-  console.log('[AppLayout] Should skip layout?', noLayoutPaths.includes(pathname));
-  console.log('[AppLayout] UserId:', userId);
-  console.log('[AppLayout] Unread notifications:', unreadNotifications);
-
   if (noLayoutPaths.includes(pathname)) {
-    console.log('[AppLayout] Skipping layout for:', pathname);
     return <>{children}</>;
   }
-
-  console.log('[AppLayout] Using full layout with NotificationsSocketProvider');
   return (
     <NotificationsSocketProvider userId={userId} initialUnreadCount={unreadNotifications}>
       <BranchProvider>

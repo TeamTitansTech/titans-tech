@@ -6,7 +6,7 @@ import { CounterbalanceAlertField } from '@titans-tech/db/enums';
  * User selects a field with issues and provides justification
  */
 export const CreateAlertCounterbalanceCylinderAirbagSchema = z.object({
-  fieldName: z.nativeEnum(CounterbalanceAlertField, {
+  fieldName: z.enum(CounterbalanceAlertField, {
     message: 'Invalid field',
   }),
   justification: z
