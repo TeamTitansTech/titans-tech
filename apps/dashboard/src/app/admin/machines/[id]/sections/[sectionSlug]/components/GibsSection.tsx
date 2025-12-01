@@ -4,10 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
-import { Calendar as CalendarIcon, ChevronDown, Package } from 'lucide-react';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -21,7 +20,12 @@ import {
 import { getGibsThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
-import { PartsListSelector } from '@/components/parts/PartsListSelector';
+import {
+  SectionStatusBadge,
+  type SectionStatus,
+  calculateSectionStatus,
+} from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
 import { GIBS_TABS } from '@/data/parts/dac-parts';
 
 interface GibsSectionProps {
@@ -61,7 +65,6 @@ export function GibsSection({
   const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   const tGibsFields = useTranslations('machines.gibsFields');
-  const [partsListOpen, setPartsListOpen] = useState(false);
   const [usableThreshold, setUsableThreshold] = useState<ThresholdConfig | null>(null);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
@@ -239,6 +242,21 @@ export function GibsSection({
   const outerCalculated = calculateGibsFields(latestOuterData);
   const innerCalculated = calculateGibsFields(latestInnerData);
 
+  // Prepare measurements for status badge
+  const statusMeasurements = useMemo(
+    () => [
+      { value: outerCalculated?.usable ?? null, threshold: usableThreshold },
+      { value: innerCalculated?.usable ?? null, threshold: usableThreshold },
+    ],
+    [outerCalculated?.usable, innerCalculated?.usable, usableThreshold],
+  );
+
+  // Calculate section status for the status card
+  const sectionStatus: SectionStatus = useMemo(
+    () => calculateSectionStatus(statusMeasurements),
+    [statusMeasurements],
+  );
+
   // Check if we have front-to-back or left-to-right data
   const hasOuterFrontToBack = latestOuterData
     ? [1, 2, 3, 4, 5, 6, 7, 8].some(
@@ -351,7 +369,10 @@ export function GibsSection({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>{t('sectionTitles.gibsMeasurements')}</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>{t('sectionTitles.gibsMeasurements')}</CardTitle>
+              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
+            </div>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Gibs"
@@ -662,32 +683,17 @@ export function GibsSection({
         </CardContent>
       </Card>
 
-      {/* Parts Replacement List */}
-      <Collapsible open={partsListOpen} onOpenChange={setPartsListOpen}>
-        <CollapsibleTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full justify-between border-primary/20 hover:bg-primary/5 dark:border-primary/30 dark:hover:bg-primary/10"
-          >
-            <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-primary" />
-              <span>{tParts('gibsParts')}</span>
-            </div>
-            <ChevronDown
-              className={`h-4 w-4 transition-transform duration-200 ${partsListOpen ? 'rotate-180' : ''}`}
-            />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-4">
-          <PartsListSelector
-            tabs={GIBS_TABS}
-            title={tParts('gibsParts')}
-            description={tParts('gibsDescription')}
-            machineName={machineName}
-            sectionName="Gibs"
-          />
-        </CollapsibleContent>
-      </Collapsible>
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          tabs: GIBS_TABS,
+          title: tParts('gibsParts'),
+          description: tParts('gibsDescription'),
+          machineName,
+          sectionName: 'Gibs',
+        }}
+      />
     </div>
   );
 }

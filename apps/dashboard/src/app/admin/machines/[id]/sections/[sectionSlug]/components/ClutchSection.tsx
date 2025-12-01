@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
-import { Calendar as CalendarIcon, ChevronDown, Package } from 'lucide-react';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -20,9 +20,13 @@ import {
 import { getClutchThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
-import { PartsListSelector } from '@/components/parts/PartsListSelector';
+import {
+  SectionStatusBadge,
+  type SectionStatus,
+  calculateSectionStatus,
+} from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
 import { CLUTCH_BRAKE_CLEARANCE_PARTS } from '@/data/parts/dac-parts';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 interface ClutchSectionProps {
   machineId: string;
@@ -42,7 +46,6 @@ export function ClutchSection({
 }: ClutchSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const tParts = useTranslations('parts');
-  const [partsListOpen, setPartsListOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   // Thresholds for hydraulic clutch clearance
   const [hydTotalThreshold, setHydTotalThreshold] = useState<ThresholdConfig | null>(null);
@@ -149,6 +152,24 @@ export function ClutchSection({
     ]);
   }, [filteredInspections]);
 
+  // Prepare measurements for status badge
+  const statusMeasurements = useMemo(
+    () => [
+      { value: latestValues.hydClutchClearanceTotal, threshold: hydTotalThreshold },
+      { value: latestValues.hydClutchClearanceRear, threshold: hydRearThreshold },
+      { value: latestValues.brakeSpringFB, threshold: fbThreshold },
+      { value: latestValues.brakeSpringFTB, threshold: fTBThreshold },
+      { value: latestValues.brakeSpringRTB, threshold: rTBThreshold },
+    ],
+    [latestValues, hydTotalThreshold, hydRearThreshold, fbThreshold, fTBThreshold, rTBThreshold],
+  );
+
+  // Calculate section status for the status card
+  const sectionStatus: SectionStatus = useMemo(
+    () => calculateSectionStatus(statusMeasurements),
+    [statusMeasurements],
+  );
+
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
     if (value === null || value === undefined) return '-';
     return Number(value).toFixed(decimals);
@@ -244,7 +265,10 @@ export function ClutchSection({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>{t('sectionTitles.clutchMeasurements')}</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>{t('sectionTitles.clutchMeasurements')}</CardTitle>
+              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
+            </div>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Clutch"
@@ -350,33 +374,18 @@ export function ClutchSection({
         </CardContent>
       </Card>
 
-      {/* Parts Replacement List */}
-      <Collapsible open={partsListOpen} onOpenChange={setPartsListOpen}>
-        <CollapsibleTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full justify-between border-primary/20 hover:bg-primary/5 dark:border-primary/30 dark:hover:bg-primary/10"
-          >
-            <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-primary" />
-              <span>{tParts('clutchBrakeParts')}</span>
-            </div>
-            <ChevronDown
-              className={`h-4 w-4 transition-transform duration-200 ${partsListOpen ? 'rotate-180' : ''}`}
-            />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-4">
-          <PartsListSelector
-            parts={CLUTCH_BRAKE_CLEARANCE_PARTS}
-            title={tParts('clutchBrakeParts')}
-            description={tParts('clutchBrakeDescription')}
-            machineName={machineName}
-            machineSerial={machineSerial}
-            sectionName="Clutch & Brake"
-          />
-        </CollapsibleContent>
-      </Collapsible>
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          parts: CLUTCH_BRAKE_CLEARANCE_PARTS,
+          title: tParts('clutchBrakeParts'),
+          description: tParts('clutchBrakeDescription'),
+          machineName,
+          machineSerial,
+          sectionName: 'Clutch & Brake',
+        }}
+      />
     </div>
   );
 }

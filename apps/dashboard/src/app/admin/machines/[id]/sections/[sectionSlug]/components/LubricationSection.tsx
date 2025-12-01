@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Typography } from '@/components/ui/typography';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from 'next-intl';
@@ -15,8 +14,6 @@ import {
   Filter,
   AlertTriangle,
   Clock,
-  ChevronDown,
-  Package,
 } from 'lucide-react';
 import { useState, useMemo, useRef } from 'react';
 import { format, differenceInDays } from 'date-fns';
@@ -42,7 +39,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
-import { PartsListSelector } from '@/components/parts/PartsListSelector';
+import { SectionStatusBadge, type SectionStatus } from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
 import { LUBRICATION_HYDRAULICS_PARTS } from '@/data/parts/dac-parts';
 
 interface LubricationSectionProps {
@@ -56,7 +54,6 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
   const tCommon = useTranslations('common.status');
   const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
-  const [partsListOpen, setPartsListOpen] = useState(false);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -138,6 +135,14 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
     }
     return null;
   }, [inspections]);
+
+  // Calculate section status based on oil change info
+  const sectionStatus: SectionStatus = useMemo(() => {
+    if (!lastOilChangeInfo) return 'unknown';
+    if (lastOilChangeInfo.isOverdue) return 'alert';
+    if (lastOilChangeInfo.isWarning) return 'warning';
+    return 'ok';
+  }, [lastOilChangeInfo]);
 
   // Transform data for temperature chart
   const temperatureChartData = useMemo(() => {
@@ -368,7 +373,10 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>{t('sectionTitles.lubricationStatus')}</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>{t('sectionTitles.lubricationStatus')}</CardTitle>
+              <SectionStatusBadge status={sectionStatus} size="sm" />
+            </div>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Lubrication"
@@ -522,32 +530,17 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
         </CardContent>
       </Card>
 
-      {/* Parts Replacement List */}
-      <Collapsible open={partsListOpen} onOpenChange={setPartsListOpen}>
-        <CollapsibleTrigger asChild>
-          <Button
-            variant="outline"
-            className="w-full justify-between border-primary/20 hover:bg-primary/5 dark:border-primary/30 dark:hover:bg-primary/10"
-          >
-            <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-primary" />
-              <span>{tParts('lubricationHydraulicsParts')}</span>
-            </div>
-            <ChevronDown
-              className={`h-4 w-4 transition-transform duration-200 ${partsListOpen ? 'rotate-180' : ''}`}
-            />
-          </Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="mt-4">
-          <PartsListSelector
-            parts={LUBRICATION_HYDRAULICS_PARTS}
-            title={tParts('lubricationHydraulicsParts')}
-            description={tParts('lubricationHydraulicsDescription')}
-            machineName={machineName}
-            sectionName="Lubrication & Hydraulics"
-          />
-        </CollapsibleContent>
-      </Collapsible>
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          parts: LUBRICATION_HYDRAULICS_PARTS,
+          title: tParts('lubricationHydraulicsParts'),
+          description: tParts('lubricationHydraulicsDescription'),
+          machineName,
+          sectionName: 'Lubrication & Hydraulics',
+        }}
+      />
     </div>
   );
 }

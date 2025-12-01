@@ -2285,5 +2285,32 @@
       "quantity": "Qty",
       "unit": "Unit"
     }
+  },
+  "sectionStatus": {
+    "ok": "OK",
+    "warning": "Warning",
+    "critical": "Critical",
+    "noData": "No Data"
+  },
+  "sectionStatusCard": {
+    "status": {
+      "ok": {
+        "title": "Section Status: OK",
+        "description": "All measurements are within specification."
+      },
+      "warning": {
+        "title": "Section Status: Warning",
+        "description": "Some measurements require attention. Review the parts list to identify what may need replacement."
+      },
+      "critical": {
+        "title": "Section Status: Critical",
+        "description": "Measurements exceed acceptable thresholds. Check the parts list to determine what needs to be replaced."
+      },
+      "unknown": {
+        "title": "Section Status: No Data",
+        "description": "No measurement data available for this section."
+      }
+    },
+    "viewParts": "View Parts List"
   }
 }

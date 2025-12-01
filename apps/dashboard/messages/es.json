@@ -2228,5 +2228,32 @@
       "quantity": "Cant",
       "unit": "Un"
     }
+  },
+  "sectionStatus": {
+    "ok": "OK",
+    "warning": "Atención",
+    "critical": "Crítico",
+    "noData": "Sin datos"
+  },
+  "sectionStatusCard": {
+    "status": {
+      "ok": {
+        "title": "Estado de la Sección: OK",
+        "description": "Todas las mediciones están dentro de la especificación."
+      },
+      "warning": {
+        "title": "Estado de la Sección: Atención",
+        "description": "Algunas mediciones requieren atención. Revise la lista de piezas para identificar lo que puede necesitar reemplazo."
+      },
+      "critical": {
+        "title": "Estado de la Sección: Crítico",
+        "description": "Las mediciones exceden los umbrales aceptables. Verifique la lista de piezas para determinar lo que necesita ser reemplazado."
+      },
+      "unknown": {
+        "title": "Estado de la Sección: Sin Datos",
+        "description": "No hay datos de medición disponibles para esta sección."
+      }
+    },
+    "viewParts": "Ver Lista de Piezas"
   }
 }

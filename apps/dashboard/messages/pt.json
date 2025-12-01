@@ -2290,5 +2290,32 @@
       "quantity": "Qtd",
       "unit": "Un"
     }
+  },
+  "sectionStatus": {
+    "ok": "OK",
+    "warning": "Atenção",
+    "critical": "Crítico",
+    "noData": "Sem dados"
+  },
+  "sectionStatusCard": {
+    "status": {
+      "ok": {
+        "title": "Status da Seção: OK",
+        "description": "Todas as medições estão dentro da especificação."
+      },
+      "warning": {
+        "title": "Status da Seção: Atenção",
+        "description": "Algumas medições requerem atenção. Revise a lista de peças para identificar o que pode precisar de substituição."
+      },
+      "critical": {
+        "title": "Status da Seção: Crítico",
+        "description": "As medições excedem os limites aceitáveis. Verifique a lista de peças para determinar o que precisa ser substituído."
+      },
+      "unknown": {
+        "title": "Status da Seção: Sem Dados",
+        "description": "Nenhum dado de medição disponível para esta seção."
+      }
+    },
+    "viewParts": "Ver Lista de Peças"
   }
 }

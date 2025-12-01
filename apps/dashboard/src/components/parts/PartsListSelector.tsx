@@ -39,7 +39,7 @@ interface PartsListSelectorWithTabs extends PartsListSelectorBaseProps {
   tabs: SectionWithTabs;
 }
 
-type PartsListSelectorProps = PartsListSelectorWithParts | PartsListSelectorWithTabs;
+export type PartsListSelectorProps = PartsListSelectorWithParts | PartsListSelectorWithTabs;
 
 // Extracted table component for reuse in tabs
 interface PartsTableProps {

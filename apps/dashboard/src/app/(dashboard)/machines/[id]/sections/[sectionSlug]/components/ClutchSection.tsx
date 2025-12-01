@@ -21,6 +21,7 @@ import {
 import { getClutchThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { PartsListSelector } from '@/components/parts/PartsListSelector';
+import { SectionStatusBadge } from '@/components/shared/SectionStatusBadge';
 import { CLUTCH_BRAKE_CLEARANCE_PARTS } from '@/data/parts/dac-parts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
@@ -119,6 +120,25 @@ export function ClutchSection({
     ]);
   }, [filteredInspections]);
 
+  // Prepare measurements for status badge
+  const statusMeasurements = useMemo(
+    () => [
+      { value: latestClutchData?.hydClutchClearanceTotal ?? null, threshold: hydTotalThreshold },
+      { value: latestClutchData?.hydClutchClearanceRear ?? null, threshold: hydRearThreshold },
+      { value: latestClutchData?.brakeSpringFB ?? null, threshold: fbThreshold },
+      { value: latestClutchData?.brakeSpringFTB ?? null, threshold: fTBThreshold },
+      { value: latestClutchData?.brakeSpringRTB ?? null, threshold: rTBThreshold },
+    ],
+    [
+      latestClutchData,
+      hydTotalThreshold,
+      hydRearThreshold,
+      fbThreshold,
+      fTBThreshold,
+      rTBThreshold,
+    ],
+  );
+
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
     if (value === null || value === undefined) return '-';
     return Number(value).toFixed(decimals);
@@ -214,7 +234,10 @@ export function ClutchSection({
 
         <Card>
           <CardHeader>
-            <CardTitle>Clutch Measurements</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>Clutch Measurements</CardTitle>
+              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-center mb-6">
