@@ -347,6 +347,12 @@ export function BearingClearanceSection({
           description: tParts('bearingClearanceDescription'),
           machineName,
           sectionName: 'Bearing Clearance',
+          diagramImage: {
+            src: '/assets/parts-diagrams/crankshaft.png',
+            alt: 'FIGURE 1006B — CRANKSHAFT PARTS',
+            width: 843,
+            height: 641,
+          },
         }}
       />
     </div>

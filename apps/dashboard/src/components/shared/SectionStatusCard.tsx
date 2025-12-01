@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
+import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import { CheckCircle, AlertTriangle, AlertCircle, HelpCircle, Package } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +20,13 @@ interface PartsConfigBase {
   machineName?: string;
   machineSerial?: string;
   sectionName?: string;
+  /** Optional diagram image to display in the parts modal */
+  diagramImage?: {
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  };
 }
 
 interface PartsConfigWithParts extends PartsConfigBase {
@@ -127,14 +137,114 @@ export function SectionStatusCard({ status, partsConfig, className }: SectionSta
       </Card>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent
+          className={cn(
+            'max-h-[85vh] overflow-y-auto',
+            partsConfig.diagramImage ? 'w-[90vw] max-w-[1600px]' : 'max-w-4xl',
+          )}
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Package className="h-5 w-5" />
               {partsConfig.title}
             </DialogTitle>
           </DialogHeader>
-          <PartsListSelector {...partsConfig} />
+
+          {partsConfig.diagramImage ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Diagram Image */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Technical Diagram
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      (Scroll to zoom, drag to pan)
+                    </span>
+                  </h3>
+                </div>
+                <div className="border rounded-lg overflow-hidden bg-white dark:bg-gray-900 relative">
+                  <TransformWrapper
+                    initialScale={1}
+                    minScale={0.5}
+                    maxScale={4}
+                    centerOnInit
+                    wheel={{ step: 0.1 }}
+                    doubleClick={{ mode: 'zoomIn' }}
+                  >
+                    {({ zoomIn, zoomOut, resetTransform }) => (
+                      <>
+                        {/* Zoom Controls */}
+                        <div className="absolute top-2 right-2 z-10 flex gap-1 bg-white dark:bg-gray-800 rounded-md shadow-md p-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => zoomIn()}
+                            title="Zoom in"
+                          >
+                            <ZoomIn className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => zoomOut()}
+                            title="Zoom out"
+                          >
+                            <ZoomOut className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                            onClick={() => resetTransform()}
+                            title="Reset"
+                          >
+                            <RotateCcw className="h-4 w-4" />
+                          </Button>
+                        </div>
+
+                        {/* Zoomable Image */}
+                        <TransformComponent
+                          wrapperStyle={{
+                            width: '100%',
+                            height: '600px',
+                            cursor: 'grab',
+                          }}
+                          contentStyle={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Image
+                            src={partsConfig.diagramImage.src}
+                            alt={partsConfig.diagramImage.alt}
+                            width={partsConfig.diagramImage.width || 800}
+                            height={partsConfig.diagramImage.height || 600}
+                            className="max-w-full max-h-full object-contain"
+                            priority
+                            unoptimized
+                            draggable={false}
+                          />
+                        </TransformComponent>
+                      </>
+                    )}
+                  </TransformWrapper>
+                </div>
+              </div>
+
+              {/* Parts List */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Parts List</h3>
+                <PartsListSelector {...partsConfig} />
+              </div>
+            </div>
+          ) : (
+            <PartsListSelector {...partsConfig} />
+          )}
         </DialogContent>
       </Dialog>
     </>
