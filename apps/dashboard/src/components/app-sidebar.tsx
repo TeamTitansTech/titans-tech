@@ -253,37 +253,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             })}
           </SidebarMenu>
         </SidebarGroup>
-
-        <SidebarGroup className="px-0 mt-6">
-          <SidebarMenu>
-            {data.navUtility.map((item) => {
-              const isActive = checkIsActive(item.url, item.title);
-              return (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton
-                    asChild
-                    tooltip={item.title}
-                    isActive={isActive}
-                    className={
-                      isActive
-                        ? 'bg-accent/15 text-accent hover:bg-accent/30 border-l-4 border-accent rounded-l-none font-bold transition-all duration-200'
-                        : 'text-white hover:bg-accent/20 hover:text-accent border-l-4 border-transparent hover:border-accent/50 rounded-l-none font-medium transition-all duration-200'
-                    }
-                  >
-                    <Link
-                      href={item.url}
-                      onClick={handleLinkClick}
-                      className="flex items-center gap-4 px-4 py-3.5"
-                    >
-                      <item.icon className="size-5 shrink-0" />
-                      <span className="text-sm">{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
-        </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t border-slate-700/50 p-3">
         <div className="flex items-center gap-3">
