@@ -2,7 +2,7 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { rootDomain } from './lib/utils';
-import { getCookie, setCookie } from './lib/cookies';
+import { deleteCookie, getCookie, setCookie } from './lib/cookies';
 
 const PUBLIC_PATHS = ['/admin', '/', '/_next', '/api', '/favicon.ico', '/globals.css'];
 const ADMIN_PUBLIC_PATHS = ['/admin'];
@@ -76,6 +76,12 @@ export async function proxy(request: NextRequest) {
 
   if (isLoggedIn && isInLoginPath) {
     const redirectPath = subdomain ? CLIENT_ALREADY_LOGGED_PATH : ADMIN_ALREADY_LOGGED_PATH;
+    return NextResponse.redirect(new URL(redirectPath, request.url));
+  }
+
+  if (pathname === '/logout') {
+    await deleteCookie('auth_token');
+    const redirectPath = subdomain ? CLIENT_LOGIN_PATH : ADMIN_LOGIN_PATH;
     return NextResponse.redirect(new URL(redirectPath, request.url));
   }
 
