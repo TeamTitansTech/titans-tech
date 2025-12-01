@@ -184,13 +184,22 @@ export class MachinesService {
       include: {
         blueprint: true;
         fields: true;
+        branch: {
+          include: {
+            company: true;
+          };
+        };
       };
     }>[]
   > {
     return this.prisma.machine.findMany({
       include: {
         blueprint: true,
-        branch: true,
+        branch: {
+          include: {
+            company: true,
+          },
+        },
         fields: true,
       },
     });
