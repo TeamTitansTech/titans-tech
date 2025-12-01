@@ -31,6 +31,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { useBranch } from '@/contexts/BranchContext';
 import { getMachines, deleteMachine } from '@/data/services/machines.api';
 import { getLatestReport } from '@/data/services/services.api';
 import { getBranchesWithPermission, filterByBranchPermission } from '@/lib/branchFilters';
@@ -83,17 +84,14 @@ interface MachineWithStatus extends Machine {
   alertStatus?: AlertStatus;
 }
 
-interface MachinesPageClientProps {
-  initialBranchFilter?: string;
-}
-
-export function MachinesPageClient({ initialBranchFilter }: MachinesPageClientProps) {
+export function MachinesPageClient() {
   const [machines, setMachines] = useState<MachineWithStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [errorStatus, setErrorStatus] = useState<number | null>(null);
+  const { selectedBranchId } = useBranch();
   const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>(
-    initialBranchFilter || 'all',
+    selectedBranchId || 'all',
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);

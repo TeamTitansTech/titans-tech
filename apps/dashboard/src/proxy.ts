@@ -94,10 +94,7 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    // Preserve query params during rewrite
-    const rewriteUrl = new URL(`/s/${subdomain}${pathname}`, request.url);
-    rewriteUrl.search = request.nextUrl.search;
-    return NextResponse.rewrite(rewriteUrl);
+    return NextResponse.rewrite(new URL(`/s/${subdomain}${pathname}`, request.url));
   }
 
   // On the root domain, allow normal access
