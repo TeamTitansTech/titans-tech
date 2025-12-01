@@ -14,12 +14,12 @@ import {
 } from '../../types/enums';
 
 // Create Zod enums from the TypeScript enums
-const FoundationType = z.nativeEnum(FoundationTypeEnum);
-const FrameType = z.nativeEnum(FrameTypeEnum);
-const MachineClutchType = z.nativeEnum(MachineClutchTypeEnum);
-const PneumaticSystemType = z.nativeEnum(PneumaticSystemTypeEnum);
-const PressMountingType = z.nativeEnum(PressMountingTypeEnum);
-const MachineFeaturesType = z.nativeEnum(MachineFeaturesTypeEnum);
+const FoundationType = z.enum(FoundationTypeEnum);
+const FrameType = z.enum(FrameTypeEnum);
+const MachineClutchType = z.enum(MachineClutchTypeEnum);
+const PneumaticSystemType = z.enum(PneumaticSystemTypeEnum);
+const PressMountingType = z.enum(PressMountingTypeEnum);
+const MachineFeaturesType = z.enum(MachineFeaturesTypeEnum);
 
 // ============================================================================
 // Base Schemas
