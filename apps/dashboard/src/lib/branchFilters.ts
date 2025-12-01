@@ -3,6 +3,7 @@ import type { UserResponseDto, UserBranchDto } from '@titans-tech/shared/backend
 export interface Branch {
   id: string;
   name: string;
+  location?: string | null;
 }
 
 /**
@@ -21,6 +22,7 @@ export function getBranchesWithPermission(
     return companyUser.branches.map((ub: UserBranchDto) => ({
       id: ub.branchId,
       name: ub.branch.name,
+      location: ub.branch.location,
     }));
   }
 
@@ -30,6 +32,7 @@ export function getBranchesWithPermission(
     .map((ub: UserBranchDto) => ({
       id: ub.branchId,
       name: ub.branch.name,
+      location: ub.branch.location,
     }));
 }
 
