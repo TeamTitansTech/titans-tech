@@ -2171,5 +2171,31 @@
       "sectionSaved": "Sección guardada exitosamente",
       "serviceCompleted": "Servicio completado exitosamente"
     }
+  },
+  "parts": {
+    "title": "Lista de Piezas para Reemplazo",
+    "description": "Seleccione las piezas que necesitan ser reemplazadas",
+    "clutchBrakeParts": "Piezas de Embrague y Freno",
+    "clutchBrakeDescription": "Seleccione las piezas del embrague y freno que necesitan ser reemplazadas",
+    "selected": "seleccionadas",
+    "selectAll": "Seleccionar Todas",
+    "deselectAll": "Deseleccionar Todas",
+    "exportPDF": "Exportar PDF",
+    "exporting": "Exportando...",
+    "noPartsSelected": "Ninguna pieza seleccionada",
+    "exportSuccess": "PDF exportado exitosamente",
+    "exportError": "Error al exportar PDF",
+    "machine": "Máquina",
+    "serialNumber": "Número de Serie",
+    "date": "Fecha",
+    "totalParts": "Total de Piezas",
+    "pdfTitle": "Lista de Piezas para Reemplazo",
+    "pdfFooter": "Documento generado por Titans Tech Service Management System",
+    "tableHeaders": {
+      "partNumber": "Código",
+      "description": "Descripción",
+      "quantity": "Cant",
+      "unit": "Un"
+    }
   }
 }
