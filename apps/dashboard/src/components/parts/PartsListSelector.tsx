@@ -71,11 +71,11 @@ function PartsTable({ parts, isPartSelected, onTogglePart, hasActiveSearch, t }:
               </TableCell>
             </TableRow>
           ) : (
-            parts.map((part) => {
+            parts.map((part, index) => {
               const isSelected = isPartSelected(part.partNumber);
               return (
                 <TableRow
-                  key={part.partNumber}
+                  key={`${part.partNumber}-${index}`}
                   className={`cursor-pointer transition-colors ${isSelected ? 'bg-primary/5 dark:bg-primary/10' : 'hover:bg-muted/50'}`}
                   onClick={() => onTogglePart(part.partNumber)}
                 >
