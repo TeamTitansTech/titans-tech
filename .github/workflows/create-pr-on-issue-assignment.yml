@@ -4,6 +4,9 @@ on:
   issues:
     types: [assigned]
 
+permissions:
+  contents: write
+
 jobs:
   create_branch_and_pr:
     runs-on: ubuntu-latest
@@ -16,8 +19,8 @@ jobs:
 
       - name: Set up Git
         run: |
-          git config --global user.name ${{ secrets.CLI_GITHUB_GIT_NAME }}
-          git config --global user.email ${{ secrets.CLI_GITHUB_GIT_EMAIL }}
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Get Issue Details
         id: issue
@@ -47,7 +50,10 @@ jobs:
 
       - name: Create and Push Branch
         if: steps.check-branch.outputs.EXISTS == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.CLI_GITHUB_TOKEN }}
         run: |
+          gh auth setup-git
           git checkout -b ${{ steps.branch.outputs.BRANCH_NAME }}
           git commit --allow-empty -m "chore: initialize branch for issue #${{ steps.issue.outputs.ISSUE_NUMBER }}"
           git push origin ${{ steps.branch.outputs.BRANCH_NAME }}
@@ -56,11 +62,5 @@ jobs:
         if: steps.check-branch.outputs.EXISTS == 'false'
         env:
           GH_TOKEN: ${{ secrets.CLI_GITHUB_TOKEN }}
-        run: |
-          PR_URL=$(gh pr create \
-            --base dev \
-            --head ${{ steps.branch.outputs.BRANCH_NAME }} \
-            --title "${{ steps.branch.outputs.BRANCH_NAME }} - ${{ github.event.issue.title }}" \
-            --assignee "${{ steps.issue.outputs.ASSIGNEE }}" \
-            --body "Closes #${{ steps.issue.outputs.ISSUE_NUMBER }}
+        run: gh pr create --base dev --head ${{ steps.branch.outputs.BRANCH_NAME }} --title "${{ steps.branch.outputs.BRANCH_NAME }} - ${{ github.event.issue.title }}" --assignee "${{ steps.issue.outputs.ASSIGNEE }}" --body "Closes https://github.com/TeamTitansTech/titans-tech/issues/${{ steps.issue.outputs.ISSUE_NUMBER }}"
 
