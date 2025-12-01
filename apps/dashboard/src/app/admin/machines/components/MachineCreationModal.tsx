@@ -667,30 +667,39 @@ export function MachineCreationModal({
                   />
                 </div>
 
-                <Separator />
+                {selectedBlueprint.fields.length > 0 && (
+                  <>
+                    <Separator />
 
-                <div className="space-y-4">
-                  <div>
-                    <Label>{t('form.fields.label')}</Label>
-                  </div>
+                    <div className="space-y-4">
+                      <div>
+                        <Label>{t('form.fields.label')}</Label>
+                      </div>
 
-                  <div className="space-y-4 pb-6">
-                    {selectedBlueprint.fields.map((field) => (
-                      <Card key={field.fieldSlug}>
-                        <CardContent className="pt-6">
-                          <div className="space-y-2">
-                            <Label htmlFor={`field-${field.fieldSlug}`}>{field.fieldName}</Label>
-                            {renderFieldInput(field)}
-                            <Typography variant="small" className="text-xs text-muted-foreground">
-                              {t('form.fields.slug')}:{' '}
-                              <code className="text-muted-foreground">{field.fieldSlug}</code>
-                            </Typography>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </div>
+                      <div className="space-y-4 pb-6">
+                        {selectedBlueprint.fields.map((field) => (
+                          <Card key={field.fieldSlug}>
+                            <CardContent className="pt-6">
+                              <div className="space-y-2">
+                                <Label htmlFor={`field-${field.fieldSlug}`}>
+                                  {field.fieldName}
+                                </Label>
+                                {renderFieldInput(field)}
+                                <Typography
+                                  variant="small"
+                                  className="text-xs text-muted-foreground"
+                                >
+                                  {t('form.fields.slug')}:{' '}
+                                  <code className="text-muted-foreground">{field.fieldSlug}</code>
+                                </Typography>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
               </>
             )}
 
