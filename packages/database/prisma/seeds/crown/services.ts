@@ -605,10 +605,8 @@ export async function seedCrownServices(prisma: PrismaClient, machine: Machine, 
       serviceData.innerData.totalClearance_LH - serviceData.innerData.totalClearance_RH,
     );
 
-    await prisma.alertBearingClearance.upsert({
-      where: { machineServiceId: service.id },
-      update: {},
-      create: {
+    await prisma.alertBearingClearance.create({
+      data: {
         machineServiceId: service.id,
         outer_totalClearance_differential: outerTotalDiff,
         outer_totalClearance_severity: calculateAlertSeverity(
@@ -707,10 +705,8 @@ export async function seedCrownServices(prisma: PrismaClient, machine: Machine, 
     });
 
     // Create AlertSlide
-    await prisma.alertSlide.upsert({
-      where: { machineServiceId: service.id },
-      update: {},
-      create: {
+    await prisma.alertSlide.create({
+      data: {
         machineServiceId: service.id,
         maxDeviationOuter_differential: Math.max(
           ...Object.values(serviceData.slideOuter).filter((v) => typeof v === 'number'),
@@ -749,10 +745,8 @@ export async function seedCrownServices(prisma: PrismaClient, machine: Machine, 
     });
 
     // Create AlertClutch
-    await prisma.alertClutch.upsert({
-      where: { machineServiceId: service.id },
-      update: {},
-      create: {
+    await prisma.alertClutch.create({
+      data: {
         machineServiceId: service.id,
         hydClutchClearanceTotal_value: serviceData.clutch.hydClutchClearanceTotal,
         hydClutchClearanceTotal_severity: calculateClutchAlertSeverity(

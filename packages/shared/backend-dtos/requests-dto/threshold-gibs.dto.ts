@@ -32,6 +32,8 @@ export const CreateThresholdGibsSchema = GibsThresholdsSchema.merge(
 
 export type CreateThresholdGibsDto = z.infer<typeof CreateThresholdGibsSchema>;
 
-export const UpdateThresholdGibsSchema = GibsThresholdsSchema.partial();
+export const UpdateThresholdGibsSchema = GibsThresholdsSchema.partial().extend({
+  recalculateAlerts: z.boolean().optional(),
+});
 
 export type UpdateThresholdGibsDto = z.infer<typeof UpdateThresholdGibsSchema>;

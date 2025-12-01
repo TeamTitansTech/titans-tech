@@ -66,7 +66,27 @@ export class AlertsController {
     @Body(new ZodValidationPipe(UpdateThresholdBearingClearanceSchema))
     dto: UpdateThresholdBearingClearanceDto,
   ) {
-    return this.alertsService.updateThreshold(blueprintId, dto);
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateBearingClearanceAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
   }
 
   @Admin()
@@ -156,7 +176,27 @@ export class ClutchAlertsController {
     @Body(new ZodValidationPipe(UpdateThresholdClutchSchema))
     dto: UpdateThresholdClutchDto,
   ) {
-    return this.alertsService.updateClutchThreshold(blueprintId, dto);
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateClutchThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateClutchAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
   }
 
   @Admin()
@@ -208,7 +248,27 @@ export class AlertsSlideController {
     @Body(new ZodValidationPipe(UpdateThresholdSlideSchema))
     dto: UpdateThresholdSlideDto,
   ) {
-    return this.alertsService.updateSlideThreshold(blueprintId, dto);
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateSlideThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateSlideAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
   }
 
   @Admin()
@@ -257,7 +317,25 @@ export class AlertsGibsController {
     @Body(new ZodValidationPipe(UpdateThresholdGibsSchema))
     dto: UpdateThresholdGibsDto,
   ) {
-    return this.alertsService.updateGibsThreshold(blueprintId, dto);
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateGibsThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateGibsAlertsForBlueprint(blueprintId);
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
   }
 
   @Admin()

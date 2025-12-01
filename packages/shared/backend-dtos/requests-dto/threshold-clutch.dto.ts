@@ -77,6 +77,8 @@ export type CreateThresholdClutchDto = z.infer<typeof CreateThresholdClutchSchem
  * Makes all ClutchThresholdsSchema fields optional, excludes blueprintId
  * Note: Validation happens in service layer after merge with existing values
  */
-export const UpdateThresholdClutchSchema = ClutchThresholdsSchema.partial();
+export const UpdateThresholdClutchSchema = ClutchThresholdsSchema.partial().extend({
+  recalculateAlerts: z.boolean().optional(),
+});
 
 export type UpdateThresholdClutchDto = z.infer<typeof UpdateThresholdClutchSchema>;

@@ -136,3 +136,110 @@ export async function getGibsThresholdByBlueprint(blueprintId: string) {
     };
   }
 }
+
+/**
+ * Update bearing clearance threshold
+ */
+export async function updateBearingClearanceThreshold(
+  blueprintId: string,
+  data: any,
+  recalculateAlerts: boolean = false,
+) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_URL}/alerts/bearing-clearance/thresholds/blueprint/${blueprintId}`,
+      {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ ...data, recalculateAlerts }),
+      },
+    );
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to update bearing clearance threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Update clutch threshold
+ */
+export async function updateClutchThreshold(
+  blueprintId: string,
+  data: any,
+  recalculateAlerts: boolean = false,
+) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/alerts/clutch/thresholds/blueprint/${blueprintId}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ ...data, recalculateAlerts }),
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to update clutch threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Update slide threshold
+ */
+export async function updateSlideThreshold(
+  blueprintId: string,
+  data: any,
+  recalculateAlerts: boolean = false,
+) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/alerts/slide/thresholds/blueprint/${blueprintId}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ ...data, recalculateAlerts }),
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to update slide threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Update gibs threshold
+ */
+export async function updateGibsThreshold(
+  blueprintId: string,
+  data: any,
+  recalculateAlerts: boolean = false,
+) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/alerts/gibs/thresholds/blueprint/${blueprintId}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ ...data, recalculateAlerts }),
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to update gibs threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
