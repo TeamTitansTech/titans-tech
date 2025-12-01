@@ -15,8 +15,18 @@ export default async function DashboardLayout({ children, params }: DashboardLay
   const companyResult = await getCompanyPublicInfo({ companySlug: subdomain });
   const initialCompanyInfo = companyResult.data || null;
 
+  // Prepare company info for injection into the page
+  const companyInfoScript = initialCompanyInfo
+    ? `window.__COMPANY_INFO__ = ${JSON.stringify({
+        logo: initialCompanyInfo.logo,
+        name: initialCompanyInfo.name,
+      })};`
+    : '';
+
   return (
     <ThemeProvider subdomain={subdomain} initialCompanyInfo={initialCompanyInfo}>
+      {/* Inject company info for immediate access during loading */}
+      {companyInfoScript && <script dangerouslySetInnerHTML={{ __html: companyInfoScript }} />}
       <AppLayout>{children}</AppLayout>
     </ThemeProvider>
   );

@@ -4,8 +4,9 @@ import { useEffect, useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, CalendarX } from 'lucide-react';
+import { CalendarX } from 'lucide-react';
 import { getServices } from '@/data/services/services.api';
+import { ServicesPageSkeleton } from './ServicesPageSkeleton';
 import { ServiceCard } from './ServiceCard';
 import { ServiceStatsCards } from './ServiceStatsCards';
 import { ServiceFilters } from './ServiceFilters';
@@ -193,11 +194,7 @@ export function ServicesPageClient() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-8 w-8 animate-spin text-orange-600" />
-      </div>
-    );
+    return <ServicesPageSkeleton />;
   }
 
   return (

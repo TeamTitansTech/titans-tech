@@ -7,11 +7,11 @@ import {
   FolderKanban,
   Users,
   User,
-  Settings,
   ClipboardList,
   Shield,
   Building2,
   Factory,
+  Settings,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -109,8 +109,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         icon: ClipboardList,
         url: '/admin/services',
       },
-    ],
-    navUtility: [
       {
         title: t('navigation.settings'),
         icon: Settings,
@@ -153,8 +151,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           icon: ClipboardList,
           url: '/services',
         },
-      ],
-      navUtility: [
         {
           title: t('navigation.settings'),
           icon: Settings,
