@@ -236,8 +236,8 @@ export function ViewTab({
         <SortableContext items={machineOrder} strategy={horizontalListSortingStrategy}>
           <div className="hidden lg:block overflow-x-auto pb-8">
             <div className="relative min-w-max px-12 pt-8 pb-16">
-              <div className="flex items-center gap-4">
-                {/* Main machine on the left */}
+              <div className="flex items-center gap-4 flex-row-reverse">
+                {/* Main machine on the right */}
                 {orderedMachines.length > 0 && (
                   <div className="flex items-center">
                     <SortableMachineCard
@@ -248,7 +248,7 @@ export function ViewTab({
                       showArrow={null}
                       isMainMachine={true}
                     />
-                    {orderedMachines.length > 1 && <div className="h-1 w-8 bg-green-500 ml-4" />}
+                    {orderedMachines.length > 1 && <div className="h-1 w-8 bg-green-500 mr-4" />}
                   </div>
                 )}
 
@@ -307,22 +307,26 @@ export function ViewTab({
 
           {/* Mobile layout */}
           <div className="lg:hidden py-8">
-            <div className="relative flex">
-              <div className="absolute left-8 top-0 bottom-0 w-1 bg-green-500" />
+            <div className="relative flex flex-col items-end">
+              <div className="absolute right-8 top-0 bottom-0 w-1 bg-green-500" />
 
-              <div className="flex flex-col gap-8 pl-8">
+              <div className="flex flex-col gap-8 pr-8">
                 {orderedMachines.map((productionLineMachine) => (
-                  <div key={productionLineMachine.machineId} className="relative flex items-center">
-                    <div className="absolute left-0 w-3 h-3 rounded-full bg-green-500 border-2 border-green-600 -translate-x-1/2" />
+                  <div
+                    key={productionLineMachine.machineId}
+                    className="relative flex items-center flex-row-reverse"
+                  >
+                    <div className="absolute right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-green-600 translate-x-1/2" />
                     <div className="h-1 w-12 bg-green-500" />
                     <div className="flex-shrink-0 relative">
                       {productionLineMachine.machineId === mainMachineId && (
                         <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium">
                           <Star className="w-3 h-3 fill-current" />
+                          <span>Principal</span>
                         </div>
                       )}
                       {canEdit && (
-                        <div className="absolute -top-2 -left-2 z-20 bg-primary text-primary-foreground rounded-full p-1 cursor-grab active:cursor-grabbing shadow-md">
+                        <div className="absolute -top-2 -right-2 z-20 bg-primary text-primary-foreground rounded-full p-1 cursor-grab active:cursor-grabbing shadow-md">
                           <GripVertical className="w-3 h-3" />
                         </div>
                       )}
