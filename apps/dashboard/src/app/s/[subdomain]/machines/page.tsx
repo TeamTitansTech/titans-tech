@@ -1,5 +1,5 @@
 import { MachinesPageClient } from './components/MachinesPageClient';
 
-export default async function MachinesPage() {
+export default function MachinesPage() {
   return <MachinesPageClient />;
 }
