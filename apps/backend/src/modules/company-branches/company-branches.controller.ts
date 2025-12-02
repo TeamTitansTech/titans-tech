@@ -7,7 +7,6 @@ import {
   Delete,
   Param,
   Request,
-  ForbiddenException,
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { CompanyBranchesService } from './company-branches.service';
