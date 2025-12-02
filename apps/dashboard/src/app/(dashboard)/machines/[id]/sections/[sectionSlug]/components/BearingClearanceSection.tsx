@@ -33,7 +33,7 @@ import {
   transformBearingClearanceToMultiLineData,
   extractThresholdConfig,
 } from '@/components/charts/dataTransformers';
-import { getThresholdByBlueprint } from '@/actions/alerts';
+import { getBearingClearanceThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 
 interface BearingClearanceSectionProps {
@@ -76,7 +76,7 @@ export function BearingClearanceSection({
       }
 
       try {
-        const response = await getThresholdByBlueprint(blueprintId);
+        const response = await getBearingClearanceThresholdByBlueprint(blueprintId);
         if (response.data) {
           // Extract thresholds for each measurement type
           setCbThreshold(extractThresholdConfig(response.data, 'upperConnectionBearings'));

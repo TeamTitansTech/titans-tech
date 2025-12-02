@@ -56,7 +56,9 @@
       "uploading": "Subiendo...",
       "clickToUpload": "Haga clic para subir",
       "jpgOrPngMax": "JPG o PNG (máx. 10MB)"
-    }
+    },
+    "cancel": "Cancelar",
+    "save": "Guardar"
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -66,7 +68,9 @@
     "invalidHexColor": "Debe ser un color hexadecimal válido",
     "branchNameRequired": "El nombre de la sucursal es obligatorio",
     "fullNameRequired": "El nombre completo es obligatorio",
-    "invalidEmail": "Dirección de correo electrónico no válida"
+    "invalidEmail": "Dirección de correo electrónico no válida",
+    "invalidImageType": "Solo se permiten imágenes JPG y PNG",
+    "fileTooLarge": "El tamaño del archivo excede el límite de 10MB"
   },
   "navigation": {
     "dashboard": "Panel",
@@ -452,7 +456,11 @@
         },
         "logo": {
           "label": "URL del Logotipo (Opcional)",
-          "placeholder": "ej., https://ejemplo.com/logo.png"
+          "placeholder": "ej., https://ejemplo.com/logo.png",
+          "uploadHint": "Haga clic para subir logo (JPG o PNG)",
+          "uploading": "Subiendo...",
+          "uploadSuccess": "Logo subido exitosamente",
+          "uploadError": "Error al subir el logo"
         },
         "brandColor": {
           "label": "Color Primario (Opcional)",
@@ -604,7 +612,58 @@
         "totalModels": "Total de Modelos",
         "activeCompanies": "Empresas Activas",
         "machines": "Máquinas",
-        "pendingServices": "Servicios Pendientes"
+        "pendingServices": "Servicios Pendientes",
+        "totalBranches": "Sucursales",
+        "completedServices": "Servicios Completados"
+      },
+      "overview": {
+        "companies": "Empresas",
+        "registered": "registradas",
+        "machines": "Máquinas",
+        "operating": "operando",
+        "services": "Servicios",
+        "pending": "pendientes",
+        "thisMonth": "este mes"
+      },
+      "companiesOverview": {
+        "title": "Empresas Registradas",
+        "description": "Resumen de todas las empresas en el sistema",
+        "branches": "sucursales",
+        "machines": "máquinas",
+        "services": "servicios",
+        "viewDetails": "Ver detalles",
+        "noCompanies": "No hay empresas registradas"
+      },
+      "recentActivity": {
+        "title": "Actividad Reciente",
+        "description": "Últimos servicios realizados en el sistema",
+        "noActivity": "No hay actividad reciente",
+        "inspection": "Inspección",
+        "maintenance": "Mantenimiento",
+        "completed": "Completado",
+        "pending": "Pendiente",
+        "viewAll": "Ver todos"
+      },
+      "serviceTrends": {
+        "title": "Tendencias de Servicios",
+        "description": "Servicios completados en los últimos 6 meses en todas las empresas",
+        "legend": {
+          "inspections": "Inspecciones",
+          "maintenance": "Mantenimientos"
+        },
+        "stats": {
+          "totalInspections": "Total de Inspecciones",
+          "totalMaintenance": "Total de Mantenimientos",
+          "totalServices": "Total de Servicios"
+        }
+      },
+      "machineHealth": {
+        "title": "Salud de las Máquinas",
+        "description": "Distribución del estado de todas las máquinas",
+        "healthy": "Saludables",
+        "attention": "Atención",
+        "critical": "Crítico",
+        "unknown": "Sin datos"
       }
     },
     "client": {
@@ -799,7 +858,8 @@
     "machines": "máquinas",
     "field": "campo",
     "fields": "campos",
-    "edit": "Editar"
+    "edit": "Editar",
+    "thresholds": "Configurar Thresholds"
   },
   "machines": {
     "title": "Crear Máquina",
@@ -1996,7 +2056,32 @@
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",
       "yellowStartMin": "Inicio Amarillo (Mín)",
-      "redStartMin": "Inicio Rojo (Mín)"
+      "redStartMin": "Inicio Rojo (Mín)",
+      "editTitle": "Configurar Thresholds - {name}",
+      "editDescription": "Ajuste los valores de threshold para generación de alertas. Marque la opción debajo para recalcular alertas existentes.",
+      "loadError": "Error al cargar thresholds",
+      "recalculate": {
+        "label": "Recalcular alertas existentes",
+        "description": "Generar nuevas alertas para todos los servicios de este modelo usando los nuevos thresholds",
+        "updating": "Actualizando thresholds y recalculando alertas...",
+        "success": "Thresholds actualizados. {count} alertas generadas para {services} servicios.",
+        "successNoRecalc": "Thresholds actualizados. Las nuevas alertas solo se generarán para servicios futuros.",
+        "error": "Error al actualizar thresholds"
+      }
+    },
+    "history": {
+      "title": "Historial de Alertas",
+      "noHistory": "No hay historial de alertas disponible",
+      "viewHistory": "Ver Historial",
+      "hideHistory": "Ocultar Historial",
+      "mostRecent": "Más Reciente",
+      "createdAt": "Creado el",
+      "thresholdSnapshot": "Thresholds Utilizados",
+      "reason": {
+        "initial": "Cálculo Inicial",
+        "thresholdUpdate": "Actualización de Threshold",
+        "manualRecalculation": "Recálculo Manual"
+      }
     }
   },
   "forms": {
@@ -2182,5 +2267,78 @@
       "sectionSaved": "Sección guardada exitosamente",
       "serviceCompleted": "Servicio completado exitosamente"
     }
+  },
+  "parts": {
+    "title": "Lista de Piezas para Reemplazo",
+    "description": "Seleccione las piezas que necesitan ser reemplazadas",
+    "clutchBrakeParts": "Piezas de Embrague y Freno",
+    "clutchBrakeDescription": "Seleccione las piezas del embrague y freno que necesitan ser reemplazadas",
+    "bearingClearanceParts": "Piezas de Holgura del Rodamiento",
+    "bearingClearanceDescription": "Seleccione las piezas de holgura del rodamiento que necesitan ser reemplazadas",
+    "slideParts": "Piezas del Slide",
+    "slideDescription": "Seleccione las piezas del slide que necesitan ser reemplazadas",
+    "gibsParts": "Piezas de las Guías",
+    "gibsDescription": "Seleccione las piezas de las guías que necesitan ser reemplazadas",
+    "lubricationHydraulicsParts": "Piezas de Lubricación e Hidráulica",
+    "lubricationHydraulicsDescription": "Seleccione las piezas de lubricación e hidráulica que necesitan ser reemplazadas",
+    "counterbalanceParts": "Piezas de Contrapeso y Airbag",
+    "counterbalanceDescription": "Seleccione las piezas de contrapeso y airbag que necesitan ser reemplazadas",
+    "selected": "seleccionadas",
+    "selectAll": "Seleccionar Todas",
+    "deselectAll": "Deseleccionar Todas",
+    "exportPDF": "Exportar PDF",
+    "exporting": "Exportando...",
+    "noPartsSelected": "Ninguna pieza seleccionada",
+    "exportSuccess": "PDF exportado exitosamente",
+    "exportError": "Error al exportar PDF",
+    "machine": "Máquina",
+    "serialNumber": "Número de Serie",
+    "date": "Fecha",
+    "totalParts": "Total de Piezas",
+    "pdfTitle": "Lista de Piezas para Reemplazo",
+    "pdfFooter": "Documento generado por Titans Tech Service Management System",
+    "searchPlaceholder": "Buscar por código o descripción...",
+    "filterByUnit": "Filtrar por unidad",
+    "allUnits": "Todas las unidades",
+    "clearFilters": "Limpiar",
+    "showingResults": "Mostrando {count} de {total} piezas",
+    "noResultsFound": "Ninguna pieza coincide con los criterios de búsqueda",
+    "noPartsAvailable": "Ninguna pieza disponible",
+    "outerSlide": "Corredera Exterior",
+    "innerSlide": "Corredera Interior",
+    "clearAll": "Limpiar Todo",
+    "tableHeaders": {
+      "partNumber": "Código",
+      "description": "Descripción",
+      "quantity": "Cant",
+      "unit": "Un"
+    }
+  },
+  "sectionStatus": {
+    "ok": "OK",
+    "warning": "Atención",
+    "critical": "Crítico",
+    "noData": "Sin datos"
+  },
+  "sectionStatusCard": {
+    "status": {
+      "ok": {
+        "title": "Estado de la Sección: OK",
+        "description": "Todas las mediciones están dentro de la especificación."
+      },
+      "warning": {
+        "title": "Estado de la Sección: Atención",
+        "description": "Algunas mediciones requieren atención. Revise la lista de piezas para identificar lo que puede necesitar reemplazo."
+      },
+      "critical": {
+        "title": "Estado de la Sección: Crítico",
+        "description": "Las mediciones exceden los umbrales aceptables. Verifique la lista de piezas para determinar lo que necesita ser reemplazado."
+      },
+      "unknown": {
+        "title": "Estado de la Sección: Sin Datos",
+        "description": "No hay datos de medición disponibles para esta sección."
+      }
+    },
+    "viewParts": "Ver Lista de Piezas"
   }
 }

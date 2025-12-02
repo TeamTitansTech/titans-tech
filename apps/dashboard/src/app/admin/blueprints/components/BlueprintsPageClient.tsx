@@ -62,6 +62,7 @@ export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) 
                 description={blueprint.sections.join(', ') || t('noDescription')}
                 machineCount={blueprint._count?.machines || 0}
                 fieldCount={blueprint.fields.length}
+                sections={blueprint.sections}
               />
             ))}
           </div>

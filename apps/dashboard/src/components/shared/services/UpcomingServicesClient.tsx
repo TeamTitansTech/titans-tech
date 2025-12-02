@@ -182,6 +182,7 @@ export function UpcomingServicesClient({
       )}
       {selectedService && selectedService.type === 'MAINTENANCE' && (
         <ServiceCompletionModal
+          key={`maintenance-${selectedService.id}-${isMaintenanceModalOpen}`}
           machineId={machineId}
           open={isMaintenanceModalOpen}
           onOpenChange={setIsMaintenanceModalOpen}
@@ -195,6 +196,7 @@ export function UpcomingServicesClient({
       )}
       {selectedService && selectedService.type === 'INSPECTION' && (
         <ServiceCompletionModal
+          key={`inspection-${selectedService.id}-${isCompleteModalOpen}`}
           machineId={machineId}
           open={isCompleteModalOpen}
           onOpenChange={setIsCompleteModalOpen}

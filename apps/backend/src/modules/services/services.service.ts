@@ -245,6 +245,9 @@ export class ServicesService {
     if (updateDto.currentSectionKey !== undefined) {
       updateData.currentSectionKey = updateDto.currentSectionKey;
     }
+    if (updateDto.selectedSections !== undefined) {
+      updateData.selectedSections = updateDto.selectedSections;
+    }
 
     // Inspection observation fields
     if (updateDto.isPressLevel !== undefined) {
@@ -2151,10 +2154,22 @@ export class ServicesService {
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: {
-        alertBearingClearance: true,
-        alertClutch: true,
-        alertSlide: true,
-        alertGibs: true,
+        alertBearingClearance: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertClutch: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlide: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertGibs: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
         alertCounterbalanceCylinderAirbag: true,
       },
     });
@@ -2177,8 +2192,11 @@ export class ServicesService {
       }
     };
 
-    if (service.alertBearingClearance) {
-      const alert = service.alertBearingClearance;
+    if (
+      service.alertBearingClearance &&
+      service.alertBearingClearance.length > 0
+    ) {
+      const alert = service.alertBearingClearance[0];
       const alerts: AlertDetailDto[] = [];
       let sectionSeverity: AlertSeverityDto = 'NONE';
 
@@ -2298,8 +2316,8 @@ export class ServicesService {
     }
 
     // Process Clutch alerts
-    if (service.alertClutch) {
-      const alert = service.alertClutch;
+    if (service.alertClutch && service.alertClutch.length > 0) {
+      const alert = service.alertClutch[0];
       const alerts: AlertDetailDto[] = [];
       let sectionSeverity: AlertSeverityDto = 'NONE';
 
@@ -2363,8 +2381,8 @@ export class ServicesService {
     }
 
     // Process Slide alerts
-    if (service.alertSlide) {
-      const alert = service.alertSlide;
+    if (service.alertSlide && service.alertSlide.length > 0) {
+      const alert = service.alertSlide[0];
       const alerts: AlertDetailDto[] = [];
       let sectionSeverity: AlertSeverityDto = 'NONE';
 
@@ -2410,8 +2428,8 @@ export class ServicesService {
     }
 
     // Process Gibs alerts
-    if (service.alertGibs) {
-      const alert = service.alertGibs;
+    if (service.alertGibs && service.alertGibs.length > 0) {
+      const alert = service.alertGibs[0];
       const alerts: AlertDetailDto[] = [];
       let sectionSeverity: AlertSeverityDto = 'NONE';
 

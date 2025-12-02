@@ -9,6 +9,8 @@ export const CreateThresholdSlideSchema = SlideThresholdsSchema.merge(
 
 export type CreateThresholdSlideDto = z.infer<typeof CreateThresholdSlideSchema>;
 
-export const UpdateThresholdSlideSchema = SlideThresholdsSchema.partial();
+export const UpdateThresholdSlideSchema = SlideThresholdsSchema.partial().extend({
+  recalculateAlerts: z.boolean().optional(),
+});
 
 export type UpdateThresholdSlideDto = z.infer<typeof UpdateThresholdSlideSchema>;
