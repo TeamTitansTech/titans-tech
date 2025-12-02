@@ -14,6 +14,7 @@ import {
   LatestGibsDto,
   LatestLubricationDto,
   LatestCounterbalanceDto,
+  LatestPistonsDto,
   CreateServiceDto,
   UpdateServicePayload,
   CompleteServiceDto,
@@ -825,7 +826,56 @@ export class ServicesService {
       }
     }
 
-    // 9. Build response
+    // 9. Process Pistons section
+    let pistonsData: LatestPistonsDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.PISTONS)) {
+      // Find the most recent service with Pistons data
+      const latestPistonsService = services.find(
+        (service) => service.pistons && service.pistons.length > 0,
+      );
+
+      if (latestPistonsService) {
+        const pistonsRecord = latestPistonsService.pistons[0];
+        const outerData = pistonsRecord.outerData;
+        const innerData = pistonsRecord.innerData;
+
+        // Only proceed if we have at least one data set
+        if (outerData || innerData) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getPistonsAlertByService(
+              latestPistonsService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+          }
+
+          pistonsData = new LatestPistonsDto({
+            latestServiceId: latestPistonsService.id,
+            latestServiceDate: latestPistonsService.date,
+            serviceType: latestPistonsService.type,
+            data: {
+              guideSeals: pistonsRecord.guideSeals,
+              pistonSeals: pistonsRecord.pistonSeals,
+              vacuumSystem: pistonsRecord.vacuumSystem,
+              vacuumSystemAirPressureSetting:
+                pistonsRecord.vacuumSystemAirPressureSetting,
+              vacuumSystemAirPressureUnit:
+                pistonsRecord.vacuumSystemAirPressureUnit,
+              unit: pistonsRecord.unit,
+              outerData: outerData || undefined,
+              innerData: innerData || undefined,
+              notes: pistonsRecord.notes,
+            },
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 10. Build response
     return new LatestReportResponseDto({
       machineId: machine.id,
       machineName: machine.name,
@@ -839,6 +889,7 @@ export class ServicesService {
         BEARING_CLEARANCE: bearingClearanceData,
         SLIDE: slideData,
         GIBS: gibsData,
+        PISTONS: pistonsData,
         LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: lubricationData,
         CLUTCH: clutchData,
         COUNTERBALANCE_CYLINDER_AIRBAG: counterbalanceData,

@@ -35,6 +35,8 @@ import type {
   SlideData,
   GibsStageData,
   CounterbalanceCylinderData,
+  LatestPistons,
+  PistonsData,
 } from '@/data/types/services.types';
 import { BEARING_FIELD_NAMES, BEARING_FIELD_LABELS } from '@titans-tech/shared/types';
 
@@ -188,6 +190,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   const gibs = report.sections.GIBS;
   const lubrication = report.sections.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER;
   const counterbalance = report.sections.COUNTERBALANCE_CYLINDER_AIRBAG;
+  const pistons = report.sections.PISTONS;
 
   // Get overall worst severity for bearing clearance (outer or inner)
   const getBearingSeverity = (prefix: 'outer' | 'inner'): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
@@ -382,6 +385,81 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     ];
   };
 
+  // Get overall worst severity for pistons (outer or inner)
+  const getPistonsSeverity = (prefix: 'outer' | 'inner'): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!pistons?.alert) return 'NONE';
+
+    const alert = pistons.alert;
+    const severities =
+      prefix === 'outer'
+        ? new Set([
+            alert.outer_lhLeftRight_severity,
+            alert.outer_lhTopBottom_severity,
+            alert.outer_rhLeftRight_severity,
+            alert.outer_rhTopBottom_severity,
+          ])
+        : new Set([
+            alert.inner_lhLeftRight_severity,
+            alert.inner_lhTopBottom_severity,
+            alert.inner_rhLeftRight_severity,
+            alert.inner_rhTopBottom_severity,
+          ]);
+
+    if (severities.has('RED')) return 'RED';
+    if (severities.has('YELLOW')) return 'YELLOW';
+    if (severities.has('GREEN')) return 'GREEN';
+    return 'NONE';
+  };
+
+  // Get overall worst severity for pistons (both outer and inner)
+  const getPistonsOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    const outerSeverity = getPistonsSeverity('outer');
+    const innerSeverity = getPistonsSeverity('inner');
+
+    if (outerSeverity === 'RED' || innerSeverity === 'RED') return 'RED';
+    if (outerSeverity === 'YELLOW' || innerSeverity === 'YELLOW') return 'YELLOW';
+    if (outerSeverity === 'GREEN' || innerSeverity === 'GREEN') return 'GREEN';
+    return 'NONE';
+  };
+
+  // Extract pistons sum rows for outer or inner
+  const extractPistonsRows = (alert: LatestPistons['alert'], prefix: 'outer' | 'inner') => {
+    if (!alert) return [];
+
+    const sumFields = [
+      {
+        label: 'LH Left + Right',
+        diff: prefix === 'outer' ? alert.outer_lhLeftRight_diff : alert.inner_lhLeftRight_diff,
+        severity:
+          prefix === 'outer' ? alert.outer_lhLeftRight_severity : alert.inner_lhLeftRight_severity,
+      },
+      {
+        label: 'LH Top + Bottom',
+        diff: prefix === 'outer' ? alert.outer_lhTopBottom_diff : alert.inner_lhTopBottom_diff,
+        severity:
+          prefix === 'outer' ? alert.outer_lhTopBottom_severity : alert.inner_lhTopBottom_severity,
+      },
+      {
+        label: 'RH Left + Right',
+        diff: prefix === 'outer' ? alert.outer_rhLeftRight_diff : alert.inner_rhLeftRight_diff,
+        severity:
+          prefix === 'outer' ? alert.outer_rhLeftRight_severity : alert.inner_rhLeftRight_severity,
+      },
+      {
+        label: 'RH Top + Bottom',
+        diff: prefix === 'outer' ? alert.outer_rhTopBottom_diff : alert.inner_rhTopBottom_diff,
+        severity:
+          prefix === 'outer' ? alert.outer_rhTopBottom_severity : alert.inner_rhTopBottom_severity,
+      },
+    ];
+
+    return sumFields.map((field) => ({
+      field: field.label,
+      sum: field.diff !== null && field.diff !== undefined ? field.diff.toFixed(4) : '-',
+      severity: field.severity,
+    }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
@@ -397,7 +475,13 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
         </DialogHeader>
 
         <div ref={contentRef} className="flex-1 overflow-y-auto px-1 py-4">
-          {bearingClearance || clutch || slide || gibs || lubrication || counterbalance ? (
+          {bearingClearance ||
+          clutch ||
+          slide ||
+          gibs ||
+          pistons ||
+          lubrication ||
+          counterbalance ? (
             <div className="space-y-4">
               {bearingClearance && (
                 <div className="border rounded-lg p-4">
@@ -805,6 +889,84 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                         </div>
                       </div>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {pistons && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Typography variant="h4" className="font-semibold">
+                      Pistons
+                    </Typography>
+                    <div className="flex items-center gap-3">
+                      {getSeverityBadge(getPistonsOverallSeverity())}
+                      <span className="text-sm text-muted-foreground">
+                        {t('updatedAt')} {format(new Date(pistons.latestServiceDate), 'dd-MM-yyyy')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Outer Section */}
+                    {pistons.data.outerData && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>Outer</span>
+                          {getSeverityBadge(getPistonsSeverity('outer'))}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">Measurement</TableHead>
+                              <TableHead className="text-center font-semibold">Sum</TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {extractPistonsRows(pistons.alert, 'outer').map((row, idx) => (
+                              <TableRow key={idx} className="hover:bg-muted/30">
+                                <TableCell className="font-medium">{row.field}</TableCell>
+                                <TableCell className="text-center">{row.sum}</TableCell>
+                                <TableCell className="text-center">
+                                  {getSeverityBadge(row.severity)}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+
+                    {/* Inner Section */}
+                    {pistons.data.innerData && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>Inner</span>
+                          {getSeverityBadge(getPistonsSeverity('inner'))}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">Measurement</TableHead>
+                              <TableHead className="text-center font-semibold">Sum</TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {extractPistonsRows(pistons.alert, 'inner').map((row, idx) => (
+                              <TableRow key={idx} className="hover:bg-muted/30">
+                                <TableCell className="font-medium">{row.field}</TableCell>
+                                <TableCell className="text-center">{row.sum}</TableCell>
+                                <TableCell className="text-center">
+                                  {getSeverityBadge(row.severity)}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
