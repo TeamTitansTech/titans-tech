@@ -48,38 +48,36 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
 
   return (
     <>
-      <div className="flex items-center gap-3 sm:gap-6 mb-4 sm:mb-6">
-        <Link href={'/admin/machines'} className="shrink-0">
-          <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
-        </Link>
-        <div className="flex items-center justify-between w-full min-w-0 gap-2 sm:gap-4">
-          <div className="min-w-0 flex-1 overflow-hidden">
+      <div className="flex flex-col gap-4 mb-4 sm:mb-6">
+        <div className="flex items-start gap-3 sm:gap-4">
+          <Link href={'/admin/machines'} className="shrink-0 mt-1">
+            <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
+          </Link>
+          <div className="min-w-0 flex-1">
             <ConditionalTooltip content={machine.name} className="block">
-              <Typography variant="h2" className="text-lg sm:text-2xl">
+              <Typography variant="h2" className="text-lg sm:text-2xl break-words">
                 {machine.name}
               </Typography>
             </ConditionalTooltip>
             <ConditionalTooltip
               content={machine.blueprint?.name || t('noBlueprintAssigned')}
-              className="mt-1 truncate block"
+              className="mt-1 block"
             >
-              <Typography variant="muted" className="text-xs sm:text-sm">
+              <Typography variant="muted" className="text-xs sm:text-sm break-words">
                 {machine.blueprint?.name || t('noBlueprintAssigned')}
               </Typography>
             </ConditionalTooltip>
           </div>
-          <Button
-            onClick={handleOpenReport}
-            disabled={isLoadingReport}
-            className="gap-1 sm:gap-2 shrink-0 text-xs sm:text-sm px-2 sm:px-4"
-            size="sm"
-          >
-            <FileText className="w-4 h-4" />
-            <span className="hidden sm:inline">
-              {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
-            </span>
-          </Button>
         </div>
+        <Button
+          onClick={handleOpenReport}
+          disabled={isLoadingReport}
+          className="w-full sm:w-auto"
+          size="sm"
+        >
+          <FileText className="w-4 h-4 mr-2" />
+          {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[350px_1fr] gap-4 lg:gap-6">

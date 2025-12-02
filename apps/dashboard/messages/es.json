@@ -2182,5 +2182,78 @@
       "sectionSaved": "Sección guardada exitosamente",
       "serviceCompleted": "Servicio completado exitosamente"
     }
+  },
+  "parts": {
+    "title": "Lista de Piezas para Reemplazo",
+    "description": "Seleccione las piezas que necesitan ser reemplazadas",
+    "clutchBrakeParts": "Piezas de Embrague y Freno",
+    "clutchBrakeDescription": "Seleccione las piezas del embrague y freno que necesitan ser reemplazadas",
+    "bearingClearanceParts": "Piezas de Holgura del Rodamiento",
+    "bearingClearanceDescription": "Seleccione las piezas de holgura del rodamiento que necesitan ser reemplazadas",
+    "slideParts": "Piezas del Slide",
+    "slideDescription": "Seleccione las piezas del slide que necesitan ser reemplazadas",
+    "gibsParts": "Piezas de las Guías",
+    "gibsDescription": "Seleccione las piezas de las guías que necesitan ser reemplazadas",
+    "lubricationHydraulicsParts": "Piezas de Lubricación e Hidráulica",
+    "lubricationHydraulicsDescription": "Seleccione las piezas de lubricación e hidráulica que necesitan ser reemplazadas",
+    "counterbalanceParts": "Piezas de Contrapeso y Airbag",
+    "counterbalanceDescription": "Seleccione las piezas de contrapeso y airbag que necesitan ser reemplazadas",
+    "selected": "seleccionadas",
+    "selectAll": "Seleccionar Todas",
+    "deselectAll": "Deseleccionar Todas",
+    "exportPDF": "Exportar PDF",
+    "exporting": "Exportando...",
+    "noPartsSelected": "Ninguna pieza seleccionada",
+    "exportSuccess": "PDF exportado exitosamente",
+    "exportError": "Error al exportar PDF",
+    "machine": "Máquina",
+    "serialNumber": "Número de Serie",
+    "date": "Fecha",
+    "totalParts": "Total de Piezas",
+    "pdfTitle": "Lista de Piezas para Reemplazo",
+    "pdfFooter": "Documento generado por Titans Tech Service Management System",
+    "searchPlaceholder": "Buscar por código o descripción...",
+    "filterByUnit": "Filtrar por unidad",
+    "allUnits": "Todas las unidades",
+    "clearFilters": "Limpiar",
+    "showingResults": "Mostrando {count} de {total} piezas",
+    "noResultsFound": "Ninguna pieza coincide con los criterios de búsqueda",
+    "noPartsAvailable": "Ninguna pieza disponible",
+    "outerSlide": "Corredera Exterior",
+    "innerSlide": "Corredera Interior",
+    "clearAll": "Limpiar Todo",
+    "tableHeaders": {
+      "partNumber": "Código",
+      "description": "Descripción",
+      "quantity": "Cant",
+      "unit": "Un"
+    }
+  },
+  "sectionStatus": {
+    "ok": "OK",
+    "warning": "Atención",
+    "critical": "Crítico",
+    "noData": "Sin datos"
+  },
+  "sectionStatusCard": {
+    "status": {
+      "ok": {
+        "title": "Estado de la Sección: OK",
+        "description": "Todas las mediciones están dentro de la especificación."
+      },
+      "warning": {
+        "title": "Estado de la Sección: Atención",
+        "description": "Algunas mediciones requieren atención. Revise la lista de piezas para identificar lo que puede necesitar reemplazo."
+      },
+      "critical": {
+        "title": "Estado de la Sección: Crítico",
+        "description": "Las mediciones exceden los umbrales aceptables. Verifique la lista de piezas para determinar lo que necesita ser reemplazado."
+      },
+      "unknown": {
+        "title": "Estado de la Sección: Sin Datos",
+        "description": "No hay datos de medición disponibles para esta sección."
+      }
+    },
+    "viewParts": "Ver Lista de Piezas"
   }
 }

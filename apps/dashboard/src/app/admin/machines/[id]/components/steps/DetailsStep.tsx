@@ -178,7 +178,9 @@ export function DetailsStep({
 
           {isCompletingService ? (
             <div>
-              <Label htmlFor="performedBy">{translations.performedByLabel}</Label>
+              <Label htmlFor="performedBy">
+                {translations.performedByLabel} <span className="text-destructive">*</span>
+              </Label>
               <Input
                 id="performedBy"
                 type="text"
@@ -383,7 +385,9 @@ export function DetailsStep({
 
             {/* Cracks Visible */}
             <div>
-              <Label htmlFor="areCracksVisible">{translations.areCracksVisible}</Label>
+              <Label htmlFor="areCracksVisible">
+                {translations.areCracksVisible} <span className="text-destructive">*</span>
+              </Label>
               <Select
                 value={areCracksVisible || ''}
                 onValueChange={(value) => setAreCracksVisible(value as YesNoDncType)}
@@ -415,7 +419,9 @@ export function DetailsStep({
 
             {/* Main Motor Secure */}
             <div>
-              <Label htmlFor="isMainMotorSecure">{translations.isMainMotorSecure}</Label>
+              <Label htmlFor="isMainMotorSecure">
+                {translations.isMainMotorSecure} <span className="text-destructive">*</span>
+              </Label>
               <Select
                 value={isMainMotorSecure || ''}
                 onValueChange={(value) => setIsMainMotorSecure(value as YesNoDncType)}
@@ -433,7 +439,9 @@ export function DetailsStep({
 
             {/* Motor Plate Secure */}
             <div>
-              <Label htmlFor="isMotorPlateSecure">{translations.isMotorPlateSecure}</Label>
+              <Label htmlFor="isMotorPlateSecure">
+                {translations.isMotorPlateSecure} <span className="text-destructive">*</span>
+              </Label>
               <Select
                 value={isMotorPlateSecure || ''}
                 onValueChange={(value) => setIsMotorPlateSecure(value as YesNoDncType)}

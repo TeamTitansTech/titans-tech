@@ -132,6 +132,9 @@ export class ServicesService {
     if (updateDto.currentSectionKey !== undefined) {
       updateData.currentSectionKey = updateDto.currentSectionKey;
     }
+    if (updateDto.selectedSections !== undefined) {
+      updateData.selectedSections = updateDto.selectedSections;
+    }
 
     // Inspection observation fields
     if (updateDto.isPressLevel !== undefined) {

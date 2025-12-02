@@ -55,38 +55,36 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
 
   return (
     <>
-      <div className="flex items-center gap-6 mb-6">
-        <Link href="/machines" className="shrink-0">
-          <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
-        </Link>
-        <div className="flex items-center justify-between w-full min-w-0 gap-4">
-          <div className="min-w-0 flex-1 overflow-hidden">
+      <div className="flex flex-col gap-4 mb-6">
+        <div className="flex items-start gap-4">
+          <Link href="/machines" className="shrink-0 mt-1">
+            <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
+          </Link>
+          <div className="min-w-0 flex-1">
             <ConditionalTooltip content={machine.name} className="block">
-              <Typography variant="h2">{machine.name}</Typography>
+              <Typography variant="h2" className="break-words">
+                {machine.name}
+              </Typography>
             </ConditionalTooltip>
             <ConditionalTooltip
               content={machine.blueprint?.name || t('noBlueprintAssigned')}
-              className="mt-1 truncate block"
+              className="mt-1 block"
             >
-              <Typography variant="muted">
+              <Typography variant="muted" className="break-words">
                 {machine.blueprint?.name || t('noBlueprintAssigned')}
               </Typography>
             </ConditionalTooltip>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button onClick={handleOpenReport} disabled={isLoadingReport} size="sm">
-              <FileText className="w-4 h-4 mr-2" />
-              {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setIsUrgentServiceModalOpen(true)}
-            >
-              <Wrench className="w-4 h-4 mr-2" />
-              {t('requestUrgentService')}
-            </Button>
-          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
+          <Button onClick={handleOpenReport} disabled={isLoadingReport} size="sm">
+            <FileText className="w-4 h-4 mr-2" />
+            {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
+          </Button>
+          <Button variant="destructive" size="sm" onClick={() => setIsUrgentServiceModalOpen(true)}>
+            <Wrench className="w-4 h-4 mr-2" />
+            {t('requestUrgentService')}
+          </Button>
         </div>
       </div>
 

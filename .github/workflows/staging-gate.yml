@@ -1,0 +1,23 @@
+name: Staging Gate
+
+on:
+  pull_request:
+    branches: [staging]
+
+jobs:
+  check-source:
+    name: Verify PR source branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if PR is from dev branch
+        if: github.head_ref != 'dev'
+        run: |
+          echo "❌ PRs to staging must come from the 'dev' branch"
+          echo "   Source branch: '${{ github.head_ref }}'"
+          echo ""
+          echo "Please merge your changes into 'dev' first, then create a PR from 'dev' to 'staging'"
+          exit 1
+
+      - name: PR source validated
+        if: github.head_ref == 'dev'
+        run: echo "✅ PR is from dev branch - allowed to merge into staging"
