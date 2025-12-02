@@ -522,6 +522,7 @@ model Blueprint {
   thresholdClutch           ThresholdClutch?
   thresholdSlide            ThresholdSlide?
   thresholdGibs             ThresholdGibs?
+  thresholdPistons          ThresholdPistons?
   thresholdTramming         ThresholdTramming?
 
   @@map("blueprints")
@@ -640,6 +641,23 @@ model ThresholdGibs {
   @@map("threshold_gibs")
 }
 
+model ThresholdPistons {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Difference thresholds (for side-to-side differences)
+  difference_greenMin  Decimal @db.Decimal(10, 4)
+  difference_yellowMin Decimal @db.Decimal(10, 4)
+  difference_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_pistons")
+}
+
 model ThresholdTramming {
   id          String @id @default(cuid())
   blueprintId String @unique
@@ -750,6 +768,7 @@ model MachineService {
   alertClutch                       AlertClutch[]
   alertSlide                        AlertSlide[]
   alertGibs                         AlertGibs[]
+  alertPistons                      AlertPistons[]
   alertTramming                     AlertTramming[]
 
   @@index([serviceRequestId])
@@ -893,6 +912,44 @@ model AlertGibs {
 
   @@index([machineServiceId])
   @@map("alert_gibs")
+}
+
+model AlertPistons {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // === OUTER DATA ===
+  // Difference values and severities
+  outer_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  outer_lhLeftRight_severity AlertSeverity @default(NONE)
+  outer_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  outer_lhTopBottom_severity AlertSeverity @default(NONE)
+  outer_rhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  outer_rhLeftRight_severity AlertSeverity @default(NONE)
+  outer_rhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  outer_rhTopBottom_severity AlertSeverity @default(NONE)
+
+  // === INNER DATA ===
+  // Difference values and severities
+  inner_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  inner_lhLeftRight_severity AlertSeverity @default(NONE)
+  inner_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  inner_lhTopBottom_severity AlertSeverity @default(NONE)
+  inner_rhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  inner_rhLeftRight_severity AlertSeverity @default(NONE)
+  inner_rhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  inner_rhTopBottom_severity AlertSeverity @default(NONE)
+
+  // Threshold snapshot for auditing
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_pistons")
 }
 
 model AlertTramming {
@@ -1466,8 +1523,6 @@ model MachineServicePistons {
   pistonSeals                    SealConditionType?
   vacuumSystem                   VacuumSystemConditionType?
   vacuumSystemAirPressureSetting Decimal?                   @db.Decimal(10, 4)
-  vacuumSystemAirPressureUnit    PressureUnit?
-  unit                           String?                    @default("inches") // inches, mm, cm
 
   // Notes
   notes String?

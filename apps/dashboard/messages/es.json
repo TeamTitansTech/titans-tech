@@ -2077,6 +2077,11 @@
       "title": "GIBS - Configuración de Alerta",
       "usable": "Utilizable"
     },
+    "pistons": {
+      "title": "PISTONES - Configuración de Alerta",
+      "clearance": "Holgura",
+      "difference": "Suma (Izquierda + Derecha)"
+    },
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",
       "yellowStartMin": "Inicio Amarillo (Mín)",

@@ -35,6 +35,10 @@ import {
   UpdateThresholdTrammingDto,
   TrammingThresholdsSchema,
   UpdateThresholdTrammingSchema,
+  CreateThresholdPistonsDto,
+  UpdateThresholdPistonsDto,
+  CreateThresholdPistonsSchema,
+  UpdateThresholdPistonsSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, Authenticated } from '../auth/auth.decorators';
@@ -364,6 +368,57 @@ export class AlertsGibsController {
   @Post('service/:serviceId/generate')
   async generateGibsAlerts(@Param('serviceId') serviceId: string) {
     return this.alertsService.generateAlertsForGibs(serviceId);
+  }
+}
+
+@Controller('alerts/pistons')
+@UseInterceptors(ClassSerializerInterceptor)
+export class AlertsPistonsController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getPistonsThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getPistonsThresholdByBlueprint(blueprintId);
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createPistonsThreshold(
+    @Body(new ZodValidationPipe(CreateThresholdPistonsSchema))
+    dto: CreateThresholdPistonsDto,
+  ) {
+    return this.alertsService.createPistonsThreshold(dto);
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updatePistonsThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(new ZodValidationPipe(UpdateThresholdPistonsSchema))
+    dto: UpdateThresholdPistonsDto,
+  ) {
+    return this.alertsService.updatePistonsThreshold(blueprintId, dto);
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deletePistonsThreshold(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.deletePistonsThreshold(blueprintId);
+  }
+
+  @Authenticated()
+  @Get('service/:serviceId')
+  async getPistonsAlertByService(@Param('serviceId') serviceId: string) {
+    return this.alertsService.getPistonsAlertByService(serviceId);
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generatePistonsAlerts(@Param('serviceId') serviceId: string) {
+    return this.alertsService.generateAlertsForPistons(serviceId);
   }
 }
 

@@ -5,6 +5,7 @@ import {
   ClutchAlertsController,
   AlertsGibsController,
   AlertsTrammingController,
+  AlertsPistonsController,
 } from './alerts.controller';
 import { AlertsService } from './alerts.service';
 import { PrismaService } from '../shared/prisma.service';
@@ -15,6 +16,9 @@ import { PrismaService } from '../shared/prisma.service';
     AlertsSlideController,
     ClutchAlertsController,
     AlertsGibsController,
+    AlertsPistonsController,
+    AlertsTrammingController,
+    AlertsTrammingController,
     AlertsTrammingController,
   ],
   providers: [AlertsService, PrismaService],

@@ -17,6 +17,7 @@ import { BearingClearanceThresholds } from '@/components/alerts/BearingClearance
 import { ClutchThresholds } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholds } from '@/components/alerts/SlideThresholds';
 import { GibsThresholds } from '@/components/alerts/GibsThresholds';
+import { PistonsThresholds } from '@/components/alerts/PistonsThresholds';
 import { TrammingThresholds } from '@/components/alerts/TrammingThresholds';
 import { type BlueprintCreationModalProps } from './types';
 import { useBlueprintForm } from './hooks/useBlueprintForm';
@@ -63,6 +64,10 @@ export const BlueprintCreationModal = ({
     setGibsThresholdsOpen,
     gibsThresholds,
     setGibsThresholds,
+    pistonsThresholdsOpen,
+    setPistonsThresholdsOpen,
+    pistonsThresholds,
+    setPistonsThresholds,
     trammingThresholdsOpen,
     setTrammingThresholdsOpen,
     trammingThresholds,
@@ -241,6 +246,20 @@ export const BlueprintCreationModal = ({
                       onOpenChange={setGibsThresholdsOpen}
                       data={gibsThresholds}
                       onChange={setGibsThresholds}
+                    />
+                  </section>
+                </>
+              )}
+
+              {selectedSections.includes('pistons') && (
+                <>
+                  <Separator />
+                  <section className="space-y-4">
+                    <PistonsThresholds
+                      open={pistonsThresholdsOpen}
+                      onOpenChange={setPistonsThresholdsOpen}
+                      data={pistonsThresholds}
+                      onChange={setPistonsThresholds}
                     />
                   </section>
                 </>

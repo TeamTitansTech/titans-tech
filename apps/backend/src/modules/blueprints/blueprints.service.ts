@@ -16,6 +16,7 @@ import {
   convertClutchThresholdToDecimal,
   convertSlideThresholdToDecimal,
   convertGibsThresholdToDecimal,
+  convertPistonsThresholdToDecimal,
   convertTrammingThresholdToDecimal,
 } from '../alerts/threshold.utils';
 
@@ -81,7 +82,17 @@ export class BlueprintsService {
         });
       }
 
-      // 6. Create Tramming Thresholds if provided
+      // 6. Create Pistons Thresholds if provided
+      if (dto.pistonsThresholds) {
+        await tx.thresholdPistons.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertPistonsThresholdToDecimal(dto.pistonsThresholds),
+          },
+        });
+      }
+
+      // 7. Create Tramming Thresholds if provided
       if (dto.trammingThresholds) {
         await tx.thresholdTramming.create({
           data: {

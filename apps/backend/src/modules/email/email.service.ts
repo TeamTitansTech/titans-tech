@@ -86,10 +86,7 @@ export class EmailService {
         body: html,
         type: NotificationType.URGENT_SERVICE_REQUEST,
         status: EmailStatus.PENDING,
-        provider:
-          appEnv.EMAIL_PROVIDER === 'AWS_SES'
-            ? EmailProvider.AWS_SES
-            : EmailProvider.SENDGRID,
+        provider: EmailProvider.SENDGRID,
         machineId,
       },
     });
@@ -153,10 +150,7 @@ export class EmailService {
         body: html,
         type: notificationType,
         status: EmailStatus.PENDING,
-        provider:
-          appEnv.EMAIL_PROVIDER === 'AWS_SES'
-            ? EmailProvider.AWS_SES
-            : EmailProvider.SENDGRID,
+        provider: EmailProvider.SENDGRID,
         machineId,
       },
     });
