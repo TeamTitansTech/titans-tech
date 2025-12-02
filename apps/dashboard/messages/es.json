@@ -97,7 +97,11 @@
     "logout": "Cerrar Sesión",
     "markAllAsRead": "Marcar todas como leídas",
     "loading": "Cargando",
-    "noNotifications": "No hay notificaciones"
+    "noNotifications": "No hay notificaciones",
+    "notificationsMessage": {
+      "default": "Tienes una nueva notificación de {type}",
+      "newUrgentRequest": "Solicitud urgente de servicio de {requestedByName} para la máquina {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alertas Detectadas en la Inspección",

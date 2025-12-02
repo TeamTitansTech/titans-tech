@@ -97,7 +97,11 @@
     "logout": "Sair",
     "markAllAsRead": "Marcar todas como lidas",
     "loading": "Carregando",
-    "noNotifications": "Nenhuma notificação"
+    "noNotifications": "Nenhuma notificação",
+    "notificationsMessage": {
+      "default": "Você tem uma nova notificação de {type}",
+      "newUrgentRequest": "Solicitação urgente de serviço de {requestedByName} para a máquina {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alertas Detectados na Inspeção",
