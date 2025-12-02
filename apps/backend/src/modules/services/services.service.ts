@@ -2015,6 +2015,10 @@ export class ServicesService {
           take: 1,
         },
         alertCounterbalanceCylinderAirbag: true,
+        alertTramming: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
     });
 
@@ -2328,11 +2332,166 @@ export class ServicesService {
       }
     }
 
-    return {
+    // Process Tramming alerts
+    console.log('🔍 Checking tramming alerts:', {
+      hasAlertTramming: !!service.alertTramming,
+      alertTrammingLength: service.alertTramming?.length,
+      alertTramming: service.alertTramming,
+    });
+
+    if (service.alertTramming && service.alertTramming.length > 0) {
+      console.log('✅ Processing tramming alerts');
+      const alert = service.alertTramming[0];
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const trammingFields = [
+        // Outer section
+        {
+          field: 'outer_top_vertical',
+          label: 'Top Vertical (Outer)',
+          severity: alert.outer_top_verticalSeverity as AlertSeverityDto,
+          value: alert.outer_top_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_top_horizontal',
+          label: 'Top Horizontal (Outer)',
+          severity: alert.outer_top_horizontalSeverity as AlertSeverityDto,
+          value: alert.outer_top_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_bottom_vertical',
+          label: 'Bottom Vertical (Outer)',
+          severity: alert.outer_bottom_verticalSeverity as AlertSeverityDto,
+          value: alert.outer_bottom_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_bottom_horizontal',
+          label: 'Bottom Horizontal (Outer)',
+          severity: alert.outer_bottom_horizontalSeverity as AlertSeverityDto,
+          value: alert.outer_bottom_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_left_vertical',
+          label: 'Left Vertical (Outer)',
+          severity: alert.outer_left_verticalSeverity as AlertSeverityDto,
+          value: alert.outer_left_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_left_horizontal',
+          label: 'Left Horizontal (Outer)',
+          severity: alert.outer_left_horizontalSeverity as AlertSeverityDto,
+          value: alert.outer_left_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_right_vertical',
+          label: 'Right Vertical (Outer)',
+          severity: alert.outer_right_verticalSeverity as AlertSeverityDto,
+          value: alert.outer_right_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_right_horizontal',
+          label: 'Right Horizontal (Outer)',
+          severity: alert.outer_right_horizontalSeverity as AlertSeverityDto,
+          value: alert.outer_right_horizontalSum?.toString() || '0',
+        },
+        // Inner section
+        {
+          field: 'inner_top_vertical',
+          label: 'Top Vertical (Inner)',
+          severity: alert.inner_top_verticalSeverity as AlertSeverityDto,
+          value: alert.inner_top_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_top_horizontal',
+          label: 'Top Horizontal (Inner)',
+          severity: alert.inner_top_horizontalSeverity as AlertSeverityDto,
+          value: alert.inner_top_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_bottom_vertical',
+          label: 'Bottom Vertical (Inner)',
+          severity: alert.inner_bottom_verticalSeverity as AlertSeverityDto,
+          value: alert.inner_bottom_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_bottom_horizontal',
+          label: 'Bottom Horizontal (Inner)',
+          severity: alert.inner_bottom_horizontalSeverity as AlertSeverityDto,
+          value: alert.inner_bottom_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_left_vertical',
+          label: 'Left Vertical (Inner)',
+          severity: alert.inner_left_verticalSeverity as AlertSeverityDto,
+          value: alert.inner_left_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_left_horizontal',
+          label: 'Left Horizontal (Inner)',
+          severity: alert.inner_left_horizontalSeverity as AlertSeverityDto,
+          value: alert.inner_left_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_right_vertical',
+          label: 'Right Vertical (Inner)',
+          severity: alert.inner_right_verticalSeverity as AlertSeverityDto,
+          value: alert.inner_right_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_right_horizontal',
+          label: 'Right Horizontal (Inner)',
+          severity: alert.inner_right_horizontalSeverity as AlertSeverityDto,
+          value: alert.inner_right_horizontalSum?.toString() || '0',
+        },
+      ];
+
+      for (const f of trammingFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value,
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        console.log('✅ Adding tramming section with alerts:', {
+          alertCount: alerts.length,
+          severity: sectionSeverity,
+        });
+        sections.push({
+          sectionKey: 'TRAMMING',
+          sectionName: 'Tramming',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      } else {
+        console.log('⚠️ No YELLOW/RED tramming alerts found');
+      }
+    }
+
+    const result = {
       hasAlerts: alertCount > 0,
       alertCount,
       highestSeverity,
       sections,
     };
+
+    console.log('📊 Final alerts summary:', {
+      hasAlerts: result.hasAlerts,
+      alertCount: result.alertCount,
+      highestSeverity: result.highestSeverity,
+      sectionKeys: sections.map((s) => s.sectionKey),
+    });
+
+    return result;
   }
 }
