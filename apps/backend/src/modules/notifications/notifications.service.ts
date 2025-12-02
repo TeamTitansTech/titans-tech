@@ -229,6 +229,7 @@ export class NotificationsService {
         alertPistons: true,
         alertTramming: true,
         alertTramming: true,
+        alertTramming: true,
       },
     });
 

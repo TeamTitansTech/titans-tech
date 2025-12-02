@@ -1051,6 +1051,7 @@
         "inner": "Inner",
         "issues": "Issues",
         "alerts": "Alerts",
+        "alerts": "Alerts",
         "inspections": "Inspections",
         "inspectionHistory": "Inspection History",
         "oilChanged": "Oil Changed",
@@ -2058,6 +2059,11 @@
       "title": "PISTONS - Alert Configuration",
       "clearance": "Clearance",
       "difference": "Sum (Left + Right)"
+    },
+    "tramming": {
+      "title": "TRAMMING - Alert Configuration",
+      "description": "Configure the threshold for tramming sums (vertical and horizontal). This threshold will be applied to all positions (top, bottom, left, right).",
+      "sum": "Tramming Sum"
     },
     "tramming": {
       "title": "TRAMMING - Alert Configuration",
