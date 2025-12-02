@@ -517,6 +517,7 @@ model Blueprint {
   thresholdClutch           ThresholdClutch?
   thresholdSlide            ThresholdSlide?
   thresholdGibs             ThresholdGibs?
+  thresholdTramming         ThresholdTramming?
 
   @@map("blueprints")
 }
@@ -634,6 +635,23 @@ model ThresholdGibs {
   @@map("threshold_gibs")
 }
 
+model ThresholdTramming {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Single threshold range for all tramming sums (vertical and horizontal)
+  greenMin  Decimal @db.Decimal(10, 4)
+  yellowMin Decimal @db.Decimal(10, 4)
+  redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_tramming")
+}
+
 model Machine {
   id          String  @id @default(cuid())
   blueprintId String
@@ -727,6 +745,7 @@ model MachineService {
   alertClutch                       AlertClutch[]
   alertSlide                        AlertSlide[]
   alertGibs                         AlertGibs[]
+  alertTramming                     AlertTramming[]
 
   @@index([serviceRequestId])
   @@map("machine_services")
@@ -869,6 +888,63 @@ model AlertGibs {
 
   @@index([machineServiceId])
   @@map("alert_gibs")
+}
+
+model AlertTramming {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // OUTER alerts - 4 positions × 2 directions (vertical + horizontal) = 8 sums
+  outer_top_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_top_verticalSeverity   AlertSeverity
+  outer_top_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_top_horizontalSeverity AlertSeverity
+
+  outer_bottom_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_bottom_verticalSeverity   AlertSeverity
+  outer_bottom_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_bottom_horizontalSeverity AlertSeverity
+
+  outer_left_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_left_verticalSeverity   AlertSeverity
+  outer_left_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_left_horizontalSeverity AlertSeverity
+
+  outer_right_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_right_verticalSeverity   AlertSeverity
+  outer_right_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_right_horizontalSeverity AlertSeverity
+
+  // INNER alerts - 4 positions × 2 directions (vertical + horizontal) = 8 sums
+  inner_top_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_top_verticalSeverity   AlertSeverity
+  inner_top_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_top_horizontalSeverity AlertSeverity
+
+  inner_bottom_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_bottom_verticalSeverity   AlertSeverity
+  inner_bottom_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_bottom_horizontalSeverity AlertSeverity
+
+  inner_left_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_left_verticalSeverity   AlertSeverity
+  inner_left_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_left_horizontalSeverity AlertSeverity
+
+  inner_right_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_right_verticalSeverity   AlertSeverity
+  inner_right_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_right_horizontalSeverity AlertSeverity
+
+  // Optional snapshot of threshold used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_tramming")
 }
 
 // BEARING_CLEARANCE Section
