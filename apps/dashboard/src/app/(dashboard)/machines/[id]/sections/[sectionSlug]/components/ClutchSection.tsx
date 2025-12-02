@@ -21,7 +21,6 @@ import {
 import { getClutchThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SubsectionPartsModal } from '@/components/parts/SubsectionPartsModal';
-import { SectionStatusBadge } from '@/components/shared/SectionStatusBadge';
 import { CLUTCH_BRAKE_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface ClutchSectionProps {
@@ -233,10 +232,7 @@ export function ClutchSection({
 
         <Card>
           <CardHeader>
-            <div className="flex items-center gap-3">
-              <CardTitle>Clutch Measurements</CardTitle>
-              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
-            </div>
+            <CardTitle>Clutch Measurements</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center mb-6">

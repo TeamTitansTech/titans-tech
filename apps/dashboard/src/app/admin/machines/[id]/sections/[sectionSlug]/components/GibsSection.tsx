@@ -20,11 +20,7 @@ import {
 import { getGibsThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
-import {
-  SectionStatusBadge,
-  type SectionStatus,
-  calculateSectionStatus,
-} from '@/components/shared/SectionStatusBadge';
+import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
 import { GIBS_SUBSECTIONS } from '@/data/parts/section-subsections';
 
@@ -381,10 +377,7 @@ export function GibsSection({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CardTitle>{t('sectionTitles.gibsMeasurements')}</CardTitle>
-              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
-            </div>
+            <CardTitle>{t('sectionTitles.gibsMeasurements')}</CardTitle>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Gibs"
