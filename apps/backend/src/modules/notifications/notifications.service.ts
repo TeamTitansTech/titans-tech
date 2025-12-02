@@ -658,8 +658,8 @@ export class NotificationsService {
     }
 
     // Process Pistons alerts with subsections (Outer/Inner)
-    if (service.alertPistons) {
-      const alert = service.alertPistons;
+    if (service.alertPistons && service.alertPistons.length > 0) {
+      const alert = service.alertPistons[0];
       let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
 
       // Outer subsection - sum fields

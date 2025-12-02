@@ -2012,17 +2012,21 @@ export class AlertsService {
       thresholdSnapshot,
     };
 
-    // Upsert alert
-    const alert = await this.prisma.alertPistons.upsert({
-      where: { machineServiceId: serviceId },
-      create: {
+    // Create alert
+    const alert = await this.prisma.alertPistons.create({
+      data: {
         machineServiceId: serviceId,
         ...alertData,
       },
-      update: alertData,
     });
 
-    return new AlertPistonsResponseDto(alert as any);
+    return new AlertPistonsResponseDto({
+      ...alert,
+      pistonsData: {
+        outer: outerData,
+        inner: innerData,
+      },
+    } as any);
   }
 
   /**
@@ -2120,8 +2124,9 @@ export class AlertsService {
   }
 
   async getPistonsAlertByService(machineServiceId: string) {
-    const alert = await this.prisma.alertPistons.findUnique({
+    const alert = await this.prisma.alertPistons.findFirst({
       where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
       include: {
         machineService: {
           include: {

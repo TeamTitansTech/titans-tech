@@ -2315,8 +2315,8 @@ export class ServicesService {
     }
 
     // Process Pistons alerts
-    if (service.alertPistons) {
-      const alert = service.alertPistons;
+    if (service.alertPistons && service.alertPistons.length > 0) {
+      const alert = service.alertPistons[0];
       const alerts: AlertDetailDto[] = [];
       let sectionSeverity: AlertSeverityDto = 'NONE';
 
