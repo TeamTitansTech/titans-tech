@@ -439,11 +439,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company                     Company              @relation(fields: [companyId], references: [id])
-  companyId                   String
-  branches                    UserBranch[]
-  adminNotificationsCreated   AdminNotification[]  @relation("AdminNotificationsCreated")
-  clientNotificationsReceived ClientNotification[] @relation("ClientNotificationsReceived")
+  company              Company        @relation(fields: [companyId], references: [id])
+  companyId            String
+  branches             UserBranch[]
+  notificationsCreated Notification[] @relation("NotificationsCreated")
 
   @@map("users")
 }
@@ -652,14 +651,12 @@ model Machine {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  blueprint           Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
-  branch              CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  fields              MachineField[]
-  services            MachineService[]
-  adminNotifications  AdminNotification[]
-  clientNotifications ClientNotification[]
-  emails              Email[]
-  productionLines     MachineProductionLine[]
+  blueprint       Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  branch          CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  fields          MachineField[]
+  services        MachineService[]
+  emails          Email[]
+  productionLines MachineProductionLine[]
 
   @@map("machines")
 }
@@ -1254,43 +1251,37 @@ enum EmailProvider {
   AWS_SES
 }
 
-model AdminNotification {
-  id              String           @id @default(cuid())
-  machineId       String
-  message         String           @db.Text
-  isRead          Boolean          @default(false)
+model Notification {
+  id String @id @default(cuid())
+
   type            NotificationType @default(URGENT_SERVICE_REQUEST)
-  createdByUserId String
+  createdByUserId String?
   metadata        Json? // Store additional data like notes, urgency level, etc.
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  machine   Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
-  createdBy User    @relation("AdminNotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  createdBy  User?                   @relation("NotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  recipients NotificationRecipient[]
 
-  @@index([isRead])
   @@index([createdAt])
   @@map("admin_notifications")
 }
 
-model ClientNotification {
-  id          String           @id @default(cuid())
-  userId      String
-  machineId   String?
-  message     String           @db.Text
-  isRead      Boolean          @default(false)
-  redirectUrl String? // e.g., "/s/company-slug/machines/123?openServiceModal=true"
-  type        NotificationType
-  metadata    Json? // Store additional contextual data
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+model NotificationRecipient {
+  notificationId String
+  /**
+   * Id from sys admin or a regular user
+   */
+  recipientId    String
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  user    User     @relation("ClientNotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
-  machine Machine? @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
-  @@index([userId, isRead])
-  @@index([createdAt])
-  @@map("client_notifications")
+  @@id([notificationId, recipientId])
+  @@index([recipientId, isRead])
+  @@map("admin_notification_recipients")
 }
 
 model Email {
