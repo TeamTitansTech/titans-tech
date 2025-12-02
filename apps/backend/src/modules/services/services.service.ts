@@ -14,6 +14,7 @@ import {
   LatestGibsDto,
   LatestLubricationDto,
   LatestCounterbalanceDto,
+  LatestTrammingDto,
   CreateServiceDto,
   UpdateServicePayload,
   CompleteServiceDto,
@@ -825,7 +826,44 @@ export class ServicesService {
       }
     }
 
-    // 9. Build response
+    // 9. Process Tramming section
+    let trammingData: LatestTrammingDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.TRAMMING)) {
+      // Find the most recent service with Tramming data
+      const latestTrammingService = services.find(
+        (service) => service.tramming && service.tramming.length > 0,
+      );
+
+      if (latestTrammingService) {
+        const trammingRecord = latestTrammingService.tramming[0];
+
+        if (trammingRecord) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getTrammingAlertsByService(
+              latestTrammingService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+          }
+
+          trammingData = new LatestTrammingDto({
+            latestServiceId: latestTrammingService.id,
+            latestServiceDate: latestTrammingService.date,
+            serviceType: latestTrammingService.type,
+            data: {
+              outerData: trammingRecord.outerData || undefined,
+              innerData: trammingRecord.innerData || undefined,
+            },
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 10. Build response
     return new LatestReportResponseDto({
       machineId: machine.id,
       machineName: machine.name,
@@ -842,6 +880,7 @@ export class ServicesService {
         LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: lubricationData,
         CLUTCH: clutchData,
         COUNTERBALANCE_CYLINDER_AIRBAG: counterbalanceData,
+        TRAMMING: trammingData,
       },
     });
   }
@@ -1676,6 +1715,14 @@ export class ServicesService {
           },
         },
       });
+    }
+
+    // Generate tramming alerts automatically after saving data
+    try {
+      await this.alertsService.generateAlertsForTramming(serviceId);
+    } catch (error) {
+      // Log error but don't fail the update if alert generation fails
+      console.error('Failed to generate tramming alerts:', error);
     }
 
     return this.findOne(serviceId);

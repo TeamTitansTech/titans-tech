@@ -188,6 +188,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   const gibs = report.sections.GIBS;
   const lubrication = report.sections.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER;
   const counterbalance = report.sections.COUNTERBALANCE_CYLINDER_AIRBAG;
+  const tramming = report.sections.TRAMMING;
 
   // Get overall worst severity for bearing clearance (outer or inner)
   const getBearingSeverity = (prefix: 'outer' | 'inner'): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
@@ -304,6 +305,38 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     return gibs.alert.usable_severity;
   };
 
+  // Get overall worst severity for Tramming
+  const getTrammingOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!tramming?.alert) return 'NONE';
+
+    const alert = tramming.alert;
+    const severities = new Set([
+      // Outer
+      alert.outer_top_verticalSeverity,
+      alert.outer_top_horizontalSeverity,
+      alert.outer_bottom_verticalSeverity,
+      alert.outer_bottom_horizontalSeverity,
+      alert.outer_left_verticalSeverity,
+      alert.outer_left_horizontalSeverity,
+      alert.outer_right_verticalSeverity,
+      alert.outer_right_horizontalSeverity,
+      // Inner
+      alert.inner_top_verticalSeverity,
+      alert.inner_top_horizontalSeverity,
+      alert.inner_bottom_verticalSeverity,
+      alert.inner_bottom_horizontalSeverity,
+      alert.inner_left_verticalSeverity,
+      alert.inner_left_horizontalSeverity,
+      alert.inner_right_verticalSeverity,
+      alert.inner_right_horizontalSeverity,
+    ]);
+
+    if (severities.has('RED')) return 'RED';
+    if (severities.has('YELLOW')) return 'YELLOW';
+    if (severities.has('GREEN')) return 'GREEN';
+    return 'NONE';
+  };
+
   // Format Yes/No/DNC values for lubrication
   const formatYesNoDnc = (value: string | undefined | null): string => {
     if (!value) return '-';
@@ -397,7 +430,13 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
         </DialogHeader>
 
         <div ref={contentRef} className="flex-1 overflow-y-auto px-1 py-4">
-          {bearingClearance || clutch || slide || gibs || lubrication || counterbalance ? (
+          {bearingClearance ||
+          clutch ||
+          slide ||
+          gibs ||
+          lubrication ||
+          counterbalance ||
+          tramming ? (
             <div className="space-y-4">
               {bearingClearance && (
                 <div className="border rounded-lg p-4">
@@ -1062,6 +1101,161 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {tramming && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Typography variant="h4" className="font-semibold">
+                      Tramming
+                    </Typography>
+                    <div className="flex items-center gap-3">
+                      {getSeverityBadge(getTrammingOverallSeverity())}
+                      <span className="text-sm text-muted-foreground">
+                        {t('updatedAt')}{' '}
+                        {format(new Date(tramming.latestServiceDate), 'dd-MM-yyyy')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {tramming.data.outerData && tramming.alert && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold">Outer</div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">Position</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Vertical Sum
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Horizontal Sum
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {['top', 'bottom', 'left', 'right'].map((position) => {
+                              const verticalSumKey =
+                                `outer_${position}_verticalSum` as keyof typeof tramming.alert;
+                              const verticalSeverityKey =
+                                `outer_${position}_verticalSeverity` as keyof typeof tramming.alert;
+                              const horizontalSumKey =
+                                `outer_${position}_horizontalSum` as keyof typeof tramming.alert;
+                              const horizontalSeverityKey =
+                                `outer_${position}_horizontalSeverity` as keyof typeof tramming.alert;
+
+                              const verticalSum = tramming.alert?.[verticalSumKey] as number;
+                              const verticalSeverity = tramming.alert?.[verticalSeverityKey] as
+                                | 'NONE'
+                                | 'GREEN'
+                                | 'YELLOW'
+                                | 'RED';
+                              const horizontalSum = tramming.alert?.[horizontalSumKey] as number;
+                              const horizontalSeverity = tramming.alert?.[horizontalSeverityKey] as
+                                | 'NONE'
+                                | 'GREEN'
+                                | 'YELLOW'
+                                | 'RED';
+
+                              return (
+                                <TableRow key={position} className="hover:bg-muted/30">
+                                  <TableCell className="font-medium capitalize">
+                                    {position}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {typeof verticalSum === 'number' ? verticalSum.toFixed(3) : '-'}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {getSeverityBadge(verticalSeverity)}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {typeof horizontalSum === 'number'
+                                      ? horizontalSum.toFixed(3)
+                                      : '-'}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {getSeverityBadge(horizontalSeverity)}
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+
+                    {tramming.data.innerData && tramming.alert && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold">Inner</div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">Position</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Vertical Sum
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Horizontal Sum
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {['top', 'bottom', 'left', 'right'].map((position) => {
+                              const verticalSumKey =
+                                `inner_${position}_verticalSum` as keyof typeof tramming.alert;
+                              const verticalSeverityKey =
+                                `inner_${position}_verticalSeverity` as keyof typeof tramming.alert;
+                              const horizontalSumKey =
+                                `inner_${position}_horizontalSum` as keyof typeof tramming.alert;
+                              const horizontalSeverityKey =
+                                `inner_${position}_horizontalSeverity` as keyof typeof tramming.alert;
+
+                              const verticalSum = tramming.alert?.[verticalSumKey] as number;
+                              const verticalSeverity = tramming.alert?.[verticalSeverityKey] as
+                                | 'NONE'
+                                | 'GREEN'
+                                | 'YELLOW'
+                                | 'RED';
+                              const horizontalSum = tramming.alert?.[horizontalSumKey] as number;
+                              const horizontalSeverity = tramming.alert?.[horizontalSeverityKey] as
+                                | 'NONE'
+                                | 'GREEN'
+                                | 'YELLOW'
+                                | 'RED';
+
+                              return (
+                                <TableRow key={position} className="hover:bg-muted/30">
+                                  <TableCell className="font-medium capitalize">
+                                    {position}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {typeof verticalSum === 'number' ? verticalSum.toFixed(3) : '-'}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {getSeverityBadge(verticalSeverity)}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {typeof horizontalSum === 'number'
+                                      ? horizontalSum.toFixed(3)
+                                      : '-'}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {getSeverityBadge(horizontalSeverity)}
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

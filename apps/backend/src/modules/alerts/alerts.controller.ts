@@ -31,6 +31,9 @@ import {
   UpdateThresholdGibsDto,
   CreateThresholdGibsSchema,
   UpdateThresholdGibsSchema,
+  CreateThresholdTrammingDto,
+  UpdateThresholdTrammingDto,
+  TrammingThresholdsSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, Authenticated } from '../auth/auth.decorators';
@@ -276,5 +279,56 @@ export class AlertsGibsController {
   @Post('service/:serviceId/generate')
   async generateGibsAlerts(@Param('serviceId') serviceId: string) {
     return this.alertsService.generateAlertsForGibs(serviceId);
+  }
+}
+
+@Controller('alerts/tramming')
+@UseInterceptors(ClassSerializerInterceptor)
+export class AlertsTrammingController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getTrammingThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getTrammingThresholdByBlueprint(blueprintId);
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createTrammingThreshold(
+    @Body(new ZodValidationPipe(TrammingThresholdsSchema))
+    dto: CreateThresholdTrammingDto,
+  ) {
+    return this.alertsService.createTrammingThreshold(dto);
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updateTrammingThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(new ZodValidationPipe(TrammingThresholdsSchema))
+    dto: UpdateThresholdTrammingDto,
+  ) {
+    return this.alertsService.updateTrammingThreshold(blueprintId, dto);
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deleteTrammingThreshold(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.deleteTrammingThreshold(blueprintId);
+  }
+
+  @Authenticated()
+  @Get('service/:serviceId')
+  async getTrammingAlertsByService(@Param('serviceId') serviceId: string) {
+    return this.alertsService.getTrammingAlertsByService(serviceId);
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generateTrammingAlerts(@Param('serviceId') serviceId: string) {
+    return this.alertsService.generateAlertsForTramming(serviceId);
   }
 }
