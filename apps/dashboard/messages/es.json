@@ -56,7 +56,9 @@
       "uploading": "Subiendo...",
       "clickToUpload": "Haga clic para subir",
       "jpgOrPngMax": "JPG o PNG (máx. 10MB)"
-    }
+    },
+    "cancel": "Cancelar",
+    "save": "Guardar"
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -66,7 +68,9 @@
     "invalidHexColor": "Debe ser un color hexadecimal válido",
     "branchNameRequired": "El nombre de la sucursal es obligatorio",
     "fullNameRequired": "El nombre completo es obligatorio",
-    "invalidEmail": "Dirección de correo electrónico no válida"
+    "invalidEmail": "Dirección de correo electrónico no válida",
+    "invalidImageType": "Solo se permiten imágenes JPG y PNG",
+    "fileTooLarge": "El tamaño del archivo excede el límite de 10MB"
   },
   "navigation": {
     "dashboard": "Panel",
@@ -93,7 +97,11 @@
     "logout": "Cerrar Sesión",
     "markAllAsRead": "Marcar todas como leídas",
     "loading": "Cargando",
-    "noNotifications": "No hay notificaciones"
+    "noNotifications": "No hay notificaciones",
+    "notificationsMessage": {
+      "default": "Tienes una nueva notificación de {type}",
+      "newUrgentRequest": "Solicitud urgente de servicio de {requestedByName} para la máquina {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alertas Detectadas en la Inspección",
@@ -452,7 +460,11 @@
         },
         "logo": {
           "label": "URL del Logotipo (Opcional)",
-          "placeholder": "ej., https://ejemplo.com/logo.png"
+          "placeholder": "ej., https://ejemplo.com/logo.png",
+          "uploadHint": "Haga clic para subir logo (JPG o PNG)",
+          "uploading": "Subiendo...",
+          "uploadSuccess": "Logo subido exitosamente",
+          "uploadError": "Error al subir el logo"
         },
         "brandColor": {
           "label": "Color Primario (Opcional)",
@@ -604,7 +616,58 @@
         "totalModels": "Total de Modelos",
         "activeCompanies": "Empresas Activas",
         "machines": "Máquinas",
-        "pendingServices": "Servicios Pendientes"
+        "pendingServices": "Servicios Pendientes",
+        "totalBranches": "Sucursales",
+        "completedServices": "Servicios Completados"
+      },
+      "overview": {
+        "companies": "Empresas",
+        "registered": "registradas",
+        "machines": "Máquinas",
+        "operating": "operando",
+        "services": "Servicios",
+        "pending": "pendientes",
+        "thisMonth": "este mes"
+      },
+      "companiesOverview": {
+        "title": "Empresas Registradas",
+        "description": "Resumen de todas las empresas en el sistema",
+        "branches": "sucursales",
+        "machines": "máquinas",
+        "services": "servicios",
+        "viewDetails": "Ver detalles",
+        "noCompanies": "No hay empresas registradas"
+      },
+      "recentActivity": {
+        "title": "Actividad Reciente",
+        "description": "Últimos servicios realizados en el sistema",
+        "noActivity": "No hay actividad reciente",
+        "inspection": "Inspección",
+        "maintenance": "Mantenimiento",
+        "completed": "Completado",
+        "pending": "Pendiente",
+        "viewAll": "Ver todos"
+      },
+      "serviceTrends": {
+        "title": "Tendencias de Servicios",
+        "description": "Servicios completados en los últimos 6 meses en todas las empresas",
+        "legend": {
+          "inspections": "Inspecciones",
+          "maintenance": "Mantenimientos"
+        },
+        "stats": {
+          "totalInspections": "Total de Inspecciones",
+          "totalMaintenance": "Total de Mantenimientos",
+          "totalServices": "Total de Servicios"
+        }
+      },
+      "machineHealth": {
+        "title": "Salud de las Máquinas",
+        "description": "Distribución del estado de todas las máquinas",
+        "healthy": "Saludables",
+        "attention": "Atención",
+        "critical": "Crítico",
+        "unknown": "Sin datos"
       }
     },
     "client": {
@@ -799,7 +862,8 @@
     "machines": "máquinas",
     "field": "campo",
     "fields": "campos",
-    "edit": "Editar"
+    "edit": "Editar",
+    "thresholds": "Configurar Thresholds"
   },
   "machines": {
     "title": "Crear Máquina",
@@ -1002,6 +1066,7 @@
         "outer": "Externo",
         "inner": "Interno",
         "issues": "Problemas",
+        "alerts": "Alertas",
         "inspections": "Inspecciones",
         "inspectionHistory": "Historial de Inspecciones",
         "oilChanged": "Aceite Cambiado",
@@ -1911,7 +1976,7 @@
     "noBranches": "No se encontraron sucursales para esta empresa",
     "noBranchesDescription": "Las sucursales se mostrarán aquí cuando se creen",
     "branch": "sucursal",
-    "branches": "sucursales",
+    "branches": "Sucursales",
     "machine": "máquina",
     "machines": "máquinas",
     "noMachines": "Sin máquinas",
@@ -2015,7 +2080,32 @@
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",
       "yellowStartMin": "Inicio Amarillo (Mín)",
-      "redStartMin": "Inicio Rojo (Mín)"
+      "redStartMin": "Inicio Rojo (Mín)",
+      "editTitle": "Configurar Thresholds - {name}",
+      "editDescription": "Ajuste los valores de threshold para generación de alertas. Marque la opción debajo para recalcular alertas existentes.",
+      "loadError": "Error al cargar thresholds",
+      "recalculate": {
+        "label": "Recalcular alertas existentes",
+        "description": "Generar nuevas alertas para todos los servicios de este modelo usando los nuevos thresholds",
+        "updating": "Actualizando thresholds y recalculando alertas...",
+        "success": "Thresholds actualizados. {count} alertas generadas para {services} servicios.",
+        "successNoRecalc": "Thresholds actualizados. Las nuevas alertas solo se generarán para servicios futuros.",
+        "error": "Error al actualizar thresholds"
+      }
+    },
+    "history": {
+      "title": "Historial de Alertas",
+      "noHistory": "No hay historial de alertas disponible",
+      "viewHistory": "Ver Historial",
+      "hideHistory": "Ocultar Historial",
+      "mostRecent": "Más Reciente",
+      "createdAt": "Creado el",
+      "thresholdSnapshot": "Thresholds Utilizados",
+      "reason": {
+        "initial": "Cálculo Inicial",
+        "thresholdUpdate": "Actualización de Threshold",
+        "manualRecalculation": "Recálculo Manual"
+      }
     }
   },
   "forms": {
@@ -2289,6 +2379,10 @@
     "selectAll": "Seleccionar Todas",
     "deselectAll": "Deseleccionar Todas",
     "exportPDF": "Exportar PDF",
+    "exportThisTab": "Exportar Esta Pestaña",
+    "exportAllTabs": "Exportar Todas las Pestañas",
+    "partsSelectedAcrossTabs": "piezas seleccionadas en todas las pestañas",
+    "selectPartsToExport": "Seleccione piezas para exportar",
     "exporting": "Exportando...",
     "noPartsSelected": "Ninguna pieza seleccionada",
     "exportSuccess": "PDF exportado exitosamente",
@@ -2314,6 +2408,28 @@
       "description": "Descripción",
       "quantity": "Cant",
       "unit": "Un"
+    },
+    "partsListTitle": "Lista de Piezas",
+    "partsAvailable": "piezas disponibles",
+    "subsections": {
+      "crankshaft": "Cojinete del Cigüeñal",
+      "outerSlideStandard": "Corredera Exterior (Estándar)",
+      "innerSlideStandard": "Corredera Interior (Estándar)",
+      "outerSlideAdjustment": "Ajuste de Corredera Exterior",
+      "shutheightIndicatorOuter": "Indicador de Altura (Exterior)",
+      "shutheightIndicatorInner": "Indicador de Altura (Interior)",
+      "singleGearedDrive": "Transmisión de Engranaje Simple",
+      "flywheelBrake": "Freno del Volante",
+      "motorDrive": "Accionamiento del Motor",
+      "hydraulicUnit": "Unidad Hidráulica",
+      "flywheelBearings": "Cojinetes del Volante",
+      "counterbalanceInner": "Contrapeso (Interior)",
+      "counterbalanceOuterAirmount": "Contrapeso (Exterior)",
+      "lubricationUnit": "Unidad de Lubricación",
+      "outerSlide": "Corredera Exterior",
+      "innerSlide": "Corredera Interior",
+      "gibsOuter": "Guías (Exterior)",
+      "gibsInner": "Guías (Interior)"
     }
   },
   "sectionStatus": {

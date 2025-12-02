@@ -12,29 +12,29 @@ import { z } from 'zod';
 export const ClutchThresholdsSchema = z
   .object({
     // Hyd Clutch Clearance Total thresholds
-    hydClutchClearanceTotal_greenMin: z.number().positive(),
-    hydClutchClearanceTotal_yellowMin: z.number().positive(),
-    hydClutchClearanceTotal_redMin: z.number().positive(),
+    hydClutchClearanceTotal_greenMin: z.number(),
+    hydClutchClearanceTotal_yellowMin: z.number(),
+    hydClutchClearanceTotal_redMin: z.number(),
 
     // Hyd Clutch Clearance Rear thresholds
-    hydClutchClearanceRear_greenMin: z.number().positive(),
-    hydClutchClearanceRear_yellowMin: z.number().positive(),
-    hydClutchClearanceRear_redMin: z.number().positive(),
+    hydClutchClearanceRear_greenMin: z.number(),
+    hydClutchClearanceRear_yellowMin: z.number(),
+    hydClutchClearanceRear_redMin: z.number(),
 
     // F-B (Front-Back) thresholds
-    fb_greenMin: z.number().positive(),
-    fb_yellowMin: z.number().positive(),
-    fb_redMin: z.number().positive(),
+    fb_greenMin: z.number(),
+    fb_yellowMin: z.number(),
+    fb_redMin: z.number(),
 
     // F-TB (Front Top-Bottom) thresholds
-    fTB_greenMin: z.number().positive(),
-    fTB_yellowMin: z.number().positive(),
-    fTB_redMin: z.number().positive(),
+    fTB_greenMin: z.number(),
+    fTB_yellowMin: z.number(),
+    fTB_redMin: z.number(),
 
     // R-TB (Rear Top-Bottom) thresholds
-    rTB_greenMin: z.number().positive(),
-    rTB_yellowMin: z.number().positive(),
-    rTB_redMin: z.number().positive(),
+    rTB_greenMin: z.number(),
+    rTB_yellowMin: z.number(),
+    rTB_redMin: z.number(),
   })
   .refine(
     (data) => {
@@ -77,6 +77,8 @@ export type CreateThresholdClutchDto = z.infer<typeof CreateThresholdClutchSchem
  * Makes all ClutchThresholdsSchema fields optional, excludes blueprintId
  * Note: Validation happens in service layer after merge with existing values
  */
-export const UpdateThresholdClutchSchema = ClutchThresholdsSchema.partial();
+export const UpdateThresholdClutchSchema = ClutchThresholdsSchema.partial().extend({
+  recalculateAlerts: z.boolean().optional(),
+});
 
 export type UpdateThresholdClutchDto = z.infer<typeof UpdateThresholdClutchSchema>;

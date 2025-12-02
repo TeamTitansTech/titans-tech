@@ -8,7 +8,6 @@ import { CounterbalanceSectionWrapper } from './components/CounterbalanceSection
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { isSysAdminPanel } from '@/lib/isSysAdminPanel';
 
 interface SectionDetailPageProps {
   params: Promise<{
@@ -19,13 +18,13 @@ interface SectionDetailPageProps {
 
 export default async function SectionDetailPage({ params }: SectionDetailPageProps) {
   const { id, sectionSlug } = await params;
-  const isSysPanel = await isSysAdminPanel();
   const t = await getTranslations('machines.sectionDetails');
 
   return (
     <div className="space-y-6 p-2 sm:p-4 lg:p-6">
       <div className="flex items-center gap-3 sm:gap-4">
-        <Link href={`${isSysPanel ? '/admin' : ''}/machines/${id}`} className="shrink-0">
+        {/* Always use /admin prefix since this is the admin section page */}
+        <Link href={`/admin/machines/${id}`} className="shrink-0">
           <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
         </Link>
         <div className="min-w-0 flex-1">

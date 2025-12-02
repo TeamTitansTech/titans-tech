@@ -2,6 +2,8 @@
   "common": {
     "companyName": "InspectPro",
     "companySubtitle": "Portal Admin",
+    "cancel": "Cancelar",
+    "save": "Salvar",
     "unsavedChanges": "Você tem alterações não salvas. Tem certeza que deseja fechar?",
     "confirmClose": {
       "title": "Descartar alterações?",
@@ -95,7 +97,11 @@
     "logout": "Sair",
     "markAllAsRead": "Marcar todas como lidas",
     "loading": "Carregando",
-    "noNotifications": "Nenhuma notificação"
+    "noNotifications": "Nenhuma notificação",
+    "notificationsMessage": {
+      "default": "Você tem uma nova notificação de {type}",
+      "newUrgentRequest": "Solicitação urgente de serviço de {requestedByName} para a máquina {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alertas Detectados na Inspeção",
@@ -803,6 +809,7 @@
     "field": "campo",
     "fields": "campos",
     "edit": "Editar",
+    "thresholds": "Configurar Thresholds",
     "form": {
       "basicInfo": {
         "title": "Informações Básicas"
@@ -1064,6 +1071,7 @@
         "outer": "Externo",
         "inner": "Interno",
         "issues": "Problemas",
+        "alerts": "Alertas",
         "inspections": "Vistorias",
         "inspectionHistory": "Histórico de Vistorias",
         "oilChanged": "Óleo Trocado",
@@ -2077,7 +2085,32 @@
     "thresholds": {
       "greenStartMin": "Início Verde (Mín)",
       "yellowStartMin": "Início Amarelo (Mín)",
-      "redStartMin": "Início Vermelho (Mín)"
+      "redStartMin": "Início Vermelho (Mín)",
+      "editTitle": "Configurar Thresholds - {name}",
+      "editDescription": "Ajuste os valores de threshold para geração de alertas. Marque a opção abaixo para recalcular alertas existentes.",
+      "loadError": "Erro ao carregar thresholds",
+      "recalculate": {
+        "label": "Recalcular alertas existentes",
+        "description": "Gera novos alertas para todos os serviços deste blueprint usando os novos thresholds",
+        "updating": "Atualizando thresholds e recalculando alertas...",
+        "success": "Thresholds atualizados. {count} alertas gerados para {services} serviços.",
+        "successNoRecalc": "Thresholds atualizados. Novos alertas serão gerados apenas para serviços futuros.",
+        "error": "Erro ao atualizar thresholds"
+      }
+    },
+    "history": {
+      "title": "Histórico de Alertas",
+      "noHistory": "Nenhum histórico de alertas disponível",
+      "viewHistory": "Ver Histórico",
+      "hideHistory": "Ocultar Histórico",
+      "mostRecent": "Mais Recente",
+      "createdAt": "Criado em",
+      "thresholdSnapshot": "Thresholds Utilizados",
+      "reason": {
+        "initial": "Cálculo Inicial",
+        "thresholdUpdate": "Atualização de Threshold",
+        "manualRecalculation": "Recalculo Manual"
+      }
     }
   },
   "forms": {
@@ -2351,6 +2384,10 @@
     "selectAll": "Selecionar Todas",
     "deselectAll": "Desmarcar Todas",
     "exportPDF": "Exportar PDF",
+    "exportThisTab": "Exportar Esta Aba",
+    "exportAllTabs": "Exportar Todas as Abas",
+    "partsSelectedAcrossTabs": "peças selecionadas em todas as abas",
+    "selectPartsToExport": "Selecione peças para exportar",
     "exporting": "Exportando...",
     "noPartsSelected": "Nenhuma peça selecionada",
     "exportSuccess": "PDF exportado com sucesso",
@@ -2376,6 +2413,28 @@
       "description": "Descrição",
       "quantity": "Qtd",
       "unit": "Un"
+    },
+    "partsListTitle": "Lista de Peças",
+    "partsAvailable": "peças disponíveis",
+    "subsections": {
+      "crankshaft": "Rolamento do Virabrequim",
+      "outerSlideStandard": "Slide Externo (Padrão)",
+      "innerSlideStandard": "Slide Interno (Padrão)",
+      "outerSlideAdjustment": "Ajuste do Slide Externo",
+      "shutheightIndicatorOuter": "Indicador de Altura (Externo)",
+      "shutheightIndicatorInner": "Indicador de Altura (Interno)",
+      "singleGearedDrive": "Acionamento de Engrenagem Simples",
+      "flywheelBrake": "Freio do Volante",
+      "motorDrive": "Acionamento do Motor",
+      "hydraulicUnit": "Unidade Hidráulica",
+      "flywheelBearings": "Rolamentos do Volante",
+      "counterbalanceInner": "Contrapeso (Interno)",
+      "counterbalanceOuterAirmount": "Contrapeso (Externo)",
+      "lubricationUnit": "Unidade de Lubrificação",
+      "outerSlide": "Slide Externo",
+      "innerSlide": "Slide Interno",
+      "gibsOuter": "Guias (Externo)",
+      "gibsInner": "Guias (Interno)"
     }
   },
   "sectionStatus": {

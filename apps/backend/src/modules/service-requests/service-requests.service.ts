@@ -116,48 +116,43 @@ export class ServiceRequestsService {
       `Created service request ${serviceRequest.id} for machine ${dto.machineId} from ${dto.requesterEmail}`,
     );
 
-    // Create admin notification
-    const notification = await this.prisma.adminNotification.create({
+    // Get sysadmins to create recipients
+    const admins = await this.prisma.sysAdmin.findMany({
+      select: { id: true },
+    });
+
+    // Create notification with recipients (new structure without machine relation)
+    const notification = await this.prisma.notification.create({
       data: {
-        machineId: dto.machineId,
-        message: `New service request from ${dto.requesterName} (${dto.requesterEmail}) for machine "${machine.name}"`,
         type: NotificationType.URGENT_SERVICE_REQUEST,
         createdByUserId: null,
         metadata: {
+          type: NotificationType.URGENT_SERVICE_REQUEST,
+          machineId: dto.machineId,
+          machineName: machine.name,
+          requestedByUserId: null,
+          requestedByName: dto.requesterName,
+          notes: dto.problemDescription,
           serviceRequestId: serviceRequest.id,
-          companyId: machine.branch.companyId,
-          branchId: machine.branchId,
-          isPublicRequest: true,
-          requesterName: dto.requesterName,
           requesterEmail: dto.requesterEmail,
-          requesterPhone: dto.requesterPhone || null,
-          problemDescription: dto.problemDescription,
-          deviceInfo: {
-            ipAddress: deviceInfo.ipAddress,
-            browser: deviceInfo.browser,
-            os: deviceInfo.os,
-            device: deviceInfo.device,
-            isMobile: deviceInfo.isMobile,
+          isPublicRequest: true,
+        },
+        recipients: {
+          createMany: {
+            data: admins.map((admin) => ({
+              recipientId: admin.id,
+            })),
           },
         },
       },
     });
 
     // Broadcast notification via WebSocket
-    this.notificationsGateway.handleNewNotification({
-      id: notification.id,
-      machineId: notification.machineId,
-      machineName: machine.name,
-      message: notification.message,
-      isRead: notification.isRead,
-      type: notification.type as any,
-      createdByUserId: null,
-      createdByName: dto.requesterName,
-      createdByEmail: dto.requesterEmail,
-      metadata: notification.metadata as Record<string, any> | null,
-      createdAt: notification.createdAt.toISOString(),
-      updatedAt: notification.updatedAt.toISOString(),
+    const recipients = await this.prisma.notificationRecipient.findMany({
+      include: { notification: true },
+      where: { notificationId: notification.id },
     });
+    this.notificationsGateway.handleNewNotification(recipients);
 
     // Send email notification
     const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${dto.machineId}`;

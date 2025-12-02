@@ -1,4 +1,10 @@
+import { Prisma } from '@titans-tech/db';
 import { z } from 'zod';
+import {
+  InspectionAlertNotificationMetadataDto,
+  ServiceReminderOrOverdueNotificationMetadataDto,
+  UrgentRequestNotificationMetadataDto,
+} from './notifications/admin';
 
 export const NotificationTypeDtoSchema = z.enum([
   'URGENT_SERVICE_REQUEST',
@@ -8,43 +14,21 @@ export const NotificationTypeDtoSchema = z.enum([
   'INSPECTION_ALERT',
 ]);
 
-export const AdminNotificationResponseDtoSchema = z.object({
-  id: z.string(),
-  machineId: z.string(),
-  machineName: z.string(),
-  message: z.string(),
-  isRead: z.boolean(),
-  type: NotificationTypeDtoSchema,
-  createdByUserId: z.string().nullable(),
-  createdByName: z.string(),
-  createdByEmail: z.string().nullable(),
-  metadata: z.record(z.string(), z.any()).nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
+const notificationRecipientInclude = {
+  notification: true,
+} satisfies Prisma.NotificationRecipientInclude;
 
-export const ClientNotificationResponseDtoSchema = z.object({
-  id: z.string(),
-  userId: z.string(),
-  machineId: z.string().nullable(),
-  machineName: z.string().nullable(),
-  message: z.string(),
-  isRead: z.boolean(),
-  redirectUrl: z.string().nullable(),
-  type: NotificationTypeDtoSchema,
-  metadata: z.record(z.string(), z.any()).nullable(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
+export type NotificationResponse = Prisma.NotificationRecipientGetPayload<{
+  include: typeof notificationRecipientInclude;
+}>;
 
-export const NotificationStatsResponseDtoSchema = z.object({
-  totalUnread: z.number(),
-  urgentRequests: z.number(),
-  reminders: z.number(),
-  overdue: z.number(),
-});
+export type NotificationResponseWithMetadata = NotificationResponse & {
+  notification: NotificationResponse['notification'] & {
+    metadata:
+      | UrgentRequestNotificationMetadataDto
+      | InspectionAlertNotificationMetadataDto
+      | ServiceReminderOrOverdueNotificationMetadataDto;
+  };
+};
 
 export type NotificationTypeDto = z.infer<typeof NotificationTypeDtoSchema>;
-export type AdminNotificationResponseDto = z.infer<typeof AdminNotificationResponseDtoSchema>;
-export type ClientNotificationResponseDto = z.infer<typeof ClientNotificationResponseDtoSchema>;
-export type NotificationStatsResponseDto = z.infer<typeof NotificationStatsResponseDtoSchema>;

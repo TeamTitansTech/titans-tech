@@ -56,7 +56,9 @@
       "uploading": "Uploading...",
       "clickToUpload": "Click to upload",
       "jpgOrPngMax": "JPG or PNG (max. 10MB)"
-    }
+    },
+    "cancel": "Cancel",
+    "save": "Save"
   },
   "validation": {
     "required": "This field is required",
@@ -856,7 +858,8 @@
     "machines": "machines",
     "field": "field",
     "fields": "fields",
-    "edit": "Edit"
+    "edit": "Edit",
+    "thresholds": "Configure Thresholds"
   },
   "machines": {
     "title": "Create Machine",
@@ -1059,6 +1062,7 @@
         "outer": "Outer",
         "inner": "Inner",
         "issues": "Issues",
+        "alerts": "Alerts",
         "inspections": "Inspections",
         "inspectionHistory": "Inspection History",
         "oilChanged": "Oil Changed",
@@ -1968,7 +1972,7 @@
     "noBranches": "No branches found for this company",
     "noBranchesDescription": "Branches will be displayed here when created",
     "branch": "branch",
-    "branches": "branches",
+    "branches": "Branches",
     "machine": "machine",
     "machines": "machines",
     "noMachines": "No machines",
@@ -2072,7 +2076,32 @@
     "thresholds": {
       "greenStartMin": "Green Start (Min)",
       "yellowStartMin": "Yellow Start (Min)",
-      "redStartMin": "Red Start (Min)"
+      "redStartMin": "Red Start (Min)",
+      "editTitle": "Configure Thresholds - {name}",
+      "editDescription": "Adjust threshold values for alert generation. Check the option below to recalculate existing alerts.",
+      "loadError": "Error loading thresholds",
+      "recalculate": {
+        "label": "Recalculate existing alerts",
+        "description": "Generate new alerts for all services of this blueprint using the new thresholds",
+        "updating": "Updating thresholds and recalculating alerts...",
+        "success": "Thresholds updated. {count} alerts generated for {services} services.",
+        "successNoRecalc": "Thresholds updated. New alerts will only be generated for future services.",
+        "error": "Error updating thresholds"
+      }
+    },
+    "history": {
+      "title": "Alert History",
+      "noHistory": "No alert history available",
+      "viewHistory": "View History",
+      "hideHistory": "Hide History",
+      "mostRecent": "Most Recent",
+      "createdAt": "Created on",
+      "thresholdSnapshot": "Thresholds Used",
+      "reason": {
+        "initial": "Initial Calculation",
+        "thresholdUpdate": "Threshold Update",
+        "manualRecalculation": "Manual Recalculation"
+      }
     }
   },
   "forms": {
@@ -2346,6 +2375,10 @@
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
     "exportPDF": "Export PDF",
+    "exportThisTab": "Export This Tab",
+    "exportAllTabs": "Export All Tabs",
+    "partsSelectedAcrossTabs": "parts selected across all tabs",
+    "selectPartsToExport": "Select parts to export",
     "exporting": "Exporting...",
     "noPartsSelected": "No parts selected",
     "exportSuccess": "PDF exported successfully",
@@ -2371,6 +2404,28 @@
       "description": "Description",
       "quantity": "Qty",
       "unit": "Unit"
+    },
+    "partsListTitle": "Parts List",
+    "partsAvailable": "parts available",
+    "subsections": {
+      "crankshaft": "Crankshaft Bearing",
+      "outerSlideStandard": "Outer Slide (Standard)",
+      "innerSlideStandard": "Inner Slide (Standard)",
+      "outerSlideAdjustment": "Outer Slide Adjustment",
+      "shutheightIndicatorOuter": "Shutheight Indicator (Outer)",
+      "shutheightIndicatorInner": "Shutheight Indicator (Inner)",
+      "singleGearedDrive": "Single Geared Drive",
+      "flywheelBrake": "Flywheel Brake",
+      "motorDrive": "Motor Drive",
+      "hydraulicUnit": "Hydraulic Unit",
+      "flywheelBearings": "Flywheel Bearings",
+      "counterbalanceInner": "Counterbalance (Inner)",
+      "counterbalanceOuterAirmount": "Counterbalance (Outer)",
+      "lubricationUnit": "Lubrication Unit",
+      "outerSlide": "Outer Slide",
+      "innerSlide": "Inner Slide",
+      "gibsOuter": "Gibs (Outer)",
+      "gibsInner": "Gibs (Inner)"
     }
   },
   "sectionStatus": {
