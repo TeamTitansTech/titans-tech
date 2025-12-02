@@ -38,6 +38,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import { SectionStatusBadge, type SectionStatus } from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { COUNTERBALANCE_TABS } from '@/data/parts/dac-parts';
 
 interface CounterbalanceSectionProps {
   machineId: string;
@@ -71,6 +74,7 @@ const STATUS_FIELDS = [
 export function CounterbalanceSection({ inspections, machineName }: CounterbalanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const tCommon = useTranslations('common.status');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
@@ -176,6 +180,18 @@ export function CounterbalanceSection({ inspections, machineName }: Counterbalan
   const totalOkCount =
     (latestOuterData ? STATUS_FIELDS.length - outerIssuesCount : 0) +
     (latestInnerData ? STATUS_FIELDS.length - innerIssuesCount : 0);
+
+  // Calculate section status
+  const sectionStatus: SectionStatus = useMemo(() => {
+    // If there are custom alerts, it's critical
+    if (latestAlerts.length > 0) return 'alert';
+    // If there are issues, it's a warning
+    if (outerIssuesCount + innerIssuesCount > 0) return 'warning';
+    // If we have data with no issues, it's ok
+    if (latestOuterData || latestInnerData) return 'ok';
+    // No data
+    return 'unknown';
+  }, [latestAlerts.length, outerIssuesCount, innerIssuesCount, latestOuterData, latestInnerData]);
 
   const formatTypeLabel = (type: string | null): string => {
     if (!type) return '-';
@@ -313,7 +329,10 @@ export function CounterbalanceSection({ inspections, machineName }: Counterbalan
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>{t('sectionTitles.counterbalanceStatus')}</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>{t('sectionTitles.counterbalanceStatus')}</CardTitle>
+              <SectionStatusBadge status={sectionStatus} size="sm" />
+            </div>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Counterbalance"
@@ -509,6 +528,18 @@ export function CounterbalanceSection({ inspections, machineName }: Counterbalan
           )}
         </CardContent>
       </Card>
+
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          tabs: COUNTERBALANCE_TABS,
+          title: tParts('counterbalanceParts'),
+          description: tParts('counterbalanceDescription'),
+          machineName,
+          sectionName: 'Counterbalance & Airbag',
+        }}
+      />
     </div>
   );
 }

@@ -4,6 +4,6 @@ import { Injectable } from '@nestjs/common';
 export class AppService {
   constructor() {}
   async getHello() {
-    return { message: 'Hello World!' + Date.now() };
+    return { message: 'Hello World! testing!' + Date.now() };
   }
 }
