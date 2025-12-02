@@ -32,7 +32,7 @@ const INITIAL_THRESHOLDS: BearingClearanceThresholdsData = {
   upperConnectionBearings_greenMin: 0.004,
   upperConnectionBearings_yellowMin: 0.008,
   upperConnectionBearings_redMin: 0.012,
-  wristPinToMatingPart_greenMin: -0.0005,
+  wristPinToMatingPart_greenMin: 0.0004,
   wristPinToMatingPart_yellowMin: 0.0005,
   wristPinToMatingPart_redMin: 0.0015,
   wristPinToBushing_greenMin: 0.0002,

@@ -1,13 +1,24 @@
 import { getTranslations } from 'next-intl/server';
 import { ProductionLinesPage } from './components/ProductionLinesPage';
 import { getProductionLines } from '@/data/services/production-lines.api';
-import { getAllBranchesForSysAdmin } from '@/data/services/company-branches.api';
+import { getAllBranches } from '@/data/services/company-branches.api';
+import { getCompanyPublicInfo } from '@/data/services/companies.api';
 
-export default async function ClientProductionLinesPage() {
+interface PageProps {
+  params: Promise<{ subdomain: string }>;
+}
+
+export default async function ClientProductionLinesPage({ params }: PageProps) {
+  const { subdomain } = await params;
   const t = await getTranslations('productionLines');
+
+  // Get company ID from subdomain
+  const companyResult = await getCompanyPublicInfo({ companySlug: subdomain });
+  const companyId = companyResult.data?.id;
+
   const [productionLinesResponse, branchesResponse] = await Promise.all([
     getProductionLines(),
-    getAllBranchesForSysAdmin(), // This works for all authenticated users, includes machine counts
+    companyId ? getAllBranches({ companyId }) : Promise.resolve({ data: [] }),
   ]);
 
   if (productionLinesResponse.errors) {
