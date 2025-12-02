@@ -1,12 +1,16 @@
 import { getTranslations } from 'next-intl/server';
 import { ProductionLinesPage } from './components/ProductionLinesPage';
 import { getProductionLines } from '@/data/services/production-lines.api';
+import { getAllBranchesForSysAdmin } from '@/data/services/company-branches.api';
 
 export default async function ClientProductionLinesPage() {
   const t = await getTranslations('productionLines');
-  const response = await getProductionLines();
+  const [productionLinesResponse, branchesResponse] = await Promise.all([
+    getProductionLines(),
+    getAllBranchesForSysAdmin(), // This works for all authenticated users, includes machine counts
+  ]);
 
-  if (response.errors) {
+  if (productionLinesResponse.errors) {
     return (
       <div className="space-y-6 p-8">
         <div>
@@ -20,7 +24,8 @@ export default async function ClientProductionLinesPage() {
     );
   }
 
-  const productionLines = response.data || [];
+  const productionLines = productionLinesResponse.data || [];
+  const allBranches = branchesResponse.data || [];
 
-  return <ProductionLinesPage productionLines={productionLines} />;
+  return <ProductionLinesPage productionLines={productionLines} allBranches={allBranches} />;
 }

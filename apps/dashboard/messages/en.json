@@ -2206,6 +2206,8 @@
     "deleteButton": "Delete Line",
     "selectCompany": "Select Company",
     "selectBranch": "Select Branch",
+    "selectBranchPlaceholder": "Select a branch",
+    "selectBranchRequired": "Please select a branch",
     "selectMachines": "Select Machines",
     "machineOrder": "Machine Order",
     "saveConfig": "Save Configuration",

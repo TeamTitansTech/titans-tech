@@ -30,7 +30,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { useBranch } from '@/contexts/BranchContext';
 import { getMachines, deleteMachine } from '@/data/services/machines.api';
@@ -189,19 +188,6 @@ export function MachinesPageClient() {
     return companyUser.branches.some((ub) => ub.createMachines);
   }, [companyUser]);
 
-  // Check if user can create machines in the currently selected branch (to enable/disable button)
-  const canCreateInSelectedBranch = () => {
-    if (!companyUser) return false;
-    if (selectedBranchFilter === 'all') return false; // Need to select a specific branch to create
-
-    // Company admin and manager can create machines
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
-
-    // Check branch-specific permission
-    const userBranch = companyUser.branches.find((ub) => ub.branchId === selectedBranchFilter);
-    return userBranch?.createMachines || false;
-  };
-
   // Check if user has permission to update machines
   const canUpdateMachine = (machinebranchId: string) => {
     if (!companyUser) return false;
@@ -353,24 +339,10 @@ export function MachinesPageClient() {
             </div>
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               {hasCreateMachinesPermission && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <Button
-                        onClick={() => setIsModalOpen(true)}
-                        disabled={!canCreateInSelectedBranch()}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        {t('newButton')}
-                      </Button>
-                    </div>
-                  </TooltipTrigger>
-                  {!canCreateInSelectedBranch() && (
-                    <TooltipContent>
-                      <p>{t('selectBranchToCreate')}</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
+                <Button onClick={() => setIsModalOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  {t('newButton')}
+                </Button>
               )}
             </div>
           </div>
@@ -442,13 +414,6 @@ export function MachinesPageClient() {
                 <SelectItem value="offline">{t('statusOffline') || 'Critical'}</SelectItem>
               </SelectContent>
             </Select>
-
-            {/* Results count */}
-            {!isLoading && (
-              <div className="flex items-center text-sm text-muted-foreground w-full sm:w-auto">
-                {filteredMachines.length} of {machines.length} {t('machines') || 'machines'}
-              </div>
-            )}
           </div>
         </div>
 

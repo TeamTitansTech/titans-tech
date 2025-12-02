@@ -2215,6 +2215,8 @@
     "deleteButton": "Excluir Linha",
     "selectCompany": "Selecionar Empresa",
     "selectBranch": "Selecionar Filial",
+    "selectBranchPlaceholder": "Selecione uma filial",
+    "selectBranchRequired": "Selecione uma filial",
     "selectMachines": "Selecionar Máquinas",
     "machineOrder": "Ordem das Máquinas",
     "saveConfig": "Salvar Configurações",
