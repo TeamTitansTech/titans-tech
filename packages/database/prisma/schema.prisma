@@ -734,11 +734,11 @@ model MachineService {
   counterbalanceCylinderAirbag      MachineServiceCounterbalanceCylinderAirbag[]
   tramming                          MachineServiceTramming[]
   pistons                           MachineServicePistons[]
-  alertBearingClearance             AlertBearingClearance?
+  alertBearingClearance             AlertBearingClearance[]
   alertCounterbalanceCylinderAirbag AlertCounterbalanceCylinderAirbag[]
-  alertClutch                       AlertClutch?
-  alertSlide                        AlertSlide?
-  alertGibs                         AlertGibs?
+  alertClutch                       AlertClutch[]
+  alertSlide                        AlertSlide[]
+  alertGibs                         AlertGibs[]
   alertTramming                     AlertTramming[]
 
   @@map("machine_services")
@@ -746,7 +746,7 @@ model MachineService {
 
 model AlertBearingClearance {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String
 
   // OUTER alerts
   outer_totalClearance_differential           Decimal       @db.Decimal(10, 4)
@@ -784,6 +784,7 @@ model AlertBearingClearance {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  @@index([machineServiceId])
   @@map("alert_bearing_clearance")
 }
 
@@ -804,7 +805,7 @@ model AlertCounterbalanceCylinderAirbag {
 
 model AlertClutch {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String
 
   // Hyd Clutch Clearance Total alert
   hydClutchClearanceTotal_value    Decimal       @db.Decimal(10, 4)
@@ -834,12 +835,13 @@ model AlertClutch {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  @@index([machineServiceId])
   @@map("alert_clutch")
 }
 
 model AlertSlide {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String
 
   // Outer Max Deviation alert
   maxDeviationOuter_differential Decimal       @db.Decimal(10, 4)
@@ -857,12 +859,13 @@ model AlertSlide {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  @@index([machineServiceId])
   @@map("alert_slide")
 }
 
 model AlertGibs {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String
 
   // Usable value and severity (based on single threshold)
   usable_value    Decimal       @db.Decimal(10, 4)
@@ -876,6 +879,7 @@ model AlertGibs {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  @@index([machineServiceId])
   @@map("alert_gibs")
 }
 

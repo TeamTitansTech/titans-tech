@@ -21,7 +21,9 @@ export type CreateThresholdBearingClearanceDto = z.infer<
  * Makes all ThresholdsSchema fields optional, excludes blueprintId
  * Note: Validation happens in service layer after merge with existing values
  */
-export const UpdateThresholdBearingClearanceSchema = ThresholdsSchema.partial();
+export const UpdateThresholdBearingClearanceSchema = ThresholdsSchema.partial().extend({
+  recalculateAlerts: z.boolean().optional(),
+});
 
 export type UpdateThresholdBearingClearanceDto = z.infer<
   typeof UpdateThresholdBearingClearanceSchema

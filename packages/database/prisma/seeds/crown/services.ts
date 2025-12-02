@@ -1192,10 +1192,8 @@ async function createServiceWithData(
     serviceData.innerData.totalClearance_LH - serviceData.innerData.totalClearance_RH,
   );
 
-  await prisma.alertBearingClearance.upsert({
-    where: { machineServiceId: service.id },
-    update: {},
-    create: {
+  await prisma.alertBearingClearance.create({
+    data: {
       machineServiceId: service.id,
       outer_totalClearance_differential: outerTotalDiff,
       outer_totalClearance_severity: calculateAlertSeverity(
@@ -1266,6 +1264,7 @@ async function createServiceWithData(
       },
     },
   });
+  console.log('  ✓ Created bearing clearance data and alerts');
 
   // SLIDE
   const slideOuterData = await createSlideData(
@@ -1290,22 +1289,17 @@ async function createServiceWithData(
     },
   });
 
-  await prisma.alertSlide.upsert({
-    where: { machineServiceId: service.id },
-    update: {},
-    create: {
+  // Create AlertSlide
+  await prisma.alertSlide.create({
+    data: {
       machineServiceId: service.id,
       maxDeviationOuter_differential: Math.max(
-        serviceData.slideOuter.position1,
-        serviceData.slideOuter.position2,
-        serviceData.slideOuter.position3,
-      ),
+        ...Object.values(serviceData.slideOuter).filter((v) => typeof v === 'number'),
+      ) as number,
       maxDeviationOuter_severity: AlertSeverity.GREEN,
       maxDeviationInner_differential: Math.max(
-        serviceData.slideInner.position1,
-        serviceData.slideInner.position2,
-        serviceData.slideInner.position3,
-      ),
+        ...Object.values(serviceData.slideInner).filter((v) => typeof v === 'number'),
+      ) as number,
       maxDeviationInner_severity: AlertSeverity.GREEN,
       thresholdSnapshot: {
         maxDeviation_greenMin: 0.002,
@@ -1314,6 +1308,7 @@ async function createServiceWithData(
       },
     },
   });
+  console.log('  ✓ Created slide data and alerts');
 
   // CLUTCH
   const clutchData = await createClutchData(
@@ -1332,10 +1327,9 @@ async function createServiceWithData(
     },
   });
 
-  await prisma.alertClutch.upsert({
-    where: { machineServiceId: service.id },
-    update: {},
-    create: {
+  // Create AlertClutch
+  await prisma.alertClutch.create({
+    data: {
       machineServiceId: service.id,
       hydClutchClearanceTotal_value: serviceData.clutch.hydClutchClearanceTotal,
       hydClutchClearanceTotal_severity: calculateClutchAlertSeverity(
@@ -1362,6 +1356,7 @@ async function createServiceWithData(
       },
     },
   });
+  console.log('  ✓ Created clutch data and alerts');
 
   // LUBRICATION
   const lubricationData = await prisma.lubricationHydraulicsData.upsert({

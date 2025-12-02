@@ -339,7 +339,7 @@ export class NotificationsService {
   }> {
     const { serviceId, machineId, selectedUserIds, extraEmails } = dto;
 
-    // Fetch service with alerts
+    // Fetch service with alerts (get most recent alert for each type)
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: {
@@ -352,10 +352,22 @@ export class NotificationsService {
             },
           },
         },
-        alertBearingClearance: true,
-        alertClutch: true,
-        alertSlide: true,
-        alertGibs: true,
+        alertBearingClearance: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertClutch: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlide: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertGibs: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
         alertCounterbalanceCylinderAirbag: true,
         alertTramming: true,
       },
@@ -373,8 +385,11 @@ export class NotificationsService {
     let highestSeverity: 'YELLOW' | 'RED' = 'YELLOW';
 
     // Process Bearing Clearance alerts with subsections (Outer/Inner)
-    if (service.alertBearingClearance) {
-      const alert = service.alertBearingClearance;
+    if (
+      service.alertBearingClearance &&
+      service.alertBearingClearance.length > 0
+    ) {
+      const alert = service.alertBearingClearance[0];
       let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
 
       const outerFields = [
@@ -518,8 +533,8 @@ export class NotificationsService {
     }
 
     // Process Clutch alerts
-    if (service.alertClutch) {
-      const alert = service.alertClutch;
+    if (service.alertClutch && service.alertClutch.length > 0) {
+      const alert = service.alertClutch[0];
       const alerts: Array<{
         fieldLabel: string;
         value: string;
@@ -577,8 +592,8 @@ export class NotificationsService {
     }
 
     // Process Slide alerts
-    if (service.alertSlide) {
-      const alert = service.alertSlide;
+    if (service.alertSlide && service.alertSlide.length > 0) {
+      const alert = service.alertSlide[0];
       const alerts: Array<{
         fieldLabel: string;
         value: string;
@@ -621,8 +636,8 @@ export class NotificationsService {
     }
 
     // Process Gibs alerts
-    if (service.alertGibs) {
-      const alert = service.alertGibs;
+    if (service.alertGibs && service.alertGibs.length > 0) {
+      const alert = service.alertGibs[0];
       if (
         alert.usable_severity === 'YELLOW' ||
         alert.usable_severity === 'RED'
