@@ -46,18 +46,6 @@ export function CompanyCard({ company }: CompanyCardProps) {
           <div className="flex-1 space-y-3">
             <div>
               <h3 className="text-lg font-semibold">{company.name}</h3>
-              {company.logo && (
-                <p className="text-xs text-muted-foreground mt-1">Logo: {company.logo}</p>
-              )}
-              {company.brandColor && (
-                <div className="flex items-center gap-2 mt-1">
-                  <div
-                    className="w-4 h-4 rounded border"
-                    style={{ backgroundColor: company.brandColor }}
-                  />
-                  <p className="text-xs text-muted-foreground">{company.brandColor}</p>
-                </div>
-              )}
             </div>
 
             {!isLoading && companyAdmin && (

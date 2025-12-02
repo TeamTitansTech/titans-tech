@@ -526,6 +526,8 @@
         "actions": "Acciones"
       },
       "roles": {
+        "companyAdmin": "Admin de Empresa",
+        "companyManager": "Gerente de Empresa",
         "branchManager": "Gerente",
         "employee": "Trabajador",
         "custom": "Personalizado"

@@ -522,6 +522,8 @@
         "actions": "Actions"
       },
       "roles": {
+        "companyAdmin": "Company Admin",
+        "companyManager": "Company Manager",
         "branchManager": "Manager",
         "employee": "Worker",
         "custom": "Custom"
