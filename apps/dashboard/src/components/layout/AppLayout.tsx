@@ -20,9 +20,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const unreadNotifications =
     companyUser?.unreadNotifications || sysAdminUser?.unreadNotifications || 0;
 
+  // Check if user is authenticated
+  const isAuthenticated = !!(companyUser || sysAdminUser);
+
   if (noLayoutPaths.includes(pathname)) {
     return <>{children}</>;
   }
+
+  // If user is not authenticated, render children without layout (sidebar/header)
+  // This allows public pages like machine QR views to render without the sidebar
+  if (!isAuthenticated) {
+    return <>{children}</>;
+  }
+
   return (
     <NotificationsSocketProvider userId={userId} initialUnreadCount={unreadNotifications}>
       <BranchProvider>

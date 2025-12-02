@@ -16,7 +16,11 @@ import {
   UpdateMachineDto,
   UpdateMachineSchema,
 } from '@titans-tech/shared/backend-dtos';
-import { Authenticated, BranchPermission } from '../auth/auth.decorators';
+import {
+  Authenticated,
+  BranchPermission,
+  Public,
+} from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { ReqWithAuthUser, isSysAdmin } from '../../types/request';
 
@@ -39,6 +43,17 @@ export class MachinesController {
       return sysAdminAction();
     }
     return userAction(user.id);
+  }
+
+  /**
+   * Get public machine info (no authentication required)
+   * Used for QR code scanning - returns basic machine info
+   * NOTE: This route MUST be defined before :id routes to avoid route conflicts
+   */
+  @Public()
+  @Get(':id/public')
+  getPublicInfo(@Param('id') id: string) {
+    return this.machinesService.getPublicInfo(id);
   }
 
   /**

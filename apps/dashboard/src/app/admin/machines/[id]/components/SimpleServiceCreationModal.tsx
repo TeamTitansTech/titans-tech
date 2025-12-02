@@ -31,12 +31,16 @@ interface SimpleServiceCreationModalProps {
   machineId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  serviceRequestId?: string; // Optional: if creating from a service request
+  onServiceCreated?: () => void; // Optional: callback after service is created
 }
 
 export default function SimpleServiceCreationModal({
   machineId,
   open,
   onOpenChange,
+  serviceRequestId,
+  onServiceCreated,
 }: SimpleServiceCreationModalProps) {
   const t = useTranslations('services');
   const tActions = useTranslations('actions');
@@ -64,6 +68,7 @@ export default function SimpleServiceCreationModal({
         machineId,
         date: date.toISOString(),
         type: serviceType,
+        ...(serviceRequestId && { serviceRequestId }),
       };
 
       const response = await createService(payload);
@@ -79,6 +84,12 @@ export default function SimpleServiceCreationModal({
       setServiceType(ServiceType.INSPECTION);
       setIsSubmitting(false);
       onOpenChange(false);
+
+      // Call the callback if provided
+      if (onServiceCreated) {
+        onServiceCreated();
+      }
+
       router.refresh();
     } catch (err) {
       console.error('Error creating service:', err);

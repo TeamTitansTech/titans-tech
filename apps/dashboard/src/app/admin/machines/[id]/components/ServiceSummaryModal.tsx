@@ -14,7 +14,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { Label } from '@/components/ui/label';
-import { Check, ChevronUp, FileSpreadsheet, FileText, Loader2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Check, ChevronUp, FileSpreadsheet, FileText, Loader2, AlertCircle } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ServiceType, type Service } from '@/data/types/services.types';
 import { format } from 'date-fns';
@@ -44,6 +45,8 @@ export function ServiceSummaryModal({
   const tInspections = useTranslations('inspections.form.enums');
 
   const isInspection = service.type === ServiceType.INSPECTION;
+  // Check if this service was created from a service request
+  const isFromServiceRequest = !!service.serviceRequestId;
 
   // Ref for the content to capture as PDF
   const contentRef = useRef<HTMLDivElement>(null);
@@ -341,6 +344,24 @@ export function ServiceSummaryModal({
                 </div>
               </div>
             </div>
+
+            {/* Public Request Section - Show if this service was created from a service request */}
+            {isFromServiceRequest && (
+              <div className="border border-orange-200 bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 mb-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <AlertCircle className="w-5 h-5 text-orange-500" />
+                  <Typography variant="h4" className="font-semibold">
+                    {tServices('publicRequestDetails.title')}
+                  </Typography>
+                  <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">
+                    {tServices('publicRequest')}
+                  </Badge>
+                </div>
+                <Typography variant="small" className="text-muted-foreground">
+                  {tServices('publicRequestDetails.createdFromRequest')}
+                </Typography>
+              </div>
+            )}
 
             {/* Sections Summary */}
             <div className="border rounded-lg p-4 mb-4">

@@ -923,6 +923,7 @@
     "viewMaintenanceLog": "Ver Registro de Mantenimiento",
     "downloadReports": "Descargar Informes",
     "requestUrgentService": "Solicitar Servicio Urgente",
+    "urgentServiceRequest": "Solicitud de Servicio Urgente",
     "urgentServiceDescription": "Solicitar un servicio urgente para {machineName}. Nuestro equipo será notificado inmediatamente.",
     "machine": "Máquina",
     "additionalNotes": "Notas Adicionales",
@@ -939,6 +940,7 @@
     "completed": "Completado",
     "done": "Hecho",
     "inProgress": "En Progreso",
+    "fromRequest": "De Solicitud",
     "noInspectionsFound": "No se encontraron inspecciones",
     "noServicesFound": "No se encontraron servicios",
     "maintenanceService": "Mantenimiento",
@@ -997,6 +999,16 @@
       "alert": "Alerta",
       "unknown": "Desconocido",
       "noImage": "Sin Imagen"
+    },
+    "qrCode": {
+      "generateQR": "Generar Código QR",
+      "title": "Código QR de la Máquina",
+      "description": "Código QR para la máquina: {machineName}",
+      "copyLink": "Copiar enlace",
+      "copied": "¡Copiado!",
+      "downloadSVG": "Descargar SVG",
+      "downloadPNG": "Descargar PNG",
+      "instructions": "Escanea este código QR para acceder a la página pública de la máquina y solicitar servicios de mantenimiento."
     },
     "sectionDetails": {
       "comingSoon": "Detalles de la sección \"{section}\" próximamente...",
@@ -1888,6 +1900,13 @@
     "pageTitle": "Servicios",
     "pageDescription": "Visualice y gestione todos los servicios de sus máquinas",
     "pending": "Pendiente",
+    "publicRequest": "Solicitud vía QR Code",
+    "publicRequestDetails": {
+      "title": "Solicitud Pública de Mantenimiento",
+      "requester": "Nombre del Solicitante",
+      "problemDescription": "Descripción del Problema",
+      "createdFromRequest": "Este servicio fue creado a partir de una solicitud pública de mantenimiento."
+    },
     "noServicesFound": "No se encontraron servicios",
     "stats": {
       "totalServices": "Total de Servicios",
@@ -2245,6 +2264,74 @@
       "warning": "Advertencia",
       "alert": "Alerta",
       "unknown": "Desconocido"
+    }
+  },
+  "serviceRequests": {
+    "title": "Solicitudes de Servicio",
+    "noRequests": "No hay solicitudes de servicio",
+    "open": "abiertas",
+    "statusOpen": "Abierta",
+    "statusClosed": "Cerrada",
+    "closedRequests": "{count} solicitudes cerradas",
+    "problemDescription": "Descripción del Problema",
+    "attachedPhoto": "Foto Adjunta",
+    "deviceInfo": "Información del Dispositivo",
+    "linkedServices": "Servicios Vinculados",
+    "createService": "Crear Servicio",
+    "close": "Cerrar Solicitud",
+    "reopen": "Reabrir",
+    "expand": "Mostrar detalles",
+    "collapse": "Ocultar detalles",
+    "closedSuccess": "Solicitud cerrada exitosamente",
+    "reopenedSuccess": "Solicitud reabierta exitosamente",
+    "serviceCreatedSuccess": "Servicio creado exitosamente",
+    "actionFailed": "Acción fallida. Por favor, intente nuevamente.",
+    "listTitle": "Todas las Solicitudes de Servicio",
+    "filterByStatus": "Filtrar por estado",
+    "allStatuses": "Todos",
+    "openOnly": "Solo abiertas",
+    "closedOnly": "Solo cerradas",
+    "machine": "Máquina",
+    "requester": "Solicitante",
+    "date": "Fecha",
+    "status": "Estado",
+    "actions": "Acciones",
+    "viewMachine": "Ver Máquina",
+    "viewDetails": "Ver Detalles",
+    "requestDetails": "Detalles de la Solicitud"
+  },
+  "public": {
+    "machine": {
+      "title": "Solicitar Mantenimiento",
+      "subtitle": "Reportar un problema con esta máquina",
+      "machineInfo": "Información de la Máquina",
+      "serialNumber": "Número de Serie",
+      "login": "Iniciar sesión",
+      "form": {
+        "title": "Solicitar Servicio de Mantenimiento",
+        "description": "Complete el formulario a continuación para solicitar servicio de mantenimiento para esta máquina.",
+        "name": "Su Nombre",
+        "namePlaceholder": "Ingrese su nombre",
+        "email": "Su Correo Electrónico",
+        "emailPlaceholder": "Ingrese su correo electrónico",
+        "phone": "Teléfono (opcional)",
+        "phonePlaceholder": "Ingrese su número de teléfono",
+        "problem": "Descripción del Problema",
+        "problemPlaceholder": "Describa el problema o defecto que está experimentando con esta máquina...",
+        "image": "Foto (opcional)",
+        "imageDescription": "Suba una foto del problema para ayudar a nuestro equipo a entender mejor la situación",
+        "submit": "Enviar Solicitud",
+        "submitting": "Enviando...",
+        "success": "Solicitud de mantenimiento enviada exitosamente",
+        "successTitle": "¡Solicitud Enviada!",
+        "successMessage": "Su solicitud de mantenimiento ha sido recibida. Nuestro equipo la revisará y tomará las medidas apropiadas.",
+        "error": "Error al enviar la solicitud. Por favor, intente nuevamente.",
+        "validation": {
+          "required": "Por favor, complete todos los campos obligatorios",
+          "invalidEmail": "Por favor, ingrese un correo electrónico válido"
+        }
+      },
+      "footer": "Desarrollado por Titans Tech Service Management System"
     }
   },
   "errors": {

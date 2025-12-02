@@ -2,8 +2,9 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
-import { Prisma } from '@titans-tech/db';
+import { Prisma, ServiceRequestStatus } from '@titans-tech/db';
 import { ServiceSection, ServiceStatus } from '@titans-tech/shared/enums';
 import { PrismaService } from '../shared/prisma.service';
 import {
@@ -40,6 +41,8 @@ import {
 
 @Injectable()
 export class ServicesService {
+  private readonly logger = new Logger(ServicesService.name);
+
   constructor(
     private prisma: PrismaService,
     private alertsService: AlertsService,
@@ -70,6 +73,11 @@ export class ServicesService {
       machine: {
         connect: { id: createInspectionDto.machineId },
       },
+      ...(createInspectionDto.serviceRequestId && {
+        serviceRequest: {
+          connect: { id: createInspectionDto.serviceRequestId },
+        },
+      }),
       date: new Date(createInspectionDto.date),
       type: createInspectionDto.type,
       ...(createInspectionDto.status && {
@@ -103,6 +111,20 @@ export class ServicesService {
         },
       },
     });
+
+    // If this service was created from a service request, close the request
+    if (createInspectionDto.serviceRequestId) {
+      await this.prisma.serviceRequest.update({
+        where: { id: createInspectionDto.serviceRequestId },
+        data: {
+          status: ServiceRequestStatus.CLOSED,
+          closedAt: new Date(),
+        },
+      });
+      this.logger.log(
+        `Closed service request ${createInspectionDto.serviceRequestId} after creating service ${inspection.id}`,
+      );
+    }
 
     return inspection;
   }

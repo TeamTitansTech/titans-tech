@@ -542,4 +542,56 @@ export class MachinesService {
       where: { id },
     });
   }
+
+  /**
+   * Get public machine info (no authentication required)
+   * Returns only basic info for QR code scanning
+   */
+  async getPublicInfo(id: string): Promise<{
+    id: string;
+    name: string;
+    serialNumber: string | null;
+    imageUrl: string | null;
+    company: {
+      id: string;
+      name: string;
+      slug: string;
+      brandColor: string | null;
+      accentColor: string | null;
+    };
+    branch: { id: string; name: string };
+  }> {
+    const machine = await this.prisma.machine.findUnique({
+      where: { id },
+      include: {
+        branch: {
+          include: {
+            company: true,
+          },
+        },
+      },
+    });
+
+    if (!machine) {
+      throw new NotFoundException(`Machine with ID ${id} not found`);
+    }
+
+    return {
+      id: machine.id,
+      name: machine.name,
+      serialNumber: machine.serialNumber,
+      imageUrl: machine.imageUrl,
+      company: {
+        id: machine.branch.company.id,
+        name: machine.branch.company.name,
+        slug: machine.branch.company.slug,
+        brandColor: machine.branch.company.brandColor,
+        accentColor: machine.branch.company.accentColor,
+      },
+      branch: {
+        id: machine.branch.id,
+        name: machine.branch.name,
+      },
+    };
+  }
 }
