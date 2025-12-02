@@ -14,7 +14,7 @@ import {
   XCircle,
   Circle,
 } from 'lucide-react';
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useRef } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';

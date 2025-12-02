@@ -44,7 +44,9 @@ import {
 export class AlertsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createThreshold(dto: CreateThresholdBearingClearanceDto) {
+  async createBearingClearanceThreshold(
+    dto: CreateThresholdBearingClearanceDto,
+  ) {
     const blueprint = await this.prisma.blueprint.findUnique({
       where: { id: dto.blueprintId },
     });
@@ -74,7 +76,7 @@ export class AlertsService {
     return new ThresholdBearingClearanceResponseDto(threshold as any);
   }
 
-  async getThresholdByBlueprint(blueprintId: string) {
+  async getBearingClearanceThresholdByBlueprint(blueprintId: string) {
     const threshold = await this.prisma.thresholdBearingClearance.findUnique({
       where: { blueprintId },
     });
@@ -88,7 +90,7 @@ export class AlertsService {
     return new ThresholdBearingClearanceResponseDto(threshold as any);
   }
 
-  async updateThreshold(
+  async updateBearingClearanceThreshold(
     blueprintId: string,
     dto: UpdateThresholdBearingClearanceDto,
   ) {
@@ -181,10 +183,52 @@ export class AlertsService {
     return new ThresholdBearingClearanceResponseDto(threshold as any);
   }
 
-  async deleteThreshold(blueprintId: string) {
+  async deleteBearingClearanceThreshold(blueprintId: string) {
     await this.prisma.thresholdBearingClearance.delete({
       where: { blueprintId },
     });
+  }
+
+  /**
+   * Recalculates bearing clearance alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculateBearingClearanceAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have bearing clearance data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        bearingClearance: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateAlertsForService(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
   }
 
   async generateAlertsForService(machineServiceId: string) {
@@ -412,59 +456,9 @@ export class AlertsService {
       thresholdSnapshot,
     };
 
-    const alert = await this.prisma.alertBearingClearance.upsert({
-      where: { machineServiceId },
-      create: {
+    const alert = await this.prisma.alertBearingClearance.create({
+      data: {
         machineService: { connect: { id: machineServiceId } },
-        // OUTER alerts
-        outer_totalClearance_differential:
-          alertData.outer_totalClearance_differential,
-        outer_totalClearance_severity: alertData.outer_totalClearance_severity,
-        outer_mainBearings_differential:
-          alertData.outer_mainBearings_differential,
-        outer_mainBearings_severity: alertData.outer_mainBearings_severity,
-        outer_upperConnectionBearings_differential:
-          alertData.outer_upperConnectionBearings_differential,
-        outer_upperConnectionBearings_severity:
-          alertData.outer_upperConnectionBearings_severity,
-        outer_wristPinToMatingPart_differential:
-          alertData.outer_wristPinToMatingPart_differential,
-        outer_wristPinToMatingPart_severity:
-          alertData.outer_wristPinToMatingPart_severity,
-        outer_wristPinToBushing_differential:
-          alertData.outer_wristPinToBushing_differential,
-        outer_wristPinToBushing_severity:
-          alertData.outer_wristPinToBushing_severity,
-        outer_slideAdjNutToScrewSleeve_differential:
-          alertData.outer_slideAdjNutToScrewSleeve_differential,
-        outer_slideAdjNutToScrewSleeve_severity:
-          alertData.outer_slideAdjNutToScrewSleeve_severity,
-        // INNER alerts
-        inner_totalClearance_differential:
-          alertData.inner_totalClearance_differential,
-        inner_totalClearance_severity: alertData.inner_totalClearance_severity,
-        inner_mainBearings_differential:
-          alertData.inner_mainBearings_differential,
-        inner_mainBearings_severity: alertData.inner_mainBearings_severity,
-        inner_upperConnectionBearings_differential:
-          alertData.inner_upperConnectionBearings_differential,
-        inner_upperConnectionBearings_severity:
-          alertData.inner_upperConnectionBearings_severity,
-        inner_wristPinToMatingPart_differential:
-          alertData.inner_wristPinToMatingPart_differential,
-        inner_wristPinToMatingPart_severity:
-          alertData.inner_wristPinToMatingPart_severity,
-        inner_wristPinToBushing_differential:
-          alertData.inner_wristPinToBushing_differential,
-        inner_wristPinToBushing_severity:
-          alertData.inner_wristPinToBushing_severity,
-        inner_slideAdjNutToScrewSleeve_differential:
-          alertData.inner_slideAdjNutToScrewSleeve_differential,
-        inner_slideAdjNutToScrewSleeve_severity:
-          alertData.inner_slideAdjNutToScrewSleeve_severity,
-        thresholdSnapshot: alertData.thresholdSnapshot,
-      },
-      update: {
         // OUTER alerts
         outer_totalClearance_differential:
           alertData.outer_totalClearance_differential,
@@ -582,8 +576,10 @@ export class AlertsService {
   }
 
   async getAlertByService(machineServiceId: string) {
-    const alert = await this.prisma.alertBearingClearance.findUnique({
+    // Get the most recent alert for this service
+    const alert = await this.prisma.alertBearingClearance.findFirst({
       where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
       include: {
         machineService: {
           include: {
@@ -726,6 +722,48 @@ export class AlertsService {
     });
   }
 
+  /**
+   * Recalculates clutch alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculateClutchAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have clutch data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        clutch: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateClutchAlertsForService(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate clutch alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
   async generateClutchAlertsForService(machineServiceId: string) {
     // 1. Fetch service with threshold and clutch data
     const service = await this.prisma.machineService.findUnique({
@@ -842,23 +880,9 @@ export class AlertsService {
       },
     };
 
-    const alert = await this.prisma.alertClutch.upsert({
-      where: { machineServiceId },
-      create: {
+    const alert = await this.prisma.alertClutch.create({
+      data: {
         machineServiceId,
-        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value,
-        hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
-        hydClutchClearanceRear_value: hydClutchClearanceRear.value,
-        hydClutchClearanceRear_severity: hydClutchClearanceRear.severity,
-        fb_value: fb.value,
-        fb_severity: fb.severity,
-        fTB_value: fTB.value,
-        fTB_severity: fTB.severity,
-        rTB_value: rTB.value,
-        rTB_severity: rTB.severity,
-        thresholdSnapshot,
-      },
-      update: {
         hydClutchClearanceTotal_value: hydClutchClearanceTotal.value,
         hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
         hydClutchClearanceRear_value: hydClutchClearanceRear.value,
@@ -908,8 +932,10 @@ export class AlertsService {
   }
 
   async getClutchAlertByService(machineServiceId: string) {
-    const alert = await this.prisma.alertClutch.findUnique({
+    // Get the most recent alert for this service
+    const alert = await this.prisma.alertClutch.findFirst({
       where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
       include: {
         machineService: {
           include: {
@@ -1173,6 +1199,48 @@ export class AlertsService {
     return { message: 'Slide threshold deleted successfully' };
   }
 
+  /**
+   * Recalculates slide alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculateSlideAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have slide data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        slide: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateAlertsForSlide(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate slide alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
   // ==================== SLIDE ALERT GENERATION ====================
 
   async generateAlertsForSlide(serviceId: string) {
@@ -1229,22 +1297,10 @@ export class AlertsService {
       threshold,
     );
 
-    // Upsert alert
-    const alert = await this.prisma.alertSlide.upsert({
-      where: { machineServiceId: serviceId },
-      create: {
+    // Create alert
+    const alert = await this.prisma.alertSlide.create({
+      data: {
         machineServiceId: serviceId,
-        maxDeviationOuter_differential: outerAlert.differential,
-        maxDeviationOuter_severity: outerAlert.severity,
-        maxDeviationInner_differential: innerAlert.differential,
-        maxDeviationInner_severity: innerAlert.severity,
-        thresholdSnapshot: {
-          maxDeviation_greenMin: threshold.maxDeviation_greenMin.toNumber(),
-          maxDeviation_yellowMin: threshold.maxDeviation_yellowMin.toNumber(),
-          maxDeviation_redMin: threshold.maxDeviation_redMin.toNumber(),
-        },
-      },
-      update: {
         maxDeviationOuter_differential: outerAlert.differential,
         maxDeviationOuter_severity: outerAlert.severity,
         maxDeviationInner_differential: innerAlert.differential,
@@ -1313,8 +1369,10 @@ export class AlertsService {
   }
 
   async getSlideAlertByService(machineServiceId: string) {
-    const alert = await this.prisma.alertSlide.findUnique({
+    // Get the most recent alert for this service
+    const alert = await this.prisma.alertSlide.findFirst({
       where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
       include: {
         machineService: {
           include: {
@@ -1454,6 +1512,48 @@ export class AlertsService {
     return { message: 'GIBS threshold deleted successfully' };
   }
 
+  /**
+   * Recalculates GIBS alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculateGibsAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have GIBS data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        gibs: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateAlertsForGibs(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate GIBS alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
   // ==================== GIBS ALERT GENERATION ====================
 
   async generateAlertsForGibs(serviceId: string) {
@@ -1522,20 +1622,10 @@ export class AlertsService {
       threshold.usable_redMin,
     );
 
-    // Upsert alert
-    const alert = await this.prisma.alertGibs.upsert({
-      where: { machineServiceId: serviceId },
-      create: {
+    // Create alert
+    const alert = await this.prisma.alertGibs.create({
+      data: {
         machineServiceId: serviceId,
-        usable_value: usableValue,
-        usable_severity: severity,
-        thresholdSnapshot: {
-          usable_greenMin: threshold.usable_greenMin.toNumber(),
-          usable_yellowMin: threshold.usable_yellowMin.toNumber(),
-          usable_redMin: threshold.usable_redMin.toNumber(),
-        },
-      },
-      update: {
         usable_value: usableValue,
         usable_severity: severity,
         thresholdSnapshot: {
@@ -1631,8 +1721,10 @@ export class AlertsService {
   }
 
   async getGibsAlertByService(machineServiceId: string) {
-    const alert = await this.prisma.alertGibs.findUnique({
+    // Get the most recent alert for this service
+    const alert = await this.prisma.alertGibs.findFirst({
       where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
       include: {
         machineService: {
           include: {
