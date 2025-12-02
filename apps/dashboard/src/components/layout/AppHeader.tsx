@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from './LanguageSwitcher';
-import { NotificationsDropdown } from './NotificationsDropdown';
+import { NotificationsDropdown } from '../notifications/NotificationsDropdown';
 import { useTheme } from 'next-themes';
 import { logout } from '@/data/services/auth.api';
 import { useSysAdmin } from '@/contexts/SysAdminContext';

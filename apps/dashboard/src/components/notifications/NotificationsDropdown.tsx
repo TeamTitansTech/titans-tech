@@ -14,11 +14,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useTranslations } from 'next-intl';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import {
-  getAdminNotifications,
-  markAdminNotificationAsRead,
-  markAllAdminNotificationsAsRead,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
 } from '@/data/services/notifications.api';
-import type { AdminNotificationResponseDto } from '@titans-tech/shared/backend-dtos';
+import type { NotificationResponseWithMetadata } from '@titans-tech/shared/backend-dtos';
 import { Button } from '@/components/ui/button';
 import { useNotificationsSocket } from '@/contexts/NotificationsSocketContext';
 
@@ -33,55 +32,58 @@ export function NotificationsDropdown() {
     unreadCount,
     markAsRead: wsMarkAsRead,
     clearAll: wsClearAll,
-    addNotification,
+    loadInitialData,
   } = useNotificationsSocket();
-
-  const loadInitialData = async () => {
-    setIsLoading(true);
-    try {
-      const notificationsResult = await getAdminNotifications(10, false);
-
-      if (notificationsResult.data) {
-        notificationsResult.data.forEach((notification) => {
-          addNotification(notification);
-        });
-      }
-    } catch (error) {
-      console.error('Failed to load initial notifications:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Load notifications when dropdown opens
   useEffect(() => {
-    if (isOpen && notifications.length === 0) {
-      loadInitialData();
+    if (isOpen) {
+      setIsLoading(true);
+      loadInitialData().finally(() => setIsLoading(false));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
-  const handleNotificationClick = async (notification: AdminNotificationResponseDto) => {
+  const handleNotificationClick = async (notification: NotificationResponseWithMetadata) => {
     try {
-      await markAdminNotificationAsRead(notification.id);
+      await markNotificationAsRead(notification.notificationId);
 
-      wsMarkAsRead(notification.id);
+      wsMarkAsRead(notification.notificationId);
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
     }
 
     setIsOpen(false);
-    router.push(`/admin/machines/${notification.machineId}`);
+    switch (notification.notification.metadata?.type) {
+      case 'URGENT_SERVICE_REQUEST':
+        router.push(`/admin/machines/${notification.notification.metadata.machineId}`);
+        break;
+      default:
+        console.warn('Unknown notification type:', notification.notification.metadata?.type);
+        break;
+    }
   };
 
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllAdminNotificationsAsRead();
+      await markAllNotificationsAsRead();
 
       wsClearAll();
       setIsOpen(false);
     } catch (error) {
       console.error('Failed to mark all as read:', error);
+    }
+  };
+
+  const getNotificationMessage = (notification: NotificationResponseWithMetadata) => {
+    switch (notification.notification.metadata?.type) {
+      case 'URGENT_SERVICE_REQUEST':
+        return t('notificationsMessage.newUrgentRequest', {
+          requestedByName: notification.notification.metadata?.requestedByName ?? 'Unknown',
+          machineName: notification.notification.metadata?.machineName ?? 'Unknown',
+        });
+      default:
+        return t('notificationsMessage.default', { type: notification.notification.type });
     }
   };
 
@@ -129,7 +131,7 @@ export function NotificationsDropdown() {
           ) : (
             notifications.map((notification) => (
               <DropdownMenuItem
-                key={notification.id}
+                key={notification.notificationId}
                 onClick={() => handleNotificationClick(notification)}
                 className={`cursor-pointer p-4 focus:bg-accent/5 dark:focus:bg-accent/10 ${
                   !notification.isRead ? 'bg-accent/5 dark:bg-accent/5' : ''
@@ -137,13 +139,12 @@ export function NotificationsDropdown() {
               >
                 <div className="flex flex-col gap-1 w-full">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-medium leading-tight">{notification.machineName}</p>
                     {!notification.isRead && (
                       <span className="flex h-2 w-2 shrink-0 rounded-full bg-accent mt-1" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground line-clamp-2">
-                    {notification.message}
+                    {getNotificationMessage(notification)}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {new Date(notification.createdAt).toLocaleString()}

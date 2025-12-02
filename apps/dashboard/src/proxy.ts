@@ -7,11 +7,12 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { rootDomain } from './lib/utils';
 import { deleteCookie, getCookie, setCookie } from './lib/cookies';
 
-const PUBLIC_PATHS = ['/admin', '/', '/_next', '/api', '/favicon.ico', '/globals.css'];
+const PUBLIC_PATHS = ['/_next', '/api', '/favicon.ico', '/globals.css'];
 const ADMIN_PUBLIC_PATHS = ['/admin'];
 const ADMIN_LOGIN_PATH = '/admin';
 const ADMIN_ALREADY_LOGGED_PATH = '/admin/dashboard';
 const CLIENT_ALREADY_LOGGED_PATH = '/dashboard';
+const PUBLIC_PATHS_NESTED_ROUTE: string[] = [];
 
 const CLIENT_PUBLIC_PATHS = ['/'];
 const CLIENT_LOGIN_PATH = '/';
@@ -57,7 +58,26 @@ function extractSubdomain(request: NextRequest): string | null {
 
 function isPublicPath(pathname: string, isAdmin: boolean): boolean {
   const arr = isAdmin ? ADMIN_PUBLIC_PATHS : CLIENT_PUBLIC_PATHS;
-  return [...PUBLIC_PATHS, ...arr].some((path) => pathname === path);
+
+  // Check exact matches for public paths
+  if ([...PUBLIC_PATHS, ...arr].some((path) => pathname === path)) {
+    return true;
+  }
+
+  // Check nested routes (like /qr/...)
+  if (PUBLIC_PATHS_NESTED_ROUTE.some((path) => pathname.startsWith(path))) {
+    return true;
+  }
+
+  // Allow /machines/[id] as public for client (subdomain) only - not nested routes like /machines/[id]/sections/...
+  if (!isAdmin) {
+    const machineIdMatch = pathname.match(/^\/machines\/([^/]+)$/);
+    if (machineIdMatch) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 export async function proxy(request: NextRequest) {
@@ -78,6 +98,12 @@ export async function proxy(request: NextRequest) {
   const isInLoginPath = subdomain ? pathname === CLIENT_LOGIN_PATH : pathname === ADMIN_LOGIN_PATH;
 
   if (isLoggedIn && isInLoginPath) {
+    // Check if there's a redirect parameter in the URL
+    const redirectParam = request.nextUrl.searchParams.get('redirect');
+    if (redirectParam) {
+      // Preserve the redirect parameter - the login page will handle the redirect
+      return NextResponse.redirect(new URL(redirectParam, request.url));
+    }
     const redirectPath = subdomain ? CLIENT_ALREADY_LOGGED_PATH : ADMIN_ALREADY_LOGGED_PATH;
     return NextResponse.redirect(new URL(redirectPath, request.url));
   }
@@ -103,7 +129,10 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    return NextResponse.rewrite(new URL(`/s/${subdomain}${pathname}`, request.url));
+    // Preserve query parameters in the rewrite
+    const rewriteUrl = new URL(`/s/${subdomain}${pathname}`, request.url);
+    rewriteUrl.search = request.nextUrl.search;
+    return NextResponse.rewrite(rewriteUrl);
   }
 
   // On the root domain, allow normal access

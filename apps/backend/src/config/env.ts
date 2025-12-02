@@ -14,6 +14,8 @@ export const EnvSchema = z.object({
   EMAIL_FROM: z.string().email().default('noreply@titanstech.com'),
   EMAIL_PROVIDER: z.enum(['SENDGRID', 'AWS_SES']).default('SENDGRID'),
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  // Optional test emails to receive copies of all sent emails (comma-separated list)
+  TEST_EMAILS: z.string().optional(),
 });
 
 // eslint-disable-next-line no-restricted-syntax

@@ -2,6 +2,7 @@
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { usePathname } from 'next/navigation';
 import { NotificationsSocketProvider } from '@/contexts/NotificationsSocketContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
@@ -19,17 +20,28 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const unreadNotifications =
     companyUser?.unreadNotifications || sysAdminUser?.unreadNotifications || 0;
 
+  // Check if user is authenticated
+  const isAuthenticated = !!(companyUser || sysAdminUser);
+
   if (noLayoutPaths.includes(pathname)) {
     return <>{children}</>;
   }
+
+  // If user is not authenticated, render children without layout (sidebar/header)
+  // This allows public pages like machine QR views to render without the sidebar
+  if (!isAuthenticated) {
+    return <>{children}</>;
+  }
+
   return (
     <NotificationsSocketProvider userId={userId} initialUnreadCount={unreadNotifications}>
       <BranchProvider>
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
-          <SidebarInset className="min-w-0 overflow-hidden">
+          <SidebarInset className="min-w-0 overflow-hidden flex flex-col">
             <AppHeader />
-            <div className="flex-1 min-h-screen bg-background overflow-auto">{children}</div>
+            <div className="flex-1 bg-background overflow-auto">{children}</div>
+            <Footer />
           </SidebarInset>
         </SidebarProvider>
       </BranchProvider>

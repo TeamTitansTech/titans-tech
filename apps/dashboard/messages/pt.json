@@ -2,6 +2,8 @@
   "common": {
     "companyName": "InspectPro",
     "companySubtitle": "Portal Admin",
+    "cancel": "Cancelar",
+    "save": "Salvar",
     "unsavedChanges": "Você tem alterações não salvas. Tem certeza que deseja fechar?",
     "confirmClose": {
       "title": "Descartar alterações?",
@@ -95,7 +97,11 @@
     "logout": "Sair",
     "markAllAsRead": "Marcar todas como lidas",
     "loading": "Carregando",
-    "noNotifications": "Nenhuma notificação"
+    "noNotifications": "Nenhuma notificação",
+    "notificationsMessage": {
+      "default": "Você tem uma nova notificação de {type}",
+      "newUrgentRequest": "Solicitação urgente de serviço de {requestedByName} para a máquina {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alertas Detectados na Inspeção",
@@ -803,6 +809,7 @@
     "field": "campo",
     "fields": "campos",
     "edit": "Editar",
+    "thresholds": "Configurar Thresholds",
     "form": {
       "basicInfo": {
         "title": "Informações Básicas"
@@ -926,8 +933,10 @@
     "completed": "Concluído",
     "done": "Concluído",
     "inProgress": "Em Andamento",
+    "fromRequest": "De Solicitação",
     "createInspection": "Criar Vistoria",
     "requestUrgentService": "Solicitar Serviço Urgente",
+    "urgentServiceRequest": "Solicitação de Serviço Urgente",
     "urgentServiceDescription": "Solicite um serviço urgente para {machineName}. Nossa equipe será notificada imediatamente.",
     "machine": "Máquina",
     "additionalNotes": "Notas Adicionais",
@@ -996,6 +1005,16 @@
       "unknown": "Desconhecido",
       "noImage": "Sem Imagem"
     },
+    "qrCode": {
+      "generateQR": "Gerar QR Code",
+      "title": "QR Code da Máquina",
+      "description": "QR Code para a máquina: {machineName}",
+      "copyLink": "Copiar link",
+      "copied": "Copiado!",
+      "downloadSVG": "Baixar SVG",
+      "downloadPNG": "Baixar PNG",
+      "instructions": "Escaneie este QR code para acessar a página pública da máquina e solicitar serviços de manutenção."
+    },
     "sectionDetails": {
       "comingSoon": "Detalhes da seção \"{section}\" em breve...",
       "press": "Prensa",
@@ -1052,6 +1071,7 @@
         "outer": "Externo",
         "inner": "Interno",
         "issues": "Problemas",
+        "alerts": "Alertas",
         "inspections": "Vistorias",
         "inspectionHistory": "Histórico de Vistorias",
         "oilChanged": "Óleo Trocado",
@@ -1953,6 +1973,13 @@
     "pageTitle": "Serviços",
     "pageDescription": "Visualize e gerencie todos os serviços de suas máquinas",
     "pending": "Pendente",
+    "publicRequest": "Solicitação via QR Code",
+    "publicRequestDetails": {
+      "title": "Solicitação Pública de Manutenção",
+      "requester": "Nome do Solicitante",
+      "problemDescription": "Descrição do Problema",
+      "createdFromRequest": "Este serviço foi criado a partir de uma solicitação pública de manutenção."
+    },
     "noServicesFound": "Nenhum serviço encontrado",
     "stats": {
       "totalServices": "Total de Serviços",
@@ -2055,10 +2082,40 @@
       "title": "GIBS - Configuração de Alerta",
       "usable": "Utilizável"
     },
+    "tramming": {
+      "title": "TRAMMING - Configuração de Alerta",
+      "description": "Configure o threshold para as somas de tramming (vertical e horizontal). Este threshold será aplicado a todas as posições (top, bottom, left, right).",
+      "sum": "Soma Tramming"
+    },
     "thresholds": {
       "greenStartMin": "Início Verde (Mín)",
       "yellowStartMin": "Início Amarelo (Mín)",
-      "redStartMin": "Início Vermelho (Mín)"
+      "redStartMin": "Início Vermelho (Mín)",
+      "editTitle": "Configurar Thresholds - {name}",
+      "editDescription": "Ajuste os valores de threshold para geração de alertas. Marque a opção abaixo para recalcular alertas existentes.",
+      "loadError": "Erro ao carregar thresholds",
+      "recalculate": {
+        "label": "Recalcular alertas existentes",
+        "description": "Gera novos alertas para todos os serviços deste blueprint usando os novos thresholds",
+        "updating": "Atualizando thresholds e recalculando alertas...",
+        "success": "Thresholds atualizados. {count} alertas gerados para {services} serviços.",
+        "successNoRecalc": "Thresholds atualizados. Novos alertas serão gerados apenas para serviços futuros.",
+        "error": "Erro ao atualizar thresholds"
+      }
+    },
+    "history": {
+      "title": "Histórico de Alertas",
+      "noHistory": "Nenhum histórico de alertas disponível",
+      "viewHistory": "Ver Histórico",
+      "hideHistory": "Ocultar Histórico",
+      "mostRecent": "Mais Recente",
+      "createdAt": "Criado em",
+      "thresholdSnapshot": "Thresholds Utilizados",
+      "reason": {
+        "initial": "Cálculo Inicial",
+        "thresholdUpdate": "Atualização de Threshold",
+        "manualRecalculation": "Recalculo Manual"
+      }
     }
   },
   "forms": {
@@ -2214,6 +2271,74 @@
       "unknown": "Desconhecido"
     }
   },
+  "serviceRequests": {
+    "title": "Solicitações de Serviço",
+    "noRequests": "Não há solicitações de serviço",
+    "open": "abertas",
+    "statusOpen": "Aberta",
+    "statusClosed": "Fechada",
+    "closedRequests": "{count} solicitações fechadas",
+    "problemDescription": "Descrição do Problema",
+    "attachedPhoto": "Foto Anexada",
+    "deviceInfo": "Informações do Dispositivo",
+    "linkedServices": "Serviços Vinculados",
+    "createService": "Criar Serviço",
+    "close": "Fechar Solicitação",
+    "reopen": "Reabrir",
+    "expand": "Mostrar detalhes",
+    "collapse": "Ocultar detalhes",
+    "closedSuccess": "Solicitação fechada com sucesso",
+    "reopenedSuccess": "Solicitação reaberta com sucesso",
+    "serviceCreatedSuccess": "Serviço criado com sucesso",
+    "actionFailed": "Ação falhou. Por favor, tente novamente.",
+    "listTitle": "Todas as Solicitações de Serviço",
+    "filterByStatus": "Filtrar por status",
+    "allStatuses": "Todos",
+    "openOnly": "Apenas abertas",
+    "closedOnly": "Apenas fechadas",
+    "machine": "Máquina",
+    "requester": "Solicitante",
+    "date": "Data",
+    "status": "Status",
+    "actions": "Ações",
+    "viewMachine": "Ver Máquina",
+    "viewDetails": "Ver Detalhes",
+    "requestDetails": "Detalhes da Solicitação"
+  },
+  "public": {
+    "machine": {
+      "title": "Solicitar Manutenção",
+      "subtitle": "Reportar um problema com esta máquina",
+      "machineInfo": "Informações da Máquina",
+      "serialNumber": "Número de Série",
+      "login": "Entrar",
+      "form": {
+        "title": "Solicitar Serviço de Manutenção",
+        "description": "Preencha o formulário abaixo para solicitar serviço de manutenção para esta máquina.",
+        "name": "Seu Nome",
+        "namePlaceholder": "Digite seu nome",
+        "email": "Seu E-mail",
+        "emailPlaceholder": "Digite seu e-mail",
+        "phone": "Telefone (opcional)",
+        "phonePlaceholder": "Digite seu telefone",
+        "problem": "Descrição do Problema",
+        "problemPlaceholder": "Descreva o problema ou defeito que você está encontrando nesta máquina...",
+        "image": "Foto (opcional)",
+        "imageDescription": "Envie uma foto do problema para ajudar nossa equipe a entender melhor a situação",
+        "submit": "Enviar Solicitação",
+        "submitting": "Enviando...",
+        "success": "Solicitação de manutenção enviada com sucesso",
+        "successTitle": "Solicitação Enviada!",
+        "successMessage": "Sua solicitação de manutenção foi recebida. Nossa equipe irá analisá-la e tomar as medidas apropriadas.",
+        "error": "Falha ao enviar solicitação. Por favor, tente novamente.",
+        "validation": {
+          "required": "Por favor, preencha todos os campos obrigatórios",
+          "invalidEmail": "Por favor, digite um e-mail válido"
+        }
+      },
+      "footer": "Desenvolvido por Titans Tech Service Management System"
+    }
+  },
   "errors": {
     "service": {
       "failedToUpdate": "Falha ao atualizar serviço",
@@ -2264,6 +2389,10 @@
     "selectAll": "Selecionar Todas",
     "deselectAll": "Desmarcar Todas",
     "exportPDF": "Exportar PDF",
+    "exportThisTab": "Exportar Esta Aba",
+    "exportAllTabs": "Exportar Todas as Abas",
+    "partsSelectedAcrossTabs": "peças selecionadas em todas as abas",
+    "selectPartsToExport": "Selecione peças para exportar",
     "exporting": "Exportando...",
     "noPartsSelected": "Nenhuma peça selecionada",
     "exportSuccess": "PDF exportado com sucesso",
@@ -2289,6 +2418,28 @@
       "description": "Descrição",
       "quantity": "Qtd",
       "unit": "Un"
+    },
+    "partsListTitle": "Lista de Peças",
+    "partsAvailable": "peças disponíveis",
+    "subsections": {
+      "crankshaft": "Rolamento do Virabrequim",
+      "outerSlideStandard": "Slide Externo (Padrão)",
+      "innerSlideStandard": "Slide Interno (Padrão)",
+      "outerSlideAdjustment": "Ajuste do Slide Externo",
+      "shutheightIndicatorOuter": "Indicador de Altura (Externo)",
+      "shutheightIndicatorInner": "Indicador de Altura (Interno)",
+      "singleGearedDrive": "Acionamento de Engrenagem Simples",
+      "flywheelBrake": "Freio do Volante",
+      "motorDrive": "Acionamento do Motor",
+      "hydraulicUnit": "Unidade Hidráulica",
+      "flywheelBearings": "Rolamentos do Volante",
+      "counterbalanceInner": "Contrapeso (Interno)",
+      "counterbalanceOuterAirmount": "Contrapeso (Externo)",
+      "lubricationUnit": "Unidade de Lubrificação",
+      "outerSlide": "Slide Externo",
+      "innerSlide": "Slide Interno",
+      "gibsOuter": "Guias (Externo)",
+      "gibsInner": "Guias (Interno)"
     }
   },
   "sectionStatus": {

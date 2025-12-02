@@ -68,6 +68,7 @@ export type {
 
 import type {
   BearingClearanceData as BearingData,
+  TrammingData as TrammingDataType,
   ClutchData,
   SlideData,
   GibsStageData,
@@ -195,6 +196,17 @@ export interface LatestCounterbalance {
   alerts?: CounterbalanceAlert[];
 }
 
+export interface LatestTramming {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: string;
+  data: {
+    outerData?: TrammingDataType;
+    innerData?: TrammingDataType;
+  };
+  alert?: any; // AlertTrammingResponseDto
+}
+
 export interface LatestReport {
   machineId: string;
   machineName: string;
@@ -211,5 +223,6 @@ export interface LatestReport {
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LatestLubrication | null;
     CLUTCH: LatestClutch | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalance | null;
+    TRAMMING: LatestTramming | null;
   };
 }

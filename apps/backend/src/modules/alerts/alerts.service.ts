@@ -26,6 +26,10 @@ import {
   UpdateThresholdGibsDto,
   ThresholdGibsResponseDto,
   AlertGibsResponseDto,
+  CreateThresholdTrammingDto,
+  UpdateThresholdTrammingDto,
+  ThresholdTrammingResponseDto,
+  AlertTrammingResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertSeverity } from '@titans-tech/shared/enums';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -38,13 +42,17 @@ import {
   convertPartialSlideThresholdToDecimal,
   convertGibsThresholdToDecimal,
   convertPartialGibsThresholdToDecimal,
+  convertTrammingThresholdToDecimal,
+  convertPartialTrammingThresholdToDecimal,
 } from './threshold.utils';
 
 @Injectable()
 export class AlertsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createThreshold(dto: CreateThresholdBearingClearanceDto) {
+  async createBearingClearanceThreshold(
+    dto: CreateThresholdBearingClearanceDto,
+  ) {
     const blueprint = await this.prisma.blueprint.findUnique({
       where: { id: dto.blueprintId },
     });
@@ -74,7 +82,7 @@ export class AlertsService {
     return new ThresholdBearingClearanceResponseDto(threshold as any);
   }
 
-  async getThresholdByBlueprint(blueprintId: string) {
+  async getBearingClearanceThresholdByBlueprint(blueprintId: string) {
     const threshold = await this.prisma.thresholdBearingClearance.findUnique({
       where: { blueprintId },
     });
@@ -88,7 +96,7 @@ export class AlertsService {
     return new ThresholdBearingClearanceResponseDto(threshold as any);
   }
 
-  async updateThreshold(
+  async updateBearingClearanceThreshold(
     blueprintId: string,
     dto: UpdateThresholdBearingClearanceDto,
   ) {
@@ -181,10 +189,52 @@ export class AlertsService {
     return new ThresholdBearingClearanceResponseDto(threshold as any);
   }
 
-  async deleteThreshold(blueprintId: string) {
+  async deleteBearingClearanceThreshold(blueprintId: string) {
     await this.prisma.thresholdBearingClearance.delete({
       where: { blueprintId },
     });
+  }
+
+  /**
+   * Recalculates bearing clearance alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculateBearingClearanceAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have bearing clearance data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        bearingClearance: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateAlertsForService(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
   }
 
   async generateAlertsForService(machineServiceId: string) {
@@ -412,59 +462,9 @@ export class AlertsService {
       thresholdSnapshot,
     };
 
-    const alert = await this.prisma.alertBearingClearance.upsert({
-      where: { machineServiceId },
-      create: {
+    const alert = await this.prisma.alertBearingClearance.create({
+      data: {
         machineService: { connect: { id: machineServiceId } },
-        // OUTER alerts
-        outer_totalClearance_differential:
-          alertData.outer_totalClearance_differential,
-        outer_totalClearance_severity: alertData.outer_totalClearance_severity,
-        outer_mainBearings_differential:
-          alertData.outer_mainBearings_differential,
-        outer_mainBearings_severity: alertData.outer_mainBearings_severity,
-        outer_upperConnectionBearings_differential:
-          alertData.outer_upperConnectionBearings_differential,
-        outer_upperConnectionBearings_severity:
-          alertData.outer_upperConnectionBearings_severity,
-        outer_wristPinToMatingPart_differential:
-          alertData.outer_wristPinToMatingPart_differential,
-        outer_wristPinToMatingPart_severity:
-          alertData.outer_wristPinToMatingPart_severity,
-        outer_wristPinToBushing_differential:
-          alertData.outer_wristPinToBushing_differential,
-        outer_wristPinToBushing_severity:
-          alertData.outer_wristPinToBushing_severity,
-        outer_slideAdjNutToScrewSleeve_differential:
-          alertData.outer_slideAdjNutToScrewSleeve_differential,
-        outer_slideAdjNutToScrewSleeve_severity:
-          alertData.outer_slideAdjNutToScrewSleeve_severity,
-        // INNER alerts
-        inner_totalClearance_differential:
-          alertData.inner_totalClearance_differential,
-        inner_totalClearance_severity: alertData.inner_totalClearance_severity,
-        inner_mainBearings_differential:
-          alertData.inner_mainBearings_differential,
-        inner_mainBearings_severity: alertData.inner_mainBearings_severity,
-        inner_upperConnectionBearings_differential:
-          alertData.inner_upperConnectionBearings_differential,
-        inner_upperConnectionBearings_severity:
-          alertData.inner_upperConnectionBearings_severity,
-        inner_wristPinToMatingPart_differential:
-          alertData.inner_wristPinToMatingPart_differential,
-        inner_wristPinToMatingPart_severity:
-          alertData.inner_wristPinToMatingPart_severity,
-        inner_wristPinToBushing_differential:
-          alertData.inner_wristPinToBushing_differential,
-        inner_wristPinToBushing_severity:
-          alertData.inner_wristPinToBushing_severity,
-        inner_slideAdjNutToScrewSleeve_differential:
-          alertData.inner_slideAdjNutToScrewSleeve_differential,
-        inner_slideAdjNutToScrewSleeve_severity:
-          alertData.inner_slideAdjNutToScrewSleeve_severity,
-        thresholdSnapshot: alertData.thresholdSnapshot,
-      },
-      update: {
         // OUTER alerts
         outer_totalClearance_differential:
           alertData.outer_totalClearance_differential,
@@ -582,8 +582,10 @@ export class AlertsService {
   }
 
   async getAlertByService(machineServiceId: string) {
-    const alert = await this.prisma.alertBearingClearance.findUnique({
+    // Get the most recent alert for this service
+    const alert = await this.prisma.alertBearingClearance.findFirst({
       where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
       include: {
         machineService: {
           include: {
@@ -726,6 +728,48 @@ export class AlertsService {
     });
   }
 
+  /**
+   * Recalculates clutch alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculateClutchAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have clutch data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        clutch: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateClutchAlertsForService(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate clutch alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
   async generateClutchAlertsForService(machineServiceId: string) {
     // 1. Fetch service with threshold and clutch data
     const service = await this.prisma.machineService.findUnique({
@@ -842,23 +886,9 @@ export class AlertsService {
       },
     };
 
-    const alert = await this.prisma.alertClutch.upsert({
-      where: { machineServiceId },
-      create: {
+    const alert = await this.prisma.alertClutch.create({
+      data: {
         machineServiceId,
-        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value,
-        hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
-        hydClutchClearanceRear_value: hydClutchClearanceRear.value,
-        hydClutchClearanceRear_severity: hydClutchClearanceRear.severity,
-        fb_value: fb.value,
-        fb_severity: fb.severity,
-        fTB_value: fTB.value,
-        fTB_severity: fTB.severity,
-        rTB_value: rTB.value,
-        rTB_severity: rTB.severity,
-        thresholdSnapshot,
-      },
-      update: {
         hydClutchClearanceTotal_value: hydClutchClearanceTotal.value,
         hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
         hydClutchClearanceRear_value: hydClutchClearanceRear.value,
@@ -908,8 +938,10 @@ export class AlertsService {
   }
 
   async getClutchAlertByService(machineServiceId: string) {
-    const alert = await this.prisma.alertClutch.findUnique({
+    // Get the most recent alert for this service
+    const alert = await this.prisma.alertClutch.findFirst({
       where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
       include: {
         machineService: {
           include: {
@@ -1173,6 +1205,48 @@ export class AlertsService {
     return { message: 'Slide threshold deleted successfully' };
   }
 
+  /**
+   * Recalculates slide alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculateSlideAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have slide data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        slide: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateAlertsForSlide(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate slide alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
   // ==================== SLIDE ALERT GENERATION ====================
 
   async generateAlertsForSlide(serviceId: string) {
@@ -1229,22 +1303,10 @@ export class AlertsService {
       threshold,
     );
 
-    // Upsert alert
-    const alert = await this.prisma.alertSlide.upsert({
-      where: { machineServiceId: serviceId },
-      create: {
+    // Create alert
+    const alert = await this.prisma.alertSlide.create({
+      data: {
         machineServiceId: serviceId,
-        maxDeviationOuter_differential: outerAlert.differential,
-        maxDeviationOuter_severity: outerAlert.severity,
-        maxDeviationInner_differential: innerAlert.differential,
-        maxDeviationInner_severity: innerAlert.severity,
-        thresholdSnapshot: {
-          maxDeviation_greenMin: threshold.maxDeviation_greenMin.toNumber(),
-          maxDeviation_yellowMin: threshold.maxDeviation_yellowMin.toNumber(),
-          maxDeviation_redMin: threshold.maxDeviation_redMin.toNumber(),
-        },
-      },
-      update: {
         maxDeviationOuter_differential: outerAlert.differential,
         maxDeviationOuter_severity: outerAlert.severity,
         maxDeviationInner_differential: innerAlert.differential,
@@ -1313,8 +1375,10 @@ export class AlertsService {
   }
 
   async getSlideAlertByService(machineServiceId: string) {
-    const alert = await this.prisma.alertSlide.findUnique({
+    // Get the most recent alert for this service
+    const alert = await this.prisma.alertSlide.findFirst({
       where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
       include: {
         machineService: {
           include: {
@@ -1454,6 +1518,195 @@ export class AlertsService {
     return { message: 'GIBS threshold deleted successfully' };
   }
 
+  // ==================== TRAMMING THRESHOLD CRUD ====================
+
+  async createTrammingThreshold(dto: CreateThresholdTrammingDto) {
+    // Validate blueprint exists
+    const blueprint = await this.prisma.blueprint.findUnique({
+      where: { id: dto.blueprintId },
+    });
+
+    if (!blueprint) {
+      throw new NotFoundException(`Blueprint ${dto.blueprintId} not found`);
+    }
+
+    // Check if threshold already exists for this blueprint
+    const existingThreshold = await this.prisma.thresholdTramming.findUnique({
+      where: { blueprintId: dto.blueprintId },
+    });
+
+    if (existingThreshold) {
+      throw new BadRequestException(
+        `Tramming threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+      );
+    }
+
+    const threshold = await this.prisma.thresholdTramming.create({
+      data: {
+        blueprintId: dto.blueprintId,
+        ...convertTrammingThresholdToDecimal(dto),
+      },
+    });
+
+    return new ThresholdTrammingResponseDto(threshold as any);
+  }
+
+  async getTrammingThresholdByBlueprint(blueprintId: string) {
+    const threshold = await this.prisma.thresholdTramming.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `Tramming threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    return new ThresholdTrammingResponseDto(threshold as any);
+  }
+
+  async updateTrammingThreshold(
+    blueprintId: string,
+    dto: UpdateThresholdTrammingDto,
+  ) {
+    // Check if threshold exists
+    const existingThreshold = await this.prisma.thresholdTramming.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!existingThreshold) {
+      throw new NotFoundException(
+        `Tramming threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    // Validate that yellowMin > greenMin and redMin > yellowMin if all fields provided
+    const mergedData = {
+      ...existingThreshold,
+      ...dto,
+    };
+
+    const greenMin = Number(mergedData.greenMin);
+    const yellowMin = Number(mergedData.yellowMin);
+    const redMin = Number(mergedData.redMin);
+
+    if (yellowMin <= greenMin || redMin <= yellowMin) {
+      throw new BadRequestException(
+        'Invalid threshold values: must have greenMin < yellowMin < redMin',
+      );
+    }
+
+    // Update threshold
+    const threshold = await this.prisma.thresholdTramming.update({
+      where: { blueprintId },
+      data: convertPartialTrammingThresholdToDecimal(dto),
+    });
+
+    return new ThresholdTrammingResponseDto(threshold as any);
+  }
+
+  async deleteTrammingThreshold(blueprintId: string) {
+    const threshold = await this.prisma.thresholdTramming.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `Tramming threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    await this.prisma.thresholdTramming.delete({
+      where: { blueprintId },
+    });
+
+    return { message: 'Tramming threshold deleted successfully' };
+  }
+
+  /**
+   * Recalculates Tramming alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculateTrammingAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have Tramming data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        tramming: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateAlertsForTramming(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate Tramming alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
+  /**
+   * Recalculates GIBS alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculateGibsAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have GIBS data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        gibs: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateAlertsForGibs(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate GIBS alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
   // ==================== GIBS ALERT GENERATION ====================
 
   async generateAlertsForGibs(serviceId: string) {
@@ -1522,20 +1775,10 @@ export class AlertsService {
       threshold.usable_redMin,
     );
 
-    // Upsert alert
-    const alert = await this.prisma.alertGibs.upsert({
-      where: { machineServiceId: serviceId },
-      create: {
+    // Create alert
+    const alert = await this.prisma.alertGibs.create({
+      data: {
         machineServiceId: serviceId,
-        usable_value: usableValue,
-        usable_severity: severity,
-        thresholdSnapshot: {
-          usable_greenMin: threshold.usable_greenMin.toNumber(),
-          usable_yellowMin: threshold.usable_yellowMin.toNumber(),
-          usable_redMin: threshold.usable_redMin.toNumber(),
-        },
-      },
-      update: {
         usable_value: usableValue,
         usable_severity: severity,
         thresholdSnapshot: {
@@ -1631,8 +1874,10 @@ export class AlertsService {
   }
 
   async getGibsAlertByService(machineServiceId: string) {
-    const alert = await this.prisma.alertGibs.findUnique({
+    // Get the most recent alert for this service
+    const alert = await this.prisma.alertGibs.findFirst({
       where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
       include: {
         machineService: {
           include: {
@@ -1664,5 +1909,242 @@ export class AlertsService {
       ...alert,
       gibsData,
     } as any);
+  }
+
+  // ==================== TRAMMING ALERT GENERATION ====================
+
+  async generateAlertsForTramming(serviceId: string) {
+    // Fetch service with tramming data and blueprint with thresholds
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: {
+        machine: {
+          include: {
+            blueprint: {
+              include: {
+                thresholdTramming: true,
+              },
+            },
+          },
+        },
+        tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service ${serviceId} not found`);
+    }
+
+    const threshold = service.machine.blueprint.thresholdTramming;
+
+    if (!threshold) {
+      // No threshold configured, skip alert generation
+      return null;
+    }
+
+    const trammingData = service.tramming[0];
+
+    if (!trammingData) {
+      throw new NotFoundException(
+        `Tramming data not found for service ${serviceId}`,
+      );
+    }
+
+    const { outerData, innerData } = trammingData;
+
+    if (!outerData || !innerData) {
+      throw new NotFoundException(
+        `Tramming outer and inner data are required for service ${serviceId}`,
+      );
+    }
+
+    // Calculate sums and severities for OUTER data
+    const outerAlerts = this.calculateTrammingSums(outerData, threshold);
+
+    // Calculate sums and severities for INNER data
+    const innerAlerts = this.calculateTrammingSums(innerData, threshold);
+
+    // Build threshold snapshot for audit trail
+    const thresholdSnapshot = {
+      blueprintId: service.machine.blueprintId,
+      greenMin: threshold.greenMin.toNumber(),
+      yellowMin: threshold.yellowMin.toNumber(),
+      redMin: threshold.redMin.toNumber(),
+    };
+
+    // Upsert alert (create or update)
+    const alert = await this.prisma.alertTramming.create({
+      data: {
+        machineServiceId: serviceId,
+
+        // OUTER alerts
+        outer_top_verticalSum: outerAlerts.top.verticalSum,
+        outer_top_verticalSeverity: outerAlerts.top.verticalSeverity,
+        outer_top_horizontalSum: outerAlerts.top.horizontalSum,
+        outer_top_horizontalSeverity: outerAlerts.top.horizontalSeverity,
+
+        outer_bottom_verticalSum: outerAlerts.bottom.verticalSum,
+        outer_bottom_verticalSeverity: outerAlerts.bottom.verticalSeverity,
+        outer_bottom_horizontalSum: outerAlerts.bottom.horizontalSum,
+        outer_bottom_horizontalSeverity: outerAlerts.bottom.horizontalSeverity,
+
+        outer_left_verticalSum: outerAlerts.left.verticalSum,
+        outer_left_verticalSeverity: outerAlerts.left.verticalSeverity,
+        outer_left_horizontalSum: outerAlerts.left.horizontalSum,
+        outer_left_horizontalSeverity: outerAlerts.left.horizontalSeverity,
+
+        outer_right_verticalSum: outerAlerts.right.verticalSum,
+        outer_right_verticalSeverity: outerAlerts.right.verticalSeverity,
+        outer_right_horizontalSum: outerAlerts.right.horizontalSum,
+        outer_right_horizontalSeverity: outerAlerts.right.horizontalSeverity,
+
+        // INNER alerts
+        inner_top_verticalSum: innerAlerts.top.verticalSum,
+        inner_top_verticalSeverity: innerAlerts.top.verticalSeverity,
+        inner_top_horizontalSum: innerAlerts.top.horizontalSum,
+        inner_top_horizontalSeverity: innerAlerts.top.horizontalSeverity,
+
+        inner_bottom_verticalSum: innerAlerts.bottom.verticalSum,
+        inner_bottom_verticalSeverity: innerAlerts.bottom.verticalSeverity,
+        inner_bottom_horizontalSum: innerAlerts.bottom.horizontalSum,
+        inner_bottom_horizontalSeverity: innerAlerts.bottom.horizontalSeverity,
+
+        inner_left_verticalSum: innerAlerts.left.verticalSum,
+        inner_left_verticalSeverity: innerAlerts.left.verticalSeverity,
+        inner_left_horizontalSum: innerAlerts.left.horizontalSum,
+        inner_left_horizontalSeverity: innerAlerts.left.horizontalSeverity,
+
+        inner_right_verticalSum: innerAlerts.right.verticalSum,
+        inner_right_verticalSeverity: innerAlerts.right.verticalSeverity,
+        inner_right_horizontalSum: innerAlerts.right.horizontalSum,
+        inner_right_horizontalSeverity: innerAlerts.right.horizontalSeverity,
+
+        thresholdSnapshot,
+      },
+    });
+
+    return new AlertTrammingResponseDto(alert as any);
+  }
+
+  private calculateTrammingSums(
+    data: any,
+    threshold: { greenMin: Decimal; yellowMin: Decimal; redMin: Decimal },
+  ) {
+    // Top position
+    const topVerticalSum = new Decimal(data.topTop).plus(data.topBottom);
+    const topHorizontalSum = new Decimal(data.topLeft).plus(data.topRight);
+    const topVerticalSeverity = this.determineSeverity(
+      topVerticalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+    const topHorizontalSeverity = this.determineSeverity(
+      topHorizontalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+
+    // Bottom position
+    const bottomVerticalSum = new Decimal(data.bottomTop).plus(
+      data.bottomBottom,
+    );
+    const bottomHorizontalSum = new Decimal(data.bottomLeft).plus(
+      data.bottomRight,
+    );
+    const bottomVerticalSeverity = this.determineSeverity(
+      bottomVerticalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+    const bottomHorizontalSeverity = this.determineSeverity(
+      bottomHorizontalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+
+    // Left position
+    const leftVerticalSum = new Decimal(data.leftTop).plus(data.leftBottom);
+    const leftHorizontalSum = new Decimal(data.leftLeft).plus(data.leftRight);
+    const leftVerticalSeverity = this.determineSeverity(
+      leftVerticalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+    const leftHorizontalSeverity = this.determineSeverity(
+      leftHorizontalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+
+    // Right position
+    const rightVerticalSum = new Decimal(data.rightTop).plus(data.rightBottom);
+    const rightHorizontalSum = new Decimal(data.rightLeft).plus(
+      data.rightRight,
+    );
+    const rightVerticalSeverity = this.determineSeverity(
+      rightVerticalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+    const rightHorizontalSeverity = this.determineSeverity(
+      rightHorizontalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+
+    return {
+      top: {
+        verticalSum: topVerticalSum,
+        verticalSeverity: topVerticalSeverity,
+        horizontalSum: topHorizontalSum,
+        horizontalSeverity: topHorizontalSeverity,
+      },
+      bottom: {
+        verticalSum: bottomVerticalSum,
+        verticalSeverity: bottomVerticalSeverity,
+        horizontalSum: bottomHorizontalSum,
+        horizontalSeverity: bottomHorizontalSeverity,
+      },
+      left: {
+        verticalSum: leftVerticalSum,
+        verticalSeverity: leftVerticalSeverity,
+        horizontalSum: leftHorizontalSum,
+        horizontalSeverity: leftHorizontalSeverity,
+      },
+      right: {
+        verticalSum: rightVerticalSum,
+        verticalSeverity: rightVerticalSeverity,
+        horizontalSum: rightHorizontalSum,
+        horizontalSeverity: rightHorizontalSeverity,
+      },
+    };
+  }
+
+  async getTrammingAlertsByService(machineServiceId: string) {
+    const alerts = await this.prisma.alertTramming.findMany({
+      where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (alerts.length === 0) {
+      throw new NotFoundException(
+        `Tramming alerts not found for service ${machineServiceId}`,
+      );
+    }
+
+    return new AlertTrammingResponseDto(alerts[0] as any);
   }
 }

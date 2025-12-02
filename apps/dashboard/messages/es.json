@@ -56,7 +56,9 @@
       "uploading": "Subiendo...",
       "clickToUpload": "Haga clic para subir",
       "jpgOrPngMax": "JPG o PNG (máx. 10MB)"
-    }
+    },
+    "cancel": "Cancelar",
+    "save": "Guardar"
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -66,7 +68,9 @@
     "invalidHexColor": "Debe ser un color hexadecimal válido",
     "branchNameRequired": "El nombre de la sucursal es obligatorio",
     "fullNameRequired": "El nombre completo es obligatorio",
-    "invalidEmail": "Dirección de correo electrónico no válida"
+    "invalidEmail": "Dirección de correo electrónico no válida",
+    "invalidImageType": "Solo se permiten imágenes JPG y PNG",
+    "fileTooLarge": "El tamaño del archivo excede el límite de 10MB"
   },
   "navigation": {
     "dashboard": "Panel",
@@ -93,7 +97,11 @@
     "logout": "Cerrar Sesión",
     "markAllAsRead": "Marcar todas como leídas",
     "loading": "Cargando",
-    "noNotifications": "No hay notificaciones"
+    "noNotifications": "No hay notificaciones",
+    "notificationsMessage": {
+      "default": "Tienes una nueva notificación de {type}",
+      "newUrgentRequest": "Solicitud urgente de servicio de {requestedByName} para la máquina {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alertas Detectadas en la Inspección",
@@ -452,7 +460,11 @@
         },
         "logo": {
           "label": "URL del Logotipo (Opcional)",
-          "placeholder": "ej., https://ejemplo.com/logo.png"
+          "placeholder": "ej., https://ejemplo.com/logo.png",
+          "uploadHint": "Haga clic para subir logo (JPG o PNG)",
+          "uploading": "Subiendo...",
+          "uploadSuccess": "Logo subido exitosamente",
+          "uploadError": "Error al subir el logo"
         },
         "brandColor": {
           "label": "Color Primario (Opcional)",
@@ -604,7 +616,58 @@
         "totalModels": "Total de Modelos",
         "activeCompanies": "Empresas Activas",
         "machines": "Máquinas",
-        "pendingServices": "Servicios Pendientes"
+        "pendingServices": "Servicios Pendientes",
+        "totalBranches": "Sucursales",
+        "completedServices": "Servicios Completados"
+      },
+      "overview": {
+        "companies": "Empresas",
+        "registered": "registradas",
+        "machines": "Máquinas",
+        "operating": "operando",
+        "services": "Servicios",
+        "pending": "pendientes",
+        "thisMonth": "este mes"
+      },
+      "companiesOverview": {
+        "title": "Empresas Registradas",
+        "description": "Resumen de todas las empresas en el sistema",
+        "branches": "sucursales",
+        "machines": "máquinas",
+        "services": "servicios",
+        "viewDetails": "Ver detalles",
+        "noCompanies": "No hay empresas registradas"
+      },
+      "recentActivity": {
+        "title": "Actividad Reciente",
+        "description": "Últimos servicios realizados en el sistema",
+        "noActivity": "No hay actividad reciente",
+        "inspection": "Inspección",
+        "maintenance": "Mantenimiento",
+        "completed": "Completado",
+        "pending": "Pendiente",
+        "viewAll": "Ver todos"
+      },
+      "serviceTrends": {
+        "title": "Tendencias de Servicios",
+        "description": "Servicios completados en los últimos 6 meses en todas las empresas",
+        "legend": {
+          "inspections": "Inspecciones",
+          "maintenance": "Mantenimientos"
+        },
+        "stats": {
+          "totalInspections": "Total de Inspecciones",
+          "totalMaintenance": "Total de Mantenimientos",
+          "totalServices": "Total de Servicios"
+        }
+      },
+      "machineHealth": {
+        "title": "Salud de las Máquinas",
+        "description": "Distribución del estado de todas las máquinas",
+        "healthy": "Saludables",
+        "attention": "Atención",
+        "critical": "Crítico",
+        "unknown": "Sin datos"
       }
     },
     "client": {
@@ -799,7 +862,8 @@
     "machines": "máquinas",
     "field": "campo",
     "fields": "campos",
-    "edit": "Editar"
+    "edit": "Editar",
+    "thresholds": "Configurar Thresholds"
   },
   "machines": {
     "title": "Crear Máquina",
@@ -859,6 +923,7 @@
     "viewMaintenanceLog": "Ver Registro de Mantenimiento",
     "downloadReports": "Descargar Informes",
     "requestUrgentService": "Solicitar Servicio Urgente",
+    "urgentServiceRequest": "Solicitud de Servicio Urgente",
     "urgentServiceDescription": "Solicitar un servicio urgente para {machineName}. Nuestro equipo será notificado inmediatamente.",
     "machine": "Máquina",
     "additionalNotes": "Notas Adicionales",
@@ -875,6 +940,7 @@
     "completed": "Completado",
     "done": "Hecho",
     "inProgress": "En Progreso",
+    "fromRequest": "De Solicitud",
     "noInspectionsFound": "No se encontraron inspecciones",
     "noServicesFound": "No se encontraron servicios",
     "maintenanceService": "Mantenimiento",
@@ -934,6 +1000,16 @@
       "unknown": "Desconocido",
       "noImage": "Sin Imagen"
     },
+    "qrCode": {
+      "generateQR": "Generar Código QR",
+      "title": "Código QR de la Máquina",
+      "description": "Código QR para la máquina: {machineName}",
+      "copyLink": "Copiar enlace",
+      "copied": "¡Copiado!",
+      "downloadSVG": "Descargar SVG",
+      "downloadPNG": "Descargar PNG",
+      "instructions": "Escanea este código QR para acceder a la página pública de la máquina y solicitar servicios de mantenimiento."
+    },
     "sectionDetails": {
       "comingSoon": "Detalles de la sección \"{section}\" próximamente...",
       "press": "Prensa",
@@ -990,6 +1066,7 @@
         "outer": "Externo",
         "inner": "Interno",
         "issues": "Problemas",
+        "alerts": "Alertas",
         "inspections": "Inspecciones",
         "inspectionHistory": "Historial de Inspecciones",
         "oilChanged": "Aceite Cambiado",
@@ -1823,6 +1900,13 @@
     "pageTitle": "Servicios",
     "pageDescription": "Visualice y gestione todos los servicios de sus máquinas",
     "pending": "Pendiente",
+    "publicRequest": "Solicitud vía QR Code",
+    "publicRequestDetails": {
+      "title": "Solicitud Pública de Mantenimiento",
+      "requester": "Nombre del Solicitante",
+      "problemDescription": "Descripción del Problema",
+      "createdFromRequest": "Este servicio fue creado a partir de una solicitud pública de mantenimiento."
+    },
     "noServicesFound": "No se encontraron servicios",
     "stats": {
       "totalServices": "Total de Servicios",
@@ -1892,7 +1976,7 @@
     "noBranches": "No se encontraron sucursales para esta empresa",
     "noBranchesDescription": "Las sucursales se mostrarán aquí cuando se creen",
     "branch": "sucursal",
-    "branches": "sucursales",
+    "branches": "Sucursales",
     "machine": "máquina",
     "machines": "máquinas",
     "noMachines": "Sin máquinas",
@@ -1996,7 +2080,32 @@
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",
       "yellowStartMin": "Inicio Amarillo (Mín)",
-      "redStartMin": "Inicio Rojo (Mín)"
+      "redStartMin": "Inicio Rojo (Mín)",
+      "editTitle": "Configurar Thresholds - {name}",
+      "editDescription": "Ajuste los valores de threshold para generación de alertas. Marque la opción debajo para recalcular alertas existentes.",
+      "loadError": "Error al cargar thresholds",
+      "recalculate": {
+        "label": "Recalcular alertas existentes",
+        "description": "Generar nuevas alertas para todos los servicios de este modelo usando los nuevos thresholds",
+        "updating": "Actualizando thresholds y recalculando alertas...",
+        "success": "Thresholds actualizados. {count} alertas generadas para {services} servicios.",
+        "successNoRecalc": "Thresholds actualizados. Las nuevas alertas solo se generarán para servicios futuros.",
+        "error": "Error al actualizar thresholds"
+      }
+    },
+    "history": {
+      "title": "Historial de Alertas",
+      "noHistory": "No hay historial de alertas disponible",
+      "viewHistory": "Ver Historial",
+      "hideHistory": "Ocultar Historial",
+      "mostRecent": "Más Reciente",
+      "createdAt": "Creado el",
+      "thresholdSnapshot": "Thresholds Utilizados",
+      "reason": {
+        "initial": "Cálculo Inicial",
+        "thresholdUpdate": "Actualización de Threshold",
+        "manualRecalculation": "Recálculo Manual"
+      }
     }
   },
   "forms": {
@@ -2152,6 +2261,74 @@
       "unknown": "Desconocido"
     }
   },
+  "serviceRequests": {
+    "title": "Solicitudes de Servicio",
+    "noRequests": "No hay solicitudes de servicio",
+    "open": "abiertas",
+    "statusOpen": "Abierta",
+    "statusClosed": "Cerrada",
+    "closedRequests": "{count} solicitudes cerradas",
+    "problemDescription": "Descripción del Problema",
+    "attachedPhoto": "Foto Adjunta",
+    "deviceInfo": "Información del Dispositivo",
+    "linkedServices": "Servicios Vinculados",
+    "createService": "Crear Servicio",
+    "close": "Cerrar Solicitud",
+    "reopen": "Reabrir",
+    "expand": "Mostrar detalles",
+    "collapse": "Ocultar detalles",
+    "closedSuccess": "Solicitud cerrada exitosamente",
+    "reopenedSuccess": "Solicitud reabierta exitosamente",
+    "serviceCreatedSuccess": "Servicio creado exitosamente",
+    "actionFailed": "Acción fallida. Por favor, intente nuevamente.",
+    "listTitle": "Todas las Solicitudes de Servicio",
+    "filterByStatus": "Filtrar por estado",
+    "allStatuses": "Todos",
+    "openOnly": "Solo abiertas",
+    "closedOnly": "Solo cerradas",
+    "machine": "Máquina",
+    "requester": "Solicitante",
+    "date": "Fecha",
+    "status": "Estado",
+    "actions": "Acciones",
+    "viewMachine": "Ver Máquina",
+    "viewDetails": "Ver Detalles",
+    "requestDetails": "Detalles de la Solicitud"
+  },
+  "public": {
+    "machine": {
+      "title": "Solicitar Mantenimiento",
+      "subtitle": "Reportar un problema con esta máquina",
+      "machineInfo": "Información de la Máquina",
+      "serialNumber": "Número de Serie",
+      "login": "Iniciar sesión",
+      "form": {
+        "title": "Solicitar Servicio de Mantenimiento",
+        "description": "Complete el formulario a continuación para solicitar servicio de mantenimiento para esta máquina.",
+        "name": "Su Nombre",
+        "namePlaceholder": "Ingrese su nombre",
+        "email": "Su Correo Electrónico",
+        "emailPlaceholder": "Ingrese su correo electrónico",
+        "phone": "Teléfono (opcional)",
+        "phonePlaceholder": "Ingrese su número de teléfono",
+        "problem": "Descripción del Problema",
+        "problemPlaceholder": "Describa el problema o defecto que está experimentando con esta máquina...",
+        "image": "Foto (opcional)",
+        "imageDescription": "Suba una foto del problema para ayudar a nuestro equipo a entender mejor la situación",
+        "submit": "Enviar Solicitud",
+        "submitting": "Enviando...",
+        "success": "Solicitud de mantenimiento enviada exitosamente",
+        "successTitle": "¡Solicitud Enviada!",
+        "successMessage": "Su solicitud de mantenimiento ha sido recibida. Nuestro equipo la revisará y tomará las medidas apropiadas.",
+        "error": "Error al enviar la solicitud. Por favor, intente nuevamente.",
+        "validation": {
+          "required": "Por favor, complete todos los campos obligatorios",
+          "invalidEmail": "Por favor, ingrese un correo electrónico válido"
+        }
+      },
+      "footer": "Desarrollado por Titans Tech Service Management System"
+    }
+  },
   "errors": {
     "service": {
       "failedToUpdate": "Error al actualizar el servicio",
@@ -2202,6 +2379,10 @@
     "selectAll": "Seleccionar Todas",
     "deselectAll": "Deseleccionar Todas",
     "exportPDF": "Exportar PDF",
+    "exportThisTab": "Exportar Esta Pestaña",
+    "exportAllTabs": "Exportar Todas las Pestañas",
+    "partsSelectedAcrossTabs": "piezas seleccionadas en todas las pestañas",
+    "selectPartsToExport": "Seleccione piezas para exportar",
     "exporting": "Exportando...",
     "noPartsSelected": "Ninguna pieza seleccionada",
     "exportSuccess": "PDF exportado exitosamente",
@@ -2227,6 +2408,28 @@
       "description": "Descripción",
       "quantity": "Cant",
       "unit": "Un"
+    },
+    "partsListTitle": "Lista de Piezas",
+    "partsAvailable": "piezas disponibles",
+    "subsections": {
+      "crankshaft": "Cojinete del Cigüeñal",
+      "outerSlideStandard": "Corredera Exterior (Estándar)",
+      "innerSlideStandard": "Corredera Interior (Estándar)",
+      "outerSlideAdjustment": "Ajuste de Corredera Exterior",
+      "shutheightIndicatorOuter": "Indicador de Altura (Exterior)",
+      "shutheightIndicatorInner": "Indicador de Altura (Interior)",
+      "singleGearedDrive": "Transmisión de Engranaje Simple",
+      "flywheelBrake": "Freno del Volante",
+      "motorDrive": "Accionamiento del Motor",
+      "hydraulicUnit": "Unidad Hidráulica",
+      "flywheelBearings": "Cojinetes del Volante",
+      "counterbalanceInner": "Contrapeso (Interior)",
+      "counterbalanceOuterAirmount": "Contrapeso (Exterior)",
+      "lubricationUnit": "Unidad de Lubricación",
+      "outerSlide": "Corredera Exterior",
+      "innerSlide": "Corredera Interior",
+      "gibsOuter": "Guías (Exterior)",
+      "gibsInner": "Guías (Interior)"
     }
   },
   "sectionStatus": {

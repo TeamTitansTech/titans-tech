@@ -31,6 +31,10 @@ import {
   UpdateThresholdGibsDto,
   CreateThresholdGibsSchema,
   UpdateThresholdGibsSchema,
+  CreateThresholdTrammingDto,
+  UpdateThresholdTrammingDto,
+  TrammingThresholdsSchema,
+  UpdateThresholdTrammingSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, Authenticated } from '../auth/auth.decorators';
@@ -46,33 +50,59 @@ export class AlertsController {
 
   @Authenticated()
   @Get('bearing-clearance/thresholds/blueprint/:blueprintId')
-  async getThresholdByBlueprint(@Param('blueprintId') blueprintId: string) {
-    return this.alertsService.getThresholdByBlueprint(blueprintId);
+  async getBearingClearanceThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getBearingClearanceThresholdByBlueprint(
+      blueprintId,
+    );
   }
 
   @Admin()
   @Post('bearing-clearance/thresholds')
-  async createThreshold(
+  async createBearingClearanceThreshold(
     @Body(new ZodValidationPipe(CreateThresholdBearingClearanceSchema))
     dto: CreateThresholdBearingClearanceDto,
   ) {
-    return this.alertsService.createThreshold(dto);
+    return this.alertsService.createBearingClearanceThreshold(dto);
   }
 
   @Admin()
   @Put('bearing-clearance/thresholds/blueprint/:blueprintId')
-  async updateThreshold(
+  async updateBearingClearanceThreshold(
     @Param('blueprintId') blueprintId: string,
     @Body(new ZodValidationPipe(UpdateThresholdBearingClearanceSchema))
     dto: UpdateThresholdBearingClearanceDto,
   ) {
-    return this.alertsService.updateThreshold(blueprintId, dto);
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateBearingClearanceThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateBearingClearanceAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
   }
 
   @Admin()
   @Delete('bearing-clearance/thresholds/blueprint/:blueprintId')
-  async deleteThreshold(@Param('blueprintId') blueprintId: string) {
-    await this.alertsService.deleteThreshold(blueprintId);
+  async deleteBearingClearanceThreshold(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    await this.alertsService.deleteBearingClearanceThreshold(blueprintId);
     return { message: 'Threshold deleted successfully' };
   }
 
@@ -156,7 +186,27 @@ export class ClutchAlertsController {
     @Body(new ZodValidationPipe(UpdateThresholdClutchSchema))
     dto: UpdateThresholdClutchDto,
   ) {
-    return this.alertsService.updateClutchThreshold(blueprintId, dto);
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateClutchThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateClutchAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
   }
 
   @Admin()
@@ -208,7 +258,27 @@ export class AlertsSlideController {
     @Body(new ZodValidationPipe(UpdateThresholdSlideSchema))
     dto: UpdateThresholdSlideDto,
   ) {
-    return this.alertsService.updateSlideThreshold(blueprintId, dto);
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateSlideThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateSlideAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
   }
 
   @Admin()
@@ -257,7 +327,25 @@ export class AlertsGibsController {
     @Body(new ZodValidationPipe(UpdateThresholdGibsSchema))
     dto: UpdateThresholdGibsDto,
   ) {
-    return this.alertsService.updateGibsThreshold(blueprintId, dto);
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateGibsThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateGibsAlertsForBlueprint(blueprintId);
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
   }
 
   @Admin()
@@ -276,5 +364,76 @@ export class AlertsGibsController {
   @Post('service/:serviceId/generate')
   async generateGibsAlerts(@Param('serviceId') serviceId: string) {
     return this.alertsService.generateAlertsForGibs(serviceId);
+  }
+}
+
+@Controller('alerts/tramming')
+@UseInterceptors(ClassSerializerInterceptor)
+export class AlertsTrammingController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getTrammingThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getTrammingThresholdByBlueprint(blueprintId);
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createTrammingThreshold(
+    @Body(new ZodValidationPipe(TrammingThresholdsSchema))
+    dto: CreateThresholdTrammingDto,
+  ) {
+    return this.alertsService.createTrammingThreshold(dto);
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updateTrammingThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(new ZodValidationPipe(UpdateThresholdTrammingSchema))
+    dto: UpdateThresholdTrammingDto,
+  ) {
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateTrammingThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateTrammingAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deleteTrammingThreshold(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.deleteTrammingThreshold(blueprintId);
+  }
+
+  @Authenticated()
+  @Get('service/:serviceId')
+  async getTrammingAlertsByService(@Param('serviceId') serviceId: string) {
+    return this.alertsService.getTrammingAlertsByService(serviceId);
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generateTrammingAlerts(@Param('serviceId') serviceId: string) {
+    return this.alertsService.generateAlertsForTramming(serviceId);
   }
 }

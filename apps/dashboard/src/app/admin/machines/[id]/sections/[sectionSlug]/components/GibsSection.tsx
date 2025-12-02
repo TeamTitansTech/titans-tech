@@ -20,13 +20,9 @@ import {
 import { getGibsThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
-import {
-  SectionStatusBadge,
-  type SectionStatus,
-  calculateSectionStatus,
-} from '@/components/shared/SectionStatusBadge';
+import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
-import { GIBS_TABS } from '@/data/parts/dac-parts';
+import { GIBS_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface GibsSectionProps {
   machineId: string;
@@ -366,13 +362,22 @@ export function GibsSection({
         </Card>
       </div>
 
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: GIBS_SUBSECTIONS,
+          title: tParts('gibsParts'),
+          description: tParts('gibsDescription'),
+          machineName,
+          sectionName: 'Gibs',
+        }}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CardTitle>{t('sectionTitles.gibsMeasurements')}</CardTitle>
-              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
-            </div>
+            <CardTitle>{t('sectionTitles.gibsMeasurements')}</CardTitle>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Gibs"
@@ -682,18 +687,6 @@ export function GibsSection({
           </div>
         </CardContent>
       </Card>
-
-      {/* Section Status Card with Parts Modal */}
-      <SectionStatusCard
-        status={sectionStatus}
-        partsConfig={{
-          tabs: GIBS_TABS,
-          title: tParts('gibsParts'),
-          description: tParts('gibsDescription'),
-          machineName,
-          sectionName: 'Gibs',
-        }}
-      />
     </div>
   );
 }

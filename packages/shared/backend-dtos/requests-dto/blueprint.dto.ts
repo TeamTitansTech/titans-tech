@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { ServiceSection } from '@titans-tech/db/enums';
 import { ClutchThresholdsSchema } from './threshold-clutch.dto';
 import { GibsThresholdsSchema } from './threshold-gibs.dto';
+import { TrammingThresholdsSchema } from './threshold-tramming.dto';
 
 // Schema existente para Blueprint
 export const CreateBlueprintSchema = z.object({
@@ -16,29 +17,29 @@ export type CreateBlueprintDto = z.infer<typeof CreateBlueprintSchema>;
 // Schema para thresholds opcionais
 export const ThresholdsSchema = z
   .object({
-    totalClearance_greenMin: z.number().positive(),
-    totalClearance_yellowMin: z.number().positive(),
-    totalClearance_redMin: z.number().positive(),
+    totalClearance_greenMin: z.number(),
+    totalClearance_yellowMin: z.number(),
+    totalClearance_redMin: z.number(),
 
-    mainBearings_greenMin: z.number().positive(),
-    mainBearings_yellowMin: z.number().positive(),
-    mainBearings_redMin: z.number().positive(),
+    mainBearings_greenMin: z.number(),
+    mainBearings_yellowMin: z.number(),
+    mainBearings_redMin: z.number(),
 
-    upperConnectionBearings_greenMin: z.number().positive(),
-    upperConnectionBearings_yellowMin: z.number().positive(),
-    upperConnectionBearings_redMin: z.number().positive(),
+    upperConnectionBearings_greenMin: z.number(),
+    upperConnectionBearings_yellowMin: z.number(),
+    upperConnectionBearings_redMin: z.number(),
 
-    wristPinToMatingPart_greenMin: z.number().positive(),
-    wristPinToMatingPart_yellowMin: z.number().positive(),
-    wristPinToMatingPart_redMin: z.number().positive(),
+    wristPinToMatingPart_greenMin: z.number(),
+    wristPinToMatingPart_yellowMin: z.number(),
+    wristPinToMatingPart_redMin: z.number(),
 
-    wristPinToBushing_greenMin: z.number().positive(),
-    wristPinToBushing_yellowMin: z.number().positive(),
-    wristPinToBushing_redMin: z.number().positive(),
+    wristPinToBushing_greenMin: z.number(),
+    wristPinToBushing_yellowMin: z.number(),
+    wristPinToBushing_redMin: z.number(),
 
-    slideAdjNutToScrewSleeve_greenMin: z.number().positive(),
-    slideAdjNutToScrewSleeve_yellowMin: z.number().positive(),
-    slideAdjNutToScrewSleeve_redMin: z.number().positive(),
+    slideAdjNutToScrewSleeve_greenMin: z.number(),
+    slideAdjNutToScrewSleeve_yellowMin: z.number(),
+    slideAdjNutToScrewSleeve_redMin: z.number(),
   })
   .refine(
     (data) => {
@@ -74,9 +75,9 @@ export type ThresholdsDto = z.infer<typeof ThresholdsSchema>;
 // Schema para thresholds do Slide
 export const SlideThresholdsSchema = z
   .object({
-    maxDeviation_greenMin: z.number().positive(),
-    maxDeviation_yellowMin: z.number().positive(),
-    maxDeviation_redMin: z.number().positive(),
+    maxDeviation_greenMin: z.number(),
+    maxDeviation_yellowMin: z.number(),
+    maxDeviation_redMin: z.number(),
   })
   .refine(
     (data) => {
@@ -107,6 +108,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     clutchThresholds: ClutchThresholdsSchema.optional(),
     slideThresholds: SlideThresholdsSchema.optional(),
     gibsThresholds: GibsThresholdsSchema.optional(),
+    trammingThresholds: TrammingThresholdsSchema.optional(),
   })
   .refine(
     (data) => {
@@ -124,6 +126,10 @@ export const CreateBlueprintWithThresholdsSchema = z
       }
       // Se gibsThresholds fornecidos, GIBS deve estar em sections
       if (data.gibsThresholds && !data.sections.includes(ServiceSection.GIBS)) {
+        return false;
+      }
+
+      if (data.trammingThresholds && !data.sections.includes(ServiceSection.TRAMMING)) {
         return false;
       }
       return true;

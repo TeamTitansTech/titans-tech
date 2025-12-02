@@ -56,7 +56,9 @@
       "uploading": "Uploading...",
       "clickToUpload": "Click to upload",
       "jpgOrPngMax": "JPG or PNG (max. 10MB)"
-    }
+    },
+    "cancel": "Cancel",
+    "save": "Save"
   },
   "validation": {
     "required": "This field is required",
@@ -856,7 +858,8 @@
     "machines": "machines",
     "field": "field",
     "fields": "fields",
-    "edit": "Edit"
+    "edit": "Edit",
+    "thresholds": "Configure Thresholds"
   },
   "machines": {
     "title": "Create Machine",
@@ -916,6 +919,7 @@
     "viewMaintenanceLog": "View Maintenance Log",
     "downloadReports": "Download Reports",
     "requestUrgentService": "Request Urgent Service",
+    "urgentServiceRequest": "Urgent Service Request",
     "urgentServiceDescription": "Request an urgent service for {machineName}. Our team will be notified immediately.",
     "machine": "Machine",
     "additionalNotes": "Additional Notes",
@@ -932,6 +936,7 @@
     "completed": "Completed",
     "done": "Done",
     "inProgress": "In Progress",
+    "fromRequest": "From Request",
     "noInspectionsFound": "No inspections found",
     "noServicesFound": "No services found",
     "maintenanceService": "Maintenance",
@@ -991,6 +996,16 @@
       "unknown": "Unknown",
       "noImage": "No Image"
     },
+    "qrCode": {
+      "generateQR": "Generate QR Code",
+      "title": "Machine QR Code",
+      "description": "QR Code for machine: {machineName}",
+      "copyLink": "Copy link",
+      "copied": "Copied!",
+      "downloadSVG": "Download SVG",
+      "downloadPNG": "Download PNG",
+      "instructions": "Scan this QR code to access the public machine page and request maintenance services."
+    },
     "sectionDetails": {
       "comingSoon": "Section details for \"{section}\" coming soon...",
       "press": "Press",
@@ -1047,6 +1062,7 @@
         "outer": "Outer",
         "inner": "Inner",
         "issues": "Issues",
+        "alerts": "Alerts",
         "inspections": "Inspections",
         "inspectionHistory": "Inspection History",
         "oilChanged": "Oil Changed",
@@ -1880,6 +1896,13 @@
     "pageTitle": "Services",
     "pageDescription": "View and manage all services across your machines",
     "pending": "Pending",
+    "publicRequest": "QR Code Request",
+    "publicRequestDetails": {
+      "title": "Public Maintenance Request",
+      "requester": "Requester Name",
+      "problemDescription": "Problem Description",
+      "createdFromRequest": "This service was created from a public maintenance request."
+    },
     "noServicesFound": "No services found",
     "stats": {
       "totalServices": "Total Services",
@@ -1949,7 +1972,7 @@
     "noBranches": "No branches found for this company",
     "noBranchesDescription": "Branches will be displayed here when created",
     "branch": "branch",
-    "branches": "branches",
+    "branches": "Branches",
     "machine": "machine",
     "machines": "machines",
     "noMachines": "No machines",
@@ -2050,10 +2073,40 @@
       "title": "GIBS - Alert Configuration",
       "usable": "Usable"
     },
+    "tramming": {
+      "title": "TRAMMING - Alert Configuration",
+      "description": "Configure the threshold for tramming sums (vertical and horizontal). This threshold will be applied to all positions (top, bottom, left, right).",
+      "sum": "Tramming Sum"
+    },
     "thresholds": {
       "greenStartMin": "Green Start (Min)",
       "yellowStartMin": "Yellow Start (Min)",
-      "redStartMin": "Red Start (Min)"
+      "redStartMin": "Red Start (Min)",
+      "editTitle": "Configure Thresholds - {name}",
+      "editDescription": "Adjust threshold values for alert generation. Check the option below to recalculate existing alerts.",
+      "loadError": "Error loading thresholds",
+      "recalculate": {
+        "label": "Recalculate existing alerts",
+        "description": "Generate new alerts for all services of this blueprint using the new thresholds",
+        "updating": "Updating thresholds and recalculating alerts...",
+        "success": "Thresholds updated. {count} alerts generated for {services} services.",
+        "successNoRecalc": "Thresholds updated. New alerts will only be generated for future services.",
+        "error": "Error updating thresholds"
+      }
+    },
+    "history": {
+      "title": "Alert History",
+      "noHistory": "No alert history available",
+      "viewHistory": "View History",
+      "hideHistory": "Hide History",
+      "mostRecent": "Most Recent",
+      "createdAt": "Created on",
+      "thresholdSnapshot": "Thresholds Used",
+      "reason": {
+        "initial": "Initial Calculation",
+        "thresholdUpdate": "Threshold Update",
+        "manualRecalculation": "Manual Recalculation"
+      }
     }
   },
   "forms": {
@@ -2209,6 +2262,74 @@
       "unknown": "Unknown"
     }
   },
+  "serviceRequests": {
+    "title": "Service Requests",
+    "noRequests": "No service requests",
+    "open": "open",
+    "statusOpen": "Open",
+    "statusClosed": "Closed",
+    "closedRequests": "{count} closed requests",
+    "problemDescription": "Problem Description",
+    "attachedPhoto": "Attached Photo",
+    "deviceInfo": "Device Information",
+    "linkedServices": "Linked Services",
+    "createService": "Create Service",
+    "close": "Close Request",
+    "reopen": "Reopen",
+    "expand": "Show details",
+    "collapse": "Hide details",
+    "closedSuccess": "Request closed successfully",
+    "reopenedSuccess": "Request reopened successfully",
+    "serviceCreatedSuccess": "Service created successfully",
+    "actionFailed": "Action failed. Please try again.",
+    "listTitle": "All Service Requests",
+    "filterByStatus": "Filter by status",
+    "allStatuses": "All",
+    "openOnly": "Open only",
+    "closedOnly": "Closed only",
+    "machine": "Machine",
+    "requester": "Requester",
+    "date": "Date",
+    "status": "Status",
+    "actions": "Actions",
+    "viewMachine": "View Machine",
+    "viewDetails": "View Details",
+    "requestDetails": "Request Details"
+  },
+  "public": {
+    "machine": {
+      "title": "Request Maintenance",
+      "subtitle": "Report an issue with this machine",
+      "machineInfo": "Machine Information",
+      "serialNumber": "Serial Number",
+      "login": "Login",
+      "form": {
+        "title": "Request Maintenance Service",
+        "description": "Fill in the form below to request maintenance service for this machine.",
+        "name": "Your Name",
+        "namePlaceholder": "Enter your name",
+        "email": "Your Email",
+        "emailPlaceholder": "Enter your email address",
+        "phone": "Phone (optional)",
+        "phonePlaceholder": "Enter your phone number",
+        "problem": "Problem Description",
+        "problemPlaceholder": "Describe the issue or problem you're experiencing with this machine...",
+        "image": "Photo (optional)",
+        "imageDescription": "Upload a photo of the issue to help our team understand the problem better",
+        "submit": "Submit Request",
+        "submitting": "Submitting...",
+        "success": "Maintenance request submitted successfully",
+        "successTitle": "Request Submitted!",
+        "successMessage": "Your maintenance request has been received. Our team will review it and take appropriate action.",
+        "error": "Failed to submit request. Please try again.",
+        "validation": {
+          "required": "Please fill in all required fields",
+          "invalidEmail": "Please enter a valid email address"
+        }
+      },
+      "footer": "Powered by Titans Tech Service Management System"
+    }
+  },
   "errors": {
     "service": {
       "failedToUpdate": "Failed to update service",
@@ -2259,6 +2380,10 @@
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
     "exportPDF": "Export PDF",
+    "exportThisTab": "Export This Tab",
+    "exportAllTabs": "Export All Tabs",
+    "partsSelectedAcrossTabs": "parts selected across all tabs",
+    "selectPartsToExport": "Select parts to export",
     "exporting": "Exporting...",
     "noPartsSelected": "No parts selected",
     "exportSuccess": "PDF exported successfully",
@@ -2284,6 +2409,28 @@
       "description": "Description",
       "quantity": "Qty",
       "unit": "Unit"
+    },
+    "partsListTitle": "Parts List",
+    "partsAvailable": "parts available",
+    "subsections": {
+      "crankshaft": "Crankshaft Bearing",
+      "outerSlideStandard": "Outer Slide (Standard)",
+      "innerSlideStandard": "Inner Slide (Standard)",
+      "outerSlideAdjustment": "Outer Slide Adjustment",
+      "shutheightIndicatorOuter": "Shutheight Indicator (Outer)",
+      "shutheightIndicatorInner": "Shutheight Indicator (Inner)",
+      "singleGearedDrive": "Single Geared Drive",
+      "flywheelBrake": "Flywheel Brake",
+      "motorDrive": "Motor Drive",
+      "hydraulicUnit": "Hydraulic Unit",
+      "flywheelBearings": "Flywheel Bearings",
+      "counterbalanceInner": "Counterbalance (Inner)",
+      "counterbalanceOuterAirmount": "Counterbalance (Outer)",
+      "lubricationUnit": "Lubrication Unit",
+      "outerSlide": "Outer Slide",
+      "innerSlide": "Inner Slide",
+      "gibsOuter": "Gibs (Outer)",
+      "gibsInner": "Gibs (Inner)"
     }
   },
   "sectionStatus": {

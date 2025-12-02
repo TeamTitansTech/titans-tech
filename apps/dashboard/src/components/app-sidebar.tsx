@@ -12,6 +12,7 @@ import {
   Building2,
   Factory,
   Settings,
+  AlertCircle,
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -108,6 +109,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: t('navigation.services'),
         icon: ClipboardList,
         url: '/admin/services',
+      },
+      {
+        title: t('serviceRequests.title'),
+        icon: AlertCircle,
+        url: '/admin/service-requests',
       },
       {
         title: t('navigation.settings'),

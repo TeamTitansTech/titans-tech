@@ -21,6 +21,7 @@ type LoginFormProps = {
   brandLogo?: string | null;
   loginType: 'admin' | 'client';
   companyId?: string;
+  redirectTo?: string;
 };
 
 /**
@@ -45,6 +46,7 @@ export function LoginForm({
   brandLogo,
   loginType,
   companyId,
+  redirectTo,
 }: LoginFormProps) {
   // Default blue color for admin login or companies without brand color
   const defaultColor = '#1e40af';
@@ -98,7 +100,7 @@ export function LoginForm({
       if (response?.data?.accessToken) {
         await setCookie('auth_token', response.data.accessToken);
         setCompanyUser(response.data.user);
-        window.location.href = '/home';
+        window.location.href = redirectTo || '/home';
       }
     }
   };
