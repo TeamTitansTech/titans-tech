@@ -2263,7 +2263,7 @@
   },
   "serviceRequests": {
     "title": "Solicitudes de Servicio",
-    "noRequests": "No hay solicitudes de servicio para esta máquina",
+    "noRequests": "No hay solicitudes de servicio",
     "open": "abiertas",
     "statusOpen": "Abierta",
     "statusClosed": "Cerrada",

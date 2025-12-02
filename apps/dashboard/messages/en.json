@@ -2259,7 +2259,7 @@
   },
   "serviceRequests": {
     "title": "Service Requests",
-    "noRequests": "No service requests for this machine",
+    "noRequests": "No service requests",
     "open": "open",
     "statusOpen": "Open",
     "statusClosed": "Closed",

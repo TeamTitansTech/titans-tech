@@ -2268,7 +2268,7 @@
   },
   "serviceRequests": {
     "title": "Solicitações de Serviço",
-    "noRequests": "Não há solicitações de serviço para esta máquina",
+    "noRequests": "Não há solicitações de serviço",
     "open": "abertas",
     "statusOpen": "Aberta",
     "statusClosed": "Fechada",
