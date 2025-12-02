@@ -502,9 +502,9 @@ export function SubsectionPartsModal({
                           <Package className="h-5 w-5 text-primary" />
                           <CardTitle className="text-lg">{t('partsListTitle')}</CardTitle>
                         </div>
-                        {selectedKeys.size > 0 && (
-                          <Badge variant="secondary" className="bg-primary/10 text-primary">
-                            {selectedKeys.size} {t('selected')}
+                        {getSelectedCountForSubsection(activeTab) > 0 && (
+                          <Badge variant="outline" className="border-primary text-primary">
+                            {getSelectedCountForSubsection(activeTab)} {t('selected')}
                           </Badge>
                         )}
                       </div>
