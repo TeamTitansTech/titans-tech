@@ -1979,27 +1979,22 @@ export class AlertsService {
       );
     }
 
-    // Validate that yellowMin > greenMin and redMin > yellowMin for both clearance and difference
+    // Validate that yellowMin > greenMin and redMin > yellowMin for difference
     const mergedData = {
       ...existingThreshold,
       ...dto,
     };
 
-    const clearanceGreenMin = Number(mergedData.clearance_greenMin);
-    const clearanceYellowMin = Number(mergedData.clearance_yellowMin);
-    const clearanceRedMin = Number(mergedData.clearance_redMin);
     const differenceGreenMin = Number(mergedData.difference_greenMin);
     const differenceYellowMin = Number(mergedData.difference_yellowMin);
     const differenceRedMin = Number(mergedData.difference_redMin);
 
     if (
-      clearanceYellowMin <= clearanceGreenMin ||
-      clearanceRedMin <= clearanceYellowMin ||
       differenceYellowMin <= differenceGreenMin ||
       differenceRedMin <= differenceYellowMin
     ) {
       throw new BadRequestException(
-        'Invalid threshold values: must have greenMin < yellowMin < redMin for both clearance and difference',
+        'Invalid threshold values: must have greenMin < yellowMin < redMin for difference thresholds',
       );
     }
 
@@ -2009,7 +2004,19 @@ export class AlertsService {
       data: convertPartialPistonsThresholdToDecimal(dto),
     });
 
-    return new ThresholdPistonsResponseDto(threshold as any);
+    // Recalculate alerts if requested
+    let recalculationResult:
+      | { alertsGenerated: number; servicesAffected: number }
+      | undefined;
+    if (dto.recalculateAlerts) {
+      recalculationResult =
+        await this.recalculatePistonsAlertsForBlueprint(blueprintId);
+    }
+
+    return {
+      ...new ThresholdPistonsResponseDto(threshold as any),
+      recalculationResult,
+    };
   }
 
   async deletePistonsThreshold(blueprintId: string) {
@@ -2028,6 +2035,48 @@ export class AlertsService {
     });
 
     return { message: 'PISTONS threshold deleted successfully' };
+  }
+
+  /**
+   * Recalculates Pistons alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculatePistonsAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have Pistons data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        pistons: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateAlertsForPistons(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate Pistons alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
   }
 
   // ==================== PISTONS ALERT GENERATION ====================
@@ -2100,11 +2149,6 @@ export class AlertsService {
     const defaultSeverity = AlertSeverity.NONE;
 
     const thresholdSnapshot = {
-      clearance: {
-        greenMin: threshold.clearance_greenMin.toNumber(),
-        yellowMin: threshold.clearance_yellowMin.toNumber(),
-        redMin: threshold.clearance_redMin.toNumber(),
-      },
       difference: {
         greenMin: threshold.difference_greenMin.toNumber(),
         yellowMin: threshold.difference_yellowMin.toNumber(),
@@ -2114,54 +2158,32 @@ export class AlertsService {
 
     // Build alert data
     const alertData = {
-      // OUTER clearance severities
-      outer_lhTop_severity: outerAlerts?.clearance.lhTop ?? defaultSeverity,
-      outer_lhBottom_severity:
-        outerAlerts?.clearance.lhBottom ?? defaultSeverity,
-      outer_lhLeft_severity: outerAlerts?.clearance.lhLeft ?? defaultSeverity,
-      outer_lhRight_severity: outerAlerts?.clearance.lhRight ?? defaultSeverity,
-      outer_rhTop_severity: outerAlerts?.clearance.rhTop ?? defaultSeverity,
-      outer_rhBottom_severity:
-        outerAlerts?.clearance.rhBottom ?? defaultSeverity,
-      outer_rhLeft_severity: outerAlerts?.clearance.rhLeft ?? defaultSeverity,
-      outer_rhRight_severity: outerAlerts?.clearance.rhRight ?? defaultSeverity,
       // OUTER difference values and severities
-      outer_lhLeftRight_diff: outerAlerts?.difference.lhLeftRight.value ?? null,
+      outer_lhLeftRight_diff: outerAlerts?.lhLeftRight.value ?? null,
       outer_lhLeftRight_severity:
-        outerAlerts?.difference.lhLeftRight.severity ?? defaultSeverity,
-      outer_lhTopBottom_diff: outerAlerts?.difference.lhTopBottom.value ?? null,
+        outerAlerts?.lhLeftRight.severity ?? defaultSeverity,
+      outer_lhTopBottom_diff: outerAlerts?.lhTopBottom.value ?? null,
       outer_lhTopBottom_severity:
-        outerAlerts?.difference.lhTopBottom.severity ?? defaultSeverity,
-      outer_rhLeftRight_diff: outerAlerts?.difference.rhLeftRight.value ?? null,
+        outerAlerts?.lhTopBottom.severity ?? defaultSeverity,
+      outer_rhLeftRight_diff: outerAlerts?.rhLeftRight.value ?? null,
       outer_rhLeftRight_severity:
-        outerAlerts?.difference.rhLeftRight.severity ?? defaultSeverity,
-      outer_rhTopBottom_diff: outerAlerts?.difference.rhTopBottom.value ?? null,
+        outerAlerts?.rhLeftRight.severity ?? defaultSeverity,
+      outer_rhTopBottom_diff: outerAlerts?.rhTopBottom.value ?? null,
       outer_rhTopBottom_severity:
-        outerAlerts?.difference.rhTopBottom.severity ?? defaultSeverity,
-      // INNER clearance severities
-      inner_lhTop_severity: innerAlerts?.clearance.lhTop ?? defaultSeverity,
-      inner_lhBottom_severity:
-        innerAlerts?.clearance.lhBottom ?? defaultSeverity,
-      inner_lhLeft_severity: innerAlerts?.clearance.lhLeft ?? defaultSeverity,
-      inner_lhRight_severity: innerAlerts?.clearance.lhRight ?? defaultSeverity,
-      inner_rhTop_severity: innerAlerts?.clearance.rhTop ?? defaultSeverity,
-      inner_rhBottom_severity:
-        innerAlerts?.clearance.rhBottom ?? defaultSeverity,
-      inner_rhLeft_severity: innerAlerts?.clearance.rhLeft ?? defaultSeverity,
-      inner_rhRight_severity: innerAlerts?.clearance.rhRight ?? defaultSeverity,
+        outerAlerts?.rhTopBottom.severity ?? defaultSeverity,
       // INNER difference values and severities
-      inner_lhLeftRight_diff: innerAlerts?.difference.lhLeftRight.value ?? null,
+      inner_lhLeftRight_diff: innerAlerts?.lhLeftRight.value ?? null,
       inner_lhLeftRight_severity:
-        innerAlerts?.difference.lhLeftRight.severity ?? defaultSeverity,
-      inner_lhTopBottom_diff: innerAlerts?.difference.lhTopBottom.value ?? null,
+        innerAlerts?.lhLeftRight.severity ?? defaultSeverity,
+      inner_lhTopBottom_diff: innerAlerts?.lhTopBottom.value ?? null,
       inner_lhTopBottom_severity:
-        innerAlerts?.difference.lhTopBottom.severity ?? defaultSeverity,
-      inner_rhLeftRight_diff: innerAlerts?.difference.rhLeftRight.value ?? null,
+        innerAlerts?.lhTopBottom.severity ?? defaultSeverity,
+      inner_rhLeftRight_diff: innerAlerts?.rhLeftRight.value ?? null,
       inner_rhLeftRight_severity:
-        innerAlerts?.difference.rhLeftRight.severity ?? defaultSeverity,
-      inner_rhTopBottom_diff: innerAlerts?.difference.rhTopBottom.value ?? null,
+        innerAlerts?.rhLeftRight.severity ?? defaultSeverity,
+      inner_rhTopBottom_diff: innerAlerts?.rhTopBottom.value ?? null,
       inner_rhTopBottom_severity:
-        innerAlerts?.difference.rhTopBottom.severity ?? defaultSeverity,
+        innerAlerts?.rhTopBottom.severity ?? defaultSeverity,
       thresholdSnapshot,
     };
 
@@ -2183,7 +2205,7 @@ export class AlertsService {
   }
 
   /**
-   * Calculate alerts for pistons data (clearance + differences)
+   * Calculate alerts for pistons data (differences only)
    */
   private calculatePistonsAlerts(data: any, threshold: any) {
     const toDecimal = (val: any): Decimal | null => {
@@ -2201,49 +2223,13 @@ export class AlertsService {
     const rhLeft = toDecimal(data.rhLeft);
     const rhRight = toDecimal(data.rhRight);
 
-    // Calculate clearance severities (absolute values)
-    const clearance = {
-      lhTop: this.evaluateClearanceSeverity(lhTop, threshold),
-      lhBottom: this.evaluateClearanceSeverity(lhBottom, threshold),
-      lhLeft: this.evaluateClearanceSeverity(lhLeft, threshold),
-      lhRight: this.evaluateClearanceSeverity(lhRight, threshold),
-      rhTop: this.evaluateClearanceSeverity(rhTop, threshold),
-      rhBottom: this.evaluateClearanceSeverity(rhBottom, threshold),
-      rhLeft: this.evaluateClearanceSeverity(rhLeft, threshold),
-      rhRight: this.evaluateClearanceSeverity(rhRight, threshold),
-    };
-
     // Calculate sums (lhRight + lhLeft, rhRight + rhLeft, lhTop + lhBottom, rhTop + rhBottom)
-    const difference = {
+    return {
       lhLeftRight: this.calculateSumAlert(lhRight, lhLeft, threshold),
       rhLeftRight: this.calculateSumAlert(rhRight, rhLeft, threshold),
       lhTopBottom: this.calculateSumAlert(lhTop, lhBottom, threshold),
       rhTopBottom: this.calculateSumAlert(rhTop, rhBottom, threshold),
     };
-
-    return { clearance, difference };
-  }
-
-  /**
-   * Evaluate clearance severity based on absolute value
-   */
-  private evaluateClearanceSeverity(
-    value: Decimal | null,
-    threshold: any,
-  ): AlertSeverity {
-    if (value === null) return AlertSeverity.NONE;
-
-    // For clearance, we check if value is within green/yellow/red ranges
-    // Green: 0 to greenMin (inclusive)
-    // Yellow: greenMin to yellowMin
-    // Red: >= redMin
-    if (value.lessThanOrEqualTo(threshold.clearance_greenMin)) {
-      return AlertSeverity.GREEN;
-    } else if (value.lessThan(threshold.clearance_redMin)) {
-      return AlertSeverity.YELLOW;
-    } else {
-      return AlertSeverity.RED;
-    }
   }
 
   /**

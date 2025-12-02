@@ -888,9 +888,6 @@ export class ServicesService {
               vacuumSystem: pistonsRecord.vacuumSystem,
               vacuumSystemAirPressureSetting:
                 pistonsRecord.vacuumSystemAirPressureSetting,
-              vacuumSystemAirPressureUnit:
-                pistonsRecord.vacuumSystemAirPressureUnit,
-              unit: pistonsRecord.unit,
               outerData: outerData || undefined,
               innerData: innerData || undefined,
               notes: pistonsRecord.notes,
@@ -1869,8 +1866,6 @@ export class ServicesService {
           'pistonSeals',
           'vacuumSystem',
           'vacuumSystemAirPressureSetting',
-          'vacuumSystemAirPressureUnit',
-          'unit',
           'notes',
         ];
 
@@ -1920,11 +1915,6 @@ export class ServicesService {
                 vacuumSystemAirPressureSetting:
                   updateDto.vacuumSystemAirPressureSetting,
               }),
-              ...(updateDto.vacuumSystemAirPressureUnit && {
-                vacuumSystemAirPressureUnit:
-                  updateDto.vacuumSystemAirPressureUnit,
-              }),
-              ...(updateDto.unit && { unit: updateDto.unit }),
               ...(updateDto.notes && { notes: updateDto.notes }),
             },
           },
@@ -2397,47 +2387,6 @@ export class ServicesService {
       let sectionSeverity: AlertSeverityDto = 'NONE';
 
       const pistonsFields = [
-        // Outer clearance severities
-        {
-          field: 'outer_lhTop',
-          label: 'LH Top (Outer)',
-          severity: alert.outer_lhTop_severity as AlertSeverityDto,
-        },
-        {
-          field: 'outer_lhBottom',
-          label: 'LH Bottom (Outer)',
-          severity: alert.outer_lhBottom_severity as AlertSeverityDto,
-        },
-        {
-          field: 'outer_lhLeft',
-          label: 'LH Left (Outer)',
-          severity: alert.outer_lhLeft_severity as AlertSeverityDto,
-        },
-        {
-          field: 'outer_lhRight',
-          label: 'LH Right (Outer)',
-          severity: alert.outer_lhRight_severity as AlertSeverityDto,
-        },
-        {
-          field: 'outer_rhTop',
-          label: 'RH Top (Outer)',
-          severity: alert.outer_rhTop_severity as AlertSeverityDto,
-        },
-        {
-          field: 'outer_rhBottom',
-          label: 'RH Bottom (Outer)',
-          severity: alert.outer_rhBottom_severity as AlertSeverityDto,
-        },
-        {
-          field: 'outer_rhLeft',
-          label: 'RH Left (Outer)',
-          severity: alert.outer_rhLeft_severity as AlertSeverityDto,
-        },
-        {
-          field: 'outer_rhRight',
-          label: 'RH Right (Outer)',
-          severity: alert.outer_rhRight_severity as AlertSeverityDto,
-        },
         // Outer difference severities
         {
           field: 'outer_lhLeftRight',
@@ -2462,47 +2411,6 @@ export class ServicesService {
           label: 'RH Top-Bottom Diff (Outer)',
           severity: alert.outer_rhTopBottom_severity as AlertSeverityDto,
           value: alert.outer_rhTopBottom_diff?.toString(),
-        },
-        // Inner clearance severities
-        {
-          field: 'inner_lhTop',
-          label: 'LH Top (Inner)',
-          severity: alert.inner_lhTop_severity as AlertSeverityDto,
-        },
-        {
-          field: 'inner_lhBottom',
-          label: 'LH Bottom (Inner)',
-          severity: alert.inner_lhBottom_severity as AlertSeverityDto,
-        },
-        {
-          field: 'inner_lhLeft',
-          label: 'LH Left (Inner)',
-          severity: alert.inner_lhLeft_severity as AlertSeverityDto,
-        },
-        {
-          field: 'inner_lhRight',
-          label: 'LH Right (Inner)',
-          severity: alert.inner_lhRight_severity as AlertSeverityDto,
-        },
-        {
-          field: 'inner_rhTop',
-          label: 'RH Top (Inner)',
-          severity: alert.inner_rhTop_severity as AlertSeverityDto,
-        },
-        {
-          field: 'inner_rhBottom',
-          label: 'RH Bottom (Inner)',
-          severity: alert.inner_rhBottom_severity as AlertSeverityDto,
-        },
-        {
-          field: 'inner_rhLeft',
-          label: 'RH Left (Inner)',
-          severity: alert.inner_rhLeft_severity as AlertSeverityDto,
-        },
-        {
-          field: 'inner_rhRight',
-          label: 'RH Right (Inner)',
-          severity: alert.inner_rhRight_severity as AlertSeverityDto,
         },
         // Inner difference severities
         {

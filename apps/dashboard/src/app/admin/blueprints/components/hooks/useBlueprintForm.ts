@@ -76,9 +76,6 @@ const INITIAL_GIBS_THRESHOLDS: GibsThresholdsData = {
 };
 
 const INITIAL_PISTONS_THRESHOLDS: PistonsThresholdsData = {
-  clearance_greenMin: 0.0,
-  clearance_yellowMin: 0.0051,
-  clearance_redMin: 0.01,
   difference_greenMin: 0.0,
   difference_yellowMin: 0.0051,
   difference_redMin: 0.01,

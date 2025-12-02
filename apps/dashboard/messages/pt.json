@@ -2116,6 +2116,10 @@
         "thresholdUpdate": "Atualização de Threshold",
         "manualRecalculation": "Recalculo Manual"
       }
+    },
+    "pistons": {
+      "title": "PISTÕES - Configuração de Alerta",
+      "difference": "Diferença (Lado a Lado)"
     }
   },
   "forms": {

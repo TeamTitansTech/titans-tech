@@ -640,11 +640,6 @@ model ThresholdPistons {
   id          String @id @default(cuid())
   blueprintId String @unique
 
-  // Clearance thresholds (for absolute measurement values)
-  clearance_greenMin  Decimal @db.Decimal(10, 4)
-  clearance_yellowMin Decimal @db.Decimal(10, 4)
-  clearance_redMin    Decimal @db.Decimal(10, 4)
-
   // Difference thresholds (for side-to-side differences)
   difference_greenMin  Decimal @db.Decimal(10, 4)
   difference_yellowMin Decimal @db.Decimal(10, 4)
@@ -919,17 +914,7 @@ model AlertPistons {
   machineServiceId String
 
   // === OUTER DATA ===
-  // Clearance severities (8 fields)
-  outer_lhTop_severity    AlertSeverity @default(NONE)
-  outer_lhBottom_severity AlertSeverity @default(NONE)
-  outer_lhLeft_severity   AlertSeverity @default(NONE)
-  outer_lhRight_severity  AlertSeverity @default(NONE)
-  outer_rhTop_severity    AlertSeverity @default(NONE)
-  outer_rhBottom_severity AlertSeverity @default(NONE)
-  outer_rhLeft_severity   AlertSeverity @default(NONE)
-  outer_rhRight_severity  AlertSeverity @default(NONE)
-
-  // Difference values and severities (4 fields)
+  // Difference values and severities
   outer_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
   outer_lhLeftRight_severity AlertSeverity @default(NONE)
   outer_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
@@ -940,17 +925,7 @@ model AlertPistons {
   outer_rhTopBottom_severity AlertSeverity @default(NONE)
 
   // === INNER DATA ===
-  // Clearance severities (8 fields)
-  inner_lhTop_severity    AlertSeverity @default(NONE)
-  inner_lhBottom_severity AlertSeverity @default(NONE)
-  inner_lhLeft_severity   AlertSeverity @default(NONE)
-  inner_lhRight_severity  AlertSeverity @default(NONE)
-  inner_rhTop_severity    AlertSeverity @default(NONE)
-  inner_rhBottom_severity AlertSeverity @default(NONE)
-  inner_rhLeft_severity   AlertSeverity @default(NONE)
-  inner_rhRight_severity  AlertSeverity @default(NONE)
-
-  // Difference values and severities (4 fields)
+  // Difference values and severities
   inner_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
   inner_lhLeftRight_severity AlertSeverity @default(NONE)
   inner_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
@@ -1543,8 +1518,6 @@ model MachineServicePistons {
   pistonSeals                    SealConditionType?
   vacuumSystem                   VacuumSystemConditionType?
   vacuumSystemAirPressureSetting Decimal?                   @db.Decimal(10, 4)
-  vacuumSystemAirPressureUnit    PressureUnit?
-  unit                           String?                    @default("inches") // inches, mm, cm
 
   // Notes
   notes String?

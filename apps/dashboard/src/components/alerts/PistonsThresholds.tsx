@@ -6,9 +6,6 @@ import { ThresholdRangeInput } from './ThresholdRangeInput';
 import { useTranslations } from 'next-intl';
 
 export interface PistonsThresholdsData {
-  clearance_greenMin: number;
-  clearance_yellowMin: number;
-  clearance_redMin: number;
   difference_greenMin: number;
   difference_yellowMin: number;
   difference_redMin: number;
@@ -42,17 +39,7 @@ export function PistonsThresholds({ open, onOpenChange, data, onChange }: Piston
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-card space-y-6">
-          <ThresholdRangeInput
-            label={t('clearance')}
-            greenMin={data.clearance_greenMin}
-            yellowMin={data.clearance_yellowMin}
-            redMin={data.clearance_redMin}
-            onGreenMinChange={(v) => updateField('clearance_greenMin', v)}
-            onYellowMinChange={(v) => updateField('clearance_yellowMin', v)}
-            onRedMinChange={(v) => updateField('clearance_redMin', v)}
-          />
-
+        <div className="border border-t-0 rounded-b-lg p-6 bg-card">
           <ThresholdRangeInput
             label={t('difference')}
             greenMin={data.difference_greenMin}

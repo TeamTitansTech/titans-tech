@@ -2,10 +2,6 @@ import { z } from 'zod';
 
 export const PistonsThresholdsSchema = z
   .object({
-    // Clearance thresholds (for absolute measurement values)
-    clearance_greenMin: z.number().nonnegative(),
-    clearance_yellowMin: z.number().positive(),
-    clearance_redMin: z.number().positive(),
     // Difference thresholds (for side-to-side differences)
     difference_greenMin: z.number().nonnegative(),
     difference_yellowMin: z.number().positive(),
@@ -13,10 +9,8 @@ export const PistonsThresholdsSchema = z
   })
   .refine(
     (data) => {
-      // Validate that yellowMin > greenMin and redMin > yellowMin for both
+      // Validate that yellowMin > greenMin and redMin > yellowMin
       if (
-        data.clearance_yellowMin <= data.clearance_greenMin ||
-        data.clearance_redMin <= data.clearance_yellowMin ||
         data.difference_yellowMin <= data.difference_greenMin ||
         data.difference_redMin <= data.difference_yellowMin
       ) {
@@ -25,7 +19,7 @@ export const PistonsThresholdsSchema = z
       return true;
     },
     {
-      message: 'Must have greenMin < yellowMin < redMin for both clearance and difference',
+      message: 'Must have greenMin < yellowMin < redMin for difference thresholds',
     },
   );
 

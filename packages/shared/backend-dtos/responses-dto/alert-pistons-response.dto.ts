@@ -5,16 +5,6 @@ export class AlertPistonsResponseDto {
   machineServiceId: string;
 
   // === OUTER DATA ===
-  // Clearance severities
-  outer_lhTop_severity: AlertSeverity;
-  outer_lhBottom_severity: AlertSeverity;
-  outer_lhLeft_severity: AlertSeverity;
-  outer_lhRight_severity: AlertSeverity;
-  outer_rhTop_severity: AlertSeverity;
-  outer_rhBottom_severity: AlertSeverity;
-  outer_rhLeft_severity: AlertSeverity;
-  outer_rhRight_severity: AlertSeverity;
-
   // Difference values and severities
   outer_lhLeftRight_diff: number | null;
   outer_lhLeftRight_severity: AlertSeverity;
@@ -26,16 +16,6 @@ export class AlertPistonsResponseDto {
   outer_rhTopBottom_severity: AlertSeverity;
 
   // === INNER DATA ===
-  // Clearance severities
-  inner_lhTop_severity: AlertSeverity;
-  inner_lhBottom_severity: AlertSeverity;
-  inner_lhLeft_severity: AlertSeverity;
-  inner_lhRight_severity: AlertSeverity;
-  inner_rhTop_severity: AlertSeverity;
-  inner_rhBottom_severity: AlertSeverity;
-  inner_rhLeft_severity: AlertSeverity;
-  inner_rhRight_severity: AlertSeverity;
-
   // Difference values and severities
   inner_lhLeftRight_diff: number | null;
   inner_lhLeftRight_severity: AlertSeverity;

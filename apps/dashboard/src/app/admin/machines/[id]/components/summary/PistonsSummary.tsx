@@ -150,14 +150,8 @@ export function PistonsSummary({ data, alert }: PistonsSummaryProps): React.Reac
                   {tPistons('vacuumSystemAirPressureSetting')}:
                 </span>
                 <span className="font-medium">
-                  {!!data?.vacuumSystemAirPressureSetting
-                    ? `${data.vacuumSystemAirPressureSetting} ${String(data.vacuumSystemAirPressureUnit || 'PSI')}`
-                    : '-'}
+                  {data.vacuumSystemAirPressureSetting ? data.vacuumSystemAirPressureSetting : '-'}
                 </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">{tPistons('unit')}:</span>
-                <span className="font-medium">{String(data?.unit || 'inches')}</span>
               </div>
             </div>
           </div>

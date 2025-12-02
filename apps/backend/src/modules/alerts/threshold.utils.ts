@@ -272,12 +272,9 @@ export function convertPartialGibsThresholdToDecimal<
 
 /**
  * List of all PISTONS threshold field names
- * Monitors clearance (absolute values) and difference (side-to-side) thresholds
+ * Monitors difference (side-to-side) thresholds only
  */
 export const PISTONS_THRESHOLD_FIELDS = [
-  'clearance_greenMin',
-  'clearance_yellowMin',
-  'clearance_redMin',
   'difference_greenMin',
   'difference_yellowMin',
   'difference_redMin',
