@@ -15,3 +15,4 @@ export * from './permission-template-response.dto';
 export * from './admin-manager-users-response.dto';
 export * from './alerts-summary-response.dto';
 export * from './notifications/admin/';
+export * from './recalculation-result-response.dto';

@@ -29,6 +29,13 @@ import {
 import { getSlideThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import {
+  SectionStatusBadge,
+  type SectionStatus,
+  calculateSectionStatus,
+} from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { SLIDE_TABS } from '@/data/parts/dac-parts';
 
 interface SlideSectionProps {
   machineId: string;
@@ -45,6 +52,7 @@ export function SlideSection({
   hideThresholdValues = false,
 }: SlideSectionProps) {
   const t = useTranslations('machines.sectionDetails');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   const [positionThreshold, setPositionThreshold] = useState<ThresholdConfig | null>(null);
   const [date, setDate] = useState<DateRange | undefined>(() => {
@@ -150,6 +158,21 @@ export function SlideSection({
   const outerMaxDeviation = calculateMaxDeviation(latestOuterData);
   const innerMaxDeviation = calculateMaxDeviation(latestInnerData);
 
+  // Prepare measurements for status badge
+  const statusMeasurements = useMemo(
+    () => [
+      { value: outerMaxDeviation, threshold: positionThreshold },
+      { value: innerMaxDeviation, threshold: positionThreshold },
+    ],
+    [outerMaxDeviation, innerMaxDeviation, positionThreshold],
+  );
+
+  // Calculate section status for the status card
+  const sectionStatus: SectionStatus = useMemo(
+    () => calculateSectionStatus(statusMeasurements),
+    [statusMeasurements],
+  );
+
   return (
     <div ref={contentRef} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -240,7 +263,10 @@ export function SlideSection({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>{t('sectionTitles.slideMeasurements')}</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>{t('sectionTitles.slideMeasurements')}</CardTitle>
+              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
+            </div>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Slide"
@@ -440,6 +466,18 @@ export function SlideSection({
           </div>
         </CardContent>
       </Card>
+
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          tabs: SLIDE_TABS,
+          title: tParts('slideParts'),
+          description: tParts('slideDescription'),
+          machineName,
+          sectionName: 'Slide',
+        }}
+      />
     </div>
   );
 }

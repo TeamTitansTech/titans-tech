@@ -1,0 +1,26 @@
+#!/usr/bin/env sh
+
+# Get current branch
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+REMOTE_BRANCH="origin/$BRANCH"
+
+# Check if remote branch exists
+if git rev-parse --verify "$REMOTE_BRANCH" >/dev/null 2>&1; then
+  # Compare against what's already pushed
+  BASE="$REMOTE_BRANCH"
+else
+  # New branch - compare against dev
+  BASE="origin/dev"
+fi
+
+SCHEMA_CHANGED=$(git diff --name-only "$BASE"...HEAD | grep -c "schema.prisma" || true)
+MIGRATION_ADDED=$(git diff --name-only "$BASE"...HEAD | grep -c "prisma/migrations/" || true)
+
+if [ "$SCHEMA_CHANGED" -gt 0 ] && [ "$MIGRATION_ADDED" -eq 0 ]; then
+  echo "❌ schema.prisma was modified but no migration was added!"
+  echo "❌ If you pushed schema changes before in this branch, make sure to not add multiple migrations!"
+  echo "❌ Run: npx prisma migrate dev --name <migration_name>"
+  exit 1
+fi
+
+echo "✅ Schema and migrations check passed"

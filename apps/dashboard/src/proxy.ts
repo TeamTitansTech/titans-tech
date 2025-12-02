@@ -1,8 +1,11 @@
-/** FILE COPIED FROM VERCEL EXAMPLE: https://github.com/vercel/platforms */
+/**
+ * Next.js 16 Proxy - Subdomain routing for multi-tenant architecture
+ * @see https://nextjs.org/docs/app/api-reference/file-conventions/proxy
+ */
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { rootDomain } from './lib/utils';
-import { getCookie, setCookie } from './lib/cookies';
+import { deleteCookie, getCookie, setCookie } from './lib/cookies';
 
 const PUBLIC_PATHS = ['/admin', '/', '/_next', '/api', '/favicon.ico', '/globals.css'];
 const ADMIN_PUBLIC_PATHS = ['/admin'];
@@ -62,7 +65,7 @@ export async function proxy(request: NextRequest) {
   const subdomain = extractSubdomain(request);
   const publicPath = isPublicPath(pathname, !subdomain);
 
-  console.log('[Middleware]', {
+  console.log('[Proxy]', {
     pathname,
     subdomain,
     host: request.headers.get('host'),
@@ -76,6 +79,12 @@ export async function proxy(request: NextRequest) {
 
   if (isLoggedIn && isInLoginPath) {
     const redirectPath = subdomain ? CLIENT_ALREADY_LOGGED_PATH : ADMIN_ALREADY_LOGGED_PATH;
+    return NextResponse.redirect(new URL(redirectPath, request.url));
+  }
+
+  if (pathname === '/logout') {
+    await deleteCookie('auth_token');
+    const redirectPath = subdomain ? CLIENT_LOGIN_PATH : ADMIN_LOGIN_PATH;
     return NextResponse.redirect(new URL(redirectPath, request.url));
   }
 
@@ -107,8 +116,8 @@ export const config = {
      * Match all paths except for:
      * 1. /api routes
      * 2. /_next (Next.js internals)
-     * 3. all root files inside /public (e.g. /favicon.ico)
+     * 3. Static files (images, fonts, etc.)
      */
-    '/((?!api|_next|[\\w-]+\\.\\w+).*)',
+    '/((?!api|_next|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|eot)$).*)',
   ],
 };

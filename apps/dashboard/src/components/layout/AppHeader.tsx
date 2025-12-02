@@ -36,7 +36,7 @@ export function AppHeader() {
     await logout();
     setSysAdminUser(null);
     setCompanyUser(null);
-    router.push('/login');
+    router.replace('/');
   };
 
   return (

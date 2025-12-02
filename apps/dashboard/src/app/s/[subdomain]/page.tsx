@@ -17,13 +17,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!subdomainResult.data) {
     return {
       title: rootDomain,
+      icons: '/titans-tech.png',
     };
   }
 
   return {
-    title: `${subdomainResult.data.name} Dashboard`,
-    description: `${subdomainResult.data.name} Dashboard`,
-    icons: subdomainResult.data.logo,
+    title: subdomainResult.data.name,
+    description: `${subdomainResult.data.name} - Industrial Management & Inspection Platform`,
+    icons: subdomainResult.data.logo || '/titans-tech.png',
   };
 }
 
@@ -37,7 +38,7 @@ export default async function Page({ params }: PageProps) {
   const { subdomain } = await params;
   const subdomainResult = await getCompanyPublicInfo({ companySlug: subdomain ?? '' });
   if (!subdomainResult.data) {
-    return <div>Company not found</div>;
+    return <div>Company not found ://///</div>;
   }
   const brandColor = subdomainResult.data.brandColor;
 

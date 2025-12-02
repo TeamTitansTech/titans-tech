@@ -8,7 +8,7 @@ export const CreateBlueprintSchema = z.object({
   name: z.string().min(1, 'Blueprint name is required'),
   imageUrl: z.string().url().optional(),
   fields: z.array(z.any()),
-  sections: z.array(z.nativeEnum(ServiceSection)),
+  sections: z.array(z.enum(ServiceSection)),
 });
 
 export type CreateBlueprintDto = z.infer<typeof CreateBlueprintSchema>;
@@ -16,29 +16,29 @@ export type CreateBlueprintDto = z.infer<typeof CreateBlueprintSchema>;
 // Schema para thresholds opcionais
 export const ThresholdsSchema = z
   .object({
-    totalClearance_greenMin: z.number().positive(),
-    totalClearance_yellowMin: z.number().positive(),
-    totalClearance_redMin: z.number().positive(),
+    totalClearance_greenMin: z.number(),
+    totalClearance_yellowMin: z.number(),
+    totalClearance_redMin: z.number(),
 
-    mainBearings_greenMin: z.number().positive(),
-    mainBearings_yellowMin: z.number().positive(),
-    mainBearings_redMin: z.number().positive(),
+    mainBearings_greenMin: z.number(),
+    mainBearings_yellowMin: z.number(),
+    mainBearings_redMin: z.number(),
 
-    upperConnectionBearings_greenMin: z.number().positive(),
-    upperConnectionBearings_yellowMin: z.number().positive(),
-    upperConnectionBearings_redMin: z.number().positive(),
+    upperConnectionBearings_greenMin: z.number(),
+    upperConnectionBearings_yellowMin: z.number(),
+    upperConnectionBearings_redMin: z.number(),
 
-    wristPinToMatingPart_greenMin: z.number().positive(),
-    wristPinToMatingPart_yellowMin: z.number().positive(),
-    wristPinToMatingPart_redMin: z.number().positive(),
+    wristPinToMatingPart_greenMin: z.number(),
+    wristPinToMatingPart_yellowMin: z.number(),
+    wristPinToMatingPart_redMin: z.number(),
 
-    wristPinToBushing_greenMin: z.number().positive(),
-    wristPinToBushing_yellowMin: z.number().positive(),
-    wristPinToBushing_redMin: z.number().positive(),
+    wristPinToBushing_greenMin: z.number(),
+    wristPinToBushing_yellowMin: z.number(),
+    wristPinToBushing_redMin: z.number(),
 
-    slideAdjNutToScrewSleeve_greenMin: z.number().positive(),
-    slideAdjNutToScrewSleeve_yellowMin: z.number().positive(),
-    slideAdjNutToScrewSleeve_redMin: z.number().positive(),
+    slideAdjNutToScrewSleeve_greenMin: z.number(),
+    slideAdjNutToScrewSleeve_yellowMin: z.number(),
+    slideAdjNutToScrewSleeve_redMin: z.number(),
   })
   .refine(
     (data) => {
@@ -74,9 +74,9 @@ export type ThresholdsDto = z.infer<typeof ThresholdsSchema>;
 // Schema para thresholds do Slide
 export const SlideThresholdsSchema = z
   .object({
-    maxDeviation_greenMin: z.number().positive(),
-    maxDeviation_yellowMin: z.number().positive(),
-    maxDeviation_redMin: z.number().positive(),
+    maxDeviation_greenMin: z.number(),
+    maxDeviation_yellowMin: z.number(),
+    maxDeviation_redMin: z.number(),
   })
   .refine(
     (data) => {
@@ -102,7 +102,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     name: z.string().min(1, 'Blueprint name is required'),
     imageUrl: z.string().url().optional(),
     fields: z.array(z.any()),
-    sections: z.array(z.nativeEnum(ServiceSection)),
+    sections: z.array(z.enum(ServiceSection)),
     thresholds: ThresholdsSchema.optional(),
     clutchThresholds: ClutchThresholdsSchema.optional(),
     slideThresholds: SlideThresholdsSchema.optional(),

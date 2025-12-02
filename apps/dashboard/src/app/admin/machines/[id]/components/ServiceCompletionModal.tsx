@@ -255,7 +255,22 @@ export function ServiceCompletionModal({
   }, [currentServiceType, open, serviceId, machineSections]);
 
   // Navigation handlers
-  const handleProceedToDetails = () => {
+  const handleProceedToDetails = async () => {
+    // If completing an existing service, save selectedSections to backend
+    if (isCompletingService && serviceId && selectedSections.size > 0) {
+      try {
+        await updateService(
+          serviceId,
+          {
+            selectedSections: Array.from(selectedSections),
+            currentStep: 'details',
+          },
+          machineId,
+        );
+      } catch (error) {
+        console.error('Error saving selected sections:', error);
+      }
+    }
     setCurrentStep('details');
   };
 
