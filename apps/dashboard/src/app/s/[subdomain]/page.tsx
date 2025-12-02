@@ -38,7 +38,7 @@ export default async function Page({ params }: PageProps) {
   const { subdomain } = await params;
   const subdomainResult = await getCompanyPublicInfo({ companySlug: subdomain ?? '' });
   if (!subdomainResult.data) {
-    return <div>Company not found :/</div>;
+    return <div>Company not found ://///</div>;
   }
   const brandColor = subdomainResult.data.brandColor;
 
