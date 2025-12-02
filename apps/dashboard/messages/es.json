@@ -97,7 +97,11 @@
     "logout": "Cerrar Sesión",
     "markAllAsRead": "Marcar todas como leídas",
     "loading": "Cargando",
-    "noNotifications": "No hay notificaciones"
+    "noNotifications": "No hay notificaciones",
+    "notificationsMessage": {
+      "default": "Tienes una nueva notificación de {type}",
+      "newUrgentRequest": "Solicitud urgente de servicio de {requestedByName} para la máquina {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alertas Detectadas en la Inspección",
@@ -1050,6 +1054,7 @@
         "outer": "Externo",
         "inner": "Interno",
         "issues": "Problemas",
+        "alerts": "Alertas",
         "inspections": "Inspecciones",
         "inspectionHistory": "Historial de Inspecciones",
         "oilChanged": "Aceite Cambiado",
@@ -1952,7 +1957,7 @@
     "noBranches": "No se encontraron sucursales para esta empresa",
     "noBranchesDescription": "Las sucursales se mostrarán aquí cuando se creen",
     "branch": "sucursal",
-    "branches": "sucursales",
+    "branches": "Sucursales",
     "machine": "máquina",
     "machines": "máquinas",
     "noMachines": "Sin máquinas",
@@ -2287,6 +2292,10 @@
     "selectAll": "Seleccionar Todas",
     "deselectAll": "Deseleccionar Todas",
     "exportPDF": "Exportar PDF",
+    "exportThisTab": "Exportar Esta Pestaña",
+    "exportAllTabs": "Exportar Todas las Pestañas",
+    "partsSelectedAcrossTabs": "piezas seleccionadas en todas las pestañas",
+    "selectPartsToExport": "Seleccione piezas para exportar",
     "exporting": "Exportando...",
     "noPartsSelected": "Ninguna pieza seleccionada",
     "exportSuccess": "PDF exportado exitosamente",
@@ -2312,6 +2321,28 @@
       "description": "Descripción",
       "quantity": "Cant",
       "unit": "Un"
+    },
+    "partsListTitle": "Lista de Piezas",
+    "partsAvailable": "piezas disponibles",
+    "subsections": {
+      "crankshaft": "Cojinete del Cigüeñal",
+      "outerSlideStandard": "Corredera Exterior (Estándar)",
+      "innerSlideStandard": "Corredera Interior (Estándar)",
+      "outerSlideAdjustment": "Ajuste de Corredera Exterior",
+      "shutheightIndicatorOuter": "Indicador de Altura (Exterior)",
+      "shutheightIndicatorInner": "Indicador de Altura (Interior)",
+      "singleGearedDrive": "Transmisión de Engranaje Simple",
+      "flywheelBrake": "Freno del Volante",
+      "motorDrive": "Accionamiento del Motor",
+      "hydraulicUnit": "Unidad Hidráulica",
+      "flywheelBearings": "Cojinetes del Volante",
+      "counterbalanceInner": "Contrapeso (Interior)",
+      "counterbalanceOuterAirmount": "Contrapeso (Exterior)",
+      "lubricationUnit": "Unidad de Lubricación",
+      "outerSlide": "Corredera Exterior",
+      "innerSlide": "Corredera Interior",
+      "gibsOuter": "Guías (Exterior)",
+      "gibsInner": "Guías (Interior)"
     }
   },
   "sectionStatus": {

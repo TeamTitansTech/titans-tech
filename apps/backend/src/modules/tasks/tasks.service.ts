@@ -4,6 +4,7 @@ import { PrismaService } from '../shared/prisma.service';
 import { EmailService } from '../email/email.service';
 import { appEnv } from '../../config/env';
 import { NotificationType } from '@titans-tech/db';
+import { ServiceReminderOrOverdueNotificationMetadataDto } from '@titans-tech/shared/backend-dtos';
 
 @Injectable()
 export class TasksService {
@@ -98,16 +99,23 @@ export class TasksService {
 
         for (const user of branchUsers) {
           const existingNotification =
-            await this.prisma.clientNotification.findFirst({
+            await this.prisma.notificationRecipient.findFirst({
+              select: { notificationId: true },
               where: {
-                userId: user.id,
-                machineId: machine.id,
+                recipientId: user.id,
                 isRead: false,
-                type: {
-                  in: [
-                    NotificationType.SERVICE_REMINDER,
-                    NotificationType.SERVICE_OVERDUE,
-                  ],
+
+                notification: {
+                  type: {
+                    in: [
+                      NotificationType.SERVICE_REMINDER,
+                      NotificationType.SERVICE_OVERDUE,
+                    ],
+                  },
+                  metadata: {
+                    path: ['machineId'],
+                    equals: machine.id,
+                  },
                 },
               },
             });
@@ -119,24 +127,38 @@ export class TasksService {
             continue;
           }
 
-          const message =
-            daysOverdue > 0
-              ? `Machine "${machine.name}" is overdue for service by ${daysOverdue} days.`
-              : `Machine "${machine.name}" is due for service.`;
-
           const companySlug = machine.branch.company.slug;
           const redirectUrl = `${appEnv.FRONTEND_URL}/s/${companySlug}/machines/${machine.id}`;
 
-          await this.prisma.clientNotification.create({
+          const metadata: ServiceReminderOrOverdueNotificationMetadataDto = {
+            type: notificationType,
+            machineId: machine.id,
+            machineName: machine.name,
+            lastServiceDate: lastServiceDate?.toISOString() || null,
+            daysOverdue,
+            companySlug,
+          };
+
+          /** 
+           * At the time that this refactor is being made (https://github.com/TeamTitansTech/titans-tech/issues/153),
+           * we do not use a message in the frontend for these notifications,
+           * so here is the message that should be used in the future if needed.
+           * Use it in the i18n logic on the frontend.
+           * 
+           * const message =
+            daysOverdue > 0
+              ? `Machine "${machine.name}" is overdue for service by ${daysOverdue} days.`
+              : `Machine "${machine.name}" is due for service.`;
+           * 
+           */
+          await this.prisma.notification.create({
             data: {
-              userId: user.id,
-              machineId: machine.id,
-              message,
               type: notificationType,
-              redirectUrl,
-              metadata: {
-                lastServiceDate: lastServiceDate?.toISOString() || null,
-                daysOverdue,
+              metadata,
+              recipients: {
+                create: {
+                  recipientId: user.id,
+                },
               },
             },
           });

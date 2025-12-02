@@ -54,7 +54,11 @@
     "logout": "Logout",
     "markAllAsRead": "Mark all as read",
     "loading": "Loading",
-    "noNotifications": "No notifications"
+    "noNotifications": "No notifications",
+    "notificationsMessage": {
+      "default": "You have a new {type} notification",
+      "newUrgentRequest": "Urgent service request from {requestedByName} for machine {machineName}"
+    }
   },
   "settings": {
     "title": "Settings",
