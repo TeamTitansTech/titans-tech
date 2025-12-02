@@ -160,9 +160,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     }));
 
     return (
-      <div className="space-y-6">
-        <ClutchForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
-      </div>
+      <ClutchForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
     );
   },
 );

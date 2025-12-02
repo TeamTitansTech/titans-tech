@@ -24,6 +24,11 @@ import type {
   AdminManagerUserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 
+// Convert SCREAMING_SNAKE_CASE to camelCase for translation keys
+const sectionKeyToTranslationKey = (key: string): string => {
+  return key.toLowerCase().replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+};
+
 interface AlertNotificationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -166,19 +171,19 @@ export function AlertNotificationModal({
             {alertsSummary.sections.map((section) => (
               <div
                 key={section.sectionKey}
-                className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md"
+                className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded-md min-w-0"
               >
                 <span
-                  className={`w-3 h-3 rounded-full ${section.severity === 'RED' ? 'bg-red-500' : 'bg-yellow-500'}`}
+                  className={`w-3 h-3 rounded-full shrink-0 ${section.severity === 'RED' ? 'bg-red-500' : 'bg-yellow-500'}`}
                 />
-                <span className="font-medium text-sm">
-                  {tMachines(`sectionNames.${section.sectionKey}`)}
+                <span className="font-medium text-sm truncate min-w-0 flex-1">
+                  {tMachines(`sectionNames.${sectionKeyToTranslationKey(section.sectionKey)}`)}
                 </span>
                 <Badge
                   variant={section.severity === 'RED' ? 'destructive' : 'secondary'}
-                  className="ml-auto"
+                  className="shrink-0"
                 >
-                  {t('alertCount', { count: section.alerts.length })}
+                  {section.alerts.length}
                 </Badge>
               </div>
             ))}
