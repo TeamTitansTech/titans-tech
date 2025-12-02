@@ -30,7 +30,7 @@ export class PermissionTemplatesController {
     @Request() req: ReqWithAuthUser,
     @Body() createDto: CreatePermissionTemplateDto,
   ): Promise<PermissionTemplateResponseDto> {
-    return this.permissionTemplatesService.create(req.user.id, createDto);
+    return this.permissionTemplatesService.create(req.user, createDto);
   }
 
   @Authenticated()
@@ -40,7 +40,7 @@ export class PermissionTemplatesController {
     @Query('companyId') companyId: string,
   ): Promise<PermissionTemplateResponseDto[]> {
     return this.permissionTemplatesService.findAllByCompany(
-      req.user.id,
+      req.user,
       companyId,
     );
   }
@@ -51,7 +51,7 @@ export class PermissionTemplatesController {
     @Request() req: ReqWithAuthUser,
     @Param('id') id: string,
   ): Promise<PermissionTemplateResponseDto> {
-    return this.permissionTemplatesService.findOne(req.user.id, id);
+    return this.permissionTemplatesService.findOne(req.user, id);
   }
 
   @Authenticated()
@@ -61,7 +61,7 @@ export class PermissionTemplatesController {
     @Param('id') id: string,
     @Body() updateDto: UpdatePermissionTemplateDto,
   ): Promise<PermissionTemplateResponseDto> {
-    return this.permissionTemplatesService.update(req.user.id, id, updateDto);
+    return this.permissionTemplatesService.update(req.user, id, updateDto);
   }
 
   @Authenticated()
@@ -70,6 +70,6 @@ export class PermissionTemplatesController {
     @Request() req: ReqWithAuthUser,
     @Param('id') id: string,
   ): Promise<void> {
-    return this.permissionTemplatesService.remove(req.user.id, id);
+    return this.permissionTemplatesService.remove(req.user, id);
   }
 }

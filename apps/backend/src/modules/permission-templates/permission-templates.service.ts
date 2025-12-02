@@ -9,6 +9,7 @@ import {
   UpdatePermissionTemplateDto,
   PermissionTemplateResponseDto,
 } from '@titans-tech/shared/backend-dtos';
+import { JwtPayload, isSysAdmin } from '../../types/request';
 
 @Injectable()
 export class PermissionTemplatesService {
@@ -16,13 +17,19 @@ export class PermissionTemplatesService {
 
   /**
    * Validate that user has access to a company
+   * SysAdmins have access to all companies
    */
   private async validateUserCompanyAccess(
-    userId: string,
+    userPayload: JwtPayload,
     companyId: string,
   ): Promise<void> {
+    // SysAdmins have access to all companies
+    if (isSysAdmin(userPayload)) {
+      return;
+    }
+
     const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+      where: { id: userPayload.id },
       select: {
         companyId: true,
         isCompanyAdmin: true,
@@ -50,10 +57,10 @@ export class PermissionTemplatesService {
    * Create a new permission template
    */
   async create(
-    userId: string,
+    userPayload: JwtPayload,
     createDto: CreatePermissionTemplateDto,
   ): Promise<PermissionTemplateResponseDto> {
-    await this.validateUserCompanyAccess(userId, createDto.companyId);
+    await this.validateUserCompanyAccess(userPayload, createDto.companyId);
 
     const template = await this.prisma.permissionTemplate.create({
       data: {
@@ -71,10 +78,10 @@ export class PermissionTemplatesService {
    * Get all templates for a company
    */
   async findAllByCompany(
-    userId: string,
+    userPayload: JwtPayload,
     companyId: string,
   ): Promise<PermissionTemplateResponseDto[]> {
-    await this.validateUserCompanyAccess(userId, companyId);
+    await this.validateUserCompanyAccess(userPayload, companyId);
 
     const templates = await this.prisma.permissionTemplate.findMany({
       where: { companyId },
@@ -88,7 +95,7 @@ export class PermissionTemplatesService {
    * Get a specific template by ID
    */
   async findOne(
-    userId: string,
+    userPayload: JwtPayload,
     templateId: string,
   ): Promise<PermissionTemplateResponseDto> {
     const template = await this.prisma.permissionTemplate.findUnique({
@@ -99,7 +106,7 @@ export class PermissionTemplatesService {
       throw new NotFoundException('Permission template not found');
     }
 
-    await this.validateUserCompanyAccess(userId, template.companyId);
+    await this.validateUserCompanyAccess(userPayload, template.companyId);
 
     return this.mapToResponseDto(template);
   }
@@ -108,7 +115,7 @@ export class PermissionTemplatesService {
    * Update a permission template
    */
   async update(
-    userId: string,
+    userPayload: JwtPayload,
     templateId: string,
     updateDto: UpdatePermissionTemplateDto,
   ): Promise<PermissionTemplateResponseDto> {
@@ -120,7 +127,7 @@ export class PermissionTemplatesService {
       throw new NotFoundException('Permission template not found');
     }
 
-    await this.validateUserCompanyAccess(userId, existing.companyId);
+    await this.validateUserCompanyAccess(userPayload, existing.companyId);
 
     const updated = await this.prisma.permissionTemplate.update({
       where: { id: templateId },
@@ -141,7 +148,7 @@ export class PermissionTemplatesService {
   /**
    * Delete a permission template
    */
-  async remove(userId: string, templateId: string): Promise<void> {
+  async remove(userPayload: JwtPayload, templateId: string): Promise<void> {
     const existing = await this.prisma.permissionTemplate.findUnique({
       where: { id: templateId },
     });
@@ -150,7 +157,7 @@ export class PermissionTemplatesService {
       throw new NotFoundException('Permission template not found');
     }
 
-    await this.validateUserCompanyAccess(userId, existing.companyId);
+    await this.validateUserCompanyAccess(userPayload, existing.companyId);
 
     await this.prisma.permissionTemplate.delete({
       where: { id: templateId },

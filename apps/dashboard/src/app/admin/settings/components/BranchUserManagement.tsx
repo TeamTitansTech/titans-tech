@@ -20,6 +20,7 @@ import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
 import { UserTableSkeleton } from './UserTableSkeleton';
 import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
+import { detectRolePreset, RolePreset, type Permissions } from '@titans-tech/shared/types';
 
 interface User {
   id: string;
@@ -36,15 +37,46 @@ function transformUserToUI(user: UserResponseDto, branchId: string): User {
   // Check branch-specific permissions
   const branchPermissions = user.branches?.find((b) => b.branchId === branchId);
   if (branchPermissions) {
-    const hasManagerPermissions =
-      branchPermissions.createUsers ||
-      branchPermissions.manageUserPermissions ||
-      branchPermissions.updateBranches;
+    // Extract permission fields from branch data
+    const permissions: Permissions = {
+      readUsers: branchPermissions.readUsers,
+      createUsers: branchPermissions.createUsers,
+      updateUsers: branchPermissions.updateUsers,
+      deleteUsers: branchPermissions.deleteUsers,
+      manageUserPermissions: branchPermissions.manageUserPermissions,
+      assignUsersToBranches: branchPermissions.assignUsersToBranches,
+      readBranches: branchPermissions.readBranches,
+      updateBranches: branchPermissions.updateBranches,
+      readBlueprints: branchPermissions.readBlueprints,
+      createBlueprints: branchPermissions.createBlueprints,
+      updateBlueprints: branchPermissions.updateBlueprints,
+      deleteBlueprints: branchPermissions.deleteBlueprints,
+      readMachines: branchPermissions.readMachines,
+      createMachines: branchPermissions.createMachines,
+      updateMachines: branchPermissions.updateMachines,
+      deleteMachines: branchPermissions.deleteMachines,
+      readServices: branchPermissions.readServices,
+      createServices: branchPermissions.createServices,
+      updateServices: branchPermissions.updateServices,
+      deleteServices: branchPermissions.deleteServices,
+      readProductionLines: branchPermissions.readProductionLines,
+      createProductionLines: branchPermissions.createProductionLines,
+      updateProductionLines: branchPermissions.updateProductionLines,
+      deleteProductionLines: branchPermissions.deleteProductionLines,
+    };
 
-    if (hasManagerPermissions) {
-      role = 'branchManager';
+    const preset = detectRolePreset(permissions);
+    switch (preset) {
+      case RolePreset.MANAGER:
+        role = 'branchManager';
+        break;
+      case RolePreset.WORKER:
+        role = 'employee';
+        break;
+      case RolePreset.CUSTOM:
+        role = 'custom';
+        break;
     }
-    // Otherwise remains 'employee' (Worker)
   }
 
   return {
@@ -150,6 +182,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
     const colors: Record<string, string> = {
       branchManager: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
       employee: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+      custom: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
     };
     return colors[role] || colors.employee;
   };

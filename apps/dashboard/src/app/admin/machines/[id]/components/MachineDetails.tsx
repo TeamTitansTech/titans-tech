@@ -48,12 +48,12 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-4 mb-4 sm:mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4 sm:mb-6">
         <div className="flex items-start gap-3 sm:gap-4">
           <Link href={'/admin/machines'} className="shrink-0 mt-1">
             <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
           </Link>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0">
             <ConditionalTooltip content={machine.name} className="block">
               <Typography variant="h2" className="text-lg sm:text-2xl break-words">
                 {machine.name}
@@ -72,7 +72,7 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
         <Button
           onClick={handleOpenReport}
           disabled={isLoadingReport}
-          className="w-full sm:w-auto"
+          className="shrink-0"
           size="sm"
         >
           <FileText className="w-4 h-4 mr-2" />

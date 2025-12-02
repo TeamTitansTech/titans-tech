@@ -55,6 +55,8 @@ export function PermissionsEditor({
     createUsers: 'readUsers',
     updateUsers: 'readUsers',
     deleteUsers: 'readUsers',
+    manageUserPermissions: 'readUsers',
+    assignUsersToBranches: 'readUsers',
     updateBranches: 'readBranches',
     createMachines: 'readMachines',
     updateMachines: 'readMachines',

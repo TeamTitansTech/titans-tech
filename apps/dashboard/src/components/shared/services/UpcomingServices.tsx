@@ -7,6 +7,7 @@ interface UpcomingServicesProps {
   blueprintSections: string[];
   companyId?: string;
   canCreateServices?: boolean;
+  canUpdateServices?: boolean;
   canDeleteServices?: boolean;
 }
 
@@ -15,6 +16,7 @@ export async function UpcomingServices({
   blueprintSections,
   companyId,
   canCreateServices = true,
+  canUpdateServices = true,
   canDeleteServices = true,
 }: UpcomingServicesProps) {
   let services: Service[] = [];
@@ -40,6 +42,7 @@ export async function UpcomingServices({
       services={services}
       companyId={companyId}
       canCreateServices={canCreateServices}
+      canUpdateServices={canUpdateServices}
       canDeleteServices={canDeleteServices}
     />
   );

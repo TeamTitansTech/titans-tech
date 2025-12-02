@@ -341,9 +341,9 @@
         "updateMachines": "Edit Machines",
         "deleteMachines": "Delete Machines",
         "readServices": "View Services",
-        "createServices": "Create Services",
-        "updateServices": "Edit Services",
-        "deleteServices": "Delete Services",
+        "createServices": "Create Upcoming Services",
+        "updateServices": "Edit Upcoming Services",
+        "deleteServices": "Delete Upcoming Services",
         "readProductionLines": "View Production Lines",
         "createProductionLines": "Create Production Lines",
         "updateProductionLines": "Edit Production Lines",
@@ -523,7 +523,8 @@
       },
       "roles": {
         "branchManager": "Manager",
-        "employee": "Worker"
+        "employee": "Worker",
+        "custom": "Custom"
       },
       "status": {
         "active": "active",
@@ -2002,9 +2003,9 @@
     "updateMachines": "Edit Machines",
     "deleteMachines": "Delete Machines",
     "readServices": "View Services",
-    "createServices": "Create Services",
-    "updateServices": "Edit Services",
-    "deleteServices": "Delete Services",
+    "createServices": "Create Upcoming Services",
+    "updateServices": "Edit Upcoming Services",
+    "deleteServices": "Delete Upcoming Services",
     "readBranches": "View Branches",
     "updateBranches": "Edit Branches"
   },

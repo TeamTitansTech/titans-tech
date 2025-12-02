@@ -28,6 +28,7 @@ interface UpcomingServicesClientProps {
   services: Service[];
   companyId?: string;
   canCreateServices?: boolean;
+  canUpdateServices?: boolean;
   canDeleteServices?: boolean;
 }
 
@@ -37,6 +38,7 @@ export function UpcomingServicesClient({
   services,
   companyId,
   canCreateServices = true,
+  canUpdateServices = true,
   canDeleteServices = true,
 }: UpcomingServicesClientProps) {
   const t = useTranslations('machines');
@@ -47,10 +49,6 @@ export function UpcomingServicesClient({
   const [isMaintenanceModalOpen, setIsMaintenanceModalOpen] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState<Service | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-
-  // Debug logging
-  console.log('🔍 UpcomingServicesClient - canCreateServices:', canCreateServices);
-  console.log('🔍 UpcomingServicesClient - canDeleteServices:', canDeleteServices);
 
   const upcomingServices = services
     .filter((service) => {
@@ -127,8 +125,10 @@ export function UpcomingServicesClient({
                 return (
                   <div
                     key={service.id}
-                    onClick={() => handleServiceClick(service)}
-                    className="flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-4 cursor-pointer hover:bg-muted transition-colors rounded-lg p-2 "
+                    onClick={canUpdateServices ? () => handleServiceClick(service) : undefined}
+                    className={`flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-4 rounded-lg p-2 transition-colors ${
+                      canUpdateServices ? 'cursor-pointer hover:bg-muted' : ''
+                    }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">

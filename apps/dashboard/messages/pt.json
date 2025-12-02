@@ -345,9 +345,9 @@
         "updateMachines": "Editar Máquinas",
         "deleteMachines": "Excluir Máquinas",
         "readServices": "Visualizar Serviços",
-        "createServices": "Criar Serviços",
-        "updateServices": "Editar Serviços",
-        "deleteServices": "Excluir Serviços",
+        "createServices": "Criar Serviços Agendados",
+        "updateServices": "Editar Serviços Agendados",
+        "deleteServices": "Excluir Serviços Agendados",
         "readProductionLines": "Visualizar Linhas de Produção",
         "createProductionLines": "Criar Linhas de Produção",
         "updateProductionLines": "Editar Linhas de Produção",
@@ -527,7 +527,8 @@
       },
       "roles": {
         "branchManager": "Gerente",
-        "employee": "Funcionário"
+        "employee": "Funcionário",
+        "custom": "Personalizado"
       },
       "status": {
         "active": "ativo",
@@ -1852,9 +1853,9 @@
     "updateMachines": "Editar Máquinas",
     "deleteMachines": "Excluir Máquinas",
     "readServices": "Ver Serviços",
-    "createServices": "Criar Serviços",
-    "updateServices": "Editar Serviços",
-    "deleteServices": "Excluir Serviços",
+    "createServices": "Criar Serviços Agendados",
+    "updateServices": "Editar Serviços Agendados",
+    "deleteServices": "Excluir Serviços Agendados",
     "readBranches": "Ver Filiais",
     "updateBranches": "Editar Filiais"
   },
