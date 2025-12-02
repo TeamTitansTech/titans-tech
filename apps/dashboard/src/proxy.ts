@@ -12,6 +12,7 @@ const ADMIN_PUBLIC_PATHS = ['/admin'];
 const ADMIN_LOGIN_PATH = '/admin';
 const ADMIN_ALREADY_LOGGED_PATH = '/admin/dashboard';
 const CLIENT_ALREADY_LOGGED_PATH = '/dashboard';
+const PUBLIC_PATHS_NESTED_ROUTE = ['/qr', '/machines'];
 
 const CLIENT_PUBLIC_PATHS = ['/'];
 const CLIENT_LOGIN_PATH = '/';
@@ -57,7 +58,10 @@ function extractSubdomain(request: NextRequest): string | null {
 
 function isPublicPath(pathname: string, isAdmin: boolean): boolean {
   const arr = isAdmin ? ADMIN_PUBLIC_PATHS : CLIENT_PUBLIC_PATHS;
-  return [...PUBLIC_PATHS, ...arr].some((path) => pathname === path);
+  return (
+    [...PUBLIC_PATHS, ...arr].some((path) => pathname === path) ||
+    PUBLIC_PATHS_NESTED_ROUTE.some((path) => pathname.startsWith(path))
+  );
 }
 
 export async function proxy(request: NextRequest) {
@@ -78,6 +82,12 @@ export async function proxy(request: NextRequest) {
   const isInLoginPath = subdomain ? pathname === CLIENT_LOGIN_PATH : pathname === ADMIN_LOGIN_PATH;
 
   if (isLoggedIn && isInLoginPath) {
+    // Check if there's a redirect parameter in the URL
+    const redirectParam = request.nextUrl.searchParams.get('redirect');
+    if (redirectParam) {
+      // Preserve the redirect parameter - the login page will handle the redirect
+      return NextResponse.redirect(new URL(redirectParam, request.url));
+    }
     const redirectPath = subdomain ? CLIENT_ALREADY_LOGGED_PATH : ADMIN_ALREADY_LOGGED_PATH;
     return NextResponse.redirect(new URL(redirectPath, request.url));
   }
@@ -103,7 +113,17 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL('/', request.url));
     }
 
-    return NextResponse.rewrite(new URL(`/s/${subdomain}${pathname}`, request.url));
+    // QR code routes use isolated layout (no sidebar/header)
+    // Rewrite /qr/{machineId} to /qr/{subdomain}/{machineId}
+    if (pathname.startsWith('/qr/')) {
+      const machineId = pathname.replace('/qr/', '');
+      return NextResponse.rewrite(new URL(`/qr/${subdomain}/${machineId}`, request.url));
+    }
+
+    // Preserve query parameters in the rewrite
+    const rewriteUrl = new URL(`/s/${subdomain}${pathname}`, request.url);
+    rewriteUrl.search = request.nextUrl.search;
+    return NextResponse.rewrite(rewriteUrl);
   }
 
   // On the root domain, allow normal access

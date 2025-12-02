@@ -15,8 +15,13 @@ import { Button } from '@/components/ui/button';
 import { LatestReportModal } from './LatestReportModal';
 import { getLatestReport } from '@/data/services/services.api';
 import type { LatestReport } from '@/data/types/services.types';
+import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
 
-export function MachineDetails({ machine }: MachineDetailsProps) {
+interface MachineDetailsComponentProps extends MachineDetailsProps {
+  companySlug: string;
+}
+
+export function MachineDetails({ machine, companySlug }: MachineDetailsComponentProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
@@ -48,17 +53,22 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
 
   return (
     <>
-      <div className="flex flex-col gap-4 mb-4 sm:mb-6">
-        <div className="flex items-start gap-3 sm:gap-4">
-          <Link href={'/admin/machines'} className="shrink-0 mt-1">
-            <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
-          </Link>
-          <div className="min-w-0 flex-1">
-            <ConditionalTooltip content={machine.name} className="block">
-              <Typography variant="h2" className="text-lg sm:text-2xl break-words">
-                {machine.name}
-              </Typography>
-            </ConditionalTooltip>
+      <div className="flex items-center gap-3 sm:gap-6 mb-4 sm:mb-6">
+        <Link href={'/admin/machines'} className="shrink-0">
+          <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
+        </Link>
+        <div className="flex items-center justify-between w-full min-w-0 gap-2 sm:gap-4">
+          <div className="min-w-0 flex-1 overflow-hidden">
+            <div className="flex items-center gap-2">
+              <ConditionalTooltip content={machine.name} className="block">
+                <Typography variant="h2">{machine.name}</Typography>
+              </ConditionalTooltip>
+              <QRCodeGenerator
+                machineId={machine.id}
+                machineName={machine.name}
+                companySlug={companySlug}
+              />
+            </div>
             <ConditionalTooltip
               content={machine.blueprint?.name || t('noBlueprintAssigned')}
               className="mt-1 block"
@@ -69,12 +79,7 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
             </ConditionalTooltip>
           </div>
         </div>
-        <Button
-          onClick={handleOpenReport}
-          disabled={isLoadingReport}
-          className="w-full sm:w-auto"
-          size="sm"
-        >
+        <Button onClick={handleOpenReport} disabled={isLoadingReport} size="sm">
           <FileText className="w-4 h-4 mr-2" />
           {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
         </Button>

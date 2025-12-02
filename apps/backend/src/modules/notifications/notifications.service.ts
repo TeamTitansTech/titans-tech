@@ -3,7 +3,7 @@ import { PrismaService } from '../shared/prisma.service';
 import { EmailService } from '../email/email.service';
 import { NotificationsGateway } from './notifications.gateway';
 import { appEnv } from '../../config/env';
-import { NotificationType } from '@titans-tech/db';
+import { NotificationType, ServiceStatus, ServiceType } from '@titans-tech/db';
 import type {
   AdminNotificationResponseDto,
   ClientNotificationResponseDto,
@@ -12,6 +12,17 @@ import type {
   SendAlertNotificationDto,
 } from '@titans-tech/shared/backend-dtos';
 import type { AlertNotificationTemplateData } from '../email/templates/alert-notification.template';
+
+export interface PublicRequestDeviceInfo {
+  ipAddress: string;
+  userAgent: string;
+  deviceInfo: {
+    browser: string;
+    os: string;
+    device: string;
+    isMobile: boolean;
+  };
+}
 
 @Injectable()
 export class NotificationsService {
@@ -24,10 +35,10 @@ export class NotificationsService {
   ) {}
 
   async createUrgentRequest(
-    userId: string,
+    userId: string | null,
     dto: CreateUrgentRequestDto,
   ): Promise<{ success: boolean; notificationId: string }> {
-    const { machineId, notes } = dto;
+    const { machineId, notes, requesterName, problemDescription } = dto;
 
     const machine = await this.prisma.machine.findUnique({
       where: { id: machineId },
@@ -44,30 +55,79 @@ export class NotificationsService {
       throw new NotFoundException('Machine not found');
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+    // Determina se é requisição autenticada ou pública
+    const isPublicRequest = userId === null;
+    let user = null;
+    let displayName: string;
+    let displayEmail: string | null;
+
+    if (isPublicRequest) {
+      // Requisição pública via QR code - usa dados do formulário
+      displayName = requesterName || 'Anonymous';
+      displayEmail = null;
+    } else {
+      // Requisição autenticada - busca dados do usuário
+      user = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      displayName = user.name || user.email;
+      displayEmail = user.email;
+    }
+
+    // Monta a mensagem com notas/descrição do problema
+    const problemNote = problemDescription || notes || '';
+    const messagePrefix = isPublicRequest
+      ? `Public service request from ${displayName}`
+      : `Urgent service request from ${displayName}`;
+
+    // Cria o serviço de manutenção com status PENDING
+    const serviceNotes = isPublicRequest
+      ? `[PUBLIC REQUEST]\nRequester: ${displayName}\nProblem Description:\n${problemNote}`
+      : `[URGENT REQUEST]\nRequested by: ${displayName}\nNotes:\n${problemNote}`;
+
+    const service = await this.prisma.machineService.create({
+      data: {
+        machine: { connect: { id: machineId } },
+        date: new Date(),
+        type: ServiceType.MAINTENANCE,
+        status: ServiceStatus.PENDING,
+        notes: serviceNotes,
+        performedBy: isPublicRequest
+          ? `Public Request - ${displayName}`
+          : `Urgent Request - ${displayName}`,
+      },
     });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    this.logger.log(
+      `Created ${isPublicRequest ? 'public' : 'urgent'} service request ${service.id} for machine ${machineId}`,
+    );
 
     const notification = await this.prisma.adminNotification.create({
       data: {
-        machineId,
-        message: `Urgent service request from ${user.name || user.email} for machine "${machine.name}"`,
+        machine: { connect: { id: machineId } },
+        message: `${messagePrefix} for machine "${machine.name}"`,
         type: NotificationType.URGENT_SERVICE_REQUEST,
-        createdByUserId: userId,
+        // Para requisições públicas, createdByUserId é null
+        ...(userId ? { createdBy: { connect: { id: userId } } } : {}),
         metadata: {
-          notes: notes || '',
+          notes: problemNote,
           companyId: machine.branch.companyId,
           branchId: machine.branchId,
+          serviceId: service.id,
+          isPublicRequest,
+          requesterName: isPublicRequest ? displayName : undefined,
+          problemDescription: isPublicRequest ? problemDescription : undefined,
         },
       },
     });
 
     this.logger.log(
-      `Created urgent request notification ${notification.id} for machine ${machineId}`,
+      `Created ${isPublicRequest ? 'public' : 'urgent'} request notification ${notification.id} for machine ${machineId}`,
     );
 
     const notificationDto: AdminNotificationResponseDto = {
@@ -78,8 +138,8 @@ export class NotificationsService {
       isRead: notification.isRead,
       type: notification.type as any,
       createdByUserId: notification.createdByUserId,
-      createdByName: user.name || user.email,
-      createdByEmail: user.email,
+      createdByName: displayName,
+      createdByEmail: displayEmail,
       metadata: notification.metadata as Record<string, any> | null,
       createdAt: notification.createdAt.toISOString(),
       updatedAt: notification.updatedAt.toISOString(),
@@ -94,26 +154,45 @@ export class NotificationsService {
     );
     this.notificationsGateway.broadcastStatsUpdate(stats);
 
-    const adminEmails = 'tedewa3616@feralrex.com';
+    const sysAdmins = await this.prisma.sysAdmin.findMany({
+      select: { email: true },
+    });
+    const sysAdminEmails = sysAdmins.map((sa) => sa.email);
+
+    const allRecipientEmails = [...new Set(sysAdminEmails)];
     const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${machineId}?openServiceModal=true`;
+
+    if (allRecipientEmails.length === 0) {
+      this.logger.warn(
+        'No admin emails found to send urgent request notification',
+      );
+    }
+
+    const isProdOrTest =
+      appEnv.NODE_ENV === 'production' || appEnv.NODE_ENV === 'test';
+
+    // TODO: fix hardcoded email for non-prod environments
+    const adminEmailsToUse = isProdOrTest
+      ? allRecipientEmails
+      : ['wejah78981@cexch.com']; // Replace with a test email
 
     try {
       await this.emailService.sendUrgentRequestEmail(
-        adminEmails,
+        adminEmailsToUse.map((e) => e.trim()),
         {
           machineName: machine.name,
           companyName: machine.branch.company.name,
           branchName: machine.branch.name,
-          requestedBy: user.name || user.email,
-          requestedByEmail: user.email,
-          notes,
+          requestedBy: displayName,
+          requestedByEmail: displayEmail || 'N/A (Public Request)',
+          notes: problemNote,
           machineUrl,
         },
         machineId,
       );
 
       this.logger.log(
-        `Sent urgent request email to ${adminEmails.length} admin(s)`,
+        `Sent urgent request email to ${allRecipientEmails.length} admin(s): ${allRecipientEmails.join(', ')}`,
       );
     } catch (error) {
       this.logger.error('Failed to send urgent request email', error);

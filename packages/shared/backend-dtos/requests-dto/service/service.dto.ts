@@ -499,6 +499,7 @@ export type PistonsCheck = z.infer<typeof PistonsCheckSchema>;
  */
 export const CreateServiceSchema = z.object({
   machineId: z.string().min(1, 'Machine ID is required'),
+  serviceRequestId: z.string().optional(), // Optional: if created from a service request
   date: z.iso.datetime({ message: 'Invalid date format' }),
   type: z.enum(PrismaServiceType),
   performedBy: z.string().min(1, 'Performed by is required').optional(),
@@ -517,6 +518,7 @@ export type CreateServiceDto = z.infer<typeof CreateServiceSchema>;
  */
 export const CreateServicePayloadSchema = z.object({
   machineId: z.string(),
+  serviceRequestId: z.string().optional(), // Optional: if created from a service request
   date: z.string(),
   type: z.enum(PrismaServiceType),
   status: z.enum(PrismaServiceStatus).optional(),
@@ -601,10 +603,12 @@ export type CompleteServiceDto = z.infer<typeof CompleteServiceSchema>;
 export const ServiceSchema = z.object({
   id: z.string(),
   machineId: z.string(),
+  serviceRequestId: z.string().optional().nullable(), // ID of the service request this service was created from (if any)
   date: z.string(),
   type: z.enum(PrismaServiceType),
   status: z.enum(PrismaServiceStatus),
   performedBy: z.string().optional(),
+  notes: z.string().optional(),
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),

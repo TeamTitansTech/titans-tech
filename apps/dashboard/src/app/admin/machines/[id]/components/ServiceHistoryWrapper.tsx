@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Typography } from '@/components/ui/typography';
-import { Wrench } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Wrench, AlertCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { CompleteServiceModal } from './CompleteServiceModal';
 import { ServiceSummaryModal } from './ServiceSummaryModal';
@@ -68,6 +69,7 @@ export function ServiceHistoryWrapper({
             {pastServices.map((service) => {
               const serviceDate = new Date(service.date);
               const isCompleted = service.status === 'COMPLETED';
+              const isFromRequest = !!service.serviceRequestId;
 
               return (
                 <div
@@ -80,11 +82,22 @@ export function ServiceHistoryWrapper({
                       <Wrench className="w-5 h-5 text-accent" />
                     </div>
                     <div>
-                      <Typography variant="h4">
-                        {service.type === 'MAINTENANCE'
-                          ? t('maintenanceService')
-                          : t('inspectionService')}
-                      </Typography>
+                      <div className="flex items-center gap-2">
+                        <Typography variant="h4">
+                          {service.type === 'MAINTENANCE'
+                            ? t('maintenanceService')
+                            : t('inspectionService')}
+                        </Typography>
+                        {isFromRequest && (
+                          <Badge
+                            variant="outline"
+                            className="border-orange-300 bg-orange-50 text-orange-700 dark:border-orange-700 dark:bg-orange-900/20 dark:text-orange-400 text-[10px] px-1.5 py-0"
+                          >
+                            <AlertCircle className="w-3 h-3 mr-1" />
+                            {t('fromRequest')}
+                          </Badge>
+                        )}
+                      </div>
                       {service.performedBy && (
                         <Typography variant="small" className="text-muted-foreground">
                           {t('technician')}: {service.performedBy}

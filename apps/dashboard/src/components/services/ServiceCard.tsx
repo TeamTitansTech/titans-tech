@@ -19,6 +19,7 @@ interface ServiceCardProps {
     status: ServiceStatusEnum;
     performedBy?: string | null;
     currentStep?: string | null;
+    notes?: string | null;
     machine: {
       id: string;
       name: string;
@@ -37,6 +38,7 @@ export function ServiceCard({ service, onClick }: ServiceCardProps) {
 
   const isInProgress = service.status === ServiceStatus.PENDING && service.currentStep;
   const isCompleted = service.status === ServiceStatus.COMPLETED;
+  const isPublicRequest = service.notes?.startsWith('[PUBLIC REQUEST]');
 
   const getStatusBadge = () => {
     if (isCompleted) {
@@ -120,6 +122,20 @@ export function ServiceCard({ service, onClick }: ServiceCardProps) {
           {isCompleted && service.performedBy && (
             <div className="text-sm text-gray-500 pt-2 border-t">
               <span className="font-medium">{tMachines('technician')}:</span> {service.performedBy}
+            </div>
+          )}
+
+          {/* Public request indicator and notes */}
+          {isPublicRequest && (
+            <div className="text-sm pt-2 border-t space-y-1">
+              <Badge className="bg-orange-100 text-orange-800 hover:bg-orange-100">
+                {t('publicRequest')}
+              </Badge>
+              {service.notes && (
+                <p className="text-gray-600 line-clamp-2">
+                  {service.notes.replace('[PUBLIC REQUEST]\n', '').split('\n').slice(2).join(' ')}
+                </p>
+              )}
             </div>
           )}
         </div>
