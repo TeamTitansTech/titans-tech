@@ -17,7 +17,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
-import { SimpleServiceCreationModal } from './SimpleServiceCreationModal';
+import SimpleServiceCreationModal from './SimpleServiceCreationModal';
 import { ServiceCompletionModal } from '@/app/admin/machines/[id]/components/ServiceCompletionModal';
 import { deleteService } from '@/data/services/services.api';
 import type { Service } from '@/data/types/services.types';

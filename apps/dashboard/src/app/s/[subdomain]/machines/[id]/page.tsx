@@ -57,6 +57,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
   }
 
   // Check service permissions
+  const canReadServices = hasPermission(user, machine.branchId, 'readServices');
   const canCreateServices = hasPermission(user, machine.branchId, 'createServices');
   const canDeleteServices = hasPermission(user, machine.branchId, 'deleteServices');
 
@@ -73,12 +74,14 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     <div className="space-y-6 p-4">
       <MachineDetailsClient machine={response.data} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <UpcomingServices
-          machineId={id}
-          blueprintSections={machine.blueprint?.sections || []}
-          canCreateServices={canCreateServices}
-          canDeleteServices={canDeleteServices}
-        />
+        {canReadServices && (
+          <UpcomingServices
+            machineId={id}
+            blueprintSections={machine.blueprint?.sections || []}
+            canCreateServices={canCreateServices}
+            canDeleteServices={canDeleteServices}
+          />
+        )}
         <ServiceHistory machineId={id} />
       </div>
     </div>

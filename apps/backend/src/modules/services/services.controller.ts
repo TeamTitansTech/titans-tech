@@ -7,6 +7,7 @@ import {
   Delete,
   Body,
   Param,
+  Req,
 } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import {
@@ -37,23 +38,31 @@ import {
 } from '@titans-tech/shared/backend-dtos';
 import { Authenticated } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
+import { ReqWithAuthUser, isSysAdmin } from '../../types/request';
 
 @Controller('services')
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
   /**
+   * Extracts user ID from request. Returns null for SysAdmin (full access).
+   */
+  private getUserId(req: ReqWithAuthUser): string | null {
+    return isSysAdmin(req.user) ? null : req.user.id;
+  }
+
+  /**
    * Create a new service/inspection
-   * TODO: Add @BranchPermission('createServices') after restructuring routes to include machineId/branchId in path
-   * Current: Requires authentication only, service validation happens in service layer
+   * Permission check is now handled in the service layer
    */
   @Authenticated()
   @Post()
   create(
     @Body(new ZodValidationPipe(CreateServiceSchema))
     createServiceDto: CreateServiceDto,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.create(createServiceDto);
+    return this.servicesService.create(createServiceDto, this.getUserId(req));
   }
 
   /**
@@ -104,8 +113,9 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(UpdateServicePayloadSchema))
     updateDto: UpdateServicePayload,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.update(id, updateDto);
+    return this.servicesService.update(id, updateDto, this.getUserId(req));
   }
 
   // Section update endpoints
@@ -115,8 +125,13 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(BearingClearanceCheckSchema))
     updateDto: BearingClearanceCheck,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.updateBearingClearance(id, updateDto);
+    return this.servicesService.updateBearingClearance(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
   }
 
   @Authenticated()
@@ -125,8 +140,9 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(SlideCheckSchema))
     updateDto: SlideCheck,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.updateSlide(id, updateDto);
+    return this.servicesService.updateSlide(id, updateDto, this.getUserId(req));
   }
 
   @Authenticated()
@@ -135,8 +151,9 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(GibsCheckSchema))
     updateDto: GibsCheck,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.updateGibs(id, updateDto);
+    return this.servicesService.updateGibs(id, updateDto, this.getUserId(req));
   }
 
   @Authenticated()
@@ -145,8 +162,13 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(LubricationHydraulicsCheckSchema))
     updateDto: LubricationHydraulicsCheck,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.updateLubricationHydraulics(id, updateDto);
+    return this.servicesService.updateLubricationHydraulics(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
   }
 
   @Authenticated()
@@ -155,8 +177,13 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(ClutchDataSchema))
     updateDto: ClutchData,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.updateClutch(id, updateDto);
+    return this.servicesService.updateClutch(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
   }
 
   @Authenticated()
@@ -165,8 +192,13 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(CounterbalanceCylinderCheckSchema))
     updateDto: CounterbalanceCylinderCheck,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.updateCounterbalanceCylinder(id, updateDto);
+    return this.servicesService.updateCounterbalanceCylinder(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
   }
 
   @Authenticated()
@@ -175,8 +207,13 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(TrammingCheckSchema))
     updateDto: TrammingCheck,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.updateTramming(id, updateDto);
+    return this.servicesService.updateTramming(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
   }
 
   @Authenticated()
@@ -185,8 +222,13 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(PistonsCheckSchema))
     updateDto: PistonsCheck,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.updatePistons(id, updateDto);
+    return this.servicesService.updatePistons(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
   }
 
   // Complete service endpoint
@@ -196,15 +238,20 @@ export class ServicesController {
     @Param('id') id: string,
     @Body(new ZodValidationPipe(CompleteServiceSchema))
     completeDto: CompleteServiceDto,
+    @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.completeService(id, completeDto);
+    return this.servicesService.completeService(
+      id,
+      completeDto,
+      this.getUserId(req),
+    );
   }
 
   // Delete service endpoint
   @Authenticated()
   @Delete(':id')
-  delete(@Param('id') id: string): Promise<void> {
-    return this.servicesService.delete(id);
+  delete(@Param('id') id: string, @Req() req: ReqWithAuthUser): Promise<void> {
+    return this.servicesService.delete(id, this.getUserId(req));
   }
 
   // Get alerts summary for a service
