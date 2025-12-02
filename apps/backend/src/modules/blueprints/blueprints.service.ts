@@ -18,8 +18,6 @@ import {
   convertGibsThresholdToDecimal,
   convertPistonsThresholdToDecimal,
   convertTrammingThresholdToDecimal,
-  convertTrammingThresholdToDecimal,
-  convertTrammingThresholdToDecimal,
 } from '../alerts/threshold.utils';
 
 @Injectable()

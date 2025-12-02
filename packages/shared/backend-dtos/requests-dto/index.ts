@@ -8,8 +8,6 @@ export * from './threshold-slide.dto';
 export * from './threshold-gibs.dto';
 export * from './threshold-pistons.dto';
 export * from './threshold-tramming.dto';
-export * from './threshold-tramming.dto';
-export * from './threshold-tramming.dto';
 export * from './alert-counterbalance.dto';
 export * from './blueprint.dto';
 export * from './create-urgent-request.dto';

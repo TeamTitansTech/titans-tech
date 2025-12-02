@@ -2075,7 +2075,10 @@ export class ServicesService {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
-        alertCounterbalanceCylinderAirbag: true,
+        alertCounterbalanceCylinderAirbag: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
         alertTramming: {
           orderBy: { createdAt: 'desc' },
           take: 1,

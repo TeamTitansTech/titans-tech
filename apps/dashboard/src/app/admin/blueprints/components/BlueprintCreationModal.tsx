@@ -19,8 +19,6 @@ import { SlideThresholds } from '@/components/alerts/SlideThresholds';
 import { GibsThresholds } from '@/components/alerts/GibsThresholds';
 import { PistonsThresholds } from '@/components/alerts/PistonsThresholds';
 import { TrammingThresholds } from '@/components/alerts/TrammingThresholds';
-import { TrammingThresholds } from '@/components/alerts/TrammingThresholds';
-import { TrammingThresholds } from '@/components/alerts/TrammingThresholds';
 import { type BlueprintCreationModalProps } from './types';
 import { useBlueprintForm } from './hooks/useBlueprintForm';
 import { useFieldsManager } from './hooks/useFieldsManager';
@@ -70,14 +68,6 @@ export const BlueprintCreationModal = ({
     setPistonsThresholdsOpen,
     pistonsThresholds,
     setPistonsThresholds,
-    trammingThresholdsOpen,
-    setTrammingThresholdsOpen,
-    trammingThresholds,
-    setTrammingThresholds,
-    trammingThresholdsOpen,
-    setTrammingThresholdsOpen,
-    trammingThresholds,
-    setTrammingThresholds,
     trammingThresholdsOpen,
     setTrammingThresholdsOpen,
     trammingThresholds,
@@ -270,34 +260,6 @@ export const BlueprintCreationModal = ({
                       onOpenChange={setPistonsThresholdsOpen}
                       data={pistonsThresholds}
                       onChange={setPistonsThresholds}
-                    />
-                  </section>
-                </>
-              )}
-
-              {selectedSections.includes('tramming') && (
-                <>
-                  <Separator />
-                  <section className="space-y-4">
-                    <TrammingThresholds
-                      open={trammingThresholdsOpen}
-                      onOpenChange={setTrammingThresholdsOpen}
-                      data={trammingThresholds}
-                      onChange={setTrammingThresholds}
-                    />
-                  </section>
-                </>
-              )}
-
-              {selectedSections.includes('tramming') && (
-                <>
-                  <Separator />
-                  <section className="space-y-4">
-                    <TrammingThresholds
-                      open={trammingThresholdsOpen}
-                      onOpenChange={setTrammingThresholdsOpen}
-                      data={trammingThresholds}
-                      onChange={setTrammingThresholds}
                     />
                   </section>
                 </>

@@ -4,7 +4,6 @@ import { ClutchThresholdsSchema } from './threshold-clutch.dto';
 import { GibsThresholdsSchema } from './threshold-gibs.dto';
 import { PistonsThresholdsSchema } from './threshold-pistons.dto';
 import { TrammingThresholdsSchema } from './threshold-tramming.dto';
-import { TrammingThresholdsSchema } from './threshold-tramming.dto';
 
 // Schema existente para Blueprint
 export const CreateBlueprintSchema = z.object({
@@ -112,7 +111,6 @@ export const CreateBlueprintWithThresholdsSchema = z
     gibsThresholds: GibsThresholdsSchema.optional(),
     pistonsThresholds: PistonsThresholdsSchema.optional(),
     trammingThresholds: TrammingThresholdsSchema.optional(),
-    trammingThresholds: TrammingThresholdsSchema.optional(),
   })
   .refine(
     (data) => {
@@ -134,10 +132,6 @@ export const CreateBlueprintWithThresholdsSchema = z
       }
       // Se pistonsThresholds fornecidos, PISTONS deve estar em sections
       if (data.pistonsThresholds && !data.sections.includes(ServiceSection.PISTONS)) {
-        return false;
-      }
-      // Se trammingThresholds fornecidos, TRAMMING deve estar em sections
-      if (data.trammingThresholds && !data.sections.includes(ServiceSection.TRAMMING)) {
         return false;
       }
 

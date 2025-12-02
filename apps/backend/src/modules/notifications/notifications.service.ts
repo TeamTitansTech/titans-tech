@@ -225,11 +225,18 @@ export class NotificationsService {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
-        alertCounterbalanceCylinderAirbag: true,
-        alertPistons: true,
-        alertTramming: true,
-        alertTramming: true,
-        alertTramming: true,
+        alertCounterbalanceCylinderAirbag: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertPistons: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertTramming: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
     });
 

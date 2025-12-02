@@ -9,7 +9,6 @@ import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
 import { GibsThresholdsData } from '@/components/alerts/GibsThresholds';
 import { PistonsThresholdsData } from '@/components/alerts/PistonsThresholds';
 import { TrammingThresholdsData } from '@/components/alerts/TrammingThresholds';
-import { TrammingThresholdsData } from '@/components/alerts/TrammingThresholds';
 import { type Field } from '../types';
 
 // Client-safe slug to enum mapping
@@ -91,12 +90,6 @@ const INITIAL_TRAMMING_THRESHOLDS: TrammingThresholdsData = {
   redMin: 0.003,
 };
 
-const INITIAL_TRAMMING_THRESHOLDS: TrammingThresholdsData = {
-  greenMin: 0.001,
-  yellowMin: 0.002,
-  redMin: 0.003,
-};
-
 export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const t = useTranslations('models');
   const [name, setName] = useState('');
@@ -115,10 +108,6 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const [pistonsThresholdsOpen, setPistonsThresholdsOpen] = useState(false);
   const [pistonsThresholds, setPistonsThresholds] = useState<PistonsThresholdsData>(
     INITIAL_PISTONS_THRESHOLDS,
-  );
-  const [trammingThresholdsOpen, setTrammingThresholdsOpen] = useState(false);
-  const [trammingThresholds, setTrammingThresholds] = useState<TrammingThresholdsData>(
-    INITIAL_TRAMMING_THRESHOLDS,
   );
   const [trammingThresholdsOpen, setTrammingThresholdsOpen] = useState(false);
   const [trammingThresholds, setTrammingThresholds] = useState<TrammingThresholdsData>(
@@ -170,29 +159,16 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
       if (hasTrammingThresholdChanges) return true;
 
-      const hasTrammingThresholdChanges = (
-        Object.keys(trammingThresholds) as Array<keyof TrammingThresholdsData>
-      ).some((key) => trammingThresholds[key] !== INITIAL_TRAMMING_THRESHOLDS[key]);
-
-      if (hasTrammingThresholdChanges) return true;
-
       return false;
     },
     [
       name,
-
       selectedSections,
-
       thresholds,
-
       clutchThresholds,
-
       slideThresholds,
-
       gibsThresholds,
       pistonsThresholds,
-      trammingThresholds,
-      ,
       trammingThresholds,
     ],
   );
@@ -217,7 +193,6 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     const hasGibs = selectedSections.includes('gibs');
     const hasPistons = selectedSections.includes('pistons');
     const hasTramming = selectedSections.includes('tramming');
-    const hasTramming = selectedSections.includes('tramming');
 
     interface BlueprintField {
       fieldName: string;
@@ -236,7 +211,6 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       slideThresholds?: SlideThresholdsData;
       gibsThresholds?: GibsThresholdsData;
       pistonsThresholds?: PistonsThresholdsData;
-      trammingThresholds?: TrammingThresholdsData;
       trammingThresholds?: TrammingThresholdsData;
     }
 
@@ -375,10 +349,6 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setPistonsThresholdsOpen,
     pistonsThresholds,
     setPistonsThresholds,
-    trammingThresholdsOpen,
-    setTrammingThresholdsOpen,
-    trammingThresholds,
-    setTrammingThresholds,
     trammingThresholdsOpen,
     setTrammingThresholdsOpen,
     trammingThresholds,
