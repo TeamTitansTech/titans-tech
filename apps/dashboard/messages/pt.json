@@ -2289,6 +2289,28 @@
       "description": "Descrição",
       "quantity": "Qtd",
       "unit": "Un"
+    },
+    "partsListTitle": "Lista de Peças",
+    "partsAvailable": "peças disponíveis",
+    "subsections": {
+      "crankshaft": "Rolamento do Virabrequim",
+      "outerSlideStandard": "Slide Externo (Padrão)",
+      "innerSlideStandard": "Slide Interno (Padrão)",
+      "outerSlideAdjustment": "Ajuste do Slide Externo",
+      "shutheightIndicatorOuter": "Indicador de Altura (Externo)",
+      "shutheightIndicatorInner": "Indicador de Altura (Interno)",
+      "singleGearedDrive": "Acionamento de Engrenagem Simples",
+      "flywheelBrake": "Freio do Volante",
+      "motorDrive": "Acionamento do Motor",
+      "hydraulicUnit": "Unidade Hidráulica",
+      "flywheelBearings": "Rolamentos do Volante",
+      "counterbalanceInner": "Contrapeso (Interno)",
+      "counterbalanceOuterAirmount": "Contrapeso (Externo)",
+      "lubricationUnit": "Unidade de Lubrificação",
+      "outerSlide": "Slide Externo",
+      "innerSlide": "Slide Interno",
+      "gibsOuter": "Guias (Externo)",
+      "gibsInner": "Guias (Interno)"
     }
   },
   "sectionStatus": {

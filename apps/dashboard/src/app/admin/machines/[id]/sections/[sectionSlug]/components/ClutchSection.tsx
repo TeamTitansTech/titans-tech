@@ -20,13 +20,9 @@ import {
 import { getClutchThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
-import {
-  SectionStatusBadge,
-  type SectionStatus,
-  calculateSectionStatus,
-} from '@/components/shared/SectionStatusBadge';
+import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
-import { CLUTCH_BRAKE_CLEARANCE_PARTS } from '@/data/parts/dac-parts';
+import { CLUTCH_BRAKE_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface ClutchSectionProps {
   machineId: string;
@@ -262,13 +258,23 @@ export function ClutchSection({
         </Card>
       </div>
 
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: CLUTCH_BRAKE_SUBSECTIONS,
+          title: tParts('clutchBrakeParts'),
+          description: tParts('clutchBrakeDescription'),
+          machineName,
+          machineSerial,
+          sectionName: 'Clutch & Brake',
+        }}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CardTitle>{t('sectionTitles.clutchMeasurements')}</CardTitle>
-              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
-            </div>
+            <CardTitle>{t('sectionTitles.clutchMeasurements')}</CardTitle>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Clutch"
@@ -373,19 +379,6 @@ export function ClutchSection({
           </div>
         </CardContent>
       </Card>
-
-      {/* Section Status Card with Parts Modal */}
-      <SectionStatusCard
-        status={sectionStatus}
-        partsConfig={{
-          parts: CLUTCH_BRAKE_CLEARANCE_PARTS,
-          title: tParts('clutchBrakeParts'),
-          description: tParts('clutchBrakeDescription'),
-          machineName,
-          machineSerial,
-          sectionName: 'Clutch & Brake',
-        }}
-      />
     </div>
   );
 }

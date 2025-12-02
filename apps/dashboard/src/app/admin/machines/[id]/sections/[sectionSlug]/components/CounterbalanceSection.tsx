@@ -38,14 +38,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
-import { SectionStatusBadge, type SectionStatus } from '@/components/shared/SectionStatusBadge';
+import { type SectionStatus } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
-import { COUNTERBALANCE_TABS } from '@/data/parts/dac-parts';
+import { COUNTERBALANCE_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface CounterbalanceSectionProps {
   machineId: string;
   inspections: CounterbalanceInspectionData[];
   machineName: string;
+  machineSerial?: string;
 }
 
 interface CounterbalanceData {
@@ -71,7 +72,11 @@ const STATUS_FIELDS = [
   { key: 'oilWick', label: 'Oil Wick' },
 ] as const;
 
-export function CounterbalanceSection({ inspections, machineName }: CounterbalanceSectionProps) {
+export function CounterbalanceSection({
+  inspections,
+  machineName,
+  machineSerial,
+}: CounterbalanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const tCommon = useTranslations('common.status');
   const tParts = useTranslations('parts');
@@ -326,13 +331,23 @@ export function CounterbalanceSection({ inspections, machineName }: Counterbalan
         </Card>
       </div>
 
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: COUNTERBALANCE_SUBSECTIONS,
+          title: tParts('counterbalanceParts'),
+          description: tParts('counterbalanceDescription'),
+          machineName,
+          machineSerial,
+          sectionName: 'Counterbalance & Airbag',
+        }}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CardTitle>{t('sectionTitles.counterbalanceStatus')}</CardTitle>
-              <SectionStatusBadge status={sectionStatus} size="sm" />
-            </div>
+            <CardTitle>{t('sectionTitles.counterbalanceStatus')}</CardTitle>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Counterbalance"
@@ -528,18 +543,6 @@ export function CounterbalanceSection({ inspections, machineName }: Counterbalan
           )}
         </CardContent>
       </Card>
-
-      {/* Section Status Card with Parts Modal */}
-      <SectionStatusCard
-        status={sectionStatus}
-        partsConfig={{
-          tabs: COUNTERBALANCE_TABS,
-          title: tParts('counterbalanceParts'),
-          description: tParts('counterbalanceDescription'),
-          machineName,
-          sectionName: 'Counterbalance & Airbag',
-        }}
-      />
     </div>
   );
 }

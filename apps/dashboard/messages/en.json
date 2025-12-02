@@ -2284,6 +2284,28 @@
       "description": "Description",
       "quantity": "Qty",
       "unit": "Unit"
+    },
+    "partsListTitle": "Parts List",
+    "partsAvailable": "parts available",
+    "subsections": {
+      "crankshaft": "Crankshaft Bearing",
+      "outerSlideStandard": "Outer Slide (Standard)",
+      "innerSlideStandard": "Inner Slide (Standard)",
+      "outerSlideAdjustment": "Outer Slide Adjustment",
+      "shutheightIndicatorOuter": "Shutheight Indicator (Outer)",
+      "shutheightIndicatorInner": "Shutheight Indicator (Inner)",
+      "singleGearedDrive": "Single Geared Drive",
+      "flywheelBrake": "Flywheel Brake",
+      "motorDrive": "Motor Drive",
+      "hydraulicUnit": "Hydraulic Unit",
+      "flywheelBearings": "Flywheel Bearings",
+      "counterbalanceInner": "Counterbalance (Inner)",
+      "counterbalanceOuterAirmount": "Counterbalance (Outer)",
+      "lubricationUnit": "Lubrication Unit",
+      "outerSlide": "Outer Slide",
+      "innerSlide": "Inner Slide",
+      "gibsOuter": "Gibs (Outer)",
+      "gibsInner": "Gibs (Inner)"
     }
   },
   "sectionStatus": {

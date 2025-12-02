@@ -2227,6 +2227,28 @@
       "description": "Descripción",
       "quantity": "Cant",
       "unit": "Un"
+    },
+    "partsListTitle": "Lista de Piezas",
+    "partsAvailable": "piezas disponibles",
+    "subsections": {
+      "crankshaft": "Cojinete del Cigüeñal",
+      "outerSlideStandard": "Corredera Exterior (Estándar)",
+      "innerSlideStandard": "Corredera Interior (Estándar)",
+      "outerSlideAdjustment": "Ajuste de Corredera Exterior",
+      "shutheightIndicatorOuter": "Indicador de Altura (Exterior)",
+      "shutheightIndicatorInner": "Indicador de Altura (Interior)",
+      "singleGearedDrive": "Transmisión de Engranaje Simple",
+      "flywheelBrake": "Freno del Volante",
+      "motorDrive": "Accionamiento del Motor",
+      "hydraulicUnit": "Unidad Hidráulica",
+      "flywheelBearings": "Cojinetes del Volante",
+      "counterbalanceInner": "Contrapeso (Interior)",
+      "counterbalanceOuterAirmount": "Contrapeso (Exterior)",
+      "lubricationUnit": "Unidad de Lubricación",
+      "outerSlide": "Corredera Exterior",
+      "innerSlide": "Corredera Interior",
+      "gibsOuter": "Guías (Exterior)",
+      "gibsInner": "Guías (Interior)"
     }
   },
   "sectionStatus": {

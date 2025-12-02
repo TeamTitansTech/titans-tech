@@ -20,12 +20,9 @@ import {
 import { getThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
-import {
-  SectionStatusBadge,
-  type SectionStatus,
-  calculateSectionStatus,
-} from '@/components/shared/SectionStatusBadge';
+import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { BEARING_CLEARANCE_SUBSECTIONS } from '@/data/parts/section-subsections';
 import { BEARING_CLEARANCE_TABS } from '@/data/parts/dac-parts';
 
 interface BearingClearanceSectionProps {
@@ -265,13 +262,22 @@ export function BearingClearanceSection({
         </Card>
       </div>
 
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: BEARING_CLEARANCE_SUBSECTIONS,
+          title: tParts('bearingClearanceParts'),
+          description: tParts('bearingClearanceDescription'),
+          machineName,
+          sectionName: 'Bearing Clearance',
+        }}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CardTitle>{t('connectionBearingClearance')}</CardTitle>
-              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
-            </div>
+            <CardTitle>{t('connectionBearingClearance')}</CardTitle>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="BearingClearance"

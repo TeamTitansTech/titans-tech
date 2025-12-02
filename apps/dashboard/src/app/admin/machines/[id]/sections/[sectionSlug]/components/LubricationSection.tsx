@@ -39,17 +39,22 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
-import { SectionStatusBadge, type SectionStatus } from '@/components/shared/SectionStatusBadge';
+import { type SectionStatus } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
-import { LUBRICATION_HYDRAULICS_PARTS } from '@/data/parts/dac-parts';
+import { LUBRICATION_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface LubricationSectionProps {
   machineId: string;
   inspections: LubricationInspectionData[];
   machineName: string;
+  machineSerial?: string;
 }
 
-export function LubricationSection({ inspections, machineName }: LubricationSectionProps) {
+export function LubricationSection({
+  inspections,
+  machineName,
+  machineSerial,
+}: LubricationSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const tCommon = useTranslations('common.status');
   const tParts = useTranslations('parts');
@@ -370,13 +375,23 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
         </Card>
       )}
 
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: LUBRICATION_SUBSECTIONS,
+          title: tParts('lubricationHydraulicsParts'),
+          description: tParts('lubricationHydraulicsDescription'),
+          machineName,
+          machineSerial,
+          sectionName: 'Lubrication & Hydraulics',
+        }}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CardTitle>{t('sectionTitles.lubricationStatus')}</CardTitle>
-              <SectionStatusBadge status={sectionStatus} size="sm" />
-            </div>
+            <CardTitle>{t('sectionTitles.lubricationStatus')}</CardTitle>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Lubrication"
@@ -529,18 +544,6 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
           )}
         </CardContent>
       </Card>
-
-      {/* Section Status Card with Parts Modal */}
-      <SectionStatusCard
-        status={sectionStatus}
-        partsConfig={{
-          parts: LUBRICATION_HYDRAULICS_PARTS,
-          title: tParts('lubricationHydraulicsParts'),
-          description: tParts('lubricationHydraulicsDescription'),
-          machineName,
-          sectionName: 'Lubrication & Hydraulics',
-        }}
-      />
     </div>
   );
 }
