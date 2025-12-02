@@ -1,12 +1,27 @@
 import { getTranslations } from 'next-intl/server';
 import { ProductionLinesPage } from './components/ProductionLinesPage';
 import { getProductionLines } from '@/data/services/production-lines.api';
+import { getAllBranches } from '@/data/services/company-branches.api';
+import { getCompanyPublicInfo } from '@/data/services/companies.api';
 
-export default async function ClientProductionLinesPage() {
+interface PageProps {
+  params: Promise<{ subdomain: string }>;
+}
+
+export default async function ClientProductionLinesPage({ params }: PageProps) {
+  const { subdomain } = await params;
   const t = await getTranslations('productionLines');
-  const response = await getProductionLines();
 
-  if (response.errors) {
+  // Get company ID from subdomain
+  const companyResult = await getCompanyPublicInfo({ companySlug: subdomain });
+  const companyId = companyResult.data?.id;
+
+  const [productionLinesResponse, branchesResponse] = await Promise.all([
+    getProductionLines(),
+    companyId ? getAllBranches({ companyId }) : Promise.resolve({ data: [] }),
+  ]);
+
+  if (productionLinesResponse.errors) {
     return (
       <div className="space-y-6 p-8">
         <div>
@@ -20,7 +35,8 @@ export default async function ClientProductionLinesPage() {
     );
   }
 
-  const productionLines = response.data || [];
+  const productionLines = productionLinesResponse.data || [];
+  const allBranches = branchesResponse.data || [];
 
-  return <ProductionLinesPage productionLines={productionLines} />;
+  return <ProductionLinesPage productionLines={productionLines} allBranches={allBranches} />;
 }

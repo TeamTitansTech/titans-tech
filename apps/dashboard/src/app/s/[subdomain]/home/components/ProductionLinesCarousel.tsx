@@ -11,13 +11,13 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
-import { Factory, ArrowRight, MoveUp, MoveDown, Star } from 'lucide-react';
+import { Factory, ArrowRight } from 'lucide-react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { getProductionLines } from '@/data/services/production-lines.api';
 import type { ProductionLine } from '@/data/types/production-lines.types';
 import { getProductionLineStatus, statusColors } from '@/lib/alertStatus';
 import { TooltipProvider } from '@/components/ui/tooltip';
-import { MachineCardInLine } from '../../production-lines/[id]/components/MachineCardInLine';
+import { ViewTab } from '../../production-lines/[id]/components/ViewTab';
 
 export function ProductionLinesCarousel() {
   const t = useTranslations('dashboard.client');
@@ -147,130 +147,9 @@ export function ProductionLinesCarousel() {
                           </div>
 
                           {/* Production Line Visualization */}
-                          {machineCount > 0 ? (
-                            <>
-                              {/* Desktop layout - horizontal */}
-                              <div className="hidden lg:block relative overflow-x-auto py-4">
-                                <div className="min-w-max px-4">
-                                  <div className="flex items-center gap-4">
-                                    {/* Main machine on the left */}
-                                    <div
-                                      className="relative flex flex-col items-center"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium">
-                                        <Star className="w-3 h-3 fill-current" />
-                                      </div>
-                                      <MachineCardInLine machine={filteredMachines[0].machine!} />
-                                    </div>
-
-                                    {/* Connector line from main machine */}
-                                    {machineCount > 1 && <div className="h-1 w-8 bg-green-500" />}
-
-                                    {/* Rest of machines in alternating layout */}
-                                    {machineCount > 1 && (
-                                      <div className="relative flex flex-col flex-1">
-                                        {/* Top row - even indices after main (0, 2, 4...) */}
-                                        <div className="flex justify-start gap-6 items-end">
-                                          {filteredMachines
-                                            .slice(1)
-                                            .map((productionLineMachine, index) => {
-                                              if (index % 2 !== 0) {
-                                                return (
-                                                  <div
-                                                    key={productionLineMachine.machineId}
-                                                    className="w-[200px]"
-                                                  />
-                                                );
-                                              }
-                                              return (
-                                                <div
-                                                  key={productionLineMachine.machineId}
-                                                  className="flex flex-col items-center"
-                                                  onClick={(e) => e.stopPropagation()}
-                                                >
-                                                  <MachineCardInLine
-                                                    machine={productionLineMachine.machine!}
-                                                  />
-                                                  <MoveDown className="w-4 h-4 text-green-500 mt-1" />
-                                                </div>
-                                              );
-                                            })}
-                                        </div>
-
-                                        {/* Production Line */}
-                                        <div className="h-1 bg-green-500 w-full" />
-
-                                        {/* Bottom row - odd indices after main (1, 3, 5...) */}
-                                        <div className="flex justify-start gap-6 items-start">
-                                          {filteredMachines
-                                            .slice(1)
-                                            .map((productionLineMachine, index) => {
-                                              if (index % 2 === 0) {
-                                                return (
-                                                  <div
-                                                    key={productionLineMachine.machineId}
-                                                    className="w-[200px]"
-                                                  />
-                                                );
-                                              }
-                                              return (
-                                                <div
-                                                  key={productionLineMachine.machineId}
-                                                  className="flex flex-col items-center"
-                                                  onClick={(e) => e.stopPropagation()}
-                                                >
-                                                  <MoveUp className="w-4 h-4 text-green-500 mb-1" />
-                                                  <MachineCardInLine
-                                                    machine={productionLineMachine.machine!}
-                                                  />
-                                                </div>
-                                              );
-                                            })}
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Mobile layout - vertical */}
-                              <div className="lg:hidden py-4">
-                                <div className="relative flex">
-                                  <div className="absolute left-4 top-0 bottom-0 w-1 bg-green-500" />
-                                  <div className="flex flex-col gap-4 pl-4">
-                                    {filteredMachines.map((productionLineMachine, index) => (
-                                      <div
-                                        key={productionLineMachine.machineId}
-                                        className="relative flex items-center"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <div className="absolute left-0 w-3 h-3 rounded-full bg-green-500 border-2 border-green-600 -translate-x-1/2" />
-                                        <div className="h-1 w-8 bg-green-500" />
-                                        <div className="flex-shrink-0 relative">
-                                          {index === 0 && (
-                                            <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium">
-                                              <Star className="w-3 h-3 fill-current" />
-                                            </div>
-                                          )}
-                                          <MachineCardInLine
-                                            machine={productionLineMachine.machine!}
-                                          />
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <div className="py-8 text-center">
-                              <Factory className="w-12 h-12 mx-auto text-muted-foreground opacity-50" />
-                              <p className="text-sm text-muted-foreground mt-2">
-                                {tProdLines('noMachinesConfigured')}
-                              </p>
-                            </div>
-                          )}
+                          <div onClick={(e) => e.stopPropagation()}>
+                            <ViewTab productionLine={line} canViewMachineDetails={true} />
+                          </div>
                         </div>
                       </CardContent>
                     </Card>

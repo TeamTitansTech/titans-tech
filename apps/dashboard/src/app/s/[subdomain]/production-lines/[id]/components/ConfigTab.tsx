@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Save, Star } from 'lucide-react';
+import { Save, Star, ArrowUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { getMachines } from '@/data/services/machines.api';
 import { updateProductionLine } from '@/data/services/production-lines.api';
@@ -41,11 +41,13 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   const initialMachineIds =
     productionLine.machines?.sort((a, b) => a.order - b.order).map((pm) => pm.machineId) || [];
 
-  // The first machine in order is the main machine
+  // The first machine in order is the main machine, second is secondary
   const initialMainMachine = initialMachineIds[0] || '';
+  const initialSecondaryMachine = initialMachineIds[1] || '';
 
   const [selectedMachineIds, setSelectedMachineIds] = useState<string[]>(initialMachineIds);
   const [mainMachineId, setMainMachineId] = useState<string>(initialMainMachine);
+  const [secondaryMachineId, setSecondaryMachineId] = useState<string>(initialSecondaryMachine);
   const [isLoadingMachines, setIsLoadingMachines] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -86,21 +88,47 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
       if (machineId === mainMachineId) {
         setMainMachineId('');
       }
+      // If we're unchecking the secondary machine, clear the secondary machine selection
+      if (machineId === secondaryMachineId) {
+        setSecondaryMachineId('');
+      }
     }
   };
 
   const handleMainMachineChange = (machineId: string) => {
     setMainMachineId(machineId);
+    // If selected machine was the secondary, clear secondary
+    if (machineId === secondaryMachineId) {
+      setSecondaryMachineId('');
+    }
+  };
+
+  const handleSecondaryMachineChange = (machineId: string) => {
+    setSecondaryMachineId(machineId);
+    // If selected machine was the main, clear main
+    if (machineId === mainMachineId) {
+      setMainMachineId('');
+    }
   };
 
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Reorder machines so main machine is first
+      // Reorder machines: main (order 0), secondary (order 1), then others
       let orderedMachineIds = [...selectedMachineIds];
-      if (mainMachineId && orderedMachineIds.includes(mainMachineId)) {
-        // Remove main machine from current position and add to front
-        orderedMachineIds = orderedMachineIds.filter((id) => id !== mainMachineId);
+
+      // Remove main and secondary from current positions
+      orderedMachineIds = orderedMachineIds.filter(
+        (id) => id !== mainMachineId && id !== secondaryMachineId,
+      );
+
+      // Add secondary first (will be at index 1 after main is added)
+      if (secondaryMachineId && selectedMachineIds.includes(secondaryMachineId)) {
+        orderedMachineIds.unshift(secondaryMachineId);
+      }
+
+      // Add main at the front (order 0)
+      if (mainMachineId && selectedMachineIds.includes(mainMachineId)) {
         orderedMachineIds.unshift(mainMachineId);
       }
 
@@ -155,6 +183,9 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
                     {machine.id === mainMachineId && (
                       <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                     )}
+                    {machine.id === secondaryMachineId && (
+                      <ArrowUp className="w-4 h-4 text-blue-500" />
+                    )}
                   </label>
                 </div>
               ))}
@@ -179,11 +210,42 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
                 <SelectValue placeholder={t('selectMainMachine')} />
               </SelectTrigger>
               <SelectContent>
-                {selectedMachines.map((machine) => (
-                  <SelectItem key={machine.id} value={machine.id}>
-                    {machine.name}
-                  </SelectItem>
-                ))}
+                {selectedMachines
+                  .filter((m) => m.id !== secondaryMachineId)
+                  .map((machine) => (
+                    <SelectItem key={machine.id} value={machine.id}>
+                      {machine.name}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Secondary Machine Selection */}
+      {selectedMachines.length > 1 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ArrowUp className="w-5 h-5 text-blue-500" />
+              {t('secondaryMachine')}
+            </CardTitle>
+            <CardDescription>{t('secondaryMachineDescription')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Select value={secondaryMachineId} onValueChange={handleSecondaryMachineChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder={t('selectSecondaryMachine')} />
+              </SelectTrigger>
+              <SelectContent>
+                {selectedMachines
+                  .filter((m) => m.id !== mainMachineId)
+                  .map((machine) => (
+                    <SelectItem key={machine.id} value={machine.id}>
+                      {machine.name}
+                    </SelectItem>
+                  ))}
               </SelectContent>
             </Select>
           </CardContent>
