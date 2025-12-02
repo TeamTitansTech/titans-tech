@@ -20,6 +20,12 @@ import {
   getAlertNotificationText,
   type AlertNotificationTemplateData,
 } from './templates/alert-notification.template';
+import {
+  getPublicServiceRequestHtml,
+  getPublicServiceRequestSubject,
+  getPublicServiceRequestText,
+  type PublicServiceRequestTemplateData,
+} from './templates/public-service-request.template';
 import { NotificationType, EmailProvider, EmailStatus } from '@titans-tech/db';
 
 @Injectable()
@@ -38,6 +44,30 @@ export class EmailService {
     );
   }
 
+  /**
+   * Get test emails from environment variable
+   * Returns an array of trimmed, lowercase email addresses
+   */
+  private getTestEmails(): string[] {
+    if (!appEnv.TEST_EMAILS) return [];
+    return appEnv.TEST_EMAILS.split(',')
+      .map((e) => e.trim().toLowerCase())
+      .filter((e) => e.length > 0);
+  }
+
+  /**
+   * Merge recipients with test emails, ensuring no duplicates
+   */
+  private mergeWithTestEmails(to: string | string[]): string[] {
+    const testEmails = this.getTestEmails();
+    const recipients = Array.isArray(to) ? to : [to];
+    const allEmails = new Set([
+      ...recipients.map((e) => e.toLowerCase()),
+      ...testEmails,
+    ]);
+    return Array.from(allEmails);
+  }
+
   async sendUrgentRequestEmail(
     to: string | string[],
     data: UrgentRequestTemplateData,
@@ -46,10 +76,11 @@ export class EmailService {
     const subject = getUrgentRequestSubject(data);
     const html = getUrgentRequestHtml(data);
     const text = getUrgentRequestText(data);
+    const recipients = this.mergeWithTestEmails(to);
 
     const emailRecord = await this.prisma.email.create({
       data: {
-        to: Array.isArray(to) ? to.join(',') : to,
+        to: recipients.join(','),
         from: appEnv.EMAIL_FROM,
         subject,
         body: html,
@@ -65,7 +96,7 @@ export class EmailService {
 
     try {
       const result = await this.provider.sendEmail({
-        to,
+        to: recipients,
         subject,
         html,
         text,
@@ -107,6 +138,7 @@ export class EmailService {
     const subject = getClientReminderSubject(data);
     const html = getClientReminderHtml(data);
     const text = getClientReminderText(data);
+    const recipients = this.mergeWithTestEmails(to);
 
     const notificationType =
       data.daysOverdue && data.daysOverdue > 0
@@ -115,7 +147,7 @@ export class EmailService {
 
     const emailRecord = await this.prisma.email.create({
       data: {
-        to,
+        to: recipients.join(','),
         from: appEnv.EMAIL_FROM,
         subject,
         body: html,
@@ -131,7 +163,7 @@ export class EmailService {
 
     try {
       const result = await this.provider.sendEmail({
-        to,
+        to: recipients,
         subject,
         html,
         text,
@@ -173,10 +205,11 @@ export class EmailService {
     const subject = getAlertNotificationSubject(data);
     const html = getAlertNotificationHtml(data);
     const text = getAlertNotificationText(data);
+    const recipients = this.mergeWithTestEmails(to);
 
     const emailRecord = await this.prisma.email.create({
       data: {
-        to: Array.isArray(to) ? to.join(',') : to,
+        to: recipients.join(','),
         from: appEnv.EMAIL_FROM,
         subject,
         body: html,
@@ -192,7 +225,7 @@ export class EmailService {
 
     try {
       const result = await this.provider.sendEmail({
-        to,
+        to: recipients,
         subject,
         html,
         text,
@@ -215,6 +248,68 @@ export class EmailService {
       }
     } catch (error) {
       this.logger.error('Error sending alert notification email', error);
+      await this.prisma.email.update({
+        where: { id: emailRecord.id },
+        data: {
+          status: EmailStatus.FAILED,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      });
+      throw error;
+    }
+  }
+
+  async sendPublicServiceRequestEmail(
+    to: string | string[],
+    data: PublicServiceRequestTemplateData,
+    machineId: string,
+  ): Promise<void> {
+    const subject = getPublicServiceRequestSubject(data);
+    const html = getPublicServiceRequestHtml(data);
+    const text = getPublicServiceRequestText(data);
+    const recipients = this.mergeWithTestEmails(to);
+
+    const emailRecord = await this.prisma.email.create({
+      data: {
+        to: recipients.join(','),
+        from: appEnv.EMAIL_FROM,
+        subject,
+        body: html,
+        type: NotificationType.URGENT_SERVICE_REQUEST,
+        status: EmailStatus.PENDING,
+        provider:
+          appEnv.EMAIL_PROVIDER === 'AWS_SES'
+            ? EmailProvider.AWS_SES
+            : EmailProvider.SENDGRID,
+        machineId,
+      },
+    });
+
+    try {
+      const result = await this.provider.sendEmail({
+        to: recipients,
+        subject,
+        html,
+        text,
+      });
+
+      await this.prisma.email.update({
+        where: { id: emailRecord.id },
+        data: {
+          status: result.success ? EmailStatus.SENT : EmailStatus.FAILED,
+          externalId: result.messageId,
+          error: result.error,
+          sentAt: result.success ? new Date() : null,
+        },
+      });
+
+      if (!result.success) {
+        this.logger.error(
+          `Failed to send public service request email: ${result.error}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error('Error sending public service request email', error);
       await this.prisma.email.update({
         where: { id: emailRecord.id },
         data: {

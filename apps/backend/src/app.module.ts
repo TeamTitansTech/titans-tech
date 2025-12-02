@@ -17,6 +17,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { TasksModule } from './modules/tasks/tasks.module';
 import { ProductionLinesModule } from './modules/production-lines/production-lines.module';
 import { PermissionTemplatesModule } from './modules/permission-templates/permission-templates.module';
+import { ServiceRequestsModule } from './modules/service-requests/service-requests.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { PermissionTemplatesModule } from './modules/permission-templates/permis
     TasksModule,
     ProductionLinesModule,
     PermissionTemplatesModule,
+    ServiceRequestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
