@@ -102,6 +102,11 @@ enum MeasurementUnit {
   MM
 }
 
+enum ProductionLineDirection {
+  LEFT_TO_RIGHT
+  RIGHT_TO_LEFT
+}
+
 enum CylinderAirbagType {
   CYLINDER
   AIRBAG
@@ -1424,12 +1429,13 @@ model PistonsData {
 // Production Line Models
 
 model ProductionLine {
-  id        String   @id @default(cuid())
+  id        String                  @id @default(cuid())
   name      String
   branchId  String
   createdBy String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  direction ProductionLineDirection @default(LEFT_TO_RIGHT)
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
 
   branch   CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
   machines MachineProductionLine[]

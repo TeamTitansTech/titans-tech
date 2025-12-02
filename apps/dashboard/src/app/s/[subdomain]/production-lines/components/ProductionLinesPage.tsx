@@ -62,9 +62,13 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
         id: branch.id,
         name: branch.company ? `${branch.company.name} - ${branch.name}` : branch.name,
         location: branch.location,
+        machineCount: branch._count?.machines ?? 0,
       }));
     }
-    return getBranchesWithPermission(companyUser, 'readProductionLines');
+    return getBranchesWithPermission(companyUser, 'readProductionLines').map((branch) => ({
+      ...branch,
+      machineCount: 0, // Regular users don't have machine count in their branch data
+    }));
   }, [companyUser, isSysAdmin, allBranchesForSysAdmin]);
 
   // Filter production lines by selected branch
@@ -125,57 +129,63 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
   return (
     <>
       <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
-              <p className="text-muted-foreground text-sm sm:text-base">{t('pageDescription')}</p>
-            </div>
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-              {hasCreateProductionLinesPermission && (
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <Button
-                        onClick={() => setIsCreateDialogOpen(true)}
-                        disabled={!canCreateInSelectedBranch()}
-                      >
-                        <Plus className="w-4 h-4 mr-2" />
-                        {t('newButton')}
-                      </Button>
-                    </div>
-                  </TooltipTrigger>
-                  {!canCreateInSelectedBranch() && (
-                    <TooltipContent>
-                      <p>{t('selectBranchToCreate')}</p>
-                    </TooltipContent>
-                  )}
-                </Tooltip>
-              )}
-            </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">{t('pageDescription')}</p>
           </div>
-          {/* Branch Filter - Full width on mobile */}
-          <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
-            <SelectTrigger className="w-full sm:w-[250px] [&_.branch-location]:hidden">
-              <MapPin className="w-4 h-4 mr-2 shrink-0" />
-              <SelectValue placeholder="Filter by branch" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('allBranches')}</SelectItem>
-              {userBranches.map((branch) => (
-                <SelectItem key={branch.id} value={branch.id} textValue={branch.name}>
-                  <div className="flex flex-col">
-                    <span>{branch.name}</span>
-                    {branch.location && (
-                      <span className="branch-location text-xs text-muted-foreground truncate max-w-[180px]">
-                        {branch.location}
-                      </span>
-                    )}
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            {/* Branch Filter */}
+            <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
+              <SelectTrigger className="w-[180px] sm:w-[250px] [&_.branch-location]:hidden">
+                <MapPin className="w-4 h-4 mr-2 shrink-0" />
+                <SelectValue placeholder="Filter by branch" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">{t('allBranches')}</SelectItem>
+                {userBranches.map((branch) => (
+                  <SelectItem key={branch.id} value={branch.id} textValue={branch.name}>
+                    <div className="flex flex-col">
+                      <div className="flex items-center justify-between gap-2">
+                        <span>{branch.name}</span>
+                        {isSysAdmin && (
+                          <span className="text-xs text-muted-foreground">
+                            {branch.machineCount}{' '}
+                            {branch.machineCount === 1 ? 'machine' : 'machines'}
+                          </span>
+                        )}
+                      </div>
+                      {branch.location && (
+                        <span className="branch-location text-xs text-muted-foreground truncate max-w-[180px]">
+                          {branch.location}
+                        </span>
+                      )}
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {hasCreateProductionLinesPermission && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <Button
+                      onClick={() => setIsCreateDialogOpen(true)}
+                      disabled={!canCreateInSelectedBranch()}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      {t('newButton')}
+                    </Button>
                   </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                </TooltipTrigger>
+                {!canCreateInSelectedBranch() && (
+                  <TooltipContent>
+                    <p>{t('selectBranchToCreate')}</p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+            )}
+          </div>
         </div>
 
         {filteredProductionLines.length === 0 ? (
