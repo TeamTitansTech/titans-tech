@@ -28,7 +28,9 @@ export function MeasurementInput<T extends string>({
 
   if (readOnly) {
     const displayValue =
-      value !== undefined && value !== null ? convertLengthFromDefault(value).toFixed(4) : '';
+      value !== undefined && value !== null
+        ? Number(convertLengthFromDefault(Number(value))).toFixed(4)
+        : '';
     return (
       <div
         className={`${className} border rounded-md bg-muted/50 flex items-center justify-center font-medium`}

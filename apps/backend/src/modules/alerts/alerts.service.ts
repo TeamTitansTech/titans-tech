@@ -2145,6 +2145,6 @@ export class AlertsService {
       );
     }
 
-    return alerts.map((alert) => new AlertTrammingResponseDto(alert as any));
+    return new AlertTrammingResponseDto(alerts[0] as any);
   }
 }
