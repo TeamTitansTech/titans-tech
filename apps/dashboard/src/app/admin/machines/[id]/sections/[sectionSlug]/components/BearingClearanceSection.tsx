@@ -23,7 +23,6 @@ import { SectionExportButton } from '@/components/shared/SectionExportButton';
 import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
 import { BEARING_CLEARANCE_SUBSECTIONS } from '@/data/parts/section-subsections';
-import { BEARING_CLEARANCE_TABS } from '@/data/parts/dac-parts';
 
 interface BearingClearanceSectionProps {
   machineId: string;
@@ -343,24 +342,6 @@ export function BearingClearanceSection({
           </div>
         </CardContent>
       </Card>
-
-      {/* Section Status Card with Parts Modal */}
-      <SectionStatusCard
-        status={sectionStatus}
-        partsConfig={{
-          tabs: BEARING_CLEARANCE_TABS,
-          title: tParts('bearingClearanceParts'),
-          description: tParts('bearingClearanceDescription'),
-          machineName,
-          sectionName: 'Bearing Clearance',
-          diagramImage: {
-            src: '/assets/parts-diagrams/crankshaft.png',
-            alt: 'FIGURE 1006B — CRANKSHAFT PARTS',
-            width: 843,
-            height: 641,
-          },
-        }}
-      />
     </div>
   );
 }

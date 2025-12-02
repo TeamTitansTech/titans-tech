@@ -2262,6 +2262,8 @@
     "exportPDF": "Export PDF",
     "exportThisTab": "Export This Tab",
     "exportAllTabs": "Export All Tabs",
+    "partsSelectedAcrossTabs": "parts selected across all tabs",
+    "selectPartsToExport": "Select parts to export",
     "exporting": "Exporting...",
     "noPartsSelected": "No parts selected",
     "exportSuccess": "PDF exported successfully",

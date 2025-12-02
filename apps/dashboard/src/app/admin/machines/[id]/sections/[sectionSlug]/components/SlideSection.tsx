@@ -35,7 +35,7 @@ import {
   calculateSectionStatus,
 } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
-import { SLIDE_TABS } from '@/data/parts/dac-parts';
+import { SLIDE_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface SlideSectionProps {
   machineId: string;
@@ -260,6 +260,18 @@ export function SlideSection({
         </Card>
       </div>
 
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: SLIDE_SUBSECTIONS,
+          title: tParts('slideParts'),
+          description: tParts('slideDescription'),
+          machineName,
+          sectionName: 'Slide',
+        }}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -466,18 +478,6 @@ export function SlideSection({
           </div>
         </CardContent>
       </Card>
-
-      {/* Section Status Card with Parts Modal */}
-      <SectionStatusCard
-        status={sectionStatus}
-        partsConfig={{
-          tabs: SLIDE_TABS,
-          title: tParts('slideParts'),
-          description: tParts('slideDescription'),
-          machineName,
-          sectionName: 'Slide',
-        }}
-      />
     </div>
   );
 }

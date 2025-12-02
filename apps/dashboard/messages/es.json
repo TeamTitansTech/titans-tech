@@ -2205,6 +2205,8 @@
     "exportPDF": "Exportar PDF",
     "exportThisTab": "Exportar Esta Pestaña",
     "exportAllTabs": "Exportar Todas las Pestañas",
+    "partsSelectedAcrossTabs": "piezas seleccionadas en todas las pestañas",
+    "selectPartsToExport": "Seleccione piezas para exportar",
     "exporting": "Exportando...",
     "noPartsSelected": "Ninguna pieza seleccionada",
     "exportSuccess": "PDF exportado exitosamente",

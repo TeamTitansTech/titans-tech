@@ -16,7 +16,13 @@ import {
   ImageOff,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -526,8 +532,8 @@ export function SubsectionPartsModal({
                         )}
                       </div>
 
-                      {/* Export Buttons Row */}
-                      <div className="flex flex-wrap gap-2 shrink-0">
+                      {/* Export This Tab Button */}
+                      <div className="shrink-0">
                         <Button
                           onClick={() => exportToPDF('current')}
                           disabled={getSelectedCountForSubsection(activeTab) === 0 || isExporting}
@@ -538,16 +544,6 @@ export function SubsectionPartsModal({
                           {t('exportThisTab') || 'Export This Tab'}
                           {getSelectedCountForSubsection(activeTab) > 0 &&
                             ` (${getSelectedCountForSubsection(activeTab)})`}
-                        </Button>
-                        <Button
-                          onClick={() => exportToPDF('all')}
-                          disabled={selectedKeys.size === 0 || isExporting}
-                          className="bg-primary hover:bg-primary/90"
-                          size="sm"
-                        >
-                          <FileDown className="h-4 w-4 mr-2" />
-                          {t('exportAllTabs') || 'Export All Tabs'}
-                          {selectedKeys.size > 0 && ` (${selectedKeys.size})`}
                         </Button>
                       </div>
 
@@ -648,6 +644,26 @@ export function SubsectionPartsModal({
             </TabsContent>
           ))}
         </Tabs>
+
+        {/* Footer with Export All Tabs button */}
+        <DialogFooter className="border-t pt-4 mt-4 shrink-0">
+          <div className="flex items-center justify-between w-full">
+            <p className="text-sm text-muted-foreground">
+              {selectedKeys.size > 0
+                ? `${selectedKeys.size} ${t('partsSelectedAcrossTabs')}`
+                : t('selectPartsToExport')}
+            </p>
+            <Button
+              onClick={() => exportToPDF('all')}
+              disabled={selectedKeys.size === 0 || isExporting}
+              className="bg-primary hover:bg-primary/90"
+            >
+              <FileDown className="h-4 w-4 mr-2" />
+              {t('exportAllTabs') || 'Export All Tabs'}
+              {selectedKeys.size > 0 && ` (${selectedKeys.size})`}
+            </Button>
+          </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

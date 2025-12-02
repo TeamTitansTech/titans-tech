@@ -26,7 +26,7 @@ import {
   calculateSectionStatus,
 } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
-import { GIBS_TABS } from '@/data/parts/dac-parts';
+import { GIBS_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface GibsSectionProps {
   machineId: string;
@@ -366,6 +366,18 @@ export function GibsSection({
         </Card>
       </div>
 
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: GIBS_SUBSECTIONS,
+          title: tParts('gibsParts'),
+          description: tParts('gibsDescription'),
+          machineName,
+          sectionName: 'Gibs',
+        }}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -682,18 +694,6 @@ export function GibsSection({
           </div>
         </CardContent>
       </Card>
-
-      {/* Section Status Card with Parts Modal */}
-      <SectionStatusCard
-        status={sectionStatus}
-        partsConfig={{
-          tabs: GIBS_TABS,
-          title: tParts('gibsParts'),
-          description: tParts('gibsDescription'),
-          machineName,
-          sectionName: 'Gibs',
-        }}
-      />
     </div>
   );
 }
