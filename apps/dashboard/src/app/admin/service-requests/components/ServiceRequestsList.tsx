@@ -80,6 +80,7 @@ export function ServiceRequestsList() {
 
   useEffect(() => {
     fetchRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter]);
 
   const handleClose = async (id: string, e?: React.MouseEvent) => {
@@ -93,7 +94,7 @@ export function ServiceRequestsList() {
       } else if (response.errors) {
         toast.error(response.errors[0]);
       }
-    } catch (error) {
+    } catch {
       toast.error(t('actionFailed'));
     } finally {
       setActionLoading(null);
@@ -111,7 +112,7 @@ export function ServiceRequestsList() {
       } else if (response.errors) {
         toast.error(response.errors[0]);
       }
-    } catch (error) {
+    } catch {
       toast.error(t('actionFailed'));
     } finally {
       setActionLoading(null);

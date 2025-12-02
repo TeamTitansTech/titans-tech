@@ -11,7 +11,6 @@ import {
   CheckCircle,
   Loader2,
   LogIn,
-  Upload,
   X,
   Camera,
 } from 'lucide-react';

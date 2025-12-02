@@ -63,6 +63,7 @@ export function ServiceRequests({ machineId }: ServiceRequestsProps) {
 
   useEffect(() => {
     fetchRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [machineId]);
 
   const handleClose = async (id: string) => {
@@ -75,7 +76,7 @@ export function ServiceRequests({ machineId }: ServiceRequestsProps) {
       } else if (response.errors) {
         toast.error(response.errors[0]);
       }
-    } catch (error) {
+    } catch {
       toast.error(t('actionFailed'));
     } finally {
       setActionLoading(null);
@@ -92,7 +93,7 @@ export function ServiceRequests({ machineId }: ServiceRequestsProps) {
       } else if (response.errors) {
         toast.error(response.errors[0]);
       }
-    } catch (error) {
+    } catch {
       toast.error(t('actionFailed'));
     } finally {
       setActionLoading(null);
