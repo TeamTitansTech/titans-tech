@@ -21,19 +21,22 @@ export function MeasurementInput<T extends string>({
   onBlur,
   error,
   readOnly = false,
-  className = 'w-20 h-8 text-sm px-2 py-1',
+  className = 'w-21 h-8 text-sm px-2 py-1',
   required = true,
 }: MeasurementInputProps<T>) {
   const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 
   if (readOnly) {
-    const displayValue = value !== undefined ? convertLengthFromDefault(value).toFixed(4) : '';
+    const displayValue =
+      value !== undefined && value !== null
+        ? Number(convertLengthFromDefault(Number(value))).toFixed(4)
+        : '';
     return (
       <div
         className={`${className} border rounded-md bg-muted/50 flex items-center justify-center font-medium`}
       >
         {displayValue}{' '}
-        {displayValue && (
+        {displayValue !== '' && (
           <span className="ml-1 text-xs text-muted-foreground">{getLengthUnitLabel()}</span>
         )}
       </div>
@@ -43,7 +46,7 @@ export function MeasurementInput<T extends string>({
   return (
     <LengthInput
       id={`${field}`}
-      value={value ?? 0}
+      value={value !== undefined && value !== null ? value : ''}
       onChange={(val) => onChange(field, val)}
       onBlur={() => onBlur(field)}
       error={error}

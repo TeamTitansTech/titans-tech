@@ -226,6 +226,7 @@ export class NotificationsService {
           take: 1,
         },
         alertCounterbalanceCylinderAirbag: true,
+        alertTramming: true,
       },
     });
 
@@ -529,6 +530,156 @@ export class NotificationsService {
         alerts,
       });
       highestSeverity = 'RED';
+    }
+
+    // Process Tramming alerts with subsections (Outer/Inner)
+    if (service.alertTramming && service.alertTramming.length > 0) {
+      const alert = service.alertTramming[0]; // Get first alert record
+      let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      // Helper to process direction measurements (vertical and horizontal)
+      const processDirection = (
+        position: string,
+        verticalSum: any,
+        verticalSeverity: string,
+        horizontalSum: any,
+        horizontalSeverity: string,
+      ) => {
+        const measurements: Array<{
+          name: string;
+          differential: string;
+          status: 'YELLOW' | 'RED';
+        }> = [];
+
+        if (verticalSeverity === 'YELLOW' || verticalSeverity === 'RED') {
+          measurements.push({
+            name: `${position} - Vertical`,
+            differential: verticalSum?.toFixed(3) || '0',
+            status: verticalSeverity as 'YELLOW' | 'RED',
+          });
+        }
+
+        if (horizontalSeverity === 'YELLOW' || horizontalSeverity === 'RED') {
+          measurements.push({
+            name: `${position} - Horizontal`,
+            differential: horizontalSum?.toFixed(3) || '0',
+            status: horizontalSeverity as 'YELLOW' | 'RED',
+          });
+        }
+
+        return measurements;
+      };
+
+      // Process OUTER measurements
+      const outerMeasurements = [
+        ...processDirection(
+          'Top',
+          alert.outer_top_verticalSum,
+          alert.outer_top_verticalSeverity,
+          alert.outer_top_horizontalSum,
+          alert.outer_top_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Bottom',
+          alert.outer_bottom_verticalSum,
+          alert.outer_bottom_verticalSeverity,
+          alert.outer_bottom_horizontalSum,
+          alert.outer_bottom_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Left',
+          alert.outer_left_verticalSum,
+          alert.outer_left_verticalSeverity,
+          alert.outer_left_horizontalSum,
+          alert.outer_left_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Right',
+          alert.outer_right_verticalSum,
+          alert.outer_right_verticalSeverity,
+          alert.outer_right_horizontalSum,
+          alert.outer_right_horizontalSeverity,
+        ),
+      ];
+
+      let outerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+      if (outerMeasurements.some((m) => m.status === 'RED')) {
+        outerSeverity = 'RED';
+      }
+
+      // Process INNER measurements
+      const innerMeasurements = [
+        ...processDirection(
+          'Top',
+          alert.inner_top_verticalSum,
+          alert.inner_top_verticalSeverity,
+          alert.inner_top_horizontalSum,
+          alert.inner_top_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Bottom',
+          alert.inner_bottom_verticalSum,
+          alert.inner_bottom_verticalSeverity,
+          alert.inner_bottom_horizontalSum,
+          alert.inner_bottom_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Left',
+          alert.inner_left_verticalSum,
+          alert.inner_left_verticalSeverity,
+          alert.inner_left_horizontalSum,
+          alert.inner_left_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Right',
+          alert.inner_right_verticalSum,
+          alert.inner_right_verticalSeverity,
+          alert.inner_right_horizontalSum,
+          alert.inner_right_horizontalSeverity,
+        ),
+      ];
+
+      let innerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+      if (innerMeasurements.some((m) => m.status === 'RED')) {
+        innerSeverity = 'RED';
+      }
+
+      const subsections: Array<{
+        name: string;
+        severity: 'YELLOW' | 'RED';
+        measurements: Array<{
+          name: string;
+          differential: string;
+          status: 'YELLOW' | 'RED';
+        }>;
+      }> = [];
+
+      if (outerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Outer',
+          severity: outerSeverity,
+          measurements: outerMeasurements,
+        });
+        if (outerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (innerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Inner',
+          severity: innerSeverity,
+          measurements: innerMeasurements,
+        });
+        if (innerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (subsections.length > 0) {
+        sections.push({
+          sectionName: 'Tramming',
+          severity: sectionSeverity,
+          subsections,
+        });
+        if (sectionSeverity === 'RED') highestSeverity = 'RED';
+      }
     }
 
     // Prepare email data

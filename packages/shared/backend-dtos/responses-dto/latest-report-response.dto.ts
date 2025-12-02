@@ -7,12 +7,14 @@ import {
   LubricationHydraulicsData,
   LubricationHydraulicsGauge,
   CounterbalanceCylinderAirbagData,
+  TrammingData,
 } from '@titans-tech/db';
 import { AlertBearingClearanceResponseDto } from './alert-bearing-clearance-response.dto';
 import { AlertClutchResponseDto } from './alert-clutch-response.dto';
 import { AlertSlideResponseDto } from './alert-slide-response.dto';
 import { AlertGibsResponseDto } from './alert-gibs-response.dto';
 import { AlertCounterbalanceCylinderAirbagResponseDto } from './alert-counterbalance-response.dto';
+import { AlertTrammingResponseDto } from './alert-tramming-response.dto';
 
 /**
  * DTO for the latest BearingClearance data in a machine
@@ -135,6 +137,24 @@ export class LatestCounterbalanceDto {
 }
 
 /**
+ * DTO for the latest Tramming data in a machine
+ */
+export class LatestTrammingDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType; // INSPECTION | MAINTENANCE
+  data: {
+    outerData?: TrammingData;
+    innerData?: TrammingData;
+  }; // Tramming data with outer and inner measurements
+  alert?: AlertTrammingResponseDto; // Alert if exists (with outer_/inner_ prefixed fields)
+
+  constructor(partial: Partial<LatestTrammingDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
  * DTO for the complete latest report of a machine
  * Shows the most recent data for each section based on the blueprint
  */
@@ -154,6 +174,7 @@ export class LatestReportResponseDto {
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LatestLubricationDto | null;
     CLUTCH: LatestClutchDto | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalanceDto | null;
+    TRAMMING: LatestTrammingDto | null;
   };
 
   constructor(partial: Partial<LatestReportResponseDto>) {

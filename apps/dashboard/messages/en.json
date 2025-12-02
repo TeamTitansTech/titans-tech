@@ -2054,6 +2054,11 @@
       "title": "GIBS - Alert Configuration",
       "usable": "Usable"
     },
+    "tramming": {
+      "title": "TRAMMING - Alert Configuration",
+      "description": "Configure the threshold for tramming sums (vertical and horizontal). This threshold will be applied to all positions (top, bottom, left, right).",
+      "sum": "Tramming Sum"
+    },
     "thresholds": {
       "greenStartMin": "Green Start (Min)",
       "yellowStartMin": "Yellow Start (Min)",
