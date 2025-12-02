@@ -160,6 +160,85 @@ export async function getPistonsThresholdByBlueprint(blueprintId: string) {
 }
 
 /**
+ * Get tramming threshold by blueprint ID
+ */
+export async function getTrammingThresholdByBlueprint(blueprintId: string) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/alerts/tramming/thresholds/blueprint/${blueprintId}`, {
+      method: 'GET',
+      headers,
+      cache: 'no-store',
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to fetch tramming threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Create tramming threshold
+ */
+export async function createTrammingThreshold(data: {
+  blueprintId: string;
+  greenMin: number;
+  yellowMin: number;
+  redMin: number;
+}) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/alerts/tramming/thresholds`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to create tramming threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Update tramming threshold
+ */
+export async function updateTrammingThreshold(
+  blueprintId: string,
+  data: {
+    greenMin: number;
+    yellowMin: number;
+    redMin: number;
+  },
+  recalculateAlerts: boolean = false,
+) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/alerts/tramming/thresholds/blueprint/${blueprintId}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ ...data, recalculateAlerts }),
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to update tramming threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
  * Update bearing clearance threshold
  */
 export async function updateBearingClearanceThreshold(

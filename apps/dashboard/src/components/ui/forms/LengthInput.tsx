@@ -61,7 +61,7 @@ export function LengthInput({
   // Compute display value from props when not editing
   const displayValue = useMemo(() => {
     const converted = convertLengthFromDefault(numericValue);
-    return converted ? converted.toFixed(decimalPlaces) : '';
+    return converted !== null && converted !== undefined ? converted.toFixed(decimalPlaces) : '';
   }, [numericValue, convertLengthFromDefault, decimalPlaces]);
 
   const handleFocus = () => {
@@ -126,7 +126,7 @@ export function LengthInput({
           placeholder={placeholder}
           required={required}
           className={cn(
-            'text-xs h-9 pr-10',
+            'text-xs h-9 pr-12',
             {
               'border-destructive focus-visible:ring-destructive': error,
             },

@@ -620,7 +620,7 @@ export function ServiceCompletionModal({
 
       toast.success(tSuccess('serviceCompleted'), { duration: 3000 });
 
-      if (serviceType !== ServiceType.INSPECTION || !companyId) {
+      if (!companyId) {
         resetForm();
         resetSectionData();
         setIsSubmitting(false);

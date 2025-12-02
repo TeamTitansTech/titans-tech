@@ -17,6 +17,7 @@ import {
   convertSlideThresholdToDecimal,
   convertGibsThresholdToDecimal,
   convertPistonsThresholdToDecimal,
+  convertTrammingThresholdToDecimal,
 } from '../alerts/threshold.utils';
 
 @Injectable()
@@ -87,6 +88,16 @@ export class BlueprintsService {
           data: {
             blueprintId: blueprint.id,
             ...convertPistonsThresholdToDecimal(dto.pistonsThresholds),
+          },
+        });
+      }
+
+      // 7. Create Tramming Thresholds if provided
+      if (dto.trammingThresholds) {
+        await tx.thresholdTramming.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertTrammingThresholdToDecimal(dto.trammingThresholds),
           },
         });
       }

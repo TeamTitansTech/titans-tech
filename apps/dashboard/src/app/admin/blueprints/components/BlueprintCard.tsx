@@ -35,7 +35,7 @@ export function BlueprintCard({
 
   // Check if blueprint has any alert sections
   const hasAlertSections = sections.some((section) =>
-    ['BEARING_CLEARANCE', 'CLUTCH', 'SLIDE', 'GIBS'].includes(section),
+    ['BEARING_CLEARANCE', 'CLUTCH', 'SLIDE', 'GIBS', 'TRAMMING'].includes(section),
   );
 
   return (

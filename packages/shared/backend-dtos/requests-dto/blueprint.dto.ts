@@ -3,6 +3,7 @@ import { ServiceSection } from '@titans-tech/db/enums';
 import { ClutchThresholdsSchema } from './threshold-clutch.dto';
 import { GibsThresholdsSchema } from './threshold-gibs.dto';
 import { PistonsThresholdsSchema } from './threshold-pistons.dto';
+import { TrammingThresholdsSchema } from './threshold-tramming.dto';
 
 // Schema existente para Blueprint
 export const CreateBlueprintSchema = z.object({
@@ -109,6 +110,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     slideThresholds: SlideThresholdsSchema.optional(),
     gibsThresholds: GibsThresholdsSchema.optional(),
     pistonsThresholds: PistonsThresholdsSchema.optional(),
+    trammingThresholds: TrammingThresholdsSchema.optional(),
   })
   .refine(
     (data) => {
@@ -130,6 +132,10 @@ export const CreateBlueprintWithThresholdsSchema = z
       }
       // Se pistonsThresholds fornecidos, PISTONS deve estar em sections
       if (data.pistonsThresholds && !data.sections.includes(ServiceSection.PISTONS)) {
+        return false;
+      }
+
+      if (data.trammingThresholds && !data.sections.includes(ServiceSection.TRAMMING)) {
         return false;
       }
       return true;

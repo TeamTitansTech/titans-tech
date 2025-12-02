@@ -97,7 +97,11 @@
     "logout": "Sair",
     "markAllAsRead": "Marcar todas como lidas",
     "loading": "Carregando",
-    "noNotifications": "Nenhuma notificação"
+    "noNotifications": "Nenhuma notificação",
+    "notificationsMessage": {
+      "default": "Você tem uma nova notificação de {type}",
+      "newUrgentRequest": "Solicitação urgente de serviço de {requestedByName} para a máquina {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alertas Detectados na Inspeção",
@@ -1055,6 +1059,7 @@
         "outer": "Externo",
         "inner": "Interno",
         "issues": "Problemas",
+        "alerts": "Alertas",
         "inspections": "Vistorias",
         "inspectionHistory": "Histórico de Vistorias",
         "oilChanged": "Óleo Trocado",
@@ -2063,6 +2068,11 @@
       "clearance": "Folga",
       "difference": "Soma (Esquerda + Direita)"
     },
+    "tramming": {
+      "title": "TRAMMING - Configuração de Alerta",
+      "description": "Configure o threshold para as somas de tramming (vertical e horizontal). Este threshold será aplicado a todas as posições (top, bottom, left, right).",
+      "sum": "Soma Tramming"
+    },
     "thresholds": {
       "greenStartMin": "Início Verde (Mín)",
       "yellowStartMin": "Início Amarelo (Mín)",
@@ -2297,6 +2307,10 @@
     "selectAll": "Selecionar Todas",
     "deselectAll": "Desmarcar Todas",
     "exportPDF": "Exportar PDF",
+    "exportThisTab": "Exportar Esta Aba",
+    "exportAllTabs": "Exportar Todas as Abas",
+    "partsSelectedAcrossTabs": "peças selecionadas em todas as abas",
+    "selectPartsToExport": "Selecione peças para exportar",
     "exporting": "Exportando...",
     "noPartsSelected": "Nenhuma peça selecionada",
     "exportSuccess": "PDF exportado com sucesso",
@@ -2322,6 +2336,28 @@
       "description": "Descrição",
       "quantity": "Qtd",
       "unit": "Un"
+    },
+    "partsListTitle": "Lista de Peças",
+    "partsAvailable": "peças disponíveis",
+    "subsections": {
+      "crankshaft": "Rolamento do Virabrequim",
+      "outerSlideStandard": "Slide Externo (Padrão)",
+      "innerSlideStandard": "Slide Interno (Padrão)",
+      "outerSlideAdjustment": "Ajuste do Slide Externo",
+      "shutheightIndicatorOuter": "Indicador de Altura (Externo)",
+      "shutheightIndicatorInner": "Indicador de Altura (Interno)",
+      "singleGearedDrive": "Acionamento de Engrenagem Simples",
+      "flywheelBrake": "Freio do Volante",
+      "motorDrive": "Acionamento do Motor",
+      "hydraulicUnit": "Unidade Hidráulica",
+      "flywheelBearings": "Rolamentos do Volante",
+      "counterbalanceInner": "Contrapeso (Interno)",
+      "counterbalanceOuterAirmount": "Contrapeso (Externo)",
+      "lubricationUnit": "Unidade de Lubrificação",
+      "outerSlide": "Slide Externo",
+      "innerSlide": "Slide Interno",
+      "gibsOuter": "Guias (Externo)",
+      "gibsInner": "Guias (Interno)"
     }
   },
   "sectionStatus": {

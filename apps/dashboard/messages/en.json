@@ -1050,6 +1050,7 @@
         "outer": "Outer",
         "inner": "Inner",
         "issues": "Issues",
+        "alerts": "Alerts",
         "inspections": "Inspections",
         "inspectionHistory": "Inspection History",
         "oilChanged": "Oil Changed",
@@ -1952,7 +1953,7 @@
     "noBranches": "No branches found for this company",
     "noBranchesDescription": "Branches will be displayed here when created",
     "branch": "branch",
-    "branches": "branches",
+    "branches": "Branches",
     "machine": "machine",
     "machines": "machines",
     "noMachines": "No machines",
@@ -2057,6 +2058,11 @@
       "title": "PISTONS - Alert Configuration",
       "clearance": "Clearance",
       "difference": "Sum (Left + Right)"
+    },
+    "tramming": {
+      "title": "TRAMMING - Alert Configuration",
+      "description": "Configure the threshold for tramming sums (vertical and horizontal). This threshold will be applied to all positions (top, bottom, left, right).",
+      "sum": "Tramming Sum"
     },
     "thresholds": {
       "greenStartMin": "Green Start (Min)",
@@ -2292,6 +2298,10 @@
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
     "exportPDF": "Export PDF",
+    "exportThisTab": "Export This Tab",
+    "exportAllTabs": "Export All Tabs",
+    "partsSelectedAcrossTabs": "parts selected across all tabs",
+    "selectPartsToExport": "Select parts to export",
     "exporting": "Exporting...",
     "noPartsSelected": "No parts selected",
     "exportSuccess": "PDF exported successfully",
@@ -2317,6 +2327,28 @@
       "description": "Description",
       "quantity": "Qty",
       "unit": "Unit"
+    },
+    "partsListTitle": "Parts List",
+    "partsAvailable": "parts available",
+    "subsections": {
+      "crankshaft": "Crankshaft Bearing",
+      "outerSlideStandard": "Outer Slide (Standard)",
+      "innerSlideStandard": "Inner Slide (Standard)",
+      "outerSlideAdjustment": "Outer Slide Adjustment",
+      "shutheightIndicatorOuter": "Shutheight Indicator (Outer)",
+      "shutheightIndicatorInner": "Shutheight Indicator (Inner)",
+      "singleGearedDrive": "Single Geared Drive",
+      "flywheelBrake": "Flywheel Brake",
+      "motorDrive": "Motor Drive",
+      "hydraulicUnit": "Hydraulic Unit",
+      "flywheelBearings": "Flywheel Bearings",
+      "counterbalanceInner": "Counterbalance (Inner)",
+      "counterbalanceOuterAirmount": "Counterbalance (Outer)",
+      "lubricationUnit": "Lubrication Unit",
+      "outerSlide": "Outer Slide",
+      "innerSlide": "Inner Slide",
+      "gibsOuter": "Gibs (Outer)",
+      "gibsInner": "Gibs (Inner)"
     }
   },
   "sectionStatus": {
