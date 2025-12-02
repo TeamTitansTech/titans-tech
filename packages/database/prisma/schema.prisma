@@ -513,6 +513,7 @@ model Blueprint {
   thresholdClutch           ThresholdClutch?
   thresholdSlide            ThresholdSlide?
   thresholdGibs             ThresholdGibs?
+  thresholdPistons          ThresholdPistons?
 
   @@map("blueprints")
 }
@@ -630,6 +631,28 @@ model ThresholdGibs {
   @@map("threshold_gibs")
 }
 
+model ThresholdPistons {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Clearance thresholds (for absolute measurement values)
+  clearance_greenMin  Decimal @db.Decimal(10, 4)
+  clearance_yellowMin Decimal @db.Decimal(10, 4)
+  clearance_redMin    Decimal @db.Decimal(10, 4)
+
+  // Difference thresholds (for side-to-side differences)
+  difference_greenMin  Decimal @db.Decimal(10, 4)
+  difference_yellowMin Decimal @db.Decimal(10, 4)
+  difference_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_pistons")
+}
+
 model Machine {
   id          String  @id @default(cuid())
   blueprintId String
@@ -721,6 +744,7 @@ model MachineService {
   alertClutch                       AlertClutch?
   alertSlide                        AlertSlide?
   alertGibs                         AlertGibs?
+  alertPistons                      AlertPistons?
 
   @@map("machine_services")
 }
@@ -858,6 +882,63 @@ model AlertGibs {
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
   @@map("alert_gibs")
+}
+
+model AlertPistons {
+  id               String @id @default(cuid())
+  machineServiceId String @unique
+
+  // === OUTER DATA ===
+  // Clearance severities (8 fields)
+  outer_lhTop_severity    AlertSeverity @default(NONE)
+  outer_lhBottom_severity AlertSeverity @default(NONE)
+  outer_lhLeft_severity   AlertSeverity @default(NONE)
+  outer_lhRight_severity  AlertSeverity @default(NONE)
+  outer_rhTop_severity    AlertSeverity @default(NONE)
+  outer_rhBottom_severity AlertSeverity @default(NONE)
+  outer_rhLeft_severity   AlertSeverity @default(NONE)
+  outer_rhRight_severity  AlertSeverity @default(NONE)
+
+  // Difference values and severities (4 fields)
+  outer_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  outer_lhLeftRight_severity AlertSeverity @default(NONE)
+  outer_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  outer_lhTopBottom_severity AlertSeverity @default(NONE)
+  outer_rhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  outer_rhLeftRight_severity AlertSeverity @default(NONE)
+  outer_rhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  outer_rhTopBottom_severity AlertSeverity @default(NONE)
+
+  // === INNER DATA ===
+  // Clearance severities (8 fields)
+  inner_lhTop_severity    AlertSeverity @default(NONE)
+  inner_lhBottom_severity AlertSeverity @default(NONE)
+  inner_lhLeft_severity   AlertSeverity @default(NONE)
+  inner_lhRight_severity  AlertSeverity @default(NONE)
+  inner_rhTop_severity    AlertSeverity @default(NONE)
+  inner_rhBottom_severity AlertSeverity @default(NONE)
+  inner_rhLeft_severity   AlertSeverity @default(NONE)
+  inner_rhRight_severity  AlertSeverity @default(NONE)
+
+  // Difference values and severities (4 fields)
+  inner_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  inner_lhLeftRight_severity AlertSeverity @default(NONE)
+  inner_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  inner_lhTopBottom_severity AlertSeverity @default(NONE)
+  inner_rhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  inner_rhLeftRight_severity AlertSeverity @default(NONE)
+  inner_rhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  inner_rhTopBottom_severity AlertSeverity @default(NONE)
+
+  // Threshold snapshot for auditing
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_pistons")
 }
 
 // BEARING_CLEARANCE Section

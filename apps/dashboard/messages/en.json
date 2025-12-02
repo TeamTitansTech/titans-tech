@@ -2050,6 +2050,11 @@
       "title": "GIBS - Alert Configuration",
       "usable": "Usable"
     },
+    "pistons": {
+      "title": "PISTONS - Alert Configuration",
+      "clearance": "Clearance",
+      "difference": "Sum (Left + Right)"
+    },
     "thresholds": {
       "greenStartMin": "Green Start (Min)",
       "yellowStartMin": "Yellow Start (Min)",

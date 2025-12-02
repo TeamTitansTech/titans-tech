@@ -1925,6 +1925,12 @@ export class ServicesService {
       });
     }
 
+    if (completedSectionsList.includes('PISTONS')) {
+      this.alertsService.generateAlertsForPistons(serviceId).catch((error) => {
+        console.error('Error generating PISTONS alerts:', error);
+      });
+    }
+
     return updatedService;
   }
 
@@ -1952,6 +1958,7 @@ export class ServicesService {
         alertClutch: true,
         alertSlide: true,
         alertGibs: true,
+        alertPistons: true,
         alertCounterbalanceCylinderAirbag: true,
       },
     });
@@ -2228,6 +2235,173 @@ export class ServicesService {
         sections.push({
           sectionKey: 'GIBS',
           sectionName: 'Gibs',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Process Pistons alerts
+    if (service.alertPistons) {
+      const alert = service.alertPistons;
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const pistonsFields = [
+        // Outer clearance severities
+        {
+          field: 'outer_lhTop',
+          label: 'LH Top (Outer)',
+          severity: alert.outer_lhTop_severity as AlertSeverityDto,
+        },
+        {
+          field: 'outer_lhBottom',
+          label: 'LH Bottom (Outer)',
+          severity: alert.outer_lhBottom_severity as AlertSeverityDto,
+        },
+        {
+          field: 'outer_lhLeft',
+          label: 'LH Left (Outer)',
+          severity: alert.outer_lhLeft_severity as AlertSeverityDto,
+        },
+        {
+          field: 'outer_lhRight',
+          label: 'LH Right (Outer)',
+          severity: alert.outer_lhRight_severity as AlertSeverityDto,
+        },
+        {
+          field: 'outer_rhTop',
+          label: 'RH Top (Outer)',
+          severity: alert.outer_rhTop_severity as AlertSeverityDto,
+        },
+        {
+          field: 'outer_rhBottom',
+          label: 'RH Bottom (Outer)',
+          severity: alert.outer_rhBottom_severity as AlertSeverityDto,
+        },
+        {
+          field: 'outer_rhLeft',
+          label: 'RH Left (Outer)',
+          severity: alert.outer_rhLeft_severity as AlertSeverityDto,
+        },
+        {
+          field: 'outer_rhRight',
+          label: 'RH Right (Outer)',
+          severity: alert.outer_rhRight_severity as AlertSeverityDto,
+        },
+        // Outer difference severities
+        {
+          field: 'outer_lhLeftRight',
+          label: 'LH Left-Right Diff (Outer)',
+          severity: alert.outer_lhLeftRight_severity as AlertSeverityDto,
+          value: alert.outer_lhLeftRight_diff?.toString(),
+        },
+        {
+          field: 'outer_lhTopBottom',
+          label: 'LH Top-Bottom Diff (Outer)',
+          severity: alert.outer_lhTopBottom_severity as AlertSeverityDto,
+          value: alert.outer_lhTopBottom_diff?.toString(),
+        },
+        {
+          field: 'outer_rhLeftRight',
+          label: 'RH Left-Right Diff (Outer)',
+          severity: alert.outer_rhLeftRight_severity as AlertSeverityDto,
+          value: alert.outer_rhLeftRight_diff?.toString(),
+        },
+        {
+          field: 'outer_rhTopBottom',
+          label: 'RH Top-Bottom Diff (Outer)',
+          severity: alert.outer_rhTopBottom_severity as AlertSeverityDto,
+          value: alert.outer_rhTopBottom_diff?.toString(),
+        },
+        // Inner clearance severities
+        {
+          field: 'inner_lhTop',
+          label: 'LH Top (Inner)',
+          severity: alert.inner_lhTop_severity as AlertSeverityDto,
+        },
+        {
+          field: 'inner_lhBottom',
+          label: 'LH Bottom (Inner)',
+          severity: alert.inner_lhBottom_severity as AlertSeverityDto,
+        },
+        {
+          field: 'inner_lhLeft',
+          label: 'LH Left (Inner)',
+          severity: alert.inner_lhLeft_severity as AlertSeverityDto,
+        },
+        {
+          field: 'inner_lhRight',
+          label: 'LH Right (Inner)',
+          severity: alert.inner_lhRight_severity as AlertSeverityDto,
+        },
+        {
+          field: 'inner_rhTop',
+          label: 'RH Top (Inner)',
+          severity: alert.inner_rhTop_severity as AlertSeverityDto,
+        },
+        {
+          field: 'inner_rhBottom',
+          label: 'RH Bottom (Inner)',
+          severity: alert.inner_rhBottom_severity as AlertSeverityDto,
+        },
+        {
+          field: 'inner_rhLeft',
+          label: 'RH Left (Inner)',
+          severity: alert.inner_rhLeft_severity as AlertSeverityDto,
+        },
+        {
+          field: 'inner_rhRight',
+          label: 'RH Right (Inner)',
+          severity: alert.inner_rhRight_severity as AlertSeverityDto,
+        },
+        // Inner difference severities
+        {
+          field: 'inner_lhLeftRight',
+          label: 'LH Left-Right Diff (Inner)',
+          severity: alert.inner_lhLeftRight_severity as AlertSeverityDto,
+          value: alert.inner_lhLeftRight_diff?.toString(),
+        },
+        {
+          field: 'inner_lhTopBottom',
+          label: 'LH Top-Bottom Diff (Inner)',
+          severity: alert.inner_lhTopBottom_severity as AlertSeverityDto,
+          value: alert.inner_lhTopBottom_diff?.toString(),
+        },
+        {
+          field: 'inner_rhLeftRight',
+          label: 'RH Left-Right Diff (Inner)',
+          severity: alert.inner_rhLeftRight_severity as AlertSeverityDto,
+          value: alert.inner_rhLeftRight_diff?.toString(),
+        },
+        {
+          field: 'inner_rhTopBottom',
+          label: 'RH Top-Bottom Diff (Inner)',
+          severity: alert.inner_rhTopBottom_severity as AlertSeverityDto,
+          value: alert.inner_rhTopBottom_diff?.toString(),
+        },
+      ];
+
+      for (const f of pistonsFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value || '',
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'PISTONS',
+          sectionName: 'Pistons',
           severity: sectionSeverity,
           alerts,
         });

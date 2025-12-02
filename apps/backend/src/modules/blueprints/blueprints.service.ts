@@ -16,6 +16,7 @@ import {
   convertClutchThresholdToDecimal,
   convertSlideThresholdToDecimal,
   convertGibsThresholdToDecimal,
+  convertPistonsThresholdToDecimal,
 } from '../alerts/threshold.utils';
 
 @Injectable()
@@ -76,6 +77,16 @@ export class BlueprintsService {
           data: {
             blueprintId: blueprint.id,
             ...convertGibsThresholdToDecimal(dto.gibsThresholds),
+          },
+        });
+      }
+
+      // 6. Create Pistons Thresholds if provided
+      if (dto.pistonsThresholds) {
+        await tx.thresholdPistons.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertPistonsThresholdToDecimal(dto.pistonsThresholds),
           },
         });
       }
