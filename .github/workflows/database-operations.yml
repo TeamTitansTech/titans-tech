@@ -399,7 +399,7 @@ jobs:
           echo "  - Crown (3 branches, 5 machines, 7 inspections)"
           echo "  - Ardagh (1 branch, 5 machines, templates only)"
           echo ""
-          npx tsx packages/database/prisma/seeds/crown/index.ts
+          cd packages/database && npm run db:seed:crown
         env:
           DATABASE_URL: ${{ secrets.STAGING_URL }}
 
