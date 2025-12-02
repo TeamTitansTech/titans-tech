@@ -371,7 +371,6 @@ model SysAdmin {
   isUsingDefaultPassword Boolean  @default(true)
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
-  testColumn             String?
 
   @@map("sys_admins")
 }
