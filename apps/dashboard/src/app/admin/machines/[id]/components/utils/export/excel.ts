@@ -587,12 +587,8 @@ function addPistonsData(sheetData: unknown[][], data: PistonsSectionData) {
   sheetData.push(['Vedações Pistão:', displayValue(data.pistonSeals)]);
   sheetData.push(['Sistema Vácuo:', displayValue(data.vacuumSystem)]);
   if (data.vacuumSystemAirPressureSetting !== undefined) {
-    sheetData.push([
-      'Pressão Ar Vácuo:',
-      `${displayValue(data.vacuumSystemAirPressureSetting)} ${data.vacuumSystemAirPressureUnit || ''}`,
-    ]);
+    sheetData.push(['Pressão Ar Vácuo:', `${displayValue(data.vacuumSystemAirPressureSetting)}`]);
   }
-  sheetData.push(['Unidade:', displayValue(data.unit)]);
   sheetData.push([]);
 
   const renderPistons = (pistonsData: typeof data.outerData, title: string) => {

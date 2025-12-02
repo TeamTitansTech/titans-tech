@@ -483,8 +483,6 @@ export const PistonsCheckSchema = z.object({
   pistonSeals: z.enum(PrismaSealConditionType).optional(),
   vacuumSystem: z.enum(PrismaVacuumSystemConditionType).optional(),
   vacuumSystemAirPressureSetting: z.number().optional(),
-  vacuumSystemAirPressureUnit: z.enum(PrismaPressureUnit).optional(),
-  unit: z.enum(['inches', 'mm', 'cm']).optional(),
   notes: z.string().optional(),
 });
 

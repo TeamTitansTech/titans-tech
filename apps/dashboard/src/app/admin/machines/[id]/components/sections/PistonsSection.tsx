@@ -7,7 +7,6 @@ import {
   ServiceType,
   SealConditionType,
   VacuumSystemConditionType,
-  PressureUnit,
 } from '@/data/types/services.types';
 import { PistonsForm, type PistonsDbData } from '../forms/PistonsForm';
 import { isDataTouched } from './utils';
@@ -54,8 +53,6 @@ export interface PistonsSectionData {
   pistonSeals?: SealConditionType;
   vacuumSystem?: VacuumSystemConditionType;
   vacuumSystemAirPressureSetting?: number;
-  vacuumSystemAirPressureUnit?: PressureUnit;
-  unit?: 'inches' | 'mm' | 'cm';
   notes?: string;
 }
 
@@ -106,10 +103,6 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
     const [vacuumSystemAirPressureSetting, setVacuumSystemAirPressureSetting] = useState<
       number | undefined
     >(initialData?.vacuumSystemAirPressureSetting);
-    const [vacuumSystemAirPressureUnit, setVacuumSystemAirPressureUnit] = useState<
-      PressureUnit | undefined
-    >(initialData?.vacuumSystemAirPressureUnit);
-    const [unit, setUnit] = useState<'inches' | 'mm' | 'cm'>(initialData?.unit || 'inches');
     const [notes, setNotes] = useState<string>(initialData?.notes || '');
     const [outerErrors, setOuterErrors] = useState<Record<string, string>>({});
     const [innerErrors, setInnerErrors] = useState<Record<string, string>>({});
@@ -205,8 +198,6 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
               pistonSeals: pistonSeals,
               vacuumSystem: vacuumSystem,
               vacuumSystemAirPressureSetting: vacuumSystemAirPressureSetting,
-              vacuumSystemAirPressureUnit: vacuumSystemAirPressureUnit,
-              unit: unit,
               notes: notes.trim() || undefined,
             },
           };
@@ -231,8 +222,6 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
           pistonSeals: pistonSeals,
           vacuumSystem: vacuumSystem,
           vacuumSystemAirPressureSetting: vacuumSystemAirPressureSetting,
-          vacuumSystemAirPressureUnit: vacuumSystemAirPressureUnit,
-          unit: unit,
           notes: notes.trim() || undefined,
         };
       },
@@ -267,8 +256,6 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
         setPistonSeals(undefined);
         setVacuumSystem(undefined);
         setVacuumSystemAirPressureSetting(undefined);
-        setVacuumSystemAirPressureUnit('PSI');
-        setUnit('inches');
         setNotes('');
         setOuterErrors({});
         setInnerErrors({});
@@ -352,60 +339,19 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
             <Label htmlFor="vacuumSystemAirPressureSetting">
               {t('vacuumSystemAirPressureSetting')}
             </Label>
-            <div className="flex gap-2">
-              <Input
-                id="vacuumSystemAirPressureSetting"
-                type="number"
-                step="0.001"
-                value={vacuumSystemAirPressureSetting || ''}
-                onChange={(e) => {
-                  setVacuumSystemAirPressureSetting(Number(e.target.value));
-                  onSectionTouched?.();
-                }}
-                placeholder="30.000"
-                className="flex-1"
-              />
-              <Select
-                value={vacuumSystemAirPressureUnit}
-                onValueChange={(value) => {
-                  setVacuumSystemAirPressureUnit(value as PressureUnit);
-                  onSectionTouched?.();
-                }}
-              >
-                <SelectTrigger className="w-[100px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={PressureUnit.PSI}>PSI</SelectItem>
-                  <SelectItem value={PressureUnit.BAR}>BAR</SelectItem>
-                  <SelectItem value={PressureUnit.MPA}>MPa</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <Input
+              id="vacuumSystemAirPressureSetting"
+              type="number"
+              step="0.001"
+              value={vacuumSystemAirPressureSetting || ''}
+              onChange={(e) => {
+                setVacuumSystemAirPressureSetting(Number(e.target.value));
+                onSectionTouched?.();
+              }}
+              placeholder="30.000"
+              className="flex-1"
+            />
           </div>
-        </div>
-
-        {/* Unit Selector */}
-        <div className="flex items-center gap-2">
-          <Label htmlFor="unit" className="text-sm font-medium whitespace-nowrap">
-            {t('unit')}:
-          </Label>
-          <Select
-            value={unit}
-            onValueChange={(value) => {
-              setUnit(value as 'inches' | 'mm' | 'cm');
-              onSectionTouched?.();
-            }}
-          >
-            <SelectTrigger id="unit" className="w-[100px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="inches">inches</SelectItem>
-              <SelectItem value="mm">mm</SelectItem>
-              <SelectItem value="cm">cm</SelectItem>
-            </SelectContent>
-          </Select>
         </div>
 
         {/* Tabs for Outer/Inner */}

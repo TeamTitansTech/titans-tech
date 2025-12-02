@@ -2116,6 +2116,10 @@
         "thresholdUpdate": "Atualização de Threshold",
         "manualRecalculation": "Recalculo Manual"
       }
+    },
+    "pistons": {
+      "title": "PISTÕES - Configuração de Alerta",
+      "difference": "Diferença (Lado a Lado)"
     }
   },
   "forms": {
@@ -2215,6 +2219,8 @@
     "deleteButton": "Excluir Linha",
     "selectCompany": "Selecionar Empresa",
     "selectBranch": "Selecionar Filial",
+    "selectBranchPlaceholder": "Selecione uma filial",
+    "selectBranchRequired": "Selecione uma filial",
     "selectMachines": "Selecionar Máquinas",
     "machineOrder": "Ordem das Máquinas",
     "saveConfig": "Salvar Configurações",
@@ -2237,8 +2243,16 @@
     "noMachinesAvailable": "Nenhuma máquina disponível",
     "mainMachine": "Máquina Principal",
     "mainMachineDescription": "Selecione a máquina que será exibida primeiro na linha de produção",
+    "secondaryMachine": "Máquina Secundária",
+    "secondaryMachineDescription": "Selecione a máquina que será exibida no início da linha de produção",
+    "selectSecondaryMachine": "Selecione a máquina secundária",
+    "secondary": "Secundária",
     "selectMainMachine": "Selecione a máquina principal",
     "noMachineSelected": "Nenhuma máquina selecionada",
+    "lineDirection": "Direção da Linha",
+    "lineDirectionDescription": "Selecione a direção do fluxo da linha de produção",
+    "leftToRight": "Esquerda para Direita",
+    "rightToLeft": "Direita para Esquerda",
     "moveUp": "Mover para cima",
     "moveDown": "Mover para baixo",
     "createDialog": {

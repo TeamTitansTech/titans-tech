@@ -2077,6 +2077,11 @@
       "title": "GIBS - Configuración de Alerta",
       "usable": "Utilizable"
     },
+    "pistons": {
+      "title": "PISTONES - Configuración de Alerta",
+      "clearance": "Holgura",
+      "difference": "Suma (Izquierda + Derecha)"
+    },
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",
       "yellowStartMin": "Inicio Amarillo (Mín)",
@@ -2205,6 +2210,8 @@
     "deleteButton": "Eliminar Línea",
     "selectCompany": "Seleccionar Empresa",
     "selectBranch": "Seleccionar Sucursal",
+    "selectBranchPlaceholder": "Seleccione una sucursal",
+    "selectBranchRequired": "Por favor seleccione una sucursal",
     "selectMachines": "Seleccionar Máquinas",
     "machineOrder": "Orden de Máquinas",
     "saveConfig": "Guardar Configuración",
@@ -2227,8 +2234,16 @@
     "noMachinesAvailable": "No hay máquinas disponibles",
     "mainMachine": "Máquina Principal",
     "mainMachineDescription": "Seleccione la máquina que se mostrará primero en la línea de producción",
+    "secondaryMachine": "Máquina Secundaria",
+    "secondaryMachineDescription": "Seleccione la máquina que se mostrará al inicio de la línea de producción",
+    "selectSecondaryMachine": "Seleccione la máquina secundaria",
+    "secondary": "Secundaria",
     "selectMainMachine": "Seleccione la máquina principal",
     "noMachineSelected": "Ninguna máquina seleccionada",
+    "lineDirection": "Dirección de la Línea",
+    "lineDirectionDescription": "Seleccione la dirección del flujo de la línea de producción",
+    "leftToRight": "Izquierda a Derecha",
+    "rightToLeft": "Derecha a Izquierda",
     "moveUp": "Mover arriba",
     "moveDown": "Mover abajo",
     "createDialog": {

@@ -8,6 +8,8 @@ export * from './threshold-slide-response.dto';
 export * from './alert-slide-response.dto';
 export * from './threshold-gibs-response.dto';
 export * from './alert-gibs-response.dto';
+export * from './threshold-pistons-response.dto';
+export * from './alert-pistons-response.dto';
 export * from './threshold-tramming-response.dto';
 export * from './alert-tramming-response.dto';
 export * from './alert-counterbalance-response.dto';

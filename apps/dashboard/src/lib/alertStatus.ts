@@ -68,6 +68,47 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
     allSeverities.push(alert.usable_severity);
   }
 
+  // Collect severities from PISTONS section
+  if (latestReport.sections.PISTONS?.alert) {
+    const alert = latestReport.sections.PISTONS.alert;
+    // Outer clearance severities
+    allSeverities.push(
+      alert.outer_lhTop_severity,
+      alert.outer_lhBottom_severity,
+      alert.outer_lhLeft_severity,
+      alert.outer_lhRight_severity,
+      alert.outer_rhTop_severity,
+      alert.outer_rhBottom_severity,
+      alert.outer_rhLeft_severity,
+      alert.outer_rhRight_severity,
+    );
+    // Outer difference severities
+    allSeverities.push(
+      alert.outer_lhLeftRight_severity,
+      alert.outer_lhTopBottom_severity,
+      alert.outer_rhLeftRight_severity,
+      alert.outer_rhTopBottom_severity,
+    );
+    // Inner clearance severities
+    allSeverities.push(
+      alert.inner_lhTop_severity,
+      alert.inner_lhBottom_severity,
+      alert.inner_lhLeft_severity,
+      alert.inner_lhRight_severity,
+      alert.inner_rhTop_severity,
+      alert.inner_rhBottom_severity,
+      alert.inner_rhLeft_severity,
+      alert.inner_rhRight_severity,
+    );
+    // Inner difference severities
+    allSeverities.push(
+      alert.inner_lhLeftRight_severity,
+      alert.inner_lhTopBottom_severity,
+      alert.inner_rhLeftRight_severity,
+      alert.inner_rhTopBottom_severity,
+    );
+  }
+
   // Check for COUNTERBALANCE custom alerts (any alert = RED severity)
   if (
     latestReport.sections.COUNTERBALANCE_CYLINDER_AIRBAG?.alerts &&
@@ -256,6 +297,57 @@ export const getSectionStatusFromReport = (
       return 'unknown';
     }
 
+    case 'PISTONS': {
+      const pistonsData = latestReport.sections.PISTONS;
+      if (!pistonsData?.alert) {
+        return 'unknown';
+      }
+
+      const alert = pistonsData.alert;
+
+      // Check all pistons fields for worst severity
+      const severities: AlertSeverity[] = [
+        // Outer clearance severities
+        alert.outer_lhTop_severity,
+        alert.outer_lhBottom_severity,
+        alert.outer_lhLeft_severity,
+        alert.outer_lhRight_severity,
+        alert.outer_rhTop_severity,
+        alert.outer_rhBottom_severity,
+        alert.outer_rhLeft_severity,
+        alert.outer_rhRight_severity,
+        // Outer difference severities
+        alert.outer_lhLeftRight_severity,
+        alert.outer_lhTopBottom_severity,
+        alert.outer_rhLeftRight_severity,
+        alert.outer_rhTopBottom_severity,
+        // Inner clearance severities
+        alert.inner_lhTop_severity,
+        alert.inner_lhBottom_severity,
+        alert.inner_lhLeft_severity,
+        alert.inner_lhRight_severity,
+        alert.inner_rhTop_severity,
+        alert.inner_rhBottom_severity,
+        alert.inner_rhLeft_severity,
+        alert.inner_rhRight_severity,
+        // Inner difference severities
+        alert.inner_lhLeftRight_severity,
+        alert.inner_lhTopBottom_severity,
+        alert.inner_rhLeftRight_severity,
+        alert.inner_rhTopBottom_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      } else if (severities.includes('GREEN')) {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
     case 'COUNTERBALANCE_CYLINDER_AIRBAG': {
       const counterbalanceData = latestReport.sections.COUNTERBALANCE_CYLINDER_AIRBAG;
       // If there are any custom alerts, return 'alert' (red)
@@ -413,6 +505,56 @@ export const getSectionStatus = (
       } else if (severity === 'YELLOW') {
         return 'warning';
       } else if (severity === 'GREEN') {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
+    case 'PISTONS': {
+      // Using type assertion since alertPistons may not be in the shared MachineService type yet
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const alert = (latestService as any)?.alertPistons;
+      if (!alert) {
+        return 'unknown';
+      }
+
+      const severities = [
+        // Outer clearance severities
+        alert.outer_lhTop_severity,
+        alert.outer_lhBottom_severity,
+        alert.outer_lhLeft_severity,
+        alert.outer_lhRight_severity,
+        alert.outer_rhTop_severity,
+        alert.outer_rhBottom_severity,
+        alert.outer_rhLeft_severity,
+        alert.outer_rhRight_severity,
+        // Outer difference severities
+        alert.outer_lhLeftRight_severity,
+        alert.outer_lhTopBottom_severity,
+        alert.outer_rhLeftRight_severity,
+        alert.outer_rhTopBottom_severity,
+        // Inner clearance severities
+        alert.inner_lhTop_severity,
+        alert.inner_lhBottom_severity,
+        alert.inner_lhLeft_severity,
+        alert.inner_lhRight_severity,
+        alert.inner_rhTop_severity,
+        alert.inner_rhBottom_severity,
+        alert.inner_rhLeft_severity,
+        alert.inner_rhRight_severity,
+        // Inner difference severities
+        alert.inner_lhLeftRight_severity,
+        alert.inner_lhTopBottom_severity,
+        alert.inner_rhLeftRight_severity,
+        alert.inner_rhTopBottom_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      } else if (severities.includes('GREEN')) {
         return 'ok';
       }
 

@@ -57,6 +57,7 @@ interface Branch {
   id: string;
   name: string;
   isMainBranch: boolean;
+  location?: string | null;
 }
 
 interface MachineCreationModalProps {
@@ -417,9 +418,11 @@ export function MachineCreationModal({
                                       <h4 className="font-semibold text-sm text-foreground">
                                         {branch.name}
                                       </h4>
-                                      {branch.isMainBranch && (
+                                      {(branch.isMainBranch || branch.location) && (
                                         <p className="text-xs text-muted-foreground mt-1">
-                                          {t('form.branch.mainBranch')}
+                                          {branch.isMainBranch && t('form.branch.mainBranch')}
+                                          {branch.isMainBranch && branch.location && ' • '}
+                                          {branch.location}
                                         </p>
                                       )}
                                     </div>

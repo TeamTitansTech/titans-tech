@@ -2,7 +2,7 @@
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { AppHeader } from './AppHeader';
-import { Footer } from './Footer';
+// import { Footer } from './Footer';
 import { usePathname } from 'next/navigation';
 import { NotificationsSocketProvider } from '@/contexts/NotificationsSocketContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
@@ -41,7 +41,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <SidebarInset className="min-w-0 overflow-hidden flex flex-col">
             <AppHeader />
             <div className="flex-1 bg-background overflow-auto">{children}</div>
-            <Footer />
+            {/* <Footer /> */}
           </SidebarInset>
         </SidebarProvider>
       </BranchProvider>

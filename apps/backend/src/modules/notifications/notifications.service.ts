@@ -287,8 +287,18 @@ export class NotificationsService {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
-        alertCounterbalanceCylinderAirbag: true,
-        alertTramming: true,
+        alertCounterbalanceCylinderAirbag: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertPistons: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertTramming: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
     });
 
@@ -573,6 +583,135 @@ export class NotificationsService {
           ],
         });
         if (alert.usable_severity === 'RED') highestSeverity = 'RED';
+      }
+    }
+
+    // Process Pistons alerts with subsections (Outer/Inner)
+    if (service.alertPistons && service.alertPistons.length > 0) {
+      const alert = service.alertPistons[0];
+      let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      // Outer subsection - sum fields
+      const outerSumFields = [
+        {
+          name: 'LH Left+Right',
+          severity: alert.outer_lhLeftRight_severity,
+          differential: alert.outer_lhLeftRight_diff,
+        },
+        {
+          name: 'LH Top+Bottom',
+          severity: alert.outer_lhTopBottom_severity,
+          differential: alert.outer_lhTopBottom_diff,
+        },
+        {
+          name: 'RH Left+Right',
+          severity: alert.outer_rhLeftRight_severity,
+          differential: alert.outer_rhLeftRight_diff,
+        },
+        {
+          name: 'RH Top+Bottom',
+          severity: alert.outer_rhTopBottom_severity,
+          differential: alert.outer_rhTopBottom_diff,
+        },
+      ];
+
+      // Inner subsection - sum fields
+      const innerSumFields = [
+        {
+          name: 'LH Left+Right',
+          severity: alert.inner_lhLeftRight_severity,
+          differential: alert.inner_lhLeftRight_diff,
+        },
+        {
+          name: 'LH Top+Bottom',
+          severity: alert.inner_lhTopBottom_severity,
+          differential: alert.inner_lhTopBottom_diff,
+        },
+        {
+          name: 'RH Left+Right',
+          severity: alert.inner_rhLeftRight_severity,
+          differential: alert.inner_rhLeftRight_diff,
+        },
+        {
+          name: 'RH Top+Bottom',
+          severity: alert.inner_rhTopBottom_severity,
+          differential: alert.inner_rhTopBottom_diff,
+        },
+      ];
+
+      const outerMeasurements: Array<{
+        name: string;
+        differential: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
+      let outerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      // Add sum alerts
+      for (const f of outerSumFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          outerMeasurements.push({
+            name: f.name,
+            differential: f.differential?.toFixed(4) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
+          });
+          if (f.severity === 'RED') outerSeverity = 'RED';
+        }
+      }
+
+      const innerMeasurements: Array<{
+        name: string;
+        differential: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
+      let innerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      // Add sum alerts
+      for (const f of innerSumFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          innerMeasurements.push({
+            name: f.name,
+            differential: f.differential?.toFixed(4) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
+          });
+          if (f.severity === 'RED') innerSeverity = 'RED';
+        }
+      }
+
+      const subsections: Array<{
+        name: string;
+        severity: 'YELLOW' | 'RED';
+        measurements: Array<{
+          name: string;
+          differential: string;
+          status: 'YELLOW' | 'RED';
+        }>;
+      }> = [];
+
+      if (outerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Outer',
+          severity: outerSeverity,
+          measurements: outerMeasurements,
+        });
+        if (outerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (innerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Inner',
+          severity: innerSeverity,
+          measurements: innerMeasurements,
+        });
+        if (innerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (subsections.length > 0) {
+        sections.push({
+          sectionName: 'Pistons',
+          severity: sectionSeverity,
+          subsections,
+        });
+        if (sectionSeverity === 'RED') highestSeverity = 'RED';
       }
     }
 

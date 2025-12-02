@@ -30,6 +30,10 @@ import {
   UpdateThresholdTrammingDto,
   ThresholdTrammingResponseDto,
   AlertTrammingResponseDto,
+  CreateThresholdPistonsDto,
+  UpdateThresholdPistonsDto,
+  ThresholdPistonsResponseDto,
+  AlertPistonsResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertSeverity } from '@titans-tech/shared/enums';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -44,6 +48,8 @@ import {
   convertPartialGibsThresholdToDecimal,
   convertTrammingThresholdToDecimal,
   convertPartialTrammingThresholdToDecimal,
+  convertPistonsThresholdToDecimal,
+  convertPartialPistonsThresholdToDecimal,
 } from './threshold.utils';
 
 @Injectable()
@@ -1909,6 +1915,378 @@ export class AlertsService {
       ...alert,
       gibsData,
     } as any);
+  }
+
+  // ==================== PISTONS THRESHOLD METHODS ====================
+
+  async createPistonsThreshold(dto: CreateThresholdPistonsDto) {
+    // Validate blueprint exists
+    const blueprint = await this.prisma.blueprint.findUnique({
+      where: { id: dto.blueprintId },
+    });
+
+    if (!blueprint) {
+      throw new NotFoundException(`Blueprint ${dto.blueprintId} not found`);
+    }
+
+    // Check if threshold already exists for this blueprint
+    const existingThreshold = await this.prisma.thresholdPistons.findUnique({
+      where: { blueprintId: dto.blueprintId },
+    });
+
+    if (existingThreshold) {
+      throw new BadRequestException(
+        `PISTONS threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+      );
+    }
+
+    const threshold = await this.prisma.thresholdPistons.create({
+      data: {
+        blueprintId: dto.blueprintId,
+        ...convertPistonsThresholdToDecimal(dto),
+      },
+    });
+
+    return new ThresholdPistonsResponseDto(threshold as any);
+  }
+
+  async getPistonsThresholdByBlueprint(blueprintId: string) {
+    const threshold = await this.prisma.thresholdPistons.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `PISTONS threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    return new ThresholdPistonsResponseDto(threshold as any);
+  }
+
+  async updatePistonsThreshold(
+    blueprintId: string,
+    dto: UpdateThresholdPistonsDto,
+  ) {
+    // Check if threshold exists
+    const existingThreshold = await this.prisma.thresholdPistons.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!existingThreshold) {
+      throw new NotFoundException(
+        `PISTONS threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    // Validate that yellowMin > greenMin and redMin > yellowMin for difference
+    const mergedData = {
+      ...existingThreshold,
+      ...dto,
+    };
+
+    const differenceGreenMin = Number(mergedData.difference_greenMin);
+    const differenceYellowMin = Number(mergedData.difference_yellowMin);
+    const differenceRedMin = Number(mergedData.difference_redMin);
+
+    if (
+      differenceYellowMin <= differenceGreenMin ||
+      differenceRedMin <= differenceYellowMin
+    ) {
+      throw new BadRequestException(
+        'Invalid threshold values: must have greenMin < yellowMin < redMin for difference thresholds',
+      );
+    }
+
+    // Update threshold
+    const threshold = await this.prisma.thresholdPistons.update({
+      where: { blueprintId },
+      data: convertPartialPistonsThresholdToDecimal(dto),
+    });
+
+    // Recalculate alerts if requested
+    let recalculationResult:
+      | { alertsGenerated: number; servicesAffected: number }
+      | undefined;
+    if (dto.recalculateAlerts) {
+      recalculationResult =
+        await this.recalculatePistonsAlertsForBlueprint(blueprintId);
+    }
+
+    return {
+      ...new ThresholdPistonsResponseDto(threshold as any),
+      recalculationResult,
+    };
+  }
+
+  async deletePistonsThreshold(blueprintId: string) {
+    const threshold = await this.prisma.thresholdPistons.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `PISTONS threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    await this.prisma.thresholdPistons.delete({
+      where: { blueprintId },
+    });
+
+    return { message: 'PISTONS threshold deleted successfully' };
+  }
+
+  /**
+   * Recalculates Pistons alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculatePistonsAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have Pistons data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        pistons: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateAlertsForPistons(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate Pistons alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
+  // ==================== PISTONS ALERT GENERATION ====================
+
+  async generateAlertsForPistons(serviceId: string) {
+    // Fetch service with PISTONS data and blueprint with thresholds
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: {
+        machine: {
+          include: {
+            blueprint: {
+              include: {
+                thresholdPistons: true,
+              },
+            },
+          },
+        },
+        pistons: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service ${serviceId} not found`);
+    }
+
+    if (!service.pistons || service.pistons.length === 0) {
+      console.log(
+        '⚠️ [PISTONS ALERTS] No pistons data - skipping alert generation',
+      );
+      return null;
+    }
+
+    const threshold = service.machine.blueprint.thresholdPistons;
+
+    if (!threshold) {
+      console.log(
+        '⚠️ [PISTONS ALERTS] No threshold configured for this blueprint - skipping alert generation',
+      );
+      return null;
+    }
+
+    const pistonsData = service.pistons[0];
+    const outerData = pistonsData.outerData;
+    const innerData = pistonsData.innerData;
+
+    if (!outerData && !innerData) {
+      console.log(
+        '⚠️ [PISTONS ALERTS] No outer or inner data found - skipping alert generation',
+      );
+      return null;
+    }
+
+    // Calculate alerts for outer data
+    const outerAlerts = outerData
+      ? this.calculatePistonsAlerts(outerData, threshold)
+      : null;
+
+    // Calculate alerts for inner data
+    const innerAlerts = innerData
+      ? this.calculatePistonsAlerts(innerData, threshold)
+      : null;
+
+    // Default values for missing data
+    const defaultSeverity = AlertSeverity.NONE;
+
+    const thresholdSnapshot = {
+      difference: {
+        greenMin: threshold.difference_greenMin.toNumber(),
+        yellowMin: threshold.difference_yellowMin.toNumber(),
+        redMin: threshold.difference_redMin.toNumber(),
+      },
+    };
+
+    // Build alert data
+    const alertData = {
+      // OUTER difference values and severities
+      outer_lhLeftRight_diff: outerAlerts?.lhLeftRight.value ?? null,
+      outer_lhLeftRight_severity:
+        outerAlerts?.lhLeftRight.severity ?? defaultSeverity,
+      outer_lhTopBottom_diff: outerAlerts?.lhTopBottom.value ?? null,
+      outer_lhTopBottom_severity:
+        outerAlerts?.lhTopBottom.severity ?? defaultSeverity,
+      outer_rhLeftRight_diff: outerAlerts?.rhLeftRight.value ?? null,
+      outer_rhLeftRight_severity:
+        outerAlerts?.rhLeftRight.severity ?? defaultSeverity,
+      outer_rhTopBottom_diff: outerAlerts?.rhTopBottom.value ?? null,
+      outer_rhTopBottom_severity:
+        outerAlerts?.rhTopBottom.severity ?? defaultSeverity,
+      // INNER difference values and severities
+      inner_lhLeftRight_diff: innerAlerts?.lhLeftRight.value ?? null,
+      inner_lhLeftRight_severity:
+        innerAlerts?.lhLeftRight.severity ?? defaultSeverity,
+      inner_lhTopBottom_diff: innerAlerts?.lhTopBottom.value ?? null,
+      inner_lhTopBottom_severity:
+        innerAlerts?.lhTopBottom.severity ?? defaultSeverity,
+      inner_rhLeftRight_diff: innerAlerts?.rhLeftRight.value ?? null,
+      inner_rhLeftRight_severity:
+        innerAlerts?.rhLeftRight.severity ?? defaultSeverity,
+      inner_rhTopBottom_diff: innerAlerts?.rhTopBottom.value ?? null,
+      inner_rhTopBottom_severity:
+        innerAlerts?.rhTopBottom.severity ?? defaultSeverity,
+      thresholdSnapshot,
+    };
+
+    // Create alert
+    const alert = await this.prisma.alertPistons.create({
+      data: {
+        machineServiceId: serviceId,
+        ...alertData,
+      },
+    });
+
+    return new AlertPistonsResponseDto({
+      ...alert,
+      pistonsData: {
+        outer: outerData,
+        inner: innerData,
+      },
+    } as any);
+  }
+
+  /**
+   * Calculate alerts for pistons data (differences only)
+   */
+  private calculatePistonsAlerts(data: any, threshold: any) {
+    const toDecimal = (val: any): Decimal | null => {
+      if (val === null || val === undefined) return null;
+      return val instanceof Decimal ? val : new Decimal(val);
+    };
+
+    // Get values as Decimals
+    const lhTop = toDecimal(data.lhTop);
+    const lhBottom = toDecimal(data.lhBottom);
+    const lhLeft = toDecimal(data.lhLeft);
+    const lhRight = toDecimal(data.lhRight);
+    const rhTop = toDecimal(data.rhTop);
+    const rhBottom = toDecimal(data.rhBottom);
+    const rhLeft = toDecimal(data.rhLeft);
+    const rhRight = toDecimal(data.rhRight);
+
+    // Calculate sums (lhRight + lhLeft, rhRight + rhLeft, lhTop + lhBottom, rhTop + rhBottom)
+    return {
+      lhLeftRight: this.calculateSumAlert(lhRight, lhLeft, threshold),
+      rhLeftRight: this.calculateSumAlert(rhRight, rhLeft, threshold),
+      lhTopBottom: this.calculateSumAlert(lhTop, lhBottom, threshold),
+      rhTopBottom: this.calculateSumAlert(rhTop, rhBottom, threshold),
+    };
+  }
+
+  /**
+   * Calculate sum alert (value and severity based on sum of values)
+   * Example: if left = 0.5 and right = 0.6, sum = 1.1
+   * If threshold is 1.0, this would trigger an alert
+   */
+  private calculateSumAlert(
+    val1: Decimal | null,
+    val2: Decimal | null,
+    threshold: any,
+  ): { value: Decimal | null; severity: AlertSeverity } {
+    if (val1 === null || val2 === null) {
+      return { value: null, severity: AlertSeverity.NONE };
+    }
+
+    // Calculate sum (val1 + val2)
+    const sum = val1.plus(val2);
+
+    // Evaluate severity based on sum
+    let severity: AlertSeverity;
+    if (sum.lessThanOrEqualTo(threshold.difference_greenMin)) {
+      severity = AlertSeverity.GREEN;
+    } else if (sum.lessThan(threshold.difference_redMin)) {
+      severity = AlertSeverity.YELLOW;
+    } else {
+      severity = AlertSeverity.RED;
+    }
+
+    return { value: sum, severity };
+  }
+
+  async getPistonsAlertByService(machineServiceId: string) {
+    const alert = await this.prisma.alertPistons.findFirst({
+      where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        machineService: {
+          include: {
+            pistons: {
+              include: {
+                outerData: true,
+                innerData: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!alert) {
+      throw new NotFoundException(
+        `PISTONS alert not found for service ${machineServiceId}`,
+      );
+    }
+
+    return new AlertPistonsResponseDto(alert as any);
   }
 
   // ==================== TRAMMING ALERT GENERATION ====================
