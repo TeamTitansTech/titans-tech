@@ -39,6 +39,13 @@ export const CreateThresholdPistonsSchema = PistonsThresholdsSchema.merge(
 
 export type CreateThresholdPistonsDto = z.infer<typeof CreateThresholdPistonsSchema>;
 
-export const UpdateThresholdPistonsSchema = PistonsThresholdsSchema.partial();
+/**
+ * Schema for updating threshold pistons (partial update)
+ * Makes all PistonsThresholdsSchema fields optional
+ * Note: Validation happens in service layer after merge with existing values
+ */
+export const UpdateThresholdPistonsSchema = PistonsThresholdsSchema.partial().extend({
+  recalculateAlerts: z.boolean().optional(),
+});
 
 export type UpdateThresholdPistonsDto = z.infer<typeof UpdateThresholdPistonsSchema>;

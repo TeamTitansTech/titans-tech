@@ -45,16 +45,8 @@ export function useServiceDataLoader(
 
   useEffect(() => {
     const loadServiceData = async () => {
-      console.log('🔄 [useServiceDataLoader] Effect triggered:', {
-        open,
-        serviceId,
-        createdServiceId,
-        hasLoadedInitialData: hasLoadedInitialData.current,
-      });
-
       // Only load if conditions are met
       if (!open || !serviceId || createdServiceId || hasLoadedInitialData.current) {
-        console.log('❌ [useServiceDataLoader] Skipping load due to conditions');
         return;
       }
 
@@ -233,8 +225,21 @@ export function useServiceDataLoader(
           ? service.selectedSections
           : savedCompletedSections;
 
+        // For inspections, always use all machine sections if none saved
         if (isInspection && savedSelectedSections.length === 0) {
           savedSelectedSections = machineSections;
+        }
+
+        // For maintenance with progress but no saved selectedSections, use completedSections or machineSections
+        if (!isInspection && savedSelectedSections.length === 0) {
+          const hasProgress =
+            savedCompletedSections.length > 0 ||
+            (service.currentStep && service.currentStep !== 'selection');
+          if (hasProgress) {
+            // Use completedSections if available, otherwise use machineSections
+            savedSelectedSections =
+              savedCompletedSections.length > 0 ? savedCompletedSections : machineSections;
+          }
         }
 
         setSelectedSections(new Set(savedSelectedSections));
@@ -283,7 +288,17 @@ export function useServiceDataLoader(
           );
         };
 
-        if (
+        // For maintenance without saved selectedSections AND no progress, go back to selection step
+        const hasNoSavedSections = savedSelectedSections.length === 0;
+        const hasProgressForStep =
+          savedCompletedSections.length > 0 ||
+          (service.currentStep && service.currentStep !== 'selection');
+        const shouldForceSelectionStep = !isInspection && hasNoSavedSections && !hasProgressForStep;
+
+        if (shouldForceSelectionStep) {
+          setCurrentStep('selection');
+          setCurrentSectionIndex(0);
+        } else if (
           service.currentStep &&
           isValidStep(service.currentStep) &&
           service.currentStep !== 'summary'

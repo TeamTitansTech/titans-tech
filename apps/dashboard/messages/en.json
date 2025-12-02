@@ -56,7 +56,9 @@
       "uploading": "Uploading...",
       "clickToUpload": "Click to upload",
       "jpgOrPngMax": "JPG or PNG (max. 10MB)"
-    }
+    },
+    "cancel": "Cancel",
+    "save": "Save"
   },
   "validation": {
     "required": "This field is required",
@@ -856,7 +858,8 @@
     "machines": "machines",
     "field": "field",
     "fields": "fields",
-    "edit": "Edit"
+    "edit": "Edit",
+    "thresholds": "Configure Thresholds"
   },
   "machines": {
     "title": "Create Machine",
@@ -2058,7 +2061,32 @@
     "thresholds": {
       "greenStartMin": "Green Start (Min)",
       "yellowStartMin": "Yellow Start (Min)",
-      "redStartMin": "Red Start (Min)"
+      "redStartMin": "Red Start (Min)",
+      "editTitle": "Configure Thresholds - {name}",
+      "editDescription": "Adjust threshold values for alert generation. Check the option below to recalculate existing alerts.",
+      "loadError": "Error loading thresholds",
+      "recalculate": {
+        "label": "Recalculate existing alerts",
+        "description": "Generate new alerts for all services of this blueprint using the new thresholds",
+        "updating": "Updating thresholds and recalculating alerts...",
+        "success": "Thresholds updated. {count} alerts generated for {services} services.",
+        "successNoRecalc": "Thresholds updated. New alerts will only be generated for future services.",
+        "error": "Error updating thresholds"
+      }
+    },
+    "history": {
+      "title": "Alert History",
+      "noHistory": "No alert history available",
+      "viewHistory": "View History",
+      "hideHistory": "Hide History",
+      "mostRecent": "Most Recent",
+      "createdAt": "Created on",
+      "thresholdSnapshot": "Thresholds Used",
+      "reason": {
+        "initial": "Initial Calculation",
+        "thresholdUpdate": "Threshold Update",
+        "manualRecalculation": "Manual Recalculation"
+      }
     }
   },
   "forms": {

@@ -7,6 +7,25 @@ import {
 } from '@titans-tech/shared/backend-dtos';
 import { FieldsErr } from '../../errors/err';
 
+/**
+ * Converts a string to a URL-safe slug for subdomains
+ * - Converts to lowercase
+ * - Removes accents/diacritics
+ * - Replaces spaces and special characters with hyphens
+ * - Removes consecutive hyphens
+ * - Removes leading/trailing hyphens
+ */
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD') // Decompose accented characters
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/[\s_]+/g, '-') // Replace spaces and underscores with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+}
+
 @Injectable()
 export class CompaniesService {
   constructor(private readonly prisma: PrismaService) {}
@@ -64,12 +83,24 @@ export class CompaniesService {
   }
 
   async create(createCompanyDto: CreateCompanyDto) {
-    await this.validateSlugUniqueness(createCompanyDto.slug);
+    // Always slugify the provided slug to ensure it's valid for subdomains
+    const slug = slugify(createCompanyDto.slug);
+
+    if (!slug) {
+      throw FieldsErr({
+        slug: 'Invalid slug - must contain alphanumeric characters',
+      });
+    }
+
+    await this.validateSlugUniqueness(slug);
 
     return this.prisma.$transaction(async (tx) => {
-      // Create the company
+      // Create the company with the normalized slug
       const company = await tx.company.create({
-        data: createCompanyDto,
+        data: {
+          ...createCompanyDto,
+          slug,
+        },
       });
 
       // Create a main branch based on the company name
@@ -94,13 +125,24 @@ export class CompaniesService {
       throw new NotFoundException('Company not found');
     }
 
+    // Slugify the slug if provided
+    let normalizedSlug: string | undefined;
     if (updateCompanyDto.slug) {
-      await this.validateSlugUniqueness(updateCompanyDto.slug, id);
+      normalizedSlug = slugify(updateCompanyDto.slug);
+      if (!normalizedSlug) {
+        throw FieldsErr({
+          slug: 'Invalid slug - must contain alphanumeric characters',
+        });
+      }
+      await this.validateSlugUniqueness(normalizedSlug, id);
     }
 
     return this.prisma.company.update({
       where: { id },
-      data: updateCompanyDto,
+      data: {
+        ...updateCompanyDto,
+        ...(normalizedSlug && { slug: normalizedSlug }),
+      },
     });
   }
 
