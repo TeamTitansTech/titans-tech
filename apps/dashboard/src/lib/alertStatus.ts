@@ -141,7 +141,9 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   }
 
   const latestService = machine.services[0];
-  const alert = latestService?.alertBearingClearance;
+  // alertBearingClearance is an array - get the first (most recent) one
+  const alerts = latestService?.alertBearingClearance;
+  const alert = Array.isArray(alerts) ? alerts[0] : alerts;
 
   if (!alert) {
     return 'unknown';
@@ -404,7 +406,9 @@ export const getSectionStatus = (
 
   switch (section) {
     case 'BEARING_CLEARANCE': {
-      const alert = latestService?.alertBearingClearance;
+      // alertBearingClearance is an array - get the first (most recent) one
+      const alerts = latestService?.alertBearingClearance;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'unknown';
       }
@@ -439,7 +443,9 @@ export const getSectionStatus = (
     }
 
     case 'CLUTCH': {
-      const alert = latestService?.alertClutch;
+      // alertClutch is an array - get the first (most recent) one
+      const alerts = latestService?.alertClutch;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'unknown';
       }
@@ -464,7 +470,9 @@ export const getSectionStatus = (
     }
 
     case 'SLIDE': {
-      const alert = latestService?.alertSlide;
+      // alertSlide is an array - get the first (most recent) one
+      const alerts = latestService?.alertSlide;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'unknown';
       }
@@ -483,7 +491,9 @@ export const getSectionStatus = (
     }
 
     case 'GIBS': {
-      const alert = latestService?.alertGibs;
+      // alertGibs is an array - get the first (most recent) one
+      const alerts = latestService?.alertGibs;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'unknown';
       }
