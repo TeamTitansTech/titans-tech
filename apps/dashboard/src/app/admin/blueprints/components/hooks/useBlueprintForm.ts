@@ -7,6 +7,7 @@ import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClear
 import { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
 import { GibsThresholdsData } from '@/components/alerts/GibsThresholds';
+import { TrammingThresholdsData } from '@/components/alerts/TrammingThresholds';
 import { type Field } from '../types';
 
 // Client-safe slug to enum mapping
@@ -72,6 +73,12 @@ const INITIAL_GIBS_THRESHOLDS: GibsThresholdsData = {
   usable_redMin: 0.003,
 };
 
+const INITIAL_TRAMMING_THRESHOLDS: TrammingThresholdsData = {
+  greenMin: 0.001,
+  yellowMin: 0.002,
+  redMin: 0.003,
+};
+
 export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const t = useTranslations('models');
   const [name, setName] = useState('');
@@ -87,6 +94,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     useState<SlideThresholdsData>(INITIAL_SLIDE_THRESHOLDS);
   const [gibsThresholdsOpen, setGibsThresholdsOpen] = useState(false);
   const [gibsThresholds, setGibsThresholds] = useState<GibsThresholdsData>(INITIAL_GIBS_THRESHOLDS);
+  const [trammingThresholdsOpen, setTrammingThresholdsOpen] = useState(false);
+  const [trammingThresholds, setTrammingThresholds] = useState<TrammingThresholdsData>(
+    INITIAL_TRAMMING_THRESHOLDS,
+  );
 
   const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
 
@@ -121,9 +132,23 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
       if (hasGibsThresholdChanges) return true;
 
+      const hasTrammingThresholdChanges = (
+        Object.keys(trammingThresholds) as Array<keyof TrammingThresholdsData>
+      ).some((key) => trammingThresholds[key] !== INITIAL_TRAMMING_THRESHOLDS[key]);
+
+      if (hasTrammingThresholdChanges) return true;
+
       return false;
     },
-    [name, selectedSections, thresholds, clutchThresholds, slideThresholds, gibsThresholds],
+    [
+      name,
+      selectedSections,
+      thresholds,
+      clutchThresholds,
+      slideThresholds,
+      gibsThresholds,
+      trammingThresholds,
+    ],
   );
 
   const toggleSection = (section: string) => {
@@ -144,6 +169,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     const hasClutch = selectedSections.includes('clutch');
     const hasSlide = selectedSections.includes('slide');
     const hasGibs = selectedSections.includes('gibs');
+    const hasTramming = selectedSections.includes('tramming');
 
     interface BlueprintField {
       fieldName: string;
@@ -161,6 +187,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       clutchThresholds?: ClutchThresholdsData;
       slideThresholds?: SlideThresholdsData;
       gibsThresholds?: GibsThresholdsData;
+      trammingThresholds?: TrammingThresholdsData;
     }
 
     const payload: CreateBlueprintPayload = {
@@ -203,6 +230,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       payload.gibsThresholds = gibsThresholds;
     }
 
+    if (hasTramming) {
+      payload.trammingThresholds = trammingThresholds;
+    }
+
     const response = await submitBlueprint(payload);
 
     if (response.data) {
@@ -214,6 +245,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       setClutchThresholdsOpen(false);
       setSlideThresholdsOpen(false);
       setGibsThresholdsOpen(false);
+      setTrammingThresholdsOpen(false);
       resetThresholds();
       resetSlideThresholds();
       resetFields();
@@ -228,6 +260,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setClutchThresholds(INITIAL_CLUTCH_THRESHOLDS);
     setSlideThresholds(INITIAL_SLIDE_THRESHOLDS);
     setGibsThresholds(INITIAL_GIBS_THRESHOLDS);
+    setTrammingThresholds(INITIAL_TRAMMING_THRESHOLDS);
   }, []);
 
   const resetSlideThresholds = useCallback(() => {
@@ -242,6 +275,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setClutchThresholdsOpen(false);
     setSlideThresholdsOpen(false);
     setGibsThresholdsOpen(false);
+    setTrammingThresholdsOpen(false);
     resetThresholds();
     resetSlideThresholds();
   }, [resetThresholds, resetSlideThresholds]);
@@ -269,6 +303,10 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setGibsThresholdsOpen,
     gibsThresholds,
     setGibsThresholds,
+    trammingThresholdsOpen,
+    setTrammingThresholdsOpen,
+    trammingThresholds,
+    setTrammingThresholds,
     isLoading,
     result,
     handleSubmit,

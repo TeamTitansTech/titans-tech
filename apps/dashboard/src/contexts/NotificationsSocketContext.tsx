@@ -2,16 +2,17 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { io, Socket } from 'socket.io-client';
-import type { AdminNotificationResponseDto } from '@titans-tech/shared/backend-dtos';
+import type { NotificationResponseWithMetadata } from '@titans-tech/shared/backend-dtos';
+import { getNotifications } from '@/data/services/notifications.api';
 
 interface NotificationsSocketContextType {
   socket: Socket | null;
   isConnected: boolean;
-  notifications: AdminNotificationResponseDto[];
+  notifications: NotificationResponseWithMetadata[];
   unreadCount: number;
   initialDataLoaded: boolean;
   loadInitialData: () => Promise<void>;
-  addNotification: (notification: AdminNotificationResponseDto) => void;
+  addNotification: (notification: NotificationResponseWithMetadata) => void;
   markAsRead: (notificationId: string) => void;
   clearAll: () => void;
 }
@@ -33,7 +34,7 @@ export function NotificationsSocketProvider({
 }: NotificationsSocketProviderProps) {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [notifications, setNotifications] = useState<AdminNotificationResponseDto[]>([]);
+  const [notifications, setNotifications] = useState<NotificationResponseWithMetadata[]>([]);
   const [unreadCount, setUnreadCount] = useState(initialUnreadCount);
   const [initialDataLoaded, setInitialDataLoaded] = useState(false);
 
@@ -67,15 +68,10 @@ export function NotificationsSocketProvider({
       setIsConnected(false);
     });
 
-    socketInstance.on('notification:new', (notification: AdminNotificationResponseDto) => {
+    socketInstance.on('notification:new', (notification: NotificationResponseWithMetadata) => {
       console.log('[NotificationsSocket] 🔔 New notification received:', notification);
       setNotifications((prev) => [notification, ...prev]);
       setUnreadCount((prev) => prev + 1);
-    });
-
-    socketInstance.on('notification:stats', (stats: { totalUnread: number }) => {
-      console.log('[NotificationsSocket] 📊 Stats update received:', stats);
-      setUnreadCount(stats.totalUnread);
     });
 
     socketInstance.on('connect_error', (error) => {
@@ -100,10 +96,7 @@ export function NotificationsSocketProvider({
     console.log('[NotificationsSocket] Manual loadInitialData called');
 
     try {
-      const { getAdminNotifications } = await import('@/data/services/notifications.api');
-
-      const notificationsResult = await getAdminNotifications(10, false);
-
+      const notificationsResult = await getNotifications(10, false);
       if (notificationsResult.data) {
         setNotifications(notificationsResult.data);
       }
@@ -115,7 +108,7 @@ export function NotificationsSocketProvider({
     }
   };
 
-  const addNotification = (notification: AdminNotificationResponseDto) => {
+  const addNotification = (notification: NotificationResponseWithMetadata) => {
     setNotifications((prev) => [notification, ...prev]);
     if (!notification.isRead) {
       setUnreadCount((prev) => prev + 1);
@@ -124,7 +117,7 @@ export function NotificationsSocketProvider({
 
   const markAsRead = (notificationId: string) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n)),
+      prev.map((n) => (n.notification.id === notificationId ? { ...n, isRead: true } : n)),
     );
     setUnreadCount((prev) => Math.max(0, prev - 1));
   };

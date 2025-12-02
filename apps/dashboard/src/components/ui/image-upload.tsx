@@ -6,15 +6,13 @@ import { Button } from './button';
 import { X, Upload, Loader2 } from 'lucide-react';
 import { uploadImage } from '@/data/services/upload.api';
 import Image from 'next/image';
+import { MAX_FILE_SIZE, MAX_FILE_SIZE_MB, ALLOWED_IMAGE_TYPES } from '@/config/uploads';
 
 interface ImageUploadProps {
   value?: string;
   onChange: (url: string | null) => void;
   disabled?: boolean;
 }
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-const ALLOWED_TYPES = ['image/jpeg', 'image/png'];
 
 export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
   const t = useTranslations('common.imageUpload');
@@ -24,12 +22,12 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const validateFile = (file: File): string | null => {
-    if (!ALLOWED_TYPES.includes(file.type)) {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
       return t('onlyJpgPngAllowed');
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      return t('fileTooLarge', { size: MAX_FILE_SIZE / 1024 / 1024 });
+      return t('fileTooLarge', { size: MAX_FILE_SIZE_MB });
     }
 
     return null;

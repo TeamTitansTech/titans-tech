@@ -21,6 +21,11 @@ enum ServiceStatus {
   COMPLETED
 }
 
+enum ServiceRequestStatus {
+  OPEN
+  CLOSED
+}
+
 enum MatingPartType {
   BUSHING
   CONNECTION
@@ -444,11 +449,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  company                     Company              @relation(fields: [companyId], references: [id])
-  companyId                   String
-  branches                    UserBranch[]
-  adminNotificationsCreated   AdminNotification[]  @relation("AdminNotificationsCreated")
-  clientNotificationsReceived ClientNotification[] @relation("ClientNotificationsReceived")
+  company              Company        @relation(fields: [companyId], references: [id])
+  companyId            String
+  branches             UserBranch[]
+  notificationsCreated Notification[] @relation("NotificationsCreated")
 
   @@map("users")
 }
@@ -518,6 +522,7 @@ model Blueprint {
   thresholdClutch           ThresholdClutch?
   thresholdSlide            ThresholdSlide?
   thresholdGibs             ThresholdGibs?
+  thresholdTramming         ThresholdTramming?
 
   @@map("blueprints")
 }
@@ -635,12 +640,29 @@ model ThresholdGibs {
   @@map("threshold_gibs")
 }
 
+model ThresholdTramming {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Single threshold range for all tramming sums (vertical and horizontal)
+  greenMin  Decimal @db.Decimal(10, 4)
+  yellowMin Decimal @db.Decimal(10, 4)
+  redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_tramming")
+}
+
 model Machine {
   id          String  @id @default(cuid())
   blueprintId String
   branchId    String
   name        String // Machine name/identifier
-  imageUrl    String? // Inherited from blueprint or custom image
+  imageUrl    String? // URL to machine image (S3 or external)
 
   // Machine specifications
   manufacturer    String?
@@ -657,14 +679,13 @@ model Machine {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  blueprint           Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
-  branch              CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
-  fields              MachineField[]
-  services            MachineService[]
-  adminNotifications  AdminNotification[]
-  clientNotifications ClientNotification[]
-  emails              Email[]
-  productionLines     MachineProductionLine[]
+  blueprint       Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
+  branch          CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  fields          MachineField[]
+  services        MachineService[]
+  serviceRequests ServiceRequest[]
+  emails          Email[]
+  productionLines MachineProductionLine[]
 
   @@map("machines")
 }
@@ -688,10 +709,12 @@ model MachineField {
 model MachineService {
   id                 String        @id @default(cuid())
   machineId          String
+  serviceRequestId   String? // Optional: if created from a service request
   date               DateTime
   type               ServiceType   @default(INSPECTION)
   status             ServiceStatus @default(PENDING)
   performedBy        String? // Optional: userId of who performed the service
+  notes              String?       @db.Text // Additional notes/comments for the service
   completedSections  Json?         @default("[]") // Array of completed section keys
   lastSectionSavedAt DateTime? // Timestamp of last section save
   currentStep        String? // Current step in the modal: 'selection', 'details', 'sections', 'summary'
@@ -713,6 +736,7 @@ model MachineService {
   updatedAt DateTime @updatedAt
 
   machine                           Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  serviceRequest                    ServiceRequest?                              @relation(fields: [serviceRequestId], references: [id], onDelete: SetNull)
   bearingClearance                  MachineServiceBearingClearance[]
   slide                             MachineServiceSlide[]
   gibs                              MachineServiceGibs[]
@@ -726,7 +750,9 @@ model MachineService {
   alertClutch                       AlertClutch[]
   alertSlide                        AlertSlide[]
   alertGibs                         AlertGibs[]
+  alertTramming                     AlertTramming[]
 
+  @@index([serviceRequestId])
   @@map("machine_services")
 }
 
@@ -867,6 +893,63 @@ model AlertGibs {
 
   @@index([machineServiceId])
   @@map("alert_gibs")
+}
+
+model AlertTramming {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // OUTER alerts - 4 positions × 2 directions (vertical + horizontal) = 8 sums
+  outer_top_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_top_verticalSeverity   AlertSeverity
+  outer_top_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_top_horizontalSeverity AlertSeverity
+
+  outer_bottom_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_bottom_verticalSeverity   AlertSeverity
+  outer_bottom_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_bottom_horizontalSeverity AlertSeverity
+
+  outer_left_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_left_verticalSeverity   AlertSeverity
+  outer_left_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_left_horizontalSeverity AlertSeverity
+
+  outer_right_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_right_verticalSeverity   AlertSeverity
+  outer_right_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_right_horizontalSeverity AlertSeverity
+
+  // INNER alerts - 4 positions × 2 directions (vertical + horizontal) = 8 sums
+  inner_top_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_top_verticalSeverity   AlertSeverity
+  inner_top_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_top_horizontalSeverity AlertSeverity
+
+  inner_bottom_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_bottom_verticalSeverity   AlertSeverity
+  inner_bottom_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_bottom_horizontalSeverity AlertSeverity
+
+  inner_left_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_left_verticalSeverity   AlertSeverity
+  inner_left_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_left_horizontalSeverity AlertSeverity
+
+  inner_right_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_right_verticalSeverity   AlertSeverity
+  inner_right_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_right_horizontalSeverity AlertSeverity
+
+  // Optional snapshot of threshold used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_tramming")
 }
 
 // BEARING_CLEARANCE Section
@@ -1259,43 +1342,37 @@ enum EmailProvider {
   AWS_SES
 }
 
-model AdminNotification {
-  id              String           @id @default(cuid())
-  machineId       String
-  message         String           @db.Text
-  isRead          Boolean          @default(false)
+model Notification {
+  id String @id @default(cuid())
+
   type            NotificationType @default(URGENT_SERVICE_REQUEST)
-  createdByUserId String
+  createdByUserId String?
   metadata        Json? // Store additional data like notes, urgency level, etc.
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  machine   Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
-  createdBy User    @relation("AdminNotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  createdBy  User?                   @relation("NotificationsCreated", fields: [createdByUserId], references: [id], onDelete: Cascade)
+  recipients NotificationRecipient[]
 
-  @@index([isRead])
   @@index([createdAt])
   @@map("admin_notifications")
 }
 
-model ClientNotification {
-  id          String           @id @default(cuid())
-  userId      String
-  machineId   String?
-  message     String           @db.Text
-  isRead      Boolean          @default(false)
-  redirectUrl String? // e.g., "/s/company-slug/machines/123?openServiceModal=true"
-  type        NotificationType
-  metadata    Json? // Store additional contextual data
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+model NotificationRecipient {
+  notificationId String
+  /**
+   * Id from sys admin or a regular user
+   */
+  recipientId    String
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  user    User     @relation("ClientNotificationsReceived", fields: [userId], references: [id], onDelete: Cascade)
-  machine Machine? @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
-  @@index([userId, isRead])
-  @@index([createdAt])
-  @@map("client_notifications")
+  @@id([notificationId, recipientId])
+  @@index([recipientId, isRead])
+  @@map("admin_notification_recipients")
 }
 
 model Email {
@@ -1454,4 +1531,42 @@ model MachineProductionLine {
 
   @@id([machineId, productionLineId])
   @@map("machine_production_lines")
+}
+
+// Service Request - Public QR code maintenance requests
+model ServiceRequest {
+  id        String               @id @default(cuid())
+  machineId String
+  status    ServiceRequestStatus @default(OPEN)
+
+  // Requester information
+  requesterName  String
+  requesterEmail String
+  requesterPhone String?
+
+  // Problem description
+  problemDescription String  @db.Text
+  imageUrl           String? // Optional image uploaded by requester
+
+  // Device tracking information
+  ipAddress  String?
+  userAgent  String? @db.Text
+  browser    String?
+  os         String?
+  deviceType String?
+  isMobile   Boolean @default(false)
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  closedAt  DateTime?
+
+  // Relations
+  machine  Machine          @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  services MachineService[] // Services created from this request
+
+  @@index([machineId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("service_requests")
 }

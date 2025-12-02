@@ -63,9 +63,10 @@ export class SysAdminService {
       throw new NotFoundException('SysAdmin not found');
     }
 
-    // Buscar quantidade de notificações não lidas (AdminNotification para sysadmin)
-    const unreadNotifications = await this.prisma.adminNotification.count({
+    // Buscar quantidade de notificações não lidas (Notification para sysadmin)
+    const unreadNotifications = await this.prisma.notificationRecipient.count({
       where: {
+        recipientId: userId,
         isRead: false,
       },
     });

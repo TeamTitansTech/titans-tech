@@ -29,13 +29,9 @@ import {
 import { getSlideThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
-import {
-  SectionStatusBadge,
-  type SectionStatus,
-  calculateSectionStatus,
-} from '@/components/shared/SectionStatusBadge';
+import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
-import { SLIDE_TABS } from '@/data/parts/dac-parts';
+import { SLIDE_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface SlideSectionProps {
   machineId: string;
@@ -260,13 +256,22 @@ export function SlideSection({
         </Card>
       </div>
 
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: SLIDE_SUBSECTIONS,
+          title: tParts('slideParts'),
+          description: tParts('slideDescription'),
+          machineName,
+          sectionName: 'Slide',
+        }}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <CardTitle>{t('sectionTitles.slideMeasurements')}</CardTitle>
-              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
-            </div>
+            <CardTitle>{t('sectionTitles.slideMeasurements')}</CardTitle>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Slide"
@@ -466,18 +471,6 @@ export function SlideSection({
           </div>
         </CardContent>
       </Card>
-
-      {/* Section Status Card with Parts Modal */}
-      <SectionStatusCard
-        status={sectionStatus}
-        partsConfig={{
-          tabs: SLIDE_TABS,
-          title: tParts('slideParts'),
-          description: tParts('slideDescription'),
-          machineName,
-          sectionName: 'Slide',
-        }}
-      />
     </div>
   );
 }
