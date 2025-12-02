@@ -118,25 +118,6 @@ export function ClutchSection({
     ]);
   }, [filteredInspections]);
 
-  // Prepare measurements for status badge
-  const statusMeasurements = useMemo(
-    () => [
-      { value: latestClutchData?.hydClutchClearanceTotal ?? null, threshold: hydTotalThreshold },
-      { value: latestClutchData?.hydClutchClearanceRear ?? null, threshold: hydRearThreshold },
-      { value: latestClutchData?.brakeSpringFB ?? null, threshold: fbThreshold },
-      { value: latestClutchData?.brakeSpringFTB ?? null, threshold: fTBThreshold },
-      { value: latestClutchData?.brakeSpringRTB ?? null, threshold: rTBThreshold },
-    ],
-    [
-      latestClutchData,
-      hydTotalThreshold,
-      hydRearThreshold,
-      fbThreshold,
-      fTBThreshold,
-      rTBThreshold,
-    ],
-  );
-
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
     if (value === null || value === undefined) return '-';
     return Number(value).toFixed(decimals);
