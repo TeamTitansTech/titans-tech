@@ -154,31 +154,22 @@ export class NotificationsService {
     );
     this.notificationsGateway.broadcastStatsUpdate(stats);
 
+    // Get sysadmin emails only (test emails are added by email service)
     const sysAdmins = await this.prisma.sysAdmin.findMany({
       select: { email: true },
     });
-    const sysAdminEmails = sysAdmins.map((sa) => sa.email);
-
-    const allRecipientEmails = [...new Set(sysAdminEmails)];
+    const sysAdminEmails = sysAdmins.map((sa) => sa.email.toLowerCase());
     const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${machineId}?openServiceModal=true`;
 
-    if (allRecipientEmails.length === 0) {
+    if (sysAdminEmails.length === 0) {
       this.logger.warn(
-        'No admin emails found to send urgent request notification',
+        'No sysadmin emails found to send urgent request notification',
       );
     }
 
-    const isProdOrTest =
-      appEnv.NODE_ENV === 'production' || appEnv.NODE_ENV === 'test';
-
-    // TODO: fix hardcoded email for non-prod environments
-    const adminEmailsToUse = isProdOrTest
-      ? allRecipientEmails
-      : ['wejah78981@cexch.com']; // Replace with a test email
-
     try {
       await this.emailService.sendUrgentRequestEmail(
-        adminEmailsToUse.map((e) => e.trim()),
+        sysAdminEmails,
         {
           machineName: machine.name,
           companyName: machine.branch.company.name,
@@ -192,7 +183,7 @@ export class NotificationsService {
       );
 
       this.logger.log(
-        `Sent urgent request email to ${allRecipientEmails.length} admin(s): ${allRecipientEmails.join(', ')}`,
+        `Sent urgent request email to ${sysAdminEmails.length} sysadmin(s): ${sysAdminEmails.join(', ')}`,
       );
     } catch (error) {
       this.logger.error('Failed to send urgent request email', error);

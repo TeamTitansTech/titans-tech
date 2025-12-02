@@ -189,23 +189,21 @@ export class ServiceRequestsService {
       },
     };
 
-    for (const email of recipientEmails) {
-      try {
-        await this.emailService.sendPublicServiceRequestEmail(
-          email,
-          emailData,
-          dto.machineId,
-        );
+    try {
+      await this.emailService.sendPublicServiceRequestEmail(
+        recipientEmails,
+        emailData,
+        dto.machineId,
+      );
 
-        this.logger.log(
-          `Sent service request email to ${email} for request ${serviceRequest.id}`,
-        );
-      } catch (error) {
-        this.logger.error(
-          `Failed to send service request email to ${email}`,
-          error,
-        );
-      }
+      this.logger.log(
+        `Sent service request email to ${recipientEmails.length} recipients for request ${serviceRequest.id}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send service request email for request ${serviceRequest.id}`,
+        error,
+      );
     }
 
     return {
