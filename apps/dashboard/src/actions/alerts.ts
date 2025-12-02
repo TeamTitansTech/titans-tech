@@ -136,3 +136,25 @@ export async function getGibsThresholdByBlueprint(blueprintId: string) {
     };
   }
 }
+
+/**
+ * Get pistons threshold by blueprint ID
+ */
+export async function getPistonsThresholdByBlueprint(blueprintId: string) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${API_URL}/alerts/pistons/thresholds/blueprint/${blueprintId}`, {
+      method: 'GET',
+      headers,
+      cache: 'no-store',
+    });
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to fetch pistons threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}

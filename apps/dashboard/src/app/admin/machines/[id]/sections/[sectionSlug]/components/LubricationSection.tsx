@@ -39,6 +39,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import { SectionStatusBadge, type SectionStatus } from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { LUBRICATION_HYDRAULICS_PARTS } from '@/data/parts/dac-parts';
 
 interface LubricationSectionProps {
   machineId: string;
@@ -49,6 +52,7 @@ interface LubricationSectionProps {
 export function LubricationSection({ inspections, machineName }: LubricationSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const tCommon = useTranslations('common.status');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
@@ -131,6 +135,14 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
     }
     return null;
   }, [inspections]);
+
+  // Calculate section status based on oil change info
+  const sectionStatus: SectionStatus = useMemo(() => {
+    if (!lastOilChangeInfo) return 'unknown';
+    if (lastOilChangeInfo.isOverdue) return 'alert';
+    if (lastOilChangeInfo.isWarning) return 'warning';
+    return 'ok';
+  }, [lastOilChangeInfo]);
 
   // Transform data for temperature chart
   const temperatureChartData = useMemo(() => {
@@ -361,7 +373,10 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>{t('sectionTitles.lubricationStatus')}</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>{t('sectionTitles.lubricationStatus')}</CardTitle>
+              <SectionStatusBadge status={sectionStatus} size="sm" />
+            </div>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Lubrication"
@@ -514,6 +529,18 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
           )}
         </CardContent>
       </Card>
+
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          parts: LUBRICATION_HYDRAULICS_PARTS,
+          title: tParts('lubricationHydraulicsParts'),
+          description: tParts('lubricationHydraulicsDescription'),
+          machineName,
+          sectionName: 'Lubrication & Hydraulics',
+        }}
+      />
     </div>
   );
 }

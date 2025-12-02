@@ -269,3 +269,67 @@ export function convertPartialGibsThresholdToDecimal<
   });
   return data as PartialGibsThresholdDecimalData;
 }
+
+/**
+ * List of all PISTONS threshold field names
+ * Monitors clearance (absolute values) and difference (side-to-side) thresholds
+ */
+export const PISTONS_THRESHOLD_FIELDS = [
+  'clearance_greenMin',
+  'clearance_yellowMin',
+  'clearance_redMin',
+  'difference_greenMin',
+  'difference_yellowMin',
+  'difference_redMin',
+] as const;
+
+export type PistonsThresholdFieldName =
+  (typeof PISTONS_THRESHOLD_FIELDS)[number];
+
+/**
+ * Type for complete PISTONS threshold data with Decimal fields
+ */
+export type PistonsThresholdDecimalData = {
+  [K in PistonsThresholdFieldName]: Decimal;
+};
+
+/**
+ * Type for partial PISTONS threshold data with Decimal fields
+ */
+export type PartialPistonsThresholdDecimalData = {
+  [K in PistonsThresholdFieldName]?: Decimal;
+};
+
+/**
+ * Converts PISTONS threshold DTO fields to Decimal type for Prisma (all fields)
+ *
+ * @param dto - PISTONS threshold data object with all fields
+ * @returns Object with all Decimal-converted threshold fields
+ */
+export function convertPistonsThresholdToDecimal<T extends Record<string, any>>(
+  dto: T,
+): PistonsThresholdDecimalData {
+  return PISTONS_THRESHOLD_FIELDS.reduce((acc, field) => {
+    acc[field] = new Decimal(dto[field]);
+    return acc;
+  }, {} as any) as PistonsThresholdDecimalData;
+}
+
+/**
+ * Converts partial PISTONS threshold DTO fields to Decimal type for Prisma
+ *
+ * @param dto - Partial PISTONS threshold data object
+ * @returns Object with Decimal-converted threshold fields (only provided fields)
+ */
+export function convertPartialPistonsThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): PartialPistonsThresholdDecimalData {
+  const data: any = {};
+  Object.keys(dto).forEach((key) => {
+    const value = dto[key];
+    if (value !== undefined && PISTONS_THRESHOLD_FIELDS.includes(key as any)) {
+      data[key] = new Decimal(value);
+    }
+  });
+  return data as PartialPistonsThresholdDecimalData;
+}

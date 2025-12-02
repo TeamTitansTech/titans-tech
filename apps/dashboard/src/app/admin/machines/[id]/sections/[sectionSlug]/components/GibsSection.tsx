@@ -20,6 +20,13 @@ import {
 import { getGibsThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import {
+  SectionStatusBadge,
+  type SectionStatus,
+  calculateSectionStatus,
+} from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { GIBS_TABS } from '@/data/parts/dac-parts';
 
 interface GibsSectionProps {
   machineId: string;
@@ -55,6 +62,7 @@ export function GibsSection({
   hideThresholdValues = false,
 }: GibsSectionProps) {
   const t = useTranslations('machines.sectionDetails');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   const tGibsFields = useTranslations('machines.gibsFields');
   const [usableThreshold, setUsableThreshold] = useState<ThresholdConfig | null>(null);
@@ -234,6 +242,21 @@ export function GibsSection({
   const outerCalculated = calculateGibsFields(latestOuterData);
   const innerCalculated = calculateGibsFields(latestInnerData);
 
+  // Prepare measurements for status badge
+  const statusMeasurements = useMemo(
+    () => [
+      { value: outerCalculated?.usable ?? null, threshold: usableThreshold },
+      { value: innerCalculated?.usable ?? null, threshold: usableThreshold },
+    ],
+    [outerCalculated?.usable, innerCalculated?.usable, usableThreshold],
+  );
+
+  // Calculate section status for the status card
+  const sectionStatus: SectionStatus = useMemo(
+    () => calculateSectionStatus(statusMeasurements),
+    [statusMeasurements],
+  );
+
   // Check if we have front-to-back or left-to-right data
   const hasOuterFrontToBack = latestOuterData
     ? [1, 2, 3, 4, 5, 6, 7, 8].some(
@@ -346,7 +369,10 @@ export function GibsSection({
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>{t('sectionTitles.gibsMeasurements')}</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>{t('sectionTitles.gibsMeasurements')}</CardTitle>
+              <SectionStatusBadge measurements={statusMeasurements} size="sm" />
+            </div>
             <SectionExportButton
               contentRef={contentRef}
               sectionName="Gibs"
@@ -656,6 +682,18 @@ export function GibsSection({
           </div>
         </CardContent>
       </Card>
+
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          tabs: GIBS_TABS,
+          title: tParts('gibsParts'),
+          description: tParts('gibsDescription'),
+          machineName,
+          sectionName: 'Gibs',
+        }}
+      />
     </div>
   );
 }
