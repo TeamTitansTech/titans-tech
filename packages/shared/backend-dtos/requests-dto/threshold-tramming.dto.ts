@@ -29,6 +29,8 @@ export const CreateThresholdTrammingSchema = TrammingThresholdsSchema.merge(
 
 export type CreateThresholdTrammingDto = z.infer<typeof CreateThresholdTrammingSchema>;
 
-export const UpdateThresholdTrammingSchema = TrammingThresholdsSchema.partial();
+export const UpdateThresholdTrammingSchema = TrammingThresholdsSchema.partial().extend({
+  recalculateAlerts: z.boolean().optional(),
+});
 
 export type UpdateThresholdTrammingDto = z.infer<typeof UpdateThresholdTrammingSchema>;

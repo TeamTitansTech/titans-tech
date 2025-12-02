@@ -34,6 +34,7 @@ import {
   CreateThresholdTrammingDto,
   UpdateThresholdTrammingDto,
   TrammingThresholdsSchema,
+  UpdateThresholdTrammingSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, Authenticated } from '../auth/auth.decorators';
@@ -392,10 +393,30 @@ export class AlertsTrammingController {
   @Put('thresholds/blueprint/:blueprintId')
   async updateTrammingThreshold(
     @Param('blueprintId') blueprintId: string,
-    @Body(new ZodValidationPipe(TrammingThresholdsSchema))
+    @Body(new ZodValidationPipe(UpdateThresholdTrammingSchema))
     dto: UpdateThresholdTrammingDto,
   ) {
-    return this.alertsService.updateTrammingThreshold(blueprintId, dto);
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateTrammingThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateTrammingAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
   }
 
   @Admin()

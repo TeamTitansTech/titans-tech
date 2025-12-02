@@ -1624,6 +1624,48 @@ export class AlertsService {
   }
 
   /**
+   * Recalculates Tramming alerts for all services using a specific blueprint
+   * Used when threshold values are updated and user opts to recalculate existing alerts
+   */
+  async recalculateTrammingAlertsForBlueprint(blueprintId: string) {
+    // Find all services that use this blueprint and have Tramming data
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        tramming: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    // Generate new alerts for each service
+    for (const service of services) {
+      try {
+        await this.generateAlertsForTramming(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        // Skip services that fail (e.g., missing data)
+        console.warn(
+          `Failed to generate Tramming alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
+  /**
    * Recalculates GIBS alerts for all services using a specific blueprint
    * Used when threshold values are updated and user opts to recalculate existing alerts
    */

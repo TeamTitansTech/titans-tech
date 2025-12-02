@@ -196,13 +196,14 @@ export async function updateTrammingThreshold(
     yellowMin: number;
     redMin: number;
   },
+  recalculateAlerts: boolean = false,
 ) {
   try {
     const headers = await getAuthHeaders();
     const response = await fetch(`${API_URL}/alerts/tramming/thresholds/blueprint/${blueprintId}`, {
       method: 'PUT',
       headers,
-      body: JSON.stringify(data),
+      body: JSON.stringify({ ...data, recalculateAlerts }),
     });
 
     return await handleResponse(response);
