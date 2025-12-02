@@ -23,6 +23,7 @@ import type {
   AlertsSummaryResponseDto,
   AdminManagerUserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
+import { isValidEmail } from '@/lib/validators';
 
 // Convert SCREAMING_SNAKE_CASE to camelCase for translation keys
 const sectionKeyToTranslationKey = (key: string): string => {
@@ -90,10 +91,6 @@ export function AlertNotificationModal({
 
   const handleExtraEmailChange = (index: number, value: string) => {
     setExtraEmails((prev) => prev.map((email, i) => (i === index ? value : email)));
-  };
-
-  const isValidEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   const getValidExtraEmails = () => {

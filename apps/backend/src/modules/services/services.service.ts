@@ -3,8 +3,9 @@ import {
   NotFoundException,
   BadRequestException,
   ForbiddenException,
+  Logger,
 } from '@nestjs/common';
-import { Prisma } from '@titans-tech/db';
+import { Prisma, ServiceRequestStatus } from '@titans-tech/db';
 import { ServiceSection, ServiceStatus } from '@titans-tech/shared/enums';
 import { PrismaService } from '../shared/prisma.service';
 import {
@@ -15,6 +16,8 @@ import {
   LatestGibsDto,
   LatestLubricationDto,
   LatestCounterbalanceDto,
+  LatestPistonsDto,
+  LatestTrammingDto,
   CreateServiceDto,
   UpdateServicePayload,
   CompleteServiceDto,
@@ -45,6 +48,8 @@ type ServicePermission =
 
 @Injectable()
 export class ServicesService {
+  private readonly logger = new Logger(ServicesService.name);
+
   constructor(
     private prisma: PrismaService,
     private alertsService: AlertsService,
@@ -173,6 +178,11 @@ export class ServicesService {
       machine: {
         connect: { id: createInspectionDto.machineId },
       },
+      ...(createInspectionDto.serviceRequestId && {
+        serviceRequest: {
+          connect: { id: createInspectionDto.serviceRequestId },
+        },
+      }),
       date: new Date(createInspectionDto.date),
       type: createInspectionDto.type,
       ...(createInspectionDto.status && {
@@ -206,6 +216,20 @@ export class ServicesService {
         },
       },
     });
+
+    // If this service was created from a service request, close the request
+    if (createInspectionDto.serviceRequestId) {
+      await this.prisma.serviceRequest.update({
+        where: { id: createInspectionDto.serviceRequestId },
+        data: {
+          status: ServiceRequestStatus.CLOSED,
+          closedAt: new Date(),
+        },
+      });
+      this.logger.log(
+        `Closed service request ${createInspectionDto.serviceRequestId} after creating service ${inspection.id}`,
+      );
+    }
 
     return inspection;
   }
@@ -942,7 +966,90 @@ export class ServicesService {
       }
     }
 
-    // 9. Build response
+    // 9. Process Pistons section
+    let pistonsData: LatestPistonsDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.PISTONS)) {
+      // Find the most recent service with Pistons data
+      const latestPistonsService = services.find(
+        (service) => service.pistons && service.pistons.length > 0,
+      );
+
+      if (latestPistonsService) {
+        const pistonsRecord = latestPistonsService.pistons[0];
+        const outerData = pistonsRecord.outerData;
+        const innerData = pistonsRecord.innerData;
+
+        // Only proceed if we have at least one data set
+        if (outerData || innerData) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getPistonsAlertByService(
+              latestPistonsService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+          }
+
+          pistonsData = new LatestPistonsDto({
+            latestServiceId: latestPistonsService.id,
+            latestServiceDate: latestPistonsService.date,
+            serviceType: latestPistonsService.type,
+            data: {
+              guideSeals: pistonsRecord.guideSeals,
+              pistonSeals: pistonsRecord.pistonSeals,
+              vacuumSystem: pistonsRecord.vacuumSystem,
+              vacuumSystemAirPressureSetting:
+                pistonsRecord.vacuumSystemAirPressureSetting,
+              outerData: outerData || undefined,
+              innerData: innerData || undefined,
+              notes: pistonsRecord.notes,
+            },
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 10. Process Tramming section
+    let trammingData: LatestTrammingDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.TRAMMING)) {
+      // Find the most recent service with Tramming data
+      const latestTrammingService = services.find(
+        (service) => service.tramming && service.tramming.length > 0,
+      );
+
+      if (latestTrammingService) {
+        const trammingRecord = latestTrammingService.tramming[0];
+
+        if (trammingRecord) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getTrammingAlertsByService(
+              latestTrammingService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+          }
+
+          trammingData = new LatestTrammingDto({
+            latestServiceId: latestTrammingService.id,
+            latestServiceDate: latestTrammingService.date,
+            serviceType: latestTrammingService.type,
+            data: {
+              outerData: trammingRecord.outerData || undefined,
+              innerData: trammingRecord.innerData || undefined,
+            },
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 11. Build response
     return new LatestReportResponseDto({
       machineId: machine.id,
       machineName: machine.name,
@@ -956,9 +1063,11 @@ export class ServicesService {
         BEARING_CLEARANCE: bearingClearanceData,
         SLIDE: slideData,
         GIBS: gibsData,
+        PISTONS: pistonsData,
         LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: lubricationData,
         CLUTCH: clutchData,
         COUNTERBALANCE_CYLINDER_AIRBAG: counterbalanceData,
+        TRAMMING: trammingData,
       },
     });
   }
@@ -1860,6 +1969,14 @@ export class ServicesService {
       });
     }
 
+    // Generate tramming alerts automatically after saving data
+    try {
+      await this.alertsService.generateAlertsForTramming(serviceId);
+    } catch (error) {
+      // Log error but don't fail the update if alert generation fails
+      console.error('Failed to generate tramming alerts:', error);
+    }
+
     return this.findOne(serviceId);
   }
 
@@ -1936,8 +2053,6 @@ export class ServicesService {
           'pistonSeals',
           'vacuumSystem',
           'vacuumSystemAirPressureSetting',
-          'vacuumSystemAirPressureUnit',
-          'unit',
           'notes',
         ];
 
@@ -1987,11 +2102,6 @@ export class ServicesService {
                 vacuumSystemAirPressureSetting:
                   updateDto.vacuumSystemAirPressureSetting,
               }),
-              ...(updateDto.vacuumSystemAirPressureUnit && {
-                vacuumSystemAirPressureUnit:
-                  updateDto.vacuumSystemAirPressureUnit,
-              }),
-              ...(updateDto.unit && { unit: updateDto.unit }),
               ...(updateDto.notes && { notes: updateDto.notes }),
             },
           },
@@ -2123,6 +2233,12 @@ export class ServicesService {
       });
     }
 
+    if (completedSectionsList.includes('PISTONS')) {
+      this.alertsService.generateAlertsForPistons(serviceId).catch((error) => {
+        console.error('Error generating PISTONS alerts:', error);
+      });
+    }
+
     return updatedService;
   }
 
@@ -2170,7 +2286,18 @@ export class ServicesService {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
-        alertCounterbalanceCylinderAirbag: true,
+        alertPistons: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertCounterbalanceCylinderAirbag: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertTramming: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
     });
 
@@ -2456,6 +2583,91 @@ export class ServicesService {
       }
     }
 
+    // Process Pistons alerts
+    if (service.alertPistons && service.alertPistons.length > 0) {
+      const alert = service.alertPistons[0];
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const pistonsFields = [
+        // Outer difference severities
+        {
+          field: 'outer_lhLeftRight',
+          label: 'LH Left-Right Diff (Outer)',
+          severity: alert.outer_lhLeftRight_severity as AlertSeverityDto,
+          value: alert.outer_lhLeftRight_diff?.toString(),
+        },
+        {
+          field: 'outer_lhTopBottom',
+          label: 'LH Top-Bottom Diff (Outer)',
+          severity: alert.outer_lhTopBottom_severity as AlertSeverityDto,
+          value: alert.outer_lhTopBottom_diff?.toString(),
+        },
+        {
+          field: 'outer_rhLeftRight',
+          label: 'RH Left-Right Diff (Outer)',
+          severity: alert.outer_rhLeftRight_severity as AlertSeverityDto,
+          value: alert.outer_rhLeftRight_diff?.toString(),
+        },
+        {
+          field: 'outer_rhTopBottom',
+          label: 'RH Top-Bottom Diff (Outer)',
+          severity: alert.outer_rhTopBottom_severity as AlertSeverityDto,
+          value: alert.outer_rhTopBottom_diff?.toString(),
+        },
+        // Inner difference severities
+        {
+          field: 'inner_lhLeftRight',
+          label: 'LH Left-Right Diff (Inner)',
+          severity: alert.inner_lhLeftRight_severity as AlertSeverityDto,
+          value: alert.inner_lhLeftRight_diff?.toString(),
+        },
+        {
+          field: 'inner_lhTopBottom',
+          label: 'LH Top-Bottom Diff (Inner)',
+          severity: alert.inner_lhTopBottom_severity as AlertSeverityDto,
+          value: alert.inner_lhTopBottom_diff?.toString(),
+        },
+        {
+          field: 'inner_rhLeftRight',
+          label: 'RH Left-Right Diff (Inner)',
+          severity: alert.inner_rhLeftRight_severity as AlertSeverityDto,
+          value: alert.inner_rhLeftRight_diff?.toString(),
+        },
+        {
+          field: 'inner_rhTopBottom',
+          label: 'RH Top-Bottom Diff (Inner)',
+          severity: alert.inner_rhTopBottom_severity as AlertSeverityDto,
+          value: alert.inner_rhTopBottom_diff?.toString(),
+        },
+      ];
+
+      for (const f of pistonsFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value || '',
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'PISTONS',
+          sectionName: 'Pistons',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
     // Process Counterbalance Cylinder Airbag alerts (these are always RED when present)
     if (
       service.alertCounterbalanceCylinderAirbag &&
@@ -2484,11 +2696,166 @@ export class ServicesService {
       }
     }
 
-    return {
+    // Process Tramming alerts
+    console.log('🔍 Checking tramming alerts:', {
+      hasAlertTramming: !!service.alertTramming,
+      alertTrammingLength: service.alertTramming?.length,
+      alertTramming: service.alertTramming,
+    });
+
+    if (service.alertTramming && service.alertTramming.length > 0) {
+      console.log('✅ Processing tramming alerts');
+      const alert = service.alertTramming[0];
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const trammingFields = [
+        // Outer section
+        {
+          field: 'outer_top_vertical',
+          label: 'Top Vertical (Outer)',
+          severity: alert.outer_top_verticalSeverity as AlertSeverityDto,
+          value: alert.outer_top_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_top_horizontal',
+          label: 'Top Horizontal (Outer)',
+          severity: alert.outer_top_horizontalSeverity as AlertSeverityDto,
+          value: alert.outer_top_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_bottom_vertical',
+          label: 'Bottom Vertical (Outer)',
+          severity: alert.outer_bottom_verticalSeverity as AlertSeverityDto,
+          value: alert.outer_bottom_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_bottom_horizontal',
+          label: 'Bottom Horizontal (Outer)',
+          severity: alert.outer_bottom_horizontalSeverity as AlertSeverityDto,
+          value: alert.outer_bottom_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_left_vertical',
+          label: 'Left Vertical (Outer)',
+          severity: alert.outer_left_verticalSeverity as AlertSeverityDto,
+          value: alert.outer_left_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_left_horizontal',
+          label: 'Left Horizontal (Outer)',
+          severity: alert.outer_left_horizontalSeverity as AlertSeverityDto,
+          value: alert.outer_left_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_right_vertical',
+          label: 'Right Vertical (Outer)',
+          severity: alert.outer_right_verticalSeverity as AlertSeverityDto,
+          value: alert.outer_right_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'outer_right_horizontal',
+          label: 'Right Horizontal (Outer)',
+          severity: alert.outer_right_horizontalSeverity as AlertSeverityDto,
+          value: alert.outer_right_horizontalSum?.toString() || '0',
+        },
+        // Inner section
+        {
+          field: 'inner_top_vertical',
+          label: 'Top Vertical (Inner)',
+          severity: alert.inner_top_verticalSeverity as AlertSeverityDto,
+          value: alert.inner_top_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_top_horizontal',
+          label: 'Top Horizontal (Inner)',
+          severity: alert.inner_top_horizontalSeverity as AlertSeverityDto,
+          value: alert.inner_top_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_bottom_vertical',
+          label: 'Bottom Vertical (Inner)',
+          severity: alert.inner_bottom_verticalSeverity as AlertSeverityDto,
+          value: alert.inner_bottom_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_bottom_horizontal',
+          label: 'Bottom Horizontal (Inner)',
+          severity: alert.inner_bottom_horizontalSeverity as AlertSeverityDto,
+          value: alert.inner_bottom_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_left_vertical',
+          label: 'Left Vertical (Inner)',
+          severity: alert.inner_left_verticalSeverity as AlertSeverityDto,
+          value: alert.inner_left_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_left_horizontal',
+          label: 'Left Horizontal (Inner)',
+          severity: alert.inner_left_horizontalSeverity as AlertSeverityDto,
+          value: alert.inner_left_horizontalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_right_vertical',
+          label: 'Right Vertical (Inner)',
+          severity: alert.inner_right_verticalSeverity as AlertSeverityDto,
+          value: alert.inner_right_verticalSum?.toString() || '0',
+        },
+        {
+          field: 'inner_right_horizontal',
+          label: 'Right Horizontal (Inner)',
+          severity: alert.inner_right_horizontalSeverity as AlertSeverityDto,
+          value: alert.inner_right_horizontalSum?.toString() || '0',
+        },
+      ];
+
+      for (const f of trammingFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value,
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        console.log('✅ Adding tramming section with alerts:', {
+          alertCount: alerts.length,
+          severity: sectionSeverity,
+        });
+        sections.push({
+          sectionKey: 'TRAMMING',
+          sectionName: 'Tramming',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      } else {
+        console.log('⚠️ No YELLOW/RED tramming alerts found');
+      }
+    }
+
+    const result = {
       hasAlerts: alertCount > 0,
       alertCount,
       highestSeverity,
       sections,
     };
+
+    console.log('📊 Final alerts summary:', {
+      hasAlerts: result.hasAlerts,
+      alertCount: result.alertCount,
+      highestSeverity: result.highestSeverity,
+      sectionKeys: sections.map((s) => s.sectionKey),
+    });
+
+    return result;
   }
 }

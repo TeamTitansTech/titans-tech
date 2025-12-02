@@ -1584,13 +1584,7 @@ function renderPistons(
       t.getPistonsFieldTranslation('vacuumSystem'),
       translateEnumValue(pistonsData.vacuumSystem, enumTranslations),
     ],
-    [
-      t.getPistonsFieldTranslation('vacuumSystemAirPressureSetting'),
-      pistonsData.vacuumSystemAirPressureSetting
-        ? `${pistonsData.vacuumSystemAirPressureSetting} ${pistonsData.vacuumSystemAirPressureUnit || 'PSI'}`
-        : '-',
-    ],
-    [t.getPistonsFieldTranslation('unit'), pistonsData.unit || 'inches'],
+    [t.getPistonsFieldTranslation('vacuumSystemAirPressureSetting')],
   ];
 
   autoTable(doc, {

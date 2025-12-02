@@ -1,6 +1,5 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import { Label } from '@/components/ui/label';
 import { MeasurementInput } from '../shared/MeasurementInput';
 
@@ -41,8 +40,6 @@ export function PistonsForm({
   handleBlur,
   readOnly = false,
 }: PistonsFormProps) {
-  const t = useTranslations('inspections.form.pistons');
-
   // Same field names for both outer and inner - the title prop indicates context
   const pistonPoints: PistonPoint[] = [
     {
@@ -84,38 +81,32 @@ export function PistonsForm({
         <div className="absolute left-1/2 -translate-x-1/2" style={{ top: '-8px' }}>
           {renderInput(piston.fields.top)}
         </div>
-        <div
-          className="absolute left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground"
-          style={{ top: '26px' }}
-        >
-          {t('top')}
-        </div>
 
         {/* Left input */}
-        <div className="absolute top-1/2 -translate-y-1/2" style={{ left: '-52px' }}>
+        <div className="absolute top-1/2 -translate-y-1/2" style={{ left: '-82px' }}>
           {renderInput(piston.fields.left)}
         </div>
 
         {/* Center piston circle */}
         <div className="w-10 h-10 rounded-full border-2 border-foreground/30 bg-background flex items-center justify-center">
-          <span className="text-[9px] font-medium text-muted-foreground">{t('piston')}</span>
+          <div className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
         </div>
 
         {/* Right input */}
-        <div className="absolute top-1/2 -translate-y-1/2" style={{ right: '-52px' }}>
+        <div className="absolute top-1/2 -translate-y-1/2" style={{ right: '-82px' }}>
           {renderInput(piston.fields.right)}
         </div>
 
         {/* Bottom input */}
-        <div
-          className="absolute left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground"
-          style={{ bottom: '26px' }}
-        >
-          {t('bottom')}
-        </div>
         <div className="absolute left-1/2 -translate-x-1/2" style={{ bottom: '-8px' }}>
           {renderInput(piston.fields.bottom)}
         </div>
+
+        {/* Grid lines - horizontal and vertical through center */}
+        {/* Horizontal line */}
+        <div className="absolute top-1/2 -translate-y-1/2 left-16 right-16 h-[1px] bg-border/30" />
+        {/* Vertical line */}
+        <div className="absolute left-1/2 -translate-x-1/2 top-16 bottom-16 w-[1px] bg-border/30" />
       </div>
     </div>
   );

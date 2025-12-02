@@ -206,8 +206,6 @@ export interface PistonsSectionData {
   pistonSeals?: string;
   vacuumSystem?: string;
   vacuumSystemAirPressureSetting?: number;
-  vacuumSystemAirPressureUnit?: string;
-  unit?: string;
   outerData?: PistonsData;
   innerData?: PistonsData;
   notes?: string;

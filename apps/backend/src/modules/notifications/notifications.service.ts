@@ -3,7 +3,7 @@ import { PrismaService } from '../shared/prisma.service';
 import { EmailService } from '../email/email.service';
 import { NotificationsGateway } from './notifications.gateway';
 import { appEnv } from '../../config/env';
-import { NotificationType } from '@titans-tech/db';
+import { NotificationType, ServiceStatus, ServiceType } from '@titans-tech/db';
 import {
   type CreateUrgentRequestDto,
   type SendAlertNotificationDto,
@@ -12,6 +12,17 @@ import {
   UrgentRequestNotificationMetadataDto,
 } from '@titans-tech/shared/backend-dtos';
 import type { AlertNotificationTemplateData } from '../email/templates/alert-notification.template';
+
+export interface PublicRequestDeviceInfo {
+  ipAddress: string;
+  userAgent: string;
+  deviceInfo: {
+    browser: string;
+    os: string;
+    device: string;
+    isMobile: boolean;
+  };
+}
 
 @Injectable()
 export class NotificationsService {
@@ -24,10 +35,10 @@ export class NotificationsService {
   ) {}
 
   async createUrgentRequest(
-    userId: string,
+    userId: string | null,
     dto: CreateUrgentRequestDto,
   ): Promise<{ success: boolean; notificationId: string }> {
-    const { machineId, notes } = dto;
+    const { machineId, notes, requesterName, problemDescription } = dto;
 
     const machine = await this.prisma.machine.findUnique({
       where: { id: machineId },
@@ -44,13 +55,54 @@ export class NotificationsService {
       throw new NotFoundException('Machine not found');
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+    // Determina se é requisição autenticada ou pública
+    const isPublicRequest = userId === null;
+    let user = null;
+    let displayName: string;
+    let displayEmail: string | null;
+
+    if (isPublicRequest) {
+      // Requisição pública via QR code - usa dados do formulário
+      displayName = requesterName || 'Anonymous';
+      displayEmail = null;
+    } else {
+      // Requisição autenticada - busca dados do usuário
+      user = await this.prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      displayName = user.name || user.email;
+      displayEmail = user.email;
+    }
+
+    // Monta a mensagem com notas/descrição do problema
+    const problemNote = problemDescription || notes || '';
+
+    // Cria o serviço de manutenção com status PENDING
+    const serviceNotes = isPublicRequest
+      ? `[PUBLIC REQUEST]\nRequester: ${displayName}\nProblem Description:\n${problemNote}`
+      : `[URGENT REQUEST]\nRequested by: ${displayName}\nNotes:\n${problemNote}`;
+
+    const service = await this.prisma.machineService.create({
+      data: {
+        machine: { connect: { id: machineId } },
+        date: new Date(),
+        type: ServiceType.MAINTENANCE,
+        status: ServiceStatus.PENDING,
+        notes: serviceNotes,
+        performedBy: isPublicRequest
+          ? `Public Request - ${displayName}`
+          : `Urgent Request - ${displayName}`,
+      },
     });
 
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
+    this.logger.log(
+      `Created ${isPublicRequest ? 'public' : 'urgent'} service request ${service.id} for machine ${machineId}`,
+    );
 
     /** 
     * At the time that this refactor is being made (https://github.com/TeamTitansTech/titans-tech/issues/153),
@@ -91,7 +143,7 @@ export class NotificationsService {
     });
 
     this.logger.log(
-      `Created urgent request notification ${notification.id} for machine ${machineId}`,
+      `Created ${isPublicRequest ? 'public' : 'urgent'} request notification ${notification.id} for machine ${machineId}`,
     );
 
     const recipients = await this.prisma.notificationRecipient.findMany({
@@ -100,26 +152,36 @@ export class NotificationsService {
     });
     this.notificationsGateway.handleNewNotification(recipients);
 
-    const adminEmails = 'tedewa3616@feralrex.com';
+    // Get sysadmin emails only (test emails are added by email service)
+    const sysAdmins = await this.prisma.sysAdmin.findMany({
+      select: { email: true },
+    });
+    const sysAdminEmails = sysAdmins.map((sa) => sa.email.toLowerCase());
     const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${machineId}?openServiceModal=true`;
+
+    if (sysAdminEmails.length === 0) {
+      this.logger.warn(
+        'No sysadmin emails found to send urgent request notification',
+      );
+    }
 
     try {
       await this.emailService.sendUrgentRequestEmail(
-        adminEmails,
+        sysAdminEmails,
         {
           machineName: machine.name,
           companyName: machine.branch.company.name,
           branchName: machine.branch.name,
-          requestedBy: user.name || user.email,
-          requestedByEmail: user.email,
-          notes,
+          requestedBy: displayName,
+          requestedByEmail: displayEmail || 'N/A (Public Request)',
+          notes: problemNote,
           machineUrl,
         },
         machineId,
       );
 
       this.logger.log(
-        `Sent urgent request email to ${adminEmails.length} admin(s)`,
+        `Sent urgent request email to ${sysAdminEmails.length} sysadmin(s): ${sysAdminEmails.join(', ')}`,
       );
     } catch (error) {
       this.logger.error('Failed to send urgent request email', error);
@@ -225,7 +287,18 @@ export class NotificationsService {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
-        alertCounterbalanceCylinderAirbag: true,
+        alertCounterbalanceCylinderAirbag: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertPistons: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertTramming: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
     });
 
@@ -513,6 +586,135 @@ export class NotificationsService {
       }
     }
 
+    // Process Pistons alerts with subsections (Outer/Inner)
+    if (service.alertPistons && service.alertPistons.length > 0) {
+      const alert = service.alertPistons[0];
+      let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      // Outer subsection - sum fields
+      const outerSumFields = [
+        {
+          name: 'LH Left+Right',
+          severity: alert.outer_lhLeftRight_severity,
+          differential: alert.outer_lhLeftRight_diff,
+        },
+        {
+          name: 'LH Top+Bottom',
+          severity: alert.outer_lhTopBottom_severity,
+          differential: alert.outer_lhTopBottom_diff,
+        },
+        {
+          name: 'RH Left+Right',
+          severity: alert.outer_rhLeftRight_severity,
+          differential: alert.outer_rhLeftRight_diff,
+        },
+        {
+          name: 'RH Top+Bottom',
+          severity: alert.outer_rhTopBottom_severity,
+          differential: alert.outer_rhTopBottom_diff,
+        },
+      ];
+
+      // Inner subsection - sum fields
+      const innerSumFields = [
+        {
+          name: 'LH Left+Right',
+          severity: alert.inner_lhLeftRight_severity,
+          differential: alert.inner_lhLeftRight_diff,
+        },
+        {
+          name: 'LH Top+Bottom',
+          severity: alert.inner_lhTopBottom_severity,
+          differential: alert.inner_lhTopBottom_diff,
+        },
+        {
+          name: 'RH Left+Right',
+          severity: alert.inner_rhLeftRight_severity,
+          differential: alert.inner_rhLeftRight_diff,
+        },
+        {
+          name: 'RH Top+Bottom',
+          severity: alert.inner_rhTopBottom_severity,
+          differential: alert.inner_rhTopBottom_diff,
+        },
+      ];
+
+      const outerMeasurements: Array<{
+        name: string;
+        differential: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
+      let outerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      // Add sum alerts
+      for (const f of outerSumFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          outerMeasurements.push({
+            name: f.name,
+            differential: f.differential?.toFixed(4) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
+          });
+          if (f.severity === 'RED') outerSeverity = 'RED';
+        }
+      }
+
+      const innerMeasurements: Array<{
+        name: string;
+        differential: string;
+        status: 'YELLOW' | 'RED';
+      }> = [];
+      let innerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      // Add sum alerts
+      for (const f of innerSumFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          innerMeasurements.push({
+            name: f.name,
+            differential: f.differential?.toFixed(4) || '0',
+            status: f.severity as 'YELLOW' | 'RED',
+          });
+          if (f.severity === 'RED') innerSeverity = 'RED';
+        }
+      }
+
+      const subsections: Array<{
+        name: string;
+        severity: 'YELLOW' | 'RED';
+        measurements: Array<{
+          name: string;
+          differential: string;
+          status: 'YELLOW' | 'RED';
+        }>;
+      }> = [];
+
+      if (outerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Outer',
+          severity: outerSeverity,
+          measurements: outerMeasurements,
+        });
+        if (outerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (innerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Inner',
+          severity: innerSeverity,
+          measurements: innerMeasurements,
+        });
+        if (innerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (subsections.length > 0) {
+        sections.push({
+          sectionName: 'Pistons',
+          severity: sectionSeverity,
+          subsections,
+        });
+        if (sectionSeverity === 'RED') highestSeverity = 'RED';
+      }
+    }
+
     // Process Counterbalance alerts
     if (
       service.alertCounterbalanceCylinderAirbag &&
@@ -529,6 +731,156 @@ export class NotificationsService {
         alerts,
       });
       highestSeverity = 'RED';
+    }
+
+    // Process Tramming alerts with subsections (Outer/Inner)
+    if (service.alertTramming && service.alertTramming.length > 0) {
+      const alert = service.alertTramming[0]; // Get first alert record
+      let sectionSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+
+      // Helper to process direction measurements (vertical and horizontal)
+      const processDirection = (
+        position: string,
+        verticalSum: any,
+        verticalSeverity: string,
+        horizontalSum: any,
+        horizontalSeverity: string,
+      ) => {
+        const measurements: Array<{
+          name: string;
+          differential: string;
+          status: 'YELLOW' | 'RED';
+        }> = [];
+
+        if (verticalSeverity === 'YELLOW' || verticalSeverity === 'RED') {
+          measurements.push({
+            name: `${position} - Vertical`,
+            differential: verticalSum?.toFixed(3) || '0',
+            status: verticalSeverity as 'YELLOW' | 'RED',
+          });
+        }
+
+        if (horizontalSeverity === 'YELLOW' || horizontalSeverity === 'RED') {
+          measurements.push({
+            name: `${position} - Horizontal`,
+            differential: horizontalSum?.toFixed(3) || '0',
+            status: horizontalSeverity as 'YELLOW' | 'RED',
+          });
+        }
+
+        return measurements;
+      };
+
+      // Process OUTER measurements
+      const outerMeasurements = [
+        ...processDirection(
+          'Top',
+          alert.outer_top_verticalSum,
+          alert.outer_top_verticalSeverity,
+          alert.outer_top_horizontalSum,
+          alert.outer_top_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Bottom',
+          alert.outer_bottom_verticalSum,
+          alert.outer_bottom_verticalSeverity,
+          alert.outer_bottom_horizontalSum,
+          alert.outer_bottom_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Left',
+          alert.outer_left_verticalSum,
+          alert.outer_left_verticalSeverity,
+          alert.outer_left_horizontalSum,
+          alert.outer_left_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Right',
+          alert.outer_right_verticalSum,
+          alert.outer_right_verticalSeverity,
+          alert.outer_right_horizontalSum,
+          alert.outer_right_horizontalSeverity,
+        ),
+      ];
+
+      let outerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+      if (outerMeasurements.some((m) => m.status === 'RED')) {
+        outerSeverity = 'RED';
+      }
+
+      // Process INNER measurements
+      const innerMeasurements = [
+        ...processDirection(
+          'Top',
+          alert.inner_top_verticalSum,
+          alert.inner_top_verticalSeverity,
+          alert.inner_top_horizontalSum,
+          alert.inner_top_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Bottom',
+          alert.inner_bottom_verticalSum,
+          alert.inner_bottom_verticalSeverity,
+          alert.inner_bottom_horizontalSum,
+          alert.inner_bottom_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Left',
+          alert.inner_left_verticalSum,
+          alert.inner_left_verticalSeverity,
+          alert.inner_left_horizontalSum,
+          alert.inner_left_horizontalSeverity,
+        ),
+        ...processDirection(
+          'Right',
+          alert.inner_right_verticalSum,
+          alert.inner_right_verticalSeverity,
+          alert.inner_right_horizontalSum,
+          alert.inner_right_horizontalSeverity,
+        ),
+      ];
+
+      let innerSeverity: 'YELLOW' | 'RED' = 'YELLOW';
+      if (innerMeasurements.some((m) => m.status === 'RED')) {
+        innerSeverity = 'RED';
+      }
+
+      const subsections: Array<{
+        name: string;
+        severity: 'YELLOW' | 'RED';
+        measurements: Array<{
+          name: string;
+          differential: string;
+          status: 'YELLOW' | 'RED';
+        }>;
+      }> = [];
+
+      if (outerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Outer',
+          severity: outerSeverity,
+          measurements: outerMeasurements,
+        });
+        if (outerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (innerMeasurements.length > 0) {
+        subsections.push({
+          name: 'Inner',
+          severity: innerSeverity,
+          measurements: innerMeasurements,
+        });
+        if (innerSeverity === 'RED') sectionSeverity = 'RED';
+      }
+
+      if (subsections.length > 0) {
+        sections.push({
+          sectionName: 'Tramming',
+          severity: sectionSeverity,
+          subsections,
+        });
+        if (sectionSeverity === 'RED') highestSeverity = 'RED';
+      }
     }
 
     // Prepare email data

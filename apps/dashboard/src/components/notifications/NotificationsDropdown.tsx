@@ -79,8 +79,8 @@ export function NotificationsDropdown() {
     switch (notification.notification.metadata?.type) {
       case 'URGENT_SERVICE_REQUEST':
         return t('notificationsMessage.newUrgentRequest', {
-          requestedByName: notification.notification.metadata?.requestedByName,
-          machineName: notification.notification.metadata?.machineName,
+          requestedByName: notification.notification.metadata?.requestedByName ?? 'Unknown',
+          machineName: notification.notification.metadata?.machineName ?? 'Unknown',
         });
       default:
         return t('notificationsMessage.default', { type: notification.notification.type });

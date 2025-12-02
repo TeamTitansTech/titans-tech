@@ -1,8 +1,10 @@
 import { getTranslations } from 'next-intl/server';
 import { getMachineById } from '@/data/services/machines.api';
+import { getPublicMachineInfo } from '@/data/services/public.api';
 import { MachineDetails } from './components/MachineDetails';
 import { UpcomingServices } from '@/components/shared/services/UpcomingServices';
 import { ServiceHistory } from './components/ServiceHistory';
+import { ServiceRequests } from './components/ServiceRequests';
 import { notFound } from 'next/navigation';
 import { Typography } from '@/components/ui/typography';
 
@@ -15,7 +17,10 @@ interface MachineDetailPageProps {
 export default async function MachineDetailPage({ params }: MachineDetailPageProps) {
   const { id } = await params;
   const t = await getTranslations('machines');
-  const response = await getMachineById(id);
+  const [response, publicInfoResponse] = await Promise.all([
+    getMachineById(id),
+    getPublicMachineInfo(id),
+  ]);
 
   if (response.errors) {
     return (
@@ -36,9 +41,13 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     notFound();
   }
 
+  // Get company slug from public info for QR code generation
+  const companySlug = publicInfoResponse.data?.company.slug ?? '';
+
   return (
     <div className="space-y-6 p-4">
-      <MachineDetails machine={response.data} />
+      <MachineDetails machine={response.data} companySlug={companySlug} />
+      <ServiceRequests machineId={id} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <UpcomingServices
           machineId={id}

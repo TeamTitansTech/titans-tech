@@ -157,10 +157,11 @@ export interface MachineService {
   date: string;
   isMaintenance: boolean;
   performedBy: string;
-  alertBearingClearance?: AlertBearingClearance;
-  alertClutch?: AlertClutch;
-  alertSlide?: AlertSlide;
-  alertGibs?: AlertGibs;
+  // Alerts are arrays as per Prisma schema (one-to-many relationships)
+  alertBearingClearance?: AlertBearingClearance[];
+  alertClutch?: AlertClutch[];
+  alertSlide?: AlertSlide[];
+  alertGibs?: AlertGibs[];
   alertCounterbalanceCylinderAirbag?: AlertCounterbalance[];
 }
 

@@ -31,6 +31,14 @@ import {
   UpdateThresholdGibsDto,
   CreateThresholdGibsSchema,
   UpdateThresholdGibsSchema,
+  CreateThresholdTrammingDto,
+  UpdateThresholdTrammingDto,
+  TrammingThresholdsSchema,
+  UpdateThresholdTrammingSchema,
+  CreateThresholdPistonsDto,
+  UpdateThresholdPistonsDto,
+  CreateThresholdPistonsSchema,
+  UpdateThresholdPistonsSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { Admin, Authenticated } from '../auth/auth.decorators';
@@ -360,5 +368,127 @@ export class AlertsGibsController {
   @Post('service/:serviceId/generate')
   async generateGibsAlerts(@Param('serviceId') serviceId: string) {
     return this.alertsService.generateAlertsForGibs(serviceId);
+  }
+}
+
+@Controller('alerts/pistons')
+@UseInterceptors(ClassSerializerInterceptor)
+export class AlertsPistonsController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getPistonsThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getPistonsThresholdByBlueprint(blueprintId);
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createPistonsThreshold(
+    @Body(new ZodValidationPipe(CreateThresholdPistonsSchema))
+    dto: CreateThresholdPistonsDto,
+  ) {
+    return this.alertsService.createPistonsThreshold(dto);
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updatePistonsThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(new ZodValidationPipe(UpdateThresholdPistonsSchema))
+    dto: UpdateThresholdPistonsDto,
+  ) {
+    return this.alertsService.updatePistonsThreshold(blueprintId, dto);
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deletePistonsThreshold(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.deletePistonsThreshold(blueprintId);
+  }
+
+  @Authenticated()
+  @Get('service/:serviceId')
+  async getPistonsAlertByService(@Param('serviceId') serviceId: string) {
+    return this.alertsService.getPistonsAlertByService(serviceId);
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generatePistonsAlerts(@Param('serviceId') serviceId: string) {
+    return this.alertsService.generateAlertsForPistons(serviceId);
+  }
+}
+
+@Controller('alerts/tramming')
+@UseInterceptors(ClassSerializerInterceptor)
+export class AlertsTrammingController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getTrammingThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getTrammingThresholdByBlueprint(blueprintId);
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createTrammingThreshold(
+    @Body(new ZodValidationPipe(TrammingThresholdsSchema))
+    dto: CreateThresholdTrammingDto,
+  ) {
+    return this.alertsService.createTrammingThreshold(dto);
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updateTrammingThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(new ZodValidationPipe(UpdateThresholdTrammingSchema))
+    dto: UpdateThresholdTrammingDto,
+  ) {
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateTrammingThreshold(
+      blueprintId,
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateTrammingAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deleteTrammingThreshold(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.deleteTrammingThreshold(blueprintId);
+  }
+
+  @Authenticated()
+  @Get('service/:serviceId')
+  async getTrammingAlertsByService(@Param('serviceId') serviceId: string) {
+    return this.alertsService.getTrammingAlertsByService(serviceId);
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generateTrammingAlerts(@Param('serviceId') serviceId: string) {
+    return this.alertsService.generateAlertsForTramming(serviceId);
   }
 }

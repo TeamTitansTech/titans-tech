@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 
 interface PageProps {
   params: Promise<{ subdomain?: string }>;
+  searchParams: Promise<{ redirect?: string }>;
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -28,11 +29,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function Page({ params }: PageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
   const authToken = await getCookie('auth_token');
+  const { redirect: redirectTo } = await searchParams;
 
   if (authToken) {
-    redirect('/home');
+    redirect(redirectTo || '/home');
   }
 
   const { subdomain } = await params;
@@ -55,6 +57,7 @@ export default async function Page({ params }: PageProps) {
         brandColor={brandColor}
         brandLogo={subdomainResult.data.loginLogo}
         loginType="client"
+        redirectTo={redirectTo}
       />
     </div>
   );

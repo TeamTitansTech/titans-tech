@@ -17,12 +17,14 @@ import type { Machine } from '@titans-tech/shared/types';
 import type { LatestReport } from '@/data/types/services.types';
 import { SectionCard } from '@/components/shared/SectionCard';
 import { getLatestReport } from '@/data/services/services.api';
+import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
 
 export interface MachineDetailsClientProps {
   machine: Machine;
+  companySlug: string;
 }
 
-export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
+export function MachineDetailsClient({ machine, companySlug }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
@@ -61,11 +63,18 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
             <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
           </Link>
           <div className="min-w-0">
-            <ConditionalTooltip content={machine.name} className="block">
-              <Typography variant="h2" className="break-words">
-                {machine.name}
-              </Typography>
-            </ConditionalTooltip>
+            <div className="flex items-center gap-2">
+              <ConditionalTooltip content={machine.name} className="block">
+                <Typography variant="h2" className="break-words">
+                  {machine.name}
+                </Typography>
+              </ConditionalTooltip>
+              <QRCodeGenerator
+                machineId={machine.id}
+                machineName={machine.name}
+                companySlug={companySlug}
+              />
+            </div>
             <ConditionalTooltip
               content={machine.blueprint?.name || t('noBlueprintAssigned')}
               className="mt-1 block"

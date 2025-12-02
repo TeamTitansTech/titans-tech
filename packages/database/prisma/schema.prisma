@@ -21,6 +21,11 @@ enum ServiceStatus {
   COMPLETED
 }
 
+enum ServiceRequestStatus {
+  OPEN
+  CLOSED
+}
+
 enum MatingPartType {
   BUSHING
   CONNECTION
@@ -100,6 +105,11 @@ enum OkNaDncDamageType {
 enum MeasurementUnit {
   INCHES
   MM
+}
+
+enum ProductionLineDirection {
+  LEFT_TO_RIGHT
+  RIGHT_TO_LEFT
 }
 
 enum CylinderAirbagType {
@@ -512,6 +522,8 @@ model Blueprint {
   thresholdClutch           ThresholdClutch?
   thresholdSlide            ThresholdSlide?
   thresholdGibs             ThresholdGibs?
+  thresholdPistons          ThresholdPistons?
+  thresholdTramming         ThresholdTramming?
 
   @@map("blueprints")
 }
@@ -629,12 +641,46 @@ model ThresholdGibs {
   @@map("threshold_gibs")
 }
 
+model ThresholdPistons {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Difference thresholds (for side-to-side differences)
+  difference_greenMin  Decimal @db.Decimal(10, 4)
+  difference_yellowMin Decimal @db.Decimal(10, 4)
+  difference_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_pistons")
+}
+
+model ThresholdTramming {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Single threshold range for all tramming sums (vertical and horizontal)
+  greenMin  Decimal @db.Decimal(10, 4)
+  yellowMin Decimal @db.Decimal(10, 4)
+  redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_tramming")
+}
+
 model Machine {
   id          String  @id @default(cuid())
   blueprintId String
   branchId    String
   name        String // Machine name/identifier
-  imageUrl    String? // Inherited from blueprint or custom image
+  imageUrl    String? // URL to machine image (S3 or external)
 
   // Machine specifications
   manufacturer    String?
@@ -655,6 +701,7 @@ model Machine {
   branch          CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
   fields          MachineField[]
   services        MachineService[]
+  serviceRequests ServiceRequest[]
   emails          Email[]
   productionLines MachineProductionLine[]
 
@@ -680,10 +727,12 @@ model MachineField {
 model MachineService {
   id                 String        @id @default(cuid())
   machineId          String
+  serviceRequestId   String? // Optional: if created from a service request
   date               DateTime
   type               ServiceType   @default(INSPECTION)
   status             ServiceStatus @default(PENDING)
   performedBy        String? // Optional: userId of who performed the service
+  notes              String?       @db.Text // Additional notes/comments for the service
   completedSections  Json?         @default("[]") // Array of completed section keys
   lastSectionSavedAt DateTime? // Timestamp of last section save
   currentStep        String? // Current step in the modal: 'selection', 'details', 'sections', 'summary'
@@ -705,6 +754,7 @@ model MachineService {
   updatedAt DateTime @updatedAt
 
   machine                           Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  serviceRequest                    ServiceRequest?                              @relation(fields: [serviceRequestId], references: [id], onDelete: SetNull)
   bearingClearance                  MachineServiceBearingClearance[]
   slide                             MachineServiceSlide[]
   gibs                              MachineServiceGibs[]
@@ -718,7 +768,10 @@ model MachineService {
   alertClutch                       AlertClutch[]
   alertSlide                        AlertSlide[]
   alertGibs                         AlertGibs[]
+  alertPistons                      AlertPistons[]
+  alertTramming                     AlertTramming[]
 
+  @@index([serviceRequestId])
   @@map("machine_services")
 }
 
@@ -859,6 +912,101 @@ model AlertGibs {
 
   @@index([machineServiceId])
   @@map("alert_gibs")
+}
+
+model AlertPistons {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // === OUTER DATA ===
+  // Difference values and severities
+  outer_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  outer_lhLeftRight_severity AlertSeverity @default(NONE)
+  outer_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  outer_lhTopBottom_severity AlertSeverity @default(NONE)
+  outer_rhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  outer_rhLeftRight_severity AlertSeverity @default(NONE)
+  outer_rhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  outer_rhTopBottom_severity AlertSeverity @default(NONE)
+
+  // === INNER DATA ===
+  // Difference values and severities
+  inner_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  inner_lhLeftRight_severity AlertSeverity @default(NONE)
+  inner_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  inner_lhTopBottom_severity AlertSeverity @default(NONE)
+  inner_rhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  inner_rhLeftRight_severity AlertSeverity @default(NONE)
+  inner_rhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  inner_rhTopBottom_severity AlertSeverity @default(NONE)
+
+  // Threshold snapshot for auditing
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_pistons")
+}
+
+model AlertTramming {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // OUTER alerts - 4 positions × 2 directions (vertical + horizontal) = 8 sums
+  outer_top_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_top_verticalSeverity   AlertSeverity
+  outer_top_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_top_horizontalSeverity AlertSeverity
+
+  outer_bottom_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_bottom_verticalSeverity   AlertSeverity
+  outer_bottom_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_bottom_horizontalSeverity AlertSeverity
+
+  outer_left_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_left_verticalSeverity   AlertSeverity
+  outer_left_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_left_horizontalSeverity AlertSeverity
+
+  outer_right_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_right_verticalSeverity   AlertSeverity
+  outer_right_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_right_horizontalSeverity AlertSeverity
+
+  // INNER alerts - 4 positions × 2 directions (vertical + horizontal) = 8 sums
+  inner_top_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_top_verticalSeverity   AlertSeverity
+  inner_top_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_top_horizontalSeverity AlertSeverity
+
+  inner_bottom_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_bottom_verticalSeverity   AlertSeverity
+  inner_bottom_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_bottom_horizontalSeverity AlertSeverity
+
+  inner_left_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_left_verticalSeverity   AlertSeverity
+  inner_left_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_left_horizontalSeverity AlertSeverity
+
+  inner_right_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_right_verticalSeverity   AlertSeverity
+  inner_right_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_right_horizontalSeverity AlertSeverity
+
+  // Optional snapshot of threshold used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_tramming")
 }
 
 // BEARING_CLEARANCE Section
@@ -1375,8 +1523,6 @@ model MachineServicePistons {
   pistonSeals                    SealConditionType?
   vacuumSystem                   VacuumSystemConditionType?
   vacuumSystemAirPressureSetting Decimal?                   @db.Decimal(10, 4)
-  vacuumSystemAirPressureUnit    PressureUnit?
-  unit                           String?                    @default("inches") // inches, mm, cm
 
   // Notes
   notes String?
@@ -1415,12 +1561,13 @@ model PistonsData {
 // Production Line Models
 
 model ProductionLine {
-  id        String   @id @default(cuid())
+  id        String                  @id @default(cuid())
   name      String
   branchId  String
   createdBy String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  direction ProductionLineDirection @default(LEFT_TO_RIGHT)
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
 
   branch   CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
   machines MachineProductionLine[]
@@ -1439,4 +1586,42 @@ model MachineProductionLine {
 
   @@id([machineId, productionLineId])
   @@map("machine_production_lines")
+}
+
+// Service Request - Public QR code maintenance requests
+model ServiceRequest {
+  id        String               @id @default(cuid())
+  machineId String
+  status    ServiceRequestStatus @default(OPEN)
+
+  // Requester information
+  requesterName  String
+  requesterEmail String
+  requesterPhone String?
+
+  // Problem description
+  problemDescription String  @db.Text
+  imageUrl           String? // Optional image uploaded by requester
+
+  // Device tracking information
+  ipAddress  String?
+  userAgent  String? @db.Text
+  browser    String?
+  os         String?
+  deviceType String?
+  isMobile   Boolean @default(false)
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  closedAt  DateTime?
+
+  // Relations
+  machine  Machine          @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  services MachineService[] // Services created from this request
+
+  @@index([machineId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("service_requests")
 }

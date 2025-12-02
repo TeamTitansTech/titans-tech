@@ -7,12 +7,16 @@ import {
   LubricationHydraulicsData,
   LubricationHydraulicsGauge,
   CounterbalanceCylinderAirbagData,
+  PistonsData,
+  TrammingData,
 } from '@titans-tech/db';
 import { AlertBearingClearanceResponseDto } from './alert-bearing-clearance-response.dto';
 import { AlertClutchResponseDto } from './alert-clutch-response.dto';
 import { AlertSlideResponseDto } from './alert-slide-response.dto';
 import { AlertGibsResponseDto } from './alert-gibs-response.dto';
 import { AlertCounterbalanceCylinderAirbagResponseDto } from './alert-counterbalance-response.dto';
+import { AlertPistonsResponseDto } from './alert-pistons-response.dto';
+import { AlertTrammingResponseDto } from './alert-tramming-response.dto';
 
 /**
  * DTO for the latest BearingClearance data in a machine
@@ -116,6 +120,29 @@ export class LatestLubricationDto {
 }
 
 /**
+ * DTO for the latest Pistons data in a machine
+ */
+export class LatestPistonsDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType; // INSPECTION | MAINTENANCE
+  data: {
+    guideSeals?: string;
+    pistonSeals?: string;
+    vacuumSystem?: string;
+    vacuumSystemAirPressureSetting?: number;
+    outerData?: PistonsData;
+    innerData?: PistonsData;
+    notes?: string;
+  };
+  alert?: AlertPistonsResponseDto; // Alert if exists (with outer_/inner_ prefixed fields)
+
+  constructor(partial: Partial<LatestPistonsDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
  * DTO for the latest Counterbalance Cylinder/Airbag data in a machine
  */
 export class LatestCounterbalanceDto {
@@ -130,6 +157,24 @@ export class LatestCounterbalanceDto {
   alerts?: AlertCounterbalanceCylinderAirbagResponseDto[]; // Manual alerts for counterbalance
 
   constructor(partial: Partial<LatestCounterbalanceDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
+ * DTO for the latest Tramming data in a machine
+ */
+export class LatestTrammingDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType; // INSPECTION | MAINTENANCE
+  data: {
+    outerData?: TrammingData;
+    innerData?: TrammingData;
+  }; // Tramming data with outer and inner measurements
+  alert?: AlertTrammingResponseDto; // Alert if exists (with outer_/inner_ prefixed fields)
+
+  constructor(partial: Partial<LatestTrammingDto>) {
     Object.assign(this, partial);
   }
 }
@@ -151,9 +196,11 @@ export class LatestReportResponseDto {
     BEARING_CLEARANCE: LatestBearingClearanceDto | null;
     SLIDE: LatestSlideDto | null;
     GIBS: LatestGibsDto | null;
+    PISTONS: LatestPistonsDto | null;
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LatestLubricationDto | null;
     CLUTCH: LatestClutchDto | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalanceDto | null;
+    TRAMMING: LatestTrammingDto | null;
   };
 
   constructor(partial: Partial<LatestReportResponseDto>) {

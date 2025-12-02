@@ -18,15 +18,21 @@ import { BearingClearanceThresholds } from '@/components/alerts/BearingClearance
 import { ClutchThresholds } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholds } from '@/components/alerts/SlideThresholds';
 import { GibsThresholds } from '@/components/alerts/GibsThresholds';
+import { TrammingThresholds } from '@/components/alerts/TrammingThresholds';
+import { PistonsThresholds } from '@/components/alerts/PistonsThresholds';
 import {
   getBearingClearanceThresholdByBlueprint,
   getClutchThresholdByBlueprint,
   getSlideThresholdByBlueprint,
   getGibsThresholdByBlueprint,
+  getTrammingThresholdByBlueprint,
+  getPistonsThresholdByBlueprint,
   updateBearingClearanceThreshold,
   updateClutchThreshold,
   updateSlideThreshold,
   updateGibsThreshold,
+  updateTrammingThreshold,
+  updatePistonsThreshold,
 } from '@/actions/alerts';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
@@ -35,6 +41,8 @@ import type {
   ClutchThresholdsData,
   SlideThresholdsData,
   GibsThresholdsData,
+  TrammingThresholdsData,
+  PistonsThresholdsData,
 } from '@/components/alerts';
 
 interface ThresholdEditModalProps {
@@ -66,18 +74,24 @@ export function ThresholdEditModal({
   const [clutchThresholds, setClutchThresholds] = useState<ClutchThresholdsData | null>(null);
   const [slideThresholds, setSlideThresholds] = useState<SlideThresholdsData | null>(null);
   const [gibsThresholds, setGibsThresholds] = useState<GibsThresholdsData | null>(null);
+  const [trammingThresholds, setTrammingThresholds] = useState<TrammingThresholdsData | null>(null);
+  const [pistonsThresholds, setPistonsThresholds] = useState<PistonsThresholdsData | null>(null);
 
   // Collapsible states for each section
   const [bearingOpen, setBearingOpen] = useState(true);
   const [clutchOpen, setClutchOpen] = useState(true);
   const [slideOpen, setSlideOpen] = useState(true);
   const [gibsOpen, setGibsOpen] = useState(true);
+  const [trammingOpen, setTrammingOpen] = useState(true);
+  const [pistonsOpen, setPistonsOpen] = useState(true);
 
   // Check which sections are enabled
   const hasBearingClearance = sections.includes('BEARING_CLEARANCE');
   const hasClutch = sections.includes('CLUTCH');
   const hasSlide = sections.includes('SLIDE');
   const hasGibs = sections.includes('GIBS');
+  const hasTramming = sections.includes('TRAMMING');
+  const hasPistons = sections.includes('PISTONS');
 
   const loadThresholds = useCallback(async () => {
     setIsLoading(true);
@@ -88,7 +102,9 @@ export function ThresholdEditModal({
         | { type: 'bearing'; data: BearingClearanceThresholdsData | null; error?: unknown }
         | { type: 'clutch'; data: ClutchThresholdsData | null; error?: unknown }
         | { type: 'slide'; data: SlideThresholdsData | null; error?: unknown }
-        | { type: 'gibs'; data: GibsThresholdsData | null; error?: unknown };
+        | { type: 'gibs'; data: GibsThresholdsData | null; error?: unknown }
+        | { type: 'tramming'; data: TrammingThresholdsData | null; error?: unknown }
+        | { type: 'pistons'; data: PistonsThresholdsData | null; error?: unknown };
 
       const promises: Promise<ThresholdResult>[] = [];
 
@@ -140,6 +156,30 @@ export function ThresholdEditModal({
         );
       }
 
+      if (hasTramming) {
+        promises.push(
+          getTrammingThresholdByBlueprint(blueprintId).then(
+            (result): ThresholdResult => ({
+              type: 'tramming',
+              data: result.data as TrammingThresholdsData | null,
+              error: result.error,
+            }),
+          ),
+        );
+      }
+
+      if (hasPistons) {
+        promises.push(
+          getPistonsThresholdByBlueprint(blueprintId).then(
+            (result): ThresholdResult => ({
+              type: 'pistons',
+              data: result.data as PistonsThresholdsData | null,
+              error: result.error,
+            }),
+          ),
+        );
+      }
+
       const results = await Promise.all(promises);
 
       results.forEach((result) => {
@@ -161,6 +201,12 @@ export function ThresholdEditModal({
           case 'gibs':
             setGibsThresholds(result.data);
             break;
+          case 'tramming':
+            setTrammingThresholds(result.data);
+            break;
+          case 'pistons':
+            setPistonsThresholds(result.data);
+            break;
         }
       });
     } catch (err) {
@@ -169,7 +215,7 @@ export function ThresholdEditModal({
     } finally {
       setIsLoading(false);
     }
-  }, [blueprintId, hasBearingClearance, hasClutch, hasSlide, hasGibs, t]);
+  }, [blueprintId, hasBearingClearance, hasClutch, hasSlide, hasGibs, hasTramming, hasPistons, t]);
 
   // Load thresholds when modal opens
   useEffect(() => {
@@ -235,6 +281,28 @@ export function ThresholdEditModal({
           updateGibsThreshold(
             blueprintId,
             gibsThresholds,
+            recalculateAlerts,
+          ) as Promise<UpdateResult>,
+        );
+      }
+
+      if (hasTramming && trammingThresholds) {
+        sections.push('Tramming');
+        updatePromises.push(
+          updateTrammingThreshold(
+            blueprintId,
+            trammingThresholds,
+            recalculateAlerts,
+          ) as Promise<UpdateResult>,
+        );
+      }
+
+      if (hasPistons && pistonsThresholds) {
+        sections.push('Pistons');
+        updatePromises.push(
+          updatePistonsThreshold(
+            blueprintId,
+            pistonsThresholds,
             recalculateAlerts,
           ) as Promise<UpdateResult>,
         );
@@ -344,6 +412,26 @@ export function ThresholdEditModal({
                 onOpenChange={setGibsOpen}
                 data={gibsThresholds}
                 onChange={setGibsThresholds}
+              />
+            )}
+
+            {/* Tramming Thresholds */}
+            {hasTramming && trammingThresholds && (
+              <TrammingThresholds
+                open={trammingOpen}
+                onOpenChange={setTrammingOpen}
+                data={trammingThresholds}
+                onChange={setTrammingThresholds}
+              />
+            )}
+
+            {/* Pistons Thresholds */}
+            {hasPistons && pistonsThresholds && (
+              <PistonsThresholds
+                open={pistonsOpen}
+                onOpenChange={setPistonsOpen}
+                data={pistonsThresholds}
+                onChange={setPistonsThresholds}
               />
             )}
 

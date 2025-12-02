@@ -926,6 +926,7 @@
     "viewMaintenanceLog": "Ver Registro de Mantenimiento",
     "downloadReports": "Descargar Informes",
     "requestUrgentService": "Solicitar Servicio Urgente",
+    "urgentServiceRequest": "Solicitud de Servicio Urgente",
     "urgentServiceDescription": "Solicitar un servicio urgente para {machineName}. Nuestro equipo será notificado inmediatamente.",
     "machine": "Máquina",
     "additionalNotes": "Notas Adicionales",
@@ -942,6 +943,7 @@
     "completed": "Completado",
     "done": "Hecho",
     "inProgress": "En Progreso",
+    "fromRequest": "De Solicitud",
     "noInspectionsFound": "No se encontraron inspecciones",
     "noServicesFound": "No se encontraron servicios",
     "maintenanceService": "Mantenimiento",
@@ -1001,6 +1003,16 @@
       "unknown": "Desconocido",
       "noImage": "Sin Imagen"
     },
+    "qrCode": {
+      "generateQR": "Generar Código QR",
+      "title": "Código QR de la Máquina",
+      "description": "Código QR para la máquina: {machineName}",
+      "copyLink": "Copiar enlace",
+      "copied": "¡Copiado!",
+      "downloadSVG": "Descargar SVG",
+      "downloadPNG": "Descargar PNG",
+      "instructions": "Escanea este código QR para acceder a la página pública de la máquina y solicitar servicios de mantenimiento."
+    },
     "sectionDetails": {
       "comingSoon": "Detalles de la sección \"{section}\" próximamente...",
       "press": "Prensa",
@@ -1057,6 +1069,7 @@
         "outer": "Externo",
         "inner": "Interno",
         "issues": "Problemas",
+        "alerts": "Alertas",
         "inspections": "Inspecciones",
         "inspectionHistory": "Historial de Inspecciones",
         "oilChanged": "Aceite Cambiado",
@@ -1890,6 +1903,13 @@
     "pageTitle": "Servicios",
     "pageDescription": "Visualice y gestione todos los servicios de sus máquinas",
     "pending": "Pendiente",
+    "publicRequest": "Solicitud vía QR Code",
+    "publicRequestDetails": {
+      "title": "Solicitud Pública de Mantenimiento",
+      "requester": "Nombre del Solicitante",
+      "problemDescription": "Descripción del Problema",
+      "createdFromRequest": "Este servicio fue creado a partir de una solicitud pública de mantenimiento."
+    },
     "noServicesFound": "No se encontraron servicios",
     "stats": {
       "totalServices": "Total de Servicios",
@@ -1959,7 +1979,7 @@
     "noBranches": "No se encontraron sucursales para esta empresa",
     "noBranchesDescription": "Las sucursales se mostrarán aquí cuando se creen",
     "branch": "sucursal",
-    "branches": "sucursales",
+    "branches": "Sucursales",
     "machine": "máquina",
     "machines": "máquinas",
     "noMachines": "Sin máquinas",
@@ -2059,6 +2079,11 @@
     "gibs": {
       "title": "GIBS - Configuración de Alerta",
       "usable": "Utilizable"
+    },
+    "pistons": {
+      "title": "PISTONES - Configuración de Alerta",
+      "clearance": "Holgura",
+      "difference": "Suma (Izquierda + Derecha)"
     },
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",
@@ -2188,6 +2213,8 @@
     "deleteButton": "Eliminar Línea",
     "selectCompany": "Seleccionar Empresa",
     "selectBranch": "Seleccionar Sucursal",
+    "selectBranchPlaceholder": "Seleccione una sucursal",
+    "selectBranchRequired": "Por favor seleccione una sucursal",
     "selectMachines": "Seleccionar Máquinas",
     "machineOrder": "Orden de Máquinas",
     "saveConfig": "Guardar Configuración",
@@ -2210,8 +2237,16 @@
     "noMachinesAvailable": "No hay máquinas disponibles",
     "mainMachine": "Máquina Principal",
     "mainMachineDescription": "Seleccione la máquina que se mostrará primero en la línea de producción",
+    "secondaryMachine": "Máquina Secundaria",
+    "secondaryMachineDescription": "Seleccione la máquina que se mostrará al inicio de la línea de producción",
+    "selectSecondaryMachine": "Seleccione la máquina secundaria",
+    "secondary": "Secundaria",
     "selectMainMachine": "Seleccione la máquina principal",
     "noMachineSelected": "Ninguna máquina seleccionada",
+    "lineDirection": "Dirección de la Línea",
+    "lineDirectionDescription": "Seleccione la dirección del flujo de la línea de producción",
+    "leftToRight": "Izquierda a Derecha",
+    "rightToLeft": "Derecha a Izquierda",
     "moveUp": "Mover arriba",
     "moveDown": "Mover abajo",
     "createDialog": {
@@ -2242,6 +2277,74 @@
       "warning": "Advertencia",
       "alert": "Alerta",
       "unknown": "Desconocido"
+    }
+  },
+  "serviceRequests": {
+    "title": "Solicitudes de Servicio",
+    "noRequests": "No hay solicitudes de servicio",
+    "open": "abiertas",
+    "statusOpen": "Abierta",
+    "statusClosed": "Cerrada",
+    "closedRequests": "{count} solicitudes cerradas",
+    "problemDescription": "Descripción del Problema",
+    "attachedPhoto": "Foto Adjunta",
+    "deviceInfo": "Información del Dispositivo",
+    "linkedServices": "Servicios Vinculados",
+    "createService": "Crear Servicio",
+    "close": "Cerrar Solicitud",
+    "reopen": "Reabrir",
+    "expand": "Mostrar detalles",
+    "collapse": "Ocultar detalles",
+    "closedSuccess": "Solicitud cerrada exitosamente",
+    "reopenedSuccess": "Solicitud reabierta exitosamente",
+    "serviceCreatedSuccess": "Servicio creado exitosamente",
+    "actionFailed": "Acción fallida. Por favor, intente nuevamente.",
+    "listTitle": "Todas las Solicitudes de Servicio",
+    "filterByStatus": "Filtrar por estado",
+    "allStatuses": "Todos",
+    "openOnly": "Solo abiertas",
+    "closedOnly": "Solo cerradas",
+    "machine": "Máquina",
+    "requester": "Solicitante",
+    "date": "Fecha",
+    "status": "Estado",
+    "actions": "Acciones",
+    "viewMachine": "Ver Máquina",
+    "viewDetails": "Ver Detalles",
+    "requestDetails": "Detalles de la Solicitud"
+  },
+  "public": {
+    "machine": {
+      "title": "Solicitar Mantenimiento",
+      "subtitle": "Reportar un problema con esta máquina",
+      "machineInfo": "Información de la Máquina",
+      "serialNumber": "Número de Serie",
+      "login": "Iniciar sesión",
+      "form": {
+        "title": "Solicitar Servicio de Mantenimiento",
+        "description": "Complete el formulario a continuación para solicitar servicio de mantenimiento para esta máquina.",
+        "name": "Su Nombre",
+        "namePlaceholder": "Ingrese su nombre",
+        "email": "Su Correo Electrónico",
+        "emailPlaceholder": "Ingrese su correo electrónico",
+        "phone": "Teléfono (opcional)",
+        "phonePlaceholder": "Ingrese su número de teléfono",
+        "problem": "Descripción del Problema",
+        "problemPlaceholder": "Describa el problema o defecto que está experimentando con esta máquina...",
+        "image": "Foto (opcional)",
+        "imageDescription": "Suba una foto del problema para ayudar a nuestro equipo a entender mejor la situación",
+        "submit": "Enviar Solicitud",
+        "submitting": "Enviando...",
+        "success": "Solicitud de mantenimiento enviada exitosamente",
+        "successTitle": "¡Solicitud Enviada!",
+        "successMessage": "Su solicitud de mantenimiento ha sido recibida. Nuestro equipo la revisará y tomará las medidas apropiadas.",
+        "error": "Error al enviar la solicitud. Por favor, intente nuevamente.",
+        "validation": {
+          "required": "Por favor, complete todos los campos obligatorios",
+          "invalidEmail": "Por favor, ingrese un correo electrónico válido"
+        }
+      },
+      "footer": "Desarrollado por Titans Tech Service Management System"
     }
   },
   "errors": {
@@ -2294,6 +2397,10 @@
     "selectAll": "Seleccionar Todas",
     "deselectAll": "Deseleccionar Todas",
     "exportPDF": "Exportar PDF",
+    "exportThisTab": "Exportar Esta Pestaña",
+    "exportAllTabs": "Exportar Todas las Pestañas",
+    "partsSelectedAcrossTabs": "piezas seleccionadas en todas las pestañas",
+    "selectPartsToExport": "Seleccione piezas para exportar",
     "exporting": "Exportando...",
     "noPartsSelected": "Ninguna pieza seleccionada",
     "exportSuccess": "PDF exportado exitosamente",
@@ -2319,6 +2426,28 @@
       "description": "Descripción",
       "quantity": "Cant",
       "unit": "Un"
+    },
+    "partsListTitle": "Lista de Piezas",
+    "partsAvailable": "piezas disponibles",
+    "subsections": {
+      "crankshaft": "Cojinete del Cigüeñal",
+      "outerSlideStandard": "Corredera Exterior (Estándar)",
+      "innerSlideStandard": "Corredera Interior (Estándar)",
+      "outerSlideAdjustment": "Ajuste de Corredera Exterior",
+      "shutheightIndicatorOuter": "Indicador de Altura (Exterior)",
+      "shutheightIndicatorInner": "Indicador de Altura (Interior)",
+      "singleGearedDrive": "Transmisión de Engranaje Simple",
+      "flywheelBrake": "Freno del Volante",
+      "motorDrive": "Accionamiento del Motor",
+      "hydraulicUnit": "Unidad Hidráulica",
+      "flywheelBearings": "Cojinetes del Volante",
+      "counterbalanceInner": "Contrapeso (Interior)",
+      "counterbalanceOuterAirmount": "Contrapeso (Exterior)",
+      "lubricationUnit": "Unidad de Lubricación",
+      "outerSlide": "Corredera Exterior",
+      "innerSlide": "Corredera Interior",
+      "gibsOuter": "Guías (Exterior)",
+      "gibsInner": "Guías (Interior)"
     }
   },
   "sectionStatus": {

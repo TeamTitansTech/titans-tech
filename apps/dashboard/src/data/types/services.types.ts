@@ -68,11 +68,13 @@ export type {
 
 import type {
   BearingClearanceData as BearingData,
+  TrammingData as TrammingDataType,
   ClutchData,
   SlideData,
   GibsStageData,
   LubricationHydraulicsData,
   CounterbalanceCylinderData,
+  PistonsCheck,
 } from '@titans-tech/shared/types/services';
 
 type AlertSeverity = 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
@@ -159,6 +161,51 @@ export interface LatestGibs {
   };
 }
 
+export interface LatestPistons {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: PistonsCheck;
+  alert?: {
+    // Outer clearance severities
+    outer_lhTop_severity: AlertSeverity;
+    outer_lhBottom_severity: AlertSeverity;
+    outer_lhLeft_severity: AlertSeverity;
+    outer_lhRight_severity: AlertSeverity;
+    outer_rhTop_severity: AlertSeverity;
+    outer_rhBottom_severity: AlertSeverity;
+    outer_rhLeft_severity: AlertSeverity;
+    outer_rhRight_severity: AlertSeverity;
+    // Outer difference values and severities
+    outer_lhLeftRight_diff: number | null;
+    outer_lhLeftRight_severity: AlertSeverity;
+    outer_lhTopBottom_diff: number | null;
+    outer_lhTopBottom_severity: AlertSeverity;
+    outer_rhLeftRight_diff: number | null;
+    outer_rhLeftRight_severity: AlertSeverity;
+    outer_rhTopBottom_diff: number | null;
+    outer_rhTopBottom_severity: AlertSeverity;
+    // Inner clearance severities
+    inner_lhTop_severity: AlertSeverity;
+    inner_lhBottom_severity: AlertSeverity;
+    inner_lhLeft_severity: AlertSeverity;
+    inner_lhRight_severity: AlertSeverity;
+    inner_rhTop_severity: AlertSeverity;
+    inner_rhBottom_severity: AlertSeverity;
+    inner_rhLeft_severity: AlertSeverity;
+    inner_rhRight_severity: AlertSeverity;
+    // Inner difference values and severities
+    inner_lhLeftRight_diff: number | null;
+    inner_lhLeftRight_severity: AlertSeverity;
+    inner_lhTopBottom_diff: number | null;
+    inner_lhTopBottom_severity: AlertSeverity;
+    inner_rhLeftRight_diff: number | null;
+    inner_rhLeftRight_severity: AlertSeverity;
+    inner_rhTopBottom_diff: number | null;
+    inner_rhTopBottom_severity: AlertSeverity;
+  };
+}
+
 export interface OilChangeAlert {
   lastOilChangeDate: string | null;
   daysSinceChange: number | null;
@@ -195,6 +242,17 @@ export interface LatestCounterbalance {
   alerts?: CounterbalanceAlert[];
 }
 
+export interface LatestTramming {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: string;
+  data: {
+    outerData?: TrammingDataType;
+    innerData?: TrammingDataType;
+  };
+  alert?: any; // AlertTrammingResponseDto
+}
+
 export interface LatestReport {
   machineId: string;
   machineName: string;
@@ -208,8 +266,10 @@ export interface LatestReport {
     BEARING_CLEARANCE: LatestBearingClearance | null;
     SLIDE: LatestSlide | null;
     GIBS: LatestGibs | null;
+    PISTONS: LatestPistons | null;
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LatestLubrication | null;
     CLUTCH: LatestClutch | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalance | null;
+    TRAMMING: LatestTramming | null;
   };
 }
