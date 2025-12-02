@@ -36,7 +36,6 @@ import type {
   GibsStageData,
   CounterbalanceCylinderData,
   LatestPistons,
-  PistonsData,
 } from '@/data/types/services.types';
 import { BEARING_FIELD_NAMES, BEARING_FIELD_LABELS } from '@titans-tech/shared/types';
 
