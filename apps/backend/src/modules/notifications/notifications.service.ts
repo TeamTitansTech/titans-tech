@@ -228,6 +228,7 @@ export class NotificationsService {
         alertCounterbalanceCylinderAirbag: true,
         alertPistons: true,
         alertTramming: true,
+        alertTramming: true,
       },
     });
 

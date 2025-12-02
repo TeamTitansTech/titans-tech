@@ -34,6 +34,10 @@ import {
   UpdateThresholdTrammingDto,
   ThresholdTrammingResponseDto,
   AlertTrammingResponseDto,
+  CreateThresholdTrammingDto,
+  UpdateThresholdTrammingDto,
+  ThresholdTrammingResponseDto,
+  AlertTrammingResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertSeverity } from '@titans-tech/shared/enums';
 import { Decimal } from '@prisma/client/runtime/library';
@@ -48,6 +52,8 @@ import {
   convertPartialGibsThresholdToDecimal,
   convertPistonsThresholdToDecimal,
   convertPartialPistonsThresholdToDecimal,
+  convertTrammingThresholdToDecimal,
+  convertPartialTrammingThresholdToDecimal,
   convertTrammingThresholdToDecimal,
   convertPartialTrammingThresholdToDecimal,
 } from './threshold.utils';
@@ -2301,6 +2307,243 @@ export class AlertsService {
     }
 
     return new AlertPistonsResponseDto(alert as any);
+  }
+
+  // ==================== TRAMMING ALERT GENERATION ====================
+
+  async generateAlertsForTramming(serviceId: string) {
+    // Fetch service with tramming data and blueprint with thresholds
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: {
+        machine: {
+          include: {
+            blueprint: {
+              include: {
+                thresholdTramming: true,
+              },
+            },
+          },
+        },
+        tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service ${serviceId} not found`);
+    }
+
+    const threshold = service.machine.blueprint.thresholdTramming;
+
+    if (!threshold) {
+      // No threshold configured, skip alert generation
+      return null;
+    }
+
+    const trammingData = service.tramming[0];
+
+    if (!trammingData) {
+      throw new NotFoundException(
+        `Tramming data not found for service ${serviceId}`,
+      );
+    }
+
+    const { outerData, innerData } = trammingData;
+
+    if (!outerData || !innerData) {
+      throw new NotFoundException(
+        `Tramming outer and inner data are required for service ${serviceId}`,
+      );
+    }
+
+    // Calculate sums and severities for OUTER data
+    const outerAlerts = this.calculateTrammingSums(outerData, threshold);
+
+    // Calculate sums and severities for INNER data
+    const innerAlerts = this.calculateTrammingSums(innerData, threshold);
+
+    // Build threshold snapshot for audit trail
+    const thresholdSnapshot = {
+      blueprintId: service.machine.blueprintId,
+      greenMin: threshold.greenMin.toNumber(),
+      yellowMin: threshold.yellowMin.toNumber(),
+      redMin: threshold.redMin.toNumber(),
+    };
+
+    // Upsert alert (create or update)
+    const alert = await this.prisma.alertTramming.create({
+      data: {
+        machineServiceId: serviceId,
+
+        // OUTER alerts
+        outer_top_verticalSum: outerAlerts.top.verticalSum,
+        outer_top_verticalSeverity: outerAlerts.top.verticalSeverity,
+        outer_top_horizontalSum: outerAlerts.top.horizontalSum,
+        outer_top_horizontalSeverity: outerAlerts.top.horizontalSeverity,
+
+        outer_bottom_verticalSum: outerAlerts.bottom.verticalSum,
+        outer_bottom_verticalSeverity: outerAlerts.bottom.verticalSeverity,
+        outer_bottom_horizontalSum: outerAlerts.bottom.horizontalSum,
+        outer_bottom_horizontalSeverity: outerAlerts.bottom.horizontalSeverity,
+
+        outer_left_verticalSum: outerAlerts.left.verticalSum,
+        outer_left_verticalSeverity: outerAlerts.left.verticalSeverity,
+        outer_left_horizontalSum: outerAlerts.left.horizontalSum,
+        outer_left_horizontalSeverity: outerAlerts.left.horizontalSeverity,
+
+        outer_right_verticalSum: outerAlerts.right.verticalSum,
+        outer_right_verticalSeverity: outerAlerts.right.verticalSeverity,
+        outer_right_horizontalSum: outerAlerts.right.horizontalSum,
+        outer_right_horizontalSeverity: outerAlerts.right.horizontalSeverity,
+
+        // INNER alerts
+        inner_top_verticalSum: innerAlerts.top.verticalSum,
+        inner_top_verticalSeverity: innerAlerts.top.verticalSeverity,
+        inner_top_horizontalSum: innerAlerts.top.horizontalSum,
+        inner_top_horizontalSeverity: innerAlerts.top.horizontalSeverity,
+
+        inner_bottom_verticalSum: innerAlerts.bottom.verticalSum,
+        inner_bottom_verticalSeverity: innerAlerts.bottom.verticalSeverity,
+        inner_bottom_horizontalSum: innerAlerts.bottom.horizontalSum,
+        inner_bottom_horizontalSeverity: innerAlerts.bottom.horizontalSeverity,
+
+        inner_left_verticalSum: innerAlerts.left.verticalSum,
+        inner_left_verticalSeverity: innerAlerts.left.verticalSeverity,
+        inner_left_horizontalSum: innerAlerts.left.horizontalSum,
+        inner_left_horizontalSeverity: innerAlerts.left.horizontalSeverity,
+
+        inner_right_verticalSum: innerAlerts.right.verticalSum,
+        inner_right_verticalSeverity: innerAlerts.right.verticalSeverity,
+        inner_right_horizontalSum: innerAlerts.right.horizontalSum,
+        inner_right_horizontalSeverity: innerAlerts.right.horizontalSeverity,
+
+        thresholdSnapshot,
+      },
+    });
+
+    return new AlertTrammingResponseDto(alert as any);
+  }
+
+  private calculateTrammingSums(
+    data: any,
+    threshold: { greenMin: Decimal; yellowMin: Decimal; redMin: Decimal },
+  ) {
+    // Top position
+    const topVerticalSum = new Decimal(data.topTop).plus(data.topBottom);
+    const topHorizontalSum = new Decimal(data.topLeft).plus(data.topRight);
+    const topVerticalSeverity = this.determineSeverity(
+      topVerticalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+    const topHorizontalSeverity = this.determineSeverity(
+      topHorizontalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+
+    // Bottom position
+    const bottomVerticalSum = new Decimal(data.bottomTop).plus(
+      data.bottomBottom,
+    );
+    const bottomHorizontalSum = new Decimal(data.bottomLeft).plus(
+      data.bottomRight,
+    );
+    const bottomVerticalSeverity = this.determineSeverity(
+      bottomVerticalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+    const bottomHorizontalSeverity = this.determineSeverity(
+      bottomHorizontalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+
+    // Left position
+    const leftVerticalSum = new Decimal(data.leftTop).plus(data.leftBottom);
+    const leftHorizontalSum = new Decimal(data.leftLeft).plus(data.leftRight);
+    const leftVerticalSeverity = this.determineSeverity(
+      leftVerticalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+    const leftHorizontalSeverity = this.determineSeverity(
+      leftHorizontalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+
+    // Right position
+    const rightVerticalSum = new Decimal(data.rightTop).plus(data.rightBottom);
+    const rightHorizontalSum = new Decimal(data.rightLeft).plus(
+      data.rightRight,
+    );
+    const rightVerticalSeverity = this.determineSeverity(
+      rightVerticalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+    const rightHorizontalSeverity = this.determineSeverity(
+      rightHorizontalSum,
+      threshold.greenMin,
+      threshold.yellowMin,
+      threshold.redMin,
+    );
+
+    return {
+      top: {
+        verticalSum: topVerticalSum,
+        verticalSeverity: topVerticalSeverity,
+        horizontalSum: topHorizontalSum,
+        horizontalSeverity: topHorizontalSeverity,
+      },
+      bottom: {
+        verticalSum: bottomVerticalSum,
+        verticalSeverity: bottomVerticalSeverity,
+        horizontalSum: bottomHorizontalSum,
+        horizontalSeverity: bottomHorizontalSeverity,
+      },
+      left: {
+        verticalSum: leftVerticalSum,
+        verticalSeverity: leftVerticalSeverity,
+        horizontalSum: leftHorizontalSum,
+        horizontalSeverity: leftHorizontalSeverity,
+      },
+      right: {
+        verticalSum: rightVerticalSum,
+        verticalSeverity: rightVerticalSeverity,
+        horizontalSum: rightHorizontalSum,
+        horizontalSeverity: rightHorizontalSeverity,
+      },
+    };
+  }
+
+  async getTrammingAlertsByService(machineServiceId: string) {
+    const alerts = await this.prisma.alertTramming.findMany({
+      where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (alerts.length === 0) {
+      throw new NotFoundException(
+        `Tramming alerts not found for service ${machineServiceId}`,
+      );
+    }
+
+    return new AlertTrammingResponseDto(alerts[0] as any);
   }
 
   // ==================== TRAMMING ALERT GENERATION ====================

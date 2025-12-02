@@ -163,18 +163,12 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     },
     [
       name,
-
       selectedSections,
-
       thresholds,
-
       clutchThresholds,
-
       slideThresholds,
-
       gibsThresholds,
       pistonsThresholds,
-      ,
       trammingThresholds,
     ],
   );

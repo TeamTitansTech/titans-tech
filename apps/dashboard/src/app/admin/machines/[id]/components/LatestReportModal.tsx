@@ -191,6 +191,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   const counterbalance = report.sections.COUNTERBALANCE_CYLINDER_AIRBAG;
   const pistons = report.sections.PISTONS;
   const tramming = report.sections.TRAMMING;
+  const tramming = report.sections.TRAMMING;
 
   // Get overall worst severity for bearing clearance (outer or inner)
   const getBearingSeverity = (prefix: 'outer' | 'inner'): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
@@ -514,6 +515,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
           pistons ||
           lubrication ||
           counterbalance ||
+          tramming ||
           tramming ? (
             <div className="space-y-4">
               {bearingClearance && (

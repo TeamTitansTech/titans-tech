@@ -134,7 +134,7 @@ export const CreateBlueprintWithThresholdsSchema = z
       if (data.pistonsThresholds && !data.sections.includes(ServiceSection.PISTONS)) {
         return false;
       }
-
+      // Se trammingThresholds fornecidos, TRAMMING deve estar em sections
       if (data.trammingThresholds && !data.sections.includes(ServiceSection.TRAMMING)) {
         return false;
       }

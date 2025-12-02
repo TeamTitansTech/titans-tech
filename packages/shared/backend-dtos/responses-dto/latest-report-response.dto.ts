@@ -9,6 +9,7 @@ import {
   CounterbalanceCylinderAirbagData,
   PistonsData,
   TrammingData,
+  TrammingData,
 } from '@titans-tech/db';
 import { AlertBearingClearanceResponseDto } from './alert-bearing-clearance-response.dto';
 import { AlertClutchResponseDto } from './alert-clutch-response.dto';
@@ -16,6 +17,7 @@ import { AlertSlideResponseDto } from './alert-slide-response.dto';
 import { AlertGibsResponseDto } from './alert-gibs-response.dto';
 import { AlertCounterbalanceCylinderAirbagResponseDto } from './alert-counterbalance-response.dto';
 import { AlertPistonsResponseDto } from './alert-pistons-response.dto';
+import { AlertTrammingResponseDto } from './alert-tramming-response.dto';
 import { AlertTrammingResponseDto } from './alert-tramming-response.dto';
 
 /**

@@ -394,3 +394,64 @@ export function convertPartialTrammingThresholdToDecimal<
   });
   return data as PartialTrammingThresholdDecimalData;
 }
+
+/**
+ * List of all Tramming threshold field names
+ * Single threshold range for all tramming sums (vertical and horizontal)
+ */
+export const TRAMMING_THRESHOLD_FIELDS = [
+  'greenMin',
+  'yellowMin',
+  'redMin',
+] as const;
+
+export type TrammingThresholdFieldName =
+  (typeof TRAMMING_THRESHOLD_FIELDS)[number];
+
+/**
+ * Type for complete Tramming threshold data with Decimal fields
+ */
+export type TrammingThresholdDecimalData = {
+  [K in TrammingThresholdFieldName]: Decimal;
+};
+
+/**
+ * Type for partial Tramming threshold data with Decimal fields
+ */
+export type PartialTrammingThresholdDecimalData = {
+  [K in TrammingThresholdFieldName]?: Decimal;
+};
+
+/**
+ * Converts Tramming threshold DTO fields to Decimal type for Prisma (all fields)
+ *
+ * @param dto - Tramming threshold data object with all fields
+ * @returns Object with all Decimal-converted threshold fields
+ */
+export function convertTrammingThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): TrammingThresholdDecimalData {
+  return TRAMMING_THRESHOLD_FIELDS.reduce((acc, field) => {
+    acc[field] = new Decimal(dto[field]);
+    return acc;
+  }, {} as any) as TrammingThresholdDecimalData;
+}
+
+/**
+ * Converts partial Tramming threshold DTO fields to Decimal type for Prisma
+ *
+ * @param dto - Partial Tramming threshold data object
+ * @returns Object with Decimal-converted threshold fields (only provided fields)
+ */
+export function convertPartialTrammingThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): PartialTrammingThresholdDecimalData {
+  const data: any = {};
+  Object.keys(dto).forEach((key) => {
+    const value = dto[key];
+    if (value !== undefined && TRAMMING_THRESHOLD_FIELDS.includes(key as any)) {
+      data[key] = new Decimal(value);
+    }
+  });
+  return data as PartialTrammingThresholdDecimalData;
+}
