@@ -2,6 +2,8 @@
   "common": {
     "companyName": "InspectPro",
     "companySubtitle": "Portal Admin",
+    "cancel": "Cancelar",
+    "save": "Salvar",
     "unsavedChanges": "Você tem alterações não salvas. Tem certeza que deseja fechar?",
     "confirmClose": {
       "title": "Descartar alterações?",
@@ -803,6 +805,7 @@
     "field": "campo",
     "fields": "campos",
     "edit": "Editar",
+    "thresholds": "Configurar Thresholds",
     "form": {
       "basicInfo": {
         "title": "Informações Básicas"
@@ -2059,7 +2062,32 @@
     "thresholds": {
       "greenStartMin": "Início Verde (Mín)",
       "yellowStartMin": "Início Amarelo (Mín)",
-      "redStartMin": "Início Vermelho (Mín)"
+      "redStartMin": "Início Vermelho (Mín)",
+      "editTitle": "Configurar Thresholds - {name}",
+      "editDescription": "Ajuste os valores de threshold para geração de alertas. Marque a opção abaixo para recalcular alertas existentes.",
+      "loadError": "Erro ao carregar thresholds",
+      "recalculate": {
+        "label": "Recalcular alertas existentes",
+        "description": "Gera novos alertas para todos os serviços deste blueprint usando os novos thresholds",
+        "updating": "Atualizando thresholds e recalculando alertas...",
+        "success": "Thresholds atualizados. {count} alertas gerados para {services} serviços.",
+        "successNoRecalc": "Thresholds atualizados. Novos alertas serão gerados apenas para serviços futuros.",
+        "error": "Erro ao atualizar thresholds"
+      }
+    },
+    "history": {
+      "title": "Histórico de Alertas",
+      "noHistory": "Nenhum histórico de alertas disponível",
+      "viewHistory": "Ver Histórico",
+      "hideHistory": "Ocultar Histórico",
+      "mostRecent": "Mais Recente",
+      "createdAt": "Criado em",
+      "thresholdSnapshot": "Thresholds Utilizados",
+      "reason": {
+        "initial": "Cálculo Inicial",
+        "thresholdUpdate": "Atualização de Threshold",
+        "manualRecalculation": "Recalculo Manual"
+      }
     }
   },
   "forms": {

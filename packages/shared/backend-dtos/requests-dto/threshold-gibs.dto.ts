@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 export const GibsThresholdsSchema = z
   .object({
-    usable_greenMin: z.number().positive(),
-    usable_yellowMin: z.number().positive(),
-    usable_redMin: z.number().positive(),
+    usable_greenMin: z.number(),
+    usable_yellowMin: z.number(),
+    usable_redMin: z.number(),
   })
   .refine(
     (data) => {
@@ -32,6 +32,8 @@ export const CreateThresholdGibsSchema = GibsThresholdsSchema.merge(
 
 export type CreateThresholdGibsDto = z.infer<typeof CreateThresholdGibsSchema>;
 
-export const UpdateThresholdGibsSchema = GibsThresholdsSchema.partial();
+export const UpdateThresholdGibsSchema = GibsThresholdsSchema.partial().extend({
+  recalculateAlerts: z.boolean().optional(),
+});
 
 export type UpdateThresholdGibsDto = z.infer<typeof UpdateThresholdGibsSchema>;
