@@ -10,13 +10,14 @@ on:
         type: choice
         options:
           - reset-staging
+          - nuke-staging
           - migrate-staging
           - migrate-production
           - seed-staging
           - seed-production
           - seed-crown-staging
       confirmation:
-        description: 'Type "CONFIRM" to proceed (required for reset)'
+        description: 'Type "CONFIRM" to proceed (required for reset/nuke)'
         required: false
         type: string
 
