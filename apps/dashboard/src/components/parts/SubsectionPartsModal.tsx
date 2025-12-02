@@ -17,11 +17,10 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Table,
   TableBody,
@@ -120,10 +119,17 @@ export function SubsectionPartsModal({
     });
   }, [filteredParts, getSelectionKey]);
 
-  // Clear all selected parts
+  // Clear all selected parts in current tab only
   const handleClearAll = useCallback(() => {
-    setSelectedKeys(new Set());
-  }, []);
+    setSelectedKeys((prev) => {
+      const newSet = new Set(prev);
+      // Only remove keys that belong to the current active tab
+      activeSubsection?.parts.forEach((part) => {
+        newSet.delete(`${activeTab}:${part.partNumber}`);
+      });
+      return newSet;
+    });
+  }, [activeTab, activeSubsection]);
 
   // Get all selected parts across all subsections
   const getAllSelectedParts = useCallback((): { subsectionName: string; parts: Part[] }[] => {
@@ -171,116 +177,148 @@ export function SubsectionPartsModal({
     [subsections, selectedKeys],
   );
 
-  // Export to PDF
-  const exportToPDF = useCallback(async () => {
-    const allSelected = getAllSelectedParts();
-    if (allSelected.length === 0) {
-      toast.error(t('noPartsSelected'));
-      return;
-    }
+  // Get selected parts for current subsection only
+  const getCurrentSubsectionSelectedParts = useCallback((): {
+    subsectionName: string;
+    parts: Part[];
+  }[] => {
+    if (!activeSubsection) return [];
+    const selectedInSubsection = activeSubsection.parts.filter((part) =>
+      selectedKeys.has(`${activeTab}:${part.partNumber}`),
+    );
+    if (selectedInSubsection.length === 0) return [];
+    return [
+      {
+        subsectionName: getSubsectionName(activeTab),
+        parts: selectedInSubsection,
+      },
+    ];
+  }, [activeSubsection, activeTab, selectedKeys, getSubsectionName]);
 
-    setIsExporting(true);
+  // Export to PDF - can export current subsection or all
+  const exportToPDF = useCallback(
+    async (mode: 'current' | 'all') => {
+      const partsToExport =
+        mode === 'current' ? getCurrentSubsectionSelectedParts() : getAllSelectedParts();
 
-    try {
-      const { jsPDF } = await import('jspdf');
-      const { default: autoTable } = await import('jspdf-autotable');
-
-      const doc = new jsPDF();
-      const pageWidth = doc.internal.pageSize.getWidth();
-
-      // Header
-      doc.setFontSize(20);
-      doc.setFont('helvetica', 'bold');
-      doc.text(t('pdfTitle'), pageWidth / 2, 20, { align: 'center' });
-
-      // Subtitle
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'normal');
-      doc.text(sectionName, pageWidth / 2, 28, { align: 'center' });
-
-      // Machine info
-      doc.setFontSize(10);
-      doc.text(`${t('machine')}: ${machineName}`, 14, 40);
-      doc.text(`${t('serialNumber')}: ${machineSerial}`, 14, 46);
-      doc.text(`${t('date')}: ${new Date().toLocaleDateString()}`, 14, 52);
-
-      const totalParts = allSelected.reduce((sum, group) => sum + group.parts.length, 0);
-      doc.text(`${t('totalParts')}: ${totalParts}`, 14, 58);
-
-      const tableHeaders = [
-        [
-          t('tableHeaders.partNumber'),
-          t('tableHeaders.description'),
-          t('tableHeaders.quantity'),
-          t('tableHeaders.unit'),
-        ],
-      ];
-
-      const tableStyles = {
-        theme: 'striped' as const,
-        headStyles: {
-          fillColor: [50, 50, 50] as [number, number, number],
-          textColor: 255,
-          fontStyle: 'bold' as const,
-        },
-        alternateRowStyles: {
-          fillColor: [245, 245, 245] as [number, number, number],
-        },
-        styles: {
-          fontSize: 10,
-          cellPadding: 4,
-        },
-        columnStyles: {
-          0: { cellWidth: 35 },
-          1: { cellWidth: 'auto' as const },
-          2: { cellWidth: 25, halign: 'right' as const },
-          3: { cellWidth: 20, halign: 'center' as const },
-        },
-      };
-
-      let currentY = 65;
-
-      // Add each subsection
-      for (const group of allSelected) {
-        // Check if we need a new page
-        if (currentY > 250) {
-          doc.addPage();
-          currentY = 20;
-        }
-
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`${group.subsectionName} (${group.parts.length})`, 14, currentY);
-        currentY += 5;
-
-        autoTable(doc, {
-          startY: currentY,
-          head: tableHeaders,
-          body: group.parts.map((part) => [
-            part.partNumber,
-            part.description,
-            typeof part.quantity === 'number' ? part.quantity.toString() : part.quantity,
-            part.unit,
-          ]),
-          ...tableStyles,
-        });
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        currentY = (doc as any).lastAutoTable.finalY + 15;
+      if (partsToExport.length === 0) {
+        toast.error(t('noPartsSelected'));
+        return;
       }
 
-      // Save
-      const filename = `parts-replacement-${machineName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.pdf`;
-      doc.save(filename);
+      setIsExporting(true);
 
-      toast.success(t('exportSuccess'));
-    } catch (error) {
-      console.error('Error exporting PDF:', error);
-      toast.error(t('exportError'));
-    } finally {
-      setIsExporting(false);
-    }
-  }, [getAllSelectedParts, machineName, machineSerial, sectionName, t]);
+      try {
+        const { jsPDF } = await import('jspdf');
+        const { default: autoTable } = await import('jspdf-autotable');
+
+        const doc = new jsPDF();
+        const pageWidth = doc.internal.pageSize.getWidth();
+
+        // Header
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text(t('pdfTitle'), pageWidth / 2, 20, { align: 'center' });
+
+        // Subtitle
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'normal');
+        doc.text(sectionName, pageWidth / 2, 28, { align: 'center' });
+
+        // Machine info
+        doc.setFontSize(10);
+        doc.text(`${t('machine')}: ${machineName}`, 14, 40);
+        doc.text(`${t('serialNumber')}: ${machineSerial}`, 14, 46);
+        doc.text(`${t('date')}: ${new Date().toLocaleDateString()}`, 14, 52);
+
+        const totalParts = partsToExport.reduce((sum, group) => sum + group.parts.length, 0);
+        doc.text(`${t('totalParts')}: ${totalParts}`, 14, 58);
+
+        const tableHeaders = [
+          [
+            t('tableHeaders.partNumber'),
+            t('tableHeaders.description'),
+            t('tableHeaders.quantity'),
+            t('tableHeaders.unit'),
+          ],
+        ];
+
+        const tableStyles = {
+          theme: 'striped' as const,
+          headStyles: {
+            fillColor: [50, 50, 50] as [number, number, number],
+            textColor: 255,
+            fontStyle: 'bold' as const,
+          },
+          alternateRowStyles: {
+            fillColor: [245, 245, 245] as [number, number, number],
+          },
+          styles: {
+            fontSize: 10,
+            cellPadding: 4,
+          },
+          columnStyles: {
+            0: { cellWidth: 35 },
+            1: { cellWidth: 'auto' as const },
+            2: { cellWidth: 25, halign: 'right' as const },
+            3: { cellWidth: 20, halign: 'center' as const },
+          },
+        };
+
+        let currentY = 65;
+
+        // Add each subsection
+        for (const group of partsToExport) {
+          // Check if we need a new page
+          if (currentY > 250) {
+            doc.addPage();
+            currentY = 20;
+          }
+
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`${group.subsectionName} (${group.parts.length})`, 14, currentY);
+          currentY += 5;
+
+          autoTable(doc, {
+            startY: currentY,
+            head: tableHeaders,
+            body: group.parts.map((part) => [
+              part.partNumber,
+              part.description,
+              typeof part.quantity === 'number' ? part.quantity.toString() : part.quantity,
+              part.unit,
+            ]),
+            ...tableStyles,
+          });
+
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          currentY = (doc as any).lastAutoTable.finalY + 15;
+        }
+
+        // Save
+        const subsectionSuffix = mode === 'current' ? `-${activeTab}` : '-all';
+        const filename = `parts-replacement-${machineName.replace(/\s+/g, '-')}${subsectionSuffix}-${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(filename);
+
+        toast.success(t('exportSuccess'));
+      } catch (error) {
+        console.error('Error exporting PDF:', error);
+        toast.error(t('exportError'));
+      } finally {
+        setIsExporting(false);
+      }
+    },
+    [
+      getAllSelectedParts,
+      getCurrentSubsectionSelectedParts,
+      machineName,
+      machineSerial,
+      sectionName,
+      activeTab,
+      t,
+    ],
+  );
 
   const handleImageError = useCallback((subsectionId: string) => {
     setImageError((prev) => ({ ...prev, [subsectionId]: true }));
@@ -305,43 +343,42 @@ export function SubsectionPartsModal({
           onValueChange={setActiveTab}
           className="w-full flex-1 flex flex-col min-h-0"
         >
-          {/* Tabs List - Scrollable for many subsections */}
-          <div className="overflow-x-auto pb-2 shrink-0">
-            <TooltipProvider delayDuration={300}>
-              <TabsList className="inline-flex w-auto min-w-full gap-1 p-1">
-                {subsections.map((subsection) => {
-                  const selectedCount = getSelectedCountForSubsection(subsection.id);
-                  const fullName = getSubsectionName(subsection.id);
-                  return (
-                    <Tooltip key={subsection.id}>
-                      <TooltipTrigger asChild>
-                        <TabsTrigger
-                          value={subsection.id}
-                          className="flex items-center gap-2 whitespace-nowrap px-3"
-                        >
-                          <span className="max-w-[150px] truncate">{fullName}</span>
-                          {selectedCount > 0 && (
-                            <Badge
-                              variant="secondary"
-                              className={`text-xs px-1.5 ${
-                                activeTab === subsection.id
-                                  ? 'bg-primary-foreground/20 text-primary-foreground'
-                                  : 'bg-primary/10 text-primary'
-                              }`}
-                            >
-                              {selectedCount}
-                            </Badge>
-                          )}
-                        </TabsTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent side="bottom" className="max-w-xs">
-                        <p>{fullName}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  );
-                })}
-              </TabsList>
-            </TooltipProvider>
+          {/* Tabs List - Centered and Scrollable for many subsections */}
+          <div className="overflow-x-auto pb-2 shrink-0 flex justify-center">
+            <div className="inline-flex gap-2 p-1 bg-muted rounded-lg">
+              {subsections.map((subsection) => {
+                const selectedCount = getSelectedCountForSubsection(subsection.id);
+                const fullName = getSubsectionName(subsection.id);
+                const isActive = activeTab === subsection.id;
+                return (
+                  <button
+                    key={subsection.id}
+                    onClick={() => setActiveTab(subsection.id)}
+                    className={cn(
+                      'flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-md text-sm font-medium transition-all',
+                      isActive
+                        ? 'bg-primary text-primary-foreground shadow-md'
+                        : 'bg-transparent text-muted-foreground hover:bg-background hover:text-foreground',
+                    )}
+                  >
+                    <span>{fullName}</span>
+                    {selectedCount > 0 && (
+                      <Badge
+                        variant="secondary"
+                        className={cn(
+                          'text-xs px-1.5',
+                          isActive
+                            ? 'bg-primary-foreground/20 text-primary-foreground'
+                            : 'bg-primary/10 text-primary',
+                        )}
+                      >
+                        {selectedCount}
+                      </Badge>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Tab Content */}
@@ -471,36 +508,51 @@ export function SubsectionPartsModal({
                     </CardHeader>
                     <CardContent className="space-y-4 flex-1 flex flex-col overflow-hidden">
                       {/* Search Row */}
-                      <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-                        <div className="relative flex-1">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            placeholder={t('searchPlaceholder')}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-9 pr-9"
-                          />
-                          {searchQuery && (
-                            <button
-                              onClick={() => setSearchQuery('')}
-                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                            >
-                              <X className="h-4 w-4" />
-                            </button>
-                          )}
-                        </div>
+                      <div className="relative shrink-0">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder={t('searchPlaceholder')}
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="pl-9 pr-9"
+                        />
+                        {searchQuery && (
+                          <button
+                            onClick={() => setSearchQuery('')}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Export Buttons Row */}
+                      <div className="flex flex-wrap gap-2 shrink-0">
                         <Button
-                          onClick={exportToPDF}
-                          disabled={selectedKeys.size === 0 || isExporting}
-                          className="bg-primary hover:bg-primary/90"
+                          onClick={() => exportToPDF('current')}
+                          disabled={getSelectedCountForSubsection(activeTab) === 0 || isExporting}
+                          variant="outline"
+                          size="sm"
                         >
                           <FileDown className="h-4 w-4 mr-2" />
-                          {isExporting ? t('exporting') : t('exportPDF')}
+                          {t('exportThisTab') || 'Export This Tab'}
+                          {getSelectedCountForSubsection(activeTab) > 0 &&
+                            ` (${getSelectedCountForSubsection(activeTab)})`}
+                        </Button>
+                        <Button
+                          onClick={() => exportToPDF('all')}
+                          disabled={selectedKeys.size === 0 || isExporting}
+                          className="bg-primary hover:bg-primary/90"
+                          size="sm"
+                        >
+                          <FileDown className="h-4 w-4 mr-2" />
+                          {t('exportAllTabs') || 'Export All Tabs'}
+                          {selectedKeys.size > 0 && ` (${selectedKeys.size})`}
                         </Button>
                       </div>
 
                       {/* Select/Clear buttons */}
-                      <div className="flex gap-2 shrink-0">
+                      <div className="flex items-center gap-2 shrink-0">
                         <Button variant="outline" size="sm" onClick={handleSelectAll}>
                           {t('selectAll')}
                         </Button>
@@ -508,7 +560,7 @@ export function SubsectionPartsModal({
                           variant="outline"
                           size="sm"
                           onClick={handleClearAll}
-                          disabled={selectedKeys.size === 0}
+                          disabled={getSelectedCountForSubsection(activeTab) === 0}
                         >
                           {t('clearAll')}
                         </Button>
@@ -550,17 +602,10 @@ export function SubsectionPartsModal({
                                 return (
                                   <TableRow
                                     key={`${part.partNumber}-${index}`}
-                                    className={cn(
-                                      'cursor-pointer transition-colors',
-                                      isSelected
-                                        ? '!bg-blue-500 !text-white hover:!bg-blue-600'
-                                        : 'hover:bg-muted/50',
-                                    )}
+                                    className="cursor-pointer transition-colors hover:bg-muted/50"
                                     onClick={() => handleTogglePart(part.partNumber)}
                                   >
-                                    <TableCell
-                                      className={isSelected ? '!border-l-4 !border-l-blue-700' : ''}
-                                    >
+                                    <TableCell>
                                       <div
                                         onClick={(e) => {
                                           e.stopPropagation();
@@ -569,39 +614,26 @@ export function SubsectionPartsModal({
                                         className={cn(
                                           'w-5 h-5 rounded flex items-center justify-center cursor-pointer border-2',
                                           isSelected
-                                            ? 'bg-blue-600 border-blue-700'
+                                            ? 'bg-primary border-primary'
                                             : 'bg-transparent border-gray-400',
                                         )}
                                       >
                                         {isSelected && <Check className="h-3.5 w-3.5 text-white" />}
                                       </div>
                                     </TableCell>
-                                    <TableCell
-                                      className={cn(
-                                        'font-mono text-sm',
-                                        isSelected && '!text-white !font-bold',
-                                      )}
-                                    >
+                                    <TableCell className="font-mono text-sm">
                                       {part.partNumber}
                                     </TableCell>
-                                    <TableCell className={isSelected ? '!text-white' : ''}>
+                                    <TableCell>
                                       <div className="flex items-center gap-2">
-                                        <span className={isSelected ? 'font-medium' : ''}>
-                                          {part.description}
-                                        </span>
-                                        {isSelected && <Check className="h-4 w-4 text-white" />}
+                                        <span>{part.description}</span>
+                                        {isSelected && (
+                                          <Check className="h-4 w-4 text-primary shrink-0" />
+                                        )}
                                       </div>
                                     </TableCell>
-                                    <TableCell
-                                      className={cn('text-right', isSelected && '!text-white')}
-                                    >
-                                      {part.quantity}
-                                    </TableCell>
-                                    <TableCell
-                                      className={cn('text-center', isSelected && '!text-white')}
-                                    >
-                                      {part.unit}
-                                    </TableCell>
+                                    <TableCell className="text-right">{part.quantity}</TableCell>
+                                    <TableCell className="text-center">{part.unit}</TableCell>
                                   </TableRow>
                                 );
                               })

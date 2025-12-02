@@ -358,7 +358,7 @@ export function CounterbalanceSection({
         <CardContent>
           {/* Summary Stats */}
           <div className="text-center mb-6">
-            <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
+            <div className="grid grid-cols-4 gap-4 max-w-xl mx-auto">
               <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-2 text-green-600">
                   <CheckCircle2 className="h-5 w-5" />
@@ -374,8 +374,15 @@ export function CounterbalanceSection({
                 <Typography variant="large">{outerIssuesCount + innerIssuesCount}</Typography>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="flex items-center gap-2 text-orange-600">
                   <AlertTriangle className="h-5 w-5" />
+                  <Typography variant="muted">{t('labels.alerts')}</Typography>
+                </div>
+                <Typography variant="large">{latestAlerts.length}</Typography>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <CalendarIcon className="h-5 w-5" />
                   <Typography variant="muted">{t('labels.inspections')}</Typography>
                 </div>
                 <Typography variant="large">{filteredInspections.length}</Typography>

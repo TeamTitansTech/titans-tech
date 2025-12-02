@@ -386,6 +386,7 @@ export function LubricationSection({
           machineSerial,
           sectionName: 'Lubrication & Hydraulics',
         }}
+        alwaysShowPartsButton
       />
 
       <Card>

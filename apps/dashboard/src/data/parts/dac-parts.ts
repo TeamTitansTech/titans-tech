@@ -3340,6 +3340,246 @@ export const COUNTERBALANCE_TABS: SectionWithTabs = {
 };
 
 // ============================================================================
+// COUNTERBALANCE SUBSECTION PARTS (For SubsectionPartsModal)
+// ============================================================================
+
+// Figure 491B - Counterbalance Parts List (Inner Slide)
+export const COUNTERBALANCE_INNER_SLIDE_PARTS: Part[] = [
+  {
+    partNumber: '491B-1',
+    description: 'Air Cylinder',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-2-A',
+    description: 'Air Cylinder Head',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-3',
+    description: 'Air Cylinder Cover',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-4',
+    description: 'Piston',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-7',
+    description: 'Piston Rod',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-8',
+    description: 'Air Cylinder Packing',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-9A',
+    description: 'Piston Rod Packing',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-10',
+    description: 'Piston Rod Gland Ring',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-14',
+    description: 'Piston Rod Bushing',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-16',
+    description: 'Piston Plate',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-18',
+    description: 'Counterbalance Rod Nut',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-23',
+    description: 'Counterbalance Rod Nut Clamp',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-1011',
+    description: 'Gasket',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-2403',
+    description: 'Wire Core Wick',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+  {
+    partNumber: '491B-3176',
+    description: 'Cotter Pin',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Inner Slide Counterbalance',
+  },
+];
+
+// Figure 492 - Airmount Type Counterbalance Parts List (Outer Slide - High Speed Arrangement)
+export const COUNTERBALANCE_AIRMOUNT_PARTS: Part[] = [
+  {
+    partNumber: '492-13',
+    description: 'Counterbalance Bracket',
+    quantity: 2,
+    unit: 'EA',
+    location: 'Outer Slide - High Speed',
+  },
+  {
+    partNumber: '492-32',
+    description: 'Airmount Counterbalance Bracket',
+    quantity: 2,
+    unit: 'EA',
+    location: 'Outer Slide - High Speed',
+  },
+  {
+    partNumber: '492-2850',
+    description: 'Airmount',
+    quantity: 2,
+    unit: 'EA',
+    location: 'Outer Slide - High Speed',
+  },
+];
+
+// Figure 577A - Lubrication Unit Parts List
+export const LUBRICATION_UNIT_PARTS: Part[] = [
+  {
+    partNumber: '577A-1',
+    description: 'Lubricator Bracket',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-19',
+    description: 'Filter Mounting Bracket',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-1325',
+    description: 'Coupling',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-1550',
+    description: 'Lube Motor',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-1675',
+    description: 'Filter Cartridge',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-1700',
+    description: 'Lube Pump',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-1750',
+    description: 'Oil Filter',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-2600',
+    description: 'Shock Mounts',
+    quantity: 8,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-4225',
+    description: 'Vacuum Switch',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-4978',
+    description: 'Shutoff Valve',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-4979',
+    description: 'Shutoff Valve',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-5100',
+    description: 'Pressure Gauge (Lube)',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-5150',
+    description: 'Vacuum Gauge',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+  {
+    partNumber: '577A-5550',
+    description: 'Mounting Bracket (Pump)',
+    quantity: 1,
+    unit: 'EA',
+    location: 'Lubrication Unit',
+  },
+];
+
+// ============================================================================
 // INSPECTION SECTIONS
 // ============================================================================
 

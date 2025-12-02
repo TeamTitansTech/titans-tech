@@ -58,6 +58,8 @@ interface SectionStatusCardProps {
   partsConfig: PartsConfig;
   /** Additional class names */
   className?: string;
+  /** Always show the parts button, even for OK status */
+  alwaysShowPartsButton?: boolean;
 }
 
 const statusConfig = {
@@ -107,12 +109,18 @@ const statusConfig = {
  * A card component that displays the section status with a call-to-action
  * to view the parts list for replacement.
  */
-export function SectionStatusCard({ status, partsConfig, className }: SectionStatusCardProps) {
+export function SectionStatusCard({
+  status,
+  partsConfig,
+  className,
+  alwaysShowPartsButton = false,
+}: SectionStatusCardProps) {
   const t = useTranslations('sectionStatusCard');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const config = statusConfig[status];
   const Icon = config.icon;
+  const shouldShowPartsButton = config.showPartsButton || alwaysShowPartsButton;
 
   return (
     <>
@@ -126,12 +134,14 @@ export function SectionStatusCard({ status, partsConfig, className }: SectionSta
               <p className={cn('font-semibold text-lg', config.titleClass)}>{t(config.titleKey)}</p>
               <p className={cn('text-sm', config.descriptionClass)}>{t(config.descriptionKey)}</p>
             </div>
-            {config.showPartsButton && (
+            {shouldShowPartsButton && (
               <Button
                 variant="outline"
                 onClick={() => setIsModalOpen(true)}
                 className={cn(
                   'gap-2',
+                  status === 'ok' &&
+                    'border-green-400 text-green-700 hover:bg-green-100 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/50',
                   status === 'warning' &&
                     'border-yellow-400 text-yellow-700 hover:bg-yellow-100 dark:border-yellow-600 dark:text-yellow-300 dark:hover:bg-yellow-900/50',
                   status === 'alert' &&

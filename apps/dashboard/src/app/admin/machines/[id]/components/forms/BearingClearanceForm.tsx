@@ -8,7 +8,6 @@ import {
   type BearingClearanceData,
   type BearingClearanceFormProps,
 } from '@/data/types/services.types';
-import Image from 'next/image';
 
 // Fields that have alerts (required)
 const ALERT_FIELDS = [
@@ -74,18 +73,6 @@ export function BearingClearanceForm({
   return (
     <div className="space-y-6">
       <h4 className="font-semibold text-sm">{title}</h4>
-
-      {/* Crankshaft Visual Reference */}
-      <div className="flex justify-center py-4 border rounded-lg bg-muted/30">
-        <Image
-          src="/assets/parts-diagrams/crankshaft.png"
-          alt="Crankshaft bearing locations"
-          width={600}
-          height={400}
-          className="object-contain"
-          priority
-        />
-      </div>
 
       <div className="space-y-4">
         {/* Desktop/Tablet Headers - Hidden on mobile */}

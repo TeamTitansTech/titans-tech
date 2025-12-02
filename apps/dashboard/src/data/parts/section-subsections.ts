@@ -17,9 +17,9 @@ import {
   CLUTCH_FLYWHEEL_BRAKE_PARTS,
   CLUTCH_MOTOR_DRIVE_PARTS,
   CLUTCH_HYDRAULIC_UNIT_PARTS,
-  COUNTERBALANCE_OUTER_PARTS,
-  COUNTERBALANCE_INNER_PARTS,
-  LUBRICATION_PARTS,
+  COUNTERBALANCE_INNER_SLIDE_PARTS,
+  COUNTERBALANCE_AIRMOUNT_PARTS,
+  LUBRICATION_UNIT_PARTS,
   GIBS_OUTER_PARTS,
   GIBS_INNER_PARTS,
 } from './dac-parts';
@@ -149,16 +149,16 @@ export const COUNTERBALANCE_SUBSECTIONS: Subsection[] = [
     nameKey: 'subsections.counterbalanceInner',
     figureReference: 'FIGURE 491B',
     description: 'Pneumatic counterbalance cylinder assembly for inner slide',
-    parts: COUNTERBALANCE_INNER_PARTS,
-    diagramImage: '/assets/parts-diagrams/counterbalance-inner.png',
+    parts: COUNTERBALANCE_INNER_SLIDE_PARTS,
+    diagramImage: '/assets/parts-diagrams/counterbalance parts.png',
   },
   {
     id: 'counterbalance-outer-airmount',
     nameKey: 'subsections.counterbalanceOuterAirmount',
     figureReference: 'FIGURE 492',
     description: 'Air-mount counterbalance system for outer slide (high-speed config)',
-    parts: COUNTERBALANCE_OUTER_PARTS,
-    diagramImage: '/assets/parts-diagrams/counterbalance-outer-airmount.png',
+    parts: COUNTERBALANCE_AIRMOUNT_PARTS,
+    diagramImage: '/assets/parts-diagrams/airmount type counterbalance parts.png',
   },
 ];
 
@@ -172,8 +172,8 @@ export const LUBRICATION_SUBSECTIONS: Subsection[] = [
     nameKey: 'subsections.lubricationUnit',
     figureReference: 'FIGURE 577A',
     description: 'Centralized automatic lubrication system',
-    parts: LUBRICATION_PARTS,
-    diagramImage: '/assets/parts-diagrams/lubrication-unit.png',
+    parts: LUBRICATION_UNIT_PARTS,
+    diagramImage: '/assets/parts-diagrams/lubrication unit parts.png',
   },
 ];
 
