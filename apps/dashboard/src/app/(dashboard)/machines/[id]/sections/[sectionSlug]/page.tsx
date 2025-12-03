@@ -1,10 +1,12 @@
 import { getTranslations } from 'next-intl/server';
-import { BearingClearanceSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/BearingClearanceSectionWrapper';
-import { ClutchSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/ClutchSectionWrapper';
+import { BearingClearanceSectionWrapper } from './components/BearingClearanceSectionWrapper';
+import { ClutchSectionWrapper } from './components/ClutchSectionWrapper';
 import { SlideSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideSectionWrapper';
 import { GibsSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/GibsSectionWrapper';
 import { LubricationSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/LubricationSectionWrapper';
 import { CounterbalanceSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/CounterbalanceSectionWrapper';
+import { PistonsSectionWrapper } from './components/PistonsSectionWrapper';
+import { TrammingSectionWrapper } from './components/TrammingSectionWrapper';
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -16,9 +18,22 @@ interface SectionDetailPageProps {
   }>;
 }
 
+const sectionComponents: Record<string, React.ComponentType<{ machineId: string }>> = {
+  bearing_clearance: BearingClearanceSectionWrapper,
+  clutch: ClutchSectionWrapper,
+  slide: SlideSectionWrapper,
+  gibs: GibsSectionWrapper,
+  lubrication_hydraulics_pressure_switches_oil_filter: LubricationSectionWrapper,
+  counterbalance_cylinder_airbag: CounterbalanceSectionWrapper,
+  pistons: PistonsSectionWrapper,
+  tramming: TrammingSectionWrapper,
+};
+
 export default async function SectionDetailPage({ params }: SectionDetailPageProps) {
   const { id, sectionSlug } = await params;
   const t = await getTranslations('machines.sectionDetails');
+
+  const SectionComponent = sectionComponents[sectionSlug];
 
   return (
     <div className="space-y-6 p-2 sm:p-4 lg:p-6">
@@ -36,27 +51,13 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
         </div>
       </div>
 
-      {sectionSlug === 'bearing_clearance' && <BearingClearanceSectionWrapper machineId={id} />}
-      {sectionSlug === 'clutch' && <ClutchSectionWrapper machineId={id} />}
-      {sectionSlug === 'slide' && <SlideSectionWrapper machineId={id} />}
-      {sectionSlug === 'gibs' && <GibsSectionWrapper machineId={id} />}
-      {sectionSlug === 'lubrication_hydraulics_pressure_switches_oil_filter' && (
-        <LubricationSectionWrapper machineId={id} />
+      {SectionComponent ? (
+        <SectionComponent machineId={id} />
+      ) : (
+        <div className="text-center py-12">
+          <Typography variant="muted">{t('comingSoon', { section: sectionSlug })}</Typography>
+        </div>
       )}
-      {sectionSlug === 'counterbalance_cylinder_airbag' && (
-        <CounterbalanceSectionWrapper machineId={id} />
-      )}
-
-      {sectionSlug !== 'bearing_clearance' &&
-        sectionSlug !== 'clutch' &&
-        sectionSlug !== 'slide' &&
-        sectionSlug !== 'gibs' &&
-        sectionSlug !== 'lubrication_hydraulics_pressure_switches_oil_filter' &&
-        sectionSlug !== 'counterbalance_cylinder_airbag' && (
-          <div className="text-center py-12">
-            <Typography variant="muted">{t('comingSoon', { section: sectionSlug })}</Typography>
-          </div>
-        )}
     </div>
   );
 }
