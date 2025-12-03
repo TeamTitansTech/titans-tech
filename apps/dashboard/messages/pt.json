@@ -460,12 +460,20 @@
           "placeholder": "ex., acme-manufacturing"
         },
         "logo": {
-          "label": "Logo (Opcional)",
+          "label": "Logo",
           "placeholder": "ex., https://exemplo.com/logo.png",
           "uploadHint": "Clique para enviar logo (JPG ou PNG)",
           "uploading": "Enviando...",
           "uploadSuccess": "Logo enviado com sucesso",
           "uploadError": "Falha ao enviar logo"
+        },
+        "loginLogo": {
+          "label": "Logo de Login (Opcional)",
+          "hint": "Se não fornecido, o logo principal será usado",
+          "uploadHint": "Clique para enviar logo de login (JPG ou PNG)",
+          "uploading": "Enviando...",
+          "uploadSuccess": "Logo de login enviado com sucesso",
+          "uploadError": "Falha ao enviar logo de login"
         },
         "brandColor": {
           "label": "Cor Primária (Opcional)",
