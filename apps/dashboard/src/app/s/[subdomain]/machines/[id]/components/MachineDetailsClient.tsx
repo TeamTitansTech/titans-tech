@@ -9,7 +9,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
-import { ServiceCompletionModal } from './ServiceCompletionModal';
 import { UrgentServiceModal } from './UrgentServiceModal';
 import { LatestReportModal } from '@/app/admin/machines/[id]/components/LatestReportModal';
 import { Typography } from '@/components/ui/typography';
@@ -27,7 +26,6 @@ export interface MachineDetailsClientProps {
 export function MachineDetailsClient({ machine, companySlug }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
-  const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
   const [isUrgentServiceModalOpen, setIsUrgentServiceModalOpen] = useState(false);
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -142,13 +140,6 @@ export function MachineDetailsClient({ machine, companySlug }: MachineDetailsCli
           </CardContent>
         </Card>
       </div>
-
-      <ServiceCompletionModal
-        machineId={machine.id}
-        open={isInspectionModalOpen}
-        onOpenChange={setIsInspectionModalOpen}
-        machineSections={machine.blueprint?.sections}
-      />
 
       <UrgentServiceModal
         machineId={machine.id}

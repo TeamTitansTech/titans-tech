@@ -82,6 +82,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
           <UpcomingServices
             machineId={id}
             blueprintSections={machine.blueprint?.sections || []}
+            companyId={user?.companyId}
             canCreateServices={canCreateServices}
             canUpdateServices={canUpdateServices}
             canDeleteServices={canDeleteServices}
