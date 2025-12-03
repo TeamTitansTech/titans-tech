@@ -11,7 +11,7 @@ import {
   InspectionAlertNotificationMetadataDto,
   UrgentRequestNotificationMetadataDto,
 } from '@titans-tech/shared/backend-dtos';
-import type { AlertNotificationTemplateData } from '../email/templates/alert-notification.template';
+import type { AlertNotificationTemplateData } from '../email/templates/types';
 
 export interface PublicRequestDeviceInfo {
   ipAddress: string;
