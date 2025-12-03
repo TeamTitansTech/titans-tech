@@ -33,6 +33,7 @@ interface BearingClearanceSectionProps {
 }
 
 export function BearingClearanceSection({
+  machineId,
   inspections,
   machineName,
   blueprintId,
@@ -268,6 +269,7 @@ export function BearingClearanceSection({
           subsections: BEARING_CLEARANCE_SUBSECTIONS,
           title: tParts('bearingClearanceParts'),
           description: tParts('bearingClearanceDescription'),
+          machineId,
           machineName,
           sectionName: 'Bearing Clearance',
         }}

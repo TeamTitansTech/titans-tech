@@ -73,6 +73,7 @@ const STATUS_FIELDS = [
 ] as const;
 
 export function CounterbalanceSection({
+  machineId,
   inspections,
   machineName,
   machineSerial,
@@ -338,6 +339,7 @@ export function CounterbalanceSection({
           subsections: COUNTERBALANCE_SUBSECTIONS,
           title: tParts('counterbalanceParts'),
           description: tParts('counterbalanceDescription'),
+          machineId,
           machineName,
           machineSerial,
           sectionName: 'Counterbalance & Airbag',
