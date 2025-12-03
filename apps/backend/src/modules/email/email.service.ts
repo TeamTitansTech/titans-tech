@@ -1,31 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
 import { SendGridProvider } from './providers/sendgrid.provider';
+import { TemplateRendererService } from './services/template-renderer.service';
 import { appEnv } from '../../config/env';
-import {
-  getUrgentRequestHtml,
-  getUrgentRequestSubject,
-  getUrgentRequestText,
-  type UrgentRequestTemplateData,
-} from './templates/urgent-request.template';
-import {
-  getClientReminderHtml,
-  getClientReminderSubject,
-  getClientReminderText,
-  type ClientReminderTemplateData,
-} from './templates/client-reminder.template';
-import {
-  getAlertNotificationHtml,
-  getAlertNotificationSubject,
-  getAlertNotificationText,
-  type AlertNotificationTemplateData,
-} from './templates/alert-notification.template';
-import {
-  getPublicServiceRequestHtml,
-  getPublicServiceRequestSubject,
-  getPublicServiceRequestText,
-  type PublicServiceRequestTemplateData,
-} from './templates/public-service-request.template';
+import type {
+  UrgentRequestTemplateData,
+  ClientReminderTemplateData,
+  AlertNotificationTemplateData,
+  PublicServiceRequestTemplateData,
+  PartsRequestTemplateData,
+} from './templates/types';
+import type { Locale } from './templates/i18n';
 import { NotificationType, EmailProvider, EmailStatus } from '@titans-tech/db';
 
 @Injectable()
@@ -36,6 +21,7 @@ export class EmailService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly sendGridProvider: SendGridProvider,
+    private readonly templateRenderer: TemplateRendererService,
   ) {
     this.provider = this.sendGridProvider;
 
@@ -72,10 +58,10 @@ export class EmailService {
     to: string | string[],
     data: UrgentRequestTemplateData,
     machineId: string,
+    locale: Locale = 'en',
   ): Promise<void> {
-    const subject = getUrgentRequestSubject(data);
-    const html = getUrgentRequestHtml(data);
-    const text = getUrgentRequestText(data);
+    const { subject, html, text } =
+      await this.templateRenderer.renderUrgentRequest(data, locale);
     const recipients = this.mergeWithTestEmails(to);
 
     const emailRecord = await this.prisma.email.create({
@@ -131,10 +117,10 @@ export class EmailService {
     to: string,
     data: ClientReminderTemplateData,
     machineId: string,
+    locale: Locale = 'en',
   ): Promise<void> {
-    const subject = getClientReminderSubject(data);
-    const html = getClientReminderHtml(data);
-    const text = getClientReminderText(data);
+    const { subject, html, text } =
+      await this.templateRenderer.renderClientReminder(data, locale);
     const recipients = this.mergeWithTestEmails(to);
 
     const notificationType =
@@ -195,10 +181,10 @@ export class EmailService {
     to: string | string[],
     data: AlertNotificationTemplateData,
     machineId: string,
+    locale: Locale = 'en',
   ): Promise<void> {
-    const subject = getAlertNotificationSubject(data);
-    const html = getAlertNotificationHtml(data);
-    const text = getAlertNotificationText(data);
+    const { subject, html, text } =
+      await this.templateRenderer.renderAlertNotification(data, locale);
     const recipients = this.mergeWithTestEmails(to);
 
     const emailRecord = await this.prisma.email.create({
@@ -257,10 +243,10 @@ export class EmailService {
     to: string | string[],
     data: PublicServiceRequestTemplateData,
     machineId: string,
+    locale: Locale = 'en',
   ): Promise<void> {
-    const subject = getPublicServiceRequestSubject(data);
-    const html = getPublicServiceRequestHtml(data);
-    const text = getPublicServiceRequestText(data);
+    const { subject, html, text } =
+      await this.templateRenderer.renderPublicServiceRequest(data, locale);
     const recipients = this.mergeWithTestEmails(to);
 
     const emailRecord = await this.prisma.email.create({
@@ -304,6 +290,68 @@ export class EmailService {
       }
     } catch (error) {
       this.logger.error('Error sending public service request email', error);
+      await this.prisma.email.update({
+        where: { id: emailRecord.id },
+        data: {
+          status: EmailStatus.FAILED,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      });
+      throw error;
+    }
+  }
+
+  async sendPartsRequestEmail(
+    to: string | string[],
+    data: PartsRequestTemplateData,
+    machineId: string,
+    locale: Locale = 'en',
+  ): Promise<void> {
+    const { subject, html, text } =
+      await this.templateRenderer.renderPartsRequest(data, locale);
+    const recipients = this.mergeWithTestEmails(to);
+
+    const emailRecord = await this.prisma.email.create({
+      data: {
+        to: recipients.join(','),
+        from: appEnv.EMAIL_FROM,
+        subject,
+        body: html,
+        type: NotificationType.PARTS_REQUEST,
+        status: EmailStatus.PENDING,
+        provider:
+          appEnv.EMAIL_PROVIDER === 'AWS_SES'
+            ? EmailProvider.AWS_SES
+            : EmailProvider.SENDGRID,
+        machineId,
+      },
+    });
+
+    try {
+      const result = await this.provider.sendEmail({
+        to: recipients,
+        subject,
+        html,
+        text,
+      });
+
+      await this.prisma.email.update({
+        where: { id: emailRecord.id },
+        data: {
+          status: result.success ? EmailStatus.SENT : EmailStatus.FAILED,
+          externalId: result.messageId,
+          error: result.error,
+          sentAt: result.success ? new Date() : null,
+        },
+      });
+
+      if (!result.success) {
+        this.logger.error(
+          `Failed to send parts request email: ${result.error}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error('Error sending parts request email', error);
       await this.prisma.email.update({
         where: { id: emailRecord.id },
         data: {

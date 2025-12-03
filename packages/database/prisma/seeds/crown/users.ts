@@ -86,12 +86,12 @@ export async function seedCrownUsers(
   // COMPANY ADMIN - Full access to all 3 facilities
   // ========================================================================
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@crown.com' },
+    where: { email: 'admin@dev-crown.com' },
     update: {},
     create: {
       id: 'crown-admin',
       name: 'Crown Admin',
-      email: 'admin@crown.com',
+      email: 'admin@dev-crown.com',
       password: hashedPassword,
       isCompanyAdmin: true,
       isCompanyManager: false,
@@ -109,12 +109,12 @@ export async function seedCrownUsers(
   // Has service permissions at all 3 branches
   // ========================================================================
   const technicianUser = await prisma.user.upsert({
-    where: { email: 'julio.souza@crown.com' },
+    where: { email: 'julio.souza@dev-crown.com' },
     update: {},
     create: {
       id: 'crown-technician',
       name: 'Julio De Souza',
-      email: 'julio.souza@crown.com',
+      email: 'julio.souza@dev-crown.com',
       password: hashedPassword,
       isCompanyAdmin: false,
       isCompanyManager: false,
@@ -186,12 +186,12 @@ export async function seedArdaghUsers(
 
   // Company Admin
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@ardagh.com' },
+    where: { email: 'admin@dev-ardagh.com' },
     update: {},
     create: {
       id: 'ardagh-admin',
       name: 'Ardagh Admin',
-      email: 'admin@ardagh.com',
+      email: 'admin@dev-ardagh.com',
       password: hashedPassword,
       isCompanyAdmin: true,
       isCompanyManager: false,
@@ -204,12 +204,12 @@ export async function seedArdaghUsers(
 
   // Technician
   const technicianUser = await prisma.user.upsert({
-    where: { email: 'technician@ardagh.com' },
+    where: { email: 'technician@dev-ardagh.com' },
     update: {},
     create: {
       id: 'ardagh-technician',
       name: 'Ardagh Technician',
-      email: 'technician@ardagh.com',
+      email: 'technician@dev-ardagh.com',
       password: hashedPassword,
       isCompanyAdmin: false,
       isCompanyManager: false,

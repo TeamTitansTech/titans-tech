@@ -14,6 +14,10 @@ import {
   X,
   Check,
   ImageOff,
+  Mail,
+  Plus,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -39,12 +43,16 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import type { Subsection } from '@/data/parts/section-subsections';
 import type { Part } from '@/data/parts/dac-parts';
+import { useCompanyUser } from '@/contexts/CompanyUserContext';
+import { Label } from '@/components/ui/label';
+import { sendPartsEmail } from '@/data/services/machines.api';
 
 interface SubsectionPartsModalProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
   subsections: Subsection[];
+  machineId?: string;
   machineName?: string;
   machineSerial?: string;
   sectionName?: string;
@@ -55,18 +63,27 @@ export function SubsectionPartsModal({
   onClose,
   title,
   subsections,
+  machineId,
   machineName = 'N/A',
   machineSerial = 'N/A',
   sectionName = 'Inspection',
 }: SubsectionPartsModalProps) {
   const t = useTranslations('parts');
   const tSubsections = useTranslations('parts.subsections');
+  const { companyUser } = useCompanyUser();
 
   const [activeTab, setActiveTab] = useState(subsections[0]?.id || '');
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const [imageError, setImageError] = useState<Record<string, boolean>>({});
+
+  // Email modal state
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailList, setEmailList] = useState<string[]>([]);
+  const [newEmail, setNewEmail] = useState('');
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailMode, setEmailMode] = useState<'current' | 'all'>('all');
 
   // Get the active subsection
   const activeSubsection = useMemo(
@@ -330,6 +347,106 @@ export function SubsectionPartsModal({
     setImageError((prev) => ({ ...prev, [subsectionId]: true }));
   }, []);
 
+  // Email modal handlers
+  const openEmailModal = useCallback(
+    (mode: 'current' | 'all') => {
+      // Initialize with current user's email if available
+      const initialEmails = companyUser?.email ? [companyUser.email] : [];
+      setEmailList(initialEmails);
+      setNewEmail('');
+      setEmailMode(mode);
+      setIsEmailModalOpen(true);
+    },
+    [companyUser?.email],
+  );
+
+  const handleAddEmail = useCallback(() => {
+    const trimmedEmail = newEmail.trim().toLowerCase();
+    if (!trimmedEmail) return;
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      toast.error(t('invalidEmail') || 'Invalid email address');
+      return;
+    }
+
+    // Check for duplicates
+    if (emailList.includes(trimmedEmail)) {
+      toast.error(t('emailAlreadyAdded') || 'Email already added');
+      return;
+    }
+
+    setEmailList((prev) => [...prev, trimmedEmail]);
+    setNewEmail('');
+  }, [newEmail, emailList, t]);
+
+  const handleRemoveEmail = useCallback((emailToRemove: string) => {
+    setEmailList((prev) => prev.filter((email) => email !== emailToRemove));
+  }, []);
+
+  const handleSendEmail = useCallback(async () => {
+    if (emailList.length === 0) {
+      toast.error(t('noEmailsAdded') || 'Please add at least one email');
+      return;
+    }
+
+    const partsToSend =
+      emailMode === 'current' ? getCurrentSubsectionSelectedParts() : getAllSelectedParts();
+    if (partsToSend.length === 0) {
+      toast.error(t('noPartsSelected'));
+      return;
+    }
+
+    if (!machineId) {
+      toast.error(t('machineIdRequired') || 'Machine ID is required');
+      return;
+    }
+
+    setIsSendingEmail(true);
+
+    try {
+      const response = await sendPartsEmail({
+        machineId,
+        machineName,
+        machineSerial,
+        sectionName,
+        emails: emailList,
+        partsGroups: partsToSend.map((group) => ({
+          subsectionName: group.subsectionName,
+          parts: group.parts.map((part) => ({
+            partNumber: part.partNumber,
+            description: part.description,
+            quantity: part.quantity,
+            unit: part.unit,
+          })),
+        })),
+      });
+
+      if (response.errors) {
+        throw new Error(response.errors[0] || 'Failed to send email');
+      }
+
+      toast.success(t('emailSentSuccess') || `Parts list sent to ${emailList.length} email(s)`);
+      setIsEmailModalOpen(false);
+    } catch (error) {
+      console.error('Error sending email:', error);
+      toast.error(t('emailSendError') || 'Failed to send email');
+    } finally {
+      setIsSendingEmail(false);
+    }
+  }, [
+    emailList,
+    emailMode,
+    getAllSelectedParts,
+    getCurrentSubsectionSelectedParts,
+    machineId,
+    machineName,
+    machineSerial,
+    sectionName,
+    t,
+  ]);
+
   if (subsections.length === 0) {
     return null;
   }
@@ -532,8 +649,8 @@ export function SubsectionPartsModal({
                         )}
                       </div>
 
-                      {/* Export This Tab Button */}
-                      <div className="shrink-0">
+                      {/* Export This Tab Buttons */}
+                      <div className="shrink-0 flex gap-2">
                         <Button
                           onClick={() => exportToPDF('current')}
                           disabled={getSelectedCountForSubsection(activeTab) === 0 || isExporting}
@@ -544,6 +661,17 @@ export function SubsectionPartsModal({
                           {t('exportThisTab') || 'Export This Tab'}
                           {getSelectedCountForSubsection(activeTab) > 0 &&
                             ` (${getSelectedCountForSubsection(activeTab)})`}
+                        </Button>
+                        <Button
+                          onClick={() => openEmailModal('current')}
+                          disabled={
+                            getSelectedCountForSubsection(activeTab) === 0 || isSendingEmail
+                          }
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Mail className="h-4 w-4 mr-2" />
+                          {t('sendThisTab') || 'Send This Tab'}
                         </Button>
                       </div>
 
@@ -653,18 +781,124 @@ export function SubsectionPartsModal({
                 ? `${selectedKeys.size} ${t('partsSelectedAcrossTabs')}`
                 : t('selectPartsToExport')}
             </p>
-            <Button
-              onClick={() => exportToPDF('all')}
-              disabled={selectedKeys.size === 0 || isExporting}
-              className="bg-primary hover:bg-primary/90"
-            >
-              <FileDown className="h-4 w-4 mr-2" />
-              {t('exportAllTabs') || 'Export All Tabs'}
-              {selectedKeys.size > 0 && ` (${selectedKeys.size})`}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => openEmailModal('all')}
+                disabled={selectedKeys.size === 0 || isSendingEmail}
+                variant="outline"
+              >
+                <Mail className="h-4 w-4 mr-2" />
+                {t('sendAsEmail') || 'Send as Email'}
+              </Button>
+              <Button
+                onClick={() => exportToPDF('all')}
+                disabled={selectedKeys.size === 0 || isExporting}
+                className="bg-primary hover:bg-primary/90"
+              >
+                <FileDown className="h-4 w-4 mr-2" />
+                {t('exportAllTabs') || 'Export All Tabs'}
+                {selectedKeys.size > 0 && ` (${selectedKeys.size})`}
+              </Button>
+            </div>
           </div>
         </DialogFooter>
       </DialogContent>
+
+      {/* Email Modal */}
+      <Dialog open={isEmailModalOpen} onOpenChange={setIsEmailModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Mail className="h-5 w-5" />
+              {t('sendPartsViaEmail') || 'Send Parts via Email'}
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>{t('emailRecipients') || 'Email Recipients'}</Label>
+
+              {/* Email list */}
+              <div className="space-y-2 max-h-40 overflow-y-auto">
+                {emailList.map((email) => (
+                  <div
+                    key={email}
+                    className="flex items-center justify-between bg-muted px-3 py-2 rounded-md"
+                  >
+                    <span className="text-sm truncate">{email}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 shrink-0"
+                      onClick={() => handleRemoveEmail(email)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+                {emailList.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-2">
+                    {t('noEmailsYet') || 'No emails added yet'}
+                  </p>
+                )}
+              </div>
+
+              {/* Add new email */}
+              <div className="flex gap-2">
+                <Input
+                  type="email"
+                  placeholder={t('enterEmail') || 'Enter email address'}
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddEmail();
+                    }
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={handleAddEmail}
+                  disabled={!newEmail.trim()}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <div className="text-sm text-muted-foreground">
+              {t('partsToSend') || 'Parts to send'}:{' '}
+              {emailMode === 'current'
+                ? getSelectedCountForSubsection(activeTab)
+                : selectedKeys.size}{' '}
+              {emailMode === 'current'
+                ? `(${t('currentTabOnly') || 'current tab only'})`
+                : `(${t('allTabs') || 'all tabs'})`}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEmailModalOpen(false)}>
+              {t('cancel') || 'Cancel'}
+            </Button>
+            <Button onClick={handleSendEmail} disabled={emailList.length === 0 || isSendingEmail}>
+              {isSendingEmail ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  {t('sending') || 'Sending...'}
+                </>
+              ) : (
+                <>
+                  <Mail className="h-4 w-4 mr-2" />
+                  {t('sendEmail') || 'Send Email'}
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
