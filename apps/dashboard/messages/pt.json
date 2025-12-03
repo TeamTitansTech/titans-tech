@@ -309,6 +309,7 @@
       "title": "Permissões",
       "description": "Controle o que este usuário pode acessar e gerenciar",
       "userManagementInfo": "Nota: Para gerenciar usuários, é necessário ter a permissão \"Visualizar Filiais\" habilitada, pois os usuários estão vinculados às filiais.",
+      "servicesInfo": "Nota: Para criar, editar ou excluir serviços, é necessário ter a permissão \"Visualizar Máquinas\" habilitada, pois os serviços estão vinculados às máquinas.",
       "preset": {
         "label": "Função Predefinida",
         "manager": "Gerente",
@@ -345,9 +346,9 @@
         "updateMachines": "Editar Máquinas",
         "deleteMachines": "Excluir Máquinas",
         "readServices": "Visualizar Serviços",
-        "createServices": "Criar Serviços",
-        "updateServices": "Editar Serviços",
-        "deleteServices": "Excluir Serviços",
+        "createServices": "Criar Serviços Agendados",
+        "updateServices": "Editar Serviços Agendados",
+        "deleteServices": "Excluir Serviços Agendados",
         "readProductionLines": "Visualizar Linhas de Produção",
         "createProductionLines": "Criar Linhas de Produção",
         "updateProductionLines": "Editar Linhas de Produção",
@@ -526,8 +527,11 @@
         "actions": "Ações"
       },
       "roles": {
+        "companyAdmin": "Admin da Empresa",
+        "companyManager": "Gerente da Empresa",
         "branchManager": "Gerente",
-        "employee": "Funcionário"
+        "employee": "Funcionário",
+        "custom": "Personalizado"
       },
       "status": {
         "active": "ativo",
@@ -977,6 +981,7 @@
       "lubricationHydraulics": "Lubrificação / Hidráulica",
       "clutch": "Folga de Embreagem e Freio",
       "counterbalance": "Cilindro de Contrapeso / Airbag",
+      "counterbalanceCylinder": "Cilindro de Contrapeso / Airbag",
       "tramming": "Tramming",
       "pistons": "Pistões"
     },
@@ -1917,9 +1922,9 @@
     "updateMachines": "Editar Máquinas",
     "deleteMachines": "Excluir Máquinas",
     "readServices": "Ver Serviços",
-    "createServices": "Criar Serviços",
-    "updateServices": "Editar Serviços",
-    "deleteServices": "Excluir Serviços",
+    "createServices": "Criar Serviços Agendados",
+    "updateServices": "Editar Serviços Agendados",
+    "deleteServices": "Excluir Serviços Agendados",
     "readBranches": "Ver Filiais",
     "updateBranches": "Editar Filiais"
   },

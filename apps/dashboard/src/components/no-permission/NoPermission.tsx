@@ -11,15 +11,41 @@ interface NoPermissionProps {
   message?: string;
   description?: string;
   showContactAdmin?: boolean;
+  variant?: 'page' | 'inline';
 }
 
-export function NoPermission({ message, description, showContactAdmin = true }: NoPermissionProps) {
+export function NoPermission({
+  message,
+  description,
+  showContactAdmin = true,
+  variant = 'page',
+}: NoPermissionProps) {
   const router = useInternalRouter();
   const t = useTranslations('common');
 
   const handleGoToDashboard = () => {
     router.push('/home');
   };
+
+  if (variant === 'inline') {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col items-center text-center space-y-3 py-4">
+            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center">
+              <ShieldOff className="w-6 h-6 text-destructive" />
+            </div>
+            <div className="space-y-1">
+              <Typography variant="h4">{message || t('noPermission.title')}</Typography>
+              <Typography variant="muted" className="text-sm">
+                {description || t('noPermission.description')}
+              </Typography>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-[60vh] p-4">

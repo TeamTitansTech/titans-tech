@@ -309,6 +309,7 @@
       "title": "Permissions",
       "description": "Control what this user can access and manage",
       "userManagementInfo": "Note: To manage users, you must enable the \"View Branches\" permission, as users are linked to branches.",
+      "servicesInfo": "Note: To create, edit, or delete services, you must enable the \"View Machines\" permission, as services are linked to machines.",
       "preset": {
         "label": "Permission Preset",
         "manager": "Manager",
@@ -345,9 +346,9 @@
         "updateMachines": "Edit Machines",
         "deleteMachines": "Delete Machines",
         "readServices": "View Services",
-        "createServices": "Create Services",
-        "updateServices": "Edit Services",
-        "deleteServices": "Delete Services",
+        "createServices": "Create Upcoming Services",
+        "updateServices": "Edit Upcoming Services",
+        "deleteServices": "Delete Upcoming Services",
         "readProductionLines": "View Production Lines",
         "createProductionLines": "Create Production Lines",
         "updateProductionLines": "Edit Production Lines",
@@ -526,8 +527,11 @@
         "actions": "Actions"
       },
       "roles": {
+        "companyAdmin": "Company Admin",
+        "companyManager": "Company Manager",
         "branchManager": "Manager",
-        "employee": "Worker"
+        "employee": "Worker",
+        "custom": "Custom"
       },
       "status": {
         "active": "active",
@@ -972,6 +976,7 @@
       "lubricationHydraulics": "Lubrication / Hydraulics",
       "clutch": "Clutch and Brake Clearance - CP 2",
       "counterbalance": "Counterbalance Cylinder / Airbag",
+      "counterbalanceCylinder": "Counterbalance Cylinder / Airbag",
       "tramming": "Tramming",
       "pistons": "Pistons"
     },
@@ -2078,9 +2083,9 @@
     "updateMachines": "Edit Machines",
     "deleteMachines": "Delete Machines",
     "readServices": "View Services",
-    "createServices": "Create Services",
-    "updateServices": "Edit Services",
-    "deleteServices": "Delete Services",
+    "createServices": "Create Upcoming Services",
+    "updateServices": "Edit Upcoming Services",
+    "deleteServices": "Delete Upcoming Services",
     "readBranches": "View Branches",
     "updateBranches": "Edit Branches"
   },

@@ -7,7 +7,6 @@ import {
   Delete,
   Param,
   Request,
-  ForbiddenException,
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { CompanyBranchesService } from './company-branches.service';
@@ -191,19 +190,22 @@ export class CompanyBranchesController {
    */
   @BranchPermission('manageUserPermissions')
   @Patch(':branchId/users/:userId/permissions-all-branches')
-  updateUserPermissionsAllBranches(
+  async updateUserPermissionsAllBranches(
     @Param('branchId') branchId: string,
     @Param('userId') userId: string,
     @Body(new ZodValidationPipe(UpdateUserPermissionsSchema))
     dto: UpdateUserPermissionsDto,
     @Request() req: ReqWithAuthUser,
   ) {
-    // BranchPermission guard ensures this is a company user, not a sys admin
-    if (isSysAdmin(req.user)) {
-      throw new ForbiddenException('System admins cannot access this endpoint');
-    }
+    let companyId: string;
 
-    const companyId = req.user.companyId;
+    if (isSysAdmin(req.user)) {
+      // For SysAdmin, get companyId from the branch
+      const branch = await this.companyBranchesService.findOne(branchId);
+      companyId = branch.companyId;
+    } else {
+      companyId = req.user.companyId;
+    }
 
     // Extract permissions (remove applyToAllBranches flag)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

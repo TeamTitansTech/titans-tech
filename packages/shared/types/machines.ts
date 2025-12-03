@@ -39,6 +39,7 @@ export interface MachineField {
 export interface Machine {
   id: string;
   blueprintId: string;
+  branchId: string;
   name: string;
   imageUrl?: string;
   fields: MachineField[];

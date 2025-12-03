@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
   Logger,
 } from '@nestjs/common';
 import { Prisma, ServiceRequestStatus } from '@titans-tech/db';
@@ -39,6 +40,12 @@ import {
   OIL_CHANGE_WARNING_THRESHOLD_DAYS,
 } from './services.constants';
 
+type ServicePermission =
+  | 'createServices'
+  | 'updateServices'
+  | 'deleteServices'
+  | 'readServices';
+
 @Injectable()
 export class ServicesService {
   private readonly logger = new Logger(ServicesService.name);
@@ -48,13 +55,111 @@ export class ServicesService {
     private alertsService: AlertsService,
   ) {}
 
-  async create(createInspectionDto: CreateServiceDto): Promise<
+  /**
+   * Validates if a user has permission to perform an action on a service
+   * @param userId - The ID of the user making the request (null for SysAdmin)
+   * @param machineId - The ID of the machine the service belongs to
+   * @param permission - The permission to check
+   */
+  private async validateServicePermission(
+    userId: string | null,
+    machineId: string,
+    permission: ServicePermission,
+  ): Promise<void> {
+    // SysAdmin has full access (userId is null when coming from SysAdmin)
+    if (!userId) return;
+
+    // 1. Get machine and its branch/company info
+    const machine = await this.prisma.machine.findUnique({
+      where: { id: machineId },
+      select: { branchId: true, branch: { select: { companyId: true } } },
+    });
+
+    if (!machine) {
+      throw new NotFoundException(`Machine with ID ${machineId} not found`);
+    }
+
+    // 2. Get user info
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { companyId: true, isCompanyAdmin: true, isCompanyManager: true },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('User not found');
+    }
+
+    // 3. Verify user belongs to the same company
+    if (user.companyId !== machine.branch.companyId) {
+      throw new ForbiddenException(
+        'Access denied: User not part of this company',
+      );
+    }
+
+    // 4. Company Admin/Manager has full access
+    if (user.isCompanyAdmin || user.isCompanyManager) {
+      return;
+    }
+
+    // 5. Check branch-specific permission
+    const userBranch = await this.prisma.userBranch.findUnique({
+      where: {
+        userId_branchId: { userId, branchId: machine.branchId },
+      },
+    });
+
+    if (!userBranch) {
+      throw new ForbiddenException(
+        'Access denied: User not part of this branch',
+      );
+    }
+
+    if (!userBranch[permission]) {
+      throw new ForbiddenException(
+        `Access denied: Missing required permission '${permission}'`,
+      );
+    }
+  }
+
+  /**
+   * Validates permission based on serviceId (fetches machineId internally)
+   */
+  private async validateServicePermissionByServiceId(
+    userId: string | null,
+    serviceId: string,
+    permission: ServicePermission,
+  ): Promise<string> {
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      select: { machineId: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    await this.validateServicePermission(userId, service.machineId, permission);
+
+    return service.machineId;
+  }
+
+  async create(
+    createInspectionDto: CreateServiceDto,
+    userId: string | null,
+  ): Promise<
     Prisma.MachineServiceGetPayload<{
       include: {
         machine: { include: { blueprint: true; fields: true; branch: true } };
       };
     }>
   > {
+    // Validate permission before creating
+    await this.validateServicePermission(
+      userId,
+      createInspectionDto.machineId,
+      'createServices',
+    );
+
     // Verify machine exists and get its blueprint
     const machine = await this.prisma.machine.findUnique({
       where: { id: createInspectionDto.machineId },
@@ -132,15 +237,24 @@ export class ServicesService {
   async update(
     serviceId: string,
     updateDto: UpdateServicePayload,
+    userId: string | null,
   ): Promise<any> {
     // Verify service exists
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
+      select: { id: true, machineId: true },
     });
 
     if (!service) {
       throw new NotFoundException(`Service with ID ${serviceId} not found`);
     }
+
+    // Validate permission before updating
+    await this.validateServicePermission(
+      userId,
+      service.machineId,
+      'updateServices',
+    );
 
     // Build the update data object with only the fields that are provided
     const updateData: Prisma.MachineServiceUpdateInput = {};
@@ -963,7 +1077,15 @@ export class ServicesService {
   async updateBearingClearance(
     serviceId: string,
     updateDto: BearingClearanceCheck,
+    userId: string | null,
   ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
     // Check if service exists
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
@@ -1084,7 +1206,18 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
-  async updateSlide(serviceId: string, updateDto: SlideCheck): Promise<any> {
+  async updateSlide(
+    serviceId: string,
+    updateDto: SlideCheck,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: { slide: true },
@@ -1234,7 +1367,18 @@ export class ServicesService {
     }
   }
 
-  async updateGibs(serviceId: string, updateDto: GibsCheck): Promise<any> {
+  async updateGibs(
+    serviceId: string,
+    updateDto: GibsCheck,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: { gibs: true },
@@ -1407,7 +1551,15 @@ export class ServicesService {
   async updateLubricationHydraulics(
     serviceId: string,
     updateDto: LubricationHydraulicsCheck,
+    userId: string | null,
   ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: { lubricationHydraulics: true },
@@ -1517,7 +1669,18 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
-  async updateClutch(serviceId: string, updateDto: ClutchData): Promise<any> {
+  async updateClutch(
+    serviceId: string,
+    updateDto: ClutchData,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: { clutch: true },
@@ -1589,7 +1752,15 @@ export class ServicesService {
   async updateCounterbalanceCylinder(
     serviceId: string,
     updateDto: CounterbalanceCylinderCheck,
+    userId: string | null,
   ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: { counterbalanceCylinderAirbag: true },
@@ -1690,7 +1861,15 @@ export class ServicesService {
   async updateTramming(
     serviceId: string,
     updateDto: TrammingCheck,
+    userId: string | null,
   ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: { tramming: true },
@@ -1804,7 +1983,15 @@ export class ServicesService {
   async updatePistons(
     serviceId: string,
     updateDto: PistonsCheck,
+    userId: string | null,
   ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
       include: { pistons: true },
@@ -1928,7 +2115,15 @@ export class ServicesService {
   async completeService(
     serviceId: string,
     completeDto: CompleteServiceDto,
+    userId: string | null,
   ): Promise<any> {
+    // Validate permission before completing
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
     });
@@ -2047,15 +2242,23 @@ export class ServicesService {
     return updatedService;
   }
 
-  async delete(id: string): Promise<void> {
-    // Verify service exists
+  async delete(id: string, userId: string | null): Promise<void> {
+    // Verify service exists and get machineId for permission check
     const service = await this.prisma.machineService.findUnique({
       where: { id },
+      select: { id: true, machineId: true },
     });
 
     if (!service) {
       throw new NotFoundException(`Service with ID ${id} not found`);
     }
+
+    // Validate permission before deleting
+    await this.validateServicePermission(
+      userId,
+      service.machineId,
+      'deleteServices',
+    );
 
     // Delete the service (cascade delete will handle related data)
     await this.prisma.machineService.delete({

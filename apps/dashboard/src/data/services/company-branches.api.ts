@@ -20,6 +20,7 @@ export interface CompanyBranch {
   };
   _count?: {
     machines: number;
+    users: number;
   };
 }
 

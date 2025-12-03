@@ -309,6 +309,7 @@
       "title": "Permisos",
       "description": "Controle a qué puede acceder y gestionar este usuario",
       "userManagementInfo": "Nota: Para gestionar usuarios, debe habilitar el permiso \"Ver Sucursales\", ya que los usuarios están vinculados a las sucursales.",
+      "servicesInfo": "Nota: Para crear, editar o eliminar servicios, debe habilitar el permiso \"Ver Máquinas\", ya que los servicios están vinculados a las máquinas.",
       "preset": {
         "label": "Rol Predefinido",
         "manager": "Gerente",
@@ -345,9 +346,9 @@
         "updateMachines": "Editar Máquinas",
         "deleteMachines": "Eliminar Máquinas",
         "readServices": "Ver Servicios",
-        "createServices": "Crear Servicios",
-        "updateServices": "Editar Servicios",
-        "deleteServices": "Eliminar Servicios",
+        "createServices": "Crear Servicios Programados",
+        "updateServices": "Editar Servicios Programados",
+        "deleteServices": "Eliminar Servicios Programados",
         "readProductionLines": "Ver Líneas de Producción",
         "createProductionLines": "Crear Líneas de Producción",
         "updateProductionLines": "Editar Líneas de Producción",
@@ -526,8 +527,11 @@
         "actions": "Acciones"
       },
       "roles": {
+        "companyAdmin": "Admin de Empresa",
+        "companyManager": "Gerente de Empresa",
         "branchManager": "Gerente",
-        "employee": "Trabajador"
+        "employee": "Trabajador",
+        "custom": "Personalizado"
       },
       "status": {
         "active": "activo",
@@ -972,6 +976,7 @@
       "lubricationHydraulics": "Lubricación / Hidráulica",
       "clutch": "Holgura de Embrague y Freno - CP 2",
       "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
+      "counterbalanceCylinder": "Cilindro de Contrapeso / Bolsa de Aire",
       "tramming": "Tramming",
       "pistons": "Pistones"
     },
@@ -2078,9 +2083,9 @@
     "updateMachines": "Editar Máquinas",
     "deleteMachines": "Eliminar Máquinas",
     "readServices": "Ver Servicios",
-    "createServices": "Crear Servicios",
-    "updateServices": "Editar Servicios",
-    "deleteServices": "Eliminar Servicios",
+    "createServices": "Crear Servicios Programados",
+    "updateServices": "Editar Servicios Programados",
+    "deleteServices": "Eliminar Servicios Programados",
     "readBranches": "Ver Sucursales",
     "updateBranches": "Editar Sucursales"
   },

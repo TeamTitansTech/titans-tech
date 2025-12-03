@@ -32,7 +32,7 @@ import {
 } from '@/data/services/service-requests.api';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import SimpleServiceCreationModal from './SimpleServiceCreationModal';
+import SimpleServiceCreationModal from '@/components/shared/services/SimpleServiceCreationModal';
 
 interface ServiceRequestsProps {
   machineId: string;

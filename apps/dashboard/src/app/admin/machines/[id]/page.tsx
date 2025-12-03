@@ -2,7 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { getMachineById } from '@/data/services/machines.api';
 import { getPublicMachineInfo } from '@/data/services/public.api';
 import { MachineDetails } from './components/MachineDetails';
-import { UpcomingServices } from './components/UpcomingServices';
+import { UpcomingServices } from '@/components/shared/services/UpcomingServices';
 import { ServiceHistory } from './components/ServiceHistory';
 import { ServiceRequests } from './components/ServiceRequests';
 import { notFound } from 'next/navigation';

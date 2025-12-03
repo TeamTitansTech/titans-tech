@@ -36,10 +36,9 @@ export function ViewTab({ productionLine, canViewMachineDetails = true }: ViewTa
     );
   }
 
-  // Separate main machine (order 0), secondary machine (order 1), and other machines
+  // Separate main machine (order 0) and other machines
   const mainMachine = orderedMachines[0]; // First machine is the principal
-  const secondaryMachine = orderedMachines.length > 1 ? orderedMachines[1] : null; // Second machine is secondary (output)
-  const otherMachines = orderedMachines.slice(2); // Rest are regular machines
+  const otherMachines = orderedMachines.slice(1); // Rest are regular machines
 
   // Split other machines into top and bottom rows (alternating)
   const topRowMachines = otherMachines.filter((_, index) => index % 2 === 0);
@@ -66,24 +65,6 @@ export function ViewTab({ productionLine, canViewMachineDetails = true }: ViewTa
           />
 
           <div className="relative z-10 flex items-center">
-            {/* Secondary machine at the start (left) centered on the line */}
-            {secondaryMachine && (
-              <div className="flex items-center mr-4">
-                <div className="relative">
-                  {/* Secondary badge */}
-                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-blue-500 text-white px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap">
-                    <span>{t('secondary')}</span>
-                  </div>
-                  <MachineCardInLine
-                    machine={secondaryMachine.machine!}
-                    canViewDetails={canViewMachineDetails}
-                  />
-                </div>
-                {/* Horizontal connector to the line */}
-                <div className="h-1 w-8 bg-green-500" />
-              </div>
-            )}
-
             {/* Middle section: machines above and below the line - fills available space */}
             <div className="flex-1 flex flex-col">
               {/* Top machines with vertical connectors - spread evenly */}
@@ -154,11 +135,6 @@ export function ViewTab({ productionLine, canViewMachineDetails = true }: ViewTa
                   {index === 0 && (
                     <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium">
                       <Star className="w-3 h-3 fill-current" />
-                    </div>
-                  )}
-                  {index === 1 && (
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-blue-500 text-white px-2 py-0.5 rounded-full text-xs font-medium">
-                      <span>{t('secondary')}</span>
                     </div>
                   )}
                   <MachineCardInLine

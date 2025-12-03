@@ -48,7 +48,7 @@ import {
   type ServiceRequestStatus,
 } from '@/data/services/service-requests.api';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import SimpleServiceCreationModal from '../../machines/[id]/components/SimpleServiceCreationModal';
+import SimpleServiceCreationModal from '@/components/shared/services/SimpleServiceCreationModal';
 
 export function ServiceRequestsList() {
   const t = useTranslations('serviceRequests');

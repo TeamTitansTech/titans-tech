@@ -154,12 +154,14 @@ export function BranchesSection({
                         )}
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Detroit, MI {/* TODO: Add location field to branch data */}
-                    </p>
+                    {branch.location && (
+                      <p className="text-sm text-muted-foreground">{branch.location}</p>
+                    )}
                     <div className="flex items-center gap-1 text-sm text-muted-foreground mt-2">
                       <Users className="h-4 w-4" />
-                      <span>5 {t('users')}</span> {/* TODO: Add user count from API */}
+                      <span>
+                        {branch._count?.users ?? 0} {t('users')}
+                      </span>
                     </div>
                   </div>
                 </CardContent>

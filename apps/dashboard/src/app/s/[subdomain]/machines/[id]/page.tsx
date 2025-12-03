@@ -5,10 +5,11 @@ import { getPublicMachineInfo } from '@/data/services/public.api';
 import { MachineDetailsClient } from './components/MachineDetailsClient';
 import { ServiceHistory } from './components/ServiceHistory';
 import { PublicMachineView } from './components/PublicMachineView';
+import { UpcomingServices } from '@/components/shared/services/UpcomingServices';
 import { notFound } from 'next/navigation';
 import { Typography } from '@/components/ui/typography';
 import { NoPermission } from '@/components/no-permission/NoPermission';
-import { hasPermissionForResource } from '@/lib/permissions';
+import { hasPermissionForResource, hasPermission } from '@/lib/permissions';
 
 interface MachineDetailPageProps {
   params: Promise<{
@@ -67,10 +68,30 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     return <NoPermission />;
   }
 
+  // Check service permissions
+  const canReadServices = hasPermission(user, machine.branchId, 'readServices');
+  const canCreateServices = hasPermission(user, machine.branchId, 'createServices');
+  const canUpdateServices = hasPermission(user, machine.branchId, 'updateServices');
+  const canDeleteServices = hasPermission(user, machine.branchId, 'deleteServices');
+
   return (
     <div className="space-y-6 p-4">
       <MachineDetailsClient machine={response.data} companySlug={subdomain} />
-      <ServiceHistory machineId={id} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {canReadServices ? (
+          <UpcomingServices
+            machineId={id}
+            blueprintSections={machine.blueprint?.sections || []}
+            companyId={user?.companyId}
+            canCreateServices={canCreateServices}
+            canUpdateServices={canUpdateServices}
+            canDeleteServices={canDeleteServices}
+          />
+        ) : (
+          <NoPermission variant="inline" />
+        )}
+        <ServiceHistory machineId={id} />
+      </div>
     </div>
   );
 }
