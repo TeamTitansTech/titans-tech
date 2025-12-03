@@ -808,6 +808,7 @@
   },
   "models": {
     "title": "Create Model",
+    "editTitle": "Edit Model",
     "pageTitle": "Models",
     "pageDescription": "Manage machine templates and specifications",
     "newButton": "New Model",
@@ -815,7 +816,9 @@
     "noDescription": "No description",
     "errorLoading": "Error loading models",
     "createdSuccessfully": "Model created successfully",
+    "updatedSuccessfully": "Model updated successfully",
     "description": "Create a new machine model",
+    "editDescription": "Edit the model information",
     "form": {
       "basicInfo": {
         "title": "Basic Information"
@@ -855,6 +858,7 @@
       },
       "submit": {
         "idle": "Create Blueprint",
+        "edit": "Save Changes",
         "loading": "Sending..."
       },
       "error": {

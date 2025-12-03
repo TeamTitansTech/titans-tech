@@ -68,6 +68,10 @@ export const getBlueprints = async () => {
   return await responseHandler<Blueprint[]>('/blueprints');
 };
 
+export const getBlueprintById = async (id: string) => {
+  return await responseHandler<Blueprint>(`/blueprints/${id}`);
+};
+
 export const updateBlueprint = async (id: string, payload: UpdateBlueprintPayload) => {
   return await responseHandler<Blueprint>(`/blueprints/${id}`, {
     method: 'PATCH',
