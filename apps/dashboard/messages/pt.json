@@ -309,6 +309,7 @@
       "title": "Permissões",
       "description": "Controle o que este usuário pode acessar e gerenciar",
       "userManagementInfo": "Nota: Para gerenciar usuários, é necessário ter a permissão \"Visualizar Filiais\" habilitada, pois os usuários estão vinculados às filiais.",
+      "servicesInfo": "Nota: Para criar, editar ou excluir serviços, é necessário ter a permissão \"Visualizar Máquinas\" habilitada, pois os serviços estão vinculados às máquinas.",
       "preset": {
         "label": "Função Predefinida",
         "manager": "Gerente",
@@ -980,6 +981,7 @@
       "lubricationHydraulics": "Lubrificação / Hidráulica",
       "clutch": "Folga de Embreagem e Freio",
       "counterbalance": "Cilindro de Contrapeso / Airbag",
+      "counterbalanceCylinder": "Cilindro de Contrapeso / Airbag",
       "tramming": "Tramming",
       "pistons": "Pistões"
     },

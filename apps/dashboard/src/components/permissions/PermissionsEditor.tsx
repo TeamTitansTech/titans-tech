@@ -48,40 +48,43 @@ export function PermissionsEditor({
     onChange(newPermissions);
   };
 
-  // Define permission dependencies: these permissions require the "read" permission
-  const permissionDependencies: Record<string, PermissionName> = {
+  // Define permission dependencies: these permissions require other permissions to be enabled
+  // Supports multiple dependencies per permission
+  const permissionDependencies: Record<string, PermissionName[]> = {
     // User management requires branch visibility (users are linked to branches)
-    readUsers: 'readBranches',
-    createUsers: 'readUsers',
-    updateUsers: 'readUsers',
-    deleteUsers: 'readUsers',
-    manageUserPermissions: 'readUsers',
-    assignUsersToBranches: 'readUsers',
-    updateBranches: 'readBranches',
-    createMachines: 'readMachines',
-    updateMachines: 'readMachines',
-    deleteMachines: 'readMachines',
-    createServices: 'readServices',
-    updateServices: 'readServices',
-    deleteServices: 'readServices',
-    createProductionLines: 'readProductionLines',
-    updateProductionLines: 'readProductionLines',
-    deleteProductionLines: 'readProductionLines',
+    readUsers: ['readBranches'],
+    createUsers: ['readUsers'],
+    updateUsers: ['readUsers'],
+    deleteUsers: ['readUsers'],
+    manageUserPermissions: ['readUsers'],
+    assignUsersToBranches: ['readUsers'],
+    updateBranches: ['readBranches'],
+    createMachines: ['readMachines'],
+    updateMachines: ['readMachines'],
+    deleteMachines: ['readMachines'],
+    // Service mutations require both readServices AND readMachines
+    createServices: ['readServices', 'readMachines'],
+    updateServices: ['readServices', 'readMachines'],
+    deleteServices: ['readServices', 'readMachines'],
+    createProductionLines: ['readProductionLines'],
+    updateProductionLines: ['readProductionLines'],
+    deleteProductionLines: ['readProductionLines'],
   };
 
-  // Get the read permission for a given category
+  // Get all permissions that depend on a given permission
   const getDependentPermissions = (readPermission: PermissionName): PermissionName[] => {
     return Object.entries(permissionDependencies)
-      .filter(([_, dep]) => dep === readPermission)
+      .filter(([_, deps]) => deps.includes(readPermission))
       .map(([perm]) => perm as PermissionName);
   };
 
-  // Check if a permission should be disabled
+  // Check if a permission should be disabled (all required permissions must be enabled)
   const isPermissionDisabled = (permission: PermissionName): boolean => {
     if (disabled) return true;
-    const requiredPermission = permissionDependencies[permission];
-    if (requiredPermission) {
-      return !permissions[requiredPermission];
+    const requiredPermissions = permissionDependencies[permission];
+    if (requiredPermissions && requiredPermissions.length > 0) {
+      // Disabled if ANY required permission is not enabled
+      return requiredPermissions.some((req) => !permissions[req]);
     }
     return false;
   };
@@ -93,11 +96,13 @@ export function PermissionsEditor({
       [permission]: checked,
     };
 
-    // If checking a permission, also enable its dependency
+    // If checking a permission, also enable all its dependencies
     if (checked) {
-      const requiredPermission = permissionDependencies[permission];
-      if (requiredPermission) {
-        newPermissions[requiredPermission] = true;
+      const requiredPermissions = permissionDependencies[permission];
+      if (requiredPermissions && requiredPermissions.length > 0) {
+        requiredPermissions.forEach((req) => {
+          newPermissions[req] = true;
+        });
       }
     }
 
@@ -123,9 +128,13 @@ export function PermissionsEditor({
     if (categoryGroup) {
       // Only enable permissions that are not disabled
       categoryGroup.permissions.forEach((permission) => {
-        const requiredPermission = permissionDependencies[permission];
-        // Only enable if no dependency OR dependency is already enabled
-        if (!requiredPermission || newPermissions[requiredPermission]) {
+        const requiredPermissions = permissionDependencies[permission];
+        // Only enable if no dependencies OR all dependencies are already enabled
+        if (
+          !requiredPermissions ||
+          requiredPermissions.length === 0 ||
+          requiredPermissions.every((req) => newPermissions[req])
+        ) {
           newPermissions[permission] = true;
         }
       });
@@ -229,6 +238,16 @@ export function PermissionsEditor({
                     <Info className="h-4 w-4 text-primary" />
                     <AlertDescription className="text-xs text-primary">
                       {t('permissions.userManagementInfo')}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {/* Info message for services category */}
+                {group.category === 'serviceManagement' && (
+                  <Alert className="bg-primary/10 border-primary/20">
+                    <Info className="h-4 w-4 text-primary" />
+                    <AlertDescription className="text-xs text-primary">
+                      {t('permissions.servicesInfo')}
                     </AlertDescription>
                   </Alert>
                 )}

@@ -305,6 +305,7 @@
       "title": "Permissions",
       "description": "Control what this user can access and manage",
       "userManagementInfo": "Note: To manage users, you must enable the \"View Branches\" permission, as users are linked to branches.",
+      "servicesInfo": "Note: To create, edit, or delete services, you must enable the \"View Machines\" permission, as services are linked to machines.",
       "preset": {
         "label": "Permission Preset",
         "manager": "Manager",
@@ -971,6 +972,7 @@
       "lubricationHydraulics": "Lubrication / Hydraulics",
       "clutch": "Clutch and Brake Clearance - CP 2",
       "counterbalance": "Counterbalance Cylinder / Airbag",
+      "counterbalanceCylinder": "Counterbalance Cylinder / Airbag",
       "tramming": "Tramming",
       "pistons": "Pistons"
     },
