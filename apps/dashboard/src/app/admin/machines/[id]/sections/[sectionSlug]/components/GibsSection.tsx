@@ -52,6 +52,7 @@ interface GibsStageData {
 }
 
 export function GibsSection({
+  machineId,
   inspections,
   machineName,
   blueprintId,
@@ -369,6 +370,7 @@ export function GibsSection({
           subsections: GIBS_SUBSECTIONS,
           title: tParts('gibsParts'),
           description: tParts('gibsDescription'),
+          machineId,
           machineName,
           sectionName: 'Gibs',
         }}

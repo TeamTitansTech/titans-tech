@@ -1,0 +1,117 @@
+{
+  "emails": {
+    "common": {
+      "footer": "This is an automated notification from Titans Tech Service Management System.",
+      "footerQuestion": "If you have any questions, please contact the inspection team.",
+      "viewDetails": "View Details"
+    },
+    "alertNotification": {
+      "subject": "{emoji} Inspection Alert ({level}) - {machineName}",
+      "title": "Inspection Alert",
+      "intro": "An inspection was completed with alerts that require attention. Please review the details below.",
+      "severity": {
+        "critical": "CRITICAL",
+        "warning": "WARNING",
+        "criticalLabel": "Critical",
+        "warningLabel": "Warning"
+      },
+      "info": {
+        "machine": "Machine",
+        "company": "Company",
+        "branch": "Branch",
+        "inspectionDate": "Inspection Date",
+        "performedBy": "Performed by"
+      },
+      "alertDetails": "Alert Details",
+      "viewMachine": "View Machine Details →",
+      "clickMessage": "By clicking the button above you will be directed to the machine page where you can review the inspection details.",
+      "table": {
+        "measurement": "Measurement",
+        "differential": "Differential",
+        "value": "Value",
+        "status": "Status"
+      }
+    },
+    "urgentRequest": {
+      "subject": "🔴 Urgent Service Request - {machineName}",
+      "title": "Urgent Service Request",
+      "intro": "An urgent service request has been submitted for the following machine:",
+      "info": {
+        "machine": "Machine",
+        "company": "Company",
+        "branch": "Branch",
+        "requestedBy": "Requested by",
+        "email": "Email"
+      },
+      "notesTitle": "Additional Notes",
+      "notesWarning": "Please pay special attention to the notes below:",
+      "viewMachine": "Create Service Record →",
+      "clickMessage": "Clicking the button above will take you to the machine page where you can create a service record for this request."
+    },
+    "clientReminder": {
+      "subjectReminder": "🟡 Service Reminder - {machineName}",
+      "subjectOverdue": "🔴 Overdue Service Notice - {machineName}",
+      "titleReminder": "Service Reminder",
+      "titleOverdue": "Overdue Service Notice",
+      "greetingReminder": "Hello {userName},",
+      "greetingOverdue": "Hello {userName},",
+      "introReminder": "This is a friendly reminder that your machine is due for its regular service.",
+      "introOverdue": "Your machine is overdue for its regular service and requires immediate attention.",
+      "warningTitle": "Action Required",
+      "warningMessage": "This machine is {daysOverdue} days overdue for service. Please schedule maintenance as soon as possible to avoid potential issues.",
+      "info": {
+        "machine": "Machine",
+        "branch": "Branch",
+        "lastService": "Last Service",
+        "daysOverdue": "Days Overdue"
+      },
+      "viewMachine": "View Machine & Schedule Service →",
+      "clickMessage": "Click the button above to view the machine details and schedule the required service."
+    },
+    "publicServiceRequest": {
+      "subject": "🟠 QR Code Service Request - {machineName}",
+      "title": "QR Code Service Request",
+      "intro": "A maintenance request was submitted via QR code scan for the following machine:",
+      "machineInfo": "Machine Information",
+      "requesterInfo": "Requester Information",
+      "deviceInfo": "Device Information",
+      "problemDescription": "Problem Description",
+      "attachedPhoto": "Attached Photo",
+      "info": {
+        "machine": "Machine",
+        "serialNumber": "Serial Number",
+        "company": "Company",
+        "branch": "Branch",
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "ipAddress": "IP Address",
+        "browser": "Browser",
+        "os": "Operating System",
+        "device": "Device Type",
+        "mobile": "Mobile Device"
+      },
+      "viewMachine": "Create Service Record →",
+      "clickMessage": "Clicking the button above will take you to the machine page where you can create a service record for this request."
+    },
+    "partsRequest": {
+      "subject": "📦 Parts Request - {machineName} ({machineSerial})",
+      "badge": "PARTS REQUEST",
+      "title": "Parts Replacement Request",
+      "intro": "A parts replacement request has been submitted. Please review the details below.",
+      "machineInfo": "Request Information",
+      "requestedParts": "Requested Parts",
+      "note": "This request was submitted through the Titans Tech Service Management System.",
+      "info": {
+        "machine": "Machine",
+        "serialNumber": "Serial Number",
+        "section": "Section",
+        "company": "Company",
+        "branch": "Branch",
+        "requestedBy": "Requested by",
+        "requestDate": "Request Date",
+        "totalParts": "Total Parts"
+      }
+    }
+  }
+}

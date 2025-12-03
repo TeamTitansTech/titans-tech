@@ -97,7 +97,11 @@
     "logout": "Logout",
     "markAllAsRead": "Mark all as read",
     "loading": "Loading",
-    "noNotifications": "No notifications"
+    "noNotifications": "No notifications",
+    "notificationsMessage": {
+      "default": "You have a new notification of type {type}",
+      "newUrgentRequest": "Urgent service request from {requestedByName} for machine {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alerts Detected in Inspection",
@@ -2479,6 +2483,24 @@
     },
     "partsListTitle": "Parts List",
     "partsAvailable": "parts available",
+    "sendAsEmail": "Send as Email",
+    "sendThisTab": "Send This Tab",
+    "sendPartsViaEmail": "Send Parts via Email",
+    "emailRecipients": "Email Recipients",
+    "noEmailsYet": "No emails added yet",
+    "enterEmail": "Enter email address",
+    "partsToSend": "Parts to send",
+    "currentTabOnly": "current tab only",
+    "allTabs": "all tabs",
+    "cancel": "Cancel",
+    "sendEmail": "Send Email",
+    "sending": "Sending...",
+    "invalidEmail": "Invalid email address",
+    "emailAlreadyAdded": "Email already added",
+    "noEmailsAdded": "Please add at least one email",
+    "machineIdRequired": "Machine ID is required",
+    "emailSentSuccess": "Parts list sent successfully",
+    "emailSendError": "Failed to send email",
     "subsections": {
       "crankshaft": "Crankshaft Bearing",
       "outerSlideStandard": "Outer Slide (Standard)",
