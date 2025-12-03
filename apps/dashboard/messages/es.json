@@ -460,12 +460,20 @@
           "placeholder": "ej., acme-manufacturing"
         },
         "logo": {
-          "label": "URL del Logotipo (Opcional)",
+          "label": "Logo",
           "placeholder": "ej., https://ejemplo.com/logo.png",
           "uploadHint": "Haga clic para subir logo (JPG o PNG)",
           "uploading": "Subiendo...",
           "uploadSuccess": "Logo subido exitosamente",
           "uploadError": "Error al subir el logo"
+        },
+        "loginLogo": {
+          "label": "Logo de Inicio de Sesión (Opcional)",
+          "hint": "Si no se proporciona, se usará el logo principal",
+          "uploadHint": "Haga clic para subir logo de inicio de sesión (JPG o PNG)",
+          "uploading": "Subiendo...",
+          "uploadSuccess": "Logo de inicio de sesión subido exitosamente",
+          "uploadError": "Error al subir el logo de inicio de sesión"
         },
         "brandColor": {
           "label": "Color Primario (Opcional)",
