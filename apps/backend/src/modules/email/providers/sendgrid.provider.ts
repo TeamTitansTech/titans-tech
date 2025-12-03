@@ -1,4 +1,4 @@
-import * as sgMail from '@sendgrid/mail';
+import sgMail from '@sendgrid/mail';
 import { Injectable, Logger } from '@nestjs/common';
 import { appEnv } from '../../../config/env';
 
