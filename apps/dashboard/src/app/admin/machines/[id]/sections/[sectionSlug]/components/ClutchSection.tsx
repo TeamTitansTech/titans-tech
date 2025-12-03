@@ -34,6 +34,7 @@ interface ClutchSectionProps {
 }
 
 export function ClutchSection({
+  machineId,
   inspections,
   machineName,
   machineSerial,
@@ -265,6 +266,7 @@ export function ClutchSection({
           subsections: CLUTCH_BRAKE_SUBSECTIONS,
           title: tParts('clutchBrakeParts'),
           description: tParts('clutchBrakeDescription'),
+          machineId,
           machineName,
           machineSerial,
           sectionName: 'Clutch & Brake',

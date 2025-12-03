@@ -97,7 +97,11 @@
     "logout": "Logout",
     "markAllAsRead": "Mark all as read",
     "loading": "Loading",
-    "noNotifications": "No notifications"
+    "noNotifications": "No notifications",
+    "notificationsMessage": {
+      "default": "You have a new notification of type {type}",
+      "newUrgentRequest": "Urgent service request from {requestedByName} for machine {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alerts Detected in Inspection",
@@ -305,6 +309,7 @@
       "title": "Permissions",
       "description": "Control what this user can access and manage",
       "userManagementInfo": "Note: To manage users, you must enable the \"View Branches\" permission, as users are linked to branches.",
+      "servicesInfo": "Note: To create, edit, or delete services, you must enable the \"View Machines\" permission, as services are linked to machines.",
       "preset": {
         "label": "Permission Preset",
         "manager": "Manager",
@@ -341,9 +346,9 @@
         "updateMachines": "Edit Machines",
         "deleteMachines": "Delete Machines",
         "readServices": "View Services",
-        "createServices": "Create Services",
-        "updateServices": "Edit Services",
-        "deleteServices": "Delete Services",
+        "createServices": "Create Upcoming Services",
+        "updateServices": "Edit Upcoming Services",
+        "deleteServices": "Delete Upcoming Services",
         "readProductionLines": "View Production Lines",
         "createProductionLines": "Create Production Lines",
         "updateProductionLines": "Edit Production Lines",
@@ -522,8 +527,11 @@
         "actions": "Actions"
       },
       "roles": {
+        "companyAdmin": "Company Admin",
+        "companyManager": "Company Manager",
         "branchManager": "Manager",
-        "employee": "Worker"
+        "employee": "Worker",
+        "custom": "Custom"
       },
       "status": {
         "active": "active",
@@ -968,6 +976,7 @@
       "lubricationHydraulics": "Lubrication / Hydraulics",
       "clutch": "Clutch and Brake Clearance - CP 2",
       "counterbalance": "Counterbalance Cylinder / Airbag",
+      "counterbalanceCylinder": "Counterbalance Cylinder / Airbag",
       "tramming": "Tramming",
       "pistons": "Pistons"
     },
@@ -1044,7 +1053,9 @@
         "slideMeasurements": "Slide Measurements",
         "gibsMeasurements": "Gibs Measurements",
         "lubricationStatus": "Lubrication & Hydraulics Status",
-        "counterbalanceStatus": "Counterbalance Status"
+        "counterbalanceStatus": "Counterbalance Status",
+        "pistonsMeasurements": "Pistons Measurements",
+        "trammingMeasurements": "Tramming Measurements"
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Hydraulic Clutch Clearance",
@@ -1056,7 +1067,19 @@
         "innerGibsDirectional": "Inner Gibs - Directional Sums",
         "outerGibsDirectional": "Outer Gibs - Directional Sums",
         "issuesTrend": "Issues Trend Over Time",
-        "bearingClearanceDifferentials": "Bearing Clearance Differentials"
+        "bearingClearanceDifferentials": "Bearing Clearance Differentials",
+        "outerLhMeasurements": "Outer - LH Measurements",
+        "outerRhMeasurements": "Outer - RH Measurements",
+        "innerLhMeasurements": "Inner - LH Measurements",
+        "innerRhMeasurements": "Inner - RH Measurements",
+        "outerTopRowMeasurements": "Outer - Top Row Measurements",
+        "outerBottomRowMeasurements": "Outer - Bottom Row Measurements",
+        "outerLeftRowMeasurements": "Outer - Left Row Measurements",
+        "outerRightRowMeasurements": "Outer - Right Row Measurements",
+        "innerTopRowMeasurements": "Inner - Top Row Measurements",
+        "innerBottomRowMeasurements": "Inner - Bottom Row Measurements",
+        "innerLeftRowMeasurements": "Inner - Left Row Measurements",
+        "innerRightRowMeasurements": "Inner - Right Row Measurements"
       },
       "labels": {
         "outer": "Outer",
@@ -1080,7 +1103,45 @@
         "outerType": "Outer Type",
         "innerType": "Inner Type",
         "noLubricationData": "No lubrication data available",
-        "noCounterbalanceData": "No counterbalance data available"
+        "noCounterbalanceData": "No counterbalance data available",
+        "measurementTrends": "Measurement Trends",
+        "notes": "Notes",
+        "mm": "mm",
+        "pistons": "Pistons",
+        "tramming": "Tramming",
+        "guideSeals": "Guide Seals",
+        "pistonSeals": "Piston Seals",
+        "vacuumSystem": "Vacuum System",
+        "vacuumPressureSetting": "Vacuum Pressure Setting",
+        "lhTop": "LH Top",
+        "lhBottom": "LH Bottom",
+        "lhLeft": "LH Left",
+        "lhRight": "LH Right",
+        "rhTop": "RH Top",
+        "rhBottom": "RH Bottom",
+        "rhLeft": "RH Left",
+        "rhRight": "RH Right",
+        "slideTram": "Slide Tram",
+        "top": "Top",
+        "bottom": "Bottom",
+        "left": "Left",
+        "right": "Right",
+        "topTop": "Top-Top",
+        "topBottom": "Top-Bottom",
+        "topLeft": "Top-Left",
+        "topRight": "Top-Right",
+        "bottomTop": "Bottom-Top",
+        "bottomBottom": "Bottom-Bottom",
+        "bottomLeft": "Bottom-Left",
+        "bottomRight": "Bottom-Right",
+        "leftTop": "Left-Top",
+        "leftBottom": "Left-Bottom",
+        "leftLeft": "Left-Left",
+        "leftRight": "Left-Right",
+        "rightTop": "Right-Top",
+        "rightBottom": "Right-Bottom",
+        "rightLeft": "Right-Left",
+        "rightRight": "Right-Right"
       }
     },
     "latestReport": {
@@ -2022,9 +2083,9 @@
     "updateMachines": "Edit Machines",
     "deleteMachines": "Delete Machines",
     "readServices": "View Services",
-    "createServices": "Create Services",
-    "updateServices": "Edit Services",
-    "deleteServices": "Delete Services",
+    "createServices": "Create Upcoming Services",
+    "updateServices": "Edit Upcoming Services",
+    "deleteServices": "Delete Upcoming Services",
     "readBranches": "View Branches",
     "updateBranches": "Edit Branches"
   },
@@ -2427,6 +2488,24 @@
     },
     "partsListTitle": "Parts List",
     "partsAvailable": "parts available",
+    "sendAsEmail": "Send as Email",
+    "sendThisTab": "Send This Tab",
+    "sendPartsViaEmail": "Send Parts via Email",
+    "emailRecipients": "Email Recipients",
+    "noEmailsYet": "No emails added yet",
+    "enterEmail": "Enter email address",
+    "partsToSend": "Parts to send",
+    "currentTabOnly": "current tab only",
+    "allTabs": "all tabs",
+    "cancel": "Cancel",
+    "sendEmail": "Send Email",
+    "sending": "Sending...",
+    "invalidEmail": "Invalid email address",
+    "emailAlreadyAdded": "Email already added",
+    "noEmailsAdded": "Please add at least one email",
+    "machineIdRequired": "Machine ID is required",
+    "emailSentSuccess": "Parts list sent successfully",
+    "emailSendError": "Failed to send email",
     "subsections": {
       "crankshaft": "Crankshaft Bearing",
       "outerSlideStandard": "Outer Slide (Standard)",

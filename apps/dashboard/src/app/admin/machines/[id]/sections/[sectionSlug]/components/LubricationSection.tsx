@@ -51,6 +51,7 @@ interface LubricationSectionProps {
 }
 
 export function LubricationSection({
+  machineId,
   inspections,
   machineName,
   machineSerial,
@@ -382,6 +383,7 @@ export function LubricationSection({
           subsections: LUBRICATION_SUBSECTIONS,
           title: tParts('lubricationHydraulicsParts'),
           description: tParts('lubricationHydraulicsDescription'),
+          machineId,
           machineName,
           machineSerial,
           sectionName: 'Lubrication & Hydraulics',

@@ -26,7 +26,7 @@ import {
   completeService,
   getAlertsSummary,
 } from '@/data/services/services.api';
-import { AlertNotificationModal } from './AlertNotificationModal';
+import { AlertNotificationModal } from '@/components/shared/alerts/AlertNotificationModal';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { toast } from 'sonner';
 import { SECTION_REGISTRY } from './sections/registry';

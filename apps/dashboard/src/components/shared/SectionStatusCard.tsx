@@ -19,6 +19,7 @@ import type { Subsection } from '@/data/parts/section-subsections';
 interface PartsConfigBase {
   title: string;
   description?: string;
+  machineId?: string;
   machineName?: string;
   machineSerial?: string;
   sectionName?: string;
@@ -163,6 +164,7 @@ export function SectionStatusCard({
           onClose={() => setIsModalOpen(false)}
           title={partsConfig.title}
           subsections={partsConfig.subsections}
+          machineId={partsConfig.machineId}
           machineName={partsConfig.machineName}
           machineSerial={partsConfig.machineSerial}
           sectionName={partsConfig.sectionName}

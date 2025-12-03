@@ -18,23 +18,29 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import SimpleServiceCreationModal from './SimpleServiceCreationModal';
-import { ServiceCompletionModal } from './ServiceCompletionModal';
+import { ServiceCompletionModal } from '@/app/admin/machines/[id]/components/ServiceCompletionModal';
 import { deleteService } from '@/data/services/services.api';
 import type { Service } from '@/data/types/services.types';
 
-interface UpcomingServicesWrapperProps {
+interface UpcomingServicesClientProps {
   machineId: string;
   blueprintSections: string[];
   services: Service[];
   companyId?: string;
+  canCreateServices?: boolean;
+  canUpdateServices?: boolean;
+  canDeleteServices?: boolean;
 }
 
-export function UpcomingServicesWrapper({
+export function UpcomingServicesClient({
   machineId,
   blueprintSections,
   services,
   companyId,
-}: UpcomingServicesWrapperProps) {
+  canCreateServices = true,
+  canUpdateServices = true,
+  canDeleteServices = true,
+}: UpcomingServicesClientProps) {
   const t = useTranslations('machines');
   const tActions = useTranslations('actions');
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false);
@@ -93,10 +99,12 @@ export function UpcomingServicesWrapper({
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle>{t('upcomingServices')}</CardTitle>
-          <Button size="sm" onClick={() => setIsServiceModalOpen(true)} className="shrink-0">
-            <Plus className="w-4 h-4 mr-2" />
-            {t('newService')}
-          </Button>
+          {canCreateServices && (
+            <Button size="sm" onClick={() => setIsServiceModalOpen(true)} className="shrink-0">
+              <Plus className="w-4 h-4 mr-2" />
+              {t('newService')}
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {upcomingServices.length === 0 ? (
@@ -117,8 +125,10 @@ export function UpcomingServicesWrapper({
                 return (
                   <div
                     key={service.id}
-                    onClick={() => handleServiceClick(service)}
-                    className="flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-4 cursor-pointer hover:bg-muted transition-colors rounded-lg p-2 "
+                    onClick={canUpdateServices ? () => handleServiceClick(service) : undefined}
+                    className={`flex items-start justify-between border-b pb-4 last:border-b-0 last:pb-4 rounded-lg p-2 transition-colors ${
+                      canUpdateServices ? 'cursor-pointer hover:bg-muted' : ''
+                    }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="w-10 h-10 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
@@ -145,14 +155,16 @@ export function UpcomingServicesWrapper({
                           {t('inProgress')}
                         </span>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={(e) => handleDeleteClick(e, service)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {canDeleteServices && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={(e) => handleDeleteClick(e, service)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );
@@ -161,11 +173,13 @@ export function UpcomingServicesWrapper({
           )}
         </CardContent>
       </Card>
-      <SimpleServiceCreationModal
-        machineId={machineId}
-        open={isServiceModalOpen}
-        onOpenChange={setIsServiceModalOpen}
-      />
+      {canCreateServices && (
+        <SimpleServiceCreationModal
+          machineId={machineId}
+          open={isServiceModalOpen}
+          onOpenChange={setIsServiceModalOpen}
+        />
+      )}
       {selectedService && selectedService.type === 'MAINTENANCE' && (
         <ServiceCompletionModal
           key={`maintenance-${selectedService.id}-${isMaintenanceModalOpen}`}

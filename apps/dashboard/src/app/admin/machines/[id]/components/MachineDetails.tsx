@@ -79,7 +79,12 @@ export function MachineDetails({ machine, companySlug }: MachineDetailsComponent
             </ConditionalTooltip>
           </div>
         </div>
-        <Button onClick={handleOpenReport} disabled={isLoadingReport} size="sm">
+        <Button
+          onClick={handleOpenReport}
+          disabled={isLoadingReport}
+          className="shrink-0"
+          size="sm"
+        >
           <FileText className="w-4 h-4 mr-2" />
           {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
         </Button>

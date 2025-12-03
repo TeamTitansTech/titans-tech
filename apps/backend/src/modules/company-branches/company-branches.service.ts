@@ -41,6 +41,7 @@ export class CompanyBranchesService {
         _count: {
           select: {
             machines: true,
+            users: true,
           },
         },
       },

@@ -1,17 +1,23 @@
 import { getServicesByMachine } from '@/data/services/services.api';
 import type { Service } from '@/data/types/services.types';
-import { UpcomingServicesWrapper } from './UpcomingServicesWrapper';
+import { UpcomingServicesClient } from './UpcomingServicesClient';
 
 interface UpcomingServicesProps {
   machineId: string;
   blueprintSections: string[];
   companyId?: string;
+  canCreateServices?: boolean;
+  canUpdateServices?: boolean;
+  canDeleteServices?: boolean;
 }
 
 export async function UpcomingServices({
   machineId,
   blueprintSections,
   companyId,
+  canCreateServices = true,
+  canUpdateServices = true,
+  canDeleteServices = true,
 }: UpcomingServicesProps) {
   let services: Service[] = [];
 
@@ -30,11 +36,14 @@ export async function UpcomingServices({
   }
 
   return (
-    <UpcomingServicesWrapper
+    <UpcomingServicesClient
       machineId={machineId}
       blueprintSections={blueprintSections}
       services={services}
       companyId={companyId}
+      canCreateServices={canCreateServices}
+      canUpdateServices={canUpdateServices}
+      canDeleteServices={canDeleteServices}
     />
   );
 }

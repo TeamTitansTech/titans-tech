@@ -9,7 +9,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
-import { ServiceCompletionModal } from './ServiceCompletionModal';
 import { UrgentServiceModal } from './UrgentServiceModal';
 import { LatestReportModal } from '@/app/admin/machines/[id]/components/LatestReportModal';
 import { Typography } from '@/components/ui/typography';
@@ -27,7 +26,6 @@ export interface MachineDetailsClientProps {
 export function MachineDetailsClient({ machine, companySlug }: MachineDetailsClientProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
-  const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
   const [isUrgentServiceModalOpen, setIsUrgentServiceModalOpen] = useState(false);
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
@@ -57,12 +55,12 @@ export function MachineDetailsClient({ machine, companySlug }: MachineDetailsCli
 
   return (
     <>
-      <div className="flex flex-col gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div className="flex items-start gap-4">
           <Link href="/machines" className="shrink-0 mt-1">
             <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
           </Link>
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
               <ConditionalTooltip content={machine.name} className="block">
                 <Typography variant="h2" className="break-words">
@@ -85,7 +83,7 @@ export function MachineDetailsClient({ machine, companySlug }: MachineDetailsCli
             </ConditionalTooltip>
           </div>
         </div>
-        <div className="flex flex-col sm:flex-row gap-2 sm:gap-2">
+        <div className="flex flex-col sm:flex-row gap-2 shrink-0">
           <Button onClick={handleOpenReport} disabled={isLoadingReport} size="sm">
             <FileText className="w-4 h-4 mr-2" />
             {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
@@ -142,13 +140,6 @@ export function MachineDetailsClient({ machine, companySlug }: MachineDetailsCli
           </CardContent>
         </Card>
       </div>
-
-      <ServiceCompletionModal
-        machineId={machine.id}
-        open={isInspectionModalOpen}
-        onOpenChange={setIsInspectionModalOpen}
-        machineSections={machine.blueprint?.sections}
-      />
 
       <UrgentServiceModal
         machineId={machine.id}
