@@ -146,3 +146,36 @@ export const deleteMachine = async (id: string) => {
     method: 'DELETE',
   });
 };
+
+export interface PartItem {
+  partNumber: string;
+  description: string;
+  quantity: number | string;
+  unit: string;
+}
+
+export interface PartsGroup {
+  subsectionName: string;
+  parts: PartItem[];
+}
+
+export interface SendPartsEmailPayload {
+  machineId: string;
+  machineName: string;
+  machineSerial: string;
+  sectionName: string;
+  emails: string[];
+  partsGroups: PartsGroup[];
+}
+
+export interface SendPartsEmailResponse {
+  success: boolean;
+  message: string;
+}
+
+export const sendPartsEmail = async (payload: SendPartsEmailPayload) => {
+  return await responseHandler<SendPartsEmailResponse>('/machines/send-parts-email', {
+    method: 'POST',
+    body: payload,
+  });
+};

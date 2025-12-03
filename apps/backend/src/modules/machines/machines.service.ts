@@ -259,7 +259,11 @@ export class MachinesService {
       where: { id },
       include: {
         blueprint: true,
-        branch: true,
+        branch: {
+          include: {
+            company: true,
+          },
+        },
         fields: true,
         services: {
           take: 1,
@@ -326,7 +330,11 @@ export class MachinesService {
       where: { id },
       include: {
         blueprint: true,
-        branch: true,
+        branch: {
+          include: {
+            company: true,
+          },
+        },
         fields: true,
         services: {
           take: 1,

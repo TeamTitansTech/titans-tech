@@ -6,6 +6,7 @@ import {
   UrgentRequest,
   ClientReminder,
   PublicServiceRequest,
+  PartsRequest,
 } from '../templates/react';
 import { getEmailSubject, type Locale } from '../templates/i18n';
 import type {
@@ -13,6 +14,7 @@ import type {
   UrgentRequestTemplateData,
   ClientReminderTemplateData,
   PublicServiceRequestTemplateData,
+  PartsRequestTemplateData,
 } from '../templates/types';
 
 export interface RenderedEmail {
@@ -107,6 +109,29 @@ export class TemplateRendererService {
 
     const subject = getEmailSubject('publicServiceRequest', locale, {
       machineName: data.machineName,
+    });
+
+    return { subject, html, text };
+  }
+
+  /**
+   * Render PartsRequest template
+   */
+  async renderPartsRequest(
+    data: PartsRequestTemplateData,
+    locale: Locale = 'en',
+  ): Promise<RenderedEmail> {
+    const component = React.createElement(PartsRequest, {
+      data,
+      locale,
+    });
+
+    const html = await render(component, { pretty: false });
+    const text = await render(component, { plainText: true });
+
+    const subject = getEmailSubject('partsRequest', locale, {
+      machineName: data.machineName,
+      machineSerial: data.machineSerial,
     });
 
     return { subject, html, text };

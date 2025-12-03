@@ -42,6 +42,7 @@ interface SlideSectionProps {
 }
 
 export function SlideSection({
+  machineId,
   inspections,
   machineName,
   blueprintId,
@@ -263,6 +264,7 @@ export function SlideSection({
           subsections: SLIDE_SUBSECTIONS,
           title: tParts('slideParts'),
           description: tParts('slideDescription'),
+          machineId,
           machineName,
           sectionName: 'Slide',
         }}

@@ -7,12 +7,14 @@ export interface InfoItem {
 }
 
 export interface InfoSectionProps {
+  title?: string;
   items: InfoItem[];
   borderColor?: string;
   backgroundColor?: string;
 }
 
 export function InfoSection({
+  title,
   items,
   borderColor = '#3b82f6',
   backgroundColor = '#f9fafb',
@@ -27,6 +29,18 @@ export function InfoSection({
         borderRadius: '4px',
       }}
     >
+      {title && (
+        <Text
+          style={{
+            margin: '0 0 12px 0',
+            fontSize: '16px',
+            fontWeight: 600,
+            color: '#1f2937',
+          }}
+        >
+          {title}
+        </Text>
+      )}
       {items.map((item, index) => (
         <div
           key={index}

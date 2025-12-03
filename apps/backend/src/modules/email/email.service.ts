@@ -8,6 +8,7 @@ import type {
   ClientReminderTemplateData,
   AlertNotificationTemplateData,
   PublicServiceRequestTemplateData,
+  PartsRequestTemplateData,
 } from './templates/types';
 import type { Locale } from './templates/i18n';
 import { NotificationType, EmailProvider, EmailStatus } from '@titans-tech/db';
@@ -289,6 +290,68 @@ export class EmailService {
       }
     } catch (error) {
       this.logger.error('Error sending public service request email', error);
+      await this.prisma.email.update({
+        where: { id: emailRecord.id },
+        data: {
+          status: EmailStatus.FAILED,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      });
+      throw error;
+    }
+  }
+
+  async sendPartsRequestEmail(
+    to: string | string[],
+    data: PartsRequestTemplateData,
+    machineId: string,
+    locale: Locale = 'en',
+  ): Promise<void> {
+    const { subject, html, text } =
+      await this.templateRenderer.renderPartsRequest(data, locale);
+    const recipients = this.mergeWithTestEmails(to);
+
+    const emailRecord = await this.prisma.email.create({
+      data: {
+        to: recipients.join(','),
+        from: appEnv.EMAIL_FROM,
+        subject,
+        body: html,
+        type: NotificationType.PARTS_REQUEST,
+        status: EmailStatus.PENDING,
+        provider:
+          appEnv.EMAIL_PROVIDER === 'AWS_SES'
+            ? EmailProvider.AWS_SES
+            : EmailProvider.SENDGRID,
+        machineId,
+      },
+    });
+
+    try {
+      const result = await this.provider.sendEmail({
+        to: recipients,
+        subject,
+        html,
+        text,
+      });
+
+      await this.prisma.email.update({
+        where: { id: emailRecord.id },
+        data: {
+          status: result.success ? EmailStatus.SENT : EmailStatus.FAILED,
+          externalId: result.messageId,
+          error: result.error,
+          sentAt: result.success ? new Date() : null,
+        },
+      });
+
+      if (!result.success) {
+        this.logger.error(
+          `Failed to send parts request email: ${result.error}`,
+        );
+      }
+    } catch (error) {
+      this.logger.error('Error sending parts request email', error);
       await this.prisma.email.update({
         where: { id: emailRecord.id },
         data: {

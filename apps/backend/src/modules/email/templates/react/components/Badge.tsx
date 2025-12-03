@@ -1,7 +1,7 @@
 import * as React from 'react';
 
 export interface BadgeProps {
-  variant: 'red' | 'yellow' | 'amber' | 'orange';
+  variant: 'red' | 'yellow' | 'amber' | 'orange' | 'blue';
   children: React.ReactNode;
   style?: React.CSSProperties;
 }
@@ -11,6 +11,7 @@ const variantColors: Record<BadgeProps['variant'], string> = {
   yellow: '#f59e0b',
   amber: '#f59e0b',
   orange: '#f97316',
+  blue: '#3b82f6',
 };
 
 export function Badge({ variant, children, style }: BadgeProps) {

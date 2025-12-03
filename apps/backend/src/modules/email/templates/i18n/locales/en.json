@@ -93,6 +93,25 @@
       },
       "viewMachine": "Create Service Record →",
       "clickMessage": "Clicking the button above will take you to the machine page where you can create a service record for this request."
+    },
+    "partsRequest": {
+      "subject": "📦 Parts Request - {machineName} ({machineSerial})",
+      "badge": "PARTS REQUEST",
+      "title": "Parts Replacement Request",
+      "intro": "A parts replacement request has been submitted. Please review the details below.",
+      "machineInfo": "Request Information",
+      "requestedParts": "Requested Parts",
+      "note": "This request was submitted through the Titans Tech Service Management System.",
+      "info": {
+        "machine": "Machine",
+        "serialNumber": "Serial Number",
+        "section": "Section",
+        "company": "Company",
+        "branch": "Branch",
+        "requestedBy": "Requested by",
+        "requestDate": "Request Date",
+        "totalParts": "Total Parts"
+      }
     }
   }
 }

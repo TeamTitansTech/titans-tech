@@ -75,3 +75,28 @@ export interface PublicServiceRequestTemplateData {
     isMobile: boolean;
   };
 }
+
+// Parts Request Types
+export interface PartItem {
+  partNumber: string;
+  description: string;
+  quantity: number | string;
+  unit: string;
+}
+
+export interface PartsGroup {
+  subsectionName: string;
+  parts: PartItem[];
+}
+
+export interface PartsRequestTemplateData {
+  machineName: string;
+  machineSerial: string;
+  sectionName: string;
+  companyName: string;
+  branchName: string;
+  requestedBy: string;
+  requestDate: string;
+  partsGroups: PartsGroup[];
+  totalParts: number;
+}

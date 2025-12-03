@@ -93,6 +93,25 @@
       },
       "viewMachine": "Crear Registro de Servicio →",
       "clickMessage": "Al hacer clic en el botón de arriba, será dirigido a la página de la máquina donde puede crear un registro de servicio para esta solicitud."
+    },
+    "partsRequest": {
+      "subject": "📦 Solicitud de Piezas - {machineName} ({machineSerial})",
+      "badge": "SOLICITUD DE PIEZAS",
+      "title": "Solicitud de Reemplazo de Piezas",
+      "intro": "Se ha enviado una solicitud de reemplazo de piezas. Por favor, revise los detalles a continuación.",
+      "machineInfo": "Información de la Solicitud",
+      "requestedParts": "Piezas Solicitadas",
+      "note": "Esta solicitud fue enviada a través del Sistema de Gestión de Servicios Titans Tech.",
+      "info": {
+        "machine": "Máquina",
+        "serialNumber": "Número de Serie",
+        "section": "Sección",
+        "company": "Empresa",
+        "branch": "Sucursal",
+        "requestedBy": "Solicitado por",
+        "requestDate": "Fecha de Solicitud",
+        "totalParts": "Total de Piezas"
+      }
     }
   }
 }
