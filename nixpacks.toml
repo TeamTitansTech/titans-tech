@@ -12,4 +12,4 @@ cmds = [
 ]
 
 [start]
-cmd = "cd apps/backend && node dist/main"
+cmd = "cd apps/backend && node dist/src/main"
