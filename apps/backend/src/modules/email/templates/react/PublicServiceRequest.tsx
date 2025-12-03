@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Section, Text, Img } from '@react-email/components';
-import { Layout, Badge, InfoSection, Button } from './components';
+import { Layout, Badge, Button } from './components';
 import { getTranslations, type Locale } from '../i18n';
 import type { PublicServiceRequestTemplateData } from '../types';
 

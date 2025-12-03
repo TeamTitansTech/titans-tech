@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Section, Text, Hr } from '@react-email/components';
+import { Section, Text } from '@react-email/components';
 import { Layout, Badge, InfoSection, Button } from './components';
 import { getTranslations, type Locale } from '../i18n';
 import type {
