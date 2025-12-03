@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Section, Text, Img } from '@react-email/components';
-import { Layout, Badge, Button } from './components';
+import { Layout, Badge } from './components';
 import { getTranslations, type Locale } from '../i18n';
 import type { PublicServiceRequestTemplateData } from '../types';
 
@@ -245,11 +245,6 @@ export function PublicServiceRequest({
         </Section>
       )}
 
-      {/* CTA Button */}
-      <Button href={data.machineUrl}>
-        {t.emails.publicServiceRequest.viewMachine}
-      </Button>
-
       {/* Device Information */}
       <Section
         style={{
@@ -303,11 +298,6 @@ export function PublicServiceRequest({
           unauthenticated user who scanned the machine's QR code.
         </Text>
       </Section>
-
-      {/* Click Message */}
-      <Text style={{ fontSize: '14px', color: '#6b7280', marginTop: '24px' }}>
-        {t.emails.publicServiceRequest.clickMessage}
-      </Text>
     </Layout>
   );
 }

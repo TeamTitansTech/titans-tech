@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Section, Text } from '@react-email/components';
-import { Layout, Badge, InfoSection, Button } from './components';
+import { Layout, Badge, InfoSection } from './components';
 import { getTranslations, type Locale } from '../i18n';
 import type { ClientReminderTemplateData } from '../types';
 
@@ -115,16 +115,6 @@ export function ClientReminder({ data, locale = 'en' }: ClientReminderProps) {
           </Text>
         </Section>
       )}
-
-      {/* CTA Button */}
-      <Button href={data.machineUrl}>
-        {t.emails.clientReminder.viewMachine}
-      </Button>
-
-      {/* Click Message */}
-      <Text style={{ fontSize: '14px', color: '#6b7280', marginTop: '24px' }}>
-        {t.emails.clientReminder.clickMessage}
-      </Text>
     </Layout>
   );
 }
