@@ -42,6 +42,7 @@ import { DetailsStep } from './steps/DetailsStep';
 import { SectionsStep } from './steps/SectionsStep';
 import { SummaryStep } from './steps/SummaryStep';
 import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import type { Attachment } from '@/components/ui/document-upload';
 
 export function ServiceCompletionModal({
   machineId,
@@ -64,6 +65,7 @@ export function ServiceCompletionModal({
   const [showAlertNotificationModal, setShowAlertNotificationModal] = useState(false);
   const [alertsSummary, setAlertsSummary] = useState<AlertsSummaryResponseDto | null>(null);
   const [completedServiceId, setCompletedServiceId] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
 
   // Helper function to translate error messages
   const translateError = (error: string): string => {
@@ -242,6 +244,7 @@ export function ServiceCompletionModal({
       resetSectionData();
       resetLoader();
       resetRefs();
+      setAttachments([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, shouldSkipSelection, isInspection, machineSections]);
@@ -297,6 +300,7 @@ export function ServiceCompletionModal({
             performedBy: performedBy || undefined,
             currentStep: 'sections',
             selectedSections: Array.from(selectedSections),
+            attachments: attachments.length > 0 ? attachments : undefined,
             // Inspection observation fields
             isPressLevel,
             driveBeltCondition,
@@ -339,6 +343,7 @@ export function ServiceCompletionModal({
             performedBy: performedBy || undefined,
             currentStep: 'sections',
             selectedSections: Array.from(selectedSections),
+            attachments: attachments.length > 0 ? attachments : undefined,
             // Inspection observation fields
             isPressLevel,
             driveBeltCondition,
@@ -782,6 +787,8 @@ export function ServiceCompletionModal({
                   setIsMotorPlateSecure={setIsMotorPlateSecure}
                   whyNotCovered={whyNotCovered}
                   setWhyNotCovered={setWhyNotCovered}
+                  attachments={attachments}
+                  setAttachments={setAttachments}
                   translations={{
                     dateLabel: isCompletingService
                       ? tServices('modal.realizationDate')
@@ -828,6 +835,7 @@ export function ServiceCompletionModal({
                       'modal.inspectionObservations.isMotorPlateSecure',
                     ),
                     whyNotCovered: tServices('modal.inspectionObservations.whyNotCovered'),
+                    attachedDocumentsTitle: tServices('modal.attachedDocuments.title'),
                   }}
                 />
               </form>
@@ -878,6 +886,7 @@ export function ServiceCompletionModal({
                 isMainMotorSecure={isMainMotorSecure}
                 isMotorPlateSecure={isMotorPlateSecure}
                 whyNotCovered={whyNotCovered}
+                attachments={attachments}
                 translations={{
                   title: isInspection
                     ? tServices('modal.inspectionSummary')
@@ -890,6 +899,8 @@ export function ServiceCompletionModal({
                   getSectionName: (i18nKey) => t(`sectionNames.${i18nKey}`),
                   completeService: isInspection ? 'Concluir Inspeção' : 'Concluir Manutenção',
                   completing: 'Concluindo...',
+                  attachedDocumentsTitle: tServices('modal.attachedDocuments.title'),
+                  noDocuments: tServices('modal.attachedDocuments.noDocuments'),
                 }}
               />
             )}
