@@ -125,6 +125,13 @@ export class MachinesController {
                 innerAfter: true;
               };
             };
+            alertBearingClearance: true;
+            alertClutch: true;
+            alertSlide: true;
+            alertGibs: true;
+            alertPistons: true;
+            alertTramming: true;
+            alertCounterbalanceCylinderAirbag: true;
           };
         };
       };

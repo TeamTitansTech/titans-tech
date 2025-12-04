@@ -66,6 +66,10 @@ export function useFieldsManager() {
     setFields([]);
   }, []);
 
+  const initializeFields = useCallback((initialFields: Field[]) => {
+    setFields(initialFields);
+  }, []);
+
   return {
     fields,
     addField,
@@ -73,5 +77,6 @@ export function useFieldsManager() {
     updateField,
     hasInvalidEnumFields,
     reset,
+    initializeFields,
   };
 }

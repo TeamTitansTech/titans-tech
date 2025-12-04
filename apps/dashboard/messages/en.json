@@ -460,12 +460,20 @@
           "placeholder": "e.g., acme-manufacturing"
         },
         "logo": {
-          "label": "Logo (Optional)",
+          "label": "Logo",
           "placeholder": "e.g., https://example.com/logo.png",
           "uploadHint": "Click to upload logo (JPG or PNG)",
           "uploading": "Uploading...",
           "uploadSuccess": "Logo uploaded successfully",
           "uploadError": "Failed to upload logo"
+        },
+        "loginLogo": {
+          "label": "Login Logo (Optional)",
+          "hint": "If not provided, the main logo will be used",
+          "uploadHint": "Click to upload login logo (JPG or PNG)",
+          "uploading": "Uploading...",
+          "uploadSuccess": "Login logo uploaded successfully",
+          "uploadError": "Failed to upload login logo"
         },
         "brandColor": {
           "label": "Primary Color (Optional)",
@@ -800,6 +808,7 @@
   },
   "models": {
     "title": "Create Model",
+    "editTitle": "Edit Model",
     "pageTitle": "Models",
     "pageDescription": "Manage machine templates and specifications",
     "newButton": "New Model",
@@ -807,7 +816,9 @@
     "noDescription": "No description",
     "errorLoading": "Error loading models",
     "createdSuccessfully": "Model created successfully",
+    "updatedSuccessfully": "Model updated successfully",
     "description": "Create a new machine model",
+    "editDescription": "Edit the model information",
     "form": {
       "basicInfo": {
         "title": "Basic Information"
@@ -847,6 +858,7 @@
       },
       "submit": {
         "idle": "Create Blueprint",
+        "edit": "Save Changes",
         "loading": "Sending..."
       },
       "error": {

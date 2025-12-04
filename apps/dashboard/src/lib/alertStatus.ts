@@ -71,41 +71,43 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
   // Collect severities from PISTONS section
   if (latestReport.sections.PISTONS?.alert) {
     const alert = latestReport.sections.PISTONS.alert;
-    // Outer clearance severities
+    // Only difference severities exist in the database
     allSeverities.push(
-      alert.outer_lhTop_severity,
-      alert.outer_lhBottom_severity,
-      alert.outer_lhLeft_severity,
-      alert.outer_lhRight_severity,
-      alert.outer_rhTop_severity,
-      alert.outer_rhBottom_severity,
-      alert.outer_rhLeft_severity,
-      alert.outer_rhRight_severity,
-    );
-    // Outer difference severities
-    allSeverities.push(
+      // Outer difference severities
       alert.outer_lhLeftRight_severity,
       alert.outer_lhTopBottom_severity,
       alert.outer_rhLeftRight_severity,
       alert.outer_rhTopBottom_severity,
-    );
-    // Inner clearance severities
-    allSeverities.push(
-      alert.inner_lhTop_severity,
-      alert.inner_lhBottom_severity,
-      alert.inner_lhLeft_severity,
-      alert.inner_lhRight_severity,
-      alert.inner_rhTop_severity,
-      alert.inner_rhBottom_severity,
-      alert.inner_rhLeft_severity,
-      alert.inner_rhRight_severity,
-    );
-    // Inner difference severities
-    allSeverities.push(
+      // Inner difference severities
       alert.inner_lhLeftRight_severity,
       alert.inner_lhTopBottom_severity,
       alert.inner_rhLeftRight_severity,
       alert.inner_rhTopBottom_severity,
+    );
+  }
+
+  // Collect severities from TRAMMING section
+  if (latestReport.sections.TRAMMING?.alert) {
+    const alert = latestReport.sections.TRAMMING.alert;
+    allSeverities.push(
+      // Outer severities (4 positions × 2 directions = 8)
+      alert.outer_top_verticalSeverity,
+      alert.outer_top_horizontalSeverity,
+      alert.outer_bottom_verticalSeverity,
+      alert.outer_bottom_horizontalSeverity,
+      alert.outer_left_verticalSeverity,
+      alert.outer_left_horizontalSeverity,
+      alert.outer_right_verticalSeverity,
+      alert.outer_right_horizontalSeverity,
+      // Inner severities (4 positions × 2 directions = 8)
+      alert.inner_top_verticalSeverity,
+      alert.inner_top_horizontalSeverity,
+      alert.inner_bottom_verticalSeverity,
+      alert.inner_bottom_horizontalSeverity,
+      alert.inner_left_verticalSeverity,
+      alert.inner_left_horizontalSeverity,
+      alert.inner_right_verticalSeverity,
+      alert.inner_right_horizontalSeverity,
     );
   }
 
@@ -305,31 +307,14 @@ export const getSectionStatusFromReport = (
 
       const alert = pistonsData.alert;
 
-      // Check all pistons fields for worst severity
+      // Check all pistons difference fields for worst severity
+      // Only difference severities exist in the database
       const severities: AlertSeverity[] = [
-        // Outer clearance severities
-        alert.outer_lhTop_severity,
-        alert.outer_lhBottom_severity,
-        alert.outer_lhLeft_severity,
-        alert.outer_lhRight_severity,
-        alert.outer_rhTop_severity,
-        alert.outer_rhBottom_severity,
-        alert.outer_rhLeft_severity,
-        alert.outer_rhRight_severity,
         // Outer difference severities
         alert.outer_lhLeftRight_severity,
         alert.outer_lhTopBottom_severity,
         alert.outer_rhLeftRight_severity,
         alert.outer_rhTopBottom_severity,
-        // Inner clearance severities
-        alert.inner_lhTop_severity,
-        alert.inner_lhBottom_severity,
-        alert.inner_lhLeft_severity,
-        alert.inner_lhRight_severity,
-        alert.inner_rhTop_severity,
-        alert.inner_rhBottom_severity,
-        alert.inner_rhLeft_severity,
-        alert.inner_rhRight_severity,
         // Inner difference severities
         alert.inner_lhLeftRight_severity,
         alert.inner_lhTopBottom_severity,
@@ -378,6 +363,47 @@ export const getSectionStatusFromReport = (
       } else if (severity === 'YELLOW') {
         return 'warning';
       } else if (severity === 'GREEN') {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
+    case 'TRAMMING': {
+      const trammingData = latestReport.sections.TRAMMING;
+      if (!trammingData?.alert) {
+        return 'unknown';
+      }
+
+      const alert = trammingData.alert;
+
+      // Check all tramming fields for worst severity
+      const severities: AlertSeverity[] = [
+        // Outer severities (4 positions × 2 directions = 8)
+        alert.outer_top_verticalSeverity,
+        alert.outer_top_horizontalSeverity,
+        alert.outer_bottom_verticalSeverity,
+        alert.outer_bottom_horizontalSeverity,
+        alert.outer_left_verticalSeverity,
+        alert.outer_left_horizontalSeverity,
+        alert.outer_right_verticalSeverity,
+        alert.outer_right_horizontalSeverity,
+        // Inner severities (4 positions × 2 directions = 8)
+        alert.inner_top_verticalSeverity,
+        alert.inner_top_horizontalSeverity,
+        alert.inner_bottom_verticalSeverity,
+        alert.inner_bottom_horizontalSeverity,
+        alert.inner_left_verticalSeverity,
+        alert.inner_left_horizontalSeverity,
+        alert.inner_right_verticalSeverity,
+        alert.inner_right_horizontalSeverity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      } else if (severities.includes('GREEN')) {
         return 'ok';
       }
 
@@ -514,35 +540,19 @@ export const getSectionStatus = (
     case 'PISTONS': {
       // Using type assertion since alertPistons may not be in the shared MachineService type yet
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const alert = (latestService as any)?.alertPistons;
+      const alerts = (latestService as any)?.alertPistons;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'unknown';
       }
 
+      // Only difference severities exist in the database
       const severities = [
-        // Outer clearance severities
-        alert.outer_lhTop_severity,
-        alert.outer_lhBottom_severity,
-        alert.outer_lhLeft_severity,
-        alert.outer_lhRight_severity,
-        alert.outer_rhTop_severity,
-        alert.outer_rhBottom_severity,
-        alert.outer_rhLeft_severity,
-        alert.outer_rhRight_severity,
         // Outer difference severities
         alert.outer_lhLeftRight_severity,
         alert.outer_lhTopBottom_severity,
         alert.outer_rhLeftRight_severity,
         alert.outer_rhTopBottom_severity,
-        // Inner clearance severities
-        alert.inner_lhTop_severity,
-        alert.inner_lhBottom_severity,
-        alert.inner_lhLeft_severity,
-        alert.inner_lhRight_severity,
-        alert.inner_rhTop_severity,
-        alert.inner_rhBottom_severity,
-        alert.inner_rhLeft_severity,
-        alert.inner_rhRight_severity,
         // Inner difference severities
         alert.inner_lhLeftRight_severity,
         alert.inner_lhTopBottom_severity,
@@ -578,6 +588,47 @@ export const getSectionStatus = (
       return 'ok';
     }
 
+    case 'TRAMMING': {
+      // Using type assertion since alertTramming may not be in the shared MachineService type yet
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const alerts = (latestService as any)?.alertTramming;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
+        return 'unknown';
+      }
+
+      const severities = [
+        // Outer severities (4 positions × 2 directions = 8)
+        alert.outer_top_verticalSeverity,
+        alert.outer_top_horizontalSeverity,
+        alert.outer_bottom_verticalSeverity,
+        alert.outer_bottom_horizontalSeverity,
+        alert.outer_left_verticalSeverity,
+        alert.outer_left_horizontalSeverity,
+        alert.outer_right_verticalSeverity,
+        alert.outer_right_horizontalSeverity,
+        // Inner severities (4 positions × 2 directions = 8)
+        alert.inner_top_verticalSeverity,
+        alert.inner_top_horizontalSeverity,
+        alert.inner_bottom_verticalSeverity,
+        alert.inner_bottom_horizontalSeverity,
+        alert.inner_left_verticalSeverity,
+        alert.inner_left_horizontalSeverity,
+        alert.inner_right_verticalSeverity,
+        alert.inner_right_horizontalSeverity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      } else if (severities.includes('GREEN')) {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
     default:
       return 'ok';
   }
@@ -590,7 +641,7 @@ export const statusColors = {
   ok: 'bg-green-500 border-green-600',
   warning: 'bg-yellow-500 border-yellow-600',
   critical: 'bg-red-500 border-red-600',
-  unknown: 'bg-gray-400 border-gray-500',
+  unknown: 'bg-green-500 border-green-600',
 } as const;
 
 /**
@@ -600,7 +651,7 @@ export const sectionStatusColors = {
   ok: 'text-green-500',
   warning: 'text-yellow-500',
   alert: 'text-red-500',
-  unknown: 'text-muted-foreground',
+  unknown: 'text-green-500',
 } as const;
 
 /**

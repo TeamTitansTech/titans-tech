@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
@@ -32,6 +32,21 @@ export function MachineDetailsClient({ machine, companySlug }: MachineDetailsCli
   const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
   const [isLoadingReport, setIsLoadingReport] = useState(false);
 
+  // Fetch latest report on mount to get section statuses
+  useEffect(() => {
+    const fetchLatestReport = async () => {
+      try {
+        const response = await getLatestReport(machine.id);
+        if (response.data) {
+          setLatestReport(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching latest report:', error);
+      }
+    };
+    fetchLatestReport();
+  }, [machine.id]);
+
   const handleSectionClick = (section: string) => {
     setLoadingSection(section);
     const sectionSlug = section.toLowerCase();
@@ -39,6 +54,12 @@ export function MachineDetailsClient({ machine, companySlug }: MachineDetailsCli
   };
 
   const handleOpenReport = async () => {
+    // If we already have the report, just open the modal
+    if (latestReport) {
+      setIsReportModalOpen(true);
+      return;
+    }
+
     setIsLoadingReport(true);
     try {
       const response = await getLatestReport(machine.id);
@@ -126,6 +147,7 @@ export function MachineDetailsClient({ machine, companySlug }: MachineDetailsCli
                     key={section}
                     sectionKey={section}
                     machine={machine}
+                    latestReport={latestReport}
                     onClick={() => handleSectionClick(section)}
                     isLoading={loadingSection === section}
                   />

@@ -1,10 +1,9 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { MachineCard } from './MachineCard';
-import { MachineCardSkeleton } from './MachineCardSkeleton';
 import { MachineCreationModal } from './MachineCreationModal';
 import { MachineEditModal } from './MachineEditModal';
 import { Button } from '@/components/ui/button';
@@ -29,7 +28,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { deleteMachine } from '@/data/services/machines.api';
-import { getLatestReport } from '@/data/services/services.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
 import { toast } from 'sonner';
 import {
@@ -40,7 +38,7 @@ import {
   PressMountingType,
   MachineFeaturesType,
 } from '@titans-tech/shared/types';
-import { calculateStatusFromLatestReport, type AlertStatus } from '@/lib/alertStatus';
+import type { AlertStatus } from '@/lib/alertStatus';
 import type { LatestReport } from '@/data/types/services.types';
 
 interface Machine {
@@ -100,12 +98,11 @@ const mapAlertStatusToCardStatus = (
 };
 
 interface MachineListPageProps {
-  machines: Machine[];
+  machines: MachineWithStatus[];
 }
 
 export function MachineListPage({ machines: initialMachines }: MachineListPageProps) {
-  const [machines, setMachines] = useState<MachineWithStatus[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [machines, setMachines] = useState<MachineWithStatus[]>(initialMachines);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -179,47 +176,6 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
       return true;
     });
   }, [machines, searchQuery, companyFilter, blueprintFilter, statusFilter]);
-
-  // Fetch latest reports for all machines to calculate alert status
-  useEffect(() => {
-    const fetchMachinesWithStatus = async () => {
-      if (initialMachines.length === 0) {
-        setMachines([]);
-        setIsLoading(false);
-        return;
-      }
-
-      setIsLoading(true);
-
-      const machinesWithStatus = await Promise.all(
-        initialMachines.map(async (machine) => {
-          try {
-            const reportResponse = await getLatestReport(machine.id);
-            const latestReport = reportResponse.data || null;
-            const alertStatus = calculateStatusFromLatestReport(latestReport);
-
-            return {
-              ...machine,
-              latestReport,
-              alertStatus,
-            };
-          } catch (error) {
-            console.error(`Failed to fetch report for machine ${machine.id}:`, error);
-            return {
-              ...machine,
-              latestReport: null,
-              alertStatus: 'unknown' as AlertStatus,
-            };
-          }
-        }),
-      );
-
-      setMachines(machinesWithStatus);
-      setIsLoading(false);
-    };
-
-    fetchMachinesWithStatus();
-  }, [initialMachines]);
 
   const handleSuccess = () => {
     router.refresh();
@@ -327,20 +283,12 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
           </Select>
 
           {/* Results count */}
-          {!isLoading && (
-            <div className="flex items-center text-sm text-muted-foreground">
-              {filteredMachines.length} of {machines.length} machines
-            </div>
-          )}
+          <div className="flex items-center text-sm text-muted-foreground">
+            {filteredMachines.length} of {machines.length} machines
+          </div>
         </div>
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <MachineCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : filteredMachines.length === 0 ? (
+        {filteredMachines.length === 0 ? (
           <div className="text-center py-12">
             <Typography variant="muted">
               {machines.length === 0

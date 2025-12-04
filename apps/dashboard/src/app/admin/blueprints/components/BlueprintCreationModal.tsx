@@ -36,10 +36,12 @@ export const BlueprintCreationModal = ({
   isOpen,
   onClose,
   onSuccess,
+  blueprint,
 }: BlueprintCreationModalProps) => {
   const t = useTranslations('models');
   const tSections = useTranslations('sections');
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const isEditing = !!blueprint;
 
   const {
     name,
@@ -77,7 +79,7 @@ export const BlueprintCreationModal = ({
     result,
     reset: resetForm,
     hasUnsavedChanges,
-  } = useBlueprintForm(onSuccess, onClose);
+  } = useBlueprintForm(onSuccess, onClose, blueprint?.id);
 
   const {
     fields,
@@ -86,6 +88,7 @@ export const BlueprintCreationModal = ({
     updateField,
     hasInvalidEnumFields,
     reset: resetFields,
+    initializeFields,
   } = useFieldsManager();
 
   const {
@@ -95,6 +98,25 @@ export const BlueprintCreationModal = ({
     updateNewOptionValue,
     reset: resetEnumOptions,
   } = useEnumOptionsManager();
+
+  // Initialize form with blueprint data when editing
+  useEffect(() => {
+    if (isOpen && blueprint) {
+      setName(blueprint.name);
+      setImageUrl(blueprint.imageUrl || null);
+
+      // Initialize fields
+      initializeFields(blueprint.fields);
+
+      // Convert enum sections to slugs and set selected sections
+      const sectionSlugs = blueprint.sections.map((section) => section.toLowerCase());
+      sectionSlugs.forEach((slug) => {
+        if (!selectedSections.includes(slug)) {
+          toggleSection(slug);
+        }
+      });
+    }
+  }, [isOpen, blueprint]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Reset all form fields when modal closes
   useEffect(() => {
@@ -128,9 +150,11 @@ export const BlueprintCreationModal = ({
         <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col bg-background">
           <form onSubmit={onSubmit} className="flex flex-col flex-1 min-h-0">
             <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
-              <DialogTitle className="text-2xl text-foreground">{t('title')}</DialogTitle>
+              <DialogTitle className="text-2xl text-foreground">
+                {isEditing ? t('editTitle') : t('title')}
+              </DialogTitle>
               <DialogDescription className="text-muted-foreground">
-                {t('description')}
+                {isEditing ? t('editDescription') : t('description')}
               </DialogDescription>
             </DialogHeader>
 
@@ -161,6 +185,7 @@ export const BlueprintCreationModal = ({
                 selectedSections={selectedSections}
                 availableSections={AVAILABLE_SECTIONS}
                 toggleSection={toggleSection}
+                disabled={isEditing}
                 translations={{
                   title: t('form.sections.label'),
                   getSectionName: (section: string) => tSections(section),
@@ -294,7 +319,7 @@ export const BlueprintCreationModal = ({
               translations={{
                 cancel: t('form.cancel'),
                 submitLoading: t('form.submit.loading'),
-                submitIdle: t('form.submit.idle'),
+                submitIdle: isEditing ? t('form.submit.edit') : t('form.submit.idle'),
               }}
             />
           </form>

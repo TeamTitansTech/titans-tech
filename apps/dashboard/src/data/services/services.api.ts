@@ -71,20 +71,10 @@ export const updateService = async (
 };
 
 export const getLatestReport = async (machineId: string) => {
-  const options: {
-    method?: string;
-    body?: unknown;
-    headers?: Record<string, string>;
-    tags?: string[];
-  } = {
+  return await responseHandler<LatestReport>(`/services/machines/${machineId}/latest-report`, {
     method: 'GET',
-    tags: [`latest-report-${machineId}`],
-  };
-
-  return await responseHandler<LatestReport>(
-    `/services/machines/${machineId}/latest-report`,
-    options,
-  );
+    tags: [`latest-report-${machineId}`, 'latest-reports'],
+  });
 };
 
 /**
