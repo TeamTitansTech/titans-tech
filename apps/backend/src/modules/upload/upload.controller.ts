@@ -57,12 +57,11 @@ export class UploadController {
     return { url };
   }
 
-  @Public()
   @Post('document')
   @UseInterceptors(
     FileInterceptor('document', {
       limits: {
-        fileSize: 10 * 1024 * 1024,
+        fileSize: 20 * 1024 * 1024,
       },
     }),
   )
