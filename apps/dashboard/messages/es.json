@@ -57,6 +57,14 @@
       "clickToUpload": "Haga clic para subir",
       "jpgOrPngMax": "JPG o PNG (máx. 10MB)"
     },
+    "documentUpload": {
+      "onlyPdfCsvAllowed": "Solo se permiten archivos PDF y CSV",
+      "fileTooLarge": "Archivo muy grande. Tamaño máximo: {size}MB",
+      "uploadFailed": "Error al subir el documento",
+      "uploading": "Subiendo...",
+      "clickToUpload": "Haga clic para adjuntar documentos",
+      "pdfOrCsvMax": "PDF o CSV (máx. 10MB)"
+    },
     "cancel": "Cancelar",
     "save": "Guardar"
   },
@@ -1933,6 +1941,10 @@
         "isMainMotorSecure": "¿El Motor Principal Está Seguro?",
         "isMotorPlateSecure": "¿La Placa del Motor Está Segura?",
         "whyNotCovered": "Por qué no cubierto"
+      },
+      "attachedDocuments": {
+        "title": "Documentos Adjuntos",
+        "noDocuments": "No hay documentos adjuntos"
       },
       "stepper": {
         "details": "Detalles",

@@ -58,6 +58,14 @@
       "uploading": "Fazendo upload...",
       "clickToUpload": "Clique para fazer upload",
       "jpgOrPngMax": "JPG ou PNG (máx. 10MB)"
+    },
+    "documentUpload": {
+      "onlyPdfCsvAllowed": "Apenas arquivos PDF e CSV são permitidos",
+      "fileTooLarge": "Arquivo muito grande. Tamanho máximo: {size}MB",
+      "uploadFailed": "Falha no upload do documento",
+      "uploading": "Fazendo upload...",
+      "clickToUpload": "Clique para anexar documentos",
+      "pdfOrCsvMax": "PDF ou CSV (máx. 10MB)"
     }
   },
   "validation": {
@@ -2001,6 +2009,10 @@
         "isMainMotorSecure": "O Motor Principal Está Seguro?",
         "isMotorPlateSecure": "A Placa do Motor Está Segura?",
         "whyNotCovered": "Por que não coberto"
+      },
+      "attachedDocuments": {
+        "title": "Documentos Anexados",
+        "noDocuments": "Nenhum documento anexado"
       },
       "stepper": {
         "details": "Detalhes",

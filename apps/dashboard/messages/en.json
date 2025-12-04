@@ -57,6 +57,14 @@
       "clickToUpload": "Click to upload",
       "jpgOrPngMax": "JPG or PNG (max. 10MB)"
     },
+    "documentUpload": {
+      "onlyPdfCsvAllowed": "Only PDF and CSV files are allowed",
+      "fileTooLarge": "File too large. Maximum size: {size}MB",
+      "uploadFailed": "Document upload failed",
+      "uploading": "Uploading...",
+      "clickToUpload": "Click to upload documents",
+      "pdfOrCsvMax": "PDF or CSV (max. 10MB)"
+    },
     "cancel": "Cancel",
     "save": "Save"
   },
@@ -1933,6 +1941,10 @@
         "isMainMotorSecure": "Is Main Motor Secure?",
         "isMotorPlateSecure": "Is Motor Plate Secure?",
         "whyNotCovered": "Why not covered"
+      },
+      "attachedDocuments": {
+        "title": "Attached Documents",
+        "noDocuments": "No documents attached"
       },
       "stepper": {
         "details": "Details",
