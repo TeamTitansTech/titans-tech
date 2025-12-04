@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Badge } from '@/components/ui/badge';
 import { Boxes, Edit, Copy, Trash2, Settings } from 'lucide-react';
-import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { ThresholdEditModal } from './ThresholdEditModal';
@@ -19,6 +18,7 @@ interface BlueprintCardProps {
   machineCount: number;
   fieldCount: number;
   sections: string[];
+  onEdit?: () => void;
 }
 
 export function BlueprintCard({
@@ -29,6 +29,7 @@ export function BlueprintCard({
   machineCount,
   fieldCount,
   sections,
+  onEdit,
 }: BlueprintCardProps) {
   const t = useTranslations('models');
   const [isThresholdModalOpen, setIsThresholdModalOpen] = useState(false);
@@ -85,11 +86,9 @@ export function BlueprintCard({
           </div>
           <div className="flex flex-col gap-2">
             <div className="flex gap-2">
-              <Button asChild variant="outline" className="flex-1" size="sm">
-                <Link href={`/admin/blueprints/${id}`}>
-                  <Edit className="w-4 h-4 mr-2" />
-                  {t('edit')}
-                </Link>
+              <Button variant="outline" className="flex-1" size="sm" onClick={onEdit}>
+                <Edit className="w-4 h-4 mr-2" />
+                {t('edit')}
               </Button>
               <Button variant="outline" size="sm">
                 <Copy className="w-4 h-4" />

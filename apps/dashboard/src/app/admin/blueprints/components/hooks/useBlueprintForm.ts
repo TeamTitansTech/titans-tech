@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { createBlueprint } from '@/data/services/blueprints.api';
+import { createBlueprint, updateBlueprint } from '@/data/services/blueprints.api';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
@@ -87,7 +87,11 @@ const INITIAL_TRAMMING_THRESHOLDS: TrammingThresholdsData = {
   redMin: 0.003,
 };
 
-export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
+export function useBlueprintForm(
+  onSuccess?: () => void,
+  onClose?: () => void,
+  blueprintId?: string,
+) {
   const t = useTranslations('models');
   const [name, setName] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -111,7 +115,13 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     INITIAL_TRAMMING_THRESHOLDS,
   );
 
-  const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
+  const {
+    execute: submitBlueprint,
+    isLoading,
+    result,
+  } = useLazyQuery(
+    blueprintId ? (payload: any) => updateBlueprint(blueprintId, payload) : createBlueprint,
+  );
 
   // Verifica se há dados preenchidos no formulário
   const hasUnsavedChanges = useCallback(
@@ -266,7 +276,7 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     const response = await submitBlueprint(payload);
 
     if (response.data) {
-      toast.success(t('createdSuccessfully'));
+      toast.success(blueprintId ? t('updatedSuccessfully') : t('createdSuccessfully'));
       setName('');
       setImageUrl(null);
       setSelectedSections([]);

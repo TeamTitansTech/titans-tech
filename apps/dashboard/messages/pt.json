@@ -808,6 +808,7 @@
   },
   "models": {
     "title": "Criar Modelo",
+    "editTitle": "Editar Modelo",
     "pageTitle": "Modelos",
     "pageDescription": "Gerenciar templates e especificações de máquinas",
     "newButton": "Novo Modelo",
@@ -815,12 +816,9 @@
     "noDescription": "Sem descrição",
     "errorLoading": "Erro ao carregar modelos",
     "createdSuccessfully": "Modelo criado com sucesso",
+    "updatedSuccessfully": "Modelo atualizado com sucesso",
     "description": "Crie um novo modelo de máquina",
-    "machine": "máquina",
-    "machines": "máquinas",
-    "field": "campo",
-    "fields": "campos",
-    "edit": "Editar",
+    "editDescription": "Edite as informações do modelo",
     "thresholds": "Configurar Thresholds",
     "form": {
       "basicInfo": {
@@ -861,6 +859,7 @@
       },
       "submit": {
         "idle": "Criar Modelo",
+        "edit": "Salvar Alterações",
         "loading": "Enviando..."
       },
       "error": {

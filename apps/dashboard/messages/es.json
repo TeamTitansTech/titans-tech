@@ -808,6 +808,7 @@
   },
   "models": {
     "title": "Crear Modelo",
+    "editTitle": "Editar Modelo",
     "pageTitle": "Modelos",
     "pageDescription": "Administre plantillas y especificaciones de máquinas",
     "newButton": "Nuevo Modelo",
@@ -815,7 +816,9 @@
     "noDescription": "Sin descripción",
     "errorLoading": "Error al cargar modelos",
     "createdSuccessfully": "Modelo creado exitosamente",
+    "updatedSuccessfully": "Modelo actualizado exitosamente",
     "description": "Crear un nuevo modelo de máquina",
+    "editDescription": "Edite la información del modelo",
     "form": {
       "basicInfo": {
         "title": "Información Básica"
@@ -855,6 +858,7 @@
       },
       "submit": {
         "idle": "Crear Plantilla",
+        "edit": "Guardar Cambios",
         "loading": "Enviando..."
       },
       "error": {
