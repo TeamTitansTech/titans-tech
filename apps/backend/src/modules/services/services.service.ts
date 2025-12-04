@@ -1193,16 +1193,7 @@ export class ServicesService {
       });
     });
 
-    // Generate alerts if bearing clearance data was updated
-    if (updateDto.outerData || updateDto.innerData) {
-      try {
-        await this.alertsService.generateAlertsForService(serviceId);
-      } catch (error) {
-        console.error('Error generating alerts:', error);
-      }
-    }
-
-    // Return updated service
+    // Note: Alerts are generated only when service is completed via completeService()
     return this.findOne(serviceId);
   }
 
@@ -1326,14 +1317,7 @@ export class ServicesService {
       });
     });
 
-    if (updateDto.outerData || updateDto.innerData) {
-      try {
-        await this.alertsService.generateAlertsForSlide(serviceId);
-      } catch (error) {
-        console.error('Error generating slide alerts:', error);
-      }
-    }
-
+    // Note: Alerts are generated only when service is completed via completeService()
     return this.findOne(serviceId);
   }
 
@@ -1536,15 +1520,7 @@ export class ServicesService {
       });
     }
 
-    // Generate GIBS alerts if outerData (after adjustment) was updated
-    if (updateDto.outerData) {
-      try {
-        await this.alertsService.generateAlertsForGibs(serviceId);
-      } catch (error) {
-        console.error('Error generating GIBS alerts:', error);
-      }
-    }
-
+    // Note: Alerts are generated only when service is completed via completeService()
     return this.findOne(serviceId);
   }
 
@@ -1739,13 +1715,7 @@ export class ServicesService {
       });
     }
 
-    // Generate clutch alerts
-    try {
-      await this.alertsService.generateClutchAlertsForService(serviceId);
-    } catch (error) {
-      console.error('Error generating clutch alerts:', error);
-    }
-
+    // Note: Alerts are generated only when service is completed via completeService()
     return this.findOne(serviceId);
   }
 
@@ -1969,14 +1939,7 @@ export class ServicesService {
       });
     }
 
-    // Generate tramming alerts automatically after saving data
-    try {
-      await this.alertsService.generateAlertsForTramming(serviceId);
-    } catch (error) {
-      // Log error but don't fail the update if alert generation fails
-      console.error('Failed to generate tramming alerts:', error);
-    }
-
+    // Note: Alerts are generated only when service is completed via completeService()
     return this.findOne(serviceId);
   }
 
@@ -2236,6 +2199,12 @@ export class ServicesService {
     if (completedSectionsList.includes('PISTONS')) {
       this.alertsService.generateAlertsForPistons(serviceId).catch((error) => {
         console.error('Error generating PISTONS alerts:', error);
+      });
+    }
+
+    if (completedSectionsList.includes('TRAMMING')) {
+      this.alertsService.generateAlertsForTramming(serviceId).catch((error) => {
+        console.error('Error generating TRAMMING alerts:', error);
       });
     }
 

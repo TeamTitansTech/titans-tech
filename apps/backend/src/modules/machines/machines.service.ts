@@ -266,6 +266,7 @@ export class MachinesService {
         },
         fields: true,
         services: {
+          where: { status: 'COMPLETED' },
           take: 1,
           orderBy: { date: 'desc' },
           include: {
@@ -337,6 +338,7 @@ export class MachinesService {
         },
         fields: true,
         services: {
+          where: { status: 'COMPLETED' },
           take: 1,
           orderBy: { date: 'desc' },
           include: {
