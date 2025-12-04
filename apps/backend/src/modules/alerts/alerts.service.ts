@@ -1123,45 +1123,58 @@ export class AlertsService {
       throw new NotFoundException(`Blueprint ${dto.blueprintId} not found`);
     }
 
-    // Check if threshold already exists for this blueprint and sectionType
-    const existingThreshold = await this.prisma.thresholdSlide.findUnique({
-      where: {
-        blueprintId_sectionType: {
-          blueprintId: dto.blueprintId,
-          sectionType,
-        },
-      },
-    });
+    const data = {
+      blueprintId: dto.blueprintId,
+      ...convertSlideThresholdToDecimal(dto),
+    };
 
-    if (existingThreshold) {
-      throw new BadRequestException(
-        `Slide ${sectionType} threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
-      );
+    if (sectionType === 'SLIDE_SINGLE_HAMMER') {
+      const existingThreshold =
+        await this.prisma.thresholdSlideSingleHammer.findUnique({
+          where: { blueprintId: dto.blueprintId },
+        });
+
+      if (existingThreshold) {
+        throw new BadRequestException(
+          `Slide ${sectionType} threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+        );
+      }
+
+      const threshold = await this.prisma.thresholdSlideSingleHammer.create({
+        data,
+      });
+      return new ThresholdSlideResponseDto(threshold as any);
+    } else {
+      const existingThreshold =
+        await this.prisma.thresholdSlideDoubleHammer.findUnique({
+          where: { blueprintId: dto.blueprintId },
+        });
+
+      if (existingThreshold) {
+        throw new BadRequestException(
+          `Slide ${sectionType} threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+        );
+      }
+
+      const threshold = await this.prisma.thresholdSlideDoubleHammer.create({
+        data,
+      });
+      return new ThresholdSlideResponseDto(threshold as any);
     }
-
-    const threshold = await this.prisma.thresholdSlide.create({
-      data: {
-        blueprintId: dto.blueprintId,
-        sectionType,
-        ...convertSlideThresholdToDecimal(dto),
-      },
-    });
-
-    return new ThresholdSlideResponseDto(threshold as any);
   }
 
   async getSlideThresholdByBlueprint(
     blueprintId: string,
     sectionType: 'SLIDE_SINGLE_HAMMER' | 'SLIDE_DOUBLE_HAMMER',
   ) {
-    const threshold = await this.prisma.thresholdSlide.findUnique({
-      where: {
-        blueprintId_sectionType: {
-          blueprintId,
-          sectionType,
-        },
-      },
-    });
+    const threshold =
+      sectionType === 'SLIDE_SINGLE_HAMMER'
+        ? await this.prisma.thresholdSlideSingleHammer.findUnique({
+            where: { blueprintId },
+          })
+        : await this.prisma.thresholdSlideDoubleHammer.findUnique({
+            where: { blueprintId },
+          });
 
     if (!threshold) {
       throw new NotFoundException(
@@ -1178,14 +1191,14 @@ export class AlertsService {
     dto: UpdateThresholdSlideDto,
   ) {
     // Check if threshold exists
-    const existingThreshold = await this.prisma.thresholdSlide.findUnique({
-      where: {
-        blueprintId_sectionType: {
-          blueprintId,
-          sectionType,
-        },
-      },
-    });
+    const existingThreshold =
+      sectionType === 'SLIDE_SINGLE_HAMMER'
+        ? await this.prisma.thresholdSlideSingleHammer.findUnique({
+            where: { blueprintId },
+          })
+        : await this.prisma.thresholdSlideDoubleHammer.findUnique({
+            where: { blueprintId },
+          });
 
     if (!existingThreshold) {
       throw new NotFoundException(
@@ -1210,15 +1223,17 @@ export class AlertsService {
     }
 
     // Update threshold
-    const threshold = await this.prisma.thresholdSlide.update({
-      where: {
-        blueprintId_sectionType: {
-          blueprintId,
-          sectionType,
-        },
-      },
-      data: convertPartialSlideThresholdToDecimal(dto),
-    });
+    const updateData = convertPartialSlideThresholdToDecimal(dto);
+    const threshold =
+      sectionType === 'SLIDE_SINGLE_HAMMER'
+        ? await this.prisma.thresholdSlideSingleHammer.update({
+            where: { blueprintId },
+            data: updateData,
+          })
+        : await this.prisma.thresholdSlideDoubleHammer.update({
+            where: { blueprintId },
+            data: updateData,
+          });
 
     return new ThresholdSlideResponseDto(threshold as any);
   }
@@ -1227,14 +1242,14 @@ export class AlertsService {
     blueprintId: string,
     sectionType: 'SLIDE_SINGLE_HAMMER' | 'SLIDE_DOUBLE_HAMMER',
   ) {
-    const threshold = await this.prisma.thresholdSlide.findUnique({
-      where: {
-        blueprintId_sectionType: {
-          blueprintId,
-          sectionType,
-        },
-      },
-    });
+    const threshold =
+      sectionType === 'SLIDE_SINGLE_HAMMER'
+        ? await this.prisma.thresholdSlideSingleHammer.findUnique({
+            where: { blueprintId },
+          })
+        : await this.prisma.thresholdSlideDoubleHammer.findUnique({
+            where: { blueprintId },
+          });
 
     if (!threshold) {
       throw new NotFoundException(
@@ -1242,14 +1257,15 @@ export class AlertsService {
       );
     }
 
-    await this.prisma.thresholdSlide.delete({
-      where: {
-        blueprintId_sectionType: {
-          blueprintId,
-          sectionType,
-        },
-      },
-    });
+    if (sectionType === 'SLIDE_SINGLE_HAMMER') {
+      await this.prisma.thresholdSlideSingleHammer.delete({
+        where: { blueprintId },
+      });
+    } else {
+      await this.prisma.thresholdSlideDoubleHammer.delete({
+        where: { blueprintId },
+      });
+    }
 
     return { message: `Slide ${sectionType} threshold deleted successfully` };
   }
@@ -1318,7 +1334,7 @@ export class AlertsService {
           include: {
             blueprint: {
               include: {
-                thresholdSlides: true,
+                thresholdSlideDoubleHammer: true,
               },
             },
           },
@@ -1342,10 +1358,8 @@ export class AlertsService {
       );
     }
 
-    // Find the threshold for SLIDE_DOUBLE_HAMMER
-    const threshold = service.machine.blueprint.thresholdSlides.find(
-      (t) => t.sectionType === 'SLIDE_DOUBLE_HAMMER',
-    );
+    // Get the threshold for SLIDE_DOUBLE_HAMMER
+    const threshold = service.machine.blueprint.thresholdSlideDoubleHammer;
 
     if (!threshold) {
       throw new NotFoundException(
@@ -1404,7 +1418,7 @@ export class AlertsService {
           include: {
             blueprint: {
               include: {
-                thresholdSlides: true,
+                thresholdSlideSingleHammer: true,
               },
             },
           },
@@ -1427,10 +1441,8 @@ export class AlertsService {
       );
     }
 
-    // Find the threshold for SLIDE_SINGLE_HAMMER
-    const threshold = service.machine.blueprint.thresholdSlides.find(
-      (t) => t.sectionType === 'SLIDE_SINGLE_HAMMER',
-    );
+    // Get the threshold for SLIDE_SINGLE_HAMMER
+    const threshold = service.machine.blueprint.thresholdSlideSingleHammer;
 
     if (!threshold) {
       throw new NotFoundException(

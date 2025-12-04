@@ -122,17 +122,11 @@ export async function seedCrownBlueprints(prisma: PrismaClient) {
   console.log(`✓ Created/Updated clutch thresholds for DAC`);
 
   // Create Slide Thresholds for DAC (Double Hammer)
-  await prisma.thresholdSlide.upsert({
-    where: {
-      blueprintId_sectionType: {
-        blueprintId: dacBlueprint.id,
-        sectionType: ServiceSection.SLIDE_DOUBLE_HAMMER,
-      },
-    },
+  await prisma.thresholdSlideDoubleHammer.upsert({
+    where: { blueprintId: dacBlueprint.id },
     update: {},
     create: {
       blueprintId: dacBlueprint.id,
-      sectionType: ServiceSection.SLIDE_DOUBLE_HAMMER,
       // Max Deviation thresholds
       maxDeviation_greenMin: 0.001,
       maxDeviation_yellowMin: 0.003,

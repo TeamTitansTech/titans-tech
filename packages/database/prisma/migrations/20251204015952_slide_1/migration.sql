@@ -1,18 +1,42 @@
 -- AlterEnum
--- This migration adds new slide types and removes the old SLIDE value
-
--- Add new enum values
+-- Add new enum values for slide types
 ALTER TYPE "ServiceSection" ADD VALUE 'SLIDE_SINGLE_HAMMER';
 ALTER TYPE "ServiceSection" ADD VALUE 'SLIDE_DOUBLE_HAMMER';
 
--- Note: Removing old enum value SLIDE requires data migration first if any records use it
--- For clean databases without production data, the old SLIDE value can be ignored
+-- CreateTable for ThresholdSlideSingleHammer
+CREATE TABLE "threshold_slide_single_hammer" (
+    "id" TEXT NOT NULL,
+    "blueprintId" TEXT NOT NULL,
+    "maxDeviation_greenMin" DECIMAL(10,4) NOT NULL,
+    "maxDeviation_yellowMin" DECIMAL(10,4) NOT NULL,
+    "maxDeviation_redMin" DECIMAL(10,4) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
--- AlterTable - Add sectionType column to threshold_slide
-ALTER TABLE "threshold_slide" ADD COLUMN "sectionType" "ServiceSection";
+    CONSTRAINT "threshold_slide_single_hammer_pkey" PRIMARY KEY ("id")
+);
 
--- Drop the unique constraint on blueprintId alone
-ALTER TABLE "threshold_slide" DROP CONSTRAINT IF EXISTS "threshold_slide_blueprintId_key";
+-- CreateTable for ThresholdSlideDoubleHammer
+CREATE TABLE "threshold_slide_double_hammer" (
+    "id" TEXT NOT NULL,
+    "blueprintId" TEXT NOT NULL,
+    "maxDeviation_greenMin" DECIMAL(10,4) NOT NULL,
+    "maxDeviation_yellowMin" DECIMAL(10,4) NOT NULL,
+    "maxDeviation_redMin" DECIMAL(10,4) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
 
--- Add unique constraint on blueprintId + sectionType
-CREATE UNIQUE INDEX "threshold_slide_blueprintId_sectionType_key" ON "threshold_slide"("blueprintId", "sectionType");
+    CONSTRAINT "threshold_slide_double_hammer_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateIndex for unique blueprintId on single hammer
+CREATE UNIQUE INDEX "threshold_slide_single_hammer_blueprintId_key" ON "threshold_slide_single_hammer"("blueprintId");
+
+-- CreateIndex for unique blueprintId on double hammer
+CREATE UNIQUE INDEX "threshold_slide_double_hammer_blueprintId_key" ON "threshold_slide_double_hammer"("blueprintId");
+
+-- AddForeignKey for single hammer
+ALTER TABLE "threshold_slide_single_hammer" ADD CONSTRAINT "threshold_slide_single_hammer_blueprintId_fkey" FOREIGN KEY ("blueprintId") REFERENCES "blueprints"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey for double hammer
+ALTER TABLE "threshold_slide_double_hammer" ADD CONSTRAINT "threshold_slide_double_hammer_blueprintId_fkey" FOREIGN KEY ("blueprintId") REFERENCES "blueprints"("id") ON DELETE CASCADE ON UPDATE CASCADE;

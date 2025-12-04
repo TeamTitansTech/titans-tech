@@ -348,6 +348,7 @@ enum ProtectiveCoversStatusType {
 
 enum ServiceSection {
   BEARING_CLEARANCE
+  SLIDE // @deprecated - use SLIDE_SINGLE_HAMMER or SLIDE_DOUBLE_HAMMER instead
   SLIDE_SINGLE_HAMMER
   SLIDE_DOUBLE_HAMMER
   GIBS
@@ -518,13 +519,14 @@ model Blueprint {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  machines                  Machine[]
-  thresholdBearingClearance ThresholdBearingClearance?
-  thresholdClutch           ThresholdClutch?
-  thresholdSlides           ThresholdSlide[] // Can have up to 2: one for single hammer, one for double hammer
-  thresholdGibs             ThresholdGibs?
-  thresholdPistons          ThresholdPistons?
-  thresholdTramming         ThresholdTramming?
+  machines                   Machine[]
+  thresholdBearingClearance  ThresholdBearingClearance?
+  thresholdClutch            ThresholdClutch?
+  thresholdSlideSingleHammer ThresholdSlideSingleHammer?
+  thresholdSlideDoubleHammer ThresholdSlideDoubleHammer?
+  thresholdGibs              ThresholdGibs?
+  thresholdPistons           ThresholdPistons?
+  thresholdTramming          ThresholdTramming?
 
   @@map("blueprints")
 }
@@ -608,10 +610,9 @@ model ThresholdClutch {
   @@map("threshold_clutch")
 }
 
-model ThresholdSlide {
-  id          String         @id @default(cuid())
-  blueprintId String
-  sectionType ServiceSection // SLIDE_SINGLE_HAMMER or SLIDE_DOUBLE_HAMMER
+model ThresholdSlideSingleHammer {
+  id          String @id @default(cuid())
+  blueprintId String @unique
 
   // Max Deviation thresholds (single threshold for both outer and inner)
   maxDeviation_greenMin  Decimal @db.Decimal(10, 4)
@@ -623,8 +624,24 @@ model ThresholdSlide {
 
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
-  @@unique([blueprintId, sectionType])
-  @@map("threshold_slide")
+  @@map("threshold_slide_single_hammer")
+}
+
+model ThresholdSlideDoubleHammer {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Max Deviation thresholds (single threshold for both outer and inner)
+  maxDeviation_greenMin  Decimal @db.Decimal(10, 4)
+  maxDeviation_yellowMin Decimal @db.Decimal(10, 4)
+  maxDeviation_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_slide_double_hammer")
 }
 
 model ThresholdGibs {

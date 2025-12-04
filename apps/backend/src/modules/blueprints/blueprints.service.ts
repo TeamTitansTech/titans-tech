@@ -64,10 +64,9 @@ export class BlueprintsService {
 
       // 4. Create Slide Single Hammer Thresholds if provided
       if (dto.slideSingleHammerThresholds) {
-        await tx.thresholdSlide.create({
+        await tx.thresholdSlideSingleHammer.create({
           data: {
             blueprintId: blueprint.id,
-            sectionType: 'SLIDE_SINGLE_HAMMER',
             ...convertSlideThresholdToDecimal(dto.slideSingleHammerThresholds),
           },
         });
@@ -75,10 +74,9 @@ export class BlueprintsService {
 
       // 4b. Create Slide Double Hammer Thresholds if provided
       if (dto.slideDoubleHammerThresholds) {
-        await tx.thresholdSlide.create({
+        await tx.thresholdSlideDoubleHammer.create({
           data: {
             blueprintId: blueprint.id,
-            sectionType: 'SLIDE_DOUBLE_HAMMER',
             ...convertSlideThresholdToDecimal(dto.slideDoubleHammerThresholds),
           },
         });
