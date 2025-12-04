@@ -489,6 +489,20 @@ export const PistonsCheckSchema = z.object({
 export type PistonsCheck = z.infer<typeof PistonsCheckSchema>;
 
 // ============================================================================
+// Attachment Schema
+// ============================================================================
+
+/**
+ * Attachment Schema - represents an uploaded document (PDF/CSV)
+ */
+export const AttachmentSchema = z.object({
+  name: z.string().min(1, 'File name is required'),
+  url: z.string().url('Invalid URL'),
+});
+
+export type Attachment = z.infer<typeof AttachmentSchema>;
+
+// ============================================================================
 // Service Payload and Entity Schemas
 // ============================================================================
 
@@ -524,6 +538,7 @@ export const CreateServicePayloadSchema = z.object({
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 
   // Inspection observation fields
   isPressLevel: z.enum(PrismaYesNoNaDncType).optional(),
@@ -559,6 +574,7 @@ export const UpdateServicePayloadSchema = z.object({
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 
   // Inspection observation fields
   isPressLevel: z.enum(PrismaYesNoNaDncType).optional(),
@@ -610,6 +626,7 @@ export const ServiceSchema = z.object({
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 
   // Inspection observation fields
   isPressLevel: z.enum(PrismaYesNoNaDncType).optional(),

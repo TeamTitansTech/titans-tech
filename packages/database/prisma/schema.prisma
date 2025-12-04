@@ -738,6 +738,7 @@ model MachineService {
   currentStep        String? // Current step in the modal: 'selection', 'details', 'sections', 'summary'
   currentSectionKey  String? // Current section being filled (e.g., 'BEARING_CLEARANCE')
   selectedSections   Json?         @default("[]") // Array of selected section keys
+  attachments        Json?         @default("[]") // Array of attached documents [{name: string, url: string}]
 
   // Inspection observation fields
   isPressLevel                YesNoNaDncType?

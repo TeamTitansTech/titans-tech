@@ -56,4 +56,24 @@ export class UploadController {
 
     return { url };
   }
+
+  @Public()
+  @Post('document')
+  @UseInterceptors(
+    FileInterceptor('document', {
+      limits: {
+        fileSize: 10 * 1024 * 1024,
+      },
+    }),
+  )
+  async uploadDocument(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ url: string; originalName: string }> {
+    if (!file) {
+      throw new BadRequestException('No document file provided');
+    }
+
+    this.uploadService.validateDocumentFile(file);
+    return await this.uploadService.uploadDocument(file);
+  }
 }
