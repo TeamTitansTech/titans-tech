@@ -11,7 +11,7 @@ const STATUS_COLORS = {
   ok: 'text-green-500',
   warning: 'text-yellow-500',
   alert: 'text-red-500',
-  unknown: 'text-muted-foreground',
+  unknown: 'text-green-500',
 };
 
 export function StatusBadge({ status, label }: StatusBadgeProps) {

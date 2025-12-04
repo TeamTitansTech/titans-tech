@@ -136,7 +136,7 @@ export function SectionStatusDot({
     ok: 'bg-green-500',
     warning: 'bg-yellow-500',
     alert: 'bg-red-500',
-    unknown: 'bg-gray-400',
+    unknown: 'bg-green-500',
   };
 
   return (
@@ -147,7 +147,7 @@ export function SectionStatusDot({
         status === 'ok' && 'ring-green-500/30',
         status === 'warning' && 'ring-yellow-500/30',
         status === 'alert' && 'ring-red-500/30 animate-pulse',
-        status === 'unknown' && 'ring-gray-400/30',
+        status === 'unknown' && 'ring-green-500/30',
         className,
       )}
     />
