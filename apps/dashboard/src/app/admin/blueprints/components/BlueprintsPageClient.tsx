@@ -8,14 +8,10 @@ import { BlueprintCreationModal } from './BlueprintCreationModal';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Typography } from '@/components/ui/typography';
-import type { Blueprint } from './types';
+import type { Blueprint } from '@/data/services/blueprints.api';
 
 interface BlueprintsPageClientProps {
-  blueprints: (Blueprint & {
-    _count?: {
-      machines: number;
-    };
-  })[];
+  blueprints: Blueprint[];
 }
 
 export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) {

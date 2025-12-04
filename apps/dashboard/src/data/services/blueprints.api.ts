@@ -1,12 +1,6 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-
-interface BlueprintField {
-  fieldName: string;
-  fieldSlug: string;
-  fieldType: string;
-  fieldOptions?: string[];
-}
+import type { Field, Blueprint as BlueprintBase } from '@/app/admin/blueprints/components/types';
 
 interface BearingClearanceThresholds {
   totalClearance_greenMin: number;
@@ -33,7 +27,7 @@ interface CreateBlueprintPayload {
   name: string;
   imageUrl?: string;
   sections: string[];
-  fields: BlueprintField[];
+  fields: Field[];
   thresholds?: BearingClearanceThresholds;
 }
 
@@ -41,15 +35,10 @@ interface UpdateBlueprintPayload {
   name?: string;
   imageUrl?: string;
   sections?: string[];
-  fields?: BlueprintField[];
+  fields?: Field[];
 }
 
-interface Blueprint {
-  id: string;
-  name: string;
-  imageUrl?: string;
-  sections: string[];
-  fields: BlueprintField[];
+export interface Blueprint extends BlueprintBase {
   createdAt: string;
   updatedAt: string;
   _count?: {
