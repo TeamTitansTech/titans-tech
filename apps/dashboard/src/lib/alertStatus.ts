@@ -641,7 +641,7 @@ export const statusColors = {
   ok: 'bg-green-500 border-green-600',
   warning: 'bg-yellow-500 border-yellow-600',
   critical: 'bg-red-500 border-red-600',
-  unknown: 'bg-gray-400 border-gray-500',
+  unknown: 'bg-green-500 border-green-600',
 } as const;
 
 /**
@@ -651,7 +651,7 @@ export const sectionStatusColors = {
   ok: 'text-green-500',
   warning: 'text-yellow-500',
   alert: 'text-red-500',
-  unknown: 'text-muted-foreground',
+  unknown: 'text-green-500',
 } as const;
 
 /**

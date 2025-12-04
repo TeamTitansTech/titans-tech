@@ -10,7 +10,7 @@ import { useTranslations } from 'next-intl';
 import { SectionCard } from '@/components/shared/SectionCard';
 import { Typography } from '@/components/ui/typography';
 import type { MachineDetailsProps } from '@/data/types/machines.types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { LatestReportModal } from './LatestReportModal';
 import { getLatestReport } from '@/data/services/services.api';
@@ -29,6 +29,21 @@ export function MachineDetails({ machine, companySlug }: MachineDetailsComponent
   const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
   const [isLoadingReport, setIsLoadingReport] = useState(false);
 
+  // Fetch latest report on mount to get section statuses
+  useEffect(() => {
+    const fetchLatestReport = async () => {
+      try {
+        const response = await getLatestReport(machine.id);
+        if (response.data) {
+          setLatestReport(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching latest report:', error);
+      }
+    };
+    fetchLatestReport();
+  }, [machine.id]);
+
   const handleSectionClick = async (section: string) => {
     setLoadingSection(section);
     const sectionSlug = section.toLowerCase();
@@ -37,6 +52,12 @@ export function MachineDetails({ machine, companySlug }: MachineDetailsComponent
   };
 
   const handleOpenReport = async () => {
+    // If we already have the report, just open the modal
+    if (latestReport) {
+      setIsReportModalOpen(true);
+      return;
+    }
+
     setIsLoadingReport(true);
     try {
       const response = await getLatestReport(machine.id);
@@ -123,6 +144,7 @@ export function MachineDetails({ machine, companySlug }: MachineDetailsComponent
                     key={section}
                     sectionKey={section}
                     machine={machine}
+                    latestReport={latestReport}
                     onClick={() => handleSectionClick(section)}
                     isLoading={loadingSection === section}
                   />
