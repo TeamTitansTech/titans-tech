@@ -11,11 +11,9 @@ import {
   ALLOWED_DOCUMENT_TYPES,
   type AllowedDocumentType,
 } from '@/config/uploads';
+import type { Attachment } from '@/data/types/services.types';
 
-export interface Attachment {
-  name: string;
-  url: string;
-}
+export type { Attachment };
 
 interface DocumentUploadProps {
   value: Attachment[];

@@ -51,6 +51,7 @@ export type {
   PistonsData,
   PistonsCheck,
   // Service entity
+  Attachment,
   Service,
   ServiceHistoryItem,
   CreateServicePayload,
