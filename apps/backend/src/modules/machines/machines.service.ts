@@ -249,6 +249,7 @@ export class MachinesService {
             alertSlide: true;
             alertGibs: true;
             alertPistons: true;
+            alertTramming: true;
             alertCounterbalanceCylinderAirbag: true;
           };
         };
@@ -283,6 +284,7 @@ export class MachinesService {
             alertSlide: true,
             alertGibs: true,
             alertPistons: true,
+            alertTramming: true,
             alertCounterbalanceCylinderAirbag: true,
           },
         },
@@ -321,6 +323,7 @@ export class MachinesService {
             alertSlide: true;
             alertGibs: true;
             alertPistons: true;
+            alertTramming: true;
             alertCounterbalanceCylinderAirbag: true;
           };
         };
@@ -355,6 +358,7 @@ export class MachinesService {
             alertSlide: true,
             alertGibs: true,
             alertPistons: true,
+            alertTramming: true,
             alertCounterbalanceCylinderAirbag: true,
           },
         },
