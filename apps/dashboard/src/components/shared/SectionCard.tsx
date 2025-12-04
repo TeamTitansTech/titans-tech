@@ -28,7 +28,8 @@ const STATUS_COLORS = {
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
-  SLIDE: 'slide',
+  SLIDE_SINGLE_HAMMER: 'slideSingleHammer',
+  SLIDE_DOUBLE_HAMMER: 'slideDoubleHammer',
   GIBS: 'gibs',
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
   CLUTCH: 'clutch',
@@ -39,7 +40,8 @@ const SECTION_I18N_KEYS: Record<string, string> = {
 
 const SECTION_IMAGES: Record<string, string> = {
   BEARING_CLEARANCE: '/assets/sections/bearing-clearance.svg',
-  SLIDE: '/assets/sections/slide.svg',
+  SLIDE_SINGLE_HAMMER: '/assets/sections/slide.svg',
+  SLIDE_DOUBLE_HAMMER: '/assets/sections/slide.svg',
   GIBS: '/assets/sections/gibs.svg',
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER:
     '/assets/sections/lubrication-hydraulics.svg',
@@ -51,7 +53,6 @@ const SECTION_IMAGES: Record<string, string> = {
 
 export function SectionCard({ sectionKey, machine, onClick, isLoading = false }: SectionCardProps) {
   const t = useTranslations('machines');
-
   const status = getSectionStatus(sectionKey, machine);
   const imageUrl = SECTION_IMAGES[sectionKey];
   const title = t(`sectionNames.${SECTION_I18N_KEYS[sectionKey] || 'unknown'}`);

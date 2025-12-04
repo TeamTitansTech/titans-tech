@@ -62,12 +62,24 @@ export class BlueprintsService {
         });
       }
 
-      // 4. Create Slide Thresholds if provided
-      if (dto.slideThresholds) {
+      // 4. Create Slide Single Hammer Thresholds if provided
+      if (dto.slideSingleHammerThresholds) {
         await tx.thresholdSlide.create({
           data: {
             blueprintId: blueprint.id,
-            ...convertSlideThresholdToDecimal(dto.slideThresholds),
+            sectionType: 'SLIDE_SINGLE_HAMMER',
+            ...convertSlideThresholdToDecimal(dto.slideSingleHammerThresholds),
+          },
+        });
+      }
+
+      // 4b. Create Slide Double Hammer Thresholds if provided
+      if (dto.slideDoubleHammerThresholds) {
+        await tx.thresholdSlide.create({
+          data: {
+            blueprintId: blueprint.id,
+            sectionType: 'SLIDE_DOUBLE_HAMMER',
+            ...convertSlideThresholdToDecimal(dto.slideDoubleHammerThresholds),
           },
         });
       }

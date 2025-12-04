@@ -1,8 +1,8 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
-import { SlideSection } from './SlideSection';
+import { SlideSingleHammerSection } from './SlideSingleHammerSection';
 
-interface SlideSectionWrapperProps {
+interface SlideSingleHammerSectionWrapperProps {
   machineId: string;
   hideThresholdValues?: boolean;
 }
@@ -33,10 +33,10 @@ export interface SlideInspectionData {
   }>;
 }
 
-export async function SlideSectionWrapper({
+export async function SlideSingleHammerSectionWrapper({
   machineId,
   hideThresholdValues = false,
-}: SlideSectionWrapperProps) {
+}: SlideSingleHammerSectionWrapperProps) {
   let inspections: SlideInspectionData[] = [];
   let machineName = '';
   let blueprintId = '';
@@ -70,7 +70,7 @@ export async function SlideSectionWrapper({
   }
 
   return (
-    <SlideSection
+    <SlideSingleHammerSection
       machineId={machineId}
       inspections={inspections}
       machineName={machineName}

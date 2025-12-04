@@ -1,12 +1,6 @@
 'use server';
 import { responseHandler } from '@/data/helpers/responseHandler';
-
-interface BlueprintField {
-  fieldName: string;
-  fieldSlug: string;
-  fieldType: string;
-  fieldOptions?: string[];
-}
+import type { Field as BlueprintField } from '@/app/admin/blueprints/components/types';
 
 interface BearingClearanceThresholds {
   totalClearance_greenMin: number;
