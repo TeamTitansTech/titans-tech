@@ -193,11 +193,9 @@ export function CounterbalanceSection({
     if (latestAlerts.length > 0) return 'alert';
     // If there are issues, it's a warning
     if (outerIssuesCount + innerIssuesCount > 0) return 'warning';
-    // If we have data with no issues, it's ok
-    if (latestOuterData || latestInnerData) return 'ok';
-    // No data
-    return 'unknown';
-  }, [latestAlerts.length, outerIssuesCount, innerIssuesCount, latestOuterData, latestInnerData]);
+    // No issues or no data = ok (operational until proven otherwise)
+    return 'ok';
+  }, [latestAlerts.length, outerIssuesCount, innerIssuesCount]);
 
   const formatTypeLabel = (type: string | null): string => {
     if (!type) return '-';

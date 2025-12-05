@@ -62,10 +62,11 @@ export function getSeverityColor(severity: AlertSeverity): {
         border: 'border-red-500',
       };
     default:
+      // NONE severity treated as GREEN (operational until proven otherwise)
       return {
-        bg: 'bg-gray-100 dark:bg-gray-800',
-        text: 'text-gray-800 dark:text-gray-300',
-        border: 'border-gray-500',
+        bg: 'bg-green-100 dark:bg-green-900/30',
+        text: 'text-green-800 dark:text-green-300',
+        border: 'border-green-500',
       };
   }
 }
@@ -82,7 +83,8 @@ export function getSeverityLabel(severity: AlertSeverity): string {
     case 'RED':
       return 'Critical';
     default:
-      return 'No Data';
+      // NONE severity treated as OK (operational until proven otherwise)
+      return 'OK';
   }
 }
 

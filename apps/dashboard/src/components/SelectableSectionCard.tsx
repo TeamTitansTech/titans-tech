@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { Check } from 'lucide-react';
 
-export type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
+export type SectionStatus = 'ok' | 'warning' | 'alert';
 
 interface SelectableSectionCardProps {
   title: string;
@@ -21,7 +21,6 @@ const STATUS_COLORS = {
   ok: 'bg-green-500',
   warning: 'bg-yellow-500',
   alert: 'bg-red-500',
-  unknown: 'bg-green-500',
 } as const;
 
 export function SelectableSectionCard({

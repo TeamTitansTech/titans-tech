@@ -168,7 +168,7 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
 
       // Status filter
       if (statusFilter !== 'all') {
-        const alertStatus = machine.alertStatus || 'unknown';
+        const alertStatus = machine.alertStatus || 'ok';
         const cardStatus = mapAlertStatusToCardStatus(alertStatus);
         if (cardStatus !== statusFilter) return false;
       }
@@ -300,7 +300,7 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMachines.map((machine) => {
               // Use calculated alert status from latest report
-              const alertStatus = machine.alertStatus || 'unknown';
+              const alertStatus = machine.alertStatus || 'ok';
               const cardStatus = mapAlertStatusToCardStatus(alertStatus);
 
               // Build location string: "Company Name - Branch Name"

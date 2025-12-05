@@ -3,7 +3,7 @@
 import { Circle } from 'lucide-react';
 
 interface StatusBadgeProps {
-  status: 'ok' | 'warning' | 'alert' | 'unknown';
+  status: 'ok' | 'warning' | 'alert';
   label: string;
 }
 
@@ -11,7 +11,6 @@ const STATUS_COLORS = {
   ok: 'text-green-500',
   warning: 'text-yellow-500',
   alert: 'text-red-500',
-  unknown: 'text-green-500',
 };
 
 export function StatusBadge({ status, label }: StatusBadgeProps) {

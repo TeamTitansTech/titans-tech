@@ -28,7 +28,7 @@ export function SelectionStep({
 }: SelectionStepProps) {
   // Mock function to get section status - replace with actual logic
   const getSectionStatus = (_sectionKey: string): SectionStatus => {
-    return 'unknown';
+    return 'ok';
   };
 
   return (
