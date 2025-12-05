@@ -8,22 +8,7 @@ import { BlueprintCreationModal } from './BlueprintCreationModal';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Typography } from '@/components/ui/typography';
-
-interface Blueprint {
-  id: string;
-  name: string;
-  imageUrl?: string;
-  sections: string[];
-  fields: {
-    fieldName: string;
-    fieldSlug: string;
-    fieldType: string;
-    fieldOptions?: string[];
-  }[];
-  _count?: {
-    machines: number;
-  };
-}
+import type { Blueprint } from '@/data/services/blueprints.api';
 
 interface BlueprintsPageClientProps {
   blueprints: Blueprint[];

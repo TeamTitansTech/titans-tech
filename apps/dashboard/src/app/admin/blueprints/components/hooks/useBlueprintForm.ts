@@ -2,7 +2,11 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { createBlueprint, updateBlueprint } from '@/data/services/blueprints.api';
+import {
+  createBlueprint,
+  updateBlueprint,
+  type CreateBlueprintPayload,
+} from '@/data/services/blueprints.api';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
@@ -200,26 +204,6 @@ export function useBlueprintForm(
     const hasGibs = selectedSections.includes('gibs');
     const hasPistons = selectedSections.includes('pistons');
     const hasTramming = selectedSections.includes('tramming');
-
-    interface BlueprintField {
-      fieldName: string;
-      fieldSlug: string;
-      fieldType: string;
-      fieldOptions?: string[];
-    }
-
-    interface CreateBlueprintPayload {
-      name: string;
-      imageUrl?: string;
-      sections: string[];
-      fields: BlueprintField[];
-      thresholds?: BearingClearanceThresholdsData;
-      clutchThresholds?: ClutchThresholdsData;
-      slideThresholds?: SlideThresholdsData;
-      gibsThresholds?: GibsThresholdsData;
-      pistonsThresholds?: PistonsThresholdsData;
-      trammingThresholds?: TrammingThresholdsData;
-    }
 
     const payload: CreateBlueprintPayload = {
       name,
