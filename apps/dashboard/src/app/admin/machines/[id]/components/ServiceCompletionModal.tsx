@@ -53,6 +53,7 @@ export function ServiceCompletionModal({
   initialDate,
   initialPerformedBy,
   companyId,
+  onSuccess,
 }: ServiceCompletionModalProps) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
@@ -625,6 +626,7 @@ export function ServiceCompletionModal({
         resetSectionData();
         setIsSubmitting(false);
         onOpenChange(false);
+        onSuccess?.();
         router.refresh();
         return;
       }
@@ -637,6 +639,7 @@ export function ServiceCompletionModal({
           resetSectionData();
           setIsSubmitting(false);
           onOpenChange(false);
+          onSuccess?.();
           router.refresh();
           return;
         }
@@ -656,6 +659,7 @@ export function ServiceCompletionModal({
       resetSectionData();
       setIsSubmitting(false);
       onOpenChange(false);
+      onSuccess?.();
       router.refresh();
     } catch (err) {
       console.error('Error completing service:', err);
@@ -710,6 +714,7 @@ export function ServiceCompletionModal({
       setAlertsSummary(null);
       setCompletedServiceId(null);
       onOpenChange(false);
+      onSuccess?.();
       router.refresh();
     }
   };

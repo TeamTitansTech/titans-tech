@@ -49,6 +49,7 @@ export interface ServiceCompletionModalProps {
   initialDate?: string; // Initial date from existing service
   initialPerformedBy?: string; // Initial performedBy from existing service
   companyId?: string; // Company ID for alert notifications
+  onSuccess?: () => void; // Called when service is successfully completed
 }
 
 export interface SectionDataState {

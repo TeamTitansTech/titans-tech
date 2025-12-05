@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { getMachineById } from '@/data/services/machines.api';
 import { getCurrentUser } from '@/data/services/auth.api';
 import { getPublicMachineInfo } from '@/data/services/public.api';
+import { getLatestReport } from '@/data/services/services.api';
 import { MachineDetailsClient } from './components/MachineDetailsClient';
 import { ServiceHistory } from './components/ServiceHistory';
 import { PublicMachineView } from './components/PublicMachineView';
@@ -61,6 +62,10 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
   const machine = response.data;
   const user = userResponse.data;
 
+  // Fetch latest report for section statuses
+  const latestReportResponse = await getLatestReport(id);
+  const latestReport = latestReportResponse.data || null;
+
   // Check if user has readMachines permission for this machine's branch
   const canViewMachine = hasPermissionForResource(user, machine, 'readMachines');
 
@@ -76,7 +81,11 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
 
   return (
     <div className="space-y-6 p-4">
-      <MachineDetailsClient machine={response.data} companySlug={subdomain} />
+      <MachineDetailsClient
+        machine={response.data}
+        companySlug={subdomain}
+        initialLatestReport={latestReport}
+      />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {canReadServices ? (
           <UpcomingServices
