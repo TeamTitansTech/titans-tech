@@ -145,7 +145,7 @@ export class UploadService {
     }
 
     if (file.size > this.MAX_FILE_SIZE) {
-      throw new BadRequestException('File size exceeds 10MB limit');
+      throw new BadRequestException('File size exceeds 20MB limit');
     }
 
     return true;
