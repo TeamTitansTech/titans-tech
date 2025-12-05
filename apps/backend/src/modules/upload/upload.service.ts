@@ -44,7 +44,7 @@ export class UploadService {
 
     if (file.size > this.MAX_FILE_SIZE) {
       throw new BadRequestException(
-        `File size exceeds maximum limit of 10MB. File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
+        `File size exceeds maximum limit of 20MB. File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
       );
     }
 
@@ -84,7 +84,7 @@ export class UploadService {
     }
 
     if (file.size > this.MAX_FILE_SIZE) {
-      throw new BadRequestException('File size exceeds 10MB limit');
+      throw new BadRequestException('File size exceeds 20MB limit');
     }
 
     return true;
@@ -102,7 +102,7 @@ export class UploadService {
 
     if (file.size > this.MAX_FILE_SIZE) {
       throw new BadRequestException(
-        `File size exceeds maximum limit of 10MB. File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
+        `File size exceeds maximum limit of 20MB. File size: ${(file.size / 1024 / 1024).toFixed(2)}MB`,
       );
     }
 

@@ -55,7 +55,7 @@
       "uploadFailed": "Error al subir la imagen",
       "uploading": "Subiendo...",
       "clickToUpload": "Haga clic para subir",
-      "jpgOrPngMax": "JPG o PNG (máx. 10MB)"
+      "jpgOrPngMax": "JPG o PNG (máx. 20MB)"
     },
     "documentUpload": {
       "onlyPdfCsvAllowed": "Solo se permiten archivos PDF y CSV",
@@ -63,7 +63,7 @@
       "uploadFailed": "Error al subir el documento",
       "uploading": "Subiendo...",
       "clickToUpload": "Haga clic para adjuntar documentos",
-      "pdfOrCsvMax": "PDF o CSV (máx. 10MB)"
+      "pdfOrCsvMax": "PDF o CSV (máx. 20MB)"
     },
     "cancel": "Cancelar",
     "save": "Guardar"
@@ -78,7 +78,7 @@
     "fullNameRequired": "El nombre completo es obligatorio",
     "invalidEmail": "Dirección de correo electrónico no válida",
     "invalidImageType": "Solo se permiten imágenes JPG y PNG",
-    "fileTooLarge": "El tamaño del archivo excede el límite de 10MB"
+    "fileTooLarge": "El tamaño del archivo excede el límite de 20MB"
   },
   "navigation": {
     "dashboard": "Panel",
