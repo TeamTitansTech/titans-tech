@@ -2017,7 +2017,8 @@
     "outerBeforeMaintenance": "Externo - Antes del Mantenimiento",
     "outerAfterMaintenance": "Externo - Después del Mantenimiento",
     "innerBeforeMaintenance": "Interno - Antes del Mantenimiento",
-    "innerAfterMaintenance": "Interno - Después del Mantenimiento"
+    "innerAfterMaintenance": "Interno - Después del Mantenimiento",
+    "slideMeasurements": "Mediciones del Slide"
   },
   "bearingFields": {
     "totalClearance": "Holgura Total",

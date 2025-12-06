@@ -1,5 +1,5 @@
 'use server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
 import {
   FoundationType,
@@ -136,6 +136,7 @@ export const createMachine = async (payload: CreateMachinePayload) => {
   });
 
   if (!result.errors) {
+    revalidateTag('machines', 'max');
     revalidatePath('/admin/machines');
   }
 
@@ -149,6 +150,7 @@ export const updateMachine = async (id: string, payload: UpdateMachinePayload) =
   });
 
   if (!result.errors) {
+    revalidateTag('machines', 'max');
     revalidatePath('/admin/machines');
   }
 
@@ -161,6 +163,7 @@ export const deleteMachine = async (id: string) => {
   });
 
   if (!result.errors) {
+    revalidateTag('machines', 'max');
     revalidatePath('/admin/machines');
   }
 

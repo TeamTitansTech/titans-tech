@@ -101,8 +101,7 @@ interface MachineListPageProps {
   machines: MachineWithStatus[];
 }
 
-export function MachineListPage({ machines: initialMachines }: MachineListPageProps) {
-  const [machines, setMachines] = useState<MachineWithStatus[]>(initialMachines);
+export function MachineListPage({ machines }: MachineListPageProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -197,10 +196,8 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
     const response = await executeDelete(machineToDelete.id);
 
     if (!response.errors) {
-      setMachines((prevMachines) =>
-        prevMachines.filter((machine) => machine.id !== machineToDelete.id),
-      );
       toast.success(t('deletedSuccessfully'));
+      router.refresh();
     } else {
       toast.error(response.errors.join(', '));
     }

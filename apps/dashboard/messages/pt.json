@@ -2085,7 +2085,8 @@
     "outerBeforeMaintenance": "Externo - Antes da Manutenção",
     "outerAfterMaintenance": "Externo - Após a Manutenção",
     "innerBeforeMaintenance": "Interno - Antes da Manutenção",
-    "innerAfterMaintenance": "Interno - Após a Manutenção"
+    "innerAfterMaintenance": "Interno - Após a Manutenção",
+    "slideMeasurements": "Medições do Slide"
   },
   "bearingFields": {
     "totalClearance": "Folga Total",
