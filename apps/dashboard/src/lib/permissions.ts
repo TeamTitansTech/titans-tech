@@ -12,6 +12,7 @@ import {
   RolePreset,
   detectRolePreset,
 } from '@titans-tech/shared/types';
+
 import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 /**
@@ -24,8 +25,8 @@ export function hasPermission(
 ): boolean {
   if (!user) return false;
 
-  // Company Admins and Managers have all permissions
-  if (user.isCompanyAdmin || user.isCompanyManager) {
+  // Company Admins have all permissions
+  if (user.isCompanyAdmin) {
     return true;
   }
 
@@ -46,8 +47,8 @@ export function hasPermissionInAnyBranch(
 ): boolean {
   if (!user) return false;
 
-  // Company Admins and Managers have all permissions
-  if (user.isCompanyAdmin || user.isCompanyManager) {
+  // Company Admins have all permissions
+  if (user.isCompanyAdmin) {
     return true;
   }
 
@@ -117,11 +118,12 @@ export function canEditPermissions(
 }
 
 /**
- * Check if user is Company Admin or Manager
+ * Check if user is Company Admin
+ * @deprecated Use `user?.isCompanyAdmin` directly. This function exists for backward compatibility.
  */
 export function isCompanyAdminOrManager(user: UserResponseDto | null | undefined): boolean {
   if (!user) return false;
-  return user.isCompanyAdmin || user.isCompanyManager;
+  return user.isCompanyAdmin;
 }
 
 /**
@@ -130,14 +132,6 @@ export function isCompanyAdminOrManager(user: UserResponseDto | null | undefined
 export function isCompanyAdmin(user: UserResponseDto | null | undefined): boolean {
   if (!user) return false;
   return user.isCompanyAdmin;
-}
-
-/**
- * Check if user is Company Manager
- */
-export function isCompanyManager(user: UserResponseDto | null | undefined): boolean {
-  if (!user) return false;
-  return user.isCompanyManager;
 }
 
 /**
@@ -183,8 +177,8 @@ export function hasAccessToBranch(
 ): boolean {
   if (!user) return false;
 
-  // Company Admins and Managers have access to all branches
-  if (user.isCompanyAdmin || user.isCompanyManager) {
+  // Company Admins have access to all branches
+  if (user.isCompanyAdmin) {
     return true;
   }
 
@@ -198,9 +192,8 @@ export function hasAccessToBranch(
 export function getUserRole(user: UserResponseDto | null | undefined, branchId: string): UserRole {
   if (!user) return UserRole.EMPLOYEE;
 
-  // Company-level roles
+  // Company-level role
   if (user.isCompanyAdmin) return UserRole.COMPANY_ADMIN;
-  if (user.isCompanyManager) return UserRole.COMPANY_MANAGER;
 
   // Branch-level role
   const permissions = getBranchPermissions(user, branchId);
@@ -226,7 +219,6 @@ export function getUserRole(user: UserResponseDto | null | undefined, branchId: 
 export function getUserRoleLabel(role: UserRole): string {
   const labels: Record<UserRole, string> = {
     [UserRole.COMPANY_ADMIN]: 'Company Admin',
-    [UserRole.COMPANY_MANAGER]: 'Company Manager',
     [UserRole.BRANCH_MANAGER]: 'Branch Manager',
     [UserRole.EMPLOYEE]: 'Employee',
     [UserRole.CUSTOM]: 'Custom',
@@ -242,7 +234,6 @@ export function getUserRoleBadgeColor(role: UserRole): string {
   const colors: Record<UserRole, string> = {
     [UserRole.COMPANY_ADMIN]:
       'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
-    [UserRole.COMPANY_MANAGER]: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
     [UserRole.BRANCH_MANAGER]:
       'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
     [UserRole.EMPLOYEE]: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
@@ -256,7 +247,6 @@ export function getUserRoleBadgeColor(role: UserRole): string {
  * Check if current user can edit another user (name, email, or permissions)
  * Rules:
  * - Company Admins can edit everyone except other Company Admins
- * - Company Managers can edit everyone except Company Admins
  * - Users with updateUsers OR manageUserPermissions can edit regular users in their branch
  */
 export function canEditUser(
@@ -274,13 +264,8 @@ export function canEditUser(
     return !targetUser.isCompanyAdmin;
   }
 
-  // Company Managers can edit everyone except Company Admins
-  if (currentUser.isCompanyManager) {
-    return !targetUser.isCompanyAdmin;
-  }
-
-  // Regular users can only edit if they have permission and target is not admin/manager
-  if (targetUser.isCompanyAdmin || targetUser.isCompanyManager) {
+  // Regular users can only edit if they have permission and target is not admin
+  if (targetUser.isCompanyAdmin) {
     return false;
   }
 
@@ -290,7 +275,9 @@ export function canEditUser(
 
 /**
  * Check if current user can delete another user
- * Same rules as canEditUser
+ * Rules:
+ * - Company Admins can delete everyone except other Company Admins
+ * - Users with deleteUsers can delete regular users in their branch
  */
 export function canDeleteUser(
   currentUser: UserResponseDto | null | undefined,
@@ -305,35 +292,11 @@ export function canDeleteUser(
   // Can't delete Company Admins
   if (targetUser.isCompanyAdmin) return false;
 
-  // Company Admins and Managers can delete most users
-  if (currentUser.isCompanyAdmin || currentUser.isCompanyManager) {
-    return !targetUser.isCompanyAdmin;
+  // Company Admins can delete anyone except other admins
+  if (currentUser.isCompanyAdmin) {
+    return true;
   }
 
-  // Regular users need delete permission and target can't be admin/manager
-  if (targetUser.isCompanyManager) return false;
-
+  // Regular users need delete permission
   return hasPermission(currentUser, branchId, 'deleteUsers');
-}
-
-/**
- * Check if current user can promote to Company Manager
- * Only Company Admins can do this
- */
-export function canPromoteToManager(currentUser: UserResponseDto | null | undefined): boolean {
-  return isCompanyAdmin(currentUser);
-}
-
-/**
- * Count enabled permissions
- */
-export function countEnabledPermissions(permissions: Permissions): number {
-  return Object.values(permissions).filter((value) => value === true).length;
-}
-
-/**
- * Check if permissions object matches a role preset
- */
-export function getPermissionPreset(permissions: Permissions): RolePreset {
-  return detectRolePreset(permissions);
 }
