@@ -42,6 +42,52 @@ export type PermissionName =
   | 'deleteProductionLines';
 
 /**
+ * Permission dependency map.
+ * - null: No dependencies (base permission)
+ * - string[]: Array of required permissions (checked recursively)
+ *
+ * This is the single source of truth for permission dependencies.
+ * Used by both frontend (auto-check/uncheck) and backend (validation).
+ */
+export const PERMISSION_DEPENDENCIES: Record<PermissionName, PermissionName[] | null> = {
+  // Branch Management (base permissions)
+  readBranches: null,
+  updateBranches: ['readBranches'],
+
+  // Blueprint Management (global, not branch-linked)
+  readBlueprints: null,
+  createBlueprints: ['readBlueprints'],
+  updateBlueprints: ['readBlueprints'],
+  deleteBlueprints: ['readBlueprints'],
+
+  // User Management (users belong to branches)
+  readUsers: ['readBranches'],
+  createUsers: ['readUsers'],
+  updateUsers: ['readUsers'],
+  deleteUsers: ['readUsers'],
+  manageUserPermissions: ['readUsers'],
+  assignUsersToBranches: ['readUsers', 'readBranches'],
+
+  // Machine Management (machines belong to branches)
+  readMachines: ['readBranches'],
+  createMachines: ['readMachines'],
+  updateMachines: ['readMachines'],
+  deleteMachines: ['readMachines'],
+
+  // Service Management (services are on machines)
+  readServices: ['readMachines'],
+  createServices: ['readServices'],
+  updateServices: ['readServices'],
+  deleteServices: ['readServices'],
+
+  // Production Line Management (production lines belong to branches)
+  readProductionLines: ['readBranches'],
+  createProductionLines: ['readProductionLines'],
+  updateProductionLines: ['readProductionLines'],
+  deleteProductionLines: ['readProductionLines'],
+};
+
+/**
  * Complete set of permissions (UserBranch model)
  */
 export interface Permissions {
