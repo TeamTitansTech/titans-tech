@@ -18,6 +18,8 @@ import {
   PermissionName,
   setCategoryPermissions,
   PermissionCategory,
+  enableWithPrerequisites,
+  disableWithDependents,
 } from '@titans-tech/shared/types';
 import { cn } from '@/lib/utils';
 
@@ -48,95 +50,27 @@ export function PermissionsEditor({
     onChange(newPermissions);
   };
 
-  // Define permission dependencies: these permissions require other permissions to be enabled
-  // Supports multiple dependencies per permission
-  const permissionDependencies: Record<string, PermissionName[]> = {
-    // User management requires branch visibility (users are linked to branches)
-    readUsers: ['readBranches'],
-    createUsers: ['readUsers'],
-    updateUsers: ['readUsers'],
-    deleteUsers: ['readUsers'],
-    manageUserPermissions: ['readUsers'],
-    assignUsersToBranches: ['readUsers'],
-    updateBranches: ['readBranches'],
-    createMachines: ['readMachines'],
-    updateMachines: ['readMachines'],
-    deleteMachines: ['readMachines'],
-    // Service mutations require both readServices AND readMachines
-    createServices: ['readServices', 'readMachines'],
-    updateServices: ['readServices', 'readMachines'],
-    deleteServices: ['readServices', 'readMachines'],
-    createProductionLines: ['readProductionLines'],
-    updateProductionLines: ['readProductionLines'],
-    deleteProductionLines: ['readProductionLines'],
-  };
-
-  // Get all permissions that depend on a given permission
-  const getDependentPermissions = (readPermission: PermissionName): PermissionName[] => {
-    return Object.entries(permissionDependencies)
-      .filter(([_, deps]) => deps.includes(readPermission))
-      .map(([perm]) => perm as PermissionName);
-  };
-
-  // Check if a permission should be disabled (all required permissions must be enabled)
-  const isPermissionDisabled = (permission: PermissionName): boolean => {
-    if (disabled) return true;
-    const requiredPermissions = permissionDependencies[permission];
-    if (requiredPermissions && requiredPermissions.length > 0) {
-      // Disabled if ANY required permission is not enabled
-      return requiredPermissions.some((req) => !permissions[req]);
-    }
-    return false;
-  };
-
   // Handle individual permission change
   const handlePermissionChange = (permission: PermissionName, checked: boolean) => {
-    const newPermissions = {
-      ...permissions,
-      [permission]: checked,
-    };
-
-    // If checking a permission, also enable all its dependencies
     if (checked) {
-      const requiredPermissions = permissionDependencies[permission];
-      if (requiredPermissions && requiredPermissions.length > 0) {
-        requiredPermissions.forEach((req) => {
-          newPermissions[req] = true;
-        });
-      }
+      // Enable permission and all its prerequisites
+      onChange(enableWithPrerequisites(permissions, permission));
+    } else {
+      // Disable permission and all its dependents
+      onChange(disableWithDependents(permissions, permission));
     }
-
-    // If unchecking a read permission, also uncheck all dependent permissions
-    if (!checked) {
-      const dependents = getDependentPermissions(permission);
-      if (dependents.length > 0) {
-        dependents.forEach((dep) => {
-          newPermissions[dep] = false;
-        });
-      }
-    }
-
-    onChange(newPermissions);
   };
 
   // Handle select all for a category
   const handleSelectAllCategory = (category: PermissionCategory) => {
-    const newPermissions = { ...permissions };
+    let newPermissions = { ...permissions };
 
     // Get the permissions for this category
     const categoryGroup = PERMISSION_GROUPS.find((g) => g.category === category);
     if (categoryGroup) {
-      // Only enable permissions that are not disabled
+      // Enable all permissions in category with their prerequisites
       categoryGroup.permissions.forEach((permission) => {
-        const requiredPermissions = permissionDependencies[permission];
-        // Only enable if no dependencies OR all dependencies are already enabled
-        if (
-          !requiredPermissions ||
-          requiredPermissions.length === 0 ||
-          requiredPermissions.every((req) => newPermissions[req])
-        ) {
-          newPermissions[permission] = true;
-        }
+        newPermissions = enableWithPrerequisites(newPermissions, permission);
       });
     }
 
@@ -260,7 +194,7 @@ export function PermissionsEditor({
                       permission={permission}
                       checked={permissions[permission]}
                       onChange={(checked) => handlePermissionChange(permission, checked)}
-                      disabled={isPermissionDisabled(permission)}
+                      disabled={disabled}
                     />
                   ))}
                 </div>
