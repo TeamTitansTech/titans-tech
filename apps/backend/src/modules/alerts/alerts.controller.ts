@@ -126,7 +126,7 @@ export class AlertsController {
   // COUNTERBALANCE CYLINDER AIRBAG - Manual Alerts
   // ============================================================================
 
-  @Admin()
+  @Authenticated()
   @Post('counterbalance/service/:serviceId')
   async createCounterbalanceAlert(
     @Param('serviceId') serviceId: string,
@@ -144,7 +144,7 @@ export class AlertsController {
     return this.alertsService.getCounterbalanceAlertsForService(serviceId);
   }
 
-  @Admin()
+  @Authenticated()
   @Put('counterbalance/:alertId')
   async updateCounterbalanceAlert(
     @Param('alertId') alertId: string,
@@ -154,7 +154,7 @@ export class AlertsController {
     return this.alertsService.updateCounterbalanceAlert(alertId, dto);
   }
 
-  @Admin()
+  @Authenticated()
   @Delete('counterbalance/:alertId')
   async deleteCounterbalanceAlert(@Param('alertId') alertId: string) {
     return this.alertsService.deleteCounterbalanceAlert(alertId);

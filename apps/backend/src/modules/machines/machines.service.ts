@@ -251,6 +251,7 @@ export class MachinesService {
             alertSlideDoubleHammer: true;
             alertGibs: true;
             alertPistons: true;
+            alertTramming: true;
             alertCounterbalanceCylinderAirbag: true;
             alertTramming: true;
           };
@@ -269,6 +270,7 @@ export class MachinesService {
         },
         fields: true,
         services: {
+          where: { status: 'COMPLETED' },
           take: 1,
           orderBy: { date: 'desc' },
           include: {
@@ -287,6 +289,7 @@ export class MachinesService {
             alertSlideDoubleHammer: true,
             alertGibs: true,
             alertPistons: true,
+            alertTramming: true,
             alertCounterbalanceCylinderAirbag: true,
             alertTramming: true,
           },
@@ -328,6 +331,7 @@ export class MachinesService {
             alertSlideDoubleHammer: true;
             alertGibs: true;
             alertPistons: true;
+            alertTramming: true;
             alertCounterbalanceCylinderAirbag: true;
             alertTramming: true;
           };
@@ -346,6 +350,7 @@ export class MachinesService {
         },
         fields: true,
         services: {
+          where: { status: 'COMPLETED' },
           take: 1,
           orderBy: { date: 'desc' },
           include: {
@@ -364,6 +369,7 @@ export class MachinesService {
             alertSlideDoubleHammer: true,
             alertGibs: true,
             alertPistons: true,
+            alertTramming: true,
             alertCounterbalanceCylinderAirbag: true,
             alertTramming: true,
           },

@@ -3,9 +3,9 @@
  */
 
 /**
- * Maximum file size for image uploads (10MB)
+ * Maximum file size for image uploads (20MB)
  */
-export const MAX_FILE_SIZE = 10 * 1024 * 1024;
+export const MAX_FILE_SIZE = 20 * 1024 * 1024;
 
 /**
  * Maximum file size in megabytes (for display purposes)

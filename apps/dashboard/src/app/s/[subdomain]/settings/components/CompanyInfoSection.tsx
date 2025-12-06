@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
 import { Building2, MapPin, Phone, Globe, User, Lock, Shield } from 'lucide-react';
+import Image from 'next/image';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { getCompany, type Company } from '@/data/services/companies.api';
 import { getAllUsers } from '@/data/services/users.api';
@@ -99,7 +100,19 @@ export function CompanyInfoSection() {
       <CardContent className="pt-6 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Building2 className="h-5 w-5 mt-0.5" />
+            {company.logo ? (
+              <div className="h-10 w-10 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+                <Image
+                  src={company.logo}
+                  alt={company.name}
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+              </div>
+            ) : (
+              <Building2 className="h-5 w-5 mt-0.5" />
+            )}
             <div className="flex-1">
               <h2 className="text-lg font-semibold">{t('title')}</h2>
               <p className="text-sm text-muted-foreground mt-1">{t('description')}</p>

@@ -2,14 +2,18 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { createBlueprint, updateBlueprint } from '@/data/services/blueprints.api';
+import {
+  createBlueprint,
+  updateBlueprint,
+  type CreateBlueprintPayload,
+} from '@/data/services/blueprints.api';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
 import { GibsThresholdsData } from '@/components/alerts/GibsThresholds';
 import { PistonsThresholdsData } from '@/components/alerts/PistonsThresholds';
 import { TrammingThresholdsData } from '@/components/alerts/TrammingThresholds';
-import { type Field, type FieldType } from '../types';
+import { type Field } from '../types';
 
 // Client-safe slug to enum mapping
 const SLUG_TO_SECTION: Record<string, string> = {
@@ -212,27 +216,6 @@ export function useBlueprintForm(
     const hasGibs = selectedSections.includes('gibs');
     const hasPistons = selectedSections.includes('pistons');
     const hasTramming = selectedSections.includes('tramming');
-
-    interface BlueprintField {
-      fieldName: string;
-      fieldSlug: string;
-      fieldType: FieldType;
-      fieldOptions?: string[];
-    }
-
-    interface CreateBlueprintPayload {
-      name: string;
-      imageUrl?: string;
-      sections: string[];
-      fields: BlueprintField[];
-      thresholds?: BearingClearanceThresholdsData;
-      clutchThresholds?: ClutchThresholdsData;
-      slideSingleHammerThresholds?: SlideThresholdsData;
-      slideDoubleHammerThresholds?: SlideThresholdsData;
-      gibsThresholds?: GibsThresholdsData;
-      pistonsThresholds?: PistonsThresholdsData;
-      trammingThresholds?: TrammingThresholdsData;
-    }
 
     const payload: CreateBlueprintPayload = {
       name,
