@@ -88,6 +88,147 @@ export const PERMISSION_DEPENDENCIES: Record<PermissionName, PermissionName[] | 
 };
 
 /**
+ * Recursively resolves all prerequisites for a permission.
+ * Prerequisites are permissions that must be enabled before this one can work.
+ *
+ * @example
+ * resolvePrerequisites('createServices')
+ * // Returns: ['readServices', 'readMachines', 'readBranches']
+ */
+export function resolvePrerequisites(
+  permission: PermissionName,
+  visited: Set<PermissionName> = new Set(),
+): PermissionName[] {
+  // Prevent circular dependencies
+  if (visited.has(permission)) return [];
+  visited.add(permission);
+
+  const directPrereqs = PERMISSION_DEPENDENCIES[permission];
+  if (!directPrereqs) return [];
+
+  const allPrereqs: PermissionName[] = [...directPrereqs];
+
+  // Recursively resolve transitive prerequisites
+  for (const prereq of directPrereqs) {
+    const transitivePrereqs = resolvePrerequisites(prereq, new Set(visited));
+    for (const tp of transitivePrereqs) {
+      if (!allPrereqs.includes(tp)) {
+        allPrereqs.push(tp);
+      }
+    }
+  }
+
+  return allPrereqs;
+}
+
+/**
+ * Gets all permissions that depend on a given permission (reverse lookup).
+ * Dependents are permissions that require this one as a prerequisite.
+ *
+ * @example
+ * getDependents('readUsers')
+ * // Returns: ['createUsers', 'updateUsers', 'deleteUsers', 'manageUserPermissions', 'assignUsersToBranches']
+ */
+export function getDependents(permission: PermissionName): PermissionName[] {
+  const dependents: PermissionName[] = [];
+
+  for (const [perm, prereqs] of Object.entries(PERMISSION_DEPENDENCIES)) {
+    if (prereqs && prereqs.includes(permission)) {
+      dependents.push(perm as PermissionName);
+      // Also get transitive dependents (permissions that depend on this dependent)
+      dependents.push(...getDependents(perm as PermissionName));
+    }
+  }
+
+  return [...new Set(dependents)]; // Remove duplicates
+}
+
+/**
+ * Validates a permissions object ensuring all prerequisites are satisfied.
+ * Returns an object with validation result and any violations found.
+ *
+ * @example
+ * validatePermissions({ createUsers: true, readUsers: false, readBranches: false })
+ * // Returns: { valid: false, violations: [{ permission: 'createUsers', missing: ['readUsers', 'readBranches'] }] }
+ */
+export function validatePermissions(permissions: Permissions): {
+  valid: boolean;
+  violations: Array<{ permission: PermissionName; missing: PermissionName[] }>;
+} {
+  const violations: Array<{ permission: PermissionName; missing: PermissionName[] }> = [];
+
+  for (const [perm, enabled] of Object.entries(permissions)) {
+    if (!enabled) continue;
+
+    const required = resolvePrerequisites(perm as PermissionName);
+    const missing = required.filter((r: PermissionName) => !permissions[r]);
+
+    if (missing.length > 0) {
+      violations.push({ permission: perm as PermissionName, missing });
+    }
+  }
+
+  return {
+    valid: violations.length === 0,
+    violations,
+  };
+}
+
+/**
+ * Auto-enables all prerequisites when enabling a permission.
+ * Returns a new Permissions object with prerequisites satisfied.
+ *
+ * @example
+ * enableWithPrerequisites(emptyPermissions, 'createServices')
+ * // Returns permissions with: createServices, readServices, readMachines, readBranches = true
+ */
+export function enableWithPrerequisites(
+  permissions: Permissions,
+  permission: PermissionName,
+): Permissions {
+  const newPermissions = { ...permissions, [permission]: true };
+  const prereqs = resolvePrerequisites(permission);
+
+  for (const prereq of prereqs) {
+    newPermissions[prereq] = true;
+  }
+
+  return newPermissions;
+}
+
+/**
+ * Auto-disables all dependent permissions when disabling a permission.
+ * Returns a new Permissions object with dependents disabled.
+ *
+ * @example
+ * disableWithDependents(fullPermissions, 'readMachines')
+ * // Returns permissions with: readMachines, createMachines, updateMachines, deleteMachines,
+ * //                          readServices, createServices, updateServices, deleteServices = false
+ */
+export function disableWithDependents(
+  permissions: Permissions,
+  permission: PermissionName,
+): Permissions {
+  const newPermissions = { ...permissions, [permission]: false };
+  const dependents = getDependents(permission);
+
+  for (const dep of dependents) {
+    newPermissions[dep] = false;
+  }
+
+  return newPermissions;
+}
+
+/**
+ * Checks if a permission can be disabled without leaving orphaned dependents.
+ * Returns true if disabling is safe (no enabled permissions depend on it).
+ */
+export function canDisable(permissions: Permissions, permission: PermissionName): boolean {
+  const dependents = getDependents(permission);
+  return !dependents.some((dep: PermissionName) => permissions[dep]);
+}
+
+/**
  * Complete set of permissions (UserBranch model)
  */
 export interface Permissions {
