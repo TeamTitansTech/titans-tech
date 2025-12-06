@@ -27,12 +27,6 @@ export const SetUserPermissionsSchema = z.object({
   readBranches: z.boolean().optional(),
   updateBranches: z.boolean().optional(),
 
-  // Blueprint Permissions
-  readBlueprints: z.boolean().optional(),
-  createBlueprints: z.boolean().optional(),
-  updateBlueprints: z.boolean().optional(),
-  deleteBlueprints: z.boolean().optional(),
-
   // Machine Permissions
   readMachines: z.boolean().optional(),
   createMachines: z.boolean().optional(),

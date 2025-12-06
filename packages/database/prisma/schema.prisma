@@ -476,12 +476,6 @@ model UserBranch {
   readBranches   Boolean @default(false)
   updateBranches Boolean @default(false)
 
-  // Blueprint Permissions
-  readBlueprints   Boolean @default(false)
-  createBlueprints Boolean @default(false)
-  updateBlueprints Boolean @default(false)
-  deleteBlueprints Boolean @default(false)
-
   // Machine Permissions
   readMachines   Boolean @default(false)
   createMachines Boolean @default(false)

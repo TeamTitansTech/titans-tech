@@ -104,10 +104,6 @@ export class UsersService {
         assignUsersToBranches: true,
         readBranches: true,
         updateBranches: true,
-        readBlueprints: true,
-        createBlueprints: true,
-        updateBlueprints: true,
-        deleteBlueprints: true,
         readMachines: true,
         createMachines: true,
         updateMachines: true,
@@ -629,10 +625,6 @@ export class UsersService {
       assignUsersToBranches: boolean;
       readBranches: boolean;
       updateBranches: boolean;
-      readBlueprints: boolean;
-      createBlueprints: boolean;
-      updateBlueprints: boolean;
-      deleteBlueprints: boolean;
       readMachines: boolean;
       createMachines: boolean;
       updateMachines: boolean;

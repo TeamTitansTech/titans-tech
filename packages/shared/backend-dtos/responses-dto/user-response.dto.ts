@@ -32,12 +32,6 @@ export class UserBranchDto {
   readBranches: boolean;
   updateBranches: boolean;
 
-  // Blueprint Permissions
-  readBlueprints: boolean;
-  createBlueprints: boolean;
-  updateBlueprints: boolean;
-  deleteBlueprints: boolean;
-
   // Machine Permissions
   readMachines: boolean;
   createMachines: boolean;

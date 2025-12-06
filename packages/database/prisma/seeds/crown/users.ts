@@ -1,6 +1,6 @@
 import { PrismaClient, Company, CompanyBranch, User } from '../../../generated/prisma/client';
 import * as bcrypt from 'bcrypt';
-import { MANAGER_PERMISSIONS } from '@titans-tech/shared/types/permissions';
+import { MANAGER_PERMISSIONS, Permissions } from '@titans-tech/shared/types/permissions';
 
 // ============================================================================
 // USER DATA - MINSTER PRESS FLEET
@@ -15,7 +15,7 @@ export interface UsersData {
   technicianUser: User;
 }
 
-const TECHNICIAN_PERMISSIONS = {
+const TECHNICIAN_PERMISSIONS: Permissions = {
   readUsers: false,
   createUsers: false,
   updateUsers: false,
@@ -24,10 +24,6 @@ const TECHNICIAN_PERMISSIONS = {
   assignUsersToBranches: false,
   readBranches: true,
   updateBranches: false,
-  readBlueprints: true,
-  createBlueprints: false,
-  updateBlueprints: false,
-  deleteBlueprints: false,
   readMachines: true,
   createMachines: false,
   updateMachines: false,

@@ -24,11 +24,6 @@ interface Permissions {
   // Branch Management
   readBranches: boolean;
   updateBranches: boolean;
-  // Blueprints
-  readBlueprints: boolean;
-  createBlueprints: boolean;
-  updateBlueprints: boolean;
-  deleteBlueprints: boolean;
   // Machines
   readMachines: boolean;
   createMachines: boolean;
@@ -53,12 +48,6 @@ const permissionGroups = {
   'Branch Management': [
     { key: 'readBranches', label: 'Read Branches' },
     { key: 'updateBranches', label: 'Update Branches' },
-  ],
-  Blueprints: [
-    { key: 'readBlueprints', label: 'Read Blueprints' },
-    { key: 'createBlueprints', label: 'Create Blueprints' },
-    { key: 'updateBlueprints', label: 'Update Blueprints' },
-    { key: 'deleteBlueprints', label: 'Delete Blueprints' },
   ],
   Machines: [
     { key: 'readMachines', label: 'Read Machines' },
@@ -88,10 +77,6 @@ export default function UserPermissionsManager({ user, branchId, onClose, onUpda
         assignUsersToBranches: branchPermissions.assignUsersToBranches,
         readBranches: branchPermissions.readBranches,
         updateBranches: branchPermissions.updateBranches,
-        readBlueprints: branchPermissions.readBlueprints,
-        createBlueprints: branchPermissions.createBlueprints,
-        updateBlueprints: branchPermissions.updateBlueprints,
-        deleteBlueprints: branchPermissions.deleteBlueprints,
         readMachines: branchPermissions.readMachines,
         createMachines: branchPermissions.createMachines,
         updateMachines: branchPermissions.updateMachines,

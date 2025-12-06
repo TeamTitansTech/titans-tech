@@ -20,11 +20,7 @@ export type BranchPermissionType =
   // Branch Management
   | 'readBranches'
   | 'updateBranches'
-  // Blueprint Management
-  | 'readBlueprints'
-  | 'createBlueprints'
-  | 'updateBlueprints'
-  | 'deleteBlueprints'
+
   // Machine Management
   | 'readMachines'
   | 'createMachines'
@@ -54,12 +50,6 @@ export const PERMISSION_DEPENDENCIES: Record<BranchPermissionType, BranchPermiss
     // Branch Management (base permissions)
     readBranches: null,
     updateBranches: ['readBranches'],
-
-    // Blueprint Management (global, not branch-linked)
-    readBlueprints: null,
-    createBlueprints: ['readBlueprints'],
-    updateBlueprints: ['readBlueprints'],
-    deleteBlueprints: ['readBlueprints'],
 
     // User Management (users belong to branches)
     readUsers: ['readBranches'],
@@ -246,12 +236,6 @@ export interface Permissions {
   readBranches: boolean;
   updateBranches: boolean;
 
-  // Blueprint Management (4)
-  readBlueprints: boolean;
-  createBlueprints: boolean;
-  updateBlueprints: boolean;
-  deleteBlueprints: boolean;
-
   // Machine Management (4)
   readMachines: boolean;
   createMachines: boolean;
@@ -355,12 +339,6 @@ export const MANAGER_PERMISSIONS: Permissions = {
   readBranches: true,
   updateBranches: true,
 
-  // Blueprint Management (sysadmin-only, not available to regular users)
-  readBlueprints: false,
-  createBlueprints: false,
-  updateBlueprints: false,
-  deleteBlueprints: false,
-
   // Machine Management
   readMachines: true,
   createMachines: true,
@@ -397,12 +375,6 @@ export const WORKER_PERMISSIONS: Permissions = {
   readBranches: true, // Required by readMachines and readServices
   updateBranches: false,
 
-  // Blueprint Management (sysadmin-only, not available to regular users)
-  readBlueprints: false,
-  createBlueprints: false,
-  updateBlueprints: false,
-  deleteBlueprints: false,
-
   // Machine Management
   readMachines: true,
   createMachines: false,
@@ -434,10 +406,6 @@ export const EMPTY_PERMISSIONS: Permissions = {
   assignUsersToBranches: false,
   readBranches: false,
   updateBranches: false,
-  readBlueprints: false,
-  createBlueprints: false,
-  updateBlueprints: false,
-  deleteBlueprints: false,
   readMachines: false,
   createMachines: false,
   updateMachines: false,

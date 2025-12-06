@@ -136,7 +136,7 @@ O Titans Tech implementa um sistema de permissões em **três níveis**:
 
 ## Permissões Granulares
 
-### 24 Permissões na Tabela UserBranch
+### 20 Permissões na Tabela UserBranch
 
 Cada usuário pode ter permissões específicas **por filial**:
 
@@ -158,18 +158,7 @@ Cada usuário pode ter permissões específicas **por filial**:
 | `readBranches`   | Ver informações das filiais |
 | `updateBranches` | Editar dados das filiais    |
 
-#### 3. Blueprints (4 permissões)
-
-| Permissão          | Descrição                                      |
-| ------------------ | ---------------------------------------------- |
-| `readBlueprints`   | Ver blueprints disponíveis                     |
-| `createBlueprints` | Criar novos blueprints (apenas SysAdmin)       |
-| `updateBlueprints` | Editar blueprints existentes (apenas SysAdmin) |
-| `deleteBlueprints` | Deletar blueprints (apenas SysAdmin)           |
-
-**Nota**: Blueprints são globais, então essas permissões servem mais para futuras features de blueprints privados.
-
-#### 4. Máquinas (4 permissões)
+#### 3. Máquinas (4 permissões)
 
 | Permissão        | Descrição                       |
 | ---------------- | ------------------------------- |
@@ -178,7 +167,7 @@ Cada usuário pode ter permissões específicas **por filial**:
 | `updateMachines` | Editar dados de máquinas        |
 | `deleteMachines` | Remover máquinas                |
 
-#### 5. Serviços (4 permissões)
+#### 4. Serviços (4 permissões)
 
 | Permissão        | Descrição                           |
 | ---------------- | ----------------------------------- |
@@ -187,7 +176,7 @@ Cada usuário pode ter permissões específicas **por filial**:
 | `updateServices` | Editar serviços existentes          |
 | `deleteServices` | Remover registros de serviços       |
 
-#### 6. Alertas (4 permissões)
+#### 5. Alertas (4 permissões)
 
 | Permissão      | Descrição                         |
 | -------------- | --------------------------------- |
@@ -211,11 +200,6 @@ Cada usuário pode ter permissões específicas **por filial**:
 
   "readBranches": true,
   "updateBranches": false,
-
-  "readBlueprints": true,
-  "createBlueprints": false,
-  "updateBlueprints": false,
-  "deleteBlueprints": false,
 
   "readMachines": true,
   "createMachines": false,
@@ -248,11 +232,6 @@ Cada usuário pode ter permissões específicas **por filial**:
   "readBranches": true,
   "updateBranches": true,
 
-  "readBlueprints": true,
-  "createBlueprints": false,
-  "updateBlueprints": false,
-  "deleteBlueprints": false,
-
   "readMachines": true,
   "createMachines": true,
   "updateMachines": true,
@@ -283,11 +262,6 @@ Cada usuário pode ter permissões específicas **por filial**:
 
   "readBranches": true,
   "updateBranches": true,
-
-  "readBlueprints": true,
-  "createBlueprints": false,
-  "updateBlueprints": false,
-  "deleteBlueprints": false,
 
   "readMachines": true,
   "createMachines": true,
@@ -344,12 +318,6 @@ model UserBranch {
   // Filiais (2)
   readBranches             Boolean @default(false)
   updateBranches           Boolean @default(false)
-
-  // Blueprints (4)
-  readBlueprints           Boolean @default(false)
-  createBlueprints         Boolean @default(false)
-  updateBlueprints         Boolean @default(false)
-  deleteBlueprints         Boolean @default(false)
 
   // Máquinas (4)
   readMachines             Boolean @default(false)
