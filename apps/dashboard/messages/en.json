@@ -806,7 +806,8 @@
   },
   "sections": {
     "bearing_clearance": "Bearing Clearance",
-    "slide": "Slide",
+    "slide_single_hammer": "Slide - Single Hammer",
+    "slide_double_hammer": "Slide - Double Hammer",
     "gibs": "Gibs",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
@@ -991,14 +992,16 @@
     },
     "sectionNames": {
       "bearingClearance": "Bearing Clearance - CP 2",
-      "slide": "Slide",
+      "slideSingleHammer": "Slide - Single Hammer",
+      "slideDoubleHammer": "Slide - Double Hammer",
       "gibs": "Gibs",
       "lubricationHydraulics": "Lubrication / Hydraulics",
       "clutch": "Clutch and Brake Clearance - CP 2",
       "counterbalance": "Counterbalance Cylinder / Airbag",
       "counterbalanceCylinder": "Counterbalance Cylinder / Airbag",
       "tramming": "Tramming",
-      "pistons": "Pistons"
+      "pistons": "Pistons",
+      "unknown": "Unknown Section"
     },
     "gibsFields": {
       "directionalTitle": "Directional Measurements",

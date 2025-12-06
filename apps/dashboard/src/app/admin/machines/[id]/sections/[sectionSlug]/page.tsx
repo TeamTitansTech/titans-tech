@@ -1,7 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import { BearingClearanceSectionWrapper } from './components/BearingClearanceSectionWrapper';
 import { ClutchSectionWrapper } from './components/ClutchSectionWrapper';
-import { SlideSectionWrapper } from './components/SlideSectionWrapper';
+import { SlideSingleHammerSectionWrapper } from './components/SlideSingleHammerSectionWrapper';
+import { SlideDoubleHammerSectionWrapper } from './components/SlideDoubleHammerSectionWrapper';
 import { GibsSectionWrapper } from './components/GibsSectionWrapper';
 import { LubricationSectionWrapper } from './components/LubricationSectionWrapper';
 import { CounterbalanceSectionWrapper } from './components/CounterbalanceSectionWrapper';
@@ -21,7 +22,8 @@ interface SectionDetailPageProps {
 const sectionComponents: Record<string, React.ComponentType<{ machineId: string }>> = {
   bearing_clearance: BearingClearanceSectionWrapper,
   clutch: ClutchSectionWrapper,
-  slide: SlideSectionWrapper,
+  slide_single_hammer: SlideSingleHammerSectionWrapper,
+  slide_double_hammer: SlideDoubleHammerSectionWrapper,
   gibs: GibsSectionWrapper,
   lubrication_hydraulics_pressure_switches_oil_filter: LubricationSectionWrapper,
   counterbalance_cylinder_airbag: CounterbalanceSectionWrapper,

@@ -56,9 +56,15 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
     );
   }
 
-  // Collect severities from SLIDE section
-  if (latestReport.sections.SLIDE?.alert) {
-    const alert = latestReport.sections.SLIDE.alert;
+  // Collect severities from SLIDE_SINGLE_HAMMER section
+  if (latestReport.sections.SLIDE_SINGLE_HAMMER?.alert) {
+    const alert = latestReport.sections.SLIDE_SINGLE_HAMMER.alert;
+    allSeverities.push(alert.maxDeviation_severity);
+  }
+
+  // Collect severities from SLIDE_DOUBLE_HAMMER section
+  if (latestReport.sections.SLIDE_DOUBLE_HAMMER?.alert) {
+    const alert = latestReport.sections.SLIDE_DOUBLE_HAMMER.alert;
     allSeverities.push(alert.maxDeviationOuter_severity, alert.maxDeviationInner_severity);
   }
 
@@ -257,8 +263,28 @@ export const getSectionStatusFromReport = (
       return 'unknown';
     }
 
-    case 'SLIDE': {
-      const slideData = latestReport.sections.SLIDE;
+    case 'SLIDE_SINGLE_HAMMER': {
+      const slideData = latestReport.sections.SLIDE_SINGLE_HAMMER;
+      if (!slideData?.alert) {
+        return 'unknown';
+      }
+
+      const alert = slideData.alert;
+      const severity = alert.maxDeviation_severity;
+
+      if (severity === 'RED') {
+        return 'alert';
+      } else if (severity === 'YELLOW') {
+        return 'warning';
+      } else if (severity === 'GREEN') {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
+    case 'SLIDE_DOUBLE_HAMMER': {
+      const slideData = latestReport.sections.SLIDE_DOUBLE_HAMMER;
       if (!slideData?.alert) {
         return 'unknown';
       }
@@ -495,9 +521,30 @@ export const getSectionStatus = (
       return 'unknown';
     }
 
-    case 'SLIDE': {
-      // alertSlide is an array - get the first (most recent) one
-      const alerts = latestService?.alertSlide;
+    case 'SLIDE_SINGLE_HAMMER': {
+      // alertSlideSingleHammer is an array - get the first (most recent) one
+      const alerts = (latestService as any)?.alertSlideSingleHammer;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
+        return 'unknown';
+      }
+
+      const severity = alert.maxDeviation_severity;
+
+      if (severity === 'RED') {
+        return 'alert';
+      } else if (severity === 'YELLOW') {
+        return 'warning';
+      } else if (severity === 'GREEN') {
+        return 'ok';
+      }
+
+      return 'unknown';
+    }
+
+    case 'SLIDE_DOUBLE_HAMMER': {
+      // alertSlideDoubleHammer is an array - get the first (most recent) one
+      const alerts = (latestService as any)?.alertSlideDoubleHammer;
       const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'unknown';

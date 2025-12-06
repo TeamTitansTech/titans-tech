@@ -806,7 +806,8 @@
   },
   "sections": {
     "bearing_clearance": "Holgura de Cojinete",
-    "slide": "Corredera",
+    "slide_single_hammer": "Slide - Martillo Único",
+    "slide_double_hammer": "Slide - Martillo Doble",
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
@@ -991,14 +992,16 @@
     },
     "sectionNames": {
       "bearingClearance": "Holgura de Cojinete - CP 2",
-      "slide": "Corredera",
+      "slideSingleHammer": "Slide - Martillo Único",
+      "slideDoubleHammer": "Slide - Martillo Doble",
       "gibs": "Guías",
       "lubricationHydraulics": "Lubricación / Hidráulica",
       "clutch": "Holgura de Embrague y Freno - CP 2",
       "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
       "counterbalanceCylinder": "Cilindro de Contrapeso / Bolsa de Aire",
       "tramming": "Tramming",
-      "pistons": "Pistones"
+      "pistons": "Pistones",
+      "unknown": "Sección Desconocida"
     },
     "gibsFields": {
       "directionalTitle": "Mediciones Direccionales",
@@ -2026,7 +2029,8 @@
     "outerBeforeMaintenance": "Externo - Antes del Mantenimiento",
     "outerAfterMaintenance": "Externo - Después del Mantenimiento",
     "innerBeforeMaintenance": "Interno - Antes del Mantenimiento",
-    "innerAfterMaintenance": "Interno - Después del Mantenimiento"
+    "innerAfterMaintenance": "Interno - Después del Mantenimiento",
+    "slideMeasurements": "Mediciones del Slide"
   },
   "bearingFields": {
     "totalClearance": "Holgura Total",

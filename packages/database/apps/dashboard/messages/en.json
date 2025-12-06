@@ -1411,7 +1411,8 @@
     "outerBeforeMaintenance": "Outer - Before Maintenance",
     "outerAfterMaintenance": "Outer - After Maintenance",
     "innerBeforeMaintenance": "Inner - Before Maintenance",
-    "innerAfterMaintenance": "Inner - After Maintenance"
+    "innerAfterMaintenance": "Inner - After Maintenance",
+    "slideMeasurements": "Slide Measurements"
   },
   "bearingFields": {
     "totalClearance": "Total Clearance",

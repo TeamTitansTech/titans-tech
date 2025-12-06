@@ -95,6 +95,7 @@ export async function getClutchThresholdByBlueprint(blueprintId: string) {
 
 /**
  * Get slide threshold by blueprint ID
+ * @deprecated Use getSlideSingleHammerThresholdByBlueprint or getSlideDoubleHammerThresholdByBlueprint instead
  */
 export async function getSlideThresholdByBlueprint(blueprintId: string) {
   try {
@@ -108,6 +109,56 @@ export async function getSlideThresholdByBlueprint(blueprintId: string) {
     return await handleResponse(response);
   } catch (error) {
     console.error('Failed to fetch slide threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Get single hammer slide threshold by blueprint ID
+ */
+export async function getSlideSingleHammerThresholdByBlueprint(blueprintId: string) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_URL}/alerts/slide-single-hammer/thresholds/blueprint/${blueprintId}`,
+      {
+        method: 'GET',
+        headers,
+        cache: 'no-store',
+      },
+    );
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to fetch slide single hammer threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Get double hammer slide threshold by blueprint ID
+ */
+export async function getSlideDoubleHammerThresholdByBlueprint(blueprintId: string) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_URL}/alerts/slide-double-hammer/thresholds/blueprint/${blueprintId}`,
+      {
+        method: 'GET',
+        headers,
+        cache: 'no-store',
+      },
+    );
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to fetch slide double hammer threshold:', error);
     return {
       data: null,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -295,6 +346,7 @@ export async function updateClutchThreshold(
 
 /**
  * Update slide threshold
+ * @deprecated Use updateSlideSingleHammerThreshold or updateSlideDoubleHammerThreshold instead
  */
 export async function updateSlideThreshold(
   blueprintId: string,
@@ -312,6 +364,64 @@ export async function updateSlideThreshold(
     return await handleResponse(response);
   } catch (error) {
     console.error('Failed to update slide threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Update single hammer slide threshold
+ */
+export async function updateSlideSingleHammerThreshold(
+  blueprintId: string,
+  data: any,
+  recalculateAlerts: boolean = false,
+) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_URL}/alerts/slide-single-hammer/thresholds/blueprint/${blueprintId}`,
+      {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ ...data, recalculateAlerts }),
+      },
+    );
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to update slide single hammer threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Update double hammer slide threshold
+ */
+export async function updateSlideDoubleHammerThreshold(
+  blueprintId: string,
+  data: any,
+  recalculateAlerts: boolean = false,
+) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_URL}/alerts/slide-double-hammer/thresholds/blueprint/${blueprintId}`,
+      {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ ...data, recalculateAlerts }),
+      },
+    );
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to update slide double hammer threshold:', error);
     return {
       data: null,
       error: error instanceof Error ? error.message : 'Unknown error',

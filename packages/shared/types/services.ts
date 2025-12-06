@@ -56,6 +56,8 @@ export type {
   BearingClearanceCheck,
   SlideData,
   SlideCheck,
+  SlideSingleHammerCheck,
+  SlideDoubleHammerCheck,
   GibsStageData,
   GibsData,
   GibsCheck,
