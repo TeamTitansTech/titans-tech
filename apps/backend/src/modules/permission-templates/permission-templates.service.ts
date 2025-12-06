@@ -33,7 +33,6 @@ export class PermissionTemplatesService {
       select: {
         companyId: true,
         isCompanyAdmin: true,
-        isCompanyManager: true,
       },
     });
 
@@ -45,10 +44,10 @@ export class PermissionTemplatesService {
       throw new ForbiddenException('You do not have access to this company');
     }
 
-    // Only admins and managers can manage permission templates
-    if (!user.isCompanyAdmin && !user.isCompanyManager) {
+    // Only admins can manage permission templates
+    if (!user.isCompanyAdmin) {
       throw new ForbiddenException(
-        'Only company administrators and managers can manage permission templates',
+        'Only company administrators can manage permission templates',
       );
     }
   }

@@ -7,7 +7,6 @@ export const CreateUserSchema = z.object({
 
 export const SysAdminCreateUserSchema = CreateUserSchema.extend({
   isCompanyAdmin: z.boolean().optional().default(false),
-  isCompanyManager: z.boolean().optional().default(false),
 });
 
 export const UpdateUserSchema = z.object({
@@ -57,10 +56,6 @@ export const SetCompanyAdminSchema = z.object({
   isCompanyAdmin: z.boolean(),
 });
 
-export const SetCompanyManagerSchema = z.object({
-  isCompanyManager: z.boolean(),
-});
-
 /**
  * Update user permissions with optional multi-branch support
  */
@@ -89,9 +84,6 @@ export const UpdateUserCompleteSchema = z.object({
 
   // Apply permissions to all branches
   applyToAllBranches: z.boolean().optional().default(false),
-
-  // Role management (Company Admin/Manager only can set)
-  isCompanyManager: z.boolean().optional(),
 });
 
 /**
@@ -106,7 +98,6 @@ export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;
 export type CreateUserDto = z.infer<typeof CreateUserSchema>;
 export type SetUserPermissionsDto = z.infer<typeof SetUserPermissionsSchema>;
 export type SetCompanyAdminDto = z.infer<typeof SetCompanyAdminSchema>;
-export type SetCompanyManagerDto = z.infer<typeof SetCompanyManagerSchema>;
 export type UpdateUserPermissionsDto = z.infer<typeof UpdateUserPermissionsSchema>;
 export type UpdateUserInfoDto = z.infer<typeof UpdateUserInfoSchema>;
 export type UpdateUserCompleteDto = z.infer<typeof UpdateUserCompleteSchema>;

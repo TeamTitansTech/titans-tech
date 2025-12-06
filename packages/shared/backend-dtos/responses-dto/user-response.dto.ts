@@ -72,7 +72,6 @@ export class UserResponseDto {
   name: string | null;
   email: string;
   isCompanyAdmin: boolean;
-  isCompanyManager: boolean;
   isUsingDefaultPassword: boolean;
   companyId: string;
   createdAt: Date;

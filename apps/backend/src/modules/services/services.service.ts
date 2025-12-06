@@ -82,7 +82,7 @@ export class ServicesService {
     // 2. Get user info
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { companyId: true, isCompanyAdmin: true, isCompanyManager: true },
+      select: { companyId: true, isCompanyAdmin: true },
     });
 
     if (!user) {
@@ -96,8 +96,8 @@ export class ServicesService {
       );
     }
 
-    // 4. Company Admin/Manager has full access
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    // 4. Company Admin has full access
+    if (user.isCompanyAdmin) {
       return;
     }
 

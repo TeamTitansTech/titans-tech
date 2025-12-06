@@ -11,7 +11,6 @@ import {
   SysAdminCreateUserDto,
   UserResponseDto,
   SetCompanyAdminDto,
-  SetCompanyManagerDto,
 } from '@titans-tech/shared/backend-dtos';
 import * as bcrypt from 'bcrypt';
 import { FieldsErr } from 'src/errors/err';
@@ -83,9 +82,9 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    // If user is company admin or manager, they have access to all branches
+    // If user is company admin, they have access to all branches
     // We need to populate the branches array with all company branches
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    if (user.isCompanyAdmin) {
       const allBranches = await this.prisma.companyBranch.findMany({
         where: { companyId: user.companyId },
       });
@@ -544,49 +543,6 @@ export class UsersService {
       where: { id: userId },
       data: {
         isCompanyAdmin: dto.isCompanyAdmin,
-      },
-      include: {
-        branches: {
-          include: {
-            branch: true,
-          },
-        },
-      },
-    });
-
-    return new UserResponseDto(updatedUser);
-  }
-
-  async setCompanyManager(
-    userId: string,
-    dto: SetCompanyManagerDto,
-    userPayload: JwtPayload,
-  ) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    if (dto.isCompanyManager === false && user.isCompanyManager) {
-      if (!isSysAdmin(userPayload)) {
-        const currentUser = await this.prisma.user.findUnique({
-          where: { id: userPayload.id },
-        });
-        if (!currentUser.isCompanyAdmin) {
-          throw new ForbiddenException(
-            'Only company administrators or system administrators can remove manager status',
-          );
-        }
-      }
-    }
-
-    const updatedUser = await this.prisma.user.update({
-      where: { id: userId },
-      data: {
-        isCompanyManager: dto.isCompanyManager,
       },
       include: {
         branches: {
