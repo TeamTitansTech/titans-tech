@@ -48,7 +48,10 @@ export const translateFieldName = (
   if (sectionKey === 'BEARING_CLEARANCE' && translations.bearingClearance) {
     const translation = translations.bearingClearance(key);
     if (translation !== key) return translation;
-  } else if (sectionKey === 'SLIDE' && translations.slide) {
+  } else if (
+    (sectionKey === 'SLIDE_SINGLE_HAMMER' || sectionKey === 'SLIDE_DOUBLE_HAMMER') &&
+    translations.slide
+  ) {
     const translation = translations.slide(key);
     if (translation !== key) return translation;
   } else if (sectionKey === 'CLUTCH' && translations.clutch) {

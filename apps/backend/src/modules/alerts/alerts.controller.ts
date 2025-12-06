@@ -233,9 +233,9 @@ export class ClutchAlertsController {
   }
 }
 
-@Controller('alerts/slide')
+@Controller('alerts/slide-single-hammer')
 @UseInterceptors(ClassSerializerInterceptor)
-export class AlertsSlideController {
+export class AlertsSlideSingleHammerController {
   constructor(private readonly alertsService: AlertsService) {}
 
   @Authenticated()
@@ -243,7 +243,10 @@ export class AlertsSlideController {
   async getSlideThresholdByBlueprint(
     @Param('blueprintId') blueprintId: string,
   ) {
-    return this.alertsService.getSlideThresholdByBlueprint(blueprintId);
+    return this.alertsService.getSlideThresholdByBlueprint(
+      blueprintId,
+      'SLIDE_SINGLE_HAMMER',
+    );
   }
 
   @Admin()
@@ -252,7 +255,7 @@ export class AlertsSlideController {
     @Body(new ZodValidationPipe(CreateThresholdSlideSchema))
     dto: CreateThresholdSlideDto,
   ) {
-    return this.alertsService.createSlideThreshold(dto);
+    return this.alertsService.createSlideThreshold(dto, 'SLIDE_SINGLE_HAMMER');
   }
 
   @Admin()
@@ -267,6 +270,7 @@ export class AlertsSlideController {
     // Update the threshold
     const threshold = await this.alertsService.updateSlideThreshold(
       blueprintId,
+      'SLIDE_SINGLE_HAMMER',
       thresholdData,
     );
 
@@ -275,6 +279,7 @@ export class AlertsSlideController {
       const recalculationResult =
         await this.alertsService.recalculateSlideAlertsForBlueprint(
           blueprintId,
+          'SLIDE_SINGLE_HAMMER',
         );
       return {
         threshold,
@@ -288,19 +293,101 @@ export class AlertsSlideController {
   @Admin()
   @Delete('thresholds/blueprint/:blueprintId')
   async deleteSlideThreshold(@Param('blueprintId') blueprintId: string) {
-    return this.alertsService.deleteSlideThreshold(blueprintId);
+    return this.alertsService.deleteSlideThreshold(
+      blueprintId,
+      'SLIDE_SINGLE_HAMMER',
+    );
   }
 
   @Authenticated()
   @Get('service/:serviceId')
   async getSlideAlertByService(@Param('serviceId') serviceId: string) {
-    return this.alertsService.getSlideAlertByService(serviceId);
+    return this.alertsService.getSlideSingleHammerAlertByService(serviceId);
   }
 
   @Admin()
   @Post('service/:serviceId/generate')
   async generateSlideAlerts(@Param('serviceId') serviceId: string) {
-    return this.alertsService.generateAlertsForSlide(serviceId);
+    return this.alertsService.generateAlertsForSlideSingleHammer(serviceId);
+  }
+}
+
+@Controller('alerts/slide-double-hammer')
+@UseInterceptors(ClassSerializerInterceptor)
+export class AlertsSlideDoubleHammerController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getSlideThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getSlideThresholdByBlueprint(
+      blueprintId,
+      'SLIDE_DOUBLE_HAMMER',
+    );
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createSlideThreshold(
+    @Body(new ZodValidationPipe(CreateThresholdSlideSchema))
+    dto: CreateThresholdSlideDto,
+  ) {
+    return this.alertsService.createSlideThreshold(dto, 'SLIDE_DOUBLE_HAMMER');
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updateSlideThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(new ZodValidationPipe(UpdateThresholdSlideSchema))
+    dto: UpdateThresholdSlideDto,
+  ) {
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold = await this.alertsService.updateSlideThreshold(
+      blueprintId,
+      'SLIDE_DOUBLE_HAMMER',
+      thresholdData,
+    );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateSlideAlertsForBlueprint(
+          blueprintId,
+          'SLIDE_DOUBLE_HAMMER',
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deleteSlideThreshold(@Param('blueprintId') blueprintId: string) {
+    return this.alertsService.deleteSlideThreshold(
+      blueprintId,
+      'SLIDE_DOUBLE_HAMMER',
+    );
+  }
+
+  @Authenticated()
+  @Get('service/:serviceId')
+  async getSlideAlertByService(@Param('serviceId') serviceId: string) {
+    return this.alertsService.getSlideDoubleHammerAlertByService(serviceId);
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generateSlideAlerts(@Param('serviceId') serviceId: string) {
+    return this.alertsService.generateAlertsForSlideDoubleHammer(serviceId);
   }
 }
 

@@ -494,7 +494,7 @@ async function main() {
         ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG,
         ServiceSection.GIBS,
         ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
-        ServiceSection.SLIDE,
+        ServiceSection.SLIDE_DOUBLE_HAMMER,
         ServiceSection.TRAMMING,
         ServiceSection.PISTONS,
       ],
@@ -508,7 +508,7 @@ async function main() {
         ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG,
         ServiceSection.GIBS,
         ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
-        ServiceSection.SLIDE,
+        ServiceSection.SLIDE_DOUBLE_HAMMER,
         ServiceSection.TRAMMING,
         ServiceSection.PISTONS,
       ],
@@ -534,29 +534,41 @@ async function main() {
   });
   console.log(`✓ Created/Updated Bearing Clearance Blueprint`);
 
-  const slideBlueprint = await prisma.blueprint.upsert({
-    where: { id: 'default-slide-blueprint' },
+  const slideDoubleHammerBlueprint = await prisma.blueprint.upsert({
+    where: { id: 'default-slide-double-hammer-blueprint' },
     update: {},
     create: {
-      id: 'default-slide-blueprint',
-      name: 'Standard Slide Service',
-      sections: [ServiceSection.SLIDE],
+      id: 'default-slide-double-hammer-blueprint',
+      name: 'Standard Slide (Double Hammer) Service',
+      sections: [ServiceSection.SLIDE_DOUBLE_HAMMER],
       fields: [
         {
           fieldName: 'Serial Number',
           fieldSlug: 'serial_number',
           fieldType: 'string',
         },
+      ],
+    },
+  });
+  console.log(`✓ Created/Updated Slide Double Hammer Blueprint`);
+
+  const slideSingleHammerBlueprint = await prisma.blueprint.upsert({
+    where: { id: 'default-slide-single-hammer-blueprint' },
+    update: {},
+    create: {
+      id: 'default-slide-single-hammer-blueprint',
+      name: 'Standard Slide (Single Hammer) Service',
+      sections: [ServiceSection.SLIDE_SINGLE_HAMMER],
+      fields: [
         {
-          fieldName: 'Slide Type',
-          fieldSlug: 'slide_type',
-          fieldType: 'enum',
-          fieldOptions: ['Single', 'Double', 'Triple'],
+          fieldName: 'Serial Number',
+          fieldSlug: 'serial_number',
+          fieldType: 'string',
         },
       ],
     },
   });
-  console.log(`✓ Created/Updated Slide Blueprint`);
+  console.log(`✓ Created/Updated Slide Single Hammer Blueprint`);
 
   const pistonsBlueprint = await prisma.blueprint.upsert({
     where: { id: 'default-pistons-blueprint' },
@@ -664,18 +676,30 @@ async function main() {
     update: {},
     create: {
       id: 'example-machine-3',
-      name: 'Slide Press #003',
-      blueprintId: slideBlueprint.id,
+      name: 'Slide Press #003 (Double Hammer)',
+      blueprintId: slideDoubleHammerBlueprint.id,
       branchId: acmeSecondaryBranch.id,
       fields: {
-        create: [
-          { fieldSlug: 'serial_number', value: 'SN-11111' },
-          { fieldSlug: 'slide_type', value: 'Double' },
-        ],
+        create: [{ fieldSlug: 'serial_number', value: 'SN-11111' }],
       },
     },
   });
   console.log(`✓ Created/Updated Machine: ${machine3.name}`);
+
+  const machine3b = await prisma.machine.upsert({
+    where: { id: 'example-machine-3b' },
+    update: {},
+    create: {
+      id: 'example-machine-3b',
+      name: 'Slide Press #003b (Single Hammer)',
+      blueprintId: slideSingleHammerBlueprint.id,
+      branchId: acmeSecondaryBranch.id,
+      fields: {
+        create: [{ fieldSlug: 'serial_number', value: 'SN-11112' }],
+      },
+    },
+  });
+  console.log(`✓ Created/Updated Machine: ${machine3b.name}`);
 
   const machine4 = await prisma.machine.upsert({
     where: { id: 'example-machine-4' },

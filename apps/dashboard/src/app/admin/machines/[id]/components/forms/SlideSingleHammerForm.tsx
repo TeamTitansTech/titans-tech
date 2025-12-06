@@ -1,7 +1,6 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -15,25 +14,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { ParallelismType, YesNoNaDncType, YesNoDncType } from '@/data/types/services.types';
 import { LengthInput } from '@/components/ui/forms/LengthInput';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
-import { type SlideFormData } from '../sections/SlideSection';
+import { type SlideFormData } from '../sections/SlideSingleHammerSection';
 
-interface SlideFormWrapperData {
-  outerData: SlideFormData;
-  innerData: SlideFormData;
+interface SlideSingleHammerFormWrapperData {
+  slideData: SlideFormData;
   notes: string;
 }
 
-export interface SlideFormProps {
-  data: SlideFormWrapperData;
-  updateFn: <K extends keyof SlideFormWrapperData>(
+export interface SlideSingleHammerFormProps {
+  data: SlideSingleHammerFormWrapperData;
+  updateFn: <K extends keyof SlideSingleHammerFormWrapperData>(
     field: K,
-    value: SlideFormWrapperData[K],
+    value: SlideSingleHammerFormWrapperData[K],
   ) => void;
-  errors: {
-    outer: Record<string, string>;
-    inner: Record<string, string>;
-  };
-  handleBlur: (section: 'outer' | 'inner', field: keyof SlideFormData) => void;
+  errors: Record<string, string>;
+  handleBlur: (field: keyof SlideFormData) => void;
   onSectionTouched?: () => void;
 }
 
@@ -63,7 +58,7 @@ function PositionFields({
   const pos5Field = `${fieldPrefix}Position5` as keyof SlideFormData;
 
   // Calculate max deviation: MAX - MIN of positions 1-5 if more than 1 value exists
-  // Values are stored in mm, so we calculate diff in mm then convert for display
+  // Zero is a valid measurement and should be included in the calculation
   const calculateMaxDeviation = (): string => {
     const positions = [
       data[pos1Field] as number | undefined,
@@ -73,12 +68,12 @@ function PositionFields({
       data[pos5Field] as number | undefined,
     ];
     const validValues = positions.filter(
-      (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
+      (val): val is number => val !== undefined && val !== null && !isNaN(Number(val)),
     );
 
     if (validValues.length > 1) {
-      const max = Math.max(...(validValues as number[]));
-      const min = Math.min(...(validValues as number[]));
+      const max = Math.max(...validValues);
+      const min = Math.min(...validValues);
       const diffInMm = max - min;
       const diffInDisplayUnit = convertLengthFromDefault(diffInMm);
       return diffInDisplayUnit.toFixed(4);
@@ -234,13 +229,11 @@ function PositionFields({
 }
 
 function SlideDataFields({
-  type,
   data,
   handleFieldUpdate,
   errors,
   handleBlur,
 }: {
-  type: 'outer' | 'inner';
   data: SlideFormData;
   handleFieldUpdate: (field: keyof SlideFormData, value: any) => void;
   errors: Record<string, string>;
@@ -257,14 +250,14 @@ function SlideDataFields({
         <h4 className="font-semibold text-sm text-foreground">{t('parallelismConfiguration')}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor={`${type}-parallelism`} className="text-xs">
+            <Label htmlFor="parallelism" className="text-xs">
               {t('parallelism')}
             </Label>
             <Select
               value={data.parallelism}
               onValueChange={(value: ParallelismType) => handleFieldUpdate('parallelism', value)}
             >
-              <SelectTrigger id={`${type}-parallelism`} className="mt-1">
+              <SelectTrigger id="parallelism" className="mt-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -276,7 +269,7 @@ function SlideDataFields({
           </div>
 
           <div>
-            <Label htmlFor={`${type}-hasParallelismBeenAdjusted`} className="text-xs">
+            <Label htmlFor="hasParallelismBeenAdjusted" className="text-xs">
               {t('hasParallelismBeenAdjusted')}
             </Label>
             <Select
@@ -285,7 +278,7 @@ function SlideDataFields({
                 handleFieldUpdate('hasParallelismBeenAdjusted', value)
               }
             >
-              <SelectTrigger id={`${type}-hasParallelismBeenAdjusted`} className="mt-1">
+              <SelectTrigger id="hasParallelismBeenAdjusted" className="mt-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -336,7 +329,7 @@ function SlideDataFields({
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor={`${type}-shutheightIndicatorsChecked`} className="text-xs">
+            <Label htmlFor="shutheightIndicatorsChecked" className="text-xs">
               {t('indicatorsChecked')}
             </Label>
             <Select
@@ -345,7 +338,7 @@ function SlideDataFields({
                 handleFieldUpdate('shutheightIndicatorsChecked', value)
               }
             >
-              <SelectTrigger id={`${type}-shutheightIndicatorsChecked`} className="mt-1">
+              <SelectTrigger id="shutheightIndicatorsChecked" className="mt-1">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -357,11 +350,11 @@ function SlideDataFields({
           </div>
 
           <div>
-            <Label htmlFor={`${type}-overloadsOnTonnageMonitor`} className="text-xs">
+            <Label htmlFor="overloadsOnTonnageMonitor" className="text-xs">
               {t('overloadsOnTonnageMonitor')}
             </Label>
             <Input
-              id={`${type}-overloadsOnTonnageMonitor`}
+              id="overloadsOnTonnageMonitor"
               type="text"
               value={data.overloadsOnTonnageMonitor || ''}
               onChange={(e) => handleFieldUpdate('overloadsOnTonnageMonitor', e.target.value)}
@@ -370,11 +363,11 @@ function SlideDataFields({
           </div>
 
           <div>
-            <Label htmlFor={`${type}-shutheightActualSh`} className="text-xs">
+            <Label htmlFor="shutheightActualSh" className="text-xs">
               {t('actualSH')}
             </Label>
             <Input
-              id={`${type}-shutheightActualSh`}
+              id="shutheightActualSh"
               type="text"
               value={data.shutheightActualSh || ''}
               onChange={(e) => handleFieldUpdate('shutheightActualSh', e.target.value)}
@@ -383,11 +376,11 @@ function SlideDataFields({
           </div>
 
           <div>
-            <Label htmlFor={`${type}-indicatorReading`} className="text-xs">
+            <Label htmlFor="indicatorReading" className="text-xs">
               {t('indicatorReading')}
             </Label>
             <Input
-              id={`${type}-indicatorReading`}
+              id="indicatorReading"
               type="text"
               value={data.indicatorReading || ''}
               onChange={(e) => handleFieldUpdate('indicatorReading', e.target.value)}
@@ -400,63 +393,29 @@ function SlideDataFields({
   );
 }
 
-export function SlideForm({
+export function SlideSingleHammerForm({
   data,
   updateFn,
   errors,
   handleBlur,
   onSectionTouched,
-}: SlideFormProps) {
+}: SlideSingleHammerFormProps) {
   const t = useTranslations('inspections.form.slide');
 
-  const handleFieldUpdate = (
-    side: 'outerData' | 'innerData',
-    field: keyof SlideFormData,
-    value: any,
-  ) => {
-    const newData = { ...data[side], [field]: value };
-    updateFn(side, newData);
+  const handleFieldUpdate = (field: keyof SlideFormData, value: any) => {
+    const newData = { ...data.slideData, [field]: value };
+    updateFn('slideData', newData);
     onSectionTouched?.();
   };
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="outer" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4 bg-transparent p-0 gap-2">
-          <TabsTrigger
-            value="outer"
-            className="border border-border data-[state=active]:border-primary"
-          >
-            {t('outer')}
-          </TabsTrigger>
-          <TabsTrigger
-            value="inner"
-            className="border border-border data-[state=active]:border-primary"
-          >
-            {t('inner')}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="outer" className="space-y-6">
-          <SlideDataFields
-            type="outer"
-            data={data.outerData}
-            handleFieldUpdate={(field, value) => handleFieldUpdate('outerData', field, value)}
-            errors={errors.outer}
-            handleBlur={(field) => handleBlur('outer', field)}
-          />
-        </TabsContent>
-
-        <TabsContent value="inner" className="space-y-6">
-          <SlideDataFields
-            type="inner"
-            data={data.innerData}
-            handleFieldUpdate={(field, value) => handleFieldUpdate('innerData', field, value)}
-            errors={errors.inner}
-            handleBlur={(field) => handleBlur('inner', field)}
-          />
-        </TabsContent>
-      </Tabs>
+      <SlideDataFields
+        data={data.slideData}
+        handleFieldUpdate={handleFieldUpdate}
+        errors={errors}
+        handleBlur={handleBlur}
+      />
 
       <div className="space-y-4 pt-2">
         <div>

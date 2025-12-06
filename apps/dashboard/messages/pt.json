@@ -798,7 +798,8 @@
   },
   "sections": {
     "bearing_clearance": "FOLGA DE ROLAMENTO",
-    "slide": "DESLIZAMENTO",
+    "slide_single_hammer": "Slide - Martelo Único",
+    "slide_double_hammer": "Slide - Martelo Duplo",
     "gibs": "GUIAS",
     "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRIFICAÇÃO / HIDRÁULICA / INTERRUPTORES DE PRESSÃO / ÓLEO E FILTRO",
     "clutch": "EMBREAGEM",
@@ -983,14 +984,16 @@
     },
     "sectionNames": {
       "bearingClearance": "Folga de Rolamento",
-      "slide": "Deslizamento",
+      "slideSingleHammer": "Slide - Martelo Único",
+      "slideDoubleHammer": "Slide - Martelo Duplo",
       "gibs": "Guias",
       "lubricationHydraulics": "Lubrificação / Hidráulica",
       "clutch": "Folga de Embreagem e Freio",
       "counterbalance": "Cilindro de Contrapeso / Airbag",
       "counterbalanceCylinder": "Cilindro de Contrapeso / Airbag",
       "tramming": "Tramming",
-      "pistons": "Pistões"
+      "pistons": "Pistões",
+      "unknown": "Seção Desconhecida"
     },
     "gibsFields": {
       "directionalTitle": "Medições Direcionais",
@@ -2082,7 +2085,8 @@
     "outerBeforeMaintenance": "Externo - Antes da Manutenção",
     "outerAfterMaintenance": "Externo - Após a Manutenção",
     "innerBeforeMaintenance": "Interno - Antes da Manutenção",
-    "innerAfterMaintenance": "Interno - Após a Manutenção"
+    "innerAfterMaintenance": "Interno - Após a Manutenção",
+    "slideMeasurements": "Medições do Slide"
   },
   "bearingFields": {
     "totalClearance": "Folga Total",

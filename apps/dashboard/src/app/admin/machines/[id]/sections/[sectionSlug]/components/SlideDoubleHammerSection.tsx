@@ -19,14 +19,14 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
-import type { SlideInspectionData } from './SlideSectionWrapper';
+import type { SlideInspectionData } from './SlideDoubleHammerSectionWrapper';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
 import {
   transformSlidePositionsToMultiLineData,
   transformSlideMaxDeviationToMultiLineData,
   extractThresholdConfig,
 } from '@/components/charts/dataTransformers';
-import { getSlideThresholdByBlueprint } from '@/actions/alerts';
+import { getSlideDoubleHammerThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
 import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
@@ -41,7 +41,7 @@ interface SlideSectionProps {
   hideThresholdValues?: boolean;
 }
 
-export function SlideSection({
+export function SlideDoubleHammerSection({
   machineId,
   inspections,
   machineName,
@@ -71,7 +71,7 @@ export function SlideSection({
       }
 
       try {
-        const response = await getSlideThresholdByBlueprint(blueprintId);
+        const response = await getSlideDoubleHammerThresholdByBlueprint(blueprintId);
         if (response.data) {
           // Extract threshold for max deviation (single threshold for all positions)
           const threshold = extractThresholdConfig(response.data, 'maxDeviation');

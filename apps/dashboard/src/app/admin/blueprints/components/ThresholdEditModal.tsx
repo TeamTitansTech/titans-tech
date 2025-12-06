@@ -88,7 +88,9 @@ export function ThresholdEditModal({
   // Check which sections are enabled
   const hasBearingClearance = sections.includes('BEARING_CLEARANCE');
   const hasClutch = sections.includes('CLUTCH');
-  const hasSlide = sections.includes('SLIDE');
+  const hasSlideSingleHammer = sections.includes('SLIDE_SINGLE_HAMMER');
+  const hasSlideDoubleHammer = sections.includes('SLIDE_DOUBLE_HAMMER');
+  const hasSlide = hasSlideSingleHammer || hasSlideDoubleHammer;
   const hasGibs = sections.includes('GIBS');
   const hasTramming = sections.includes('TRAMMING');
   const hasPistons = sections.includes('PISTONS');

@@ -235,8 +235,23 @@ export function exportToPDF(data: ExportData): void {
       );
     }
 
-    // ===== SLIDE =====
-    else if (sectionKey === 'SLIDE') {
+    // ===== SLIDE (SINGLE HAMMER) =====
+    else if (sectionKey === 'SLIDE_SINGLE_HAMMER') {
+      yPosition = renderSlide(
+        doc,
+        sectionData as unknown as SlideSectionData,
+        t,
+        yPosition,
+        margin,
+        contentWidth,
+        primaryColor,
+        checkPageBreak,
+        getEnumTranslations,
+      );
+    }
+
+    // ===== SLIDE (DOUBLE HAMMER) =====
+    else if (sectionKey === 'SLIDE_DOUBLE_HAMMER') {
       yPosition = renderSlide(
         doc,
         sectionData as unknown as SlideSectionData,
