@@ -43,14 +43,13 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
 
   // Check permissions for this branch
+  // Note: isCompanyAdmin already grants all permissions via hasPermission
   const canReadUsers =
     companyUser?.isCompanyAdmin ||
-    companyUser?.isCompanyManager ||
     companyUser?.branches?.some((b) => b.branchId === branchId && b.readUsers);
 
   const canCreateUsers =
     companyUser?.isCompanyAdmin ||
-    companyUser?.isCompanyManager ||
     companyUser?.branches?.some((b) => b.branchId === branchId && b.createUsers);
 
   const loadUsers = useCallback(async () => {
@@ -69,8 +68,8 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         if (usersResponse.data) {
           // Filter users for this branch
           const filteredUsers = usersResponse.data.filter((user) => {
-            // Exclude company admins and managers - they are shown at company level
-            if (user.isCompanyAdmin || user.isCompanyManager) {
+            // Exclude company admins - they are shown at company level
+            if (user.isCompanyAdmin) {
               return false;
             }
             // Include only users with permissions for this branch

@@ -41,15 +41,6 @@ function transformUserToUI(user: UserResponseDto, branchId: string): User {
     };
   }
 
-  if (user.isCompanyManager) {
-    return {
-      id: user.id,
-      name: user.name || 'Unknown User',
-      email: user.email,
-      role: 'companyManager',
-    };
-  }
-
   // Determine role based on branch-specific permissions
   let role = 'employee'; // Default: Funcionário (Worker)
 
@@ -139,10 +130,10 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
 
           const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
           if (usersResponse.data) {
-            // Filter users for this branch (include company admins/managers and branch users)
+            // Filter users for this branch (include company admins and branch users)
             const filteredUsers = usersResponse.data.filter((user) => {
-              // Include company admins and managers (they have access to all branches)
-              if (user.isCompanyAdmin || user.isCompanyManager) {
+              // Include company admins (they have access to all branches)
+              if (user.isCompanyAdmin) {
                 return true;
               }
               // Include users with permissions for this branch

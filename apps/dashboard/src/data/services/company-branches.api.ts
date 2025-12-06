@@ -110,17 +110,3 @@ export const setCompanyAdmin = async (args: {
     },
   );
 };
-
-export const setCompanyManager = async (args: {
-  branchId: string;
-  userId: string;
-  isCompanyManager: boolean;
-}) => {
-  return await responseHandler<UserResponseDto>(
-    `/company-branches/${args.branchId}/users/${args.userId}/company-manager`,
-    {
-      method: 'PATCH',
-      body: { isCompanyManager: args.isCompanyManager },
-    },
-  );
-};

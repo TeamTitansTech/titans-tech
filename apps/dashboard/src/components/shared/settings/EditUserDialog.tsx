@@ -68,17 +68,11 @@ export function EditUserDialog({
   const [permissions, setPermissions] = useState<Permissions | null>(null);
 
   // Check current user permissions (sysadmin has all permissions)
-  const canUpdateUserInfo =
-    !currentUser ||
-    hasPermission(currentUser, branchId, 'updateUsers') ||
-    currentUser.isCompanyAdmin ||
-    currentUser.isCompanyManager;
+  // Note: isCompanyAdmin already grants all permissions via hasPermission
+  const canUpdateUserInfo = !currentUser || hasPermission(currentUser, branchId, 'updateUsers');
 
   const canManagePermissions =
-    !currentUser ||
-    hasPermission(currentUser, branchId, 'manageUserPermissions') ||
-    currentUser.isCompanyAdmin ||
-    currentUser.isCompanyManager;
+    !currentUser || hasPermission(currentUser, branchId, 'manageUserPermissions');
 
   const userSchema = useMemo(
     () =>
