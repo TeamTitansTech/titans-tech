@@ -8,6 +8,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { Public } from 'src/modules/auth/auth.decorators';
+import { MAX_FILE_SIZE } from '../../../../../apps/dashboard/src/config/uploads';
 
 @Controller('upload')
 export class UploadController {
@@ -18,7 +19,7 @@ export class UploadController {
   @UseInterceptors(
     FileInterceptor('image', {
       limits: {
-        fileSize: 10 * 1024 * 1024,
+        fileSize: MAX_FILE_SIZE,
       },
     }),
   )
@@ -61,7 +62,7 @@ export class UploadController {
   @UseInterceptors(
     FileInterceptor('document', {
       limits: {
-        fileSize: 20 * 1024 * 1024,
+        fileSize: MAX_FILE_SIZE,
       },
     }),
   )
