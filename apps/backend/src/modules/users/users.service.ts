@@ -12,6 +12,10 @@ import {
   UserResponseDto,
   SetCompanyAdminDto,
 } from '@titans-tech/shared/backend-dtos';
+import {
+  type Permissions,
+  MANAGER_PERMISSIONS,
+} from '@titans-tech/shared/types/permissions';
 import * as bcrypt from 'bcrypt';
 import { FieldsErr } from 'src/errors/err';
 import { isSysAdmin, JwtPayload, UserJwtPayload } from 'src/types/request';
@@ -95,27 +99,8 @@ export class UsersService {
         branchId: branch.id,
         createdAt: new Date(),
         updatedAt: new Date(),
-        // Grant all permissions
-        readUsers: true,
-        createUsers: true,
-        updateUsers: true,
-        deleteUsers: true,
-        manageUserPermissions: true,
-        assignUsersToBranches: true,
-        readBranches: true,
-        updateBranches: true,
-        readMachines: true,
-        createMachines: true,
-        updateMachines: true,
-        deleteMachines: true,
-        readServices: true,
-        createServices: true,
-        updateServices: true,
-        deleteServices: true,
-        readProductionLines: true,
-        createProductionLines: true,
-        updateProductionLines: true,
-        deleteProductionLines: true,
+        // Grant all permissions (using MANAGER_PERMISSIONS as source of truth)
+        ...MANAGER_PERMISSIONS,
         branch: branch,
       }));
 
@@ -616,24 +601,7 @@ export class UsersService {
   async updateUserPermissionsAllBranches(
     userId: string,
     companyId: string,
-    permissions: Partial<{
-      readUsers: boolean;
-      createUsers: boolean;
-      updateUsers: boolean;
-      deleteUsers: boolean;
-      manageUserPermissions: boolean;
-      assignUsersToBranches: boolean;
-      readBranches: boolean;
-      updateBranches: boolean;
-      readMachines: boolean;
-      createMachines: boolean;
-      updateMachines: boolean;
-      deleteMachines: boolean;
-      readServices: boolean;
-      createServices: boolean;
-      updateServices: boolean;
-      deleteServices: boolean;
-    }>,
+    permissions: Partial<Permissions>,
   ) {
     // Verify user belongs to company
     const user = await this.prisma.user.findUnique({

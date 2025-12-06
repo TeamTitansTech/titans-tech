@@ -261,7 +261,6 @@ export interface Permissions {
 export enum PermissionCategory {
   USER_MANAGEMENT = 'userManagement',
   BRANCH_MANAGEMENT = 'branchManagement',
-  BLUEPRINT_MANAGEMENT = 'blueprintManagement',
   MACHINE_MANAGEMENT = 'machineManagement',
   SERVICE_MANAGEMENT = 'serviceManagement',
   PRODUCTION_LINE_MANAGEMENT = 'productionLineManagement',
@@ -511,11 +510,15 @@ export function countEnabledPermissions(permissions: Permissions): number {
   return Object.values(permissions).filter((value) => value === true).length;
 }
 
+export const ALL_PERMISSION_KEYS = Object.keys(PERMISSION_DEPENDENCIES) as BranchPermissionType[];
+
+export type PermissionRecord<T> = { [K in BranchPermissionType]: T };
+
 /**
  * Get all permission names as an array
  */
 export function getAllPermissionNames(): BranchPermissionType[] {
-  return PERMISSION_GROUPS.flatMap((group) => group.permissions);
+  return [...ALL_PERMISSION_KEYS];
 }
 
 /**

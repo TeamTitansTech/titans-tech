@@ -1,4 +1,5 @@
 import { Exclude, Type } from 'class-transformer';
+import type { Permissions } from '../../types/permissions';
 
 export class CompanyBranchDto {
   id: string;
@@ -14,7 +15,7 @@ export class CompanyBranchDto {
   }
 }
 
-export class UserBranchDto {
+export class UserBranchDto implements Permissions {
   userId: string;
   branchId: string;
   createdAt: Date;
