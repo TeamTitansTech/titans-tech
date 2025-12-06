@@ -392,7 +392,7 @@ export const WORKER_PERMISSIONS: Permissions = {
   assignUsersToBranches: false,
 
   // Branch Management
-  readBranches: false,
+  readBranches: true, // Required by readMachines and readServices
   updateBranches: false,
 
   // Blueprint Management (sysadmin-only, not available to regular users)
@@ -588,7 +588,6 @@ export function setAllPermissions(permissions: Permissions, value: boolean): Per
  */
 export enum UserRole {
   COMPANY_ADMIN = 'companyAdmin',
-  COMPANY_MANAGER = 'companyManager',
   BRANCH_MANAGER = 'branchManager',
   EMPLOYEE = 'employee',
   CUSTOM = 'custom',
@@ -599,12 +598,10 @@ export enum UserRole {
  */
 export function getUserRole(
   isCompanyAdmin: boolean,
-  isCompanyManager: boolean,
   branchPermissions: Permissions | undefined,
 ): UserRole {
-  // Company-level roles
+  // Company-level role
   if (isCompanyAdmin) return UserRole.COMPANY_ADMIN;
-  if (isCompanyManager) return UserRole.COMPANY_MANAGER;
 
   // No branch permissions
   if (!branchPermissions) return UserRole.EMPLOYEE;
@@ -625,11 +622,9 @@ export function getUserRole(
 }
 
 /**
- * Type guard for checking if user is admin or manager
+ * Type guard for checking if user is company admin
+ * @deprecated Use `user.isCompanyAdmin` directly. This function exists for backward compatibility.
  */
-export function isCompanyAdminOrManager(user: {
-  isCompanyAdmin: boolean;
-  isCompanyManager: boolean;
-}): boolean {
-  return user.isCompanyAdmin || user.isCompanyManager;
+export function isCompanyAdminOrManager(user: { isCompanyAdmin: boolean }): boolean {
+  return user.isCompanyAdmin;
 }
