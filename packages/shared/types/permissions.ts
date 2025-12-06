@@ -620,11 +620,3 @@ export function getUserRole(
       return UserRole.EMPLOYEE;
   }
 }
-
-/**
- * Type guard for checking if user is company admin
- * @deprecated Use `user.isCompanyAdmin` directly. This function exists for backward compatibility.
- */
-export function isCompanyAdminOrManager(user: { isCompanyAdmin: boolean }): boolean {
-  return user.isCompanyAdmin;
-}

@@ -119,15 +119,6 @@ export function canEditPermissions(
 
 /**
  * Check if user is Company Admin
- * @deprecated Use `user?.isCompanyAdmin` directly. This function exists for backward compatibility.
- */
-export function isCompanyAdminOrManager(user: UserResponseDto | null | undefined): boolean {
-  if (!user) return false;
-  return user.isCompanyAdmin;
-}
-
-/**
- * Check if user is Company Admin
  */
 export function isCompanyAdmin(user: UserResponseDto | null | undefined): boolean {
   if (!user) return false;
