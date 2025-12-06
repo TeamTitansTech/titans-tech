@@ -9,7 +9,7 @@
  * Individual permission names
  * These correspond to the UserBranch model fields
  */
-export type PermissionName =
+export type BranchPermissionType =
   // User Management
   | 'readUsers'
   | 'createUsers'
@@ -49,43 +49,44 @@ export type PermissionName =
  * This is the single source of truth for permission dependencies.
  * Used by both frontend (auto-check/uncheck) and backend (validation).
  */
-export const PERMISSION_DEPENDENCIES: Record<PermissionName, PermissionName[] | null> = {
-  // Branch Management (base permissions)
-  readBranches: null,
-  updateBranches: ['readBranches'],
+export const PERMISSION_DEPENDENCIES: Record<BranchPermissionType, BranchPermissionType[] | null> =
+  {
+    // Branch Management (base permissions)
+    readBranches: null,
+    updateBranches: ['readBranches'],
 
-  // Blueprint Management (global, not branch-linked)
-  readBlueprints: null,
-  createBlueprints: ['readBlueprints'],
-  updateBlueprints: ['readBlueprints'],
-  deleteBlueprints: ['readBlueprints'],
+    // Blueprint Management (global, not branch-linked)
+    readBlueprints: null,
+    createBlueprints: ['readBlueprints'],
+    updateBlueprints: ['readBlueprints'],
+    deleteBlueprints: ['readBlueprints'],
 
-  // User Management (users belong to branches)
-  readUsers: ['readBranches'],
-  createUsers: ['readUsers'],
-  updateUsers: ['readUsers'],
-  deleteUsers: ['readUsers'],
-  manageUserPermissions: ['readUsers'],
-  assignUsersToBranches: ['readUsers', 'readBranches'],
+    // User Management (users belong to branches)
+    readUsers: ['readBranches'],
+    createUsers: ['readUsers'],
+    updateUsers: ['readUsers'],
+    deleteUsers: ['readUsers'],
+    manageUserPermissions: ['readUsers'],
+    assignUsersToBranches: ['readUsers', 'readBranches'],
 
-  // Machine Management (machines belong to branches)
-  readMachines: ['readBranches'],
-  createMachines: ['readMachines'],
-  updateMachines: ['readMachines'],
-  deleteMachines: ['readMachines'],
+    // Machine Management (machines belong to branches)
+    readMachines: ['readBranches'],
+    createMachines: ['readMachines'],
+    updateMachines: ['readMachines'],
+    deleteMachines: ['readMachines'],
 
-  // Service Management (services are on machines)
-  readServices: ['readMachines'],
-  createServices: ['readServices'],
-  updateServices: ['readServices'],
-  deleteServices: ['readServices'],
+    // Service Management (services are on machines)
+    readServices: ['readMachines'],
+    createServices: ['readServices'],
+    updateServices: ['readServices'],
+    deleteServices: ['readServices'],
 
-  // Production Line Management (production lines belong to branches)
-  readProductionLines: ['readBranches'],
-  createProductionLines: ['readProductionLines'],
-  updateProductionLines: ['readProductionLines'],
-  deleteProductionLines: ['readProductionLines'],
-};
+    // Production Line Management (production lines belong to branches)
+    readProductionLines: ['readBranches'],
+    createProductionLines: ['readProductionLines'],
+    updateProductionLines: ['readProductionLines'],
+    deleteProductionLines: ['readProductionLines'],
+  };
 
 /**
  * Recursively resolves all prerequisites for a permission.
@@ -96,9 +97,9 @@ export const PERMISSION_DEPENDENCIES: Record<PermissionName, PermissionName[] | 
  * // Returns: ['readServices', 'readMachines', 'readBranches']
  */
 export function resolvePrerequisites(
-  permission: PermissionName,
-  visited: Set<PermissionName> = new Set(),
-): PermissionName[] {
+  permission: BranchPermissionType,
+  visited: Set<BranchPermissionType> = new Set(),
+): BranchPermissionType[] {
   // Prevent circular dependencies
   if (visited.has(permission)) return [];
   visited.add(permission);
@@ -106,7 +107,7 @@ export function resolvePrerequisites(
   const directPrereqs = PERMISSION_DEPENDENCIES[permission];
   if (!directPrereqs) return [];
 
-  const allPrereqs: PermissionName[] = [...directPrereqs];
+  const allPrereqs: BranchPermissionType[] = [...directPrereqs];
 
   // Recursively resolve transitive prerequisites
   for (const prereq of directPrereqs) {
@@ -129,14 +130,14 @@ export function resolvePrerequisites(
  * getDependents('readUsers')
  * // Returns: ['createUsers', 'updateUsers', 'deleteUsers', 'manageUserPermissions', 'assignUsersToBranches']
  */
-export function getDependents(permission: PermissionName): PermissionName[] {
-  const dependents: PermissionName[] = [];
+export function getDependents(permission: BranchPermissionType): BranchPermissionType[] {
+  const dependents: BranchPermissionType[] = [];
 
   for (const [perm, prereqs] of Object.entries(PERMISSION_DEPENDENCIES)) {
     if (prereqs && prereqs.includes(permission)) {
-      dependents.push(perm as PermissionName);
+      dependents.push(perm as BranchPermissionType);
       // Also get transitive dependents (permissions that depend on this dependent)
-      dependents.push(...getDependents(perm as PermissionName));
+      dependents.push(...getDependents(perm as BranchPermissionType));
     }
   }
 
@@ -153,18 +154,19 @@ export function getDependents(permission: PermissionName): PermissionName[] {
  */
 export function validatePermissions(permissions: Permissions): {
   valid: boolean;
-  violations: Array<{ permission: PermissionName; missing: PermissionName[] }>;
+  violations: Array<{ permission: BranchPermissionType; missing: BranchPermissionType[] }>;
 } {
-  const violations: Array<{ permission: PermissionName; missing: PermissionName[] }> = [];
+  const violations: Array<{ permission: BranchPermissionType; missing: BranchPermissionType[] }> =
+    [];
 
   for (const [perm, enabled] of Object.entries(permissions)) {
     if (!enabled) continue;
 
-    const required = resolvePrerequisites(perm as PermissionName);
-    const missing = required.filter((r: PermissionName) => !permissions[r]);
+    const required = resolvePrerequisites(perm as BranchPermissionType);
+    const missing = required.filter((r: BranchPermissionType) => !permissions[r]);
 
     if (missing.length > 0) {
-      violations.push({ permission: perm as PermissionName, missing });
+      violations.push({ permission: perm as BranchPermissionType, missing });
     }
   }
 
@@ -184,7 +186,7 @@ export function validatePermissions(permissions: Permissions): {
  */
 export function enableWithPrerequisites(
   permissions: Permissions,
-  permission: PermissionName,
+  permission: BranchPermissionType,
 ): Permissions {
   const newPermissions = { ...permissions, [permission]: true };
   const prereqs = resolvePrerequisites(permission);
@@ -207,7 +209,7 @@ export function enableWithPrerequisites(
  */
 export function disableWithDependents(
   permissions: Permissions,
-  permission: PermissionName,
+  permission: BranchPermissionType,
 ): Permissions {
   const newPermissions = { ...permissions, [permission]: false };
   const dependents = getDependents(permission);
@@ -223,9 +225,9 @@ export function disableWithDependents(
  * Checks if a permission can be disabled without leaving orphaned dependents.
  * Returns true if disabling is safe (no enabled permissions depend on it).
  */
-export function canDisable(permissions: Permissions, permission: PermissionName): boolean {
+export function canDisable(permissions: Permissions, permission: BranchPermissionType): boolean {
   const dependents = getDependents(permission);
-  return !dependents.some((dep: PermissionName) => permissions[dep]);
+  return !dependents.some((dep: BranchPermissionType) => permissions[dep]);
 }
 
 /**
@@ -286,7 +288,7 @@ export enum PermissionCategory {
  */
 export interface PermissionGroup {
   category: PermissionCategory;
-  permissions: PermissionName[];
+  permissions: BranchPermissionType[];
 }
 
 /**
@@ -470,16 +472,19 @@ export function getPresetPermissions(preset: RolePreset): Permissions {
  * Determine if permissions match a preset
  */
 export function detectRolePreset(permissions: Permissions): RolePreset {
+  console.debug('Detecting role preset for permissions:', permissions, MANAGER_PERMISSIONS);
   // Check if all permissions match MANAGER preset
   const isManager = Object.keys(MANAGER_PERMISSIONS).every(
-    (key) => permissions[key as PermissionName] === MANAGER_PERMISSIONS[key as PermissionName],
+    (key) =>
+      permissions[key as BranchPermissionType] === MANAGER_PERMISSIONS[key as BranchPermissionType],
   );
 
   if (isManager) return RolePreset.MANAGER;
 
   // Check if all permissions match WORKER preset
   const isWorker = Object.keys(WORKER_PERMISSIONS).every(
-    (key) => permissions[key as PermissionName] === WORKER_PERMISSIONS[key as PermissionName],
+    (key) =>
+      permissions[key as BranchPermissionType] === WORKER_PERMISSIONS[key as BranchPermissionType],
   );
 
   if (isWorker) return RolePreset.WORKER;
@@ -494,7 +499,7 @@ export function detectRolePreset(permissions: Permissions): RolePreset {
 export function hasPermission(
   userBranches: Array<{ branchId: string } & Permissions> | undefined,
   branchId: string,
-  permission: PermissionName,
+  permission: BranchPermissionType,
 ): boolean {
   if (!userBranches) return false;
 
@@ -541,14 +546,14 @@ export function countEnabledPermissions(permissions: Permissions): number {
 /**
  * Get all permission names as an array
  */
-export function getAllPermissionNames(): PermissionName[] {
+export function getAllPermissionNames(): BranchPermissionType[] {
   return PERMISSION_GROUPS.flatMap((group) => group.permissions);
 }
 
 /**
  * Get permissions for a specific category
  */
-export function getPermissionsByCategory(category: PermissionCategory): PermissionName[] {
+export function getPermissionsByCategory(category: PermissionCategory): BranchPermissionType[] {
   const group = PERMISSION_GROUPS.find((g) => g.category === category);
   return group ? group.permissions : [];
 }
@@ -578,7 +583,7 @@ export function setCategoryPermissions(
 export function setAllPermissions(permissions: Permissions, value: boolean): Permissions {
   const updated = { ...permissions };
   Object.keys(updated).forEach((key) => {
-    updated[key as PermissionName] = value;
+    updated[key as BranchPermissionType] = value;
   });
   return updated;
 }

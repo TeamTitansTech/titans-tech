@@ -10,7 +10,6 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import {
   BRANCH_PERMISSION_KEY,
-  BranchPermissionType,
   IS_SYS_ADMIN_KEY,
   IS_COMPANY_ADMIN_KEY,
   IS_PUBLIC_KEY,
@@ -19,6 +18,7 @@ import {
 import {
   validatePermissions,
   Permissions,
+  BranchPermissionType,
 } from '@titans-tech/shared/types/permissions';
 import { appEnv } from 'src/config/env';
 import { JwtPayload, isSysAdmin, ReqWithAuthUser } from 'src/types/request';

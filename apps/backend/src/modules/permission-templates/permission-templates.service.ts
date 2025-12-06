@@ -7,7 +7,7 @@ import {
 } from '@titans-tech/shared/backend-dtos';
 import {
   Permissions,
-  PermissionName,
+  BranchPermissionType,
   enableWithPrerequisites,
 } from '@titans-tech/shared/types/permissions';
 
@@ -27,7 +27,7 @@ export class PermissionTemplatesService {
       if (enabled) {
         normalized = enableWithPrerequisites(
           normalized,
-          perm as PermissionName,
+          perm as BranchPermissionType,
         );
       }
     }

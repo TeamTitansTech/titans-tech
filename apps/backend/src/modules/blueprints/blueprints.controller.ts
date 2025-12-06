@@ -51,7 +51,7 @@ export class BlueprintsController {
     return this.blueprintsService.findOne(id);
   }
 
-  @Authenticated()
+  @Admin()
   @Patch(':id')
   update(
     @Param('id') id: string,

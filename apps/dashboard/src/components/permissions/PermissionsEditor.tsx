@@ -15,7 +15,7 @@ import {
   PERMISSION_GROUPS,
   getPresetPermissions,
   detectRolePreset,
-  PermissionName,
+  BranchPermissionType,
   setCategoryPermissions,
   PermissionCategory,
   enableWithPrerequisites,
@@ -51,7 +51,7 @@ export function PermissionsEditor({
   };
 
   // Handle individual permission change
-  const handlePermissionChange = (permission: PermissionName, checked: boolean) => {
+  const handlePermissionChange = (permission: BranchPermissionType, checked: boolean) => {
     if (checked) {
       // Enable permission and all its prerequisites
       onChange(enableWithPrerequisites(permissions, permission));

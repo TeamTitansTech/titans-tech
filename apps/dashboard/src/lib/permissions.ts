@@ -7,7 +7,7 @@
 
 import {
   Permissions,
-  PermissionName,
+  BranchPermissionType,
   UserRole,
   RolePreset,
   detectRolePreset,
@@ -21,7 +21,7 @@ import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 export function hasPermission(
   user: UserResponseDto | null | undefined,
   branchId: string,
-  permission: PermissionName,
+  permission: BranchPermissionType,
 ): boolean {
   if (!user) return false;
 
@@ -43,7 +43,7 @@ export function hasPermission(
  */
 export function hasPermissionInAnyBranch(
   user: UserResponseDto | null | undefined,
-  permission: PermissionName,
+  permission: BranchPermissionType,
 ): boolean {
   if (!user) return false;
 
@@ -63,7 +63,7 @@ export function hasPermissionInAnyBranch(
 export function hasPermissionForResource<T extends { branchId: string }>(
   user: UserResponseDto | null | undefined,
   resource: T | null | undefined,
-  permission: PermissionName,
+  permission: BranchPermissionType,
 ): boolean {
   if (!user || !resource) return false;
 
@@ -76,7 +76,7 @@ export function hasPermissionForResource<T extends { branchId: string }>(
 export function hasAnyPermission(
   user: UserResponseDto | null | undefined,
   branchId: string,
-  permissions: PermissionName[],
+  permissions: BranchPermissionType[],
 ): boolean {
   return permissions.some((permission) => hasPermission(user, branchId, permission));
 }
@@ -87,7 +87,7 @@ export function hasAnyPermission(
 export function hasAllPermissions(
   user: UserResponseDto | null | undefined,
   branchId: string,
-  permissions: PermissionName[],
+  permissions: BranchPermissionType[],
 ): boolean {
   return permissions.every((permission) => hasPermission(user, branchId, permission));
 }
