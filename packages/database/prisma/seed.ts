@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as bcrypt from 'bcrypt';
 import { seedCrown } from './seeds/crown';
+import { MANAGER_PERMISSIONS } from '@titans-tech/shared/types/permissions';
 
 // Load environment variables from the database package .env file
 dotenv.config({ path: path.join(__dirname, '../.env') });
@@ -125,14 +126,13 @@ async function main() {
       name: 'Admin User',
       companyId: company.id,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
     },
   });
 
   console.log(`Created/Updated admin user: ${adminUser.email}`);
 
-  // Company manager user
+  // Manager user (has all permissions via UserBranch = MANAGER preset)
   const managerUser = await prisma.user.upsert({
     where: { email: 'manager@company.com' },
     update: {},
@@ -142,7 +142,6 @@ async function main() {
       name: 'Manager User',
       companyId: company.id,
       isCompanyAdmin: false,
-      isCompanyManager: true,
       isUsingDefaultPassword: true,
     },
   });
@@ -159,7 +158,6 @@ async function main() {
       name: 'Normal User',
       companyId: company.id,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
     },
   });
@@ -213,6 +211,24 @@ async function main() {
 
   console.log(`Assigned normal user to main branch with full permissions`);
 
+  // Assign manager user to main branch with MANAGER permissions
+  await prisma.userBranch.upsert({
+    where: {
+      userId_branchId: {
+        userId: managerUser.id,
+        branchId: mainBranch.id,
+      },
+    },
+    update: {},
+    create: {
+      userId: managerUser.id,
+      branchId: mainBranch.id,
+      ...MANAGER_PERMISSIONS,
+    },
+  });
+
+  console.log(`Assigned manager user to main branch with MANAGER permissions`);
+
   // ========================================
   // 5. Create Users for ACME Corporation
   // ========================================
@@ -226,7 +242,6 @@ async function main() {
       email: 'admin@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
@@ -242,12 +257,11 @@ async function main() {
       email: 'manager@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: true,
       isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
   });
-  console.log(`✓ Created/Updated Company Manager: ${companyManager.email}`);
+  console.log(`✓ Created/Updated Manager: ${companyManager.email}`);
 
   // Regular User
   const regularUser = await prisma.user.upsert({
@@ -258,7 +272,6 @@ async function main() {
       email: 'user@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
@@ -311,7 +324,7 @@ async function main() {
   });
   console.log(`✓ Assigned Admin to Main Branch with full permissions`);
 
-  // Manager with limited permissions on main branch
+  // Manager with MANAGER permissions on main branch
   await prisma.userBranch.upsert({
     where: {
       userId_branchId: {
@@ -323,25 +336,10 @@ async function main() {
     create: {
       userId: companyManager.id,
       branchId: acmeMainBranch.id,
-      // Limited permissions
-      readUsers: true,
-      createUsers: true,
-      updateUsers: true,
-      readBranches: true,
-      readBlueprints: true,
-      readMachines: true,
-      createMachines: true,
-      updateMachines: true,
-      readServices: true,
-      createServices: true,
-      updateServices: true,
-      // Production Line Permissions
-      readProductionLines: true,
-      createProductionLines: true,
-      updateProductionLines: true,
+      ...MANAGER_PERMISSIONS,
     },
   });
-  console.log(`✓ Assigned Manager to Main Branch with limited permissions`);
+  console.log(`✓ Assigned Manager to Main Branch with MANAGER permissions`);
 
   // Regular user with NO permissions
   await prisma.userBranch.upsert({
@@ -434,7 +432,6 @@ async function main() {
       email: 'test@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },

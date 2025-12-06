@@ -44,7 +44,6 @@ const createTestUser = async () => {
       name: 'Test User',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       companyId: company.id,
     },
   });

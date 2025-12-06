@@ -443,7 +443,6 @@ model User {
   email                  String  @unique
   password               String
   isCompanyAdmin         Boolean @default(false)
-  isCompanyManager       Boolean @default(false)
   isUsingDefaultPassword Boolean @default(true)
 
   createdAt DateTime @default(now())
