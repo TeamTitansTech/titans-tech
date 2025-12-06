@@ -3,7 +3,6 @@ export const IS_PUBLIC_KEY = 'isPublic';
 export const BRANCH_PERMISSION_KEY = 'branchPermission';
 export const IS_SYS_ADMIN_KEY = 'isAdmin';
 export const IS_COMPANY_ADMIN_KEY = 'isCompanyAdmin';
-export const IS_COMPANY_MANAGER_KEY = 'isCompanyManager';
 export const IS_AUTHENTICATED_KEY = 'isAuthenticated';
 
 export type BranchPermissionType =
@@ -41,8 +40,6 @@ export type BranchPermissionType =
 export const Admin = () => SetMetadata(IS_SYS_ADMIN_KEY, true);
 
 export const CompanyAdmin = () => SetMetadata(IS_COMPANY_ADMIN_KEY, true);
-
-export const CompanyManager = () => SetMetadata(IS_COMPANY_MANAGER_KEY, true);
 
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
