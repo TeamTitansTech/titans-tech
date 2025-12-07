@@ -38,3 +38,56 @@ export const Authenticated = () => SetMetadata(IS_AUTHENTICATED_KEY, true);
  */
 export const BranchPermission = (permission: BranchPermissionType) =>
   SetMetadata(BRANCH_PERMISSION_KEY, permission);
+
+export const RESOURCE_PERMISSION_KEY = 'resourcePermission';
+
+export type ResourceType =
+  | 'machine'
+  | 'service'
+  | 'productionLine'
+  | 'serviceRequest';
+
+export interface ResourcePermissionMetadata {
+  resourceType: ResourceType;
+  permission: BranchPermissionType;
+  paramName?: string; // defaults to 'id'
+  fromBody?: boolean; // if true, get resourceId from body instead of params
+}
+
+/**
+ * Decorator to specify required permission for a resource-based route.
+ * This will automatically resolve the branchId from the resource ID and validate permissions.
+ *
+ * @param resourceType - The type of resource ('machine', 'service', 'productionLine', 'serviceRequest')
+ * @param permission - The permission required from UserBranch schema
+ * @param options - Optional configuration for param name and body extraction
+ *
+ * @example
+ * // Get service by ID - extracts 'id' from params
+ * @ResourcePermission('service', 'readServices')
+ * @Get(':id')
+ * findOne(@Param('id') id: string) { ... }
+ *
+ * @example
+ * // Get services by machine - extracts 'machineId' from params
+ * @ResourcePermission('machine', 'readServices', { paramName: 'machineId' })
+ * @Get('machine/:machineId')
+ * findByMachine(@Param('machineId') machineId: string) { ... }
+ *
+ * @example
+ * // Create service - extracts 'machineId' from body
+ * @ResourcePermission('machine', 'createServices', { paramName: 'machineId', fromBody: true })
+ * @Post()
+ * create(@Body() dto: CreateServiceDto) { ... }
+ */
+export const ResourcePermission = (
+  resourceType: ResourceType,
+  permission: BranchPermissionType,
+  options?: { paramName?: string; fromBody?: boolean },
+) =>
+  SetMetadata(RESOURCE_PERMISSION_KEY, {
+    resourceType,
+    permission,
+    paramName: options?.paramName,
+    fromBody: options?.fromBody,
+  });
