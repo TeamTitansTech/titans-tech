@@ -192,16 +192,6 @@ async function main() {
       createMachines: true,
       updateMachines: true,
       deleteMachines: true,
-      // Service Permissions
-      readServices: true,
-      createServices: true,
-      updateServices: true,
-      deleteServices: true,
-      // Production Line Permissions
-      readProductionLines: true,
-      createProductionLines: true,
-      updateProductionLines: true,
-      deleteProductionLines: true,
     },
   });
 
