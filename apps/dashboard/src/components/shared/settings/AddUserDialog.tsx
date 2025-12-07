@@ -55,7 +55,6 @@ export function AddUserDialog({
   branchName,
   onSuccess,
   translationNamespace = 'settings.addUserDialog',
-  currentUser = null,
   companyId,
 }: AddUserDialogProps) {
   const t = useTranslations(translationNamespace);
