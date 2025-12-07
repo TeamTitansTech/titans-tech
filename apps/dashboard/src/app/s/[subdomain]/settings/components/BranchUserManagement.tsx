@@ -21,8 +21,11 @@ import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { AddUserDialog } from './AddUserDialog';
 import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
-import { getUserRole, canEditUser, canDeleteUser } from '@/lib/permissions';
-import { getUserRoleBadgeColor } from '@/lib/permissions';
+import {
+  getUserRole,
+  getUserRoleBadgeColor,
+  hasPermissionInBranch,
+} from '@titans-tech/shared/types';
 import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 interface BranchUserManagementProps {
@@ -198,8 +201,9 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
             ) : (
               users.map((user) => {
                 const role = getUserRole(user, branchId);
-                const canEdit = canEditUser(companyUser, user, branchId);
-                const canDelete = canDeleteUser(companyUser, user, branchId);
+
+                const canEdit = hasPermissionInBranch(companyUser, branchId, 'updateUsers');
+                const canDelete = hasPermissionInBranch(companyUser, branchId, 'deleteUsers');
 
                 return (
                   <TableRow key={user.id}>

@@ -215,7 +215,7 @@ export function disableWithDependents(
  * Checks if a permission can be disabled without leaving orphaned dependents.
  * Returns true if disabling is safe (no enabled permissions depend on it).
  */
-export function canDisable(permissions: Permissions, permission: BranchPermissionType): boolean {
+export function canDisable(permissions: Permissions, permission: BranchPermissionType) {
   const dependents = getDependents(permission);
   return !dependents.some((dep: BranchPermissionType) => permissions[dep]);
 }
@@ -253,6 +253,16 @@ export interface Permissions {
   createProductionLines: boolean;
   updateProductionLines: boolean;
   deleteProductionLines: boolean;
+}
+
+/**
+ * Minimal user shape for permission checks.
+ * Works with both Prisma models and DTOs.
+ */
+export interface UserWithBranchPermissions {
+  id: string;
+  isCompanyAdmin: boolean;
+  branches: Array<{ branchId: string } & Permissions>;
 }
 
 /**
@@ -467,7 +477,7 @@ export function hasPermission(
   userBranches: Array<{ branchId: string } & Permissions> | undefined,
   branchId: string,
   permission: BranchPermissionType,
-): boolean {
+) {
   if (!userBranches) return false;
 
   const branch = userBranches.find((b) => b.branchId === branchId);
@@ -479,10 +489,7 @@ export function hasPermission(
 /**
  * Check if user has all permissions in a category
  */
-export function hasCategoryPermissions(
-  permissions: Permissions,
-  category: PermissionCategory,
-): boolean {
+export function hasCategoryPermissions(permissions: Permissions, category: PermissionCategory) {
   const group = PERMISSION_GROUPS.find((g) => g.category === category);
   if (!group) return false;
 
@@ -492,14 +499,14 @@ export function hasCategoryPermissions(
 /**
  * Check if permissions set is completely empty (all false)
  */
-export function arePermissionsEmpty(permissions: Permissions): boolean {
+export function arePermissionsEmpty(permissions: Permissions) {
   return Object.values(permissions).every((value) => value === false);
 }
 
 /**
  * Check if permissions set is completely full (all true)
  */
-export function arePermissionsFull(permissions: Permissions): boolean {
+export function arePermissionsFull(permissions: Permissions) {
   return Object.values(permissions).every((value) => value === true);
 }
 
@@ -569,22 +576,11 @@ export enum UserRole {
   CUSTOM = 'custom',
 }
 
-/**
- * Determine user's display role for a branch
- */
-export function getUserRole(
-  isCompanyAdmin: boolean,
-  branchPermissions: Permissions | undefined,
-): UserRole {
-  // Company-level role
-  if (isCompanyAdmin) return UserRole.COMPANY_ADMIN;
-
-  // No branch permissions
-  if (!branchPermissions) return UserRole.EMPLOYEE;
-
-  // Detect role by permissions
-  const preset = detectRolePreset(branchPermissions);
-
+export function getUserRole(user: UserWithBranchPermissions, branchId: string): UserRole {
+  if (user.isCompanyAdmin) return UserRole.COMPANY_ADMIN;
+  const branch = user.branches.find((b) => b.branchId === branchId);
+  if (!branch) return UserRole.EMPLOYEE;
+  const preset = detectRolePreset(branch);
   switch (preset) {
     case RolePreset.MANAGER:
       return UserRole.BRANCH_MANAGER;
@@ -595,4 +591,73 @@ export function getUserRole(
     default:
       return UserRole.EMPLOYEE;
   }
+}
+
+/** Check permission in branch. Validates dependencies via validatePermissions. */
+export function hasPermissionInBranch(
+  user: UserWithBranchPermissions | null,
+  branchId: string,
+  permission: BranchPermissionType,
+): boolean {
+  if (!user) return false;
+  if (user.isCompanyAdmin) return true;
+  const branch = user.branches.find((b) => b.branchId === branchId);
+  if (!branch || !branch[permission]) return false;
+  return validatePermissions(branch).valid;
+}
+
+export function hasPermissionInAnyBranch(
+  user: UserWithBranchPermissions | null,
+  permission: BranchPermissionType,
+) {
+  if (!user) return false;
+  if (user.isCompanyAdmin) return true;
+  return user.branches.some((b) => b[permission]);
+}
+
+export function hasAnyPermissionInBranch(
+  user: UserWithBranchPermissions,
+  branchId: string,
+  permissions: BranchPermissionType[],
+) {
+  return permissions.some((p) => hasPermissionInBranch(user, branchId, p));
+}
+
+export function hasAllPermissionsInBranch(
+  user: UserWithBranchPermissions,
+  branchId: string,
+  permissions: BranchPermissionType[],
+) {
+  return permissions.every((p) => hasPermissionInBranch(user, branchId, p));
+}
+
+export function hasAccessToBranch(user: UserWithBranchPermissions, branchId: string) {
+  if (user.isCompanyAdmin) return true;
+  return user.branches.some((b) => b.branchId === branchId);
+}
+
+export function getAccessibleBranchIds(user: UserWithBranchPermissions): string[] {
+  return user.branches.map((b) => b.branchId);
+}
+
+export function getUserRoleLabel(role: UserRole): string {
+  const labels: Record<UserRole, string> = {
+    [UserRole.COMPANY_ADMIN]: 'Company Admin',
+    [UserRole.BRANCH_MANAGER]: 'Branch Manager',
+    [UserRole.EMPLOYEE]: 'Employee',
+    [UserRole.CUSTOM]: 'Custom',
+  };
+  return labels[role] || 'Employee';
+}
+
+export function getUserRoleBadgeColor(role: UserRole): string {
+  const colors: Record<UserRole, string> = {
+    [UserRole.COMPANY_ADMIN]:
+      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+    [UserRole.BRANCH_MANAGER]:
+      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    [UserRole.EMPLOYEE]: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
+    [UserRole.CUSTOM]: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  };
+  return colors[role] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
 }

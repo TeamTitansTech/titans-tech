@@ -21,7 +21,7 @@ import { useTranslations } from 'next-intl';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { useTheme } from '@/contexts/ThemeContext';
-import { hasPermissionInAnyBranch } from '@/lib/permissions';
+import { hasPermissionInAnyBranch } from '@titans-tech/shared/types';
 
 import {
   Sidebar,

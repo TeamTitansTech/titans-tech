@@ -7,7 +7,7 @@ import { CompanyInfoSection } from './CompanyInfoSection';
 import { BranchesSection } from './BranchesSection';
 import { BranchUserManagement } from './BranchUserManagement';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
-import { hasPermissionInAnyBranch } from '@/lib/permissions';
+import { hasPermissionInAnyBranch } from '@titans-tech/shared/types';
 
 export function CompanySettings() {
   const t = useTranslations('settings');

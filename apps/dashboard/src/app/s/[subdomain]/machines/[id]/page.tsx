@@ -9,7 +9,7 @@ import { UpcomingServices } from '@/components/shared/services/UpcomingServices'
 import { notFound } from 'next/navigation';
 import { Typography } from '@/components/ui/typography';
 import { NoPermission } from '@/components/no-permission/NoPermission';
-import { hasPermissionForResource, hasPermission } from '@/lib/permissions';
+import { hasPermissionInBranch } from '@titans-tech/shared/types';
 
 interface MachineDetailPageProps {
   params: Promise<{
@@ -62,17 +62,17 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
   const user = userResponse.data;
 
   // Check if user has readMachines permission for this machine's branch
-  const canViewMachine = hasPermissionForResource(user, machine, 'readMachines');
+  const canViewMachine = hasPermissionInBranch(user, machine.branchId, 'readMachines');
 
   if (!canViewMachine) {
     return <NoPermission />;
   }
 
   // Check service permissions
-  const canReadServices = hasPermission(user, machine.branchId, 'readServices');
-  const canCreateServices = hasPermission(user, machine.branchId, 'createServices');
-  const canUpdateServices = hasPermission(user, machine.branchId, 'updateServices');
-  const canDeleteServices = hasPermission(user, machine.branchId, 'deleteServices');
+  const canReadServices = hasPermissionInBranch(user, machine.branchId, 'readServices');
+  const canCreateServices = hasPermissionInBranch(user, machine.branchId, 'createServices');
+  const canUpdateServices = hasPermissionInBranch(user, machine.branchId, 'updateServices');
+  const canDeleteServices = hasPermissionInBranch(user, machine.branchId, 'deleteServices');
 
   return (
     <div className="space-y-6 p-4">
