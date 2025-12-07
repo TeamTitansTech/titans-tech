@@ -14,6 +14,9 @@ import {
   IS_COMPANY_ADMIN_KEY,
   IS_PUBLIC_KEY,
   IS_AUTHENTICATED_KEY,
+  RESOURCE_PERMISSION_KEY,
+  ResourcePermissionMetadata,
+  ResourceType,
 } from './auth.decorators';
 import {
   BranchPermissionType,
@@ -38,6 +41,40 @@ export class AuthGuard implements CanActivate {
     private reflector: Reflector,
     private prisma: PrismaService,
   ) {}
+
+  private readonly resourceResolvers: Record<
+    ResourceType,
+    (id: string) => Promise<string | null>
+  > = {
+    machine: async (id) => {
+      const machine = await this.prisma.machine.findUnique({
+        where: { id },
+        select: { branchId: true },
+      });
+      return machine?.branchId ?? null;
+    },
+    service: async (id) => {
+      const service = await this.prisma.machineService.findUnique({
+        where: { id },
+        select: { machine: { select: { branchId: true } } },
+      });
+      return service?.machine?.branchId ?? null;
+    },
+    productionLine: async (id) => {
+      const line = await this.prisma.productionLine.findUnique({
+        where: { id },
+        select: { branchId: true },
+      });
+      return line?.branchId ?? null;
+    },
+    serviceRequest: async (id) => {
+      const request = await this.prisma.serviceRequest.findUnique({
+        where: { id },
+        select: { machine: { select: { branchId: true } } },
+      });
+      return request?.machine?.branchId ?? null;
+    },
+  };
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
