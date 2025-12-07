@@ -16,9 +16,11 @@ import {
   IS_AUTHENTICATED_KEY,
 } from './auth.decorators';
 import {
-  validatePermissions,
-  Permissions,
   BranchPermissionType,
+  hasPermissionInBranch,
+  hasPermissionInAnyBranch,
+  UserWithBranchPermissions,
+  Permissions,
 } from '@titans-tech/shared/types/permissions';
 import { appEnv } from 'src/config/env';
 import { JwtPayload, isSysAdmin, ReqWithAuthUser } from 'src/types/request';
@@ -227,24 +229,16 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    // Check if user has the required permission
-    if (!userBranch[requiredPermission]) {
-      throw new ForbiddenException(
-        `Access denied: Missing required permission '${requiredPermission}'`,
-      );
-    }
+    // Construct user object for permission check
+    const user: UserWithBranchPermissions = {
+      id: payload.id,
+      isCompanyAdmin: false, // Already checked above
+      branches: [{ branchId, ...(userBranch as unknown as Permissions) }],
+    };
 
-    // Validate that user has all prerequisites for this permission
-    const validation = validatePermissions(
-      userBranch as unknown as Permissions,
-    );
-    const violation = validation.violations.find(
-      (v) => v.permission === requiredPermission,
-    );
-
-    if (violation) {
+    if (!hasPermissionInBranch(user, branchId, requiredPermission)) {
       throw new ForbiddenException(
-        `Access denied: Missing prerequisite permissions '${violation.missing.join(', ')}' for '${requiredPermission}'`,
+        `Access denied: Missing required permission '${requiredPermission}' or its prerequisites`,
       );
     }
 
@@ -290,22 +284,17 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    // Check if user has the required permission AND all prerequisites in at least one branch
-    const branchWithValidPermission = userBranches.find((userBranch) => {
-      if (!userBranch[requiredPermission]) return false;
+    // Construct user object for permission check
+    const user: UserWithBranchPermissions = {
+      id: payload.id,
+      isCompanyAdmin: false, // Already checked above
+      branches: userBranches.map((ub) => ({
+        branchId: ub.branchId,
+        ...(ub as unknown as Permissions),
+      })),
+    };
 
-      // Validate prerequisites are satisfied
-      const validation = validatePermissions(
-        userBranch as unknown as Permissions,
-      );
-      const violation = validation.violations.find(
-        (v) => v.permission === requiredPermission,
-      );
-
-      return !violation;
-    });
-
-    if (!branchWithValidPermission) {
+    if (!hasPermissionInAnyBranch(user, requiredPermission)) {
       throw new ForbiddenException(
         `Access denied: Missing required permission '${requiredPermission}' or its prerequisites in all branches`,
       );

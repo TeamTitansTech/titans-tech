@@ -237,6 +237,11 @@ function resolvePrerequisites(
   return allPrereqs;
 }
 
+function checkPrerequisites(permissions: Permissions, permission: BranchPermissionType): boolean {
+  const required = resolvePrerequisites(permission);
+  return required.every((r) => permissions[r]);
+}
+
 function getDependents(permission: BranchPermissionType): BranchPermissionType[] {
   const dependents: BranchPermissionType[] = [];
 
@@ -251,30 +256,6 @@ function getDependents(permission: BranchPermissionType): BranchPermissionType[]
 }
 
 // Exported functions
-
-export function validatePermissions(permissions: Permissions): {
-  valid: boolean;
-  violations: Array<{ permission: BranchPermissionType; missing: BranchPermissionType[] }>;
-} {
-  const violations: Array<{ permission: BranchPermissionType; missing: BranchPermissionType[] }> =
-    [];
-
-  for (const [perm, enabled] of Object.entries(permissions)) {
-    if (!enabled) continue;
-
-    const required = resolvePrerequisites(perm as BranchPermissionType);
-    const missing = required.filter((r: BranchPermissionType) => !permissions[r]);
-
-    if (missing.length > 0) {
-      violations.push({ permission: perm as BranchPermissionType, missing });
-    }
-  }
-
-  return {
-    valid: violations.length === 0,
-    violations,
-  };
-}
 
 export function enableWithPrerequisites(
   permissions: Permissions,
@@ -377,7 +358,7 @@ export function hasPermissionInBranch(
   if (user.isCompanyAdmin) return true;
   const branch = user.branches.find((b) => b.branchId === branchId);
   if (!branch || !branch[permission]) return false;
-  return validatePermissions(branch).valid;
+  return checkPrerequisites(branch, permission);
 }
 
 export function hasPermissionInAnyBranch(
@@ -386,7 +367,7 @@ export function hasPermissionInAnyBranch(
 ) {
   if (!user) return false;
   if (user.isCompanyAdmin) return true;
-  return user.branches.some((b) => b[permission]);
+  return user.branches.some((b) => b[permission] && checkPrerequisites(b, permission));
 }
 
 export function getUserRoleBadgeColor(role: UserRole): string {
