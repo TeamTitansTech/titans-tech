@@ -1,48 +1,14 @@
 import { SetMetadata } from '@nestjs/common';
+import { BranchPermissionType } from '@titans-tech/shared';
 export const IS_PUBLIC_KEY = 'isPublic';
 export const BRANCH_PERMISSION_KEY = 'branchPermission';
 export const IS_SYS_ADMIN_KEY = 'isAdmin';
 export const IS_COMPANY_ADMIN_KEY = 'isCompanyAdmin';
-export const IS_COMPANY_MANAGER_KEY = 'isCompanyManager';
 export const IS_AUTHENTICATED_KEY = 'isAuthenticated';
-
-export type BranchPermissionType =
-  // User Management Permissions
-  | 'readUsers'
-  | 'createUsers'
-  | 'updateUsers'
-  | 'deleteUsers'
-  | 'manageUserPermissions'
-  | 'assignUsersToBranches'
-  // Branch Management Permissions
-  | 'readBranches'
-  | 'updateBranches'
-  // Blueprint Permissions
-  | 'readBlueprints'
-  | 'createBlueprints'
-  | 'updateBlueprints'
-  | 'deleteBlueprints'
-  // Machine Permissions
-  | 'readMachines'
-  | 'createMachines'
-  | 'updateMachines'
-  | 'deleteMachines'
-  // Service Permissions
-  | 'readServices'
-  | 'createServices'
-  | 'updateServices'
-  | 'deleteServices'
-  // Production Line Permissions
-  | 'readProductionLines'
-  | 'createProductionLines'
-  | 'updateProductionLines'
-  | 'deleteProductionLines';
 
 export const Admin = () => SetMetadata(IS_SYS_ADMIN_KEY, true);
 
 export const CompanyAdmin = () => SetMetadata(IS_COMPANY_ADMIN_KEY, true);
-
-export const CompanyManager = () => SetMetadata(IS_COMPANY_MANAGER_KEY, true);
 
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 

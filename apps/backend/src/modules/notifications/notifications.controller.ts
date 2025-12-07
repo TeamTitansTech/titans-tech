@@ -12,7 +12,7 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { Admin, Authenticated, CompanyManager } from '../auth/auth.decorators';
+import { Admin, Authenticated } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import type { ReqWithAuthUser } from '../../types/request';
 import {
@@ -69,7 +69,7 @@ export class NotificationsController {
   }
 
   @Patch('read-all')
-  @CompanyManager()
+  @Authenticated()
   @HttpCode(HttpStatus.OK)
   async markAllNotificationsAsRead(
     @Req() req: ReqWithAuthUser,

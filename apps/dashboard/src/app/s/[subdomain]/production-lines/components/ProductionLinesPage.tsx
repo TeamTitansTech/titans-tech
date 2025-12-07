@@ -85,8 +85,8 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
 
     if (!companyUser) return false;
 
-    // Company admin and manager can create production lines
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+    // Company admin can create production lines
+    if (companyUser.isCompanyAdmin) return true;
 
     // Check if user has createProductionLines permission in at least one branch
     return companyUser.branches.some((ub) => ub.createProductionLines);
@@ -101,8 +101,8 @@ export function ProductionLinesPage({ productionLines, allBranches }: Production
 
     if (!companyUser) return [];
 
-    // Company admin and manager can create in all their branches
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) {
+    // Company admin can create in all their branches
+    if (companyUser.isCompanyAdmin) {
       return userBranches;
     }
 

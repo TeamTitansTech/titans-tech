@@ -6,7 +6,6 @@ import {
   UpdateUserDto,
   UserResponseDto,
   SetUserPermissionsDto,
-  SetCompanyManagerDto,
   UpdateUserPermissionsDto,
   DeleteUserDto,
 } from '@titans-tech/shared/backend-dtos';
@@ -90,27 +89,6 @@ export const updateUserPermissionsAllBranches = async (args: {
 
   return await responseHandler<UserResponseDto>(
     `/company-branches/${args.branchId}/users/${args.userId}/permissions-all-branches`,
-    {
-      method: 'PATCH',
-      body,
-    },
-  );
-};
-
-/**
- * Set Company Manager status for a user
- */
-export const setCompanyManager = async (args: {
-  branchId: string;
-  userId: string;
-  isCompanyManager: boolean;
-}) => {
-  const body: SetCompanyManagerDto = {
-    isCompanyManager: args.isCompanyManager,
-  };
-
-  return await responseHandler<UserResponseDto>(
-    `/company-branches/${args.branchId}/users/${args.userId}/company-manager`,
     {
       method: 'PATCH',
       body,

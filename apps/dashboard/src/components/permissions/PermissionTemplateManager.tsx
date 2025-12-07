@@ -81,11 +81,10 @@ export function PermissionTemplateManager({
 
     setIsLoading(true);
     try {
-      const response = await createPermissionTemplate({
+      const response = await createPermissionTemplate(companyId, {
         name: formData.name,
         description: formData.description || undefined,
         permissions: templatePermissions,
-        companyId,
       });
 
       if (response.data) {
@@ -112,7 +111,7 @@ export function PermissionTemplateManager({
 
     setIsLoading(true);
     try {
-      const response = await updatePermissionTemplate(id, {
+      const response = await updatePermissionTemplate(companyId, id, {
         name: formData.name,
         description: formData.description || undefined,
         permissions: templatePermissions,
@@ -141,7 +140,7 @@ export function PermissionTemplateManager({
 
     setIsLoading(true);
     try {
-      const response = await deletePermissionTemplate(id);
+      const response = await deletePermissionTemplate(companyId, id);
       if (!response.errors) {
         toast.success(t('deleted'));
         setTemplates(templates.filter((t) => t.id !== id));

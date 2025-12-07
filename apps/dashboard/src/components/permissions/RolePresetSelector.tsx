@@ -103,7 +103,7 @@ export function RolePresetSelector({
 
     setIsLoadingTemplates(true);
     try {
-      const response = await deletePermissionTemplate(templateId);
+      const response = await deletePermissionTemplate(companyId!, templateId);
       if (!response.errors) {
         toast.success(tTemplates('deleted'));
         setTemplates(templates.filter((t) => t.id !== templateId));
