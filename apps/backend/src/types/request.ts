@@ -23,4 +23,6 @@ export function isSysAdmin(payload: JwtPayload): payload is SysAdminJwtPayload {
 
 export interface ReqWithAuthUser extends Request {
   user: JwtPayload;
+  /** Branch ID resolved from resource by @ResourcePermission decorator */
+  resolvedBranchId?: string;
 }

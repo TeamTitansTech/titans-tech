@@ -4,6 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -102,12 +103,19 @@ export class AuthGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
+    const resourcePermission =
+      this.reflector.getAllAndOverride<ResourcePermissionMetadata>(
+        RESOURCE_PERMISSION_KEY,
+        [context.getHandler(), context.getClass()],
+      );
+
     if (
       !requiresSysAdmin &&
       !requiresCompanyAdmin &&
       !requiredPermission &&
       !isPublic &&
-      !isAuthenticated
+      !isAuthenticated &&
+      !resourcePermission
     ) {
       if (appEnv.NODE_ENV == 'development') {
         throw new ForbiddenException(
@@ -185,6 +193,38 @@ export class AuthGuard implements CanActivate {
         );
       }
       return true;
+    }
+
+    // Handle @ResourcePermission routes - resolve branchId from resource
+    if (resourcePermission) {
+      const paramName = resourcePermission.paramName ?? 'id';
+      const resourceId = resourcePermission.fromBody
+        ? request.body?.[paramName]
+        : request.params?.[paramName];
+
+      if (!resourceId) {
+        throw new ForbiddenException(
+          `Resource ID not provided (expected '${paramName}' in ${resourcePermission.fromBody ? 'body' : 'params'})`,
+        );
+      }
+
+      const resolver = this.resourceResolvers[resourcePermission.resourceType];
+      const branchId = await resolver(resourceId);
+
+      if (!branchId) {
+        throw new NotFoundException(
+          `${resourcePermission.resourceType} not found`,
+        );
+      }
+
+      // Attach branchId to request for service layer use
+      (request as ReqWithAuthUser).resolvedBranchId = branchId;
+
+      return this.validateBranchAccess(
+        currentUser,
+        branchId,
+        resourcePermission.permission,
+      );
     }
 
     // Extract branchId from params (URL) or body (POST requests)
