@@ -38,6 +38,8 @@ export type {
   BearingClearanceCheck,
   SlideData,
   SlideCheck,
+  SlideSingleHammerCheck,
+  SlideDoubleHammerCheck,
   GibsStageData,
   GibsCheck,
   LubricationHydraulicsData,
@@ -134,12 +136,28 @@ export interface LatestClutch {
   };
 }
 
-export interface LatestSlide {
+export interface LatestSlideSingleHammer {
   latestServiceId: string;
   latestServiceDate: string;
   serviceType: 'INSPECTION' | 'MAINTENANCE';
   data: {
+    beforeData?: SlideData;
+    data?: SlideData;
+  };
+  alert?: {
+    maxDeviation_differential: number;
+    maxDeviation_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+  };
+}
+
+export interface LatestSlideDoubleHammer {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: {
+    outerBefore?: SlideData;
     outerData?: SlideData;
+    innerBefore?: SlideData;
     innerData?: SlideData;
   };
   alert?: {
@@ -264,7 +282,8 @@ export interface LatestReport {
   generatedAt: string;
   sections: {
     BEARING_CLEARANCE: LatestBearingClearance | null;
-    SLIDE: LatestSlide | null;
+    SLIDE_SINGLE_HAMMER: LatestSlideSingleHammer | null;
+    SLIDE_DOUBLE_HAMMER: LatestSlideDoubleHammer | null;
     GIBS: LatestGibs | null;
     PISTONS: LatestPistons | null;
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LatestLubrication | null;

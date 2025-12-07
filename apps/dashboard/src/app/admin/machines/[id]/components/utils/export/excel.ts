@@ -134,8 +134,12 @@ export function exportToExcel(data: ExportData): void {
     if (sectionKey === 'BEARING_CLEARANCE') {
       addBearingClearanceData(sheetData, sectionData as unknown as BearingClearanceSectionData);
     }
-    // Slide Section
-    else if (sectionKey === 'SLIDE') {
+    // Slide Single Hammer Section
+    else if (sectionKey === 'SLIDE_SINGLE_HAMMER') {
+      addSlideData(sheetData, sectionData as unknown as SlideSectionData);
+    }
+    // Slide Double Hammer Section
+    else if (sectionKey === 'SLIDE_DOUBLE_HAMMER') {
       addSlideData(sheetData, sectionData as unknown as SlideSectionData);
     }
     // Gibs Section

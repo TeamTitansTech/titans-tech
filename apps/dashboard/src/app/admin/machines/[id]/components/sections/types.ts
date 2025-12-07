@@ -1,7 +1,8 @@
 import type {
   ServiceType,
   BearingClearanceCheck,
-  SlideCheck,
+  SlideSingleHammerCheck,
+  SlideDoubleHammerCheck,
   GibsCheck,
   LubricationHydraulicsCheck,
   ClutchData,
@@ -12,11 +13,12 @@ import type {
 
 /**
  * Section data can be any of the section-specific data types
- * Structure varies by section type (Bearing Clearance, Slide, Gibs, etc.)
+ * Structure varies by section type (Bearing Clearance, Slide Single/Double Hammer, Gibs, etc.)
  */
 export type SectionData =
   | BearingClearanceCheck
-  | SlideCheck
+  | SlideSingleHammerCheck
+  | SlideDoubleHammerCheck
   | GibsCheck
   | LubricationHydraulicsCheck
   | ClutchData

@@ -160,7 +160,7 @@ export function useServiceDataLoader(
           return converted;
         };
 
-        // Extract data from each relation
+        // Extract data from each relation (excluding slide - handled separately)
         Object.entries(RELATION_TO_SECTION_KEY).forEach(([relationKey, sectionKey]) => {
           const relationData = service[relationKey];
           if (relationData && Array.isArray(relationData) && relationData.length > 0) {
@@ -199,11 +199,51 @@ export function useServiceDataLoader(
                 notes: (lubRecord.notes as string) || '',
               } as AnySectionData;
             } else {
-              // All other sections (GIBS, BEARING_CLEARANCE, SLIDE, etc.)
+              // All other sections (GIBS, BEARING_CLEARANCE, etc.)
               loadedSectionData[sectionKey] = convertDecimalsToNumbers(rawData);
             }
           }
         });
+
+        // Handle single hammer slide relation (completely separate from double hammer)
+        const slideSingleHammerData = service['slideSingleHammer'] as
+          | Array<Record<string, unknown>>
+          | undefined;
+        if (
+          slideSingleHammerData &&
+          Array.isArray(slideSingleHammerData) &&
+          slideSingleHammerData.length > 0
+        ) {
+          const slideRecord = slideSingleHammerData[0];
+          if (slideRecord) {
+            loadedSectionData['SLIDE_SINGLE_HAMMER'] = convertDecimalsToNumbers({
+              beforeData: slideRecord.beforeData,
+              data: slideRecord.data,
+              notes: slideRecord.notes,
+            });
+          }
+        }
+
+        // Handle double hammer slide relation (completely separate from single hammer)
+        const slideDoubleHammerData = service['slideDoubleHammer'] as
+          | Array<Record<string, unknown>>
+          | undefined;
+        if (
+          slideDoubleHammerData &&
+          Array.isArray(slideDoubleHammerData) &&
+          slideDoubleHammerData.length > 0
+        ) {
+          const slideRecord = slideDoubleHammerData[0];
+          if (slideRecord) {
+            loadedSectionData['SLIDE_DOUBLE_HAMMER'] = convertDecimalsToNumbers({
+              outerBefore: slideRecord.outerBefore,
+              outerData: slideRecord.outerData,
+              innerBefore: slideRecord.innerBefore,
+              innerData: slideRecord.innerData,
+              notes: slideRecord.notes,
+            });
+          }
+        }
 
         const sectionsWithMissingData = savedCompletedSections.filter(
           (sectionKey) => !loadedSectionData[sectionKey as keyof SectionDataMap],

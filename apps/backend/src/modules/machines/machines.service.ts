@@ -247,10 +247,12 @@ export class MachinesService {
             alertBearingClearance: true;
             alertClutch: true;
             alertSlide: true;
+            alertSlideSingleHammer: true;
+            alertSlideDoubleHammer: true;
             alertGibs: true;
             alertPistons: true;
-            alertTramming: true;
             alertCounterbalanceCylinderAirbag: true;
+            alertTramming: true;
           };
         };
       };
@@ -282,10 +284,12 @@ export class MachinesService {
             alertBearingClearance: true,
             alertClutch: true,
             alertSlide: true,
+            alertSlideSingleHammer: true,
+            alertSlideDoubleHammer: true,
             alertGibs: true,
             alertPistons: true,
-            alertTramming: true,
             alertCounterbalanceCylinderAirbag: true,
+            alertTramming: true,
           },
         },
       },
@@ -321,10 +325,12 @@ export class MachinesService {
             alertBearingClearance: true;
             alertClutch: true;
             alertSlide: true;
+            alertSlideSingleHammer: true;
+            alertSlideDoubleHammer: true;
             alertGibs: true;
             alertPistons: true;
-            alertTramming: true;
             alertCounterbalanceCylinderAirbag: true;
+            alertTramming: true;
           };
         };
       };
@@ -356,6 +362,8 @@ export class MachinesService {
             alertBearingClearance: true,
             alertClutch: true,
             alertSlide: true,
+            alertSlideSingleHammer: true,
+            alertSlideDoubleHammer: true,
             alertGibs: true,
             alertPistons: true,
             alertTramming: true,

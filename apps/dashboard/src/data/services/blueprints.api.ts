@@ -15,7 +15,8 @@ export interface CreateBlueprintPayload {
   fields: Field[];
   thresholds?: BearingClearanceThresholdsData;
   clutchThresholds?: ClutchThresholdsData;
-  slideThresholds?: SlideThresholdsData;
+  slideSingleHammerThresholds?: SlideThresholdsData;
+  slideDoubleHammerThresholds?: SlideThresholdsData;
   gibsThresholds?: GibsThresholdsData;
   pistonsThresholds?: PistonsThresholdsData;
   trammingThresholds?: TrammingThresholdsData;
@@ -28,7 +29,8 @@ export interface UpdateBlueprintPayload {
   fields?: Field[];
   thresholds?: BearingClearanceThresholdsData;
   clutchThresholds?: ClutchThresholdsData;
-  slideThresholds?: SlideThresholdsData;
+  slideSingleHammerThresholds?: SlideThresholdsData;
+  slideDoubleHammerThresholds?: SlideThresholdsData;
   gibsThresholds?: GibsThresholdsData;
   pistonsThresholds?: PistonsThresholdsData;
   trammingThresholds?: TrammingThresholdsData;

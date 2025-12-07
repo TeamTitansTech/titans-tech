@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react';
 import { BearingClearanceSection } from './BearingClearanceSection';
-import { SlideSection } from './SlideSection';
+import { SlideSingleHammerSection } from './SlideSingleHammerSection';
+import { SlideDoubleHammerSection } from './SlideDoubleHammerSection';
 import { GibsSection } from './';
 import { LubricationHydraulicsSection } from './LubricationHydraulicsSection';
 import { ClutchSection } from './ClutchSection';
@@ -46,14 +47,22 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
     },
   },
 
-  SLIDE: {
-    key: 'SLIDE',
-    component: SlideSection,
+  SLIDE_SINGLE_HAMMER: {
+    key: 'SLIDE_SINGLE_HAMMER',
+    component: SlideSingleHammerSection,
     metadata: {
-      image: '/assets/sections/slide.svg',
-      i18nKey: 'slide',
+      image: '/assets/sections/slide-single-hammer.svg',
+      i18nKey: 'slideSingleHammer',
     },
-    // No badges for slide section
+  },
+
+  SLIDE_DOUBLE_HAMMER: {
+    key: 'SLIDE_DOUBLE_HAMMER',
+    component: SlideDoubleHammerSection,
+    metadata: {
+      image: '/assets/sections/slide-double-hammer.svg',
+      i18nKey: 'slideDoubleHammer',
+    },
   },
 
   GIBS: {

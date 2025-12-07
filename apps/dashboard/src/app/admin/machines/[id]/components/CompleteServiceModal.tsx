@@ -25,8 +25,14 @@ import {
   BearingClearanceSection,
   type BearingClearanceSectionRef,
 } from './sections/BearingClearanceSection';
-import { SlideSection, type SlideSectionRef } from './sections/SlideSection';
-import { GibsSection, type GibsSectionRef } from './sections';
+import {
+  SlideSingleHammerSection,
+  type SlideSingleHammerSectionRef,
+  SlideDoubleHammerSection,
+  type SlideDoubleHammerSectionRef,
+  GibsSection,
+  type GibsSectionRef,
+} from './sections';
 
 import {
   LubricationHydraulicsSection,
@@ -66,11 +72,13 @@ export function CompleteServiceModal({
   const [touchedSections, setTouchedSections] = useState<Set<string>>(new Set());
 
   // Collapsible section states
-  const [slideOpen, setSlideOpen] = useState(false);
+  const [slideSingleHammerOpen, setSlideSingleHammerOpen] = useState(false);
+  const [slideDoubleHammerOpen, setSlideDoubleHammerOpen] = useState(false);
 
   // Section refs
   const bearingClearanceRef = useRef<BearingClearanceSectionRef>(null);
-  const slideRef = useRef<SlideSectionRef>(null);
+  const slideSingleHammerRef = useRef<SlideSingleHammerSectionRef>(null);
+  const slideDoubleHammerRef = useRef<SlideDoubleHammerSectionRef>(null);
   const gibsRef = useRef<GibsSectionRef>(null);
   const lubricationRef = useRef<LubricationHydraulicsSectionRef>(null);
   const clutchRef = useRef<ClutchSectionRef>(null);
@@ -84,7 +92,8 @@ export function CompleteServiceModal({
       setTouchedSections(new Set());
       // Reset section refs
       bearingClearanceRef.current?.reset();
-      slideRef.current?.reset();
+      slideSingleHammerRef.current?.reset();
+      slideDoubleHammerRef.current?.reset();
       gibsRef.current?.reset();
       lubricationRef.current?.reset();
       clutchRef.current?.reset();
@@ -177,13 +186,31 @@ export function CompleteServiceModal({
         payload.bearingClearance = bearingData;
       }
 
-      // Only add slide if section was touched
-      if (blueprintSections.includes('SLIDE') && slideRef.current?.isTouched()) {
-        const slideResult = slideRef.current.validateAndGetData(serviceType);
-        if (!slideResult.isValid) {
-          validationErrors.push(...slideResult.errors);
-        } else if (slideResult.data) {
-          payload.slide = slideResult.data;
+      // Only add slide_single_hammer if section was touched
+      if (
+        blueprintSections.includes('SLIDE_SINGLE_HAMMER') &&
+        slideSingleHammerRef.current?.isTouched()
+      ) {
+        const slideSingleHammerResult =
+          slideSingleHammerRef.current.validateAndGetData(serviceType);
+        if (!slideSingleHammerResult.isValid) {
+          validationErrors.push(...slideSingleHammerResult.errors);
+        } else if (slideSingleHammerResult.data) {
+          payload.slideSingleHammer = slideSingleHammerResult.data;
+        }
+      }
+
+      // Only add slide_double_hammer if section was touched
+      if (
+        blueprintSections.includes('SLIDE_DOUBLE_HAMMER') &&
+        slideDoubleHammerRef.current?.isTouched()
+      ) {
+        const slideDoubleHammerResult =
+          slideDoubleHammerRef.current.validateAndGetData(serviceType);
+        if (!slideDoubleHammerResult.isValid) {
+          validationErrors.push(...slideDoubleHammerResult.errors);
+        } else if (slideDoubleHammerResult.data) {
+          payload.slideDoubleHammer = slideDoubleHammerResult.data;
         }
       }
 
@@ -232,7 +259,8 @@ export function CompleteServiceModal({
         status: ServiceStatus.COMPLETED, // Mark as completed when filling data
         performedBy: payload.performedBy,
         bearingClearance: payload.bearingClearance,
-        slide: payload.slide,
+        slideSingleHammer: payload.slideSingleHammer,
+        slideDoubleHammer: payload.slideDoubleHammer,
         gibs: payload.gibs,
         lubricationHydraulics: payload.lubricationHydraulics,
         clutch: payload.clutch,
@@ -309,8 +337,19 @@ export function CompleteServiceModal({
                 serviceType={serviceType}
               />
             )}
-            {blueprintSections.includes('SLIDE') && (
-              <SlideSection ref={slideRef} isOpen={slideOpen} onOpenChange={setSlideOpen} />
+            {blueprintSections.includes('SLIDE_SINGLE_HAMMER') && (
+              <SlideSingleHammerSection
+                ref={slideSingleHammerRef}
+                isOpen={slideSingleHammerOpen}
+                onOpenChange={setSlideSingleHammerOpen}
+              />
+            )}
+            {blueprintSections.includes('SLIDE_DOUBLE_HAMMER') && (
+              <SlideDoubleHammerSection
+                ref={slideDoubleHammerRef}
+                isOpen={slideDoubleHammerOpen}
+                onOpenChange={setSlideDoubleHammerOpen}
+              />
             )}
             {blueprintSections.includes('GIBS') && (
               <GibsSection ref={gibsRef} onSectionTouched={() => markSectionTouched('GIBS')} />

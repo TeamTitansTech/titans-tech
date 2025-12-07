@@ -1116,7 +1116,7 @@ async function createServiceWithData(
 ) {
   const completedSections = [
     ServiceSection.BEARING_CLEARANCE,
-    ServiceSection.SLIDE,
+    ServiceSection.SLIDE_DOUBLE_HAMMER,
     ServiceSection.CLUTCH,
     ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
     ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG,

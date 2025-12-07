@@ -19,8 +19,10 @@ import {
   CompleteServiceSchema,
   BearingClearanceCheck,
   BearingClearanceCheckSchema,
-  SlideCheck,
-  SlideCheckSchema,
+  SlideSingleHammerCheck,
+  SlideSingleHammerCheckSchema,
+  SlideDoubleHammerCheck,
+  SlideDoubleHammerCheckSchema,
   GibsCheck,
   GibsCheckSchema,
   LubricationHydraulicsCheck,
@@ -135,14 +137,33 @@ export class ServicesController {
   }
 
   @Authenticated()
-  @Patch(':id/sections/slide')
-  updateSlide(
+  @Patch(':id/sections/slide-single-hammer')
+  updateSlideSingleHammer(
     @Param('id') id: string,
-    @Body(new ZodValidationPipe(SlideCheckSchema))
-    updateDto: SlideCheck,
+    @Body(new ZodValidationPipe(SlideSingleHammerCheckSchema))
+    updateDto: SlideSingleHammerCheck,
     @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
-    return this.servicesService.updateSlide(id, updateDto, this.getUserId(req));
+    return this.servicesService.updateSlideSingleHammer(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @Authenticated()
+  @Patch(':id/sections/slide-double-hammer')
+  updateSlideDoubleHammer(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(SlideDoubleHammerCheckSchema))
+    updateDto: SlideDoubleHammerCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateSlideDoubleHammer(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
   }
 
   @Authenticated()

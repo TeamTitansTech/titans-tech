@@ -12,7 +12,8 @@ import {
   LatestReportResponseDto,
   LatestBearingClearanceDto,
   LatestClutchDto,
-  LatestSlideDto,
+  LatestSlideSingleHammerDto,
+  LatestSlideDoubleHammerDto,
   LatestGibsDto,
   LatestLubricationDto,
   LatestCounterbalanceDto,
@@ -22,7 +23,8 @@ import {
   UpdateServicePayload,
   CompleteServiceDto,
   BearingClearanceCheck,
-  SlideCheck,
+  SlideSingleHammerCheck,
+  SlideDoubleHammerCheck,
   GibsCheck,
   LubricationHydraulicsCheck,
   ClutchData,
@@ -329,6 +331,20 @@ export class ServicesService {
             innerData: true,
           },
         },
+        slideSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
+        slideDoubleHammer: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
         gibs: {
           include: {
             outerBefore: true,
@@ -399,6 +415,20 @@ export class ServicesService {
         slide: {
           include: {
             outerData: true,
+            innerData: true,
+          },
+        },
+        slideSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
+        slideDoubleHammer: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
             innerData: true,
           },
         },
@@ -474,6 +504,20 @@ export class ServicesService {
         slide: {
           include: {
             outerData: true,
+            innerData: true,
+          },
+        },
+        slideSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
+        slideDoubleHammer: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
             innerData: true,
           },
         },
@@ -563,6 +607,20 @@ export class ServicesService {
             innerData: true,
           },
         },
+        slideSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
+        slideDoubleHammer: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
         gibs: {
           include: {
             outerBefore: true,
@@ -606,6 +664,43 @@ export class ServicesService {
             innerData: true,
           },
         },
+        // Include alert entities for status display
+        alertBearingClearance: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertClutch: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlide: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlideSingleHammer: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlideDoubleHammer: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertGibs: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertPistons: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertCounterbalanceCylinderAirbag: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertTramming: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
       orderBy: {
         date: 'desc',
@@ -647,6 +742,20 @@ export class ServicesService {
         slide: {
           include: {
             outerData: true,
+            innerData: true,
+          },
+        },
+        slideSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
+        slideDoubleHammer: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
             innerData: true,
           },
         },
@@ -770,17 +879,26 @@ export class ServicesService {
       }
     }
 
-    // 5. Process Slide section
-    let slideData: LatestSlideDto | null = null;
+    // 5. Process Slide sections (single and double hammer are COMPLETELY SEPARATE)
+    let slideSingleHammerData: LatestSlideSingleHammerDto | null = null;
+    let slideDoubleHammerData: LatestSlideDoubleHammerDto | null = null;
 
-    if (machine.blueprint.sections.includes(ServiceSection.SLIDE)) {
-      // Find the most recent service with Slide data
+    const hasSlideSingleHammer = machine.blueprint.sections.includes(
+      ServiceSection.SLIDE_SINGLE_HAMMER,
+    );
+    const hasSlideDoubleHammer = machine.blueprint.sections.includes(
+      ServiceSection.SLIDE_DOUBLE_HAMMER,
+    );
+
+    if (hasSlideSingleHammer) {
+      // Find the most recent service with Single Hammer Slide data
       const latestSlideService = services.find(
-        (service) => service.slide && service.slide.length > 0,
+        (service) =>
+          service.slideSingleHammer && service.slideSingleHammer.length > 0,
       );
 
       if (latestSlideService) {
-        const slideRecord = latestSlideService.slide[0];
+        const slideRecord = latestSlideService.slideSingleHammer[0];
 
         if (slideRecord) {
           // Try to fetch alert for this service
@@ -793,12 +911,49 @@ export class ServicesService {
             // Alert might not exist, that's fine
           }
 
-          slideData = new LatestSlideDto({
+          slideSingleHammerData = new LatestSlideSingleHammerDto({
             latestServiceId: latestSlideService.id,
             latestServiceDate: latestSlideService.date,
             serviceType: latestSlideService.type,
             data: {
+              beforeData: slideRecord.beforeData,
+              data: slideRecord.data,
+            },
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    if (hasSlideDoubleHammer) {
+      // Find the most recent service with Double Hammer Slide data
+      const latestSlideService = services.find(
+        (service) =>
+          service.slideDoubleHammer && service.slideDoubleHammer.length > 0,
+      );
+
+      if (latestSlideService) {
+        const slideRecord = latestSlideService.slideDoubleHammer[0];
+
+        if (slideRecord) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getSlideAlertByService(
+              latestSlideService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+          }
+
+          slideDoubleHammerData = new LatestSlideDoubleHammerDto({
+            latestServiceId: latestSlideService.id,
+            latestServiceDate: latestSlideService.date,
+            serviceType: latestSlideService.type,
+            data: {
+              outerBefore: slideRecord.outerBefore,
               outerData: slideRecord.outerData,
+              innerBefore: slideRecord.innerBefore,
               innerData: slideRecord.innerData,
             },
             alert: alert || undefined,
@@ -1061,7 +1216,8 @@ export class ServicesService {
       generatedAt: new Date(),
       sections: {
         BEARING_CLEARANCE: bearingClearanceData,
-        SLIDE: slideData,
+        SLIDE_SINGLE_HAMMER: slideSingleHammerData,
+        SLIDE_DOUBLE_HAMMER: slideDoubleHammerData,
         GIBS: gibsData,
         PISTONS: pistonsData,
         LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: lubricationData,
@@ -1197,9 +1353,9 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
-  async updateSlide(
+  async updateSlideSingleHammer(
     serviceId: string,
-    updateDto: SlideCheck,
+    updateDto: SlideSingleHammerCheck,
     userId: string | null,
   ): Promise<any> {
     // Validate permission before updating
@@ -1211,7 +1367,7 @@ export class ServicesService {
 
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
-      include: { slide: true },
+      include: { slideSingleHammer: true },
     });
 
     if (!service) {
@@ -1222,12 +1378,14 @@ export class ServicesService {
       ? service.completedSections
       : [];
 
-    const updatedCompletedSections = completedSections.includes('SLIDE')
+    const updatedCompletedSections = completedSections.includes(
+      'SLIDE_SINGLE_HAMMER',
+    )
       ? completedSections
-      : [...completedSections, 'SLIDE'];
+      : [...completedSections, 'SLIDE_SINGLE_HAMMER'];
 
     await this.prisma.$transaction(async (tx) => {
-      const existingRecord = service.slide?.[0];
+      const existingRecord = service.slideSingleHammer?.[0];
 
       // Helper function to upsert nested slide data
       const upsertData = async (
@@ -1237,13 +1395,13 @@ export class ServicesService {
         if (!data) return existingId;
 
         if (existingId) {
-          await tx.slideData.update({
+          await tx.slideSingleHammerData.update({
             where: { id: existingId },
             data: data as any,
           });
           return existingId;
         } else {
-          const created = await tx.slideData.create({
+          const created = await tx.slideSingleHammerData.create({
             data: data as any,
           });
           return created.id;
@@ -1251,7 +1409,120 @@ export class ServicesService {
       };
 
       if (existingRecord) {
-        // Update existing slide record (now with 4 possible FKs)
+        // Update existing single hammer slide record
+        const beforeDataId = await upsertData(
+          updateDto.beforeData,
+          existingRecord.beforeDataId,
+        );
+        const dataId = await upsertData(updateDto.data, existingRecord.dataId);
+
+        // Build update payload with IDs and notes
+        const updatePayload: any = {
+          ...(beforeDataId && { beforeDataId }),
+          ...(dataId && { dataId }),
+          ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
+        };
+
+        await tx.machineServiceSlideSingleHammer.update({
+          where: { id: existingRecord.id },
+          data: updatePayload,
+        });
+      } else {
+        // Create new single hammer slide record
+        const { beforeData, data, notes } = updateDto;
+
+        await tx.machineServiceSlideSingleHammer.create({
+          data: {
+            machineService: { connect: { id: serviceId } },
+            ...(beforeData && {
+              beforeData: { create: beforeData as any },
+            }),
+            ...(data && {
+              data: { create: data as any },
+            }),
+            ...(notes && { notes }),
+          },
+        });
+      }
+
+      // Update service with completed sections
+      await tx.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+        },
+      });
+    });
+
+    if (updateDto.data) {
+      try {
+        await this.alertsService.generateAlertsForSlideSingleHammer(serviceId);
+      } catch (error) {
+        console.error('Error generating slide single hammer alerts:', error);
+      }
+    }
+
+    return this.findOne(serviceId);
+  }
+
+  async updateSlideDoubleHammer(
+    serviceId: string,
+    updateDto: SlideDoubleHammerCheck,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { slideDoubleHammer: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes(
+      'SLIDE_DOUBLE_HAMMER',
+    )
+      ? completedSections
+      : [...completedSections, 'SLIDE_DOUBLE_HAMMER'];
+
+    await this.prisma.$transaction(async (tx) => {
+      const existingRecord = service.slideDoubleHammer?.[0];
+
+      // Helper function to upsert nested slide data
+      const upsertData = async (
+        data: any,
+        existingId: string | null | undefined,
+      ) => {
+        if (!data) return existingId;
+
+        if (existingId) {
+          await tx.slideDoubleHammerData.update({
+            where: { id: existingId },
+            data: data as any,
+          });
+          return existingId;
+        } else {
+          const created = await tx.slideDoubleHammerData.create({
+            data: data as any,
+          });
+          return created.id;
+        }
+      };
+
+      if (existingRecord) {
+        // Update existing double hammer slide record (with 4 possible FKs for inner/outer before/after)
         const outerBeforeId = await upsertData(
           updateDto.outerBefore,
           existingRecord.outerBeforeId,
@@ -1278,16 +1549,16 @@ export class ServicesService {
           ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
         };
 
-        await tx.machineServiceSlide.update({
+        await tx.machineServiceSlideDoubleHammer.update({
           where: { id: existingRecord.id },
           data: updatePayload,
         });
       } else {
-        // Create new slide record with 4 possible SlideData records
+        // Create new double hammer slide record with 4 possible SlideData records
         const { outerBefore, outerData, innerBefore, innerData, notes } =
           updateDto;
 
-        await tx.machineServiceSlide.create({
+        await tx.machineServiceSlideDoubleHammer.create({
           data: {
             machineService: { connect: { id: serviceId } },
             ...(outerBefore && {
@@ -2140,6 +2411,20 @@ export class ServicesService {
             innerData: true,
           },
         },
+        slideSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
+        slideDoubleHammer: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
         gibs: {
           include: {
             outerBefore: true,
@@ -2184,10 +2469,20 @@ export class ServicesService {
         });
     }
 
-    if (completedSectionsList.includes('SLIDE')) {
-      this.alertsService.generateAlertsForSlide(serviceId).catch((error) => {
-        console.error('Error generating slide alerts:', error);
-      });
+    if (completedSectionsList.includes('SLIDE_SINGLE_HAMMER')) {
+      this.alertsService
+        .generateAlertsForSlideSingleHammer(serviceId)
+        .catch((error) => {
+          console.error('Error generating slide single hammer alerts:', error);
+        });
+    }
+
+    if (completedSectionsList.includes('SLIDE_DOUBLE_HAMMER')) {
+      this.alertsService
+        .generateAlertsForSlideDoubleHammer(serviceId)
+        .catch((error) => {
+          console.error('Error generating slide double hammer alerts:', error);
+        });
     }
 
     if (completedSectionsList.includes('GIBS')) {
@@ -2248,6 +2543,14 @@ export class ServicesService {
           take: 1,
         },
         alertSlide: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlideSingleHammer: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlideDoubleHammer: {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
@@ -2476,8 +2779,95 @@ export class ServicesService {
       }
     }
 
-    // Process Slide alerts
-    if (service.alertSlide && service.alertSlide.length > 0) {
+    // Process Slide Single Hammer alerts
+    if (
+      service.alertSlideSingleHammer &&
+      service.alertSlideSingleHammer.length > 0
+    ) {
+      const alert = service.alertSlideSingleHammer[0];
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const severity = alert.maxDeviation_severity as AlertSeverityDto;
+      if (severity === 'YELLOW' || severity === 'RED') {
+        alerts.push({
+          field: 'maxDeviation',
+          fieldLabel: 'Max Deviation',
+          value: alert.maxDeviation_differential?.toString() || '0',
+          severity,
+        });
+        alertCount++;
+        sectionSeverity = severity;
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'SLIDE_SINGLE_HAMMER',
+          sectionName: 'Slide (Single Hammer)',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Process Slide Double Hammer alerts
+    if (
+      service.alertSlideDoubleHammer &&
+      service.alertSlideDoubleHammer.length > 0
+    ) {
+      const alert = service.alertSlideDoubleHammer[0];
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const slideFields = [
+        {
+          field: 'maxDeviationOuter',
+          label: 'Max Deviation (Outer)',
+          severity: alert.maxDeviationOuter_severity as AlertSeverityDto,
+          value: alert.maxDeviationOuter_differential?.toString() || '0',
+        },
+        {
+          field: 'maxDeviationInner',
+          label: 'Max Deviation (Inner)',
+          severity: alert.maxDeviationInner_severity as AlertSeverityDto,
+          value: alert.maxDeviationInner_differential?.toString() || '0',
+        },
+      ];
+
+      for (const f of slideFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value,
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'SLIDE_DOUBLE_HAMMER',
+          sectionName: 'Slide (Double Hammer)',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Legacy: Process old Slide alerts (DEPRECATED)
+    if (
+      service.alertSlide &&
+      service.alertSlide.length > 0 &&
+      !(service.alertSlideSingleHammer?.length > 0) &&
+      !(service.alertSlideDoubleHammer?.length > 0)
+    ) {
       const alert = service.alertSlide[0];
       const alerts: AlertDetailDto[] = [];
       let sectionSeverity: AlertSeverityDto = 'NONE';
@@ -2514,8 +2904,8 @@ export class ServicesService {
 
       if (alerts.length > 0) {
         sections.push({
-          sectionKey: 'SLIDE',
-          sectionName: 'Slide',
+          sectionKey: 'SLIDE_DOUBLE_HAMMER',
+          sectionName: 'Slide (Double Hammer)',
           severity: sectionSeverity,
           alerts,
         });
