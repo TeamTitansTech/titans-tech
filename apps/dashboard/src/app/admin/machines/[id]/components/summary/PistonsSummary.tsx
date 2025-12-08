@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PistonsForm, type PistonsDbData } from '../forms/PistonsForm';
 import { displayValue } from '../utils/displayHelpers';
 import { cn } from '@/lib/utils';
+import { SectionAttachments } from './SectionAttachments';
 
 type AlertSeverity = 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
 
@@ -210,6 +211,8 @@ export function PistonsSummary({ data, alert }: PistonsSummaryProps): React.Reac
             </div>
           </div>
         )}
+
+        <SectionAttachments attachments={data.attachments} />
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { AlertTriangle, Loader2 } from 'lucide-react';
 import type { CounterbalanceCylinderCheck, CounterbalanceAlert } from '@/data/types/services.types';
 import { translateEnumValue } from './utils/translateEnum';
 import { getCounterbalanceAlertsForService } from '@/data/services/services.api';
+import { SectionAttachments } from './SectionAttachments';
 
 interface CounterbalanceSummaryProps {
   data: CounterbalanceCylinderCheck;
@@ -182,6 +183,8 @@ export function CounterbalanceSummary({ data, serviceId }: CounterbalanceSummary
           </div>
         )}
       </div>
+
+      <SectionAttachments attachments={data.attachments} />
     </div>
   );
 }

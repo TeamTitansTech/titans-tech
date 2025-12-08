@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { SectionAttachments } from './SectionAttachments';
 
 interface SlideSingleHammerSummaryProps {
   data: SlideSingleHammerCheck;
@@ -233,6 +234,8 @@ export function SlideSingleHammerSummary({ data }: SlideSingleHammerSummaryProps
           </div>
         </div>
       )}
+
+      <SectionAttachments attachments={data.attachments} />
     </div>
   );
 }

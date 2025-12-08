@@ -14,6 +14,7 @@ import {
 import { hasActualData, extractBearingRows } from '../utils/sectionDataUtils';
 import { formatFieldName } from '../utils/fieldFormatters';
 import { translateEnumValue } from './utils/translateEnum';
+import { SectionAttachments } from './SectionAttachments';
 
 interface BearingClearanceSummaryProps {
   data: BearingClearanceCheck;
@@ -365,6 +366,8 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
           </div>
         </div>
       )}
+
+      <SectionAttachments attachments={data.attachments} />
     </div>
   );
 }

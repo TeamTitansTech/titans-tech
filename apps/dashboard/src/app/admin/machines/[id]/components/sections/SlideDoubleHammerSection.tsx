@@ -4,6 +4,7 @@ import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   type SlideData,
+  type Attachment,
   ParallelismType,
   ServiceType,
   YesNoNaDncType,
@@ -11,6 +12,9 @@ import {
 } from '@/data/types/services.types';
 import { SlideDoubleHammerForm } from '../forms/SlideDoubleHammerForm';
 import { isDataTouched } from './utils';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
+import { useTranslations } from 'next-intl';
 
 // UI type that combines before/after in one object for easier form handling
 export interface SlideFormData {
@@ -197,6 +201,7 @@ export interface SlideDoubleHammerSectionData {
   innerBefore?: SlideData;
   innerData?: SlideData;
   notes?: string;
+  attachments?: Attachment[];
 }
 
 export interface SlideDoubleHammerSectionRef {
@@ -222,6 +227,8 @@ export const SlideDoubleHammerSection = forwardRef<
   SlideDoubleHammerSectionRef,
   SlideDoubleHammerSectionProps
 >(({ isOpen, onOpenChange, onSectionTouched, initialData }, ref) => {
+  const t = useTranslations('inspections');
+
   // Convert API data (4 objects) to form data (2 objects with before/after fields)
   const initialOuterFormData = convertToFormData(initialData?.outerBefore, initialData?.outerData);
   const initialInnerFormData = convertToFormData(initialData?.innerBefore, initialData?.innerData);
@@ -239,6 +246,7 @@ export const SlideDoubleHammerSection = forwardRef<
     notes: initialData?.notes || '',
   });
 
+  const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
   const [errors, setErrors] = useState({
     outer: {} as Record<string, string>,
     inner: {} as Record<string, string>,
@@ -336,6 +344,7 @@ export const SlideDoubleHammerSection = forwardRef<
             innerBefore: inner.beforeData,
             innerData: inner.afterData,
             notes: formData.notes || undefined,
+            attachments,
           },
         };
       }
@@ -373,6 +382,7 @@ export const SlideDoubleHammerSection = forwardRef<
         innerBefore: inner.beforeData,
         innerData: inner.afterData,
         notes: formData.notes || undefined,
+        attachments,
       };
     },
 
@@ -425,7 +435,7 @@ export const SlideDoubleHammerSection = forwardRef<
     <Collapsible open={isOpen} onOpenChange={onOpenChange}>
       <CollapsibleTrigger className="w-full"></CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="rounded-b-lg bg-card">
+        <div className="rounded-b-lg bg-card space-y-6">
           <SlideDoubleHammerForm
             data={formData}
             updateFn={updateField}
@@ -433,6 +443,21 @@ export const SlideDoubleHammerSection = forwardRef<
             handleBlur={handleBlur}
             onSectionTouched={onSectionTouched}
           />
+
+          {/* Section Attachments */}
+          <div className="pt-4 border-t">
+            <Typography variant="h4" className="mb-3">
+              {t('form.common.attachments')}
+            </Typography>
+            <DocumentUpload
+              value={attachments}
+              onChange={(files) => {
+                setAttachments(files);
+                onSectionTouched?.();
+              }}
+              maxFiles={10}
+            />
+          </div>
         </div>
       </CollapsibleContent>
     </Collapsible>

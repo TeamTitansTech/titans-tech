@@ -10,12 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import type { GibsStageData } from '@/data/types/services.types';
+import type { GibsStageData, Attachment } from '@/data/types/services.types';
 import { YesNoDncType } from '@/data/types/services.types';
 import { GibsForm } from '../forms/GibsForm';
 import { isDataTouched } from './utils';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 export const defaultGibsStageData: GibsStageData = {
   point1: 0,
@@ -140,6 +142,7 @@ export interface GibsSectionData {
   innerBeforeTool?: GibsStageData;
   innerDataTool?: GibsStageData;
   notes?: string;
+  attachments?: Attachment[];
 }
 
 export interface GibsSectionRef {
@@ -225,6 +228,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     const innerDataTool = useStageState(initialData?.innerDataTool);
 
     const [notes, setNotes] = useState(initialData?.notes || '');
+    const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
     const [haveInnerGibsBeenAdjusted, setHaveInnerGibsBeenAdjusted] = useState<
       'YES' | 'NO' | 'DNC' | undefined
     >(initialData?.haveInnerGibsBeenAdjusted);
@@ -306,6 +310,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
               innerBeforeTool: stages.innerBeforeTool ? innerBeforeTool.data : undefined,
               innerDataTool: stages.innerDataTool ? innerDataTool.data : undefined,
               notes: notes || undefined,
+              attachments,
             },
           };
         }
@@ -337,6 +342,7 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           innerBeforeTool: stages.innerBeforeTool ? innerBeforeTool.data : undefined,
           innerDataTool: stages.innerDataTool ? innerDataTool.data : undefined,
           notes: notes || undefined,
+          attachments,
         };
       },
 
@@ -487,6 +493,21 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
             }}
             placeholder={t('form.common.additionalNotes')}
             className="text-sm"
+          />
+        </div>
+
+        {/* Section Attachments */}
+        <div className="pt-4 border-t">
+          <Typography variant="h4" className="mb-3">
+            {t('form.common.attachments')}
+          </Typography>
+          <DocumentUpload
+            value={attachments}
+            onChange={(files) => {
+              setAttachments(files);
+              onSectionTouched?.();
+            }}
+            maxFiles={10}
           />
         </div>
       </div>

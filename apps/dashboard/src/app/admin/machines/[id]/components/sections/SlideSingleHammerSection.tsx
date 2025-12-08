@@ -4,6 +4,7 @@ import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   type SlideData,
+  type Attachment,
   ParallelismType,
   ServiceType,
   YesNoNaDncType,
@@ -11,6 +12,9 @@ import {
 } from '@/data/types/services.types';
 import { SlideSingleHammerForm } from '../forms/SlideSingleHammerForm';
 import { isDataTouched } from './utils';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
+import { useTranslations } from 'next-intl';
 
 // UI type that combines before/after in one object for easier form handling
 export interface SlideFormData {
@@ -196,6 +200,7 @@ export interface SlideSingleHammerSectionData {
   beforeData?: SlideData;
   data?: SlideData;
   notes?: string;
+  attachments?: Attachment[];
 }
 
 export interface SlideSingleHammerSectionRef {
@@ -221,6 +226,8 @@ export const SlideSingleHammerSection = forwardRef<
   SlideSingleHammerSectionRef,
   SlideSingleHammerSectionProps
 >(({ isOpen, onOpenChange, onSectionTouched, initialData }, ref) => {
+  const t = useTranslations('inspections');
+
   // Convert API data to form data
   const initialFormDataConverted = convertToFormData(initialData?.beforeData, initialData?.data);
 
@@ -235,6 +242,7 @@ export const SlideSingleHammerSection = forwardRef<
     notes: initialData?.notes || '',
   });
 
+  const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
   const [errors, setErrors] = useState({} as Record<string, string>);
 
   // Generic update function for any field in formData
@@ -305,6 +313,7 @@ export const SlideSingleHammerSection = forwardRef<
             beforeData: converted.beforeData,
             data: converted.data,
             notes: formData.notes || undefined,
+            attachments,
           },
         };
       }
@@ -331,6 +340,7 @@ export const SlideSingleHammerSection = forwardRef<
         beforeData: converted.beforeData,
         data: converted.data,
         notes: formData.notes || undefined,
+        attachments,
       };
     },
 
@@ -370,7 +380,7 @@ export const SlideSingleHammerSection = forwardRef<
     <Collapsible open={isOpen} onOpenChange={onOpenChange}>
       <CollapsibleTrigger className="w-full"></CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="rounded-b-lg bg-card">
+        <div className="rounded-b-lg bg-card space-y-6">
           <SlideSingleHammerForm
             data={formData}
             updateFn={updateField}
@@ -378,6 +388,21 @@ export const SlideSingleHammerSection = forwardRef<
             handleBlur={handleBlur}
             onSectionTouched={onSectionTouched}
           />
+
+          {/* Section Attachments */}
+          <div className="pt-4 border-t">
+            <Typography variant="h4" className="mb-3">
+              {t('form.common.attachments')}
+            </Typography>
+            <DocumentUpload
+              value={attachments}
+              onChange={(files) => {
+                setAttachments(files);
+                onSectionTouched?.();
+              }}
+              maxFiles={10}
+            />
+          </div>
         </div>
       </CollapsibleContent>
     </Collapsible>

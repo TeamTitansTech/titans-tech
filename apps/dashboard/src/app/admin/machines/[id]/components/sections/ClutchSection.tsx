@@ -1,9 +1,12 @@
 'use client';
 
 import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { type ClutchData, ServiceType } from '@/data/types/services.types';
+import { type ClutchData, type Attachment, ServiceType } from '@/data/types/services.types';
 import { ClutchForm } from '../forms/ClutchForm';
 import { isDataTouched } from './utils';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
+import { useTranslations } from 'next-intl';
 
 export const defaultClutchData: ClutchData = {
   clutchType: undefined,
@@ -57,31 +60,39 @@ export const validateClutchData = (data: ClutchData, serviceType: ServiceType): 
   return errors;
 };
 
+export interface ClutchSectionData {
+  data?: ClutchData;
+  attachments?: Attachment[];
+}
+
 export interface ClutchSectionRef {
-  getData: () => ClutchData | undefined;
+  getData: () => ClutchSectionData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
   isTouched: () => boolean;
   validateAndGetData: (serviceType: ServiceType) => {
     isValid: boolean;
     errors: string[];
-    data?: ClutchData;
+    data?: ClutchSectionData;
   };
 }
 
 interface ClutchSectionProps {
   onSectionTouched?: () => void;
-  initialData?: ClutchData;
+  initialData?: ClutchSectionData;
 }
 
 export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
   ({ onSectionTouched, initialData }, ref) => {
+    const t = useTranslations('inspections');
+
     // Store initial loaded data for "touched" detection
     const [initialClutchData, setInitialClutchData] = useState<ClutchData>(
-      initialData || defaultClutchData,
+      initialData?.data || defaultClutchData,
     );
 
-    const [data, setData] = useState<ClutchData>(initialData || defaultClutchData);
+    const [data, setData] = useState<ClutchData>(initialData?.data || defaultClutchData);
+    const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [prevInitialData, setPrevInitialData] = useState(initialData);
 
@@ -91,8 +102,9 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
       if (initialData && initialData !== prevInitialData) {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setPrevInitialData(initialData);
-        setData(initialData);
-        setInitialClutchData(initialData);
+        setData(initialData.data || defaultClutchData);
+        setInitialClutchData(initialData.data || defaultClutchData);
+        setAttachments(initialData.attachments ?? []);
       }
     }, [initialData, prevInitialData]);
 
@@ -113,7 +125,7 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
 
       validateAndGetData: (
         serviceType: ServiceType,
-      ): { isValid: boolean; errors: string[]; data?: ClutchData } => {
+      ): { isValid: boolean; errors: string[]; data?: ClutchSectionData } => {
         const touched = isDataTouched(data, initialClutchData);
         const hasData = touched || isDataTouched(initialClutchData, defaultClutchData);
 
@@ -129,7 +141,10 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
           return {
             isValid: true,
             errors: [],
-            data: touched ? data : initialClutchData,
+            data: {
+              data: touched ? data : initialClutchData,
+              attachments,
+            },
           };
         }
 
@@ -139,10 +154,15 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
         };
       },
 
-      getData: (): ClutchData | undefined => {
+      getData: (): ClutchSectionData | undefined => {
         const touched = isDataTouched(data, initialClutchData);
         const hasData = touched || isDataTouched(initialClutchData, defaultClutchData);
-        return hasData ? (touched ? data : initialClutchData) : undefined;
+        return hasData
+          ? {
+              data: touched ? data : initialClutchData,
+              attachments,
+            }
+          : undefined;
       },
 
       validate: (serviceType: ServiceType): string[] => {
@@ -160,7 +180,24 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
     }));
 
     return (
-      <ClutchForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
+      <div className="space-y-6">
+        <ClutchForm data={data} updateFn={updateField} errors={errors} handleBlur={handleBlur} />
+
+        {/* Section Attachments */}
+        <div className="pt-4 border-t">
+          <Typography variant="h4" className="mb-3">
+            {t('form.common.attachments')}
+          </Typography>
+          <DocumentUpload
+            value={attachments}
+            onChange={(files) => {
+              setAttachments(files);
+              onSectionTouched?.();
+            }}
+            maxFiles={10}
+          />
+        </div>
+      </div>
     );
   },
 );
