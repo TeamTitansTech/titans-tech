@@ -153,7 +153,7 @@ export function DocumentUpload({ value, onChange, disabled }: DocumentUploadProp
         variant="outline"
         onClick={handleClick}
         disabled={disabled || isUploading}
-        className="w-full h-auto py-4 rounded-lg border-2 border-dashed border-border hover:border-muted-foreground flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
+        className="w-full h-auto py-4 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-transparent flex flex-col items-center justify-center gap-2 text-muted-foreground"
       >
         {isUploading ? (
           <>
