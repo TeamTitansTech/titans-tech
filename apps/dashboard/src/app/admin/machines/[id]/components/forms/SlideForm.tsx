@@ -91,7 +91,7 @@ function PositionFields({
       <h5 className="font-medium text-sm">{title}</h5>
 
       {/* Big screens: 3 columns + deviation */}
-      <div className="hidden lg:grid lg:grid-cols-4 gap-2">
+      <div className="hidden lg:grid lg:grid-cols-4 gap-2 p-0.5">
         {/* Row 1: position1, position2, position3, deviation label */}
         <LengthInput
           id={`position1-${title}`}
@@ -165,7 +165,7 @@ function PositionFields({
       </div>
 
       {/* Medium and Small screens: 2 columns */}
-      <div className="grid lg:hidden grid-cols-2 gap-2">
+      <div className="grid lg:hidden grid-cols-2 gap-2 p-0.5">
         <LengthInput
           id={`position1-${title}-sm`}
           label="Pos 1"
