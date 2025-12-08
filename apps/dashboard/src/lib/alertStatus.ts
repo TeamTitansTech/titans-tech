@@ -259,7 +259,7 @@ export const getSectionStatusFromReport = (
     case 'SLIDE_SINGLE_HAMMER': {
       const slideData = latestReport.sections.SLIDE_SINGLE_HAMMER;
       if (!slideData?.alert) {
-        return 'unknown';
+        return 'ok';
       }
 
       const alert = slideData.alert;
@@ -273,7 +273,7 @@ export const getSectionStatusFromReport = (
         return 'ok';
       }
 
-      return 'unknown';
+      return 'ok';
     }
 
     case 'SLIDE_DOUBLE_HAMMER': {
@@ -499,7 +499,7 @@ export const getSectionStatus = (
       const alerts = (latestService as any)?.alertSlideSingleHammer;
       const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
-        return 'unknown';
+        return 'ok';
       }
 
       const severity = alert.maxDeviation_severity;
@@ -512,7 +512,7 @@ export const getSectionStatus = (
         return 'ok';
       }
 
-      return 'unknown';
+      return 'ok';
     }
 
     case 'SLIDE_DOUBLE_HAMMER': {
