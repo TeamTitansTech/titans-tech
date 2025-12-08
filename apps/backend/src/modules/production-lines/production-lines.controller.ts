@@ -17,7 +17,11 @@ import {
   updateProductionLineSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
-import { Authenticated, BranchPermission } from '../auth/auth.decorators';
+import {
+  Authenticated,
+  BranchPermission,
+  ResourcePermission,
+} from '../auth/auth.decorators';
 import { ReqWithAuthUser, isSysAdmin } from '../../types/request';
 
 @Controller('production-lines')
@@ -81,7 +85,7 @@ export class ProductionLinesController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('productionLine', 'readProductionLines')
   @Get(':id')
   findOne(
     @Request() req: ReqWithAuthUser,
@@ -101,7 +105,7 @@ export class ProductionLinesController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('productionLine', 'updateProductionLines')
   @Patch(':id')
   update(
     @Request() req: ReqWithAuthUser,
@@ -130,7 +134,7 @@ export class ProductionLinesController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('productionLine', 'deleteProductionLines')
   @Delete(':id')
   remove(
     @Request() req: ReqWithAuthUser,
