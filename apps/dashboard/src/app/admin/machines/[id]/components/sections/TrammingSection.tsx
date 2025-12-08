@@ -260,6 +260,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
     }));
 
     const tMeasurements = useTranslations('measurements');
+    const tInspections = useTranslations('inspections');
 
     return (
       <div className="space-y-6">
@@ -335,7 +336,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
         {/* Section Attachments */}
         <div className="pt-4 border-t">
           <Typography variant="h4" className="mb-3">
-            {tMeasurements('attachments')}
+            {tInspections('form.common.attachments')}
           </Typography>
           <DocumentUpload
             value={attachments}
