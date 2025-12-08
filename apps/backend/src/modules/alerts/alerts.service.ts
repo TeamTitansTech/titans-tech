@@ -22,6 +22,8 @@ import {
   UpdateThresholdSlideDto,
   ThresholdSlideResponseDto,
   AlertSlideResponseDto,
+  AlertSlideSingleHammerResponseDto,
+  AlertSlideDoubleHammerResponseDto,
   CreateThresholdGibsDto,
   UpdateThresholdGibsDto,
   ThresholdGibsResponseDto,
@@ -1108,7 +1110,10 @@ export class AlertsService {
 
   // ==================== SLIDE THRESHOLD METHODS ====================
 
-  async createSlideThreshold(dto: CreateThresholdSlideDto) {
+  async createSlideThreshold(
+    dto: CreateThresholdSlideDto,
+    sectionType: 'SLIDE_SINGLE_HAMMER' | 'SLIDE_DOUBLE_HAMMER',
+  ) {
     // Validate blueprint exists
     const blueprint = await this.prisma.blueprint.findUnique({
       where: { id: dto.blueprintId },
@@ -1118,35 +1123,62 @@ export class AlertsService {
       throw new NotFoundException(`Blueprint ${dto.blueprintId} not found`);
     }
 
-    // Check if threshold already exists for this blueprint
-    const existingThreshold = await this.prisma.thresholdSlide.findUnique({
-      where: { blueprintId: dto.blueprintId },
-    });
+    const data = {
+      blueprintId: dto.blueprintId,
+      ...convertSlideThresholdToDecimal(dto),
+    };
 
-    if (existingThreshold) {
-      throw new BadRequestException(
-        `Slide threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
-      );
+    if (sectionType === 'SLIDE_SINGLE_HAMMER') {
+      const existingThreshold =
+        await this.prisma.thresholdSlideSingleHammer.findUnique({
+          where: { blueprintId: dto.blueprintId },
+        });
+
+      if (existingThreshold) {
+        throw new BadRequestException(
+          `Slide ${sectionType} threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+        );
+      }
+
+      const threshold = await this.prisma.thresholdSlideSingleHammer.create({
+        data,
+      });
+      return new ThresholdSlideResponseDto(threshold as any);
+    } else {
+      const existingThreshold =
+        await this.prisma.thresholdSlideDoubleHammer.findUnique({
+          where: { blueprintId: dto.blueprintId },
+        });
+
+      if (existingThreshold) {
+        throw new BadRequestException(
+          `Slide ${sectionType} threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+        );
+      }
+
+      const threshold = await this.prisma.thresholdSlideDoubleHammer.create({
+        data,
+      });
+      return new ThresholdSlideResponseDto(threshold as any);
     }
-
-    const threshold = await this.prisma.thresholdSlide.create({
-      data: {
-        blueprintId: dto.blueprintId,
-        ...convertSlideThresholdToDecimal(dto),
-      },
-    });
-
-    return new ThresholdSlideResponseDto(threshold as any);
   }
 
-  async getSlideThresholdByBlueprint(blueprintId: string) {
-    const threshold = await this.prisma.thresholdSlide.findUnique({
-      where: { blueprintId },
-    });
+  async getSlideThresholdByBlueprint(
+    blueprintId: string,
+    sectionType: 'SLIDE_SINGLE_HAMMER' | 'SLIDE_DOUBLE_HAMMER',
+  ) {
+    const threshold =
+      sectionType === 'SLIDE_SINGLE_HAMMER'
+        ? await this.prisma.thresholdSlideSingleHammer.findUnique({
+            where: { blueprintId },
+          })
+        : await this.prisma.thresholdSlideDoubleHammer.findUnique({
+            where: { blueprintId },
+          });
 
     if (!threshold) {
       throw new NotFoundException(
-        `Slide threshold not found for blueprint ${blueprintId}`,
+        `Slide ${sectionType} threshold not found for blueprint ${blueprintId}`,
       );
     }
 
@@ -1155,16 +1187,22 @@ export class AlertsService {
 
   async updateSlideThreshold(
     blueprintId: string,
+    sectionType: 'SLIDE_SINGLE_HAMMER' | 'SLIDE_DOUBLE_HAMMER',
     dto: UpdateThresholdSlideDto,
   ) {
     // Check if threshold exists
-    const existingThreshold = await this.prisma.thresholdSlide.findUnique({
-      where: { blueprintId },
-    });
+    const existingThreshold =
+      sectionType === 'SLIDE_SINGLE_HAMMER'
+        ? await this.prisma.thresholdSlideSingleHammer.findUnique({
+            where: { blueprintId },
+          })
+        : await this.prisma.thresholdSlideDoubleHammer.findUnique({
+            where: { blueprintId },
+          });
 
     if (!existingThreshold) {
       throw new NotFoundException(
-        `Slide threshold not found for blueprint ${blueprintId}`,
+        `Slide ${sectionType} threshold not found for blueprint ${blueprintId}`,
       );
     }
 
@@ -1185,37 +1223,61 @@ export class AlertsService {
     }
 
     // Update threshold
-    const threshold = await this.prisma.thresholdSlide.update({
-      where: { blueprintId },
-      data: convertPartialSlideThresholdToDecimal(dto),
-    });
+    const updateData = convertPartialSlideThresholdToDecimal(dto);
+    const threshold =
+      sectionType === 'SLIDE_SINGLE_HAMMER'
+        ? await this.prisma.thresholdSlideSingleHammer.update({
+            where: { blueprintId },
+            data: updateData,
+          })
+        : await this.prisma.thresholdSlideDoubleHammer.update({
+            where: { blueprintId },
+            data: updateData,
+          });
 
     return new ThresholdSlideResponseDto(threshold as any);
   }
 
-  async deleteSlideThreshold(blueprintId: string) {
-    const threshold = await this.prisma.thresholdSlide.findUnique({
-      where: { blueprintId },
-    });
+  async deleteSlideThreshold(
+    blueprintId: string,
+    sectionType: 'SLIDE_SINGLE_HAMMER' | 'SLIDE_DOUBLE_HAMMER',
+  ) {
+    const threshold =
+      sectionType === 'SLIDE_SINGLE_HAMMER'
+        ? await this.prisma.thresholdSlideSingleHammer.findUnique({
+            where: { blueprintId },
+          })
+        : await this.prisma.thresholdSlideDoubleHammer.findUnique({
+            where: { blueprintId },
+          });
 
     if (!threshold) {
       throw new NotFoundException(
-        `Slide threshold not found for blueprint ${blueprintId}`,
+        `Slide ${sectionType} threshold not found for blueprint ${blueprintId}`,
       );
     }
 
-    await this.prisma.thresholdSlide.delete({
-      where: { blueprintId },
-    });
+    if (sectionType === 'SLIDE_SINGLE_HAMMER') {
+      await this.prisma.thresholdSlideSingleHammer.delete({
+        where: { blueprintId },
+      });
+    } else {
+      await this.prisma.thresholdSlideDoubleHammer.delete({
+        where: { blueprintId },
+      });
+    }
 
-    return { message: 'Slide threshold deleted successfully' };
+    return { message: `Slide ${sectionType} threshold deleted successfully` };
   }
 
   /**
    * Recalculates slide alerts for all services using a specific blueprint
    * Used when threshold values are updated and user opts to recalculate existing alerts
    */
-  async recalculateSlideAlertsForBlueprint(blueprintId: string) {
+  async recalculateSlideAlertsForBlueprint(
+    blueprintId: string,
+    sectionType: 'SLIDE_SINGLE_HAMMER' | 'SLIDE_DOUBLE_HAMMER',
+  ) {
     // Find all services that use this blueprint and have slide data
     const services = await this.prisma.machineService.findMany({
       where: {
@@ -1233,15 +1295,19 @@ export class AlertsService {
 
     let alertsGenerated = 0;
 
-    // Generate new alerts for each service
+    // Generate new alerts for each service based on sectionType
     for (const service of services) {
       try {
-        await this.generateAlertsForSlide(service.id);
+        if (sectionType === 'SLIDE_SINGLE_HAMMER') {
+          await this.generateAlertsForSlideSingleHammer(service.id);
+        } else {
+          await this.generateAlertsForSlideDoubleHammer(service.id);
+        }
         alertsGenerated++;
       } catch (error) {
         // Skip services that fail (e.g., missing data)
         console.warn(
-          `Failed to generate slide alert for service ${service.id}:`,
+          `Failed to generate slide ${sectionType} alert for service ${service.id}:`,
           error.message,
         );
       }
@@ -1255,7 +1321,11 @@ export class AlertsService {
 
   // ==================== SLIDE ALERT GENERATION ====================
 
-  async generateAlertsForSlide(serviceId: string) {
+  /**
+   * Generate alerts for Slide Double Hammer (uses outer and inner data)
+   * Uses the new slideDoubleHammer relation and AlertSlideDoubleHammer entity
+   */
+  async generateAlertsForSlideDoubleHammer(serviceId: string) {
     // Fetch service with slide data and blueprint with thresholds
     const service = await this.prisma.machineService.findUnique({
       where: { id: serviceId },
@@ -1264,12 +1334,12 @@ export class AlertsService {
           include: {
             blueprint: {
               include: {
-                thresholdSlide: true,
+                thresholdSlideDoubleHammer: true,
               },
             },
           },
         },
-        slide: {
+        slideDoubleHammer: {
           include: {
             outerData: true,
             innerData: true,
@@ -1282,21 +1352,22 @@ export class AlertsService {
       throw new NotFoundException(`Service ${serviceId} not found`);
     }
 
-    if (!service.slide || service.slide.length === 0) {
+    if (!service.slideDoubleHammer || service.slideDoubleHammer.length === 0) {
       throw new NotFoundException(
-        `Slide data not found for service ${serviceId}`,
+        `Slide Double Hammer data not found for service ${serviceId}`,
       );
     }
 
-    const threshold = service.machine.blueprint.thresholdSlide;
+    // Get the threshold for SLIDE_DOUBLE_HAMMER
+    const threshold = service.machine.blueprint.thresholdSlideDoubleHammer;
 
     if (!threshold) {
       throw new NotFoundException(
-        `Slide threshold not found for blueprint ${service.machine.blueprint.id}`,
+        `Slide Double Hammer threshold not found for blueprint ${service.machine.blueprint.id}`,
       );
     }
 
-    const slideData = service.slide[0];
+    const slideData = service.slideDoubleHammer[0];
 
     // Calculate max deviation for outer and inner
     const outerAlert = this.calculateSlideMaxDeviationAlert(
@@ -1309,8 +1380,8 @@ export class AlertsService {
       threshold,
     );
 
-    // Create alert
-    const alert = await this.prisma.alertSlide.create({
+    // Create alert using the new AlertSlideDoubleHammer entity
+    const alert = await this.prisma.alertSlideDoubleHammer.create({
       data: {
         machineServiceId: serviceId,
         maxDeviationOuter_differential: outerAlert.differential,
@@ -1325,12 +1396,85 @@ export class AlertsService {
       },
     });
 
-    return new AlertSlideResponseDto({
+    return new AlertSlideDoubleHammerResponseDto({
       ...alert,
       slideData: {
         outer: slideData.outerData,
         inner: slideData.innerData,
       },
+    } as any);
+  }
+
+  /**
+   * Generate alerts for Slide Single Hammer (uses only one set of data)
+   * Uses the new slideSingleHammer relation and AlertSlideSingleHammer entity
+   */
+  async generateAlertsForSlideSingleHammer(serviceId: string) {
+    // Fetch service with slide data and blueprint with thresholds
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: {
+        machine: {
+          include: {
+            blueprint: {
+              include: {
+                thresholdSlideSingleHammer: true,
+              },
+            },
+          },
+        },
+        slideSingleHammer: {
+          include: {
+            data: true,
+          },
+        },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service ${serviceId} not found`);
+    }
+
+    if (!service.slideSingleHammer || service.slideSingleHammer.length === 0) {
+      throw new NotFoundException(
+        `Slide Single Hammer data not found for service ${serviceId}`,
+      );
+    }
+
+    // Get the threshold for SLIDE_SINGLE_HAMMER
+    const threshold = service.machine.blueprint.thresholdSlideSingleHammer;
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `Slide Single Hammer threshold not found for blueprint ${service.machine.blueprint.id}`,
+      );
+    }
+
+    const slideData = service.slideSingleHammer[0];
+
+    // Calculate max deviation for the single hammer data
+    const alertResult = this.calculateSlideMaxDeviationAlert(
+      slideData.data,
+      threshold,
+    );
+
+    // Create alert using the new AlertSlideSingleHammer entity
+    const alert = await this.prisma.alertSlideSingleHammer.create({
+      data: {
+        machineServiceId: serviceId,
+        maxDeviation_differential: alertResult.differential,
+        maxDeviation_severity: alertResult.severity,
+        thresholdSnapshot: {
+          maxDeviation_greenMin: threshold.maxDeviation_greenMin.toNumber(),
+          maxDeviation_yellowMin: threshold.maxDeviation_yellowMin.toNumber(),
+          maxDeviation_redMin: threshold.maxDeviation_redMin.toNumber(),
+        },
+      },
+    });
+
+    return new AlertSlideSingleHammerResponseDto({
+      ...alert,
+      slideData: slideData.data,
     } as any);
   }
 
@@ -1414,6 +1558,92 @@ export class AlertsService {
     }
 
     return new AlertSlideResponseDto({
+      ...alert,
+      slideData: {
+        outer: slideData.outerData,
+        inner: slideData.innerData,
+      },
+    } as any);
+  }
+
+  /**
+   * Get Single Hammer Slide alert by service ID
+   */
+  async getSlideSingleHammerAlertByService(machineServiceId: string) {
+    // Get the most recent alert for this service
+    const alert = await this.prisma.alertSlideSingleHammer.findFirst({
+      where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        machineService: {
+          include: {
+            slideSingleHammer: {
+              include: {
+                data: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!alert) {
+      throw new NotFoundException(
+        `Slide Single Hammer alert not found for service ${machineServiceId}`,
+      );
+    }
+
+    const slideData = alert.machineService.slideSingleHammer[0]?.data;
+
+    if (!slideData) {
+      throw new NotFoundException(
+        `Slide Single Hammer data not found for service ${machineServiceId}`,
+      );
+    }
+
+    return new AlertSlideSingleHammerResponseDto({
+      ...alert,
+      slideData,
+    } as any);
+  }
+
+  /**
+   * Get Double Hammer Slide alert by service ID
+   */
+  async getSlideDoubleHammerAlertByService(machineServiceId: string) {
+    // Get the most recent alert for this service
+    const alert = await this.prisma.alertSlideDoubleHammer.findFirst({
+      where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        machineService: {
+          include: {
+            slideDoubleHammer: {
+              include: {
+                outerData: true,
+                innerData: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!alert) {
+      throw new NotFoundException(
+        `Slide Double Hammer alert not found for service ${machineServiceId}`,
+      );
+    }
+
+    const slideData = alert.machineService.slideDoubleHammer[0];
+
+    if (!slideData) {
+      throw new NotFoundException(
+        `Slide Double Hammer data not found for service ${machineServiceId}`,
+      );
+    }
+
+    return new AlertSlideDoubleHammerResponseDto({
       ...alert,
       slideData: {
         outer: slideData.outerData,

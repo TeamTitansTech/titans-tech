@@ -6,7 +6,7 @@ import { Typography } from '@/components/ui/typography';
 import { NoPermission } from '@/components/no-permission/NoPermission';
 import { calculateStatusFromLatestReport } from '@/lib/alertStatus';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function AdminMachinesPage() {
   const t = await getTranslations('machines');

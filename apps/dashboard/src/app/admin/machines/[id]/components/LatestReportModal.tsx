@@ -31,7 +31,8 @@ import type {
   BearingClearanceData,
   LatestClutch,
   ClutchData,
-  LatestSlide,
+  LatestSlideSingleHammer,
+  LatestSlideDoubleHammer,
   SlideData,
   GibsStageData,
   CounterbalanceCylinderData,
@@ -185,7 +186,8 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
   const bearingClearance = report.sections.BEARING_CLEARANCE;
   const clutch = report.sections.CLUTCH;
-  const slide = report.sections.SLIDE;
+  const slideSingleHammer = report.sections.SLIDE_SINGLE_HAMMER;
+  const slideDoubleHammer = report.sections.SLIDE_DOUBLE_HAMMER;
   const gibs = report.sections.GIBS;
   const lubrication = report.sections.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER;
   const counterbalance = report.sections.COUNTERBALANCE_CYLINDER_AIRBAG;
@@ -251,13 +253,19 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     return 'NONE';
   };
 
-  // Get overall worst severity for slide
-  const getSlideOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
-    if (!slide?.alert) return 'NONE';
+  // Get overall worst severity for slide single hammer
+  const getSlideSingleHammerOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!slideSingleHammer?.alert) return 'NONE';
+    return slideSingleHammer.alert.maxDeviation_severity || 'NONE';
+  };
+
+  // Get overall worst severity for slide double hammer
+  const getSlideDoubleHammerOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!slideDoubleHammer?.alert) return 'NONE';
 
     const severities = new Set([
-      slide.alert.maxDeviationOuter_severity,
-      slide.alert.maxDeviationInner_severity,
+      slideDoubleHammer.alert.maxDeviationOuter_severity,
+      slideDoubleHammer.alert.maxDeviationInner_severity,
     ]);
 
     if (severities.has('RED')) return 'RED';
@@ -266,10 +274,49 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     return 'NONE';
   };
 
-  // Extract slide measurement rows
-  const extractSlideRows = (
-    data: { outerData?: SlideData; innerData?: SlideData },
-    alert?: LatestSlide['alert'],
+  // Extract slide single hammer measurement rows
+  const extractSlideSingleHammerRows = (
+    data: { beforeData?: SlideData; data?: SlideData },
+    alert?: LatestSlideSingleHammer['alert'],
+  ) => {
+    const sections = [
+      {
+        name: 'Before',
+        positions: [
+          data.beforeData?.position1,
+          data.beforeData?.position2,
+          data.beforeData?.position3,
+          data.beforeData?.position4,
+          data.beforeData?.position5,
+        ],
+        maxDeviation: null,
+        severity: 'NONE' as const,
+      },
+      {
+        name: 'After',
+        positions: [
+          data.data?.position1,
+          data.data?.position2,
+          data.data?.position3,
+          data.data?.position4,
+          data.data?.position5,
+        ],
+        maxDeviation: alert?.maxDeviation_differential,
+        severity: alert?.maxDeviation_severity || 'NONE',
+      },
+    ];
+    return sections.filter((section) => section.positions.some((pos) => pos !== undefined));
+  };
+
+  // Extract slide double hammer measurement rows
+  const extractSlideDoubleHammerRows = (
+    data: {
+      outerBefore?: SlideData;
+      outerData?: SlideData;
+      innerBefore?: SlideData;
+      innerData?: SlideData;
+    },
+    alert?: LatestSlideDoubleHammer['alert'],
   ) => {
     const sections = [
       {
@@ -509,7 +556,8 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
         <div ref={contentRef} className="flex-1 overflow-y-auto px-1 py-4">
           {bearingClearance ||
           clutch ||
-          slide ||
+          slideSingleHammer ||
+          slideDoubleHammer ||
           gibs ||
           pistons ||
           lubrication ||
@@ -646,22 +694,93 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                 </div>
               )}
 
-              {slide && (
+              {slideSingleHammer && (
                 <div className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <Typography variant="h4" className="font-semibold">
-                      Slide
+                      Slide (Single Hammer)
                     </Typography>
                     <div className="flex items-center gap-3">
-                      {getSeverityBadge(getSlideOverallSeverity())}
+                      {getSeverityBadge(getSlideSingleHammerOverallSeverity())}
                       <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')} {format(new Date(slide.latestServiceDate), 'dd-MM-yyyy')}
+                        {t('updatedAt')}{' '}
+                        {format(new Date(slideSingleHammer.latestServiceDate), 'dd-MM-yyyy')}
                       </span>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    {extractSlideRows(slide.data, slide.alert).map((section, idx) => (
+                    {extractSlideSingleHammerRows(
+                      slideSingleHammer.data,
+                      slideSingleHammer.alert,
+                    ).map((section, idx) => (
+                      <div key={idx} className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>{section.name}</span>
+                          {getSeverityBadge(
+                            section.severity as 'NONE' | 'GREEN' | 'YELLOW' | 'RED',
+                          )}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="text-center font-semibold">Pos 1</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 2</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 3</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 4</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 5</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Max Deviation
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            <TableRow className="hover:bg-muted/30">
+                              {section.positions.map((pos, posIdx) => (
+                                <TableCell key={posIdx} className="text-center">
+                                  {pos !== null && pos !== undefined
+                                    ? typeof pos === 'number'
+                                      ? pos.toFixed(3)
+                                      : Number(pos).toFixed(3)
+                                    : '-'}
+                                </TableCell>
+                              ))}
+                              <TableCell className="text-center font-medium">
+                                {section.maxDeviation !== null && section.maxDeviation !== undefined
+                                  ? typeof section.maxDeviation === 'number'
+                                    ? section.maxDeviation.toFixed(3)
+                                    : Number(section.maxDeviation).toFixed(3)
+                                  : '-'}
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {slideDoubleHammer && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Typography variant="h4" className="font-semibold">
+                      Slide (Double Hammer)
+                    </Typography>
+                    <div className="flex items-center gap-3">
+                      {getSeverityBadge(getSlideDoubleHammerOverallSeverity())}
+                      <span className="text-sm text-muted-foreground">
+                        {t('updatedAt')}{' '}
+                        {format(new Date(slideDoubleHammer.latestServiceDate), 'dd-MM-yyyy')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {extractSlideDoubleHammerRows(
+                      slideDoubleHammer.data,
+                      slideDoubleHammer.alert,
+                    ).map((section, idx) => (
                       <div key={idx} className="border rounded-md overflow-hidden">
                         <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
                           <span>{section.name}</span>

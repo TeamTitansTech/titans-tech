@@ -5,7 +5,8 @@
 
 export const SERVICE_SECTION_SLUGS = [
   'bearing_clearance',
-  'slide',
+  'slide_single_hammer',
+  'slide_double_hammer',
   'gibs',
   'lubrication_hydraulics_pressure_switches_oil_filter',
   'clutch',

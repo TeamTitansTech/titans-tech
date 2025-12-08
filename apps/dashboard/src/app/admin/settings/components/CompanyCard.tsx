@@ -23,7 +23,7 @@ export function CompanyCard({ company }: CompanyCardProps) {
       try {
         const response = await getAllUsers({ companyId: company.id });
         if (response.data) {
-          const admin = response.data.find((user) => user.isCompanyAdmin || user.isCompanyManager);
+          const admin = response.data.find((user) => user.isCompanyAdmin);
           setCompanyAdmin(admin || null);
         }
       } catch (error) {

@@ -231,6 +231,32 @@ export const SlideCheckSchema = z.object({
 export type SlideCheck = z.infer<typeof SlideCheckSchema>;
 
 /**
+ * Slide Single Hammer Check Schema
+ * For machines with a single hammer - uses beforeData/data (no inner/outer distinction)
+ */
+export const SlideSingleHammerCheckSchema = z.object({
+  beforeData: SlideDataSchema.optional(),
+  data: SlideDataSchema.optional(),
+  notes: z.string().optional(),
+});
+
+export type SlideSingleHammerCheck = z.infer<typeof SlideSingleHammerCheckSchema>;
+
+/**
+ * Slide Double Hammer Check Schema
+ * For machines with two hammers - uses inner/outer distinction with before/after for each
+ */
+export const SlideDoubleHammerCheckSchema = z.object({
+  outerBefore: SlideDataSchema.optional(),
+  outerData: SlideDataSchema.optional(),
+  innerBefore: SlideDataSchema.optional(),
+  innerData: SlideDataSchema.optional(),
+  notes: z.string().optional(),
+});
+
+export type SlideDoubleHammerCheck = z.infer<typeof SlideDoubleHammerCheckSchema>;
+
+/**
  * Gibs Stage Data Schema - Represents one stage of GIBS measurements (16 points)
  * This matches the GibsStageData Prisma model
  */
@@ -537,7 +563,8 @@ export const CreateServicePayloadSchema = z.object({
   whyNotCovered: z.string().optional(),
 
   bearingClearance: BearingClearanceCheckSchema.optional(),
-  slide: SlideCheckSchema.optional(),
+  slideSingleHammer: SlideSingleHammerCheckSchema.optional(),
+  slideDoubleHammer: SlideDoubleHammerCheckSchema.optional(),
   gibs: GibsCheckSchema.optional(),
   lubricationHydraulics: LubricationHydraulicsCheckSchema.optional(),
   clutch: ClutchDataSchema.optional(),
@@ -572,7 +599,8 @@ export const UpdateServicePayloadSchema = z.object({
   whyNotCovered: z.string().optional(),
 
   bearingClearance: BearingClearanceCheckSchema.optional(),
-  slide: SlideCheckSchema.optional(),
+  slideSingleHammer: SlideSingleHammerCheckSchema.optional(),
+  slideDoubleHammer: SlideDoubleHammerCheckSchema.optional(),
   gibs: GibsCheckSchema.optional(),
   lubricationHydraulics: LubricationHydraulicsCheckSchema.optional(),
   clutch: ClutchDataSchema.optional(),

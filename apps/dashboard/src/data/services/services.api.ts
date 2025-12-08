@@ -88,7 +88,8 @@ export const updateServiceSection = async (
   sectionKey: string,
   sectionData:
     | UpdateServicePayload['bearingClearance']
-    | UpdateServicePayload['slide']
+    | UpdateServicePayload['slideSingleHammer']
+    | UpdateServicePayload['slideDoubleHammer']
     | UpdateServicePayload['gibs']
     | UpdateServicePayload['lubricationHydraulics']
     | UpdateServicePayload['clutch']
@@ -100,7 +101,8 @@ export const updateServiceSection = async (
   // Map section keys to backend endpoint paths
   const sectionEndpointMap: Record<string, string> = {
     BEARING_CLEARANCE: 'bearing-clearance',
-    SLIDE: 'slide',
+    SLIDE_SINGLE_HAMMER: 'slide-single-hammer',
+    SLIDE_DOUBLE_HAMMER: 'slide-double-hammer',
     GIBS: 'gibs',
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubrication-hydraulics',
     CLUTCH: 'clutch',

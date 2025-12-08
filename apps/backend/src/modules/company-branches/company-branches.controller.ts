@@ -19,8 +19,6 @@ import {
   SetUserPermissionsSchema,
   SetCompanyAdminDto,
   SetCompanyAdminSchema,
-  SetCompanyManagerDto,
-  SetCompanyManagerSchema,
   SysAdminCreateUserDto,
   SysAdminCreateUserSchema,
   DeleteUserDto,
@@ -29,7 +27,7 @@ import {
   UpdateUserPermissionsSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
-import { Admin, BranchPermission, CompanyAdmin } from '../auth/auth.decorators';
+import { Admin, BranchPermission } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
 import { MachinesService } from '../machines/machines.service';
 import { isSysAdmin, ReqWithAuthUser } from '../../types/request';
@@ -155,17 +153,6 @@ export class CompanyBranchesController {
     @Request() req: ReqWithAuthUser,
   ) {
     return this.usersService.setCompanyAdmin(userId, dto, req.user);
-  }
-
-  @CompanyAdmin()
-  @Patch(':branchId/users/:userId/company-manager')
-  setCompanyManager(
-    @Param('userId') userId: string,
-    @Body(new ZodValidationPipe(SetCompanyManagerSchema))
-    dto: SetCompanyManagerDto,
-    @Request() req: ReqWithAuthUser,
-  ) {
-    return this.usersService.setCompanyManager(userId, dto, req.user);
   }
 
   /**

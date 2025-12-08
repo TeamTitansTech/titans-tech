@@ -15,19 +15,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { ParallelismType, YesNoNaDncType, YesNoDncType } from '@/data/types/services.types';
 import { LengthInput } from '@/components/ui/forms/LengthInput';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
-import { type SlideFormData } from '../sections/SlideSection';
+import { type SlideFormData } from '../sections/SlideDoubleHammerSection';
 
-interface SlideFormWrapperData {
+interface SlideDoubleHammerFormWrapperData {
   outerData: SlideFormData;
   innerData: SlideFormData;
   notes: string;
 }
 
-export interface SlideFormProps {
-  data: SlideFormWrapperData;
-  updateFn: <K extends keyof SlideFormWrapperData>(
+export interface SlideDoubleHammerFormProps {
+  data: SlideDoubleHammerFormWrapperData;
+  updateFn: <K extends keyof SlideDoubleHammerFormWrapperData>(
     field: K,
-    value: SlideFormWrapperData[K],
+    value: SlideDoubleHammerFormWrapperData[K],
   ) => void;
   errors: {
     outer: Record<string, string>;
@@ -63,6 +63,7 @@ function PositionFields({
   const pos5Field = `${fieldPrefix}Position5` as keyof SlideFormData;
 
   // Calculate max deviation: MAX - MIN of positions 1-5 if more than 1 value exists
+  // Zero is a valid measurement and should be included in the calculation
   // Values are stored in mm, so we calculate diff in mm then convert for display
   const calculateMaxDeviation = (): string => {
     const positions = [
@@ -73,12 +74,12 @@ function PositionFields({
       data[pos5Field] as number | undefined,
     ];
     const validValues = positions.filter(
-      (val) => val !== undefined && val !== null && !isNaN(val) && val !== 0,
+      (val): val is number => val !== undefined && val !== null && !isNaN(Number(val)),
     );
 
     if (validValues.length > 1) {
-      const max = Math.max(...(validValues as number[]));
-      const min = Math.min(...(validValues as number[]));
+      const max = Math.max(...validValues);
+      const min = Math.min(...validValues);
       const diffInMm = max - min;
       const diffInDisplayUnit = convertLengthFromDefault(diffInMm);
       return diffInDisplayUnit.toFixed(4);
@@ -400,13 +401,13 @@ function SlideDataFields({
   );
 }
 
-export function SlideForm({
+export function SlideDoubleHammerForm({
   data,
   updateFn,
   errors,
   handleBlur,
   onSectionTouched,
-}: SlideFormProps) {
+}: SlideDoubleHammerFormProps) {
   const t = useTranslations('inspections.form.slide');
 
   const handleFieldUpdate = (

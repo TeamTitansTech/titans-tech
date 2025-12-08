@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as bcrypt from 'bcrypt';
 import { seedCrown } from './seeds/crown';
+import { MANAGER_PERMISSIONS } from '@titans-tech/shared/types/permissions';
 
 // Load environment variables from the database package .env file
 dotenv.config({ path: path.join(__dirname, '../.env') });
@@ -125,14 +126,13 @@ async function main() {
       name: 'Admin User',
       companyId: company.id,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
     },
   });
 
   console.log(`Created/Updated admin user: ${adminUser.email}`);
 
-  // Company manager user
+  // Manager user (has all permissions via UserBranch = MANAGER preset)
   const managerUser = await prisma.user.upsert({
     where: { email: 'manager@company.com' },
     update: {},
@@ -142,7 +142,6 @@ async function main() {
       name: 'Manager User',
       companyId: company.id,
       isCompanyAdmin: false,
-      isCompanyManager: true,
       isUsingDefaultPassword: true,
     },
   });
@@ -159,7 +158,6 @@ async function main() {
       name: 'Normal User',
       companyId: company.id,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
     },
   });
@@ -188,30 +186,34 @@ async function main() {
       // Branch Management Permissions
       readBranches: true,
       updateBranches: true,
-      // Blueprint Permissions
-      readBlueprints: true,
-      createBlueprints: true,
-      updateBlueprints: true,
-      deleteBlueprints: true,
+
       // Machine Permissions
       readMachines: true,
       createMachines: true,
       updateMachines: true,
       deleteMachines: true,
-      // Service Permissions
-      readServices: true,
-      createServices: true,
-      updateServices: true,
-      deleteServices: true,
-      // Production Line Permissions
-      readProductionLines: true,
-      createProductionLines: true,
-      updateProductionLines: true,
-      deleteProductionLines: true,
     },
   });
 
   console.log(`Assigned normal user to main branch with full permissions`);
+
+  // Assign manager user to main branch with MANAGER permissions
+  await prisma.userBranch.upsert({
+    where: {
+      userId_branchId: {
+        userId: managerUser.id,
+        branchId: mainBranch.id,
+      },
+    },
+    update: {},
+    create: {
+      userId: managerUser.id,
+      branchId: mainBranch.id,
+      ...MANAGER_PERMISSIONS,
+    },
+  });
+
+  console.log(`Assigned manager user to main branch with MANAGER permissions`);
 
   // ========================================
   // 5. Create Users for ACME Corporation
@@ -226,7 +228,6 @@ async function main() {
       email: 'admin@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
@@ -242,12 +243,11 @@ async function main() {
       email: 'manager@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: true,
       isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
   });
-  console.log(`✓ Created/Updated Company Manager: ${companyManager.email}`);
+  console.log(`✓ Created/Updated Manager: ${companyManager.email}`);
 
   // Regular User
   const regularUser = await prisma.user.upsert({
@@ -258,7 +258,6 @@ async function main() {
       email: 'user@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
@@ -290,10 +289,6 @@ async function main() {
       assignUsersToBranches: true,
       readBranches: true,
       updateBranches: true,
-      readBlueprints: true,
-      createBlueprints: true,
-      updateBlueprints: true,
-      deleteBlueprints: true,
       readMachines: true,
       createMachines: true,
       updateMachines: true,
@@ -311,7 +306,7 @@ async function main() {
   });
   console.log(`✓ Assigned Admin to Main Branch with full permissions`);
 
-  // Manager with limited permissions on main branch
+  // Manager with MANAGER permissions on main branch
   await prisma.userBranch.upsert({
     where: {
       userId_branchId: {
@@ -323,25 +318,10 @@ async function main() {
     create: {
       userId: companyManager.id,
       branchId: acmeMainBranch.id,
-      // Limited permissions
-      readUsers: true,
-      createUsers: true,
-      updateUsers: true,
-      readBranches: true,
-      readBlueprints: true,
-      readMachines: true,
-      createMachines: true,
-      updateMachines: true,
-      readServices: true,
-      createServices: true,
-      updateServices: true,
-      // Production Line Permissions
-      readProductionLines: true,
-      createProductionLines: true,
-      updateProductionLines: true,
+      ...MANAGER_PERMISSIONS,
     },
   });
-  console.log(`✓ Assigned Manager to Main Branch with limited permissions`);
+  console.log(`✓ Assigned Manager to Main Branch with MANAGER permissions`);
 
   // Regular user with NO permissions
   await prisma.userBranch.upsert({
@@ -364,10 +344,6 @@ async function main() {
       assignUsersToBranches: false,
       readBranches: false,
       updateBranches: false,
-      readBlueprints: false,
-      createBlueprints: false,
-      updateBlueprints: false,
-      deleteBlueprints: false,
       readMachines: false,
       createMachines: false,
       updateMachines: false,
@@ -405,10 +381,6 @@ async function main() {
       assignUsersToBranches: false,
       readBranches: false,
       updateBranches: false,
-      readBlueprints: false,
-      createBlueprints: false,
-      updateBlueprints: false,
-      deleteBlueprints: false,
       readMachines: false,
       createMachines: false,
       updateMachines: false,
@@ -434,7 +406,6 @@ async function main() {
       email: 'test@acme-corp.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: acmeCompany.id,
     },
@@ -462,10 +433,6 @@ async function main() {
       assignUsersToBranches: false,
       readBranches: false,
       updateBranches: false,
-      readBlueprints: false,
-      createBlueprints: false,
-      updateBlueprints: false,
-      deleteBlueprints: false,
       readMachines: false,
       createMachines: false,
       updateMachines: false,
@@ -494,7 +461,7 @@ async function main() {
         ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG,
         ServiceSection.GIBS,
         ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
-        ServiceSection.SLIDE,
+        ServiceSection.SLIDE_DOUBLE_HAMMER,
         ServiceSection.TRAMMING,
         ServiceSection.PISTONS,
       ],
@@ -508,7 +475,7 @@ async function main() {
         ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG,
         ServiceSection.GIBS,
         ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
-        ServiceSection.SLIDE,
+        ServiceSection.SLIDE_DOUBLE_HAMMER,
         ServiceSection.TRAMMING,
         ServiceSection.PISTONS,
       ],
@@ -534,29 +501,41 @@ async function main() {
   });
   console.log(`✓ Created/Updated Bearing Clearance Blueprint`);
 
-  const slideBlueprint = await prisma.blueprint.upsert({
-    where: { id: 'default-slide-blueprint' },
+  const slideDoubleHammerBlueprint = await prisma.blueprint.upsert({
+    where: { id: 'default-slide-double-hammer-blueprint' },
     update: {},
     create: {
-      id: 'default-slide-blueprint',
-      name: 'Standard Slide Service',
-      sections: [ServiceSection.SLIDE],
+      id: 'default-slide-double-hammer-blueprint',
+      name: 'Standard Slide (Double Hammer) Service',
+      sections: [ServiceSection.SLIDE_DOUBLE_HAMMER],
       fields: [
         {
           fieldName: 'Serial Number',
           fieldSlug: 'serial_number',
           fieldType: 'string',
         },
+      ],
+    },
+  });
+  console.log(`✓ Created/Updated Slide Double Hammer Blueprint`);
+
+  const slideSingleHammerBlueprint = await prisma.blueprint.upsert({
+    where: { id: 'default-slide-single-hammer-blueprint' },
+    update: {},
+    create: {
+      id: 'default-slide-single-hammer-blueprint',
+      name: 'Standard Slide (Single Hammer) Service',
+      sections: [ServiceSection.SLIDE_SINGLE_HAMMER],
+      fields: [
         {
-          fieldName: 'Slide Type',
-          fieldSlug: 'slide_type',
-          fieldType: 'enum',
-          fieldOptions: ['Single', 'Double', 'Triple'],
+          fieldName: 'Serial Number',
+          fieldSlug: 'serial_number',
+          fieldType: 'string',
         },
       ],
     },
   });
-  console.log(`✓ Created/Updated Slide Blueprint`);
+  console.log(`✓ Created/Updated Slide Single Hammer Blueprint`);
 
   const pistonsBlueprint = await prisma.blueprint.upsert({
     where: { id: 'default-pistons-blueprint' },
@@ -664,18 +643,30 @@ async function main() {
     update: {},
     create: {
       id: 'example-machine-3',
-      name: 'Slide Press #003',
-      blueprintId: slideBlueprint.id,
+      name: 'Slide Press #003 (Double Hammer)',
+      blueprintId: slideDoubleHammerBlueprint.id,
       branchId: acmeSecondaryBranch.id,
       fields: {
-        create: [
-          { fieldSlug: 'serial_number', value: 'SN-11111' },
-          { fieldSlug: 'slide_type', value: 'Double' },
-        ],
+        create: [{ fieldSlug: 'serial_number', value: 'SN-11111' }],
       },
     },
   });
   console.log(`✓ Created/Updated Machine: ${machine3.name}`);
+
+  const machine3b = await prisma.machine.upsert({
+    where: { id: 'example-machine-3b' },
+    update: {},
+    create: {
+      id: 'example-machine-3b',
+      name: 'Slide Press #003b (Single Hammer)',
+      blueprintId: slideSingleHammerBlueprint.id,
+      branchId: acmeSecondaryBranch.id,
+      fields: {
+        create: [{ fieldSlug: 'serial_number', value: 'SN-11112' }],
+      },
+    },
+  });
+  console.log(`✓ Created/Updated Machine: ${machine3b.name}`);
 
   const machine4 = await prisma.machine.upsert({
     where: { id: 'example-machine-4' },

@@ -181,8 +181,8 @@ export function MachinesPageClient() {
   const hasCreateMachinesPermission = useMemo(() => {
     if (!companyUser) return false;
 
-    // Company admin and manager can create machines
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+    // Company admin can create machines
+    if (companyUser.isCompanyAdmin) return true;
 
     // Check if user has createMachines permission in at least one branch
     return companyUser.branches.some((ub) => ub.createMachines);
@@ -192,8 +192,8 @@ export function MachinesPageClient() {
   const canUpdateMachine = (machinebranchId: string) => {
     if (!companyUser) return false;
 
-    // Company admin and manager can update machines
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+    // Company admin can update machines
+    if (companyUser.isCompanyAdmin) return true;
 
     // Check branch-specific permission
     const userBranch = companyUser.branches.find((ub) => ub.branchId === machinebranchId);
@@ -204,8 +204,8 @@ export function MachinesPageClient() {
   const canDeleteMachine = (machineBranchId: string) => {
     if (!companyUser) return false;
 
-    // Company admin and manager can delete machines
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+    // Company admin can delete machines
+    if (companyUser.isCompanyAdmin) return true;
 
     // Check branch-specific permission
     const userBranch = companyUser.branches.find((ub) => ub.branchId === machineBranchId);

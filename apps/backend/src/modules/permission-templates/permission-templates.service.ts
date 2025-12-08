@@ -1,73 +1,58 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
 import {
-  CreatePermissionTemplateDto,
+  CreatePermissionTemplateBodyDto,
   UpdatePermissionTemplateDto,
   PermissionTemplateResponseDto,
 } from '@titans-tech/shared/backend-dtos';
-import { JwtPayload, isSysAdmin } from '../../types/request';
+import {
+  Permissions,
+  BranchPermissionType,
+  enableWithPrerequisites,
+} from '@titans-tech/shared/types/permissions';
 
 @Injectable()
 export class PermissionTemplatesService {
   constructor(private prisma: PrismaService) {}
 
   /**
-   * Validate that user has access to a company
-   * SysAdmins have access to all companies
+   * Normalize permissions by auto-enabling all prerequisites
+   * This ensures templates always have valid permission dependencies
    */
-  private async validateUserCompanyAccess(
-    userPayload: JwtPayload,
-    companyId: string,
-  ): Promise<void> {
-    // SysAdmins have access to all companies
-    if (isSysAdmin(userPayload)) {
-      return;
+  private normalizePermissions(permissions: Permissions): Permissions {
+    let normalized = { ...permissions };
+
+    // For each enabled permission, ensure all prerequisites are also enabled
+    for (const [perm, enabled] of Object.entries(permissions)) {
+      if (enabled) {
+        normalized = enableWithPrerequisites(
+          normalized,
+          perm as BranchPermissionType,
+        );
+      }
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: userPayload.id },
-      select: {
-        companyId: true,
-        isCompanyAdmin: true,
-        isCompanyManager: true,
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    if (user.companyId !== companyId) {
-      throw new ForbiddenException('You do not have access to this company');
-    }
-
-    // Only admins and managers can manage permission templates
-    if (!user.isCompanyAdmin && !user.isCompanyManager) {
-      throw new ForbiddenException(
-        'Only company administrators and managers can manage permission templates',
-      );
-    }
+    return normalized;
   }
 
   /**
    * Create a new permission template
+   * Authorization handled by @CompanyAdmin decorator in controller
    */
   async create(
-    userPayload: JwtPayload,
-    createDto: CreatePermissionTemplateDto,
+    companyId: string,
+    createDto: CreatePermissionTemplateBodyDto,
   ): Promise<PermissionTemplateResponseDto> {
-    await this.validateUserCompanyAccess(userPayload, createDto.companyId);
+    const normalizedPermissions = this.normalizePermissions(
+      createDto.permissions as Permissions,
+    );
 
     const template = await this.prisma.permissionTemplate.create({
       data: {
         name: createDto.name,
         description: createDto.description,
-        permissions: createDto.permissions as any, // Prisma Json type
-        companyId: createDto.companyId,
+        permissions: normalizedPermissions as any, // Prisma Json type
+        companyId,
       },
     });
 
@@ -78,11 +63,8 @@ export class PermissionTemplatesService {
    * Get all templates for a company
    */
   async findAllByCompany(
-    userPayload: JwtPayload,
     companyId: string,
   ): Promise<PermissionTemplateResponseDto[]> {
-    await this.validateUserCompanyAccess(userPayload, companyId);
-
     const templates = await this.prisma.permissionTemplate.findMany({
       where: { companyId },
       orderBy: { createdAt: 'desc' },
@@ -95,18 +77,16 @@ export class PermissionTemplatesService {
    * Get a specific template by ID
    */
   async findOne(
-    userPayload: JwtPayload,
+    companyId: string,
     templateId: string,
   ): Promise<PermissionTemplateResponseDto> {
-    const template = await this.prisma.permissionTemplate.findUnique({
-      where: { id: templateId },
+    const template = await this.prisma.permissionTemplate.findFirst({
+      where: { id: templateId, companyId },
     });
 
     if (!template) {
       throw new NotFoundException('Permission template not found');
     }
-
-    await this.validateUserCompanyAccess(userPayload, template.companyId);
 
     return this.mapToResponseDto(template);
   }
@@ -115,19 +95,22 @@ export class PermissionTemplatesService {
    * Update a permission template
    */
   async update(
-    userPayload: JwtPayload,
+    companyId: string,
     templateId: string,
     updateDto: UpdatePermissionTemplateDto,
   ): Promise<PermissionTemplateResponseDto> {
-    const existing = await this.prisma.permissionTemplate.findUnique({
-      where: { id: templateId },
+    const existing = await this.prisma.permissionTemplate.findFirst({
+      where: { id: templateId, companyId },
     });
 
     if (!existing) {
       throw new NotFoundException('Permission template not found');
     }
 
-    await this.validateUserCompanyAccess(userPayload, existing.companyId);
+    // Auto-correct permissions if provided
+    const normalizedPermissions = updateDto.permissions
+      ? this.normalizePermissions(updateDto.permissions as Permissions)
+      : undefined;
 
     const updated = await this.prisma.permissionTemplate.update({
       where: { id: templateId },
@@ -136,8 +119,8 @@ export class PermissionTemplatesService {
         ...(updateDto.description !== undefined && {
           description: updateDto.description,
         }),
-        ...(updateDto.permissions && {
-          permissions: updateDto.permissions as any,
+        ...(normalizedPermissions && {
+          permissions: normalizedPermissions as any,
         }),
       },
     });
@@ -148,16 +131,14 @@ export class PermissionTemplatesService {
   /**
    * Delete a permission template
    */
-  async remove(userPayload: JwtPayload, templateId: string): Promise<void> {
-    const existing = await this.prisma.permissionTemplate.findUnique({
-      where: { id: templateId },
+  async remove(companyId: string, templateId: string): Promise<void> {
+    const existing = await this.prisma.permissionTemplate.findFirst({
+      where: { id: templateId, companyId },
     });
 
     if (!existing) {
       throw new NotFoundException('Permission template not found');
     }
-
-    await this.validateUserCompanyAccess(userPayload, existing.companyId);
 
     await this.prisma.permissionTemplate.delete({
       where: { id: templateId },

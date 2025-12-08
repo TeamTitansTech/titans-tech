@@ -16,7 +16,11 @@ import { Request } from 'express';
 import { UAParser } from 'ua-parser-js';
 import { ServiceRequestsService } from './service-requests.service';
 import { isValidEmail } from '../../common/validators';
-import { Authenticated, CompanyManager, Public } from '../auth/auth.decorators';
+import {
+  CompanyAdmin,
+  Public,
+  ResourcePermission,
+} from '../auth/auth.decorators';
 import type { ReqWithAuthUser } from '../../types/request';
 import { isRegularUser, isSysAdmin } from '../../types/request';
 import { ServiceRequestStatus } from '@titans-tech/db';
@@ -100,7 +104,7 @@ export class ServiceRequestsController {
    * Get all service requests (admin endpoint)
    */
   @Get()
-  @CompanyManager()
+  @CompanyAdmin()
   async findAll(
     @Req() req: ReqWithAuthUser,
     @Query('status') status?: string,
@@ -121,7 +125,7 @@ export class ServiceRequestsController {
    * Get service requests for a specific machine
    */
   @Get('machine/:machineId')
-  @Authenticated()
+  @ResourcePermission('machine', 'readServices', { paramName: 'machineId' })
   async findByMachine(@Param('machineId') machineId: string) {
     return this.serviceRequestsService.findByMachine(machineId);
   }
@@ -130,7 +134,7 @@ export class ServiceRequestsController {
    * Get a single service request by ID
    */
   @Get(':id')
-  @Authenticated()
+  @ResourcePermission('serviceRequest', 'readServices')
   async findOne(@Param('id') id: string) {
     return this.serviceRequestsService.findOne(id);
   }
@@ -139,7 +143,7 @@ export class ServiceRequestsController {
    * Close a service request
    */
   @Patch(':id/close')
-  @CompanyManager()
+  @CompanyAdmin()
   @HttpCode(HttpStatus.OK)
   async close(@Param('id') id: string) {
     return this.serviceRequestsService.close(id);
@@ -149,7 +153,7 @@ export class ServiceRequestsController {
    * Reopen a closed service request
    */
   @Patch(':id/reopen')
-  @CompanyManager()
+  @CompanyAdmin()
   @HttpCode(HttpStatus.OK)
   async reopen(@Param('id') id: string) {
     return this.serviceRequestsService.reopen(id);
@@ -160,7 +164,7 @@ export class ServiceRequestsController {
    * This automatically closes the service request
    */
   @Post(':id/create-service')
-  @CompanyManager()
+  @CompanyAdmin()
   @HttpCode(HttpStatus.CREATED)
   async createServiceFromRequest(
     @Param('id') id: string,

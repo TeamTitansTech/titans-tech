@@ -60,10 +60,14 @@ export const BlueprintCreationModal = ({
     setClutchThresholdsOpen,
     clutchThresholds,
     setClutchThresholds,
-    slideThresholdsOpen,
-    setSlideThresholdsOpen,
-    slideThresholds,
-    setSlideThresholds,
+    slideSingleHammerThresholdsOpen,
+    setSlideSingleHammerThresholdsOpen,
+    slideSingleHammerThresholds,
+    setSlideSingleHammerThresholds,
+    slideDoubleHammerThresholdsOpen,
+    setSlideDoubleHammerThresholdsOpen,
+    slideDoubleHammerThresholds,
+    setSlideDoubleHammerThresholds,
     gibsThresholdsOpen,
     setGibsThresholdsOpen,
     gibsThresholds,
@@ -209,7 +213,8 @@ export const BlueprintCreationModal = ({
                   headerExtra={
                     selectedSections.includes('bearing_clearance') ||
                     selectedSections.includes('clutch') ||
-                    selectedSections.includes('slide') ||
+                    selectedSections.includes('slide_single_hammer') ||
+                    selectedSections.includes('slide_double_hammer') ||
                     selectedSections.includes('gibs') ||
                     selectedSections.includes('pistons') ||
                     selectedSections.includes('tramming') ? (
@@ -261,15 +266,29 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('slide') && (
+                {selectedSections.includes('slide_single_hammer') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
                       <SlideThresholds
-                        open={slideThresholdsOpen}
-                        onOpenChange={setSlideThresholdsOpen}
-                        data={slideThresholds}
-                        onChange={setSlideThresholds}
+                        open={slideSingleHammerThresholdsOpen}
+                        onOpenChange={setSlideSingleHammerThresholdsOpen}
+                        data={slideSingleHammerThresholds}
+                        onChange={setSlideSingleHammerThresholds}
+                      />
+                    </section>
+                  </>
+                )}
+
+                {selectedSections.includes('slide_double_hammer') && (
+                  <>
+                    <Separator />
+                    <section className="space-y-4">
+                      <SlideThresholds
+                        open={slideDoubleHammerThresholdsOpen}
+                        onOpenChange={setSlideDoubleHammerThresholdsOpen}
+                        data={slideDoubleHammerThresholds}
+                        onChange={setSlideDoubleHammerThresholds}
                       />
                     </section>
                   </>

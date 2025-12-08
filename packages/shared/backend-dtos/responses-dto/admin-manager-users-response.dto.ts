@@ -5,7 +5,6 @@ export const AdminManagerUserResponseDtoSchema = z.object({
   name: z.string().nullable(),
   email: z.string().email(),
   isCompanyAdmin: z.boolean(),
-  isCompanyManager: z.boolean(),
 });
 
 export const AdminManagerUsersResponseDtoSchema = z.array(AdminManagerUserResponseDtoSchema);

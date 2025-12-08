@@ -21,8 +21,11 @@ import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { AddUserDialog } from './AddUserDialog';
 import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
-import { getUserRole, canEditUser, canDeleteUser } from '@/lib/permissions';
-import { getUserRoleBadgeColor } from '@/lib/permissions';
+import {
+  getUserRole,
+  getUserRoleBadgeColor,
+  hasPermissionInBranch,
+} from '@titans-tech/shared/types';
 import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 interface BranchUserManagementProps {
@@ -43,14 +46,13 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
 
   // Check permissions for this branch
+  // Note: isCompanyAdmin already grants all permissions via hasPermission
   const canReadUsers =
     companyUser?.isCompanyAdmin ||
-    companyUser?.isCompanyManager ||
     companyUser?.branches?.some((b) => b.branchId === branchId && b.readUsers);
 
   const canCreateUsers =
     companyUser?.isCompanyAdmin ||
-    companyUser?.isCompanyManager ||
     companyUser?.branches?.some((b) => b.branchId === branchId && b.createUsers);
 
   const loadUsers = useCallback(async () => {
@@ -69,8 +71,8 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         if (usersResponse.data) {
           // Filter users for this branch
           const filteredUsers = usersResponse.data.filter((user) => {
-            // Exclude company admins and managers - they are shown at company level
-            if (user.isCompanyAdmin || user.isCompanyManager) {
+            // Exclude company admins - they are shown at company level
+            if (user.isCompanyAdmin) {
               return false;
             }
             // Include only users with permissions for this branch
@@ -199,8 +201,9 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
             ) : (
               users.map((user) => {
                 const role = getUserRole(user, branchId);
-                const canEdit = canEditUser(companyUser, user, branchId);
-                const canDelete = canDeleteUser(companyUser, user, branchId);
+
+                const canEdit = hasPermissionInBranch(companyUser, branchId, 'updateUsers');
+                const canDelete = hasPermissionInBranch(companyUser, branchId, 'deleteUsers');
 
                 return (
                   <TableRow key={user.id}>
