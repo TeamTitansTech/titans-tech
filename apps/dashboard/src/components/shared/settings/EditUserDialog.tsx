@@ -33,7 +33,7 @@ import {
 import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { Permissions } from '@titans-tech/shared/types';
 import { PermissionsEditor } from '@/components/permissions/PermissionsEditor';
-import { getBranchPermissions, hasPermission } from '@/lib/permissions';
+import { hasPermissionInBranch } from '@titans-tech/shared/types';
 
 interface EditUserDialogProps {
   open: boolean;
@@ -69,16 +69,9 @@ export function EditUserDialog({
 
   // Check current user permissions (sysadmin has all permissions)
   const canUpdateUserInfo =
-    !currentUser ||
-    hasPermission(currentUser, branchId, 'updateUsers') ||
-    currentUser.isCompanyAdmin ||
-    currentUser.isCompanyManager;
-
+    !currentUser || hasPermissionInBranch(currentUser, branchId, 'updateUsers');
   const canManagePermissions =
-    !currentUser ||
-    hasPermission(currentUser, branchId, 'manageUserPermissions') ||
-    currentUser.isCompanyAdmin ||
-    currentUser.isCompanyManager;
+    !currentUser || hasPermissionInBranch(currentUser, branchId, 'manageUserPermissions');
 
   const userSchema = useMemo(
     () =>
@@ -109,9 +102,9 @@ export function EditUserDialog({
       });
 
       // Get permissions for this branch
-      const branchPerms = getBranchPermissions(user, branchId);
-      if (branchPerms) {
-        setPermissions(branchPerms);
+      const branchData = user.branches?.find((b) => b.branchId === branchId);
+      if (branchData) {
+        setPermissions(branchData);
       }
 
       setUpdateScope('thisBranch');

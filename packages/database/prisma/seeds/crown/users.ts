@@ -1,5 +1,6 @@
 import { PrismaClient, Company, CompanyBranch, User } from '../../../generated/prisma/client';
 import * as bcrypt from 'bcrypt';
+import { MANAGER_PERMISSIONS, Permissions } from '@titans-tech/shared/types/permissions';
 
 // ============================================================================
 // USER DATA - MINSTER PRESS FLEET
@@ -14,34 +15,7 @@ export interface UsersData {
   technicianUser: User;
 }
 
-const ALL_PERMISSIONS = {
-  readUsers: true,
-  createUsers: true,
-  updateUsers: true,
-  deleteUsers: true,
-  manageUserPermissions: true,
-  assignUsersToBranches: true,
-  readBranches: true,
-  updateBranches: true,
-  readBlueprints: true,
-  createBlueprints: true,
-  updateBlueprints: true,
-  deleteBlueprints: true,
-  readMachines: true,
-  createMachines: true,
-  updateMachines: true,
-  deleteMachines: true,
-  readServices: true,
-  createServices: true,
-  updateServices: true,
-  deleteServices: true,
-  readProductionLines: true,
-  createProductionLines: true,
-  updateProductionLines: true,
-  deleteProductionLines: true,
-};
-
-const TECHNICIAN_PERMISSIONS = {
+const TECHNICIAN_PERMISSIONS: Permissions = {
   readUsers: false,
   createUsers: false,
   updateUsers: false,
@@ -50,10 +24,6 @@ const TECHNICIAN_PERMISSIONS = {
   assignUsersToBranches: false,
   readBranches: true,
   updateBranches: false,
-  readBlueprints: true,
-  createBlueprints: false,
-  updateBlueprints: false,
-  deleteBlueprints: false,
   readMachines: true,
   createMachines: false,
   updateMachines: false,
@@ -94,7 +64,6 @@ export async function seedCrownUsers(
       email: 'admin@dev-crown.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
@@ -117,7 +86,6 @@ export async function seedCrownUsers(
       email: 'julio.souza@dev-crown.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
@@ -145,7 +113,7 @@ export async function seedCrownUsers(
       create: {
         userId: adminUser.id,
         branchId: branch.id,
-        ...ALL_PERMISSIONS,
+        ...MANAGER_PERMISSIONS,
       },
     });
 
@@ -194,7 +162,6 @@ export async function seedArdaghUsers(
       email: 'admin@dev-ardagh.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
@@ -212,7 +179,6 @@ export async function seedArdaghUsers(
       email: 'technician@dev-ardagh.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
@@ -232,7 +198,7 @@ export async function seedArdaghUsers(
     create: {
       userId: adminUser.id,
       branchId: mainBranch.id,
-      ...ALL_PERMISSIONS,
+      ...MANAGER_PERMISSIONS,
     },
   });
 

@@ -6,70 +6,63 @@ import {
   Param,
   Patch,
   Delete,
-  Request,
-  Query,
 } from '@nestjs/common';
 import { PermissionTemplatesService } from './permission-templates.service';
 import {
-  CreatePermissionTemplateDto,
   UpdatePermissionTemplateDto,
   PermissionTemplateResponseDto,
+  CreatePermissionTemplateBodyDto,
 } from '@titans-tech/shared/backend-dtos';
-import { Authenticated } from '../auth/auth.decorators';
-import { ReqWithAuthUser } from '../../types/request';
+import { CompanyAdmin } from '../auth/auth.decorators';
 
-@Controller('permission-templates')
+@Controller('companies/:companyId/permission-templates')
 export class PermissionTemplatesController {
   constructor(
     private readonly permissionTemplatesService: PermissionTemplatesService,
   ) {}
 
-  @Authenticated()
+  @CompanyAdmin()
   @Post()
   create(
-    @Request() req: ReqWithAuthUser,
-    @Body() createDto: CreatePermissionTemplateDto,
+    @Param('companyId') companyId: string,
+    @Body() createDto: CreatePermissionTemplateBodyDto,
   ): Promise<PermissionTemplateResponseDto> {
-    return this.permissionTemplatesService.create(req.user, createDto);
+    return this.permissionTemplatesService.create(companyId, createDto);
   }
 
-  @Authenticated()
+  @CompanyAdmin()
   @Get()
   findAllByCompany(
-    @Request() req: ReqWithAuthUser,
-    @Query('companyId') companyId: string,
+    @Param('companyId') companyId: string,
   ): Promise<PermissionTemplateResponseDto[]> {
-    return this.permissionTemplatesService.findAllByCompany(
-      req.user,
-      companyId,
-    );
+    return this.permissionTemplatesService.findAllByCompany(companyId);
   }
 
-  @Authenticated()
+  @CompanyAdmin()
   @Get(':id')
   findOne(
-    @Request() req: ReqWithAuthUser,
+    @Param('companyId') companyId: string,
     @Param('id') id: string,
   ): Promise<PermissionTemplateResponseDto> {
-    return this.permissionTemplatesService.findOne(req.user, id);
+    return this.permissionTemplatesService.findOne(companyId, id);
   }
 
-  @Authenticated()
+  @CompanyAdmin()
   @Patch(':id')
   update(
-    @Request() req: ReqWithAuthUser,
+    @Param('companyId') companyId: string,
     @Param('id') id: string,
     @Body() updateDto: UpdatePermissionTemplateDto,
   ): Promise<PermissionTemplateResponseDto> {
-    return this.permissionTemplatesService.update(req.user, id, updateDto);
+    return this.permissionTemplatesService.update(companyId, id, updateDto);
   }
 
-  @Authenticated()
+  @CompanyAdmin()
   @Delete(':id')
   remove(
-    @Request() req: ReqWithAuthUser,
+    @Param('companyId') companyId: string,
     @Param('id') id: string,
   ): Promise<void> {
-    return this.permissionTemplatesService.remove(req.user, id);
+    return this.permissionTemplatesService.remove(companyId, id);
   }
 }

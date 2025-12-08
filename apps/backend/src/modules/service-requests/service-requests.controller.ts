@@ -16,7 +16,7 @@ import { Request } from 'express';
 import { UAParser } from 'ua-parser-js';
 import { ServiceRequestsService } from './service-requests.service';
 import { isValidEmail } from '../../common/validators';
-import { Authenticated, CompanyManager, Public } from '../auth/auth.decorators';
+import { Authenticated, CompanyAdmin, Public } from '../auth/auth.decorators';
 import type { ReqWithAuthUser } from '../../types/request';
 import { isRegularUser, isSysAdmin } from '../../types/request';
 import { ServiceRequestStatus } from '@titans-tech/db';
@@ -100,7 +100,7 @@ export class ServiceRequestsController {
    * Get all service requests (admin endpoint)
    */
   @Get()
-  @CompanyManager()
+  @CompanyAdmin()
   async findAll(
     @Req() req: ReqWithAuthUser,
     @Query('status') status?: string,
@@ -139,7 +139,7 @@ export class ServiceRequestsController {
    * Close a service request
    */
   @Patch(':id/close')
-  @CompanyManager()
+  @CompanyAdmin()
   @HttpCode(HttpStatus.OK)
   async close(@Param('id') id: string) {
     return this.serviceRequestsService.close(id);
@@ -149,7 +149,7 @@ export class ServiceRequestsController {
    * Reopen a closed service request
    */
   @Patch(':id/reopen')
-  @CompanyManager()
+  @CompanyAdmin()
   @HttpCode(HttpStatus.OK)
   async reopen(@Param('id') id: string) {
     return this.serviceRequestsService.reopen(id);
@@ -160,7 +160,7 @@ export class ServiceRequestsController {
    * This automatically closes the service request
    */
   @Post(':id/create-service')
-  @CompanyManager()
+  @CompanyAdmin()
   @HttpCode(HttpStatus.CREATED)
   async createServiceFromRequest(
     @Param('id') id: string,

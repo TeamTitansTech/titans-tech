@@ -37,6 +37,10 @@
       "default": "./dist/types/services.js",
       "types": "./types/services.ts"
     },
+    "./types/permissions": {
+      "default": "./dist/types/permissions.js",
+      "types": "./types/permissions.ts"
+    },
     "./backend-dtos": {
       "default": "./dist/backend-dtos/index.js",
       "types": "./backend-dtos/index.ts"

@@ -44,7 +44,6 @@ const createTestUser = async () => {
       name: 'Test User',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       companyId: company.id,
     },
   });
@@ -68,10 +67,6 @@ const createTestUser = async () => {
       createUsers: true,
       updateUsers: true,
       deleteUsers: true,
-      readBlueprints: true,
-      createBlueprints: true,
-      updateBlueprints: true,
-      deleteBlueprints: true,
       readMachines: true,
       createMachines: true,
       updateMachines: true,

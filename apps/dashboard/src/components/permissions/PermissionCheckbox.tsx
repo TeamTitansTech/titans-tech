@@ -5,11 +5,11 @@ import { useTranslations } from 'next-intl';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { PermissionName } from '@titans-tech/shared/types';
+import { BranchPermissionType } from '@titans-tech/shared/types';
 import { InfoCircledIcon } from '@radix-ui/react-icons';
 
 interface PermissionCheckboxProps {
-  permission: PermissionName;
+  permission: BranchPermissionType;
   checked: boolean;
   onChange: (checked: boolean) => void;
   disabled?: boolean;

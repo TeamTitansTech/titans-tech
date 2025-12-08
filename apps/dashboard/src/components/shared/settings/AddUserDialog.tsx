@@ -19,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { createUser, setCompanyManager } from '@/data/services/users.api';
+import { createUser } from '@/data/services/users.api';
 import { setUserPermissions } from '@/data/services/company-branches.api';
 import { PermissionsEditor } from '@/components/permissions/PermissionsEditor';
 import { Permissions, EMPTY_PERMISSIONS } from '@titans-tech/shared/types';
@@ -40,7 +40,6 @@ interface AddUserDialogProps {
    */
   currentUser?: {
     isCompanyAdmin: boolean;
-    isCompanyManager: boolean;
     companyId?: string;
   } | null;
   /**
@@ -56,7 +55,6 @@ export function AddUserDialog({
   branchName,
   onSuccess,
   translationNamespace = 'settings.addUserDialog',
-  currentUser = null,
   companyId,
 }: AddUserDialogProps) {
   const t = useTranslations(translationNamespace);
@@ -67,10 +65,6 @@ export function AddUserDialog({
     ...EMPTY_PERMISSIONS,
   });
   const [applyToAllBranches, setApplyToAllBranches] = useState(false);
-  const [promoteToManager, setPromoteToManager] = useState(false);
-
-  // Check if current user is company admin (defaults to true for sysadmin)
-  const isCompanyAdmin = currentUser ? currentUser.isCompanyAdmin : true;
 
   const userSchema = useMemo(
     () =>
@@ -103,7 +97,6 @@ export function AddUserDialog({
           name: data.name,
           email: data.email,
           isCompanyAdmin: false,
-          isCompanyManager: false,
         },
       });
 
@@ -126,15 +119,6 @@ export function AddUserDialog({
       // For now, the user can be added to other branches later
       // TODO: Implement multi-branch assignment on creation
 
-      // Promote to Company Manager if requested and user has permission
-      if (promoteToManager && isCompanyAdmin) {
-        await setCompanyManager({
-          branchId,
-          userId,
-          isCompanyManager: true,
-        });
-      }
-
       toast.success(t('success'));
       handleClose();
       onSuccess();
@@ -151,7 +135,6 @@ export function AddUserDialog({
       reset();
       setPermissions({ ...EMPTY_PERMISSIONS });
       setApplyToAllBranches(false);
-      setPromoteToManager(false);
       onOpenChange(false);
     }
   };
@@ -214,24 +197,6 @@ export function AddUserDialog({
                 <p className="text-xs text-gray-500">{t('form.applyToAllBranches.description')}</p>
               </div>
             </div>
-
-            {/* Promote to Company Manager (only for Company Admins) */}
-            {isCompanyAdmin && (
-              <div className="flex items-start space-x-3 p-3 border rounded-lg">
-                <Checkbox
-                  id="companyManager"
-                  checked={promoteToManager}
-                  onCheckedChange={(checked) => setPromoteToManager(checked as boolean)}
-                  disabled={isSubmitting}
-                />
-                <div className="flex-1 space-y-1">
-                  <Label htmlFor="companyManager" className="text-sm font-medium cursor-pointer">
-                    {t('form.companyManager.label')}
-                  </Label>
-                  <p className="text-xs text-gray-500">{t('form.companyManager.description')}</p>
-                </div>
-              </div>
-            )}
           </div>
 
           <Separator />

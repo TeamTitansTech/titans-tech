@@ -660,11 +660,10 @@ Authorization: Bearer <token>
 }
 ```
 
-**24 Permissões Disponíveis**:
+**20 Permissões Disponíveis**:
 
 - **Usuários**: read/create/update/delete/updatePermissions/manageUsers
 - **Filiais**: readBranches/updateBranches
-- **Blueprints**: readBlueprints/createBlueprints/updateBlueprints/deleteBlueprints
 - **Máquinas**: readMachines/createMachines/updateMachines/deleteMachines
 - **Serviços**: readServices/createServices/updateServices/deleteServices
 - **Alertas**: readAlerts/createAlerts/updateAlerts/deleteAlerts

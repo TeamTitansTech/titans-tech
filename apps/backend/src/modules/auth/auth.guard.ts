@@ -10,13 +10,18 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import {
   BRANCH_PERMISSION_KEY,
-  BranchPermissionType,
   IS_SYS_ADMIN_KEY,
   IS_COMPANY_ADMIN_KEY,
-  IS_COMPANY_MANAGER_KEY,
   IS_PUBLIC_KEY,
   IS_AUTHENTICATED_KEY,
 } from './auth.decorators';
+import {
+  BranchPermissionType,
+  hasPermissionInBranch,
+  hasPermissionInAnyBranch,
+  UserWithBranchPermissions,
+  Permissions,
+} from '@titans-tech/shared/types/permissions';
 import { appEnv } from 'src/config/env';
 import { JwtPayload, isSysAdmin, ReqWithAuthUser } from 'src/types/request';
 import { PrismaService } from '../shared/prisma.service';
@@ -25,7 +30,6 @@ type CurrentUserInfo = {
   id: string;
   companyId: string;
   isCompanyAdmin: boolean;
-  isCompanyManager: boolean;
 };
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -56,11 +60,6 @@ export class AuthGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
-    const requiresCompanyManager = this.reflector.getAllAndOverride<boolean>(
-      IS_COMPANY_MANAGER_KEY,
-      [context.getHandler(), context.getClass()],
-    );
-
     const isAuthenticated = this.reflector.getAllAndOverride<boolean>(
       IS_AUTHENTICATED_KEY,
       [context.getHandler(), context.getClass()],
@@ -69,7 +68,6 @@ export class AuthGuard implements CanActivate {
     if (
       !requiresSysAdmin &&
       !requiresCompanyAdmin &&
-      !requiresCompanyManager &&
       !requiredPermission &&
       !isPublic &&
       !isAuthenticated
@@ -124,7 +122,6 @@ export class AuthGuard implements CanActivate {
         id: true,
         companyId: true,
         isCompanyAdmin: true,
-        isCompanyManager: true,
       },
     });
 
@@ -143,21 +140,11 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    // Handle @CompanyAdmin routes - only CompanyAdmin can access (not Managers)
+    // Handle @CompanyAdmin routes - only CompanyAdmin can access
     if (requiresCompanyAdmin) {
       if (!currentUser.isCompanyAdmin) {
         throw new ForbiddenException(
           'Access denied: Only company administrators can access this resource',
-        );
-      }
-      return true;
-    }
-
-    // Handle @CompanyManager routes - CompanyManager or CompanyAdmin can access
-    if (requiresCompanyManager) {
-      if (!currentUser.isCompanyManager && !currentUser.isCompanyAdmin) {
-        throw new ForbiddenException(
-          'Access denied: Only company managers or administrators can access this resource',
         );
       }
       return true;
@@ -221,8 +208,8 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    // If user is company admin or manager, grant access
-    if (payload.isCompanyAdmin || payload.isCompanyManager) {
+    // If user is company admin, grant access
+    if (payload.isCompanyAdmin) {
       return true;
     }
 
@@ -242,9 +229,16 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    if (!userBranch[requiredPermission]) {
+    // Construct user object for permission check
+    const user: UserWithBranchPermissions = {
+      id: payload.id,
+      isCompanyAdmin: false, // Already checked above
+      branches: [{ branchId, ...(userBranch as unknown as Permissions) }],
+    };
+
+    if (!hasPermissionInBranch(user, branchId, requiredPermission)) {
       throw new ForbiddenException(
-        `Access denied: Missing required permission '${requiredPermission}'`,
+        `Access denied: Missing required permission '${requiredPermission}' or its prerequisites`,
       );
     }
 
@@ -262,15 +256,15 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    // If user is company admin or manager, grant access
-    if (payload.isCompanyAdmin || payload.isCompanyManager) {
+    // If user is company admin, grant access
+    if (payload.isCompanyAdmin) {
       return true;
     }
 
-    // If no specific permission required, deny access (requires admin/manager)
+    // If no specific permission required, deny access (requires admin)
     if (!requiredPermission) {
       throw new ForbiddenException(
-        'Access denied: Only company administrators or managers can access this resource',
+        'Access denied: Only company administrators can access this resource',
       );
     }
 
@@ -290,14 +284,19 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    // Check if user has the required permission in at least one branch
-    const hasPermission = userBranches.some(
-      (userBranch) => userBranch[requiredPermission],
-    );
+    // Construct user object for permission check
+    const user: UserWithBranchPermissions = {
+      id: payload.id,
+      isCompanyAdmin: false, // Already checked above
+      branches: userBranches.map((ub) => ({
+        branchId: ub.branchId,
+        ...(ub as unknown as Permissions),
+      })),
+    };
 
-    if (!hasPermission) {
+    if (!hasPermissionInAnyBranch(user, requiredPermission)) {
       throw new ForbiddenException(
-        `Access denied: Missing required permission '${requiredPermission}' in all branches`,
+        `Access denied: Missing required permission '${requiredPermission}' or its prerequisites in all branches`,
       );
     }
 

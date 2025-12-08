@@ -35,7 +35,7 @@ The system implements three distinct hierarchy levels within each company:
 
 - **Database Fields**: Both `isCompanyAdmin` and `isCompanyManager` are `false`
 - **Scope**: Branch-specific access controlled by `UserBranch` permissions
-- **Capabilities**: Defined by 18 granular permission flags in the `UserBranch` junction table
+- **Capabilities**: Defined by 14 granular permission flags in the `UserBranch` junction table
 - **Subtypes**:
   - **Branch Manager**: User with full permissions for a specific branch
   - **Worker/Employee**: User with limited operational permissions
@@ -84,12 +84,6 @@ model UserBranch {
   readBranches   Boolean @default(false)
   updateBranches Boolean @default(false)
 
-  // Blueprint Permissions (4)
-  readBlueprints   Boolean @default(false)
-  createBlueprints Boolean @default(false)
-  updateBlueprints Boolean @default(false)
-  deleteBlueprints Boolean @default(false)
-
   // Machine Permissions (4)
   readMachines   Boolean @default(false)
   createMachines Boolean @default(false)
@@ -111,7 +105,7 @@ model UserBranch {
 
 ## Permission Categories
 
-The 18 granular permissions are organized into 5 functional categories:
+The 14 granular permissions are organized into 4 functional categories:
 
 ### 1. User Management (6 permissions)
 
@@ -127,21 +121,14 @@ The 18 granular permissions are organized into 5 functional categories:
 - `readBranches` - View branch information
 - `updateBranches` - Modify branch details
 
-### 3. Blueprint Management (4 permissions)
-
-- `readBlueprints` - View machine templates
-- `createBlueprints` - Create new machine templates
-- `updateBlueprints` - Modify existing templates
-- `deleteBlueprints` - Remove templates (soft delete)
-
-### 4. Machine Management (4 permissions)
+### 3. Machine Management (4 permissions)
 
 - `readMachines` - View machine instances
 - `createMachines` - Register new machines
 - `updateMachines` - Modify machine details
 - `deleteMachines` - Remove machines
 
-### 5. Service Management (4 permissions)
+### 4. Service Management (4 permissions)
 
 - `readServices` - View inspection/maintenance records
 - `createServices` - Create new service records
@@ -188,10 +175,6 @@ export type BranchPermissionType =
   | 'assignUsersToBranches'
   | 'readBranches'
   | 'updateBranches'
-  | 'readBlueprints'
-  | 'createBlueprints'
-  | 'updateBlueprints'
-  | 'deleteBlueprints'
   | 'readMachines'
   | 'createMachines'
   | 'updateMachines'
@@ -300,7 +283,7 @@ async getMe(userId: string) {
       branchId: branch.id,
       createdAt: new Date(),
       updatedAt: new Date(),
-      // All 18 permissions set to true
+      // All 14 permissions set to true
       readUsers: true,
       createUsers: true,
       updateUsers: true,
@@ -309,10 +292,6 @@ async getMe(userId: string) {
       assignUsersToBranches: true,
       readBranches: true,
       updateBranches: true,
-      readBlueprints: true,
-      createBlueprints: true,
-      updateBlueprints: true,
-      deleteBlueprints: true,
       readMachines: true,
       createMachines: true,
       updateMachines: true,
@@ -363,7 +342,7 @@ Body: {
   name: string
   email: string
   password: string (default: "password")
-  permissions: { ...18 permission flags... }
+  permissions: { ...14 permission flags... }
 }
 ```
 
@@ -377,7 +356,7 @@ Permission: @BranchPermission('manageUserPermissions')
 Body: {
   readUsers: boolean
   createUsers: boolean
-  // ... all 18 permissions
+  // ... all 14 permissions
 }
 ```
 
@@ -417,7 +396,7 @@ Authorization: Bearer <token>
 Permission: @BranchPermission('assignUsersToBranches')
 
 Body: {
-  permissions: { ...18 permission flags... }
+  permissions: { ...14 permission flags... }
 }
 ```
 
@@ -503,10 +482,10 @@ The UI provides predefined role templates for quick user setup:
 
 ### Manager Preset
 
-All 18 permissions set to `true`:
+All 14 permissions set to `true`:
 
 - Full control of the branch
-- Can manage users, machines, services, blueprints
+- Can manage users, machines, services
 - Can modify branch settings
 
 ### Worker/Employee Preset
@@ -515,7 +494,6 @@ Operational permissions only:
 
 - `readUsers: true`
 - `readBranches: true`
-- `readBlueprints: true`
 - `readMachines: true`
 - `readServices: true`
 - `createServices: true`
@@ -574,7 +552,7 @@ When testing the permissions system:
 - [ ] Company Admins have access to all branches
 - [ ] Company Managers have access to all branches
 - [ ] Regular users only access assigned branches
-- [ ] Permission checks work correctly for each of the 18 permissions
+- [ ] Permission checks work correctly for each of the 14 permissions
 - [ ] Branch isolation prevents cross-company access
 - [ ] `/me` endpoint returns synthetic permissions for Admins/Managers
 - [ ] Role presets apply correct permission sets
