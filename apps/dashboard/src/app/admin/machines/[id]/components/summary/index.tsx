@@ -11,6 +11,7 @@ import type {
   PistonsCheck,
   ClutchData,
   LubricationHydraulicsCheck,
+  Attachment,
 } from '@/data/types/services.types';
 import { BearingClearanceSummary } from './BearingClearanceSummary';
 import { GenericSectionSummary } from './GenericSectionSummary';
@@ -69,14 +70,28 @@ export function SectionSummary({
     case 'PISTONS':
       return <PistonsSummary data={data as PistonsCheck} />;
 
-    case 'CLUTCH':
-      return <ClutchSummary data={data as ClutchData} />;
+    case 'CLUTCH': {
+      // Handle the wrapped structure from ClutchSectionData
+      const clutchSectionData = data as { data?: ClutchData; attachments?: Attachment[] };
+      const innerData = clutchSectionData?.data ?? (clutchSectionData as ClutchData);
+      return (
+        <ClutchSummary
+          data={innerData as ClutchData}
+          attachments={clutchSectionData?.attachments}
+        />
+      );
+    }
 
     case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER': {
       // Handle both wrapped and unwrapped data structures
       const lubData = data as LubricationHydraulicsCheck;
       const innerData = lubData?.data ?? lubData;
-      return <LubricationSummary data={innerData as LubricationHydraulicsCheck['data']} />;
+      return (
+        <LubricationSummary
+          data={innerData as LubricationHydraulicsCheck['data']}
+          attachments={lubData?.attachments}
+        />
+      );
     }
 
     // For all other sections, use the generic summary component
