@@ -8,7 +8,8 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { Public } from 'src/modules/auth/auth.decorators';
-import { MAX_FILE_SIZE } from '../../../../../apps/dashboard/src/config/uploads';
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
 @Controller('upload')
 export class UploadController {

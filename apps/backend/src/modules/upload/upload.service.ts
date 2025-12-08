@@ -2,7 +2,8 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { appEnv } from '../../config/env';
 import { nanoid } from 'nanoid';
-import { MAX_FILE_SIZE } from '../../../../../apps/dashboard/src/config/uploads';
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
 @Injectable()
 export class UploadService {
