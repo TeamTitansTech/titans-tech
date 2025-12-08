@@ -176,7 +176,7 @@ export function Stepper({ steps, onStepClick }: StepperProps) {
       <div
         ref={containerRef}
         className={cn(
-          'hide-scrollbar flex items-center overflow-x-auto',
+          'hide-scrollbar flex items-center overflow-x-auto py-2',
           isDragging ? 'cursor-grabbing select-none' : 'cursor-grab',
         )}
         onMouseDown={handleMouseDown}
