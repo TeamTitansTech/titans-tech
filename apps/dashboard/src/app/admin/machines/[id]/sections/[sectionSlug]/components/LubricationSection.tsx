@@ -144,7 +144,7 @@ export function LubricationSection({
 
   // Calculate section status based on oil change info
   const sectionStatus: SectionStatus = useMemo(() => {
-    if (!lastOilChangeInfo) return 'unknown';
+    if (!lastOilChangeInfo) return 'ok'; // No data = ok (operational until proven otherwise)
     if (lastOilChangeInfo.isOverdue) return 'alert';
     if (lastOilChangeInfo.isWarning) return 'warning';
     return 'ok';

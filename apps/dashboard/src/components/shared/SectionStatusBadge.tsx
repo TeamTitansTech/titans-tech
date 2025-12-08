@@ -2,13 +2,13 @@
 
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { CheckCircle, AlertTriangle, AlertCircle, HelpCircle } from 'lucide-react';
+import { CheckCircle, AlertTriangle, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { ThresholdConfig, AlertSeverity } from '@/components/charts/types';
 import { calculateSeverity } from '@/components/charts/utils';
 
-export type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
+export type SectionStatus = 'ok' | 'warning' | 'alert';
 
 interface MeasurementWithThreshold {
   value: number | null | undefined;
@@ -50,13 +50,6 @@ const statusConfig = {
       'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700',
     iconClass: 'text-red-600 dark:text-red-400',
   },
-  unknown: {
-    icon: HelpCircle,
-    labelKey: 'noData',
-    badgeClass:
-      'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600',
-    iconClass: 'text-gray-500 dark:text-gray-400',
-  },
 };
 
 const sizeConfig = {
@@ -77,9 +70,9 @@ export function calculateSectionStatus(measurements: MeasurementWithThreshold[])
   // Return worst status found
   if (severities.includes('RED')) return 'alert';
   if (severities.includes('YELLOW')) return 'warning';
-  if (severities.includes('GREEN')) return 'ok';
 
-  return 'unknown';
+  // No data (NONE) or all GREEN = ok
+  return 'ok';
 }
 
 /**
@@ -95,7 +88,7 @@ export function SectionStatusBadge({
 }: SectionStatusBadgeProps) {
   const t = useTranslations('sectionStatus');
   const calculatedStatus = useMemo(
-    () => (measurements ? calculateSectionStatus(measurements) : 'unknown'),
+    () => (measurements ? calculateSectionStatus(measurements) : 'ok'),
     [measurements],
   );
   const status = statusProp ?? calculatedStatus;
@@ -136,7 +129,6 @@ export function SectionStatusDot({
     ok: 'bg-green-500',
     warning: 'bg-yellow-500',
     alert: 'bg-red-500',
-    unknown: 'bg-green-500',
   };
 
   return (
@@ -147,7 +139,6 @@ export function SectionStatusDot({
         status === 'ok' && 'ring-green-500/30',
         status === 'warning' && 'ring-yellow-500/30',
         status === 'alert' && 'ring-red-500/30 animate-pulse',
-        status === 'unknown' && 'ring-green-500/30',
         className,
       )}
     />

@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { getMachineById } from '@/data/services/machines.api';
 import { getPublicMachineInfo } from '@/data/services/public.api';
+import { getLatestReport } from '@/data/services/services.api';
 import { MachineDetails } from './components/MachineDetails';
 import { UpcomingServices } from '@/components/shared/services/UpcomingServices';
 import { ServiceHistory } from './components/ServiceHistory';
@@ -17,9 +18,10 @@ interface MachineDetailPageProps {
 export default async function MachineDetailPage({ params }: MachineDetailPageProps) {
   const { id } = await params;
   const t = await getTranslations('machines');
-  const [response, publicInfoResponse] = await Promise.all([
+  const [response, publicInfoResponse, latestReportResponse] = await Promise.all([
     getMachineById(id),
     getPublicMachineInfo(id),
+    getLatestReport(id),
   ]);
 
   if (response.errors) {
@@ -43,10 +45,15 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
 
   // Get company slug from public info for QR code generation
   const companySlug = publicInfoResponse.data?.company.slug ?? '';
+  const latestReport = latestReportResponse.data || null;
 
   return (
     <div className="space-y-6 p-4">
-      <MachineDetails machine={response.data} companySlug={companySlug} />
+      <MachineDetails
+        machine={response.data}
+        companySlug={companySlug}
+        initialLatestReport={latestReport}
+      />
       <ServiceRequests machineId={id} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <UpcomingServices

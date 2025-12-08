@@ -55,7 +55,7 @@ export default async function AdminMachinesPage() {
         return {
           ...machine,
           latestReport: null,
-          alertStatus: 'unknown' as const,
+          alertStatus: 'ok' as const,
         };
       }
     }),

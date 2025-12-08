@@ -102,7 +102,7 @@ export function HomePage() {
                 return {
                   ...machine,
                   latestReport: null,
-                  alertStatus: 'unknown' as AlertStatus,
+                  alertStatus: 'ok' as AlertStatus,
                 };
               }
             }),

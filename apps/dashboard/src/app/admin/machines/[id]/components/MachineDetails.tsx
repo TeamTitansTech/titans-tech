@@ -19,30 +19,29 @@ import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
 
 interface MachineDetailsComponentProps extends MachineDetailsProps {
   companySlug: string;
+  initialLatestReport?: LatestReport | null;
 }
 
-export function MachineDetails({ machine, companySlug }: MachineDetailsComponentProps) {
+export function MachineDetails({
+  machine,
+  companySlug,
+  initialLatestReport,
+}: MachineDetailsComponentProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
+  const [latestReport, setLatestReport] = useState<LatestReport | null>(
+    initialLatestReport ?? null,
+  );
   const [isLoadingReport, setIsLoadingReport] = useState(false);
 
-  // Fetch latest report on mount to get section statuses
+  // Update latestReport when initialLatestReport changes (from server refresh)
   useEffect(() => {
-    const fetchLatestReport = async () => {
-      try {
-        const response = await getLatestReport(machine.id);
-        if (response.data) {
-          setLatestReport(response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching latest report:', error);
-      }
-    };
-    fetchLatestReport();
-  }, [machine.id]);
+    if (initialLatestReport !== undefined) {
+      setLatestReport(initialLatestReport);
+    }
+  }, [initialLatestReport]);
 
   const handleSectionClick = async (section: string) => {
     setLoadingSection(section);
