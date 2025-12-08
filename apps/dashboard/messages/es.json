@@ -63,7 +63,9 @@
       "uploadFailed": "Error al subir el documento",
       "uploading": "Subiendo...",
       "clickToUpload": "Haga clic para adjuntar documentos",
-      "pdfOrCsvMax": "PDF o CSV (máx. 20MB)"
+      "pdfOrCsvMax": "PDF o CSV (máx. 20MB)",
+      "maxFilesReached": "Número máximo de archivos alcanzado ({max})",
+      "maxFilesExceeded": "Solo se permiten {max} archivos. Algunos archivos no se subieron."
     },
     "cancel": "Cancelar",
     "save": "Guardar"
@@ -1758,7 +1760,8 @@
         "selectStatus": "Seleccione el estado",
         "selectMatingPart": "Seleccione la pieza de acoplamiento",
         "referenceMeasurement": "Medición de referencia",
-        "additionalNotes": "Ingrese notas adicionales..."
+        "additionalNotes": "Ingrese notas adicionales...",
+        "attachments": "Anexos"
       },
       "bearingClearanceSection": {
         "includeBeforeMeasurements": "Incluir Mediciones Anteriores",
@@ -1978,7 +1981,8 @@
         "exportExcel": "Exportar Excel",
         "exportPDF": "Exportar PDF",
         "gauges": "Medidores",
-        "notes": "Notas"
+        "notes": "Notas",
+        "sectionAttachments": "Anexos de la Sección"
       }
     },
     "pageTitle": "Servicios",

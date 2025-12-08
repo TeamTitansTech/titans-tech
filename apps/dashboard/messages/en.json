@@ -63,7 +63,9 @@
       "uploadFailed": "Document upload failed",
       "uploading": "Uploading...",
       "clickToUpload": "Click to upload documents",
-      "pdfOrCsvMax": "PDF or CSV (max. 20MB)"
+      "pdfOrCsvMax": "PDF or CSV (max. 20MB)",
+      "maxFilesReached": "Maximum number of files reached ({max})",
+      "maxFilesExceeded": "Only {max} files allowed. Some files were not uploaded."
     },
     "cancel": "Cancel",
     "save": "Save"
@@ -1758,7 +1760,8 @@
         "selectStatus": "Select status",
         "selectMatingPart": "Select mating part",
         "referenceMeasurement": "Reference measurement",
-        "additionalNotes": "Enter additional notes..."
+        "additionalNotes": "Enter additional notes...",
+        "attachments": "Attachments"
       },
       "bearingClearanceSection": {
         "includeBeforeMeasurements": "Include Before Measurements",
@@ -1978,7 +1981,8 @@
         "exportExcel": "Export Excel",
         "exportPDF": "Export PDF",
         "gauges": "Gauges",
-        "notes": "Notes"
+        "notes": "Notes",
+        "sectionAttachments": "Section Attachments"
       }
     },
     "pageTitle": "Services",
