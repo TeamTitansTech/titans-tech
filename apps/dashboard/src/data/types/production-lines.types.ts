@@ -33,7 +33,7 @@ export interface ProductionLineMachine {
 
 export interface MachineWithStatus extends Machine {
   sectionStatus?: {
-    [sectionName: string]: 'ok' | 'warning' | 'alert' | 'unknown';
+    [sectionName: string]: 'ok' | 'warning' | 'alert';
   };
 }
 

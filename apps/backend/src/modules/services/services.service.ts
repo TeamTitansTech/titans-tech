@@ -84,7 +84,7 @@ export class ServicesService {
     // 2. Get user info
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { companyId: true, isCompanyAdmin: true, isCompanyManager: true },
+      select: { companyId: true, isCompanyAdmin: true },
     });
 
     if (!user) {
@@ -98,8 +98,8 @@ export class ServicesService {
       );
     }
 
-    // 4. Company Admin/Manager has full access
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    // 4. Company Admin has full access
+    if (user.isCompanyAdmin) {
       return;
     }
 
@@ -727,9 +727,10 @@ export class ServicesService {
       throw new NotFoundException(`Machine with ID ${machineId} not found`);
     }
 
-    // 2. Fetch all services for this machine, ordered by date DESC
+    // 2. Fetch only COMPLETED services for this machine, ordered by date DESC
+    // PENDING services should not affect the machine's status/alerts
     const services: any[] = await this.prisma.machineService.findMany({
-      where: { machineId },
+      where: { machineId, status: ServiceStatus.COMPLETED },
       include: {
         bearingClearance: {
           include: {

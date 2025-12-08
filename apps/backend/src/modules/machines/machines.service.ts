@@ -40,7 +40,7 @@ export class MachinesService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    if (user.isCompanyAdmin) {
       return user.company.branches.map((b) => b.id);
     }
 
@@ -80,7 +80,7 @@ export class MachinesService {
       );
     }
 
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    if (user.isCompanyAdmin) {
       return;
     }
 

@@ -5,6 +5,13 @@ import { useState } from 'react';
 import { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
+import {
+  type Permissions,
+  type BranchPermissionType,
+  PERMISSION_GROUPS,
+  PermissionCategory,
+  EMPTY_PERMISSIONS,
+} from '@titans-tech/shared/types/permissions';
 
 interface Props {
   user: UserResponseDto;
@@ -13,65 +20,37 @@ interface Props {
   onUpdate: () => void;
 }
 
-interface Permissions {
-  // User Management
-  readUsers: boolean;
-  createUsers: boolean;
-  updateUsers: boolean;
-  deleteUsers: boolean;
-  manageUserPermissions: boolean;
-  assignUsersToBranches: boolean;
-  // Branch Management
-  readBranches: boolean;
-  updateBranches: boolean;
-  // Blueprints
-  readBlueprints: boolean;
-  createBlueprints: boolean;
-  updateBlueprints: boolean;
-  deleteBlueprints: boolean;
-  // Machines
-  readMachines: boolean;
-  createMachines: boolean;
-  updateMachines: boolean;
-  deleteMachines: boolean;
-  // Services
-  readServices: boolean;
-  createServices: boolean;
-  updateServices: boolean;
-  deleteServices: boolean;
-}
+// Map category enum to display labels
+const categoryLabels: Record<PermissionCategory, string> = {
+  [PermissionCategory.USER_MANAGEMENT]: 'User Management',
+  [PermissionCategory.BRANCH_MANAGEMENT]: 'Branch Management',
+  [PermissionCategory.MACHINE_MANAGEMENT]: 'Machines',
+  [PermissionCategory.SERVICE_MANAGEMENT]: 'Services',
+  [PermissionCategory.PRODUCTION_LINE_MANAGEMENT]: 'Production Lines',
+};
 
-const permissionGroups = {
-  'User Management': [
-    { key: 'readUsers', label: 'Read Users' },
-    { key: 'createUsers', label: 'Create Users' },
-    { key: 'updateUsers', label: 'Update Users' },
-    { key: 'deleteUsers', label: 'Delete Users' },
-    { key: 'manageUserPermissions', label: 'Manage User Permissions' },
-    { key: 'assignUsersToBranches', label: 'Assign Users to Branches' },
-  ],
-  'Branch Management': [
-    { key: 'readBranches', label: 'Read Branches' },
-    { key: 'updateBranches', label: 'Update Branches' },
-  ],
-  Blueprints: [
-    { key: 'readBlueprints', label: 'Read Blueprints' },
-    { key: 'createBlueprints', label: 'Create Blueprints' },
-    { key: 'updateBlueprints', label: 'Update Blueprints' },
-    { key: 'deleteBlueprints', label: 'Delete Blueprints' },
-  ],
-  Machines: [
-    { key: 'readMachines', label: 'Read Machines' },
-    { key: 'createMachines', label: 'Create Machines' },
-    { key: 'updateMachines', label: 'Update Machines' },
-    { key: 'deleteMachines', label: 'Delete Machines' },
-  ],
-  Services: [
-    { key: 'readServices', label: 'Read Services' },
-    { key: 'createServices', label: 'Create Services' },
-    { key: 'updateServices', label: 'Update Services' },
-    { key: 'deleteServices', label: 'Delete Services' },
-  ],
+// Map permission keys to display labels
+const permissionLabels: Record<BranchPermissionType, string> = {
+  readUsers: 'Read Users',
+  createUsers: 'Create Users',
+  updateUsers: 'Update Users',
+  deleteUsers: 'Delete Users',
+  manageUserPermissions: 'Manage User Permissions',
+  assignUsersToBranches: 'Assign Users to Branches',
+  readBranches: 'Read Branches',
+  updateBranches: 'Update Branches',
+  readMachines: 'Read Machines',
+  createMachines: 'Create Machines',
+  updateMachines: 'Update Machines',
+  deleteMachines: 'Delete Machines',
+  readServices: 'Read Services',
+  createServices: 'Create Services',
+  updateServices: 'Update Services',
+  deleteServices: 'Delete Services',
+  readProductionLines: 'Read Production Lines',
+  createProductionLines: 'Create Production Lines',
+  updateProductionLines: 'Update Production Lines',
+  deleteProductionLines: 'Delete Production Lines',
 };
 
 export default function UserPermissionsManager({ user, branchId, onClose, onUpdate }: Props) {
@@ -88,10 +67,6 @@ export default function UserPermissionsManager({ user, branchId, onClose, onUpda
         assignUsersToBranches: branchPermissions.assignUsersToBranches,
         readBranches: branchPermissions.readBranches,
         updateBranches: branchPermissions.updateBranches,
-        readBlueprints: branchPermissions.readBlueprints,
-        createBlueprints: branchPermissions.createBlueprints,
-        updateBlueprints: branchPermissions.updateBlueprints,
-        deleteBlueprints: branchPermissions.deleteBlueprints,
         readMachines: branchPermissions.readMachines,
         createMachines: branchPermissions.createMachines,
         updateMachines: branchPermissions.updateMachines,
@@ -100,9 +75,13 @@ export default function UserPermissionsManager({ user, branchId, onClose, onUpda
         createServices: branchPermissions.createServices,
         updateServices: branchPermissions.updateServices,
         deleteServices: branchPermissions.deleteServices,
+        readProductionLines: branchPermissions.readProductionLines,
+        createProductionLines: branchPermissions.createProductionLines,
+        updateProductionLines: branchPermissions.updateProductionLines,
+        deleteProductionLines: branchPermissions.deleteProductionLines,
       };
     }
-    return {} as Permissions;
+    return { ...EMPTY_PERMISSIONS };
   });
   const { execute: executeSetPermissions, isLoading } = useLazyQuery(setUserPermissions);
 
@@ -169,15 +148,15 @@ export default function UserPermissionsManager({ user, branchId, onClose, onUpda
         </div>
 
         <div className="space-y-6">
-          {Object.entries(permissionGroups).map(([groupName, groupPermissions]) => (
-            <div key={groupName} className="rounded border border-gray-300 p-4">
+          {PERMISSION_GROUPS.map((group) => (
+            <div key={group.category} className="rounded border border-gray-300 p-4">
               <div className="mb-3 flex items-center justify-between">
                 <Typography variant="h3" className="font-medium text-gray-900">
-                  {groupName}
+                  {categoryLabels[group.category]}
                 </Typography>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleSelectAll(groupPermissions.map((p) => p.key))}
+                    onClick={() => handleSelectAll(group.permissions)}
                     className="text-xs text-blue-600 hover:underline"
                     disabled={isLoading}
                   >
@@ -185,7 +164,7 @@ export default function UserPermissionsManager({ user, branchId, onClose, onUpda
                   </button>
                   <span className="text-gray-400">|</span>
                   <button
-                    onClick={() => handleDeselectAll(groupPermissions.map((p) => p.key))}
+                    onClick={() => handleDeselectAll(group.permissions)}
                     className="text-xs text-gray-600 hover:underline"
                     disabled={isLoading}
                   >
@@ -194,19 +173,19 @@ export default function UserPermissionsManager({ user, branchId, onClose, onUpda
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {groupPermissions.map((permission) => (
+                {group.permissions.map((permissionKey) => (
                   <label
-                    key={permission.key}
+                    key={permissionKey}
                     className="flex items-center gap-2 text-sm cursor-pointer"
                   >
                     <input
                       type="checkbox"
-                      checked={permissions[permission.key as keyof Permissions] || false}
-                      onChange={() => handleTogglePermission(permission.key as keyof Permissions)}
+                      checked={permissions[permissionKey] || false}
+                      onChange={() => handleTogglePermission(permissionKey)}
                       disabled={isLoading}
                       className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-gray-700">{permission.label}</span>
+                    <span className="text-gray-700">{permissionLabels[permissionKey]}</span>
                   </label>
                 ))}
               </div>

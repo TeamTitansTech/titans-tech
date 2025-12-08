@@ -4,19 +4,29 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import {
   BRANCH_PERMISSION_KEY,
-  BranchPermissionType,
   IS_SYS_ADMIN_KEY,
   IS_COMPANY_ADMIN_KEY,
-  IS_COMPANY_MANAGER_KEY,
   IS_PUBLIC_KEY,
   IS_AUTHENTICATED_KEY,
+  IS_COMPANY_MEMBER_KEY,
+  RESOURCE_PERMISSION_KEY,
+  ResourcePermissionMetadata,
+  ResourceType,
 } from './auth.decorators';
+import {
+  BranchPermissionType,
+  hasPermissionInBranch,
+  hasPermissionInAnyBranch,
+  UserWithBranchPermissions,
+  Permissions,
+} from '@titans-tech/shared/types/permissions';
 import { appEnv } from 'src/config/env';
 import { JwtPayload, isSysAdmin, ReqWithAuthUser } from 'src/types/request';
 import { PrismaService } from '../shared/prisma.service';
@@ -25,7 +35,6 @@ type CurrentUserInfo = {
   id: string;
   companyId: string;
   isCompanyAdmin: boolean;
-  isCompanyManager: boolean;
 };
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -34,6 +43,40 @@ export class AuthGuard implements CanActivate {
     private reflector: Reflector,
     private prisma: PrismaService,
   ) {}
+
+  private readonly resourceResolvers: Record<
+    ResourceType,
+    (id: string) => Promise<string | null>
+  > = {
+    machine: async (id) => {
+      const machine = await this.prisma.machine.findUnique({
+        where: { id },
+        select: { branchId: true },
+      });
+      return machine?.branchId ?? null;
+    },
+    service: async (id) => {
+      const service = await this.prisma.machineService.findUnique({
+        where: { id },
+        select: { machine: { select: { branchId: true } } },
+      });
+      return service?.machine?.branchId ?? null;
+    },
+    productionLine: async (id) => {
+      const line = await this.prisma.productionLine.findUnique({
+        where: { id },
+        select: { branchId: true },
+      });
+      return line?.branchId ?? null;
+    },
+    serviceRequest: async (id) => {
+      const request = await this.prisma.serviceRequest.findUnique({
+        where: { id },
+        select: { machine: { select: { branchId: true } } },
+      });
+      return request?.machine?.branchId ?? null;
+    },
+  };
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -56,23 +99,30 @@ export class AuthGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
-    const requiresCompanyManager = this.reflector.getAllAndOverride<boolean>(
-      IS_COMPANY_MANAGER_KEY,
+    const isAuthenticated = this.reflector.getAllAndOverride<boolean>(
+      IS_AUTHENTICATED_KEY,
       [context.getHandler(), context.getClass()],
     );
 
-    const isAuthenticated = this.reflector.getAllAndOverride<boolean>(
-      IS_AUTHENTICATED_KEY,
+    const resourcePermission =
+      this.reflector.getAllAndOverride<ResourcePermissionMetadata>(
+        RESOURCE_PERMISSION_KEY,
+        [context.getHandler(), context.getClass()],
+      );
+
+    const isCompanyMember = this.reflector.getAllAndOverride<boolean>(
+      IS_COMPANY_MEMBER_KEY,
       [context.getHandler(), context.getClass()],
     );
 
     if (
       !requiresSysAdmin &&
       !requiresCompanyAdmin &&
-      !requiresCompanyManager &&
       !requiredPermission &&
       !isPublic &&
-      !isAuthenticated
+      !isAuthenticated &&
+      !resourcePermission &&
+      !isCompanyMember
     ) {
       if (appEnv.NODE_ENV == 'development') {
         throw new ForbiddenException(
@@ -124,7 +174,6 @@ export class AuthGuard implements CanActivate {
         id: true,
         companyId: true,
         isCompanyAdmin: true,
-        isCompanyManager: true,
       },
     });
 
@@ -137,13 +186,29 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
+    // Handle @CompanyMember routes - validates user belongs to company from :companyId param
+    if (isCompanyMember) {
+      const companyId = request.params?.companyId;
+      if (!companyId) {
+        throw new ForbiddenException(
+          'Access denied: No company context provided (expected :companyId in params)',
+        );
+      }
+      if (currentUser.companyId !== companyId) {
+        throw new ForbiddenException(
+          'Access denied: User not part of this company',
+        );
+      }
+      return true;
+    }
+
     if (requiresSysAdmin) {
       throw new ForbiddenException(
         'Access denied: Only system administrators can access this resource',
       );
     }
 
-    // Handle @CompanyAdmin routes - only CompanyAdmin can access (not Managers)
+    // Handle @CompanyAdmin routes - only CompanyAdmin can access
     if (requiresCompanyAdmin) {
       if (!currentUser.isCompanyAdmin) {
         throw new ForbiddenException(
@@ -153,14 +218,36 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
-    // Handle @CompanyManager routes - CompanyManager or CompanyAdmin can access
-    if (requiresCompanyManager) {
-      if (!currentUser.isCompanyManager && !currentUser.isCompanyAdmin) {
+    // Handle @ResourcePermission routes - resolve branchId from resource
+    if (resourcePermission) {
+      const paramName = resourcePermission.paramName ?? 'id';
+      const resourceId = resourcePermission.fromBody
+        ? request.body?.[paramName]
+        : request.params?.[paramName];
+
+      if (!resourceId) {
         throw new ForbiddenException(
-          'Access denied: Only company managers or administrators can access this resource',
+          `Resource ID not provided (expected '${paramName}' in ${resourcePermission.fromBody ? 'body' : 'params'})`,
         );
       }
-      return true;
+
+      const resolver = this.resourceResolvers[resourcePermission.resourceType];
+      const branchId = await resolver(resourceId);
+
+      if (!branchId) {
+        throw new NotFoundException(
+          `${resourcePermission.resourceType} not found`,
+        );
+      }
+
+      // Attach branchId to request for service layer use
+      (request as ReqWithAuthUser).resolvedBranchId = branchId;
+
+      return this.validateBranchAccess(
+        currentUser,
+        branchId,
+        resourcePermission.permission,
+      );
     }
 
     // Extract branchId from params (URL) or body (POST requests)
@@ -221,8 +308,8 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    // If user is company admin or manager, grant access
-    if (payload.isCompanyAdmin || payload.isCompanyManager) {
+    // If user is company admin, grant access
+    if (payload.isCompanyAdmin) {
       return true;
     }
 
@@ -242,9 +329,16 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    if (!userBranch[requiredPermission]) {
+    // Construct user object for permission check
+    const user: UserWithBranchPermissions = {
+      id: payload.id,
+      isCompanyAdmin: false, // Already checked above
+      branches: [{ branchId, ...(userBranch as unknown as Permissions) }],
+    };
+
+    if (!hasPermissionInBranch(user, branchId, requiredPermission)) {
       throw new ForbiddenException(
-        `Access denied: Missing required permission '${requiredPermission}'`,
+        `Access denied: Missing required permission '${requiredPermission}' or its prerequisites`,
       );
     }
 
@@ -262,15 +356,15 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    // If user is company admin or manager, grant access
-    if (payload.isCompanyAdmin || payload.isCompanyManager) {
+    // If user is company admin, grant access
+    if (payload.isCompanyAdmin) {
       return true;
     }
 
-    // If no specific permission required, deny access (requires admin/manager)
+    // If no specific permission required, deny access (requires admin)
     if (!requiredPermission) {
       throw new ForbiddenException(
-        'Access denied: Only company administrators or managers can access this resource',
+        'Access denied: Only company administrators can access this resource',
       );
     }
 
@@ -290,14 +384,19 @@ export class AuthGuard implements CanActivate {
       );
     }
 
-    // Check if user has the required permission in at least one branch
-    const hasPermission = userBranches.some(
-      (userBranch) => userBranch[requiredPermission],
-    );
+    // Construct user object for permission check
+    const user: UserWithBranchPermissions = {
+      id: payload.id,
+      isCompanyAdmin: false, // Already checked above
+      branches: userBranches.map((ub) => ({
+        branchId: ub.branchId,
+        ...(ub as unknown as Permissions),
+      })),
+    };
 
-    if (!hasPermission) {
+    if (!hasPermissionInAnyBranch(user, requiredPermission)) {
       throw new ForbiddenException(
-        `Access denied: Missing required permission '${requiredPermission}' in all branches`,
+        `Access denied: Missing required permission '${requiredPermission}' or its prerequisites in all branches`,
       );
     }
 

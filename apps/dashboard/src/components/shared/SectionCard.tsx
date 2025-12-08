@@ -25,7 +25,6 @@ const STATUS_COLORS = {
   ok: 'bg-green-500',
   warning: 'bg-yellow-500',
   alert: 'bg-red-500',
-  unknown: 'bg-green-500',
 } as const;
 
 const SECTION_I18N_KEYS: Record<string, string> = {

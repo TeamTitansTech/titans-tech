@@ -3,7 +3,7 @@ import { getPublicMachineInfo } from '@/data/services/public.api';
 import { getCurrentUser } from '@/data/services/auth.api';
 import { notFound, redirect } from 'next/navigation';
 import { PublicMachinePageClient } from './PublicMachinePageClient';
-import { hasPermissionForResource } from '@/lib/permissions';
+import { hasPermissionInBranch } from '@titans-tech/shared/types';
 
 interface QRPageProps {
   params: Promise<{ machineId: string; subdomain: string }>;
@@ -48,11 +48,7 @@ export default async function QRPage({ params }: QRPageProps) {
     }
 
     // Check permission using branch info
-    const canViewMachine = hasPermissionForResource(
-      user,
-      { branchId: publicInfo.data.branch.id },
-      'readMachines',
-    );
+    const canViewMachine = hasPermissionInBranch(user, publicInfo.data.branch.id, 'readMachines');
 
     if (!canViewMachine) {
       // Redirect to home on the subdomain

@@ -445,7 +445,6 @@ model User {
   email                  String  @unique
   password               String
   isCompanyAdmin         Boolean @default(false)
-  isCompanyManager       Boolean @default(false)
   isUsingDefaultPassword Boolean @default(true)
 
   createdAt DateTime @default(now())
@@ -478,12 +477,6 @@ model UserBranch {
   // Branch Management Permissions
   readBranches   Boolean @default(false)
   updateBranches Boolean @default(false)
-
-  // Blueprint Permissions
-  readBlueprints   Boolean @default(false)
-  createBlueprints Boolean @default(false)
-  updateBlueprints Boolean @default(false)
-  deleteBlueprints Boolean @default(false)
 
   // Machine Permissions
   readMachines   Boolean @default(false)

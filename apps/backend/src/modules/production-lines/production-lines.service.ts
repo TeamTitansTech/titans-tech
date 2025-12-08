@@ -77,7 +77,7 @@ export class ProductionLinesService {
       );
     }
 
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    if (user.isCompanyAdmin) {
       return;
     }
 
@@ -107,7 +107,7 @@ export class ProductionLinesService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    if (user.isCompanyAdmin) {
       return user.company.branches.map((b) => b.id);
     }
 

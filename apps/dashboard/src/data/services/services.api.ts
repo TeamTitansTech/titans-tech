@@ -18,6 +18,7 @@ export const createService = async (payload: CreateServicePayload) => {
 
   if (!response.errors) {
     revalidateTag(`services-${payload.machineId}`, 'max');
+    revalidateTag(`latest-report-${payload.machineId}`, 'max');
     revalidatePath(`/machines/${payload.machineId}`);
     revalidatePath(`/machines/${payload.machineId}/sections/bearing_clearance`);
   }
@@ -63,6 +64,7 @@ export const updateService = async (
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
@@ -125,6 +127,7 @@ export const updateServiceSection = async (
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
@@ -147,6 +150,7 @@ export const completeService = async (
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
@@ -164,6 +168,7 @@ export const deleteService = async (serviceId: string, machineId?: string) => {
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }

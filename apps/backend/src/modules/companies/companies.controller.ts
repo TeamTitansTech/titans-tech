@@ -23,9 +23,9 @@ import {
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import {
   Admin,
-  Authenticated,
   BranchPermission,
   CompanyAdmin,
+  CompanyMember,
   Public,
 } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
@@ -64,7 +64,7 @@ export class CompaniesController {
     return this.companiesService.getCompanyPublicInfo(companySlug);
   }
 
-  @Authenticated()
+  @CompanyMember()
   @Get(':companyId')
   findOne(@Param('companyId') companyId: string) {
     return this.companiesService.findOne(companyId);
@@ -120,7 +120,7 @@ export class CompaniesController {
     return this.usersService.remove(userId, companyId);
   }
 
-  @Authenticated()
+  @CompanyMember()
   @Get(':companyId/branches')
   findAllBranches(@Param('companyId') companyId: string) {
     return this.companyBranchesService.findAllByCompany(companyId);
@@ -136,7 +136,7 @@ export class CompaniesController {
     return this.companyBranchesService.create(companyId, createBranchDto);
   }
 
-  @Authenticated()
+  @CompanyMember()
   @Get(':companyId/admin-manager-users')
   getAdminManagerUsers(@Param('companyId') companyId: string) {
     return this.companiesService.getAdminManagerUsers(companyId);

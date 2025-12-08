@@ -109,7 +109,6 @@ export default function UsersManager({ selectedCompany }: Props) {
           name,
           email,
           isCompanyAdmin,
-          isCompanyManager: false,
         },
       });
 
