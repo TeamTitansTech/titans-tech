@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export interface StepBadge {
   label: string;
@@ -51,8 +51,7 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
               'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400',
             step.status === 'current' && 'bg-blue-500 text-white ring-2 ring-blue-300',
             step.status === 'completed' && 'bg-green-600 text-white',
-            isClickable && 'cursor-pointer hover:opacity-80',
-            !isClickable && 'cursor-not-allowed',
+            isClickable && 'hover:opacity-80',
           )}
         >
           {step.status === 'completed' ? (
@@ -105,6 +104,9 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
 
 export function Stepper({ steps, onStepClick }: StepperProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
 
   // Auto-scroll to current step when it changes
   useEffect(() => {
@@ -120,9 +122,38 @@ export function Stepper({ steps, onStepClick }: StepperProps) {
     }
   }, [steps]);
 
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - containerRef.current.offsetLeft);
+    setScrollLeft(containerRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !containerRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - containerRef.current.offsetLeft;
+    const walk = x - startX;
+    containerRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
   return (
     <div className="w-full p-4 sm:p-4 bg-muted/30 rounded-lg border relative">
-      <div ref={containerRef} className="hide-scrollbar flex items-center overflow-x-auto">
+      <div
+        ref={containerRef}
+        className={cn(
+          'hide-scrollbar flex items-center overflow-x-auto select-none',
+          isDragging ? 'cursor-grabbing' : 'cursor-grab',
+        )}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         {steps.map((step, index) => (
           <StepperItem
             key={step.key}
