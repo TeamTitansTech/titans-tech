@@ -9,6 +9,8 @@ interface SelectionStepProps {
   toggleSection: (sectionKey: string) => void;
   onCancel: () => void;
   onContinue: () => void;
+  /** Optional map of section keys to their status. Defaults to 'ok' if not provided. */
+  sectionStatuses?: Record<string, SectionStatus>;
   translations: {
     getSectionName: (i18nKey: string) => string;
     areasSelected: (count: number) => string;
@@ -24,11 +26,12 @@ export function SelectionStep({
   toggleSection,
   onCancel,
   onContinue,
+  sectionStatuses,
   translations,
 }: SelectionStepProps) {
-  // Mock function to get section status - replace with actual logic
-  const getSectionStatus = (_sectionKey: string): SectionStatus => {
-    return 'ok';
+  // Get section status from provided statuses map, default to 'ok' (operational until proven otherwise)
+  const getSectionStatus = (sectionKey: string): SectionStatus => {
+    return sectionStatuses?.[sectionKey] ?? 'ok';
   };
 
   return (

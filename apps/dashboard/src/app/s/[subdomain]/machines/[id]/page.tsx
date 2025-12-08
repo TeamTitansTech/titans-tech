@@ -38,7 +38,11 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
     return <PublicMachineView machine={publicMachineResponse.data} machineId={id} />;
   }
 
-  const response = await getMachineById(id);
+  // Fetch machine and latest report in parallel
+  const [response, latestReportResponse] = await Promise.all([
+    getMachineById(id),
+    getLatestReport(id),
+  ]);
 
   if (response.errors) {
     return (
@@ -61,9 +65,6 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
 
   const machine = response.data;
   const user = userResponse.data;
-
-  // Fetch latest report for section statuses
-  const latestReportResponse = await getLatestReport(id);
   const latestReport = latestReportResponse.data || null;
 
   // Check if user has readMachines permission for this machine's branch

@@ -86,8 +86,14 @@ export async function seedCrownUsers(
   // COMPANY ADMIN - Full access to all 3 facilities
   // ========================================================================
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@dev-crown.com' },
-    update: {},
+    where: { id: 'crown-admin' },
+    update: {
+      name: 'Crown Admin',
+      email: 'admin@dev-crown.com',
+      isCompanyAdmin: true,
+      isCompanyManager: false,
+      companyId: company.id,
+    },
     create: {
       id: 'crown-admin',
       name: 'Crown Admin',
@@ -109,8 +115,14 @@ export async function seedCrownUsers(
   // Has service permissions at all 3 branches
   // ========================================================================
   const technicianUser = await prisma.user.upsert({
-    where: { email: 'julio.souza@dev-crown.com' },
-    update: {},
+    where: { id: 'crown-technician' },
+    update: {
+      name: 'Julio De Souza',
+      email: 'julio.souza@dev-crown.com',
+      isCompanyAdmin: false,
+      isCompanyManager: false,
+      companyId: company.id,
+    },
     create: {
       id: 'crown-technician',
       name: 'Julio De Souza',
@@ -186,8 +198,14 @@ export async function seedArdaghUsers(
 
   // Company Admin
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@dev-ardagh.com' },
-    update: {},
+    where: { id: 'ardagh-admin' },
+    update: {
+      name: 'Ardagh Admin',
+      email: 'admin@dev-ardagh.com',
+      isCompanyAdmin: true,
+      isCompanyManager: false,
+      companyId: company.id,
+    },
     create: {
       id: 'ardagh-admin',
       name: 'Ardagh Admin',
@@ -204,8 +222,14 @@ export async function seedArdaghUsers(
 
   // Technician
   const technicianUser = await prisma.user.upsert({
-    where: { email: 'technician@dev-ardagh.com' },
-    update: {},
+    where: { id: 'ardagh-technician' },
+    update: {
+      name: 'Ardagh Technician',
+      email: 'technician@dev-ardagh.com',
+      isCompanyAdmin: false,
+      isCompanyManager: false,
+      companyId: company.id,
+    },
     create: {
       id: 'ardagh-technician',
       name: 'Ardagh Technician',
