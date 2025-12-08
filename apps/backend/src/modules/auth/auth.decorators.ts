@@ -5,6 +5,7 @@ export const BRANCH_PERMISSION_KEY = 'branchPermission';
 export const IS_SYS_ADMIN_KEY = 'isAdmin';
 export const IS_COMPANY_ADMIN_KEY = 'isCompanyAdmin';
 export const IS_AUTHENTICATED_KEY = 'isAuthenticated';
+export const IS_COMPANY_MEMBER_KEY = 'isCompanyMember';
 
 export const Admin = () => SetMetadata(IS_SYS_ADMIN_KEY, true);
 
@@ -25,16 +26,40 @@ export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 export const Authenticated = () => SetMetadata(IS_AUTHENTICATED_KEY, true);
 
 /**
- * Decorator to specify required branch permission for a route
- * This will check if the user has the specified permission in the branch
- * Routes with :branchId parameter will validate the user is part of the branch and has the permission
- * Routes without :branchId but with :companyId will check company admin or manager status
+ * Decorator to validate that the user belongs to the company specified in :companyId param.
+ * SysAdmins can access any company.
+ *
+ * @example
+ * @CompanyMember()
+ * @Get(':companyId')
+ * findOne(@Param('companyId') companyId: string) { ... }
+ */
+export const CompanyMember = () => SetMetadata(IS_COMPANY_MEMBER_KEY, true);
+
+/**
+ * Decorator to specify required branch permission for a route.
+ * This will check if the user has the specified permission in the branch.
+ *
+ * The branchId is extracted from:
+ * 1. URL params (`:branchId`) - for routes like `/branches/:branchId/resource`
+ * 2. Request body (`branchId`) - for POST routes creating new resources
+ *
+ * Routes without :branchId but with :companyId will check if user has the permission
+ * in any branch of that company.
  *
  * @param permission - The permission required from UserBranch schema
+ *
  * @example
+ * // branchId from URL params
  * @BranchPermission('createUsers')
  * @Post(':branchId/users')
  * createUser(@Param('branchId') branchId: string) { ... }
+ *
+ * @example
+ * // branchId from request body (for creating new resources)
+ * @BranchPermission('createMachines')
+ * @Post()
+ * create(@Body() dto: CreateMachineDto) { ... } // dto.branchId is used
  */
 export const BranchPermission = (permission: BranchPermissionType) =>
   SetMetadata(BRANCH_PERMISSION_KEY, permission);

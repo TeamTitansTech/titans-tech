@@ -15,6 +15,7 @@ import {
   IS_COMPANY_ADMIN_KEY,
   IS_PUBLIC_KEY,
   IS_AUTHENTICATED_KEY,
+  IS_COMPANY_MEMBER_KEY,
   RESOURCE_PERMISSION_KEY,
   ResourcePermissionMetadata,
   ResourceType,
@@ -109,13 +110,19 @@ export class AuthGuard implements CanActivate {
         [context.getHandler(), context.getClass()],
       );
 
+    const isCompanyMember = this.reflector.getAllAndOverride<boolean>(
+      IS_COMPANY_MEMBER_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
     if (
       !requiresSysAdmin &&
       !requiresCompanyAdmin &&
       !requiredPermission &&
       !isPublic &&
       !isAuthenticated &&
-      !resourcePermission
+      !resourcePermission &&
+      !isCompanyMember
     ) {
       if (appEnv.NODE_ENV == 'development') {
         throw new ForbiddenException(
@@ -176,6 +183,22 @@ export class AuthGuard implements CanActivate {
 
     // Handle @Authenticated routes - any authenticated user can access
     if (isAuthenticated) {
+      return true;
+    }
+
+    // Handle @CompanyMember routes - validates user belongs to company from :companyId param
+    if (isCompanyMember) {
+      const companyId = request.params?.companyId;
+      if (!companyId) {
+        throw new ForbiddenException(
+          'Access denied: No company context provided (expected :companyId in params)',
+        );
+      }
+      if (currentUser.companyId !== companyId) {
+        throw new ForbiddenException(
+          'Access denied: User not part of this company',
+        );
+      }
       return true;
     }
 

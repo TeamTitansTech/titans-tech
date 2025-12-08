@@ -24,6 +24,7 @@ import {
   Authenticated,
   BranchPermission,
   Public,
+  ResourcePermission,
 } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { ReqWithAuthUser, isSysAdmin } from '../../types/request';
@@ -105,7 +106,7 @@ export class MachinesController {
    * Get machine by ID
    * Validates user has access to the machine's branch
    */
-  @Authenticated()
+  @ResourcePermission('machine', 'readMachines')
   @Get(':id')
   findOne(
     @Request() req: ReqWithAuthUser,
@@ -148,7 +149,7 @@ export class MachinesController {
    * Update machine
    * Validates user has access to the machine's branch
    */
-  @Authenticated()
+  @ResourcePermission('machine', 'updateMachines')
   @Put(':id')
   update(
     @Request() req: ReqWithAuthUser,
@@ -169,7 +170,7 @@ export class MachinesController {
    * Delete machine
    * Validates user has access to the machine's branch
    */
-  @Authenticated()
+  @ResourcePermission('machine', 'deleteMachines')
   @Delete(':id')
   delete(
     @Request() req: ReqWithAuthUser,
@@ -186,7 +187,10 @@ export class MachinesController {
    * Send parts replacement request via email
    * Sends an email with selected parts to the specified recipients
    */
-  @Authenticated()
+  @ResourcePermission('machine', 'readMachines', {
+    paramName: 'machineId',
+    fromBody: true,
+  })
   @Post('send-parts-email')
   async sendPartsEmail(
     @Request() req: ReqWithAuthUser,
