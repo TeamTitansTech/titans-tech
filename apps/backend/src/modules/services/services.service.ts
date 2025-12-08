@@ -1316,6 +1316,9 @@ export class ServicesService {
             ...(outerDataId && { outerDataId }),
             ...(innerBeforeId && { innerBeforeId }),
             ...(innerDataId && { innerDataId }),
+            ...(updateDto.attachments !== undefined && {
+              attachments: updateDto.attachments,
+            }),
           },
         });
       } else {
@@ -1334,6 +1337,9 @@ export class ServicesService {
             }),
             ...(updateDto.innerData && {
               innerData: { create: updateDto.innerData as any },
+            }),
+            ...(updateDto.attachments && {
+              attachments: updateDto.attachments,
             }),
           },
         });
@@ -1421,6 +1427,9 @@ export class ServicesService {
           ...(beforeDataId && { beforeDataId }),
           ...(dataId && { dataId }),
           ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
+          ...(updateDto.attachments !== undefined && {
+            attachments: updateDto.attachments,
+          }),
         };
 
         await tx.machineServiceSlideSingleHammer.update({
@@ -1429,7 +1438,7 @@ export class ServicesService {
         });
       } else {
         // Create new single hammer slide record
-        const { beforeData, data, notes } = updateDto;
+        const { beforeData, data, notes, attachments } = updateDto;
 
         await tx.machineServiceSlideSingleHammer.create({
           data: {
@@ -1441,6 +1450,7 @@ export class ServicesService {
               data: { create: data as any },
             }),
             ...(notes && { notes }),
+            ...(attachments && { attachments }),
           },
         });
       }
@@ -1547,6 +1557,9 @@ export class ServicesService {
           ...(innerBeforeId && { innerBeforeId }),
           ...(innerDataId && { innerDataId }),
           ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
+          ...(updateDto.attachments !== undefined && {
+            attachments: updateDto.attachments,
+          }),
         };
 
         await tx.machineServiceSlideDoubleHammer.update({
@@ -1555,8 +1568,14 @@ export class ServicesService {
         });
       } else {
         // Create new double hammer slide record with 4 possible SlideData records
-        const { outerBefore, outerData, innerBefore, innerData, notes } =
-          updateDto;
+        const {
+          outerBefore,
+          outerData,
+          innerBefore,
+          innerData,
+          notes,
+          attachments,
+        } = updateDto;
 
         await tx.machineServiceSlideDoubleHammer.create({
           data: {
@@ -1574,6 +1593,7 @@ export class ServicesService {
               innerData: { create: innerData as any },
             }),
             ...(notes && { notes }),
+            ...(attachments && { attachments }),
           },
         });
       }
@@ -1723,6 +1743,10 @@ export class ServicesService {
           updatePayload.notes = updateDto.notes;
         }
 
+        if (updateDto.attachments !== undefined) {
+          updatePayload.attachments = updateDto.attachments;
+        }
+
         if (Object.keys(updatePayload).length > 0) {
           await tx.machineServiceGibs.update({
             where: { id: existingRecord.id },
@@ -1785,6 +1809,9 @@ export class ServicesService {
                 },
               }),
               ...(updateDto.notes && { notes: updateDto.notes }),
+              ...(updateDto.attachments && {
+                attachments: updateDto.attachments,
+              }),
             },
           },
         },
@@ -1830,7 +1857,7 @@ export class ServicesService {
         ];
 
     const existingRecord = service.lubricationHydraulics?.[0];
-    const { data: lubData, notes } = updateDto;
+    const { data: lubData, notes, attachments } = updateDto;
 
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
@@ -1853,10 +1880,13 @@ export class ServicesService {
             },
           });
 
-          // Update notes in junction table
+          // Update notes and attachments in junction table
           await tx.machineServiceLubricationHydraulics.update({
             where: { id: existingRecord.id },
-            data: { notes },
+            data: {
+              notes,
+              ...(attachments !== undefined && { attachments }),
+            },
           });
         } else {
           // Create new data record
@@ -1866,6 +1896,7 @@ export class ServicesService {
             where: { id: existingRecord.id },
             data: {
               notes,
+              ...(attachments !== undefined && { attachments }),
               data: {
                 create: {
                   ...restData,
@@ -1898,6 +1929,7 @@ export class ServicesService {
           lubricationHydraulics: {
             create: {
               notes,
+              ...(attachments && { attachments }),
               data: {
                 create: {
                   ...restData,
@@ -1946,19 +1978,29 @@ export class ServicesService {
       : [...completedSections, 'CLUTCH'];
 
     const existingRecord = service.clutch?.[0];
+    const { attachments, ...clutchData } = updateDto;
 
     if (existingRecord) {
       await this.prisma.$transaction(async (tx) => {
         if (existingRecord.dataId) {
           await tx.clutchData.update({
             where: { id: existingRecord.dataId },
-            data: updateDto as any,
+            data: clutchData as any,
           });
+
+          // Update attachments in junction table
+          if (attachments !== undefined) {
+            await tx.machineServiceClutch.update({
+              where: { id: existingRecord.id },
+              data: { attachments },
+            });
+          }
         } else {
           await tx.machineServiceClutch.update({
             where: { id: existingRecord.id },
             data: {
-              data: { create: updateDto as any },
+              data: { create: clutchData as any },
+              ...(attachments !== undefined && { attachments }),
             },
           });
         }
@@ -1979,7 +2021,8 @@ export class ServicesService {
           lastSectionSavedAt: new Date(),
           clutch: {
             create: {
-              data: { create: updateDto as any },
+              data: { create: clutchData as any },
+              ...(attachments && { attachments }),
             },
           },
         },
@@ -2060,6 +2103,11 @@ export class ServicesService {
           updatePayload.notes = updateDto.notes;
         }
 
+        // Handle attachments
+        if (updateDto.attachments !== undefined) {
+          updatePayload.attachments = updateDto.attachments;
+        }
+
         if (Object.keys(updatePayload).length > 0) {
           await tx.machineServiceCounterbalanceCylinderAirbag.update({
             where: { id: existingRecord.id },
@@ -2084,6 +2132,9 @@ export class ServicesService {
           counterbalanceCylinderAirbag: {
             create: {
               ...(updateDto.notes !== undefined && { notes: updateDto.notes }),
+              ...(updateDto.attachments && {
+                attachments: updateDto.attachments,
+              }),
               ...(updateDto.outerData && {
                 outerData: { create: updateDto.outerData as any },
               }),
@@ -2172,6 +2223,9 @@ export class ServicesService {
         if (updateDto.notes !== undefined) {
           updatePayload.notes = updateDto.notes;
         }
+        if (updateDto.attachments !== undefined) {
+          updatePayload.attachments = updateDto.attachments;
+        }
 
         if (Object.keys(updatePayload).length > 0) {
           await tx.machineServiceTramming.update({
@@ -2204,6 +2258,9 @@ export class ServicesService {
               }),
               ...(updateDto.slideTram && { slideTram: updateDto.slideTram }),
               ...(updateDto.notes && { notes: updateDto.notes }),
+              ...(updateDto.attachments && {
+                attachments: updateDto.attachments,
+              }),
             } as any,
           },
         },
@@ -2288,6 +2345,7 @@ export class ServicesService {
           'vacuumSystem',
           'vacuumSystemAirPressureSetting',
           'notes',
+          'attachments',
         ];
 
         metadataFields.forEach((field) => {
@@ -2337,6 +2395,9 @@ export class ServicesService {
                   updateDto.vacuumSystemAirPressureSetting,
               }),
               ...(updateDto.notes && { notes: updateDto.notes }),
+              ...(updateDto.attachments && {
+                attachments: updateDto.attachments,
+              }),
             },
           },
         },
