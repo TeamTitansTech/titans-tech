@@ -61,7 +61,6 @@ export async function seedCrownUsers(
       name: 'Crown Admin',
       email: 'admin@dev-crown.com',
       isCompanyAdmin: true,
-      isCompanyManager: false,
       companyId: company.id,
     },
     create: {
@@ -89,7 +88,6 @@ export async function seedCrownUsers(
       name: 'Julio De Souza',
       email: 'julio.souza@dev-crown.com',
       isCompanyAdmin: false,
-      isCompanyManager: false,
       companyId: company.id,
     },
     create: {
@@ -171,7 +169,6 @@ export async function seedArdaghUsers(
       name: 'Ardagh Admin',
       email: 'admin@dev-ardagh.com',
       isCompanyAdmin: true,
-      isCompanyManager: false,
       companyId: company.id,
     },
     create: {
@@ -194,7 +191,6 @@ export async function seedArdaghUsers(
       name: 'Ardagh Technician',
       email: 'technician@dev-ardagh.com',
       isCompanyAdmin: false,
-      isCompanyManager: false,
       companyId: company.id,
     },
     create: {
