@@ -21,9 +21,17 @@ interface DocumentUploadProps {
   value: Attachment[];
   onChange: (attachments: Attachment[]) => void;
   disabled?: boolean;
+  maxFiles?: number;
 }
 
-export function DocumentUpload({ value, onChange, disabled }: DocumentUploadProps) {
+const DEFAULT_MAX_FILES = 10;
+
+export function DocumentUpload({
+  value,
+  onChange,
+  disabled,
+  maxFiles = DEFAULT_MAX_FILES,
+}: DocumentUploadProps) {
   const t = useTranslations('common.documentUpload');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,12 +54,26 @@ export function DocumentUpload({ value, onChange, disabled }: DocumentUploadProp
     if (!files || files.length === 0) return;
 
     setError(null);
+
+    // Check if adding these files would exceed the max limit
+    const remainingSlots = maxFiles - value.length;
+    if (remainingSlots <= 0) {
+      setError(t('maxFilesReached', { max: maxFiles }));
+      return;
+    }
+
+    // Only process up to the remaining slots
+    const filesToProcess = Array.from(files).slice(0, remainingSlots);
+    if (filesToProcess.length < files.length) {
+      setError(t('maxFilesExceeded', { max: maxFiles }));
+    }
+
     setIsUploading(true);
 
     const newAttachments: Attachment[] = [];
     const errors: string[] = [];
 
-    for (const file of Array.from(files)) {
+    for (const file of filesToProcess) {
       const validationError = validateFile(file);
       if (validationError) {
         errors.push(`${file.name}: ${validationError}`);
@@ -152,7 +174,7 @@ export function DocumentUpload({ value, onChange, disabled }: DocumentUploadProp
         type="button"
         variant="outline"
         onClick={handleClick}
-        disabled={disabled || isUploading}
+        disabled={disabled || isUploading || value.length >= maxFiles}
         className="w-full h-auto py-4 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-transparent flex flex-col items-center justify-center gap-2 text-muted-foreground"
       >
         {isUploading ? (
