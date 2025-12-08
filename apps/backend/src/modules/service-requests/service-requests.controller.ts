@@ -16,7 +16,11 @@ import { Request } from 'express';
 import { UAParser } from 'ua-parser-js';
 import { ServiceRequestsService } from './service-requests.service';
 import { isValidEmail } from '../../common/validators';
-import { Authenticated, CompanyAdmin, Public } from '../auth/auth.decorators';
+import {
+  CompanyAdmin,
+  Public,
+  ResourcePermission,
+} from '../auth/auth.decorators';
 import type { ReqWithAuthUser } from '../../types/request';
 import { isRegularUser, isSysAdmin } from '../../types/request';
 import { ServiceRequestStatus } from '@titans-tech/db';
@@ -121,7 +125,7 @@ export class ServiceRequestsController {
    * Get service requests for a specific machine
    */
   @Get('machine/:machineId')
-  @Authenticated()
+  @ResourcePermission('machine', 'readServices', { paramName: 'machineId' })
   async findByMachine(@Param('machineId') machineId: string) {
     return this.serviceRequestsService.findByMachine(machineId);
   }
@@ -130,7 +134,7 @@ export class ServiceRequestsController {
    * Get a single service request by ID
    */
   @Get(':id')
-  @Authenticated()
+  @ResourcePermission('serviceRequest', 'readServices')
   async findOne(@Param('id') id: string) {
     return this.serviceRequestsService.findOne(id);
   }

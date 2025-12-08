@@ -4,6 +4,7 @@ import {
   Injectable,
   UnauthorizedException,
   ForbiddenException,
+  NotFoundException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
@@ -14,6 +15,10 @@ import {
   IS_COMPANY_ADMIN_KEY,
   IS_PUBLIC_KEY,
   IS_AUTHENTICATED_KEY,
+  IS_COMPANY_MEMBER_KEY,
+  RESOURCE_PERMISSION_KEY,
+  ResourcePermissionMetadata,
+  ResourceType,
 } from './auth.decorators';
 import {
   BranchPermissionType,
@@ -38,6 +43,40 @@ export class AuthGuard implements CanActivate {
     private reflector: Reflector,
     private prisma: PrismaService,
   ) {}
+
+  private readonly resourceResolvers: Record<
+    ResourceType,
+    (id: string) => Promise<string | null>
+  > = {
+    machine: async (id) => {
+      const machine = await this.prisma.machine.findUnique({
+        where: { id },
+        select: { branchId: true },
+      });
+      return machine?.branchId ?? null;
+    },
+    service: async (id) => {
+      const service = await this.prisma.machineService.findUnique({
+        where: { id },
+        select: { machine: { select: { branchId: true } } },
+      });
+      return service?.machine?.branchId ?? null;
+    },
+    productionLine: async (id) => {
+      const line = await this.prisma.productionLine.findUnique({
+        where: { id },
+        select: { branchId: true },
+      });
+      return line?.branchId ?? null;
+    },
+    serviceRequest: async (id) => {
+      const request = await this.prisma.serviceRequest.findUnique({
+        where: { id },
+        select: { machine: { select: { branchId: true } } },
+      });
+      return request?.machine?.branchId ?? null;
+    },
+  };
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
@@ -65,12 +104,25 @@ export class AuthGuard implements CanActivate {
       [context.getHandler(), context.getClass()],
     );
 
+    const resourcePermission =
+      this.reflector.getAllAndOverride<ResourcePermissionMetadata>(
+        RESOURCE_PERMISSION_KEY,
+        [context.getHandler(), context.getClass()],
+      );
+
+    const isCompanyMember = this.reflector.getAllAndOverride<boolean>(
+      IS_COMPANY_MEMBER_KEY,
+      [context.getHandler(), context.getClass()],
+    );
+
     if (
       !requiresSysAdmin &&
       !requiresCompanyAdmin &&
       !requiredPermission &&
       !isPublic &&
-      !isAuthenticated
+      !isAuthenticated &&
+      !resourcePermission &&
+      !isCompanyMember
     ) {
       if (appEnv.NODE_ENV == 'development') {
         throw new ForbiddenException(
@@ -134,6 +186,22 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
+    // Handle @CompanyMember routes - validates user belongs to company from :companyId param
+    if (isCompanyMember) {
+      const companyId = request.params?.companyId;
+      if (!companyId) {
+        throw new ForbiddenException(
+          'Access denied: No company context provided (expected :companyId in params)',
+        );
+      }
+      if (currentUser.companyId !== companyId) {
+        throw new ForbiddenException(
+          'Access denied: User not part of this company',
+        );
+      }
+      return true;
+    }
+
     if (requiresSysAdmin) {
       throw new ForbiddenException(
         'Access denied: Only system administrators can access this resource',
@@ -148,6 +216,38 @@ export class AuthGuard implements CanActivate {
         );
       }
       return true;
+    }
+
+    // Handle @ResourcePermission routes - resolve branchId from resource
+    if (resourcePermission) {
+      const paramName = resourcePermission.paramName ?? 'id';
+      const resourceId = resourcePermission.fromBody
+        ? request.body?.[paramName]
+        : request.params?.[paramName];
+
+      if (!resourceId) {
+        throw new ForbiddenException(
+          `Resource ID not provided (expected '${paramName}' in ${resourcePermission.fromBody ? 'body' : 'params'})`,
+        );
+      }
+
+      const resolver = this.resourceResolvers[resourcePermission.resourceType];
+      const branchId = await resolver(resourceId);
+
+      if (!branchId) {
+        throw new NotFoundException(
+          `${resourcePermission.resourceType} not found`,
+        );
+      }
+
+      // Attach branchId to request for service layer use
+      (request as ReqWithAuthUser).resolvedBranchId = branchId;
+
+      return this.validateBranchAccess(
+        currentUser,
+        branchId,
+        resourcePermission.permission,
+      );
     }
 
     // Extract branchId from params (URL) or body (POST requests)
