@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
-import { Public } from 'src/modules/auth/auth.decorators';
+import { Public, Authenticated } from 'src/modules/auth/auth.decorators';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
@@ -59,6 +59,7 @@ export class UploadController {
     return { url };
   }
 
+  @Authenticated()
   @Post('document')
   @UseInterceptors(
     FileInterceptor('document', {
