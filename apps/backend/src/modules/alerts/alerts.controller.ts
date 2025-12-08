@@ -41,7 +41,11 @@ import {
   UpdateThresholdPistonsSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
-import { Admin, Authenticated } from '../auth/auth.decorators';
+import {
+  Admin,
+  Authenticated,
+  ResourcePermission,
+} from '../auth/auth.decorators';
 
 @Controller('alerts')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -110,7 +114,7 @@ export class AlertsController {
     return { message: 'Threshold deleted successfully' };
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'readServices', { paramName: 'serviceId' })
   @Get('bearing-clearance/service/:serviceId')
   async getAlertByService(@Param('serviceId') serviceId: string) {
     return this.alertsService.getAlertByService(serviceId);
@@ -126,7 +130,7 @@ export class AlertsController {
   // COUNTERBALANCE CYLINDER AIRBAG - Manual Alerts
   // ============================================================================
 
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices', { paramName: 'serviceId' })
   @Post('counterbalance/service/:serviceId')
   async createCounterbalanceAlert(
     @Param('serviceId') serviceId: string,
@@ -136,7 +140,7 @@ export class AlertsController {
     return this.alertsService.createCounterbalanceAlert(serviceId, dto);
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'readServices', { paramName: 'serviceId' })
   @Get('counterbalance/service/:serviceId')
   async getCounterbalanceAlertsForService(
     @Param('serviceId') serviceId: string,
@@ -220,7 +224,7 @@ export class ClutchAlertsController {
     return { message: 'Clutch threshold deleted successfully' };
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'readServices', { paramName: 'serviceId' })
   @Get('service/:serviceId')
   async getClutchAlertByService(@Param('serviceId') serviceId: string) {
     return this.alertsService.getClutchAlertByService(serviceId);
@@ -299,7 +303,7 @@ export class AlertsSlideSingleHammerController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'readServices', { paramName: 'serviceId' })
   @Get('service/:serviceId')
   async getSlideAlertByService(@Param('serviceId') serviceId: string) {
     return this.alertsService.getSlideSingleHammerAlertByService(serviceId);
@@ -378,7 +382,7 @@ export class AlertsSlideDoubleHammerController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'readServices', { paramName: 'serviceId' })
   @Get('service/:serviceId')
   async getSlideAlertByService(@Param('serviceId') serviceId: string) {
     return this.alertsService.getSlideDoubleHammerAlertByService(serviceId);
@@ -445,7 +449,7 @@ export class AlertsGibsController {
     return this.alertsService.deleteGibsThreshold(blueprintId);
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'readServices', { paramName: 'serviceId' })
   @Get('service/:serviceId')
   async getGibsAlertByService(@Param('serviceId') serviceId: string) {
     return this.alertsService.getGibsAlertByService(serviceId);
@@ -496,7 +500,7 @@ export class AlertsPistonsController {
     return this.alertsService.deletePistonsThreshold(blueprintId);
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'readServices', { paramName: 'serviceId' })
   @Get('service/:serviceId')
   async getPistonsAlertByService(@Param('serviceId') serviceId: string) {
     return this.alertsService.getPistonsAlertByService(serviceId);
@@ -567,7 +571,7 @@ export class AlertsTrammingController {
     return this.alertsService.deleteTrammingThreshold(blueprintId);
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'readServices', { paramName: 'serviceId' })
   @Get('service/:serviceId')
   async getTrammingAlertsByService(@Param('serviceId') serviceId: string) {
     return this.alertsService.getTrammingAlertsByService(serviceId);
