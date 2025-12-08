@@ -38,7 +38,7 @@ import {
   LatestReportResponseDto,
   AlertsSummaryResponseDto,
 } from '@titans-tech/shared/backend-dtos';
-import { Authenticated } from '../auth/auth.decorators';
+import { Authenticated, ResourcePermission } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import { ReqWithAuthUser, isSysAdmin } from '../../types/request';
 
@@ -55,9 +55,11 @@ export class ServicesController {
 
   /**
    * Create a new service/inspection
-   * Permission check is now handled in the service layer
    */
-  @Authenticated()
+  @ResourcePermission('machine', 'createServices', {
+    paramName: 'machineId',
+    fromBody: true,
+  })
   @Post()
   create(
     @Body(new ZodValidationPipe(CreateServiceSchema))
@@ -80,10 +82,8 @@ export class ServicesController {
 
   /**
    * Get service by ID
-   * TODO: Add @BranchPermission('readServices') with resource lookup
-   * Current: Requires authentication only
    */
-  @Authenticated()
+  @ResourcePermission('service', 'readServices')
   @Get(':id')
   findOne(@Param('id') id: string): Promise<unknown> {
     return this.servicesService.findOne(id);
@@ -91,16 +91,14 @@ export class ServicesController {
 
   /**
    * Get services for a specific machine
-   * TODO: Add @BranchPermission('readServices') - need to lookup machine's branchId first
-   * Current: Requires authentication only
    */
-  @Authenticated()
+  @ResourcePermission('machine', 'readServices', { paramName: 'machineId' })
   @Get('machine/:machineId')
   findByMachine(@Param('machineId') machineId: string): Promise<unknown> {
     return this.servicesService.findByMachine(machineId);
   }
 
-  @Authenticated()
+  @ResourcePermission('machine', 'readServices', { paramName: 'machineId' })
   @Get('machines/:machineId/latest-report')
   getLatestReport(
     @Param('machineId') machineId: string,
@@ -109,7 +107,7 @@ export class ServicesController {
   }
 
   // Update service (for basic service info and inspection observations)
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Put(':id')
   update(
     @Param('id') id: string,
@@ -121,7 +119,7 @@ export class ServicesController {
   }
 
   // Section update endpoints
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/sections/bearing-clearance')
   updateBearingClearance(
     @Param('id') id: string,
@@ -136,7 +134,7 @@ export class ServicesController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/sections/slide-single-hammer')
   updateSlideSingleHammer(
     @Param('id') id: string,
@@ -151,7 +149,7 @@ export class ServicesController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/sections/slide-double-hammer')
   updateSlideDoubleHammer(
     @Param('id') id: string,
@@ -166,7 +164,7 @@ export class ServicesController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/sections/gibs')
   updateGibs(
     @Param('id') id: string,
@@ -177,7 +175,7 @@ export class ServicesController {
     return this.servicesService.updateGibs(id, updateDto, this.getUserId(req));
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/sections/lubrication-hydraulics')
   updateLubricationHydraulics(
     @Param('id') id: string,
@@ -192,7 +190,7 @@ export class ServicesController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/sections/clutch')
   updateClutch(
     @Param('id') id: string,
@@ -207,7 +205,7 @@ export class ServicesController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/sections/counterbalance-cylinder')
   updateCounterbalanceCylinder(
     @Param('id') id: string,
@@ -222,7 +220,7 @@ export class ServicesController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/sections/tramming')
   updateTramming(
     @Param('id') id: string,
@@ -237,7 +235,7 @@ export class ServicesController {
     );
   }
 
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/sections/pistons')
   updatePistons(
     @Param('id') id: string,
@@ -253,7 +251,7 @@ export class ServicesController {
   }
 
   // Complete service endpoint
-  @Authenticated()
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/complete')
   completeService(
     @Param('id') id: string,
@@ -269,14 +267,14 @@ export class ServicesController {
   }
 
   // Delete service endpoint
-  @Authenticated()
+  @ResourcePermission('service', 'deleteServices')
   @Delete(':id')
   delete(@Param('id') id: string, @Req() req: ReqWithAuthUser): Promise<void> {
     return this.servicesService.delete(id, this.getUserId(req));
   }
 
   // Get alerts summary for a service
-  @Authenticated()
+  @ResourcePermission('service', 'readServices')
   @Get(':id/alerts-summary')
   getAlertsSummary(@Param('id') id: string): Promise<AlertsSummaryResponseDto> {
     return this.servicesService.getAlertsSummary(id);
