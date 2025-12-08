@@ -128,9 +128,14 @@ export class UploadService {
 
     const url = await this.uploadToS3(file, folder, 'document');
 
+    // Decode filename to UTF-8
+    const decodedName = Buffer.from(file.originalname, 'latin1').toString(
+      'utf8',
+    );
+
     return {
       url,
-      originalName: file.originalname,
+      originalName: decodedName,
     };
   }
 
