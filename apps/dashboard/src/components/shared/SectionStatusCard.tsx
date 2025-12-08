@@ -9,6 +9,7 @@ import { CheckCircle, AlertTriangle, AlertCircle, HelpCircle, Package } from 'lu
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Typography } from '@/components/ui/typography';
 import { cn } from '@/lib/utils';
 import type { SectionStatus } from './SectionStatusBadge';
 import { PartsListSelector } from '@/components/parts/PartsListSelector';
@@ -189,12 +190,12 @@ export function SectionStatusCard({
                 {/* Diagram Image */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Typography variant="small" className="text-gray-700 dark:text-gray-300">
                       Technical Diagram
-                      <span className="ml-2 text-xs text-muted-foreground">
+                      <Typography as="span" variant="muted" className="ml-2">
                         (Scroll to zoom, drag to pan)
-                      </span>
-                    </h3>
+                      </Typography>
+                    </Typography>
                   </div>
                   <div className="border rounded-lg overflow-hidden bg-white dark:bg-gray-900 relative">
                     <TransformWrapper
@@ -272,9 +273,9 @@ export function SectionStatusCard({
 
                 {/* Parts List */}
                 <div className="space-y-2">
-                  <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Typography variant="small" className="text-gray-700 dark:text-gray-300">
                     Parts List
-                  </h3>
+                  </Typography>
                   <PartsListSelector {...partsConfig} />
                 </div>
               </div>

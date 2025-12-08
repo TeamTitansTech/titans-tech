@@ -20,6 +20,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Typography } from '@/components/ui/typography';
 import {
   Dialog,
   DialogContent,
@@ -474,14 +475,13 @@ export function SubsectionPartsModal({
                 const fullName = getSubsectionName(subsection.id);
                 const isActive = activeTab === subsection.id;
                 return (
-                  <button
+                  <Button
                     key={subsection.id}
+                    variant={isActive ? 'default' : 'ghost'}
                     onClick={() => setActiveTab(subsection.id)}
                     className={cn(
-                      'flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-md text-sm font-medium transition-all',
-                      isActive
-                        ? 'bg-primary text-primary-foreground shadow-md'
-                        : 'bg-transparent text-muted-foreground hover:bg-background hover:text-foreground',
+                      'flex items-center gap-2 whitespace-nowrap',
+                      isActive ? 'shadow-md' : 'text-muted-foreground',
                     )}
                   >
                     <span>{fullName}</span>
@@ -498,7 +498,7 @@ export function SubsectionPartsModal({
                         {selectedCount}
                       </Badge>
                     )}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -511,12 +511,12 @@ export function SubsectionPartsModal({
                 {/* Diagram Image */}
                 <div className="flex flex-col h-full min-h-0 overflow-hidden">
                   <div className="flex items-center justify-between shrink-0">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    <Typography variant="small" className="text-gray-700 dark:text-gray-300">
                       {subsection.figureReference || 'Technical Diagram'}
-                      <span className="ml-2 text-xs text-muted-foreground">
+                      <Typography as="span" variant="muted" className="ml-2">
                         (Scroll to zoom, drag to pan)
-                      </span>
-                    </h3>
+                      </Typography>
+                    </Typography>
                   </div>
                   <div className="border rounded-lg overflow-hidden bg-white dark:bg-gray-900 relative flex-1 mt-2 min-h-0">
                     {subsection.diagramImage && !imageError[subsection.id] ? (
@@ -594,19 +594,19 @@ export function SubsectionPartsModal({
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                         <ImageOff className="h-16 w-16 mb-4 opacity-50" />
-                        <p className="text-sm">Image not available</p>
-                        <p className="text-xs mt-1">
+                        <Typography variant="small">Image not available</Typography>
+                        <Typography variant="muted" className="mt-1">
                           {subsection.diagramImage
                             ? 'Image will be added soon'
                             : 'No diagram for this subsection'}
-                        </p>
+                        </Typography>
                       </div>
                     )}
                   </div>
                   {subsection.description && (
-                    <p className="text-sm text-muted-foreground shrink-0 mt-2">
+                    <Typography variant="muted" className="shrink-0 mt-2">
                       {subsection.description}
-                    </p>
+                    </Typography>
                   )}
                 </div>
 
@@ -640,12 +640,14 @@ export function SubsectionPartsModal({
                           className="pl-9 pr-9"
                         />
                         {searchQuery && (
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setSearchQuery('')}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 text-muted-foreground hover:text-foreground"
                           >
                             <X className="h-4 w-4" />
-                          </button>
+                          </Button>
                         )}
                       </div>
 
@@ -776,11 +778,11 @@ export function SubsectionPartsModal({
         {/* Footer with Export All Tabs button */}
         <DialogFooter className="border-t pt-4 mt-4 shrink-0">
           <div className="flex items-center justify-between w-full">
-            <p className="text-sm text-muted-foreground">
+            <Typography variant="muted">
               {selectedKeys.size > 0
                 ? `${selectedKeys.size} ${t('partsSelectedAcrossTabs')}`
                 : t('selectPartsToExport')}
-            </p>
+            </Typography>
             <div className="flex items-center gap-2">
               <Button
                 onClick={() => openEmailModal('all')}
@@ -837,9 +839,9 @@ export function SubsectionPartsModal({
                   </div>
                 ))}
                 {emailList.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-2">
+                  <Typography variant="muted" className="text-center py-2">
                     {t('noEmailsYet') || 'No emails added yet'}
-                  </p>
+                  </Typography>
                 )}
               </div>
 

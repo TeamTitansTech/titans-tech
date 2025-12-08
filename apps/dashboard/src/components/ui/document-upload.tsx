@@ -3,6 +3,8 @@
 import { useState, useRef, ChangeEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { Button } from './button';
+import { Input } from './input';
+import { Typography } from './typography';
 import { X, Upload, Loader2, FileText, FileSpreadsheet } from 'lucide-react';
 import { uploadDocument } from '@/data/services/upload.api';
 import {
@@ -107,7 +109,7 @@ export function DocumentUpload({ value, onChange, disabled }: DocumentUploadProp
 
   return (
     <div className="space-y-3">
-      <input
+      <Input
         ref={fileInputRef}
         type="file"
         accept=".pdf,.csv,application/pdf,text/csv"
@@ -126,7 +128,9 @@ export function DocumentUpload({ value, onChange, disabled }: DocumentUploadProp
             >
               <div className="flex items-center gap-3 min-w-0">
                 {getFileIcon(attachment.name)}
-                <span className="text-sm font-medium truncate">{attachment.name}</span>
+                <Typography variant="small" className="truncate">
+                  {attachment.name}
+                </Typography>
               </div>
               {!disabled && !isUploading && (
                 <Button
@@ -144,30 +148,35 @@ export function DocumentUpload({ value, onChange, disabled }: DocumentUploadProp
         </div>
       )}
 
-      <button
+      <Button
         type="button"
+        variant="outline"
         onClick={handleClick}
         disabled={disabled || isUploading}
-        className="w-full py-4 rounded-lg border-2 border-dashed border-border hover:border-muted-foreground transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full h-auto py-4 rounded-lg border-2 border-dashed border-border hover:border-muted-foreground flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
       >
         {isUploading ? (
           <>
             <Loader2 className="h-6 w-6 animate-spin" />
-            <span className="text-sm">{t('uploading')}</span>
+            <Typography variant="small">{t('uploading')}</Typography>
           </>
         ) : (
           <>
             <Upload className="h-6 w-6" />
-            <div className="text-sm text-center px-4">
-              <p className="font-medium">{t('clickToUpload')}</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">{t('pdfOrCsvMax')}</p>
+            <div className="text-center px-4">
+              <Typography variant="small">{t('clickToUpload')}</Typography>
+              <Typography variant="muted" className="mt-1">
+                {t('pdfOrCsvMax')}
+              </Typography>
             </div>
           </>
         )}
-      </button>
+      </Button>
 
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400 whitespace-pre-line">{error}</p>
+        <Typography variant="small" className="text-red-600 dark:text-red-400 whitespace-pre-line">
+          {error}
+        </Typography>
       )}
     </div>
   );
