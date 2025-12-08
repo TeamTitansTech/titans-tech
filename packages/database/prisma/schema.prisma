@@ -1090,6 +1090,7 @@ model MachineServiceBearingClearance {
   outerDataId      String?
   innerBeforeId    String?
   innerDataId      String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService        @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    BearingClearanceData? @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
@@ -1175,6 +1176,7 @@ model MachineServiceSlideSingleHammer {
   beforeDataId     String?
   dataId           String?
   notes            String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService         @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   beforeData     SlideSingleHammerData? @relation("SingleHammerBeforeData", fields: [beforeDataId], references: [id], onDelete: SetNull)
@@ -1192,6 +1194,7 @@ model MachineServiceSlideDoubleHammer {
   innerBeforeId    String?
   innerDataId      String?
   notes            String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService         @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    SlideDoubleHammerData? @relation("DoubleHammerOuterBeforeData", fields: [outerBeforeId], references: [id], onDelete: SetNull)
@@ -1313,7 +1316,8 @@ model MachineServiceGibs {
   innerDataToolId           String?
 
   // Global field
-  notes String?
+  notes       String?
+  attachments Json?   @default("[]") // [{name: string, url: string}]
 
   machineService       MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore          GibsStageData? @relation("OuterBefore", fields: [outerBeforeId], references: [id], onDelete: SetNull)
@@ -1370,6 +1374,7 @@ model MachineServiceLubricationHydraulics {
   machineServiceId String
   dataId           String?
   notes            String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService             @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   data           LubricationHydraulicsData? @relation(fields: [dataId], references: [id], onDelete: SetNull)
@@ -1419,6 +1424,7 @@ model MachineServiceClutch {
   id               String  @id @default(cuid())
   machineServiceId String
   dataId           String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   data           ClutchData?    @relation(fields: [dataId], references: [id], onDelete: SetNull)
@@ -1509,6 +1515,7 @@ model MachineServiceCounterbalanceCylinderAirbag {
   outerDataId      String?
   innerDataId      String?
   notes            String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService                    @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerData      CounterbalanceCylinderAirbagData? @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
@@ -1641,6 +1648,9 @@ model MachineServiceTramming {
   // Notes
   notes String?
 
+  // Attachments (PDF, CSV files)
+  attachments Json? @default("[]")
+
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerData      TrammingData?  @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
   innerData      TrammingData?  @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
@@ -1698,6 +1708,9 @@ model MachineServicePistons {
 
   // Notes
   notes String?
+
+  // Attachments (PDF, CSV files)
+  attachments Json? @default("[]")
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerData      PistonsData?   @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
