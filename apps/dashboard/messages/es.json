@@ -56,7 +56,9 @@
       "uploading": "Subiendo...",
       "clickToUpload": "Haga clic para subir",
       "jpgOrPngMax": "JPG o PNG (máx. 10MB)"
-    }
+    },
+    "cancel": "Cancelar",
+    "save": "Guardar"
   },
   "validation": {
     "required": "Este campo es obligatorio",
@@ -66,7 +68,9 @@
     "invalidHexColor": "Debe ser un color hexadecimal válido",
     "branchNameRequired": "El nombre de la sucursal es obligatorio",
     "fullNameRequired": "El nombre completo es obligatorio",
-    "invalidEmail": "Dirección de correo electrónico no válida"
+    "invalidEmail": "Dirección de correo electrónico no válida",
+    "invalidImageType": "Solo se permiten imágenes JPG y PNG",
+    "fileTooLarge": "El tamaño del archivo excede el límite de 10MB"
   },
   "navigation": {
     "dashboard": "Panel",
@@ -93,7 +97,11 @@
     "logout": "Cerrar Sesión",
     "markAllAsRead": "Marcar todas como leídas",
     "loading": "Cargando",
-    "noNotifications": "No hay notificaciones"
+    "noNotifications": "No hay notificaciones",
+    "notificationsMessage": {
+      "default": "Tienes una nueva notificación de {type}",
+      "newUrgentRequest": "Solicitud urgente de servicio de {requestedByName} para la máquina {machineName}"
+    }
   },
   "alertNotification": {
     "title": "Alertas Detectadas en la Inspección",
@@ -301,6 +309,7 @@
       "title": "Permisos",
       "description": "Controle a qué puede acceder y gestionar este usuario",
       "userManagementInfo": "Nota: Para gestionar usuarios, debe habilitar el permiso \"Ver Sucursales\", ya que los usuarios están vinculados a las sucursales.",
+      "servicesInfo": "Nota: Para crear, editar o eliminar servicios, debe habilitar el permiso \"Ver Máquinas\", ya que los servicios están vinculados a las máquinas.",
       "preset": {
         "label": "Rol Predefinido",
         "manager": "Gerente",
@@ -328,18 +337,14 @@
         "assignUsersToBranches": "Asignar a Sucursales",
         "readBranches": "Ver Sucursales",
         "updateBranches": "Editar Sucursales",
-        "readBlueprints": "Ver Modelos",
-        "createBlueprints": "Crear Modelos",
-        "updateBlueprints": "Editar Modelos",
-        "deleteBlueprints": "Eliminar Modelos",
         "readMachines": "Ver Máquinas",
         "createMachines": "Registrar Máquinas",
         "updateMachines": "Editar Máquinas",
         "deleteMachines": "Eliminar Máquinas",
         "readServices": "Ver Servicios",
-        "createServices": "Crear Servicios",
-        "updateServices": "Editar Servicios",
-        "deleteServices": "Eliminar Servicios",
+        "createServices": "Crear Servicios Programados",
+        "updateServices": "Editar Servicios Programados",
+        "deleteServices": "Eliminar Servicios Programados",
         "readProductionLines": "Ver Líneas de Producción",
         "createProductionLines": "Crear Líneas de Producción",
         "updateProductionLines": "Editar Líneas de Producción",
@@ -354,10 +359,6 @@
         "assignUsersToBranches": "Agregar usuarios a diferentes sucursales",
         "readBranches": "Ver información y detalles de la sucursal",
         "updateBranches": "Modificar configuración e información de la sucursal",
-        "readBlueprints": "Ver modelos de máquinas y especificaciones",
-        "createBlueprints": "Agregar nuevos modelos de máquinas",
-        "updateBlueprints": "Modificar modelos existentes",
-        "deleteBlueprints": "Remover modelos de máquinas",
         "readMachines": "Ver la lista de máquinas y sus detalles",
         "createMachines": "Registrar nuevas máquinas en el sistema",
         "updateMachines": "Modificar información de la máquina",
@@ -451,8 +452,20 @@
           "placeholder": "ej., acme-manufacturing"
         },
         "logo": {
-          "label": "URL del Logotipo (Opcional)",
-          "placeholder": "ej., https://ejemplo.com/logo.png"
+          "label": "Logo",
+          "placeholder": "ej., https://ejemplo.com/logo.png",
+          "uploadHint": "Haga clic para subir logo (JPG o PNG)",
+          "uploading": "Subiendo...",
+          "uploadSuccess": "Logo subido exitosamente",
+          "uploadError": "Error al subir el logo"
+        },
+        "loginLogo": {
+          "label": "Logo de Inicio de Sesión (Opcional)",
+          "hint": "Si no se proporciona, se usará el logo principal",
+          "uploadHint": "Haga clic para subir logo de inicio de sesión (JPG o PNG)",
+          "uploading": "Subiendo...",
+          "uploadSuccess": "Logo de inicio de sesión subido exitosamente",
+          "uploadError": "Error al subir el logo de inicio de sesión"
         },
         "brandColor": {
           "label": "Color Primario (Opcional)",
@@ -514,8 +527,11 @@
         "actions": "Acciones"
       },
       "roles": {
+        "companyAdmin": "Admin de Empresa",
+        "companyManager": "Gerente de Empresa",
         "branchManager": "Gerente",
-        "employee": "Trabajador"
+        "employee": "Trabajador",
+        "custom": "Personalizado"
       },
       "status": {
         "active": "activo",
@@ -604,7 +620,58 @@
         "totalModels": "Total de Modelos",
         "activeCompanies": "Empresas Activas",
         "machines": "Máquinas",
-        "pendingServices": "Servicios Pendientes"
+        "pendingServices": "Servicios Pendientes",
+        "totalBranches": "Sucursales",
+        "completedServices": "Servicios Completados"
+      },
+      "overview": {
+        "companies": "Empresas",
+        "registered": "registradas",
+        "machines": "Máquinas",
+        "operating": "operando",
+        "services": "Servicios",
+        "pending": "pendientes",
+        "thisMonth": "este mes"
+      },
+      "companiesOverview": {
+        "title": "Empresas Registradas",
+        "description": "Resumen de todas las empresas en el sistema",
+        "branches": "sucursales",
+        "machines": "máquinas",
+        "services": "servicios",
+        "viewDetails": "Ver detalles",
+        "noCompanies": "No hay empresas registradas"
+      },
+      "recentActivity": {
+        "title": "Actividad Reciente",
+        "description": "Últimos servicios realizados en el sistema",
+        "noActivity": "No hay actividad reciente",
+        "inspection": "Inspección",
+        "maintenance": "Mantenimiento",
+        "completed": "Completado",
+        "pending": "Pendiente",
+        "viewAll": "Ver todos"
+      },
+      "serviceTrends": {
+        "title": "Tendencias de Servicios",
+        "description": "Servicios completados en los últimos 6 meses en todas las empresas",
+        "legend": {
+          "inspections": "Inspecciones",
+          "maintenance": "Mantenimientos"
+        },
+        "stats": {
+          "totalInspections": "Total de Inspecciones",
+          "totalMaintenance": "Total de Mantenimientos",
+          "totalServices": "Total de Servicios"
+        }
+      },
+      "machineHealth": {
+        "title": "Salud de las Máquinas",
+        "description": "Distribución del estado de todas las máquinas",
+        "healthy": "Saludables",
+        "attention": "Atención",
+        "critical": "Crítico",
+        "unknown": "Sin datos"
       }
     },
     "client": {
@@ -723,7 +790,8 @@
   },
   "sections": {
     "bearing_clearance": "Holgura de Cojinete",
-    "slide": "Corredera",
+    "slide_single_hammer": "Slide - Martillo Único",
+    "slide_double_hammer": "Slide - Martillo Doble",
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
@@ -733,6 +801,7 @@
   },
   "models": {
     "title": "Crear Modelo",
+    "editTitle": "Editar Modelo",
     "pageTitle": "Modelos",
     "pageDescription": "Administre plantillas y especificaciones de máquinas",
     "newButton": "Nuevo Modelo",
@@ -740,7 +809,9 @@
     "noDescription": "Sin descripción",
     "errorLoading": "Error al cargar modelos",
     "createdSuccessfully": "Modelo creado exitosamente",
+    "updatedSuccessfully": "Modelo actualizado exitosamente",
     "description": "Crear un nuevo modelo de máquina",
+    "editDescription": "Edite la información del modelo",
     "form": {
       "basicInfo": {
         "title": "Información Básica"
@@ -780,6 +851,7 @@
       },
       "submit": {
         "idle": "Crear Plantilla",
+        "edit": "Guardar Cambios",
         "loading": "Enviando..."
       },
       "error": {
@@ -799,7 +871,8 @@
     "machines": "máquinas",
     "field": "campo",
     "fields": "campos",
-    "edit": "Editar"
+    "edit": "Editar",
+    "thresholds": "Configurar Thresholds"
   },
   "machines": {
     "title": "Crear Máquina",
@@ -808,6 +881,17 @@
     "detailPageTitle": "Detalles de la Máquina",
     "newButton": "Nueva Máquina",
     "emptyState": "No se encontraron máquinas. Cree su primera máquina para comenzar.",
+    "noResults": "Ninguna máquina coincide con los filtros",
+    "searchPlaceholder": "Buscar máquinas...",
+    "filterByCompany": "Filtrar por empresa",
+    "allCompanies": "Todas las Empresas",
+    "allModels": "Todos los Modelos",
+    "filterByBlueprint": "Filtrar por modelo",
+    "filterByStatus": "Filtrar por estado",
+    "allStatus": "Todos los Estados",
+    "statusOperational": "Operacional",
+    "statusMaintenance": "Advertencia",
+    "statusOffline": "Crítico",
     "noBlueprint": "Sin modelo",
     "noBlueprintAssigned": "Sin modelo asignado",
     "errorLoading": "Error al cargar máquinas",
@@ -848,6 +932,7 @@
     "viewMaintenanceLog": "Ver Registro de Mantenimiento",
     "downloadReports": "Descargar Informes",
     "requestUrgentService": "Solicitar Servicio Urgente",
+    "urgentServiceRequest": "Solicitud de Servicio Urgente",
     "urgentServiceDescription": "Solicitar un servicio urgente para {machineName}. Nuestro equipo será notificado inmediatamente.",
     "machine": "Máquina",
     "additionalNotes": "Notas Adicionales",
@@ -864,6 +949,7 @@
     "completed": "Completado",
     "done": "Hecho",
     "inProgress": "En Progreso",
+    "fromRequest": "De Solicitud",
     "noInspectionsFound": "No se encontraron inspecciones",
     "noServicesFound": "No se encontraron servicios",
     "maintenanceService": "Mantenimiento",
@@ -890,13 +976,16 @@
     },
     "sectionNames": {
       "bearingClearance": "Holgura de Cojinete - CP 2",
-      "slide": "Corredera",
+      "slideSingleHammer": "Slide - Martillo Único",
+      "slideDoubleHammer": "Slide - Martillo Doble",
       "gibs": "Guías",
       "lubricationHydraulics": "Lubricación / Hidráulica",
       "clutch": "Holgura de Embrague y Freno - CP 2",
       "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
+      "counterbalanceCylinder": "Cilindro de Contrapeso / Bolsa de Aire",
       "tramming": "Tramming",
-      "pistons": "Pistones"
+      "pistons": "Pistones",
+      "unknown": "Sección Desconocida"
     },
     "gibsFields": {
       "directionalTitle": "Mediciones Direccionales",
@@ -922,6 +1011,16 @@
       "alert": "Alerta",
       "unknown": "Desconocido",
       "noImage": "Sin Imagen"
+    },
+    "qrCode": {
+      "generateQR": "Generar Código QR",
+      "title": "Código QR de la Máquina",
+      "description": "Código QR para la máquina: {machineName}",
+      "copyLink": "Copiar enlace",
+      "copied": "¡Copiado!",
+      "downloadSVG": "Descargar SVG",
+      "downloadPNG": "Descargar PNG",
+      "instructions": "Escanea este código QR para acceder a la página pública de la máquina y solicitar servicios de mantenimiento."
     },
     "sectionDetails": {
       "comingSoon": "Detalles de la sección \"{section}\" próximamente...",
@@ -961,7 +1060,9 @@
         "slideMeasurements": "Mediciones del Carro",
         "gibsMeasurements": "Mediciones de las Guías",
         "lubricationStatus": "Estado de Lubricación e Hidráulica",
-        "counterbalanceStatus": "Estado del Contrapeso"
+        "counterbalanceStatus": "Estado del Contrapeso",
+        "pistonsMeasurements": "Mediciones de Pistones",
+        "trammingMeasurements": "Mediciones de Tramming"
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Holgura del Embrague Hidráulico",
@@ -973,12 +1074,25 @@
         "innerGibsDirectional": "Guías Internas - Sumas Direccionales",
         "outerGibsDirectional": "Guías Externas - Sumas Direccionales",
         "issuesTrend": "Tendencia de Problemas a lo Largo del Tiempo",
-        "bearingClearanceDifferentials": "Diferenciales de Holgura del Rodamiento"
+        "bearingClearanceDifferentials": "Diferenciales de Holgura del Rodamiento",
+        "outerLhMeasurements": "Externo - Mediciones LH",
+        "outerRhMeasurements": "Externo - Mediciones RH",
+        "innerLhMeasurements": "Interno - Mediciones LH",
+        "innerRhMeasurements": "Interno - Mediciones RH",
+        "outerTopRowMeasurements": "Externo - Mediciones Fila Superior",
+        "outerBottomRowMeasurements": "Externo - Mediciones Fila Inferior",
+        "outerLeftRowMeasurements": "Externo - Mediciones Fila Izquierda",
+        "outerRightRowMeasurements": "Externo - Mediciones Fila Derecha",
+        "innerTopRowMeasurements": "Interno - Mediciones Fila Superior",
+        "innerBottomRowMeasurements": "Interno - Mediciones Fila Inferior",
+        "innerLeftRowMeasurements": "Interno - Mediciones Fila Izquierda",
+        "innerRightRowMeasurements": "Interno - Mediciones Fila Derecha"
       },
       "labels": {
         "outer": "Externo",
         "inner": "Interno",
         "issues": "Problemas",
+        "alerts": "Alertas",
         "inspections": "Inspecciones",
         "inspectionHistory": "Historial de Inspecciones",
         "oilChanged": "Aceite Cambiado",
@@ -996,7 +1110,45 @@
         "outerType": "Tipo Externo",
         "innerType": "Tipo Interno",
         "noLubricationData": "No hay datos de lubricación disponibles",
-        "noCounterbalanceData": "No hay datos de contrapeso disponibles"
+        "noCounterbalanceData": "No hay datos de contrapeso disponibles",
+        "measurementTrends": "Tendencias de Mediciones",
+        "notes": "Notas",
+        "mm": "mm",
+        "pistons": "Pistones",
+        "tramming": "Tramming",
+        "guideSeals": "Sellos de Guía",
+        "pistonSeals": "Sellos de Pistón",
+        "vacuumSystem": "Sistema de Vacío",
+        "vacuumPressureSetting": "Ajuste de Presión de Vacío",
+        "lhTop": "LH Superior",
+        "lhBottom": "LH Inferior",
+        "lhLeft": "LH Izquierda",
+        "lhRight": "LH Derecha",
+        "rhTop": "RH Superior",
+        "rhBottom": "RH Inferior",
+        "rhLeft": "RH Izquierda",
+        "rhRight": "RH Derecha",
+        "slideTram": "Tramming del Carro",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Izquierda",
+        "right": "Derecha",
+        "topTop": "Superior-Superior",
+        "topBottom": "Superior-Inferior",
+        "topLeft": "Superior-Izquierda",
+        "topRight": "Superior-Derecha",
+        "bottomTop": "Inferior-Superior",
+        "bottomBottom": "Inferior-Inferior",
+        "bottomLeft": "Inferior-Izquierda",
+        "bottomRight": "Inferior-Derecha",
+        "leftTop": "Izquierda-Superior",
+        "leftBottom": "Izquierda-Inferior",
+        "leftLeft": "Izquierda-Izquierda",
+        "leftRight": "Izquierda-Derecha",
+        "rightTop": "Derecha-Superior",
+        "rightBottom": "Derecha-Inferior",
+        "rightLeft": "Derecha-Izquierda",
+        "rightRight": "Derecha-Derecha"
       }
     },
     "latestReport": {
@@ -1812,6 +1964,13 @@
     "pageTitle": "Servicios",
     "pageDescription": "Visualice y gestione todos los servicios de sus máquinas",
     "pending": "Pendiente",
+    "publicRequest": "Solicitud vía QR Code",
+    "publicRequestDetails": {
+      "title": "Solicitud Pública de Mantenimiento",
+      "requester": "Nombre del Solicitante",
+      "problemDescription": "Descripción del Problema",
+      "createdFromRequest": "Este servicio fue creado a partir de una solicitud pública de mantenimiento."
+    },
     "noServicesFound": "No se encontraron servicios",
     "stats": {
       "totalServices": "Total de Servicios",
@@ -1850,7 +2009,8 @@
     "outerBeforeMaintenance": "Externo - Antes del Mantenimiento",
     "outerAfterMaintenance": "Externo - Después del Mantenimiento",
     "innerBeforeMaintenance": "Interno - Antes del Mantenimiento",
-    "innerAfterMaintenance": "Interno - Después del Mantenimiento"
+    "innerAfterMaintenance": "Interno - Después del Mantenimiento",
+    "slideMeasurements": "Mediciones del Slide"
   },
   "bearingFields": {
     "totalClearance": "Holgura Total",
@@ -1881,7 +2041,7 @@
     "noBranches": "No se encontraron sucursales para esta empresa",
     "noBranchesDescription": "Las sucursales se mostrarán aquí cuando se creen",
     "branch": "sucursal",
-    "branches": "sucursales",
+    "branches": "Sucursales",
     "machine": "máquina",
     "machines": "máquinas",
     "noMachines": "Sin máquinas",
@@ -1931,9 +2091,9 @@
     "updateMachines": "Editar Máquinas",
     "deleteMachines": "Eliminar Máquinas",
     "readServices": "Ver Servicios",
-    "createServices": "Crear Servicios",
-    "updateServices": "Editar Servicios",
-    "deleteServices": "Eliminar Servicios",
+    "createServices": "Crear Servicios Programados",
+    "updateServices": "Editar Servicios Programados",
+    "deleteServices": "Eliminar Servicios Programados",
     "readBranches": "Ver Sucursales",
     "updateBranches": "Editar Sucursales"
   },
@@ -1982,10 +2142,40 @@
       "title": "GIBS - Configuración de Alerta",
       "usable": "Utilizable"
     },
+    "pistons": {
+      "title": "PISTONES - Configuración de Alerta",
+      "clearance": "Holgura",
+      "difference": "Suma (Izquierda + Derecha)"
+    },
     "thresholds": {
       "greenStartMin": "Inicio Verde (Mín)",
       "yellowStartMin": "Inicio Amarillo (Mín)",
-      "redStartMin": "Inicio Rojo (Mín)"
+      "redStartMin": "Inicio Rojo (Mín)",
+      "editTitle": "Configurar Thresholds - {name}",
+      "editDescription": "Ajuste los valores de threshold para generación de alertas. Marque la opción debajo para recalcular alertas existentes.",
+      "loadError": "Error al cargar thresholds",
+      "recalculate": {
+        "label": "Recalcular alertas existentes",
+        "description": "Generar nuevas alertas para todos los servicios de este modelo usando los nuevos thresholds",
+        "updating": "Actualizando thresholds y recalculando alertas...",
+        "success": "Thresholds actualizados. {count} alertas generadas para {services} servicios.",
+        "successNoRecalc": "Thresholds actualizados. Las nuevas alertas solo se generarán para servicios futuros.",
+        "error": "Error al actualizar thresholds"
+      }
+    },
+    "history": {
+      "title": "Historial de Alertas",
+      "noHistory": "No hay historial de alertas disponible",
+      "viewHistory": "Ver Historial",
+      "hideHistory": "Ocultar Historial",
+      "mostRecent": "Más Reciente",
+      "createdAt": "Creado el",
+      "thresholdSnapshot": "Thresholds Utilizados",
+      "reason": {
+        "initial": "Cálculo Inicial",
+        "thresholdUpdate": "Actualización de Threshold",
+        "manualRecalculation": "Recálculo Manual"
+      }
     }
   },
   "forms": {
@@ -2085,6 +2275,8 @@
     "deleteButton": "Eliminar Línea",
     "selectCompany": "Seleccionar Empresa",
     "selectBranch": "Seleccionar Sucursal",
+    "selectBranchPlaceholder": "Seleccione una sucursal",
+    "selectBranchRequired": "Por favor seleccione una sucursal",
     "selectMachines": "Seleccionar Máquinas",
     "machineOrder": "Orden de Máquinas",
     "saveConfig": "Guardar Configuración",
@@ -2107,8 +2299,16 @@
     "noMachinesAvailable": "No hay máquinas disponibles",
     "mainMachine": "Máquina Principal",
     "mainMachineDescription": "Seleccione la máquina que se mostrará primero en la línea de producción",
+    "secondaryMachine": "Máquina Secundaria",
+    "secondaryMachineDescription": "Seleccione la máquina que se mostrará al inicio de la línea de producción",
+    "selectSecondaryMachine": "Seleccione la máquina secundaria",
+    "secondary": "Secundaria",
     "selectMainMachine": "Seleccione la máquina principal",
     "noMachineSelected": "Ninguna máquina seleccionada",
+    "lineDirection": "Dirección de la Línea",
+    "lineDirectionDescription": "Seleccione la dirección del flujo de la línea de producción",
+    "leftToRight": "Izquierda a Derecha",
+    "rightToLeft": "Derecha a Izquierda",
     "moveUp": "Mover arriba",
     "moveDown": "Mover abajo",
     "createDialog": {
@@ -2141,6 +2341,74 @@
       "unknown": "Desconocido"
     }
   },
+  "serviceRequests": {
+    "title": "Solicitudes de Servicio",
+    "noRequests": "No hay solicitudes de servicio",
+    "open": "abiertas",
+    "statusOpen": "Abierta",
+    "statusClosed": "Cerrada",
+    "closedRequests": "{count} solicitudes cerradas",
+    "problemDescription": "Descripción del Problema",
+    "attachedPhoto": "Foto Adjunta",
+    "deviceInfo": "Información del Dispositivo",
+    "linkedServices": "Servicios Vinculados",
+    "createService": "Crear Servicio",
+    "close": "Cerrar Solicitud",
+    "reopen": "Reabrir",
+    "expand": "Mostrar detalles",
+    "collapse": "Ocultar detalles",
+    "closedSuccess": "Solicitud cerrada exitosamente",
+    "reopenedSuccess": "Solicitud reabierta exitosamente",
+    "serviceCreatedSuccess": "Servicio creado exitosamente",
+    "actionFailed": "Acción fallida. Por favor, intente nuevamente.",
+    "listTitle": "Todas las Solicitudes de Servicio",
+    "filterByStatus": "Filtrar por estado",
+    "allStatuses": "Todos",
+    "openOnly": "Solo abiertas",
+    "closedOnly": "Solo cerradas",
+    "machine": "Máquina",
+    "requester": "Solicitante",
+    "date": "Fecha",
+    "status": "Estado",
+    "actions": "Acciones",
+    "viewMachine": "Ver Máquina",
+    "viewDetails": "Ver Detalles",
+    "requestDetails": "Detalles de la Solicitud"
+  },
+  "public": {
+    "machine": {
+      "title": "Solicitar Mantenimiento",
+      "subtitle": "Reportar un problema con esta máquina",
+      "machineInfo": "Información de la Máquina",
+      "serialNumber": "Número de Serie",
+      "login": "Iniciar sesión",
+      "form": {
+        "title": "Solicitar Servicio de Mantenimiento",
+        "description": "Complete el formulario a continuación para solicitar servicio de mantenimiento para esta máquina.",
+        "name": "Su Nombre",
+        "namePlaceholder": "Ingrese su nombre",
+        "email": "Su Correo Electrónico",
+        "emailPlaceholder": "Ingrese su correo electrónico",
+        "phone": "Teléfono (opcional)",
+        "phonePlaceholder": "Ingrese su número de teléfono",
+        "problem": "Descripción del Problema",
+        "problemPlaceholder": "Describa el problema o defecto que está experimentando con esta máquina...",
+        "image": "Foto (opcional)",
+        "imageDescription": "Suba una foto del problema para ayudar a nuestro equipo a entender mejor la situación",
+        "submit": "Enviar Solicitud",
+        "submitting": "Enviando...",
+        "success": "Solicitud de mantenimiento enviada exitosamente",
+        "successTitle": "¡Solicitud Enviada!",
+        "successMessage": "Su solicitud de mantenimiento ha sido recibida. Nuestro equipo la revisará y tomará las medidas apropiadas.",
+        "error": "Error al enviar la solicitud. Por favor, intente nuevamente.",
+        "validation": {
+          "required": "Por favor, complete todos los campos obligatorios",
+          "invalidEmail": "Por favor, ingrese un correo electrónico válido"
+        }
+      },
+      "footer": "Desarrollado por Titans Tech Service Management System"
+    }
+  },
   "errors": {
     "service": {
       "failedToUpdate": "Error al actualizar el servicio",
@@ -2171,5 +2439,122 @@
       "sectionSaved": "Sección guardada exitosamente",
       "serviceCompleted": "Servicio completado exitosamente"
     }
+  },
+  "parts": {
+    "title": "Lista de Piezas para Reemplazo",
+    "description": "Seleccione las piezas que necesitan ser reemplazadas",
+    "clutchBrakeParts": "Piezas de Embrague y Freno",
+    "clutchBrakeDescription": "Seleccione las piezas del embrague y freno que necesitan ser reemplazadas",
+    "bearingClearanceParts": "Piezas de Holgura del Rodamiento",
+    "bearingClearanceDescription": "Seleccione las piezas de holgura del rodamiento que necesitan ser reemplazadas",
+    "slideParts": "Piezas del Slide",
+    "slideDescription": "Seleccione las piezas del slide que necesitan ser reemplazadas",
+    "gibsParts": "Piezas de las Guías",
+    "gibsDescription": "Seleccione las piezas de las guías que necesitan ser reemplazadas",
+    "lubricationHydraulicsParts": "Piezas de Lubricación e Hidráulica",
+    "lubricationHydraulicsDescription": "Seleccione las piezas de lubricación e hidráulica que necesitan ser reemplazadas",
+    "counterbalanceParts": "Piezas de Contrapeso y Airbag",
+    "counterbalanceDescription": "Seleccione las piezas de contrapeso y airbag que necesitan ser reemplazadas",
+    "selected": "seleccionadas",
+    "selectAll": "Seleccionar Todas",
+    "deselectAll": "Deseleccionar Todas",
+    "exportPDF": "Exportar PDF",
+    "exportThisTab": "Exportar Esta Pestaña",
+    "exportAllTabs": "Exportar Todas las Pestañas",
+    "partsSelectedAcrossTabs": "piezas seleccionadas en todas las pestañas",
+    "selectPartsToExport": "Seleccione piezas para exportar",
+    "exporting": "Exportando...",
+    "noPartsSelected": "Ninguna pieza seleccionada",
+    "exportSuccess": "PDF exportado exitosamente",
+    "exportError": "Error al exportar PDF",
+    "machine": "Máquina",
+    "serialNumber": "Número de Serie",
+    "date": "Fecha",
+    "totalParts": "Total de Piezas",
+    "pdfTitle": "Lista de Piezas para Reemplazo",
+    "pdfFooter": "Documento generado por Titans Tech Service Management System",
+    "searchPlaceholder": "Buscar por código o descripción...",
+    "filterByUnit": "Filtrar por unidad",
+    "allUnits": "Todas las unidades",
+    "clearFilters": "Limpiar",
+    "showingResults": "Mostrando {count} de {total} piezas",
+    "noResultsFound": "Ninguna pieza coincide con los criterios de búsqueda",
+    "noPartsAvailable": "Ninguna pieza disponible",
+    "outerSlide": "Corredera Exterior",
+    "innerSlide": "Corredera Interior",
+    "clearAll": "Limpiar Todo",
+    "tableHeaders": {
+      "partNumber": "Código",
+      "description": "Descripción",
+      "quantity": "Cant",
+      "unit": "Un"
+    },
+    "partsListTitle": "Lista de Piezas",
+    "partsAvailable": "piezas disponibles",
+    "sendAsEmail": "Enviar por Email",
+    "sendThisTab": "Enviar Esta Pestaña",
+    "sendPartsViaEmail": "Enviar Piezas por Email",
+    "emailRecipients": "Destinatarios de Email",
+    "noEmailsYet": "No hay emails agregados todavía",
+    "enterEmail": "Ingrese dirección de email",
+    "partsToSend": "Piezas a enviar",
+    "currentTabOnly": "solo pestaña actual",
+    "allTabs": "todas las pestañas",
+    "cancel": "Cancelar",
+    "sendEmail": "Enviar Email",
+    "sending": "Enviando...",
+    "invalidEmail": "Dirección de email inválida",
+    "emailAlreadyAdded": "Email ya agregado",
+    "noEmailsAdded": "Por favor, agregue al menos un email",
+    "machineIdRequired": "ID de máquina es requerido",
+    "emailSentSuccess": "Lista de piezas enviada exitosamente",
+    "emailSendError": "Error al enviar email",
+    "subsections": {
+      "crankshaft": "Cojinete del Cigüeñal",
+      "outerSlideStandard": "Corredera Exterior (Estándar)",
+      "innerSlideStandard": "Corredera Interior (Estándar)",
+      "outerSlideAdjustment": "Ajuste de Corredera Exterior",
+      "shutheightIndicatorOuter": "Indicador de Altura (Exterior)",
+      "shutheightIndicatorInner": "Indicador de Altura (Interior)",
+      "singleGearedDrive": "Transmisión de Engranaje Simple",
+      "flywheelBrake": "Freno del Volante",
+      "motorDrive": "Accionamiento del Motor",
+      "hydraulicUnit": "Unidad Hidráulica",
+      "flywheelBearings": "Cojinetes del Volante",
+      "counterbalanceInner": "Contrapeso (Interior)",
+      "counterbalanceOuterAirmount": "Contrapeso (Exterior)",
+      "lubricationUnit": "Unidad de Lubricación",
+      "outerSlide": "Corredera Exterior",
+      "innerSlide": "Corredera Interior",
+      "gibsOuter": "Guías (Exterior)",
+      "gibsInner": "Guías (Interior)"
+    }
+  },
+  "sectionStatus": {
+    "ok": "OK",
+    "warning": "Atención",
+    "critical": "Crítico",
+    "noData": "Sin datos"
+  },
+  "sectionStatusCard": {
+    "status": {
+      "ok": {
+        "title": "Estado de la Sección: OK",
+        "description": "Todas las mediciones están dentro de la especificación."
+      },
+      "warning": {
+        "title": "Estado de la Sección: Atención",
+        "description": "Algunas mediciones requieren atención. Revise la lista de piezas para identificar lo que puede necesitar reemplazo."
+      },
+      "critical": {
+        "title": "Estado de la Sección: Crítico",
+        "description": "Las mediciones exceden los umbrales aceptables. Verifique la lista de piezas para determinar lo que necesita ser reemplazado."
+      },
+      "unknown": {
+        "title": "Estado de la Sección: Sin Datos",
+        "description": "No hay datos de medición disponibles para esta sección."
+      }
+    },
+    "viewParts": "Ver Lista de Piezas"
   }
 }

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState, useMemo, useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useTranslations } from 'next-intl';
@@ -19,23 +19,39 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { toast } from 'sonner';
 import { createProductionLine } from '@/data/services/production-lines.api';
 import type { ProductionLine } from '@/data/types/production-lines.types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, MapPin } from 'lucide-react';
+
+interface BranchOption {
+  id: string;
+  name: string;
+  location?: string | null;
+  machineCount: number;
+}
 
 interface CreateProductionLineDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: (productionLine: ProductionLine) => void;
-  branchId?: string;
+  branches: BranchOption[];
+  preselectedBranchId?: string;
 }
 
 export function CreateProductionLineDialog({
   open,
   onOpenChange,
   onSuccess,
-  branchId,
+  branches,
+  preselectedBranchId,
 }: CreateProductionLineDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const t = useTranslations('productionLines');
@@ -47,6 +63,7 @@ export function CreateProductionLineDialog({
     () =>
       z.object({
         name: z.string().min(1, t('lineNameRequired')),
+        branchId: z.string().min(1, t('selectBranchRequired') || 'Selecione uma filial'),
       }),
     [t],
   );
@@ -58,21 +75,28 @@ export function CreateProductionLineDialog({
     handleSubmit,
     formState: { errors },
     reset,
+    control,
+    setValue,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      branchId: preselectedBranchId || '',
+    },
   });
 
-  const onSubmit = async (data: FormData) => {
-    if (!branchId) {
-      toast.error('Selecione uma filial');
-      return;
+  // Update branchId when preselectedBranchId changes
+  useEffect(() => {
+    if (preselectedBranchId) {
+      setValue('branchId', preselectedBranchId);
     }
+  }, [preselectedBranchId, setValue]);
 
+  const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
       const response = await createProductionLine({
         name: data.name,
-        branchId: branchId,
+        branchId: data.branchId,
         machineIds: [],
         createdBy: sysAdminUser?.id || companyUser?.id,
       });
@@ -99,7 +123,7 @@ export function CreateProductionLineDialog({
   const handleOpenChange = (newOpen: boolean) => {
     if (!isSubmitting) {
       if (!newOpen) {
-        reset();
+        reset({ branchId: preselectedBranchId || '' });
       }
       onOpenChange(newOpen);
     }
@@ -115,6 +139,52 @@ export function CreateProductionLineDialog({
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="space-y-6 py-4">
+            {/* Branch selection */}
+            <div className="space-y-2">
+              <Label>{t('selectBranch') || 'Filial'}</Label>
+              <Controller
+                name="branchId"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger className="w-full">
+                      <MapPin className="w-4 h-4 mr-2 shrink-0" />
+                      <SelectValue
+                        placeholder={t('selectBranchPlaceholder') || 'Selecione uma filial'}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {branches.map((branch) => (
+                        <SelectItem key={branch.id} value={branch.id} textValue={branch.name}>
+                          <div className="flex flex-col">
+                            <div className="flex items-center justify-between gap-2">
+                              <span>{branch.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {branch.machineCount}{' '}
+                                {branch.machineCount === 1 ? 'machine' : 'machines'}
+                              </span>
+                            </div>
+                            {branch.location && (
+                              <span className="text-xs text-muted-foreground truncate max-w-[250px]">
+                                {branch.location}
+                              </span>
+                            )}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.branchId && (
+                <p className="text-sm text-destructive">{errors.branchId.message}</p>
+              )}
+            </div>
+
             {/* Nome da linha de produção */}
             <div className="space-y-2">
               <Label htmlFor="name">{t('lineName')}</Label>

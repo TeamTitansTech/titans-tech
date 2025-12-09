@@ -1,4 +1,5 @@
 import { Exclude, Type } from 'class-transformer';
+import type { Permissions } from '../../types/permissions';
 
 export class CompanyBranchDto {
   id: string;
@@ -14,7 +15,7 @@ export class CompanyBranchDto {
   }
 }
 
-export class UserBranchDto {
+export class UserBranchDto implements Permissions {
   userId: string;
   branchId: string;
   createdAt: Date;
@@ -31,12 +32,6 @@ export class UserBranchDto {
   // Branch Management Permissions
   readBranches: boolean;
   updateBranches: boolean;
-
-  // Blueprint Permissions
-  readBlueprints: boolean;
-  createBlueprints: boolean;
-  updateBlueprints: boolean;
-  deleteBlueprints: boolean;
 
   // Machine Permissions
   readMachines: boolean;
@@ -72,7 +67,6 @@ export class UserResponseDto {
   name: string | null;
   email: string;
   isCompanyAdmin: boolean;
-  isCompanyManager: boolean;
   isUsingDefaultPassword: boolean;
   companyId: string;
   createdAt: Date;

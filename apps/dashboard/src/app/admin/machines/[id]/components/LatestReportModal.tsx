@@ -31,10 +31,12 @@ import type {
   BearingClearanceData,
   LatestClutch,
   ClutchData,
-  LatestSlide,
+  LatestSlideSingleHammer,
+  LatestSlideDoubleHammer,
   SlideData,
   GibsStageData,
   CounterbalanceCylinderData,
+  LatestPistons,
 } from '@/data/types/services.types';
 import { BEARING_FIELD_NAMES, BEARING_FIELD_LABELS } from '@titans-tech/shared/types';
 
@@ -184,10 +186,13 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
   const bearingClearance = report.sections.BEARING_CLEARANCE;
   const clutch = report.sections.CLUTCH;
-  const slide = report.sections.SLIDE;
+  const slideSingleHammer = report.sections.SLIDE_SINGLE_HAMMER;
+  const slideDoubleHammer = report.sections.SLIDE_DOUBLE_HAMMER;
   const gibs = report.sections.GIBS;
   const lubrication = report.sections.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER;
   const counterbalance = report.sections.COUNTERBALANCE_CYLINDER_AIRBAG;
+  const pistons = report.sections.PISTONS;
+  const tramming = report.sections.TRAMMING;
 
   // Get overall worst severity for bearing clearance (outer or inner)
   const getBearingSeverity = (prefix: 'outer' | 'inner'): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
@@ -248,13 +253,19 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     return 'NONE';
   };
 
-  // Get overall worst severity for slide
-  const getSlideOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
-    if (!slide?.alert) return 'NONE';
+  // Get overall worst severity for slide single hammer
+  const getSlideSingleHammerOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!slideSingleHammer?.alert) return 'NONE';
+    return slideSingleHammer.alert.maxDeviation_severity || 'NONE';
+  };
+
+  // Get overall worst severity for slide double hammer
+  const getSlideDoubleHammerOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!slideDoubleHammer?.alert) return 'NONE';
 
     const severities = new Set([
-      slide.alert.maxDeviationOuter_severity,
-      slide.alert.maxDeviationInner_severity,
+      slideDoubleHammer.alert.maxDeviationOuter_severity,
+      slideDoubleHammer.alert.maxDeviationInner_severity,
     ]);
 
     if (severities.has('RED')) return 'RED';
@@ -263,10 +274,49 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     return 'NONE';
   };
 
-  // Extract slide measurement rows
-  const extractSlideRows = (
-    data: { outerData?: SlideData; innerData?: SlideData },
-    alert?: LatestSlide['alert'],
+  // Extract slide single hammer measurement rows
+  const extractSlideSingleHammerRows = (
+    data: { beforeData?: SlideData; data?: SlideData },
+    alert?: LatestSlideSingleHammer['alert'],
+  ) => {
+    const sections = [
+      {
+        name: 'Before',
+        positions: [
+          data.beforeData?.position1,
+          data.beforeData?.position2,
+          data.beforeData?.position3,
+          data.beforeData?.position4,
+          data.beforeData?.position5,
+        ],
+        maxDeviation: null,
+        severity: 'NONE' as const,
+      },
+      {
+        name: 'After',
+        positions: [
+          data.data?.position1,
+          data.data?.position2,
+          data.data?.position3,
+          data.data?.position4,
+          data.data?.position5,
+        ],
+        maxDeviation: alert?.maxDeviation_differential,
+        severity: alert?.maxDeviation_severity || 'NONE',
+      },
+    ];
+    return sections.filter((section) => section.positions.some((pos) => pos !== undefined));
+  };
+
+  // Extract slide double hammer measurement rows
+  const extractSlideDoubleHammerRows = (
+    data: {
+      outerBefore?: SlideData;
+      outerData?: SlideData;
+      innerBefore?: SlideData;
+      innerData?: SlideData;
+    },
+    alert?: LatestSlideDoubleHammer['alert'],
   ) => {
     const sections = [
       {
@@ -302,6 +352,38 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   const getGibsOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
     if (!gibs?.alert) return 'NONE';
     return gibs.alert.usable_severity;
+  };
+
+  // Get overall worst severity for Tramming
+  const getTrammingOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!tramming?.alert) return 'NONE';
+
+    const alert = tramming.alert;
+    const severities = new Set([
+      // Outer
+      alert.outer_top_verticalSeverity,
+      alert.outer_top_horizontalSeverity,
+      alert.outer_bottom_verticalSeverity,
+      alert.outer_bottom_horizontalSeverity,
+      alert.outer_left_verticalSeverity,
+      alert.outer_left_horizontalSeverity,
+      alert.outer_right_verticalSeverity,
+      alert.outer_right_horizontalSeverity,
+      // Inner
+      alert.inner_top_verticalSeverity,
+      alert.inner_top_horizontalSeverity,
+      alert.inner_bottom_verticalSeverity,
+      alert.inner_bottom_horizontalSeverity,
+      alert.inner_left_verticalSeverity,
+      alert.inner_left_horizontalSeverity,
+      alert.inner_right_verticalSeverity,
+      alert.inner_right_horizontalSeverity,
+    ]);
+
+    if (severities.has('RED')) return 'RED';
+    if (severities.has('YELLOW')) return 'YELLOW';
+    if (severities.has('GREEN')) return 'GREEN';
+    return 'NONE';
   };
 
   // Format Yes/No/DNC values for lubrication
@@ -382,6 +464,81 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     ];
   };
 
+  // Get overall worst severity for pistons (outer or inner)
+  const getPistonsSeverity = (prefix: 'outer' | 'inner'): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!pistons?.alert) return 'NONE';
+
+    const alert = pistons.alert;
+    const severities =
+      prefix === 'outer'
+        ? new Set([
+            alert.outer_lhLeftRight_severity,
+            alert.outer_lhTopBottom_severity,
+            alert.outer_rhLeftRight_severity,
+            alert.outer_rhTopBottom_severity,
+          ])
+        : new Set([
+            alert.inner_lhLeftRight_severity,
+            alert.inner_lhTopBottom_severity,
+            alert.inner_rhLeftRight_severity,
+            alert.inner_rhTopBottom_severity,
+          ]);
+
+    if (severities.has('RED')) return 'RED';
+    if (severities.has('YELLOW')) return 'YELLOW';
+    if (severities.has('GREEN')) return 'GREEN';
+    return 'NONE';
+  };
+
+  // Get overall worst severity for pistons (both outer and inner)
+  const getPistonsOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    const outerSeverity = getPistonsSeverity('outer');
+    const innerSeverity = getPistonsSeverity('inner');
+
+    if (outerSeverity === 'RED' || innerSeverity === 'RED') return 'RED';
+    if (outerSeverity === 'YELLOW' || innerSeverity === 'YELLOW') return 'YELLOW';
+    if (outerSeverity === 'GREEN' || innerSeverity === 'GREEN') return 'GREEN';
+    return 'NONE';
+  };
+
+  // Extract pistons sum rows for outer or inner
+  const extractPistonsRows = (alert: LatestPistons['alert'], prefix: 'outer' | 'inner') => {
+    if (!alert) return [];
+
+    const sumFields = [
+      {
+        label: 'LH Left + Right',
+        diff: prefix === 'outer' ? alert.outer_lhLeftRight_diff : alert.inner_lhLeftRight_diff,
+        severity:
+          prefix === 'outer' ? alert.outer_lhLeftRight_severity : alert.inner_lhLeftRight_severity,
+      },
+      {
+        label: 'LH Top + Bottom',
+        diff: prefix === 'outer' ? alert.outer_lhTopBottom_diff : alert.inner_lhTopBottom_diff,
+        severity:
+          prefix === 'outer' ? alert.outer_lhTopBottom_severity : alert.inner_lhTopBottom_severity,
+      },
+      {
+        label: 'RH Left + Right',
+        diff: prefix === 'outer' ? alert.outer_rhLeftRight_diff : alert.inner_rhLeftRight_diff,
+        severity:
+          prefix === 'outer' ? alert.outer_rhLeftRight_severity : alert.inner_rhLeftRight_severity,
+      },
+      {
+        label: 'RH Top + Bottom',
+        diff: prefix === 'outer' ? alert.outer_rhTopBottom_diff : alert.inner_rhTopBottom_diff,
+        severity:
+          prefix === 'outer' ? alert.outer_rhTopBottom_severity : alert.inner_rhTopBottom_severity,
+      },
+    ];
+
+    return sumFields.map((field) => ({
+      field: field.label,
+      sum: field.diff !== null && field.diff !== undefined ? field.diff.toFixed(4) : '-',
+      severity: field.severity,
+    }));
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
@@ -397,7 +554,15 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
         </DialogHeader>
 
         <div ref={contentRef} className="flex-1 overflow-y-auto px-1 py-4">
-          {bearingClearance || clutch || slide || gibs || lubrication || counterbalance ? (
+          {bearingClearance ||
+          clutch ||
+          slideSingleHammer ||
+          slideDoubleHammer ||
+          gibs ||
+          pistons ||
+          lubrication ||
+          counterbalance ||
+          tramming ? (
             <div className="space-y-4">
               {bearingClearance && (
                 <div className="border rounded-lg p-4">
@@ -529,22 +694,93 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                 </div>
               )}
 
-              {slide && (
+              {slideSingleHammer && (
                 <div className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <Typography variant="h4" className="font-semibold">
-                      Slide
+                      Slide (Single Hammer)
                     </Typography>
                     <div className="flex items-center gap-3">
-                      {getSeverityBadge(getSlideOverallSeverity())}
+                      {getSeverityBadge(getSlideSingleHammerOverallSeverity())}
                       <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')} {format(new Date(slide.latestServiceDate), 'dd-MM-yyyy')}
+                        {t('updatedAt')}{' '}
+                        {format(new Date(slideSingleHammer.latestServiceDate), 'dd-MM-yyyy')}
                       </span>
                     </div>
                   </div>
 
                   <div className="space-y-4">
-                    {extractSlideRows(slide.data, slide.alert).map((section, idx) => (
+                    {extractSlideSingleHammerRows(
+                      slideSingleHammer.data,
+                      slideSingleHammer.alert,
+                    ).map((section, idx) => (
+                      <div key={idx} className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>{section.name}</span>
+                          {getSeverityBadge(
+                            section.severity as 'NONE' | 'GREEN' | 'YELLOW' | 'RED',
+                          )}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="text-center font-semibold">Pos 1</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 2</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 3</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 4</TableHead>
+                              <TableHead className="text-center font-semibold">Pos 5</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Max Deviation
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            <TableRow className="hover:bg-muted/30">
+                              {section.positions.map((pos, posIdx) => (
+                                <TableCell key={posIdx} className="text-center">
+                                  {pos !== null && pos !== undefined
+                                    ? typeof pos === 'number'
+                                      ? pos.toFixed(3)
+                                      : Number(pos).toFixed(3)
+                                    : '-'}
+                                </TableCell>
+                              ))}
+                              <TableCell className="text-center font-medium">
+                                {section.maxDeviation !== null && section.maxDeviation !== undefined
+                                  ? typeof section.maxDeviation === 'number'
+                                    ? section.maxDeviation.toFixed(3)
+                                    : Number(section.maxDeviation).toFixed(3)
+                                  : '-'}
+                              </TableCell>
+                            </TableRow>
+                          </TableBody>
+                        </Table>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {slideDoubleHammer && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Typography variant="h4" className="font-semibold">
+                      Slide (Double Hammer)
+                    </Typography>
+                    <div className="flex items-center gap-3">
+                      {getSeverityBadge(getSlideDoubleHammerOverallSeverity())}
+                      <span className="text-sm text-muted-foreground">
+                        {t('updatedAt')}{' '}
+                        {format(new Date(slideDoubleHammer.latestServiceDate), 'dd-MM-yyyy')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {extractSlideDoubleHammerRows(
+                      slideDoubleHammer.data,
+                      slideDoubleHammer.alert,
+                    ).map((section, idx) => (
                       <div key={idx} className="border rounded-md overflow-hidden">
                         <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
                           <span>{section.name}</span>
@@ -809,6 +1045,84 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                 </div>
               )}
 
+              {pistons && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Typography variant="h4" className="font-semibold">
+                      Pistons
+                    </Typography>
+                    <div className="flex items-center gap-3">
+                      {getSeverityBadge(getPistonsOverallSeverity())}
+                      <span className="text-sm text-muted-foreground">
+                        {t('updatedAt')} {format(new Date(pistons.latestServiceDate), 'dd-MM-yyyy')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Outer Section */}
+                    {pistons.data.outerData && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>Outer</span>
+                          {getSeverityBadge(getPistonsSeverity('outer'))}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">Measurement</TableHead>
+                              <TableHead className="text-center font-semibold">Sum</TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {extractPistonsRows(pistons.alert, 'outer').map((row, idx) => (
+                              <TableRow key={idx} className="hover:bg-muted/30">
+                                <TableCell className="font-medium">{row.field}</TableCell>
+                                <TableCell className="text-center">{row.sum}</TableCell>
+                                <TableCell className="text-center">
+                                  {getSeverityBadge(row.severity)}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+
+                    {/* Inner Section */}
+                    {pistons.data.innerData && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                          <span>Inner</span>
+                          {getSeverityBadge(getPistonsSeverity('inner'))}
+                        </div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">Measurement</TableHead>
+                              <TableHead className="text-center font-semibold">Sum</TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {extractPistonsRows(pistons.alert, 'inner').map((row, idx) => (
+                              <TableRow key={idx} className="hover:bg-muted/30">
+                                <TableCell className="font-medium">{row.field}</TableCell>
+                                <TableCell className="text-center">{row.sum}</TableCell>
+                                <TableCell className="text-center">
+                                  {getSeverityBadge(row.severity)}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {lubrication && (
                 <div className="border rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
@@ -1062,6 +1376,161 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {tramming && (
+                <div className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <Typography variant="h4" className="font-semibold">
+                      Tramming
+                    </Typography>
+                    <div className="flex items-center gap-3">
+                      {getSeverityBadge(getTrammingOverallSeverity())}
+                      <span className="text-sm text-muted-foreground">
+                        {t('updatedAt')}{' '}
+                        {format(new Date(tramming.latestServiceDate), 'dd-MM-yyyy')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {tramming.data.outerData && tramming.alert && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold">Outer</div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">Position</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Vertical Sum
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Horizontal Sum
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {['top', 'bottom', 'left', 'right'].map((position) => {
+                              const verticalSumKey =
+                                `outer_${position}_verticalSum` as keyof typeof tramming.alert;
+                              const verticalSeverityKey =
+                                `outer_${position}_verticalSeverity` as keyof typeof tramming.alert;
+                              const horizontalSumKey =
+                                `outer_${position}_horizontalSum` as keyof typeof tramming.alert;
+                              const horizontalSeverityKey =
+                                `outer_${position}_horizontalSeverity` as keyof typeof tramming.alert;
+
+                              const verticalSum = tramming.alert?.[verticalSumKey] as number;
+                              const verticalSeverity = tramming.alert?.[verticalSeverityKey] as
+                                | 'NONE'
+                                | 'GREEN'
+                                | 'YELLOW'
+                                | 'RED';
+                              const horizontalSum = tramming.alert?.[horizontalSumKey] as number;
+                              const horizontalSeverity = tramming.alert?.[horizontalSeverityKey] as
+                                | 'NONE'
+                                | 'GREEN'
+                                | 'YELLOW'
+                                | 'RED';
+
+                              return (
+                                <TableRow key={position} className="hover:bg-muted/30">
+                                  <TableCell className="font-medium capitalize">
+                                    {position}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {typeof verticalSum === 'number' ? verticalSum.toFixed(3) : '-'}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {getSeverityBadge(verticalSeverity)}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {typeof horizontalSum === 'number'
+                                      ? horizontalSum.toFixed(3)
+                                      : '-'}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {getSeverityBadge(horizontalSeverity)}
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+
+                    {tramming.data.innerData && tramming.alert && (
+                      <div className="border rounded-md overflow-hidden">
+                        <div className="bg-muted/30 px-4 py-2 font-semibold">Inner</div>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-muted/50">
+                              <TableHead className="font-semibold">Position</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Vertical Sum
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                              <TableHead className="text-center font-semibold">
+                                Horizontal Sum
+                              </TableHead>
+                              <TableHead className="text-center font-semibold">Status</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {['top', 'bottom', 'left', 'right'].map((position) => {
+                              const verticalSumKey =
+                                `inner_${position}_verticalSum` as keyof typeof tramming.alert;
+                              const verticalSeverityKey =
+                                `inner_${position}_verticalSeverity` as keyof typeof tramming.alert;
+                              const horizontalSumKey =
+                                `inner_${position}_horizontalSum` as keyof typeof tramming.alert;
+                              const horizontalSeverityKey =
+                                `inner_${position}_horizontalSeverity` as keyof typeof tramming.alert;
+
+                              const verticalSum = tramming.alert?.[verticalSumKey] as number;
+                              const verticalSeverity = tramming.alert?.[verticalSeverityKey] as
+                                | 'NONE'
+                                | 'GREEN'
+                                | 'YELLOW'
+                                | 'RED';
+                              const horizontalSum = tramming.alert?.[horizontalSumKey] as number;
+                              const horizontalSeverity = tramming.alert?.[horizontalSeverityKey] as
+                                | 'NONE'
+                                | 'GREEN'
+                                | 'YELLOW'
+                                | 'RED';
+
+                              return (
+                                <TableRow key={position} className="hover:bg-muted/30">
+                                  <TableCell className="font-medium capitalize">
+                                    {position}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {typeof verticalSum === 'number' ? verticalSum.toFixed(3) : '-'}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {getSeverityBadge(verticalSeverity)}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {typeof horizontalSum === 'number'
+                                      ? horizontalSum.toFixed(3)
+                                      : '-'}
+                                  </TableCell>
+                                  <TableCell className="text-center">
+                                    {getSeverityBadge(horizontalSeverity)}
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

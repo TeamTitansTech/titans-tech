@@ -1,13 +1,11 @@
 'use client';
 
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { HexColorPicker } from 'react-colorful';
-import { Upload, X, Loader2 } from 'lucide-react';
-import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
@@ -21,8 +19,8 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { ImageUpload } from '@/components/ui/image-upload';
 import { createCompany, type Company } from '@/data/services/companies.api';
-import { uploadLogo } from '@/data/services/upload.api';
 import { toast } from 'sonner';
 
 interface CompanyCreationModalProps {
@@ -37,9 +35,6 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
   const tValidation = useTranslations('validation');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const companySchema = useMemo(
     () =>
@@ -47,6 +42,7 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
         name: z.string().min(1, tValidation('companyNameRequired')),
         slug: z.string().min(1, tValidation('companySlugRequired')),
         logo: z.string().url(tValidation('invalidUrl')).optional().or(z.literal('')),
+        loginLogo: z.string().url(tValidation('invalidUrl')).optional().or(z.literal('')),
         brandColor: z
           .string()
           .regex(/^#[0-9A-Fa-f]{6}$/, tValidation('invalidHexColor'))
@@ -92,6 +88,16 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
     defaultValue: '#f97415',
   });
 
+  const logoValue = useWatch({
+    control,
+    name: 'logo',
+  });
+
+  const loginLogoValue = useWatch({
+    control,
+    name: 'loginLogo',
+  });
+
   const handleClose = () => {
     if (isDirty && !isSubmitting) {
       setShowConfirmDialog(true);
@@ -103,61 +109,19 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
   const handleConfirmClose = () => {
     setShowConfirmDialog(false);
     reset();
-    setLogoPreview(null);
     onOpenChange(false);
-  };
-
-  const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    // Validate file type
-    if (!['image/jpeg', 'image/png'].includes(file.type)) {
-      toast.error(tValidation('invalidImageType'));
-      return;
-    }
-
-    // Validate file size (10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error(tValidation('fileTooLarge'));
-      return;
-    }
-
-    setIsUploadingLogo(true);
-
-    try {
-      const result = await uploadLogo(file);
-
-      if (result.error || !result.url) {
-        toast.error(result.error || t('form.logo.uploadError'));
-        return;
-      }
-
-      setLogoPreview(result.url);
-      setValue('logo', result.url, { shouldDirty: true });
-      toast.success(t('form.logo.uploadSuccess'));
-    } catch {
-      toast.error(t('form.logo.uploadError'));
-    } finally {
-      setIsUploadingLogo(false);
-      // Reset file input so same file can be selected again
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-    }
-  };
-
-  const handleRemoveLogo = () => {
-    setLogoPreview(null);
-    setValue('logo', '', { shouldDirty: true });
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
   };
 
   const onSubmit = async (data: CompanyFormData) => {
     setIsSubmitting(true);
-    const response = await createCompany({ data });
+
+    // If loginLogo is not provided but logo is, use logo as loginLogo
+    const submitData = {
+      ...data,
+      loginLogo: data.loginLogo || data.logo || undefined,
+    };
+
+    const response = await createCompany({ data: submitData });
 
     if (response.errors) {
       const errorData = response.errors[0];
@@ -176,7 +140,6 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
     } else {
       toast.success(t('success'));
       reset();
-      setLogoPreview(null);
       onOpenChange(false);
       onSuccess(response.data);
     }
@@ -217,51 +180,25 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
 
             <div className="space-y-2">
               <Label>{t('form.logo.label')}</Label>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/jpeg,image/png"
-                onChange={handleLogoUpload}
-                className="hidden"
-                disabled={isSubmitting || isUploadingLogo}
+              <ImageUpload
+                value={logoValue || undefined}
+                onChange={(url) => setValue('logo', url || '', { shouldDirty: true })}
+                disabled={isSubmitting}
               />
-              {logoPreview ? (
-                <div className="relative w-full h-32 border rounded-md overflow-hidden bg-muted/50">
-                  <Image src={logoPreview} alt="Logo preview" fill className="object-contain p-2" />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-2 right-2 h-6 w-6"
-                    onClick={handleRemoveLogo}
-                    disabled={isSubmitting}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div
-                  onClick={() => !isUploadingLogo && fileInputRef.current?.click()}
-                  className="w-full h-32 border-2 border-dashed rounded-md flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-colors"
-                >
-                  {isUploadingLogo ? (
-                    <>
-                      <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
-                      <span className="text-sm text-muted-foreground">
-                        {t('form.logo.uploading')}
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="h-8 w-8 text-muted-foreground" />
-                      <span className="text-sm text-muted-foreground">
-                        {t('form.logo.uploadHint')}
-                      </span>
-                    </>
-                  )}
-                </div>
-              )}
               {errors.logo && <p className="text-sm text-destructive">{errors.logo.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label>{t('form.loginLogo.label')}</Label>
+              <p className="text-xs text-muted-foreground">{t('form.loginLogo.hint')}</p>
+              <ImageUpload
+                value={loginLogoValue || undefined}
+                onChange={(url) => setValue('loginLogo', url || '', { shouldDirty: true })}
+                disabled={isSubmitting}
+              />
+              {errors.loginLogo && (
+                <p className="text-sm text-destructive">{errors.loginLogo.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">

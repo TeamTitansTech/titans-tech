@@ -40,7 +40,7 @@ export class MachinesService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    if (user.isCompanyAdmin) {
       return user.company.branches.map((b) => b.id);
     }
 
@@ -80,7 +80,7 @@ export class MachinesService {
       );
     }
 
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    if (user.isCompanyAdmin) {
       return;
     }
 
@@ -184,13 +184,22 @@ export class MachinesService {
       include: {
         blueprint: true;
         fields: true;
+        branch: {
+          include: {
+            company: true;
+          };
+        };
       };
     }>[]
   > {
     return this.prisma.machine.findMany({
       include: {
         blueprint: true,
-        branch: true,
+        branch: {
+          include: {
+            company: true,
+          },
+        },
         fields: true,
       },
     });
@@ -238,8 +247,12 @@ export class MachinesService {
             alertBearingClearance: true;
             alertClutch: true;
             alertSlide: true;
+            alertSlideSingleHammer: true;
+            alertSlideDoubleHammer: true;
             alertGibs: true;
+            alertPistons: true;
             alertCounterbalanceCylinderAirbag: true;
+            alertTramming: true;
           };
         };
       };
@@ -249,9 +262,14 @@ export class MachinesService {
       where: { id },
       include: {
         blueprint: true,
-        branch: true,
+        branch: {
+          include: {
+            company: true,
+          },
+        },
         fields: true,
         services: {
+          where: { status: 'COMPLETED' },
           take: 1,
           orderBy: { date: 'desc' },
           include: {
@@ -266,8 +284,12 @@ export class MachinesService {
             alertBearingClearance: true,
             alertClutch: true,
             alertSlide: true,
+            alertSlideSingleHammer: true,
+            alertSlideDoubleHammer: true,
             alertGibs: true,
+            alertPistons: true,
             alertCounterbalanceCylinderAirbag: true,
+            alertTramming: true,
           },
         },
       },
@@ -303,8 +325,12 @@ export class MachinesService {
             alertBearingClearance: true;
             alertClutch: true;
             alertSlide: true;
+            alertSlideSingleHammer: true;
+            alertSlideDoubleHammer: true;
             alertGibs: true;
+            alertPistons: true;
             alertCounterbalanceCylinderAirbag: true;
+            alertTramming: true;
           };
         };
       };
@@ -314,9 +340,14 @@ export class MachinesService {
       where: { id },
       include: {
         blueprint: true,
-        branch: true,
+        branch: {
+          include: {
+            company: true,
+          },
+        },
         fields: true,
         services: {
+          where: { status: 'COMPLETED' },
           take: 1,
           orderBy: { date: 'desc' },
           include: {
@@ -331,7 +362,11 @@ export class MachinesService {
             alertBearingClearance: true,
             alertClutch: true,
             alertSlide: true,
+            alertSlideSingleHammer: true,
+            alertSlideDoubleHammer: true,
             alertGibs: true,
+            alertPistons: true,
+            alertTramming: true,
             alertCounterbalanceCylinderAirbag: true,
           },
         },
@@ -528,5 +563,57 @@ export class MachinesService {
     await this.prisma.machine.delete({
       where: { id },
     });
+  }
+
+  /**
+   * Get public machine info (no authentication required)
+   * Returns only basic info for QR code scanning
+   */
+  async getPublicInfo(id: string): Promise<{
+    id: string;
+    name: string;
+    serialNumber: string | null;
+    imageUrl: string | null;
+    company: {
+      id: string;
+      name: string;
+      slug: string;
+      brandColor: string | null;
+      accentColor: string | null;
+    };
+    branch: { id: string; name: string };
+  }> {
+    const machine = await this.prisma.machine.findUnique({
+      where: { id },
+      include: {
+        branch: {
+          include: {
+            company: true,
+          },
+        },
+      },
+    });
+
+    if (!machine) {
+      throw new NotFoundException(`Machine with ID ${id} not found`);
+    }
+
+    return {
+      id: machine.id,
+      name: machine.name,
+      serialNumber: machine.serialNumber,
+      imageUrl: machine.imageUrl,
+      company: {
+        id: machine.branch.company.id,
+        name: machine.branch.company.name,
+        slug: machine.branch.company.slug,
+        brandColor: machine.branch.company.brandColor,
+        accentColor: machine.branch.company.accentColor,
+      },
+      branch: {
+        id: machine.branch.id,
+        name: machine.branch.name,
+      },
+    };
   }
 }

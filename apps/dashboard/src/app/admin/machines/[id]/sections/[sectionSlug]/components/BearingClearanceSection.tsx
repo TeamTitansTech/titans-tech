@@ -17,9 +17,12 @@ import {
   transformBearingClearanceToDifferentialData,
   extractThresholdConfig,
 } from '@/components/charts/dataTransformers';
-import { getThresholdByBlueprint } from '@/actions/alerts';
+import { getBearingClearanceThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { BEARING_CLEARANCE_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface BearingClearanceSectionProps {
   machineId: string;
@@ -30,12 +33,14 @@ interface BearingClearanceSectionProps {
 }
 
 export function BearingClearanceSection({
+  machineId,
   inspections,
   machineName,
   blueprintId,
   hideThresholdValues = false,
 }: BearingClearanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   // Separate thresholds for each measurement type
   const [cbThreshold, setCbThreshold] = useState<ThresholdConfig | null>(null);
@@ -61,7 +66,7 @@ export function BearingClearanceSection({
       }
 
       try {
-        const response = await getThresholdByBlueprint(blueprintId);
+        const response = await getBearingClearanceThresholdByBlueprint(blueprintId);
         if (response.data) {
           // Extract thresholds for each measurement type
           setCbThreshold(extractThresholdConfig(response.data, 'upperConnectionBearings'));
@@ -139,6 +144,26 @@ export function BearingClearanceSection({
     ),
     mainBearings: calculateDifferential(latestValues.mainBearings_LH, latestValues.mainBearings_RH),
   };
+
+  // Prepare measurements for status badge (using differentials)
+  const statusMeasurements = useMemo(
+    () => [
+      { value: differentials.totalClearance, threshold: totalClearanceThreshold },
+      { value: differentials.upperConnectionBearings, threshold: cbThreshold },
+    ],
+    [
+      differentials.totalClearance,
+      differentials.upperConnectionBearings,
+      totalClearanceThreshold,
+      cbThreshold,
+    ],
+  );
+
+  // Calculate section status for the status card
+  const sectionStatus: SectionStatus = useMemo(
+    () => calculateSectionStatus(statusMeasurements),
+    [statusMeasurements],
+  );
 
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
     if (value === null || value === undefined) return '-';
@@ -236,6 +261,19 @@ export function BearingClearanceSection({
           </CardContent>
         </Card>
       </div>
+
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: BEARING_CLEARANCE_SUBSECTIONS,
+          title: tParts('bearingClearanceParts'),
+          description: tParts('bearingClearanceDescription'),
+          machineId,
+          machineName,
+          sectionName: 'Bearing Clearance',
+        }}
+      />
 
       <Card>
         <CardHeader>

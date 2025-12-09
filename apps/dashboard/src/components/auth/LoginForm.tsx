@@ -11,7 +11,6 @@ import { loginSysAdmin, loginCompanyUser } from '@/data/services/auth.api';
 import { setCookie } from '@/lib/cookies';
 import { useSysAdmin } from '@/contexts/SysAdminContext';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
-import { useInternalRouter } from '@/hooks/useInternalRouter';
 
 type LoginFormProps = {
   brandTitle: string;
@@ -21,6 +20,7 @@ type LoginFormProps = {
   brandLogo?: string | null;
   loginType: 'admin' | 'client';
   companyId?: string;
+  redirectTo?: string;
 };
 
 /**
@@ -45,6 +45,7 @@ export function LoginForm({
   brandLogo,
   loginType,
   companyId,
+  redirectTo,
 }: LoginFormProps) {
   // Default blue color for admin login or companies without brand color
   const defaultColor = '#1e40af';
@@ -62,7 +63,6 @@ export function LoginForm({
     backgroundColor: bgColor,
   };
   const t = useTranslations('login');
-  const router = useInternalRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -91,14 +91,15 @@ export function LoginForm({
       if (response?.data?.accessToken) {
         await setCookie('auth_token', response.data.accessToken);
         setSysAdminUser(response.data.user);
-        router.replace('/admin/dashboard');
+        // Use full page navigation to ensure cookie is sent with the request
+        window.location.href = '/admin/dashboard';
       }
     } else if (loginType === 'client' && companyId) {
       const response = await executeClient({ email, password, companyId });
       if (response?.data?.accessToken) {
         await setCookie('auth_token', response.data.accessToken);
         setCompanyUser(response.data.user);
-        window.location.href = '/home';
+        window.location.href = redirectTo || '/home';
       }
     }
   };

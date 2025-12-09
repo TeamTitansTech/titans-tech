@@ -45,16 +45,8 @@ export function useServiceDataLoader(
 
   useEffect(() => {
     const loadServiceData = async () => {
-      console.log('🔄 [useServiceDataLoader] Effect triggered:', {
-        open,
-        serviceId,
-        createdServiceId,
-        hasLoadedInitialData: hasLoadedInitialData.current,
-      });
-
       // Only load if conditions are met
       if (!open || !serviceId || createdServiceId || hasLoadedInitialData.current) {
-        console.log('❌ [useServiceDataLoader] Skipping load due to conditions');
         return;
       }
 
@@ -168,7 +160,7 @@ export function useServiceDataLoader(
           return converted;
         };
 
-        // Extract data from each relation
+        // Extract data from each relation (excluding slide - handled separately)
         Object.entries(RELATION_TO_SECTION_KEY).forEach(([relationKey, sectionKey]) => {
           const relationData = service[relationKey];
           if (relationData && Array.isArray(relationData) && relationData.length > 0) {
@@ -207,11 +199,51 @@ export function useServiceDataLoader(
                 notes: (lubRecord.notes as string) || '',
               } as AnySectionData;
             } else {
-              // All other sections (GIBS, BEARING_CLEARANCE, SLIDE, etc.)
+              // All other sections (GIBS, BEARING_CLEARANCE, etc.)
               loadedSectionData[sectionKey] = convertDecimalsToNumbers(rawData);
             }
           }
         });
+
+        // Handle single hammer slide relation (completely separate from double hammer)
+        const slideSingleHammerData = service['slideSingleHammer'] as
+          | Array<Record<string, unknown>>
+          | undefined;
+        if (
+          slideSingleHammerData &&
+          Array.isArray(slideSingleHammerData) &&
+          slideSingleHammerData.length > 0
+        ) {
+          const slideRecord = slideSingleHammerData[0];
+          if (slideRecord) {
+            loadedSectionData['SLIDE_SINGLE_HAMMER'] = convertDecimalsToNumbers({
+              beforeData: slideRecord.beforeData,
+              data: slideRecord.data,
+              notes: slideRecord.notes,
+            });
+          }
+        }
+
+        // Handle double hammer slide relation (completely separate from single hammer)
+        const slideDoubleHammerData = service['slideDoubleHammer'] as
+          | Array<Record<string, unknown>>
+          | undefined;
+        if (
+          slideDoubleHammerData &&
+          Array.isArray(slideDoubleHammerData) &&
+          slideDoubleHammerData.length > 0
+        ) {
+          const slideRecord = slideDoubleHammerData[0];
+          if (slideRecord) {
+            loadedSectionData['SLIDE_DOUBLE_HAMMER'] = convertDecimalsToNumbers({
+              outerBefore: slideRecord.outerBefore,
+              outerData: slideRecord.outerData,
+              innerBefore: slideRecord.innerBefore,
+              innerData: slideRecord.innerData,
+              notes: slideRecord.notes,
+            });
+          }
+        }
 
         const sectionsWithMissingData = savedCompletedSections.filter(
           (sectionKey) => !loadedSectionData[sectionKey as keyof SectionDataMap],
@@ -233,8 +265,21 @@ export function useServiceDataLoader(
           ? service.selectedSections
           : savedCompletedSections;
 
+        // For inspections, always use all machine sections if none saved
         if (isInspection && savedSelectedSections.length === 0) {
           savedSelectedSections = machineSections;
+        }
+
+        // For maintenance with progress but no saved selectedSections, use completedSections or machineSections
+        if (!isInspection && savedSelectedSections.length === 0) {
+          const hasProgress =
+            savedCompletedSections.length > 0 ||
+            (service.currentStep && service.currentStep !== 'selection');
+          if (hasProgress) {
+            // Use completedSections if available, otherwise use machineSections
+            savedSelectedSections =
+              savedCompletedSections.length > 0 ? savedCompletedSections : machineSections;
+          }
         }
 
         setSelectedSections(new Set(savedSelectedSections));
@@ -283,7 +328,17 @@ export function useServiceDataLoader(
           );
         };
 
-        if (
+        // For maintenance without saved selectedSections AND no progress, go back to selection step
+        const hasNoSavedSections = savedSelectedSections.length === 0;
+        const hasProgressForStep =
+          savedCompletedSections.length > 0 ||
+          (service.currentStep && service.currentStep !== 'selection');
+        const shouldForceSelectionStep = !isInspection && hasNoSavedSections && !hasProgressForStep;
+
+        if (shouldForceSelectionStep) {
+          setCurrentStep('selection');
+          setCurrentSectionIndex(0);
+        } else if (
           service.currentStep &&
           isValidStep(service.currentStep) &&
           service.currentStep !== 'summary'

@@ -1,7 +1,8 @@
 import { getTranslations } from 'next-intl/server';
 import { BearingClearanceSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/BearingClearanceSectionWrapper';
 import { ClutchSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/ClutchSectionWrapper';
-import { SlideSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideSectionWrapper';
+import { SlideSingleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideSingleHammerSectionWrapper';
+import { SlideDoubleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideDoubleHammerSectionWrapper';
 import { GibsSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/GibsSectionWrapper';
 import { LubricationSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/LubricationSectionWrapper';
 import { CounterbalanceSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/CounterbalanceSectionWrapper';
@@ -37,12 +38,11 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
         </div>
       </div>
 
-      {sectionSlug === 'bearing_clearance' && (
-        <BearingClearanceSectionWrapper machineId={id} hideThresholdValues />
-      )}
-      {sectionSlug === 'clutch' && <ClutchSectionWrapper machineId={id} hideThresholdValues />}
-      {sectionSlug === 'slide' && <SlideSectionWrapper machineId={id} hideThresholdValues />}
-      {sectionSlug === 'gibs' && <GibsSectionWrapper machineId={id} hideThresholdValues />}
+      {sectionSlug === 'bearing_clearance' && <BearingClearanceSectionWrapper machineId={id} />}
+      {sectionSlug === 'clutch' && <ClutchSectionWrapper machineId={id} />}
+      {sectionSlug === 'slide_single_hammer' && <SlideSingleHammerSectionWrapper machineId={id} />}
+      {sectionSlug === 'slide_double_hammer' && <SlideDoubleHammerSectionWrapper machineId={id} />}
+      {sectionSlug === 'gibs' && <GibsSectionWrapper machineId={id} />}
       {sectionSlug === 'lubrication_hydraulics_pressure_switches_oil_filter' && (
         <LubricationSectionWrapper machineId={id} />
       )}
@@ -52,7 +52,8 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
 
       {sectionSlug !== 'bearing_clearance' &&
         sectionSlug !== 'clutch' &&
-        sectionSlug !== 'slide' &&
+        sectionSlug !== 'slide_single_hammer' &&
+        sectionSlug !== 'slide_double_hammer' &&
         sectionSlug !== 'gibs' &&
         sectionSlug !== 'lubrication_hydraulics_pressure_switches_oil_filter' &&
         sectionSlug !== 'counterbalance_cylinder_airbag' && (

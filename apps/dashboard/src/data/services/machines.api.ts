@@ -1,4 +1,5 @@
 'use server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { responseHandler } from '@/data/helpers/responseHandler';
 import {
   FoundationType,
@@ -112,6 +113,7 @@ export const getBlueprints = async () => {
 export const getMachines = async () => {
   return await responseHandler<Machine[]>('/machines', {
     method: 'GET',
+    tags: ['machines'],
   });
 };
 
@@ -128,21 +130,75 @@ export const getMachineById = async (id: string) => {
 };
 
 export const createMachine = async (payload: CreateMachinePayload) => {
-  return await responseHandler<Machine>(`/company-branches/${payload.branchId}/machines`, {
+  const result = await responseHandler<Machine>(`/company-branches/${payload.branchId}/machines`, {
     method: 'POST',
     body: payload,
   });
+
+  if (!result.errors) {
+    revalidateTag('machines', 'max');
+    revalidatePath('/admin/machines');
+  }
+
+  return result;
 };
 
 export const updateMachine = async (id: string, payload: UpdateMachinePayload) => {
-  return await responseHandler<Machine>(`/machines/${id}`, {
+  const result = await responseHandler<Machine>(`/machines/${id}`, {
     method: 'PUT',
     body: payload,
   });
+
+  if (!result.errors) {
+    revalidateTag('machines', 'max');
+    revalidatePath('/admin/machines');
+  }
+
+  return result;
 };
 
 export const deleteMachine = async (id: string) => {
-  return await responseHandler<void>(`/machines/${id}`, {
+  const result = await responseHandler<void>(`/machines/${id}`, {
     method: 'DELETE',
+  });
+
+  if (!result.errors) {
+    revalidateTag('machines', 'max');
+    revalidatePath('/admin/machines');
+  }
+
+  return result;
+};
+
+export interface PartItem {
+  partNumber: string;
+  description: string;
+  quantity: number | string;
+  unit: string;
+}
+
+export interface PartsGroup {
+  subsectionName: string;
+  parts: PartItem[];
+}
+
+export interface SendPartsEmailPayload {
+  machineId: string;
+  machineName: string;
+  machineSerial: string;
+  sectionName: string;
+  emails: string[];
+  partsGroups: PartsGroup[];
+}
+
+export interface SendPartsEmailResponse {
+  success: boolean;
+  message: string;
+}
+
+export const sendPartsEmail = async (payload: SendPartsEmailPayload) => {
+  return await responseHandler<SendPartsEmailResponse>('/machines/send-parts-email', {
+    method: 'POST',
+    body: payload,
   });
 };

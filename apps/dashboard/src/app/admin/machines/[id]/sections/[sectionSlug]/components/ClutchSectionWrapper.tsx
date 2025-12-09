@@ -34,6 +34,7 @@ export async function ClutchSectionWrapper({
 }: ClutchSectionWrapperProps) {
   let inspections: ClutchInspectionData[] = [];
   let machineName = '';
+  let machineSerial = '';
   let blueprintId = '';
 
   try {
@@ -52,15 +53,18 @@ export async function ClutchSectionWrapper({
     if (machineResponse.errors) {
       console.error('Errors fetching machine:', machineResponse.errors);
       machineName = '';
+      machineSerial = '';
       blueprintId = '';
     } else {
       machineName = machineResponse.data?.name || '';
+      machineSerial = machineResponse.data?.serialNumber || '';
       blueprintId = machineResponse.data?.blueprintId || '';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
     inspections = [];
     machineName = '';
+    machineSerial = '';
     blueprintId = '';
   }
 
@@ -69,6 +73,7 @@ export async function ClutchSectionWrapper({
       machineId={machineId}
       inspections={inspections}
       machineName={machineName}
+      machineSerial={machineSerial}
       blueprintId={blueprintId}
       hideThresholdValues={hideThresholdValues}
     />

@@ -1,198 +1,24 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
-import { Factory, MoveDown, MoveUp, GripVertical, Save, Loader2, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Factory, Star } from 'lucide-react';
 import { MachineCardInLine } from './MachineCardInLine';
-import { updateProductionLine } from '@/data/services/production-lines.api';
-import { toast } from 'sonner';
 import type { ProductionLine, ProductionLineMachine } from '@/data/types/production-lines.types';
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-  DragOverlay,
-  type DragStartEvent,
-} from '@dnd-kit/core';
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  horizontalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 
 interface ViewTabProps {
   productionLine: ProductionLine;
   canViewMachineDetails?: boolean;
-  canEdit?: boolean;
-  onOrderChange?: (updatedLine: ProductionLine) => void;
 }
 
-interface SortableMachineCardProps {
-  productionLineMachine: ProductionLineMachine;
-  canViewDetails: boolean;
-  canEdit: boolean;
-  showArrow: 'up' | 'down' | null;
-  isMainMachine?: boolean;
-}
-
-function SortableMachineCard({
-  productionLineMachine,
-  canViewDetails,
-  canEdit,
-  showArrow,
-  isMainMachine,
-}: SortableMachineCardProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: productionLineMachine.machineId,
-    disabled: !canEdit,
-  });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.3 : 1,
-  };
-
-  return (
-    <div ref={setNodeRef} style={style} className="relative flex flex-col items-center">
-      {isMainMachine && (
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium">
-          <Star className="w-3 h-3 fill-current" />
-          <span>Principal</span>
-        </div>
-      )}
-      {canEdit && (
-        <div
-          {...attributes}
-          {...listeners}
-          className="absolute -top-2 left-1/2 -translate-x-1/2 z-20 bg-primary text-primary-foreground rounded-full p-1 cursor-grab active:cursor-grabbing shadow-md hover:bg-primary/90 transition-colors"
-        >
-          <GripVertical className="w-4 h-4" />
-        </div>
-      )}
-      <MachineCardInLine machine={productionLineMachine.machine!} canViewDetails={canViewDetails} />
-      {showArrow === 'up' && (
-        <div className="flex flex-col items-center mt-5">
-          <MoveUp className="w-6 h-6 text-green-500 -mb-1" />
-        </div>
-      )}
-      {showArrow === 'down' && (
-        <div className="flex flex-col items-center mb-5">
-          <MoveDown className="w-6 h-6 text-green-500 -mb-1" />
-        </div>
-      )}
-    </div>
-  );
-}
-
-export function ViewTab({
-  productionLine,
-  canViewMachineDetails = true,
-  canEdit = false,
-  onOrderChange,
-}: ViewTabProps) {
+export function ViewTab({ productionLine, canViewMachineDetails = true }: ViewTabProps) {
   const t = useTranslations('productionLines');
-  const [isSaving, setIsSaving] = useState(false);
-  const [hasChanges, setHasChanges] = useState(false);
-  const [activeId, setActiveId] = useState<string | null>(null);
 
-  // Initialize machine order from production line
-  const initialOrder =
-    productionLine.machines?.sort((a, b) => a.order - b.order).map((pm) => pm.machineId) || [];
-  const [machineOrder, setMachineOrder] = useState<string[]>(initialOrder);
-
-  // The first machine is the main machine
-  const mainMachineId = machineOrder[0];
-
-  // Reset order when production line changes
-  useEffect(() => {
-    const newOrder =
-      productionLine.machines?.sort((a, b) => a.order - b.order).map((pm) => pm.machineId) || [];
-    setMachineOrder(newOrder);
-    setHasChanges(false);
-  }, [productionLine]);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  );
-
-  // Get ordered machines based on current order
-  const orderedMachines = machineOrder
-    .map((id) => productionLine.machines?.find((pm) => pm.machineId === id))
-    .filter((pm): pm is ProductionLineMachine => pm !== undefined && pm.machine !== undefined);
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as string);
-  };
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
-
-    if (!over) return;
-
-    const activeIdStr = String(active.id);
-    const overIdStr = String(over.id);
-
-    // Ignore if dropped on itself
-    if (activeIdStr === overIdStr) return;
-
-    // Regular reordering
-    setMachineOrder((items) => {
-      const oldIndex = items.indexOf(activeIdStr);
-      const newIndex = items.indexOf(overIdStr);
-      if (oldIndex !== -1 && newIndex !== -1) {
-        return arrayMove(items, oldIndex, newIndex);
-      }
-      return items;
-    });
-    setHasChanges(true);
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      const response = await updateProductionLine(productionLine.id, {
-        machineIds: machineOrder,
-      });
-
-      if (response.errors) {
-        toast.error(t('errorSaving'));
-        return;
-      }
-
-      if (response.data) {
-        toast.success(t('orderSaved'));
-        setHasChanges(false);
-        onOrderChange?.(response.data);
-      }
-    } catch (error) {
-      toast.error(t('errorSaving'));
-      console.error(error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const activeMachine = activeId
-    ? productionLine.machines?.find((pm) => pm.machineId === activeId)
-    : null;
+  // Get ordered machines based on saved order
+  const orderedMachines =
+    productionLine.machines
+      ?.sort((a, b) => a.order - b.order)
+      .filter((pm): pm is ProductionLineMachine => pm.machine !== undefined) || [];
 
   if (orderedMachines.length === 0) {
     return (
@@ -210,143 +36,117 @@ export function ViewTab({
     );
   }
 
+  // Separate main machine (order 0) and other machines
+  const mainMachine = orderedMachines[0]; // First machine is the principal
+  const otherMachines = orderedMachines.slice(1); // Rest are regular machines
+
+  // Split other machines into top and bottom rows (alternating)
+  const topRowMachines = otherMachines.filter((_, index) => index % 2 === 0);
+  const bottomRowMachines = otherMachines.filter((_, index) => index % 2 !== 0);
+
+  // Display machines in reverse order (right to left flow)
+  const displayTopRow = [...topRowMachines].reverse();
+  const displayBottomRow = [...bottomRowMachines].reverse();
+
   return (
     <div className="relative w-full">
-      {/* Save button when there are changes */}
-      {canEdit && hasChanges && (
-        <div className="sticky top-0 z-30 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b p-3 mb-4 flex items-center justify-between rounded-lg shadow-sm">
-          <p className="text-sm text-muted-foreground">{t('unsavedChanges')}</p>
-          <Button onClick={handleSave} disabled={isSaving} size="sm">
-            {isSaving ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Save className="w-4 h-4 mr-2" />
-            )}
-            {isSaving ? t('saving') : t('saveOrder')}
-          </Button>
-        </div>
-      )}
+      {/* Desktop layout - flexbox with absolute positioned line */}
+      <div className="hidden lg:block overflow-x-auto pb-8">
+        <div className="relative min-w-max px-8 py-8">
+          {/* Horizontal line - absolutely positioned at vertical center */}
+          <div
+            className="absolute h-1 bg-green-500 z-0"
+            style={{
+              left: '2rem',
+              right: '2rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+            }}
+          />
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext items={machineOrder} strategy={horizontalListSortingStrategy}>
-          <div className="hidden lg:block overflow-x-auto pb-8">
-            <div className="relative min-w-max px-12 pt-8 pb-16">
-              <div className="flex items-center gap-4">
-                {/* Main machine on the left */}
-                {orderedMachines.length > 0 && (
-                  <div className="flex items-center">
-                    <SortableMachineCard
-                      key={orderedMachines[0].machineId}
-                      productionLineMachine={orderedMachines[0]}
+          <div className="relative z-10 flex items-center">
+            {/* Middle section: machines above and below the line - fills available space */}
+            <div className="flex-1 flex flex-col">
+              {/* Top machines with vertical connectors - spread evenly */}
+              <div className="flex items-end justify-evenly">
+                {displayTopRow.map((pm) => (
+                  <div key={pm.machineId} className="flex flex-col items-center">
+                    <MachineCardInLine
+                      machine={pm.machine!}
                       canViewDetails={canViewMachineDetails}
-                      canEdit={canEdit}
-                      showArrow={null}
-                      isMainMachine={true}
                     />
-                    {orderedMachines.length > 1 && <div className="h-1 w-8 bg-green-500 ml-4" />}
+                    {/* Vertical connector going down to the line */}
+                    <div className="w-0.5 h-8 bg-green-500" />
                   </div>
-                )}
-
-                {/* Rest of machines in alternating layout (above/below line) */}
-                {orderedMachines.length > 1 && (
-                  <div className="relative flex flex-col flex-1">
-                    {/* Top row - even indices after main (index 0, 2, 4... in slice) */}
-                    <div className="flex justify-between items-end gap-8">
-                      {orderedMachines.slice(1).map((productionLineMachine, index) => {
-                        if (index % 2 !== 0) return null;
-                        return (
-                          <SortableMachineCard
-                            key={productionLineMachine.machineId}
-                            productionLineMachine={productionLineMachine}
-                            canViewDetails={canViewMachineDetails}
-                            canEdit={canEdit}
-                            showArrow="up"
-                            isMainMachine={false}
-                          />
-                        );
-                      })}
-                    </div>
-
-                    <div className="relative h-1 w-full">
-                      <div className="absolute top-0 left-0 right-0 h-1 bg-green-500" />
-                    </div>
-
-                    {/* Bottom row - odd indices after main (index 1, 3, 5... in slice) */}
-                    <div className="flex justify-center items-start gap-8">
-                      {orderedMachines.slice(1).map((productionLineMachine, index) => {
-                        if (index % 2 === 0) return null;
-                        return (
-                          <div
-                            key={productionLineMachine.machineId}
-                            className="relative flex flex-col items-center"
-                          >
-                            <div className="flex flex-col items-center mb-5">
-                              <MoveDown className="w-6 h-6 text-green-500 -mb-1" />
-                            </div>
-                            <SortableMachineCard
-                              productionLineMachine={productionLineMachine}
-                              canViewDetails={canViewMachineDetails}
-                              canEdit={canEdit}
-                              showArrow={null}
-                              isMainMachine={false}
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
+                ))}
               </div>
-            </div>
-          </div>
 
-          {/* Mobile layout */}
-          <div className="lg:hidden py-8">
-            <div className="relative flex">
-              <div className="absolute left-8 top-0 bottom-0 w-1 bg-green-500" />
+              {/* Spacer where the line passes through */}
+              <div className="h-1" />
 
-              <div className="flex flex-col gap-8 pl-8">
-                {orderedMachines.map((productionLineMachine) => (
-                  <div key={productionLineMachine.machineId} className="relative flex items-center">
-                    <div className="absolute left-0 w-3 h-3 rounded-full bg-green-500 border-2 border-green-600 -translate-x-1/2" />
-                    <div className="h-1 w-12 bg-green-500" />
-                    <div className="flex-shrink-0 relative">
-                      {productionLineMachine.machineId === mainMachineId && (
-                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium">
-                          <Star className="w-3 h-3 fill-current" />
-                        </div>
-                      )}
-                      {canEdit && (
-                        <div className="absolute -top-2 -left-2 z-20 bg-primary text-primary-foreground rounded-full p-1 cursor-grab active:cursor-grabbing shadow-md">
-                          <GripVertical className="w-3 h-3" />
-                        </div>
-                      )}
-                      <MachineCardInLine
-                        machine={productionLineMachine.machine!}
-                        canViewDetails={canViewMachineDetails}
-                      />
-                    </div>
+              {/* Bottom machines with vertical connectors - spread evenly with offset */}
+              <div className="flex items-start justify-evenly px-[100px]">
+                {displayBottomRow.map((pm) => (
+                  <div key={pm.machineId} className="flex flex-col items-center">
+                    {/* Vertical connector going up from the line */}
+                    <div className="w-0.5 h-8 bg-green-500" />
+                    <MachineCardInLine
+                      machine={pm.machine!}
+                      canViewDetails={canViewMachineDetails}
+                    />
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-        </SortableContext>
 
-        {/* Drag overlay for visual feedback */}
-        <DragOverlay>
-          {activeId && activeMachine?.machine && (
-            <div className="opacity-90">
-              <MachineCardInLine machine={activeMachine.machine} canViewDetails={false} />
-            </div>
-          )}
-        </DragOverlay>
-      </DndContext>
+            {/* Main machine at the end of the line */}
+            {mainMachine && (
+              <div className="flex items-center ml-4">
+                {/* Horizontal connector to main machine */}
+                <div className="h-1 w-8 bg-green-500" />
+                <div className="relative">
+                  {/* Principal badge */}
+                  <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap">
+                    <Star className="w-3 h-3 fill-current" />
+                    <span>Principal</span>
+                  </div>
+                  <MachineCardInLine
+                    machine={mainMachine.machine!}
+                    canViewDetails={canViewMachineDetails}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile layout */}
+      <div className="lg:hidden py-8">
+        <div className="relative flex">
+          <div className="absolute left-8 top-0 bottom-0 w-1 bg-green-500" />
+
+          <div className="flex flex-col gap-8 pl-8">
+            {orderedMachines.map((productionLineMachine, index) => (
+              <div key={productionLineMachine.machineId} className="relative flex items-center">
+                <div className="absolute left-0 w-3 h-3 rounded-full bg-green-500 border-2 border-green-600 -translate-x-1/2" />
+                <div className="h-1 w-12 bg-green-500" />
+                <div className="flex-shrink-0 relative">
+                  {index === 0 && (
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-yellow-500 text-yellow-950 px-2 py-0.5 rounded-full text-xs font-medium">
+                      <Star className="w-3 h-3 fill-current" />
+                    </div>
+                  )}
+                  <MachineCardInLine
+                    machine={productionLineMachine.machine!}
+                    canViewDetails={canViewMachineDetails}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

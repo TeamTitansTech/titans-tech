@@ -20,22 +20,29 @@ import {
 import { getClutchThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { CLUTCH_BRAKE_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface ClutchSectionProps {
   machineId: string;
   inspections: ClutchInspectionData[];
   machineName: string;
+  machineSerial?: string;
   blueprintId: string;
   hideThresholdValues?: boolean;
 }
 
 export function ClutchSection({
+  machineId,
   inspections,
   machineName,
+  machineSerial,
   blueprintId,
   hideThresholdValues = false,
 }: ClutchSectionProps) {
   const t = useTranslations('machines.sectionDetails');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   // Thresholds for hydraulic clutch clearance
   const [hydTotalThreshold, setHydTotalThreshold] = useState<ThresholdConfig | null>(null);
@@ -142,6 +149,24 @@ export function ClutchSection({
     ]);
   }, [filteredInspections]);
 
+  // Prepare measurements for status badge
+  const statusMeasurements = useMemo(
+    () => [
+      { value: latestValues.hydClutchClearanceTotal, threshold: hydTotalThreshold },
+      { value: latestValues.hydClutchClearanceRear, threshold: hydRearThreshold },
+      { value: latestValues.brakeSpringFB, threshold: fbThreshold },
+      { value: latestValues.brakeSpringFTB, threshold: fTBThreshold },
+      { value: latestValues.brakeSpringRTB, threshold: rTBThreshold },
+    ],
+    [latestValues, hydTotalThreshold, hydRearThreshold, fbThreshold, fTBThreshold, rTBThreshold],
+  );
+
+  // Calculate section status for the status card
+  const sectionStatus: SectionStatus = useMemo(
+    () => calculateSectionStatus(statusMeasurements),
+    [statusMeasurements],
+  );
+
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
     if (value === null || value === undefined) return '-';
     return Number(value).toFixed(decimals);
@@ -233,6 +258,20 @@ export function ClutchSection({
           </CardContent>
         </Card>
       </div>
+
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: CLUTCH_BRAKE_SUBSECTIONS,
+          title: tParts('clutchBrakeParts'),
+          description: tParts('clutchBrakeDescription'),
+          machineId,
+          machineName,
+          machineSerial,
+          sectionName: 'Clutch & Brake',
+        }}
+      />
 
       <Card>
         <CardHeader>

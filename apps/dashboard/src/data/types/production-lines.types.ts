@@ -1,10 +1,13 @@
 import type { Machine } from './machines.types';
 
+export type ProductionLineDirection = 'LEFT_TO_RIGHT' | 'RIGHT_TO_LEFT';
+
 export interface ProductionLine {
   id: string;
   name: string;
   branchId: string;
   createdBy?: string;
+  direction: ProductionLineDirection;
   createdAt: string;
   updatedAt: string;
   branch?: {
@@ -30,7 +33,7 @@ export interface ProductionLineMachine {
 
 export interface MachineWithStatus extends Machine {
   sectionStatus?: {
-    [sectionName: string]: 'ok' | 'warning' | 'alert' | 'unknown';
+    [sectionName: string]: 'ok' | 'warning' | 'alert';
   };
 }
 
@@ -38,10 +41,12 @@ export interface CreateProductionLineDto {
   name: string;
   branchId: string;
   machineIds: string[];
+  direction?: ProductionLineDirection;
   createdBy?: string;
 }
 
 export interface UpdateProductionLineDto {
   name?: string;
   machineIds?: string[];
+  direction?: ProductionLineDirection;
 }

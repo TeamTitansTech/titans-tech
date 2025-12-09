@@ -269,3 +269,125 @@ export function convertPartialGibsThresholdToDecimal<
   });
   return data as PartialGibsThresholdDecimalData;
 }
+
+/**
+ * List of all PISTONS threshold field names
+ * Monitors difference (side-to-side) thresholds only
+ */
+export const PISTONS_THRESHOLD_FIELDS = [
+  'difference_greenMin',
+  'difference_yellowMin',
+  'difference_redMin',
+] as const;
+
+export type PistonsThresholdFieldName =
+  (typeof PISTONS_THRESHOLD_FIELDS)[number];
+
+/**
+ * Type for complete PISTONS threshold data with Decimal fields
+ */
+export type PistonsThresholdDecimalData = {
+  [K in PistonsThresholdFieldName]: Decimal;
+};
+
+/**
+ * Type for partial PISTONS threshold data with Decimal fields
+ */
+export type PartialPistonsThresholdDecimalData = {
+  [K in PistonsThresholdFieldName]?: Decimal;
+};
+
+/**
+ * Converts PISTONS threshold DTO fields to Decimal type for Prisma (all fields)
+ *
+ * @param dto - PISTONS threshold data object with all fields
+ * @returns Object with all Decimal-converted threshold fields
+ */
+export function convertPistonsThresholdToDecimal<T extends Record<string, any>>(
+  dto: T,
+): PistonsThresholdDecimalData {
+  return PISTONS_THRESHOLD_FIELDS.reduce((acc, field) => {
+    acc[field] = new Decimal(dto[field]);
+    return acc;
+  }, {} as any) as PistonsThresholdDecimalData;
+}
+
+/**
+ * Converts partial PISTONS threshold DTO fields to Decimal type for Prisma
+ *
+ * @param dto - Partial PISTONS threshold data object
+ * @returns Object with Decimal-converted threshold fields (only provided fields)
+ */
+export function convertPartialPistonsThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): PartialPistonsThresholdDecimalData {
+  const data: any = {};
+  Object.keys(dto).forEach((key) => {
+    const value = dto[key];
+    if (value !== undefined && PISTONS_THRESHOLD_FIELDS.includes(key as any)) {
+      data[key] = new Decimal(value);
+    }
+  });
+  return data as PartialPistonsThresholdDecimalData;
+}
+
+/**
+ * List of all Tramming threshold field names
+ * Single threshold range for all tramming sums (vertical and horizontal)
+ */
+export const TRAMMING_THRESHOLD_FIELDS = [
+  'greenMin',
+  'yellowMin',
+  'redMin',
+] as const;
+
+export type TrammingThresholdFieldName =
+  (typeof TRAMMING_THRESHOLD_FIELDS)[number];
+
+/**
+ * Type for complete Tramming threshold data with Decimal fields
+ */
+export type TrammingThresholdDecimalData = {
+  [K in TrammingThresholdFieldName]: Decimal;
+};
+
+/**
+ * Type for partial Tramming threshold data with Decimal fields
+ */
+export type PartialTrammingThresholdDecimalData = {
+  [K in TrammingThresholdFieldName]?: Decimal;
+};
+
+/**
+ * Converts Tramming threshold DTO fields to Decimal type for Prisma (all fields)
+ *
+ * @param dto - Tramming threshold data object with all fields
+ * @returns Object with all Decimal-converted threshold fields
+ */
+export function convertTrammingThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): TrammingThresholdDecimalData {
+  return TRAMMING_THRESHOLD_FIELDS.reduce((acc, field) => {
+    acc[field] = new Decimal(dto[field]);
+    return acc;
+  }, {} as any) as TrammingThresholdDecimalData;
+}
+
+/**
+ * Converts partial Tramming threshold DTO fields to Decimal type for Prisma
+ *
+ * @param dto - Partial Tramming threshold data object
+ * @returns Object with Decimal-converted threshold fields (only provided fields)
+ */
+export function convertPartialTrammingThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): PartialTrammingThresholdDecimalData {
+  const data: any = {};
+  Object.keys(dto).forEach((key) => {
+    const value = dto[key];
+    if (value !== undefined && TRAMMING_THRESHOLD_FIELDS.includes(key as any)) {
+      data[key] = new Decimal(value);
+    }
+  });
+  return data as PartialTrammingThresholdDecimalData;
+}

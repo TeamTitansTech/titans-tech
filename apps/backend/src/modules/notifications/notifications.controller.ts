@@ -12,16 +12,12 @@ import {
   UsePipes,
 } from '@nestjs/common';
 import { NotificationsService } from './notifications.service';
-import { Authenticated, CompanyManager } from '../auth/auth.decorators';
+import { Admin, Authenticated } from '../auth/auth.decorators';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
 import type { ReqWithAuthUser } from '../../types/request';
-import { isRegularUser } from '../../types/request';
 import {
   CreateUrgentRequestDto,
   CreateUrgentRequestDtoSchema,
-  AdminNotificationResponseDto,
-  ClientNotificationResponseDto,
-  NotificationStatsResponseDto,
   SendAlertNotificationDto,
   SendAlertNotificationDtoSchema,
 } from '@titans-tech/shared/backend-dtos';
@@ -42,87 +38,43 @@ export class NotificationsController {
     return this.notificationsService.createUrgentRequest(userId, dto);
   }
 
-  @Get('admin')
-  @CompanyManager()
-  async getAdminNotifications(
+  @Get()
+  @Admin()
+  async getNotifications(
     @Req() req: ReqWithAuthUser,
     @Query('limit') limit?: string,
     @Query('includeRead') includeRead?: string,
-  ): Promise<AdminNotificationResponseDto[]> {
-    const companyId = isRegularUser(req.user) ? req.user.companyId : null;
+  ) {
     const limitNum = limit ? parseInt(limit, 10) : 50;
     const includeReadBool = includeRead === 'true';
 
-    return this.notificationsService.getAdminNotifications(
-      companyId,
+    return this.notificationsService.getNotifications(
+      req.user.id,
       limitNum,
       includeReadBool,
     );
   }
 
-  @Get('admin/stats')
-  @CompanyManager()
-  async getAdminNotificationStats(
-    @Req() req: ReqWithAuthUser,
-  ): Promise<NotificationStatsResponseDto> {
-    const companyId = isRegularUser(req.user) ? req.user.companyId : null;
-    return this.notificationsService.getAdminNotificationStats(companyId);
-  }
-
-  @Get('client')
-  @Authenticated()
-  async getClientNotifications(
-    @Req() req: ReqWithAuthUser,
-    @Query('limit') limit?: string,
-    @Query('includeRead') includeRead?: string,
-  ): Promise<ClientNotificationResponseDto[]> {
-    const userId = req.user.id;
-    const limitNum = limit ? parseInt(limit, 10) : 50;
-    const includeReadBool = includeRead === 'true';
-
-    return this.notificationsService.getClientNotifications(
-      userId,
-      limitNum,
-      includeReadBool,
-    );
-  }
-
-  @Patch('admin/:id/read')
-  @CompanyManager()
+  @Patch(':id/read')
+  @Admin()
   @HttpCode(HttpStatus.OK)
-  async markAdminNotificationAsRead(
+  async markNotificationAsRead(
     @Param('id') id: string,
+    @Req() req: ReqWithAuthUser,
   ): Promise<{ success: boolean }> {
-    return this.notificationsService.markAdminNotificationAsRead(id);
+    return this.notificationsService.markNotificationAsRead({
+      notificationId: id,
+      userId: req.user.id,
+    });
   }
 
-  @Patch('client/:id/read')
+  @Patch('read-all')
   @Authenticated()
   @HttpCode(HttpStatus.OK)
-  async markClientNotificationAsRead(
-    @Param('id') id: string,
-  ): Promise<{ success: boolean }> {
-    return this.notificationsService.markClientNotificationAsRead(id);
-  }
-
-  @Patch('admin/read-all')
-  @CompanyManager()
-  @HttpCode(HttpStatus.OK)
-  async markAllAdminNotificationsAsRead(
+  async markAllNotificationsAsRead(
     @Req() req: ReqWithAuthUser,
   ): Promise<{ success: boolean; count: number }> {
-    const companyId = isRegularUser(req.user) ? req.user.companyId : null;
-    return this.notificationsService.markAllAdminNotificationsAsRead(companyId);
-  }
-
-  @Patch('client/read-all')
-  @Authenticated()
-  @HttpCode(HttpStatus.OK)
-  async markAllClientNotificationsAsRead(
-    @Req() req: ReqWithAuthUser,
-  ): Promise<{ success: boolean; count: number }> {
-    const userId = req.user.id;
-    return this.notificationsService.markAllClientNotificationsAsRead(userId);
+    return this.notificationsService.markAllNotificationsAsRead(req.user.id);
   }
 
   @Post('alert-notification')

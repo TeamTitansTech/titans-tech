@@ -77,7 +77,7 @@ export class ProductionLinesService {
       );
     }
 
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    if (user.isCompanyAdmin) {
       return;
     }
 
@@ -107,7 +107,7 @@ export class ProductionLinesService {
       throw new NotFoundException('User not found');
     }
 
-    if (user.isCompanyAdmin || user.isCompanyManager) {
+    if (user.isCompanyAdmin) {
       return user.company.branches.map((b) => b.id);
     }
 
@@ -157,7 +157,7 @@ export class ProductionLinesService {
         name: createProductionLineDto.name,
         branchId: createProductionLineDto.branchId,
         createdBy: createProductionLineDto.createdBy,
-
+        direction: createProductionLineDto.direction,
         machines: {
           create: createProductionLineDto.machineIds.map(
             (machineId, index) => ({
@@ -273,6 +273,7 @@ export class ProductionLinesService {
         where: { id },
         data: {
           name: updateProductionLineDto.name,
+          direction: updateProductionLineDto.direction,
           machines: {
             deleteMany: {},
             create: updateProductionLineDto.machineIds.map(
@@ -291,6 +292,7 @@ export class ProductionLinesService {
       where: { id },
       data: {
         name: updateProductionLineDto.name,
+        direction: updateProductionLineDto.direction,
       },
       include: PRODUCTION_LINE_FULL_INCLUDE,
     });
@@ -347,6 +349,7 @@ export class ProductionLinesService {
         where: { id },
         data: {
           name: updateProductionLineDto.name,
+          direction: updateProductionLineDto.direction,
           machines: {
             deleteMany: {},
             create: updateProductionLineDto.machineIds.map(
@@ -365,6 +368,7 @@ export class ProductionLinesService {
       where: { id },
       data: {
         name: updateProductionLineDto.name,
+        direction: updateProductionLineDto.direction,
       },
       include: PRODUCTION_LINE_FULL_INCLUDE,
     });

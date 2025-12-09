@@ -3,6 +3,7 @@ import type { UserResponseDto, UserBranchDto } from '@titans-tech/shared/backend
 export interface Branch {
   id: string;
   name: string;
+  location?: string | null;
 }
 
 /**
@@ -16,11 +17,12 @@ export function getBranchesWithPermission(
 ): Branch[] {
   if (!companyUser) return [];
 
-  // Company admins and managers can see all branches
-  if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) {
+  // Company admins can see all branches
+  if (companyUser.isCompanyAdmin) {
     return companyUser.branches.map((ub: UserBranchDto) => ({
       id: ub.branchId,
       name: ub.branch.name,
+      location: ub.branch.location,
     }));
   }
 
@@ -30,6 +32,7 @@ export function getBranchesWithPermission(
     .map((ub: UserBranchDto) => ({
       id: ub.branchId,
       name: ub.branch.name,
+      location: ub.branch.location,
     }));
 }
 
@@ -46,8 +49,8 @@ export function filterByBranchPermission<T extends { branchId: string }>(
 ): T[] {
   if (!companyUser) return [];
 
-  // Company admins and managers can see all items
-  if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) {
+  // Company admins can see all items
+  if (companyUser.isCompanyAdmin) {
     if (selectedBranchFilter === 'all') return items;
     return items.filter((item) => item.branchId === selectedBranchFilter);
   }

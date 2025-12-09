@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useOptimistic, startTransition, useMemo, useEffect } from 'react';
+import { useState, useOptimistic, startTransition, useMemo } from 'react';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { ProductionLineCard } from './ProductionLineCard';
@@ -17,21 +17,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { getBranchesWithPermission, filterByBranchPermission } from '@/lib/branchFilters';
-import {
-  getAllBranchesForSysAdmin,
-  type CompanyBranch,
-} from '@/data/services/company-branches.api';
+import { type CompanyBranch } from '@/data/services/company-branches.api';
 
 interface ProductionLinesPageProps {
   productionLines: ProductionLine[];
+  allBranches: CompanyBranch[];
 }
 
-export function ProductionLinesPage({ productionLines }: ProductionLinesPageProps) {
+export function ProductionLinesPage({ productionLines, allBranches }: ProductionLinesPageProps) {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedBranchFilter, setSelectedBranchFilter] = useState<string>('all');
-  const [allBranchesForSysAdmin, setAllBranchesForSysAdmin] = useState<CompanyBranch[]>([]);
   const router = useInternalRouter();
   const t = useTranslations('productionLines');
   const { companyUser } = useCompanyUser();
@@ -42,29 +38,30 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
     (state, newLine: ProductionLine) => [...state, newLine],
   );
 
-  // Fetch all branches for sysadmin
-  useEffect(() => {
-    if (isSysAdmin) {
-      getAllBranchesForSysAdmin().then((response) => {
-        if (response.data) {
-          setAllBranchesForSysAdmin(response.data);
-        }
-      });
-    }
-  }, [isSysAdmin]);
-
   // Get branches where user has permission to read production lines
-  // For sysadmin, use all branches fetched from API
+  // Use server-provided branches with machine counts
   const userBranches = useMemo(() => {
     if (isSysAdmin) {
-      // Use all branches fetched from API, formatted with company name
-      return allBranchesForSysAdmin.map((branch) => ({
+      // Use all branches, formatted with company name
+      return allBranches.map((branch) => ({
         id: branch.id,
         name: branch.company ? `${branch.company.name} - ${branch.name}` : branch.name,
+        location: branch.location,
+        machineCount: branch._count?.machines ?? 0,
       }));
     }
-    return getBranchesWithPermission(companyUser, 'readProductionLines');
-  }, [companyUser, isSysAdmin, allBranchesForSysAdmin]);
+
+    // For company users, filter to branches they have permission for and add machine counts
+    const allowedBranches = getBranchesWithPermission(companyUser, 'readProductionLines');
+    return allowedBranches.map((branch) => {
+      // Find the full branch data to get machine count
+      const fullBranch = allBranches.find((b) => b.id === branch.id);
+      return {
+        ...branch,
+        machineCount: fullBranch?._count?.machines ?? 0,
+      };
+    });
+  }, [companyUser, isSysAdmin, allBranches]);
 
   // Filter production lines by selected branch
   const filteredProductionLines = useMemo(() => {
@@ -88,28 +85,34 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
 
     if (!companyUser) return false;
 
-    // Company admin and manager can create production lines
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+    // Company admin can create production lines
+    if (companyUser.isCompanyAdmin) return true;
 
     // Check if user has createProductionLines permission in at least one branch
     return companyUser.branches.some((ub) => ub.createProductionLines);
   }, [companyUser, isSysAdmin]);
 
-  // Check if user can create production lines in the currently selected branch (to enable/disable button)
-  const canCreateInSelectedBranch = () => {
-    // Sysadmin can create in any selected branch
-    if (isSysAdmin) return selectedBranchFilter !== 'all';
+  // Get branches where user can CREATE production lines (for the create dialog)
+  const creatableBranches = useMemo(() => {
+    if (isSysAdmin) {
+      // Sysadmin can create in any branch
+      return userBranches;
+    }
 
-    if (!companyUser) return false;
-    if (selectedBranchFilter === 'all') return false; // Need to select a specific branch to create
+    if (!companyUser) return [];
 
-    // Company admin and manager can create production lines
-    if (companyUser.isCompanyAdmin || companyUser.isCompanyManager) return true;
+    // Company admin can create in all their branches
+    if (companyUser.isCompanyAdmin) {
+      return userBranches;
+    }
 
-    // Check branch-specific permission
-    const userBranch = companyUser.branches.find((ub) => ub.branchId === selectedBranchFilter);
-    return userBranch?.createProductionLines || false;
-  };
+    // Regular users: filter to branches where they have createProductionLines permission
+    const creatableBranchIds = companyUser.branches
+      .filter((ub) => ub.createProductionLines)
+      .map((ub) => ub.branchId);
+
+    return userBranches.filter((branch) => creatableBranchIds.includes(branch.id));
+  }, [companyUser, isSysAdmin, userBranches]);
 
   const handleSuccess = (newLine?: ProductionLine) => {
     startTransition(() => {
@@ -123,48 +126,45 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
 
   return (
     <>
-      <div className="space-y-6 p-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
-            <p className="text-muted-foreground">{t('pageDescription')}</p>
+      <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
+            <p className="text-muted-foreground text-sm sm:text-base">{t('pageDescription')}</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
             {/* Branch Filter */}
             <Select value={selectedBranchFilter} onValueChange={setSelectedBranchFilter}>
-              <SelectTrigger className="w-[200px]">
-                <MapPin className="w-4 h-4 mr-2" />
+              <SelectTrigger className="w-[180px] sm:w-[250px] [&_.branch-location]:hidden">
+                <MapPin className="w-4 h-4 mr-2 shrink-0" />
                 <SelectValue placeholder="Filter by branch" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">{t('allBranches')}</SelectItem>
                 {userBranches.map((branch) => (
-                  <SelectItem key={branch.id} value={branch.id}>
-                    {branch.name}
+                  <SelectItem key={branch.id} value={branch.id} textValue={branch.name}>
+                    <div className="flex flex-col">
+                      <div className="flex items-center justify-between gap-2">
+                        <span>{branch.name}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {branch.machineCount} {branch.machineCount === 1 ? 'machine' : 'machines'}
+                        </span>
+                      </div>
+                      {branch.location && (
+                        <span className="branch-location text-xs text-muted-foreground truncate max-w-[180px]">
+                          {branch.location}
+                        </span>
+                      )}
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
             {hasCreateProductionLinesPermission && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div>
-                    <Button
-                      onClick={() => setIsCreateDialogOpen(true)}
-                      disabled={!canCreateInSelectedBranch()}
-                    >
-                      <Plus className="w-4 h-4 mr-2" />
-                      {t('newButton')}
-                    </Button>
-                  </div>
-                </TooltipTrigger>
-                {!canCreateInSelectedBranch() && (
-                  <TooltipContent>
-                    <p>{t('selectBranchToCreate')}</p>
-                  </TooltipContent>
-                )}
-              </Tooltip>
+              <Button onClick={() => setIsCreateDialogOpen(true)}>
+                <Plus className="w-4 h-4 mr-2" />
+                {t('newButton')}
+              </Button>
             )}
           </div>
         </div>
@@ -190,7 +190,8 @@ export function ProductionLinesPage({ productionLines }: ProductionLinesPageProp
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onSuccess={handleSuccess}
-        branchId={selectedBranchFilter !== 'all' ? selectedBranchFilter : undefined}
+        branches={creatableBranches}
+        preselectedBranchId={selectedBranchFilter !== 'all' ? selectedBranchFilter : undefined}
       />
     </>
   );

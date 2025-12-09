@@ -12,13 +12,19 @@ export {
 } from './BearingClearanceSection';
 
 export {
-  SlideSection,
-  type SlideSectionRef,
-  type SlideSectionData,
+  SlideSingleHammerSection,
+  type SlideSingleHammerSectionRef,
+  type SlideSingleHammerSectionData,
   type SlideFormData,
   defaultSlideFormData,
   validateSlideFormData,
-} from './SlideSection';
+} from './SlideSingleHammerSection';
+
+export {
+  SlideDoubleHammerSection,
+  type SlideDoubleHammerSectionRef,
+  type SlideDoubleHammerSectionData,
+} from './SlideDoubleHammerSection';
 
 export {
   GibsSection,

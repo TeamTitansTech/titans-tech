@@ -142,14 +142,12 @@ export const LubricationHydraulicsSection = forwardRef<
   }));
 
   return (
-    <div className="space-y-6">
-      <LubricationHydraulicsForm
-        data={{ ...data.data, notes: data.notes }}
-        updateFn={updateField}
-        errors={errors}
-        handleBlur={handleBlur}
-      />
-    </div>
+    <LubricationHydraulicsForm
+      data={{ ...data.data, notes: data.notes }}
+      updateFn={updateField}
+      errors={errors}
+      handleBlur={handleBlur}
+    />
   );
 });
 

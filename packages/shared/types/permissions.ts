@@ -1,110 +1,95 @@
 /**
  * Permissions System Types and Presets
- *
- * This file defines types and constants for the Titans Tech permissions system.
- * It includes role presets, permission groupings, and helper functions.
  */
 
-/**
- * Individual permission names
- * These correspond to the UserBranch model fields
- */
-export type PermissionName =
-  // User Management
+export type BranchPermissionType =
   | 'readUsers'
   | 'createUsers'
   | 'updateUsers'
   | 'deleteUsers'
   | 'manageUserPermissions'
   | 'assignUsersToBranches'
-  // Branch Management
   | 'readBranches'
   | 'updateBranches'
-  // Blueprint Management
-  | 'readBlueprints'
-  | 'createBlueprints'
-  | 'updateBlueprints'
-  | 'deleteBlueprints'
-  // Machine Management
   | 'readMachines'
   | 'createMachines'
   | 'updateMachines'
   | 'deleteMachines'
-  // Service Management
   | 'readServices'
   | 'createServices'
   | 'updateServices'
   | 'deleteServices'
-  // Production Line Management
   | 'readProductionLines'
   | 'createProductionLines'
   | 'updateProductionLines'
   | 'deleteProductionLines';
 
-/**
- * Complete set of permissions (UserBranch model)
- */
+export const PERMISSION_DEPENDENCIES: Record<BranchPermissionType, BranchPermissionType[] | null> =
+  {
+    readBranches: null,
+    updateBranches: ['readBranches'],
+    readUsers: ['readBranches'],
+    createUsers: ['readUsers'],
+    updateUsers: ['readUsers'],
+    deleteUsers: ['readUsers'],
+    manageUserPermissions: ['readUsers'],
+    assignUsersToBranches: ['readUsers', 'readBranches'],
+    readMachines: ['readBranches'],
+    createMachines: ['readMachines'],
+    updateMachines: ['readMachines'],
+    deleteMachines: ['readMachines'],
+    readServices: ['readMachines'],
+    createServices: ['readServices'],
+    updateServices: ['readServices'],
+    deleteServices: ['readServices'],
+    readProductionLines: ['readBranches'],
+    createProductionLines: ['readProductionLines'],
+    updateProductionLines: ['readProductionLines'],
+    deleteProductionLines: ['readProductionLines'],
+  };
+
 export interface Permissions {
-  // User Management (6)
   readUsers: boolean;
   createUsers: boolean;
   updateUsers: boolean;
   deleteUsers: boolean;
   manageUserPermissions: boolean;
   assignUsersToBranches: boolean;
-
-  // Branch Management (2)
   readBranches: boolean;
   updateBranches: boolean;
-
-  // Blueprint Management (4)
-  readBlueprints: boolean;
-  createBlueprints: boolean;
-  updateBlueprints: boolean;
-  deleteBlueprints: boolean;
-
-  // Machine Management (4)
   readMachines: boolean;
   createMachines: boolean;
   updateMachines: boolean;
   deleteMachines: boolean;
-
-  // Service Management (4)
   readServices: boolean;
   createServices: boolean;
   updateServices: boolean;
   deleteServices: boolean;
-
-  // Production Line Management (4)
   readProductionLines: boolean;
   createProductionLines: boolean;
   updateProductionLines: boolean;
   deleteProductionLines: boolean;
 }
 
-/**
- * Permission categories for UI grouping
- */
+export interface UserWithBranchPermissions {
+  id: string;
+  isCompanyAdmin: boolean;
+  branches: Array<{ branchId: string } & Permissions>;
+}
+
 export enum PermissionCategory {
   USER_MANAGEMENT = 'userManagement',
   BRANCH_MANAGEMENT = 'branchManagement',
-  BLUEPRINT_MANAGEMENT = 'blueprintManagement',
   MACHINE_MANAGEMENT = 'machineManagement',
   SERVICE_MANAGEMENT = 'serviceManagement',
   PRODUCTION_LINE_MANAGEMENT = 'productionLineManagement',
 }
 
-/**
- * Grouped permissions for UI display
- */
 export interface PermissionGroup {
   category: PermissionCategory;
-  permissions: PermissionName[];
+  permissions: BranchPermissionType[];
 }
 
-/**
- * All permission groups organized by category
- */
 export const PERMISSION_GROUPS: PermissionGroup[] = [
   {
     category: PermissionCategory.USER_MANAGEMENT,
@@ -127,7 +112,7 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   },
   {
     category: PermissionCategory.SERVICE_MANAGEMENT,
-    permissions: ['readServices'],
+    permissions: ['readServices', 'createServices', 'updateServices', 'deleteServices'],
   },
   {
     category: PermissionCategory.PRODUCTION_LINE_MANAGEMENT,
@@ -140,102 +125,58 @@ export const PERMISSION_GROUPS: PermissionGroup[] = [
   },
 ];
 
-/**
- * Role preset types
- */
 export enum RolePreset {
   MANAGER = 'manager',
   WORKER = 'worker',
   CUSTOM = 'custom',
 }
 
-/**
- * Manager Preset - Full branch control
- * Includes all user-level permissions (blueprints are sysadmin-only)
- */
 export const MANAGER_PERMISSIONS: Permissions = {
-  // User Management
   readUsers: true,
   createUsers: true,
   updateUsers: true,
   deleteUsers: true,
   manageUserPermissions: true,
   assignUsersToBranches: true,
-
-  // Branch Management
   readBranches: true,
   updateBranches: true,
-
-  // Blueprint Management (sysadmin-only, not available to regular users)
-  readBlueprints: false,
-  createBlueprints: false,
-  updateBlueprints: false,
-  deleteBlueprints: false,
-
-  // Machine Management
   readMachines: true,
   createMachines: true,
   updateMachines: true,
   deleteMachines: true,
-
-  // Service Management (read-only for regular users)
   readServices: true,
-  createServices: false,
-  updateServices: false,
-  deleteServices: false,
-
-  // Production Line Management
+  createServices: true,
+  updateServices: true,
+  deleteServices: true,
   readProductionLines: true,
   createProductionLines: true,
   updateProductionLines: true,
   deleteProductionLines: true,
 };
 
-/**
- * Worker/Employee Preset - Operational access
- * Can view machines and services (read-only)
- */
-export const WORKER_PERMISSIONS: Permissions = {
-  // User Management
+const WORKER_PERMISSIONS: Permissions = {
   readUsers: false,
   createUsers: false,
   updateUsers: false,
   deleteUsers: false,
   manageUserPermissions: false,
   assignUsersToBranches: false,
-
-  // Branch Management
-  readBranches: false,
+  readBranches: true,
   updateBranches: false,
-
-  // Blueprint Management (sysadmin-only, not available to regular users)
-  readBlueprints: false,
-  createBlueprints: false,
-  updateBlueprints: false,
-  deleteBlueprints: false,
-
-  // Machine Management
   readMachines: true,
   createMachines: false,
   updateMachines: false,
   deleteMachines: false,
-
-  // Service Management (read-only for regular users)
   readServices: true,
   createServices: false,
   updateServices: false,
   deleteServices: false,
-
-  // Production Line Management
   readProductionLines: false,
   createProductionLines: false,
   updateProductionLines: false,
   deleteProductionLines: false,
 };
 
-/**
- * Empty permissions (all false)
- */
 export const EMPTY_PERMISSIONS: Permissions = {
   readUsers: false,
   createUsers: false,
@@ -245,10 +186,6 @@ export const EMPTY_PERMISSIONS: Permissions = {
   assignUsersToBranches: false,
   readBranches: false,
   updateBranches: false,
-  readBlueprints: false,
-  createBlueprints: false,
-  updateBlueprints: false,
-  deleteBlueprints: false,
   readMachines: false,
   createMachines: false,
   updateMachines: false,
@@ -263,9 +200,91 @@ export const EMPTY_PERMISSIONS: Permissions = {
   deleteProductionLines: false,
 };
 
-/**
- * Get permissions for a role preset
- */
+export const ALL_PERMISSION_KEYS = Object.keys(PERMISSION_DEPENDENCIES) as BranchPermissionType[];
+
+export type PermissionRecord<T> = { [K in BranchPermissionType]: T };
+
+export enum UserRole {
+  COMPANY_ADMIN = 'companyAdmin',
+  BRANCH_MANAGER = 'branchManager',
+  EMPLOYEE = 'employee',
+  CUSTOM = 'custom',
+}
+
+// Internal helper functions (not exported)
+
+function resolvePrerequisites(
+  permission: BranchPermissionType,
+  visited: Set<BranchPermissionType> = new Set(),
+): BranchPermissionType[] {
+  if (visited.has(permission)) return [];
+  visited.add(permission);
+
+  const directPrereqs = PERMISSION_DEPENDENCIES[permission];
+  if (!directPrereqs) return [];
+
+  const allPrereqs: BranchPermissionType[] = [...directPrereqs];
+
+  for (const prereq of directPrereqs) {
+    const transitivePrereqs = resolvePrerequisites(prereq, new Set(visited));
+    for (const tp of transitivePrereqs) {
+      if (!allPrereqs.includes(tp)) {
+        allPrereqs.push(tp);
+      }
+    }
+  }
+
+  return allPrereqs;
+}
+
+function checkPrerequisites(permissions: Permissions, permission: BranchPermissionType): boolean {
+  const required = resolvePrerequisites(permission);
+  return required.every((r) => permissions[r]);
+}
+
+function getDependents(permission: BranchPermissionType): BranchPermissionType[] {
+  const dependents: BranchPermissionType[] = [];
+
+  for (const [perm, prereqs] of Object.entries(PERMISSION_DEPENDENCIES)) {
+    if (prereqs && prereqs.includes(permission)) {
+      dependents.push(perm as BranchPermissionType);
+      dependents.push(...getDependents(perm as BranchPermissionType));
+    }
+  }
+
+  return [...new Set(dependents)];
+}
+
+// Exported functions
+
+export function enableWithPrerequisites(
+  permissions: Permissions,
+  permission: BranchPermissionType,
+): Permissions {
+  const newPermissions = { ...permissions, [permission]: true };
+  const prereqs = resolvePrerequisites(permission);
+
+  for (const prereq of prereqs) {
+    newPermissions[prereq] = true;
+  }
+
+  return newPermissions;
+}
+
+export function disableWithDependents(
+  permissions: Permissions,
+  permission: BranchPermissionType,
+): Permissions {
+  const newPermissions = { ...permissions, [permission]: false };
+  const dependents = getDependents(permission);
+
+  for (const dep of dependents) {
+    newPermissions[dep] = false;
+  }
+
+  return newPermissions;
+}
+
 export function getPresetPermissions(preset: RolePreset): Permissions {
   switch (preset) {
     case RolePreset.MANAGER:
@@ -279,96 +298,24 @@ export function getPresetPermissions(preset: RolePreset): Permissions {
   }
 }
 
-/**
- * Determine if permissions match a preset
- */
 export function detectRolePreset(permissions: Permissions): RolePreset {
-  // Check if all permissions match MANAGER preset
   const isManager = Object.keys(MANAGER_PERMISSIONS).every(
-    (key) => permissions[key as PermissionName] === MANAGER_PERMISSIONS[key as PermissionName],
+    (key) =>
+      permissions[key as BranchPermissionType] === MANAGER_PERMISSIONS[key as BranchPermissionType],
   );
 
   if (isManager) return RolePreset.MANAGER;
 
-  // Check if all permissions match WORKER preset
   const isWorker = Object.keys(WORKER_PERMISSIONS).every(
-    (key) => permissions[key as PermissionName] === WORKER_PERMISSIONS[key as PermissionName],
+    (key) =>
+      permissions[key as BranchPermissionType] === WORKER_PERMISSIONS[key as BranchPermissionType],
   );
 
   if (isWorker) return RolePreset.WORKER;
 
-  // Otherwise it's custom
   return RolePreset.CUSTOM;
 }
 
-/**
- * Check if user has specific permission in a branch
- */
-export function hasPermission(
-  userBranches: Array<{ branchId: string } & Permissions> | undefined,
-  branchId: string,
-  permission: PermissionName,
-): boolean {
-  if (!userBranches) return false;
-
-  const branch = userBranches.find((b) => b.branchId === branchId);
-  if (!branch) return false;
-
-  return branch[permission];
-}
-
-/**
- * Check if user has all permissions in a category
- */
-export function hasCategoryPermissions(
-  permissions: Permissions,
-  category: PermissionCategory,
-): boolean {
-  const group = PERMISSION_GROUPS.find((g) => g.category === category);
-  if (!group) return false;
-
-  return group.permissions.every((perm) => permissions[perm]);
-}
-
-/**
- * Check if permissions set is completely empty (all false)
- */
-export function arePermissionsEmpty(permissions: Permissions): boolean {
-  return Object.values(permissions).every((value) => value === false);
-}
-
-/**
- * Check if permissions set is completely full (all true)
- */
-export function arePermissionsFull(permissions: Permissions): boolean {
-  return Object.values(permissions).every((value) => value === true);
-}
-
-/**
- * Count how many permissions are enabled
- */
-export function countEnabledPermissions(permissions: Permissions): number {
-  return Object.values(permissions).filter((value) => value === true).length;
-}
-
-/**
- * Get all permission names as an array
- */
-export function getAllPermissionNames(): PermissionName[] {
-  return PERMISSION_GROUPS.flatMap((group) => group.permissions);
-}
-
-/**
- * Get permissions for a specific category
- */
-export function getPermissionsByCategory(category: PermissionCategory): PermissionName[] {
-  const group = PERMISSION_GROUPS.find((g) => g.category === category);
-  return group ? group.permissions : [];
-}
-
-/**
- * Set all permissions in a category to a value
- */
 export function setCategoryPermissions(
   permissions: Permissions,
   category: PermissionCategory,
@@ -385,46 +332,11 @@ export function setCategoryPermissions(
   return updated;
 }
 
-/**
- * Set all permissions to a value
- */
-export function setAllPermissions(permissions: Permissions, value: boolean): Permissions {
-  const updated = { ...permissions };
-  Object.keys(updated).forEach((key) => {
-    updated[key as PermissionName] = value;
-  });
-  return updated;
-}
-
-/**
- * User role types for display
- */
-export enum UserRole {
-  COMPANY_ADMIN = 'companyAdmin',
-  COMPANY_MANAGER = 'companyManager',
-  BRANCH_MANAGER = 'branchManager',
-  EMPLOYEE = 'employee',
-  CUSTOM = 'custom',
-}
-
-/**
- * Determine user's display role for a branch
- */
-export function getUserRole(
-  isCompanyAdmin: boolean,
-  isCompanyManager: boolean,
-  branchPermissions: Permissions | undefined,
-): UserRole {
-  // Company-level roles
-  if (isCompanyAdmin) return UserRole.COMPANY_ADMIN;
-  if (isCompanyManager) return UserRole.COMPANY_MANAGER;
-
-  // No branch permissions
-  if (!branchPermissions) return UserRole.EMPLOYEE;
-
-  // Detect role by permissions
-  const preset = detectRolePreset(branchPermissions);
-
+export function getUserRole(user: UserWithBranchPermissions, branchId: string): UserRole {
+  if (user.isCompanyAdmin) return UserRole.COMPANY_ADMIN;
+  const branch = user.branches.find((b) => b.branchId === branchId);
+  if (!branch) return UserRole.EMPLOYEE;
+  const preset = detectRolePreset(branch);
   switch (preset) {
     case RolePreset.MANAGER:
       return UserRole.BRANCH_MANAGER;
@@ -437,12 +349,35 @@ export function getUserRole(
   }
 }
 
-/**
- * Type guard for checking if user is admin or manager
- */
-export function isCompanyAdminOrManager(user: {
-  isCompanyAdmin: boolean;
-  isCompanyManager: boolean;
-}): boolean {
-  return user.isCompanyAdmin || user.isCompanyManager;
+export function hasPermissionInBranch(
+  user: UserWithBranchPermissions | null,
+  branchId: string,
+  permission: BranchPermissionType,
+): boolean {
+  if (!user) return false;
+  if (user.isCompanyAdmin) return true;
+  const branch = user.branches.find((b) => b.branchId === branchId);
+  if (!branch || !branch[permission]) return false;
+  return checkPrerequisites(branch, permission);
+}
+
+export function hasPermissionInAnyBranch(
+  user: UserWithBranchPermissions | null,
+  permission: BranchPermissionType,
+) {
+  if (!user) return false;
+  if (user.isCompanyAdmin) return true;
+  return user.branches.some((b) => b[permission] && checkPrerequisites(b, permission));
+}
+
+export function getUserRoleBadgeColor(role: UserRole): string {
+  const colors: Record<UserRole, string> = {
+    [UserRole.COMPANY_ADMIN]:
+      'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400',
+    [UserRole.BRANCH_MANAGER]:
+      'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+    [UserRole.EMPLOYEE]: 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300',
+    [UserRole.CUSTOM]: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  };
+  return colors[role] || 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300';
 }

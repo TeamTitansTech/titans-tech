@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
-import { ClipboardCheck, Calendar as CalendarIcon } from 'lucide-react';
+import { ClipboardCheck, Calendar as CalendarIcon, Package } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -20,11 +20,14 @@ import {
 } from '@/components/charts/dataTransformers';
 import { getClutchThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
+import { SubsectionPartsModal } from '@/components/parts/SubsectionPartsModal';
+import { CLUTCH_BRAKE_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface ClutchSectionProps {
   machineId: string;
   inspections: ClutchInspectionData[];
   machineName: string;
+  machineSerial?: string;
   blueprintId: string;
 }
 
@@ -32,10 +35,13 @@ export function ClutchSection({
   machineId,
   inspections,
   machineName,
+  machineSerial,
   blueprintId,
 }: ClutchSectionProps) {
   const t = useTranslations('machines.sectionDetails');
+  const tParts = useTranslations('parts');
   const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
+  const [isPartsModalOpen, setIsPartsModalOpen] = useState(false);
   // Thresholds for hydraulic clutch clearance
   const [hydTotalThreshold, setHydTotalThreshold] = useState<ThresholdConfig | null>(null);
   const [hydRearThreshold, setHydRearThreshold] = useState<ThresholdConfig | null>(null);
@@ -310,6 +316,26 @@ export function ClutchSection({
             </div>
           </CardContent>
         </Card>
+
+        {/* Parts Replacement List */}
+        <Button
+          variant="outline"
+          className="w-full justify-start border-primary/20 hover:bg-primary/5 dark:border-primary/30 dark:hover:bg-primary/10"
+          onClick={() => setIsPartsModalOpen(true)}
+        >
+          <Package className="h-4 w-4 text-primary mr-2" />
+          <span>{tParts('clutchBrakeParts')}</span>
+        </Button>
+
+        <SubsectionPartsModal
+          isOpen={isPartsModalOpen}
+          onClose={() => setIsPartsModalOpen(false)}
+          title={tParts('clutchBrakeParts')}
+          subsections={CLUTCH_BRAKE_SUBSECTIONS}
+          machineName={machineName}
+          machineSerial={machineSerial}
+          sectionName="Clutch & Brake"
+        />
 
         <div className="flex justify-end">
           <Button onClick={() => setIsInspectionModalOpen(true)}>

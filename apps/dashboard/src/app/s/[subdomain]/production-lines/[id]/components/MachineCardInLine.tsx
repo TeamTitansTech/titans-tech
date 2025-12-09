@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Box } from 'lucide-react';
 import Image from 'next/image';
@@ -8,7 +9,14 @@ import { useTranslations } from 'next-intl';
 import { StatusBadge } from './StatusBadge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { MachineWithStatus } from '@/data/types/production-lines.types';
-import { getAlertStatus, getSectionStatus, statusColors, statusLabels } from '@/lib/alertStatus';
+import type { LatestReport } from '@/data/types/services.types';
+import { getLatestReport } from '@/data/services/services.api';
+import {
+  calculateStatusFromLatestReport,
+  getSectionStatusFromReport,
+  statusColors,
+  statusLabels,
+} from '@/lib/alertStatus';
 
 interface MachineCardInLineProps {
   machine: MachineWithStatus;
@@ -17,7 +25,8 @@ interface MachineCardInLineProps {
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
-  SLIDE: 'slide',
+  SLIDE_SINGLE_HAMMER: 'slideSingleHammer',
+  SLIDE_DOUBLE_HAMMER: 'slideDoubleHammer',
   GIBS: 'gibs',
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
   CLUTCH: 'clutch',
@@ -29,6 +38,22 @@ const SECTION_I18N_KEYS: Record<string, string> = {
 export function MachineCardInLine({ machine, canViewDetails = true }: MachineCardInLineProps) {
   const router = useInternalRouter();
   const t = useTranslations('machines');
+  const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
+
+  // Fetch latest report on mount to get section statuses
+  useEffect(() => {
+    const fetchReport = async () => {
+      try {
+        const response = await getLatestReport(machine.id);
+        if (response.data) {
+          setLatestReport(response.data);
+        }
+      } catch (error) {
+        console.error('Error fetching latest report:', error);
+      }
+    };
+    fetchReport();
+  }, [machine.id]);
 
   const handleClick = () => {
     if (canViewDetails) {
@@ -37,7 +62,7 @@ export function MachineCardInLine({ machine, canViewDetails = true }: MachineCar
   };
 
   const sections = machine.blueprint?.sections || [];
-  const alertStatus = getAlertStatus(machine);
+  const alertStatus = calculateStatusFromLatestReport(latestReport);
 
   return (
     <Card
@@ -91,7 +116,7 @@ export function MachineCardInLine({ machine, canViewDetails = true }: MachineCar
         {sections.length > 0 && (
           <div className="px-2 pb-2 space-y-1 border-t pt-2">
             {sections.map((section) => {
-              const status = getSectionStatus(section, machine);
+              const status = getSectionStatusFromReport(section, latestReport);
               const sectionName = t(`sectionNames.${SECTION_I18N_KEYS[section] || 'unknown'}`);
 
               return <StatusBadge key={section} status={status} label={sectionName} />;

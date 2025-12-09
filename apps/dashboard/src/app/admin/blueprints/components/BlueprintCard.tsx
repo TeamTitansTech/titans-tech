@@ -1,13 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Boxes, Edit, Copy, Trash2 } from 'lucide-react';
-import Link from 'next/link';
+import { Boxes, Edit, Copy, Trash2, Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
+import { ThresholdEditModal } from './ThresholdEditModal';
 
 interface BlueprintCardProps {
   id: string;
@@ -16,6 +17,8 @@ interface BlueprintCardProps {
   description: string;
   machineCount: number;
   fieldCount: number;
+  sections: string[];
+  onEdit?: () => void;
 }
 
 export function BlueprintCard({
@@ -25,8 +28,24 @@ export function BlueprintCard({
   description,
   machineCount,
   fieldCount,
+  sections,
+  onEdit,
 }: BlueprintCardProps) {
   const t = useTranslations('models');
+  const [isThresholdModalOpen, setIsThresholdModalOpen] = useState(false);
+
+  // Check if blueprint has any alert sections
+  const hasAlertSections = sections.some((section) =>
+    [
+      'BEARING_CLEARANCE',
+      'CLUTCH',
+      'SLIDE_SINGLE_HAMMER',
+      'SLIDE_DOUBLE_HAMMER',
+      'GIBS',
+      'TRAMMING',
+      'PISTONS',
+    ].includes(section),
+  );
 
   return (
     <Card className="hover:shadow-lg transition-shadow flex flex-col h-full">
@@ -73,22 +92,43 @@ export function BlueprintCard({
               {fieldCount} {fieldCount === 1 ? t('field') : t('fields')}
             </Badge>
           </div>
-          <div className="flex gap-2">
-            <Button asChild variant="outline" className="flex-1" size="sm">
-              <Link href={`/admin/blueprints/${id}`}>
+          <div className="flex flex-col gap-2">
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" size="sm" onClick={onEdit}>
                 <Edit className="w-4 h-4 mr-2" />
                 {t('edit')}
-              </Link>
-            </Button>
-            <Button variant="outline" size="sm">
-              <Copy className="w-4 h-4" />
-            </Button>
-            <Button variant="outline" size="sm">
-              <Trash2 className="w-4 h-4" />
-            </Button>
+              </Button>
+              <Button variant="outline" size="sm">
+                <Copy className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" size="sm">
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+            {hasAlertSections && (
+              <Button
+                variant="secondary"
+                size="sm"
+                className="w-full"
+                onClick={() => setIsThresholdModalOpen(true)}
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                {t('thresholds')}
+              </Button>
+            )}
           </div>
         </div>
       </CardContent>
+
+      {hasAlertSections && (
+        <ThresholdEditModal
+          isOpen={isThresholdModalOpen}
+          onClose={() => setIsThresholdModalOpen(false)}
+          blueprintId={id}
+          blueprintName={name}
+          sections={sections}
+        />
+      )}
     </Card>
   );
 }

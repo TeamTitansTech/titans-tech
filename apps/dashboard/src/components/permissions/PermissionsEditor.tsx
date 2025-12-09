@@ -15,9 +15,11 @@ import {
   PERMISSION_GROUPS,
   getPresetPermissions,
   detectRolePreset,
-  PermissionName,
+  BranchPermissionType,
   setCategoryPermissions,
   PermissionCategory,
+  enableWithPrerequisites,
+  disableWithDependents,
 } from '@titans-tech/shared/types';
 import { cn } from '@/lib/utils';
 
@@ -48,84 +50,27 @@ export function PermissionsEditor({
     onChange(newPermissions);
   };
 
-  // Define permission dependencies: these permissions require the "read" permission
-  const permissionDependencies: Record<string, PermissionName> = {
-    // User management requires branch visibility (users are linked to branches)
-    readUsers: 'readBranches',
-    createUsers: 'readUsers',
-    updateUsers: 'readUsers',
-    deleteUsers: 'readUsers',
-    updateBranches: 'readBranches',
-    createMachines: 'readMachines',
-    updateMachines: 'readMachines',
-    deleteMachines: 'readMachines',
-    createServices: 'readServices',
-    updateServices: 'readServices',
-    deleteServices: 'readServices',
-    createProductionLines: 'readProductionLines',
-    updateProductionLines: 'readProductionLines',
-    deleteProductionLines: 'readProductionLines',
-  };
-
-  // Get the read permission for a given category
-  const getDependentPermissions = (readPermission: PermissionName): PermissionName[] => {
-    return Object.entries(permissionDependencies)
-      .filter(([_, dep]) => dep === readPermission)
-      .map(([perm]) => perm as PermissionName);
-  };
-
-  // Check if a permission should be disabled
-  const isPermissionDisabled = (permission: PermissionName): boolean => {
-    if (disabled) return true;
-    const requiredPermission = permissionDependencies[permission];
-    if (requiredPermission) {
-      return !permissions[requiredPermission];
-    }
-    return false;
-  };
-
   // Handle individual permission change
-  const handlePermissionChange = (permission: PermissionName, checked: boolean) => {
-    const newPermissions = {
-      ...permissions,
-      [permission]: checked,
-    };
-
-    // If checking a permission, also enable its dependency
+  const handlePermissionChange = (permission: BranchPermissionType, checked: boolean) => {
     if (checked) {
-      const requiredPermission = permissionDependencies[permission];
-      if (requiredPermission) {
-        newPermissions[requiredPermission] = true;
-      }
+      // Enable permission and all its prerequisites
+      onChange(enableWithPrerequisites(permissions, permission));
+    } else {
+      // Disable permission and all its dependents
+      onChange(disableWithDependents(permissions, permission));
     }
-
-    // If unchecking a read permission, also uncheck all dependent permissions
-    if (!checked) {
-      const dependents = getDependentPermissions(permission);
-      if (dependents.length > 0) {
-        dependents.forEach((dep) => {
-          newPermissions[dep] = false;
-        });
-      }
-    }
-
-    onChange(newPermissions);
   };
 
   // Handle select all for a category
   const handleSelectAllCategory = (category: PermissionCategory) => {
-    const newPermissions = { ...permissions };
+    let newPermissions = { ...permissions };
 
     // Get the permissions for this category
     const categoryGroup = PERMISSION_GROUPS.find((g) => g.category === category);
     if (categoryGroup) {
-      // Only enable permissions that are not disabled
+      // Enable all permissions in category with their prerequisites
       categoryGroup.permissions.forEach((permission) => {
-        const requiredPermission = permissionDependencies[permission];
-        // Only enable if no dependency OR dependency is already enabled
-        if (!requiredPermission || newPermissions[requiredPermission]) {
-          newPermissions[permission] = true;
-        }
+        newPermissions = enableWithPrerequisites(newPermissions, permission);
       });
     }
 
@@ -231,6 +176,16 @@ export function PermissionsEditor({
                   </Alert>
                 )}
 
+                {/* Info message for services category */}
+                {group.category === 'serviceManagement' && (
+                  <Alert className="bg-primary/10 border-primary/20">
+                    <Info className="h-4 w-4 text-primary" />
+                    <AlertDescription className="text-xs text-primary">
+                      {t('permissions.servicesInfo')}
+                    </AlertDescription>
+                  </Alert>
+                )}
+
                 {/* Permission Checkboxes */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
                   {group.permissions.map((permission) => (
@@ -239,7 +194,7 @@ export function PermissionsEditor({
                       permission={permission}
                       checked={permissions[permission]}
                       onChange={(checked) => handlePermissionChange(permission, checked)}
-                      disabled={isPermissionDisabled(permission)}
+                      disabled={disabled}
                     />
                   ))}
                 </div>

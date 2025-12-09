@@ -7,7 +7,8 @@ import Image from 'next/image';
 import { Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type { MachineInspection, MachineService } from '@titans-tech/shared/types';
-import { getSectionStatus } from '@/lib/alertStatus';
+import type { LatestReport } from '@/data/types/services.types';
+import { getSectionStatus, getSectionStatusFromReport } from '@/lib/alertStatus';
 
 interface SectionCardProps {
   sectionKey: string;
@@ -15,6 +16,7 @@ interface SectionCardProps {
     inspections?: MachineInspection[];
     services?: MachineService[];
   };
+  latestReport?: LatestReport | null;
   onClick?: () => void;
   isLoading?: boolean;
 }
@@ -23,12 +25,12 @@ const STATUS_COLORS = {
   ok: 'bg-green-500',
   warning: 'bg-yellow-500',
   alert: 'bg-red-500',
-  unknown: 'bg-muted-foreground',
 } as const;
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
-  SLIDE: 'slide',
+  SLIDE_SINGLE_HAMMER: 'slideSingleHammer',
+  SLIDE_DOUBLE_HAMMER: 'slideDoubleHammer',
   GIBS: 'gibs',
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
   CLUTCH: 'clutch',
@@ -39,7 +41,8 @@ const SECTION_I18N_KEYS: Record<string, string> = {
 
 const SECTION_IMAGES: Record<string, string> = {
   BEARING_CLEARANCE: '/assets/sections/bearing-clearance.svg',
-  SLIDE: '/assets/sections/slide.svg',
+  SLIDE_SINGLE_HAMMER: '/assets/sections/slide.svg',
+  SLIDE_DOUBLE_HAMMER: '/assets/sections/slide.svg',
   GIBS: '/assets/sections/gibs.svg',
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER:
     '/assets/sections/lubrication-hydraulics.svg',
@@ -49,10 +52,19 @@ const SECTION_IMAGES: Record<string, string> = {
   PISTONS: '/assets/sections/pistons.svg',
 };
 
-export function SectionCard({ sectionKey, machine, onClick, isLoading = false }: SectionCardProps) {
+export function SectionCard({
+  sectionKey,
+  machine,
+  latestReport,
+  onClick,
+  isLoading = false,
+}: SectionCardProps) {
   const t = useTranslations('machines');
 
-  const status = getSectionStatus(sectionKey, machine);
+  // Use latestReport for status if available (preferred), otherwise fall back to deprecated machine.services
+  const status = latestReport
+    ? getSectionStatusFromReport(sectionKey, latestReport)
+    : getSectionStatus(sectionKey, machine);
   const imageUrl = SECTION_IMAGES[sectionKey];
   const title = t(`sectionNames.${SECTION_I18N_KEYS[sectionKey] || 'unknown'}`);
 

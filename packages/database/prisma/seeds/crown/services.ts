@@ -32,16 +32,21 @@ import {
 // ============================================================================
 // INSPECTION DATA FROM: MINSTER PRESS EQUIPMENT INSPECTION DATABASE
 // ============================================================================
-// Date Range: February 2022 - July 2025 (3.5 years)
-// Total Inspections: 6
+// Date Range: 2017-2025 (8 years)
+// Total Inspections: 7 (Crown only - Ardagh has templates only)
 //
-// CROWN CORK (Ponta Grossa):
-//   • #30935: Jul 10, 2024 | May 15, 2025 (2 inspections)
-//   • #30634: Jul 5, 2025 (1 inspection)
+// CROWN COMPANY - 3 FACILITIES:
 //
-// ARUMA (Estância):
-//   • #30645: Feb 24, 2022 (WO #22522) | Sep 6, 2024 (WO #9062024) (2 inspections)
-//   • #30530: Aug 1, 2024 (WO #80124) (1 inspection)
+//   ARUMA (Estancia) - 3 inspections:
+//     • #30645: Feb 24, 2022 | Sep 6, 2024 (2 inspections) - Flywheel noise
+//     • #30530: Aug 1, 2024 (1 inspection) - Excellent condition
+//
+//   CROWN CORK & SEAL (Ponta Grossa) - 3 inspections:
+//     • #30935: Jul 10, 2024 | May 15, 2025 (2 inspections) - Very good
+//     • #30634: Jul 5, 2025 (1 inspection) - BEST IN FLEET (Gold Standard)
+//
+//   CROWN CORK (Teresina-PI) - 1 inspection:
+//     • #30692: Jul 10, 2017 (1 inspection - OUTDATED) - Historical data
 //
 // STANDARD PRESSURE SPECIFICATIONS (All Units):
 //   Lube Pump: 140 PSI | Hydraulic System: 1650 PSI | Counterbalance: 20 PSI
@@ -848,6 +853,129 @@ const arumaServices30530: ServiceData[] = [
 ];
 
 // ============================================================================
+// TERESINA SERVICES (#30692) - HISTORICAL 2017 DATA
+// ============================================================================
+
+const teresinaServices30692: ServiceData[] = [
+  {
+    // #30692 - TASK3064 - July 10, 2017
+    // Historical data - INSPECTION OVERDUE (8 years since last inspection)
+    id: 'crown-service-30692-2017-07-10',
+    date: new Date('2017-07-10'),
+    type: ServiceType.INSPECTION,
+    workOrderNumber: 'TASK3064',
+    isPressLevel: YesNoNaDncType.YES,
+    driveBeltCondition: DriveBeltConditionType.OK,
+    areAllProtectiveCovers: ProtectiveCoversStatusType.YES,
+    isMainMotorSecure: YesNoDncType.YES,
+    isMotorPlateSecure: YesNoDncType.YES,
+    areCracksVisible: YesNoDncType.NO,
+    // Bearing clearances from 2017 - Grade A- (90/100)
+    // Total #1: LH 0.021", RH 0.021" | Total #2: LH 0.026", RH 0.0265"
+    outerBefore: {
+      totalClearance_RH: 0.021,
+      totalClearance_LH: 0.021,
+      mainBearings_RH: 0.019,
+      mainBearings_LH: 0.019,
+      upperConnectionBearings_RH: 0.006,
+      upperConnectionBearings_LH: 0.006,
+      wristPinToMatingPart_RH: 0.004,
+      wristPinToMatingPart_LH: 0.004,
+      wristPinToBushing_RH: 0.003,
+      wristPinToBushing_LH: 0.003,
+      slideAdjNutToScrewSleeve_RH: 0.002,
+      slideAdjNutToScrewSleeve_LH: 0.002,
+    },
+    outerData: {
+      totalClearance_RH: 0.021,
+      totalClearance_LH: 0.021,
+      mainBearings_RH: 0.019,
+      mainBearings_LH: 0.019,
+      upperConnectionBearings_RH: 0.006,
+      upperConnectionBearings_LH: 0.006,
+      wristPinToMatingPart_RH: 0.004,
+      wristPinToMatingPart_LH: 0.004,
+      wristPinToBushing_RH: 0.003,
+      wristPinToBushing_LH: 0.003,
+      slideAdjNutToScrewSleeve_RH: 0.002,
+      slideAdjNutToScrewSleeve_LH: 0.002,
+    },
+    innerBefore: {
+      totalClearance_RH: 0.0265,
+      totalClearance_LH: 0.026,
+      mainBearings_RH: 0.024,
+      mainBearings_LH: 0.024,
+      upperConnectionBearings_RH: 0.008,
+      upperConnectionBearings_LH: 0.008,
+      wristPinToMatingPart_RH: 0.005,
+      wristPinToMatingPart_LH: 0.005,
+      wristPinToBushing_RH: 0.004,
+      wristPinToBushing_LH: 0.004,
+      slideAdjNutToScrewSleeve_RH: 0.003,
+      slideAdjNutToScrewSleeve_LH: 0.003,
+    },
+    innerData: {
+      totalClearance_RH: 0.0265,
+      totalClearance_LH: 0.026,
+      mainBearings_RH: 0.024,
+      mainBearings_LH: 0.024,
+      upperConnectionBearings_RH: 0.008,
+      upperConnectionBearings_LH: 0.008,
+      wristPinToMatingPart_RH: 0.005,
+      wristPinToMatingPart_LH: 0.005,
+      wristPinToBushing_RH: 0.004,
+      wristPinToBushing_LH: 0.004,
+      slideAdjNutToScrewSleeve_RH: 0.003,
+      slideAdjNutToScrewSleeve_LH: 0.003,
+    },
+    slideOuter: {
+      parallelismPoint2: 0.001,
+      parallelismPoint3: 0.001,
+      tonnageMonitorReading: 20.25,
+      shutheightActual: '27.36',
+      position1: 0.005,
+      position2: 0.005,
+      position3: 0.005,
+      position4: 0.0,
+      position5: 0.0,
+    },
+    slideInner: {
+      parallelismPoint2: 0.001,
+      parallelismPoint3: 0.001,
+      tonnageMonitorReading: 20.25,
+      shutheightActual: '27.36',
+      position1: 0.004,
+      position2: 0.004,
+      position3: 0.004,
+      position4: 0.0,
+      position5: 0.0,
+    },
+    // Clutch data from 2017
+    // Brake Spring 1.574", F-B 0.063", F-TB 0.015", R-TB 0.013"
+    clutch: {
+      brakeSpringBrake: 1.574,
+      brakeSpringStudBolt: BrakeSpringStudBoltType.OK,
+      brakeLining: BrakeLiningType.OK,
+      brakeAnchorFB: 0.063,
+      brakeAnchorFTB: 0.015,
+      brakeAnchorRTB: 0.013,
+      flywheelBearings: FlywheelBearingsType.OK, // ✓ No issues in 2017
+      flywheelBrake: FlywheelBrakeType.OK,
+      rotaryUnion: RotaryUnionType.OK,
+      clutchLining: ClutchLiningType.OK,
+      clutchSeals: ClutchSealsType.OK,
+      separateBrakeSeals: SeparateBrakeSealsType.OK,
+      flexDisc: FlexDiscType.OK,
+      hydClutchClearanceTotal: 0.085,
+      hydClutchClearanceRear: 0.021,
+      hydraulicPressure: 1650,
+    },
+    lubrication: STANDARD_LUBRICATION,
+    counterbalance: STANDARD_COUNTERBALANCE,
+  },
+];
+
+// ============================================================================
 // HELPER FUNCTIONS
 // ============================================================================
 
@@ -887,8 +1015,12 @@ async function createBearingClearanceData(
   });
 }
 
-async function createSlideData(prisma: PrismaClient, id: string, measurements: SlideMeasurement) {
-  return prisma.slideData.upsert({
+async function createSlideDoubleHammerData(
+  prisma: PrismaClient,
+  id: string,
+  measurements: SlideMeasurement,
+) {
+  return prisma.slideDoubleHammerData.upsert({
     where: { id },
     update: {},
     create: {
@@ -988,7 +1120,7 @@ async function createServiceWithData(
 ) {
   const completedSections = [
     ServiceSection.BEARING_CLEARANCE,
-    ServiceSection.SLIDE,
+    ServiceSection.SLIDE_DOUBLE_HAMMER,
     ServiceSection.CLUTCH,
     ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
     ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG,
@@ -1064,10 +1196,8 @@ async function createServiceWithData(
     serviceData.innerData.totalClearance_LH - serviceData.innerData.totalClearance_RH,
   );
 
-  await prisma.alertBearingClearance.upsert({
-    where: { machineServiceId: service.id },
-    update: {},
-    create: {
+  await prisma.alertBearingClearance.create({
+    data: {
       machineServiceId: service.id,
       outer_totalClearance_differential: outerTotalDiff,
       outer_totalClearance_severity: calculateAlertSeverity(
@@ -1138,20 +1268,21 @@ async function createServiceWithData(
       },
     },
   });
+  console.log('  ✓ Created bearing clearance data and alerts');
 
-  // SLIDE
-  const slideOuterData = await createSlideData(
+  // SLIDE (Double Hammer)
+  const slideOuterData = await createSlideDoubleHammerData(
     prisma,
     `${serviceData.id}-slide-outer`,
     serviceData.slideOuter,
   );
-  const slideInnerData = await createSlideData(
+  const slideInnerData = await createSlideDoubleHammerData(
     prisma,
     `${serviceData.id}-slide-inner`,
     serviceData.slideInner,
   );
 
-  await prisma.machineServiceSlide.upsert({
+  await prisma.machineServiceSlideDoubleHammer.upsert({
     where: { id: `${serviceData.id}-slide` },
     update: {},
     create: {
@@ -1162,22 +1293,17 @@ async function createServiceWithData(
     },
   });
 
-  await prisma.alertSlide.upsert({
-    where: { machineServiceId: service.id },
-    update: {},
-    create: {
+  // Create AlertSlideDoubleHammer
+  await prisma.alertSlideDoubleHammer.create({
+    data: {
       machineServiceId: service.id,
       maxDeviationOuter_differential: Math.max(
-        serviceData.slideOuter.position1,
-        serviceData.slideOuter.position2,
-        serviceData.slideOuter.position3,
-      ),
+        ...Object.values(serviceData.slideOuter).filter((v) => typeof v === 'number'),
+      ) as number,
       maxDeviationOuter_severity: AlertSeverity.GREEN,
       maxDeviationInner_differential: Math.max(
-        serviceData.slideInner.position1,
-        serviceData.slideInner.position2,
-        serviceData.slideInner.position3,
-      ),
+        ...Object.values(serviceData.slideInner).filter((v) => typeof v === 'number'),
+      ) as number,
       maxDeviationInner_severity: AlertSeverity.GREEN,
       thresholdSnapshot: {
         maxDeviation_greenMin: 0.002,
@@ -1186,6 +1312,7 @@ async function createServiceWithData(
       },
     },
   });
+  console.log('  ✓ Created slide data and alerts');
 
   // CLUTCH
   const clutchData = await createClutchData(
@@ -1204,10 +1331,9 @@ async function createServiceWithData(
     },
   });
 
-  await prisma.alertClutch.upsert({
-    where: { machineServiceId: service.id },
-    update: {},
-    create: {
+  // Create AlertClutch
+  await prisma.alertClutch.create({
+    data: {
       machineServiceId: service.id,
       hydClutchClearanceTotal_value: serviceData.clutch.hydClutchClearanceTotal,
       hydClutchClearanceTotal_severity: calculateClutchAlertSeverity(
@@ -1234,6 +1360,7 @@ async function createServiceWithData(
       },
     },
   });
+  console.log('  ✓ Created clutch data and alerts');
 
   // LUBRICATION
   const lubricationData = await prisma.lubricationHydraulicsData.upsert({
@@ -1281,8 +1408,8 @@ async function createServiceWithData(
 // ============================================================================
 
 /**
- * Seed Crown Cork services (Ponta Grossa)
- * Equipment: #30934 (2 inspections), #30634 (1 inspection)
+ * Seed Crown Cork & Seal services (Ponta Grossa) - Crown Branch
+ * Equipment: #30935 (2 inspections), #30634 (1 inspection)
  */
 export async function seedCrownServices(
   prisma: PrismaClient,
@@ -1310,7 +1437,7 @@ export async function seedCrownServices(
 }
 
 /**
- * Seed Aruma services (Estância)
+ * Seed Aruma services (Estância) - Crown Branch
  * Equipment: #30645 (2 inspections), #30530 (1 inspection)
  */
 export async function seedArumaServices(
@@ -1319,7 +1446,7 @@ export async function seedArumaServices(
   machine30530: Machine,
   technician: User,
 ) {
-  console.log('Creating Aruma services...');
+  console.log('Creating Aruma (Estancia) services...');
 
   // #30645 services (2 inspections with trend data)
   console.log(`\n  ${machine30645.name}:`);
@@ -1334,8 +1461,28 @@ export async function seedArumaServices(
   }
 
   console.log(
-    `\n✓ Created ${arumaServices30645.length + arumaServices30530.length} Aruma inspections`,
+    `\n✓ Created ${arumaServices30645.length + arumaServices30530.length} Aruma (Estancia) inspections`,
   );
+}
+
+/**
+ * Seed Teresina services (Teresina-PI) - Crown Branch
+ * Equipment: #30692 (1 inspection - 2017 OUTDATED)
+ */
+export async function seedTeresinaServices(
+  prisma: PrismaClient,
+  machine30692: Machine,
+  technician: User,
+) {
+  console.log('Creating Teresina (Teresina-PI) services...');
+
+  // #30692 services (1 inspection - 2017 historical data)
+  console.log(`\n  ${machine30692.name}:`);
+  for (const serviceData of teresinaServices30692) {
+    await createServiceWithData(prisma, serviceData, machine30692, technician);
+  }
+
+  console.log(`\n✓ Created ${teresinaServices30692.length} Teresina inspection (2017 - OUTDATED)`);
 }
 
 // Legacy export for backwards compatibility

@@ -1,5 +1,6 @@
 'use client';
 
+import { Fragment } from 'react';
 import { useTranslations } from 'next-intl';
 import { Input } from '@/components/ui/input';
 import {
@@ -97,8 +98,8 @@ export function CounterbalanceCylinderForm({
           const fieldName = (field || key) as keyof typeof data;
 
           return (
-            <>
-              <div key={key} className="grid grid-cols-2 gap-4 items-center">
+            <Fragment key={key}>
+              <div className="grid grid-cols-2 gap-4 items-center">
                 <div className="text-xs font-medium">{t(key)}</div>
 
                 <div>
@@ -151,7 +152,7 @@ export function CounterbalanceCylinderForm({
                   </div>
                 </div>
               )}
-            </>
+            </Fragment>
           );
         })}
       </div>

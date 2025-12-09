@@ -20,6 +20,7 @@ import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
 import { UserTableSkeleton } from './UserTableSkeleton';
 import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
+import { detectRolePreset, RolePreset, type Permissions } from '@titans-tech/shared/types';
 
 interface User {
   id: string;
@@ -30,21 +31,58 @@ interface User {
 
 // Transform UserResponseDto to UI User format
 function transformUserToUI(user: UserResponseDto, branchId: string): User {
+  // Company-level roles take precedence
+  if (user.isCompanyAdmin) {
+    return {
+      id: user.id,
+      name: user.name || 'Unknown User',
+      email: user.email,
+      role: 'companyAdmin',
+    };
+  }
+
   // Determine role based on branch-specific permissions
   let role = 'employee'; // Default: Funcionário (Worker)
 
   // Check branch-specific permissions
   const branchPermissions = user.branches?.find((b) => b.branchId === branchId);
   if (branchPermissions) {
-    const hasManagerPermissions =
-      branchPermissions.createUsers ||
-      branchPermissions.manageUserPermissions ||
-      branchPermissions.updateBranches;
+    // Extract permission fields from branch data
+    const permissions: Permissions = {
+      readUsers: branchPermissions.readUsers,
+      createUsers: branchPermissions.createUsers,
+      updateUsers: branchPermissions.updateUsers,
+      deleteUsers: branchPermissions.deleteUsers,
+      manageUserPermissions: branchPermissions.manageUserPermissions,
+      assignUsersToBranches: branchPermissions.assignUsersToBranches,
+      readBranches: branchPermissions.readBranches,
+      updateBranches: branchPermissions.updateBranches,
+      readMachines: branchPermissions.readMachines,
+      createMachines: branchPermissions.createMachines,
+      updateMachines: branchPermissions.updateMachines,
+      deleteMachines: branchPermissions.deleteMachines,
+      readServices: branchPermissions.readServices,
+      createServices: branchPermissions.createServices,
+      updateServices: branchPermissions.updateServices,
+      deleteServices: branchPermissions.deleteServices,
+      readProductionLines: branchPermissions.readProductionLines,
+      createProductionLines: branchPermissions.createProductionLines,
+      updateProductionLines: branchPermissions.updateProductionLines,
+      deleteProductionLines: branchPermissions.deleteProductionLines,
+    };
 
-    if (hasManagerPermissions) {
-      role = 'branchManager';
+    const preset = detectRolePreset(permissions);
+    switch (preset) {
+      case RolePreset.MANAGER:
+        role = 'branchManager';
+        break;
+      case RolePreset.WORKER:
+        role = 'employee';
+        break;
+      case RolePreset.CUSTOM:
+        role = 'custom';
+        break;
     }
-    // Otherwise remains 'employee' (Worker)
   }
 
   return {
@@ -88,13 +126,13 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
 
           const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
           if (usersResponse.data) {
-            // Filter users for this branch (exclude company admins/managers - they show in company card)
+            // Filter users for this branch (include company admins and branch users)
             const filteredUsers = usersResponse.data.filter((user) => {
-              // Exclude company admins and managers - they are shown at company level
-              if (user.isCompanyAdmin || user.isCompanyManager) {
-                return false;
+              // Include company admins (they have access to all branches)
+              if (user.isCompanyAdmin) {
+                return true;
               }
-              // Include only users with permissions for this branch
+              // Include users with permissions for this branch
               return user.branches?.some((b: { branchId: string }) => b.branchId === branchId);
             });
 
@@ -148,8 +186,11 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
 
   const getRoleBadgeColor = (role: string) => {
     const colors: Record<string, string> = {
+      companyAdmin: 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300',
+      companyManager: 'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300',
       branchManager: 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
       employee: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+      custom: 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
     };
     return colors[role] || colors.employee;
   };

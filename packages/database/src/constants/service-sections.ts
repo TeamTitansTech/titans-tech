@@ -7,7 +7,15 @@ export const SERVICE_SECTION_CONFIG = {
   },
   [ServiceSection.SLIDE]: {
     slug: 'slide',
-    displayName: 'Slide',
+    displayName: 'Slide (Legacy)',
+  },
+  [ServiceSection.SLIDE_SINGLE_HAMMER]: {
+    slug: 'slide_single_hammer',
+    displayName: 'Slide (Single Hammer)',
+  },
+  [ServiceSection.SLIDE_DOUBLE_HAMMER]: {
+    slug: 'slide_double_hammer',
+    displayName: 'Slide (Double Hammer)',
   },
   [ServiceSection.GIBS]: {
     slug: 'gibs',

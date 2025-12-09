@@ -3,7 +3,8 @@
 import type { AnySectionData } from '../types/service-completion.types';
 import type {
   BearingClearanceCheck,
-  SlideCheck,
+  SlideSingleHammerCheck,
+  SlideDoubleHammerCheck,
   GibsCheck,
   CounterbalanceCylinderCheck,
   TrammingCheck,
@@ -13,7 +14,8 @@ import type {
 } from '@/data/types/services.types';
 import { BearingClearanceSummary } from './BearingClearanceSummary';
 import { GenericSectionSummary } from './GenericSectionSummary';
-import { SlideSummary } from './SlideSummary';
+import { SlideSingleHammerSummary } from './SlideSingleHammerSummary';
+import { SlideDoubleHammerSummary } from './SlideDoubleHammerSummary';
 import { GibsSummary } from './GibsSummary';
 import { CounterbalanceSummary } from './CounterbalanceSummary';
 import { TrammingSummary } from './TrammingSummary';
@@ -24,7 +26,8 @@ import { LubricationSummary } from './LubricationSummary';
 // Re-export individual summary components
 export { BearingClearanceSummary };
 export { GenericSectionSummary };
-export { SlideSummary };
+export { SlideSingleHammerSummary };
+export { SlideDoubleHammerSummary };
 export { GibsSummary };
 export { CounterbalanceSummary };
 export { TrammingSummary };
@@ -46,8 +49,11 @@ export function SectionSummary({
     case 'BEARING_CLEARANCE':
       return <BearingClearanceSummary data={data as BearingClearanceCheck} />;
 
-    case 'SLIDE':
-      return <SlideSummary data={data as SlideCheck} />;
+    case 'SLIDE_SINGLE_HAMMER':
+      return <SlideSingleHammerSummary data={data as SlideSingleHammerCheck} />;
+
+    case 'SLIDE_DOUBLE_HAMMER':
+      return <SlideDoubleHammerSummary data={data as SlideDoubleHammerCheck} />;
 
     case 'GIBS':
       return <GibsSummary data={data as GibsCheck} />;

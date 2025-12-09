@@ -39,16 +39,26 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import { type SectionStatus } from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { LUBRICATION_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface LubricationSectionProps {
   machineId: string;
   inspections: LubricationInspectionData[];
   machineName: string;
+  machineSerial?: string;
 }
 
-export function LubricationSection({ inspections, machineName }: LubricationSectionProps) {
+export function LubricationSection({
+  machineId,
+  inspections,
+  machineName,
+  machineSerial,
+}: LubricationSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const tCommon = useTranslations('common.status');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
@@ -131,6 +141,14 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
     }
     return null;
   }, [inspections]);
+
+  // Calculate section status based on oil change info
+  const sectionStatus: SectionStatus = useMemo(() => {
+    if (!lastOilChangeInfo) return 'ok'; // No data = ok (operational until proven otherwise)
+    if (lastOilChangeInfo.isOverdue) return 'alert';
+    if (lastOilChangeInfo.isWarning) return 'warning';
+    return 'ok';
+  }, [lastOilChangeInfo]);
 
   // Transform data for temperature chart
   const temperatureChartData = useMemo(() => {
@@ -357,6 +375,21 @@ export function LubricationSection({ inspections, machineName }: LubricationSect
           </CardContent>
         </Card>
       )}
+
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: LUBRICATION_SUBSECTIONS,
+          title: tParts('lubricationHydraulicsParts'),
+          description: tParts('lubricationHydraulicsDescription'),
+          machineId,
+          machineName,
+          machineSerial,
+          sectionName: 'Lubrication & Hydraulics',
+        }}
+        alwaysShowPartsButton
+      />
 
       <Card>
         <CardHeader>

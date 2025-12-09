@@ -51,6 +51,11 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '20mb',
+    },
+  },
 };
 
 export default withNextIntl(nextConfig);

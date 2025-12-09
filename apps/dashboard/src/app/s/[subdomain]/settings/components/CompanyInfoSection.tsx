@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent } from '@/components/ui/card';
-import { Building2, MapPin, Phone, Globe, User, Lock, Shield } from 'lucide-react';
+import { Building2, MapPin, Phone, Globe, Lock } from 'lucide-react';
+import Image from 'next/image';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { getCompany, type Company } from '@/data/services/companies.api';
 import { getAllUsers } from '@/data/services/users.api';
@@ -17,7 +18,6 @@ export function CompanyInfoSection() {
   const { companyUser } = useCompanyUser();
   const [company, setCompany] = useState<Company | null>(null);
   const [companyAdmin, setCompanyAdmin] = useState<UserResponseDto | null>(null);
-  const [companyManagers, setCompanyManagers] = useState<UserResponseDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -42,12 +42,6 @@ export function CompanyInfoSection() {
           // Find Company Admin
           const admin = usersResponse.data.find((user) => user.isCompanyAdmin);
           setCompanyAdmin(admin || null);
-
-          // Find Company Managers
-          const managers = usersResponse.data.filter(
-            (user) => user.isCompanyManager && !user.isCompanyAdmin,
-          );
-          setCompanyManagers(managers);
         }
       } catch (error) {
         console.error('Error loading company info:', error);
@@ -99,7 +93,19 @@ export function CompanyInfoSection() {
       <CardContent className="pt-6 space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Building2 className="h-5 w-5 mt-0.5" />
+            {company.logo ? (
+              <div className="h-10 w-10 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+                <Image
+                  src={company.logo}
+                  alt={company.name}
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+              </div>
+            ) : (
+              <Building2 className="h-5 w-5 mt-0.5" />
+            )}
             <div className="flex-1">
               <h2 className="text-lg font-semibold">{t('title')}</h2>
               <p className="text-sm text-muted-foreground mt-1">{t('description')}</p>
@@ -191,48 +197,6 @@ export function CompanyInfoSection() {
                 </div>
                 <p className="text-base font-medium">{companyAdmin.name || t('unknownUser')}</p>
                 <p className="text-sm text-muted-foreground">{companyAdmin.email}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Company Managers */}
-        {companyManagers.length > 0 && (
-          <div className="pt-4 border-t">
-            <div className="flex items-start gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
-                <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-sm font-medium text-muted-foreground">Company Managers</h3>
-                  <Badge variant="secondary">
-                    {companyManagers.length} {companyManagers.length === 1 ? 'Manager' : 'Managers'}
-                  </Badge>
-                </div>
-                <div className="space-y-2">
-                  {companyManagers.map((manager) => {
-                    const branchNames =
-                      manager.branches
-                        ?.map((b) => b.branch?.name)
-                        .filter(Boolean)
-                        .join(', ') || 'All branches';
-
-                    return (
-                      <div
-                        key={manager.id}
-                        className="flex items-center gap-2 p-2 rounded-lg bg-muted border border-border"
-                      >
-                        <User className="h-4 w-4 text-muted-foreground" />
-                        <div className="flex-1">
-                          <p className="text-sm font-medium">{manager.name || t('unknownUser')}</p>
-                          <p className="text-xs text-muted-foreground">{manager.email}</p>
-                          <p className="text-xs text-blue-600 mt-0.5">{branchNames}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
               </div>
             </div>
           </div>

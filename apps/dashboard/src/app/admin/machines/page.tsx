@@ -1,8 +1,12 @@
 import { getTranslations } from 'next-intl/server';
 import { MachineListPage } from './components/MachineListPage';
 import { getMachines } from '@/data/services/machines.api';
+import { getLatestReport } from '@/data/services/services.api';
 import { Typography } from '@/components/ui/typography';
 import { NoPermission } from '@/components/no-permission/NoPermission';
+import { calculateStatusFromLatestReport } from '@/lib/alertStatus';
+
+export const dynamic = 'force-dynamic';
 
 export default async function AdminMachinesPage() {
   const t = await getTranslations('machines');
@@ -33,5 +37,29 @@ export default async function AdminMachinesPage() {
 
   const machines = response.data || [];
 
-  return <MachineListPage machines={machines} />;
+  // Fetch all latest reports in parallel on the server
+  const machinesWithReports = await Promise.all(
+    machines.map(async (machine) => {
+      try {
+        const reportResponse = await getLatestReport(machine.id);
+        const latestReport = reportResponse.data || null;
+        const alertStatus = calculateStatusFromLatestReport(latestReport);
+
+        return {
+          ...machine,
+          latestReport,
+          alertStatus,
+        };
+      } catch (error) {
+        console.error(`Failed to fetch report for machine ${machine.id}:`, error);
+        return {
+          ...machine,
+          latestReport: null,
+          alertStatus: 'ok' as const,
+        };
+      }
+    }),
+  );
+
+  return <MachineListPage machines={machinesWithReports} />;
 }

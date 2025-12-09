@@ -20,6 +20,9 @@ import {
 import { getGibsThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { GIBS_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface GibsSectionProps {
   machineId: string;
@@ -49,12 +52,14 @@ interface GibsStageData {
 }
 
 export function GibsSection({
+  machineId,
   inspections,
   machineName,
   blueprintId,
   hideThresholdValues = false,
 }: GibsSectionProps) {
   const t = useTranslations('machines.sectionDetails');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   const tGibsFields = useTranslations('machines.gibsFields');
   const [usableThreshold, setUsableThreshold] = useState<ThresholdConfig | null>(null);
@@ -234,6 +239,21 @@ export function GibsSection({
   const outerCalculated = calculateGibsFields(latestOuterData);
   const innerCalculated = calculateGibsFields(latestInnerData);
 
+  // Prepare measurements for status badge
+  const statusMeasurements = useMemo(
+    () => [
+      { value: outerCalculated?.usable ?? null, threshold: usableThreshold },
+      { value: innerCalculated?.usable ?? null, threshold: usableThreshold },
+    ],
+    [outerCalculated?.usable, innerCalculated?.usable, usableThreshold],
+  );
+
+  // Calculate section status for the status card
+  const sectionStatus: SectionStatus = useMemo(
+    () => calculateSectionStatus(statusMeasurements),
+    [statusMeasurements],
+  );
+
   // Check if we have front-to-back or left-to-right data
   const hasOuterFrontToBack = latestOuterData
     ? [1, 2, 3, 4, 5, 6, 7, 8].some(
@@ -342,6 +362,19 @@ export function GibsSection({
           </CardContent>
         </Card>
       </div>
+
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: GIBS_SUBSECTIONS,
+          title: tParts('gibsParts'),
+          description: tParts('gibsDescription'),
+          machineId,
+          machineName,
+          sectionName: 'Gibs',
+        }}
+      />
 
       <Card>
         <CardHeader>

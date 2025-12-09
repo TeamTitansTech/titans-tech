@@ -1,10 +1,11 @@
 import { PrismaClient, Company, CompanyBranch, User } from '../../../generated/prisma/client';
 import * as bcrypt from 'bcrypt';
+import { MANAGER_PERMISSIONS, Permissions } from '@titans-tech/shared/types/permissions';
 
 // ============================================================================
-// USER DATA FROM: MINSTER PRESS EQUIPMENT INSPECTION DATABASE
+// USER DATA - MINSTER PRESS FLEET
 // ============================================================================
-// Technician: Julio De Souza (performs inspections for both customers)
+// Technician: Julio De Souza (performs inspections for all facilities)
 // Service Center: USA
 // Region: Brazil
 // ============================================================================
@@ -14,34 +15,7 @@ export interface UsersData {
   technicianUser: User;
 }
 
-const ALL_PERMISSIONS = {
-  readUsers: true,
-  createUsers: true,
-  updateUsers: true,
-  deleteUsers: true,
-  manageUserPermissions: true,
-  assignUsersToBranches: true,
-  readBranches: true,
-  updateBranches: true,
-  readBlueprints: true,
-  createBlueprints: true,
-  updateBlueprints: true,
-  deleteBlueprints: true,
-  readMachines: true,
-  createMachines: true,
-  updateMachines: true,
-  deleteMachines: true,
-  readServices: true,
-  createServices: true,
-  updateServices: true,
-  deleteServices: true,
-  readProductionLines: true,
-  createProductionLines: true,
-  updateProductionLines: true,
-  deleteProductionLines: true,
-};
-
-const TECHNICIAN_PERMISSIONS = {
+const TECHNICIAN_PERMISSIONS: Permissions = {
   readUsers: false,
   createUsers: false,
   updateUsers: false,
@@ -50,10 +24,6 @@ const TECHNICIAN_PERMISSIONS = {
   assignUsersToBranches: false,
   readBranches: true,
   updateBranches: false,
-  readBlueprints: true,
-  createBlueprints: false,
-  updateBlueprints: false,
-  deleteBlueprints: false,
   readMachines: true,
   createMachines: false,
   updateMachines: false,
@@ -68,138 +38,175 @@ const TECHNICIAN_PERMISSIONS = {
   deleteProductionLines: false,
 };
 
+/**
+ * Seed Crown users with access to all THREE facilities
+ */
 export async function seedCrownUsers(
   prisma: PrismaClient,
   company: Company,
-  mainBranch: CompanyBranch,
+  arumaBranch: CompanyBranch,
+  pontaGrossaBranch: CompanyBranch,
+  teresinaBranch: CompanyBranch,
 ): Promise<UsersData> {
-  console.log('Creating Crown Cork users...');
+  console.log('Creating Crown users...');
 
   const hashedPassword = await bcrypt.hash('password', 10);
 
-  // Create Company Admin for Crown Cork
+  // ========================================================================
+  // COMPANY ADMIN - Full access to all 3 facilities
+  // ========================================================================
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@crown.com' },
-    update: {},
+    where: { id: 'crown-admin' },
+    update: {
+      name: 'Crown Admin',
+      email: 'admin@dev-crown.com',
+      isCompanyAdmin: true,
+      companyId: company.id,
+    },
     create: {
       id: 'crown-admin',
       name: 'Crown Admin',
-      email: 'admin@crown.com',
+      email: 'admin@dev-crown.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
   });
 
-  console.log(`✓ Created/Updated admin user: ${adminUser.email}`);
+  console.log(`✓ Created/Updated admin: ${adminUser.email}`);
 
-  // Create Technician (Julio De Souza from Minster data)
-  // Same technician performs inspections for all customers in Brazil region
+  // ========================================================================
+  // TECHNICIAN: JULIO DE SOUZA
+  // ========================================================================
+  // From Minster data - performs inspections for ALL Crown facilities
+  // Has service permissions at all 3 branches
+  // ========================================================================
   const technicianUser = await prisma.user.upsert({
-    where: { email: 'julio.souza@crown.com' },
-    update: {},
+    where: { id: 'crown-technician' },
+    update: {
+      name: 'Julio De Souza',
+      email: 'julio.souza@dev-crown.com',
+      isCompanyAdmin: false,
+      companyId: company.id,
+    },
     create: {
       id: 'crown-technician',
       name: 'Julio De Souza',
-      email: 'julio.souza@crown.com',
+      email: 'julio.souza@dev-crown.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
   });
 
-  console.log(`✓ Created/Updated technician user: ${technicianUser.email}`);
+  console.log(`✓ Created/Updated technician: ${technicianUser.email}`);
 
-  // Assign admin to main branch with full permissions
-  await prisma.userBranch.upsert({
-    where: {
-      userId_branchId: {
+  // Assign users to all 3 branches
+  const branches = [
+    { branch: arumaBranch, name: 'Aruma (Estancia)' },
+    { branch: pontaGrossaBranch, name: 'Crown Cork & Seal (Ponta Grossa)' },
+    { branch: teresinaBranch, name: 'Crown Cork (Teresina)' },
+  ];
+
+  for (const { branch, name } of branches) {
+    // Admin - full permissions
+    await prisma.userBranch.upsert({
+      where: {
+        userId_branchId: {
+          userId: adminUser.id,
+          branchId: branch.id,
+        },
+      },
+      update: {},
+      create: {
         userId: adminUser.id,
-        branchId: mainBranch.id,
+        branchId: branch.id,
+        ...MANAGER_PERMISSIONS,
       },
-    },
-    update: {},
-    create: {
-      userId: adminUser.id,
-      branchId: mainBranch.id,
-      ...ALL_PERMISSIONS,
-    },
-  });
+    });
 
-  console.log(`✓ Assigned admin to Ponta Grossa branch with full permissions`);
-
-  // Assign technician to main branch with service permissions
-  await prisma.userBranch.upsert({
-    where: {
-      userId_branchId: {
+    // Technician - service permissions
+    await prisma.userBranch.upsert({
+      where: {
+        userId_branchId: {
+          userId: technicianUser.id,
+          branchId: branch.id,
+        },
+      },
+      update: {},
+      create: {
         userId: technicianUser.id,
-        branchId: mainBranch.id,
+        branchId: branch.id,
+        ...TECHNICIAN_PERMISSIONS,
       },
-    },
-    update: {},
-    create: {
-      userId: technicianUser.id,
-      branchId: mainBranch.id,
-      ...TECHNICIAN_PERMISSIONS,
-    },
-  });
+    });
+  }
 
-  console.log(`✓ Assigned technician to Ponta Grossa branch with service permissions`);
+  console.log(`✓ Assigned users to all 3 Crown branches`);
 
   return { adminUser, technicianUser };
 }
 
-export async function seedArumaUsers(
+/**
+ * Seed Ardagh users
+ * Note: Template files only - awaiting actual inspection data
+ */
+export async function seedArdaghUsers(
   prisma: PrismaClient,
   company: Company,
   mainBranch: CompanyBranch,
 ): Promise<UsersData> {
-  console.log('Creating Aruma users...');
+  console.log('Creating Ardagh users...');
 
   const hashedPassword = await bcrypt.hash('password', 10);
 
-  // Create Company Admin for Aruma
+  // Company Admin
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@aruma.com' },
-    update: {},
+    where: { id: 'ardagh-admin' },
+    update: {
+      name: 'Ardagh Admin',
+      email: 'admin@dev-ardagh.com',
+      isCompanyAdmin: true,
+      companyId: company.id,
+    },
     create: {
-      id: 'aruma-admin',
-      name: 'Aruma Admin',
-      email: 'admin@aruma.com',
+      id: 'ardagh-admin',
+      name: 'Ardagh Admin',
+      email: 'admin@dev-ardagh.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
   });
 
-  console.log(`✓ Created/Updated admin user: ${adminUser.email}`);
+  console.log(`✓ Created/Updated admin: ${adminUser.email}`);
 
-  // Create Technician (Julio De Souza from Minster data)
-  // Same technician performs inspections for all customers in Brazil region
+  // Technician
   const technicianUser = await prisma.user.upsert({
-    where: { email: 'julio.souza@aruma.com' },
-    update: {},
+    where: { id: 'ardagh-technician' },
+    update: {
+      name: 'Ardagh Technician',
+      email: 'technician@dev-ardagh.com',
+      isCompanyAdmin: false,
+      companyId: company.id,
+    },
     create: {
-      id: 'aruma-technician',
-      name: 'Julio De Souza',
-      email: 'julio.souza@aruma.com',
+      id: 'ardagh-technician',
+      name: 'Ardagh Technician',
+      email: 'technician@dev-ardagh.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
   });
 
-  console.log(`✓ Created/Updated technician user: ${technicianUser.email}`);
+  console.log(`✓ Created/Updated technician: ${technicianUser.email}`);
 
-  // Assign admin to main branch with full permissions
+  // Assign admin to branch
   await prisma.userBranch.upsert({
     where: {
       userId_branchId: {
@@ -211,13 +218,11 @@ export async function seedArumaUsers(
     create: {
       userId: adminUser.id,
       branchId: mainBranch.id,
-      ...ALL_PERMISSIONS,
+      ...MANAGER_PERMISSIONS,
     },
   });
 
-  console.log(`✓ Assigned admin to Estância branch with full permissions`);
-
-  // Assign technician to main branch with service permissions
+  // Assign technician to branch
   await prisma.userBranch.upsert({
     where: {
       userId_branchId: {
@@ -233,7 +238,7 @@ export async function seedArumaUsers(
     },
   });
 
-  console.log(`✓ Assigned technician to Estância branch with service permissions`);
+  console.log(`✓ Assigned users to Ardagh Brazil branch`);
 
   return { adminUser, technicianUser };
 }

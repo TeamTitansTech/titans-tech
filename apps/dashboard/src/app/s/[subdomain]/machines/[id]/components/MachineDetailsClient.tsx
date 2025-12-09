@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
@@ -9,7 +9,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
-import { ServiceCompletionModal } from './ServiceCompletionModal';
 import { UrgentServiceModal } from './UrgentServiceModal';
 import { LatestReportModal } from '@/app/admin/machines/[id]/components/LatestReportModal';
 import { Typography } from '@/components/ui/typography';
@@ -17,20 +16,35 @@ import type { Machine } from '@titans-tech/shared/types';
 import type { LatestReport } from '@/data/types/services.types';
 import { SectionCard } from '@/components/shared/SectionCard';
 import { getLatestReport } from '@/data/services/services.api';
+import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
 
 export interface MachineDetailsClientProps {
   machine: Machine;
+  companySlug: string;
+  initialLatestReport?: LatestReport | null;
 }
 
-export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
+export function MachineDetailsClient({
+  machine,
+  companySlug,
+  initialLatestReport,
+}: MachineDetailsClientProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
-  const [isInspectionModalOpen, setIsInspectionModalOpen] = useState(false);
   const [isUrgentServiceModalOpen, setIsUrgentServiceModalOpen] = useState(false);
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
+  const [latestReport, setLatestReport] = useState<LatestReport | null>(
+    initialLatestReport ?? null,
+  );
   const [isLoadingReport, setIsLoadingReport] = useState(false);
+
+  // Update latestReport when initialLatestReport changes (from server refresh)
+  useEffect(() => {
+    if (initialLatestReport !== undefined) {
+      setLatestReport(initialLatestReport);
+    }
+  }, [initialLatestReport]);
 
   const handleSectionClick = (section: string) => {
     setLoadingSection(section);
@@ -39,6 +53,12 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
   };
 
   const handleOpenReport = async () => {
+    // If we already have the report, just open the modal
+    if (latestReport) {
+      setIsReportModalOpen(true);
+      return;
+    }
+
     setIsLoadingReport(true);
     try {
       const response = await getLatestReport(machine.id);
@@ -55,38 +75,43 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
 
   return (
     <>
-      <div className="flex items-center gap-6 mb-6">
-        <Link href="/machines" className="shrink-0">
-          <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
-        </Link>
-        <div className="flex items-center justify-between w-full min-w-0 gap-4">
-          <div className="min-w-0 flex-1 overflow-hidden">
-            <ConditionalTooltip content={machine.name} className="block">
-              <Typography variant="h2">{machine.name}</Typography>
-            </ConditionalTooltip>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+        <div className="flex items-start gap-4">
+          <Link href="/machines" className="shrink-0 mt-1">
+            <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
+          </Link>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <ConditionalTooltip content={machine.name} className="block">
+                <Typography variant="h2" className="break-words">
+                  {machine.name}
+                </Typography>
+              </ConditionalTooltip>
+              <QRCodeGenerator
+                machineId={machine.id}
+                machineName={machine.name}
+                companySlug={companySlug}
+              />
+            </div>
             <ConditionalTooltip
               content={machine.blueprint?.name || t('noBlueprintAssigned')}
-              className="mt-1 truncate block"
+              className="mt-1 block"
             >
-              <Typography variant="muted">
+              <Typography variant="muted" className="break-words">
                 {machine.blueprint?.name || t('noBlueprintAssigned')}
               </Typography>
             </ConditionalTooltip>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <Button onClick={handleOpenReport} disabled={isLoadingReport} size="sm">
-              <FileText className="w-4 h-4 mr-2" />
-              {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => setIsUrgentServiceModalOpen(true)}
-            >
-              <Wrench className="w-4 h-4 mr-2" />
-              {t('requestUrgentService')}
-            </Button>
-          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+          <Button onClick={handleOpenReport} disabled={isLoadingReport} size="sm">
+            <FileText className="w-4 h-4 mr-2" />
+            {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
+          </Button>
+          <Button variant="destructive" size="sm" onClick={() => setIsUrgentServiceModalOpen(true)}>
+            <Wrench className="w-4 h-4 mr-2" />
+            {t('requestUrgentService')}
+          </Button>
         </div>
       </div>
 
@@ -121,6 +146,7 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
                     key={section}
                     sectionKey={section}
                     machine={machine}
+                    latestReport={latestReport}
                     onClick={() => handleSectionClick(section)}
                     isLoading={loadingSection === section}
                   />
@@ -135,13 +161,6 @@ export function MachineDetailsClient({ machine }: MachineDetailsClientProps) {
           </CardContent>
         </Card>
       </div>
-
-      <ServiceCompletionModal
-        machineId={machine.id}
-        open={isInspectionModalOpen}
-        onOpenChange={setIsInspectionModalOpen}
-        machineSections={machine.blueprint?.sections}
-      />
 
       <UrgentServiceModal
         machineId={machine.id}

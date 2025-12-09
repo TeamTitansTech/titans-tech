@@ -39,6 +39,12 @@ export function CompanyManagementSection({
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
 
+  // Wrapper to clear selected branch when company changes
+  const handleSelectCompany = (companyId: string) => {
+    setSelectedBranchId('');
+    onSelectCompany(companyId);
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -59,7 +65,11 @@ export function CompanyManagementSection({
 
           <div className="space-y-2">
             <Label htmlFor="company-select">{t('selectCompany')}</Label>
-            <Select value={selectedCompanyId} onValueChange={onSelectCompany} disabled={isLoading}>
+            <Select
+              value={selectedCompanyId}
+              onValueChange={handleSelectCompany}
+              disabled={isLoading}
+            >
               <SelectTrigger id="company-select">
                 <SelectValue placeholder={t('selectCompanyPlaceholder')} />
               </SelectTrigger>

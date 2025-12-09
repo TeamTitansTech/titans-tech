@@ -38,11 +38,15 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import { type SectionStatus } from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { COUNTERBALANCE_SUBSECTIONS } from '@/data/parts/section-subsections';
 
 interface CounterbalanceSectionProps {
   machineId: string;
   inspections: CounterbalanceInspectionData[];
   machineName: string;
+  machineSerial?: string;
 }
 
 interface CounterbalanceData {
@@ -68,9 +72,15 @@ const STATUS_FIELDS = [
   { key: 'oilWick', label: 'Oil Wick' },
 ] as const;
 
-export function CounterbalanceSection({ inspections, machineName }: CounterbalanceSectionProps) {
+export function CounterbalanceSection({
+  machineId,
+  inspections,
+  machineName,
+  machineSerial,
+}: CounterbalanceSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const tCommon = useTranslations('common.status');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
@@ -176,6 +186,16 @@ export function CounterbalanceSection({ inspections, machineName }: Counterbalan
   const totalOkCount =
     (latestOuterData ? STATUS_FIELDS.length - outerIssuesCount : 0) +
     (latestInnerData ? STATUS_FIELDS.length - innerIssuesCount : 0);
+
+  // Calculate section status
+  const sectionStatus: SectionStatus = useMemo(() => {
+    // If there are custom alerts, it's critical
+    if (latestAlerts.length > 0) return 'alert';
+    // If there are issues, it's a warning
+    if (outerIssuesCount + innerIssuesCount > 0) return 'warning';
+    // No issues or no data = ok (operational until proven otherwise)
+    return 'ok';
+  }, [latestAlerts.length, outerIssuesCount, innerIssuesCount]);
 
   const formatTypeLabel = (type: string | null): string => {
     if (!type) return '-';
@@ -310,6 +330,20 @@ export function CounterbalanceSection({ inspections, machineName }: Counterbalan
         </Card>
       </div>
 
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: COUNTERBALANCE_SUBSECTIONS,
+          title: tParts('counterbalanceParts'),
+          description: tParts('counterbalanceDescription'),
+          machineId,
+          machineName,
+          machineSerial,
+          sectionName: 'Counterbalance & Airbag',
+        }}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -324,7 +358,7 @@ export function CounterbalanceSection({ inspections, machineName }: Counterbalan
         <CardContent>
           {/* Summary Stats */}
           <div className="text-center mb-6">
-            <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
+            <div className="grid grid-cols-4 gap-4 max-w-xl mx-auto">
               <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-2 text-green-600">
                   <CheckCircle2 className="h-5 w-5" />
@@ -340,8 +374,15 @@ export function CounterbalanceSection({ inspections, machineName }: Counterbalan
                 <Typography variant="large">{outerIssuesCount + innerIssuesCount}</Typography>
               </div>
               <div className="flex flex-col items-center gap-2">
-                <div className="flex items-center gap-2 text-muted-foreground">
+                <div className="flex items-center gap-2 text-orange-600">
                   <AlertTriangle className="h-5 w-5" />
+                  <Typography variant="muted">{t('labels.alerts')}</Typography>
+                </div>
+                <Typography variant="large">{latestAlerts.length}</Typography>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <CalendarIcon className="h-5 w-5" />
                   <Typography variant="muted">{t('labels.inspections')}</Typography>
                 </div>
                 <Typography variant="large">{filteredInspections.length}</Typography>

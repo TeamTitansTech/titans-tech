@@ -213,7 +213,10 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
         ) : alerts.length > 0 ? (
           <div className="space-y-3">
             {alerts.map((alert) => (
-              <Card key={alert.id} className="p-4 border-red-200 bg-red-50/50">
+              <Card
+                key={alert.id}
+                className="p-4 border-red-500/50 bg-red-500/5 dark:bg-red-500/10"
+              >
                 {editingAlertId === alert.id ? (
                   // Edit mode
                   <div className="space-y-3">
@@ -332,7 +335,7 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
         ) : null}
 
         {isAddingAlert && (
-          <Card className="p-4 border-orange-200 bg-orange-50/30">
+          <Card className="p-4 border-amber-500/50 bg-amber-500/5 dark:bg-amber-500/10">
             <div className="space-y-4">
               <div>
                 <Label htmlFor="alert-field" className="text-xs font-medium mb-2 block">
@@ -376,7 +379,7 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
               <div className="flex gap-2">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="ghost"
                   size="sm"
                   onClick={() => {
                     setIsAddingAlert(false);
@@ -386,16 +389,15 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
                   disabled={isSavingAlert}
                   className="flex-1"
                 >
-                  <X className="h-4 w-4 mr-2" />
                   {t('cancel')}
                 </Button>
                 <Button
                   type="button"
-                  variant="destructive"
+                  variant="default"
                   size="sm"
                   onClick={handleSaveAlert}
                   disabled={isSavingAlert || !selectedField || !justification.trim()}
-                  className="flex-1"
+                  className="flex-1 bg-amber-600 hover:bg-amber-700 text-white"
                 >
                   {isSavingAlert ? (
                     <>
@@ -403,7 +405,10 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
                       {t('saving')}
                     </>
                   ) : (
-                    t('save')
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      {t('save')}
+                    </>
                   )}
                 </Button>
               </div>

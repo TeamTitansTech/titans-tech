@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 export interface StepBadge {
   label: string;
@@ -106,6 +106,12 @@ function StepperItem({ step, stepNumber, isLast, onClick }: StepperItemProps) {
 export function Stepper({ steps, onStepClick }: StepperProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Drag scroll state
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+  const [hasDragged, setHasDragged] = useState(false);
+
   // Auto-scroll to current step when it changes
   useEffect(() => {
     if (containerRef.current) {
@@ -120,16 +126,71 @@ export function Stepper({ steps, onStepClick }: StepperProps) {
     }
   }, [steps]);
 
+  // Mouse drag handlers for desktop
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    setIsDragging(true);
+    setHasDragged(false);
+    setStartX(e.pageX - containerRef.current.offsetLeft);
+    setScrollLeft(containerRef.current.scrollLeft);
+  }, []);
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging || !containerRef.current) return;
+      e.preventDefault();
+      const x = e.pageX - containerRef.current.offsetLeft;
+      const walk = (x - startX) * 1.5; // Scroll speed multiplier
+      containerRef.current.scrollLeft = scrollLeft - walk;
+
+      // Mark as dragged if moved more than 5px
+      if (Math.abs(walk) > 5) {
+        setHasDragged(true);
+      }
+    },
+    [isDragging, startX, scrollLeft],
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // Prevent click events on steps when dragging
+  const handleStepClick = useCallback(
+    (index: number) => {
+      if (hasDragged) {
+        setHasDragged(false);
+        return;
+      }
+      onStepClick?.(index);
+    },
+    [hasDragged, onStepClick],
+  );
+
   return (
     <div className="w-full p-4 sm:p-4 bg-muted/30 rounded-lg border relative">
-      <div ref={containerRef} className="hide-scrollbar flex items-center overflow-x-auto">
+      <div
+        ref={containerRef}
+        className={cn(
+          'hide-scrollbar flex items-center overflow-x-auto',
+          isDragging ? 'cursor-grabbing select-none' : 'cursor-grab',
+        )}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+      >
         {steps.map((step, index) => (
           <StepperItem
             key={step.key}
             step={step}
             stepNumber={index + 1}
             isLast={index === steps.length - 1}
-            onClick={() => onStepClick?.(index)}
+            onClick={() => handleStepClick(index)}
           />
         ))}
       </div>

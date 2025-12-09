@@ -1,14 +1,16 @@
 import { getTranslations } from 'next-intl/server';
 import { BearingClearanceSectionWrapper } from './components/BearingClearanceSectionWrapper';
 import { ClutchSectionWrapper } from './components/ClutchSectionWrapper';
-import { SlideSectionWrapper } from './components/SlideSectionWrapper';
+import { SlideSingleHammerSectionWrapper } from './components/SlideSingleHammerSectionWrapper';
+import { SlideDoubleHammerSectionWrapper } from './components/SlideDoubleHammerSectionWrapper';
 import { GibsSectionWrapper } from './components/GibsSectionWrapper';
 import { LubricationSectionWrapper } from './components/LubricationSectionWrapper';
 import { CounterbalanceSectionWrapper } from './components/CounterbalanceSectionWrapper';
+import { PistonsSectionWrapper } from './components/PistonsSectionWrapper';
+import { TrammingSectionWrapper } from './components/TrammingSectionWrapper';
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { isSysAdminPanel } from '@/lib/isSysAdminPanel';
 
 interface SectionDetailPageProps {
   params: Promise<{
@@ -17,15 +19,29 @@ interface SectionDetailPageProps {
   }>;
 }
 
+const sectionComponents: Record<string, React.ComponentType<{ machineId: string }>> = {
+  bearing_clearance: BearingClearanceSectionWrapper,
+  clutch: ClutchSectionWrapper,
+  slide_single_hammer: SlideSingleHammerSectionWrapper,
+  slide_double_hammer: SlideDoubleHammerSectionWrapper,
+  gibs: GibsSectionWrapper,
+  lubrication_hydraulics_pressure_switches_oil_filter: LubricationSectionWrapper,
+  counterbalance_cylinder_airbag: CounterbalanceSectionWrapper,
+  pistons: PistonsSectionWrapper,
+  tramming: TrammingSectionWrapper,
+};
+
 export default async function SectionDetailPage({ params }: SectionDetailPageProps) {
   const { id, sectionSlug } = await params;
-  const isSysPanel = await isSysAdminPanel();
   const t = await getTranslations('machines.sectionDetails');
+
+  const SectionComponent = sectionComponents[sectionSlug];
 
   return (
     <div className="space-y-6 p-2 sm:p-4 lg:p-6">
       <div className="flex items-center gap-3 sm:gap-4">
-        <Link href={`${isSysPanel ? '/admin' : ''}/machines/${id}`} className="shrink-0">
+        {/* Always use /admin prefix since this is the admin section page */}
+        <Link href={`/admin/machines/${id}`} className="shrink-0">
           <ArrowLeft className="w-5 h-5 hover:text-[hsl(var(--accent))] transition-colors cursor-pointer" />
         </Link>
         <div className="min-w-0 flex-1">
@@ -38,27 +54,13 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
         </div>
       </div>
 
-      {sectionSlug === 'bearing_clearance' && <BearingClearanceSectionWrapper machineId={id} />}
-      {sectionSlug === 'clutch' && <ClutchSectionWrapper machineId={id} />}
-      {sectionSlug === 'slide' && <SlideSectionWrapper machineId={id} />}
-      {sectionSlug === 'gibs' && <GibsSectionWrapper machineId={id} />}
-      {sectionSlug === 'lubrication_hydraulics_pressure_switches_oil_filter' && (
-        <LubricationSectionWrapper machineId={id} />
+      {SectionComponent ? (
+        <SectionComponent machineId={id} />
+      ) : (
+        <div className="text-center py-12">
+          <Typography variant="muted">{t('comingSoon', { section: sectionSlug })}</Typography>
+        </div>
       )}
-      {sectionSlug === 'counterbalance_cylinder_airbag' && (
-        <CounterbalanceSectionWrapper machineId={id} />
-      )}
-
-      {sectionSlug !== 'bearing_clearance' &&
-        sectionSlug !== 'clutch' &&
-        sectionSlug !== 'slide' &&
-        sectionSlug !== 'gibs' &&
-        sectionSlug !== 'lubrication_hydraulics_pressure_switches_oil_filter' &&
-        sectionSlug !== 'counterbalance_cylinder_airbag' && (
-          <div className="text-center py-12">
-            <Typography variant="muted">{t('comingSoon', { section: sectionSlug })}</Typography>
-          </div>
-        )}
     </div>
   );
 }

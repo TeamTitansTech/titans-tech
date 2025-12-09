@@ -10,28 +10,53 @@ import { useTranslations } from 'next-intl';
 import { SectionCard } from '@/components/shared/SectionCard';
 import { Typography } from '@/components/ui/typography';
 import type { MachineDetailsProps } from '@/data/types/machines.types';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { LatestReportModal } from './LatestReportModal';
 import { getLatestReport } from '@/data/services/services.api';
 import type { LatestReport } from '@/data/types/services.types';
+import { QRCodeGenerator } from '@/components/shared/QRCodeGenerator';
 
-export function MachineDetails({ machine }: MachineDetailsProps) {
+interface MachineDetailsComponentProps extends MachineDetailsProps {
+  companySlug: string;
+  initialLatestReport?: LatestReport | null;
+}
+
+export function MachineDetails({
+  machine,
+  companySlug,
+  initialLatestReport,
+}: MachineDetailsComponentProps) {
   const t = useTranslations('machines');
   const router = useInternalRouter();
   const [loadingSection, setLoadingSection] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [latestReport, setLatestReport] = useState<LatestReport | null>(null);
+  const [latestReport, setLatestReport] = useState<LatestReport | null>(
+    initialLatestReport ?? null,
+  );
   const [isLoadingReport, setIsLoadingReport] = useState(false);
+
+  // Update latestReport when initialLatestReport changes (from server refresh)
+  useEffect(() => {
+    if (initialLatestReport !== undefined) {
+      setLatestReport(initialLatestReport);
+    }
+  }, [initialLatestReport]);
 
   const handleSectionClick = async (section: string) => {
     setLoadingSection(section);
     const sectionSlug = section.toLowerCase();
-    // useInternalRouter auto-adds /admin prefix, so don't include it here
-    router.push(`/machines/${machine.id}/sections/${sectionSlug}`);
+    // Explicitly include /admin since we're in the admin panel
+    router.push(`/admin/machines/${machine.id}/sections/${sectionSlug}`);
   };
 
   const handleOpenReport = async () => {
+    // If we already have the report, just open the modal
+    if (latestReport) {
+      setIsReportModalOpen(true);
+      return;
+    }
+
     setIsLoadingReport(true);
     try {
       const response = await getLatestReport(machine.id);
@@ -54,32 +79,35 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
         </Link>
         <div className="flex items-center justify-between w-full min-w-0 gap-2 sm:gap-4">
           <div className="min-w-0 flex-1 overflow-hidden">
-            <ConditionalTooltip content={machine.name} className="block">
-              <Typography variant="h2" className="text-lg sm:text-2xl">
-                {machine.name}
-              </Typography>
-            </ConditionalTooltip>
+            <div className="flex items-center gap-2">
+              <ConditionalTooltip content={machine.name} className="block">
+                <Typography variant="h2">{machine.name}</Typography>
+              </ConditionalTooltip>
+              <QRCodeGenerator
+                machineId={machine.id}
+                machineName={machine.name}
+                companySlug={companySlug}
+              />
+            </div>
             <ConditionalTooltip
               content={machine.blueprint?.name || t('noBlueprintAssigned')}
-              className="mt-1 truncate block"
+              className="mt-1 block"
             >
-              <Typography variant="muted" className="text-xs sm:text-sm">
+              <Typography variant="muted" className="text-xs sm:text-sm break-words">
                 {machine.blueprint?.name || t('noBlueprintAssigned')}
               </Typography>
             </ConditionalTooltip>
           </div>
-          <Button
-            onClick={handleOpenReport}
-            disabled={isLoadingReport}
-            className="gap-1 sm:gap-2 shrink-0 text-xs sm:text-sm px-2 sm:px-4"
-            size="sm"
-          >
-            <FileText className="w-4 h-4" />
-            <span className="hidden sm:inline">
-              {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
-            </span>
-          </Button>
         </div>
+        <Button
+          onClick={handleOpenReport}
+          disabled={isLoadingReport}
+          className="shrink-0"
+          size="sm"
+        >
+          <FileText className="w-4 h-4 mr-2" />
+          {isLoadingReport ? 'Carregando...' : 'Ver Relatório'}
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[350px_1fr] gap-4 lg:gap-6">
@@ -115,6 +143,7 @@ export function MachineDetails({ machine }: MachineDetailsProps) {
                     key={section}
                     sectionKey={section}
                     machine={machine}
+                    latestReport={latestReport}
                     onClick={() => handleSectionClick(section)}
                     isLoading={loadingSection === section}
                   />

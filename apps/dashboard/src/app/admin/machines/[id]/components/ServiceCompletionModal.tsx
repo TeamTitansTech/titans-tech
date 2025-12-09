@@ -26,7 +26,7 @@ import {
   completeService,
   getAlertsSummary,
 } from '@/data/services/services.api';
-import { AlertNotificationModal } from './AlertNotificationModal';
+import { AlertNotificationModal } from '@/components/shared/alerts/AlertNotificationModal';
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { toast } from 'sonner';
 import { SECTION_REGISTRY } from './sections/registry';
@@ -53,6 +53,7 @@ export function ServiceCompletionModal({
   initialDate,
   initialPerformedBy,
   companyId,
+  onSuccess,
 }: ServiceCompletionModalProps) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
@@ -255,7 +256,22 @@ export function ServiceCompletionModal({
   }, [currentServiceType, open, serviceId, machineSections]);
 
   // Navigation handlers
-  const handleProceedToDetails = () => {
+  const handleProceedToDetails = async () => {
+    // If completing an existing service, save selectedSections to backend
+    if (isCompletingService && serviceId && selectedSections.size > 0) {
+      try {
+        await updateService(
+          serviceId,
+          {
+            selectedSections: Array.from(selectedSections),
+            currentStep: 'details',
+          },
+          machineId,
+        );
+      } catch (error) {
+        console.error('Error saving selected sections:', error);
+      }
+    }
     setCurrentStep('details');
   };
 
@@ -605,11 +621,12 @@ export function ServiceCompletionModal({
 
       toast.success(tSuccess('serviceCompleted'), { duration: 3000 });
 
-      if (serviceType !== ServiceType.INSPECTION || !companyId) {
+      if (!companyId) {
         resetForm();
         resetSectionData();
         setIsSubmitting(false);
         onOpenChange(false);
+        onSuccess?.();
         router.refresh();
         return;
       }
@@ -622,6 +639,7 @@ export function ServiceCompletionModal({
           resetSectionData();
           setIsSubmitting(false);
           onOpenChange(false);
+          onSuccess?.();
           router.refresh();
           return;
         }
@@ -641,6 +659,7 @@ export function ServiceCompletionModal({
       resetSectionData();
       setIsSubmitting(false);
       onOpenChange(false);
+      onSuccess?.();
       router.refresh();
     } catch (err) {
       console.error('Error completing service:', err);
@@ -695,6 +714,7 @@ export function ServiceCompletionModal({
       setAlertsSummary(null);
       setCompletedServiceId(null);
       onOpenChange(false);
+      onSuccess?.();
       router.refresh();
     }
   };

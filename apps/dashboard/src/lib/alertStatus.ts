@@ -6,8 +6,8 @@
 import type { MachineWithStatus } from '@/data/types/production-lines.types';
 import type { LatestReport } from '@/data/types/services.types';
 
-export type AlertStatus = 'ok' | 'warning' | 'critical' | 'unknown';
-export type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
+export type AlertStatus = 'ok' | 'warning' | 'critical';
+export type SectionStatus = 'ok' | 'warning' | 'alert';
 export type AlertSeverity = 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
 
 /**
@@ -16,7 +16,7 @@ export type AlertSeverity = 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
  */
 export const calculateStatusFromLatestReport = (latestReport: LatestReport | null): AlertStatus => {
   if (!latestReport) {
-    return 'unknown';
+    return 'ok';
   }
 
   const allSeverities: AlertSeverity[] = [];
@@ -56,9 +56,15 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
     );
   }
 
-  // Collect severities from SLIDE section
-  if (latestReport.sections.SLIDE?.alert) {
-    const alert = latestReport.sections.SLIDE.alert;
+  // Collect severities from SLIDE_SINGLE_HAMMER section
+  if (latestReport.sections.SLIDE_SINGLE_HAMMER?.alert) {
+    const alert = latestReport.sections.SLIDE_SINGLE_HAMMER.alert;
+    allSeverities.push(alert.maxDeviation_severity);
+  }
+
+  // Collect severities from SLIDE_DOUBLE_HAMMER section
+  if (latestReport.sections.SLIDE_DOUBLE_HAMMER?.alert) {
+    const alert = latestReport.sections.SLIDE_DOUBLE_HAMMER.alert;
     allSeverities.push(alert.maxDeviationOuter_severity, alert.maxDeviationInner_severity);
   }
 
@@ -66,6 +72,49 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
   if (latestReport.sections.GIBS?.alert) {
     const alert = latestReport.sections.GIBS.alert;
     allSeverities.push(alert.usable_severity);
+  }
+
+  // Collect severities from PISTONS section
+  if (latestReport.sections.PISTONS?.alert) {
+    const alert = latestReport.sections.PISTONS.alert;
+    // Only difference severities exist in the database
+    allSeverities.push(
+      // Outer difference severities
+      alert.outer_lhLeftRight_severity,
+      alert.outer_lhTopBottom_severity,
+      alert.outer_rhLeftRight_severity,
+      alert.outer_rhTopBottom_severity,
+      // Inner difference severities
+      alert.inner_lhLeftRight_severity,
+      alert.inner_lhTopBottom_severity,
+      alert.inner_rhLeftRight_severity,
+      alert.inner_rhTopBottom_severity,
+    );
+  }
+
+  // Collect severities from TRAMMING section
+  if (latestReport.sections.TRAMMING?.alert) {
+    const alert = latestReport.sections.TRAMMING.alert;
+    allSeverities.push(
+      // Outer severities (4 positions × 2 directions = 8)
+      alert.outer_top_verticalSeverity,
+      alert.outer_top_horizontalSeverity,
+      alert.outer_bottom_verticalSeverity,
+      alert.outer_bottom_horizontalSeverity,
+      alert.outer_left_verticalSeverity,
+      alert.outer_left_horizontalSeverity,
+      alert.outer_right_verticalSeverity,
+      alert.outer_right_horizontalSeverity,
+      // Inner severities (4 positions × 2 directions = 8)
+      alert.inner_top_verticalSeverity,
+      alert.inner_top_horizontalSeverity,
+      alert.inner_bottom_verticalSeverity,
+      alert.inner_bottom_horizontalSeverity,
+      alert.inner_left_verticalSeverity,
+      alert.inner_left_horizontalSeverity,
+      alert.inner_right_verticalSeverity,
+      alert.inner_right_horizontalSeverity,
+    );
   }
 
   // Check for COUNTERBALANCE custom alerts (any alert = RED severity)
@@ -85,9 +134,8 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
   // Return the most critical severity
   if (allSeverities.includes('RED')) return 'critical';
   if (allSeverities.includes('YELLOW')) return 'warning';
-  if (allSeverities.includes('GREEN')) return 'ok';
 
-  return 'unknown';
+  return 'ok';
 };
 
 /**
@@ -96,14 +144,16 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
  */
 export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   if (!machine.services || machine.services.length === 0) {
-    return 'unknown';
+    return 'ok';
   }
 
   const latestService = machine.services[0];
-  const alert = latestService?.alertBearingClearance;
+  // alertBearingClearance is an array - get the first (most recent) one
+  const alerts = latestService?.alertBearingClearance;
+  const alert = Array.isArray(alerts) ? alerts[0] : alerts;
 
   if (!alert) {
-    return 'unknown';
+    return 'ok';
   }
 
   // Check all bearing fields for worst severity (outer and inner)
@@ -128,11 +178,9 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
     return 'critical';
   } else if (severities.includes('YELLOW')) {
     return 'warning';
-  } else if (severities.includes('GREEN')) {
-    return 'ok';
   }
 
-  return 'unknown';
+  return 'ok';
 };
 
 /**
@@ -143,14 +191,14 @@ export const getSectionStatusFromReport = (
   latestReport: LatestReport | null,
 ): SectionStatus => {
   if (!latestReport) {
-    return 'unknown';
+    return 'ok';
   }
 
   switch (section) {
     case 'BEARING_CLEARANCE': {
       const bearingData = latestReport.sections.BEARING_CLEARANCE;
       if (!bearingData?.alert) {
-        return 'unknown';
+        return 'ok';
       }
 
       const alert = bearingData.alert;
@@ -177,17 +225,15 @@ export const getSectionStatusFromReport = (
         return 'alert';
       } else if (severities.includes('YELLOW')) {
         return 'warning';
-      } else if (severities.includes('GREEN')) {
-        return 'ok';
       }
 
-      return 'unknown';
+      return 'ok';
     }
 
     case 'CLUTCH': {
       const clutchData = latestReport.sections.CLUTCH;
       if (!clutchData?.alert) {
-        return 'unknown';
+        return 'ok';
       }
 
       const alert = clutchData.alert;
@@ -205,17 +251,35 @@ export const getSectionStatusFromReport = (
         return 'alert';
       } else if (severities.includes('YELLOW')) {
         return 'warning';
-      } else if (severities.includes('GREEN')) {
+      }
+
+      return 'ok';
+    }
+
+    case 'SLIDE_SINGLE_HAMMER': {
+      const slideData = latestReport.sections.SLIDE_SINGLE_HAMMER;
+      if (!slideData?.alert) {
         return 'ok';
       }
 
-      return 'unknown';
+      const alert = slideData.alert;
+      const severity = alert.maxDeviation_severity;
+
+      if (severity === 'RED') {
+        return 'alert';
+      } else if (severity === 'YELLOW') {
+        return 'warning';
+      } else if (severity === 'GREEN') {
+        return 'ok';
+      }
+
+      return 'ok';
     }
 
-    case 'SLIDE': {
-      const slideData = latestReport.sections.SLIDE;
+    case 'SLIDE_DOUBLE_HAMMER': {
+      const slideData = latestReport.sections.SLIDE_DOUBLE_HAMMER;
       if (!slideData?.alert) {
-        return 'unknown';
+        return 'ok';
       }
 
       const alert = slideData.alert;
@@ -227,17 +291,15 @@ export const getSectionStatusFromReport = (
         return 'alert';
       } else if (severities.includes('YELLOW')) {
         return 'warning';
-      } else if (severities.includes('GREEN')) {
-        return 'ok';
       }
 
-      return 'unknown';
+      return 'ok';
     }
 
     case 'GIBS': {
       const gibsData = latestReport.sections.GIBS;
       if (!gibsData?.alert) {
-        return 'unknown';
+        return 'ok';
       }
 
       const alert = gibsData.alert;
@@ -247,11 +309,41 @@ export const getSectionStatusFromReport = (
         return 'alert';
       } else if (severity === 'YELLOW') {
         return 'warning';
-      } else if (severity === 'GREEN') {
+      }
+
+      return 'ok';
+    }
+
+    case 'PISTONS': {
+      const pistonsData = latestReport.sections.PISTONS;
+      if (!pistonsData?.alert) {
         return 'ok';
       }
 
-      return 'unknown';
+      const alert = pistonsData.alert;
+
+      // Check all pistons difference fields for worst severity
+      // Only difference severities exist in the database
+      const severities: AlertSeverity[] = [
+        // Outer difference severities
+        alert.outer_lhLeftRight_severity,
+        alert.outer_lhTopBottom_severity,
+        alert.outer_rhLeftRight_severity,
+        alert.outer_rhTopBottom_severity,
+        // Inner difference severities
+        alert.inner_lhLeftRight_severity,
+        alert.inner_lhTopBottom_severity,
+        alert.inner_rhLeftRight_severity,
+        alert.inner_rhTopBottom_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
     }
 
     case 'COUNTERBALANCE_CYLINDER_AIRBAG': {
@@ -260,11 +352,8 @@ export const getSectionStatusFromReport = (
       if (counterbalanceData?.alerts && counterbalanceData.alerts.length > 0) {
         return 'alert';
       }
-      // If there's data but no alerts, return 'ok'
-      if (counterbalanceData?.data) {
-        return 'ok';
-      }
-      return 'unknown';
+      // No alerts means ok status
+      return 'ok';
     }
 
     case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER': {
@@ -272,10 +361,7 @@ export const getSectionStatusFromReport = (
         latestReport.sections.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER;
       if (!lubricationData?.alert) {
         // No alert means either no oil change tracked or within normal range
-        if (lubricationData?.data) {
-          return 'ok';
-        }
-        return 'unknown';
+        return 'ok';
       }
 
       const severity = lubricationData.alert.severity;
@@ -283,11 +369,48 @@ export const getSectionStatusFromReport = (
         return 'alert';
       } else if (severity === 'YELLOW') {
         return 'warning';
-      } else if (severity === 'GREEN') {
+      }
+
+      return 'ok';
+    }
+
+    case 'TRAMMING': {
+      const trammingData = latestReport.sections.TRAMMING;
+      if (!trammingData?.alert) {
         return 'ok';
       }
 
-      return 'unknown';
+      const alert = trammingData.alert;
+
+      // Check all tramming fields for worst severity
+      const severities: AlertSeverity[] = [
+        // Outer severities (4 positions × 2 directions = 8)
+        alert.outer_top_verticalSeverity,
+        alert.outer_top_horizontalSeverity,
+        alert.outer_bottom_verticalSeverity,
+        alert.outer_bottom_horizontalSeverity,
+        alert.outer_left_verticalSeverity,
+        alert.outer_left_horizontalSeverity,
+        alert.outer_right_verticalSeverity,
+        alert.outer_right_horizontalSeverity,
+        // Inner severities (4 positions × 2 directions = 8)
+        alert.inner_top_verticalSeverity,
+        alert.inner_top_horizontalSeverity,
+        alert.inner_bottom_verticalSeverity,
+        alert.inner_bottom_horizontalSeverity,
+        alert.inner_left_verticalSeverity,
+        alert.inner_left_horizontalSeverity,
+        alert.inner_right_verticalSeverity,
+        alert.inner_right_horizontalSeverity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
     }
 
     default:
@@ -305,16 +428,18 @@ export const getSectionStatus = (
   machine: { services?: MachineWithStatus['services'] },
 ): SectionStatus => {
   if (!machine.services || machine.services.length === 0) {
-    return 'unknown';
+    return 'ok';
   }
 
   const latestService = machine.services[0];
 
   switch (section) {
     case 'BEARING_CLEARANCE': {
-      const alert = latestService?.alertBearingClearance;
+      // alertBearingClearance is an array - get the first (most recent) one
+      const alerts = latestService?.alertBearingClearance;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
-        return 'unknown';
+        return 'ok';
       }
 
       // Check all bearing fields for worst severity (outer and inner)
@@ -339,17 +464,17 @@ export const getSectionStatus = (
         return 'alert';
       } else if (severities.includes('YELLOW')) {
         return 'warning';
-      } else if (severities.includes('GREEN')) {
-        return 'ok';
       }
 
-      return 'unknown';
+      return 'ok';
     }
 
     case 'CLUTCH': {
-      const alert = latestService?.alertClutch;
+      // alertClutch is an array - get the first (most recent) one
+      const alerts = latestService?.alertClutch;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
-        return 'unknown';
+        return 'ok';
       }
 
       const severities = [
@@ -364,39 +489,20 @@ export const getSectionStatus = (
         return 'alert';
       } else if (severities.includes('YELLOW')) {
         return 'warning';
-      } else if (severities.includes('GREEN')) {
+      }
+
+      return 'ok';
+    }
+
+    case 'SLIDE_SINGLE_HAMMER': {
+      // alertSlideSingleHammer is an array - get the first (most recent) one
+      const alerts = (latestService as any)?.alertSlideSingleHammer;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
         return 'ok';
       }
 
-      return 'unknown';
-    }
-
-    case 'SLIDE': {
-      const alert = latestService?.alertSlide;
-      if (!alert) {
-        return 'unknown';
-      }
-
-      const severities = [alert.maxDeviationOuter_severity, alert.maxDeviationInner_severity];
-
-      if (severities.includes('RED')) {
-        return 'alert';
-      } else if (severities.includes('YELLOW')) {
-        return 'warning';
-      } else if (severities.includes('GREEN')) {
-        return 'ok';
-      }
-
-      return 'unknown';
-    }
-
-    case 'GIBS': {
-      const alert = latestService?.alertGibs;
-      if (!alert) {
-        return 'unknown';
-      }
-
-      const severity = alert.usable_severity;
+      const severity = alert.maxDeviation_severity;
 
       if (severity === 'RED') {
         return 'alert';
@@ -406,7 +512,77 @@ export const getSectionStatus = (
         return 'ok';
       }
 
-      return 'unknown';
+      return 'ok';
+    }
+
+    case 'SLIDE_DOUBLE_HAMMER': {
+      // alertSlideDoubleHammer is an array - get the first (most recent) one
+      const alerts = (latestService as any)?.alertSlideDoubleHammer;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
+        return 'ok';
+      }
+
+      const severities = [alert.maxDeviationOuter_severity, alert.maxDeviationInner_severity];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
+    case 'GIBS': {
+      // alertGibs is an array - get the first (most recent) one
+      const alerts = latestService?.alertGibs;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
+        return 'ok';
+      }
+
+      const severity = alert.usable_severity;
+
+      if (severity === 'RED') {
+        return 'alert';
+      } else if (severity === 'YELLOW') {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
+    case 'PISTONS': {
+      // Using type assertion since alertPistons may not be in the shared MachineService type yet
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const alerts = (latestService as any)?.alertPistons;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
+        return 'ok';
+      }
+
+      // Only difference severities exist in the database
+      const severities = [
+        // Outer difference severities
+        alert.outer_lhLeftRight_severity,
+        alert.outer_lhTopBottom_severity,
+        alert.outer_rhLeftRight_severity,
+        alert.outer_rhTopBottom_severity,
+        // Inner difference severities
+        alert.inner_lhLeftRight_severity,
+        alert.inner_lhTopBottom_severity,
+        alert.inner_rhLeftRight_severity,
+        alert.inner_rhTopBottom_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
     }
 
     case 'COUNTERBALANCE_CYLINDER_AIRBAG': {
@@ -426,6 +602,45 @@ export const getSectionStatus = (
       return 'ok';
     }
 
+    case 'TRAMMING': {
+      // Using type assertion since alertTramming may not be in the shared MachineService type yet
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const alerts = (latestService as any)?.alertTramming;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
+        return 'ok';
+      }
+
+      const severities = [
+        // Outer severities (4 positions × 2 directions = 8)
+        alert.outer_top_verticalSeverity,
+        alert.outer_top_horizontalSeverity,
+        alert.outer_bottom_verticalSeverity,
+        alert.outer_bottom_horizontalSeverity,
+        alert.outer_left_verticalSeverity,
+        alert.outer_left_horizontalSeverity,
+        alert.outer_right_verticalSeverity,
+        alert.outer_right_horizontalSeverity,
+        // Inner severities (4 positions × 2 directions = 8)
+        alert.inner_top_verticalSeverity,
+        alert.inner_top_horizontalSeverity,
+        alert.inner_bottom_verticalSeverity,
+        alert.inner_bottom_horizontalSeverity,
+        alert.inner_left_verticalSeverity,
+        alert.inner_left_horizontalSeverity,
+        alert.inner_right_verticalSeverity,
+        alert.inner_right_horizontalSeverity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
     default:
       return 'ok';
   }
@@ -438,7 +653,6 @@ export const statusColors = {
   ok: 'bg-green-500 border-green-600',
   warning: 'bg-yellow-500 border-yellow-600',
   critical: 'bg-red-500 border-red-600',
-  unknown: 'bg-gray-400 border-gray-500',
 } as const;
 
 /**
@@ -448,7 +662,6 @@ export const sectionStatusColors = {
   ok: 'text-green-500',
   warning: 'text-yellow-500',
   alert: 'text-red-500',
-  unknown: 'text-muted-foreground',
 } as const;
 
 /**
@@ -458,21 +671,19 @@ export const statusLabels = {
   ok: 'OK',
   warning: 'Atenção',
   critical: 'Crítico',
-  unknown: 'Sem dados',
 } as const;
 
 /**
  * Get the overall status for a production line based on all its machines
- * Returns the worst status among all machines (critical > warning > ok > unknown)
+ * Returns the worst status among all machines (critical > warning > ok)
  * Optimized with early returns for better performance
  */
 export const getProductionLineStatus = (machines: MachineWithStatus[]): AlertStatus => {
   if (!machines || machines.length === 0) {
-    return 'unknown';
+    return 'ok';
   }
 
   let hasWarning = false;
-  let hasOk = false;
 
   for (const machine of machines) {
     const status = getAlertStatus(machine);
@@ -482,14 +693,11 @@ export const getProductionLineStatus = (machines: MachineWithStatus[]): AlertSta
       return 'critical';
     } else if (status === 'warning') {
       hasWarning = true;
-    } else if (status === 'ok') {
-      hasOk = true;
     }
   }
 
   // Return worst status found
   if (hasWarning) return 'warning';
-  if (hasOk) return 'ok';
 
-  return 'unknown';
+  return 'ok';
 };

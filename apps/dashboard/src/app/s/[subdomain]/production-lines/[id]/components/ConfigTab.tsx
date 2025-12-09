@@ -96,11 +96,14 @@ export function ConfigTab({ productionLine, onSuccess }: ConfigTabProps) {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Reorder machines so main machine is first
+      // Reorder machines: main (order 0), then others
       let orderedMachineIds = [...selectedMachineIds];
-      if (mainMachineId && orderedMachineIds.includes(mainMachineId)) {
-        // Remove main machine from current position and add to front
-        orderedMachineIds = orderedMachineIds.filter((id) => id !== mainMachineId);
+
+      // Remove main from current position
+      orderedMachineIds = orderedMachineIds.filter((id) => id !== mainMachineId);
+
+      // Add main at the front (order 0)
+      if (mainMachineId && selectedMachineIds.includes(mainMachineId)) {
         orderedMachineIds.unshift(mainMachineId);
       }
 

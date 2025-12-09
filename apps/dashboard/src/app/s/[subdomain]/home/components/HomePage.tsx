@@ -19,7 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
 import { format, subMonths, startOfMonth, endOfMonth, parseISO } from 'date-fns';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
-import { hasPermissionInAnyBranch } from '@/lib/permissions';
+import { hasPermissionInAnyBranch } from '@titans-tech/shared/types';
 import {
   ServiceType,
   ServiceStatus,
@@ -102,7 +102,7 @@ export function HomePage() {
                 return {
                   ...machine,
                   latestReport: null,
-                  alertStatus: 'unknown' as AlertStatus,
+                  alertStatus: 'ok' as AlertStatus,
                 };
               }
             }),

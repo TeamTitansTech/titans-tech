@@ -2,23 +2,31 @@ import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { useTranslations } from 'next-intl';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
-import { createBlueprint } from '@/data/services/blueprints.api';
+import {
+  createBlueprint,
+  updateBlueprint,
+  type CreateBlueprintPayload,
+} from '@/data/services/blueprints.api';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
 import { GibsThresholdsData } from '@/components/alerts/GibsThresholds';
+import { PistonsThresholdsData } from '@/components/alerts/PistonsThresholds';
+import { TrammingThresholdsData } from '@/components/alerts/TrammingThresholds';
 import { type Field } from '../types';
 
 // Client-safe slug to enum mapping
 const SLUG_TO_SECTION: Record<string, string> = {
   bearing_clearance: 'BEARING_CLEARANCE',
-  slide: 'SLIDE',
+  slide_single_hammer: 'SLIDE_SINGLE_HAMMER',
+  slide_double_hammer: 'SLIDE_DOUBLE_HAMMER',
   gibs: 'GIBS',
   lubrication_hydraulics_pressure_switches_oil_filter:
     'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
   clutch: 'CLUTCH',
   counterbalance_cylinder_airbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
   tramming: 'TRAMMING',
+  pistons: 'PISTONS',
 };
 
 const INITIAL_THRESHOLDS: BearingClearanceThresholdsData = {
@@ -31,7 +39,7 @@ const INITIAL_THRESHOLDS: BearingClearanceThresholdsData = {
   upperConnectionBearings_greenMin: 0.004,
   upperConnectionBearings_yellowMin: 0.008,
   upperConnectionBearings_redMin: 0.012,
-  wristPinToMatingPart_greenMin: -0.0005,
+  wristPinToMatingPart_greenMin: 0.0004,
   wristPinToMatingPart_yellowMin: 0.0005,
   wristPinToMatingPart_redMin: 0.0015,
   wristPinToBushing_greenMin: 0.0002,
@@ -72,7 +80,23 @@ const INITIAL_GIBS_THRESHOLDS: GibsThresholdsData = {
   usable_redMin: 0.003,
 };
 
-export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
+const INITIAL_PISTONS_THRESHOLDS: PistonsThresholdsData = {
+  difference_greenMin: 0.0,
+  difference_yellowMin: 0.0051,
+  difference_redMin: 0.01,
+};
+
+const INITIAL_TRAMMING_THRESHOLDS: TrammingThresholdsData = {
+  greenMin: 0.001,
+  yellowMin: 0.002,
+  redMin: 0.003,
+};
+
+export function useBlueprintForm(
+  onSuccess?: () => void,
+  onClose?: () => void,
+  blueprintId?: string,
+) {
   const t = useTranslations('models');
   const [name, setName] = useState('');
   const [imageUrl, setImageUrl] = useState<string | null>(null);
@@ -82,13 +106,30 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const [clutchThresholdsOpen, setClutchThresholdsOpen] = useState(false);
   const [clutchThresholds, setClutchThresholds] =
     useState<ClutchThresholdsData>(INITIAL_CLUTCH_THRESHOLDS);
-  const [slideThresholdsOpen, setSlideThresholdsOpen] = useState(false);
-  const [slideThresholds, setSlideThresholds] =
+  const [slideSingleHammerThresholdsOpen, setSlideSingleHammerThresholdsOpen] = useState(false);
+  const [slideSingleHammerThresholds, setSlideSingleHammerThresholds] =
+    useState<SlideThresholdsData>(INITIAL_SLIDE_THRESHOLDS);
+  const [slideDoubleHammerThresholdsOpen, setSlideDoubleHammerThresholdsOpen] = useState(false);
+  const [slideDoubleHammerThresholds, setSlideDoubleHammerThresholds] =
     useState<SlideThresholdsData>(INITIAL_SLIDE_THRESHOLDS);
   const [gibsThresholdsOpen, setGibsThresholdsOpen] = useState(false);
   const [gibsThresholds, setGibsThresholds] = useState<GibsThresholdsData>(INITIAL_GIBS_THRESHOLDS);
+  const [pistonsThresholdsOpen, setPistonsThresholdsOpen] = useState(false);
+  const [pistonsThresholds, setPistonsThresholds] = useState<PistonsThresholdsData>(
+    INITIAL_PISTONS_THRESHOLDS,
+  );
+  const [trammingThresholdsOpen, setTrammingThresholdsOpen] = useState(false);
+  const [trammingThresholds, setTrammingThresholds] = useState<TrammingThresholdsData>(
+    INITIAL_TRAMMING_THRESHOLDS,
+  );
 
-  const { execute: submitBlueprint, isLoading, result } = useLazyQuery(createBlueprint);
+  const {
+    execute: submitBlueprint,
+    isLoading,
+    result,
+  } = useLazyQuery(
+    blueprintId ? (payload: any) => updateBlueprint(blueprintId, payload) : createBlueprint,
+  );
 
   // Verifica se há dados preenchidos no formulário
   const hasUnsavedChanges = useCallback(
@@ -109,11 +150,17 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
       if (hasClutchThresholdChanges) return true;
 
-      const hasSlideThresholdChanges = (
-        Object.keys(slideThresholds) as Array<keyof SlideThresholdsData>
-      ).some((key) => slideThresholds[key] !== INITIAL_SLIDE_THRESHOLDS[key]);
+      const hasSlideSingleHammerThresholdChanges = (
+        Object.keys(slideSingleHammerThresholds) as Array<keyof SlideThresholdsData>
+      ).some((key) => slideSingleHammerThresholds[key] !== INITIAL_SLIDE_THRESHOLDS[key]);
 
-      if (hasSlideThresholdChanges) return true;
+      if (hasSlideSingleHammerThresholdChanges) return true;
+
+      const hasSlideDoubleHammerThresholdChanges = (
+        Object.keys(slideDoubleHammerThresholds) as Array<keyof SlideThresholdsData>
+      ).some((key) => slideDoubleHammerThresholds[key] !== INITIAL_SLIDE_THRESHOLDS[key]);
+
+      if (hasSlideDoubleHammerThresholdChanges) return true;
 
       const hasGibsThresholdChanges = (
         Object.keys(gibsThresholds) as Array<keyof GibsThresholdsData>
@@ -121,9 +168,31 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
       if (hasGibsThresholdChanges) return true;
 
+      const hasPistonsThresholdChanges = (
+        Object.keys(pistonsThresholds) as Array<keyof PistonsThresholdsData>
+      ).some((key) => pistonsThresholds[key] !== INITIAL_PISTONS_THRESHOLDS[key]);
+
+      if (hasPistonsThresholdChanges) return true;
+
+      const hasTrammingThresholdChanges = (
+        Object.keys(trammingThresholds) as Array<keyof TrammingThresholdsData>
+      ).some((key) => trammingThresholds[key] !== INITIAL_TRAMMING_THRESHOLDS[key]);
+
+      if (hasTrammingThresholdChanges) return true;
+
       return false;
     },
-    [name, selectedSections, thresholds, clutchThresholds, slideThresholds, gibsThresholds],
+    [
+      name,
+      selectedSections,
+      thresholds,
+      clutchThresholds,
+      slideSingleHammerThresholds,
+      slideDoubleHammerThresholds,
+      gibsThresholds,
+      pistonsThresholds,
+      trammingThresholds,
+    ],
   );
 
   const toggleSection = (section: string) => {
@@ -142,26 +211,11 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
 
     const hasBearingClearance = selectedSections.includes('bearing_clearance');
     const hasClutch = selectedSections.includes('clutch');
-    const hasSlide = selectedSections.includes('slide');
+    const hasSlideSingleHammer = selectedSections.includes('slide_single_hammer');
+    const hasSlideDoubleHammer = selectedSections.includes('slide_double_hammer');
     const hasGibs = selectedSections.includes('gibs');
-
-    interface BlueprintField {
-      fieldName: string;
-      fieldSlug: string;
-      fieldType: string;
-      fieldOptions?: string[];
-    }
-
-    interface CreateBlueprintPayload {
-      name: string;
-      imageUrl?: string;
-      sections: string[];
-      fields: BlueprintField[];
-      thresholds?: BearingClearanceThresholdsData;
-      clutchThresholds?: ClutchThresholdsData;
-      slideThresholds?: SlideThresholdsData;
-      gibsThresholds?: GibsThresholdsData;
-    }
+    const hasPistons = selectedSections.includes('pistons');
+    const hasTramming = selectedSections.includes('tramming');
 
     const payload: CreateBlueprintPayload = {
       name,
@@ -195,27 +249,47 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
       payload.clutchThresholds = clutchThresholds;
     }
 
-    if (hasSlide) {
-      payload.slideThresholds = slideThresholds;
+    if (hasSlideSingleHammer) {
+      payload.slideSingleHammerThresholds = slideSingleHammerThresholds;
+    }
+
+    if (hasSlideDoubleHammer) {
+      payload.slideDoubleHammerThresholds = slideDoubleHammerThresholds;
     }
 
     if (hasGibs) {
       payload.gibsThresholds = gibsThresholds;
     }
 
+    if (hasPistons) {
+      payload.pistonsThresholds = pistonsThresholds;
+    }
+
+    if (hasTramming) {
+      payload.trammingThresholds = trammingThresholds;
+    }
+
+    if (hasTramming) {
+      payload.trammingThresholds = trammingThresholds;
+    }
+
     const response = await submitBlueprint(payload);
 
     if (response.data) {
-      toast.success(t('createdSuccessfully'));
+      toast.success(blueprintId ? t('updatedSuccessfully') : t('createdSuccessfully'));
       setName('');
       setImageUrl(null);
       setSelectedSections([]);
       setThresholdsOpen(false);
       setClutchThresholdsOpen(false);
-      setSlideThresholdsOpen(false);
+      setSlideSingleHammerThresholdsOpen(false);
+      setSlideDoubleHammerThresholdsOpen(false);
       setGibsThresholdsOpen(false);
+      setPistonsThresholdsOpen(false);
+      setTrammingThresholdsOpen(false);
       resetThresholds();
       resetSlideThresholds();
+      resetPistonsThresholds();
       resetFields();
       resetOptions();
       onSuccess?.();
@@ -226,12 +300,19 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
   const resetThresholds = useCallback(() => {
     setThresholds(INITIAL_THRESHOLDS);
     setClutchThresholds(INITIAL_CLUTCH_THRESHOLDS);
-    setSlideThresholds(INITIAL_SLIDE_THRESHOLDS);
+    setSlideSingleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
+    setSlideDoubleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
     setGibsThresholds(INITIAL_GIBS_THRESHOLDS);
+    setTrammingThresholds(INITIAL_TRAMMING_THRESHOLDS);
   }, []);
 
   const resetSlideThresholds = useCallback(() => {
-    setSlideThresholds(INITIAL_SLIDE_THRESHOLDS);
+    setSlideSingleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
+    setSlideDoubleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
+  }, []);
+
+  const resetPistonsThresholds = useCallback(() => {
+    setPistonsThresholds(INITIAL_PISTONS_THRESHOLDS);
   }, []);
 
   const reset = useCallback(() => {
@@ -240,11 +321,15 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setSelectedSections([]);
     setThresholdsOpen(false);
     setClutchThresholdsOpen(false);
-    setSlideThresholdsOpen(false);
+    setSlideSingleHammerThresholdsOpen(false);
+    setSlideDoubleHammerThresholdsOpen(false);
     setGibsThresholdsOpen(false);
+    setPistonsThresholdsOpen(false);
+    setTrammingThresholdsOpen(false);
     resetThresholds();
     resetSlideThresholds();
-  }, [resetThresholds, resetSlideThresholds]);
+    resetPistonsThresholds();
+  }, [resetThresholds, resetSlideThresholds, resetPistonsThresholds]);
 
   return {
     name,
@@ -261,14 +346,26 @@ export function useBlueprintForm(onSuccess?: () => void, onClose?: () => void) {
     setClutchThresholdsOpen,
     clutchThresholds,
     setClutchThresholds,
-    slideThresholdsOpen,
-    setSlideThresholdsOpen,
-    slideThresholds,
-    setSlideThresholds,
+    slideSingleHammerThresholdsOpen,
+    setSlideSingleHammerThresholdsOpen,
+    slideSingleHammerThresholds,
+    setSlideSingleHammerThresholds,
+    slideDoubleHammerThresholdsOpen,
+    setSlideDoubleHammerThresholdsOpen,
+    slideDoubleHammerThresholds,
+    setSlideDoubleHammerThresholds,
     gibsThresholdsOpen,
     setGibsThresholdsOpen,
     gibsThresholds,
     setGibsThresholds,
+    pistonsThresholdsOpen,
+    setPistonsThresholdsOpen,
+    pistonsThresholds,
+    setPistonsThresholds,
+    trammingThresholdsOpen,
+    setTrammingThresholdsOpen,
+    trammingThresholds,
+    setTrammingThresholds,
     isLoading,
     result,
     handleSubmit,

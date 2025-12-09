@@ -19,7 +19,7 @@ export function BranchCard({ branch, companyId }: BranchCardProps) {
   const location = branch.location;
 
   return (
-    <Card className="hover:border-primary/50 hover:shadow-md transition-all">
+    <Card className="hover:border-orange-500/50 hover:shadow-md transition-all">
       <CardContent className="pt-6">
         <div className="space-y-4">
           <div className="flex items-start justify-between">
@@ -48,7 +48,7 @@ export function BranchCard({ branch, companyId }: BranchCardProps) {
           <Button
             asChild
             variant="outline"
-            className="w-full justify-between hover:bg-primary/5"
+            className="w-full justify-between hover:bg-orange-100 hover:text-orange-500 dark:hover:bg-orange-500/20"
             size="sm"
           >
             <Link href={`/admin/companies/${companyId}/branches/${branch.id}`}>

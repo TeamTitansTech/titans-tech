@@ -7,7 +7,6 @@ import {
   Delete,
   Param,
   Request,
-  ForbiddenException,
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { CompanyBranchesService } from './company-branches.service';
@@ -20,8 +19,6 @@ import {
   SetUserPermissionsSchema,
   SetCompanyAdminDto,
   SetCompanyAdminSchema,
-  SetCompanyManagerDto,
-  SetCompanyManagerSchema,
   SysAdminCreateUserDto,
   SysAdminCreateUserSchema,
   DeleteUserDto,
@@ -30,7 +27,7 @@ import {
   UpdateUserPermissionsSchema,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
-import { Admin, BranchPermission, CompanyAdmin } from '../auth/auth.decorators';
+import { Admin, BranchPermission } from '../auth/auth.decorators';
 import { UsersService } from '../users/users.service';
 import { MachinesService } from '../machines/machines.service';
 import { isSysAdmin, ReqWithAuthUser } from '../../types/request';
@@ -158,17 +155,6 @@ export class CompanyBranchesController {
     return this.usersService.setCompanyAdmin(userId, dto, req.user);
   }
 
-  @CompanyAdmin()
-  @Patch(':branchId/users/:userId/company-manager')
-  setCompanyManager(
-    @Param('userId') userId: string,
-    @Body(new ZodValidationPipe(SetCompanyManagerSchema))
-    dto: SetCompanyManagerDto,
-    @Request() req: ReqWithAuthUser,
-  ) {
-    return this.usersService.setCompanyManager(userId, dto, req.user);
-  }
-
   /**
    * Delete user from company or remove from branch
    * Scope: 'branch' = remove from specific branch only
@@ -191,19 +177,22 @@ export class CompanyBranchesController {
    */
   @BranchPermission('manageUserPermissions')
   @Patch(':branchId/users/:userId/permissions-all-branches')
-  updateUserPermissionsAllBranches(
+  async updateUserPermissionsAllBranches(
     @Param('branchId') branchId: string,
     @Param('userId') userId: string,
     @Body(new ZodValidationPipe(UpdateUserPermissionsSchema))
     dto: UpdateUserPermissionsDto,
     @Request() req: ReqWithAuthUser,
   ) {
-    // BranchPermission guard ensures this is a company user, not a sys admin
-    if (isSysAdmin(req.user)) {
-      throw new ForbiddenException('System admins cannot access this endpoint');
-    }
+    let companyId: string;
 
-    const companyId = req.user.companyId;
+    if (isSysAdmin(req.user)) {
+      // For SysAdmin, get companyId from the branch
+      const branch = await this.companyBranchesService.findOne(branchId);
+      companyId = branch.companyId;
+    } else {
+      companyId = req.user.companyId;
+    }
 
     // Extract permissions (remove applyToAllBranches flag)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

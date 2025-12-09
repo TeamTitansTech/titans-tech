@@ -134,8 +134,12 @@ export function exportToExcel(data: ExportData): void {
     if (sectionKey === 'BEARING_CLEARANCE') {
       addBearingClearanceData(sheetData, sectionData as unknown as BearingClearanceSectionData);
     }
-    // Slide Section
-    else if (sectionKey === 'SLIDE') {
+    // Slide Single Hammer Section
+    else if (sectionKey === 'SLIDE_SINGLE_HAMMER') {
+      addSlideData(sheetData, sectionData as unknown as SlideSectionData);
+    }
+    // Slide Double Hammer Section
+    else if (sectionKey === 'SLIDE_DOUBLE_HAMMER') {
       addSlideData(sheetData, sectionData as unknown as SlideSectionData);
     }
     // Gibs Section
@@ -587,12 +591,8 @@ function addPistonsData(sheetData: unknown[][], data: PistonsSectionData) {
   sheetData.push(['Vedações Pistão:', displayValue(data.pistonSeals)]);
   sheetData.push(['Sistema Vácuo:', displayValue(data.vacuumSystem)]);
   if (data.vacuumSystemAirPressureSetting !== undefined) {
-    sheetData.push([
-      'Pressão Ar Vácuo:',
-      `${displayValue(data.vacuumSystemAirPressureSetting)} ${data.vacuumSystemAirPressureUnit || ''}`,
-    ]);
+    sheetData.push(['Pressão Ar Vácuo:', `${displayValue(data.vacuumSystemAirPressureSetting)}`]);
   }
-  sheetData.push(['Unidade:', displayValue(data.unit)]);
   sheetData.push([]);
 
   const renderPistons = (pistonsData: typeof data.outerData, title: string) => {

@@ -57,6 +57,7 @@ interface Branch {
   id: string;
   name: string;
   isMainBranch: boolean;
+  location?: string | null;
 }
 
 interface MachineCreationModalProps {
@@ -417,9 +418,11 @@ export function MachineCreationModal({
                                       <h4 className="font-semibold text-sm text-foreground">
                                         {branch.name}
                                       </h4>
-                                      {branch.isMainBranch && (
+                                      {(branch.isMainBranch || branch.location) && (
                                         <p className="text-xs text-muted-foreground mt-1">
-                                          {t('form.branch.mainBranch')}
+                                          {branch.isMainBranch && t('form.branch.mainBranch')}
+                                          {branch.isMainBranch && branch.location && ' • '}
+                                          {branch.location}
                                         </p>
                                       )}
                                     </div>
@@ -517,28 +520,30 @@ export function MachineCreationModal({
                   />
                 </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <Label>{t('form.fields.label')}</Label>
-                  </div>
+                {selectedBlueprint.fields.length > 0 && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label>{t('form.fields.label')}</Label>
+                    </div>
 
-                  <div className="space-y-4 pb-6">
-                    {selectedBlueprint.fields.map((field) => (
-                      <Card key={field.fieldSlug}>
-                        <CardContent className="pt-6">
-                          <div className="space-y-2">
-                            <Label htmlFor={`field-${field.fieldSlug}`}>{field.fieldName}</Label>
-                            {renderFieldInput(field)}
-                            <Typography variant="small" className="text-xs text-muted-foreground">
-                              {t('form.fields.slug')}:{' '}
-                              <code className="text-muted-foreground">{field.fieldSlug}</code>
-                            </Typography>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
+                    <div className="space-y-4 pb-6">
+                      {selectedBlueprint.fields.map((field) => (
+                        <Card key={field.fieldSlug}>
+                          <CardContent className="pt-6">
+                            <div className="space-y-2">
+                              <Label htmlFor={`field-${field.fieldSlug}`}>{field.fieldName}</Label>
+                              {renderFieldInput(field)}
+                              <Typography variant="small" className="text-xs text-muted-foreground">
+                                {t('form.fields.slug')}:{' '}
+                                <code className="text-muted-foreground">{field.fieldSlug}</code>
+                              </Typography>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </>
             )}
 

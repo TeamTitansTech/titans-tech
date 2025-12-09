@@ -1,0 +1,117 @@
+{
+  "emails": {
+    "common": {
+      "footer": "Esta é uma notificação automática do Sistema de Gerenciamento de Serviços Titans Tech.",
+      "footerQuestion": "Se você tiver alguma dúvida, entre em contato com a equipe de inspeção.",
+      "viewDetails": "Ver Detalhes"
+    },
+    "alertNotification": {
+      "subject": "{emoji} Alerta de Inspeção ({level}) - {machineName}",
+      "title": "Alerta de Inspeção",
+      "intro": "Uma inspeção foi concluída com alertas que requerem atenção. Por favor, revise os detalhes abaixo.",
+      "severity": {
+        "critical": "CRÍTICO",
+        "warning": "ATENÇÃO",
+        "criticalLabel": "Crítico",
+        "warningLabel": "Atenção"
+      },
+      "info": {
+        "machine": "Máquina",
+        "company": "Empresa",
+        "branch": "Filial",
+        "inspectionDate": "Data da Inspeção",
+        "performedBy": "Realizada por"
+      },
+      "alertDetails": "Detalhes dos Alertas",
+      "viewMachine": "Ver Detalhes da Máquina →",
+      "clickMessage": "Clicando no botão acima você será direcionado para a página da máquina onde pode revisar os detalhes da inspeção.",
+      "table": {
+        "measurement": "Medição",
+        "differential": "Diferencial",
+        "value": "Valor",
+        "status": "Status"
+      }
+    },
+    "urgentRequest": {
+      "subject": "🔴 Solicitação Urgente de Serviço - {machineName}",
+      "title": "Solicitação Urgente de Serviço",
+      "intro": "Uma solicitação urgente de serviço foi enviada para a seguinte máquina:",
+      "info": {
+        "machine": "Máquina",
+        "company": "Empresa",
+        "branch": "Filial",
+        "requestedBy": "Solicitado por",
+        "email": "E-mail"
+      },
+      "notesTitle": "Observações Adicionais",
+      "notesWarning": "Por favor, preste atenção especial às observações abaixo:",
+      "viewMachine": "Criar Registro de Serviço →",
+      "clickMessage": "Clicando no botão acima você será direcionado para a página da máquina onde poderá criar um registro de serviço para esta solicitação."
+    },
+    "clientReminder": {
+      "subjectReminder": "🟡 Lembrete de Serviço - {machineName}",
+      "subjectOverdue": "🔴 Aviso de Serviço Atrasado - {machineName}",
+      "titleReminder": "Lembrete de Serviço",
+      "titleOverdue": "Aviso de Serviço Atrasado",
+      "greetingReminder": "Olá {userName},",
+      "greetingOverdue": "Olá {userName},",
+      "introReminder": "Este é um lembrete amigável de que sua máquina está devido para seu serviço regular.",
+      "introOverdue": "Sua máquina está atrasada para seu serviço regular e requer atenção imediata.",
+      "warningTitle": "Ação Necessária",
+      "warningMessage": "Esta máquina está {daysOverdue} dias atrasada para serviço. Por favor, agende a manutenção o mais rápido possível para evitar possíveis problemas.",
+      "info": {
+        "machine": "Máquina",
+        "branch": "Filial",
+        "lastService": "Último Serviço",
+        "daysOverdue": "Dias em Atraso"
+      },
+      "viewMachine": "Ver Máquina & Agendar Serviço →",
+      "clickMessage": "Clique no botão acima para ver os detalhes da máquina e agendar o serviço necessário."
+    },
+    "publicServiceRequest": {
+      "subject": "🟠 Solicitação de Serviço via QR Code - {machineName}",
+      "title": "Solicitação de Serviço via QR Code",
+      "intro": "Uma solicitação de manutenção foi enviada via leitura de QR code para a seguinte máquina:",
+      "machineInfo": "Informações da Máquina",
+      "requesterInfo": "Informações do Solicitante",
+      "deviceInfo": "Informações do Dispositivo",
+      "problemDescription": "Descrição do Problema",
+      "attachedPhoto": "Foto Anexada",
+      "info": {
+        "machine": "Máquina",
+        "serialNumber": "Número de Série",
+        "company": "Empresa",
+        "branch": "Filial",
+        "name": "Nome",
+        "email": "E-mail",
+        "phone": "Telefone",
+        "ipAddress": "Endereço IP",
+        "browser": "Navegador",
+        "os": "Sistema Operacional",
+        "device": "Tipo de Dispositivo",
+        "mobile": "Dispositivo Móvel"
+      },
+      "viewMachine": "Criar Registro de Serviço →",
+      "clickMessage": "Clicando no botão acima você será direcionado para a página da máquina onde poderá criar um registro de serviço para esta solicitação."
+    },
+    "partsRequest": {
+      "subject": "📦 Solicitação de Peças - {machineName} ({machineSerial})",
+      "badge": "SOLICITAÇÃO DE PEÇAS",
+      "title": "Solicitação de Substituição de Peças",
+      "intro": "Uma solicitação de substituição de peças foi enviada. Por favor, revise os detalhes abaixo.",
+      "machineInfo": "Informações da Solicitação",
+      "requestedParts": "Peças Solicitadas",
+      "note": "Esta solicitação foi enviada através do Sistema de Gerenciamento de Serviços Titans Tech.",
+      "info": {
+        "machine": "Máquina",
+        "serialNumber": "Número de Série",
+        "section": "Seção",
+        "company": "Empresa",
+        "branch": "Filial",
+        "requestedBy": "Solicitado por",
+        "requestDate": "Data da Solicitação",
+        "totalParts": "Total de Peças"
+      }
+    }
+  }
+}
