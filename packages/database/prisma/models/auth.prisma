@@ -1,12 +1,12 @@
 // Authentication models
 
 model SysAdmin {
-    id                     String   @id @default(cuid())
-    email                  String   @unique
-    password               String
-    isUsingDefaultPassword Boolean  @default(true)
-    createdAt              DateTime @default(now())
-    updatedAt              DateTime @updatedAt
+  id                     String   @id @default(cuid())
+  email                  String   @unique
+  password               String
+  isUsingDefaultPassword Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
-    @@map("sys_admins")
+  @@map("sys_admins")
 }
