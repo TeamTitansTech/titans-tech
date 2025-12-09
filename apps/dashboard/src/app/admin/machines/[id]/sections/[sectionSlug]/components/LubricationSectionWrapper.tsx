@@ -1,4 +1,4 @@
-import { getInspectionsByMachine } from '@/data/services/inspections.api';
+import { getServicesByMachine } from '@/data/services/services.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { LubricationSection } from './LubricationSection';
 
@@ -35,16 +35,17 @@ export async function LubricationSectionWrapper({ machineId }: LubricationSectio
   let machineName = '';
 
   try {
-    const [inspectionsResponse, machineResponse] = await Promise.all([
-      getInspectionsByMachine(machineId),
+    const [servicesResponse, machineResponse] = await Promise.all([
+      getServicesByMachine(machineId),
       getMachineById(machineId),
     ]);
 
-    if (inspectionsResponse.errors) {
-      console.error('Errors fetching inspections:', inspectionsResponse.errors);
+    if (servicesResponse.errors) {
+      console.error('Errors fetching services:', servicesResponse.errors);
       inspections = [];
     } else {
-      inspections = (inspectionsResponse.data || []) as unknown as LubricationInspectionData[];
+      // Include both inspections and maintenances for lubrication data
+      inspections = (servicesResponse.data || []) as unknown as LubricationInspectionData[];
     }
 
     if (machineResponse.errors) {

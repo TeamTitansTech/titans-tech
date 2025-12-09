@@ -1015,8 +1015,12 @@ async function createBearingClearanceData(
   });
 }
 
-async function createSlideData(prisma: PrismaClient, id: string, measurements: SlideMeasurement) {
-  return prisma.slideData.upsert({
+async function createSlideDoubleHammerData(
+  prisma: PrismaClient,
+  id: string,
+  measurements: SlideMeasurement,
+) {
+  return prisma.slideDoubleHammerData.upsert({
     where: { id },
     update: {},
     create: {
@@ -1266,19 +1270,19 @@ async function createServiceWithData(
   });
   console.log('  ✓ Created bearing clearance data and alerts');
 
-  // SLIDE
-  const slideOuterData = await createSlideData(
+  // SLIDE (Double Hammer)
+  const slideOuterData = await createSlideDoubleHammerData(
     prisma,
     `${serviceData.id}-slide-outer`,
     serviceData.slideOuter,
   );
-  const slideInnerData = await createSlideData(
+  const slideInnerData = await createSlideDoubleHammerData(
     prisma,
     `${serviceData.id}-slide-inner`,
     serviceData.slideInner,
   );
 
-  await prisma.machineServiceSlide.upsert({
+  await prisma.machineServiceSlideDoubleHammer.upsert({
     where: { id: `${serviceData.id}-slide` },
     update: {},
     create: {
@@ -1289,8 +1293,8 @@ async function createServiceWithData(
     },
   });
 
-  // Create AlertSlide
-  await prisma.alertSlide.create({
+  // Create AlertSlideDoubleHammer
+  await prisma.alertSlideDoubleHammer.create({
     data: {
       machineServiceId: service.id,
       maxDeviationOuter_differential: Math.max(
