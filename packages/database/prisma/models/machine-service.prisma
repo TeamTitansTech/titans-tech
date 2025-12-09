@@ -1,67 +1,94 @@
 // Base machine service model
 
-enum ServiceType {
-    INSPECTION
-    MAINTENANCE
-}
-
-enum ServiceStatus {
-    PENDING
-    COMPLETED
-}
-
-enum ServiceSection {
-    BEARING_CLEARANCE
-    SLIDE
-    GIBS
-    LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER
-    CLUTCH
-    COUNTERBALANCE_CYLINDER_AIRBAG
-    TRAMMING
-    PISTONS
-}
-
 model MachineService {
-    id                 String        @id @default(cuid())
-    machineId          String
-    date               DateTime
-    type               ServiceType   @default(INSPECTION)
-    status             ServiceStatus @default(PENDING)
-    performedBy        String? // Optional: userId of who performed the service
-    completedSections  Json?         @default("[]") // Array of completed section keys
-    lastSectionSavedAt DateTime? // Timestamp of last section save
-    currentStep        String? // Current step in the modal: 'selection', 'details', 'sections', 'summary'
-    currentSectionKey  String? // Current section being filled (e.g., 'BEARING_CLEARANCE')
-    selectedSections   Json?         @default("[]") // Array of selected section keys
+  id                 String        @id @default(cuid())
+  machineId          String
+  serviceRequestId   String? // Optional: if created from a service request
+  date               DateTime
+  type               ServiceType   @default(INSPECTION)
+  status             ServiceStatus @default(PENDING)
+  performedBy        String? // Optional: userId of who performed the service
+  notes              String?       @db.Text // Additional notes/comments for the service
+  completedSections  Json?         @default("[]") // Array of completed section keys
+  lastSectionSavedAt DateTime? // Timestamp of last section save
+  currentStep        String? // Current step in the modal: 'selection', 'details', 'sections', 'summary'
+  currentSectionKey  String? // Current section being filled (e.g., 'BEARING_CLEARANCE')
+  selectedSections   Json?         @default("[]") // Array of selected section keys
 
-    // Inspection observation fields
-    isPressLevel                YesNoNaDncType?
-    driveBeltCondition          DriveBeltConditionType?
-    areAllProtectiveCovers      ProtectiveCoversStatusType?
-    protectiveCoversExplanation String?
-    areCracksVisible            YesNoDncType?
-    cracksLocation              String?
-    isMainMotorSecure           YesNoDncType?
-    isMotorPlateSecure          YesNoDncType?
-    whyNotCovered               String?
+  // Inspection observation fields
+  isPressLevel                YesNoNaDncType?
+  driveBeltCondition          DriveBeltConditionType?
+  areAllProtectiveCovers      ProtectiveCoversStatusType?
+  protectiveCoversExplanation String?
+  areCracksVisible            YesNoDncType?
+  cracksLocation              String?
+  isMainMotorSecure           YesNoDncType?
+  isMotorPlateSecure          YesNoDncType?
+  whyNotCovered               String?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    machine                           Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
-    bearingClearance                  MachineServiceBearingClearance[]
-    slide                             MachineServiceSlide[]
-    gibs                              MachineServiceGibs[]
-    lubricationHydraulics             MachineServiceLubricationHydraulics[]
-    clutch                            MachineServiceClutch[]
-    counterbalanceCylinderAirbag      MachineServiceCounterbalanceCylinderAirbag[]
-    tramming                          MachineServiceTramming[]
-    pistons                           MachineServicePistons[]
-    alertBearingClearance             AlertBearingClearance?
-    alertCounterbalanceCylinderAirbag AlertCounterbalanceCylinderAirbag[]
-    alertClutch                       AlertClutch?
-    alertSlide                        AlertSlide?
-    alertGibs                         AlertGibs?
+  machine                           Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  serviceRequest                    ServiceRequest?                              @relation(fields: [serviceRequestId], references: [id], onDelete: SetNull)
+  bearingClearance                  MachineServiceBearingClearance[]
+  slide                             MachineServiceSlide[] // DEPRECATED: Use slideSingleHammer and slideDoubleHammer
+  slideSingleHammer                 MachineServiceSlideSingleHammer[]
+  slideDoubleHammer                 MachineServiceSlideDoubleHammer[]
+  gibs                              MachineServiceGibs[]
+  lubricationHydraulics             MachineServiceLubricationHydraulics[]
+  clutch                            MachineServiceClutch[]
+  counterbalanceCylinderAirbag      MachineServiceCounterbalanceCylinderAirbag[]
+  tramming                          MachineServiceTramming[]
+  pistons                           MachineServicePistons[]
+  alertBearingClearance             AlertBearingClearance[]
+  alertCounterbalanceCylinderAirbag AlertCounterbalanceCylinderAirbag[]
+  alertClutch                       AlertClutch[]
+  alertSlide                        AlertSlide[] // DEPRECATED: Use alertSlideSingleHammer and alertSlideDoubleHammer
+  alertSlideSingleHammer            AlertSlideSingleHammer[]
+  alertSlideDoubleHammer            AlertSlideDoubleHammer[]
+  alertGibs                         AlertGibs[]
+  alertPistons                      AlertPistons[]
+  alertTramming                     AlertTramming[]
 
-    @@map("machine_services")
+  @@index([serviceRequestId])
+  @@map("machine_services")
+}
+
+// Service Request - Public QR code maintenance requests
+model ServiceRequest {
+  id        String               @id @default(cuid())
+  machineId String
+  status    ServiceRequestStatus @default(OPEN)
+
+  // Requester information
+  requesterName  String
+  requesterEmail String
+  requesterPhone String?
+
+  // Problem description
+  problemDescription String  @db.Text
+  imageUrl           String? // Optional image uploaded by requester
+
+  // Device tracking information
+  ipAddress  String?
+  userAgent  String? @db.Text
+  browser    String?
+  os         String?
+  deviceType String?
+  isMobile   Boolean @default(false)
+
+  // Timestamps
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  closedAt  DateTime?
+
+  // Relations
+  machine  Machine          @relation(fields: [machineId], references: [id], onDelete: Cascade)
+  services MachineService[] // Services created from this request
+
+  @@index([machineId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("service_requests")
 }

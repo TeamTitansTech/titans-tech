@@ -142,7 +142,7 @@ model BearingClearanceData {
 
 model AlertBearingClearance {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String
 
   // OUTER alerts
   outer_totalClearance_differential           Decimal       @db.Decimal(10, 4)
@@ -180,5 +180,6 @@ model AlertBearingClearance {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  @@index([machineServiceId])
   @@map("alert_bearing_clearance")
 }

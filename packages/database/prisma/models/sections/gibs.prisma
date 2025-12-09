@@ -91,7 +91,7 @@ model GibsStageData {
 
 model AlertGibs {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String
 
   // Usable value and severity (based on single threshold)
   usable_value    Decimal       @db.Decimal(10, 4)
@@ -105,5 +105,6 @@ model AlertGibs {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  @@index([machineServiceId])
   @@map("alert_gibs")
 }

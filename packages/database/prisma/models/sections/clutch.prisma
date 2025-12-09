@@ -247,7 +247,7 @@ model ClutchData {
 
 model AlertClutch {
   id               String @id @default(cuid())
-  machineServiceId String @unique
+  machineServiceId String
 
   // Hyd Clutch Clearance Total alert
   hydClutchClearanceTotal_value    Decimal       @db.Decimal(10, 4)
@@ -277,5 +277,6 @@ model AlertClutch {
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
+  @@index([machineServiceId])
   @@map("alert_clutch")
 }

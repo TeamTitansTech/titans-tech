@@ -1,37 +1,70 @@
 // Shared enums used across multiple sections
 
+enum ServiceType {
+  INSPECTION
+  MAINTENANCE
+}
+
+enum ServiceStatus {
+  PENDING
+  COMPLETED
+}
+
+enum ServiceRequestStatus {
+  OPEN
+  CLOSED
+}
+
 enum AlertSeverity {
-    GREEN
-    YELLOW
-    RED
-    NONE
+  GREEN
+  YELLOW
+  RED
+  NONE
 }
 
 enum YesNoNaDncType {
-    YES
-    NO
-    NA
-    DNC
+  YES
+  NO
+  NA
+  DNC
 }
 
 enum YesNoDncType {
-    YES
-    NO
-    DNC
+  YES
+  NO
+  DNC
 }
 
 enum MeasurementUnit {
-    INCHES
-    MM
+  INCHES
+  MM
 }
 
 enum PressureUnit {
-    BAR
-    MPA
-    PSI
+  BAR
+  MPA
+  PSI
 }
 
 enum TemperatureUnit {
-    FAHRENHEIT
-    CELSIUS
+  FAHRENHEIT
+  CELSIUS
+}
+
+enum ProductionLineDirection {
+  LEFT_TO_RIGHT
+  RIGHT_TO_LEFT
+}
+
+enum ServiceSection {
+  BEARING_CLEARANCE
+  SLIDE // @deprecated - use SLIDE_SINGLE_HAMMER or SLIDE_DOUBLE_HAMMER instead
+  SLIDE_SINGLE_HAMMER
+  SLIDE_DOUBLE_HAMMER
+  GIBS
+  LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER
+  CLUTCH
+  COUNTERBALANCE_CYLINDER_AIRBAG
+  TRAMMING
+  PISTONS
 }
