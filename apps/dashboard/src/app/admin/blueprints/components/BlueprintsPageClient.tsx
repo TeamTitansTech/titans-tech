@@ -11,7 +11,11 @@ import { Typography } from '@/components/ui/typography';
 import type { Blueprint } from '@/data/services/blueprints.api';
 
 interface BlueprintsPageClientProps {
-  blueprints: Blueprint[];
+  blueprints: (Blueprint & {
+    _count?: {
+      machines: number;
+    };
+  })[];
 }
 
 export function BlueprintsPageClient({ blueprints }: BlueprintsPageClientProps) {

@@ -1,3 +1,4 @@
+import { type ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
 import { Typography } from '@/components/ui/typography';
 import { type Field } from '../types';
@@ -21,6 +22,7 @@ interface CustomFieldsListProps {
     updateField: (index: number, key: keyof Field, value: string | string[]) => void,
   ) => void;
   updateNewOptionValue: (fieldIndex: number, value: string) => void;
+  headerExtra?: ReactNode;
   translations: {
     title: string;
     addButton: string;
@@ -47,21 +49,25 @@ export const CustomFieldsList = ({
   addOption,
   removeOption,
   updateNewOptionValue,
+  headerExtra,
   translations,
 }: CustomFieldsListProps) => {
   return (
     <section className="space-y-4">
       <div className="flex justify-between items-center">
         <Typography variant="h3">{translations.title}</Typography>
-        <Button
-          type="button"
-          onClick={addField}
-          variant="outline"
-          size="sm"
-          className="hover:bg-orange-500 hover:text-white transition-all"
-        >
-          {translations.addButton}
-        </Button>
+        <div className="flex items-center gap-2">
+          {headerExtra}
+          <Button
+            type="button"
+            onClick={addField}
+            variant="outline"
+            size="sm"
+            className="hover:bg-orange-500 hover:text-white transition-all"
+          >
+            {translations.addButton}
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-4">

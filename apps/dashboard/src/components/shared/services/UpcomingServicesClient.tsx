@@ -30,6 +30,7 @@ interface UpcomingServicesClientProps {
   canCreateServices?: boolean;
   canUpdateServices?: boolean;
   canDeleteServices?: boolean;
+  onSuccess?: () => void; // Called when a service is successfully completed
 }
 
 export function UpcomingServicesClient({
@@ -40,6 +41,7 @@ export function UpcomingServicesClient({
   canCreateServices = true,
   canUpdateServices = true,
   canDeleteServices = true,
+  onSuccess,
 }: UpcomingServicesClientProps) {
   const t = useTranslations('machines');
   const tActions = useTranslations('actions');
@@ -192,6 +194,7 @@ export function UpcomingServicesClient({
           initialDate={selectedService.date}
           initialPerformedBy={selectedService.performedBy ?? undefined}
           companyId={companyId}
+          onSuccess={onSuccess}
         />
       )}
       {selectedService && selectedService.type === 'INSPECTION' && (
@@ -206,6 +209,7 @@ export function UpcomingServicesClient({
           initialDate={selectedService.date}
           initialPerformedBy={selectedService.performedBy ?? undefined}
           companyId={companyId}
+          onSuccess={onSuccess}
         />
       )}
       <AlertDialog open={!!serviceToDelete} onOpenChange={() => setServiceToDelete(null)}>

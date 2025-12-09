@@ -101,8 +101,7 @@ interface MachineListPageProps {
   machines: MachineWithStatus[];
 }
 
-export function MachineListPage({ machines: initialMachines }: MachineListPageProps) {
-  const [machines, setMachines] = useState<MachineWithStatus[]>(initialMachines);
+export function MachineListPage({ machines }: MachineListPageProps) {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -168,7 +167,7 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
 
       // Status filter
       if (statusFilter !== 'all') {
-        const alertStatus = machine.alertStatus || 'unknown';
+        const alertStatus = machine.alertStatus || 'ok';
         const cardStatus = mapAlertStatusToCardStatus(alertStatus);
         if (cardStatus !== statusFilter) return false;
       }
@@ -197,10 +196,8 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
     const response = await executeDelete(machineToDelete.id);
 
     if (!response.errors) {
-      setMachines((prevMachines) =>
-        prevMachines.filter((machine) => machine.id !== machineToDelete.id),
-      );
       toast.success(t('deletedSuccessfully'));
+      router.refresh();
     } else {
       toast.error(response.errors.join(', '));
     }
@@ -300,7 +297,7 @@ export function MachineListPage({ machines: initialMachines }: MachineListPagePr
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredMachines.map((machine) => {
               // Use calculated alert status from latest report
-              const alertStatus = machine.alertStatus || 'unknown';
+              const alertStatus = machine.alertStatus || 'ok';
               const cardStatus = mapAlertStatusToCardStatus(alertStatus);
 
               // Build location string: "Company Name - Branch Name"

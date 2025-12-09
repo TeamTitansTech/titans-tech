@@ -21,7 +21,7 @@ export function MachineHealthGrid({ machines }: MachineHealthGridProps) {
   // Machines already have status calculated
   const machinesWithStatus = machines.map((machine) => ({
     ...machine,
-    healthStatus: machine.alertStatus || 'unknown',
+    healthStatus: machine.alertStatus || 'ok',
   }));
 
   const getStatusColor = (status: AlertStatus) => {
@@ -38,13 +38,8 @@ export function MachineHealthGrid({ machines }: MachineHealthGridProps) {
           icon: 'text-yellow-600 dark:text-yellow-400',
           Icon: AlertTriangle,
         };
-      case 'unknown':
-        return {
-          bg: 'bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-800',
-          icon: 'text-gray-600 dark:text-gray-400',
-          Icon: CheckCircle2,
-        };
       default:
+        // 'ok' status (green)
         return {
           bg: 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800',
           icon: 'text-green-600 dark:text-green-400',

@@ -107,7 +107,8 @@ export const CreateBlueprintWithThresholdsSchema = z
     sections: z.array(z.enum(ServiceSection)),
     thresholds: ThresholdsSchema.optional(),
     clutchThresholds: ClutchThresholdsSchema.optional(),
-    slideThresholds: SlideThresholdsSchema.optional(),
+    slideSingleHammerThresholds: SlideThresholdsSchema.optional(),
+    slideDoubleHammerThresholds: SlideThresholdsSchema.optional(),
     gibsThresholds: GibsThresholdsSchema.optional(),
     pistonsThresholds: PistonsThresholdsSchema.optional(),
     trammingThresholds: TrammingThresholdsSchema.optional(),
@@ -122,8 +123,18 @@ export const CreateBlueprintWithThresholdsSchema = z
       if (data.clutchThresholds && !data.sections.includes(ServiceSection.CLUTCH)) {
         return false;
       }
-      // Se slideThresholds fornecidos, SLIDE deve estar em sections
-      if (data.slideThresholds && !data.sections.includes(ServiceSection.SLIDE)) {
+      // Se slideSingleHammerThresholds fornecidos, SLIDE_SINGLE_HAMMER deve estar em sections
+      if (
+        data.slideSingleHammerThresholds &&
+        !data.sections.includes(ServiceSection.SLIDE_SINGLE_HAMMER)
+      ) {
+        return false;
+      }
+      // Se slideDoubleHammerThresholds fornecidos, SLIDE_DOUBLE_HAMMER deve estar em sections
+      if (
+        data.slideDoubleHammerThresholds &&
+        !data.sections.includes(ServiceSection.SLIDE_DOUBLE_HAMMER)
+      ) {
         return false;
       }
       // Se gibsThresholds fornecidos, GIBS deve estar em sections

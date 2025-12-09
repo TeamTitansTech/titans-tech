@@ -69,7 +69,8 @@ export function ServiceSummaryModal({
   // Map section data keys to section registry keys
   const SECTION_DATA_TO_REGISTRY_KEY: Record<string, string> = {
     bearingClearance: 'BEARING_CLEARANCE',
-    slide: 'SLIDE',
+    slideSingleHammer: 'SLIDE_SINGLE_HAMMER',
+    slideDoubleHammer: 'SLIDE_DOUBLE_HAMMER',
     gibs: 'GIBS',
     lubricationHydraulics: 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
     clutch: 'CLUTCH',

@@ -18,7 +18,8 @@ import { type Field } from '../types';
 // Client-safe slug to enum mapping
 const SLUG_TO_SECTION: Record<string, string> = {
   bearing_clearance: 'BEARING_CLEARANCE',
-  slide: 'SLIDE',
+  slide_single_hammer: 'SLIDE_SINGLE_HAMMER',
+  slide_double_hammer: 'SLIDE_DOUBLE_HAMMER',
   gibs: 'GIBS',
   lubrication_hydraulics_pressure_switches_oil_filter:
     'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
@@ -105,8 +106,11 @@ export function useBlueprintForm(
   const [clutchThresholdsOpen, setClutchThresholdsOpen] = useState(false);
   const [clutchThresholds, setClutchThresholds] =
     useState<ClutchThresholdsData>(INITIAL_CLUTCH_THRESHOLDS);
-  const [slideThresholdsOpen, setSlideThresholdsOpen] = useState(false);
-  const [slideThresholds, setSlideThresholds] =
+  const [slideSingleHammerThresholdsOpen, setSlideSingleHammerThresholdsOpen] = useState(false);
+  const [slideSingleHammerThresholds, setSlideSingleHammerThresholds] =
+    useState<SlideThresholdsData>(INITIAL_SLIDE_THRESHOLDS);
+  const [slideDoubleHammerThresholdsOpen, setSlideDoubleHammerThresholdsOpen] = useState(false);
+  const [slideDoubleHammerThresholds, setSlideDoubleHammerThresholds] =
     useState<SlideThresholdsData>(INITIAL_SLIDE_THRESHOLDS);
   const [gibsThresholdsOpen, setGibsThresholdsOpen] = useState(false);
   const [gibsThresholds, setGibsThresholds] = useState<GibsThresholdsData>(INITIAL_GIBS_THRESHOLDS);
@@ -146,11 +150,17 @@ export function useBlueprintForm(
 
       if (hasClutchThresholdChanges) return true;
 
-      const hasSlideThresholdChanges = (
-        Object.keys(slideThresholds) as Array<keyof SlideThresholdsData>
-      ).some((key) => slideThresholds[key] !== INITIAL_SLIDE_THRESHOLDS[key]);
+      const hasSlideSingleHammerThresholdChanges = (
+        Object.keys(slideSingleHammerThresholds) as Array<keyof SlideThresholdsData>
+      ).some((key) => slideSingleHammerThresholds[key] !== INITIAL_SLIDE_THRESHOLDS[key]);
 
-      if (hasSlideThresholdChanges) return true;
+      if (hasSlideSingleHammerThresholdChanges) return true;
+
+      const hasSlideDoubleHammerThresholdChanges = (
+        Object.keys(slideDoubleHammerThresholds) as Array<keyof SlideThresholdsData>
+      ).some((key) => slideDoubleHammerThresholds[key] !== INITIAL_SLIDE_THRESHOLDS[key]);
+
+      if (hasSlideDoubleHammerThresholdChanges) return true;
 
       const hasGibsThresholdChanges = (
         Object.keys(gibsThresholds) as Array<keyof GibsThresholdsData>
@@ -177,7 +187,8 @@ export function useBlueprintForm(
       selectedSections,
       thresholds,
       clutchThresholds,
-      slideThresholds,
+      slideSingleHammerThresholds,
+      slideDoubleHammerThresholds,
       gibsThresholds,
       pistonsThresholds,
       trammingThresholds,
@@ -200,7 +211,8 @@ export function useBlueprintForm(
 
     const hasBearingClearance = selectedSections.includes('bearing_clearance');
     const hasClutch = selectedSections.includes('clutch');
-    const hasSlide = selectedSections.includes('slide');
+    const hasSlideSingleHammer = selectedSections.includes('slide_single_hammer');
+    const hasSlideDoubleHammer = selectedSections.includes('slide_double_hammer');
     const hasGibs = selectedSections.includes('gibs');
     const hasPistons = selectedSections.includes('pistons');
     const hasTramming = selectedSections.includes('tramming');
@@ -237,8 +249,12 @@ export function useBlueprintForm(
       payload.clutchThresholds = clutchThresholds;
     }
 
-    if (hasSlide) {
-      payload.slideThresholds = slideThresholds;
+    if (hasSlideSingleHammer) {
+      payload.slideSingleHammerThresholds = slideSingleHammerThresholds;
+    }
+
+    if (hasSlideDoubleHammer) {
+      payload.slideDoubleHammerThresholds = slideDoubleHammerThresholds;
     }
 
     if (hasGibs) {
@@ -266,10 +282,10 @@ export function useBlueprintForm(
       setSelectedSections([]);
       setThresholdsOpen(false);
       setClutchThresholdsOpen(false);
-      setSlideThresholdsOpen(false);
+      setSlideSingleHammerThresholdsOpen(false);
+      setSlideDoubleHammerThresholdsOpen(false);
       setGibsThresholdsOpen(false);
       setPistonsThresholdsOpen(false);
-      setTrammingThresholdsOpen(false);
       setTrammingThresholdsOpen(false);
       resetThresholds();
       resetSlideThresholds();
@@ -284,13 +300,15 @@ export function useBlueprintForm(
   const resetThresholds = useCallback(() => {
     setThresholds(INITIAL_THRESHOLDS);
     setClutchThresholds(INITIAL_CLUTCH_THRESHOLDS);
-    setSlideThresholds(INITIAL_SLIDE_THRESHOLDS);
+    setSlideSingleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
+    setSlideDoubleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
     setGibsThresholds(INITIAL_GIBS_THRESHOLDS);
     setTrammingThresholds(INITIAL_TRAMMING_THRESHOLDS);
   }, []);
 
   const resetSlideThresholds = useCallback(() => {
-    setSlideThresholds(INITIAL_SLIDE_THRESHOLDS);
+    setSlideSingleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
+    setSlideDoubleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
   }, []);
 
   const resetPistonsThresholds = useCallback(() => {
@@ -303,10 +321,10 @@ export function useBlueprintForm(
     setSelectedSections([]);
     setThresholdsOpen(false);
     setClutchThresholdsOpen(false);
-    setSlideThresholdsOpen(false);
+    setSlideSingleHammerThresholdsOpen(false);
+    setSlideDoubleHammerThresholdsOpen(false);
     setGibsThresholdsOpen(false);
     setPistonsThresholdsOpen(false);
-    setTrammingThresholdsOpen(false);
     setTrammingThresholdsOpen(false);
     resetThresholds();
     resetSlideThresholds();
@@ -328,10 +346,14 @@ export function useBlueprintForm(
     setClutchThresholdsOpen,
     clutchThresholds,
     setClutchThresholds,
-    slideThresholdsOpen,
-    setSlideThresholdsOpen,
-    slideThresholds,
-    setSlideThresholds,
+    slideSingleHammerThresholdsOpen,
+    setSlideSingleHammerThresholdsOpen,
+    slideSingleHammerThresholds,
+    setSlideSingleHammerThresholds,
+    slideDoubleHammerThresholdsOpen,
+    setSlideDoubleHammerThresholdsOpen,
+    slideDoubleHammerThresholds,
+    setSlideDoubleHammerThresholds,
     gibsThresholdsOpen,
     setGibsThresholdsOpen,
     gibsThresholds,

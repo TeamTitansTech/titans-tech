@@ -477,11 +477,11 @@ export class ServiceRequestsService {
     });
     sysAdmins.forEach((admin) => emails.add(admin.email.toLowerCase()));
 
-    // 2. Get company admins and managers
+    // 2. Get company admins
     const companyAdmins = await this.prisma.user.findMany({
       where: {
         companyId,
-        OR: [{ isCompanyAdmin: true }, { isCompanyManager: true }],
+        isCompanyAdmin: true,
       },
       select: { email: true },
     });

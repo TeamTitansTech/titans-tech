@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty, IsOptional, IsObject } from 'class-validator';
 import { Permissions } from '../../types/permissions';
 
-export class CreatePermissionTemplateDto {
+export class CreatePermissionTemplateBodyDto {
   @IsString()
   @IsNotEmpty()
   name: string;
@@ -13,8 +13,4 @@ export class CreatePermissionTemplateDto {
   @IsObject()
   @IsNotEmpty()
   permissions: Permissions;
-
-  @IsString()
-  @IsNotEmpty()
-  companyId: string;
 }

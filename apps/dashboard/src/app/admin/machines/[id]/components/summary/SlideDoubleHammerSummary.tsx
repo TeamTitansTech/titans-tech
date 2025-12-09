@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { SlideCheck, SlideData } from '@/data/types/services.types';
+import type { SlideDoubleHammerCheck, SlideData } from '@/data/types/services.types';
 import {
   Table,
   TableBody,
@@ -11,11 +11,11 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-interface SlideSummaryProps {
-  data: SlideCheck;
+interface SlideDoubleHammerSummaryProps {
+  data: SlideDoubleHammerCheck;
 }
 
-export function SlideSummary({ data }: SlideSummaryProps) {
+export function SlideDoubleHammerSummary({ data }: SlideDoubleHammerSummaryProps) {
   const tSlide = useTranslations('inspections.form.slide');
   const tTable = useTranslations('table');
   const tMeasurements = useTranslations('measurements');
@@ -69,6 +69,7 @@ export function SlideSummary({ data }: SlideSummaryProps) {
   };
 
   // Calculate max deviation for positions
+  // Zero is a valid measurement and should be included in the calculation
   const calculateMaxDeviation = (slideData: SlideData | undefined): string => {
     if (!slideData) return '-';
 
@@ -81,8 +82,8 @@ export function SlideSummary({ data }: SlideSummaryProps) {
     ];
 
     const validValues = positions.filter(
-      (val) => val !== undefined && val !== null && !isNaN(Number(val)) && val !== 0,
-    ) as number[];
+      (val): val is number => val !== undefined && val !== null && !isNaN(Number(val)),
+    );
 
     if (validValues.length > 1) {
       const max = Math.max(...validValues);

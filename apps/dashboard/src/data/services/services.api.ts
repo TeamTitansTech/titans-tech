@@ -18,6 +18,7 @@ export const createService = async (payload: CreateServicePayload) => {
 
   if (!response.errors) {
     revalidateTag(`services-${payload.machineId}`, 'max');
+    revalidateTag(`latest-report-${payload.machineId}`, 'max');
     revalidatePath(`/machines/${payload.machineId}`);
     revalidatePath(`/machines/${payload.machineId}/sections/bearing_clearance`);
   }
@@ -63,6 +64,7 @@ export const updateService = async (
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
@@ -86,7 +88,8 @@ export const updateServiceSection = async (
   sectionKey: string,
   sectionData:
     | UpdateServicePayload['bearingClearance']
-    | UpdateServicePayload['slide']
+    | UpdateServicePayload['slideSingleHammer']
+    | UpdateServicePayload['slideDoubleHammer']
     | UpdateServicePayload['gibs']
     | UpdateServicePayload['lubricationHydraulics']
     | UpdateServicePayload['clutch']
@@ -98,7 +101,8 @@ export const updateServiceSection = async (
   // Map section keys to backend endpoint paths
   const sectionEndpointMap: Record<string, string> = {
     BEARING_CLEARANCE: 'bearing-clearance',
-    SLIDE: 'slide',
+    SLIDE_SINGLE_HAMMER: 'slide-single-hammer',
+    SLIDE_DOUBLE_HAMMER: 'slide-double-hammer',
     GIBS: 'gibs',
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubrication-hydraulics',
     CLUTCH: 'clutch',
@@ -123,6 +127,7 @@ export const updateServiceSection = async (
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
@@ -145,6 +150,7 @@ export const completeService = async (
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
@@ -162,6 +168,7 @@ export const deleteService = async (serviceId: string, machineId?: string) => {
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }

@@ -177,14 +177,13 @@ export class CompaniesService {
     const users = await this.prisma.user.findMany({
       where: {
         companyId,
-        OR: [{ isCompanyAdmin: true }, { isCompanyManager: true }],
+        isCompanyAdmin: true,
       },
       select: {
         id: true,
         name: true,
         email: true,
         isCompanyAdmin: true,
-        isCompanyManager: true,
       },
     });
 

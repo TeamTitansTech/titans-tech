@@ -10,7 +10,7 @@ export async function seedCrownBlueprints(prisma: PrismaClient) {
       sections: [
         ServiceSection.BEARING_CLEARANCE,
         ServiceSection.CLUTCH,
-        ServiceSection.SLIDE,
+        ServiceSection.SLIDE_DOUBLE_HAMMER,
         ServiceSection.GIBS,
         ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
         ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG,
@@ -22,7 +22,7 @@ export async function seedCrownBlueprints(prisma: PrismaClient) {
       sections: [
         ServiceSection.BEARING_CLEARANCE,
         ServiceSection.CLUTCH,
-        ServiceSection.SLIDE,
+        ServiceSection.SLIDE_DOUBLE_HAMMER,
         ServiceSection.GIBS,
         ServiceSection.LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER,
         ServiceSection.COUNTERBALANCE_CYLINDER_AIRBAG,
@@ -121,8 +121,8 @@ export async function seedCrownBlueprints(prisma: PrismaClient) {
 
   console.log(`✓ Created/Updated clutch thresholds for DAC`);
 
-  // Create Slide Thresholds for DAC
-  await prisma.thresholdSlide.upsert({
+  // Create Slide Thresholds for DAC (Double Hammer)
+  await prisma.thresholdSlideDoubleHammer.upsert({
     where: { blueprintId: dacBlueprint.id },
     update: {},
     create: {

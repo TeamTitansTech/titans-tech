@@ -14,7 +14,7 @@ export interface StatCardProps {
   iconColor?: string;
 }
 
-export type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
+export type SectionStatus = 'ok' | 'warning' | 'alert';
 
 export interface SectionCardProps {
   title: string;

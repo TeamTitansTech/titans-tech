@@ -1,5 +1,6 @@
 import { PrismaClient, Company, CompanyBranch, User } from '../../../generated/prisma/client';
 import * as bcrypt from 'bcrypt';
+import { MANAGER_PERMISSIONS, Permissions } from '@titans-tech/shared/types/permissions';
 
 // ============================================================================
 // USER DATA - MINSTER PRESS FLEET
@@ -14,34 +15,7 @@ export interface UsersData {
   technicianUser: User;
 }
 
-const ALL_PERMISSIONS = {
-  readUsers: true,
-  createUsers: true,
-  updateUsers: true,
-  deleteUsers: true,
-  manageUserPermissions: true,
-  assignUsersToBranches: true,
-  readBranches: true,
-  updateBranches: true,
-  readBlueprints: true,
-  createBlueprints: true,
-  updateBlueprints: true,
-  deleteBlueprints: true,
-  readMachines: true,
-  createMachines: true,
-  updateMachines: true,
-  deleteMachines: true,
-  readServices: true,
-  createServices: true,
-  updateServices: true,
-  deleteServices: true,
-  readProductionLines: true,
-  createProductionLines: true,
-  updateProductionLines: true,
-  deleteProductionLines: true,
-};
-
-const TECHNICIAN_PERMISSIONS = {
+const TECHNICIAN_PERMISSIONS: Permissions = {
   readUsers: false,
   createUsers: false,
   updateUsers: false,
@@ -50,10 +24,6 @@ const TECHNICIAN_PERMISSIONS = {
   assignUsersToBranches: false,
   readBranches: true,
   updateBranches: false,
-  readBlueprints: true,
-  createBlueprints: false,
-  updateBlueprints: false,
-  deleteBlueprints: false,
   readMachines: true,
   createMachines: false,
   updateMachines: false,
@@ -86,15 +56,19 @@ export async function seedCrownUsers(
   // COMPANY ADMIN - Full access to all 3 facilities
   // ========================================================================
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@dev-crown.com' },
-    update: {},
+    where: { id: 'crown-admin' },
+    update: {
+      name: 'Crown Admin',
+      email: 'admin@dev-crown.com',
+      isCompanyAdmin: true,
+      companyId: company.id,
+    },
     create: {
       id: 'crown-admin',
       name: 'Crown Admin',
       email: 'admin@dev-crown.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
@@ -109,15 +83,19 @@ export async function seedCrownUsers(
   // Has service permissions at all 3 branches
   // ========================================================================
   const technicianUser = await prisma.user.upsert({
-    where: { email: 'julio.souza@dev-crown.com' },
-    update: {},
+    where: { id: 'crown-technician' },
+    update: {
+      name: 'Julio De Souza',
+      email: 'julio.souza@dev-crown.com',
+      isCompanyAdmin: false,
+      companyId: company.id,
+    },
     create: {
       id: 'crown-technician',
       name: 'Julio De Souza',
       email: 'julio.souza@dev-crown.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
@@ -145,7 +123,7 @@ export async function seedCrownUsers(
       create: {
         userId: adminUser.id,
         branchId: branch.id,
-        ...ALL_PERMISSIONS,
+        ...MANAGER_PERMISSIONS,
       },
     });
 
@@ -186,15 +164,19 @@ export async function seedArdaghUsers(
 
   // Company Admin
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@dev-ardagh.com' },
-    update: {},
+    where: { id: 'ardagh-admin' },
+    update: {
+      name: 'Ardagh Admin',
+      email: 'admin@dev-ardagh.com',
+      isCompanyAdmin: true,
+      companyId: company.id,
+    },
     create: {
       id: 'ardagh-admin',
       name: 'Ardagh Admin',
       email: 'admin@dev-ardagh.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
@@ -204,15 +186,19 @@ export async function seedArdaghUsers(
 
   // Technician
   const technicianUser = await prisma.user.upsert({
-    where: { email: 'technician@dev-ardagh.com' },
-    update: {},
+    where: { id: 'ardagh-technician' },
+    update: {
+      name: 'Ardagh Technician',
+      email: 'technician@dev-ardagh.com',
+      isCompanyAdmin: false,
+      companyId: company.id,
+    },
     create: {
       id: 'ardagh-technician',
       name: 'Ardagh Technician',
       email: 'technician@dev-ardagh.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isCompanyManager: false,
       isUsingDefaultPassword: true,
       companyId: company.id,
     },
@@ -232,7 +218,7 @@ export async function seedArdaghUsers(
     create: {
       userId: adminUser.id,
       branchId: mainBranch.id,
-      ...ALL_PERMISSIONS,
+      ...MANAGER_PERMISSIONS,
     },
   });
 
