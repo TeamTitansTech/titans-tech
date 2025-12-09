@@ -905,7 +905,7 @@ export class ServicesService {
           // Try to fetch alert for this service
           let alert = undefined;
           try {
-            alert = await this.alertsService.getSlideAlertByService(
+            alert = await this.alertsService.getSlideSingleHammerAlertByService(
               latestSlideService.id,
             );
           } catch {
@@ -940,7 +940,7 @@ export class ServicesService {
           // Try to fetch alert for this service
           let alert = undefined;
           try {
-            alert = await this.alertsService.getSlideAlertByService(
+            alert = await this.alertsService.getSlideDoubleHammerAlertByService(
               latestSlideService.id,
             );
           } catch {
