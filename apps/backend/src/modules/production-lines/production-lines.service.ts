@@ -29,7 +29,8 @@ const PRODUCTION_LINE_FULL_INCLUDE = {
             include: {
               alertBearingClearance: true,
               alertClutch: true,
-              alertSlide: true,
+              alertSlideSingleHammer: true,
+              alertSlideDoubleHammer: true,
               alertGibs: true,
               alertCounterbalanceCylinderAirbag: true,
             },

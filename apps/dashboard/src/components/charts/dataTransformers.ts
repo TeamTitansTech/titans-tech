@@ -127,12 +127,16 @@ export function transformSlideToChartData(
   return inspections
     .filter((inspection) => {
       const slideData =
-        type === 'outer' ? inspection.slide?.[0]?.outerData : inspection.slide?.[0]?.innerData;
+        type === 'outer'
+          ? inspection.slideDoubleHammer?.[0]?.outerData
+          : inspection.slideDoubleHammer?.[0]?.innerData;
       return slideData;
     })
     .map((inspection) => {
       const slideData =
-        type === 'outer' ? inspection.slide[0].outerData! : inspection.slide[0].innerData!;
+        type === 'outer'
+          ? inspection.slideDoubleHammer[0].outerData!
+          : inspection.slideDoubleHammer[0].innerData!;
 
       // Calculate max deviation from 5 positions
       const positions = [
@@ -165,12 +169,16 @@ export function transformSlidePositionsToMultiLineData(
   return inspections
     .filter((inspection) => {
       const slideData =
-        type === 'outer' ? inspection.slide?.[0]?.outerData : inspection.slide?.[0]?.innerData;
+        type === 'outer'
+          ? inspection.slideDoubleHammer?.[0]?.outerData
+          : inspection.slideDoubleHammer?.[0]?.innerData;
       return slideData;
     })
     .map((inspection) => {
       const slideData =
-        type === 'outer' ? inspection.slide[0].outerData! : inspection.slide[0].innerData!;
+        type === 'outer'
+          ? inspection.slideDoubleHammer[0].outerData!
+          : inspection.slideDoubleHammer[0].innerData!;
 
       return {
         date: format(new Date(inspection.date), 'dd/MM/yyyy'),
@@ -192,10 +200,14 @@ export function transformSlideMaxDeviationToMultiLineData(
   inspections: any[],
 ): MultiLineMeasurementData[] {
   return inspections
-    .filter((inspection) => inspection.slide?.[0]?.outerData || inspection.slide?.[0]?.innerData)
+    .filter(
+      (inspection) =>
+        inspection.slideDoubleHammer?.[0]?.outerData ||
+        inspection.slideDoubleHammer?.[0]?.innerData,
+    )
     .map((inspection) => {
-      const outerData = inspection.slide?.[0]?.outerData;
-      const innerData = inspection.slide?.[0]?.innerData;
+      const outerData = inspection.slideDoubleHammer?.[0]?.outerData;
+      const innerData = inspection.slideDoubleHammer?.[0]?.innerData;
 
       // Calculate max deviation for outer
       let outerMaxDeviation = 0;
