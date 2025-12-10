@@ -17,25 +17,25 @@ interface UpcomingService {
   type: ServiceTypeEnum;
 }
 
-interface Next7DaysTimelineProps {
+interface Next30DaysTimelineProps {
   services: UpcomingService[];
 }
 
-export function Next7DaysTimeline({ services }: Next7DaysTimelineProps) {
+export function Next30DaysTimeline({ services }: Next30DaysTimelineProps) {
   const t = useTranslations('dashboard.client');
   const router = useInternalRouter();
 
-  // Filter services for next 7 days
+  // Filter services for next 30 days
   const today = startOfDay(new Date());
-  const next7Days = addDays(today, 7);
+  const next30Days = addDays(today, 30);
 
   const upcomingServices = services
     .filter((service) => {
       const serviceDate = parseISO(service.date);
-      return serviceDate >= today && serviceDate <= next7Days;
+      return serviceDate >= today && serviceDate <= next30Days;
     })
     .sort((a, b) => parseISO(a.date).getTime() - parseISO(b.date).getTime())
-    .slice(0, 5);
+    .slice(0, 10);
 
   const getDateLabel = (dateStr: string) => {
     const date = parseISO(dateStr);

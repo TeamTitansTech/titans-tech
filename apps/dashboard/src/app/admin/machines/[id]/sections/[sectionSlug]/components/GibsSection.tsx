@@ -7,7 +7,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
@@ -63,6 +63,7 @@ export function GibsSection({
   const contentRef = useRef<HTMLDivElement>(null);
   const tGibsFields = useTranslations('machines.gibsFields');
   const [usableThreshold, setUsableThreshold] = useState<ThresholdConfig | null>(null);
+  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -73,6 +74,51 @@ export function GibsSection({
     }
     return undefined;
   });
+
+  // Conversion constants and functions
+  const MM_PER_INCH = 25.4;
+
+  const convertValue = useCallback(
+    (value: number | null | undefined): number | null => {
+      if (value === null || value === undefined) return null;
+      return displayUnit === 'mm' ? value * MM_PER_INCH : value;
+    },
+    [displayUnit],
+  );
+
+  const convertThreshold = useCallback(
+    (threshold: ThresholdConfig | null): ThresholdConfig | null => {
+      if (!threshold) return null;
+      if (displayUnit === 'in') return threshold;
+
+      return {
+        greenMin: threshold.greenMin * MM_PER_INCH,
+        yellowMin: threshold.yellowMin * MM_PER_INCH,
+        redMin: threshold.redMin * MM_PER_INCH,
+        label: threshold.label,
+      };
+    },
+    [displayUnit],
+  );
+
+  const convertChartData = useCallback(
+    (
+      data: ReturnType<typeof transformGibsToMultiLineData>,
+    ): ReturnType<typeof transformGibsToMultiLineData> => {
+      if (displayUnit === 'in') return data;
+
+      return data.map((item) => {
+        const converted = { ...item };
+        Object.keys(item).forEach((key) => {
+          if (key !== 'date' && typeof item[key] === 'number') {
+            (converted as Record<string, unknown>)[key] = (item[key] as number) * MM_PER_INCH;
+          }
+        });
+        return converted;
+      });
+    },
+    [displayUnit],
+  );
 
   // Fetch threshold data
   useEffect(() => {
@@ -107,12 +153,17 @@ export function GibsSection({
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  // Find the latest inspection that actually has gibs data (not just any inspection)
-  const latestInspectionWithData = useMemo(() => {
-    return filteredInspections.find(
+  // Filter to only inspections that have gibs data
+  const inspectionsWithGibsData = useMemo(() => {
+    return filteredInspections.filter(
       (inspection) => inspection.gibs?.[0]?.outerData || inspection.gibs?.[0]?.innerData,
     );
   }, [filteredInspections]);
+
+  // Find the latest inspection that actually has gibs data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return inspectionsWithGibsData[0]; // Already filtered and sorted, first one is latest
+  }, [inspectionsWithGibsData]);
 
   const latestOuterData = latestInspectionWithData?.gibs?.[0]?.outerData;
   const latestInnerData = latestInspectionWithData?.gibs?.[0]?.innerData;
@@ -155,7 +206,9 @@ export function GibsSection({
 
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
     if (value === null || value === undefined) return '-';
-    return Number(value).toFixed(decimals);
+    const converted = convertValue(value);
+    if (converted === null) return '-';
+    return Number(converted).toFixed(decimals);
   };
 
   // Calculate gibs fields from stage data
@@ -239,6 +292,28 @@ export function GibsSection({
   const outerCalculated = calculateGibsFields(latestOuterData);
   const innerCalculated = calculateGibsFields(latestInnerData);
 
+  // Convert thresholds based on display unit
+  const convertedUsableThreshold = useMemo(
+    () => convertThreshold(usableThreshold),
+    [usableThreshold, convertThreshold],
+  );
+
+  // Convert chart data based on display unit
+  const convertedUsableChartData = useMemo(
+    () => convertChartData(usableChartData),
+    [usableChartData, convertChartData],
+  );
+
+  const convertedInnerGibsChartData = useMemo(
+    () => convertChartData(innerGibsChartData),
+    [innerGibsChartData, convertChartData],
+  );
+
+  const convertedOuterGibsChartData = useMemo(
+    () => convertChartData(outerGibsChartData),
+    [outerGibsChartData, convertChartData],
+  );
+
   // Prepare measurements for status badge
   const statusMeasurements = useMemo(
     () => [
@@ -312,7 +387,7 @@ export function GibsSection({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Typography variant="large">{filteredInspections.length}</Typography>
+            <Typography variant="large">{inspectionsWithGibsData.length}</Typography>
           </CardContent>
         </Card>
 
@@ -380,11 +455,31 @@ export function GibsSection({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>{t('sectionTitles.gibsMeasurements')}</CardTitle>
-            <SectionExportButton
-              contentRef={contentRef}
-              sectionName="Gibs"
-              machineName={machineName}
-            />
+            <div className="flex items-center gap-2">
+              <div className="flex items-center border rounded-md">
+                <Button
+                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setDisplayUnit('in')}
+                  className="rounded-r-none h-8"
+                >
+                  in
+                </Button>
+                <Button
+                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setDisplayUnit('mm')}
+                  className="rounded-l-none h-8"
+                >
+                  mm
+                </Button>
+              </div>
+              <SectionExportButton
+                contentRef={contentRef}
+                sectionName="Gibs"
+                machineName={machineName}
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -636,7 +731,7 @@ export function GibsSection({
             {usableChartData.length > 0 && (
               <MultiLineThresholdChart
                 title={t('chartTitles.gibsUsableValue')}
-                data={usableChartData}
+                data={convertedUsableChartData}
                 lines={[
                   ...(innerGibsChartData.length > 0
                     ? [{ dataKey: 'innerUsable', label: 'Inner Usable', color: '#8884d8' }]
@@ -645,8 +740,8 @@ export function GibsSection({
                     ? [{ dataKey: 'outerUsable', label: 'Outer Usable', color: '#06b6d4' }]
                     : []),
                 ]}
-                sharedThreshold={usableThreshold}
-                valueUnit="mm"
+                sharedThreshold={convertedUsableThreshold}
+                valueUnit={displayUnit}
                 allowToggle={true}
                 hideThresholdValues={hideThresholdValues}
                 height={300}
@@ -657,14 +752,14 @@ export function GibsSection({
             {innerGibsChartData.length > 0 && (
               <MultiLineThresholdChart
                 title={t('chartTitles.innerGibsDirectional')}
-                data={innerGibsChartData}
+                data={convertedInnerGibsChartData}
                 lines={[
                   { dataKey: 'leftTop', label: 'Front Top', color: '#8884d8' },
                   { dataKey: 'leftBottom', label: 'Front Bottom', color: '#06b6d4' },
                   { dataKey: 'rightTop', label: 'Back Top', color: '#3b82f6' },
                   { dataKey: 'rightBottom', label: 'Back Bottom', color: '#ec4899' },
                 ]}
-                valueUnit="mm"
+                valueUnit={displayUnit}
                 allowToggle={false}
                 height={300}
               />
@@ -674,14 +769,14 @@ export function GibsSection({
             {outerGibsChartData.length > 0 && (
               <MultiLineThresholdChart
                 title={t('chartTitles.outerGibsDirectional')}
-                data={outerGibsChartData}
+                data={convertedOuterGibsChartData}
                 lines={[
                   { dataKey: 'leftTop', label: 'Front Top', color: '#8884d8' },
                   { dataKey: 'leftBottom', label: 'Front Bottom', color: '#06b6d4' },
                   { dataKey: 'rightTop', label: 'Back Top', color: '#3b82f6' },
                   { dataKey: 'rightBottom', label: 'Back Bottom', color: '#ec4899' },
                 ]}
-                valueUnit="mm"
+                valueUnit={displayUnit}
                 allowToggle={false}
                 height={300}
               />

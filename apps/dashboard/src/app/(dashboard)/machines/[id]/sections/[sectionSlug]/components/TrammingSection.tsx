@@ -49,12 +49,17 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  // Find the latest inspection that actually has tramming data
-  const latestInspectionWithData = useMemo(() => {
-    return filteredInspections.find(
+  // Filter to only inspections that have tramming data
+  const inspectionsWithTrammingData = useMemo(() => {
+    return filteredInspections.filter(
       (inspection) => inspection.tramming?.[0]?.outerData || inspection.tramming?.[0]?.innerData,
     );
   }, [filteredInspections]);
+
+  // Find the latest inspection that actually has tramming data
+  const latestInspectionWithData = useMemo(() => {
+    return inspectionsWithTrammingData[0];
+  }, [inspectionsWithTrammingData]);
 
   const latestOuterData = latestInspectionWithData?.tramming?.[0]?.outerData;
   const latestInnerData = latestInspectionWithData?.tramming?.[0]?.innerData;
@@ -220,7 +225,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Typography variant="large">{filteredInspections.length}</Typography>
+            <Typography variant="large">{inspectionsWithTrammingData.length}</Typography>
           </CardContent>
         </Card>
 

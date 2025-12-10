@@ -8,7 +8,7 @@ import { Typography } from '@/components/ui/typography';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useCallback } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
@@ -25,6 +25,7 @@ interface TrammingSectionProps {
 export function TrammingSection({ inspections, machineName }: TrammingSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
+  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -35,6 +36,20 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
     }
     return undefined;
   });
+
+  // Conversion constants and functions
+  const MM_PER_INCH = 25.4;
+
+  const convertValue = useCallback(
+    (value: number | null | undefined): number | null | undefined => {
+      if (value === null || value === undefined) return value;
+      if (displayUnit === 'mm') {
+        return value * MM_PER_INCH;
+      }
+      return value;
+    },
+    [displayUnit],
+  );
 
   const filteredInspections = useMemo(() => {
     const filtered =
@@ -49,12 +64,17 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  // Find the latest inspection that actually has tramming data
-  const latestInspectionWithData = useMemo(() => {
-    return filteredInspections.find(
+  // Filter inspections to only include those with tramming data
+  const inspectionsWithTrammingData = useMemo(() => {
+    return filteredInspections.filter(
       (inspection) => inspection.tramming?.[0]?.outerData || inspection.tramming?.[0]?.innerData,
     );
   }, [filteredInspections]);
+
+  // Find the latest inspection that actually has tramming data
+  const latestInspectionWithData = useMemo(() => {
+    return inspectionsWithTrammingData[0];
+  }, [inspectionsWithTrammingData]);
 
   const latestOuterData = latestInspectionWithData?.tramming?.[0]?.outerData;
   const latestInnerData = latestInspectionWithData?.tramming?.[0]?.innerData;
@@ -63,7 +83,9 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
 
   const formatValue = (value: number | null | undefined, decimals = 3): string => {
     if (value === null || value === undefined) return '-';
-    const numValue = Number(value);
+    const converted = convertValue(value);
+    if (converted === null || converted === undefined) return '-';
+    const numValue = Number(converted);
     if (isNaN(numValue)) return '-';
     return numValue.toFixed(decimals);
   };
@@ -134,26 +156,26 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
         const data = inspection.tramming[0]!.outerData!;
         return {
           date: format(new Date(inspection.date), 'dd/MM/yyyy'),
-          topTop: Number(data.topTop) || 0,
-          topBottom: Number(data.topBottom) || 0,
-          topLeft: Number(data.topLeft) || 0,
-          topRight: Number(data.topRight) || 0,
-          bottomTop: Number(data.bottomTop) || 0,
-          bottomBottom: Number(data.bottomBottom) || 0,
-          bottomLeft: Number(data.bottomLeft) || 0,
-          bottomRight: Number(data.bottomRight) || 0,
-          leftTop: Number(data.leftTop) || 0,
-          leftBottom: Number(data.leftBottom) || 0,
-          leftLeft: Number(data.leftLeft) || 0,
-          leftRight: Number(data.leftRight) || 0,
-          rightTop: Number(data.rightTop) || 0,
-          rightBottom: Number(data.rightBottom) || 0,
-          rightLeft: Number(data.rightLeft) || 0,
-          rightRight: Number(data.rightRight) || 0,
+          topTop: Number(convertValue(Number(data.topTop))) || 0,
+          topBottom: Number(convertValue(Number(data.topBottom))) || 0,
+          topLeft: Number(convertValue(Number(data.topLeft))) || 0,
+          topRight: Number(convertValue(Number(data.topRight))) || 0,
+          bottomTop: Number(convertValue(Number(data.bottomTop))) || 0,
+          bottomBottom: Number(convertValue(Number(data.bottomBottom))) || 0,
+          bottomLeft: Number(convertValue(Number(data.bottomLeft))) || 0,
+          bottomRight: Number(convertValue(Number(data.bottomRight))) || 0,
+          leftTop: Number(convertValue(Number(data.leftTop))) || 0,
+          leftBottom: Number(convertValue(Number(data.leftBottom))) || 0,
+          leftLeft: Number(convertValue(Number(data.leftLeft))) || 0,
+          leftRight: Number(convertValue(Number(data.leftRight))) || 0,
+          rightTop: Number(convertValue(Number(data.rightTop))) || 0,
+          rightBottom: Number(convertValue(Number(data.rightBottom))) || 0,
+          rightLeft: Number(convertValue(Number(data.rightLeft))) || 0,
+          rightRight: Number(convertValue(Number(data.rightRight))) || 0,
         };
       })
       .reverse();
-  }, [filteredInspections]);
+  }, [filteredInspections, convertValue]);
 
   // Transform data for charts - Inner measurements
   const innerChartData = useMemo(() => {
@@ -163,26 +185,26 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
         const data = inspection.tramming[0]!.innerData!;
         return {
           date: format(new Date(inspection.date), 'dd/MM/yyyy'),
-          topTop: Number(data.topTop) || 0,
-          topBottom: Number(data.topBottom) || 0,
-          topLeft: Number(data.topLeft) || 0,
-          topRight: Number(data.topRight) || 0,
-          bottomTop: Number(data.bottomTop) || 0,
-          bottomBottom: Number(data.bottomBottom) || 0,
-          bottomLeft: Number(data.bottomLeft) || 0,
-          bottomRight: Number(data.bottomRight) || 0,
-          leftTop: Number(data.leftTop) || 0,
-          leftBottom: Number(data.leftBottom) || 0,
-          leftLeft: Number(data.leftLeft) || 0,
-          leftRight: Number(data.leftRight) || 0,
-          rightTop: Number(data.rightTop) || 0,
-          rightBottom: Number(data.rightBottom) || 0,
-          rightLeft: Number(data.rightLeft) || 0,
-          rightRight: Number(data.rightRight) || 0,
+          topTop: Number(convertValue(Number(data.topTop))) || 0,
+          topBottom: Number(convertValue(Number(data.topBottom))) || 0,
+          topLeft: Number(convertValue(Number(data.topLeft))) || 0,
+          topRight: Number(convertValue(Number(data.topRight))) || 0,
+          bottomTop: Number(convertValue(Number(data.bottomTop))) || 0,
+          bottomBottom: Number(convertValue(Number(data.bottomBottom))) || 0,
+          bottomLeft: Number(convertValue(Number(data.bottomLeft))) || 0,
+          bottomRight: Number(convertValue(Number(data.bottomRight))) || 0,
+          leftTop: Number(convertValue(Number(data.leftTop))) || 0,
+          leftBottom: Number(convertValue(Number(data.leftBottom))) || 0,
+          leftLeft: Number(convertValue(Number(data.leftLeft))) || 0,
+          leftRight: Number(convertValue(Number(data.leftRight))) || 0,
+          rightTop: Number(convertValue(Number(data.rightTop))) || 0,
+          rightBottom: Number(convertValue(Number(data.rightBottom))) || 0,
+          rightLeft: Number(convertValue(Number(data.rightLeft))) || 0,
+          rightRight: Number(convertValue(Number(data.rightRight))) || 0,
         };
       })
       .reverse();
-  }, [filteredInspections]);
+  }, [filteredInspections, convertValue]);
 
   return (
     <div ref={contentRef} className="space-y-6">
@@ -220,7 +242,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Typography variant="large">{filteredInspections.length}</Typography>
+            <Typography variant="large">{inspectionsWithTrammingData.length}</Typography>
           </CardContent>
         </Card>
 
@@ -275,11 +297,31 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>{t('sectionTitles.trammingMeasurements')}</CardTitle>
-            <SectionExportButton
-              contentRef={contentRef}
-              sectionName="Tramming"
-              machineName={machineName}
-            />
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 border rounded-md p-1">
+                <Button
+                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setDisplayUnit('in')}
+                  className="h-7 px-3"
+                >
+                  in
+                </Button>
+                <Button
+                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setDisplayUnit('mm')}
+                  className="h-7 px-3"
+                >
+                  mm
+                </Button>
+              </div>
+              <SectionExportButton
+                contentRef={contentRef}
+                sectionName="Tramming"
+                machineName={machineName}
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -409,7 +451,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'topLeft', label: t('labels.topLeft'), color: '#3b82f6' },
                 { dataKey: 'topRight', label: t('labels.topRight'), color: '#ec4899' },
               ]}
-              valueUnit={t('labels.mm')}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />
@@ -424,7 +466,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'bottomLeft', label: t('labels.bottomLeft'), color: '#ef4444' },
                 { dataKey: 'bottomRight', label: t('labels.bottomRight'), color: '#8b5cf6' },
               ]}
-              valueUnit={t('labels.mm')}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />
@@ -439,7 +481,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'leftLeft', label: t('labels.leftLeft'), color: '#3b82f6' },
                 { dataKey: 'leftRight', label: t('labels.leftRight'), color: '#ec4899' },
               ]}
-              valueUnit={t('labels.mm')}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />
@@ -454,7 +496,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'rightLeft', label: t('labels.rightLeft'), color: '#ef4444' },
                 { dataKey: 'rightRight', label: t('labels.rightRight'), color: '#8b5cf6' },
               ]}
-              valueUnit={t('labels.mm')}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />
@@ -469,7 +511,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'topLeft', label: t('labels.topLeft'), color: '#3b82f6' },
                 { dataKey: 'topRight', label: t('labels.topRight'), color: '#ec4899' },
               ]}
-              valueUnit={t('labels.mm')}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />
@@ -484,7 +526,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'bottomLeft', label: t('labels.bottomLeft'), color: '#ef4444' },
                 { dataKey: 'bottomRight', label: t('labels.bottomRight'), color: '#8b5cf6' },
               ]}
-              valueUnit={t('labels.mm')}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />
@@ -499,7 +541,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'leftLeft', label: t('labels.leftLeft'), color: '#3b82f6' },
                 { dataKey: 'leftRight', label: t('labels.leftRight'), color: '#ec4899' },
               ]}
-              valueUnit={t('labels.mm')}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />
@@ -514,7 +556,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'rightLeft', label: t('labels.rightLeft'), color: '#ef4444' },
                 { dataKey: 'rightRight', label: t('labels.rightRight'), color: '#8b5cf6' },
               ]}
-              valueUnit={t('labels.mm')}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />

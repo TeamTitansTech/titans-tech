@@ -84,12 +84,16 @@ export function LubricationSection({
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
+  const inspectionsWithLubricationData = useMemo(() => {
+    return filteredInspections.filter((inspection) => inspection.lubricationHydraulics?.[0]?.data);
+  }, [filteredInspections]);
 
-  // Find the most recent value for each field across all inspections
+  const latestInspection = inspectionsWithLubricationData[0] || filteredInspections[0];
+
+  // Find the most recent value for each field across all inspections with lubrication data
   const getLatestFieldValue = <T,>(fieldName: string): T | null => {
-    for (const inspection of filteredInspections) {
-      const lubData = inspection?.lubricationHydraulics?.[0]?.data;
+    for (const inspection of inspectionsWithLubricationData) {
+      const lubData = inspection.lubricationHydraulics?.[0]?.data;
       if (lubData) {
         const value = lubData[fieldName as keyof typeof lubData];
         if (value !== null && value !== undefined) {
@@ -152,7 +156,7 @@ export function LubricationSection({
 
   // Transform data for temperature chart
   const temperatureChartData = useMemo(() => {
-    return filteredInspections
+    return inspectionsWithLubricationData
       .filter((inspection) => inspection.lubricationHydraulics?.[0]?.data?.oilTemperature != null)
       .map((inspection) => {
         const data = inspection.lubricationHydraulics[0].data!;
@@ -163,7 +167,7 @@ export function LubricationSection({
         };
       })
       .reverse(); // Oldest to newest
-  }, [filteredInspections]);
+  }, [inspectionsWithLubricationData]);
 
   // Get gauge summary from latest inspection
   const latestGauges = latestInspection?.lubricationHydraulics?.[0]?.data?.gauges || [];
@@ -230,7 +234,7 @@ export function LubricationSection({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Typography variant="large">{filteredInspections.length}</Typography>
+            <Typography variant="large">{inspectionsWithLubricationData.length}</Typography>
           </CardContent>
         </Card>
 
