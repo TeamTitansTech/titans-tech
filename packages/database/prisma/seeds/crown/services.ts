@@ -1312,7 +1312,7 @@ async function createServiceWithData(
       },
     },
   });
-  console.log('  ✓ Created slide data and alerts');
+  console.log('  ✓ Created slide (double hammer) data and alerts');
 
   // CLUTCH
   const clutchData = await createClutchData(

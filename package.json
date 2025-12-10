@@ -44,7 +44,7 @@
     "husky": "^9.1.7",
     "jsx-ast-utils": "^3.3.5",
     "lint-staged": "^16.2.6",
-    "next": "^16.0.6",
+    "next": "16.0.7",
     "prettier": "^3.3.0",
     "prisma": "^6.19.0",
     "turbo": "^2.6.0",
