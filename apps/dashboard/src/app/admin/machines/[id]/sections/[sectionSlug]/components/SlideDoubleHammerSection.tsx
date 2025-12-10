@@ -102,12 +102,14 @@ export function SlideDoubleHammerSection({
   // Find the latest inspection that actually has slide data (not just any inspection)
   const latestInspectionWithData = useMemo(() => {
     return filteredInspections.find(
-      (inspection) => inspection.slide?.[0]?.outerData || inspection.slide?.[0]?.innerData,
+      (inspection) =>
+        inspection.slideDoubleHammer?.[0]?.outerData ||
+        inspection.slideDoubleHammer?.[0]?.innerData,
     );
   }, [filteredInspections]);
 
-  const latestOuterData = latestInspectionWithData?.slide?.[0]?.outerData;
-  const latestInnerData = latestInspectionWithData?.slide?.[0]?.innerData;
+  const latestOuterData = latestInspectionWithData?.slideDoubleHammer?.[0]?.outerData;
+  const latestInnerData = latestInspectionWithData?.slideDoubleHammer?.[0]?.innerData;
 
   // Transform data for charts
   const outerPositionsChartData = useMemo(() => {

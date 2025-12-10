@@ -1210,26 +1210,56 @@ async function createServiceWithData(
       outer_mainBearings_differential: Math.abs(
         serviceData.outerData.mainBearings_LH - serviceData.outerData.mainBearings_RH,
       ),
-      outer_mainBearings_severity: AlertSeverity.GREEN,
+      outer_mainBearings_severity: calculateAlertSeverity(
+        serviceData.outerData.mainBearings_LH,
+        serviceData.outerData.mainBearings_RH,
+        0.01,
+        0.02,
+        0.03,
+      ),
       outer_upperConnectionBearings_differential: Math.abs(
         serviceData.outerData.upperConnectionBearings_LH -
           serviceData.outerData.upperConnectionBearings_RH,
       ),
-      outer_upperConnectionBearings_severity: AlertSeverity.GREEN,
+      outer_upperConnectionBearings_severity: calculateAlertSeverity(
+        serviceData.outerData.upperConnectionBearings_LH,
+        serviceData.outerData.upperConnectionBearings_RH,
+        0.008,
+        0.015,
+        0.025,
+      ),
       outer_wristPinToMatingPart_differential: Math.abs(
         serviceData.outerData.wristPinToMatingPart_LH -
           serviceData.outerData.wristPinToMatingPart_RH,
       ),
-      outer_wristPinToMatingPart_severity: AlertSeverity.GREEN,
+      outer_wristPinToMatingPart_severity: calculateAlertSeverity(
+        serviceData.outerData.wristPinToMatingPart_LH,
+        serviceData.outerData.wristPinToMatingPart_RH,
+        0.005,
+        0.012,
+        0.02,
+      ),
       outer_wristPinToBushing_differential: Math.abs(
         serviceData.outerData.wristPinToBushing_LH - serviceData.outerData.wristPinToBushing_RH,
       ),
-      outer_wristPinToBushing_severity: AlertSeverity.GREEN,
+      outer_wristPinToBushing_severity: calculateAlertSeverity(
+        serviceData.outerData.wristPinToBushing_LH,
+        serviceData.outerData.wristPinToBushing_RH,
+        0.004,
+        0.01,
+        0.018,
+      ),
       outer_slideAdjNutToScrewSleeve_differential: Math.abs(
         serviceData.outerData.slideAdjNutToScrewSleeve_LH -
           serviceData.outerData.slideAdjNutToScrewSleeve_RH,
       ),
-      outer_slideAdjNutToScrewSleeve_severity: AlertSeverity.GREEN,
+      outer_slideAdjNutToScrewSleeve_severity: calculateAlertSeverity(
+        serviceData.outerData.slideAdjNutToScrewSleeve_LH,
+        serviceData.outerData.slideAdjNutToScrewSleeve_RH,
+        0.003,
+        0.008,
+        0.015,
+      ),
       inner_totalClearance_differential: innerTotalDiff,
       inner_totalClearance_severity: calculateAlertSeverity(
         serviceData.innerData.totalClearance_LH,
@@ -1241,30 +1271,75 @@ async function createServiceWithData(
       inner_mainBearings_differential: Math.abs(
         serviceData.innerData.mainBearings_LH - serviceData.innerData.mainBearings_RH,
       ),
-      inner_mainBearings_severity: AlertSeverity.GREEN,
+      inner_mainBearings_severity: calculateAlertSeverity(
+        serviceData.innerData.mainBearings_LH,
+        serviceData.innerData.mainBearings_RH,
+        0.01,
+        0.02,
+        0.03,
+      ),
       inner_upperConnectionBearings_differential: Math.abs(
         serviceData.innerData.upperConnectionBearings_LH -
           serviceData.innerData.upperConnectionBearings_RH,
       ),
-      inner_upperConnectionBearings_severity: AlertSeverity.GREEN,
+      inner_upperConnectionBearings_severity: calculateAlertSeverity(
+        serviceData.innerData.upperConnectionBearings_LH,
+        serviceData.innerData.upperConnectionBearings_RH,
+        0.008,
+        0.015,
+        0.025,
+      ),
       inner_wristPinToMatingPart_differential: Math.abs(
         serviceData.innerData.wristPinToMatingPart_LH -
           serviceData.innerData.wristPinToMatingPart_RH,
       ),
-      inner_wristPinToMatingPart_severity: AlertSeverity.GREEN,
+      inner_wristPinToMatingPart_severity: calculateAlertSeverity(
+        serviceData.innerData.wristPinToMatingPart_LH,
+        serviceData.innerData.wristPinToMatingPart_RH,
+        0.005,
+        0.012,
+        0.02,
+      ),
       inner_wristPinToBushing_differential: Math.abs(
         serviceData.innerData.wristPinToBushing_LH - serviceData.innerData.wristPinToBushing_RH,
       ),
-      inner_wristPinToBushing_severity: AlertSeverity.GREEN,
+      inner_wristPinToBushing_severity: calculateAlertSeverity(
+        serviceData.innerData.wristPinToBushing_LH,
+        serviceData.innerData.wristPinToBushing_RH,
+        0.004,
+        0.01,
+        0.018,
+      ),
       inner_slideAdjNutToScrewSleeve_differential: Math.abs(
         serviceData.innerData.slideAdjNutToScrewSleeve_LH -
           serviceData.innerData.slideAdjNutToScrewSleeve_RH,
       ),
-      inner_slideAdjNutToScrewSleeve_severity: AlertSeverity.GREEN,
+      inner_slideAdjNutToScrewSleeve_severity: calculateAlertSeverity(
+        serviceData.innerData.slideAdjNutToScrewSleeve_LH,
+        serviceData.innerData.slideAdjNutToScrewSleeve_RH,
+        0.003,
+        0.008,
+        0.015,
+      ),
       thresholdSnapshot: {
         totalClearance_greenMin: 0.015,
         totalClearance_yellowMin: 0.025,
         totalClearance_redMin: 0.035,
+        mainBearings_greenMin: 0.01,
+        mainBearings_yellowMin: 0.02,
+        mainBearings_redMin: 0.03,
+        upperConnectionBearings_greenMin: 0.008,
+        upperConnectionBearings_yellowMin: 0.015,
+        upperConnectionBearings_redMin: 0.025,
+        wristPinToMatingPart_greenMin: 0.005,
+        wristPinToMatingPart_yellowMin: 0.012,
+        wristPinToMatingPart_redMin: 0.02,
+        wristPinToBushing_greenMin: 0.004,
+        wristPinToBushing_yellowMin: 0.01,
+        wristPinToBushing_redMin: 0.018,
+        slideAdjNutToScrewSleeve_greenMin: 0.003,
+        slideAdjNutToScrewSleeve_yellowMin: 0.008,
+        slideAdjNutToScrewSleeve_redMin: 0.015,
       },
     },
   });
@@ -1294,21 +1369,42 @@ async function createServiceWithData(
   });
 
   // Create AlertSlideDoubleHammer
+  // Calculate max deviation from position values
+  const maxDeviationOuter = Math.max(
+    Math.abs(serviceData.slideOuter.position1),
+    Math.abs(serviceData.slideOuter.position2),
+    Math.abs(serviceData.slideOuter.position3),
+    Math.abs(serviceData.slideOuter.position4),
+    Math.abs(serviceData.slideOuter.position5),
+  );
+  const maxDeviationInner = Math.max(
+    Math.abs(serviceData.slideInner.position1),
+    Math.abs(serviceData.slideInner.position2),
+    Math.abs(serviceData.slideInner.position3),
+    Math.abs(serviceData.slideInner.position4),
+    Math.abs(serviceData.slideInner.position5),
+  );
   await prisma.alertSlideDoubleHammer.create({
     data: {
       machineServiceId: service.id,
-      maxDeviationOuter_differential: Math.max(
-        ...Object.values(serviceData.slideOuter).filter((v) => typeof v === 'number'),
-      ) as number,
-      maxDeviationOuter_severity: AlertSeverity.GREEN,
-      maxDeviationInner_differential: Math.max(
-        ...Object.values(serviceData.slideInner).filter((v) => typeof v === 'number'),
-      ) as number,
-      maxDeviationInner_severity: AlertSeverity.GREEN,
+      maxDeviationOuter_differential: maxDeviationOuter,
+      maxDeviationOuter_severity: calculateClutchAlertSeverity(
+        maxDeviationOuter,
+        0.001,
+        0.003,
+        0.005,
+      ),
+      maxDeviationInner_differential: maxDeviationInner,
+      maxDeviationInner_severity: calculateClutchAlertSeverity(
+        maxDeviationInner,
+        0.001,
+        0.003,
+        0.005,
+      ),
       thresholdSnapshot: {
-        maxDeviation_greenMin: 0.002,
-        maxDeviation_yellowMin: 0.005,
-        maxDeviation_redMin: 0.01,
+        maxDeviation_greenMin: 0.001,
+        maxDeviation_yellowMin: 0.003,
+        maxDeviation_redMin: 0.005,
       },
     },
   });
@@ -1338,25 +1434,54 @@ async function createServiceWithData(
       hydClutchClearanceTotal_value: serviceData.clutch.hydClutchClearanceTotal,
       hydClutchClearanceTotal_severity: calculateClutchAlertSeverity(
         serviceData.clutch.hydClutchClearanceTotal,
-        0.05,
-        0.08,
+        0.06,
         0.12,
+        0.188,
       ),
       hydClutchClearanceRear_value: serviceData.clutch.hydClutchClearanceRear,
-      hydClutchClearanceRear_severity: AlertSeverity.GREEN,
+      hydClutchClearanceRear_severity: calculateClutchAlertSeverity(
+        serviceData.clutch.hydClutchClearanceRear,
+        0.015,
+        0.078,
+        0.105,
+      ),
       fb_value: serviceData.clutch.brakeAnchorFB,
-      fb_severity: calculateClutchAlertSeverity(serviceData.clutch.brakeAnchorFB, 0.04, 0.06, 0.08),
+      fb_severity: calculateClutchAlertSeverity(
+        serviceData.clutch.brakeAnchorFB,
+        0.045,
+        0.052,
+        0.055,
+      ),
       fTB_value: serviceData.clutch.brakeAnchorFTB,
-      fTB_severity: AlertSeverity.GREEN,
+      fTB_severity: calculateClutchAlertSeverity(
+        serviceData.clutch.brakeAnchorFTB,
+        0.005,
+        0.012,
+        0.015,
+      ),
       rTB_value: serviceData.clutch.brakeAnchorRTB,
-      rTB_severity: AlertSeverity.GREEN,
+      rTB_severity: calculateClutchAlertSeverity(
+        serviceData.clutch.brakeAnchorRTB,
+        0.005,
+        0.012,
+        0.015,
+      ),
       thresholdSnapshot: {
-        hydClutchClearanceTotal_greenMin: 0.05,
-        hydClutchClearanceTotal_yellowMin: 0.08,
-        hydClutchClearanceTotal_redMin: 0.12,
-        fb_greenMin: 0.04,
-        fb_yellowMin: 0.06,
-        fb_redMin: 0.08,
+        hydClutchClearanceTotal_greenMin: 0.06,
+        hydClutchClearanceTotal_yellowMin: 0.12,
+        hydClutchClearanceTotal_redMin: 0.188,
+        hydClutchClearanceRear_greenMin: 0.015,
+        hydClutchClearanceRear_yellowMin: 0.078,
+        hydClutchClearanceRear_redMin: 0.105,
+        fb_greenMin: 0.045,
+        fb_yellowMin: 0.052,
+        fb_redMin: 0.055,
+        fTB_greenMin: 0.005,
+        fTB_yellowMin: 0.012,
+        fTB_redMin: 0.015,
+        rTB_greenMin: 0.005,
+        rTB_yellowMin: 0.012,
+        rTB_redMin: 0.015,
       },
     },
   });
