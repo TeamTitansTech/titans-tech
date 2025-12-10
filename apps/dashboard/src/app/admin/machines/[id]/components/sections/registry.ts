@@ -51,7 +51,7 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
     key: 'SLIDE_SINGLE_HAMMER',
     component: SlideSingleHammerSection,
     metadata: {
-      image: '/assets/sections/slide-single-hammer.svg',
+      image: '/assets/sections/slide.svg',
       i18nKey: 'slideSingleHammer',
     },
   },
@@ -60,7 +60,7 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
     key: 'SLIDE_DOUBLE_HAMMER',
     component: SlideDoubleHammerSection,
     metadata: {
-      image: '/assets/sections/slide-double-hammer.svg',
+      image: '/assets/sections/slide.svg',
       i18nKey: 'slideDoubleHammer',
     },
   },
