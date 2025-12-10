@@ -26,6 +26,19 @@ interface PistonsSectionProps {
   blueprintId: string;
 }
 
+interface PistonsChartDataPoint {
+  date: string;
+  lhTop: number;
+  lhBottom: number;
+  lhLeft: number;
+  lhRight: number;
+  rhTop: number;
+  rhBottom: number;
+  rhLeft: number;
+  rhRight: number;
+  [key: string]: string | number;
+}
+
 export function PistonsSection({ inspections, machineName, blueprintId }: PistonsSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
@@ -102,12 +115,12 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
 
   // Convert chart data based on display unit
   const convertChartData = useCallback(
-    (data: typeof outerChartData, keys: string[]): typeof outerChartData => {
+    (data: PistonsChartDataPoint[], keys: string[]): PistonsChartDataPoint[] => {
       if (displayUnit === 'in') return data;
       return data.map((point) => {
         const converted = { ...point };
         keys.forEach((key) => {
-          const val = point[key as keyof typeof point];
+          const val = point[key as keyof PistonsChartDataPoint];
           if (typeof val === 'number') {
             (converted as Record<string, unknown>)[key] = val * MM_PER_INCH;
           }
@@ -220,7 +233,7 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
   );
 
   // Transform data for charts - Outer measurements
-  const outerChartData = useMemo(() => {
+  const outerChartData: PistonsChartDataPoint[] = useMemo(() => {
     return filteredInspections
       .filter((inspection) => inspection.pistons?.[0]?.outerData)
       .map((inspection) => {
@@ -241,7 +254,7 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
   }, [filteredInspections]);
 
   // Transform data for charts - Inner measurements
-  const innerChartData = useMemo(() => {
+  const innerChartData: PistonsChartDataPoint[] = useMemo(() => {
     return filteredInspections
       .filter((inspection) => inspection.pistons?.[0]?.innerData)
       .map((inspection) => {
