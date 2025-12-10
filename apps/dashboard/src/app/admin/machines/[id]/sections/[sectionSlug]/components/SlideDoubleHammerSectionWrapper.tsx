@@ -24,7 +24,7 @@ interface SlideData {
 export interface SlideInspectionData {
   id: string;
   date: string;
-  slide: Array<{
+  slideDoubleHammer: Array<{
     id: string;
     outerData: SlideData | null;
     innerData: SlideData | null;

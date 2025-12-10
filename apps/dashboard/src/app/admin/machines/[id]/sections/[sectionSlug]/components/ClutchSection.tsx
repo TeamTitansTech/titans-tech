@@ -350,7 +350,7 @@ export function ClutchSection({
             />
 
             <MultiLineThresholdChart
-              title={t('chartTitles.brakeSpringMeasurements')}
+              title="F-B (Front-Back)"
               data={brakeSpringChartData}
               lines={[
                 {
@@ -359,12 +359,36 @@ export function ClutchSection({
                   color: '#3b82f6',
                   threshold: fbThreshold ?? undefined,
                 },
+              ]}
+              sharedThreshold={fbThreshold}
+              valueUnit="in"
+              allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
+              height={250}
+            />
+
+            <MultiLineThresholdChart
+              title="F-TB (Front Top-Bottom)"
+              data={brakeSpringChartData}
+              lines={[
                 {
                   dataKey: 'brakeSpringFTB',
                   label: 'F-TB',
                   color: '#ec4899',
                   threshold: fTBThreshold ?? undefined,
                 },
+              ]}
+              sharedThreshold={fTBThreshold}
+              valueUnit="in"
+              allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
+              height={250}
+            />
+
+            <MultiLineThresholdChart
+              title="R-TB (Rear Top-Bottom)"
+              data={brakeSpringChartData}
+              lines={[
                 {
                   dataKey: 'brakeSpringRTB',
                   label: 'R-TB',
@@ -372,11 +396,11 @@ export function ClutchSection({
                   threshold: rTBThreshold ?? undefined,
                 },
               ]}
-              sharedThreshold={fbThreshold}
+              sharedThreshold={rTBThreshold}
               valueUnit="in"
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
-              height={300}
+              height={250}
             />
           </div>
         </CardContent>

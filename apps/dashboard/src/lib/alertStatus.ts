@@ -139,8 +139,7 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
 };
 
 /**
- * @deprecated Use calculateStatusFromLatestReport instead
- * Get the overall alert status for a machine based on bearing clearance alerts
+ * Get the overall alert status for a machine based on all alert types
  */
 export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   if (!machine.services || machine.services.length === 0) {
@@ -148,37 +147,122 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   }
 
   const latestService = machine.services[0];
-  // alertBearingClearance is an array - get the first (most recent) one
-  const alerts = latestService?.alertBearingClearance;
-  const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+  const allSeverities: AlertSeverity[] = [];
 
-  if (!alert) {
-    return 'ok';
+  // Check alertBearingClearance
+  const bearingAlerts = latestService?.alertBearingClearance;
+  const bearingAlert = Array.isArray(bearingAlerts) ? bearingAlerts[0] : bearingAlerts;
+  if (bearingAlert) {
+    allSeverities.push(
+      bearingAlert.outer_totalClearance_severity,
+      bearingAlert.outer_mainBearings_severity,
+      bearingAlert.outer_upperConnectionBearings_severity,
+      bearingAlert.outer_wristPinToMatingPart_severity,
+      bearingAlert.outer_wristPinToBushing_severity,
+      bearingAlert.outer_slideAdjNutToScrewSleeve_severity,
+      bearingAlert.inner_totalClearance_severity,
+      bearingAlert.inner_mainBearings_severity,
+      bearingAlert.inner_upperConnectionBearings_severity,
+      bearingAlert.inner_wristPinToMatingPart_severity,
+      bearingAlert.inner_wristPinToBushing_severity,
+      bearingAlert.inner_slideAdjNutToScrewSleeve_severity,
+    );
   }
 
-  // Check all bearing fields for worst severity (outer and inner)
-  const severities = [
-    // Outer
-    alert.outer_totalClearance_severity,
-    alert.outer_mainBearings_severity,
-    alert.outer_upperConnectionBearings_severity,
-    alert.outer_wristPinToMatingPart_severity,
-    alert.outer_wristPinToBushing_severity,
-    alert.outer_slideAdjNutToScrewSleeve_severity,
-    // Inner
-    alert.inner_totalClearance_severity,
-    alert.inner_mainBearings_severity,
-    alert.inner_upperConnectionBearings_severity,
-    alert.inner_wristPinToMatingPart_severity,
-    alert.inner_wristPinToBushing_severity,
-    alert.inner_slideAdjNutToScrewSleeve_severity,
-  ];
-
-  if (severities.includes('RED')) {
-    return 'critical';
-  } else if (severities.includes('YELLOW')) {
-    return 'warning';
+  // Check alertClutch
+  const clutchAlerts = latestService?.alertClutch;
+  const clutchAlert = Array.isArray(clutchAlerts) ? clutchAlerts[0] : clutchAlerts;
+  if (clutchAlert) {
+    allSeverities.push(
+      clutchAlert.hydClutchClearanceTotal_severity,
+      clutchAlert.hydClutchClearanceRear_severity,
+      clutchAlert.fb_severity,
+      clutchAlert.fTB_severity,
+      clutchAlert.rTB_severity,
+    );
   }
+
+  // Check alertSlideDoubleHammer
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const slideDoubleAlerts = (latestService as any)?.alertSlideDoubleHammer;
+  const slideDoubleAlert = Array.isArray(slideDoubleAlerts)
+    ? slideDoubleAlerts[0]
+    : slideDoubleAlerts;
+  if (slideDoubleAlert) {
+    allSeverities.push(
+      slideDoubleAlert.maxDeviationOuter_severity,
+      slideDoubleAlert.maxDeviationInner_severity,
+    );
+  }
+
+  // Check alertSlideSingleHammer
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const slideSingleAlerts = (latestService as any)?.alertSlideSingleHammer;
+  const slideSingleAlert = Array.isArray(slideSingleAlerts)
+    ? slideSingleAlerts[0]
+    : slideSingleAlerts;
+  if (slideSingleAlert) {
+    allSeverities.push(slideSingleAlert.maxDeviation_severity);
+  }
+
+  // Check alertGibs
+  const gibsAlerts = latestService?.alertGibs;
+  const gibsAlert = Array.isArray(gibsAlerts) ? gibsAlerts[0] : gibsAlerts;
+  if (gibsAlert) {
+    allSeverities.push(gibsAlert.usable_severity);
+  }
+
+  // Check alertCounterbalanceCylinderAirbag (any alert = RED)
+  const counterbalanceAlerts = latestService?.alertCounterbalanceCylinderAirbag;
+  if (counterbalanceAlerts && counterbalanceAlerts.length > 0) {
+    allSeverities.push('RED');
+  }
+
+  // Check alertPistons
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const pistonsAlerts = (latestService as any)?.alertPistons;
+  const pistonsAlert = Array.isArray(pistonsAlerts) ? pistonsAlerts[0] : pistonsAlerts;
+  if (pistonsAlert) {
+    allSeverities.push(
+      pistonsAlert.outer_lhLeftRight_severity,
+      pistonsAlert.outer_lhTopBottom_severity,
+      pistonsAlert.outer_rhLeftRight_severity,
+      pistonsAlert.outer_rhTopBottom_severity,
+      pistonsAlert.inner_lhLeftRight_severity,
+      pistonsAlert.inner_lhTopBottom_severity,
+      pistonsAlert.inner_rhLeftRight_severity,
+      pistonsAlert.inner_rhTopBottom_severity,
+    );
+  }
+
+  // Check alertTramming
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const trammingAlerts = (latestService as any)?.alertTramming;
+  const trammingAlert = Array.isArray(trammingAlerts) ? trammingAlerts[0] : trammingAlerts;
+  if (trammingAlert) {
+    allSeverities.push(
+      trammingAlert.outer_top_verticalSeverity,
+      trammingAlert.outer_top_horizontalSeverity,
+      trammingAlert.outer_bottom_verticalSeverity,
+      trammingAlert.outer_bottom_horizontalSeverity,
+      trammingAlert.outer_left_verticalSeverity,
+      trammingAlert.outer_left_horizontalSeverity,
+      trammingAlert.outer_right_verticalSeverity,
+      trammingAlert.outer_right_horizontalSeverity,
+      trammingAlert.inner_top_verticalSeverity,
+      trammingAlert.inner_top_horizontalSeverity,
+      trammingAlert.inner_bottom_verticalSeverity,
+      trammingAlert.inner_bottom_horizontalSeverity,
+      trammingAlert.inner_left_verticalSeverity,
+      trammingAlert.inner_left_horizontalSeverity,
+      trammingAlert.inner_right_verticalSeverity,
+      trammingAlert.inner_right_horizontalSeverity,
+    );
+  }
+
+  // Return the most critical severity
+  if (allSeverities.includes('RED')) return 'critical';
+  if (allSeverities.includes('YELLOW')) return 'warning';
 
   return 'ok';
 };
