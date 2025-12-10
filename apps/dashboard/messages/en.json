@@ -765,18 +765,18 @@
         "more": "+{count} more"
       },
       "timeline": {
-        "title": "Next 7 Days",
+        "title": "Next 30 Days",
         "noServices": "No services scheduled",
         "today": "Today",
         "tomorrow": "Tomorrow",
         "maintenance": "Maintenance",
         "inspection": "Inspection"
       },
-      "performance": {
-        "title": "Monthly Performance",
-        "availability": "Availability",
-        "preventive": "Preventive",
-        "corrective": "Corrective"
+      "recentCompleted": {
+        "title": "Recent Completed",
+        "noServices": "No completed services yet",
+        "maintenance": "Maintenance",
+        "inspection": "Inspection"
       },
       "machineHealth": {
         "title": "Machine Status",

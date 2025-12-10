@@ -8,23 +8,37 @@ import { Typography } from '@/components/ui/typography';
 import { Label } from '@/components/ui/label';
 import { useTranslations } from 'next-intl';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import type { PistonsInspectionData } from './PistonsSectionWrapper';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
+import { extractThresholdConfig } from '@/components/charts/dataTransformers';
+import { getPistonsThresholdByBlueprint } from '@/actions/alerts';
+import type { ThresholdConfig } from '@/components/charts/types';
 
 interface PistonsSectionProps {
   machineId: string;
   inspections: PistonsInspectionData[];
   machineName: string;
+  blueprintId: string;
 }
 
-export function PistonsSection({ inspections, machineName }: PistonsSectionProps) {
+export function PistonsSection({ inspections, machineName, blueprintId }: PistonsSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
+
+  // Thresholds for different measurement positions
+  const [outerLhThreshold, setOuterLhThreshold] = useState<ThresholdConfig | null>(null);
+  const [outerRhThreshold, setOuterRhThreshold] = useState<ThresholdConfig | null>(null);
+  const [innerLhThreshold, setInnerLhThreshold] = useState<ThresholdConfig | null>(null);
+  const [innerRhThreshold, setInnerRhThreshold] = useState<ThresholdConfig | null>(null);
+
+  // Unit toggle state: 'mm' or 'in' (data stored in inches)
+  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
+
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -35,6 +49,74 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
     }
     return undefined;
   });
+
+  // Fetch threshold data
+  useEffect(() => {
+    async function fetchThresholds() {
+      if (!blueprintId) {
+        return;
+      }
+
+      try {
+        const response = await getPistonsThresholdByBlueprint(blueprintId);
+        if (response.data) {
+          // Extract thresholds for each position
+          setOuterLhThreshold(extractThresholdConfig(response.data, 'outerLh'));
+          setOuterRhThreshold(extractThresholdConfig(response.data, 'outerRh'));
+          setInnerLhThreshold(extractThresholdConfig(response.data, 'innerLh'));
+          setInnerRhThreshold(extractThresholdConfig(response.data, 'innerRh'));
+        }
+      } catch (error) {
+        console.error('Failed to fetch pistons thresholds:', error);
+      }
+    }
+    fetchThresholds();
+  }, [blueprintId]);
+
+  // Conversion constants (data is stored in inches)
+  const MM_PER_INCH = 25.4;
+
+  // Convert value based on display unit (data stored in inches)
+  const convertValue = useCallback(
+    (value: number | null): number | null => {
+      if (value === null) return null;
+      return displayUnit === 'mm' ? value * MM_PER_INCH : value;
+    },
+    [displayUnit],
+  );
+
+  // Convert threshold based on display unit
+  const convertThreshold = useCallback(
+    (threshold: ThresholdConfig | null): ThresholdConfig | null => {
+      if (!threshold) return null;
+      if (displayUnit === 'in') return threshold;
+      return {
+        greenMin: threshold.greenMin * MM_PER_INCH,
+        yellowMin: threshold.yellowMin * MM_PER_INCH,
+        redMin: threshold.redMin * MM_PER_INCH,
+        label: threshold.label,
+      };
+    },
+    [displayUnit],
+  );
+
+  // Convert chart data based on display unit
+  const convertChartData = useCallback(
+    (data: typeof outerChartData, keys: string[]): typeof outerChartData => {
+      if (displayUnit === 'in') return data;
+      return data.map((point) => {
+        const converted = { ...point };
+        keys.forEach((key) => {
+          const val = point[key as keyof typeof point];
+          if (typeof val === 'number') {
+            (converted as Record<string, unknown>)[key] = val * MM_PER_INCH;
+          }
+        });
+        return converted;
+      });
+    },
+    [displayUnit],
+  );
 
   const filteredInspections = useMemo(() => {
     const filtered =
@@ -49,12 +131,17 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  // Find the latest inspection that actually has pistons data
-  const latestInspectionWithData = useMemo(() => {
-    return filteredInspections.find(
+  // Filter inspections to only those that have pistons data
+  const inspectionsWithPistonsData = useMemo(() => {
+    return filteredInspections.filter(
       (inspection) => inspection.pistons?.[0]?.outerData || inspection.pistons?.[0]?.innerData,
     );
   }, [filteredInspections]);
+
+  // Find the latest inspection that actually has pistons data
+  const latestInspectionWithData = useMemo(() => {
+    return inspectionsWithPistonsData[0];
+  }, [inspectionsWithPistonsData]);
 
   const latestOuterData = latestInspectionWithData?.pistons?.[0]?.outerData;
   const latestInnerData = latestInspectionWithData?.pistons?.[0]?.innerData;
@@ -69,7 +156,9 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
     if (value === null || value === undefined) return '-';
     const numValue = Number(value);
     if (isNaN(numValue)) return '-';
-    return numValue.toFixed(decimals);
+    const converted = convertValue(numValue);
+    if (converted === null) return '-';
+    return converted.toFixed(decimals);
   };
 
   const renderPistonDisplay = (
@@ -172,6 +261,53 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
       .reverse();
   }, [filteredInspections]);
 
+  // Get converted thresholds
+  const outerLhThresholdConverted = useMemo(
+    () => convertThreshold(outerLhThreshold),
+    [convertThreshold, outerLhThreshold],
+  );
+  const outerRhThresholdConverted = useMemo(
+    () => convertThreshold(outerRhThreshold),
+    [convertThreshold, outerRhThreshold],
+  );
+  const innerLhThresholdConverted = useMemo(
+    () => convertThreshold(innerLhThreshold),
+    [convertThreshold, innerLhThreshold],
+  );
+  const innerRhThresholdConverted = useMemo(
+    () => convertThreshold(innerRhThreshold),
+    [convertThreshold, innerRhThreshold],
+  );
+
+  // Get converted chart data
+  const outerChartDataConverted = useMemo(() => {
+    const keys = [
+      'lhTop',
+      'lhBottom',
+      'lhLeft',
+      'lhRight',
+      'rhTop',
+      'rhBottom',
+      'rhLeft',
+      'rhRight',
+    ];
+    return convertChartData(outerChartData, keys);
+  }, [convertChartData, outerChartData]);
+
+  const innerChartDataConverted = useMemo(() => {
+    const keys = [
+      'lhTop',
+      'lhBottom',
+      'lhLeft',
+      'lhRight',
+      'rhTop',
+      'rhBottom',
+      'rhLeft',
+      'rhRight',
+    ];
+    return convertChartData(innerChartData, keys);
+  }, [convertChartData, innerChartData]);
+
   return (
     <div ref={contentRef} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -208,7 +344,7 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Typography variant="large">{filteredInspections.length}</Typography>
+            <Typography variant="large">{inspectionsWithPistonsData.length}</Typography>
           </CardContent>
         </Card>
 
@@ -263,11 +399,32 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>{t('sectionTitles.pistonsMeasurements')}</CardTitle>
-            <SectionExportButton
-              contentRef={contentRef}
-              sectionName="Pistons"
-              machineName={machineName}
-            />
+            <div className="flex items-center gap-3">
+              {/* Unit Toggle */}
+              <div className="flex items-center rounded-md border">
+                <Button
+                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 rounded-r-none"
+                  onClick={() => setDisplayUnit('mm')}
+                >
+                  mm
+                </Button>
+                <Button
+                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 rounded-l-none"
+                  onClick={() => setDisplayUnit('in')}
+                >
+                  in
+                </Button>
+              </div>
+              <SectionExportButton
+                contentRef={contentRef}
+                sectionName="Pistons"
+                machineName={machineName}
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -358,14 +515,15 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
             {/* Outer LH Measurements Chart */}
             <MultiLineThresholdChart
               title={t('chartTitles.outerLhMeasurements')}
-              data={outerChartData}
+              data={outerChartDataConverted}
               lines={[
                 { dataKey: 'lhTop', label: t('labels.lhTop'), color: '#8884d8' },
                 { dataKey: 'lhBottom', label: t('labels.lhBottom'), color: '#06b6d4' },
                 { dataKey: 'lhLeft', label: t('labels.lhLeft'), color: '#3b82f6' },
                 { dataKey: 'lhRight', label: t('labels.lhRight'), color: '#ec4899' },
               ]}
-              valueUnit={t('labels.mm')}
+              sharedThreshold={outerLhThresholdConverted ?? undefined}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />
@@ -373,14 +531,15 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
             {/* Outer RH Measurements Chart */}
             <MultiLineThresholdChart
               title={t('chartTitles.outerRhMeasurements')}
-              data={outerChartData}
+              data={outerChartDataConverted}
               lines={[
                 { dataKey: 'rhTop', label: t('labels.rhTop'), color: '#10b981' },
                 { dataKey: 'rhBottom', label: t('labels.rhBottom'), color: '#f59e0b' },
                 { dataKey: 'rhLeft', label: t('labels.rhLeft'), color: '#ef4444' },
                 { dataKey: 'rhRight', label: t('labels.rhRight'), color: '#8b5cf6' },
               ]}
-              valueUnit={t('labels.mm')}
+              sharedThreshold={outerRhThresholdConverted ?? undefined}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />
@@ -388,14 +547,15 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
             {/* Inner LH Measurements Chart */}
             <MultiLineThresholdChart
               title={t('chartTitles.innerLhMeasurements')}
-              data={innerChartData}
+              data={innerChartDataConverted}
               lines={[
                 { dataKey: 'lhTop', label: t('labels.lhTop'), color: '#8884d8' },
                 { dataKey: 'lhBottom', label: t('labels.lhBottom'), color: '#06b6d4' },
                 { dataKey: 'lhLeft', label: t('labels.lhLeft'), color: '#3b82f6' },
                 { dataKey: 'lhRight', label: t('labels.lhRight'), color: '#ec4899' },
               ]}
-              valueUnit={t('labels.mm')}
+              sharedThreshold={innerLhThresholdConverted ?? undefined}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />
@@ -403,14 +563,15 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
             {/* Inner RH Measurements Chart */}
             <MultiLineThresholdChart
               title={t('chartTitles.innerRhMeasurements')}
-              data={innerChartData}
+              data={innerChartDataConverted}
               lines={[
                 { dataKey: 'rhTop', label: t('labels.rhTop'), color: '#10b981' },
                 { dataKey: 'rhBottom', label: t('labels.rhBottom'), color: '#f59e0b' },
                 { dataKey: 'rhLeft', label: t('labels.rhLeft'), color: '#ef4444' },
                 { dataKey: 'rhRight', label: t('labels.rhRight'), color: '#8b5cf6' },
               ]}
-              valueUnit={t('labels.mm')}
+              sharedThreshold={innerRhThresholdConverted ?? undefined}
+              valueUnit={displayUnit}
               allowToggle={true}
               height={300}
             />

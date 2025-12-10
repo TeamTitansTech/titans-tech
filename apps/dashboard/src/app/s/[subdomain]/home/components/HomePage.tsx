@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl';
 import { Typography } from '@/components/ui/typography';
 import { OverviewHeroSection } from './OverviewHeroSection';
 import { RequiresAttention } from './RequiresAttention';
-import { Next7DaysTimeline } from './Next7DaysTimeline';
-import { MonthPerformance } from './MonthPerformance';
+import { Next30DaysTimeline } from './Next30DaysTimeline';
+import { RecentCompletedServices } from './RecentCompletedServices';
 import { ServiceTrendsChart } from './ServiceTrendsChart';
 import { ProductionLinesCarousel } from './ProductionLinesCarousel';
 import { getServices, getLatestReport } from '@/data/services/services.api';
@@ -39,6 +39,7 @@ interface Service {
     branch: {
       id: string;
       name: string;
+      companyId: string;
     };
   };
 }
@@ -109,12 +110,23 @@ export function HomePage() {
           );
 
           setMachines(machinesWithStatus);
-        }
 
-        // TODO: Fetch alerts from alerts API when available
-        // For now, we'll generate mock alerts based on service data
-        const mockAlerts: Alert[] = [];
-        setAlerts(mockAlerts);
+          // Generate alerts from machines with critical or warning status
+          const generatedAlerts: Alert[] = machinesWithStatus
+            .filter((m) => m.alertStatus === 'critical' || m.alertStatus === 'warning')
+            .map((m) => ({
+              id: m.id,
+              machineName: m.name,
+              machineId: m.id,
+              severity:
+                m.alertStatus === 'critical'
+                  ? ('RED' as AlertSeverityEnum)
+                  : ('YELLOW' as AlertSeverityEnum),
+              message: m.alertStatus === 'critical' ? 'Critical alert' : 'Warning alert',
+              createdAt: new Date().toISOString(),
+            }));
+          setAlerts(generatedAlerts);
+        }
       } catch (error) {
         console.error('Error loading dashboard data:', error);
       } finally {
@@ -158,9 +170,23 @@ export function HomePage() {
       });
     }
 
-    // Get upcoming services (PENDING status, future dates)
+    // Get user's company ID and accessible branch IDs
+    const userCompanyId = companyUser?.companyId;
+    const userBranchIds = companyUser?.isCompanyAdmin
+      ? null // Company admins can see all branches in their company
+      : (companyUser?.branches?.map((b) => b.branchId) ?? []);
+
+    // Get upcoming services (PENDING status, future dates, filtered by company and branches)
     const upcomingServices = services
       .filter((service) => {
+        // Always filter by company (most important filter)
+        if (userCompanyId && service.machine.branch.companyId !== userCompanyId) {
+          return false;
+        }
+        // For non-company-admins, also filter by accessible branches
+        if (userBranchIds !== null && !userBranchIds.includes(service.machine.branch.id)) {
+          return false;
+        }
         return service.status === ServiceStatus.PENDING && new Date(service.date) >= new Date();
       })
       .map((service) => ({
@@ -172,27 +198,28 @@ export function HomePage() {
         type: service.type,
       }));
 
-    // Calculate current month performance
-    const currentMonthStart = startOfMonth(new Date());
-    const currentMonthEnd = endOfMonth(new Date());
-    const currentMonthServices = services.filter((service) => {
-      const serviceDate = parseISO(service.date);
-      return (
-        service.status === ServiceStatus.COMPLETED &&
-        serviceDate >= currentMonthStart &&
-        serviceDate <= currentMonthEnd
-      );
-    });
-
-    const preventiveCount = currentMonthServices.filter(
-      (s) => s.type === ServiceType.INSPECTION,
-    ).length;
-    const correctiveCount = currentMonthServices.filter(
-      (s) => s.type === ServiceType.MAINTENANCE,
-    ).length;
-
-    // Mock availability calculation (would need real uptime data)
-    const availability = totalMachines > 0 ? 98.5 : 100;
+    // Get recent completed services (last 5, filtered by company)
+    const recentCompletedServices = services
+      .filter((service) => {
+        // Filter by company
+        if (userCompanyId && service.machine.branch.companyId !== userCompanyId) {
+          return false;
+        }
+        // Filter by branches for non-company-admins
+        if (userBranchIds !== null && !userBranchIds.includes(service.machine.branch.id)) {
+          return false;
+        }
+        return service.status === ServiceStatus.COMPLETED;
+      })
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5)
+      .map((service) => ({
+        id: service.id,
+        machineName: service.machine.name,
+        machineId: service.machine.id,
+        date: service.date,
+        type: service.type,
+      }));
 
     return {
       totalMachines,
@@ -201,11 +228,7 @@ export function HomePage() {
       monthlyTrends: monthlyData,
       upcomingServices,
       alerts: alerts,
-      monthPerformance: {
-        preventiveCount,
-        correctiveCount,
-        availability,
-      },
+      recentCompletedServices,
     };
   };
 
@@ -270,7 +293,7 @@ export function HomePage() {
             </CardContent>
           </Card>
 
-          {/* Next 7 Days + Month Performance */}
+          {/* Next 30 Days + Recent Completed Services */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardContent className="pt-6">
@@ -340,14 +363,10 @@ export function HomePage() {
       {/* Production Lines Carousel - Only show if user has permission */}
       {canViewProductionLines && <ProductionLinesCarousel />}
 
-      {/* Next 7 Days + Month Performance */}
+      {/* Next 30 Days + Recent Completed Services */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Next7DaysTimeline services={dashboardData.upcomingServices} />
-        <MonthPerformance
-          preventiveCount={dashboardData.monthPerformance.preventiveCount}
-          correctiveCount={dashboardData.monthPerformance.correctiveCount}
-          availability={dashboardData.monthPerformance.availability}
-        />
+        <Next30DaysTimeline services={dashboardData.upcomingServices} />
+        <RecentCompletedServices services={dashboardData.recentCompletedServices} />
       </div>
 
       {/* Service Trends Chart */}

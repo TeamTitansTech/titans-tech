@@ -765,18 +765,18 @@
         "more": "+{count} mais"
       },
       "timeline": {
-        "title": "Próximos 7 Dias",
+        "title": "Próximos 30 Dias",
         "noServices": "Nenhum serviço agendado",
         "today": "Hoje",
         "tomorrow": "Amanhã",
         "maintenance": "Manutenção",
         "inspection": "Inspeção"
       },
-      "performance": {
-        "title": "Performance do Mês",
-        "availability": "Disponibilidade",
-        "preventive": "Preventivas",
-        "corrective": "Corretivas"
+      "recentCompleted": {
+        "title": "Concluídos Recentes",
+        "noServices": "Nenhum serviço concluído ainda",
+        "maintenance": "Manutenção",
+        "inspection": "Inspeção"
       },
       "machineHealth": {
         "title": "Status das Máquinas",

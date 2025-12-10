@@ -105,10 +105,16 @@ export function CounterbalanceSection({
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  const latestInspection = filteredInspections[0];
-  const latestOuterData = latestInspection?.counterbalanceCylinderAirbag?.[0]?.outerData;
-  const latestInnerData = latestInspection?.counterbalanceCylinderAirbag?.[0]?.innerData;
-  const latestAlerts = latestInspection?.alerts || [];
+  const inspectionsWithCounterbalanceData = useMemo(() => {
+    return filteredInspections.filter(
+      (inspection) => inspection.counterbalanceCylinderAirbag?.[0]?.outerData,
+    );
+  }, [filteredInspections]);
+
+  const latestInspectionWithData = inspectionsWithCounterbalanceData[0];
+  const latestOuterData = latestInspectionWithData?.counterbalanceCylinderAirbag?.[0]?.outerData;
+  const latestInnerData = latestInspectionWithData?.counterbalanceCylinderAirbag?.[0]?.innerData;
+  const latestAlerts = latestInspectionWithData?.alerts || [];
 
   // Get status info for a value
   const getStatusInfo = (
@@ -267,7 +273,9 @@ export function CounterbalanceSection({
           </CardHeader>
           <CardContent>
             <Typography variant="large">
-              {latestInspection ? format(new Date(latestInspection.date), 'dd/MM/yyyy') : '-'}
+              {latestInspectionWithData
+                ? format(new Date(latestInspectionWithData.date), 'dd/MM/yyyy')
+                : '-'}
             </Typography>
           </CardContent>
         </Card>
@@ -279,7 +287,7 @@ export function CounterbalanceSection({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Typography variant="large">{filteredInspections.length}</Typography>
+            <Typography variant="large">{inspectionsWithCounterbalanceData.length}</Typography>
           </CardContent>
         </Card>
 
@@ -385,7 +393,7 @@ export function CounterbalanceSection({
                   <CalendarIcon className="h-5 w-5" />
                   <Typography variant="muted">{t('labels.inspections')}</Typography>
                 </div>
-                <Typography variant="large">{filteredInspections.length}</Typography>
+                <Typography variant="large">{inspectionsWithCounterbalanceData.length}</Typography>
               </div>
             </div>
           </div>
@@ -466,7 +474,7 @@ export function CounterbalanceSection({
           )}
 
           {/* Inspection History Table */}
-          {filteredInspections.length > 0 && (
+          {inspectionsWithCounterbalanceData.length > 0 && (
             <div className="mt-8">
               <Typography variant="h4" className="mb-4">
                 {t('labels.inspectionHistory')}
@@ -491,7 +499,7 @@ export function CounterbalanceSection({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredInspections.slice(0, 10).map((inspection) => {
+                    {inspectionsWithCounterbalanceData.slice(0, 10).map((inspection) => {
                       const cbData = inspection.counterbalanceCylinderAirbag?.[0];
                       const outerIssues = countIssues(cbData?.outerData ?? null);
                       const innerIssues = countIssues(cbData?.innerData ?? null);
