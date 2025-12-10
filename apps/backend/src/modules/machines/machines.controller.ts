@@ -128,7 +128,8 @@ export class MachinesController {
             };
             alertBearingClearance: true;
             alertClutch: true;
-            alertSlide: true;
+            alertSlideSingleHammer: true;
+            alertSlideDoubleHammer: true;
             alertGibs: true;
             alertPistons: true;
             alertTramming: true;
