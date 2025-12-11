@@ -54,6 +54,20 @@ export class ServicesController {
   }
 
   /**
+   * Dispatches to different actions based on user type (SysAdmin vs regular user)
+   */
+  private dispatchByUserType<T>(
+    user: ReqWithAuthUser['user'],
+    sysAdminAction: () => T,
+    userAction: (userId: string) => T,
+  ): T {
+    if (isSysAdmin(user)) {
+      return sysAdminAction();
+    }
+    return userAction(user.id);
+  }
+
+  /**
    * Create a new service/inspection
    */
   @ResourcePermission('machine', 'createServices', {
@@ -71,13 +85,16 @@ export class ServicesController {
 
   /**
    * Get all services
-   * TODO: Add @BranchPermission('readServices') and filter by accessible branches
-   * Current: Requires authentication only, returns all services (should filter by user's branches)
+   * Filters by user's accessible branches with readServices permission
    */
   @Authenticated()
   @Get()
-  findAll(): Promise<unknown> {
-    return this.servicesService.findAll();
+  findAll(@Req() req: ReqWithAuthUser): Promise<unknown> {
+    return this.dispatchByUserType(
+      req.user,
+      () => this.servicesService.findAllForSysAdmin(),
+      (userId) => this.servicesService.findAll(userId),
+    );
   }
 
   /**

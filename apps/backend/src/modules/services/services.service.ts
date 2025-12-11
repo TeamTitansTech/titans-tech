@@ -38,6 +38,11 @@ import {
 } from '@titans-tech/shared/backend-dtos';
 import { AlertsService } from '../alerts/alerts.service';
 import {
+  hasPermissionInBranch,
+  type UserWithBranchPermissions,
+  type Permissions,
+} from '@titans-tech/shared/types';
+import {
   OIL_CHANGE_INTERVAL_DAYS,
   OIL_CHANGE_WARNING_THRESHOLD_DAYS,
 } from './services.constants';
@@ -56,6 +61,57 @@ export class ServicesService {
     private prisma: PrismaService,
     private alertsService: AlertsService,
   ) {}
+
+  /**
+   * Gets the list of branch IDs that a user has readServices permission for
+   * @param userId - The ID of the user
+   * @returns Array of branch IDs the user can read services from
+   */
+  private async getUserBranchIdsWithPermission(
+    userId: string,
+  ): Promise<string[]> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        branches: true,
+        company: {
+          include: {
+            branches: {
+              select: { id: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Company admins have access to all branches in their company
+    if (user.isCompanyAdmin) {
+      return user.company.branches.map((b) => b.id);
+    }
+
+    // For regular users, filter branches by readServices permission
+    const userWithPermissions: UserWithBranchPermissions = {
+      id: user.id,
+      isCompanyAdmin: false,
+      branches: user.branches.map((ub) => ({
+        branchId: ub.branchId,
+        ...(ub as unknown as Permissions),
+      })),
+    };
+
+    // Filter branches where user has readServices permission (including prerequisites)
+    const permittedBranchIds = user.branches
+      .filter((ub) =>
+        hasPermissionInBranch(userWithPermissions, ub.branchId, 'readServices'),
+      )
+      .map((ub) => ub.branchId);
+
+    return permittedBranchIds;
+  }
 
   /**
    * Validates if a user has permission to perform an action on a service
@@ -394,7 +450,104 @@ export class ServicesService {
     return updatedService;
   }
 
-  async findAll(): Promise<any[]> {
+  async findAll(userId: string): Promise<any[]> {
+    const branchIds = await this.getUserBranchIdsWithPermission(userId);
+
+    return this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          branchId: {
+            in: branchIds,
+          },
+        },
+      },
+      include: {
+        machine: {
+          include: {
+            blueprint: true,
+            fields: true,
+            branch: true,
+          },
+        },
+        bearingClearance: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        slide: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        slideSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
+        slideDoubleHammer: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            outerFreeHangingData: true,
+            innerBefore: true,
+            innerData: true,
+            innerBeforeTool: true,
+            innerDataTool: true,
+          },
+        },
+        lubricationHydraulics: {
+          include: {
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
+          },
+        },
+        clutch: {
+          include: {
+            data: true,
+          },
+        },
+        counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        pistons: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    });
+  }
+
+  async findAllForSysAdmin(): Promise<any[]> {
     return this.prisma.machineService.findMany({
       include: {
         machine: {
