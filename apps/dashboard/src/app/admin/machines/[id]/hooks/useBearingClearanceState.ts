@@ -8,6 +8,7 @@ import {
   ConditionOkNaDncDamagedType,
 } from '@/data/types/services.types';
 import { defaultBearingData } from '../components/sections/BearingClearanceSection';
+import { desanitizeBearingDataForDisplay } from '../components/sections/bearingClearanceUtils';
 
 export interface BearingClearanceSectionData {
   outerBefore?: BearingClearanceData;
@@ -25,18 +26,25 @@ interface UseBearingClearanceStateProps {
 
 export function useBearingClearanceState({ initialData }: UseBearingClearanceStateProps = {}) {
   // Handle field name mapping: API uses outerData/innerData, component uses outerAfter/innerAfter
-  const outerAfterInitial = initialData?.outerData || initialData?.outerAfter;
-  const innerAfterInitial = initialData?.innerData || initialData?.innerAfter;
+  // Desanitize data from database (convert 0 back to undefined for empty fields)
+  const outerAfterInitial = desanitizeBearingDataForDisplay(
+    initialData?.outerData || initialData?.outerAfter,
+  );
+  const innerAfterInitial = desanitizeBearingDataForDisplay(
+    initialData?.innerData || initialData?.innerAfter,
+  );
+  const outerBeforeInitial = desanitizeBearingDataForDisplay(initialData?.outerBefore);
+  const innerBeforeInitial = desanitizeBearingDataForDisplay(initialData?.innerBefore);
 
   // Store initial loaded data for "touched" detection (compare against this, not default)
   const [initialOuterBeforeData] = useState<BearingClearanceData>(
-    initialData?.outerBefore || defaultBearingData,
+    outerBeforeInitial || defaultBearingData,
   );
   const [initialOuterAfterData] = useState<BearingClearanceData>(
     outerAfterInitial || defaultBearingData,
   );
   const [initialInnerBeforeData] = useState<BearingClearanceData>(
-    initialData?.innerBefore || defaultBearingData,
+    innerBeforeInitial || defaultBearingData,
   );
   const [initialInnerAfterData] = useState<BearingClearanceData>(
     innerAfterInitial || defaultBearingData,
@@ -44,18 +52,18 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
 
   // Include before measurements checkbox
   const [includeBeforeMeasurements, setIncludeBeforeMeasurements] = useState(
-    !!(initialData?.outerBefore || initialData?.innerBefore),
+    !!(outerBeforeInitial || innerBeforeInitial),
   );
 
   // Bearing data states
   const [outerBeforeData, setOuterBeforeData] = useState<BearingClearanceData>(
-    initialData?.outerBefore || defaultBearingData,
+    outerBeforeInitial || defaultBearingData,
   );
   const [outerAfterData, setOuterAfterData] = useState<BearingClearanceData>(
     outerAfterInitial || defaultBearingData,
   );
   const [innerBeforeData, setInnerBeforeData] = useState<BearingClearanceData>(
-    initialData?.innerBefore || defaultBearingData,
+    innerBeforeInitial || defaultBearingData,
   );
   const [innerAfterData, setInnerAfterData] = useState<BearingClearanceData>(
     innerAfterInitial || defaultBearingData,
@@ -64,51 +72,49 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
   // Separate states for each tab and time period
   const [outerBeforeHasBeenAdjusted, setOuterBeforeHasBeenAdjusted] = useState<
     YesNoNaDncType | undefined
-  >(initialData?.outerBefore?.hasBeenAdjusted);
+  >(outerBeforeInitial?.hasBeenAdjusted);
   const [outerAfterHasBeenAdjusted, setOuterAfterHasBeenAdjusted] = useState<
     YesNoNaDncType | undefined
   >(outerAfterInitial?.hasBeenAdjusted);
   const [innerBeforeHasBeenAdjusted, setInnerBeforeHasBeenAdjusted] = useState<
     YesNoNaDncType | undefined
-  >(initialData?.innerBefore?.hasBeenAdjusted);
+  >(innerBeforeInitial?.hasBeenAdjusted);
   const [innerAfterHasBeenAdjusted, setInnerAfterHasBeenAdjusted] = useState<
     YesNoNaDncType | undefined
   >(innerAfterInitial?.hasBeenAdjusted);
 
   // Tab-specific fields (separate for Outer and Inner)
   const [outerCombinedWith, setOuterCombinedWith] = useState(
-    (outerAfterInitial || initialData?.outerBefore)?.combinedWith || '',
+    (outerAfterInitial || outerBeforeInitial)?.combinedWith || '',
   );
   const [outerMatingPart, setOuterMatingPart] = useState<MatingPartType>(
-    (outerAfterInitial || initialData?.outerBefore)?.matingPart || MatingPartType.BUSHING,
+    (outerAfterInitial || outerBeforeInitial)?.matingPart || MatingPartType.BUSHING,
   );
   const [innerCombinedWith, setInnerCombinedWith] = useState(
-    (innerAfterInitial || initialData?.innerBefore)?.combinedWith || '',
+    (innerAfterInitial || innerBeforeInitial)?.combinedWith || '',
   );
   const [innerMatingPart, setInnerMatingPart] = useState<MatingPartType>(
-    (innerAfterInitial || initialData?.innerBefore)?.matingPart || MatingPartType.BUSHING,
+    (innerAfterInitial || innerBeforeInitial)?.matingPart || MatingPartType.BUSHING,
   );
 
   // Shared fields (Shutdown Adjustment Mechanism)
   const [slideMotorMounts, setSlideMotorMounts] = useState<
     ConditionOkNaDncBrokenWornType | undefined
-  >(outerAfterInitial?.slideMotorMounts || initialData?.outerBefore?.slideMotorMounts || undefined);
+  >(outerAfterInitial?.slideMotorMounts || outerBeforeInitial?.slideMotorMounts || undefined);
   const [powerCordHoses, setPowerCordHoses] = useState<ConditionOkNaDncDamagedType | undefined>(
-    outerAfterInitial?.powerCordHoses || initialData?.outerBefore?.powerCordHoses || undefined,
+    outerAfterInitial?.powerCordHoses || outerBeforeInitial?.powerCordHoses || undefined,
   );
   const [chainsGearsSprockets, setChainsGearsSprockets] = useState<
     ConditionOkNaDncBrokenLooseType | undefined
   >(
     outerAfterInitial?.chainsGearsSprockets ||
-      initialData?.outerBefore?.chainsGearsSprockets ||
+      outerBeforeInitial?.chainsGearsSprockets ||
       undefined,
   );
   const [lockingClamps, setLockingClamps] = useState<ConditionOkNaDncDamagedType | undefined>(
-    outerAfterInitial?.lockingClamps || initialData?.outerBefore?.lockingClamps || undefined,
+    outerAfterInitial?.lockingClamps || outerBeforeInitial?.lockingClamps || undefined,
   );
-  const [notes, setNotes] = useState(
-    outerAfterInitial?.notes || initialData?.outerBefore?.notes || '',
-  );
+  const [notes, setNotes] = useState(outerAfterInitial?.notes || outerBeforeInitial?.notes || '');
 
   // Error states
   const [outerBeforeErrors, setOuterBeforeErrors] = useState<

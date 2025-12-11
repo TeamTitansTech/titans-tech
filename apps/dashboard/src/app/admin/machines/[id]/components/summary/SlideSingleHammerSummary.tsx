@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface SlideSingleHammerSummaryProps {
   data: SlideSingleHammerCheck;
@@ -20,6 +21,7 @@ export function SlideSingleHammerSummary({ data }: SlideSingleHammerSummaryProps
   const tTable = useTranslations('table');
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common.status');
+  const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 
   // Return null if no data provided
   if (!data) {
@@ -38,6 +40,16 @@ export function SlideSingleHammerSummary({ data }: SlideSingleHammerSummaryProps
       .split(' ')
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
+  };
+
+  // Helper function to display numeric value with unit conversion
+  // Treats 0 as empty since database stores 0 for unfilled numeric fields
+  const displayNumericValue = (value: unknown): string => {
+    if (value === null || value === undefined || value === '' || value === 0) return '-';
+    const numValue = Number(value);
+    if (isNaN(numValue) || numValue === 0) return '-';
+    const convertedValue = convertLengthFromDefault(numValue);
+    return convertedValue.toFixed(4);
   };
 
   // Helper function to display value with translations
@@ -88,7 +100,10 @@ export function SlideSingleHammerSummary({ data }: SlideSingleHammerSummaryProps
     if (validValues.length > 1) {
       const max = Math.max(...validValues);
       const min = Math.min(...validValues);
-      return (max - min).toFixed(4);
+      const deviation = max - min;
+      // Convert the deviation to display unit
+      const convertedDeviation = convertLengthFromDefault(deviation);
+      return convertedDeviation.toFixed(4);
     }
     return '-';
   };
@@ -105,17 +120,19 @@ export function SlideSingleHammerSummary({ data }: SlideSingleHammerSummaryProps
       slideData.position5,
     ];
 
+    const unitLabel = getLengthUnitLabel();
+
     return (
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50">
             {positions.map((_, idx) => (
               <TableHead key={idx} className="h-8 text-[10px] font-semibold text-center">
-                Pos {idx + 1}
+                Pos {idx + 1} ({unitLabel})
               </TableHead>
             ))}
             <TableHead className="h-8 text-[10px] font-semibold text-center bg-blue-50 dark:bg-blue-950">
-              {tSlide('maxDeviation')}
+              {tSlide('maxDeviation')} ({unitLabel})
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -123,7 +140,7 @@ export function SlideSingleHammerSummary({ data }: SlideSingleHammerSummaryProps
           <TableRow className="text-[11px]">
             {positions.map((val, idx) => (
               <TableCell key={idx} className="py-1.5 text-center">
-                {displayValue(val)}
+                {displayNumericValue(val)}
               </TableCell>
             ))}
             <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">

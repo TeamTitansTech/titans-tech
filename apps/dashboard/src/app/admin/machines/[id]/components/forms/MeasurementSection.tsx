@@ -3,10 +3,12 @@
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { type GibsStageData } from '@/data/types/services.types';
 import { calculateGibsFields } from './gibsCalculations';
 import { LengthInput } from '@/components/ui/forms/LengthInput';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
+import { Bell } from 'lucide-react';
 
 type TranslationFunction = ReturnType<typeof useTranslations>;
 
@@ -28,7 +30,7 @@ const AFTER_TOOL_POINTS_RIGHT = ['point14', 'point10'] as const;
 interface MeasurementInputsProps {
   points: readonly string[];
   data: GibsStageData;
-  updateFn: (field: keyof GibsStageData, value: number) => void;
+  updateFn: (field: keyof GibsStageData, value: number | undefined) => void;
   handleBlur: (field: keyof GibsStageData) => void;
   errors: Record<string, string>;
   t: TranslationFunction;
@@ -51,11 +53,10 @@ function MeasurementInputs({
             key={field}
             id={field}
             label={t('form.gibs.point', { number: pointNumber })}
-            value={data[field as keyof GibsStageData] ?? 0}
+            value={data[field as keyof GibsStageData]}
             onChange={(val) => updateFn(field as keyof GibsStageData, val)}
             onBlur={() => handleBlur(field as keyof GibsStageData)}
             error={errors[field]}
-            required
           />
         );
       })}
@@ -307,11 +308,25 @@ function LeftToRightTable({
                 {convertFromDefault(calculated.rightBottom).toFixed(4)}
               </td>
             </tr>
-            {!hideUsable && calculated.usable !== undefined && (
+            {!hideUsable && (
               <tr>
-                <td className="border p-2 font-medium bg-muted">{t('form.gibs.usable')}</td>
+                <td className="border p-2 font-medium bg-muted">
+                  <span className="flex items-center gap-1">
+                    {t('form.gibs.usable')}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Bell className="h-3 w-3 text-amber-500 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p className="text-xs">{t('form.common.generatesAlert')}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
+                </td>
                 <td className="border p-2 text-center font-mono" colSpan={2}>
-                  {convertFromDefault(calculated.usable).toFixed(4)}
+                  {calculated.usable !== undefined
+                    ? convertFromDefault(calculated.usable).toFixed(4)
+                    : '0.0000'}
                 </td>
               </tr>
             )}
@@ -324,7 +339,7 @@ function LeftToRightTable({
 
 interface MeasurementSectionProps {
   data: GibsStageData;
-  updateFn: (field: keyof GibsStageData, value: number) => void;
+  updateFn: (field: keyof GibsStageData, value: number | undefined) => void;
   handleBlur: (field: keyof GibsStageData) => void;
   errors: Record<string, string>;
   diagramType: 'frontToBack' | 'leftToRight' | 'topView' | 'beforeTool' | 'afterTool';

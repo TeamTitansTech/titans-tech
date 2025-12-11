@@ -22,7 +22,7 @@ export function MeasurementInput<T extends string>({
   error,
   readOnly = false,
   className = 'w-21 h-8 text-sm px-2 py-1',
-  required = true,
+  required = false,
 }: MeasurementInputProps<T>) {
   const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 

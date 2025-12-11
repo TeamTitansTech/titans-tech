@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Loader2, Plus, X, AlertTriangle, Pencil, Trash2, Check } from 'lucide-react';
+import { Loader2, Plus, X, AlertTriangle, Pencil, Trash2, Check, Bell } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { CounterbalanceAlertField } from '@/data/types/services.types';
 import { responseHandler } from '@/data/helpers/responseHandler';
 
@@ -35,6 +36,7 @@ interface CounterbalanceAlertsSectionProps {
 
 export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsSectionProps) {
   const t = useTranslations('inspections.form.counterbalanceCylinder.alerts');
+  const tFormCommon = useTranslations('inspections.form.common');
 
   // Alerts state
   const [alerts, setAlerts] = useState<CounterbalanceCylinderAlert[]>([]);
@@ -202,6 +204,14 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
           <h3 className="text-sm font-semibold flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-red-500" />
             {t('title')} ({alerts.length})
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Bell className="h-3 w-3 text-amber-500 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">{tFormCommon('generatesAlert')}</p>
+              </TooltipContent>
+            </Tooltip>
           </h3>
         </div>
 

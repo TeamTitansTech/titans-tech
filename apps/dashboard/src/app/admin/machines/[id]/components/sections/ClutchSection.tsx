@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { type ClutchData, ServiceType } from '@/data/types/services.types';
 import { ClutchForm } from '../forms/ClutchForm';
 import { isDataTouched } from './utils';
@@ -44,14 +45,22 @@ export const defaultClutchData: ClutchData = {
   notes: undefined,
 };
 
-export const validateClutchData = (data: ClutchData, serviceType: ServiceType): string[] => {
+// Helper to check if a value is filled (not undefined/null/NaN, but 0 is valid)
+const isValueFilled = (value: unknown): boolean => {
+  if (value === undefined || value === null) return false;
+  if (typeof value === 'number' && isNaN(value)) return false;
+  return true;
+};
+
+export const validateClutchData = (data: ClutchData, _serviceType: ServiceType): string[] => {
   const errors: string[] = [];
 
-  // Only clutch type is required for maintenance services
-  if (serviceType === ServiceType.MAINTENANCE) {
-    if (!data.clutchType) {
-      errors.push('Clutch Type is required for maintenance and rebuild services');
-    }
+  // Required fields: hydraulic clutch clearance total and rear
+  if (!isValueFilled(data.hydClutchClearanceTotal)) {
+    errors.push('Clutch: Hydraulic Clutch Clearance Total is required');
+  }
+  if (!isValueFilled(data.hydClutchClearanceRear)) {
+    errors.push('Clutch: Hydraulic Clutch Clearance Rear is required');
   }
 
   return errors;
@@ -76,6 +85,8 @@ interface ClutchSectionProps {
 
 export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
   ({ onSectionTouched, initialData }, ref) => {
+    const t = useTranslations('inspections');
+
     // Store initial loaded data for "touched" detection
     const [initialClutchData, setInitialClutchData] = useState<ClutchData>(
       initialData || defaultClutchData,
@@ -96,6 +107,18 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
       }
     }, [initialData, prevInitialData]);
 
+    // Validate with translations
+    const validateWithTranslations = (clutchData: ClutchData): string[] => {
+      const validationErrors: string[] = [];
+      if (!isValueFilled(clutchData.hydClutchClearanceTotal)) {
+        validationErrors.push(t('form.clutch.validation.hydClutchClearanceTotalRequired'));
+      }
+      if (!isValueFilled(clutchData.hydClutchClearanceRear)) {
+        validationErrors.push(t('form.clutch.validation.hydClutchClearanceRearRequired'));
+      }
+      return validationErrors;
+    };
+
     const updateField = (field: keyof ClutchData, value: string | number | undefined) => {
       setData((prev) => ({ ...prev, [field]: value }));
       setErrors((prev) => ({ ...prev, [field]: '' }));
@@ -112,24 +135,23 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
       },
 
       validateAndGetData: (
-        serviceType: ServiceType,
+        _serviceType: ServiceType,
       ): { isValid: boolean; errors: string[]; data?: ClutchData } => {
         const touched = isDataTouched(data, initialClutchData);
-        const hasData = touched || isDataTouched(initialClutchData, defaultClutchData);
+        const hasInitialData = isDataTouched(initialClutchData, defaultClutchData);
 
-        // If no data at all (initial or touched), validation passes with no data
-        if (!hasData) {
-          return { isValid: true, errors: [] };
-        }
-
-        const validationErrors = touched ? validateClutchData(data, serviceType) : [];
+        // Always validate required fields regardless of touch state
+        const dataToValidate = touched ? data : initialClutchData;
+        const validationErrors = validateWithTranslations(dataToValidate);
         const isValid = validationErrors.length === 0;
 
         if (isValid) {
+          // Only return data if section was touched or has initial data
+          const hasData = touched || hasInitialData;
           return {
             isValid: true,
             errors: [],
-            data: touched ? data : initialClutchData,
+            data: hasData ? dataToValidate : undefined,
           };
         }
 
@@ -145,12 +167,11 @@ export const ClutchSection = forwardRef<ClutchSectionRef, ClutchSectionProps>(
         return hasData ? (touched ? data : initialClutchData) : undefined;
       },
 
-      validate: (serviceType: ServiceType): string[] => {
+      validate: (_serviceType: ServiceType): string[] => {
+        // Always validate required fields regardless of touch state
         const touched = isDataTouched(data, initialClutchData);
-        if (touched) {
-          return validateClutchData(data, serviceType);
-        }
-        return [];
+        const dataToValidate = touched ? data : initialClutchData;
+        return validateWithTranslations(dataToValidate);
       },
 
       reset: () => {

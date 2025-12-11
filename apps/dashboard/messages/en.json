@@ -1368,17 +1368,19 @@
           "ball_box_area_RH": "Ball Box Area RH",
           "ball_box_area_LH": "Ball Box Area LH",
           "Ball_box_area_RH": "Ball Box Area RH",
-          "Ball_box_area_LH": "Ball Box Area LH"
+          "Ball_box_area_LH": "Ball Box Area LH",
+          "hasBeenAdjusted": "Has Been Adjusted"
         },
         "validation": {
-          "outerDataRequired": "Bearing Clearance: Outer Data is required",
-          "innerDataRequired": "Bearing Clearance: Inner Data is required",
+          "sectionHeader": "Bearing Clearance - Missing fields:",
+          "outerDataRequired": "",
+          "innerDataRequired": "",
           "beforeMeasurementsRequired": "Bearing Clearance: When 'Include Before Measurements' is enabled for maintenance, you must fill all 'Before' sections (Outer Before and Inner Before)",
-          "fieldRequired": "{field} is required",
+          "fieldRequired": "{field}",
           "outerBefore": "Outer Before",
-          "outerData": "Outer Data",
+          "outerData": "Outer",
           "innerBefore": "Inner Before",
-          "innerData": "Inner Data"
+          "innerData": "Inner"
         }
       },
       "slide": {
@@ -1417,8 +1419,16 @@
         "saving": "Saving...",
         "dataSaved": "Data saved successfully",
         "validationError": "Please fill in all required fields",
-        "fillAllFields": "Please fill in all position fields (1-6)",
+        "fillAllFields": "Please fill in all position fields (1-5) - the calculated max deviation generates alerts",
         "fillBeforeMeasurements": "Please fill in all 'Before Maintenance' fields when checkbox is checked",
+        "validation": {
+          "measurementsRequired": "Slide - Single Hammer: Fill in positions 1-5 (max deviation generates alerts)",
+          "atLeastOneSectionRequired": "Slide - Double Hammer: Fill in at least one section (Outer or Inner) with positions 1-5 (max deviation generates alerts)",
+          "outerPrefix": "Slide Outer",
+          "innerPrefix": "Slide Inner",
+          "positionRequired": "Position {position} is required",
+          "atLeastTwoPositionsRequired": "Fill at least 2 position points in max deviation"
+        },
         "yes": "Yes",
         "no": "No",
         "na": "N/A",
@@ -1477,7 +1487,12 @@
         "afterToolInstallation": "After Tool Installation",
         "adjustment": "Adjustment",
         "installation": "Installation",
-        "haveInnerGibsBeenAdjusted": "Have Inner gibs been adjusted"
+        "haveInnerGibsBeenAdjusted": "Have Inner gibs been adjusted",
+        "validation": {
+          "atLeastOneSectionRequired": "Gibs: Fill in at least one measurement section - the Usable field in 'Left to Right' table generates alerts",
+          "leftToRightRequired": "Gibs: Fill in the 'Left to Right' section (Outer Gibs)",
+          "stagePrefix": "Gibs {stage}"
+        }
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "System Pressures (PSI)",
@@ -1508,7 +1523,10 @@
         "filterTitle": "Filter",
         "changedFilter": "Changed Filter",
         "notes": "Notes",
-        "notesPlaceholder": "Additional notes..."
+        "notesPlaceholder": "Additional notes...",
+        "validation": {
+          "changedOilRequired": "Lubrication: Oil Changed is required"
+        }
       },
       "clutch": {
         "clutchInfoTitle": "Clutch Information",
@@ -1620,7 +1638,9 @@
           "gearBacklashCheck": "*Check only if excessive noise and/or vibration is present"
         },
         "validation": {
-          "required": "This field is required"
+          "required": "This field is required",
+          "hydClutchClearanceTotalRequired": "Clutch: Hydraulic Clutch Clearance (Total) is required",
+          "hydClutchClearanceRearRequired": "Clutch: Hydraulic Clutch Clearance (Rear) is required"
         }
       },
       "counterbalanceCylinder": {
@@ -1704,7 +1724,12 @@
         "left": "Left",
         "right": "Right",
         "trimPin": "Trim Pin",
-        "notes": "Notes"
+        "notes": "Notes",
+        "validation": {
+          "outerPrefix": "Tramming Outer",
+          "innerPrefix": "Tramming Inner",
+          "allMeasurementsRequired": "Tramming: Fill in all 4 measurements at each point (Top, Bottom, Left, Right) - each point generates alerts"
+        }
       },
       "pistons": {
         "guideSeals": "Guide Seals",
@@ -1715,7 +1740,12 @@
         "piston": "Piston",
         "top": "Top",
         "bottom": "Bottom",
-        "notes": "Notes (Optional)"
+        "notes": "Notes (Optional)",
+        "validation": {
+          "atLeastOneSectionRequired": "Pistons: Fill in at least one section (Outer or Inner) - Top and Bottom fields generate alerts",
+          "outerPrefix": "Pistons Outer",
+          "innerPrefix": "Pistons Inner"
+        }
       },
       "cancel": "Cancel",
       "submit": {
@@ -1742,7 +1772,9 @@
         "selectStatus": "Select status",
         "selectMatingPart": "Select mating part",
         "referenceMeasurement": "Reference measurement",
-        "additionalNotes": "Enter additional notes..."
+        "additionalNotes": "Enter additional notes...",
+        "generatesAlert": "This field generates alerts",
+        "oilChangeGeneratesAlert": "Generates alerts if oil is not changed in 333 days"
       },
       "bearingClearanceSection": {
         "includeBeforeMeasurements": "Include Before Measurements",
@@ -2001,6 +2033,7 @@
     "system": "System",
     "gauge": "Gauge",
     "psi": "PSI",
+    "pressure": "Pressure",
     "noImage": "No Image"
   },
   "measurements": {
@@ -2198,6 +2231,10 @@
       "afterMaintenance": "After Maintenance"
     },
     "units": {
+      "selectedUnits": "Selected Units",
+      "lengthLabel": "Length",
+      "temperatureLabel": "Temperature",
+      "pressureLabel": "Pressure",
       "length": {
         "label": "Length Unit",
         "mm": "mm",
@@ -2435,7 +2472,17 @@
       "performedByRequired": "Please fill in the 'Performed By' field",
       "completeAllSections": "Please complete all sections before viewing the summary",
       "validationWarnings": "Validation Warnings",
-      "redirectingToIncomplete": "Section saved! Redirecting to first incomplete section"
+      "redirectingToIncomplete": "Section saved! Redirecting to first incomplete section",
+      "detailsMissingFields": "The following fields are required:",
+      "isPressLevelRequired": "Is the Press Level?",
+      "driveBeltConditionRequired": "Drive Belt Condition",
+      "areAllProtectiveCoversRequired": "Are all protective covers in place?",
+      "areCracksVisibleRequired": "Are cracks visible on the crown, bed or slide?",
+      "isMainMotorSecureRequired": "Is the Main Motor Secure?",
+      "isMotorPlateSecureRequired": "Is the Motor Plate Secure?",
+      "whyNotCoveredRequired": "Why not covered?",
+      "protectiveCoversExplanationRequired": "If 'No' above, explain:",
+      "cracksLocationRequired": "If 'Yes' above, where?"
     },
     "successMessages": {
       "serviceUpdated": "Service details updated successfully",

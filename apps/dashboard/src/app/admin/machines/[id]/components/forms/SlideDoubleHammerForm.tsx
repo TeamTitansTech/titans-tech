@@ -11,10 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Textarea } from '@/components/ui/textarea';
 import { ParallelismType, YesNoNaDncType, YesNoDncType } from '@/data/types/services.types';
 import { LengthInput } from '@/components/ui/forms/LengthInput';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
+import { Bell } from 'lucide-react';
 import { type SlideFormData } from '../sections/SlideDoubleHammerSection';
 
 interface SlideDoubleHammerFormWrapperData {
@@ -53,6 +55,8 @@ function PositionFields({
   fieldPrefix: 'before' | 'after';
 }) {
   const t = useTranslations('inspections.form.slide');
+  const tCommon = useTranslations('inspections.form.common');
+  const showAlertIndicator = fieldPrefix === 'after';
   const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 
   // Build the actual field names based on prefix
@@ -96,58 +100,57 @@ function PositionFields({
         {/* Row 1: position1, position2, position3, deviation label */}
         <LengthInput
           id={`position1-${title}`}
-          value={data[pos1Field] ?? 0}
+          value={data[pos1Field]}
           onChange={(val) => updateFn(pos1Field, val)}
           onBlur={() => handleBlur(pos1Field)}
           error={errors[pos1Field]}
-          required={fieldPrefix === 'after'}
           showLabel={false}
         />
         <LengthInput
           id={`position2-${title}`}
-          value={data[pos2Field] ?? 0}
+          value={data[pos2Field]}
           onChange={(val) => updateFn(pos2Field, val)}
           onBlur={() => handleBlur(pos2Field)}
           error={errors[pos2Field]}
-          required={fieldPrefix === 'after'}
           showLabel={false}
         />
         <LengthInput
           id={`position3-${title}`}
-          value={data[pos3Field] ?? 0}
+          value={data[pos3Field]}
           onChange={(val) => updateFn(pos3Field, val)}
           onBlur={() => handleBlur(pos3Field)}
           error={errors[pos3Field]}
-          required={fieldPrefix === 'after'}
           showLabel={false}
         />
-        <div>
-          <Input
-            type="text"
-            value={t('maxDeviation')}
-            disabled
-            className="bg-muted text-center font-medium h-9"
-            readOnly
-          />
+        <div className="flex items-center justify-center gap-1">
+          <span className="text-sm font-medium">{t('maxDeviation')}</span>
+          {showAlertIndicator && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Bell className="h-3 w-3 text-amber-500 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">{tCommon('generatesAlert')}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
 
         {/* Row 2: position4, position5, empty, deviation calc */}
         <LengthInput
           id={`position4-${title}`}
-          value={data[pos4Field] ?? 0}
+          value={data[pos4Field]}
           onChange={(val) => updateFn(pos4Field, val)}
           onBlur={() => handleBlur(pos4Field)}
           error={errors[pos4Field]}
-          required={fieldPrefix === 'after'}
           showLabel={false}
         />
         <LengthInput
           id={`position5-${title}`}
-          value={data[pos5Field] ?? 0}
+          value={data[pos5Field]}
           onChange={(val) => updateFn(pos5Field, val)}
           onBlur={() => handleBlur(pos5Field)}
           error={errors[pos5Field]}
-          required={fieldPrefix === 'after'}
           showLabel={false}
         />
         <div></div>
@@ -170,52 +173,59 @@ function PositionFields({
         <LengthInput
           id={`position1-${title}-sm`}
           label="Pos 1"
-          value={data[pos1Field] ?? 0}
+          value={data[pos1Field]}
           onChange={(val) => updateFn(pos1Field, val)}
           onBlur={() => handleBlur(pos1Field)}
           error={errors[pos1Field]}
-          required={fieldPrefix === 'after'}
         />
         <LengthInput
           id={`position2-${title}-sm`}
           label="Pos 2"
-          value={data[pos2Field] ?? 0}
+          value={data[pos2Field]}
           onChange={(val) => updateFn(pos2Field, val)}
           onBlur={() => handleBlur(pos2Field)}
           error={errors[pos2Field]}
-          required={fieldPrefix === 'after'}
         />
         <LengthInput
           id={`position3-${title}-sm`}
           label="Pos 3"
-          value={data[pos3Field] ?? 0}
+          value={data[pos3Field]}
           onChange={(val) => updateFn(pos3Field, val)}
           onBlur={() => handleBlur(pos3Field)}
           error={errors[pos3Field]}
-          required={fieldPrefix === 'after'}
         />
         <LengthInput
           id={`position4-${title}-sm`}
           label="Pos 4"
-          value={data[pos4Field] ?? 0}
+          value={data[pos4Field]}
           onChange={(val) => updateFn(pos4Field, val)}
           onBlur={() => handleBlur(pos4Field)}
           error={errors[pos4Field]}
-          required={fieldPrefix === 'after'}
         />
         <LengthInput
           id={`position5-${title}-sm`}
           label="Pos 5"
-          value={data[pos5Field] ?? 0}
+          value={data[pos5Field]}
           onChange={(val) => updateFn(pos5Field, val)}
           onBlur={() => handleBlur(pos5Field)}
           error={errors[pos5Field]}
-          required={fieldPrefix === 'after'}
         />
 
         {/* Deviation display */}
         <div className="col-span-1 space-y-1">
-          <Label className="text-xs">{t('maxDeviation')}</Label>
+          <Label className="text-xs flex items-center gap-1">
+            {t('maxDeviation')}
+            {showAlertIndicator && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Bell className="h-3 w-3 text-amber-500 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">{tCommon('generatesAlert')}</p>
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </Label>
           <div className="relative">
             <Input
               type="text"
