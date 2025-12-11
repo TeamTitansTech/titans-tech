@@ -149,25 +149,26 @@ export enum OilWickType {
 
 /**
  * Bearing Clearance Data Schema
+ * Numeric fields are optional to allow empty form inputs
  */
 export const BearingClearanceDataSchema = z.object({
-  totalClearance_RH: z.number(),
-  totalClearance_LH: z.number(),
-  mainBearings_RH: z.number(),
-  mainBearings_LH: z.number(),
-  upperConnectionBearings_RH: z.number(),
-  upperConnectionBearings_LH: z.number(),
-  wristPinToMatingPart_RH: z.number(),
-  wristPinToMatingPart_LH: z.number(),
-  wristPinToBushing_RH: z.number(),
-  wristPinToBushing_LH: z.number(),
-  slideAdjNutToScrewSleeve_RH: z.number(),
-  slideAdjNutToScrewSleeve_LH: z.number(),
-  extraDoubleLockOpen_RH: z.number(),
-  extraDoubleLockOpen_LH: z.number(),
-  ballBoxArea_RH: z.number(),
-  ballBoxArea_LH: z.number(),
-  hasBeenAdjusted: z.enum(PrismaYesNoNaDncType),
+  totalClearance_RH: z.number().optional(),
+  totalClearance_LH: z.number().optional(),
+  mainBearings_RH: z.number().optional(),
+  mainBearings_LH: z.number().optional(),
+  upperConnectionBearings_RH: z.number().optional(),
+  upperConnectionBearings_LH: z.number().optional(),
+  wristPinToMatingPart_RH: z.number().optional(),
+  wristPinToMatingPart_LH: z.number().optional(),
+  wristPinToBushing_RH: z.number().optional(),
+  wristPinToBushing_LH: z.number().optional(),
+  slideAdjNutToScrewSleeve_RH: z.number().optional(),
+  slideAdjNutToScrewSleeve_LH: z.number().optional(),
+  extraDoubleLockOpen_RH: z.number().optional(),
+  extraDoubleLockOpen_LH: z.number().optional(),
+  ballBoxArea_RH: z.number().optional(),
+  ballBoxArea_LH: z.number().optional(),
+  hasBeenAdjusted: z.enum(PrismaYesNoNaDncType).optional(),
   combinedWith: z.string().optional(),
   matingPart: z.enum(PrismaMatingPartType).optional(),
   slideMotorMounts: z.enum(PrismaConditionOkNaDncBrokenWornType).optional(),
@@ -194,6 +195,7 @@ export type BearingClearanceCheck = z.infer<typeof BearingClearanceCheckSchema>;
 /**
  * Slide Data Schema
  * Each SlideData represents ONE measurement (5 positions) with metadata
+ * Position fields are optional to allow empty form inputs (at least 2 required by frontend validation)
  */
 export const SlideDataSchema = z.object({
   // Parallelism configuration
@@ -206,12 +208,12 @@ export const SlideDataSchema = z.object({
   shutheightActualSh: z.string().optional(),
   indicatorReading: z.string().optional(),
 
-  // Measurements (5 positions)
-  position1: z.number(),
-  position2: z.number(),
-  position3: z.number(),
-  position4: z.number(),
-  position5: z.number(),
+  // Measurements (5 positions) - optional to allow empty inputs
+  position1: z.number().optional(),
+  position2: z.number().optional(),
+  position3: z.number().optional(),
+  position4: z.number().optional(),
+  position5: z.number().optional(),
 });
 
 export type SlideData = z.infer<typeof SlideDataSchema>;
@@ -259,24 +261,25 @@ export type SlideDoubleHammerCheck = z.infer<typeof SlideDoubleHammerCheckSchema
 /**
  * Gibs Stage Data Schema - Represents one stage of GIBS measurements (16 points)
  * This matches the GibsStageData Prisma model
+ * Point fields are optional to allow empty form inputs
  */
 export const GibsStageDataSchema = z.object({
-  point1: z.number(),
-  point2: z.number(),
-  point3: z.number(),
-  point4: z.number(),
-  point5: z.number(),
-  point6: z.number(),
-  point7: z.number(),
-  point8: z.number(),
-  point9: z.number(),
-  point10: z.number(),
-  point11: z.number(),
-  point12: z.number(),
-  point13: z.number(),
-  point14: z.number(),
-  point15: z.number(),
-  point16: z.number(),
+  point1: z.number().optional(),
+  point2: z.number().optional(),
+  point3: z.number().optional(),
+  point4: z.number().optional(),
+  point5: z.number().optional(),
+  point6: z.number().optional(),
+  point7: z.number().optional(),
+  point8: z.number().optional(),
+  point9: z.number().optional(),
+  point10: z.number().optional(),
+  point11: z.number().optional(),
+  point12: z.number().optional(),
+  point13: z.number().optional(),
+  point14: z.number().optional(),
+  point15: z.number().optional(),
+  point16: z.number().optional(),
 });
 
 export type GibsStageData = z.infer<typeof GibsStageDataSchema>;

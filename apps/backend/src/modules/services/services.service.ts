@@ -48,6 +48,67 @@ type ServicePermission =
   | 'deleteServices'
   | 'readServices';
 
+/**
+ * Helper to convert GibsStageData with optional fields to Prisma-compatible format
+ * Converts undefined numeric values to 0
+ */
+type GibsStageDataInput = {
+  point1?: number;
+  point2?: number;
+  point3?: number;
+  point4?: number;
+  point5?: number;
+  point6?: number;
+  point7?: number;
+  point8?: number;
+  point9?: number;
+  point10?: number;
+  point11?: number;
+  point12?: number;
+  point13?: number;
+  point14?: number;
+  point15?: number;
+  point16?: number;
+};
+
+function normalizeGibsStageData(data: GibsStageDataInput): {
+  point1: number;
+  point2: number;
+  point3: number;
+  point4: number;
+  point5: number;
+  point6: number;
+  point7: number;
+  point8: number;
+  point9: number;
+  point10: number;
+  point11: number;
+  point12: number;
+  point13: number;
+  point14: number;
+  point15: number;
+  point16: number;
+} {
+  return {
+    point1: data.point1 ?? 0,
+    point2: data.point2 ?? 0,
+    point3: data.point3 ?? 0,
+    point4: data.point4 ?? 0,
+    point5: data.point5 ?? 0,
+    point6: data.point6 ?? 0,
+    point7: data.point7 ?? 0,
+    point8: data.point8 ?? 0,
+    point9: data.point9 ?? 0,
+    point10: data.point10 ?? 0,
+    point11: data.point11 ?? 0,
+    point12: data.point12 ?? 0,
+    point13: data.point13 ?? 0,
+    point14: data.point14 ?? 0,
+    point15: data.point15 ?? 0,
+    point16: data.point16 ?? 0,
+  };
+}
+
 @Injectable()
 export class ServicesService {
   private readonly logger = new Logger(ServicesService.name);
@@ -1610,14 +1671,17 @@ export class ServicesService {
   ): Promise<void> {
     if (!stageData) return;
 
+    // Normalize data to ensure all point fields are numbers (not undefined)
+    const normalizedData = normalizeGibsStageData(stageData);
+
     if (existingId) {
       await tx.gibsStageData.update({
         where: { id: existingId },
-        data: stageData,
+        data: normalizedData,
       });
     } else {
       const created = await tx.gibsStageData.create({
-        data: stageData,
+        data: normalizedData,
       });
       updatePayload[fieldName] = created.id;
     }
@@ -1749,17 +1813,19 @@ export class ServicesService {
             create: {
               ...(updateDto.outerBefore && {
                 outerBefore: {
-                  create: updateDto.outerBefore,
+                  create: normalizeGibsStageData(updateDto.outerBefore),
                 },
               }),
               ...(updateDto.outerData && {
                 outerData: {
-                  create: updateDto.outerData,
+                  create: normalizeGibsStageData(updateDto.outerData),
                 },
               }),
               ...(updateDto.outerFreeHangingData && {
                 outerFreeHangingData: {
-                  create: updateDto.outerFreeHangingData,
+                  create: normalizeGibsStageData(
+                    updateDto.outerFreeHangingData,
+                  ),
                 },
               }),
               ...(updateDto.haveInnerGibsBeenAdjusted && {
@@ -1767,22 +1833,22 @@ export class ServicesService {
               }),
               ...(updateDto.innerBefore && {
                 innerBefore: {
-                  create: updateDto.innerBefore,
+                  create: normalizeGibsStageData(updateDto.innerBefore),
                 },
               }),
               ...(updateDto.innerData && {
                 innerData: {
-                  create: updateDto.innerData,
+                  create: normalizeGibsStageData(updateDto.innerData),
                 },
               }),
               ...(updateDto.innerBeforeTool && {
                 innerBeforeTool: {
-                  create: updateDto.innerBeforeTool,
+                  create: normalizeGibsStageData(updateDto.innerBeforeTool),
                 },
               }),
               ...(updateDto.innerDataTool && {
                 innerDataTool: {
-                  create: updateDto.innerDataTool,
+                  create: normalizeGibsStageData(updateDto.innerDataTool),
                 },
               }),
               ...(updateDto.notes && { notes: updateDto.notes }),

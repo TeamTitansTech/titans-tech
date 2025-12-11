@@ -75,13 +75,13 @@ export function GibsSection({
     return undefined;
   });
 
-  // Conversion constants and functions
+  // Conversion constants and functions (data is stored in millimeters)
   const MM_PER_INCH = 25.4;
 
   const convertValue = useCallback(
     (value: number | null | undefined): number | null => {
       if (value === null || value === undefined) return null;
-      return displayUnit === 'mm' ? value * MM_PER_INCH : value;
+      return displayUnit === 'in' ? value / MM_PER_INCH : value;
     },
     [displayUnit],
   );
@@ -89,12 +89,12 @@ export function GibsSection({
   const convertThreshold = useCallback(
     (threshold: ThresholdConfig | null): ThresholdConfig | null => {
       if (!threshold) return null;
-      if (displayUnit === 'in') return threshold;
+      if (displayUnit === 'mm') return threshold;
 
       return {
-        greenMin: threshold.greenMin * MM_PER_INCH,
-        yellowMin: threshold.yellowMin * MM_PER_INCH,
-        redMin: threshold.redMin * MM_PER_INCH,
+        greenMin: threshold.greenMin / MM_PER_INCH,
+        yellowMin: threshold.yellowMin / MM_PER_INCH,
+        redMin: threshold.redMin / MM_PER_INCH,
         label: threshold.label,
       };
     },
@@ -105,13 +105,13 @@ export function GibsSection({
     (
       data: ReturnType<typeof transformGibsToMultiLineData>,
     ): ReturnType<typeof transformGibsToMultiLineData> => {
-      if (displayUnit === 'in') return data;
+      if (displayUnit === 'mm') return data;
 
       return data.map((item) => {
         const converted = { ...item };
         Object.keys(item).forEach((key) => {
           if (key !== 'date' && typeof item[key] === 'number') {
-            (converted as Record<string, unknown>)[key] = (item[key] as number) * MM_PER_INCH;
+            (converted as Record<string, unknown>)[key] = (item[key] as number) / MM_PER_INCH;
           }
         });
         return converted;

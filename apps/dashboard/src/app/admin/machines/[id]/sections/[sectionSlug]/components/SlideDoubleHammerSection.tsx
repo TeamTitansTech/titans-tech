@@ -67,38 +67,41 @@ export function SlideDoubleHammerSection({
   // Conversion constants and functions
   const MM_PER_INCH = 25.4;
 
+  // Convert value based on display unit (data stored in mm)
   const convertValue = useCallback(
     (value: number | null | undefined): number | null => {
       if (value === null || value === undefined) return null;
       const numValue = Number(value);
       if (isNaN(numValue)) return null;
-      return displayUnit === 'mm' ? numValue * MM_PER_INCH : numValue;
+      return displayUnit === 'in' ? numValue / MM_PER_INCH : numValue;
     },
     [displayUnit],
   );
 
+  // Convert threshold based on display unit (thresholds stored in mm)
   const convertThreshold = useCallback(
     (threshold: ThresholdConfig | null): ThresholdConfig | null => {
       if (!threshold) return null;
-      if (displayUnit === 'in') return threshold;
+      if (displayUnit === 'mm') return threshold;
       return {
-        greenMin: threshold.greenMin * MM_PER_INCH,
-        yellowMin: threshold.yellowMin * MM_PER_INCH,
-        redMin: threshold.redMin * MM_PER_INCH,
+        greenMin: threshold.greenMin / MM_PER_INCH,
+        yellowMin: threshold.yellowMin / MM_PER_INCH,
+        redMin: threshold.redMin / MM_PER_INCH,
         label: threshold.label,
       };
     },
     [displayUnit],
   );
 
+  // Convert chart data based on display unit (data stored in mm)
   const convertChartData = useCallback(
     (data: any[]): any[] => {
-      if (displayUnit === 'in') return data;
+      if (displayUnit === 'mm') return data;
       return data.map((point) => {
         const converted: any = { ...point };
         Object.keys(converted).forEach((key) => {
           if (key !== 'date' && typeof converted[key] === 'number') {
-            converted[key] = converted[key] * MM_PER_INCH;
+            converted[key] = converted[key] / MM_PER_INCH;
           }
         });
         return converted;

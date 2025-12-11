@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Typography } from '@/components/ui/typography';
 import { translateEnumValue } from './utils/translateEnum';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface LubricationSummaryProps {
   data: LubricationHydraulicsData;
@@ -22,6 +23,8 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
   const tServicesSummary = useTranslations('services.modal.summary');
   const tLubricationFields = useTranslations('inspections.form.lubricationHydraulics');
   const tCommon = useTranslations('common.status');
+  const { convertTemperatureFromDefault, getTemperatureUnitLabel, getPressureUnitLabel } =
+    useUnitManager();
 
   // Guard against undefined data
   if (!data) {
@@ -60,6 +63,24 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
     return translateEnumValue(value, tCommon);
   };
 
+  // Helper function to display temperature value with unit conversion
+  const displayTemperature = (value: unknown): string => {
+    if (value === null || value === undefined || value === '') return '-';
+    const numValue = Number(value);
+    if (isNaN(numValue)) return translateEnumValue(value, tCommon);
+    const convertedValue = convertTemperatureFromDefault(numValue);
+    return `${convertedValue.toFixed(1)} ${getTemperatureUnitLabel()}`;
+  };
+
+  // Helper function to display pressure value with unit label
+  const displayPressure = (value: unknown): string => {
+    if (value === null || value === undefined || value === '') return '-';
+    const numValue = Number(value);
+    if (isNaN(numValue)) return translateEnumValue(value, tCommon);
+    // PSI values are displayed as-is since the column header indicates the unit
+    return numValue.toString();
+  };
+
   // Define all scalar fields that should be shown (excluding oilTemperatureUnit as it's shown with temperature)
   const scalarFieldKeys = ['changedOil', 'oilTemperature', 'oilMfgType', 'changedFilter'];
 
@@ -89,7 +110,9 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                       {translateFieldName(key)}
                     </TableCell>
                     <TableCell className="py-1.5 text-center">
-                      {displayValue(data[key as keyof LubricationHydraulicsData])}
+                      {key === 'oilTemperature'
+                        ? displayTemperature(data[key as keyof LubricationHydraulicsData])
+                        : displayValue(data[key as keyof LubricationHydraulicsData])}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -116,7 +139,7 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                     {tTable('gauge')}
                   </TableHead>
                   <TableHead className="h-8 text-[10px] text-center font-semibold">
-                    {tTable('psi')}
+                    {tTable('pressure')} ({getPressureUnitLabel()})
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -129,7 +152,9 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
                     <TableCell className="py-1.5 text-center border-r">
                       {displayValue(gauge.gaugeSwitchIdentifier)}
                     </TableCell>
-                    <TableCell className="py-1.5 text-center">{displayValue(gauge.psi)}</TableCell>
+                    <TableCell className="py-1.5 text-center">
+                      {displayPressure(gauge.psi)}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

@@ -11,7 +11,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Plus, Trash2, Bell } from 'lucide-react';
 import { TemperatureInput } from '@/components/ui/forms/TemperatureInput';
 import {
   type LubricationHydraulicsFormProps,
@@ -29,6 +30,7 @@ export function LubricationHydraulicsForm({
 }: LubricationHydraulicsFormProps) {
   const t = useTranslations('inspections');
   const tCommon = useTranslations('common.status');
+  const tFormCommon = useTranslations('inspections.form.common');
 
   const addGauge = () => {
     const newGauge: LubricationHydraulicsGauge = {
@@ -172,8 +174,16 @@ export function LubricationHydraulicsForm({
         </h4>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <Label htmlFor="changedOil" className="text-xs">
+            <Label htmlFor="changedOil" className="text-xs flex items-center gap-1">
               {t('form.lubricationHydraulics.changedOil')}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Bell className="h-3 w-3 text-amber-500 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">{tFormCommon('oilChangeGeneratesAlert')}</p>
+                </TooltipContent>
+              </Tooltip>
             </Label>
             <Select
               value={data.changedOil}

@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PistonsForm, type PistonsDbData } from '../forms/PistonsForm';
 import { displayValue } from '../utils/displayHelpers';
 import { cn } from '@/lib/utils';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 type AlertSeverity = 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
 
@@ -48,6 +49,7 @@ export function PistonsSummary({ data, alert }: PistonsSummaryProps): React.Reac
   const tPistons = useTranslations('inspections.form.pistons');
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common.status');
+  const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 
   // Return null if no data provided
   if (!data) {
@@ -105,7 +107,7 @@ export function PistonsSummary({ data, alert }: PistonsSummaryProps): React.Reac
               <span className="text-muted-foreground">{d.label}:</span>
               <span className={cn('font-mono', getSeverityColorClass(d.severity))}>
                 {d.diff !== null && d.diff !== undefined
-                  ? `${Number(d.diff).toFixed(4)}" ${getSeverityIcon(d.severity)}`
+                  ? `${convertLengthFromDefault(Number(d.diff)).toFixed(4)} ${getLengthUnitLabel()} ${getSeverityIcon(d.severity)}`
                   : '-'}
               </span>
             </div>

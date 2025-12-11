@@ -293,7 +293,9 @@ export function DetailsStep({
           <div className="space-y-4">
             {/* Press Level */}
             <div>
-              <Label htmlFor="isPressLevel">{translations.isPressLevel}</Label>
+              <Label htmlFor="isPressLevel">
+                {translations.isPressLevel} <span className="text-destructive">*</span>
+              </Label>
               <Select
                 value={isPressLevel || ''}
                 onValueChange={(value) => setIsPressLevel(value as YesNoNaDncType)}
@@ -312,7 +314,9 @@ export function DetailsStep({
 
             {/* Drive Belt Condition */}
             <div>
-              <Label htmlFor="driveBeltCondition">{translations.driveBeltCondition}</Label>
+              <Label htmlFor="driveBeltCondition">
+                {translations.driveBeltCondition} <span className="text-destructive">*</span>
+              </Label>
               <Select value={driveBeltCondition} onValueChange={setDriveBeltCondition}>
                 <SelectTrigger id="driveBeltCondition" className="mt-1">
                   <SelectValue placeholder="Select..." />
@@ -329,7 +333,9 @@ export function DetailsStep({
 
             {/* Protective Covers */}
             <div>
-              <Label htmlFor="areAllProtectiveCovers">{translations.areAllProtectiveCovers}</Label>
+              <Label htmlFor="areAllProtectiveCovers">
+                {translations.areAllProtectiveCovers} <span className="text-destructive">*</span>
+              </Label>
               <Select value={areAllProtectiveCovers} onValueChange={setAreAllProtectiveCovers}>
                 <SelectTrigger id="areAllProtectiveCovers" className="mt-1">
                   <SelectValue placeholder="Select..." />

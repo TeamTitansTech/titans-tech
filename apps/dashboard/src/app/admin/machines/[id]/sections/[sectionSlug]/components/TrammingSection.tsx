@@ -37,14 +37,15 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
     return undefined;
   });
 
-  // Conversion constants and functions
+  // Conversion constants and functions (data is stored in millimeters)
   const MM_PER_INCH = 25.4;
 
+  // Convert value based on display unit (data stored in mm)
   const convertValue = useCallback(
     (value: number | null | undefined): number | null | undefined => {
       if (value === null || value === undefined) return value;
-      if (displayUnit === 'mm') {
-        return value * MM_PER_INCH;
+      if (displayUnit === 'in') {
+        return value / MM_PER_INCH;
       }
       return value;
     },

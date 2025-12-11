@@ -86,43 +86,43 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
     fetchThresholds();
   }, [blueprintId]);
 
-  // Conversion constants (data is stored in inches)
+  // Conversion constants (data is stored in millimeters)
   const MM_PER_INCH = 25.4;
 
-  // Convert value based on display unit (data stored in inches)
+  // Convert value based on display unit (data stored in mm)
   const convertValue = useCallback(
     (value: number | null): number | null => {
       if (value === null) return null;
-      return displayUnit === 'mm' ? value * MM_PER_INCH : value;
+      return displayUnit === 'in' ? value / MM_PER_INCH : value;
     },
     [displayUnit],
   );
 
-  // Convert threshold based on display unit
+  // Convert threshold based on display unit (thresholds stored in mm)
   const convertThreshold = useCallback(
     (threshold: ThresholdConfig | null): ThresholdConfig | null => {
       if (!threshold) return null;
-      if (displayUnit === 'in') return threshold;
+      if (displayUnit === 'mm') return threshold;
       return {
-        greenMin: threshold.greenMin * MM_PER_INCH,
-        yellowMin: threshold.yellowMin * MM_PER_INCH,
-        redMin: threshold.redMin * MM_PER_INCH,
+        greenMin: threshold.greenMin / MM_PER_INCH,
+        yellowMin: threshold.yellowMin / MM_PER_INCH,
+        redMin: threshold.redMin / MM_PER_INCH,
         label: threshold.label,
       };
     },
     [displayUnit],
   );
 
-  // Convert chart data based on display unit
+  // Convert chart data based on display unit (data stored in mm)
   const convertChartData = useCallback(
     (data: PistonsChartDataPoint[], keys: string[]): PistonsChartDataPoint[] => {
-      if (displayUnit === 'in') return data;
+      if (displayUnit === 'mm') return data;
       return data.map((point) => {
         const converted = { ...point };
         keys.forEach((key) => {
           const val = point[key as keyof PistonsChartDataPoint];
           if (typeof val === 'number') {
-            (converted as Record<string, unknown>)[key] = val * MM_PER_INCH;
+            (converted as Record<string, unknown>)[key] = val / MM_PER_INCH;
           }
         });
         return converted;

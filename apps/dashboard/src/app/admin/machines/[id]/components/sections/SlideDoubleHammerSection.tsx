@@ -2,6 +2,7 @@
 
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useTranslations } from 'next-intl';
 import {
   type SlideData,
   ParallelismType,
@@ -29,12 +30,12 @@ export interface SlideFormData {
   beforePosition4?: number;
   beforePosition5?: number;
 
-  // After/Current measurements (required)
-  afterPosition1: number;
-  afterPosition2: number;
-  afterPosition3: number;
-  afterPosition4: number;
-  afterPosition5: number;
+  // After/Current measurements (at least 2 required)
+  afterPosition1?: number;
+  afterPosition2?: number;
+  afterPosition3?: number;
+  afterPosition4?: number;
+  afterPosition5?: number;
 }
 
 export const defaultSlideFormData: SlideFormData = {
@@ -49,11 +50,11 @@ export const defaultSlideFormData: SlideFormData = {
   beforePosition3: undefined,
   beforePosition4: undefined,
   beforePosition5: undefined,
-  afterPosition1: 0,
-  afterPosition2: 0,
-  afterPosition3: 0,
-  afterPosition4: 0,
-  afterPosition5: 0,
+  afterPosition1: undefined,
+  afterPosition2: undefined,
+  afterPosition3: undefined,
+  afterPosition4: undefined,
+  afterPosition5: undefined,
 };
 
 // Convert API data (4 separate SlideData objects) to UI form data
@@ -79,12 +80,12 @@ function convertToFormData(
     beforePosition4: beforeData?.position4,
     beforePosition5: beforeData?.position5,
 
-    // After measurements
-    afterPosition1: afterData?.position1 || 0,
-    afterPosition2: afterData?.position2 || 0,
-    afterPosition3: afterData?.position3 || 0,
-    afterPosition4: afterData?.position4 || 0,
-    afterPosition5: afterData?.position5 || 0,
+    // After measurements - use undefined if not set (show empty inputs)
+    afterPosition1: afterData?.position1,
+    afterPosition2: afterData?.position2,
+    afterPosition3: afterData?.position3,
+    afterPosition4: afterData?.position4,
+    afterPosition5: afterData?.position5,
   };
 }
 
@@ -146,7 +147,7 @@ function convertFromFormData(formData: SlideFormData): {
 export const validateSlideFormData = (data: SlideFormData): string[] => {
   const errors: string[] = [];
 
-  // Helper to check if a value is a valid number
+  // Helper to check if a value is a valid number (0 is valid)
   const isValidNumber = (value: unknown): boolean => {
     if (value === undefined || value === null) return false;
     // Handle both number and string values (input fields may return strings)
@@ -154,21 +155,19 @@ export const validateSlideFormData = (data: SlideFormData): string[] => {
     return !isNaN(numValue);
   };
 
-  // After positions are always required
-  const afterFields: Array<keyof SlideFormData> = [
-    'afterPosition1',
-    'afterPosition2',
-    'afterPosition3',
-    'afterPosition4',
-    'afterPosition5',
+  // At least 2 after positions must be filled
+  const afterPositions = [
+    data.afterPosition1,
+    data.afterPosition2,
+    data.afterPosition3,
+    data.afterPosition4,
+    data.afterPosition5,
   ];
 
-  afterFields.forEach((field) => {
-    const value = data[field];
-    if (!isValidNumber(value)) {
-      errors.push(`${String(field)} is required and must be a valid number`);
-    }
-  });
+  const filledCount = afterPositions.filter((p) => isValidNumber(p)).length;
+  if (filledCount < 2) {
+    errors.push('At least 2 max deviation points are required');
+  }
 
   // If hasParallelismBeenAdjusted is YES, before measurements should be filled
   if (data.hasParallelismBeenAdjusted === YesNoNaDncType.YES) {
@@ -222,6 +221,8 @@ export const SlideDoubleHammerSection = forwardRef<
   SlideDoubleHammerSectionRef,
   SlideDoubleHammerSectionProps
 >(({ isOpen, onOpenChange, onSectionTouched, initialData }, ref) => {
+  const t = useTranslations('inspections');
+
   // Convert API data (4 objects) to form data (2 objects with before/after fields)
   const initialOuterFormData = convertToFormData(initialData?.outerBefore, initialData?.outerData);
   const initialInnerFormData = convertToFormData(initialData?.innerBefore, initialData?.innerData);
@@ -285,15 +286,27 @@ export const SlideDoubleHammerSection = forwardRef<
       const outerDataTouched = isDataTouched(formData.outerData, initialFormData.outerData);
       const innerDataTouched = isDataTouched(formData.innerData, initialFormData.innerData);
 
+      // Helper to translate error messages
+      const translateError = (error: string): string => {
+        if (error === 'At least 2 max deviation points are required') {
+          return t('form.slide.validation.atLeastTwoPositionsRequired');
+        }
+        return error;
+      };
+
       // Validate current data if touched
       if (outerDataTouched) {
         validationErrors.push(
-          ...validateSlideFormData(formData.outerData).map((e) => `Slide Outer: ${e}`),
+          ...validateSlideFormData(formData.outerData).map(
+            (e) => `${t('form.slide.validation.outerPrefix')}: ${translateError(e)}`,
+          ),
         );
       }
       if (innerDataTouched) {
         validationErrors.push(
-          ...validateSlideFormData(formData.innerData).map((e) => `Slide Inner: ${e}`),
+          ...validateSlideFormData(formData.innerData).map(
+            (e) => `${t('form.slide.validation.innerPrefix')}: ${translateError(e)}`,
+          ),
         );
       }
 
@@ -305,7 +318,7 @@ export const SlideDoubleHammerSection = forwardRef<
 
       // For inspections and maintenance, require at least one section to be filled
       if (!hasOuterData && !hasInnerData) {
-        validationErrors.push('Slide: You must fill at least one section (Outer or Inner)');
+        validationErrors.push(t('form.slide.validation.atLeastOneSectionRequired'));
       }
 
       const isValid = validationErrors.length === 0;
@@ -382,15 +395,27 @@ export const SlideDoubleHammerSection = forwardRef<
       const outerDataTouched = isDataTouched(formData.outerData, initialFormData.outerData);
       const innerDataTouched = isDataTouched(formData.innerData, initialFormData.innerData);
 
+      // Helper to translate error messages
+      const translateError = (error: string): string => {
+        if (error === 'At least 2 max deviation points are required') {
+          return t('form.slide.validation.atLeastTwoPositionsRequired');
+        }
+        return error;
+      };
+
       // Validate current data if touched
       if (outerDataTouched) {
         validationErrors.push(
-          ...validateSlideFormData(formData.outerData).map((e) => `Slide Outer: ${e}`),
+          ...validateSlideFormData(formData.outerData).map(
+            (e) => `${t('form.slide.validation.outerPrefix')}: ${translateError(e)}`,
+          ),
         );
       }
       if (innerDataTouched) {
         validationErrors.push(
-          ...validateSlideFormData(formData.innerData).map((e) => `Slide Inner: ${e}`),
+          ...validateSlideFormData(formData.innerData).map(
+            (e) => `${t('form.slide.validation.innerPrefix')}: ${translateError(e)}`,
+          ),
         );
       }
 
@@ -402,7 +427,7 @@ export const SlideDoubleHammerSection = forwardRef<
 
       // For inspections and maintenance, require at least one section to be filled
       if (!hasOuterData && !hasInnerData) {
-        validationErrors.push('Slide: You must fill at least one section (Outer or Inner)');
+        validationErrors.push(t('form.slide.validation.atLeastOneSectionRequired'));
       }
 
       return validationErrors;

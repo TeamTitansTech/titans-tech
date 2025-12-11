@@ -3,7 +3,7 @@ import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/ui/typography';
 import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Check, ChevronUp, AlertTriangle } from 'lucide-react';
+import { Check, ChevronUp, AlertTriangle, Ruler, Thermometer, Gauge } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { SECTION_REGISTRY } from '../sections/registry';
@@ -12,6 +12,7 @@ import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services
 import { WhyNotCoveredType } from '@titans-tech/shared/types';
 import type { AnySectionData } from '../types/service-completion.types';
 import { useMemo } from 'react';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface SummaryStepProps {
   date: Date;
@@ -73,6 +74,8 @@ export function SummaryStep({
   const tServices = useTranslations('services.modal');
   const tInspections = useTranslations('inspections.form.enums');
   const tErrors = useTranslations('errors.service');
+  const tUnits = useTranslations('forms.units');
+  const { getLengthUnitLabel, getTemperatureUnitLabel, getPressureUnitLabel } = useUnitManager();
 
   // Helper function to format enum values for display
   const formatEnumValue = (value: string | undefined, enumType: string) => {
@@ -158,7 +161,40 @@ export function SummaryStep({
               <Label className="text-xs text-muted-foreground">{translations.performedBy}</Label>
               <div className="text-sm font-medium">{performedBy || '-'}</div>
             </div>
+          </div>
 
+          {/* Selected Units Display */}
+          <div className="mt-4 pt-4 border-t">
+            <Label className="text-xs text-muted-foreground mb-2 block">
+              {tUnits('selectedUnits')}
+            </Label>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
+                <Ruler className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm">
+                  {tUnits('lengthLabel')}:{' '}
+                  <span className="font-medium">{getLengthUnitLabel()}</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
+                <Thermometer className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm">
+                  {tUnits('temperatureLabel')}:{' '}
+                  <span className="font-medium">{getTemperatureUnitLabel()}</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
+                <Gauge className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm">
+                  {tUnits('pressureLabel')}:{' '}
+                  <span className="font-medium">{getPressureUnitLabel()}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Inspection Observation Fields */}
+          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t">
             {/* Add all inspection observation fields here */}
             <div>
               <Label className="text-xs text-muted-foreground">
