@@ -20,7 +20,7 @@ import {
   FileSpreadsheet,
   ChevronDown,
 } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
@@ -34,7 +34,7 @@ import {
   extractThresholdConfig,
 } from '@/components/charts/dataTransformers';
 import { getBearingClearanceThresholdByBlueprint } from '@/actions/alerts';
-import type { ThresholdConfig } from '@/components/charts/types';
+import type { ThresholdConfig, MultiLineMeasurementData } from '@/components/charts/types';
 
 interface BearingClearanceSectionProps {
   machineId: string;
@@ -57,6 +57,8 @@ export function BearingClearanceSection({
   const [totalClearanceThreshold, setTotalClearanceThreshold] = useState<ThresholdConfig | null>(
     null,
   );
+  // Unit toggle state: 'mm' or 'in'
+  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -100,12 +102,72 @@ export function BearingClearanceSection({
     );
   }, [inspections, date]);
 
-  // Find the latest inspection that actually has bearing clearance data (not just any inspection)
-  const latestInspectionWithData = useMemo(() => {
-    return filteredInspections.find((inspection) => inspection.bearingClearance?.[0]?.outerData);
+  // Filter to only inspections that have bearing clearance data
+  const inspectionsWithBearingData = useMemo(() => {
+    return filteredInspections.filter((inspection) => inspection.bearingClearance?.[0]?.outerData);
   }, [filteredInspections]);
 
+  // Find the latest inspection that actually has bearing clearance data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return inspectionsWithBearingData[0];
+  }, [inspectionsWithBearingData]);
+
   const latestBearingCheck = latestInspectionWithData?.bearingClearance?.[0]?.outerData;
+
+  // Conversion constants (data is stored in inches)
+  const MM_PER_INCH = 25.4;
+
+  // Convert value based on display unit (data stored in inches)
+  const convertValue = useCallback(
+    (value: number | null): number | null => {
+      if (value === null) return null;
+      return displayUnit === 'mm' ? value * MM_PER_INCH : value;
+    },
+    [displayUnit],
+  );
+
+  // Convert threshold based on display unit
+  const convertThreshold = useCallback(
+    (threshold: ThresholdConfig | null): ThresholdConfig | null => {
+      if (!threshold) return null;
+      if (displayUnit === 'in') return threshold;
+      return {
+        greenMin: threshold.greenMin * MM_PER_INCH,
+        yellowMin: threshold.yellowMin * MM_PER_INCH,
+        redMin: threshold.redMin * MM_PER_INCH,
+        label: threshold.label,
+      };
+    },
+    [displayUnit],
+  );
+
+  // Convert chart data based on display unit
+  const convertChartData = useCallback(
+    (data: MultiLineMeasurementData[], keys: string[]): MultiLineMeasurementData[] => {
+      if (displayUnit === 'in') return data;
+      return data.map((point) => {
+        const converted = { ...point };
+        keys.forEach((key) => {
+          const val = point[key];
+          if (typeof val === 'number') {
+            converted[key] = val * MM_PER_INCH;
+          }
+        });
+        return converted;
+      });
+    },
+    [displayUnit],
+  );
+
+  // Get converted thresholds
+  const cbThresholdConverted = useMemo(
+    () => convertThreshold(cbThreshold),
+    [convertThreshold, cbThreshold],
+  );
+  const totalClearanceThresholdConverted = useMemo(
+    () => convertThreshold(totalClearanceThreshold),
+    [convertThreshold, totalClearanceThreshold],
+  );
 
   // Transform data for new threshold charts
   const cbChartData = useMemo(() => {
@@ -120,6 +182,25 @@ export function BearingClearanceSection({
     const data = transformBearingClearanceToMultiLineData(filteredInspections, 'totalClearance');
     return data;
   }, [filteredInspections]);
+
+  // Get converted chart data
+  const cbChartDataConverted = useMemo(
+    () =>
+      convertChartData(cbChartData, ['upperConnectionBearings_RH', 'upperConnectionBearings_LH']),
+    [convertChartData, cbChartData],
+  );
+
+  const totalClearanceChartDataConverted = useMemo(
+    () => convertChartData(totalClearanceChartData, ['totalClearance_RH', 'totalClearance_LH']),
+    [convertChartData, totalClearanceChartData],
+  );
+
+  const formatValue = (value: number | null | undefined, decimals = 4): string => {
+    if (value === null || value === undefined) return '-';
+    const converted = convertValue(value as number);
+    if (converted === null) return '-';
+    return converted.toFixed(decimals);
+  };
 
   // Keep old chartData format for export functions compatibility
   const chartData = useMemo(() => {
@@ -149,7 +230,7 @@ export function BearingClearanceSection({
       exportToPDF(
         machineName,
         date,
-        filteredInspections.length,
+        inspectionsWithBearingData.length,
         latestBearingCheck ?? undefined,
         chartData,
       ),
@@ -166,7 +247,7 @@ export function BearingClearanceSection({
       exportToWord(
         machineName,
         date,
-        filteredInspections.length,
+        inspectionsWithBearingData.length,
         latestBearingCheck ?? undefined,
         chartData,
       ),
@@ -183,7 +264,7 @@ export function BearingClearanceSection({
       exportToExcel(
         machineName,
         date,
-        filteredInspections.length,
+        inspectionsWithBearingData.length,
         latestBearingCheck ?? undefined,
         chartData,
       ),
@@ -232,7 +313,7 @@ export function BearingClearanceSection({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Typography variant="large">{filteredInspections.length}</Typography>
+              <Typography variant="large">{inspectionsWithBearingData.length}</Typography>
             </CardContent>
           </Card>
 
@@ -285,7 +366,28 @@ export function BearingClearanceSection({
 
         <Card>
           <CardHeader>
-            <CardTitle>{t('connectionBearingClearance')}</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>{t('connectionBearingClearance')}</CardTitle>
+              {/* Unit Toggle */}
+              <div className="flex items-center rounded-md border">
+                <Button
+                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 rounded-r-none"
+                  onClick={() => setDisplayUnit('mm')}
+                >
+                  mm
+                </Button>
+                <Button
+                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 rounded-l-none"
+                  onClick={() => setDisplayUnit('in')}
+                >
+                  in
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-center mb-6">
@@ -299,7 +401,7 @@ export function BearingClearanceSection({
                   </Typography>
                   <Typography variant="large">
                     {latestBearingCheck
-                      ? `${Number(latestBearingCheck.mainBearings_LH).toFixed(4)} / ${Number(latestBearingCheck.mainBearings_RH).toFixed(4)}`
+                      ? `${formatValue(Number(latestBearingCheck.mainBearings_LH))} / ${formatValue(Number(latestBearingCheck.mainBearings_RH))}`
                       : '-'}
                   </Typography>
                 </div>
@@ -309,7 +411,7 @@ export function BearingClearanceSection({
                   </Typography>
                   <Typography variant="large">
                     {latestBearingCheck
-                      ? `${Number(latestBearingCheck.upperConnectionBearings_LH).toFixed(4)} / ${Number(latestBearingCheck.upperConnectionBearings_RH).toFixed(4)}`
+                      ? `${formatValue(Number(latestBearingCheck.upperConnectionBearings_LH))} / ${formatValue(Number(latestBearingCheck.upperConnectionBearings_RH))}`
                       : '-'}
                   </Typography>
                 </div>
@@ -319,7 +421,7 @@ export function BearingClearanceSection({
                   </Typography>
                   <Typography variant="large">
                     {latestBearingCheck
-                      ? `${Number(latestBearingCheck.totalClearance_LH).toFixed(4)} / ${Number(latestBearingCheck.totalClearance_RH).toFixed(4)}`
+                      ? `${formatValue(Number(latestBearingCheck.totalClearance_LH))} / ${formatValue(Number(latestBearingCheck.totalClearance_RH))}`
                       : '-'}
                   </Typography>
                 </div>
@@ -368,7 +470,7 @@ export function BearingClearanceSection({
               <div className="flex-1 space-y-4">
                 <MultiLineThresholdChart
                   title={t('chartConnectionBearing')}
-                  data={cbChartData}
+                  data={cbChartDataConverted}
                   lines={[
                     {
                       dataKey: 'upperConnectionBearings_RH',
@@ -381,15 +483,15 @@ export function BearingClearanceSection({
                       color: '#06b6d4',
                     },
                   ]}
-                  sharedThreshold={cbThreshold}
-                  valueUnit="mm"
+                  sharedThreshold={cbThresholdConverted}
+                  valueUnit={displayUnit}
                   allowToggle={true}
                   height={300}
                 />
 
                 <MultiLineThresholdChart
                   title={t('chartTotalClearance') || 'Total Clearance'}
-                  data={totalClearanceChartData}
+                  data={totalClearanceChartDataConverted}
                   lines={[
                     {
                       dataKey: 'totalClearance_RH',
@@ -402,8 +504,8 @@ export function BearingClearanceSection({
                       color: '#ec4899',
                     },
                   ]}
-                  sharedThreshold={totalClearanceThreshold}
-                  valueUnit="mm"
+                  sharedThreshold={totalClearanceThresholdConverted}
+                  valueUnit={displayUnit}
                   allowToggle={true}
                   height={300}
                 />

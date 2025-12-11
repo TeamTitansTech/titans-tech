@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/table';
 import { useTranslations } from 'next-intl';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
@@ -52,6 +52,7 @@ export function SlideDoubleHammerSection({
   const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   const [positionThreshold, setPositionThreshold] = useState<ThresholdConfig | null>(null);
+  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -62,6 +63,49 @@ export function SlideDoubleHammerSection({
     }
     return undefined;
   });
+
+  // Conversion constants and functions
+  const MM_PER_INCH = 25.4;
+
+  const convertValue = useCallback(
+    (value: number | null | undefined): number | null => {
+      if (value === null || value === undefined) return null;
+      const numValue = Number(value);
+      if (isNaN(numValue)) return null;
+      return displayUnit === 'mm' ? numValue * MM_PER_INCH : numValue;
+    },
+    [displayUnit],
+  );
+
+  const convertThreshold = useCallback(
+    (threshold: ThresholdConfig | null): ThresholdConfig | null => {
+      if (!threshold) return null;
+      if (displayUnit === 'in') return threshold;
+      return {
+        greenMin: threshold.greenMin * MM_PER_INCH,
+        yellowMin: threshold.yellowMin * MM_PER_INCH,
+        redMin: threshold.redMin * MM_PER_INCH,
+        label: threshold.label,
+      };
+    },
+    [displayUnit],
+  );
+
+  const convertChartData = useCallback(
+    (data: any[]): any[] => {
+      if (displayUnit === 'in') return data;
+      return data.map((point) => {
+        const converted: any = { ...point };
+        Object.keys(converted).forEach((key) => {
+          if (key !== 'date' && typeof converted[key] === 'number') {
+            converted[key] = converted[key] * MM_PER_INCH;
+          }
+        });
+        return converted;
+      });
+    },
+    [displayUnit],
+  );
 
   // Fetch threshold data
   useEffect(() => {
@@ -99,14 +143,19 @@ export function SlideDoubleHammerSection({
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  // Find the latest inspection that actually has slide data (not just any inspection)
-  const latestInspectionWithData = useMemo(() => {
-    return filteredInspections.find(
+  // Filter inspections to only those with slide data
+  const inspectionsWithSlideData = useMemo(() => {
+    return filteredInspections.filter(
       (inspection) =>
         inspection.slideDoubleHammer?.[0]?.outerData ||
         inspection.slideDoubleHammer?.[0]?.innerData,
     );
   }, [filteredInspections]);
+
+  // Find the latest inspection that actually has slide data (not just any inspection)
+  const latestInspectionWithData = useMemo(() => {
+    return inspectionsWithSlideData[0];
+  }, [inspectionsWithSlideData]);
 
   const latestOuterData = latestInspectionWithData?.slideDoubleHammer?.[0]?.outerData;
   const latestInnerData = latestInspectionWithData?.slideDoubleHammer?.[0]?.innerData;
@@ -125,11 +174,31 @@ export function SlideDoubleHammerSection({
     return transformSlideMaxDeviationToMultiLineData(filteredInspections);
   }, [filteredInspections]);
 
+  // Create converted thresholds
+  const convertedPositionThreshold = useMemo(() => {
+    return convertThreshold(positionThreshold);
+  }, [positionThreshold, convertThreshold]);
+
+  // Create converted chart data
+  const convertedOuterPositionsChartData = useMemo(() => {
+    return convertChartData(outerPositionsChartData);
+  }, [outerPositionsChartData, convertChartData]);
+
+  const convertedInnerPositionsChartData = useMemo(() => {
+    return convertChartData(innerPositionsChartData);
+  }, [innerPositionsChartData, convertChartData]);
+
+  const convertedMaxDeviationChartData = useMemo(() => {
+    return convertChartData(maxDeviationChartData);
+  }, [maxDeviationChartData, convertChartData]);
+
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
     if (value === null || value === undefined) return '-';
     const numValue = Number(value);
     if (isNaN(numValue)) return '-';
-    return numValue.toFixed(decimals);
+    const converted = convertValue(numValue);
+    if (converted === null) return '-';
+    return converted.toFixed(decimals);
   };
 
   // Calculate max deviation from positions (max - min)
@@ -208,7 +277,7 @@ export function SlideDoubleHammerSection({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Typography variant="large">{filteredInspections.length}</Typography>
+            <Typography variant="large">{inspectionsWithSlideData.length}</Typography>
           </CardContent>
         </Card>
 
@@ -276,11 +345,32 @@ export function SlideDoubleHammerSection({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>{t('sectionTitles.slideMeasurements')}</CardTitle>
-            <SectionExportButton
-              contentRef={contentRef}
-              sectionName="Slide"
-              machineName={machineName}
-            />
+            <div className="flex items-center gap-3">
+              {/* Unit Toggle */}
+              <div className="border rounded-md flex">
+                <Button
+                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setDisplayUnit('in')}
+                  className="rounded-r-none h-8 px-3"
+                >
+                  in
+                </Button>
+                <Button
+                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setDisplayUnit('mm')}
+                  className="rounded-l-none h-8 px-3"
+                >
+                  mm
+                </Button>
+              </div>
+              <SectionExportButton
+                contentRef={contentRef}
+                sectionName="Slide"
+                machineName={machineName}
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -431,13 +521,13 @@ export function SlideDoubleHammerSection({
             {/* Max Deviation Chart - Main threshold chart */}
             <MultiLineThresholdChart
               title={t('chartTitles.slideMaxDeviation')}
-              data={maxDeviationChartData}
+              data={convertedMaxDeviationChartData}
               lines={[
                 { dataKey: 'outerMaxDeviation', label: 'Outer Max Deviation', color: '#8884d8' },
                 { dataKey: 'innerMaxDeviation', label: 'Inner Max Deviation', color: '#06b6d4' },
               ]}
-              sharedThreshold={positionThreshold}
-              valueUnit="mm"
+              sharedThreshold={convertedPositionThreshold}
+              valueUnit={displayUnit}
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
               height={300}
@@ -445,7 +535,7 @@ export function SlideDoubleHammerSection({
 
             <MultiLineThresholdChart
               title={t('chartTitles.outerSlidePositions')}
-              data={outerPositionsChartData}
+              data={convertedOuterPositionsChartData}
               lines={[
                 { dataKey: 'position1', label: 'Position 1', color: '#8884d8' },
                 { dataKey: 'position2', label: 'Position 2', color: '#06b6d4' },
@@ -453,14 +543,14 @@ export function SlideDoubleHammerSection({
                 { dataKey: 'position4', label: 'Position 4', color: '#ec4899' },
                 { dataKey: 'position5', label: 'Position 5', color: '#6366f1' },
               ]}
-              valueUnit="mm"
+              valueUnit={displayUnit}
               allowToggle={false}
               height={300}
             />
 
             <MultiLineThresholdChart
               title={t('chartTitles.innerSlidePositions')}
-              data={innerPositionsChartData}
+              data={convertedInnerPositionsChartData}
               lines={[
                 { dataKey: 'position1', label: 'Position 1', color: '#8884d8' },
                 { dataKey: 'position2', label: 'Position 2', color: '#06b6d4' },
@@ -468,7 +558,7 @@ export function SlideDoubleHammerSection({
                 { dataKey: 'position4', label: 'Position 4', color: '#ec4899' },
                 { dataKey: 'position5', label: 'Position 5', color: '#6366f1' },
               ]}
-              valueUnit="mm"
+              valueUnit={displayUnit}
               allowToggle={false}
               height={300}
             />
