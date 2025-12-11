@@ -9,10 +9,10 @@ import { cn } from '@/lib/utils';
 export interface PressureInputProps {
   id: string;
   label?: string;
-  /** Value in the default unit (atm) */
-  value: number | string;
-  /** Callback receives value in the default unit (atm) */
-  onChange: (value: number) => void;
+  /** Value in the default unit (atm). Undefined displays as empty. */
+  value: number | string | undefined;
+  /** Callback receives value in the default unit (atm). Undefined when cleared. */
+  onChange: (value: number | undefined) => void;
   onBlur?: () => void;
   error?: string;
   min?: number;
@@ -57,12 +57,21 @@ export function PressureInput({
   const [editValue, setEditValue] = useState('');
 
   // Convert the value from default (atm) to display unit
-  const numericValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+  // Handle undefined/null as empty (not 0)
+  const numericValue = useMemo(() => {
+    if (value === undefined || value === null) return undefined;
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? undefined : parsed;
+    }
+    return value;
+  }, [value]);
 
   // Compute display value from props when not editing
   const displayValue = useMemo(() => {
+    if (numericValue === undefined) return '';
     const converted = convertPressureFromDefault(numericValue);
-    return converted ? converted.toFixed(decimalPlaces) : '';
+    return converted !== null && converted !== undefined ? converted.toFixed(decimalPlaces) : '';
   }, [numericValue, convertPressureFromDefault, decimalPlaces]);
 
   const handleFocus = () => {
@@ -89,7 +98,8 @@ export function PressureInput({
       const defaultValue = convertPressureToDefault(numValue);
       onChange(defaultValue);
     } else if (inputValue === '' || inputValue === '-') {
-      onChange(0);
+      // Return undefined when field is cleared (not 0)
+      onChange(undefined);
     }
   };
 

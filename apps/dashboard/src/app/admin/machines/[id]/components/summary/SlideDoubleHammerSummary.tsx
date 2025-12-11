@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface SlideDoubleHammerSummaryProps {
   data: SlideDoubleHammerCheck;
@@ -20,6 +21,7 @@ export function SlideDoubleHammerSummary({ data }: SlideDoubleHammerSummaryProps
   const tTable = useTranslations('table');
   const tMeasurements = useTranslations('measurements');
   const tCommon = useTranslations('common.status');
+  const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 
   // Return null if no data provided
   if (!data) {
@@ -68,6 +70,21 @@ export function SlideDoubleHammerSummary({ data }: SlideDoubleHammerSummaryProps
     return stringValue;
   };
 
+  // Helper function to display numeric value with unit conversion
+  // Treats 0 as empty since database stores 0 for unfilled numeric fields
+  const displayNumericValue = (value: unknown): string => {
+    if (value === null || value === undefined || value === '' || value === 0) {
+      return '-';
+    }
+    const numValue = Number(value);
+    if (isNaN(numValue) || numValue === 0) {
+      return '-';
+    }
+    // Convert from storage unit (mm) to display unit
+    const convertedValue = convertLengthFromDefault(numValue);
+    return convertedValue.toFixed(4);
+  };
+
   // Calculate max deviation for positions
   // Zero is a valid measurement and should be included in the calculation
   const calculateMaxDeviation = (slideData: SlideData | undefined): string => {
@@ -88,7 +105,9 @@ export function SlideDoubleHammerSummary({ data }: SlideDoubleHammerSummaryProps
     if (validValues.length > 1) {
       const max = Math.max(...validValues);
       const min = Math.min(...validValues);
-      return (max - min).toFixed(4);
+      // Convert to display unit
+      const deviationInDisplayUnit = convertLengthFromDefault(max - min);
+      return deviationInDisplayUnit.toFixed(4);
     }
     return '-';
   };
@@ -104,6 +123,8 @@ export function SlideDoubleHammerSummary({ data }: SlideDoubleHammerSummaryProps
       slideData.position4,
       slideData.position5,
     ];
+
+    const unitLabel = getLengthUnitLabel();
 
     return (
       <Table>
@@ -123,11 +144,17 @@ export function SlideDoubleHammerSummary({ data }: SlideDoubleHammerSummaryProps
           <TableRow className="text-[11px]">
             {positions.map((val, idx) => (
               <TableCell key={idx} className="py-1.5 text-center">
-                {displayValue(val)}
+                {displayNumericValue(val)}
               </TableCell>
             ))}
             <TableCell className="py-1.5 text-center font-semibold bg-blue-50 dark:bg-blue-950">
               {calculateMaxDeviation(slideData)}
+            </TableCell>
+          </TableRow>
+          {/* Show unit label */}
+          <TableRow className="text-[10px] text-muted-foreground">
+            <TableCell colSpan={6} className="py-1 text-center italic">
+              ({unitLabel})
             </TableCell>
           </TableRow>
         </TableBody>

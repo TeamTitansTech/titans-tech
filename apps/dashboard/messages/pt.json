@@ -1368,17 +1368,19 @@
           "ball_box_area_RH": "Área da Caixa de Esferas RH",
           "ball_box_area_LH": "Área da Caixa de Esferas LH",
           "Ball_box_area_RH": "Área da Caixa de Esferas RH",
-          "Ball_box_area_LH": "Área da Caixa de Esferas LH"
+          "Ball_box_area_LH": "Área da Caixa de Esferas LH",
+          "hasBeenAdjusted": "Foi Ajustado"
         },
         "validation": {
-          "outerDataRequired": "Folga de Rolamento: Dados Externos são obrigatórios",
-          "innerDataRequired": "Folga de Rolamento: Dados Internos são obrigatórios",
+          "sectionHeader": "Folga de Rolamento - Campos faltando:",
+          "outerDataRequired": "",
+          "innerDataRequired": "",
           "beforeMeasurementsRequired": "Folga de Rolamento: Quando 'Incluir Medições Antes' está habilitado para manutenção, você deve preencher todas as seções 'Antes' (Externo Antes e Interno Antes)",
-          "fieldRequired": "{field} é obrigatório",
+          "fieldRequired": "{field}",
           "outerBefore": "Externo Antes",
-          "outerData": "Dados Externos",
+          "outerData": "Externo",
           "innerBefore": "Interno Antes",
-          "innerData": "Dados Internos"
+          "innerData": "Interno"
         }
       },
       "slide": {
@@ -1417,8 +1419,16 @@
         "saving": "Salvando...",
         "dataSaved": "Dados salvos com sucesso",
         "validationError": "Por favor, preencha todos os campos obrigatórios",
-        "fillAllFields": "Por favor, preencha todos os campos de posição (1-6)",
+        "fillAllFields": "Por favor, preencha todos os campos de posição (1-5) - o desvio máximo calculado gera alertas",
         "fillBeforeMeasurements": "Por favor, preencha todos os campos 'Antes da Manutenção' quando a caixa estiver marcada",
+        "validation": {
+          "measurementsRequired": "Slide - Martelo Simples: Preencha as posições 1-5 (o desvio máximo gera alertas)",
+          "atLeastOneSectionRequired": "Slide - Martelo Duplo: Preencha pelo menos uma seção (Externo ou Interno) com as posições 1-5 (o desvio máximo gera alertas)",
+          "outerPrefix": "Slide Externo",
+          "innerPrefix": "Slide Interno",
+          "positionRequired": "Posição {position} é obrigatória",
+          "atLeastTwoPositionsRequired": "Preencha pelo menos 2 pontos de posição no desvio máximo"
+        },
         "yes": "Sim",
         "no": "Não",
         "na": "N/A",
@@ -1477,7 +1487,12 @@
         "afterToolInstallation": "Após Instalação da Ferramenta",
         "adjustment": "Ajuste",
         "installation": "Instalação",
-        "haveInnerGibsBeenAdjusted": "Guias internas foram ajustadas"
+        "haveInnerGibsBeenAdjusted": "Guias internas foram ajustadas",
+        "validation": {
+          "atLeastOneSectionRequired": "Guias: Preencha pelo menos uma seção de medição - o campo Utilizável na tabela 'Esquerda para Direita' gera alertas",
+          "leftToRightRequired": "Guias: Preencha a seção 'Esquerda para Direita' (Guias Externas)",
+          "stagePrefix": "Guias {stage}"
+        }
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Pressões do Sistema (PSI)",
@@ -1508,7 +1523,10 @@
         "filterTitle": "Filtro",
         "changedFilter": "Filtro Trocado",
         "notes": "Notes",
-        "notesPlaceholder": "Notas adicionais..."
+        "notesPlaceholder": "Notas adicionais...",
+        "validation": {
+          "changedOilRequired": "Lubrificação: Óleo Trocado é obrigatório"
+        }
       },
       "clutch": {
         "clutchInfoTitle": "Informações da Embreagem",
@@ -1620,7 +1638,9 @@
           "gearBacklashCheck": "*Verificar apenas se houver ruído excessivo e/ou vibração"
         },
         "validation": {
-          "required": "Este campo é obrigatório"
+          "required": "Este campo é obrigatório",
+          "hydClutchClearanceTotalRequired": "Embreagem: Folga da Embreagem Hidráulica (Total) é obrigatória",
+          "hydClutchClearanceRearRequired": "Embreagem: Folga da Embreagem Hidráulica (Traseira) é obrigatória"
         }
       },
       "counterbalanceCylinder": {
@@ -1704,7 +1724,12 @@
         "left": "Esquerda",
         "right": "Direita",
         "trimPin": "Pino de Ajuste",
-        "notes": "Notas"
+        "notes": "Notas",
+        "validation": {
+          "outerPrefix": "Tramming Externo",
+          "innerPrefix": "Tramming Interno",
+          "allMeasurementsRequired": "Tramming: Preencha todas as 4 medições em cada ponto (Superior, Inferior, Esquerda, Direita) - cada ponto gera alertas"
+        }
       },
       "pistons": {
         "guideSeals": "Vedações de Guia",
@@ -1715,7 +1740,12 @@
         "piston": "Pistão",
         "top": "Superior",
         "bottom": "Inferior",
-        "notes": "Notas (Opcional)"
+        "notes": "Notas (Opcional)",
+        "validation": {
+          "atLeastOneSectionRequired": "Pistões: Preencha pelo menos uma seção (Externo ou Interno) - os campos Superior e Inferior geram alertas",
+          "outerPrefix": "Pistões Externo",
+          "innerPrefix": "Pistões Interno"
+        }
       },
       "cancel": "Cancelar",
       "submit": {
@@ -1742,7 +1772,9 @@
         "selectStatus": "Selecione o status",
         "selectMatingPart": "Selecione a peça de acoplamento",
         "referenceMeasurement": "Medição de referência",
-        "additionalNotes": "Digite notas adicionais..."
+        "additionalNotes": "Digite notas adicionais...",
+        "generatesAlert": "Este campo gera alertas",
+        "oilChangeGeneratesAlert": "Gera alertas se o óleo não for trocado em 333 dias"
       },
       "bearingClearanceSection": {
         "includeBeforeMeasurements": "Incluir Medições Anteriores",
@@ -2069,6 +2101,7 @@
     "system": "Sistema",
     "gauge": "Medidor",
     "psi": "PSI",
+    "pressure": "Pressão",
     "noImage": "Sem Imagem"
   },
   "measurements": {
@@ -2198,6 +2231,10 @@
       "afterMaintenance": "Após a Manutenção"
     },
     "units": {
+      "selectedUnits": "Unidades Selecionadas",
+      "lengthLabel": "Comprimento",
+      "temperatureLabel": "Temperatura",
+      "pressureLabel": "Pressão",
       "length": {
         "label": "Unidade de Comprimento",
         "mm": "mm",
@@ -2435,7 +2472,17 @@
       "performedByRequired": "Por favor, preencha o campo 'Realizado Por'",
       "completeAllSections": "Por favor, complete todas as seções antes de visualizar o resumo",
       "validationWarnings": "Avisos de Validação",
-      "redirectingToIncomplete": "Seção salva! Redirecionando para a primeira seção incompleta"
+      "redirectingToIncomplete": "Seção salva! Redirecionando para a primeira seção incompleta",
+      "detailsMissingFields": "Os seguintes campos são obrigatórios:",
+      "isPressLevelRequired": "A Prensa Está Nivelada?",
+      "driveBeltConditionRequired": "Condição da Correia de Transmissão",
+      "areAllProtectiveCoversRequired": "Todas as coberturas de proteção estão no lugar?",
+      "areCracksVisibleRequired": "Há rachaduras visíveis na coroa, leito ou deslizamento?",
+      "isMainMotorSecureRequired": "O Motor Principal Está Seguro?",
+      "isMotorPlateSecureRequired": "A Placa do Motor Está Segura?",
+      "whyNotCoveredRequired": "Por que não coberto?",
+      "protectiveCoversExplanationRequired": "Se 'Não' acima, explique:",
+      "cracksLocationRequired": "Se 'Sim' acima, onde?"
     },
     "successMessages": {
       "serviceUpdated": "Detalhes do serviço atualizados com sucesso",

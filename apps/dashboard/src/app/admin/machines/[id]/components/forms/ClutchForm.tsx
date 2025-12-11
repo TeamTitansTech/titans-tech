@@ -10,9 +10,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Textarea } from '@/components/ui/textarea';
 import { LengthInput } from '@/components/ui/forms/LengthInput';
 import { PressureInput } from '@/components/ui/forms/PressureInput';
+import { Bell } from 'lucide-react';
 import {
   ClutchType,
   ClutchLocation,
@@ -37,6 +39,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
   const tPlaceholders = useTranslations('inspections.form.clutch.placeholders');
   const tNotes = useTranslations('inspections.form.clutch.notes');
   const tCommon = useTranslations('common.status');
+  const tFormCommon = useTranslations('inspections.form.common');
 
   const handleSelectChange = (field: keyof ClutchData, value: string) => {
     updateFn(field, value);
@@ -151,7 +154,17 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeSpringFB">{tClutch('brakeSpringFB')}</Label>
+            <Label htmlFor="brakeSpringFB" className="flex items-center gap-1">
+              {tClutch('brakeSpringFB')}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Bell className="h-3 w-3 text-amber-500 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">{tFormCommon('generatesAlert')}</p>
+                </TooltipContent>
+              </Tooltip>
+            </Label>
             <Input
               id="brakeSpringFB"
               type="number"
@@ -163,7 +176,17 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeSpringFTB">{tClutch('brakeSpringFTB')}</Label>
+            <Label htmlFor="brakeSpringFTB" className="flex items-center gap-1">
+              {tClutch('brakeSpringFTB')}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Bell className="h-3 w-3 text-amber-500 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">{tFormCommon('generatesAlert')}</p>
+                </TooltipContent>
+              </Tooltip>
+            </Label>
             <Input
               id="brakeSpringFTB"
               type="number"
@@ -175,7 +198,17 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="brakeSpringRTB">{tClutch('brakeSpringRTB')}</Label>
+            <Label htmlFor="brakeSpringRTB" className="flex items-center gap-1">
+              {tClutch('brakeSpringRTB')}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Bell className="h-3 w-3 text-amber-500 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs">{tFormCommon('generatesAlert')}</p>
+                </TooltipContent>
+              </Tooltip>
+            </Label>
             <Input
               id="brakeSpringRTB"
               type="number"
@@ -244,7 +277,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <LengthInput
             id="brakeClearing"
             label={tClutch('brakeClearing')}
-            value={data.brakeClearing ?? 0}
+            value={data.brakeClearing}
             onChange={(val) => updateFn('brakeClearing', val)}
             onBlur={() => handleBlur('brakeClearing')}
           />
@@ -252,7 +285,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <LengthInput
             id="brakeClearanceTotal"
             label={tClutch('brakeClearanceTotal')}
-            value={data.brakeClearanceTotal ?? 0}
+            value={data.brakeClearanceTotal}
             onChange={(val) => updateFn('brakeClearanceTotal', val)}
             onBlur={() => handleBlur('brakeClearanceTotal')}
           />
@@ -260,7 +293,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <LengthInput
             id="brakeClearanceRear"
             label={tClutch('brakeClearanceRear')}
-            value={data.brakeClearanceRear ?? 0}
+            value={data.brakeClearanceRear}
             onChange={(val) => updateFn('brakeClearanceRear', val)}
             onBlur={() => handleBlur('brakeClearanceRear')}
           />
@@ -404,7 +437,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <LengthInput
             id="gearBacklashBefore"
             label={tClutch('gearBacklashBefore')}
-            value={data.gearBacklashBefore ?? 0}
+            value={data.gearBacklashBefore}
             onChange={(val) => updateFn('gearBacklashBefore', val)}
             onBlur={() => handleBlur('gearBacklashBefore')}
           />
@@ -412,7 +445,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <LengthInput
             id="gearBacklashAfter"
             label={tClutch('gearBacklashAfter')}
-            value={data.gearBacklashAfter ?? 0}
+            value={data.gearBacklashAfter}
             onChange={(val) => updateFn('gearBacklashAfter', val)}
             onBlur={() => handleBlur('gearBacklashAfter')}
           />
@@ -420,7 +453,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <LengthInput
             id="crankEndplayBefore"
             label={tClutch('crankEndplayBefore')}
-            value={data.crankEndplayBefore ?? 0}
+            value={data.crankEndplayBefore}
             onChange={(val) => updateFn('crankEndplayBefore', val)}
             onBlur={() => handleBlur('crankEndplayBefore')}
           />
@@ -428,7 +461,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <LengthInput
             id="crankEndplayAfter"
             label={tClutch('crankEndplayAfter')}
-            value={data.crankEndplayAfter ?? 0}
+            value={data.crankEndplayAfter}
             onChange={(val) => updateFn('crankEndplayAfter', val)}
             onBlur={() => handleBlur('crankEndplayAfter')}
           />
@@ -441,7 +474,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <PressureInput
             id="airRegulatorValue"
             label={tClutch('airRegulator')}
-            value={data.airRegulatorValue ?? 0}
+            value={data.airRegulatorValue}
             onChange={(val) => updateFn('airRegulatorValue', val)}
             onBlur={() => handleBlur('airRegulatorValue')}
           />
@@ -449,7 +482,7 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <LengthInput
             id="airClutchTravel"
             label={tClutch('airClutchTravelClearance')}
-            value={data.airClutchTravel ?? 0}
+            value={data.airClutchTravel}
             onChange={(val) => updateFn('airClutchTravel', val)}
             onBlur={() => handleBlur('airClutchTravel')}
           />
@@ -538,23 +571,27 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
           <LengthInput
             id="hydClutchClearanceTotal"
             label={tClutch('hydClutchClearanceTotal')}
-            value={data.hydClutchClearanceTotal ?? 0}
+            value={data.hydClutchClearanceTotal}
             onChange={(val) => updateFn('hydClutchClearanceTotal', val)}
             onBlur={() => handleBlur('hydClutchClearanceTotal')}
+            generatesAlert
+            alertTooltip={tFormCommon('generatesAlert')}
           />
 
           <LengthInput
             id="hydClutchClearanceRear"
             label={tClutch('hydClutchClearanceRear')}
-            value={data.hydClutchClearanceRear ?? 0}
+            value={data.hydClutchClearanceRear}
             onChange={(val) => updateFn('hydClutchClearanceRear', val)}
             onBlur={() => handleBlur('hydClutchClearanceRear')}
+            generatesAlert
+            alertTooltip={tFormCommon('generatesAlert')}
           />
 
           <PressureInput
             id="hydraulicPressureValue"
             label={tClutch('hydraulicPressure')}
-            value={data.hydraulicPressureValue ?? 0}
+            value={data.hydraulicPressureValue}
             onChange={(val) => updateFn('hydraulicPressureValue', val)}
             onBlur={() => handleBlur('hydraulicPressureValue')}
           />

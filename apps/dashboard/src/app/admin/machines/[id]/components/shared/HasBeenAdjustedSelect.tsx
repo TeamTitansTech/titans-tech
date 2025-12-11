@@ -16,6 +16,7 @@ interface HasBeenAdjustedSelectProps {
   onValueChange: (value: YesNoNaDncType) => void;
   id: string;
   label?: string;
+  required?: boolean;
 }
 
 export function HasBeenAdjustedSelect({
@@ -23,6 +24,7 @@ export function HasBeenAdjustedSelect({
   onValueChange,
   id,
   label,
+  required = true,
 }: HasBeenAdjustedSelectProps) {
   const t = useTranslations('inspections');
 
@@ -30,6 +32,7 @@ export function HasBeenAdjustedSelect({
     <div className="mb-6">
       <Label htmlFor={id} className="text-xs font-semibold mb-2 block">
         {label || t('form.bearingClearanceSection.hasBeenAdjusted')}
+        {required && <span className="text-destructive ml-1">*</span>}
       </Label>
       <Select value={value} onValueChange={(val) => onValueChange(val as YesNoNaDncType)}>
         <SelectTrigger id={id} className="text-sm w-full max-w-xs">

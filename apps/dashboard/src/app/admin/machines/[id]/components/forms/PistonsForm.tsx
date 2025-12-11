@@ -1,6 +1,9 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Label } from '@/components/ui/label';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Bell } from 'lucide-react';
 import { MeasurementInput } from '../shared/MeasurementInput';
 
 // Database format for pistons data (matches Prisma PistonsData model)
@@ -40,6 +43,8 @@ export function PistonsForm({
   handleBlur,
   readOnly = false,
 }: PistonsFormProps) {
+  const tCommon = useTranslations('inspections.form.common');
+
   // Same field names for both outer and inner - the title prop indicates context
   const pistonPoints: PistonPoint[] = [
     {
@@ -75,7 +80,17 @@ export function PistonsForm({
 
   const renderPiston = (piston: PistonPoint) => (
     <div className="flex flex-col items-center gap-1">
-      <Label className="text-xs font-semibold mb-1">{piston.label}</Label>
+      <Label className="text-xs font-semibold mb-1 flex items-center gap-1">
+        {piston.label}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Bell className="h-3 w-3 text-amber-500 cursor-help" />
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-xs">{tCommon('generatesAlert')}</p>
+          </TooltipContent>
+        </Tooltip>
+      </Label>
       <div className="relative flex items-center justify-center p-10">
         {/* Top input */}
         <div className="absolute left-1/2 -translate-x-1/2" style={{ top: '-8px' }}>

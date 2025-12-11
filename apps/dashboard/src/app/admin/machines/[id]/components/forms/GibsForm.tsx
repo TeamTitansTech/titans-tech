@@ -11,7 +11,7 @@ import { MeasurementSection } from './MeasurementSection';
 
 interface StageConfig {
   data?: GibsStageData;
-  onUpdate?: (field: keyof GibsStageData, value: number) => void;
+  onUpdate?: (field: keyof GibsStageData, value: number | undefined) => void;
   errors?: Record<string, string>;
   handleBlur?: (field: keyof GibsStageData) => void;
 }

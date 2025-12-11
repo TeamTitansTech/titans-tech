@@ -96,7 +96,7 @@ function getInitialPressureUnit(defaultUnit: PressureUnit): PressureUnit {
 
 export function UnitManagerProvider({
   children,
-  defaultLengthUnit = 'mm',
+  defaultLengthUnit = 'inches',
   defaultTemperatureUnit = 'C',
   defaultPressureUnit = 'atm',
 }: UnitManagerProviderProps) {

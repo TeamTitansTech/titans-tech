@@ -42,6 +42,8 @@ import { DetailsStep } from './steps/DetailsStep';
 import { SectionsStep } from './steps/SectionsStep';
 import { SummaryStep } from './steps/SummaryStep';
 import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { YesNoDncType } from '@titans-tech/shared/enums';
+import { WhyNotCoveredType } from '@titans-tech/shared/types';
 
 export function ServiceCompletionModal({
   machineId,
@@ -82,6 +84,49 @@ export function ServiceCompletionModal({
       return error.replace('Invalid option: expected', tErrors('invalidOption'));
     }
     return error;
+  };
+
+  // Validate Details step required fields (frontend validation)
+  const validateDetailsFields = (): string[] => {
+    const missingFields: string[] = [];
+
+    // All observation fields are required
+    if (!isPressLevel) {
+      missingFields.push(tErrors('isPressLevelRequired'));
+    }
+    if (!driveBeltCondition) {
+      missingFields.push(tErrors('driveBeltConditionRequired'));
+    }
+    if (!areAllProtectiveCovers) {
+      missingFields.push(tErrors('areAllProtectiveCoversRequired'));
+    }
+    if (!areCracksVisible) {
+      missingFields.push(tErrors('areCracksVisibleRequired'));
+    }
+    // Conditional: cracksLocation required when areCracksVisible is YES
+    if (areCracksVisible === YesNoDncType.YES && !cracksLocation?.trim()) {
+      missingFields.push(tErrors('cracksLocationRequired'));
+    }
+    if (!isMainMotorSecure) {
+      missingFields.push(tErrors('isMainMotorSecureRequired'));
+    }
+    if (!isMotorPlateSecure) {
+      missingFields.push(tErrors('isMotorPlateSecureRequired'));
+    }
+    // Conditional: whyNotCovered required when areAllProtectiveCovers is NO
+    if (areAllProtectiveCovers === 'NO' && !whyNotCovered) {
+      missingFields.push(tErrors('whyNotCoveredRequired'));
+    }
+    // Conditional: protectiveCoversExplanation required when whyNotCovered is OTHER_EXPLAIN
+    if (
+      areAllProtectiveCovers === 'NO' &&
+      whyNotCovered === WhyNotCoveredType.OTHER_EXPLAIN &&
+      !protectiveCoversExplanation?.trim()
+    ) {
+      missingFields.push(tErrors('protectiveCoversExplanationRequired'));
+    }
+
+    return missingFields;
   };
 
   // Helper function to get dialog title
@@ -282,6 +327,16 @@ export function ServiceCompletionModal({
     if (currentStep === 'details') {
       if (isCompletingService && (!performedBy || performedBy.trim() === '')) {
         toast.error(tErrors('performedByRequired'), { duration: 5000 });
+        return;
+      }
+
+      // Frontend validation for Details required fields
+      const missingFields = validateDetailsFields();
+      if (missingFields.length > 0) {
+        const numberedList = missingFields
+          .map((field, index) => `${index + 1}. ${field}`)
+          .join('\n');
+        toast.error(`${tErrors('detailsMissingFields')}\n\n${numberedList}`, { duration: 5000 });
         return;
       }
 
