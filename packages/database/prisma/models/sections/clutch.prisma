@@ -1,0 +1,282 @@
+// Clutch section-specific enums
+
+enum ClutchType {
+  AFC
+  CFC
+  EFHC
+  GC
+  HC
+  MC
+  MDHC
+  MHC
+  MHCC
+}
+
+enum ClutchLocation {
+  CRANKSHAFT
+  DRIVESHAFT
+}
+
+enum BrakeSpringStudBoltType {
+  OK
+  NA
+  DNC
+  BROKEN
+  BENT_WORN
+}
+
+enum BrakeLiningType {
+  OK
+  NA
+  DNC
+  GLAZED
+  OIL_SOAKED
+  MISSING_SEGMENTS
+}
+
+enum FlywheelBearingsType {
+  OK
+  NA
+  DNC
+  NOISE
+  WOBBLE
+}
+
+enum FlywheelBrakeType {
+  OK
+  NA
+  DNC
+  LINING_WORN
+}
+
+enum RotaryUnionType {
+  OK
+  NA
+  DNC
+  AIR_LEAK
+  OIL_LEAK
+  CONCENTRICITY
+}
+
+enum ClutchLiningType {
+  OK
+  NA
+  DNC
+  GLAZED
+  OIL_SOAKED
+  MISSING_SEGMENTS
+}
+
+enum ClutchSealsType {
+  OK
+  NA
+  DNC
+  LEAKING
+  SLOW_RESPONSE
+}
+
+enum SplinesConditionType {
+  OK
+  NA
+  DNC
+  BROKEN
+  NOT_VISIBLE
+  WEAR_VISIBLE
+}
+
+enum AdjustingNutLockType {
+  OK
+  NA
+  DNC
+}
+
+enum AirLineOilerSettingType {
+  OK
+  NA
+  DNC
+  NEEDS_OIL
+  NEEDS_OIL_RESET
+  NEEDS_RESET
+}
+
+enum SeparateBrakeSealsType {
+  OK
+  NA
+  DNC
+  LEAKING
+}
+
+enum FlexDiscType {
+  OK
+  NA
+  DNC
+  BUCKLED
+  CRACKED
+}
+
+// Threshold model
+
+model ThresholdClutch {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Hyd Clutch Clearance Total thresholds
+  hydClutchClearanceTotal_greenMin  Decimal @db.Decimal(10, 4)
+  hydClutchClearanceTotal_yellowMin Decimal @db.Decimal(10, 4)
+  hydClutchClearanceTotal_redMin    Decimal @db.Decimal(10, 4)
+
+  // Hyd Clutch Clearance Rear thresholds
+  hydClutchClearanceRear_greenMin  Decimal @db.Decimal(10, 4)
+  hydClutchClearanceRear_yellowMin Decimal @db.Decimal(10, 4)
+  hydClutchClearanceRear_redMin    Decimal @db.Decimal(10, 4)
+
+  // F-B (Front-Back) thresholds
+  fb_greenMin  Decimal @db.Decimal(10, 4)
+  fb_yellowMin Decimal @db.Decimal(10, 4)
+  fb_redMin    Decimal @db.Decimal(10, 4)
+
+  // F-TB (Front Top-Bottom) thresholds
+  fTB_greenMin  Decimal @db.Decimal(10, 4)
+  fTB_yellowMin Decimal @db.Decimal(10, 4)
+  fTB_redMin    Decimal @db.Decimal(10, 4)
+
+  // R-TB (Rear Top-Bottom) thresholds
+  rTB_greenMin  Decimal @db.Decimal(10, 4)
+  rTB_yellowMin Decimal @db.Decimal(10, 4)
+  rTB_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_clutch")
+}
+
+// Service section model
+
+model MachineServiceClutch {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  dataId           String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  data           ClutchData?    @relation(fields: [dataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_clutch")
+}
+
+// Data model
+
+model ClutchData {
+  id String @id @default(cuid())
+
+  // Clutch Type and Location
+  clutchType     ClutchType?
+  clutchLocation ClutchLocation?
+
+  // Brake Spring Settings (in inches)
+  brakeSpringBrake    Decimal?                 @db.Decimal(10, 4)
+  brakeSpringClutch   Decimal?                 @db.Decimal(10, 4)
+  brakeSpringFB       Decimal?                 @db.Decimal(10, 4)
+  brakeSpringFTB      Decimal?                 @db.Decimal(10, 4)
+  brakeSpringRTB      Decimal?                 @db.Decimal(10, 4)
+  brakeSpringStudBolt BrakeSpringStudBoltType?
+
+  // Brake measurements
+  brakeStoppingTime   Decimal?         @db.Decimal(10, 2)
+  brakeLining         BrakeLiningType?
+  brakeClearing       Decimal?         @db.Decimal(10, 4)
+  brakeClearanceTotal Decimal?         @db.Decimal(10, 4)
+  brakeClearanceRear  Decimal?         @db.Decimal(10, 4)
+
+  // Flywheel
+  flywheelStoppingTime Decimal?              @db.Decimal(10, 2)
+  flywheelBearings     FlywheelBearingsType?
+  flywheelBrake        FlywheelBrakeType?
+
+  // Rotary Union
+  rotaryUnion RotaryUnionType?
+
+  // Clutch details
+  clutchEngagements Int?
+  clutchLining      ClutchLiningType?
+  clutchSeals       ClutchSealsType?
+
+  // Gear and measurements (*Check only if excessive noise and/or vibration is present)
+  gearBacklashBefore Decimal? @db.Decimal(10, 4)
+  gearBacklashAfter  Decimal? @db.Decimal(10, 4)
+  crankEndplayBefore Decimal? @db.Decimal(10, 4)
+  crankEndplayAfter  Decimal? @db.Decimal(10, 4)
+
+  // Air system
+  airRegulatorValue   Decimal?                 @db.Decimal(10, 2)
+  airClutchTravel     Decimal?                 @db.Decimal(10, 4)
+  airLineOilerSetting AirLineOilerSettingType?
+
+  // Splines
+  splinesDriveRingDisc SplinesConditionType?
+
+  // Adjusting Nut/Lock
+  adjustingNutLockSecure AdjustingNutLockType?
+
+  // Hydraulic system
+  hydClutchClearanceTotal Decimal? @db.Decimal(10, 4)
+  hydClutchClearanceRear  Decimal? @db.Decimal(10, 4)
+  hydraulicPressureValue  Decimal? @db.Decimal(10, 2)
+  accumulatorValue        Decimal? @db.Decimal(10, 2)
+
+  // Separate Brake Seals
+  separateBrakeSeals SeparateBrakeSealsType?
+
+  // Flex Disc
+  flexDisc FlexDiscType?
+
+  // Notes
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  services MachineServiceClutch[]
+
+  @@map("service_data_clutch")
+}
+
+// Alert model
+
+model AlertClutch {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Hyd Clutch Clearance Total alert
+  hydClutchClearanceTotal_value    Decimal       @db.Decimal(10, 4)
+  hydClutchClearanceTotal_severity AlertSeverity
+
+  // Hyd Clutch Clearance Rear alert
+  hydClutchClearanceRear_value    Decimal       @db.Decimal(10, 4)
+  hydClutchClearanceRear_severity AlertSeverity
+
+  // F-B (Front-Back) alert
+  fb_value    Decimal       @db.Decimal(10, 4)
+  fb_severity AlertSeverity
+
+  // F-TB (Front Top-Bottom) alert
+  fTB_value    Decimal       @db.Decimal(10, 4)
+  fTB_severity AlertSeverity
+
+  // R-TB (Rear Top-Bottom) alert
+  rTB_value    Decimal       @db.Decimal(10, 4)
+  rTB_severity AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_clutch")
+}

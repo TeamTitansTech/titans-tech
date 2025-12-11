@@ -1,0 +1,75 @@
+// Lubrication & Hydraulics section-specific enums
+
+enum LubeHydMonitorFlowPressSwGibType {
+  LUBE
+  HYD
+  MONITORFLOW
+  PRESS_SW
+  GIB
+}
+
+enum SystemType {
+  LUBE
+  HYD
+  MONITORFLOW
+  PRESS_SW
+  GIB
+}
+
+enum OkNaDncDamageType {
+  OK
+  NA
+  DNC
+}
+
+// Service section model
+
+model MachineServiceLubricationHydraulics {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  dataId           String?
+  notes            String?
+
+  machineService MachineService             @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  data           LubricationHydraulicsData? @relation(fields: [dataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_lubrication_hydraulics")
+}
+
+// Data model
+
+model LubricationHydraulicsData {
+  id String @id @default(cuid())
+
+  // Oil information
+  changedOil         YesNoDncType    @default(DNC)
+  oilTemperature     Int?
+  oilTemperatureUnit TemperatureUnit @default(FAHRENHEIT)
+  oilMfgType         String?
+
+  // Filter information
+  changedFilter YesNoDncType @default(DNC)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  services MachineServiceLubricationHydraulics[]
+  gauges   LubricationHydraulicsGauge[]
+
+  @@map("service_data_lubrication_hydraulics")
+}
+
+model LubricationHydraulicsGauge {
+  id                          String                           @id @default(cuid())
+  lubricationHydraulicsDataId String
+  system                      LubeHydMonitorFlowPressSwGibType
+  gaugeSwitchIdentifier       String?
+  psi                         OkNaDncDamageType?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lubricationHydraulicsData LubricationHydraulicsData @relation(fields: [lubricationHydraulicsDataId], references: [id], onDelete: Cascade)
+
+  @@map("lubrication_hydraulics_gauges")
+}

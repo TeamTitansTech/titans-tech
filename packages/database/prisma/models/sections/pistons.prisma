@@ -1,0 +1,126 @@
+// Pistons section-specific enums
+
+enum SealConditionType {
+  OK
+  NA
+  DNC
+  LEAKING
+  WORN
+}
+
+enum VacuumSystemConditionType {
+  OK
+  NA
+  DNC
+  DAMAGED
+  LEAKING
+}
+
+// Threshold model
+
+model ThresholdPistons {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Difference thresholds (for side-to-side differences)
+  difference_greenMin  Decimal @db.Decimal(10, 4)
+  difference_yellowMin Decimal @db.Decimal(10, 4)
+  difference_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_pistons")
+}
+
+// Service section model
+
+model MachineServicePistons {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  outerDataId      String?
+  innerDataId      String?
+
+  // Top-level fields
+  guideSeals                     SealConditionType?
+  pistonSeals                    SealConditionType?
+  vacuumSystem                   VacuumSystemConditionType?
+  vacuumSystemAirPressureSetting Decimal?                   @db.Decimal(10, 4)
+
+  // Notes
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerData      PistonsData?   @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerData      PistonsData?   @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_pistons")
+}
+
+// Data model
+
+model PistonsData {
+  id String @id @default(cuid())
+
+  // LH Piston (4 measurements around piston)
+  lhTop    Decimal @db.Decimal(10, 4)
+  lhBottom Decimal @db.Decimal(10, 4)
+  lhLeft   Decimal @db.Decimal(10, 4)
+  lhRight  Decimal @db.Decimal(10, 4)
+
+  // RH Piston (4 measurements around piston)
+  rhTop    Decimal @db.Decimal(10, 4)
+  rhBottom Decimal @db.Decimal(10, 4)
+  rhLeft   Decimal @db.Decimal(10, 4)
+  rhRight  Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerServices MachineServicePistons[] @relation("OuterData")
+  innerServices MachineServicePistons[] @relation("InnerData")
+
+  @@map("service_data_pistons")
+}
+
+// Alert model
+
+model AlertPistons {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // === OUTER DATA ===
+  // Difference values and severities
+  outer_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  outer_lhLeftRight_severity AlertSeverity @default(NONE)
+  outer_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  outer_lhTopBottom_severity AlertSeverity @default(NONE)
+  outer_rhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  outer_rhLeftRight_severity AlertSeverity @default(NONE)
+  outer_rhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  outer_rhTopBottom_severity AlertSeverity @default(NONE)
+
+  // === INNER DATA ===
+  // Difference values and severities
+  inner_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  inner_lhLeftRight_severity AlertSeverity @default(NONE)
+  inner_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  inner_lhTopBottom_severity AlertSeverity @default(NONE)
+  inner_rhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  inner_rhLeftRight_severity AlertSeverity @default(NONE)
+  inner_rhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  inner_rhTopBottom_severity AlertSeverity @default(NONE)
+
+  // Threshold snapshot for auditing
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_pistons")
+}

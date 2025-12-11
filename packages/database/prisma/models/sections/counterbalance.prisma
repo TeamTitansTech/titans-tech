@@ -1,0 +1,119 @@
+// Counterbalance section-specific enums
+
+enum CylinderAirbagType {
+  CYLINDER
+  AIRBAG
+}
+
+enum OkNaDncLeakingType {
+  OK
+  NA
+  DNC
+  LEAKING
+}
+
+enum OkNaDncNotOperationalType {
+  OK
+  NA
+  DNC
+  NOT_OPERATIONAL
+}
+
+enum OkNaDncNotOperationalLeakingType {
+  OK
+  NA
+  DNC
+  NOT_OPERATIONAL
+  LEAKING
+}
+
+enum OkNaDncDarkOilType {
+  OK
+  NA
+  DNC
+  DARK_OIL
+}
+
+enum OkNaDncNeedReplacedType {
+  OK
+  NA
+  DNC
+  NEEDS_REPLACED
+}
+
+enum CounterbalanceAlertField {
+  AIRBAG_PISTON_SEALS
+  REGULATOR
+  GAUGE
+  PNEUMATICS_PLUMBING
+  ROD_SEALS
+  ROD_BUSHING
+  OIL_WICK
+}
+
+// Service section model
+
+model MachineServiceCounterbalanceCylinderAirbag {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  outerDataId      String?
+  innerDataId      String?
+  notes            String?
+
+  machineService MachineService                    @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerData      CounterbalanceCylinderAirbagData? @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerData      CounterbalanceCylinderAirbagData? @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_counterbalance_cylinder_airbag")
+}
+
+// Data model
+
+model CounterbalanceCylinderAirbagData {
+  id String @id @default(cuid())
+
+  counterbalanceType CylinderAirbagType?
+
+  // Airbag/Piston condition
+  airbagPistonSeals             OkNaDncLeakingType?
+  airbagPistonSealsLeakLocation String?
+
+  // Regulator and gauges
+  regulator OkNaDncNotOperationalType?
+  gauge     OkNaDncNotOperationalType?
+
+  // Pneumatics
+  pneumaticsPlumbing OkNaDncNotOperationalLeakingType?
+
+  // Rod condition
+  rodSeals   OkNaDncLeakingType?
+  rodBushing OkNaDncDarkOilType?
+
+  // Oil
+  oilWick OkNaDncNeedReplacedType?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerServices MachineServiceCounterbalanceCylinderAirbag[] @relation("OuterData")
+  innerServices MachineServiceCounterbalanceCylinderAirbag[] @relation("InnerData")
+
+  @@map("service_data_counterbalance_cylinder_airbag")
+}
+
+// Alert model
+
+model AlertCounterbalanceCylinderAirbag {
+  id               String                   @id @default(cuid())
+  machineServiceId String
+  fieldName        CounterbalanceAlertField
+  justification    String                   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@unique([machineServiceId, fieldName])
+  @@map("alert_counterbalance_cylinder_airbag")
+}

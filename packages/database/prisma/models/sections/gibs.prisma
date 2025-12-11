@@ -1,0 +1,110 @@
+// Gibs section models
+
+// Threshold model
+
+model ThresholdGibs {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Usable thresholds (single field with green/yellow/red levels)
+  usable_greenMin  Decimal @db.Decimal(10, 4)
+  usable_yellowMin Decimal @db.Decimal(10, 4)
+  usable_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_gibs")
+}
+
+// Service section model
+
+model MachineServiceGibs {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // 7-Stage GIBS structure (following outerBefore/outerData pattern)
+  outerBeforeId             String?
+  outerDataId               String?
+  outerFreeHangingDataId    String?
+  haveInnerGibsBeenAdjusted YesNoDncType?
+  innerBeforeId             String?
+  innerDataId               String?
+  innerBeforeToolId         String?
+  innerDataToolId           String?
+
+  // Global field
+  notes String?
+
+  machineService       MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerBefore          GibsStageData? @relation("OuterBefore", fields: [outerBeforeId], references: [id], onDelete: SetNull)
+  outerData            GibsStageData? @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  outerFreeHangingData GibsStageData? @relation("OuterFreeHangingData", fields: [outerFreeHangingDataId], references: [id], onDelete: SetNull)
+  innerBefore          GibsStageData? @relation("InnerBefore", fields: [innerBeforeId], references: [id], onDelete: SetNull)
+  innerData            GibsStageData? @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
+  innerBeforeTool      GibsStageData? @relation("InnerBeforeTool", fields: [innerBeforeToolId], references: [id], onDelete: SetNull)
+  innerDataTool        GibsStageData? @relation("InnerDataTool", fields: [innerDataToolId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_gibs")
+}
+
+// Data model - Represents one stage of GIBS measurements (16 points only, calculations done in frontend)
+
+model GibsStageData {
+  id String @id @default(cuid())
+
+  // 16 measurement points (columns 1-16)
+  point1  Decimal @db.Decimal(10, 4)
+  point2  Decimal @db.Decimal(10, 4)
+  point3  Decimal @db.Decimal(10, 4)
+  point4  Decimal @db.Decimal(10, 4)
+  point5  Decimal @db.Decimal(10, 4)
+  point6  Decimal @db.Decimal(10, 4)
+  point7  Decimal @db.Decimal(10, 4)
+  point8  Decimal @db.Decimal(10, 4)
+  point9  Decimal @db.Decimal(10, 4)
+  point10 Decimal @db.Decimal(10, 4)
+  point11 Decimal @db.Decimal(10, 4)
+  point12 Decimal @db.Decimal(10, 4)
+  point13 Decimal @db.Decimal(10, 4)
+  point14 Decimal @db.Decimal(10, 4)
+  point15 Decimal @db.Decimal(10, 4)
+  point16 Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerBeforeServices          MachineServiceGibs[] @relation("OuterBefore")
+  outerDataServices            MachineServiceGibs[] @relation("OuterData")
+  outerFreeHangingDataServices MachineServiceGibs[] @relation("OuterFreeHangingData")
+  innerBeforeServices          MachineServiceGibs[] @relation("InnerBefore")
+  innerDataServices            MachineServiceGibs[] @relation("InnerData")
+  innerBeforeToolServices      MachineServiceGibs[] @relation("InnerBeforeTool")
+  innerDataToolServices        MachineServiceGibs[] @relation("InnerDataTool")
+
+  @@map("service_data_gibs_stage")
+}
+
+// Alert model
+
+model AlertGibs {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Usable value and severity (based on single threshold)
+  usable_value    Decimal       @db.Decimal(10, 4)
+  usable_severity AlertSeverity
+
+  // Optional snapshot of threshold used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_gibs")
+}

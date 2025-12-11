@@ -1,0 +1,270 @@
+// Slide section-specific enums
+
+enum ParallelismType {
+  DNC
+  TO_BED
+  TO_BOLSTER
+}
+
+// Threshold models
+
+model ThresholdSlideSingleHammer {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Max Deviation thresholds (single threshold for both outer and inner)
+  maxDeviation_greenMin  Decimal @db.Decimal(10, 4)
+  maxDeviation_yellowMin Decimal @db.Decimal(10, 4)
+  maxDeviation_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_slide_single_hammer")
+}
+
+model ThresholdSlideDoubleHammer {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Max Deviation thresholds (single threshold for both outer and inner)
+  maxDeviation_greenMin  Decimal @db.Decimal(10, 4)
+  maxDeviation_yellowMin Decimal @db.Decimal(10, 4)
+  maxDeviation_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_slide_double_hammer")
+}
+
+// Service section models
+
+// DEPRECATED: Use MachineServiceSlideSingleHammer and MachineServiceSlideDoubleHammer instead
+// Keeping for backwards compatibility with existing data
+model MachineServiceSlide {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  outerBeforeId    String?
+  outerDataId      String?
+  innerBeforeId    String?
+  innerDataId      String?
+
+  // Notes
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerBefore    SlideData?     @relation("OuterBeforeData", fields: [outerBeforeId], references: [id], onDelete: SetNull)
+  outerData      SlideData?     @relation("OuterAfterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerBefore    SlideData?     @relation("InnerBeforeData", fields: [innerBeforeId], references: [id], onDelete: SetNull)
+  innerData      SlideData?     @relation("InnerAfterData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_slide")
+}
+
+// Single Hammer Slide - uses beforeData/data structure
+model MachineServiceSlideSingleHammer {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  beforeDataId     String?
+  dataId           String?
+  notes            String?
+
+  machineService MachineService         @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  beforeData     SlideSingleHammerData? @relation("SingleHammerBeforeData", fields: [beforeDataId], references: [id], onDelete: SetNull)
+  data           SlideSingleHammerData? @relation("SingleHammerData", fields: [dataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_slide_single_hammer")
+}
+
+// Double Hammer Slide - uses outerBefore/outerData/innerBefore/innerData structure
+model MachineServiceSlideDoubleHammer {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  outerBeforeId    String?
+  outerDataId      String?
+  innerBeforeId    String?
+  innerDataId      String?
+  notes            String?
+
+  machineService MachineService         @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerBefore    SlideDoubleHammerData? @relation("DoubleHammerOuterBeforeData", fields: [outerBeforeId], references: [id], onDelete: SetNull)
+  outerData      SlideDoubleHammerData? @relation("DoubleHammerOuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerBefore    SlideDoubleHammerData? @relation("DoubleHammerInnerBeforeData", fields: [innerBeforeId], references: [id], onDelete: SetNull)
+  innerData      SlideDoubleHammerData? @relation("DoubleHammerInnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_slide_double_hammer")
+}
+
+// Data models
+
+// DEPRECATED: Use SlideSingleHammerData and SlideDoubleHammerData instead
+model SlideData {
+  id String @id @default(cuid())
+
+  // Parallelism configuration
+  parallelism                ParallelismType?
+  hasParallelismBeenAdjusted YesNoNaDncType?
+
+  // Shutheight fields
+  shutheightIndicatorsChecked YesNoDncType?
+  overloadsOnTonnageMonitor   String?
+  shutheightActualSh          String?
+  indicatorReading            String?
+
+  // Measurements (5 positions)
+  position1 Decimal @db.Decimal(10, 4)
+  position2 Decimal @db.Decimal(10, 4)
+  position3 Decimal @db.Decimal(10, 4)
+  position4 Decimal @db.Decimal(10, 4)
+  position5 Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerBeforeServices MachineServiceSlide[] @relation("OuterBeforeData")
+  outerAfterServices  MachineServiceSlide[] @relation("OuterAfterData")
+  innerBeforeServices MachineServiceSlide[] @relation("InnerBeforeData")
+  innerAfterServices  MachineServiceSlide[] @relation("InnerAfterData")
+
+  @@map("service_data_slide")
+}
+
+// Single Hammer Slide Data
+model SlideSingleHammerData {
+  id String @id @default(cuid())
+
+  // Parallelism configuration
+  parallelism                ParallelismType?
+  hasParallelismBeenAdjusted YesNoNaDncType?
+
+  // Shutheight fields
+  shutheightIndicatorsChecked YesNoDncType?
+  overloadsOnTonnageMonitor   String?
+  shutheightActualSh          String?
+  indicatorReading            String?
+
+  // Measurements (5 positions)
+  position1 Decimal @db.Decimal(10, 4)
+  position2 Decimal @db.Decimal(10, 4)
+  position3 Decimal @db.Decimal(10, 4)
+  position4 Decimal @db.Decimal(10, 4)
+  position5 Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  beforeDataServices MachineServiceSlideSingleHammer[] @relation("SingleHammerBeforeData")
+  dataServices       MachineServiceSlideSingleHammer[] @relation("SingleHammerData")
+
+  @@map("service_data_slide_single_hammer")
+}
+
+// Double Hammer Slide Data
+model SlideDoubleHammerData {
+  id String @id @default(cuid())
+
+  // Parallelism configuration
+  parallelism                ParallelismType?
+  hasParallelismBeenAdjusted YesNoNaDncType?
+
+  // Shutheight fields
+  shutheightIndicatorsChecked YesNoDncType?
+  overloadsOnTonnageMonitor   String?
+  shutheightActualSh          String?
+  indicatorReading            String?
+
+  // Measurements (5 positions)
+  position1 Decimal @db.Decimal(10, 4)
+  position2 Decimal @db.Decimal(10, 4)
+  position3 Decimal @db.Decimal(10, 4)
+  position4 Decimal @db.Decimal(10, 4)
+  position5 Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerBeforeServices MachineServiceSlideDoubleHammer[] @relation("DoubleHammerOuterBeforeData")
+  outerDataServices   MachineServiceSlideDoubleHammer[] @relation("DoubleHammerOuterData")
+  innerBeforeServices MachineServiceSlideDoubleHammer[] @relation("DoubleHammerInnerBeforeData")
+  innerDataServices   MachineServiceSlideDoubleHammer[] @relation("DoubleHammerInnerData")
+
+  @@map("service_data_slide_double_hammer")
+}
+
+// Alert models
+
+// DEPRECATED: Use AlertSlideSingleHammer and AlertSlideDoubleHammer instead
+model AlertSlide {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Outer Max Deviation alert
+  maxDeviationOuter_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationOuter_severity     AlertSeverity
+
+  // Inner Max Deviation alert
+  maxDeviationInner_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationInner_severity     AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_slide")
+}
+
+// Alert for Single Hammer Slide (only has one set of measurements)
+model AlertSlideSingleHammer {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Max Deviation alert (single hammer only has one measurement set)
+  maxDeviation_differential Decimal       @db.Decimal(10, 4)
+  maxDeviation_severity     AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_slide_single_hammer")
+}
+
+// Alert for Double Hammer Slide (has outer and inner measurements)
+model AlertSlideDoubleHammer {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Outer Max Deviation alert
+  maxDeviationOuter_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationOuter_severity     AlertSeverity
+
+  // Inner Max Deviation alert
+  maxDeviationInner_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationInner_severity     AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_slide_double_hammer")
+}

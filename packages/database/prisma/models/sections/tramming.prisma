@@ -1,0 +1,142 @@
+// Tramming section-specific enums
+
+enum DncToBedToBolsterType {
+  DNC
+  TO_BED
+  TO_BOLSTER
+}
+
+// Threshold model
+
+model ThresholdTramming {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Single threshold range for all tramming sums (vertical and horizontal)
+  greenMin  Decimal @db.Decimal(10, 4)
+  yellowMin Decimal @db.Decimal(10, 4)
+  redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_tramming")
+}
+
+// Service section model
+
+model MachineServiceTramming {
+  id               String                 @id @default(cuid())
+  machineServiceId String
+  outerDataId      String?
+  innerDataId      String?
+  slideTram        DncToBedToBolsterType?
+
+  // Notes
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerData      TrammingData?  @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
+  innerData      TrammingData?  @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_tramming")
+}
+
+// Data model
+
+model TrammingData {
+  id String @id @default(cuid())
+
+  // Top Position (4 measurements around trim pin)
+  topTop    Decimal @db.Decimal(10, 4)
+  topBottom Decimal @db.Decimal(10, 4)
+  topLeft   Decimal @db.Decimal(10, 4)
+  topRight  Decimal @db.Decimal(10, 4)
+
+  // Bottom Position (4 measurements around trim pin)
+  bottomTop    Decimal @db.Decimal(10, 4)
+  bottomBottom Decimal @db.Decimal(10, 4)
+  bottomLeft   Decimal @db.Decimal(10, 4)
+  bottomRight  Decimal @db.Decimal(10, 4)
+
+  // Left Position (4 measurements around trim pin)
+  leftTop    Decimal @db.Decimal(10, 4)
+  leftBottom Decimal @db.Decimal(10, 4)
+  leftLeft   Decimal @db.Decimal(10, 4)
+  leftRight  Decimal @db.Decimal(10, 4)
+
+  // Right Position (4 measurements around trim pin)
+  rightTop    Decimal @db.Decimal(10, 4)
+  rightBottom Decimal @db.Decimal(10, 4)
+  rightLeft   Decimal @db.Decimal(10, 4)
+  rightRight  Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerServices MachineServiceTramming[] @relation("OuterData")
+  innerServices MachineServiceTramming[] @relation("InnerData")
+
+  @@map("service_data_tramming")
+}
+
+// Alert model
+
+model AlertTramming {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // OUTER alerts - 4 positions × 2 directions (vertical + horizontal) = 8 sums
+  outer_top_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_top_verticalSeverity   AlertSeverity
+  outer_top_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_top_horizontalSeverity AlertSeverity
+
+  outer_bottom_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_bottom_verticalSeverity   AlertSeverity
+  outer_bottom_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_bottom_horizontalSeverity AlertSeverity
+
+  outer_left_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_left_verticalSeverity   AlertSeverity
+  outer_left_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_left_horizontalSeverity AlertSeverity
+
+  outer_right_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_right_verticalSeverity   AlertSeverity
+  outer_right_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_right_horizontalSeverity AlertSeverity
+
+  // INNER alerts - 4 positions × 2 directions (vertical + horizontal) = 8 sums
+  inner_top_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_top_verticalSeverity   AlertSeverity
+  inner_top_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_top_horizontalSeverity AlertSeverity
+
+  inner_bottom_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_bottom_verticalSeverity   AlertSeverity
+  inner_bottom_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_bottom_horizontalSeverity AlertSeverity
+
+  inner_left_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_left_verticalSeverity   AlertSeverity
+  inner_left_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_left_horizontalSeverity AlertSeverity
+
+  inner_right_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_right_verticalSeverity   AlertSeverity
+  inner_right_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_right_horizontalSeverity AlertSeverity
+
+  // Optional snapshot of threshold used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("alert_tramming")
+}

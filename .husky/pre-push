@@ -13,11 +13,12 @@ else
   BASE="origin/dev"
 fi
 
-SCHEMA_CHANGED=$(git diff --name-only "$BASE"...HEAD | grep -c "schema.prisma" || true)
+# Check for changes in main schema.prisma or any split model files in prisma/models/
+SCHEMA_CHANGED=$(git diff --name-only "$BASE"...HEAD | grep -cE "(schema\.prisma|prisma/models/.*\.prisma)" || true)
 MIGRATION_ADDED=$(git diff --name-only "$BASE"...HEAD | grep -c "prisma/migrations/" || true)
 
 if [ "$SCHEMA_CHANGED" -gt 0 ] && [ "$MIGRATION_ADDED" -eq 0 ]; then
-  echo "❌ schema.prisma was modified but no migration was added!"
+  echo "❌ Prisma schema files were modified but no migration was added!"
   echo "❌ If you pushed schema changes before in this branch, make sure to not add multiple migrations!"
   echo "❌ Run: npx prisma migrate dev --name <migration_name>"
   exit 1
