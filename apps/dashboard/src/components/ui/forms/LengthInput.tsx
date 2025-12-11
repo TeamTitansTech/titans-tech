@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 import { cn } from '@/lib/utils';
 import { Bell } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export interface LengthInputProps {
   id: string;
@@ -56,6 +57,7 @@ export function LengthInput({
   generatesAlert = false,
   alertTooltip,
 }: LengthInputProps) {
+  const t = useTranslations('inspectionForm.placeholders');
   const { convertLengthFromDefault, convertLengthToDefault, getLengthUnitLabel } = useUnitManager();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -132,7 +134,7 @@ export function LengthInput({
                 <Bell className="h-3 w-3 text-amber-500 cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p className="text-xs">{alertTooltip || 'Este campo gera alertas'}</p>
+                <p className="text-xs">{alertTooltip || t('generatesAlert')}</p>
               </TooltipContent>
             </Tooltip>
           )}
