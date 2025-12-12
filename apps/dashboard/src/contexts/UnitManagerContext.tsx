@@ -136,7 +136,7 @@ export function UnitManagerProvider({
   const convertLengthToDefault = useCallback(
     (value: number): number => {
       if (lengthUnit === 'inches') return value;
-      return value * MM_TO_INCHES;
+      return value * INCHES_TO_MM;
     },
     [lengthUnit],
   );
