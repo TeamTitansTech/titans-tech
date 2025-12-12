@@ -133,15 +133,15 @@ export function UnitManagerProvider({
     setLengthUnitState(unit);
   }, []);
 
-  const convertLengthFromDefault = useCallback(
+  const convertLengthToDefault = useCallback(
     (value: number): number => {
-      if (lengthUnit === 'mm') return value;
-      return value * INCHES_TO_MM;
+      if (lengthUnit === 'inches') return value;
+      return value * MM_TO_INCHES;
     },
     [lengthUnit],
   );
 
-  const convertLengthToDefault = useCallback(
+  const convertLengthFromDefault = useCallback(
     (value: number): number => {
       if (lengthUnit === 'inches') return value;
       return value * MM_TO_INCHES;
