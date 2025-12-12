@@ -36,6 +36,7 @@ import {
 } from '@/actions/alerts';
 import { Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 import type {
   BearingClearanceThresholdsData,
   ClutchThresholdsData,
@@ -359,116 +360,118 @@ export function ThresholdEditModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{t('alerts.thresholds.editTitle', { name: blueprintName })}</DialogTitle>
-          <DialogDescription>{t('alerts.thresholds.editDescription')}</DialogDescription>
-        </DialogHeader>
+        <UnitManagerProvider>
+          <DialogHeader>
+            <DialogTitle>{t('alerts.thresholds.editTitle', { name: blueprintName })}</DialogTitle>
+            <DialogDescription>{t('alerts.thresholds.editDescription')}</DialogDescription>
+          </DialogHeader>
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-            {/* Bearing Clearance Thresholds */}
-            {hasBearingClearance && bearingThresholds && (
-              <BearingClearanceThresholds
-                open={bearingOpen}
-                onOpenChange={setBearingOpen}
-                data={bearingThresholds}
-                onChange={setBearingThresholds}
-              />
-            )}
+              {/* Bearing Clearance Thresholds */}
+              {hasBearingClearance && bearingThresholds && (
+                <BearingClearanceThresholds
+                  open={bearingOpen}
+                  onOpenChange={setBearingOpen}
+                  data={bearingThresholds}
+                  onChange={setBearingThresholds}
+                />
+              )}
 
-            {/* Clutch Thresholds */}
-            {hasClutch && clutchThresholds && (
-              <ClutchThresholds
-                open={clutchOpen}
-                onOpenChange={setClutchOpen}
-                data={clutchThresholds}
-                onChange={setClutchThresholds}
-              />
-            )}
+              {/* Clutch Thresholds */}
+              {hasClutch && clutchThresholds && (
+                <ClutchThresholds
+                  open={clutchOpen}
+                  onOpenChange={setClutchOpen}
+                  data={clutchThresholds}
+                  onChange={setClutchThresholds}
+                />
+              )}
 
-            {/* Slide Thresholds */}
-            {hasSlide && slideThresholds && (
-              <SlideThresholds
-                open={slideOpen}
-                onOpenChange={setSlideOpen}
-                data={slideThresholds}
-                onChange={setSlideThresholds}
-              />
-            )}
+              {/* Slide Thresholds */}
+              {hasSlide && slideThresholds && (
+                <SlideThresholds
+                  open={slideOpen}
+                  onOpenChange={setSlideOpen}
+                  data={slideThresholds}
+                  onChange={setSlideThresholds}
+                />
+              )}
 
-            {/* Gibs Thresholds */}
-            {hasGibs && gibsThresholds && (
-              <GibsThresholds
-                open={gibsOpen}
-                onOpenChange={setGibsOpen}
-                data={gibsThresholds}
-                onChange={setGibsThresholds}
-              />
-            )}
+              {/* Gibs Thresholds */}
+              {hasGibs && gibsThresholds && (
+                <GibsThresholds
+                  open={gibsOpen}
+                  onOpenChange={setGibsOpen}
+                  data={gibsThresholds}
+                  onChange={setGibsThresholds}
+                />
+              )}
 
-            {/* Tramming Thresholds */}
-            {hasTramming && trammingThresholds && (
-              <TrammingThresholds
-                open={trammingOpen}
-                onOpenChange={setTrammingOpen}
-                data={trammingThresholds}
-                onChange={setTrammingThresholds}
-              />
-            )}
+              {/* Tramming Thresholds */}
+              {hasTramming && trammingThresholds && (
+                <TrammingThresholds
+                  open={trammingOpen}
+                  onOpenChange={setTrammingOpen}
+                  data={trammingThresholds}
+                  onChange={setTrammingThresholds}
+                />
+              )}
 
-            {/* Pistons Thresholds */}
-            {hasPistons && pistonsThresholds && (
-              <PistonsThresholds
-                open={pistonsOpen}
-                onOpenChange={setPistonsOpen}
-                data={pistonsThresholds}
-                onChange={setPistonsThresholds}
-              />
-            )}
+              {/* Pistons Thresholds */}
+              {hasPistons && pistonsThresholds && (
+                <PistonsThresholds
+                  open={pistonsOpen}
+                  onOpenChange={setPistonsOpen}
+                  data={pistonsThresholds}
+                  onChange={setPistonsThresholds}
+                />
+              )}
 
-            {/* Recalculate Alerts Checkbox */}
-            <div className="flex items-start space-x-3 rounded-lg border p-4 bg-muted/50">
-              <Checkbox
-                id="recalculate"
-                checked={recalculateAlerts}
-                onCheckedChange={(checked) => setRecalculateAlerts(checked === true)}
-                disabled={isSaving}
-              />
-              <div className="grid gap-1.5 leading-none">
-                <Label
-                  htmlFor="recalculate"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  {t('alerts.thresholds.recalculate.label')}
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  {t('alerts.thresholds.recalculate.description')}
-                </p>
+              {/* Recalculate Alerts Checkbox */}
+              <div className="flex items-start space-x-3 rounded-lg border p-4 bg-muted/50">
+                <Checkbox
+                  id="recalculate"
+                  checked={recalculateAlerts}
+                  onCheckedChange={(checked) => setRecalculateAlerts(checked === true)}
+                  disabled={isSaving}
+                />
+                <div className="grid gap-1.5 leading-none">
+                  <Label
+                    htmlFor="recalculate"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    {t('alerts.thresholds.recalculate.label')}
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    {t('alerts.thresholds.recalculate.description')}
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose} disabled={isSaving}>
-            {t('common.cancel')}
-          </Button>
-          <Button onClick={handleSave} disabled={isLoading || isSaving}>
-            {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            {recalculateAlerts ? t('alerts.thresholds.recalculate.updating') : t('common.save')}
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button variant="outline" onClick={onClose} disabled={isSaving}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleSave} disabled={isLoading || isSaving}>
+              {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {recalculateAlerts ? t('alerts.thresholds.recalculate.updating') : t('common.save')}
+            </Button>
+          </DialogFooter>
+        </UnitManagerProvider>
       </DialogContent>
     </Dialog>
   );
