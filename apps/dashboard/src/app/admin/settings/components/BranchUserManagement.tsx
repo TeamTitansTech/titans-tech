@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Users, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Users, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getAllUsers } from '@/data/services/users.api';
 import { getBranch } from '@/data/services/company-branches.api';
@@ -15,12 +15,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { AddUserDialog } from './AddUserDialog';
 import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
 import { UserTableSkeleton } from './UserTableSkeleton';
 import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { detectRolePreset, RolePreset, type Permissions } from '@titans-tech/shared/types';
+import type { CompanyBranch } from '@/data/services/company-branches.api';
 
 interface User {
   id: string;
@@ -101,10 +101,10 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const t = useTranslations('adminSettings.userManagement');
   const [users, setUsers] = useState<User[]>([]);
   const [usersData, setUsersData] = useState<UserResponseDto[]>([]);
-  const [branchName, setBranchName] = useState<string>('');
+  const [branch, setBranch] = useState<CompanyBranch | null>(null);
+  const branchName = branch?.name || '';
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
   const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
@@ -122,7 +122,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
       try {
         const branchResponse = await getBranch({ branchId });
         if (branchResponse.data) {
-          setBranchName(branchResponse.data.name);
+          setBranch(branchResponse.data);
 
           const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
           if (usersResponse.data) {
@@ -155,10 +155,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
-
-  const handleAddUserSuccess = () => {
-    loadUsers(true);
-  };
 
   const handleEditUser = (userId: string) => {
     const user = usersData.find((u) => u.id === userId);
@@ -209,10 +205,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
             <span className="ml-2 text-xs text-muted-foreground animate-pulse">Updating...</span>
           )}
         </h3>
-        <Button onClick={() => setIsAddUserDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t('addUser')}
-        </Button>
       </div>
 
       <div
@@ -272,14 +264,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
           </TableBody>
         </Table>
       </div>
-
-      <AddUserDialog
-        open={isAddUserDialogOpen}
-        onOpenChange={setIsAddUserDialogOpen}
-        branchId={branchId}
-        branchName={branchName}
-        onSuccess={handleAddUserSuccess}
-      />
 
       <EditUserDialog
         open={isEditUserDialogOpen}
