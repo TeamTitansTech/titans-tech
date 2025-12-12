@@ -136,15 +136,15 @@ export function UnitManagerProvider({
   const convertLengthFromDefault = useCallback(
     (value: number): number => {
       if (lengthUnit === 'mm') return value;
-      return value * MM_TO_INCHES;
+      return value * INCHES_TO_MM;
     },
     [lengthUnit],
   );
 
   const convertLengthToDefault = useCallback(
     (value: number): number => {
-      if (lengthUnit === 'mm') return value;
-      return value * INCHES_TO_MM;
+      if (lengthUnit === 'inches') return value;
+      return value * MM_TO_INCHES;
     },
     [lengthUnit],
   );

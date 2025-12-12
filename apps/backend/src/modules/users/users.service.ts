@@ -624,6 +624,23 @@ export class UsersService {
         },
       });
 
+      // Check if user has any remaining branches
+      const remainingBranches = await this.prisma.userBranch.count({
+        where: { userId },
+      });
+
+      // If no remaining branches, delete the user completely to free up email
+      if (remainingBranches === 0) {
+        await this.prisma.user.delete({
+          where: { id: userId },
+        });
+
+        return {
+          success: true,
+          message: 'User deleted from company (no remaining branches)',
+        };
+      }
+
       return {
         success: true,
         message: 'User removed from branch',

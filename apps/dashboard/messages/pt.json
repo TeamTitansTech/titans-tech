@@ -222,6 +222,7 @@
     "addUserDialog": {
       "title": "Adicionar Usuário",
       "description": "Adicionar um novo usuário a {branchName}",
+      "descriptionCompanyLevel": "Adicionar um novo usuário à empresa",
       "form": {
         "name": {
           "label": "Nome Completo",
@@ -245,9 +246,16 @@
             "custom": "Definir permissões individuais manualmente"
           }
         },
-        "applyToAllBranches": {
-          "label": "Aplicar a Todas as Filiais",
-          "description": "Dar a este usuário as mesmas permissões em todas as filiais"
+        "branches": {
+          "label": "Filiais",
+          "description": "Selecione em quais filiais este usuário será adicionado",
+          "selectAll": "Todas",
+          "deselectAll": "Limpar",
+          "loading": "Carregando filiais...",
+          "noBranches": "Nenhuma filial encontrada",
+          "main": "principal",
+          "selectedCount": "{count, plural, =0 {Nenhuma filial selecionada} =1 {1 filial selecionada} other {# filiais selecionadas}}",
+          "selectAtLeastOne": "Selecione pelo menos uma filial"
         },
         "companyManager": {
           "label": "Promover a Gerente da Empresa",
@@ -258,6 +266,8 @@
       "submit": "Adicionar Usuário",
       "submitting": "Adicionando...",
       "success": "Usuário adicionado com sucesso",
+      "successExistingUser": "{count, plural, =1 {Usuário atribuído a 1 nova filial} other {Usuário atribuído a # novas filiais}}",
+      "userAlreadyInAllBranches": "Este usuário já está em todas as filiais selecionadas",
       "error": "Falha ao adicionar usuário"
     },
     "editUserDialog": {
@@ -2489,6 +2499,15 @@
       "serviceCreated": "Serviço criado. Agora preencha os formulários das seções",
       "sectionSaved": "Seção salva com sucesso",
       "serviceCompleted": "Serviço concluído com sucesso"
+    },
+    "api": {
+      "emailAlreadyInUse": "Este email já está em uso",
+      "userNotFound": "Usuário não encontrado",
+      "userAlreadyAssigned": "Usuário já está atribuído a esta filial",
+      "userNotAssignedToBranch": "Usuário não está atribuído a esta filial",
+      "userNotBelongToCompany": "Usuário não pertence a esta empresa",
+      "connectionError": "Erro de conexão",
+      "unknownError": "Ocorreu um erro desconhecido"
     }
   },
   "parts": {
