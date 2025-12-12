@@ -6,6 +6,7 @@ import {
   AdminManagerUserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { FieldsErr } from '../../errors/err';
+import { softDeleteData } from '../shared/soft-delete.utils';
 
 /**
  * Converts a string to a URL-safe slug for subdomains
@@ -32,6 +33,9 @@ export class CompaniesService {
 
   async findAll() {
     return this.prisma.company.findMany({
+      where: {
+        deletedAt: null,
+      },
       include: {
         _count: {
           select: {
@@ -43,8 +47,11 @@ export class CompaniesService {
   }
 
   async findOne(id: string) {
-    const company = await this.prisma.company.findUnique({
-      where: { id },
+    const company = await this.prisma.company.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
       include: {
         _count: {
           select: {
@@ -117,8 +124,11 @@ export class CompaniesService {
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto) {
-    const company = await this.prisma.company.findUnique({
-      where: { id },
+    const company = await this.prisma.company.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
     });
 
     if (!company) {
@@ -147,17 +157,64 @@ export class CompaniesService {
   }
 
   async remove(id: string) {
-    const company = await this.prisma.company.findUnique({
-      where: { id },
+    const company = await this.prisma.company.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
     });
 
     if (!company) {
       throw new NotFoundException('Company not found');
     }
 
-    await this.prisma.company.delete({
-      where: { id },
+    // Soft delete company and cascade to ALL related records
+    await this.prisma.$transaction(async (tx) => {
+      // Soft delete company
+      await tx.company.update({
+        where: { id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to Branches
+      await tx.companyBranch.updateMany({
+        where: { companyId: id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to Users
+      await tx.user.updateMany({
+        where: { companyId: id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to PermissionTemplates
+      await tx.permissionTemplate.updateMany({
+        where: { companyId: id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to Machines (all machines in company branches)
+      await tx.machine.updateMany({
+        where: {
+          branch: {
+            companyId: id,
+          },
+        },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to ProductionLines (all in company branches)
+      await tx.productionLine.updateMany({
+        where: {
+          branch: {
+            companyId: id,
+          },
+        },
+        data: softDeleteData(),
+      });
     });
+
     return { success: true };
   }
 

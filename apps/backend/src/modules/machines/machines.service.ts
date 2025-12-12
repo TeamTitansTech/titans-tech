@@ -9,6 +9,7 @@ import {
   CreateMachineDto,
   UpdateMachineDto,
 } from '@titans-tech/shared/backend-dtos';
+import { softDeleteData } from '../shared/soft-delete.utils';
 
 @Injectable()
 export class MachinesService {
@@ -167,6 +168,7 @@ export class MachinesService {
         branchId: {
           in: branchIds,
         },
+        deletedAt: null,
       },
       include: {
         blueprint: true,
@@ -193,6 +195,9 @@ export class MachinesService {
     }>[]
   > {
     return this.prisma.machine.findMany({
+      where: {
+        deletedAt: null,
+      },
       include: {
         blueprint: true,
         branch: {
@@ -530,8 +535,11 @@ export class MachinesService {
    */
   async delete(userId: string, id: string): Promise<void> {
     // Verify machine exists
-    const existingMachine = await this.prisma.machine.findUnique({
-      where: { id },
+    const existingMachine = await this.prisma.machine.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
     });
 
     if (!existingMachine) {
@@ -540,9 +548,25 @@ export class MachinesService {
 
     await this.validateUserBranchAccess(userId, existingMachine.branchId);
 
-    // Delete the machine (cascade delete will handle fields)
-    await this.prisma.machine.delete({
-      where: { id },
+    // Soft delete the machine and cascade to related records
+    await this.prisma.$transaction(async (tx) => {
+      // Soft delete machine
+      await tx.machine.update({
+        where: { id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to MachineServices
+      await tx.machineService.updateMany({
+        where: { machineId: id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to MachineFields
+      await tx.machineField.updateMany({
+        where: { machineId: id },
+        data: softDeleteData(),
+      });
     });
   }
 
@@ -551,17 +575,36 @@ export class MachinesService {
    */
   async deleteForSysAdmin(id: string): Promise<void> {
     // Verify machine exists
-    const existingMachine = await this.prisma.machine.findUnique({
-      where: { id },
+    const existingMachine = await this.prisma.machine.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
     });
 
     if (!existingMachine) {
       throw new NotFoundException(`Machine with ID ${id} not found`);
     }
 
-    // Delete the machine (cascade delete will handle fields)
-    await this.prisma.machine.delete({
-      where: { id },
+    // Soft delete the machine and cascade to related records
+    await this.prisma.$transaction(async (tx) => {
+      // Soft delete machine
+      await tx.machine.update({
+        where: { id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to MachineServices
+      await tx.machineService.updateMany({
+        where: { machineId: id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to MachineFields
+      await tx.machineField.updateMany({
+        where: { machineId: id },
+        data: softDeleteData(),
+      });
     });
   }
 

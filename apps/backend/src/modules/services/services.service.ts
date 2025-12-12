@@ -8,6 +8,7 @@ import {
 import { Prisma, ServiceRequestStatus } from '@titans-tech/db';
 import { ServiceSection, ServiceStatus } from '@titans-tech/shared/enums';
 import { PrismaService } from '../shared/prisma.service';
+import { softDeleteData } from '../shared/soft-delete.utils';
 import {
   LatestReportResponseDto,
   LatestBearingClearanceDto,
@@ -521,6 +522,7 @@ export class ServicesService {
             in: branchIds,
           },
         },
+        deletedAt: null,
       },
       include: {
         machine: {
@@ -610,6 +612,9 @@ export class ServicesService {
 
   async findAllForSysAdmin(): Promise<any[]> {
     return this.prisma.machineService.findMany({
+      where: {
+        deletedAt: null,
+      },
       include: {
         machine: {
           include: {
@@ -2728,8 +2733,11 @@ export class ServicesService {
 
   async delete(id: string, userId: string | null): Promise<void> {
     // Verify service exists and get machineId for permission check
-    const service = await this.prisma.machineService.findUnique({
-      where: { id },
+    const service = await this.prisma.machineService.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
       select: { id: true, machineId: true },
     });
 
@@ -2744,9 +2752,59 @@ export class ServicesService {
       'deleteServices',
     );
 
-    // Delete the service (cascade delete will handle related data)
-    await this.prisma.machineService.delete({
-      where: { id },
+    // Soft delete the service and cascade to all related alerts
+    await this.prisma.$transaction(async (tx) => {
+      // Soft delete the service
+      await tx.machineService.update({
+        where: { id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to all alert types
+      await tx.alertBearingClearance.updateMany({
+        where: { machineServiceId: id },
+        data: softDeleteData(),
+      });
+
+      await tx.alertClutch.updateMany({
+        where: { machineServiceId: id },
+        data: softDeleteData(),
+      });
+
+      await tx.alertSlide.updateMany({
+        where: { machineServiceId: id },
+        data: softDeleteData(),
+      });
+
+      await tx.alertSlideSingleHammer.updateMany({
+        where: { machineServiceId: id },
+        data: softDeleteData(),
+      });
+
+      await tx.alertSlideDoubleHammer.updateMany({
+        where: { machineServiceId: id },
+        data: softDeleteData(),
+      });
+
+      await tx.alertGibs.updateMany({
+        where: { machineServiceId: id },
+        data: softDeleteData(),
+      });
+
+      await tx.alertPistons.updateMany({
+        where: { machineServiceId: id },
+        data: softDeleteData(),
+      });
+
+      await tx.alertTramming.updateMany({
+        where: { machineServiceId: id },
+        data: softDeleteData(),
+      });
+
+      await tx.alertCounterbalanceCylinderAirbag.updateMany({
+        where: { machineServiceId: id },
+        data: softDeleteData(),
+      });
     });
   }
 

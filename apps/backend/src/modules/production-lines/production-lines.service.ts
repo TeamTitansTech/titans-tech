@@ -9,6 +9,10 @@ import {
   CreateProductionLineDto,
   UpdateProductionLineDto,
 } from '@titans-tech/shared/backend-dtos';
+import {
+  validateNotDeleted,
+  softDeleteData,
+} from '../shared/soft-delete.utils';
 
 /**
  * Shared Prisma include for production line queries with full machine details and alerts
@@ -124,8 +128,11 @@ export class ProductionLinesService {
     }>
   > {
     // Permission check handled by @BranchPermission('createProductionLines') guard
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id: createProductionLineDto.branchId },
+    const branch = await this.prisma.companyBranch.findFirst({
+      where: {
+        id: createProductionLineDto.branchId,
+        deletedAt: null,
+      },
     });
 
     if (!branch) {
@@ -136,7 +143,10 @@ export class ProductionLinesService {
 
     if (createProductionLineDto.machineIds.length > 0) {
       const machines = await this.prisma.machine.findMany({
-        where: { id: { in: createProductionLineDto.machineIds } },
+        where: {
+          id: { in: createProductionLineDto.machineIds },
+          deletedAt: null,
+        },
       });
 
       if (machines.length !== createProductionLineDto.machineIds.length) {
@@ -191,6 +201,7 @@ export class ProductionLinesService {
         branchId: {
           in: branchIds,
         },
+        deletedAt: null,
       },
       include: PRODUCTION_LINE_FULL_INCLUDE,
       orderBy: {
@@ -201,6 +212,9 @@ export class ProductionLinesService {
 
   async findAllForSysAdmin() {
     return this.prisma.productionLine.findMany({
+      where: {
+        deletedAt: null,
+      },
       include: PRODUCTION_LINE_FULL_INCLUDE,
       orderBy: {
         createdAt: 'desc',
@@ -214,9 +228,7 @@ export class ProductionLinesService {
       include: PRODUCTION_LINE_FULL_INCLUDE,
     });
 
-    if (!productionLine) {
-      throw new NotFoundException(`Production line with ID ${id} not found`);
-    }
+    validateNotDeleted(productionLine, 'Production line');
 
     await this.validateUserBranchAccess(userId, productionLine.branchId);
     return productionLine;
@@ -228,9 +240,7 @@ export class ProductionLinesService {
       include: PRODUCTION_LINE_FULL_INCLUDE,
     });
 
-    if (!productionLine) {
-      throw new NotFoundException(`Production line with ID ${id} not found`);
-    }
+    validateNotDeleted(productionLine, 'Production line');
 
     return productionLine;
   }
@@ -253,7 +263,10 @@ export class ProductionLinesService {
     if (updateProductionLineDto.machineIds) {
       if (updateProductionLineDto.machineIds.length > 0) {
         const machines = await this.prisma.machine.findMany({
-          where: { id: { in: updateProductionLineDto.machineIds } },
+          where: {
+            id: { in: updateProductionLineDto.machineIds },
+            deletedAt: null,
+          },
         });
 
         if (machines.length !== updateProductionLineDto.machineIds.length) {
@@ -304,13 +317,12 @@ export class ProductionLinesService {
       where: { id },
     });
 
-    if (!productionLine) {
-      throw new NotFoundException(`Production line with ID ${id} not found`);
-    }
+    validateNotDeleted(productionLine, 'Production line');
 
     await this.validateUserBranchAccess(userId, productionLine.branchId);
-    await this.prisma.productionLine.delete({
+    await this.prisma.productionLine.update({
       where: { id },
+      data: softDeleteData(),
     });
   }
 
@@ -329,7 +341,10 @@ export class ProductionLinesService {
     if (updateProductionLineDto.machineIds) {
       if (updateProductionLineDto.machineIds.length > 0) {
         const machines = await this.prisma.machine.findMany({
-          where: { id: { in: updateProductionLineDto.machineIds } },
+          where: {
+            id: { in: updateProductionLineDto.machineIds },
+            deletedAt: null,
+          },
         });
 
         if (machines.length !== updateProductionLineDto.machineIds.length) {
@@ -380,12 +395,11 @@ export class ProductionLinesService {
       where: { id },
     });
 
-    if (!productionLine) {
-      throw new NotFoundException(`Production line with ID ${id} not found`);
-    }
+    validateNotDeleted(productionLine, 'Production line');
 
-    await this.prisma.productionLine.delete({
+    await this.prisma.productionLine.update({
       where: { id },
+      data: softDeleteData(),
     });
   }
 }

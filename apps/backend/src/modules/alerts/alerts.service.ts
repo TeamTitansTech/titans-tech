@@ -4,6 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
+import { softDeleteData } from '../shared/soft-delete.utils';
 import {
   CreateThresholdBearingClearanceDto,
   UpdateThresholdBearingClearanceDto,
@@ -198,8 +199,9 @@ export class AlertsService {
   }
 
   async deleteBearingClearanceThreshold(blueprintId: string) {
-    await this.prisma.thresholdBearingClearance.delete({
+    await this.prisma.thresholdBearingClearance.updateMany({
       where: { blueprintId },
+      data: softDeleteData(),
     });
   }
 
@@ -731,8 +733,9 @@ export class AlertsService {
   }
 
   async deleteClutchThreshold(blueprintId: string) {
-    await this.prisma.thresholdClutch.delete({
+    await this.prisma.thresholdClutch.updateMany({
       where: { blueprintId },
+      data: softDeleteData(),
     });
   }
 
@@ -1092,17 +1095,22 @@ export class AlertsService {
    */
   async deleteCounterbalanceAlert(alertId: string) {
     // Verify alert exists
-    const alert =
-      await this.prisma.alertCounterbalanceCylinderAirbag.findUnique({
-        where: { id: alertId },
-      });
+    const alert = await this.prisma.alertCounterbalanceCylinderAirbag.findFirst(
+      {
+        where: {
+          id: alertId,
+          deletedAt: null,
+        },
+      },
+    );
 
     if (!alert) {
       throw new NotFoundException(`Alert ${alertId} not found`);
     }
 
-    await this.prisma.alertCounterbalanceCylinderAirbag.delete({
+    await this.prisma.alertCounterbalanceCylinderAirbag.update({
       where: { id: alertId },
+      data: softDeleteData(),
     });
 
     return { message: 'Alert deleted successfully' };
@@ -1258,12 +1266,14 @@ export class AlertsService {
     }
 
     if (sectionType === 'SLIDE_SINGLE_HAMMER') {
-      await this.prisma.thresholdSlideSingleHammer.delete({
+      await this.prisma.thresholdSlideSingleHammer.updateMany({
         where: { blueprintId },
+        data: softDeleteData(),
       });
     } else {
-      await this.prisma.thresholdSlideDoubleHammer.delete({
+      await this.prisma.thresholdSlideDoubleHammer.updateMany({
         where: { blueprintId },
+        data: softDeleteData(),
       });
     }
 
@@ -1747,8 +1757,9 @@ export class AlertsService {
       );
     }
 
-    await this.prisma.thresholdGibs.delete({
+    await this.prisma.thresholdGibs.updateMany({
       where: { blueprintId },
+      data: softDeleteData(),
     });
 
     return { message: 'GIBS threshold deleted successfully' };
@@ -1852,8 +1863,9 @@ export class AlertsService {
       );
     }
 
-    await this.prisma.thresholdTramming.delete({
+    await this.prisma.thresholdTramming.updateMany({
       where: { blueprintId },
+      data: softDeleteData(),
     });
 
     return { message: 'Tramming threshold deleted successfully' };
@@ -2260,8 +2272,9 @@ export class AlertsService {
       );
     }
 
-    await this.prisma.thresholdPistons.delete({
+    await this.prisma.thresholdPistons.updateMany({
       where: { blueprintId },
+      data: softDeleteData(),
     });
 
     return { message: 'PISTONS threshold deleted successfully' };

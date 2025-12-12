@@ -7,6 +7,7 @@ import {
   UserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { Prisma } from '@titans-tech/db';
+import { softDeleteData } from '../shared/soft-delete.utils';
 
 @Injectable()
 export class CompanyBranchesService {
@@ -17,6 +18,9 @@ export class CompanyBranchesService {
    */
   async findAll() {
     return this.prisma.companyBranch.findMany({
+      where: {
+        deletedAt: null,
+      },
       include: {
         company: {
           select: {
@@ -36,7 +40,10 @@ export class CompanyBranchesService {
 
   async findAllByCompany(companyId: string) {
     return this.prisma.companyBranch.findMany({
-      where: { companyId },
+      where: {
+        companyId,
+        deletedAt: null,
+      },
       include: {
         _count: {
           select: {
@@ -49,8 +56,11 @@ export class CompanyBranchesService {
   }
 
   async findOne(id: string) {
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id },
+    const branch = await this.prisma.companyBranch.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
       include: {
         _count: {
           select: {
@@ -89,8 +99,11 @@ export class CompanyBranchesService {
   }
 
   async update(id: string, updateBranchDto: UpdateCompanyBranchDto) {
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id },
+    const branch = await this.prisma.companyBranch.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
     });
 
     if (!branch) {
@@ -114,16 +127,36 @@ export class CompanyBranchesService {
   }
 
   async remove(id: string) {
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id },
+    const branch = await this.prisma.companyBranch.findFirst({
+      where: {
+        id,
+        deletedAt: null,
+      },
     });
 
     if (!branch) {
       throw new NotFoundException('Branch not found');
     }
 
-    await this.prisma.companyBranch.delete({
-      where: { id },
+    // Soft delete branch and cascade to related records
+    await this.prisma.$transaction(async (tx) => {
+      // Soft delete branch
+      await tx.companyBranch.update({
+        where: { id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to Machines in this branch
+      await tx.machine.updateMany({
+        where: { branchId: id },
+        data: softDeleteData(),
+      });
+
+      // Cascade soft delete to ProductionLines in this branch
+      await tx.productionLine.updateMany({
+        where: { branchId: id },
+        data: softDeleteData(),
+      });
     });
 
     return { success: true };

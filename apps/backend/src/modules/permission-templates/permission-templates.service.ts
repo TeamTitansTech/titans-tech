@@ -10,6 +10,7 @@ import {
   BranchPermissionType,
   enableWithPrerequisites,
 } from '@titans-tech/shared/types/permissions';
+import { softDeleteData } from '../shared/soft-delete.utils';
 
 @Injectable()
 export class PermissionTemplatesService {
@@ -66,7 +67,10 @@ export class PermissionTemplatesService {
     companyId: string,
   ): Promise<PermissionTemplateResponseDto[]> {
     const templates = await this.prisma.permissionTemplate.findMany({
-      where: { companyId },
+      where: {
+        companyId,
+        deletedAt: null,
+      },
       orderBy: { createdAt: 'desc' },
     });
 
@@ -81,7 +85,11 @@ export class PermissionTemplatesService {
     templateId: string,
   ): Promise<PermissionTemplateResponseDto> {
     const template = await this.prisma.permissionTemplate.findFirst({
-      where: { id: templateId, companyId },
+      where: {
+        id: templateId,
+        companyId,
+        deletedAt: null,
+      },
     });
 
     if (!template) {
@@ -100,7 +108,11 @@ export class PermissionTemplatesService {
     updateDto: UpdatePermissionTemplateDto,
   ): Promise<PermissionTemplateResponseDto> {
     const existing = await this.prisma.permissionTemplate.findFirst({
-      where: { id: templateId, companyId },
+      where: {
+        id: templateId,
+        companyId,
+        deletedAt: null,
+      },
     });
 
     if (!existing) {
@@ -133,15 +145,20 @@ export class PermissionTemplatesService {
    */
   async remove(companyId: string, templateId: string): Promise<void> {
     const existing = await this.prisma.permissionTemplate.findFirst({
-      where: { id: templateId, companyId },
+      where: {
+        id: templateId,
+        companyId,
+        deletedAt: null,
+      },
     });
 
     if (!existing) {
       throw new NotFoundException('Permission template not found');
     }
 
-    await this.prisma.permissionTemplate.delete({
+    await this.prisma.permissionTemplate.update({
       where: { id: templateId },
+      data: softDeleteData(),
     });
   }
 

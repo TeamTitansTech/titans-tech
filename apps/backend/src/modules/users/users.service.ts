@@ -21,6 +21,7 @@ import { FieldsErr } from 'src/errors/err';
 import { isSysAdmin, JwtPayload, UserJwtPayload } from 'src/types/request';
 import { JwtService } from '@nestjs/jwt';
 import { NotificationsService } from '../notifications/notifications.service';
+import { softDeleteData } from '../shared/soft-delete.utils';
 
 const defaultPassword = 'password';
 @Injectable()
@@ -36,6 +37,7 @@ export class UsersService {
       where: {
         email,
         companyId,
+        deletedAt: null,
       },
       include: {
         branches: {
@@ -71,8 +73,11 @@ export class UsersService {
   }
 
   async getMe(userId: string) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+        deletedAt: null,
+      },
       include: {
         branches: {
           include: {
@@ -90,7 +95,10 @@ export class UsersService {
     // We need to populate the branches array with all company branches
     if (user.isCompanyAdmin) {
       const allBranches = await this.prisma.companyBranch.findMany({
-        where: { companyId: user.companyId },
+        where: {
+          companyId: user.companyId,
+          deletedAt: null,
+        },
       });
 
       // Create UserBranch objects with full permissions for admins/managers
@@ -140,7 +148,10 @@ export class UsersService {
 
   async findAll(companyId: string) {
     const users = await this.prisma.user.findMany({
-      where: { companyId },
+      where: {
+        companyId,
+        deletedAt: null,
+      },
       include: {
         branches: {
           include: {
@@ -156,7 +167,11 @@ export class UsersService {
 
   async findOne(id: string, companyId: string) {
     const user = await this.prisma.user.findFirst({
-      where: { id, companyId },
+      where: {
+        id,
+        companyId,
+        deletedAt: null,
+      },
       include: {
         branches: {
           include: {
@@ -177,12 +192,18 @@ export class UsersService {
     branchId: string,
     createUserDto: SysAdminCreateUserDto,
   ) {
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: createUserDto.email },
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        email: createUserDto.email,
+        deletedAt: null,
+      },
     });
 
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id: branchId },
+    const branch = await this.prisma.companyBranch.findFirst({
+      where: {
+        id: branchId,
+        deletedAt: null,
+      },
     });
 
     if (!branch) {
@@ -235,16 +256,22 @@ export class UsersService {
   }
 
   async createWithBranch(branchId: string, createUserDto: CreateUserDto) {
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id: branchId },
+    const branch = await this.prisma.companyBranch.findFirst({
+      where: {
+        id: branchId,
+        deletedAt: null,
+      },
     });
 
     if (!branch) {
       throw new NotFoundException('Branch not found');
     }
 
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: createUserDto.email },
+    const existingUser = await this.prisma.user.findFirst({
+      where: {
+        email: createUserDto.email,
+        deletedAt: null,
+      },
     });
 
     if (existingUser) {
@@ -289,7 +316,11 @@ export class UsersService {
 
   async update(id: string, companyId: string, updateUserDto: UpdateUserDto) {
     const existingUser = await this.prisma.user.findFirst({
-      where: { id, companyId },
+      where: {
+        id,
+        companyId,
+        deletedAt: null,
+      },
       include: {
         branches: {
           include: {
@@ -322,15 +353,20 @@ export class UsersService {
 
   async remove(id: string, companyId: string) {
     const existingUser = await this.prisma.user.findFirst({
-      where: { id, companyId },
+      where: {
+        id,
+        companyId,
+        deletedAt: null,
+      },
     });
 
     if (!existingUser) {
       throw new NotFoundException('User not found');
     }
 
-    await this.prisma.user.delete({
+    await this.prisma.user.update({
       where: { id },
+      data: softDeleteData(),
     });
 
     return { message: 'User deleted successfully' };
@@ -375,16 +411,22 @@ export class UsersService {
   }
 
   async addUserToBranch(branchId: string, userId: string) {
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id: branchId },
+    const branch = await this.prisma.companyBranch.findFirst({
+      where: {
+        id: branchId,
+        deletedAt: null,
+      },
     });
 
     if (!branch) {
       throw new NotFoundException('Branch not found');
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+        deletedAt: null,
+      },
     });
 
     if (!user) {
@@ -473,8 +515,11 @@ export class UsersService {
     existingUser: { email: string },
   ): Promise<void> {
     if (updateUserDto.email && updateUserDto.email !== existingUser.email) {
-      const emailInUse = await this.prisma.user.findUnique({
-        where: { email: updateUserDto.email },
+      const emailInUse = await this.prisma.user.findFirst({
+        where: {
+          email: updateUserDto.email,
+          deletedAt: null,
+        },
       });
 
       if (emailInUse) {
@@ -494,8 +539,11 @@ export class UsersService {
       );
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+        deletedAt: null,
+      },
     });
 
     if (!user) {
@@ -508,6 +556,7 @@ export class UsersService {
         where: {
           companyId: user.companyId,
           isCompanyAdmin: true,
+          deletedAt: null,
         },
       });
 
@@ -545,8 +594,11 @@ export class UsersService {
     scope: 'branch' | 'company',
     branchId?: string,
   ) {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+        deletedAt: null,
+      },
       include: { branches: true },
     });
 
@@ -577,15 +629,10 @@ export class UsersService {
         message: 'User removed from branch',
       };
     } else {
-      // Delete user completely from company
-      // First delete all UserBranch records
-      await this.prisma.userBranch.deleteMany({
-        where: { userId },
-      });
-
-      // Then delete the user
-      await this.prisma.user.delete({
+      // Soft delete user from company
+      await this.prisma.user.update({
         where: { id: userId },
+        data: softDeleteData(),
       });
 
       return {
