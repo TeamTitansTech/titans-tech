@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Users, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Users, Pencil, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAllUsers } from '@/data/services/users.api';
@@ -18,7 +18,6 @@ import {
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
-import { AddUserDialog } from './AddUserDialog';
 import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
 import {
@@ -30,9 +29,10 @@ import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 
 interface BranchUserManagementProps {
   branchId: string;
+  refreshKey?: number;
 }
 
-export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
+export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagementProps) {
   const t = useTranslations('settings.userManagement');
   const { companyUser } = useCompanyUser();
 
@@ -40,7 +40,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const [branchName, setBranchName] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
-  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
   const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
@@ -50,10 +49,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   const canReadUsers =
     companyUser?.isCompanyAdmin ||
     companyUser?.branches?.some((b) => b.branchId === branchId && b.readUsers);
-
-  const canCreateUsers =
-    companyUser?.isCompanyAdmin ||
-    companyUser?.branches?.some((b) => b.branchId === branchId && b.createUsers);
 
   const loadUsers = useCallback(async () => {
     if (!branchId) return;
@@ -91,7 +86,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
 
   useEffect(() => {
     loadUsers();
-  }, [loadUsers]);
+  }, [loadUsers, refreshKey]);
 
   const handleEdit = (user: UserResponseDto) => {
     setSelectedUser(user);
@@ -166,19 +161,11 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Users className="h-4 w-4" />
-          <h3 className="text-base font-semibold">
-            {t('title')} - {branchName}
-          </h3>
-        </div>
-        {canCreateUsers && (
-          <Button onClick={() => setIsAddUserDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            {t('addUser')}
-          </Button>
-        )}
+      <div className="flex items-center gap-2">
+        <Users className="h-4 w-4" />
+        <h3 className="text-base font-semibold">
+          {t('title')} - {branchName}
+        </h3>
       </div>
 
       <div className="rounded-md border">
@@ -247,14 +234,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
       </div>
 
       {/* Dialogs */}
-      <AddUserDialog
-        open={isAddUserDialogOpen}
-        onOpenChange={setIsAddUserDialogOpen}
-        branchId={branchId}
-        branchName={branchName}
-        onSuccess={loadUsers}
-      />
-
       <EditUserDialog
         open={isEditUserDialogOpen}
         onOpenChange={setIsEditUserDialogOpen}

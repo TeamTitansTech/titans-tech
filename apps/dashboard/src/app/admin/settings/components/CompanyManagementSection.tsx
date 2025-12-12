@@ -38,6 +38,11 @@ export function CompanyManagementSection({
   const t = useTranslations('adminSettings.companyManagement');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const handleUserAdded = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
 
   // Wrapper to clear selected branch when company changes
   const handleSelectCompany = (companyId: string) => {
@@ -92,10 +97,13 @@ export function CompanyManagementSection({
               companyId={selectedCompanyId}
               selectedBranchId={selectedBranchId}
               onSelectBranch={setSelectedBranchId}
+              onUserAdded={handleUserAdded}
             />
           )}
 
-          {selectedBranchId && <BranchUserManagement branchId={selectedBranchId} />}
+          {selectedBranchId && (
+            <BranchUserManagement key={refreshKey} branchId={selectedBranchId} />
+          )}
         </CardContent>
       </Card>
 
