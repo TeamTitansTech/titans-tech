@@ -2194,6 +2194,7 @@
       "greenStartMin": "Inicio Verde (Mín)",
       "yellowStartMin": "Inicio Amarillo (Mín)",
       "redStartMin": "Inicio Rojo (Mín)",
+      "unit": "Unidad",
       "editTitle": "Configurar Thresholds - {name}",
       "editDescription": "Ajuste los valores de threshold para generación de alertas. Marque la opción debajo para recalcular alertas existentes.",
       "loadError": "Error al cargar thresholds",

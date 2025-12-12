@@ -37,6 +37,7 @@ import {
 import { Loader2, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { UnitSelector } from '@/components/ui/forms/UnitSelector';
 import type {
   BearingClearanceThresholdsData,
   ClutchThresholdsData,
@@ -365,6 +366,10 @@ export function ThresholdEditModal({
             <DialogTitle>{t('alerts.thresholds.editTitle', { name: blueprintName })}</DialogTitle>
             <DialogDescription>{t('alerts.thresholds.editDescription')}</DialogDescription>
           </DialogHeader>
+
+          <div className="flex justify-end">
+            <UnitSelector label={t('alerts.thresholds.unit')} />
+          </div>
 
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
