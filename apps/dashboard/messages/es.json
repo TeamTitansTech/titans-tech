@@ -222,6 +222,7 @@
     "addUserDialog": {
       "title": "Agregar Usuario",
       "description": "Agregar un nuevo usuario a {branchName}",
+      "descriptionCompanyLevel": "Agregar un nuevo usuario a la empresa",
       "form": {
         "name": {
           "label": "Nombre Completo",
@@ -245,9 +246,16 @@
             "custom": "Configurar permisos individuales manualmente"
           }
         },
-        "applyToAllBranches": {
-          "label": "Aplicar a Todas las Sucursales",
-          "description": "Dar a este usuario los mismos permisos en todas las sucursales"
+        "branches": {
+          "label": "Sucursales",
+          "description": "Seleccione en qué sucursales se agregará este usuario",
+          "selectAll": "Todas",
+          "deselectAll": "Limpiar",
+          "loading": "Cargando sucursales...",
+          "noBranches": "No se encontraron sucursales",
+          "main": "principal",
+          "selectedCount": "{count, plural, =0 {Ninguna sucursal seleccionada} =1 {1 sucursal seleccionada} other {# sucursales seleccionadas}}",
+          "selectAtLeastOne": "Seleccione al menos una sucursal"
         },
         "companyManager": {
           "label": "Promover a Gerente de Empresa",
@@ -258,6 +266,8 @@
       "submit": "Agregar Usuario",
       "submitting": "Agregando...",
       "success": "Usuario agregado exitosamente",
+      "successExistingUser": "{count, plural, =1 {Usuario asignado a 1 nueva sucursal} other {Usuario asignado a # nuevas sucursales}}",
+      "userAlreadyInAllBranches": "Este usuario ya está en todas las sucursales seleccionadas",
       "error": "Error al agregar usuario"
     },
     "editUserDialog": {
@@ -2485,6 +2495,15 @@
       "serviceCreated": "Servicio creado. Ahora complete los formularios de las secciones",
       "sectionSaved": "Sección guardada exitosamente",
       "serviceCompleted": "Servicio completado exitosamente"
+    },
+    "api": {
+      "emailAlreadyInUse": "Este email ya está en uso",
+      "userNotFound": "Usuario no encontrado",
+      "userAlreadyAssigned": "El usuario ya está asignado a esta sucursal",
+      "userNotAssignedToBranch": "El usuario no está asignado a esta sucursal",
+      "userNotBelongToCompany": "El usuario no pertenece a esta empresa",
+      "connectionError": "Error de conexión",
+      "unknownError": "Ocurrió un error desconocido"
     }
   },
   "parts": {

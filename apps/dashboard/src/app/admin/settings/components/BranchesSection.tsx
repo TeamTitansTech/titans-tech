@@ -2,29 +2,38 @@
 
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { MapPin, Users, Plus } from 'lucide-react';
+import { MapPin, Users, Plus, UserPlus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { getAllBranches, type CompanyBranch } from '@/data/services/company-branches.api';
 import { CreateBranchDialog } from '@/app/admin/companies/[companyId]/components/CreateBranchDialog';
+import { AddUserDialog } from './AddUserDialog';
 import { toast } from 'sonner';
 
 interface BranchesSectionProps {
   companyId: string;
   selectedBranchId: string;
   onSelectBranch: (branchId: string) => void;
+  onUserAdded?: () => void;
 }
 
 export function BranchesSection({
   companyId,
   selectedBranchId,
   onSelectBranch,
+  onUserAdded,
 }: BranchesSectionProps) {
   const t = useTranslations('adminSettings.branches');
   const tCompanies = useTranslations('companies');
+  const tUserManagement = useTranslations('adminSettings.userManagement');
   const [branches, setBranches] = useState<CompanyBranch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
+
+  const handleUserAdded = () => {
+    onUserAdded?.();
+  };
 
   useEffect(() => {
     if (!companyId) return;
@@ -72,10 +81,16 @@ export function BranchesSection({
               <MapPin className="h-4 w-4" />
               {t('title')}
             </h3>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              {tCompanies('newBranch')}
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setIsAddUserDialogOpen(true)}>
+                <UserPlus className="h-4 w-4 mr-2" />
+                {tUserManagement('addUser')}
+              </Button>
+              <Button onClick={() => setIsCreateDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                {tCompanies('newBranch')}
+              </Button>
+            </div>
           </div>
           <p className="text-sm text-muted-foreground">{t('loading')}</p>
         </div>
@@ -84,6 +99,12 @@ export function BranchesSection({
           onOpenChange={setIsCreateDialogOpen}
           onSuccess={handleSuccess}
           companyId={companyId}
+        />
+        <AddUserDialog
+          open={isAddUserDialogOpen}
+          onOpenChange={setIsAddUserDialogOpen}
+          companyId={companyId}
+          onSuccess={handleUserAdded}
         />
       </>
     );
@@ -98,10 +119,16 @@ export function BranchesSection({
               <MapPin className="h-4 w-4" />
               {t('title')}
             </h3>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              {tCompanies('newBranch')}
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setIsAddUserDialogOpen(true)}>
+                <UserPlus className="h-4 w-4 mr-2" />
+                {tUserManagement('addUser')}
+              </Button>
+              <Button onClick={() => setIsCreateDialogOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                {tCompanies('newBranch')}
+              </Button>
+            </div>
           </div>
           <p className="text-sm text-muted-foreground">{t('noBranches')}</p>
         </div>
@@ -110,6 +137,12 @@ export function BranchesSection({
           onOpenChange={setIsCreateDialogOpen}
           onSuccess={handleSuccess}
           companyId={companyId}
+        />
+        <AddUserDialog
+          open={isAddUserDialogOpen}
+          onOpenChange={setIsAddUserDialogOpen}
+          companyId={companyId}
+          onSuccess={handleUserAdded}
         />
       </>
     );
@@ -123,10 +156,16 @@ export function BranchesSection({
             <MapPin className="h-4 w-4" />
             {t('title')}
           </h3>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            {tCompanies('newBranch')}
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsAddUserDialogOpen(true)}>
+              <UserPlus className="h-4 w-4 mr-2" />
+              {tUserManagement('addUser')}
+            </Button>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              {tCompanies('newBranch')}
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -175,6 +214,12 @@ export function BranchesSection({
         onOpenChange={setIsCreateDialogOpen}
         onSuccess={handleSuccess}
         companyId={companyId}
+      />
+      <AddUserDialog
+        open={isAddUserDialogOpen}
+        onOpenChange={setIsAddUserDialogOpen}
+        companyId={companyId}
+        onSuccess={handleUserAdded}
       />
     </>
   );

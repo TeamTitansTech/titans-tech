@@ -222,6 +222,7 @@
     "addUserDialog": {
       "title": "Add User",
       "description": "Add a new user to {branchName}",
+      "descriptionCompanyLevel": "Add a new user to the company",
       "form": {
         "name": {
           "label": "Full Name",
@@ -245,9 +246,16 @@
             "custom": "Set individual permissions manually"
           }
         },
-        "applyToAllBranches": {
-          "label": "Apply to All Branches",
-          "description": "Give this user the same permissions in all branches"
+        "branches": {
+          "label": "Branches",
+          "description": "Select which branches this user will be added to",
+          "selectAll": "All",
+          "deselectAll": "Clear",
+          "loading": "Loading branches...",
+          "noBranches": "No branches found",
+          "main": "main",
+          "selectedCount": "{count, plural, =0 {No branches selected} =1 {1 branch selected} other {# branches selected}}",
+          "selectAtLeastOne": "Select at least one branch"
         },
         "companyManager": {
           "label": "Promote to Company Manager",
@@ -258,6 +266,8 @@
       "submit": "Add User",
       "submitting": "Adding...",
       "success": "User added successfully",
+      "successExistingUser": "{count, plural, =1 {User assigned to 1 new branch} other {User assigned to # new branches}}",
+      "userAlreadyInAllBranches": "This user is already in all selected branches",
       "error": "Failed to add user"
     },
     "editUserDialog": {
@@ -2489,6 +2499,15 @@
       "serviceCreated": "Service created. Now fill in the section forms",
       "sectionSaved": "Section saved successfully",
       "serviceCompleted": "Service completed successfully"
+    },
+    "api": {
+      "emailAlreadyInUse": "This email is already in use",
+      "userNotFound": "User not found",
+      "userAlreadyAssigned": "User is already assigned to this branch",
+      "userNotAssignedToBranch": "User is not assigned to this branch",
+      "userNotBelongToCompany": "User does not belong to this company",
+      "connectionError": "Connection error",
+      "unknownError": "An unknown error occurred"
     }
   },
   "parts": {

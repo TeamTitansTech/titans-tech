@@ -5,15 +5,15 @@ import { AddUserDialog as SharedAddUserDialog } from '@/components/shared/settin
 interface AddUserDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  branchId: string;
-  branchName: string;
+  companyId: string;
   onSuccess: () => void;
 }
 
-export function AddUserDialog(props: AddUserDialogProps) {
+export function AddUserDialog({ companyId, ...props }: AddUserDialogProps) {
   return (
     <SharedAddUserDialog
       {...props}
+      companyId={companyId}
       currentUser={null}
       translationNamespace="settings.addUserDialog"
     />
