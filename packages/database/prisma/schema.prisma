@@ -377,29 +377,27 @@ enum CounterbalanceAlertField {
 }
 
 model SysAdmin {
-  id                     String    @id @default(cuid())
-  email                  String    @unique
+  id                     String   @id @default(cuid())
+  email                  String   @unique
   password               String
-  isUsingDefaultPassword Boolean   @default(true)
-  deletedAt              DateTime?
-  createdAt              DateTime  @default(now())
-  updatedAt              DateTime  @updatedAt
+  isUsingDefaultPassword Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   @@map("sys_admins")
 }
 
 model Company {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String   @unique
   logo        String?
   loginLogo   String?
   brandColor  String?
   accentColor String?
   description String?
-  deletedAt   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   branches            CompanyBranch[]
   users               User[]
@@ -414,9 +412,8 @@ model PermissionTemplate {
   description String?
   permissions Json // Stores the Permissions object as JSON
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyId String
@@ -430,9 +427,8 @@ model CompanyBranch {
   isMainBranch Boolean @default(false)
   location     String?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   company         Company          @relation(fields: [companyId], references: [id])
   companyId       String
@@ -451,9 +447,8 @@ model User {
   isCompanyAdmin         Boolean @default(false)
   isUsingDefaultPassword Boolean @default(true)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   company              Company        @relation(fields: [companyId], references: [id])
   companyId            String
@@ -468,7 +463,6 @@ model UserBranch {
   userId    String
   branch    CompanyBranch @relation(fields: [branchId], references: [id])
   branchId  String
-  deletedAt DateTime?
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
@@ -564,9 +558,8 @@ model ThresholdBearingClearance {
   slideAdjNutToScrewSleeve_yellowMin Decimal @db.Decimal(10, 4)
   slideAdjNutToScrewSleeve_redMin    Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
@@ -602,9 +595,8 @@ model ThresholdClutch {
   rTB_yellowMin Decimal @db.Decimal(10, 4)
   rTB_redMin    Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
@@ -620,9 +612,8 @@ model ThresholdSlideSingleHammer {
   maxDeviation_yellowMin Decimal @db.Decimal(10, 4)
   maxDeviation_redMin    Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
@@ -638,9 +629,8 @@ model ThresholdSlideDoubleHammer {
   maxDeviation_yellowMin Decimal @db.Decimal(10, 4)
   maxDeviation_redMin    Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
@@ -656,9 +646,8 @@ model ThresholdGibs {
   usable_yellowMin Decimal @db.Decimal(10, 4)
   usable_redMin    Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
@@ -674,9 +663,8 @@ model ThresholdPistons {
   difference_yellowMin Decimal @db.Decimal(10, 4)
   difference_redMin    Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
@@ -692,9 +680,8 @@ model ThresholdTramming {
   yellowMin Decimal @db.Decimal(10, 4)
   redMin    Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
@@ -720,9 +707,8 @@ model Machine {
   pressMounting   PressMountingType?
   features        MachineFeaturesType?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blueprint       Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
   branch          CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -736,13 +722,12 @@ model Machine {
 }
 
 model MachineField {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   machineId String
   fieldSlug String
   value     String // Store as string, convert based on fieldType from blueprint
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
 
@@ -778,9 +763,8 @@ model MachineService {
   isMotorPlateSecure          YesNoDncType?
   whyNotCovered               String?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machine                           Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
   serviceRequest                    ServiceRequest?                              @relation(fields: [serviceRequestId], references: [id], onDelete: SetNull)
@@ -843,9 +827,8 @@ model AlertBearingClearance {
   // Optional snapshot of thresholds used in calculation (for auditing)
   thresholdSnapshot Json?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -859,9 +842,8 @@ model AlertCounterbalanceCylinderAirbag {
   fieldName        CounterbalanceAlertField
   justification    String                   @db.Text
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -896,9 +878,8 @@ model AlertClutch {
   // Optional snapshot of thresholds used in calculation (for auditing)
   thresholdSnapshot Json?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -922,9 +903,8 @@ model AlertSlide {
   // Optional snapshot of thresholds used in calculation (for auditing)
   thresholdSnapshot Json?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -944,9 +924,8 @@ model AlertSlideSingleHammer {
   // Optional snapshot of thresholds used in calculation (for auditing)
   thresholdSnapshot Json?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -970,9 +949,8 @@ model AlertSlideDoubleHammer {
   // Optional snapshot of thresholds used in calculation (for auditing)
   thresholdSnapshot Json?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -991,9 +969,8 @@ model AlertGibs {
   // Optional snapshot of threshold used in calculation (for auditing)
   thresholdSnapshot Json?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -1030,9 +1007,8 @@ model AlertPistons {
   // Threshold snapshot for auditing
   thresholdSnapshot Json?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -1089,9 +1065,8 @@ model AlertTramming {
   // Optional snapshot of threshold used in calculation (for auditing)
   thresholdSnapshot Json?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -1107,10 +1082,6 @@ model MachineServiceBearingClearance {
   outerDataId      String?
   innerBeforeId    String?
   innerDataId      String?
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 
   machineService MachineService        @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    BearingClearanceData? @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
@@ -1154,9 +1125,8 @@ model BearingClearanceData {
   lockingClamps        ConditionOkNaDncDamagedType?
   notes                String?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   outerBeforeServices MachineServiceBearingClearance[] @relation("OuterBeforeMeasurement")
   outerDataServices   MachineServiceBearingClearance[] @relation("OuterDataMeasurement")
@@ -1198,10 +1168,6 @@ model MachineServiceSlideSingleHammer {
   dataId           String?
   notes            String?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
   machineService MachineService         @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   beforeData     SlideSingleHammerData? @relation("SingleHammerBeforeData", fields: [beforeDataId], references: [id], onDelete: SetNull)
   data           SlideSingleHammerData? @relation("SingleHammerData", fields: [dataId], references: [id], onDelete: SetNull)
@@ -1218,10 +1184,6 @@ model MachineServiceSlideDoubleHammer {
   innerBeforeId    String?
   innerDataId      String?
   notes            String?
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 
   machineService MachineService         @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    SlideDoubleHammerData? @relation("DoubleHammerOuterBeforeData", fields: [outerBeforeId], references: [id], onDelete: SetNull)
@@ -1253,9 +1215,8 @@ model SlideData {
   position4 Decimal @db.Decimal(10, 4)
   position5 Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   outerBeforeServices MachineServiceSlide[] @relation("OuterBeforeData")
   outerAfterServices  MachineServiceSlide[] @relation("OuterAfterData")
@@ -1286,9 +1247,8 @@ model SlideSingleHammerData {
   position4 Decimal @db.Decimal(10, 4)
   position5 Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   beforeDataServices MachineServiceSlideSingleHammer[] @relation("SingleHammerBeforeData")
   dataServices       MachineServiceSlideSingleHammer[] @relation("SingleHammerData")
@@ -1317,9 +1277,8 @@ model SlideDoubleHammerData {
   position4 Decimal @db.Decimal(10, 4)
   position5 Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   outerBeforeServices MachineServiceSlideDoubleHammer[] @relation("DoubleHammerOuterBeforeData")
   outerDataServices   MachineServiceSlideDoubleHammer[] @relation("DoubleHammerOuterData")
@@ -1347,10 +1306,6 @@ model MachineServiceGibs {
 
   // Global field
   notes String?
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 
   machineService       MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore          GibsStageData? @relation("OuterBefore", fields: [outerBeforeId], references: [id], onDelete: SetNull)
@@ -1386,9 +1341,8 @@ model GibsStageData {
   point15 Decimal @db.Decimal(10, 4)
   point16 Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   outerBeforeServices          MachineServiceGibs[] @relation("OuterBefore")
   outerDataServices            MachineServiceGibs[] @relation("OuterData")
@@ -1409,10 +1363,6 @@ model MachineServiceLubricationHydraulics {
   dataId           String?
   notes            String?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
   machineService MachineService             @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   data           LubricationHydraulicsData? @relation(fields: [dataId], references: [id], onDelete: SetNull)
 
@@ -1431,9 +1381,8 @@ model LubricationHydraulicsData {
   // Filter information
   changedFilter YesNoDncType @default(DNC)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   services MachineServiceLubricationHydraulics[]
   gauges   LubricationHydraulicsGauge[]
@@ -1448,9 +1397,8 @@ model LubricationHydraulicsGauge {
   gaugeSwitchIdentifier       String?
   psi                         OkNaDncDamageType?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   lubricationHydraulicsData LubricationHydraulicsData @relation(fields: [lubricationHydraulicsDataId], references: [id], onDelete: Cascade)
 
@@ -1463,10 +1411,6 @@ model MachineServiceClutch {
   id               String  @id @default(cuid())
   machineServiceId String
   dataId           String?
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   data           ClutchData?    @relation(fields: [dataId], references: [id], onDelete: SetNull)
@@ -1541,9 +1485,8 @@ model ClutchData {
   // Notes
   notes String?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   services MachineServiceClutch[]
 
@@ -1558,10 +1501,6 @@ model MachineServiceCounterbalanceCylinderAirbag {
   outerDataId      String?
   innerDataId      String?
   notes            String?
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 
   machineService MachineService                    @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerData      CounterbalanceCylinderAirbagData? @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
@@ -1593,9 +1532,8 @@ model CounterbalanceCylinderAirbagData {
   // Oil
   oilWick OkNaDncNeedReplacedType?
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   outerServices MachineServiceCounterbalanceCylinderAirbag[] @relation("OuterData")
   innerServices MachineServiceCounterbalanceCylinderAirbag[] @relation("InnerData")
@@ -1631,7 +1569,6 @@ model Notification {
   type            NotificationType @default(URGENT_SERVICE_REQUEST)
   createdByUserId String?
   metadata        Json? // Store additional data like notes, urgency level, etc.
-  deletedAt       DateTime?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
@@ -1648,10 +1585,9 @@ model NotificationRecipient {
    * Id from sys admin or a regular user
    */
   recipientId    String
-  isRead         Boolean   @default(false)
-  deletedAt      DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  isRead         Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
 
@@ -1674,7 +1610,6 @@ model Email {
   sentAt     DateTime?
   machineId  String?
   metadata   Json? // Store additional email data (CC, BCC, attachments info, etc.)
-  deletedAt  DateTime?
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 
@@ -1697,10 +1632,6 @@ model MachineServiceTramming {
 
   // Notes
   notes String?
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerData      TrammingData?  @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
@@ -1736,9 +1667,8 @@ model TrammingData {
   rightLeft   Decimal @db.Decimal(10, 4)
   rightRight  Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   outerServices MachineServiceTramming[] @relation("OuterData")
   innerServices MachineServiceTramming[] @relation("InnerData")
@@ -1760,10 +1690,6 @@ model MachineServicePistons {
 
   // Notes
   notes String?
-
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerData      PistonsData?   @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
@@ -1787,9 +1713,8 @@ model PistonsData {
   rhLeft   Decimal @db.Decimal(10, 4)
   rhRight  Decimal @db.Decimal(10, 4)
 
-  deletedAt DateTime?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   outerServices MachineServicePistons[] @relation("OuterData")
   innerServices MachineServicePistons[] @relation("InnerData")
@@ -1805,7 +1730,6 @@ model ProductionLine {
   branchId  String
   createdBy String?
   direction ProductionLineDirection @default(LEFT_TO_RIGHT)
-  deletedAt DateTime?
   createdAt DateTime                @default(now())
   updatedAt DateTime                @updatedAt
 
@@ -1819,9 +1743,7 @@ model MachineProductionLine {
   machineId        String
   productionLineId String
   order            Int
-  addedAt          DateTime  @default(now())
-  deletedAt        DateTime?
-  updatedAt        DateTime  @updatedAt
+  addedAt          DateTime @default(now())
 
   machine        Machine        @relation(fields: [machineId], references: [id], onDelete: Cascade)
   productionLine ProductionLine @relation(fields: [productionLineId], references: [id], onDelete: Cascade)
@@ -1854,7 +1776,6 @@ model ServiceRequest {
   isMobile   Boolean @default(false)
 
   // Timestamps
-  deletedAt DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   closedAt  DateTime?
