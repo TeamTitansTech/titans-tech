@@ -143,6 +143,9 @@ export class UsersService {
       where: { companyId },
       include: {
         branches: {
+          where: {
+            deletedAt: null,
+          },
           include: {
             branch: true,
           },
@@ -562,6 +565,7 @@ export class UsersService {
     }
 
     if (scope === 'branch' && branchId) {
+      console.debug(`Deleting user ${userId} from branch ${branchId}`);
       // Remove user from specific branch only
       await this.prisma.userBranch.delete({
         where: {
