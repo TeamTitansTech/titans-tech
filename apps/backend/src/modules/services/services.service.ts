@@ -134,10 +134,11 @@ export class ServicesService {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       include: {
-        branches: true,
+        branches: { where: { deletedAt: null } },
         company: {
           include: {
             branches: {
+              where: { deletedAt: null },
               select: { id: true },
             },
           },

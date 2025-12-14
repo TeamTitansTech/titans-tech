@@ -141,6 +141,7 @@ export class CompanyBranchesService {
       where: { id: branchId },
       include: {
         machines: {
+          where: { deletedAt: null },
           include: {
             blueprint: true,
             fields: true,
@@ -188,6 +189,7 @@ export class CompanyBranchesService {
       where: { id: userId },
       include: {
         branches: {
+          where: { deletedAt: null },
           include: {
             branch: true,
           },

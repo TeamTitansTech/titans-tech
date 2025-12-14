@@ -235,6 +235,7 @@ export class ServiceRequestsService {
           },
         },
         services: {
+          where: { deletedAt: null },
           select: {
             id: true,
             date: true,
@@ -309,6 +310,7 @@ export class ServiceRequestsService {
           },
         },
         services: {
+          where: { deletedAt: null },
           select: {
             id: true,
             date: true,
