@@ -174,7 +174,9 @@ export class ProductionLinesService {
       include: {
         branch: true,
         machines: {
-          where: { deletedAt: null },
+          where: {
+            machine: { deletedAt: null },
+          },
           include: {
             machine: true,
           },
