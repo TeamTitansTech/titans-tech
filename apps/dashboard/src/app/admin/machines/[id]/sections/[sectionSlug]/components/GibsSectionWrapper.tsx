@@ -1,7 +1,6 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { GibsSection } from './GibsSection';
-import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface GibsSectionWrapperProps {
   machineId: string;

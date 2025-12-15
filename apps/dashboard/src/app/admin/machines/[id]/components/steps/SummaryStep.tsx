@@ -75,13 +75,8 @@ export function SummaryStep({
   const tInspections = useTranslations('inspections.form.enums');
   const tErrors = useTranslations('errors.service');
   const tUnits = useTranslations('forms.units');
-  const {
-    lengthUnit,
-    setLengthUnit,
-    getLengthUnitLabel,
-    getTemperatureUnitLabel,
-    getPressureUnitLabel,
-  } = useUnitManager();
+  const { lengthUnit, setLengthUnit, getTemperatureUnitLabel, getPressureUnitLabel } =
+    useUnitManager();
 
   // Helper function to format enum values for display
   const formatEnumValue = (value: string | undefined, enumType: string) => {
