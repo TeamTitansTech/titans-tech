@@ -35,6 +35,14 @@ import {
   TrammingCheckSchema,
   PistonsCheck,
   PistonsCheckSchema,
+  ShimThicknessCheck,
+  ShimThicknessCheckSchema,
+  DieCushionCheck,
+  DieCushionCheckSchema,
+  ElectricalControlCheck,
+  ElectricalControlCheckSchema,
+  PerpendicularityCheck,
+  PerpendicularityCheckSchema,
   LatestReportResponseDto,
   AlertsSummaryResponseDto,
 } from '@titans-tech/shared/backend-dtos';
@@ -261,6 +269,66 @@ export class ServicesController {
     @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
     return this.servicesService.updatePistons(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/shim-thickness')
+  updateShimThickness(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ShimThicknessCheckSchema))
+    updateDto: ShimThicknessCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateShimThickness(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/die-cushion')
+  updateDieCushion(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(DieCushionCheckSchema))
+    updateDto: DieCushionCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateDieCushion(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/electrical-control')
+  updateElectricalControl(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ElectricalControlCheckSchema))
+    updateDto: ElectricalControlCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateElectricalControl(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/perpendicularity')
+  updatePerpendicularity(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(PerpendicularityCheckSchema))
+    updateDto: PerpendicularityCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updatePerpendicularity(
       id,
       updateDto,
       this.getUserId(req),

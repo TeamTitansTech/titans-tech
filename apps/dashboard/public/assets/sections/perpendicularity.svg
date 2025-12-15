@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: none;
+        stroke: #000;
+        stroke-miterlimit: 10;
+        stroke-width: 3px;
+      }
+    </style>
+  </defs>
+  <!-- Vertical line -->
+  <line class="cls-1" x1="50" y1="10" x2="50" y2="90"/>
+  <!-- Horizontal line -->
+  <line class="cls-1" x1="20" y1="70" x2="80" y2="70"/>
+  <!-- Right angle indicator -->
+  <polyline class="cls-1" points="50,60 60,60 60,70"/>
+  <!-- Arrow heads for measurement -->
+  <polygon points="47,15 50,10 53,15" fill="#000"/>
+  <polygon points="25,67 20,70 25,73" fill="#000"/>
+  <polygon points="75,67 80,70 75,73" fill="#000"/>
+</svg>

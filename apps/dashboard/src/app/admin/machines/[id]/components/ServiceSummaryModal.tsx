@@ -23,6 +23,8 @@ import {
   Loader2,
   AlertCircle,
   Ruler,
+  Thermometer,
+  Gauge,
 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ServiceType, type Service } from '@/data/types/services.types';
@@ -71,7 +73,9 @@ function ServiceSummaryModalContent({
   const tServicesSummary = useTranslations('services.modal.summary');
   const tActions = useTranslations('actions');
   const tInspections = useTranslations('inspections.form.enums');
-  const { lengthUnit, setLengthUnit } = useUnitManager();
+  const tUnits = useTranslations('forms.units');
+  const { lengthUnit, setLengthUnit, getTemperatureUnitLabel, getPressureUnitLabel } =
+    useUnitManager();
 
   const isInspection = service.type === ServiceType.INSPECTION;
   // Check if this service was created from a service request
@@ -107,6 +111,9 @@ function ServiceSummaryModalContent({
     counterbalanceCylinderAirbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     tramming: 'TRAMMING',
     pistons: 'PISTONS',
+    shimThickness: 'SHIM_THICKNESS',
+    dieCushion: 'DIE_CUSHION',
+    electricalControl: 'ELECTRICAL_CONTROL',
   };
 
   // Helper to check if section data has actual content
@@ -259,31 +266,6 @@ function ServiceSummaryModalContent({
 
   return (
     <>
-      {/* Unit Toggle - positioned to the left of close button */}
-      <div className="absolute right-12 top-4 flex items-center gap-2">
-        <Ruler className="w-4 h-4 text-muted-foreground" />
-        <div className="flex items-center rounded-md border">
-          <Button
-            type="button"
-            variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
-            size="sm"
-            className="h-8 rounded-r-none"
-            onClick={() => setLengthUnit('mm')}
-          >
-            mm
-          </Button>
-          <Button
-            type="button"
-            variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
-            size="sm"
-            className="h-8 rounded-l-none"
-            onClick={() => setLengthUnit('inches')}
-          >
-            in
-          </Button>
-        </div>
-      </div>
-
       <DialogHeader>
         <DialogTitle>
           {isInspection ? tServicesSummary('inspectionTitle') : tServicesSummary('title')}
@@ -316,7 +298,57 @@ function ServiceSummaryModalContent({
               </Label>
               <div className="text-sm font-medium">{service.performedBy || '-'}</div>
             </div>
+          </div>
 
+          {/* Selected Units Display */}
+          <div className="mt-4 pt-4 border-t">
+            <Label className="text-xs text-muted-foreground mb-2 block">
+              {tUnits('selectedUnits')}
+            </Label>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
+                <Ruler className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm mr-2">{tUnits('lengthLabel')}:</span>
+                <div className="flex items-center rounded-md border bg-background">
+                  <Button
+                    type="button"
+                    variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="h-6 px-2 text-xs rounded-r-none"
+                    onClick={() => setLengthUnit('mm')}
+                  >
+                    mm
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="h-6 px-2 text-xs rounded-l-none"
+                    onClick={() => setLengthUnit('inches')}
+                  >
+                    in
+                  </Button>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
+                <Thermometer className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm">
+                  {tUnits('temperatureLabel')}:{' '}
+                  <span className="font-medium">{getTemperatureUnitLabel()}</span>
+                </span>
+              </div>
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
+                <Gauge className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm">
+                  {tUnits('pressureLabel')}:{' '}
+                  <span className="font-medium">{getPressureUnitLabel()}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Inspection Observation Fields */}
+          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t">
             {/* Add all inspection observation fields here */}
             <div>
               <Label className="text-xs text-muted-foreground">

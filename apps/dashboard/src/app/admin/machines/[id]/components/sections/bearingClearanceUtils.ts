@@ -18,7 +18,7 @@ export interface SharedFields {
 export interface TabSpecificFields {
   hasBeenAdjusted: YesNoNaDncType;
   combinedWith: string;
-  matingPart: MatingPartType;
+  matingPart: MatingPartType | undefined;
 }
 
 /**

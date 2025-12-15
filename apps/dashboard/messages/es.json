@@ -807,7 +807,11 @@
     "clutch": "Embrague",
     "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
     "tramming": "Tramming",
-    "pistons": "Pistones"
+    "pistons": "Pistones",
+    "shim_thickness": "Espesor de Cuña",
+    "die_cushion": "Cojín de Matriz",
+    "electrical_control": "Control Eléctrico",
+    "perpendicularity": "Perpendicularidad"
   },
   "models": {
     "title": "Crear Modelo",
@@ -995,6 +999,10 @@
       "counterbalanceCylinder": "Cilindro de Contrapeso / Bolsa de Aire",
       "tramming": "Tramming",
       "pistons": "Pistones",
+      "shimThickness": "Espesor de Cuña",
+      "dieCushion": "Cojín del Troquel",
+      "electricalControl": "Control Eléctrico",
+      "perpendicularity": "Perpendicularidad",
       "unknown": "Sección Desconocida"
     },
     "gibsFields": {
@@ -1177,6 +1185,13 @@
         "yes": "Sí",
         "no": "No",
         "dnc": "DNC"
+      },
+      "yesNoNaDncCantTell": {
+        "yes": "Sí",
+        "no": "No",
+        "na": "N/A",
+        "dnc": "DNC",
+        "cant_tell": "No Se Puede Decir"
       },
       "counterbalance": {
         "cylinder": "Cilindro",
@@ -1757,6 +1772,87 @@
           "innerPrefix": "Pistones Interno"
         }
       },
+      "shimThickness": {
+        "lh": "LH",
+        "rh": "RH",
+        "outer": "Externo",
+        "inner": "Interno",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Izquierda",
+        "right": "Derecha",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "validation": {
+          "atLeastOneSectionRequired": "Espesor de Cuña: Complete al menos una sección (Externo LH/RH o Interno LH/RH)"
+        }
+      },
+      "dieCushion": {
+        "airLeaks": "Fugas de Aire",
+        "airLeaksLocation": "Si los sellos están goteando, ¿dónde?",
+        "airLeaksLocationPlaceholder": "Describa la ubicación de los sellos con fugas...",
+        "pneumaticsPlumbing": "Tubería Neumática",
+        "lubrication": "Lubricación",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "selectOption": "Seleccione una opción",
+        "options": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Goteando",
+          "notOperational": "No Operacional"
+        }
+      },
+      "electricalControl": {
+        "headerSection": "Información del Control",
+        "checklistSection": "Lista de Verificación Eléctrica",
+        "hasHourMeter": "¿La prensa tiene horómetro?",
+        "hourMeterReading": "Lectura del Horómetro",
+        "hourMeterReadingPlaceholder": "Ingrese la lectura del horómetro...",
+        "isMinsterControl": "¿Es un Control Minster?",
+        "minsterControlOther": "Si es otro, especifique",
+        "minsterControlOtherPlaceholder": "Especifique el tipo de control...",
+        "controlDoorStop": "Parada de Puerta de Control",
+        "cabinetTemp": "Temp. del Gabinete",
+        "incomingLine": "Línea de Entrada",
+        "fullVoltage": "Voltaje Completo",
+        "contactor": "Contactor",
+        "overloads": "Sobrecargas",
+        "transformers": "Transformadores",
+        "brakeValve": "Válvula del Freno",
+        "clutchValve": "Válvula del Embrague",
+        "wiring": "Cableado",
+        "terminals": "Terminales",
+        "twentyFourVBuss": "Bus 24v",
+        "safetyRelays": "Relés de Seguridad",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "selectOption": "Seleccione una opción",
+        "options": {
+          "yes": "Sí",
+          "no": "No",
+          "na": "N/A",
+          "dnc": "DNC",
+          "cantTell": "No Se Puede Decir"
+        }
+      },
+      "perpendicularity": {
+        "hasBeenAdjusted": "¿Se ha ajustado la Perpendicularidad?",
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "frontRear": "Frente-Trasero",
+        "leftRight": "Izquierda-Derecha",
+        "enterValue": "Ingrese el valor...",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "selectOption": "Seleccione una opción",
+        "options": {
+          "yes": "Sí",
+          "no": "No",
+          "dnc": "DNC"
+        }
+      },
       "cancel": "Cancelar",
       "submit": {
         "idle": "Crear Inspección",
@@ -1860,14 +1956,16 @@
           "straightSide": "Lado Recto"
         },
         "clutchType": {
-          "jh5": "JH5",
-          "na": "N/A"
-        },
-        "pneumaticSystem": {
           "air": "Aire",
           "hyd": "Hidráulico",
           "wetAir": "Aire Húmedo",
           "wetHyd": "Hidráulico Húmedo"
+        },
+        "pneumaticSystem": {
+          "na": "N/A",
+          "counterbalance": "Contrabalance",
+          "cbalWDieCushion": "CBAL W/Die Cushion",
+          "dieCushionOnly": "Die Cushion solamente"
         },
         "pressMounting": {
           "adjustable": "Ajustable",
@@ -1900,6 +1998,25 @@
           "not_in_area": "Las cubiertas no están ubicadas en el área de la prensa; no visibles",
           "otherExplain": "Otro: Explique",
           "other_explain": "Otro: Explique"
+        },
+        "dieCushionAirLeaks": {
+          "ok": "OK",
+          "na": "N/D",
+          "dnc": "DNC",
+          "leaking": "Fugando"
+        },
+        "dieCushionPneumaticsPlumbing": {
+          "ok": "OK",
+          "na": "N/D",
+          "dnc": "DNC",
+          "not_operational": "No Operativo",
+          "leaking": "Fugando"
+        },
+        "dieCushionLubrication": {
+          "ok": "OK",
+          "na": "N/D",
+          "dnc": "DNC",
+          "not_operational": "No Operativo"
         }
       }
     }

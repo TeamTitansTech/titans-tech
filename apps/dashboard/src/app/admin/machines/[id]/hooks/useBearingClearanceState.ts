@@ -87,14 +87,14 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
   const [outerCombinedWith, setOuterCombinedWith] = useState(
     (outerAfterInitial || outerBeforeInitial)?.combinedWith || '',
   );
-  const [outerMatingPart, setOuterMatingPart] = useState<MatingPartType>(
-    (outerAfterInitial || outerBeforeInitial)?.matingPart || MatingPartType.BUSHING,
+  const [outerMatingPart, setOuterMatingPart] = useState<MatingPartType | undefined>(
+    (outerAfterInitial || outerBeforeInitial)?.matingPart,
   );
   const [innerCombinedWith, setInnerCombinedWith] = useState(
     (innerAfterInitial || innerBeforeInitial)?.combinedWith || '',
   );
-  const [innerMatingPart, setInnerMatingPart] = useState<MatingPartType>(
-    (innerAfterInitial || innerBeforeInitial)?.matingPart || MatingPartType.BUSHING,
+  const [innerMatingPart, setInnerMatingPart] = useState<MatingPartType | undefined>(
+    (innerAfterInitial || innerBeforeInitial)?.matingPart,
   );
 
   // Shared fields (Shutdown Adjustment Mechanism)
@@ -195,9 +195,9 @@ export function useBearingClearanceState({ initialData }: UseBearingClearanceSta
     setInnerBeforeHasBeenAdjusted(undefined);
     setInnerAfterHasBeenAdjusted(undefined);
     setOuterCombinedWith('');
-    setOuterMatingPart(MatingPartType.BUSHING);
+    setOuterMatingPart(undefined);
     setInnerCombinedWith('');
-    setInnerMatingPart(MatingPartType.BUSHING);
+    setInnerMatingPart(undefined);
     setSlideMotorMounts(undefined);
     setPowerCordHoses(undefined);
     setChainsGearsSprockets(undefined);
