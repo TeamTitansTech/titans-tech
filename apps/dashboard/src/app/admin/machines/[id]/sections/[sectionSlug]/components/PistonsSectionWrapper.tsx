@@ -1,6 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { PistonsSection } from './PistonsSection';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface PistonsSectionWrapperProps {
   machineId: string;

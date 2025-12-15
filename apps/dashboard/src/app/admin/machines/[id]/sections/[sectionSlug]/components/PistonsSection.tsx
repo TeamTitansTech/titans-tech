@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import type { PistonsInspectionData } from './PistonsSectionWrapper';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
 import { extractThresholdConfig } from '@/components/charts/dataTransformers';
@@ -49,8 +50,8 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
   const [innerLhThreshold, setInnerLhThreshold] = useState<ThresholdConfig | null>(null);
   const [innerRhThreshold, setInnerRhThreshold] = useState<ThresholdConfig | null>(null);
 
-  // Unit toggle state: 'mm' or 'in' (data stored in inches)
-  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
+  const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
+    useUnitManager();
 
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
@@ -86,49 +87,44 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
     fetchThresholds();
   }, [blueprintId]);
 
-  // Conversion constants (data is stored in millimeters)
-  const MM_PER_INCH = 25.4;
-
   // Convert value based on display unit (data stored in mm)
   const convertValue = useCallback(
     (value: number | null): number | null => {
       if (value === null) return null;
-      return displayUnit === 'in' ? value / MM_PER_INCH : value;
+      return convertLengthFromDefault(value);
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Convert threshold based on display unit (thresholds stored in mm)
   const convertThreshold = useCallback(
     (threshold: ThresholdConfig | null): ThresholdConfig | null => {
       if (!threshold) return null;
-      if (displayUnit === 'mm') return threshold;
       return {
-        greenMin: threshold.greenMin / MM_PER_INCH,
-        yellowMin: threshold.yellowMin / MM_PER_INCH,
-        redMin: threshold.redMin / MM_PER_INCH,
+        greenMin: convertLengthFromDefault(threshold.greenMin),
+        yellowMin: convertLengthFromDefault(threshold.yellowMin),
+        redMin: convertLengthFromDefault(threshold.redMin),
         label: threshold.label,
       };
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Convert chart data based on display unit (data stored in mm)
   const convertChartData = useCallback(
     (data: PistonsChartDataPoint[], keys: string[]): PistonsChartDataPoint[] => {
-      if (displayUnit === 'mm') return data;
       return data.map((point) => {
         const converted = { ...point };
         keys.forEach((key) => {
           const val = point[key as keyof PistonsChartDataPoint];
           if (typeof val === 'number') {
-            (converted as Record<string, unknown>)[key] = val / MM_PER_INCH;
+            (converted as Record<string, unknown>)[key] = convertLengthFromDefault(val);
           }
         });
         return converted;
       });
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   const filteredInspections = useMemo(() => {
@@ -416,18 +412,18 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
               {/* Unit Toggle */}
               <div className="flex items-center rounded-md border">
                 <Button
-                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
                   size="sm"
                   className="h-8 rounded-r-none"
-                  onClick={() => setDisplayUnit('mm')}
+                  onClick={() => setLengthUnit('mm')}
                 >
                   mm
                 </Button>
                 <Button
-                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
                   size="sm"
                   className="h-8 rounded-l-none"
-                  onClick={() => setDisplayUnit('in')}
+                  onClick={() => setLengthUnit('inches')}
                 >
                   in
                 </Button>
@@ -536,7 +532,7 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
                 { dataKey: 'lhRight', label: t('labels.lhRight'), color: '#ec4899' },
               ]}
               sharedThreshold={outerLhThresholdConverted ?? undefined}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />
@@ -552,7 +548,7 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
                 { dataKey: 'rhRight', label: t('labels.rhRight'), color: '#8b5cf6' },
               ]}
               sharedThreshold={outerRhThresholdConverted ?? undefined}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />
@@ -568,7 +564,7 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
                 { dataKey: 'lhRight', label: t('labels.lhRight'), color: '#ec4899' },
               ]}
               sharedThreshold={innerLhThresholdConverted ?? undefined}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />
@@ -584,7 +580,7 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
                 { dataKey: 'rhRight', label: t('labels.rhRight'), color: '#8b5cf6' },
               ]}
               sharedThreshold={innerRhThresholdConverted ?? undefined}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />

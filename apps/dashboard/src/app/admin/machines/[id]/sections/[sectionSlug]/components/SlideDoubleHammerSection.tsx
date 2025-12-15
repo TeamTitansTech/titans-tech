@@ -20,6 +20,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import type { SlideInspectionData } from './SlideDoubleHammerSectionWrapper';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
 import {
   transformSlidePositionsToMultiLineData,
@@ -52,7 +53,8 @@ export function SlideDoubleHammerSection({
   const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
   const [positionThreshold, setPositionThreshold] = useState<ThresholdConfig | null>(null);
-  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
+  const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
+    useUnitManager();
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -64,50 +66,45 @@ export function SlideDoubleHammerSection({
     return undefined;
   });
 
-  // Conversion constants and functions
-  const MM_PER_INCH = 25.4;
-
   // Convert value based on display unit (data stored in mm)
   const convertValue = useCallback(
     (value: number | null | undefined): number | null => {
       if (value === null || value === undefined) return null;
       const numValue = Number(value);
       if (isNaN(numValue)) return null;
-      return displayUnit === 'in' ? numValue / MM_PER_INCH : numValue;
+      return convertLengthFromDefault(numValue);
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Convert threshold based on display unit (thresholds stored in mm)
   const convertThreshold = useCallback(
     (threshold: ThresholdConfig | null): ThresholdConfig | null => {
       if (!threshold) return null;
-      if (displayUnit === 'mm') return threshold;
       return {
-        greenMin: threshold.greenMin / MM_PER_INCH,
-        yellowMin: threshold.yellowMin / MM_PER_INCH,
-        redMin: threshold.redMin / MM_PER_INCH,
+        greenMin: convertLengthFromDefault(threshold.greenMin),
+        yellowMin: convertLengthFromDefault(threshold.yellowMin),
+        redMin: convertLengthFromDefault(threshold.redMin),
         label: threshold.label,
       };
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Convert chart data based on display unit (data stored in mm)
   const convertChartData = useCallback(
     (data: any[]): any[] => {
-      if (displayUnit === 'mm') return data;
       return data.map((point) => {
         const converted: any = { ...point };
         Object.keys(converted).forEach((key) => {
           if (key !== 'date' && typeof converted[key] === 'number') {
-            converted[key] = converted[key] / MM_PER_INCH;
+            converted[key] = convertLengthFromDefault(converted[key]);
           }
         });
         return converted;
       });
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Fetch threshold data
@@ -352,17 +349,17 @@ export function SlideDoubleHammerSection({
               {/* Unit Toggle */}
               <div className="border rounded-md flex">
                 <Button
-                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setDisplayUnit('in')}
+                  onClick={() => setLengthUnit('inches')}
                   className="rounded-r-none h-8 px-3"
                 >
                   in
                 </Button>
                 <Button
-                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setDisplayUnit('mm')}
+                  onClick={() => setLengthUnit('mm')}
                   className="rounded-l-none h-8 px-3"
                 >
                   mm
@@ -530,7 +527,7 @@ export function SlideDoubleHammerSection({
                 { dataKey: 'innerMaxDeviation', label: 'Inner Max Deviation', color: '#06b6d4' },
               ]}
               sharedThreshold={convertedPositionThreshold}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
               height={300}
@@ -546,7 +543,7 @@ export function SlideDoubleHammerSection({
                 { dataKey: 'position4', label: 'Position 4', color: '#ec4899' },
                 { dataKey: 'position5', label: 'Position 5', color: '#6366f1' },
               ]}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={false}
               height={300}
             />
@@ -561,7 +558,7 @@ export function SlideDoubleHammerSection({
                 { dataKey: 'position4', label: 'Position 4', color: '#ec4899' },
                 { dataKey: 'position5', label: 'Position 5', color: '#6366f1' },
               ]}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={false}
               height={300}
             />

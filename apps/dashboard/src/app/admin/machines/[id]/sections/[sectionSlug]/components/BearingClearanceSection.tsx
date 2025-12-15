@@ -23,6 +23,7 @@ import { SectionExportButton } from '@/components/shared/SectionExportButton';
 import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
 import { BEARING_CLEARANCE_SUBSECTIONS } from '@/data/parts/section-subsections';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface BearingClearanceSectionProps {
   machineId: string;
@@ -47,8 +48,9 @@ export function BearingClearanceSection({
   const [totalClearanceThreshold, setTotalClearanceThreshold] = useState<ThresholdConfig | null>(
     null,
   );
-  // Unit toggle state: 'mm' or 'in'
-  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
+  // Use global unit context
+  const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
+    useUnitManager();
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -172,52 +174,47 @@ export function BearingClearanceSection({
     [statusMeasurements],
   );
 
-  // Conversion constants (data is stored in millimeters)
-  const MM_PER_INCH = 25.4;
-
-  // Convert value based on display unit (data stored in mm)
+  // Convert value using global unit context (data stored in mm)
   const convertValue = useCallback(
     (value: number | null): number | null => {
       if (value === null) return null;
-      return displayUnit === 'in' ? value / MM_PER_INCH : value;
+      return convertLengthFromDefault(value);
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
-  // Convert threshold based on display unit (thresholds stored in mm)
+  // Convert threshold using global unit context (thresholds stored in mm)
   const convertThreshold = useCallback(
     (threshold: ThresholdConfig | null): ThresholdConfig | null => {
       if (!threshold) return null;
-      if (displayUnit === 'mm') return threshold;
       return {
-        greenMin: threshold.greenMin / MM_PER_INCH,
-        yellowMin: threshold.yellowMin / MM_PER_INCH,
-        redMin: threshold.redMin / MM_PER_INCH,
+        greenMin: convertLengthFromDefault(threshold.greenMin),
+        yellowMin: convertLengthFromDefault(threshold.yellowMin),
+        redMin: convertLengthFromDefault(threshold.redMin),
         label: threshold.label,
       };
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
-  // Convert chart data based on display unit (data stored in mm)
+  // Convert chart data using global unit context (data stored in mm)
   const convertChartData = useCallback(
     (
       data: ReturnType<typeof transformBearingClearanceToDifferentialData>,
       keys: string[],
     ): ReturnType<typeof transformBearingClearanceToDifferentialData> => {
-      if (displayUnit === 'mm') return data;
       return data.map((point) => {
         const converted = { ...point };
         keys.forEach((key) => {
           const val = point[key];
           if (typeof val === 'number') {
-            (converted as Record<string, unknown>)[key] = val / MM_PER_INCH;
+            (converted as Record<string, unknown>)[key] = convertLengthFromDefault(val);
           }
         });
         return converted;
       });
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Get converted thresholds
@@ -361,18 +358,18 @@ export function BearingClearanceSection({
               {/* Unit Toggle */}
               <div className="flex items-center rounded-md border">
                 <Button
-                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
                   size="sm"
                   className="h-8 rounded-r-none"
-                  onClick={() => setDisplayUnit('mm')}
+                  onClick={() => setLengthUnit('mm')}
                 >
                   mm
                 </Button>
                 <Button
-                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
                   size="sm"
                   className="h-8 rounded-l-none"
-                  onClick={() => setDisplayUnit('in')}
+                  onClick={() => setLengthUnit('inches')}
                 >
                   in
                 </Button>
@@ -435,7 +432,7 @@ export function BearingClearanceSection({
                 },
               ]}
               sharedThreshold={totalClearanceThresholdConverted}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
               height={350}

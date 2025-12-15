@@ -1,6 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { ClutchSection } from './ClutchSection';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface ClutchSectionWrapperProps {
   machineId: string;

@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import type { ClutchInspectionData } from './ClutchSectionWrapper';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
 import {
   transformClutchToMultiLineData,
@@ -51,8 +52,8 @@ export function ClutchSection({
   const [fbThreshold, setFbThreshold] = useState<ThresholdConfig | null>(null);
   const [fTBThreshold, setFTBThreshold] = useState<ThresholdConfig | null>(null);
   const [rTBThreshold, setRTBThreshold] = useState<ThresholdConfig | null>(null);
-  // Unit toggle state: 'mm' or 'in'
-  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
+  const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
+    useUnitManager();
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -174,31 +175,27 @@ export function ClutchSection({
     [statusMeasurements],
   );
 
-  // Conversion constants (data is stored in millimeters)
-  const MM_PER_INCH = 25.4;
-
   // Convert value based on display unit (data stored in mm)
   const convertValue = useCallback(
     (value: number | null): number | null => {
       if (value === null) return null;
-      return displayUnit === 'in' ? value / MM_PER_INCH : value;
+      return convertLengthFromDefault(value);
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Convert threshold based on display unit (thresholds stored in mm)
   const convertThreshold = useCallback(
     (threshold: ThresholdConfig | null): ThresholdConfig | null => {
       if (!threshold) return null;
-      if (displayUnit === 'mm') return threshold;
       return {
-        greenMin: threshold.greenMin / MM_PER_INCH,
-        yellowMin: threshold.yellowMin / MM_PER_INCH,
-        redMin: threshold.redMin / MM_PER_INCH,
+        greenMin: convertLengthFromDefault(threshold.greenMin),
+        yellowMin: convertLengthFromDefault(threshold.yellowMin),
+        redMin: convertLengthFromDefault(threshold.redMin),
         label: threshold.label,
       };
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Convert chart data based on display unit (data stored in mm)
@@ -207,19 +204,18 @@ export function ClutchSection({
       data: ReturnType<typeof transformClutchToMultiLineData>,
       keys: string[],
     ): ReturnType<typeof transformClutchToMultiLineData> => {
-      if (displayUnit === 'mm') return data;
       return data.map((point) => {
         const converted = { ...point };
         keys.forEach((key) => {
           const val = point[key];
           if (typeof val === 'number') {
-            (converted as Record<string, unknown>)[key] = val / MM_PER_INCH;
+            (converted as Record<string, unknown>)[key] = convertLengthFromDefault(val);
           }
         });
         return converted;
       });
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Get converted thresholds
@@ -375,18 +371,18 @@ export function ClutchSection({
               {/* Unit Toggle */}
               <div className="flex items-center rounded-md border">
                 <Button
-                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
                   size="sm"
                   className="h-8 rounded-r-none"
-                  onClick={() => setDisplayUnit('mm')}
+                  onClick={() => setLengthUnit('mm')}
                 >
                   mm
                 </Button>
                 <Button
-                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
                   size="sm"
                   className="h-8 rounded-l-none"
-                  onClick={() => setDisplayUnit('in')}
+                  onClick={() => setLengthUnit('inches')}
                 >
                   in
                 </Button>
@@ -458,7 +454,7 @@ export function ClutchSection({
                 },
               ]}
               sharedThreshold={hydTotalThresholdConverted}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
               height={300}
@@ -476,7 +472,7 @@ export function ClutchSection({
                 },
               ]}
               sharedThreshold={fbThresholdConverted}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
               height={250}
@@ -494,7 +490,7 @@ export function ClutchSection({
                 },
               ]}
               sharedThreshold={fTBThresholdConverted}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
               height={250}
@@ -512,7 +508,7 @@ export function ClutchSection({
                 },
               ]}
               sharedThreshold={rTBThresholdConverted}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
               height={250}

@@ -1,6 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { TrammingSection } from './TrammingSection';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface TrammingSectionWrapperProps {
   machineId: string;
