@@ -1,6 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { PistonsSection } from './PistonsSection';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface PistonsSectionWrapperProps {
   machineId: string;
@@ -66,11 +67,13 @@ export async function PistonsSectionWrapper({ machineId }: PistonsSectionWrapper
   }
 
   return (
-    <PistonsSection
-      machineId={machineId}
-      inspections={inspections}
-      machineName={machineName}
-      blueprintId={blueprintId}
-    />
+    <UnitManagerProvider>
+      <PistonsSection
+        machineId={machineId}
+        inspections={inspections}
+        machineName={machineName}
+        blueprintId={blueprintId}
+      />
+    </UnitManagerProvider>
   );
 }
