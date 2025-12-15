@@ -1998,6 +1998,25 @@
           "not_in_area": "Covers are not located in area of press; not visible",
           "otherExplain": "Other: Explain",
           "other_explain": "Other: Explain"
+        },
+        "dieCushionAirLeaks": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Leaking"
+        },
+        "dieCushionPneumaticsPlumbing": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "not_operational": "Not Operational",
+          "leaking": "Leaking"
+        },
+        "dieCushionLubrication": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "not_operational": "Not Operational"
         }
       }
     }

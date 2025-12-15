@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { useState, forwardRef, useImperativeHandle, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -53,15 +53,15 @@ export const PerpendicularitySection = forwardRef<
   const [data, setData] = useState<PerpendicularityCheck>(
     initialData || defaultPerpendicularityData,
   );
-  const [prevInitialData, setPrevInitialData] = useState(initialData);
+  const prevInitialDataRef = useRef(initialData);
 
   useEffect(() => {
-    if (initialData && initialData !== prevInitialData) {
-      setPrevInitialData(initialData);
+    if (initialData && initialData !== prevInitialDataRef.current) {
+      prevInitialDataRef.current = initialData;
       setData(initialData);
       setInitialPerpendicularityData(initialData);
     }
-  }, [initialData, prevInitialData]);
+  }, [initialData]);
 
   const updateField = <K extends keyof PerpendicularityCheck>(
     field: K,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { useState, forwardRef, useImperativeHandle, useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -70,15 +70,15 @@ export const ElectricalControlSection = forwardRef<
   const [data, setData] = useState<ElectricalControlCheck>(
     initialData || defaultElectricalControlData,
   );
-  const [prevInitialData, setPrevInitialData] = useState(initialData);
+  const prevInitialDataRef = useRef(initialData);
 
   useEffect(() => {
-    if (initialData && initialData !== prevInitialData) {
-      setPrevInitialData(initialData);
+    if (initialData && initialData !== prevInitialDataRef.current) {
+      prevInitialDataRef.current = initialData;
       setData(initialData);
       setInitialElectricalControlData(initialData);
     }
-  }, [initialData, prevInitialData]);
+  }, [initialData]);
 
   const updateField = <K extends keyof ElectricalControlCheck>(
     field: K,

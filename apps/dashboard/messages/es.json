@@ -1998,6 +1998,25 @@
           "not_in_area": "Las cubiertas no están ubicadas en el área de la prensa; no visibles",
           "otherExplain": "Otro: Explique",
           "other_explain": "Otro: Explique"
+        },
+        "dieCushionAirLeaks": {
+          "ok": "OK",
+          "na": "N/D",
+          "dnc": "DNC",
+          "leaking": "Fugando"
+        },
+        "dieCushionPneumaticsPlumbing": {
+          "ok": "OK",
+          "na": "N/D",
+          "dnc": "DNC",
+          "not_operational": "No Operativo",
+          "leaking": "Fugando"
+        },
+        "dieCushionLubrication": {
+          "ok": "OK",
+          "na": "N/D",
+          "dnc": "DNC",
+          "not_operational": "No Operativo"
         }
       }
     }

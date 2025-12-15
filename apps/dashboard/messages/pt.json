@@ -1998,6 +1998,25 @@
           "not_in_area": "Coberturas não estão localizadas na área da prensa; não visíveis",
           "otherExplain": "Outro: Explique",
           "other_explain": "Outro: Explique"
+        },
+        "dieCushionAirLeaks": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Vazando"
+        },
+        "dieCushionPneumaticsPlumbing": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "not_operational": "Não Operacional",
+          "leaking": "Vazando"
+        },
+        "dieCushionLubrication": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "not_operational": "Não Operacional"
         }
       }
     }

@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { ChevronDown } from 'lucide-react';
 import {
   type BearingClearanceData,
-  MatingPartType,
   ServiceType,
   YesNoNaDncType,
 } from '@/data/types/services.types';
