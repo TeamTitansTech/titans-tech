@@ -58,7 +58,9 @@ export const PerpendicularitySection = forwardRef<
   useEffect(() => {
     if (initialData && initialData !== prevInitialDataRef.current) {
       prevInitialDataRef.current = initialData;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
       setData(initialData);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
       setInitialPerpendicularityData(initialData);
     }
   }, [initialData]);
