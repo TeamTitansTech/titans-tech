@@ -15,6 +15,7 @@ export {
   DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,
+  YesNoNaDncCantTellType,
   LubeHydMonitorFlowPressSwGibType,
   ConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType,
@@ -75,6 +76,8 @@ export type {
   PistonsData,
   PistonsCheck,
   DieCushionCheck,
+  ElectricalControlCheck,
+  PerpendicularityCheck,
 } from '../backend-dtos/requests-dto/service/service.dto';
 
 // Re-export service payload and entity types
@@ -118,6 +121,8 @@ export {
   TrammingCheckSchema,
   PistonsDataSchema,
   PistonsCheckSchema,
+  ElectricalControlCheckSchema,
+  PerpendicularityCheckSchema,
   CreateServiceSchema,
   CreateServicePayloadSchema,
   UpdateServicePayloadSchema,

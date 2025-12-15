@@ -808,7 +808,10 @@
     "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG",
     "tramming": "TRAMMING",
     "pistons": "PISTÕES",
-    "shim_thickness": "ESPESSURA DO CALÇO"
+    "shim_thickness": "ESPESSURA DO CALÇO",
+    "die_cushion": "ALMOFADA DE MATRIZ",
+    "electrical_control": "CONTROLE ELÉTRICO",
+    "perpendicularity": "PERPENDICULARIDADE"
   },
   "models": {
     "title": "Criar Modelo",
@@ -998,6 +1001,8 @@
       "pistons": "Pistões",
       "shimThickness": "Espessura do Calço",
       "dieCushion": "Almofada da Matriz",
+      "electricalControl": "Controle Elétrico",
+      "perpendicularity": "Perpendicularidade",
       "unknown": "Seção Desconhecida"
     },
     "gibsFields": {
@@ -1180,6 +1185,13 @@
         "yes": "Sim",
         "no": "Não",
         "dnc": "DNC"
+      },
+      "yesNoNaDncCantTell": {
+        "yes": "Sim",
+        "no": "Não",
+        "na": "N/A",
+        "dnc": "DNC",
+        "cant_tell": "Não é Possível Dizer"
       },
       "counterbalance": {
         "cylinder": "Cilindro",
@@ -1790,6 +1802,55 @@
           "dnc": "DNC",
           "leaking": "Vazando",
           "notOperational": "Não Operacional"
+        }
+      },
+      "electricalControl": {
+        "headerSection": "Informações do Controle",
+        "checklistSection": "Lista de Verificação Elétrica",
+        "hasHourMeter": "A prensa tem horímetro?",
+        "hourMeterReading": "Leitura do Horímetro",
+        "hourMeterReadingPlaceholder": "Digite a leitura do horímetro...",
+        "isMinsterControl": "É um Controle Minster?",
+        "minsterControlOther": "Se outro, especifique",
+        "minsterControlOtherPlaceholder": "Especifique o tipo de controle...",
+        "controlDoorStop": "Parada da Porta de Controle",
+        "cabinetTemp": "Temp. do Gabinete",
+        "incomingLine": "Linha de Entrada",
+        "fullVoltage": "Tensão Total",
+        "contactor": "Contator",
+        "overloads": "Sobrecargas",
+        "transformers": "Transformadores",
+        "brakeValve": "Válvula do Freio",
+        "clutchValve": "Válvula da Embreagem",
+        "wiring": "Fiação",
+        "terminals": "Terminais",
+        "twentyFourVBuss": "Barramento 24v",
+        "safetyRelays": "Relés de Segurança",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Adicione quaisquer notas ou observações adicionais...",
+        "selectOption": "Selecione uma opção",
+        "options": {
+          "yes": "Sim",
+          "no": "Não",
+          "na": "N/A",
+          "dnc": "DNC",
+          "cantTell": "Não é Possível Dizer"
+        }
+      },
+      "perpendicularity": {
+        "hasBeenAdjusted": "A Perpendicularidade foi ajustada?",
+        "beforeAdjustment": "Antes do Ajuste",
+        "afterAdjustment": "Após o Ajuste",
+        "frontRear": "Frente-Traseira",
+        "leftRight": "Esquerda-Direita",
+        "enterValue": "Digite o valor...",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Adicione quaisquer notas ou observações adicionais...",
+        "selectOption": "Selecione uma opção",
+        "options": {
+          "yes": "Sim",
+          "no": "Não",
+          "dnc": "DNC"
         }
       },
       "cancel": "Cancelar",

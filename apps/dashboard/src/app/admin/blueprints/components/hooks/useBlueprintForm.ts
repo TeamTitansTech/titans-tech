@@ -27,6 +27,10 @@ const SLUG_TO_SECTION: Record<string, string> = {
   counterbalance_cylinder_airbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
   tramming: 'TRAMMING',
   pistons: 'PISTONS',
+  shim_thickness: 'SHIM_THICKNESS',
+  die_cushion: 'DIE_CUSHION',
+  electrical_control: 'ELECTRICAL_CONTROL',
+  perpendicularity: 'PERPENDICULARITY',
 };
 
 const INITIAL_THRESHOLDS: BearingClearanceThresholdsData = {

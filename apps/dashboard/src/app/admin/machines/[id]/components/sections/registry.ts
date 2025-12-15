@@ -10,6 +10,8 @@ import { TrammingSection } from './TrammingSection';
 import { PistonsSection } from './PistonsSection';
 import { ShimThicknessSection } from './ShimThicknessSection';
 import { DieCushionSection } from './DieCushionSection';
+import { ElectricalControlSection } from './ElectricalControlSection';
+import { PerpendicularitySection } from './PerpendicularitySection';
 
 /**
  * Configuration for a single section
@@ -142,6 +144,24 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
     metadata: {
       image: '/assets/sections/die-cushion.svg',
       i18nKey: 'dieCushion',
+    },
+  },
+
+  ELECTRICAL_CONTROL: {
+    key: 'ELECTRICAL_CONTROL',
+    component: ElectricalControlSection,
+    metadata: {
+      image: '/assets/sections/electrical-control.svg',
+      i18nKey: 'electricalControl',
+    },
+  },
+
+  PERPENDICULARITY: {
+    key: 'PERPENDICULARITY',
+    component: PerpendicularitySection,
+    metadata: {
+      image: '/assets/sections/perpendicularity.svg',
+      i18nKey: 'perpendicularity',
     },
   },
 };

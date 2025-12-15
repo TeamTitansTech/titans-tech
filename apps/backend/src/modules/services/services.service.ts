@@ -507,6 +507,16 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
       },
     });
 
@@ -603,6 +613,16 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
       },
       orderBy: {
         date: 'desc',
@@ -691,6 +711,16 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
       },
       orderBy: {
         date: 'desc',
@@ -780,6 +810,16 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
       },
     });
 
@@ -880,6 +920,16 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
         // Include alert entities for status display
         alertBearingClearance: {
           orderBy: { createdAt: 'desc' },
@@ -1019,6 +1069,16 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
       },
       orderBy: { date: 'desc' },
     });
@@ -2794,6 +2854,217 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
+  async updateElectricalControl(
+    serviceId: string,
+    updateDto: {
+      hasHourMeter?: string;
+      hourMeterReading?: string;
+      isMinsterControl?: string;
+      minsterControlOther?: string;
+      controlDoorStop?: string;
+      cabinetTemp?: string;
+      incomingLine?: string;
+      fullVoltage?: string;
+      contactor?: string;
+      overloads?: string;
+      transformers?: string;
+      brakeValve?: string;
+      clutchValve?: string;
+      wiring?: string;
+      terminals?: string;
+      twentyFourVBuss?: string;
+      safetyRelays?: string;
+      notes?: string;
+    },
+    userId: string | null,
+  ): Promise<any> {
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { electricalControl: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes(
+      'ELECTRICAL_CONTROL',
+    )
+      ? completedSections
+      : [...completedSections, 'ELECTRICAL_CONTROL'];
+
+    const existingRecord = service.electricalControl?.[0];
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.machineServiceElectricalControl.update({
+          where: { id: existingRecord.id },
+          data: {
+            hasHourMeter: updateDto.hasHourMeter as any,
+            hourMeterReading: updateDto.hourMeterReading,
+            isMinsterControl: updateDto.isMinsterControl as any,
+            minsterControlOther: updateDto.minsterControlOther,
+            controlDoorStop: updateDto.controlDoorStop as any,
+            cabinetTemp: updateDto.cabinetTemp as any,
+            incomingLine: updateDto.incomingLine as any,
+            fullVoltage: updateDto.fullVoltage as any,
+            contactor: updateDto.contactor as any,
+            overloads: updateDto.overloads as any,
+            transformers: updateDto.transformers as any,
+            brakeValve: updateDto.brakeValve as any,
+            clutchValve: updateDto.clutchValve as any,
+            wiring: updateDto.wiring as any,
+            terminals: updateDto.terminals as any,
+            twentyFourVBuss: updateDto.twentyFourVBuss as any,
+            safetyRelays: updateDto.safetyRelays as any,
+            notes: updateDto.notes,
+          },
+        });
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          electricalControl: {
+            create: {
+              hasHourMeter: updateDto.hasHourMeter as any,
+              hourMeterReading: updateDto.hourMeterReading,
+              isMinsterControl: updateDto.isMinsterControl as any,
+              minsterControlOther: updateDto.minsterControlOther,
+              controlDoorStop: updateDto.controlDoorStop as any,
+              cabinetTemp: updateDto.cabinetTemp as any,
+              incomingLine: updateDto.incomingLine as any,
+              fullVoltage: updateDto.fullVoltage as any,
+              contactor: updateDto.contactor as any,
+              overloads: updateDto.overloads as any,
+              transformers: updateDto.transformers as any,
+              brakeValve: updateDto.brakeValve as any,
+              clutchValve: updateDto.clutchValve as any,
+              wiring: updateDto.wiring as any,
+              terminals: updateDto.terminals as any,
+              twentyFourVBuss: updateDto.twentyFourVBuss as any,
+              safetyRelays: updateDto.safetyRelays as any,
+              notes: updateDto.notes,
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
+  async updatePerpendicularity(
+    serviceId: string,
+    updateDto: {
+      hasBeenAdjusted?: string;
+      beforeFR?: number | string;
+      beforeLR?: number | string;
+      afterFR?: number | string;
+      afterLR?: number | string;
+      notes?: string;
+    },
+    userId: string | null,
+  ): Promise<any> {
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { perpendicularity: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes(
+      'PERPENDICULARITY',
+    )
+      ? completedSections
+      : [...completedSections, 'PERPENDICULARITY'];
+
+    const existingRecord = service.perpendicularity?.[0];
+
+    // Convert string values to Decimal
+    const toDecimal = (value: number | string | undefined) => {
+      if (value === undefined || value === null || value === '')
+        return undefined;
+      return typeof value === 'string' ? parseFloat(value) : value;
+    };
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.machineServicePerpendicularity.update({
+          where: { id: existingRecord.id },
+          data: {
+            hasBeenAdjusted: updateDto.hasBeenAdjusted as any,
+            beforeFR: toDecimal(updateDto.beforeFR),
+            beforeLR: toDecimal(updateDto.beforeLR),
+            afterFR: toDecimal(updateDto.afterFR),
+            afterLR: toDecimal(updateDto.afterLR),
+            notes: updateDto.notes,
+          },
+        });
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          perpendicularity: {
+            create: {
+              hasBeenAdjusted: updateDto.hasBeenAdjusted as any,
+              beforeFR: toDecimal(updateDto.beforeFR),
+              beforeLR: toDecimal(updateDto.beforeLR),
+              afterFR: toDecimal(updateDto.afterFR),
+              afterLR: toDecimal(updateDto.afterLR),
+              notes: updateDto.notes,
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
   async completeService(
     serviceId: string,
     completeDto: CompleteServiceDto,
@@ -2897,6 +3168,16 @@ export class ServicesService {
         pistons: {
           include: { outerData: true, innerData: true },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
       },
     });
 

@@ -39,7 +39,7 @@ export const defaultBearingData: BearingClearanceData = {
   ballBoxArea_LH: undefined,
   hasBeenAdjusted: undefined,
   combinedWith: '',
-  matingPart: MatingPartType.BUSHING,
+  matingPart: undefined,
 };
 
 // Required fields for validation - only totalClearance (LH or RH) is required

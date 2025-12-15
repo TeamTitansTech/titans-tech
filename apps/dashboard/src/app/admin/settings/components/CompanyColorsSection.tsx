@@ -3,12 +3,26 @@
 import { useState, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { HexColorPicker } from 'react-colorful';
-import { Palette, Check, RotateCcw } from 'lucide-react';
+import { Palette, Check, RotateCcw, Pipette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { updateCompany, type Company } from '@/data/services/companies.api';
 import { toast } from 'sonner';
+
+// EyeDropper API type declaration (not yet in TypeScript's lib)
+declare global {
+  interface EyeDropper {
+    open(): Promise<{ sRGBHex: string }>;
+  }
+  interface EyeDropperConstructor {
+    new (): EyeDropper;
+  }
+  interface Window {
+    EyeDropper?: EyeDropperConstructor;
+  }
+}
 
 interface CompanyColorsSectionProps {
   selectedCompany?: Company;
@@ -154,8 +168,59 @@ interface ColorPickerProps {
 }
 
 function ColorPicker({ color, onChange, disabled }: ColorPickerProps) {
+  const [inputValue, setInputValue] = useState(color);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isEyeDropperSupported, setIsEyeDropperSupported] = useState(false);
+
+  // Check if EyeDropper API is supported
+  useEffect(() => {
+    setIsEyeDropperSupported(typeof window !== 'undefined' && 'EyeDropper' in window);
+  }, []);
+
+  // Sync input value when color prop changes (from picker)
+  useEffect(() => {
+    setInputValue(color);
+  }, [color]);
+
+  const handleEyeDropper = async () => {
+    if (!window.EyeDropper) return;
+
+    try {
+      const eyeDropper = new window.EyeDropper();
+      const result = await eyeDropper.open();
+      const pickedColor = result.sRGBHex.toLowerCase();
+      setInputValue(pickedColor);
+      onChange(pickedColor);
+    } catch {
+      // User cancelled the eyedropper or it failed
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value;
+
+    // Ensure it starts with #
+    if (!value.startsWith('#')) {
+      value = '#' + value.replace('#', '');
+    }
+
+    // Only allow valid hex characters
+    const cleanValue =
+      '#' +
+      value
+        .slice(1)
+        .replace(/[^0-9A-Fa-f]/g, '')
+        .slice(0, 6);
+    setInputValue(cleanValue);
+
+    // Update color if valid 6-character hex
+    if (/^#[0-9A-Fa-f]{6}$/i.test(cleanValue)) {
+      onChange(cleanValue.toLowerCase());
+    }
+  };
+
   return (
-    <Popover>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" className="w-full justify-start" disabled={disabled}>
           <div
@@ -167,21 +232,26 @@ function ColorPicker({ color, onChange, disabled }: ColorPickerProps) {
       </PopoverTrigger>
       <PopoverContent className="w-auto p-3" align="start">
         <HexColorPicker color={color} onChange={onChange} />
-        <div className="mt-3">
-          <input
+        <div className="mt-3 flex gap-2">
+          <Input
             type="text"
-            value={color}
-            onChange={(e) => {
-              const value = e.target.value;
-              if (/^#[0-9A-Fa-f]{0,6}$/.test(value)) {
-                if (/^#[0-9A-Fa-f]{6}$/.test(value)) {
-                  onChange(value);
-                }
-              }
-            }}
-            className="w-full px-2 py-1 text-sm font-mono border rounded"
+            value={inputValue}
+            onChange={handleInputChange}
+            className="font-mono text-sm h-8 flex-1"
             placeholder="#000000"
           />
+          {isEyeDropperSupported && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 w-8 p-0"
+              onClick={handleEyeDropper}
+              title="Pick color from screen"
+            >
+              <Pipette className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </PopoverContent>
     </Popover>

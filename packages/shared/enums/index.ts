@@ -19,6 +19,7 @@ export {
   // Yes/No/NA/DNC variants
   YesNoNaDncType,
   YesNoDncType,
+  YesNoNaDncCantTellType,
 
   // Condition enums
   ConditionOkNaDncBrokenWornType,

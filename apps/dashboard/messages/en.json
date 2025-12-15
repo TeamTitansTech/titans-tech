@@ -808,7 +808,10 @@
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
     "tramming": "Tramming",
     "pistons": "Pistons",
-    "shim_thickness": "Shim Thickness"
+    "shim_thickness": "Shim Thickness",
+    "die_cushion": "Die Cushion",
+    "electrical_control": "Electrical Control",
+    "perpendicularity": "Perpendicularity"
   },
   "models": {
     "title": "Create Model",
@@ -998,6 +1001,8 @@
       "pistons": "Pistons",
       "shimThickness": "Shim Thickness",
       "dieCushion": "Die Cushion",
+      "electricalControl": "Electrical Control",
+      "perpendicularity": "Perpendicularity",
       "unknown": "Unknown Section"
     },
     "gibsFields": {
@@ -1180,6 +1185,13 @@
         "yes": "Yes",
         "no": "No",
         "dnc": "DNC"
+      },
+      "yesNoNaDncCantTell": {
+        "yes": "Yes",
+        "no": "No",
+        "na": "N/A",
+        "dnc": "DNC",
+        "cant_tell": "Can't Tell"
       },
       "counterbalance": {
         "cylinder": "Cylinder",
@@ -1790,6 +1802,55 @@
           "dnc": "DNC",
           "leaking": "Leaking",
           "notOperational": "Not Operational"
+        }
+      },
+      "electricalControl": {
+        "headerSection": "Control Information",
+        "checklistSection": "Electrical Checklist",
+        "hasHourMeter": "Does press have Hour Meter?",
+        "hourMeterReading": "Hour Reading",
+        "hourMeterReadingPlaceholder": "Enter hour meter reading...",
+        "isMinsterControl": "Is this a Minster Control?",
+        "minsterControlOther": "If other, specify",
+        "minsterControlOtherPlaceholder": "Specify control type...",
+        "controlDoorStop": "Control Door Stop",
+        "cabinetTemp": "Cabinet Temp",
+        "incomingLine": "Incoming Line",
+        "fullVoltage": "Full Voltage",
+        "contactor": "Contactor",
+        "overloads": "Overloads",
+        "transformers": "Transformers",
+        "brakeValve": "Brake Valve",
+        "clutchValve": "Clutch Valve",
+        "wiring": "Wiring",
+        "terminals": "Terminals",
+        "twentyFourVBuss": "24v Buss",
+        "safetyRelays": "Safety Relays",
+        "notes": "Notes (Optional)",
+        "notesPlaceholder": "Add any additional notes or observations...",
+        "selectOption": "Select an option",
+        "options": {
+          "yes": "Yes",
+          "no": "No",
+          "na": "N/A",
+          "dnc": "DNC",
+          "cantTell": "Can't Tell"
+        }
+      },
+      "perpendicularity": {
+        "hasBeenAdjusted": "Has Perpendicularity been adjusted?",
+        "beforeAdjustment": "Before Adjustment",
+        "afterAdjustment": "After Adjustment",
+        "frontRear": "Front-Rear",
+        "leftRight": "Left-Right",
+        "enterValue": "Enter value...",
+        "notes": "Notes (Optional)",
+        "notesPlaceholder": "Add any additional notes or observations...",
+        "selectOption": "Select an option",
+        "options": {
+          "yes": "Yes",
+          "no": "No",
+          "dnc": "DNC"
         }
       },
       "cancel": "Cancel",

@@ -361,6 +361,8 @@ enum ServiceSection {
   PISTONS
   SHIM_THICKNESS
   DIE_CUSHION
+  ELECTRICAL_CONTROL
+  PERPENDICULARITY
 }
 
 // DIE_CUSHION Section Enums
@@ -384,6 +386,15 @@ enum DieCushionLubricationType {
   NA
   DNC
   NOT_OPERATIONAL
+}
+
+// ELECTRICAL_CONTROL Section Enums
+enum YesNoNaDncCantTellType {
+  YES
+  NO
+  NA
+  DNC
+  CANT_TELL
 }
 
 enum AlertSeverity {
@@ -816,6 +827,8 @@ model MachineService {
   alertTramming                     AlertTramming[]
   shimThickness                     MachineServiceShimThickness[]
   dieCushion                        MachineServiceDieCushion[]
+  electricalControl                 MachineServiceElectricalControl[]
+  perpendicularity                  MachineServicePerpendicularity[]
 
   @@index([serviceRequestId])
   @@map("machine_services")
@@ -1503,7 +1516,7 @@ model ClutchData {
   hydClutchClearanceTotal Decimal? @db.Decimal(10, 4)
   hydClutchClearanceRear  Decimal? @db.Decimal(10, 4)
   hydraulicPressureValue  Decimal? @db.Decimal(10, 2)
-  accumulatorValue        Decimal? @db.Decimal(10, 2)
+  accumulatorValue        String?
 
   // Separate Brake Seals
   separateBrakeSeals SeparateBrakeSealsType?
@@ -1833,6 +1846,63 @@ model MachineServiceDieCushion {
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
   @@map("machine_service_die_cushion")
+}
+
+// ELECTRICAL_CONTROL Section
+
+model MachineServiceElectricalControl {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Header fields with Yes/No/DNC dropdown
+  hasHourMeter        YesNoDncType?
+  hourMeterReading    String?
+  isMinsterControl    YesNoDncType?
+  minsterControlOther String? // "If other, specify"
+
+  // Checklist items with Yes/No/N/A/DNC/Can't Tell dropdown
+  controlDoorStop YesNoNaDncCantTellType?
+  cabinetTemp     YesNoNaDncCantTellType?
+  incomingLine    YesNoNaDncCantTellType?
+  fullVoltage     YesNoNaDncCantTellType?
+  contactor       YesNoNaDncCantTellType?
+  overloads       YesNoNaDncCantTellType?
+  transformers    YesNoNaDncCantTellType?
+  brakeValve      YesNoNaDncCantTellType?
+  clutchValve     YesNoNaDncCantTellType?
+  wiring          YesNoNaDncCantTellType?
+  terminals       YesNoNaDncCantTellType?
+  twentyFourVBuss YesNoNaDncCantTellType?
+  safetyRelays    YesNoNaDncCantTellType?
+
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("machine_service_electrical_control")
+}
+
+// PERPENDICULARITY Section
+model MachineServicePerpendicularity {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Has perpendicularity been adjusted?
+  hasBeenAdjusted YesNoDncType?
+
+  // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
+  beforeFR Decimal? @db.Decimal(10, 4)
+  beforeLR Decimal? @db.Decimal(10, 4)
+
+  // After Adjustment measurements
+  afterFR Decimal? @db.Decimal(10, 4)
+  afterLR Decimal? @db.Decimal(10, 4)
+
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("machine_service_perpendicularity")
 }
 
 // Service Request - Public QR code maintenance requests

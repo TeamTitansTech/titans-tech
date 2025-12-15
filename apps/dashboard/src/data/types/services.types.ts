@@ -13,6 +13,7 @@ export {
   DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,
+  YesNoNaDncCantTellType,
   LubeHydMonitorFlowPressSwGibType,
   OkNaDncDamageType,
   OkNaDncLeakingType,
@@ -56,6 +57,8 @@ export type {
   PistonsData,
   PistonsCheck,
   DieCushionCheck,
+  ElectricalControlCheck,
+  PerpendicularityCheck,
   // Service entity
   Service,
   ServiceHistoryItem,
