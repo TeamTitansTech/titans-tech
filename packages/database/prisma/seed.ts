@@ -3,6 +3,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as bcrypt from 'bcrypt';
 import { seedCrown } from './seeds/crown';
+import { seedSchaeffler } from './seeds/schaeffler';
 import { MANAGER_PERMISSIONS } from '@titans-tech/shared/types/permissions';
 
 // Load environment variables from the database package .env file
@@ -691,6 +692,11 @@ async function main() {
   // ========================================
   await seedCrown(prisma);
 
+  // ========================================
+  // 11. Run Schaeffler Seed
+  // ========================================
+  await seedSchaeffler(prisma);
+
   console.log('\n========================================');
   console.log('✅ Seeding completed successfully!');
   console.log('========================================');
@@ -719,7 +725,13 @@ async function main() {
   console.log('\n  ACME Test User (0 permissions):');
   console.log('    Email: test@acme-corp.com');
   console.log('    Password: password');
-  console.log('\n🏢 Company Subdomains: subdomain, acme-corp, crown');
+  console.log('\n  Schaeffler Admin:');
+  console.log('    Email: admin@dev-schaeffler.com');
+  console.log('    Password: password');
+  console.log('\n  Schaeffler User:');
+  console.log('    Email: user@dev-schaeffler.com');
+  console.log('    Password: password');
+  console.log('\n🏢 Company Subdomains: subdomain, acme-corp, crown, schaeffler');
   console.log('========================================\n');
 }
 
