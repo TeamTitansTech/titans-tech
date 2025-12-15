@@ -600,10 +600,9 @@ export function ClutchForm({ data, updateFn, errors: _errors, handleBlur }: Clut
             <Label htmlFor="accumulatorValue">{tClutch('accumulator')}</Label>
             <Input
               id="accumulatorValue"
-              type="number"
-              step="0.01"
+              type="text"
               value={data.accumulatorValue ?? ''}
-              onChange={(e) => handleNumberChange('accumulatorValue', e.target.value)}
+              onChange={(e) => updateFn('accumulatorValue', e.target.value || undefined)}
               onBlur={() => handleBlur('accumulatorValue')}
             />
           </div>

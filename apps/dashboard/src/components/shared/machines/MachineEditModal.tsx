@@ -281,11 +281,17 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                       <SelectValue placeholder="Select clutch type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={MachineClutchType.JH5}>
-                        {tInspections('clutchType.jh5')}
+                      <SelectItem value={MachineClutchType.AIR}>
+                        {tInspections('clutchType.air')}
                       </SelectItem>
-                      <SelectItem value={MachineClutchType.NA}>
-                        {tInspections('clutchType.na')}
+                      <SelectItem value={MachineClutchType.HYD}>
+                        {tInspections('clutchType.hyd')}
+                      </SelectItem>
+                      <SelectItem value={MachineClutchType.WET_AIR}>
+                        {tInspections('clutchType.wetAir')}
+                      </SelectItem>
+                      <SelectItem value={MachineClutchType.WET_HYD}>
+                        {tInspections('clutchType.wetHyd')}
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -304,17 +310,17 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
                       <SelectValue placeholder="Select pneumatic system" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value={PneumaticSystemType.AIR}>
-                        {tInspections('pneumaticSystem.air')}
+                      <SelectItem value={PneumaticSystemType.NA}>
+                        {tInspections('pneumaticSystem.na')}
                       </SelectItem>
-                      <SelectItem value={PneumaticSystemType.HYD}>
-                        {tInspections('pneumaticSystem.hyd')}
+                      <SelectItem value={PneumaticSystemType.COUNTERBALANCE}>
+                        {tInspections('pneumaticSystem.counterbalance')}
                       </SelectItem>
-                      <SelectItem value={PneumaticSystemType.WET_AIR}>
-                        {tInspections('pneumaticSystem.wetAir')}
+                      <SelectItem value={PneumaticSystemType.CBAL_W_DIE_CUSHION}>
+                        {tInspections('pneumaticSystem.cbalWDieCushion')}
                       </SelectItem>
-                      <SelectItem value={PneumaticSystemType.WET_HYD}>
-                        {tInspections('pneumaticSystem.wetHyd')}
+                      <SelectItem value={PneumaticSystemType.DIE_CUSHION_ONLY}>
+                        {tInspections('pneumaticSystem.dieCushionOnly')}
                       </SelectItem>
                     </SelectContent>
                   </Select>

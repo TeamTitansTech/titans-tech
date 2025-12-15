@@ -11,7 +11,11 @@ import type {
   PistonsCheck,
   ClutchData,
   LubricationHydraulicsCheck,
+  DieCushionCheck,
+  ElectricalControlCheck,
+  PerpendicularityCheck,
 } from '@/data/types/services.types';
+import type { ShimThicknessSectionData } from '../sections/ShimThicknessSection';
 import { BearingClearanceSummary } from './BearingClearanceSummary';
 import { GenericSectionSummary } from './GenericSectionSummary';
 import { SlideSingleHammerSummary } from './SlideSingleHammerSummary';
@@ -22,6 +26,10 @@ import { TrammingSummary } from './TrammingSummary';
 import { PistonsSummary } from './PistonsSummary';
 import { ClutchSummary } from './ClutchSummary';
 import { LubricationSummary } from './LubricationSummary';
+import { ShimThicknessSummary } from './ShimThicknessSummary';
+import { DieCushionSummary } from './DieCushionSummary';
+import { ElectricalControlSummary } from './ElectricalControlSummary';
+import { PerpendiculariySummary } from './PerpendiculariySummary';
 
 // Re-export individual summary components
 export { BearingClearanceSummary };
@@ -34,6 +42,10 @@ export { TrammingSummary };
 export { PistonsSummary };
 export { ClutchSummary };
 export { LubricationSummary };
+export { ShimThicknessSummary };
+export { DieCushionSummary };
+export { ElectricalControlSummary };
+export { PerpendiculariySummary };
 
 // Main component that routes to appropriate summary based on section key
 export function SectionSummary({
@@ -78,6 +90,18 @@ export function SectionSummary({
       const innerData = lubData?.data ?? lubData;
       return <LubricationSummary data={innerData as LubricationHydraulicsCheck['data']} />;
     }
+
+    case 'SHIM_THICKNESS':
+      return <ShimThicknessSummary data={data as ShimThicknessSectionData} />;
+
+    case 'DIE_CUSHION':
+      return <DieCushionSummary data={data as DieCushionCheck} />;
+
+    case 'ELECTRICAL_CONTROL':
+      return <ElectricalControlSummary data={data as ElectricalControlCheck} />;
+
+    case 'PERPENDICULARITY':
+      return <PerpendiculariySummary data={data as PerpendicularityCheck} />;
 
     // For all other sections, use the generic summary component
     // This displays data in a readable format instead of raw JSON

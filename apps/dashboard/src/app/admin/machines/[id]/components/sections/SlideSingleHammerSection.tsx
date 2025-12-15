@@ -16,9 +16,9 @@ import { isDataTouched } from './utils';
 // UI type that combines before/after in one object for easier form handling
 export interface SlideFormData {
   // Metadata (shared)
-  parallelism: ParallelismType;
-  hasParallelismBeenAdjusted: YesNoNaDncType;
-  shutheightIndicatorsChecked: YesNoDncType;
+  parallelism?: ParallelismType;
+  hasParallelismBeenAdjusted?: YesNoNaDncType;
+  shutheightIndicatorsChecked?: YesNoDncType;
   overloadsOnTonnageMonitor: string;
   shutheightActualSh: string;
   indicatorReading: string;
@@ -39,9 +39,9 @@ export interface SlideFormData {
 }
 
 export const defaultSlideFormData: SlideFormData = {
-  parallelism: ParallelismType.DNC,
-  hasParallelismBeenAdjusted: YesNoNaDncType.DNC,
-  shutheightIndicatorsChecked: YesNoDncType.DNC,
+  parallelism: undefined,
+  hasParallelismBeenAdjusted: undefined,
+  shutheightIndicatorsChecked: undefined,
   overloadsOnTonnageMonitor: '',
   shutheightActualSh: '',
   indicatorReading: '',
@@ -76,9 +76,9 @@ function convertToFormData(
 
   return {
     // Metadata from either record (prefer data)
-    parallelism: metadata.parallelism || ParallelismType.DNC,
-    hasParallelismBeenAdjusted: metadata.hasParallelismBeenAdjusted || YesNoNaDncType.DNC,
-    shutheightIndicatorsChecked: metadata.shutheightIndicatorsChecked || YesNoDncType.DNC,
+    parallelism: metadata.parallelism,
+    hasParallelismBeenAdjusted: metadata.hasParallelismBeenAdjusted,
+    shutheightIndicatorsChecked: metadata.shutheightIndicatorsChecked,
     overloadsOnTonnageMonitor: metadata.overloadsOnTonnageMonitor || '',
     shutheightActualSh: metadata.shutheightActualSh || '',
     indicatorReading: metadata.indicatorReading || '',
