@@ -1,6 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { SlideSingleHammerSection } from './SlideSingleHammerSection';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface SlideSingleHammerSectionWrapperProps {
   machineId: string;
@@ -70,12 +71,14 @@ export async function SlideSingleHammerSectionWrapper({
   }
 
   return (
-    <SlideSingleHammerSection
-      machineId={machineId}
-      inspections={inspections}
-      machineName={machineName}
-      blueprintId={blueprintId}
-      hideThresholdValues={hideThresholdValues}
-    />
+    <UnitManagerProvider>
+      <SlideSingleHammerSection
+        machineId={machineId}
+        inspections={inspections}
+        machineName={machineName}
+        blueprintId={blueprintId}
+        hideThresholdValues={hideThresholdValues}
+      />
+    </UnitManagerProvider>
   );
 }
