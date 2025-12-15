@@ -135,16 +135,18 @@ export function UnitManagerProvider({
 
   const convertLengthToDefault = useCallback(
     (value: number): number => {
-      if (lengthUnit === 'inches') return value;
-      return value * INCHES_TO_MM;
+      // Convert from display unit to storage unit (mm)
+      if (lengthUnit === 'mm') return value; // mm to mm, no conversion
+      return value * INCHES_TO_MM; // inches to mm, multiply by 25.4
     },
     [lengthUnit],
   );
 
   const convertLengthFromDefault = useCallback(
     (value: number): number => {
-      if (lengthUnit === 'inches') return value;
-      return value * MM_TO_INCHES;
+      // Convert from storage unit (mm) to display unit
+      if (lengthUnit === 'mm') return value; // mm to mm, no conversion
+      return value * MM_TO_INCHES; // mm to inches, divide by 25.4
     },
     [lengthUnit],
   );
