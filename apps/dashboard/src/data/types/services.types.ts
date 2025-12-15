@@ -21,6 +21,9 @@ export {
   OkNaDncDarkOilType,
   OkNaDncNeedReplacedType,
   CylinderAirbagType,
+  DieCushionAirLeaksType,
+  DieCushionPneumaticsPlumbingType,
+  DieCushionLubricationType,
   ConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType,
   ConditionOkNaDncDamagedType,
@@ -52,6 +55,7 @@ export type {
   TrammingCheck,
   PistonsData,
   PistonsCheck,
+  DieCushionCheck,
   // Service entity
   Service,
   ServiceHistoryItem,

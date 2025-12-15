@@ -15,15 +15,17 @@ export enum FrameType {
 }
 
 export enum MachineClutchType {
-  JH5 = 'JH5',
-  NA = 'NA',
-}
-
-export enum PneumaticSystemType {
   AIR = 'AIR',
   HYD = 'HYD',
   WET_AIR = 'WET_AIR',
   WET_HYD = 'WET_HYD',
+}
+
+export enum PneumaticSystemType {
+  NA = 'NA',
+  COUNTERBALANCE = 'COUNTERBALANCE',
+  CBAL_W_DIE_CUSHION = 'CBAL_W_DIE_CUSHION',
+  DIE_CUSHION_ONLY = 'DIE_CUSHION_ONLY',
 }
 
 export enum PressMountingType {

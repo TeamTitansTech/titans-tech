@@ -306,15 +306,17 @@ enum FrameType {
 }
 
 enum MachineClutchType {
-  JH5
-  NA
-}
-
-enum PneumaticSystemType {
   AIR
   HYD
   WET_AIR
   WET_HYD
+}
+
+enum PneumaticSystemType {
+  NA
+  COUNTERBALANCE
+  CBAL_W_DIE_CUSHION
+  DIE_CUSHION_ONLY
 }
 
 enum PressMountingType {
@@ -357,6 +359,31 @@ enum ServiceSection {
   COUNTERBALANCE_CYLINDER_AIRBAG
   TRAMMING
   PISTONS
+  SHIM_THICKNESS
+  DIE_CUSHION
+}
+
+// DIE_CUSHION Section Enums
+enum DieCushionAirLeaksType {
+  OK
+  NA
+  DNC
+  LEAKING
+}
+
+enum DieCushionPneumaticsPlumbingType {
+  OK
+  NA
+  DNC
+  NOT_OPERATIONAL
+  LEAKING
+}
+
+enum DieCushionLubricationType {
+  OK
+  NA
+  DNC
+  NOT_OPERATIONAL
 }
 
 enum AlertSeverity {
@@ -787,6 +814,8 @@ model MachineService {
   alertGibs                         AlertGibs[]
   alertPistons                      AlertPistons[]
   alertTramming                     AlertTramming[]
+  shimThickness                     MachineServiceShimThickness[]
+  dieCushion                        MachineServiceDieCushion[]
 
   @@index([serviceRequestId])
   @@map("machine_services")
@@ -1750,6 +1779,60 @@ model MachineProductionLine {
 
   @@id([machineId, productionLineId])
   @@map("machine_production_lines")
+}
+
+// SHIM_THICKNESS Section
+
+model MachineServiceShimThickness {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  outerLhDataId    String?
+  outerRhDataId    String?
+  innerLhDataId    String?
+  innerRhDataId    String?
+  notes            String?
+
+  machineService MachineService     @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerLhData    ShimThicknessData? @relation("OuterLhShimThickness", fields: [outerLhDataId], references: [id], onDelete: SetNull)
+  outerRhData    ShimThicknessData? @relation("OuterRhShimThickness", fields: [outerRhDataId], references: [id], onDelete: SetNull)
+  innerLhData    ShimThicknessData? @relation("InnerLhShimThickness", fields: [innerLhDataId], references: [id], onDelete: SetNull)
+  innerRhData    ShimThicknessData? @relation("InnerRhShimThickness", fields: [innerRhDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_shim_thickness")
+}
+
+model ShimThicknessData {
+  id     String   @id @default(cuid())
+  top    Decimal? @db.Decimal(10, 4)
+  bottom Decimal? @db.Decimal(10, 4)
+  left   Decimal? @db.Decimal(10, 4)
+  right  Decimal? @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerLhServices MachineServiceShimThickness[] @relation("OuterLhShimThickness")
+  outerRhServices MachineServiceShimThickness[] @relation("OuterRhShimThickness")
+  innerLhServices MachineServiceShimThickness[] @relation("InnerLhShimThickness")
+  innerRhServices MachineServiceShimThickness[] @relation("InnerRhShimThickness")
+
+  @@map("shim_thickness_data")
+}
+
+// DIE_CUSHION Section
+
+model MachineServiceDieCushion {
+  id                 String                            @id @default(cuid())
+  machineServiceId   String
+  airLeaks           DieCushionAirLeaksType?
+  airLeaksLocation   String?
+  pneumaticsPlumbing DieCushionPneumaticsPlumbingType?
+  lubrication        DieCushionLubricationType?
+  notes              String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("machine_service_die_cushion")
 }
 
 // Service Request - Public QR code maintenance requests

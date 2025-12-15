@@ -45,6 +45,11 @@ export {
   // Counterbalance enums
   CylinderAirbagType,
 
+  // Die Cushion enums
+  DieCushionAirLeaksType,
+  DieCushionPneumaticsPlumbingType,
+  DieCushionLubricationType,
+
   // Clutch enums
   ClutchType,
   ClutchLocation,

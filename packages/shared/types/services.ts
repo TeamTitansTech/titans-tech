@@ -44,6 +44,9 @@ export {
   DriveBeltConditionType,
   ProtectiveCoversStatusType,
   CylinderAirbagType,
+  DieCushionAirLeaksType,
+  DieCushionPneumaticsPlumbingType,
+  DieCushionLubricationType,
   TemperatureUnit,
   SealConditionType,
   VacuumSystemConditionType,
@@ -71,6 +74,7 @@ export type {
   TrammingCheck,
   PistonsData,
   PistonsCheck,
+  DieCushionCheck,
 } from '../backend-dtos/requests-dto/service/service.dto';
 
 // Re-export service payload and entity types

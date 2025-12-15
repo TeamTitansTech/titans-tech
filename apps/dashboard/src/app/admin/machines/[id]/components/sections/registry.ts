@@ -8,6 +8,8 @@ import { ClutchSection } from './ClutchSection';
 import { CounterbalanceCylinderSection } from './CounterbalanceCylinderSection';
 import { TrammingSection } from './TrammingSection';
 import { PistonsSection } from './PistonsSection';
+import { ShimThicknessSection } from './ShimThicknessSection';
+import { DieCushionSection } from './DieCushionSection';
 
 /**
  * Configuration for a single section
@@ -123,6 +125,24 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
       i18nKey: 'pistons',
     },
     // No badges for pistons section
+  },
+
+  SHIM_THICKNESS: {
+    key: 'SHIM_THICKNESS',
+    component: ShimThicknessSection,
+    metadata: {
+      image: '/assets/sections/shim-thickness.svg',
+      i18nKey: 'shimThickness',
+    },
+  },
+
+  DIE_CUSHION: {
+    key: 'DIE_CUSHION',
+    component: DieCushionSection,
+    metadata: {
+      image: '/assets/sections/die-cushion.svg',
+      i18nKey: 'dieCushion',
+    },
   },
 };
 

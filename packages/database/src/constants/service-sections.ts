@@ -41,6 +41,14 @@ export const SERVICE_SECTION_CONFIG = {
     slug: 'pistons',
     displayName: 'Pistons',
   },
+  [ServiceSection.SHIM_THICKNESS]: {
+    slug: 'shim_thickness',
+    displayName: 'Shim Thickness',
+  },
+  [ServiceSection.DIE_CUSHION]: {
+    slug: 'die_cushion',
+    displayName: 'Die Cushion',
+  },
 } as const;
 
 export const SERVICE_SECTIONS = Object.values(ServiceSection);

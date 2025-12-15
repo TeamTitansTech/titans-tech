@@ -31,6 +31,8 @@ import {
   CounterbalanceCylinderCheck,
   TrammingCheck,
   PistonsCheck,
+  ShimThicknessCheck,
+  DieCushionCheck,
   AlertsSummaryResponseDto,
   SectionAlertDto,
   AlertDetailDto,
@@ -2557,6 +2559,232 @@ export class ServicesService {
                   updateDto.vacuumSystemAirPressureSetting,
               }),
               ...(updateDto.notes && { notes: updateDto.notes }),
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
+  async updateShimThickness(
+    serviceId: string,
+    updateDto: ShimThicknessCheck,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { shimThickness: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes(
+      'SHIM_THICKNESS',
+    )
+      ? completedSections
+      : [...completedSections, 'SHIM_THICKNESS'];
+
+    const existingRecord = service.shimThickness?.[0];
+
+    const outerLhPrismaData = updateDto.outerLhData || null;
+    const outerRhPrismaData = updateDto.outerRhData || null;
+    const innerLhPrismaData = updateDto.innerLhData || null;
+    const innerRhPrismaData = updateDto.innerRhData || null;
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        const updatePayload: any = {};
+
+        // Outer LH
+        if (outerLhPrismaData) {
+          if (existingRecord.outerLhDataId) {
+            await tx.shimThicknessData.update({
+              where: { id: existingRecord.outerLhDataId },
+              data: outerLhPrismaData as any,
+            });
+          } else {
+            const created = await tx.shimThicknessData.create({
+              data: outerLhPrismaData as any,
+            });
+            updatePayload.outerLhDataId = created.id;
+          }
+        }
+
+        // Outer RH
+        if (outerRhPrismaData) {
+          if (existingRecord.outerRhDataId) {
+            await tx.shimThicknessData.update({
+              where: { id: existingRecord.outerRhDataId },
+              data: outerRhPrismaData as any,
+            });
+          } else {
+            const created = await tx.shimThicknessData.create({
+              data: outerRhPrismaData as any,
+            });
+            updatePayload.outerRhDataId = created.id;
+          }
+        }
+
+        // Inner LH
+        if (innerLhPrismaData) {
+          if (existingRecord.innerLhDataId) {
+            await tx.shimThicknessData.update({
+              where: { id: existingRecord.innerLhDataId },
+              data: innerLhPrismaData as any,
+            });
+          } else {
+            const created = await tx.shimThicknessData.create({
+              data: innerLhPrismaData as any,
+            });
+            updatePayload.innerLhDataId = created.id;
+          }
+        }
+
+        // Inner RH
+        if (innerRhPrismaData) {
+          if (existingRecord.innerRhDataId) {
+            await tx.shimThicknessData.update({
+              where: { id: existingRecord.innerRhDataId },
+              data: innerRhPrismaData as any,
+            });
+          } else {
+            const created = await tx.shimThicknessData.create({
+              data: innerRhPrismaData as any,
+            });
+            updatePayload.innerRhDataId = created.id;
+          }
+        }
+
+        // Handle notes
+        if (updateDto.notes !== undefined) {
+          updatePayload.notes = updateDto.notes;
+        }
+
+        if (Object.keys(updatePayload).length > 0) {
+          await tx.machineServiceShimThickness.update({
+            where: { id: existingRecord.id },
+            data: updatePayload,
+          });
+        }
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          shimThickness: {
+            create: {
+              ...(outerLhPrismaData && {
+                outerLhData: { create: outerLhPrismaData as any },
+              }),
+              ...(outerRhPrismaData && {
+                outerRhData: { create: outerRhPrismaData as any },
+              }),
+              ...(innerLhPrismaData && {
+                innerLhData: { create: innerLhPrismaData as any },
+              }),
+              ...(innerRhPrismaData && {
+                innerRhData: { create: innerRhPrismaData as any },
+              }),
+              ...(updateDto.notes && { notes: updateDto.notes }),
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
+  async updateDieCushion(
+    serviceId: string,
+    updateDto: DieCushionCheck,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { dieCushion: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes('DIE_CUSHION')
+      ? completedSections
+      : [...completedSections, 'DIE_CUSHION'];
+
+    const existingRecord = service.dieCushion?.[0];
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.machineServiceDieCushion.update({
+          where: { id: existingRecord.id },
+          data: {
+            airLeaks: updateDto.airLeaks,
+            airLeaksLocation: updateDto.airLeaksLocation,
+            pneumaticsPlumbing: updateDto.pneumaticsPlumbing,
+            lubrication: updateDto.lubrication,
+            notes: updateDto.notes,
+          },
+        });
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          dieCushion: {
+            create: {
+              airLeaks: updateDto.airLeaks,
+              airLeaksLocation: updateDto.airLeaksLocation,
+              pneumaticsPlumbing: updateDto.pneumaticsPlumbing,
+              lubrication: updateDto.lubrication,
+              notes: updateDto.notes,
             },
           },
         },

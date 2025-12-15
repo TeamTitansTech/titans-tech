@@ -35,6 +35,9 @@ import {
   TemperatureUnit as PrismaTemperatureUnit,
   SealConditionType as PrismaSealConditionType,
   VacuumSystemConditionType as PrismaVacuumSystemConditionType,
+  DieCushionAirLeaksType as PrismaDieCushionAirLeaksType,
+  DieCushionPneumaticsPlumbingType as PrismaDieCushionPneumaticsPlumbingType,
+  DieCushionLubricationType as PrismaDieCushionLubricationType,
 } from '@titans-tech/db/enums';
 
 // ============================================================================
@@ -72,6 +75,9 @@ export {
   PrismaTemperatureUnit as TemperatureUnit,
   PrismaSealConditionType as SealConditionType,
   PrismaVacuumSystemConditionType as VacuumSystemConditionType,
+  PrismaDieCushionAirLeaksType as DieCushionAirLeaksType,
+  PrismaDieCushionPneumaticsPlumbingType as DieCushionPneumaticsPlumbingType,
+  PrismaDieCushionLubricationType as DieCushionLubricationType,
 };
 
 // Note: These custom enums are not in Prisma yet
@@ -517,6 +523,46 @@ export const PistonsCheckSchema = z.object({
 
 export type PistonsCheck = z.infer<typeof PistonsCheckSchema>;
 
+/**
+ * Shim Thickness Data Schema (4 measurements around center circle)
+ * Each measurement represents: top, bottom, left, right
+ */
+export const ShimThicknessDataSchema = z.object({
+  top: z.number().optional(),
+  bottom: z.number().optional(),
+  left: z.number().optional(),
+  right: z.number().optional(),
+});
+
+export type ShimThicknessData = z.infer<typeof ShimThicknessDataSchema>;
+
+/**
+ * Shim Thickness Check Schema
+ * Structure: Outer (LH/RH) + Inner (LH/RH), each with 4 measurements
+ */
+export const ShimThicknessCheckSchema = z.object({
+  outerLhData: ShimThicknessDataSchema.optional(),
+  outerRhData: ShimThicknessDataSchema.optional(),
+  innerLhData: ShimThicknessDataSchema.optional(),
+  innerRhData: ShimThicknessDataSchema.optional(),
+  notes: z.string().optional(),
+});
+
+export type ShimThicknessCheck = z.infer<typeof ShimThicknessCheckSchema>;
+
+/**
+ * Die Cushion Check Schema
+ */
+export const DieCushionCheckSchema = z.object({
+  airLeaks: z.nativeEnum(PrismaDieCushionAirLeaksType).optional(),
+  airLeaksLocation: z.string().optional(),
+  pneumaticsPlumbing: z.nativeEnum(PrismaDieCushionPneumaticsPlumbingType).optional(),
+  lubrication: z.nativeEnum(PrismaDieCushionLubricationType).optional(),
+  notes: z.string().optional(),
+});
+
+export type DieCushionCheck = z.infer<typeof DieCushionCheckSchema>;
+
 // ============================================================================
 // Service Payload and Entity Schemas
 // ============================================================================
@@ -574,6 +620,8 @@ export const CreateServicePayloadSchema = z.object({
   counterbalanceCylinder: CounterbalanceCylinderCheckSchema.optional(),
   tramming: TrammingCheckSchema.optional(),
   pistons: PistonsCheckSchema.optional(),
+  shimThickness: ShimThicknessCheckSchema.optional(),
+  dieCushion: DieCushionCheckSchema.optional(),
 });
 
 export type CreateServicePayload = z.infer<typeof CreateServicePayloadSchema>;
@@ -610,6 +658,8 @@ export const UpdateServicePayloadSchema = z.object({
   counterbalanceCylinder: CounterbalanceCylinderCheckSchema.optional(),
   tramming: TrammingCheckSchema.optional(),
   pistons: PistonsCheckSchema.optional(),
+  shimThickness: ShimThicknessCheckSchema.optional(),
+  dieCushion: DieCushionCheckSchema.optional(),
 });
 
 export type UpdateServicePayload = z.infer<typeof UpdateServicePayloadSchema>;

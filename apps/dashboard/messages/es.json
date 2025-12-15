@@ -807,7 +807,8 @@
     "clutch": "Embrague",
     "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
     "tramming": "Tramming",
-    "pistons": "Pistones"
+    "pistons": "Pistones",
+    "shim_thickness": "Espesor de Cuña"
   },
   "models": {
     "title": "Crear Modelo",
@@ -995,6 +996,8 @@
       "counterbalanceCylinder": "Cilindro de Contrapeso / Bolsa de Aire",
       "tramming": "Tramming",
       "pistons": "Pistones",
+      "shimThickness": "Espesor de Cuña",
+      "dieCushion": "Cojín del Troquel",
       "unknown": "Sección Desconocida"
     },
     "gibsFields": {
@@ -1757,6 +1760,38 @@
           "innerPrefix": "Pistones Interno"
         }
       },
+      "shimThickness": {
+        "lh": "LH",
+        "rh": "RH",
+        "outer": "Externo",
+        "inner": "Interno",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Izquierda",
+        "right": "Derecha",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "validation": {
+          "atLeastOneSectionRequired": "Espesor de Cuña: Complete al menos una sección (Externo LH/RH o Interno LH/RH)"
+        }
+      },
+      "dieCushion": {
+        "airLeaks": "Fugas de Aire",
+        "airLeaksLocation": "Si los sellos están goteando, ¿dónde?",
+        "airLeaksLocationPlaceholder": "Describa la ubicación de los sellos con fugas...",
+        "pneumaticsPlumbing": "Tubería Neumática",
+        "lubrication": "Lubricación",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "selectOption": "Seleccione una opción",
+        "options": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Goteando",
+          "notOperational": "No Operacional"
+        }
+      },
       "cancel": "Cancelar",
       "submit": {
         "idle": "Crear Inspección",
@@ -1860,14 +1895,16 @@
           "straightSide": "Lado Recto"
         },
         "clutchType": {
-          "jh5": "JH5",
-          "na": "N/A"
-        },
-        "pneumaticSystem": {
           "air": "Aire",
           "hyd": "Hidráulico",
           "wetAir": "Aire Húmedo",
           "wetHyd": "Hidráulico Húmedo"
+        },
+        "pneumaticSystem": {
+          "na": "N/A",
+          "counterbalance": "Contrabalance",
+          "cbalWDieCushion": "CBAL W/Die Cushion",
+          "dieCushionOnly": "Die Cushion solamente"
         },
         "pressMounting": {
           "adjustable": "Ajustable",

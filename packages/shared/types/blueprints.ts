@@ -15,6 +15,8 @@ export enum ServiceSection {
   COUNTERBALANCE_CYLINDER_AIRBAG = 'COUNTERBALANCE_CYLINDER_AIRBAG',
   TRAMMING = 'TRAMMING',
   PISTONS = 'PISTONS',
+  SHIM_THICKNESS = 'SHIM_THICKNESS',
+  DIE_CUSHION = 'DIE_CUSHION',
 }
 
 // Blueprint Field Definition (Interface - not DTO)

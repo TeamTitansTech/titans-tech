@@ -807,7 +807,8 @@
     "clutch": "EMBREAGEM",
     "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG",
     "tramming": "TRAMMING",
-    "pistons": "PISTÕES"
+    "pistons": "PISTÕES",
+    "shim_thickness": "ESPESSURA DO CALÇO"
   },
   "models": {
     "title": "Criar Modelo",
@@ -995,6 +996,8 @@
       "counterbalanceCylinder": "Cilindro de Contrapeso / Airbag",
       "tramming": "Tramming",
       "pistons": "Pistões",
+      "shimThickness": "Espessura do Calço",
+      "dieCushion": "Almofada da Matriz",
       "unknown": "Seção Desconhecida"
     },
     "gibsFields": {
@@ -1757,6 +1760,38 @@
           "innerPrefix": "Pistões Interno"
         }
       },
+      "shimThickness": {
+        "lh": "LH",
+        "rh": "RH",
+        "outer": "Externo",
+        "inner": "Interno",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Esquerda",
+        "right": "Direita",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Adicione quaisquer notas ou observações adicionais...",
+        "validation": {
+          "atLeastOneSectionRequired": "Espessura do Calço: Preencha pelo menos uma seção (Externo LH/RH ou Interno LH/RH)"
+        }
+      },
+      "dieCushion": {
+        "airLeaks": "Vazamentos de Ar",
+        "airLeaksLocation": "Se os selos estiverem vazando, onde?",
+        "airLeaksLocationPlaceholder": "Descreva a localização dos selos com vazamento...",
+        "pneumaticsPlumbing": "Tubulação Pneumática",
+        "lubrication": "Lubrificação",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Adicione quaisquer notas ou observações adicionais...",
+        "selectOption": "Selecione uma opção",
+        "options": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Vazando",
+          "notOperational": "Não Operacional"
+        }
+      },
       "cancel": "Cancelar",
       "submit": {
         "idle": "Criar Vistoria",
@@ -1860,14 +1895,16 @@
           "straightSide": "Straight Side"
         },
         "clutchType": {
-          "jh5": "JH5",
-          "na": "N/A"
-        },
-        "pneumaticSystem": {
           "air": "Ar",
           "hyd": "Hidráulico",
           "wetAir": "Ar Úmido",
           "wetHyd": "Hidráulico Úmido"
+        },
+        "pneumaticSystem": {
+          "na": "N/A",
+          "counterbalance": "Contrabalanceamento",
+          "cbalWDieCushion": "CBAL W/Die Cushion",
+          "dieCushionOnly": "Die Cushion apenas"
         },
         "pressMounting": {
           "adjustable": "Ajustável",

@@ -35,6 +35,10 @@ import {
   TrammingCheckSchema,
   PistonsCheck,
   PistonsCheckSchema,
+  ShimThicknessCheck,
+  ShimThicknessCheckSchema,
+  DieCushionCheck,
+  DieCushionCheckSchema,
   LatestReportResponseDto,
   AlertsSummaryResponseDto,
 } from '@titans-tech/shared/backend-dtos';
@@ -261,6 +265,36 @@ export class ServicesController {
     @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
     return this.servicesService.updatePistons(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/shim-thickness')
+  updateShimThickness(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ShimThicknessCheckSchema))
+    updateDto: ShimThicknessCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateShimThickness(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/die-cushion')
+  updateDieCushion(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(DieCushionCheckSchema))
+    updateDto: DieCushionCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateDieCushion(
       id,
       updateDto,
       this.getUserId(req),

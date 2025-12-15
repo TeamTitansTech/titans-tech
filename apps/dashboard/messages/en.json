@@ -807,7 +807,8 @@
     "clutch": "Clutch",
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
     "tramming": "Tramming",
-    "pistons": "Pistons"
+    "pistons": "Pistons",
+    "shim_thickness": "Shim Thickness"
   },
   "models": {
     "title": "Create Model",
@@ -995,6 +996,8 @@
       "counterbalanceCylinder": "Counterbalance Cylinder / Airbag",
       "tramming": "Tramming",
       "pistons": "Pistons",
+      "shimThickness": "Shim Thickness",
+      "dieCushion": "Die Cushion",
       "unknown": "Unknown Section"
     },
     "gibsFields": {
@@ -1757,6 +1760,38 @@
           "innerPrefix": "Pistons Inner"
         }
       },
+      "shimThickness": {
+        "lh": "LH",
+        "rh": "RH",
+        "outer": "Outer",
+        "inner": "Inner",
+        "top": "Top",
+        "bottom": "Bottom",
+        "left": "Left",
+        "right": "Right",
+        "notes": "Notes (Optional)",
+        "notesPlaceholder": "Add any additional notes or observations...",
+        "validation": {
+          "atLeastOneSectionRequired": "Shim Thickness: Fill in at least one section (Outer LH/RH or Inner LH/RH)"
+        }
+      },
+      "dieCushion": {
+        "airLeaks": "Air Leaks",
+        "airLeaksLocation": "If seals leaking, where?",
+        "airLeaksLocationPlaceholder": "Describe location of leaking seals...",
+        "pneumaticsPlumbing": "Pneumatics Plumbing",
+        "lubrication": "Lubrication",
+        "notes": "Notes (Optional)",
+        "notesPlaceholder": "Add any additional notes or observations...",
+        "selectOption": "Select an option",
+        "options": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Leaking",
+          "notOperational": "Not Operational"
+        }
+      },
       "cancel": "Cancel",
       "submit": {
         "idle": "Create Inspection",
@@ -1860,14 +1895,16 @@
           "straightSide": "Straight Side"
         },
         "clutchType": {
-          "jh5": "JH5",
-          "na": "N/A"
-        },
-        "pneumaticSystem": {
           "air": "Air",
           "hyd": "Hyd",
           "wetAir": "Wet Air",
           "wetHyd": "Wet Hyd"
+        },
+        "pneumaticSystem": {
+          "na": "N/A",
+          "counterbalance": "Counterbalance",
+          "cbalWDieCushion": "CBAL W/Die Cushion",
+          "dieCushionOnly": "Die Cushion only"
         },
         "pressMounting": {
           "adjustable": "Adjustable",
