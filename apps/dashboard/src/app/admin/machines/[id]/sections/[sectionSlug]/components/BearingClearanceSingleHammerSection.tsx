@@ -7,27 +7,45 @@ import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import { BearingClearanceSingleHammerInspectionData } from './BearingClearanceSingleHammerSectionWrapper';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
+import { extractThresholdConfig } from '@/components/charts/dataTransformers';
+import { getBearingClearanceSingleHammerThresholdByBlueprint } from '@/actions/alerts';
+import type { ThresholdConfig } from '@/components/charts/types';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
+import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
+import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
+import { BEARING_CLEARANCE_SINGLE_HAMMER_SUBSECTIONS } from '@/data/parts/section-subsections';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface BearingClearanceSingleHammerSectionProps {
   machineId: string;
   inspections: BearingClearanceSingleHammerInspectionData[];
   machineName: string;
+  blueprintId: string;
+  hideThresholdValues?: boolean;
 }
 
 export function BearingClearanceSingleHammerSection({
+  machineId,
   inspections,
   machineName,
+  blueprintId,
+  hideThresholdValues = false,
 }: BearingClearanceSingleHammerSectionProps) {
   const t = useTranslations('machines.sectionDetails');
+  const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
+  // Separate thresholds for each measurement type
+  const [cbThreshold, setCbThreshold] = useState<ThresholdConfig | null>(null);
+  const [totalClearanceThreshold, setTotalClearanceThreshold] = useState<ThresholdConfig | null>(
+    null,
+  );
+  // Use global unit context
   const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
     useUnitManager();
 
@@ -41,6 +59,29 @@ export function BearingClearanceSingleHammerSection({
     }
     return undefined;
   });
+
+  // Fetch threshold data
+  useEffect(() => {
+    async function fetchThreshold() {
+      if (!blueprintId) {
+        return;
+      }
+
+      try {
+        const response = await getBearingClearanceSingleHammerThresholdByBlueprint(blueprintId);
+        if (response.data) {
+          // Extract thresholds for each measurement type
+          setCbThreshold(extractThresholdConfig(response.data, 'upperConnectionBearings'));
+          setTotalClearanceThreshold(extractThresholdConfig(response.data, 'totalClearance'));
+        } else {
+          console.log('No threshold data in response for bearing clearance single hammer');
+        }
+      } catch (error) {
+        console.error('Failed to fetch threshold:', error);
+      }
+    }
+    fetchThreshold();
+  }, [blueprintId]);
 
   const filteredInspections = useMemo(() => {
     return (
@@ -113,6 +154,26 @@ export function BearingClearanceSingleHammerSection({
     mainBearings: calculateDifferential(latestValues.mainBearings_LH, latestValues.mainBearings_RH),
   };
 
+  // Prepare measurements for status badge (using differentials)
+  const statusMeasurements = useMemo(
+    () => [
+      { value: differentials.totalClearance, threshold: totalClearanceThreshold },
+      { value: differentials.upperConnectionBearings, threshold: cbThreshold },
+    ],
+    [
+      differentials.totalClearance,
+      differentials.upperConnectionBearings,
+      totalClearanceThreshold,
+      cbThreshold,
+    ],
+  );
+
+  // Calculate section status for the status card
+  const sectionStatus: SectionStatus = useMemo(
+    () => calculateSectionStatus(statusMeasurements),
+    [statusMeasurements],
+  );
+
   // Convert value using global unit context
   const convertValue = useCallback(
     (value: number | null): number | null => {
@@ -120,6 +181,30 @@ export function BearingClearanceSingleHammerSection({
       return convertLengthFromDefault(value);
     },
     [convertLengthFromDefault],
+  );
+
+  // Convert threshold using global unit context
+  const convertThreshold = useCallback(
+    (threshold: ThresholdConfig | null): ThresholdConfig | null => {
+      if (!threshold) return null;
+      return {
+        greenMin: convertLengthFromDefault(threshold.greenMin),
+        yellowMin: convertLengthFromDefault(threshold.yellowMin),
+        redMin: convertLengthFromDefault(threshold.redMin),
+        label: threshold.label,
+      };
+    },
+    [convertLengthFromDefault],
+  );
+
+  // Get converted thresholds
+  const cbThresholdConverted = useMemo(
+    () => convertThreshold(cbThreshold),
+    [convertThreshold, cbThreshold],
+  );
+  const totalClearanceThresholdConverted = useMemo(
+    () => convertThreshold(totalClearanceThreshold),
+    [convertThreshold, totalClearanceThreshold],
   );
 
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
@@ -240,6 +325,19 @@ export function BearingClearanceSingleHammerSection({
         </Card>
       </div>
 
+      {/* Section Status Card with Parts Modal */}
+      <SectionStatusCard
+        status={sectionStatus}
+        partsConfig={{
+          subsections: BEARING_CLEARANCE_SINGLE_HAMMER_SUBSECTIONS,
+          title: tParts('bearingClearanceSingleHammerParts'),
+          description: tParts('bearingClearanceSingleHammerDescription'),
+          machineId,
+          machineName,
+          sectionName: 'Bearing Clearance Single Hammer',
+        }}
+      />
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -307,11 +405,13 @@ export function BearingClearanceSingleHammerSection({
                   dataKey: 'totalClearance_diff',
                   label: 'TC Diff',
                   color: '#3b82f6',
+                  threshold: totalClearanceThresholdConverted ?? undefined,
                 },
                 {
                   dataKey: 'upperConnectionBearings_diff',
                   label: 'UCB Diff',
                   color: '#8884d8',
+                  threshold: cbThresholdConverted ?? undefined,
                 },
                 {
                   dataKey: 'mainBearings_diff',
@@ -319,8 +419,10 @@ export function BearingClearanceSingleHammerSection({
                   color: '#06b6d4',
                 },
               ]}
+              sharedThreshold={totalClearanceThresholdConverted}
               valueUnit={getLengthUnitLabel()}
               allowToggle={true}
+              hideThresholdValues={hideThresholdValues}
               height={350}
             />
           </div>

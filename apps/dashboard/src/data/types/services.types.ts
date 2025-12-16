@@ -280,6 +280,121 @@ export interface LatestTramming {
   alert?: any; // AlertTrammingResponseDto
 }
 
+export interface LatestBearingClearanceSingleHammer {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: {
+    beforeData?: BearingData;
+    data?: BearingData;
+  };
+  alert?: {
+    totalClearance_differential: number;
+    totalClearance_severity: AlertSeverity;
+    mainBearings_differential: number;
+    mainBearings_severity: AlertSeverity;
+    upperConnectionBearings_differential: number;
+    upperConnectionBearings_severity: AlertSeverity;
+    wristPinToMatingPart_differential: number;
+    wristPinToMatingPart_severity: AlertSeverity;
+    wristPinToBushing_differential: number;
+    wristPinToBushing_severity: AlertSeverity;
+    slideAdjNutToScrewSleeve_differential: number;
+    slideAdjNutToScrewSleeve_severity: AlertSeverity;
+  };
+}
+
+export interface LatestShimThickness {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: {
+    outerLhData?: { top?: number; bottom?: number; left?: number; right?: number };
+    outerRhData?: { top?: number; bottom?: number; left?: number; right?: number };
+    innerLhData?: { top?: number; bottom?: number; left?: number; right?: number };
+    innerRhData?: { top?: number; bottom?: number; left?: number; right?: number };
+    notes?: string;
+  };
+}
+
+export interface LatestDieCushion {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: {
+    airLeaks?: string;
+    airLeaksLocation?: string;
+    pneumaticsPlumbing?: string;
+    lubrication?: string;
+    notes?: string;
+  };
+}
+
+export interface LatestElectricalControl {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: {
+    hasHourMeter?: string;
+    hourMeterReading?: string;
+    isMinsterControl?: string;
+    minsterControlOther?: string;
+    controlDoorStop?: string;
+    cabinetTemp?: string;
+    incomingLine?: string;
+    fullVoltage?: string;
+    contactor?: string;
+    overloads?: string;
+    transformers?: string;
+    brakeValve?: string;
+    clutchValve?: string;
+    wiring?: string;
+    terminals?: string;
+    twentyFourVBuss?: string;
+    safetyRelays?: string;
+    notes?: string;
+  };
+}
+
+export interface LatestPerpendicularity {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: {
+    hasBeenAdjusted?: string;
+    beforeFR?: number;
+    beforeLR?: number;
+    afterFR?: number;
+    afterLR?: number;
+    notes?: string;
+  };
+}
+
+export interface LatestAngularity {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: {
+    hasBeenAdjusted?: string;
+    spm?: number;
+    distanceOfIndicatorTip?: number;
+    locationOfIndicator?: string;
+    counterbalancePressure?: number;
+    strokePartBeingRead?: string;
+    shutheightSetAt?: string;
+    whatWasUsedAsSquare?: string;
+    whereWasSquarePlaced?: string;
+    indicatorUsedGraduation?: string;
+    tipKindOnIndicator?: string;
+    totalLiftCheck?: number;
+    beforeFR?: number;
+    beforeLR?: number;
+    afterFR?: number;
+    afterLR?: number;
+    notes?: string;
+  };
+}
+
 export interface LatestReport {
   machineId: string;
   machineName: string;
@@ -291,6 +406,7 @@ export interface LatestReport {
   generatedAt: string;
   sections: {
     BEARING_CLEARANCE: LatestBearingClearance | null;
+    BEARING_CLEARANCE_SINGLE_HAMMER: LatestBearingClearanceSingleHammer | null;
     SLIDE_SINGLE_HAMMER: LatestSlideSingleHammer | null;
     SLIDE_DOUBLE_HAMMER: LatestSlideDoubleHammer | null;
     GIBS: LatestGibs | null;
@@ -299,5 +415,10 @@ export interface LatestReport {
     CLUTCH: LatestClutch | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalance | null;
     TRAMMING: LatestTramming | null;
+    SHIM_THICKNESS: LatestShimThickness | null;
+    DIE_CUSHION: LatestDieCushion | null;
+    ELECTRICAL_CONTROL: LatestElectricalControl | null;
+    PERPENDICULARITY: LatestPerpendicularity | null;
+    ANGULARITY: LatestAngularity | null;
   };
 }

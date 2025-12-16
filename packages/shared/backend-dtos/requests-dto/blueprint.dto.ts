@@ -106,6 +106,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     fields: z.array(z.any()),
     sections: z.array(z.enum(ServiceSection)),
     thresholds: ThresholdsSchema.optional(),
+    bearingClearanceSingleHammerThresholds: ThresholdsSchema.optional(),
     clutchThresholds: ClutchThresholdsSchema.optional(),
     slideSingleHammerThresholds: SlideThresholdsSchema.optional(),
     slideDoubleHammerThresholds: SlideThresholdsSchema.optional(),
@@ -117,6 +118,13 @@ export const CreateBlueprintWithThresholdsSchema = z
     (data) => {
       // Se thresholds fornecidos, BEARING_CLEARANCE deve estar em sections
       if (data.thresholds && !data.sections.includes(ServiceSection.BEARING_CLEARANCE)) {
+        return false;
+      }
+      // Se bearingClearanceSingleHammerThresholds fornecidos, BEARING_CLEARANCE_SINGLE_HAMMER deve estar em sections
+      if (
+        data.bearingClearanceSingleHammerThresholds &&
+        !data.sections.includes(ServiceSection.BEARING_CLEARANCE_SINGLE_HAMMER)
+      ) {
         return false;
       }
       // Se clutchThresholds fornecidos, CLUTCH deve estar em sections

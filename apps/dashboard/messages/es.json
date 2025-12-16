@@ -802,7 +802,7 @@
     "bearing_clearance": "Holgura de Cojinete",
     "bearing_clearance_single_hammer": "Holgura de Cojinete - Martillo Único",
     "slide_single_hammer": "Slide - Martillo Único",
-    "slide_double_hammer": "Slide - Martillo Doble",
+    "slide_double_hammer": "Slide",
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
@@ -812,7 +812,8 @@
     "shim_thickness": "Espesor de Cuña",
     "die_cushion": "Cojín de Matriz",
     "electrical_control": "Control Eléctrico",
-    "perpendicularity": "Perpendicularidad"
+    "perpendicularity": "Perpendicularidad",
+    "angularity": "Angularidad"
   },
   "models": {
     "title": "Crear Modelo",
@@ -2701,6 +2702,8 @@
     "clutchBrakeDescription": "Seleccione las piezas del embrague y freno que necesitan ser reemplazadas",
     "bearingClearanceParts": "Piezas de Holgura del Rodamiento",
     "bearingClearanceDescription": "Seleccione las piezas de holgura del rodamiento que necesitan ser reemplazadas",
+    "bearingClearanceSingleHammerParts": "Piezas de Holgura del Rodamiento Single Hammer",
+    "bearingClearanceSingleHammerDescription": "Seleccione las piezas de holgura del rodamiento single hammer que necesitan ser reemplazadas",
     "slideParts": "Piezas del Slide",
     "slideDescription": "Seleccione las piezas del slide que necesitan ser reemplazadas",
     "gibsParts": "Piezas de las Guías",
@@ -2781,7 +2784,10 @@
       "outerSlide": "Corredera Exterior",
       "innerSlide": "Corredera Interior",
       "gibsOuter": "Guías (Exterior)",
-      "gibsInner": "Guías (Interior)"
+      "gibsInner": "Guías (Interior)",
+      "slideStandard": "Corredera (Estándar)",
+      "slideAdjustment": "Ajuste de Corredera",
+      "shutheightIndicator": "Indicador de Altura"
     }
   },
   "sectionStatus": {

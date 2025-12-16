@@ -552,14 +552,15 @@ model Blueprint {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  machines                   Machine[]
-  thresholdBearingClearance  ThresholdBearingClearance?
-  thresholdClutch            ThresholdClutch?
-  thresholdSlideSingleHammer ThresholdSlideSingleHammer?
-  thresholdSlideDoubleHammer ThresholdSlideDoubleHammer?
-  thresholdGibs              ThresholdGibs?
-  thresholdPistons           ThresholdPistons?
-  thresholdTramming          ThresholdTramming?
+  machines                              Machine[]
+  thresholdBearingClearance             ThresholdBearingClearance?
+  thresholdBearingClearanceSingleHammer ThresholdBearingClearanceSingleHammer?
+  thresholdClutch                       ThresholdClutch?
+  thresholdSlideSingleHammer            ThresholdSlideSingleHammer?
+  thresholdSlideDoubleHammer            ThresholdSlideDoubleHammer?
+  thresholdGibs                         ThresholdGibs?
+  thresholdPistons                      ThresholdPistons?
+  thresholdTramming                     ThresholdTramming?
 
   @@map("blueprints")
 }
@@ -604,6 +605,48 @@ model ThresholdBearingClearance {
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
   @@map("threshold_bearing_clearance")
+}
+
+model ThresholdBearingClearanceSingleHammer {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Total Clearance thresholds
+  totalClearance_greenMin  Decimal @db.Decimal(10, 4)
+  totalClearance_yellowMin Decimal @db.Decimal(10, 4)
+  totalClearance_redMin    Decimal @db.Decimal(10, 4)
+
+  // Main Bearings thresholds
+  mainBearings_greenMin  Decimal @db.Decimal(10, 4)
+  mainBearings_yellowMin Decimal @db.Decimal(10, 4)
+  mainBearings_redMin    Decimal @db.Decimal(10, 4)
+
+  // Upper Connection Bearings thresholds
+  upperConnectionBearings_greenMin  Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_yellowMin Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_redMin    Decimal @db.Decimal(10, 4)
+
+  // Wrist Pin to Mating Part thresholds
+  wristPinToMatingPart_greenMin  Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_yellowMin Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_redMin    Decimal @db.Decimal(10, 4)
+
+  // Wrist Pin to Bushing thresholds
+  wristPinToBushing_greenMin  Decimal @db.Decimal(10, 4)
+  wristPinToBushing_yellowMin Decimal @db.Decimal(10, 4)
+  wristPinToBushing_redMin    Decimal @db.Decimal(10, 4)
+
+  // Slide Adj Nut to Screw/Sleeve thresholds
+  slideAdjNutToScrewSleeve_greenMin  Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_yellowMin Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_bearing_clearance_single_hammer")
 }
 
 model ThresholdClutch {
@@ -821,6 +864,7 @@ model MachineService {
   tramming                          MachineServiceTramming[]
   pistons                           MachineServicePistons[]
   alertBearingClearance             AlertBearingClearance[]
+  alertBearingClearanceSingleHammer AlertBearingClearanceSingleHammer[]
   alertCounterbalanceCylinderAirbag AlertCounterbalanceCylinderAirbag[]
   alertClutch                       AlertClutch[]
   alertSlide                        AlertSlide[] // DEPRECATED: Use alertSlideSingleHammer and alertSlideDoubleHammer
@@ -881,6 +925,36 @@ model AlertBearingClearance {
 
   @@index([machineServiceId])
   @@map("alert_bearing_clearance")
+}
+
+model AlertBearingClearanceSingleHammer {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Single hammer alerts (no inner/outer distinction)
+  totalClearance_differential           Decimal       @db.Decimal(10, 4)
+  totalClearance_severity               AlertSeverity
+  mainBearings_differential             Decimal       @db.Decimal(10, 4)
+  mainBearings_severity                 AlertSeverity
+  upperConnectionBearings_differential  Decimal       @db.Decimal(10, 4)
+  upperConnectionBearings_severity      AlertSeverity
+  wristPinToMatingPart_differential     Decimal       @db.Decimal(10, 4)
+  wristPinToMatingPart_severity         AlertSeverity
+  wristPinToBushing_differential        Decimal       @db.Decimal(10, 4)
+  wristPinToBushing_severity            AlertSeverity
+  slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_severity     AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_bearing_clearance_single_hammer")
 }
 
 model AlertCounterbalanceCylinderAirbag {

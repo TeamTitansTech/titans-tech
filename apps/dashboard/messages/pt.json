@@ -802,7 +802,7 @@
     "bearing_clearance": "FOLGA DE ROLAMENTO",
     "bearing_clearance_single_hammer": "FOLGA DE ROLAMENTO - Martelo Único",
     "slide_single_hammer": "Slide - Martelo Único",
-    "slide_double_hammer": "Slide - Martelo Duplo",
+    "slide_double_hammer": "Slide",
     "gibs": "GUIAS",
     "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRIFICAÇÃO / HIDRÁULICA / INTERRUPTORES DE PRESSÃO / ÓLEO E FILTRO",
     "clutch": "EMBREAGEM",
@@ -812,7 +812,8 @@
     "shim_thickness": "ESPESSURA DO CALÇO",
     "die_cushion": "ALMOFADA DE MATRIZ",
     "electrical_control": "CONTROLE ELÉTRICO",
-    "perpendicularity": "PERPENDICULARIDADE"
+    "perpendicularity": "PERPENDICULARIDADE",
+    "angularity": "ANGULARIDADE"
   },
   "models": {
     "title": "Criar Modelo",
@@ -2705,6 +2706,8 @@
     "clutchBrakeDescription": "Selecione as peças da embreagem e freio que precisam ser substituídas",
     "bearingClearanceParts": "Peças de Folga do Rolamento",
     "bearingClearanceDescription": "Selecione as peças de folga do rolamento que precisam ser substituídas",
+    "bearingClearanceSingleHammerParts": "Peças de Folga do Rolamento Single Hammer",
+    "bearingClearanceSingleHammerDescription": "Selecione as peças de folga do rolamento single hammer que precisam ser substituídas",
     "slideParts": "Peças do Slide",
     "slideDescription": "Selecione as peças do slide que precisam ser substituídas",
     "gibsParts": "Peças das Guias",
@@ -2785,7 +2788,10 @@
       "outerSlide": "Slide Externo",
       "innerSlide": "Slide Interno",
       "gibsOuter": "Guias (Externo)",
-      "gibsInner": "Guias (Interno)"
+      "gibsInner": "Guias (Interno)",
+      "slideStandard": "Slide (Padrão)",
+      "slideAdjustment": "Ajuste do Slide",
+      "shutheightIndicator": "Indicador de Altura"
     }
   },
   "sectionStatus": {

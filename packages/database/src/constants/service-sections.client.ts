@@ -18,7 +18,9 @@ export const SERVICE_SECTION_SLUGS = [
   'die_cushion',
   'electrical_control',
   'perpendicularity',
-  'angularity',
 ] as const;
+
+// Angularity is a special section that is enabled via a checkbox, not selected from the list
+export const ANGULARITY_SECTION_SLUG = 'angularity' as const;
 
 export type ServiceSectionSlug = (typeof SERVICE_SECTION_SLUGS)[number];

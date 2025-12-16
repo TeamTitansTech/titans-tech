@@ -1,4 +1,4 @@
-import { getInspectionsByMachine } from '@/data/services/inspections.api';
+import { getServicesByMachine } from '@/data/services/services.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { BearingClearanceSingleHammerSection } from './BearingClearanceSingleHammerSection';
 import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
@@ -33,20 +33,21 @@ export interface BearingClearanceSingleHammerInspectionData {
 export async function BearingClearanceSingleHammerSectionWrapper({
   machineId,
 }: BearingClearanceSingleHammerSectionWrapperProps) {
-  let inspections: BearingClearanceSingleHammerInspectionData[] = [];
+  let services: BearingClearanceSingleHammerInspectionData[] = [];
   let machineName = '';
+  let blueprintId = '';
 
   try {
-    const [inspectionsResponse, machineResponse] = await Promise.all([
-      getInspectionsByMachine(machineId),
+    const [servicesResponse, machineResponse] = await Promise.all([
+      getServicesByMachine(machineId),
       getMachineById(machineId),
     ]);
 
-    if (inspectionsResponse.errors) {
-      console.error('Errors fetching inspections:', inspectionsResponse.errors);
-      inspections = [];
+    if (servicesResponse.errors) {
+      console.error('Errors fetching services:', servicesResponse.errors);
+      services = [];
     } else {
-      inspections = (inspectionsResponse.data ||
+      services = (servicesResponse.data ||
         []) as unknown as BearingClearanceSingleHammerInspectionData[];
     }
 
@@ -55,10 +56,11 @@ export async function BearingClearanceSingleHammerSectionWrapper({
       machineName = '';
     } else {
       machineName = machineResponse.data?.name || '';
+      blueprintId = machineResponse.data?.blueprintId || '';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
-    inspections = [];
+    services = [];
     machineName = '';
   }
 
@@ -66,8 +68,9 @@ export async function BearingClearanceSingleHammerSectionWrapper({
     <UnitManagerProvider>
       <BearingClearanceSingleHammerSection
         machineId={machineId}
-        inspections={inspections}
+        inspections={services}
         machineName={machineName}
+        blueprintId={blueprintId}
       />
     </UnitManagerProvider>
   );

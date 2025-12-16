@@ -101,6 +101,45 @@ export const BEARING_CLEARANCE_SUBSECTIONS: Subsection[] = [
 ];
 
 // =============================================================================
+// BEARING CLEARANCE SINGLE HAMMER SUBSECTIONS
+// =============================================================================
+
+export const BEARING_CLEARANCE_SINGLE_HAMMER_SUBSECTIONS: Subsection[] = [
+  {
+    id: 'crankshaft',
+    nameKey: 'subsections.crankshaft',
+    figureReference: 'FIGURE 1006B',
+    description: 'Main crankshaft bearings and associated components',
+    parts: BEARING_CLEARANCE_COMMON_PARTS.filter((p) => p.location?.includes('Crankshaft')),
+    diagramImage: '/assets/parts-diagrams/crankshaft.png',
+  },
+  {
+    id: 'slide-standard',
+    nameKey: 'subsections.slideStandard',
+    figureReference: 'FIGURE 336B',
+    description: 'Slide assembly components (standard arrangement)',
+    parts: BEARING_CLEARANCE_OUTER_PARTS,
+    diagramImage: '/assets/parts-diagrams/outer slide parts.png',
+  },
+  {
+    id: 'slide-adjustment',
+    nameKey: 'subsections.slideAdjustment',
+    figureReference: 'FIGURE 3021B',
+    description: 'Shutheight adjustment mechanism for slide',
+    parts: BEARING_CLEARANCE_OUTER_ADJUSTMENT_PARTS,
+    diagramImage: '/assets/parts-diagrams/outer slide adjustment parts.png',
+  },
+  {
+    id: 'shutheight-indicator',
+    nameKey: 'subsections.shutheightIndicator',
+    figureReference: 'FIGURE 338B',
+    description: 'Shutheight indicator for slide',
+    parts: BEARING_CLEARANCE_SHUTHEIGHT_OUTER_PARTS,
+    diagramImage: '/assets/parts-diagrams/shutheight indicator parts (outer slide).png',
+  },
+];
+
+// =============================================================================
 // CLUTCH & BRAKE SUBSECTIONS
 // =============================================================================
 
@@ -232,6 +271,7 @@ export const GIBS_SUBSECTIONS: Subsection[] = [
  */
 export const SECTION_SUBSECTIONS_MAP: Record<string, Subsection[]> = {
   BEARING_CLEARANCE: BEARING_CLEARANCE_SUBSECTIONS,
+  BEARING_CLEARANCE_SINGLE_HAMMER: BEARING_CLEARANCE_SINGLE_HAMMER_SUBSECTIONS,
   CLUTCH: CLUTCH_BRAKE_SUBSECTIONS,
   COUNTERBALANCE_CYLINDER_AIRBAG: COUNTERBALANCE_SUBSECTIONS,
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LUBRICATION_SUBSECTIONS,

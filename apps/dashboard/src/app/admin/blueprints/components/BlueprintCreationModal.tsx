@@ -12,7 +12,8 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { SERVICE_SECTION_SLUGS } from '@titans-tech/db/client';
+import { SERVICE_SECTION_SLUGS, ANGULARITY_SECTION_SLUG } from '@titans-tech/db/client';
+import { Checkbox } from '@/components/ui/checkbox';
 import { BearingClearanceThresholds } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholds } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholds } from '@/components/alerts/SlideThresholds';
@@ -56,6 +57,10 @@ export const BlueprintCreationModal = ({
     setThresholdsOpen,
     thresholds,
     setThresholds,
+    bearingClearanceSingleHammerThresholdsOpen,
+    setBearingClearanceSingleHammerThresholdsOpen,
+    bearingClearanceSingleHammerThresholds,
+    setBearingClearanceSingleHammerThresholds,
     clutchThresholdsOpen,
     setClutchThresholdsOpen,
     clutchThresholds,
@@ -199,6 +204,25 @@ export const BlueprintCreationModal = ({
                   }}
                 />
 
+                <div className="flex items-center space-x-2 mt-4">
+                  <Checkbox
+                    id="angularity-checkbox"
+                    checked={selectedSections.includes(ANGULARITY_SECTION_SLUG)}
+                    onCheckedChange={(checked) => {
+                      if (!isEditing) {
+                        toggleSection(ANGULARITY_SECTION_SLUG);
+                      }
+                    }}
+                    disabled={isEditing}
+                  />
+                  <Label
+                    htmlFor="angularity-checkbox"
+                    className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${isEditing ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
+                  >
+                    {tSections(ANGULARITY_SECTION_SLUG)}
+                  </Label>
+                </div>
+
                 <Separator />
 
                 <CustomFieldsList
@@ -212,6 +236,7 @@ export const BlueprintCreationModal = ({
                   updateNewOptionValue={updateNewOptionValue}
                   headerExtra={
                     selectedSections.includes('bearing_clearance') ||
+                    selectedSections.includes('bearing_clearance_single_hammer') ||
                     selectedSections.includes('clutch') ||
                     selectedSections.includes('slide_single_hammer') ||
                     selectedSections.includes('slide_double_hammer') ||
@@ -247,6 +272,21 @@ export const BlueprintCreationModal = ({
                         onOpenChange={setThresholdsOpen}
                         data={thresholds}
                         onChange={setThresholds}
+                      />
+                    </section>
+                  </>
+                )}
+
+                {selectedSections.includes('bearing_clearance_single_hammer') && (
+                  <>
+                    <Separator />
+                    <section className="space-y-4">
+                      <BearingClearanceThresholds
+                        open={bearingClearanceSingleHammerThresholdsOpen}
+                        onOpenChange={setBearingClearanceSingleHammerThresholdsOpen}
+                        data={bearingClearanceSingleHammerThresholds}
+                        onChange={setBearingClearanceSingleHammerThresholds}
+                        title={`${tSections('bearing_clearance_single_hammer')} - Thresholds`}
                       />
                     </section>
                   </>

@@ -802,7 +802,7 @@
     "bearing_clearance": "Bearing Clearance",
     "bearing_clearance_single_hammer": "Bearing Clearance - Single Hammer",
     "slide_single_hammer": "Slide - Single Hammer",
-    "slide_double_hammer": "Slide - Double Hammer",
+    "slide_double_hammer": "Slide",
     "gibs": "Gibs",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
@@ -812,7 +812,8 @@
     "shim_thickness": "Shim Thickness",
     "die_cushion": "Die Cushion",
     "electrical_control": "Electrical Control",
-    "perpendicularity": "Perpendicularity"
+    "perpendicularity": "Perpendicularity",
+    "angularity": "Angularity"
   },
   "models": {
     "title": "Create Model",
@@ -2705,6 +2706,8 @@
     "clutchBrakeDescription": "Select clutch and brake parts that need replacement",
     "bearingClearanceParts": "Bearing Clearance Parts",
     "bearingClearanceDescription": "Select bearing clearance parts that need replacement",
+    "bearingClearanceSingleHammerParts": "Bearing Clearance Single Hammer Parts",
+    "bearingClearanceSingleHammerDescription": "Select bearing clearance single hammer parts that need replacement",
     "slideParts": "Slide Parts",
     "slideDescription": "Select slide parts that need replacement",
     "gibsParts": "Gibs Parts",
@@ -2785,7 +2788,10 @@
       "outerSlide": "Outer Slide",
       "innerSlide": "Inner Slide",
       "gibsOuter": "Gibs (Outer)",
-      "gibsInner": "Gibs (Inner)"
+      "gibsInner": "Gibs (Inner)",
+      "slideStandard": "Slide (Standard)",
+      "slideAdjustment": "Slide Adjustment",
+      "shutheightIndicator": "Shutheight Indicator"
     }
   },
   "sectionStatus": {
