@@ -632,6 +632,19 @@ export const AngularityCheckSchema = z.object({
   // Has angularity been adjusted?
   hasBeenAdjusted: z.nativeEnum(PrismaYesNoDncType).optional(),
 
+  // Setup information
+  spm: z.union([z.number(), z.string()]).optional(),
+  distanceOfIndicatorTip: z.union([z.number(), z.string()]).optional(),
+  locationOfIndicator: z.string().optional(),
+  counterbalancePressure: z.union([z.number(), z.string()]).optional(),
+  strokePartBeingRead: z.string().optional(),
+  shutheightSetAt: z.string().optional(),
+  whatWasUsedAsSquare: z.string().optional(),
+  whereWasSquarePlaced: z.string().optional(),
+  indicatorUsedGraduation: z.string().optional(),
+  tipKindOnIndicator: z.string().optional(),
+  totalLiftCheck: z.union([z.number(), z.string()]).optional(),
+
   // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
   beforeFR: z.union([z.number(), z.string()]).optional(),
   beforeLR: z.union([z.number(), z.string()]).optional(),

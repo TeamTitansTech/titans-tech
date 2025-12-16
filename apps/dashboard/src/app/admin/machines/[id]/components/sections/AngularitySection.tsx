@@ -17,6 +17,17 @@ import { isDataTouched } from './utils';
 
 export const defaultAngularityData: AngularityCheck = {
   hasBeenAdjusted: undefined,
+  spm: undefined,
+  distanceOfIndicatorTip: undefined,
+  locationOfIndicator: undefined,
+  counterbalancePressure: undefined,
+  strokePartBeingRead: undefined,
+  shutheightSetAt: undefined,
+  whatWasUsedAsSquare: undefined,
+  whereWasSquarePlaced: undefined,
+  indicatorUsedGraduation: undefined,
+  tipKindOnIndicator: undefined,
+  totalLiftCheck: undefined,
   beforeFR: undefined,
   beforeLR: undefined,
   afterFR: undefined,
@@ -134,6 +145,10 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
       }
     };
 
+    const handleStringChange = (field: keyof AngularityCheck, value: string) => {
+      updateField(field, value || undefined);
+    };
+
     return (
       <div className="space-y-6">
         {/* Has Been Adjusted */}
@@ -156,6 +171,141 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+        </div>
+
+        {/* Setup Information */}
+        <div className="bg-muted/20 dark:bg-slate-700/40 border border-border/50 dark:border-slate-600/50 rounded-lg p-4">
+          <h3 className="text-sm font-semibold mb-4">{t('setupInformation')}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="angularity-spm">{t('spm')}</Label>
+              <Input
+                id="angularity-spm"
+                type="number"
+                step="0.01"
+                value={data.spm !== undefined ? String(data.spm) : ''}
+                onChange={(e) => handleNumericChange('spm', e.target.value)}
+                placeholder={t('enterValue')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="angularity-distanceOfIndicatorTip">
+                {t('distanceOfIndicatorTip')}
+              </Label>
+              <Input
+                id="angularity-distanceOfIndicatorTip"
+                type="number"
+                step="0.0001"
+                value={
+                  data.distanceOfIndicatorTip !== undefined
+                    ? String(data.distanceOfIndicatorTip)
+                    : ''
+                }
+                onChange={(e) => handleNumericChange('distanceOfIndicatorTip', e.target.value)}
+                placeholder={t('enterValue')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="angularity-locationOfIndicator">{t('locationOfIndicator')}</Label>
+              <Input
+                id="angularity-locationOfIndicator"
+                type="text"
+                value={data.locationOfIndicator || ''}
+                onChange={(e) => handleStringChange('locationOfIndicator', e.target.value)}
+                placeholder={t('enterValue')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="angularity-counterbalancePressure">
+                {t('counterbalancePressure')}
+              </Label>
+              <Input
+                id="angularity-counterbalancePressure"
+                type="number"
+                step="0.01"
+                value={
+                  data.counterbalancePressure !== undefined
+                    ? String(data.counterbalancePressure)
+                    : ''
+                }
+                onChange={(e) => handleNumericChange('counterbalancePressure', e.target.value)}
+                placeholder={t('enterValue')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="angularity-strokePartBeingRead">{t('strokePartBeingRead')}</Label>
+              <Input
+                id="angularity-strokePartBeingRead"
+                type="text"
+                value={data.strokePartBeingRead || ''}
+                onChange={(e) => handleStringChange('strokePartBeingRead', e.target.value)}
+                placeholder={t('enterValue')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="angularity-shutheightSetAt">{t('shutheightSetAt')}</Label>
+              <Input
+                id="angularity-shutheightSetAt"
+                type="text"
+                value={data.shutheightSetAt || ''}
+                onChange={(e) => handleStringChange('shutheightSetAt', e.target.value)}
+                placeholder={t('enterValue')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="angularity-whatWasUsedAsSquare">{t('whatWasUsedAsSquare')}</Label>
+              <Input
+                id="angularity-whatWasUsedAsSquare"
+                type="text"
+                value={data.whatWasUsedAsSquare || ''}
+                onChange={(e) => handleStringChange('whatWasUsedAsSquare', e.target.value)}
+                placeholder={t('enterValue')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="angularity-whereWasSquarePlaced">{t('whereWasSquarePlaced')}</Label>
+              <Input
+                id="angularity-whereWasSquarePlaced"
+                type="text"
+                value={data.whereWasSquarePlaced || ''}
+                onChange={(e) => handleStringChange('whereWasSquarePlaced', e.target.value)}
+                placeholder={t('enterValue')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="angularity-indicatorUsedGraduation">
+                {t('indicatorUsedGraduation')}
+              </Label>
+              <Input
+                id="angularity-indicatorUsedGraduation"
+                type="text"
+                value={data.indicatorUsedGraduation || ''}
+                onChange={(e) => handleStringChange('indicatorUsedGraduation', e.target.value)}
+                placeholder={t('enterValue')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="angularity-tipKindOnIndicator">{t('tipKindOnIndicator')}</Label>
+              <Input
+                id="angularity-tipKindOnIndicator"
+                type="text"
+                value={data.tipKindOnIndicator || ''}
+                onChange={(e) => handleStringChange('tipKindOnIndicator', e.target.value)}
+                placeholder={t('enterValue')}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="angularity-totalLiftCheck">{t('totalLiftCheck')}</Label>
+              <Input
+                id="angularity-totalLiftCheck"
+                type="number"
+                step="0.0001"
+                value={data.totalLiftCheck !== undefined ? String(data.totalLiftCheck) : ''}
+                onChange={(e) => handleNumericChange('totalLiftCheck', e.target.value)}
+                placeholder={t('enterValue')}
+              />
             </div>
           </div>
         </div>

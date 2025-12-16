@@ -1935,6 +1935,19 @@ model MachineServiceAngularity {
   // Has angularity been adjusted?
   hasBeenAdjusted YesNoDncType?
 
+  // Setup information
+  spm                     Decimal? @db.Decimal(10, 2)
+  distanceOfIndicatorTip  Decimal? @db.Decimal(10, 4)
+  locationOfIndicator     String?
+  counterbalancePressure  Decimal? @db.Decimal(10, 2)
+  strokePartBeingRead     String?
+  shutheightSetAt         String?
+  whatWasUsedAsSquare     String?
+  whereWasSquarePlaced    String?
+  indicatorUsedGraduation String?
+  tipKindOnIndicator      String?
+  totalLiftCheck          Decimal? @db.Decimal(10, 4)
+
   // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
   beforeFR Decimal? @db.Decimal(10, 4)
   beforeLR Decimal? @db.Decimal(10, 4)
