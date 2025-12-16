@@ -1080,7 +1080,11 @@
         "lubricationStatus": "Status de Lubrificação e Hidráulica",
         "counterbalanceStatus": "Status do Contrapeso",
         "pistonsMeasurements": "Medições dos Pistões",
-        "trammingMeasurements": "Medições de Tramming"
+        "trammingMeasurements": "Medições de Tramming",
+        "perpendicularityMeasurements": "Medições de Perpendicularidade",
+        "shimThicknessMeasurements": "Medições de Espessura de Calço",
+        "dieCushionStatus": "Status do Die Cushion",
+        "electricalControlStatus": "Status do Controle Elétrico"
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Folga da Embreagem Hidráulica",
@@ -1104,7 +1108,13 @@
         "innerTopRowMeasurements": "Interno - Medições Linha Superior",
         "innerBottomRowMeasurements": "Interno - Medições Linha Inferior",
         "innerLeftRowMeasurements": "Interno - Medições Linha Esquerda",
-        "innerRightRowMeasurements": "Interno - Medições Linha Direita"
+        "innerRightRowMeasurements": "Interno - Medições Linha Direita",
+        "beforeAdjustmentTrend": "Tendência Antes do Ajuste",
+        "afterAdjustmentTrend": "Tendência Após o Ajuste",
+        "outerLHMeasurements": "Medições Externo LH",
+        "outerRHMeasurements": "Medições Externo RH",
+        "innerLHMeasurements": "Medições Interno LH",
+        "innerRHMeasurements": "Medições Interno RH"
       },
       "labels": {
         "outer": "Externo",
@@ -1166,7 +1176,35 @@
         "rightTop": "Direita-Superior",
         "rightBottom": "Direita-Inferior",
         "rightLeft": "Direita-Esquerda",
-        "rightRight": "Direita-Direita"
+        "rightRight": "Direita-Direita",
+        "beforeAdjustment": "Antes do Ajuste",
+        "afterAdjustment": "Após o Ajuste",
+        "frontRear": "Frente-Trás (F-R)",
+        "leftRight": "Esquerda-Direita (L-R)",
+        "hasBeenAdjusted": "Foi Ajustado",
+        "yes": "Sim",
+        "no": "Não",
+        "na": "N/A",
+        "dnc": "DNC",
+        "cantTell": "Não Dá Para Saber",
+        "airLeaks": "Vazamentos de Ar",
+        "airLeaksLocation": "Local dos Vazamentos de Ar",
+        "pneumaticsPlumbing": "Pneumática/Tubulação",
+        "lubrication": "Lubrificação",
+        "controlInfo": "Informações de Controle",
+        "hasHourMeter": "Horímetro",
+        "hourMeterReading": "Leitura do Horímetro",
+        "isMinsterControl": "Controle Minster",
+        "other": "Outro",
+        "electricalChecklist": "Checklist Elétrico",
+        "outerLH": "Externo LH",
+        "outerRH": "Externo RH",
+        "innerLH": "Interno LH",
+        "innerRH": "Interno RH",
+        "noPerpendicularityData": "Nenhum dado de perpendicularidade disponível",
+        "noShimThicknessData": "Nenhum dado de espessura de calço disponível",
+        "noDieCushionData": "Nenhum dado de die cushion disponível",
+        "noElectricalData": "Nenhum dado de controle elétrico disponível"
       }
     },
     "latestReport": {

@@ -517,6 +517,7 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
       },
     });
 
@@ -623,6 +624,7 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
       },
       orderBy: {
         date: 'desc',
@@ -721,6 +723,7 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
       },
       orderBy: {
         date: 'desc',
@@ -820,6 +823,7 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
       },
     });
 
@@ -930,6 +934,7 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
         // Include alert entities for status display
         alertBearingClearance: {
           orderBy: { createdAt: 'desc' },
@@ -1079,6 +1084,7 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
       },
       orderBy: { date: 'desc' },
     });
@@ -3178,6 +3184,7 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
       },
     });
 

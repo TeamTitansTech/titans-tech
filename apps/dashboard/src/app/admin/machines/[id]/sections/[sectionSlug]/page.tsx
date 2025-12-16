@@ -8,6 +8,10 @@ import { LubricationSectionWrapper } from './components/LubricationSectionWrappe
 import { CounterbalanceSectionWrapper } from './components/CounterbalanceSectionWrapper';
 import { PistonsSectionWrapper } from './components/PistonsSectionWrapper';
 import { TrammingSectionWrapper } from './components/TrammingSectionWrapper';
+import { DieCushionSectionWrapper } from './components/DieCushionSectionWrapper';
+import { ShimThicknessSectionWrapper } from './components/ShimThicknessSectionWrapper';
+import { ElectricalControlSectionWrapper } from './components/ElectricalControlSectionWrapper';
+import { PerpendiculariySectionWrapper } from './components/PerpendiculariySectionWrapper';
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -29,6 +33,10 @@ const sectionComponents: Record<string, React.ComponentType<{ machineId: string 
   counterbalance_cylinder_airbag: CounterbalanceSectionWrapper,
   pistons: PistonsSectionWrapper,
   tramming: TrammingSectionWrapper,
+  die_cushion: DieCushionSectionWrapper,
+  shim_thickness: ShimThicknessSectionWrapper,
+  electrical_control: ElectricalControlSectionWrapper,
+  perpendicularity: PerpendiculariySectionWrapper,
 };
 
 export default async function SectionDetailPage({ params }: SectionDetailPageProps) {

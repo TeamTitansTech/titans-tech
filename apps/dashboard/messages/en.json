@@ -1080,7 +1080,11 @@
         "lubricationStatus": "Lubrication & Hydraulics Status",
         "counterbalanceStatus": "Counterbalance Status",
         "pistonsMeasurements": "Pistons Measurements",
-        "trammingMeasurements": "Tramming Measurements"
+        "trammingMeasurements": "Tramming Measurements",
+        "perpendicularityMeasurements": "Perpendicularity Measurements",
+        "shimThicknessMeasurements": "Shim Thickness Measurements",
+        "dieCushionStatus": "Die Cushion Status",
+        "electricalControlStatus": "Electrical Control Status"
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Hydraulic Clutch Clearance",
@@ -1104,7 +1108,13 @@
         "innerTopRowMeasurements": "Inner - Top Row Measurements",
         "innerBottomRowMeasurements": "Inner - Bottom Row Measurements",
         "innerLeftRowMeasurements": "Inner - Left Row Measurements",
-        "innerRightRowMeasurements": "Inner - Right Row Measurements"
+        "innerRightRowMeasurements": "Inner - Right Row Measurements",
+        "beforeAdjustmentTrend": "Before Adjustment Trend",
+        "afterAdjustmentTrend": "After Adjustment Trend",
+        "outerLHMeasurements": "Outer LH Measurements",
+        "outerRHMeasurements": "Outer RH Measurements",
+        "innerLHMeasurements": "Inner LH Measurements",
+        "innerRHMeasurements": "Inner RH Measurements"
       },
       "labels": {
         "outer": "Outer",
@@ -1166,7 +1176,35 @@
         "rightTop": "Right-Top",
         "rightBottom": "Right-Bottom",
         "rightLeft": "Right-Left",
-        "rightRight": "Right-Right"
+        "rightRight": "Right-Right",
+        "beforeAdjustment": "Before Adjustment",
+        "afterAdjustment": "After Adjustment",
+        "frontRear": "Front-Rear (F-R)",
+        "leftRight": "Left-Right (L-R)",
+        "hasBeenAdjusted": "Has Been Adjusted",
+        "yes": "Yes",
+        "no": "No",
+        "na": "N/A",
+        "dnc": "DNC",
+        "cantTell": "Can't Tell",
+        "airLeaks": "Air Leaks",
+        "airLeaksLocation": "Air Leaks Location",
+        "pneumaticsPlumbing": "Pneumatics/Plumbing",
+        "lubrication": "Lubrication",
+        "controlInfo": "Control Information",
+        "hasHourMeter": "Hour Meter",
+        "hourMeterReading": "Hour Reading",
+        "isMinsterControl": "Minster Control",
+        "other": "Other",
+        "electricalChecklist": "Electrical Checklist",
+        "outerLH": "Outer LH",
+        "outerRH": "Outer RH",
+        "innerLH": "Inner LH",
+        "innerRH": "Inner RH",
+        "noPerpendicularityData": "No perpendicularity data available",
+        "noShimThicknessData": "No shim thickness data available",
+        "noDieCushionData": "No die cushion data available",
+        "noElectricalData": "No electrical control data available"
       }
     },
     "latestReport": {
