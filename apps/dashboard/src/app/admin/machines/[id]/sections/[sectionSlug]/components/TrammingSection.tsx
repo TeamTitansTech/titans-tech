@@ -13,6 +13,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import type { TrammingInspectionData } from './TrammingSectionWrapper';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 import { SectionExportButton } from '@/components/shared/SectionExportButton';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
 
@@ -25,7 +26,8 @@ interface TrammingSectionProps {
 export function TrammingSection({ inspections, machineName }: TrammingSectionProps) {
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
-  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
+  const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
+    useUnitManager();
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -37,19 +39,13 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
     return undefined;
   });
 
-  // Conversion constants and functions (data is stored in millimeters)
-  const MM_PER_INCH = 25.4;
-
   // Convert value based on display unit (data stored in mm)
   const convertValue = useCallback(
     (value: number | null | undefined): number | null | undefined => {
       if (value === null || value === undefined) return value;
-      if (displayUnit === 'in') {
-        return value / MM_PER_INCH;
-      }
-      return value;
+      return convertLengthFromDefault(value);
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   const filteredInspections = useMemo(() => {
@@ -301,17 +297,17 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-1 border rounded-md p-1">
                 <Button
-                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setDisplayUnit('in')}
+                  onClick={() => setLengthUnit('inches')}
                   className="h-7 px-3"
                 >
                   in
                 </Button>
                 <Button
-                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setDisplayUnit('mm')}
+                  onClick={() => setLengthUnit('mm')}
                   className="h-7 px-3"
                 >
                   mm
@@ -452,7 +448,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'topLeft', label: t('labels.topLeft'), color: '#3b82f6' },
                 { dataKey: 'topRight', label: t('labels.topRight'), color: '#ec4899' },
               ]}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />
@@ -467,7 +463,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'bottomLeft', label: t('labels.bottomLeft'), color: '#ef4444' },
                 { dataKey: 'bottomRight', label: t('labels.bottomRight'), color: '#8b5cf6' },
               ]}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />
@@ -482,7 +478,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'leftLeft', label: t('labels.leftLeft'), color: '#3b82f6' },
                 { dataKey: 'leftRight', label: t('labels.leftRight'), color: '#ec4899' },
               ]}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />
@@ -497,7 +493,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'rightLeft', label: t('labels.rightLeft'), color: '#ef4444' },
                 { dataKey: 'rightRight', label: t('labels.rightRight'), color: '#8b5cf6' },
               ]}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />
@@ -512,7 +508,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'topLeft', label: t('labels.topLeft'), color: '#3b82f6' },
                 { dataKey: 'topRight', label: t('labels.topRight'), color: '#ec4899' },
               ]}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />
@@ -527,7 +523,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'bottomLeft', label: t('labels.bottomLeft'), color: '#ef4444' },
                 { dataKey: 'bottomRight', label: t('labels.bottomRight'), color: '#8b5cf6' },
               ]}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />
@@ -542,7 +538,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'leftLeft', label: t('labels.leftLeft'), color: '#3b82f6' },
                 { dataKey: 'leftRight', label: t('labels.leftRight'), color: '#ec4899' },
               ]}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />
@@ -557,7 +553,7 @@ export function TrammingSection({ inspections, machineName }: TrammingSectionPro
                 { dataKey: 'rightLeft', label: t('labels.rightLeft'), color: '#ef4444' },
                 { dataKey: 'rightRight', label: t('labels.rightRight'), color: '#8b5cf6' },
               ]}
-              valueUnit={displayUnit}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
             />

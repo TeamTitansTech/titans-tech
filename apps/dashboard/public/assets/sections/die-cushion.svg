@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#4A90E2" opacity="0.1"/>
+
+  <!-- Die Cushion representation - cylinder/piston system -->
+  <!-- Main cylinder body -->
+  <rect x="55" y="65" width="90" height="80" rx="8" stroke="#4A90E2" stroke-width="3" fill="none"/>
+
+  <!-- Piston/cushion element inside -->
+  <rect x="65" y="100" width="70" height="35" rx="4" fill="#4A90E2" opacity="0.3" stroke="#4A90E2" stroke-width="2"/>
+
+  <!-- Piston rod -->
+  <rect x="90" y="45" width="20" height="25" fill="#4A90E2" opacity="0.2" stroke="#4A90E2" stroke-width="2"/>
+
+  <!-- Air/pneumatic indicators (bubbles) -->
+  <circle cx="75" cy="80" r="4" fill="#4A90E2" opacity="0.5"/>
+  <circle cx="100" cy="85" r="3" fill="#4A90E2" opacity="0.4"/>
+  <circle cx="125" cy="80" r="4" fill="#4A90E2" opacity="0.5"/>
+
+  <!-- Connection ports on sides -->
+  <circle cx="55" cy="90" r="5" fill="#4A90E2"/>
+  <circle cx="145" cy="90" r="5" fill="#4A90E2"/>
+
+  <!-- Bottom support/base -->
+  <rect x="45" y="145" width="110" height="8" rx="2" fill="#4A90E2" opacity="0.6"/>
+
+  <!-- Pressure arrows pointing up -->
+  <path d="M80 125 L80 110 L75 115 M80 110 L85 115" stroke="#4A90E2" stroke-width="2" fill="none"/>
+  <path d="M100 125 L100 110 L95 115 M100 110 L105 115" stroke="#4A90E2" stroke-width="2" fill="none"/>
+  <path d="M120 125 L120 110 L115 115 M120 110 L125 115" stroke="#4A90E2" stroke-width="2" fill="none"/>
+
+  <!-- Text label -->
+  <text x="100" y="175" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#4A90E2" text-anchor="middle">
+    DIE CUSHION
+  </text>
+</svg>

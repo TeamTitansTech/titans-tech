@@ -129,22 +129,25 @@ export function UnitManagerProvider({
   }, [pressureUnit]);
 
   // ============ LENGTH ============
+  // NOTE: Default storage unit is INCHES (not mm)
   const setLengthUnit = useCallback((unit: LengthUnit) => {
     setLengthUnitState(unit);
   }, []);
 
   const convertLengthToDefault = useCallback(
     (value: number): number => {
-      if (lengthUnit === 'inches') return value;
-      return value * INCHES_TO_MM;
+      // Convert from display unit to storage unit (inches)
+      if (lengthUnit === 'inches') return value; // inches to inches, no conversion
+      return value * MM_TO_INCHES; // mm to inches, divide by 25.4
     },
     [lengthUnit],
   );
 
   const convertLengthFromDefault = useCallback(
     (value: number): number => {
-      if (lengthUnit === 'inches') return value;
-      return value * MM_TO_INCHES;
+      // Convert from storage unit (inches) to display unit
+      if (lengthUnit === 'inches') return value; // inches to inches, no conversion
+      return value * INCHES_TO_MM; // inches to mm, multiply by 25.4
     },
     [lengthUnit],
   );

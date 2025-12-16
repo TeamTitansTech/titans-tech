@@ -61,7 +61,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
   const t = useTranslations('machines.latestReport');
   const contentRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
-  const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
+  const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
+    useUnitManager();
 
   // Helper to convert and format length values for display
   const formatLength = (value: number | null | undefined): string => {
@@ -559,12 +560,33 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
   return (
     <DialogContent className="w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
       <DialogHeader>
-        <DialogTitle className="flex items-center gap-2">
-          <FileText className="w-5 h-5" />
-          Relatório Atualizado - {report.machineName}
-        </DialogTitle>
+        <div className="flex items-center justify-between">
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="w-5 h-5" />
+            {t('title')}
+          </DialogTitle>
+          {/* Unit Toggle */}
+          <div className="flex items-center rounded-md border" data-export-button>
+            <Button
+              variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
+              size="sm"
+              className="h-8 rounded-r-none"
+              onClick={() => setLengthUnit('mm')}
+            >
+              mm
+            </Button>
+            <Button
+              variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
+              size="sm"
+              className="h-8 rounded-l-none"
+              onClick={() => setLengthUnit('inches')}
+            >
+              in
+            </Button>
+          </div>
+        </div>
         <DialogDescription>
-          Modelo: {report.blueprint.name} · Última atualização:{' '}
+          {report.machineName} · {report.blueprint.name} · {t('updatedAt')}{' '}
           {format(new Date(report.generatedAt), 'dd/MM/yyyy', { locale: ptBR })}
         </DialogDescription>
       </DialogHeader>

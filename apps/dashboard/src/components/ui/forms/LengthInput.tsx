@@ -12,9 +12,9 @@ import { useTranslations } from 'next-intl';
 export interface LengthInputProps {
   id: string;
   label?: string;
-  /** Value in the default unit (mm). Undefined displays as empty. */
+  /** Value in the default unit (inches). Undefined displays as empty. */
   value: number | string | undefined;
-  /** Callback receives value in the default unit (mm). Undefined when cleared. */
+  /** Callback receives value in the default unit (inches). Undefined when cleared. */
   onChange: (value: number | undefined) => void;
   onBlur?: () => void;
   error?: string;
@@ -65,7 +65,7 @@ export function LengthInput({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
 
-  // Convert the value from default (mm) to display unit
+  // Convert the value from default (inches) to display unit
   // Handle undefined/null as empty (not 0)
   const numericValue = useMemo(() => {
     if (value === undefined || value === null) return undefined;
@@ -103,7 +103,7 @@ export function LengthInput({
 
     const numValue = parseFloat(inputValue);
     if (!isNaN(numValue)) {
-      // Convert back to default unit (mm) before calling onChange
+      // Convert back to default unit (inches) before calling onChange
       const defaultValue = convertLengthToDefault(numValue);
       onChange(defaultValue);
     } else if (inputValue === '' || inputValue === '-') {

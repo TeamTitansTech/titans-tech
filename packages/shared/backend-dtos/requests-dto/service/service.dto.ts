@@ -11,6 +11,7 @@ import {
   ParallelismType as PrismaParallelismType,
   YesNoNaDncType as PrismaYesNoNaDncType,
   YesNoDncType as PrismaYesNoDncType,
+  YesNoNaDncCantTellType as PrismaYesNoNaDncCantTellType,
   LubeHydMonitorFlowPressSwGibType as PrismaLubeHydMonitorFlowPressSwGibType,
   ConditionOkNaDncBrokenWornType as PrismaConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType as PrismaConditionOkNaDncBrokenLooseType,
@@ -35,6 +36,9 @@ import {
   TemperatureUnit as PrismaTemperatureUnit,
   SealConditionType as PrismaSealConditionType,
   VacuumSystemConditionType as PrismaVacuumSystemConditionType,
+  DieCushionAirLeaksType as PrismaDieCushionAirLeaksType,
+  DieCushionPneumaticsPlumbingType as PrismaDieCushionPneumaticsPlumbingType,
+  DieCushionLubricationType as PrismaDieCushionLubricationType,
 } from '@titans-tech/db/enums';
 
 // ============================================================================
@@ -72,6 +76,10 @@ export {
   PrismaTemperatureUnit as TemperatureUnit,
   PrismaSealConditionType as SealConditionType,
   PrismaVacuumSystemConditionType as VacuumSystemConditionType,
+  PrismaDieCushionAirLeaksType as DieCushionAirLeaksType,
+  PrismaDieCushionPneumaticsPlumbingType as DieCushionPneumaticsPlumbingType,
+  PrismaDieCushionLubricationType as DieCushionLubricationType,
+  PrismaYesNoNaDncCantTellType as YesNoNaDncCantTellType,
 };
 
 // Note: These custom enums are not in Prisma yet
@@ -395,7 +403,7 @@ export const ClutchDataSchema = z.object({
   hydClutchClearanceTotal: z.number().optional(),
   hydClutchClearanceRear: z.number().optional(),
   hydraulicPressureValue: z.number().optional(),
-  accumulatorValue: z.number().optional(),
+  accumulatorValue: z.string().optional(),
 
   // Separate Brake Seals
   separateBrakeSeals: z.enum(PrismaSeparateBrakeSealsType).optional(),
@@ -517,6 +525,96 @@ export const PistonsCheckSchema = z.object({
 
 export type PistonsCheck = z.infer<typeof PistonsCheckSchema>;
 
+/**
+ * Shim Thickness Data Schema (4 measurements around center circle)
+ * Each measurement represents: top, bottom, left, right
+ */
+export const ShimThicknessDataSchema = z.object({
+  top: z.number().optional(),
+  bottom: z.number().optional(),
+  left: z.number().optional(),
+  right: z.number().optional(),
+});
+
+export type ShimThicknessData = z.infer<typeof ShimThicknessDataSchema>;
+
+/**
+ * Shim Thickness Check Schema
+ * Structure: Outer (LH/RH) + Inner (LH/RH), each with 4 measurements
+ */
+export const ShimThicknessCheckSchema = z.object({
+  outerLhData: ShimThicknessDataSchema.optional(),
+  outerRhData: ShimThicknessDataSchema.optional(),
+  innerLhData: ShimThicknessDataSchema.optional(),
+  innerRhData: ShimThicknessDataSchema.optional(),
+  notes: z.string().optional(),
+});
+
+export type ShimThicknessCheck = z.infer<typeof ShimThicknessCheckSchema>;
+
+/**
+ * Die Cushion Check Schema
+ */
+export const DieCushionCheckSchema = z.object({
+  airLeaks: z.nativeEnum(PrismaDieCushionAirLeaksType).optional(),
+  airLeaksLocation: z.string().optional(),
+  pneumaticsPlumbing: z.nativeEnum(PrismaDieCushionPneumaticsPlumbingType).optional(),
+  lubrication: z.nativeEnum(PrismaDieCushionLubricationType).optional(),
+  notes: z.string().optional(),
+});
+
+export type DieCushionCheck = z.infer<typeof DieCushionCheckSchema>;
+
+/**
+ * Electrical Control Check Schema
+ */
+export const ElectricalControlCheckSchema = z.object({
+  // Header fields with Yes/No/DNC dropdown
+  hasHourMeter: z.nativeEnum(PrismaYesNoDncType).optional(),
+  hourMeterReading: z.string().optional(),
+  isMinsterControl: z.nativeEnum(PrismaYesNoDncType).optional(),
+  minsterControlOther: z.string().optional(),
+
+  // Checklist items with Yes/No/N/A/DNC/Can't Tell dropdown
+  controlDoorStop: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  cabinetTemp: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  incomingLine: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  fullVoltage: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  contactor: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  overloads: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  transformers: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  brakeValve: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  clutchValve: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  wiring: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  terminals: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  twentyFourVBuss: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+  safetyRelays: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
+
+  notes: z.string().optional(),
+});
+
+export type ElectricalControlCheck = z.infer<typeof ElectricalControlCheckSchema>;
+
+/**
+ * Perpendicularity Check Schema
+ */
+export const PerpendicularityCheckSchema = z.object({
+  // Has perpendicularity been adjusted?
+  hasBeenAdjusted: z.nativeEnum(PrismaYesNoDncType).optional(),
+
+  // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
+  beforeFR: z.union([z.number(), z.string()]).optional(),
+  beforeLR: z.union([z.number(), z.string()]).optional(),
+
+  // After Adjustment measurements
+  afterFR: z.union([z.number(), z.string()]).optional(),
+  afterLR: z.union([z.number(), z.string()]).optional(),
+
+  notes: z.string().optional(),
+});
+
+export type PerpendicularityCheck = z.infer<typeof PerpendicularityCheckSchema>;
+
 // ============================================================================
 // Service Payload and Entity Schemas
 // ============================================================================
@@ -574,6 +672,10 @@ export const CreateServicePayloadSchema = z.object({
   counterbalanceCylinder: CounterbalanceCylinderCheckSchema.optional(),
   tramming: TrammingCheckSchema.optional(),
   pistons: PistonsCheckSchema.optional(),
+  shimThickness: ShimThicknessCheckSchema.optional(),
+  dieCushion: DieCushionCheckSchema.optional(),
+  electricalControl: ElectricalControlCheckSchema.optional(),
+  perpendicularity: PerpendicularityCheckSchema.optional(),
 });
 
 export type CreateServicePayload = z.infer<typeof CreateServicePayloadSchema>;
@@ -610,6 +712,10 @@ export const UpdateServicePayloadSchema = z.object({
   counterbalanceCylinder: CounterbalanceCylinderCheckSchema.optional(),
   tramming: TrammingCheckSchema.optional(),
   pistons: PistonsCheckSchema.optional(),
+  shimThickness: ShimThicknessCheckSchema.optional(),
+  dieCushion: DieCushionCheckSchema.optional(),
+  electricalControl: ElectricalControlCheckSchema.optional(),
+  perpendicularity: PerpendicularityCheckSchema.optional(),
 });
 
 export type UpdateServicePayload = z.infer<typeof UpdateServicePayloadSchema>;

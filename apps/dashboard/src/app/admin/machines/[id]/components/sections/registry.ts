@@ -8,6 +8,10 @@ import { ClutchSection } from './ClutchSection';
 import { CounterbalanceCylinderSection } from './CounterbalanceCylinderSection';
 import { TrammingSection } from './TrammingSection';
 import { PistonsSection } from './PistonsSection';
+import { ShimThicknessSection } from './ShimThicknessSection';
+import { DieCushionSection } from './DieCushionSection';
+import { ElectricalControlSection } from './ElectricalControlSection';
+import { PerpendicularitySection } from './PerpendicularitySection';
 
 /**
  * Configuration for a single section
@@ -123,6 +127,42 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
       i18nKey: 'pistons',
     },
     // No badges for pistons section
+  },
+
+  SHIM_THICKNESS: {
+    key: 'SHIM_THICKNESS',
+    component: ShimThicknessSection,
+    metadata: {
+      image: '/assets/sections/shim-thickness.svg',
+      i18nKey: 'shimThickness',
+    },
+  },
+
+  DIE_CUSHION: {
+    key: 'DIE_CUSHION',
+    component: DieCushionSection,
+    metadata: {
+      image: '/assets/sections/die-cushion.svg',
+      i18nKey: 'dieCushion',
+    },
+  },
+
+  ELECTRICAL_CONTROL: {
+    key: 'ELECTRICAL_CONTROL',
+    component: ElectricalControlSection,
+    metadata: {
+      image: '/assets/sections/electrical-control.svg',
+      i18nKey: 'electricalControl',
+    },
+  },
+
+  PERPENDICULARITY: {
+    key: 'PERPENDICULARITY',
+    component: PerpendicularitySection,
+    metadata: {
+      image: '/assets/sections/perpendicularity.svg',
+      i18nKey: 'perpendicularity',
+    },
   },
 };
 

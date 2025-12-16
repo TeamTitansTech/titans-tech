@@ -75,7 +75,8 @@ export function SummaryStep({
   const tInspections = useTranslations('inspections.form.enums');
   const tErrors = useTranslations('errors.service');
   const tUnits = useTranslations('forms.units');
-  const { getLengthUnitLabel, getTemperatureUnitLabel, getPressureUnitLabel } = useUnitManager();
+  const { lengthUnit, setLengthUnit, getTemperatureUnitLabel, getPressureUnitLabel } =
+    useUnitManager();
 
   // Helper function to format enum values for display
   const formatEnumValue = (value: string | undefined, enumType: string) => {
@@ -171,10 +172,27 @@ export function SummaryStep({
             <div className="flex flex-wrap gap-4">
               <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
                 <Ruler className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm">
-                  {tUnits('lengthLabel')}:{' '}
-                  <span className="font-medium">{getLengthUnitLabel()}</span>
-                </span>
+                <span className="text-sm mr-2">{tUnits('lengthLabel')}:</span>
+                <div className="flex items-center rounded-md border bg-background">
+                  <Button
+                    type="button"
+                    variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="h-6 px-2 text-xs rounded-r-none"
+                    onClick={() => setLengthUnit('mm')}
+                  >
+                    mm
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="h-6 px-2 text-xs rounded-l-none"
+                    onClick={() => setLengthUnit('inches')}
+                  >
+                    in
+                  </Button>
+                </div>
               </div>
               <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
                 <Thermometer className="w-4 h-4 text-muted-foreground" />

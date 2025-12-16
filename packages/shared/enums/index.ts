@@ -19,6 +19,7 @@ export {
   // Yes/No/NA/DNC variants
   YesNoNaDncType,
   YesNoDncType,
+  YesNoNaDncCantTellType,
 
   // Condition enums
   ConditionOkNaDncBrokenWornType,
@@ -44,6 +45,11 @@ export {
 
   // Counterbalance enums
   CylinderAirbagType,
+
+  // Die Cushion enums
+  DieCushionAirLeaksType,
+  DieCushionPneumaticsPlumbingType,
+  DieCushionLubricationType,
 
   // Clutch enums
   ClutchType,

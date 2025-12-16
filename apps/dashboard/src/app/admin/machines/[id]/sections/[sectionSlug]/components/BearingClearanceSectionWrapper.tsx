@@ -1,6 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { BearingClearanceSection } from './BearingClearanceSection';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface BearingClearanceSectionWrapperProps {
   machineId: string;
@@ -69,12 +70,14 @@ export async function BearingClearanceSectionWrapper({
   }
 
   return (
-    <BearingClearanceSection
-      machineId={machineId}
-      inspections={inspections}
-      machineName={machineName}
-      blueprintId={blueprintId}
-      hideThresholdValues={hideThresholdValues}
-    />
+    <UnitManagerProvider>
+      <BearingClearanceSection
+        machineId={machineId}
+        inspections={inspections}
+        machineName={machineName}
+        blueprintId={blueprintId}
+        hideThresholdValues={hideThresholdValues}
+      />
+    </UnitManagerProvider>
   );
 }

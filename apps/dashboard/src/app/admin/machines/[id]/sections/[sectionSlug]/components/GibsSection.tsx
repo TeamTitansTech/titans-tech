@@ -12,6 +12,7 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
 import type { GibsInspectionData } from './GibsSectionWrapper';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
 import {
   transformGibsToMultiLineData,
@@ -63,7 +64,8 @@ export function GibsSection({
   const contentRef = useRef<HTMLDivElement>(null);
   const tGibsFields = useTranslations('machines.gibsFields');
   const [usableThreshold, setUsableThreshold] = useState<ThresholdConfig | null>(null);
-  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
+  const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
+    useUnitManager();
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -75,49 +77,44 @@ export function GibsSection({
     return undefined;
   });
 
-  // Conversion constants and functions (data is stored in millimeters)
-  const MM_PER_INCH = 25.4;
-
   const convertValue = useCallback(
     (value: number | null | undefined): number | null => {
       if (value === null || value === undefined) return null;
-      return displayUnit === 'in' ? value / MM_PER_INCH : value;
+      return convertLengthFromDefault(value);
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   const convertThreshold = useCallback(
     (threshold: ThresholdConfig | null): ThresholdConfig | null => {
       if (!threshold) return null;
-      if (displayUnit === 'mm') return threshold;
-
       return {
-        greenMin: threshold.greenMin / MM_PER_INCH,
-        yellowMin: threshold.yellowMin / MM_PER_INCH,
-        redMin: threshold.redMin / MM_PER_INCH,
+        greenMin: convertLengthFromDefault(threshold.greenMin),
+        yellowMin: convertLengthFromDefault(threshold.yellowMin),
+        redMin: convertLengthFromDefault(threshold.redMin),
         label: threshold.label,
       };
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   const convertChartData = useCallback(
     (
       data: ReturnType<typeof transformGibsToMultiLineData>,
     ): ReturnType<typeof transformGibsToMultiLineData> => {
-      if (displayUnit === 'mm') return data;
-
       return data.map((item) => {
         const converted = { ...item };
         Object.keys(item).forEach((key) => {
           if (key !== 'date' && typeof item[key] === 'number') {
-            (converted as Record<string, unknown>)[key] = (item[key] as number) / MM_PER_INCH;
+            (converted as Record<string, unknown>)[key] = convertLengthFromDefault(
+              item[key] as number,
+            );
           }
         });
         return converted;
       });
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Fetch threshold data
@@ -458,17 +455,17 @@ export function GibsSection({
             <div className="flex items-center gap-2">
               <div className="flex items-center border rounded-md">
                 <Button
-                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setDisplayUnit('in')}
+                  onClick={() => setLengthUnit('inches')}
                   className="rounded-r-none h-8"
                 >
                   in
                 </Button>
                 <Button
-                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setDisplayUnit('mm')}
+                  onClick={() => setLengthUnit('mm')}
                   className="rounded-l-none h-8"
                 >
                   mm
@@ -741,7 +738,7 @@ export function GibsSection({
                     : []),
                 ]}
                 sharedThreshold={convertedUsableThreshold}
-                valueUnit={displayUnit}
+                valueUnit={getLengthUnitLabel()}
                 allowToggle={true}
                 hideThresholdValues={hideThresholdValues}
                 height={300}
@@ -759,7 +756,7 @@ export function GibsSection({
                   { dataKey: 'rightTop', label: 'Back Top', color: '#3b82f6' },
                   { dataKey: 'rightBottom', label: 'Back Bottom', color: '#ec4899' },
                 ]}
-                valueUnit={displayUnit}
+                valueUnit={getLengthUnitLabel()}
                 allowToggle={false}
                 height={300}
               />
@@ -776,7 +773,7 @@ export function GibsSection({
                   { dataKey: 'rightTop', label: 'Back Top', color: '#3b82f6' },
                   { dataKey: 'rightBottom', label: 'Back Bottom', color: '#ec4899' },
                 ]}
-                valueUnit={displayUnit}
+                valueUnit={getLengthUnitLabel()}
                 allowToggle={false}
                 height={300}
               />

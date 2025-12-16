@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { ChevronDown } from 'lucide-react';
 import {
   type BearingClearanceData,
-  MatingPartType,
   ServiceType,
   YesNoNaDncType,
 } from '@/data/types/services.types';
@@ -39,7 +38,7 @@ export const defaultBearingData: BearingClearanceData = {
   ballBoxArea_LH: undefined,
   hasBeenAdjusted: undefined,
   combinedWith: '',
-  matingPart: MatingPartType.BUSHING,
+  matingPart: undefined,
 };
 
 // Required fields for validation - only totalClearance (LH or RH) is required

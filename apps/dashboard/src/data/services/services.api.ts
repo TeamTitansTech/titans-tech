@@ -109,6 +109,10 @@ export const updateServiceSection = async (
     COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance-cylinder',
     TRAMMING: 'tramming',
     PISTONS: 'pistons',
+    SHIM_THICKNESS: 'shim-thickness',
+    DIE_CUSHION: 'die-cushion',
+    ELECTRICAL_CONTROL: 'electrical-control',
+    PERPENDICULARITY: 'perpendicularity',
   };
 
   const endpoint = sectionEndpointMap[sectionKey];
