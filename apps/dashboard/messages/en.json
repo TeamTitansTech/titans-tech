@@ -800,6 +800,7 @@
   },
   "sections": {
     "bearing_clearance": "Bearing Clearance",
+    "bearing_clearance_single_hammer": "Bearing Clearance - Single Hammer",
     "slide_single_hammer": "Slide - Single Hammer",
     "slide_double_hammer": "Slide - Double Hammer",
     "gibs": "Gibs",
@@ -990,6 +991,7 @@
     },
     "sectionNames": {
       "bearingClearance": "Bearing Clearance - CP 2",
+      "bearingClearanceSingleHammer": "Bearing Clearance - Single Hammer",
       "slideSingleHammer": "Slide - Single Hammer",
       "slideDoubleHammer": "Slide - Double Hammer",
       "gibs": "Gibs",

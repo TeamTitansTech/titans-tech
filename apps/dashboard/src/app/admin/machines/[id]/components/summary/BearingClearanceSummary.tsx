@@ -62,7 +62,7 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
     if (isNaN(numValue) || numValue === 0) {
       return numValue === 0 ? '-' : translateEnumValue(value, tCommon);
     }
-    // Convert from storage unit (mm) to display unit
+    // Convert from storage unit (inches) to display unit
     const convertedValue = convertLengthFromDefault(numValue);
     return convertedValue.toFixed(4);
   };

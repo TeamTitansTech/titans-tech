@@ -201,6 +201,19 @@ export const BearingClearanceCheckSchema = z.object({
 export type BearingClearanceCheck = z.infer<typeof BearingClearanceCheckSchema>;
 
 /**
+ * Bearing Clearance Single Hammer Check Schema
+ * For machines with a single hammer - uses beforeData/data (no inner/outer distinction)
+ */
+export const BearingClearanceSingleHammerCheckSchema = z.object({
+  beforeData: BearingClearanceDataSchema.optional(),
+  data: BearingClearanceDataSchema.optional(),
+});
+
+export type BearingClearanceSingleHammerCheck = z.infer<
+  typeof BearingClearanceSingleHammerCheckSchema
+>;
+
+/**
  * Slide Data Schema
  * Each SlideData represents ONE measurement (5 positions) with metadata
  * Position fields are optional to allow empty form inputs (at least 2 required by frontend validation)
@@ -664,6 +677,7 @@ export const CreateServicePayloadSchema = z.object({
   whyNotCovered: z.string().optional(),
 
   bearingClearance: BearingClearanceCheckSchema.optional(),
+  bearingClearanceSingleHammer: BearingClearanceSingleHammerCheckSchema.optional(),
   slideSingleHammer: SlideSingleHammerCheckSchema.optional(),
   slideDoubleHammer: SlideDoubleHammerCheckSchema.optional(),
   gibs: GibsCheckSchema.optional(),
@@ -704,6 +718,7 @@ export const UpdateServicePayloadSchema = z.object({
   whyNotCovered: z.string().optional(),
 
   bearingClearance: BearingClearanceCheckSchema.optional(),
+  bearingClearanceSingleHammer: BearingClearanceSingleHammerCheckSchema.optional(),
   slideSingleHammer: SlideSingleHammerCheckSchema.optional(),
   slideDoubleHammer: SlideDoubleHammerCheckSchema.optional(),
   gibs: GibsCheckSchema.optional(),

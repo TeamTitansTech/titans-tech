@@ -800,6 +800,7 @@
   },
   "sections": {
     "bearing_clearance": "FOLGA DE ROLAMENTO",
+    "bearing_clearance_single_hammer": "FOLGA DE ROLAMENTO - Martelo Único",
     "slide_single_hammer": "Slide - Martelo Único",
     "slide_double_hammer": "Slide - Martelo Duplo",
     "gibs": "GUIAS",
@@ -990,6 +991,7 @@
     },
     "sectionNames": {
       "bearingClearance": "Folga de Rolamento",
+      "bearingClearanceSingleHammer": "Folga de Rolamento - Martelo Único",
       "slideSingleHammer": "Slide - Martelo Único",
       "slideDoubleHammer": "Slide - Martelo Duplo",
       "gibs": "Guias",

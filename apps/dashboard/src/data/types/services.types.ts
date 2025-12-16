@@ -40,6 +40,7 @@ export type {
   // Data interfaces
   BearingClearanceData,
   BearingClearanceCheck,
+  BearingClearanceSingleHammerCheck,
   SlideData,
   SlideCheck,
   SlideSingleHammerCheck,

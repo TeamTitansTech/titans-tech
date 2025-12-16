@@ -58,6 +58,7 @@ export {
 export type {
   BearingClearanceData,
   BearingClearanceCheck,
+  BearingClearanceSingleHammerCheck,
   SlideData,
   SlideCheck,
   SlideSingleHammerCheck,
@@ -106,6 +107,7 @@ export type {
 export {
   BearingClearanceDataSchema,
   BearingClearanceCheckSchema,
+  BearingClearanceSingleHammerCheckSchema,
   SlideDataSchema,
   SlideCheckSchema,
   GibsStageDataSchema,

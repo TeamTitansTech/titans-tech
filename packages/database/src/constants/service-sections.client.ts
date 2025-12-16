@@ -5,6 +5,7 @@
 
 export const SERVICE_SECTION_SLUGS = [
   'bearing_clearance',
+  'bearing_clearance_single_hammer',
   'slide_single_hammer',
   'slide_double_hammer',
   'gibs',

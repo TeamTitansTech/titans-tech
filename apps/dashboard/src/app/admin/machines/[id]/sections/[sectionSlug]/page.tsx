@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { BearingClearanceSectionWrapper } from './components/BearingClearanceSectionWrapper';
+import { BearingClearanceSingleHammerSectionWrapper } from './components/BearingClearanceSingleHammerSectionWrapper';
 import { ClutchSectionWrapper } from './components/ClutchSectionWrapper';
 import { SlideSingleHammerSectionWrapper } from './components/SlideSingleHammerSectionWrapper';
 import { SlideDoubleHammerSectionWrapper } from './components/SlideDoubleHammerSectionWrapper';
@@ -25,6 +26,7 @@ interface SectionDetailPageProps {
 
 const sectionComponents: Record<string, React.ComponentType<{ machineId: string }>> = {
   bearing_clearance: BearingClearanceSectionWrapper,
+  bearing_clearance_single_hammer: BearingClearanceSingleHammerSectionWrapper,
   clutch: ClutchSectionWrapper,
   slide_single_hammer: SlideSingleHammerSectionWrapper,
   slide_double_hammer: SlideDoubleHammerSectionWrapper,

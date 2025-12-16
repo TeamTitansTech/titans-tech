@@ -800,6 +800,7 @@
   },
   "sections": {
     "bearing_clearance": "Holgura de Cojinete",
+    "bearing_clearance_single_hammer": "Holgura de Cojinete - Martillo Único",
     "slide_single_hammer": "Slide - Martillo Único",
     "slide_double_hammer": "Slide - Martillo Doble",
     "gibs": "Guías",
@@ -990,6 +991,7 @@
     },
     "sectionNames": {
       "bearingClearance": "Holgura de Cojinete - CP 2",
+      "bearingClearanceSingleHammer": "Holgura de Cojinete - Martillo Único",
       "slideSingleHammer": "Slide - Martillo Único",
       "slideDoubleHammer": "Slide - Martillo Doble",
       "gibs": "Guías",

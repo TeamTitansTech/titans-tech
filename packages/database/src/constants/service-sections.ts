@@ -5,6 +5,10 @@ export const SERVICE_SECTION_CONFIG = {
     slug: 'bearing_clearance',
     displayName: 'Bearing Clearance',
   },
+  [ServiceSection.BEARING_CLEARANCE_SINGLE_HAMMER]: {
+    slug: 'bearing_clearance_single_hammer',
+    displayName: 'Bearing Clearance (Single Hammer)',
+  },
   [ServiceSection.SLIDE]: {
     slug: 'slide',
     displayName: 'Slide (Legacy)',

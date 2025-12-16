@@ -18,6 +18,7 @@ import { type Field } from '../types';
 // Client-safe slug to enum mapping
 const SLUG_TO_SECTION: Record<string, string> = {
   bearing_clearance: 'BEARING_CLEARANCE',
+  bearing_clearance_single_hammer: 'BEARING_CLEARANCE_SINGLE_HAMMER',
   slide_single_hammer: 'SLIDE_SINGLE_HAMMER',
   slide_double_hammer: 'SLIDE_DOUBLE_HAMMER',
   gibs: 'GIBS',

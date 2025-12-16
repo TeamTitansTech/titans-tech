@@ -19,6 +19,8 @@ import {
   CompleteServiceSchema,
   BearingClearanceCheck,
   BearingClearanceCheckSchema,
+  BearingClearanceSingleHammerCheck,
+  BearingClearanceSingleHammerCheckSchema,
   SlideSingleHammerCheck,
   SlideSingleHammerCheckSchema,
   SlideDoubleHammerCheck,
@@ -153,6 +155,21 @@ export class ServicesController {
     @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
     return this.servicesService.updateBearingClearance(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/bearing-clearance-single-hammer')
+  updateBearingClearanceSingleHammer(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(BearingClearanceSingleHammerCheckSchema))
+    updateDto: BearingClearanceSingleHammerCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateBearingClearanceSingleHammer(
       id,
       updateDto,
       this.getUserId(req),

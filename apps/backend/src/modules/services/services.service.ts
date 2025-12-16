@@ -23,6 +23,7 @@ import {
   UpdateServicePayload,
   CompleteServiceDto,
   BearingClearanceCheck,
+  BearingClearanceSingleHammerCheck,
   SlideSingleHammerCheck,
   SlideDoubleHammerCheck,
   GibsCheck,
@@ -444,6 +445,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -551,6 +558,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -648,6 +661,12 @@ export class ServicesService {
             outerData: true,
             innerBefore: true,
             innerData: true,
+          },
+        },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
           },
         },
         slide: {
@@ -748,6 +767,12 @@ export class ServicesService {
             outerData: true,
             innerBefore: true,
             innerData: true,
+          },
+        },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
           },
         },
         slide: {
@@ -859,6 +884,12 @@ export class ServicesService {
             outerData: true,
             innerBefore: true,
             innerData: true,
+          },
+        },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
           },
         },
         slide: {
@@ -1009,6 +1040,12 @@ export class ServicesService {
             outerData: true,
             innerBefore: true,
             innerData: true,
+          },
+        },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
           },
         },
         slide: {
@@ -1617,6 +1654,110 @@ export class ServicesService {
             }),
             ...(updateDto.innerData && {
               innerData: { create: updateDto.innerData as any },
+            }),
+          },
+        });
+      }
+
+      // Update service with completed sections
+      await tx.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+        },
+      });
+    });
+
+    // Note: Alerts are generated only when service is completed via completeService()
+    return this.findOne(serviceId);
+  }
+
+  async updateBearingClearanceSingleHammer(
+    serviceId: string,
+    updateDto: BearingClearanceSingleHammerCheck,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    // Check if service exists
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { bearingClearanceSingleHammer: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    // Get existing completed sections
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    // Add BEARING_CLEARANCE_SINGLE_HAMMER to completed if not already there
+    const updatedCompletedSections = completedSections.includes(
+      'BEARING_CLEARANCE_SINGLE_HAMMER',
+    )
+      ? completedSections
+      : [...completedSections, 'BEARING_CLEARANCE_SINGLE_HAMMER'];
+
+    await this.prisma.$transaction(async (tx) => {
+      const existingRecord = service.bearingClearanceSingleHammer?.[0];
+
+      // Helper function to upsert nested bearing clearance data
+      const upsertData = async (
+        data: any,
+        existingId: string | null | undefined,
+      ) => {
+        if (!data) return existingId;
+
+        if (existingId) {
+          // Update existing
+          await tx.bearingClearanceData.update({
+            where: { id: existingId },
+            data: data as any,
+          });
+          return existingId;
+        } else {
+          // Create new
+          const created = await tx.bearingClearanceData.create({
+            data: data as any,
+          });
+          return created.id;
+        }
+      };
+
+      if (existingRecord) {
+        // Update existing bearing clearance single hammer record
+        const beforeDataId = await upsertData(
+          updateDto.beforeData,
+          existingRecord.beforeDataId,
+        );
+        const dataId = await upsertData(updateDto.data, existingRecord.dataId);
+
+        await tx.machineServiceBearingClearanceSingleHammer.update({
+          where: { id: existingRecord.id },
+          data: {
+            ...(beforeDataId && { beforeDataId }),
+            ...(dataId && { dataId }),
+          },
+        });
+      } else {
+        // Create new bearing clearance single hammer record
+        await tx.machineServiceBearingClearanceSingleHammer.create({
+          data: {
+            machineService: { connect: { id: serviceId } },
+            ...(updateDto.beforeData && {
+              beforeData: { create: updateDto.beforeData as any },
+            }),
+            ...(updateDto.data && {
+              data: { create: updateDto.data as any },
             }),
           },
         });
@@ -3128,6 +3269,12 @@ export class ServicesService {
             outerData: true,
             innerBefore: true,
             innerData: true,
+          },
+        },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
           },
         },
         slide: {

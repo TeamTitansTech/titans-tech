@@ -101,6 +101,7 @@ export const updateServiceSection = async (
   // Map section keys to backend endpoint paths
   const sectionEndpointMap: Record<string, string> = {
     BEARING_CLEARANCE: 'bearing-clearance',
+    BEARING_CLEARANCE_SINGLE_HAMMER: 'bearing-clearance-single-hammer',
     SLIDE_SINGLE_HAMMER: 'slide-single-hammer',
     SLIDE_DOUBLE_HAMMER: 'slide-double-hammer',
     GIBS: 'gibs',

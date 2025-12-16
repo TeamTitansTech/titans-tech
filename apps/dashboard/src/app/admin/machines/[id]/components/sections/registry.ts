@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { BearingClearanceSection } from './BearingClearanceSection';
+import { BearingClearanceSingleHammerSection } from './BearingClearanceSingleHammerSection';
 import { SlideSingleHammerSection } from './SlideSingleHammerSection';
 import { SlideDoubleHammerSection } from './SlideDoubleHammerSection';
 import { GibsSection } from './';
@@ -48,6 +49,15 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
     metadata: {
       image: '/assets/sections/bearing-clearance.svg',
       i18nKey: 'bearingClearance',
+    },
+  },
+
+  BEARING_CLEARANCE_SINGLE_HAMMER: {
+    key: 'BEARING_CLEARANCE_SINGLE_HAMMER',
+    component: BearingClearanceSingleHammerSection,
+    metadata: {
+      image: '/assets/sections/bearing-clearance.svg',
+      i18nKey: 'bearingClearanceSingleHammer',
     },
   },
 
