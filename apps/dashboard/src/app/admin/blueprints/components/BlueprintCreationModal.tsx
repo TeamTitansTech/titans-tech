@@ -12,8 +12,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { SERVICE_SECTION_SLUGS, ANGULARITY_SECTION_SLUG } from '@titans-tech/db/client';
-import { Checkbox } from '@/components/ui/checkbox';
+import { SERVICE_SECTION_SLUGS } from '@titans-tech/db/client';
 import { BearingClearanceThresholds } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholds } from '@/components/alerts/ClutchThresholds';
 import { SlideThresholds } from '@/components/alerts/SlideThresholds';
@@ -204,25 +203,6 @@ export const BlueprintCreationModal = ({
                   }}
                 />
 
-                <div className="flex items-center space-x-2 mt-4">
-                  <Checkbox
-                    id="angularity-checkbox"
-                    checked={selectedSections.includes(ANGULARITY_SECTION_SLUG)}
-                    onCheckedChange={(checked) => {
-                      if (!isEditing) {
-                        toggleSection(ANGULARITY_SECTION_SLUG);
-                      }
-                    }}
-                    disabled={isEditing}
-                  />
-                  <Label
-                    htmlFor="angularity-checkbox"
-                    className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${isEditing ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
-                  >
-                    {tSections(ANGULARITY_SECTION_SLUG)}
-                  </Label>
-                </div>
-
                 <Separator />
 
                 <CustomFieldsList
@@ -263,7 +243,7 @@ export const BlueprintCreationModal = ({
                   }}
                 />
 
-                {selectedSections.includes('bearing_clearance') && (
+                {!isEditing && selectedSections.includes('bearing_clearance') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -277,7 +257,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('bearing_clearance_single_hammer') && (
+                {!isEditing && selectedSections.includes('bearing_clearance_single_hammer') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -292,7 +272,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('clutch') && (
+                {!isEditing && selectedSections.includes('clutch') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -306,7 +286,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('slide_single_hammer') && (
+                {!isEditing && selectedSections.includes('slide_single_hammer') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -320,7 +300,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('slide_double_hammer') && (
+                {!isEditing && selectedSections.includes('slide_double_hammer') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -334,7 +314,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('gibs') && (
+                {!isEditing && selectedSections.includes('gibs') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -348,7 +328,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('pistons') && (
+                {!isEditing && selectedSections.includes('pistons') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -362,7 +342,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('tramming') && (
+                {!isEditing && selectedSections.includes('tramming') && (
                   <>
                     <Separator />
                     <section className="space-y-4">

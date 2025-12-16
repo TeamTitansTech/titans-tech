@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConditionalTooltip } from '@/components/ui/conditional-tooltip';
 import { Badge } from '@/components/ui/badge';
-import { Boxes, Edit, Copy, Trash2, Settings } from 'lucide-react';
+import { Boxes, Edit, Trash2, Settings } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { ThresholdEditModal } from './ThresholdEditModal';
@@ -97,9 +97,6 @@ export function BlueprintCard({
               <Button variant="outline" className="flex-1" size="sm" onClick={onEdit}>
                 <Edit className="w-4 h-4 mr-2" />
                 {t('edit')}
-              </Button>
-              <Button variant="outline" size="sm">
-                <Copy className="w-4 h-4" />
               </Button>
               <Button variant="outline" size="sm">
                 <Trash2 className="w-4 h-4" />
