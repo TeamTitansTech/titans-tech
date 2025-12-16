@@ -1005,6 +1005,7 @@
       "dieCushion": "Almofada da Matriz",
       "electricalControl": "Controle Elétrico",
       "perpendicularity": "Perpendicularidade",
+      "angularity": "Angularidade",
       "unknown": "Seção Desconhecida"
     },
     "gibsFields": {
@@ -1893,6 +1894,22 @@
           "dnc": "DNC"
         }
       },
+      "angularity": {
+        "hasBeenAdjusted": "A Angularidade foi ajustada?",
+        "beforeAdjustment": "Antes do Ajuste",
+        "afterAdjustment": "Após o Ajuste",
+        "frontRear": "Frente-Traseira",
+        "leftRight": "Esquerda-Direita",
+        "enterValue": "Digite o valor...",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Adicione quaisquer notas ou observações adicionais...",
+        "selectOption": "Selecione uma opção",
+        "options": {
+          "yes": "Sim",
+          "no": "Não",
+          "dnc": "DNC"
+        }
+      },
       "cancel": "Cancelar",
       "submit": {
         "idle": "Criar Vistoria",
@@ -2194,7 +2211,8 @@
         "cracksLocation": "Se \"Sim\" acima, onde?",
         "isMainMotorSecure": "O Motor Principal Está Seguro?",
         "isMotorPlateSecure": "A Placa do Motor Está Segura?",
-        "whyNotCovered": "Por que não coberto"
+        "whyNotCovered": "Por que não coberto",
+        "fillAngularity": "Preencher Angularidade"
       },
       "stepper": {
         "details": "Detalhes",

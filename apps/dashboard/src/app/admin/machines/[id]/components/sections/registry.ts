@@ -13,6 +13,7 @@ import { ShimThicknessSection } from './ShimThicknessSection';
 import { DieCushionSection } from './DieCushionSection';
 import { ElectricalControlSection } from './ElectricalControlSection';
 import { PerpendicularitySection } from './PerpendicularitySection';
+import { AngularitySection } from './AngularitySection';
 
 /**
  * Configuration for a single section
@@ -172,6 +173,15 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
     metadata: {
       image: '/assets/sections/perpendicularity.svg',
       i18nKey: 'perpendicularity',
+    },
+  },
+
+  ANGULARITY: {
+    key: 'ANGULARITY',
+    component: AngularitySection,
+    metadata: {
+      image: '/assets/sections/perpendicularity.svg',
+      i18nKey: 'angularity',
     },
   },
 };

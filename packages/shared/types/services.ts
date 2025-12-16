@@ -79,6 +79,7 @@ export type {
   DieCushionCheck,
   ElectricalControlCheck,
   PerpendicularityCheck,
+  AngularityCheck,
 } from '../backend-dtos/requests-dto/service/service.dto';
 
 // Re-export service payload and entity types
@@ -125,6 +126,7 @@ export {
   PistonsCheckSchema,
   ElectricalControlCheckSchema,
   PerpendicularityCheckSchema,
+  AngularityCheckSchema,
   CreateServiceSchema,
   CreateServicePayloadSchema,
   UpdateServicePayloadSchema,

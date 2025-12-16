@@ -60,6 +60,7 @@ export type {
   DieCushionCheck,
   ElectricalControlCheck,
   PerpendicularityCheck,
+  AngularityCheck,
   // Service entity
   Service,
   ServiceHistoryItem,

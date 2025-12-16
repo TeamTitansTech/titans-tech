@@ -1005,6 +1005,7 @@
       "dieCushion": "Cojín del Troquel",
       "electricalControl": "Control Eléctrico",
       "perpendicularity": "Perpendicularidad",
+      "angularity": "Angularidad",
       "unknown": "Sección Desconocida"
     },
     "gibsFields": {
@@ -1893,6 +1894,22 @@
           "dnc": "DNC"
         }
       },
+      "angularity": {
+        "hasBeenAdjusted": "¿Se ha ajustado la Angularidad?",
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "frontRear": "Frente-Trasero",
+        "leftRight": "Izquierda-Derecha",
+        "enterValue": "Ingrese el valor...",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "selectOption": "Seleccione una opción",
+        "options": {
+          "yes": "Sí",
+          "no": "No",
+          "dnc": "DNC"
+        }
+      },
       "cancel": "Cancelar",
       "submit": {
         "idle": "Crear Inspección",
@@ -2126,7 +2143,8 @@
         "cracksLocation": "Si \"Sí\" arriba, ¿dónde?",
         "isMainMotorSecure": "¿El Motor Principal Está Seguro?",
         "isMotorPlateSecure": "¿La Placa del Motor Está Segura?",
-        "whyNotCovered": "Por qué no cubierto"
+        "whyNotCovered": "Por qué no cubierto",
+        "fillAngularity": "Llenar Angularidad"
       },
       "stepper": {
         "details": "Detalles",

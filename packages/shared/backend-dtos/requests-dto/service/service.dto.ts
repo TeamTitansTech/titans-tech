@@ -628,6 +628,23 @@ export const PerpendicularityCheckSchema = z.object({
 
 export type PerpendicularityCheck = z.infer<typeof PerpendicularityCheckSchema>;
 
+export const AngularityCheckSchema = z.object({
+  // Has angularity been adjusted?
+  hasBeenAdjusted: z.nativeEnum(PrismaYesNoDncType).optional(),
+
+  // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
+  beforeFR: z.union([z.number(), z.string()]).optional(),
+  beforeLR: z.union([z.number(), z.string()]).optional(),
+
+  // After Adjustment measurements
+  afterFR: z.union([z.number(), z.string()]).optional(),
+  afterLR: z.union([z.number(), z.string()]).optional(),
+
+  notes: z.string().optional(),
+});
+
+export type AngularityCheck = z.infer<typeof AngularityCheckSchema>;
+
 // ============================================================================
 // Service Payload and Entity Schemas
 // ============================================================================
@@ -675,6 +692,7 @@ export const CreateServicePayloadSchema = z.object({
   isMainMotorSecure: z.enum(PrismaYesNoDncType).optional(),
   isMotorPlateSecure: z.enum(PrismaYesNoDncType).optional(),
   whyNotCovered: z.string().optional(),
+  fillAngularity: z.boolean().optional(),
 
   bearingClearance: BearingClearanceCheckSchema.optional(),
   bearingClearanceSingleHammer: BearingClearanceSingleHammerCheckSchema.optional(),
@@ -690,6 +708,7 @@ export const CreateServicePayloadSchema = z.object({
   dieCushion: DieCushionCheckSchema.optional(),
   electricalControl: ElectricalControlCheckSchema.optional(),
   perpendicularity: PerpendicularityCheckSchema.optional(),
+  angularity: AngularityCheckSchema.optional(),
 });
 
 export type CreateServicePayload = z.infer<typeof CreateServicePayloadSchema>;
@@ -716,6 +735,7 @@ export const UpdateServicePayloadSchema = z.object({
   isMainMotorSecure: z.enum(PrismaYesNoDncType).optional(),
   isMotorPlateSecure: z.enum(PrismaYesNoDncType).optional(),
   whyNotCovered: z.string().optional(),
+  fillAngularity: z.boolean().optional(),
 
   bearingClearance: BearingClearanceCheckSchema.optional(),
   bearingClearanceSingleHammer: BearingClearanceSingleHammerCheckSchema.optional(),
@@ -731,6 +751,7 @@ export const UpdateServicePayloadSchema = z.object({
   dieCushion: DieCushionCheckSchema.optional(),
   electricalControl: ElectricalControlCheckSchema.optional(),
   perpendicularity: PerpendicularityCheckSchema.optional(),
+  angularity: AngularityCheckSchema.optional(),
 });
 
 export type UpdateServicePayload = z.infer<typeof UpdateServicePayloadSchema>;

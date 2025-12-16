@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/ui/typography';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -62,6 +63,10 @@ interface DetailsStepProps {
   whyNotCovered: WhyNotCoveredType | undefined;
   setWhyNotCovered: (value: string) => void;
 
+  // Fill Angularity checkbox
+  fillAngularity: boolean;
+  setFillAngularity: (value: boolean) => void;
+
   // Optional machine data (for read-only display)
   machine?: {
     manufacturer?: string;
@@ -110,6 +115,7 @@ interface DetailsStepProps {
     isMainMotorSecure: string;
     isMotorPlateSecure: string;
     whyNotCovered: string;
+    fillAngularity: string;
   };
 }
 
@@ -146,6 +152,8 @@ export function DetailsStep({
   setIsMotorPlateSecure,
   whyNotCovered,
   setWhyNotCovered,
+  fillAngularity,
+  setFillAngularity,
   machine,
   translations,
 }: DetailsStepProps) {
@@ -461,6 +469,18 @@ export function DetailsStep({
                   <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Fill Angularity Checkbox */}
+            <div className="flex items-center space-x-2 pt-2">
+              <Checkbox
+                id="fillAngularity"
+                checked={fillAngularity}
+                onCheckedChange={(checked) => setFillAngularity(checked === true)}
+              />
+              <Label htmlFor="fillAngularity" className="cursor-pointer">
+                {translations.fillAngularity}
+              </Label>
             </div>
           </div>
         </div>

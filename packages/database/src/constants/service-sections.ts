@@ -61,6 +61,10 @@ export const SERVICE_SECTION_CONFIG = {
     slug: 'perpendicularity',
     displayName: 'Perpendicularity',
   },
+  [ServiceSection.ANGULARITY]: {
+    slug: 'angularity',
+    displayName: 'Angularity',
+  },
 } as const;
 
 export const SERVICE_SECTIONS = Object.values(ServiceSection);

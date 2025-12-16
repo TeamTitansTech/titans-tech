@@ -525,6 +525,7 @@ export class ServicesService {
         dieCushion: true,
         electricalControl: true,
         perpendicularity: true,
+        angularity: true,
       },
     });
 
@@ -638,6 +639,7 @@ export class ServicesService {
         dieCushion: true,
         electricalControl: true,
         perpendicularity: true,
+        angularity: true,
       },
       orderBy: {
         date: 'desc',
@@ -743,6 +745,7 @@ export class ServicesService {
         dieCushion: true,
         electricalControl: true,
         perpendicularity: true,
+        angularity: true,
       },
       orderBy: {
         date: 'desc',
@@ -849,6 +852,7 @@ export class ServicesService {
         dieCushion: true,
         electricalControl: true,
         perpendicularity: true,
+        angularity: true,
       },
     });
 
@@ -966,6 +970,7 @@ export class ServicesService {
         dieCushion: true,
         electricalControl: true,
         perpendicularity: true,
+        angularity: true,
         // Include alert entities for status display
         alertBearingClearance: {
           orderBy: { createdAt: 'desc' },
@@ -1122,6 +1127,7 @@ export class ServicesService {
         dieCushion: true,
         electricalControl: true,
         perpendicularity: true,
+        angularity: true,
       },
       orderBy: { date: 'desc' },
     });
@@ -3212,6 +3218,95 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
+  async updateAngularity(
+    serviceId: string,
+    updateDto: {
+      hasBeenAdjusted?: string;
+      beforeFR?: number | string;
+      beforeLR?: number | string;
+      afterFR?: number | string;
+      afterLR?: number | string;
+      notes?: string;
+    },
+    userId: string | null,
+  ): Promise<any> {
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { angularity: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes('ANGULARITY')
+      ? completedSections
+      : [...completedSections, 'ANGULARITY'];
+
+    const existingRecord = service.angularity?.[0];
+
+    // Convert string values to Decimal
+    const toDecimal = (value: number | string | undefined) => {
+      if (value === undefined || value === null || value === '')
+        return undefined;
+      return typeof value === 'string' ? parseFloat(value) : value;
+    };
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.machineServiceAngularity.update({
+          where: { id: existingRecord.id },
+          data: {
+            hasBeenAdjusted: updateDto.hasBeenAdjusted as any,
+            beforeFR: toDecimal(updateDto.beforeFR),
+            beforeLR: toDecimal(updateDto.beforeLR),
+            afterFR: toDecimal(updateDto.afterFR),
+            afterLR: toDecimal(updateDto.afterLR),
+            notes: updateDto.notes,
+          },
+        });
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          angularity: {
+            create: {
+              hasBeenAdjusted: updateDto.hasBeenAdjusted as any,
+              beforeFR: toDecimal(updateDto.beforeFR),
+              beforeLR: toDecimal(updateDto.beforeLR),
+              afterFR: toDecimal(updateDto.afterFR),
+              afterLR: toDecimal(updateDto.afterLR),
+              notes: updateDto.notes,
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
   async completeService(
     serviceId: string,
     completeDto: CompleteServiceDto,
@@ -3332,6 +3427,7 @@ export class ServicesService {
         dieCushion: true,
         electricalControl: true,
         perpendicularity: true,
+        angularity: true,
       },
     });
 

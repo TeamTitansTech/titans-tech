@@ -115,6 +115,8 @@ function ServiceSummaryModalContent({
     shimThickness: 'SHIM_THICKNESS',
     dieCushion: 'DIE_CUSHION',
     electricalControl: 'ELECTRICAL_CONTROL',
+    perpendicularity: 'PERPENDICULARITY',
+    angularity: 'ANGULARITY',
   };
 
   // Helper to check if section data has actual content

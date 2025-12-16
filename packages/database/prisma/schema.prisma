@@ -364,6 +364,7 @@ enum ServiceSection {
   DIE_CUSHION
   ELECTRICAL_CONTROL
   PERPENDICULARITY
+  ANGULARITY
 }
 
 // DIE_CUSHION Section Enums
@@ -801,6 +802,7 @@ model MachineService {
   isMainMotorSecure           YesNoDncType?
   isMotorPlateSecure          YesNoDncType?
   whyNotCovered               String?
+  fillAngularity              Boolean?                    @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -831,6 +833,7 @@ model MachineService {
   dieCushion                        MachineServiceDieCushion[]
   electricalControl                 MachineServiceElectricalControl[]
   perpendicularity                  MachineServicePerpendicularity[]
+  angularity                        MachineServiceAngularity[]
 
   @@index([serviceRequestId])
   @@map("machine_services")
@@ -1923,6 +1926,28 @@ model MachineServicePerpendicularity {
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
   @@map("machine_service_perpendicularity")
+}
+
+model MachineServiceAngularity {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Has angularity been adjusted?
+  hasBeenAdjusted YesNoDncType?
+
+  // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
+  beforeFR Decimal? @db.Decimal(10, 4)
+  beforeLR Decimal? @db.Decimal(10, 4)
+
+  // After Adjustment measurements
+  afterFR Decimal? @db.Decimal(10, 4)
+  afterLR Decimal? @db.Decimal(10, 4)
+
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("machine_service_angularity")
 }
 
 // Service Request - Public QR code maintenance requests

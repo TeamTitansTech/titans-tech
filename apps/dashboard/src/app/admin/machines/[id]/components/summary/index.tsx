@@ -15,6 +15,7 @@ import type {
   DieCushionCheck,
   ElectricalControlCheck,
   PerpendicularityCheck,
+  AngularityCheck,
 } from '@/data/types/services.types';
 import type { ShimThicknessSectionData } from '../sections/ShimThicknessSection';
 import { BearingClearanceSummary } from './BearingClearanceSummary';
@@ -32,6 +33,7 @@ import { ShimThicknessSummary } from './ShimThicknessSummary';
 import { DieCushionSummary } from './DieCushionSummary';
 import { ElectricalControlSummary } from './ElectricalControlSummary';
 import { PerpendiculariySummary } from './PerpendiculariySummary';
+import { AngularitySummary } from './AngularitySummary';
 
 // Re-export individual summary components
 export { BearingClearanceSummary };
@@ -49,6 +51,7 @@ export { ShimThicknessSummary };
 export { DieCushionSummary };
 export { ElectricalControlSummary };
 export { PerpendiculariySummary };
+export { AngularitySummary };
 
 // Main component that routes to appropriate summary based on section key
 export function SectionSummary({
@@ -110,6 +113,9 @@ export function SectionSummary({
 
     case 'PERPENDICULARITY':
       return <PerpendiculariySummary data={data as PerpendicularityCheck} />;
+
+    case 'ANGULARITY':
+      return <AngularitySummary data={data as AngularityCheck} />;
 
     // For all other sections, use the generic summary component
     // This displays data in a readable format instead of raw JSON

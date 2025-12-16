@@ -18,6 +18,7 @@ export const SERVICE_SECTION_SLUGS = [
   'die_cushion',
   'electrical_control',
   'perpendicularity',
+  'angularity',
 ] as const;
 
 export type ServiceSectionSlug = (typeof SERVICE_SECTION_SLUGS)[number];

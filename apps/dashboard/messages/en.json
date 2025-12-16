@@ -1005,6 +1005,7 @@
       "dieCushion": "Die Cushion",
       "electricalControl": "Electrical Control",
       "perpendicularity": "Perpendicularity",
+      "angularity": "Angularity",
       "unknown": "Unknown Section"
     },
     "gibsFields": {
@@ -1893,6 +1894,22 @@
           "dnc": "DNC"
         }
       },
+      "angularity": {
+        "hasBeenAdjusted": "Has Angularity been adjusted?",
+        "beforeAdjustment": "Before Adjustment",
+        "afterAdjustment": "After Adjustment",
+        "frontRear": "Front-Rear",
+        "leftRight": "Left-Right",
+        "enterValue": "Enter value...",
+        "notes": "Notes (Optional)",
+        "notesPlaceholder": "Add any additional notes or observations...",
+        "selectOption": "Select an option",
+        "options": {
+          "yes": "Yes",
+          "no": "No",
+          "dnc": "DNC"
+        }
+      },
       "cancel": "Cancel",
       "submit": {
         "idle": "Create Inspection",
@@ -2126,7 +2143,8 @@
         "cracksLocation": "If \"Yes\" above, where?",
         "isMainMotorSecure": "Is Main Motor Secure?",
         "isMotorPlateSecure": "Is Motor Plate Secure?",
-        "whyNotCovered": "Why not covered"
+        "whyNotCovered": "Why not covered",
+        "fillAngularity": "Fill Angularity"
       },
       "stepper": {
         "details": "Details",

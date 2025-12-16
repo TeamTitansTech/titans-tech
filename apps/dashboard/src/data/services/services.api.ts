@@ -114,6 +114,7 @@ export const updateServiceSection = async (
     DIE_CUSHION: 'die-cushion',
     ELECTRICAL_CONTROL: 'electrical-control',
     PERPENDICULARITY: 'perpendicularity',
+    ANGULARITY: 'angularity',
   };
 
   const endpoint = sectionEndpointMap[sectionKey];
