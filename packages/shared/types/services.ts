@@ -58,6 +58,7 @@ export {
 export type {
   BearingClearanceData,
   BearingClearanceCheck,
+  BearingClearanceSingleHammerCheck,
   SlideData,
   SlideCheck,
   SlideSingleHammerCheck,
@@ -78,6 +79,7 @@ export type {
   DieCushionCheck,
   ElectricalControlCheck,
   PerpendicularityCheck,
+  AngularityCheck,
 } from '../backend-dtos/requests-dto/service/service.dto';
 
 // Re-export service payload and entity types
@@ -106,6 +108,7 @@ export type {
 export {
   BearingClearanceDataSchema,
   BearingClearanceCheckSchema,
+  BearingClearanceSingleHammerCheckSchema,
   SlideDataSchema,
   SlideCheckSchema,
   GibsStageDataSchema,
@@ -123,6 +126,7 @@ export {
   PistonsCheckSchema,
   ElectricalControlCheckSchema,
   PerpendicularityCheckSchema,
+  AngularityCheckSchema,
   CreateServiceSchema,
   CreateServicePayloadSchema,
   UpdateServicePayloadSchema,

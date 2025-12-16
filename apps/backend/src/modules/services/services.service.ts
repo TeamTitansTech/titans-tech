@@ -11,6 +11,7 @@ import { PrismaService } from '../shared/prisma.service';
 import {
   LatestReportResponseDto,
   LatestBearingClearanceDto,
+  LatestBearingClearanceSingleHammerDto,
   LatestClutchDto,
   LatestSlideSingleHammerDto,
   LatestSlideDoubleHammerDto,
@@ -19,10 +20,16 @@ import {
   LatestCounterbalanceDto,
   LatestPistonsDto,
   LatestTrammingDto,
+  LatestShimThicknessDto,
+  LatestDieCushionDto,
+  LatestElectricalControlDto,
+  LatestPerpendicularityDto,
+  LatestAngularityDto,
   CreateServiceDto,
   UpdateServicePayload,
   CompleteServiceDto,
   BearingClearanceCheck,
+  BearingClearanceSingleHammerCheck,
   SlideSingleHammerCheck,
   SlideDoubleHammerCheck,
   GibsCheck,
@@ -444,6 +451,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -517,6 +530,8 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
     });
 
@@ -550,6 +565,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -623,6 +644,8 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
       orderBy: {
         date: 'desc',
@@ -648,6 +671,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -721,6 +750,8 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
       orderBy: {
         date: 'desc',
@@ -747,6 +778,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -820,6 +857,8 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
     });
 
@@ -857,6 +896,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -930,8 +975,14 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
         // Include alert entities for status display
         alertBearingClearance: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertBearingClearanceSingleHammer: {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
@@ -1006,6 +1057,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -1079,6 +1136,8 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
       orderBy: { date: 'desc' },
     });
@@ -1481,7 +1540,216 @@ export class ServicesService {
       }
     }
 
-    // 11. Build response
+    // 11. Process Bearing Clearance Single Hammer section
+    let bearingClearanceSingleHammerData: LatestBearingClearanceSingleHammerDto | null =
+      null;
+
+    if (
+      machine.blueprint.sections.includes(
+        ServiceSection.BEARING_CLEARANCE_SINGLE_HAMMER,
+      )
+    ) {
+      const latestService = services.find(
+        (service) =>
+          service.bearingClearanceSingleHammer &&
+          service.bearingClearanceSingleHammer.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.bearingClearanceSingleHammer[0];
+        if (record) {
+          bearingClearanceSingleHammerData =
+            new LatestBearingClearanceSingleHammerDto({
+              latestServiceId: latestService.id,
+              latestServiceDate: latestService.date,
+              serviceType: latestService.type,
+              data: {
+                beforeData: record.beforeData || undefined,
+                data: record.data || undefined,
+              },
+            });
+        }
+      }
+    }
+
+    // 12. Process Shim Thickness section
+    let shimThicknessData: LatestShimThicknessDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.SHIM_THICKNESS)) {
+      const latestService = services.find(
+        (service) => service.shimThickness && service.shimThickness.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.shimThickness[0];
+        if (record) {
+          shimThicknessData = new LatestShimThicknessDto({
+            latestServiceId: latestService.id,
+            latestServiceDate: latestService.date,
+            serviceType: latestService.type,
+            data: {
+              outerLhData: record.outerLhData || undefined,
+              outerRhData: record.outerRhData || undefined,
+              innerLhData: record.innerLhData || undefined,
+              innerRhData: record.innerRhData || undefined,
+              notes: record.notes || undefined,
+            },
+          });
+        }
+      }
+    }
+
+    // 13. Process Die Cushion section
+    let dieCushionData: LatestDieCushionDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.DIE_CUSHION)) {
+      const latestService = services.find(
+        (service) => service.dieCushion && service.dieCushion.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.dieCushion[0];
+        if (record) {
+          dieCushionData = new LatestDieCushionDto({
+            latestServiceId: latestService.id,
+            latestServiceDate: latestService.date,
+            serviceType: latestService.type,
+            data: {
+              airLeaks: record.airLeaks || undefined,
+              airLeaksLocation: record.airLeaksLocation || undefined,
+              pneumaticsPlumbing: record.pneumaticsPlumbing || undefined,
+              lubrication: record.lubrication || undefined,
+              notes: record.notes || undefined,
+            },
+          });
+        }
+      }
+    }
+
+    // 14. Process Electrical Control section
+    let electricalControlData: LatestElectricalControlDto | null = null;
+
+    if (
+      machine.blueprint.sections.includes(ServiceSection.ELECTRICAL_CONTROL)
+    ) {
+      const latestService = services.find(
+        (service) =>
+          service.electricalControl && service.electricalControl.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.electricalControl[0];
+        if (record) {
+          electricalControlData = new LatestElectricalControlDto({
+            latestServiceId: latestService.id,
+            latestServiceDate: latestService.date,
+            serviceType: latestService.type,
+            data: {
+              hasHourMeter: record.hasHourMeter || undefined,
+              hourMeterReading: record.hourMeterReading || undefined,
+              isMinsterControl: record.isMinsterControl || undefined,
+              minsterControlOther: record.minsterControlOther || undefined,
+              controlDoorStop: record.controlDoorStop || undefined,
+              cabinetTemp: record.cabinetTemp || undefined,
+              incomingLine: record.incomingLine || undefined,
+              fullVoltage: record.fullVoltage || undefined,
+              contactor: record.contactor || undefined,
+              overloads: record.overloads || undefined,
+              transformers: record.transformers || undefined,
+              brakeValve: record.brakeValve || undefined,
+              clutchValve: record.clutchValve || undefined,
+              wiring: record.wiring || undefined,
+              terminals: record.terminals || undefined,
+              twentyFourVBuss: record.twentyFourVBuss || undefined,
+              safetyRelays: record.safetyRelays || undefined,
+              notes: record.notes || undefined,
+            },
+          });
+        }
+      }
+    }
+
+    // 15. Process Perpendicularity section
+    let perpendicularityData: LatestPerpendicularityDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.PERPENDICULARITY)) {
+      const latestService = services.find(
+        (service) =>
+          service.perpendicularity && service.perpendicularity.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.perpendicularity[0];
+        if (record) {
+          perpendicularityData = new LatestPerpendicularityDto({
+            latestServiceId: latestService.id,
+            latestServiceDate: latestService.date,
+            serviceType: latestService.type,
+            data: {
+              hasBeenAdjusted: record.hasBeenAdjusted || undefined,
+              beforeFR: record.beforeFR ? Number(record.beforeFR) : undefined,
+              beforeLR: record.beforeLR ? Number(record.beforeLR) : undefined,
+              afterFR: record.afterFR ? Number(record.afterFR) : undefined,
+              afterLR: record.afterLR ? Number(record.afterLR) : undefined,
+              notes: record.notes || undefined,
+            },
+          });
+        }
+      }
+    }
+
+    // 16. Process Angularity section (can also be triggered by fillAngularity checkbox)
+    let angularityData: LatestAngularityDto | null = null;
+
+    // Check if blueprint has ANGULARITY or if any service has fillAngularity=true
+    const hasAngularitySection =
+      machine.blueprint.sections.includes(ServiceSection.ANGULARITY) ||
+      services.some((s) => s.fillAngularity === true);
+
+    if (hasAngularitySection) {
+      const latestService = services.find(
+        (service) => service.angularity && service.angularity.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.angularity[0];
+        if (record) {
+          angularityData = new LatestAngularityDto({
+            latestServiceId: latestService.id,
+            latestServiceDate: latestService.date,
+            serviceType: latestService.type,
+            data: {
+              hasBeenAdjusted: record.hasBeenAdjusted || undefined,
+              spm: record.spm ? Number(record.spm) : undefined,
+              distanceOfIndicatorTip: record.distanceOfIndicatorTip
+                ? Number(record.distanceOfIndicatorTip)
+                : undefined,
+              locationOfIndicator: record.locationOfIndicator || undefined,
+              counterbalancePressure: record.counterbalancePressure
+                ? Number(record.counterbalancePressure)
+                : undefined,
+              strokePartBeingRead: record.strokePartBeingRead || undefined,
+              shutheightSetAt: record.shutheightSetAt || undefined,
+              whatWasUsedAsSquare: record.whatWasUsedAsSquare || undefined,
+              whereWasSquarePlaced: record.whereWasSquarePlaced || undefined,
+              indicatorUsedGraduation:
+                record.indicatorUsedGraduation || undefined,
+              tipKindOnIndicator: record.tipKindOnIndicator || undefined,
+              totalLiftCheck: record.totalLiftCheck
+                ? Number(record.totalLiftCheck)
+                : undefined,
+              beforeFR: record.beforeFR ? Number(record.beforeFR) : undefined,
+              beforeLR: record.beforeLR ? Number(record.beforeLR) : undefined,
+              afterFR: record.afterFR ? Number(record.afterFR) : undefined,
+              afterLR: record.afterLR ? Number(record.afterLR) : undefined,
+              notes: record.notes || undefined,
+            },
+          });
+        }
+      }
+    }
+
+    // 17. Build response
     return new LatestReportResponseDto({
       machineId: machine.id,
       machineName: machine.name,
@@ -1493,6 +1761,7 @@ export class ServicesService {
       generatedAt: new Date(),
       sections: {
         BEARING_CLEARANCE: bearingClearanceData,
+        BEARING_CLEARANCE_SINGLE_HAMMER: bearingClearanceSingleHammerData,
         SLIDE_SINGLE_HAMMER: slideSingleHammerData,
         SLIDE_DOUBLE_HAMMER: slideDoubleHammerData,
         GIBS: gibsData,
@@ -1501,6 +1770,11 @@ export class ServicesService {
         CLUTCH: clutchData,
         COUNTERBALANCE_CYLINDER_AIRBAG: counterbalanceData,
         TRAMMING: trammingData,
+        SHIM_THICKNESS: shimThicknessData,
+        DIE_CUSHION: dieCushionData,
+        ELECTRICAL_CONTROL: electricalControlData,
+        PERPENDICULARITY: perpendicularityData,
+        ANGULARITY: angularityData,
       },
     });
   }
@@ -1611,6 +1885,110 @@ export class ServicesService {
             }),
             ...(updateDto.innerData && {
               innerData: { create: updateDto.innerData as any },
+            }),
+          },
+        });
+      }
+
+      // Update service with completed sections
+      await tx.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+        },
+      });
+    });
+
+    // Note: Alerts are generated only when service is completed via completeService()
+    return this.findOne(serviceId);
+  }
+
+  async updateBearingClearanceSingleHammer(
+    serviceId: string,
+    updateDto: BearingClearanceSingleHammerCheck,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    // Check if service exists
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { bearingClearanceSingleHammer: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    // Get existing completed sections
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    // Add BEARING_CLEARANCE_SINGLE_HAMMER to completed if not already there
+    const updatedCompletedSections = completedSections.includes(
+      'BEARING_CLEARANCE_SINGLE_HAMMER',
+    )
+      ? completedSections
+      : [...completedSections, 'BEARING_CLEARANCE_SINGLE_HAMMER'];
+
+    await this.prisma.$transaction(async (tx) => {
+      const existingRecord = service.bearingClearanceSingleHammer?.[0];
+
+      // Helper function to upsert nested bearing clearance data
+      const upsertData = async (
+        data: any,
+        existingId: string | null | undefined,
+      ) => {
+        if (!data) return existingId;
+
+        if (existingId) {
+          // Update existing
+          await tx.bearingClearanceData.update({
+            where: { id: existingId },
+            data: data as any,
+          });
+          return existingId;
+        } else {
+          // Create new
+          const created = await tx.bearingClearanceData.create({
+            data: data as any,
+          });
+          return created.id;
+        }
+      };
+
+      if (existingRecord) {
+        // Update existing bearing clearance single hammer record
+        const beforeDataId = await upsertData(
+          updateDto.beforeData,
+          existingRecord.beforeDataId,
+        );
+        const dataId = await upsertData(updateDto.data, existingRecord.dataId);
+
+        await tx.machineServiceBearingClearanceSingleHammer.update({
+          where: { id: existingRecord.id },
+          data: {
+            ...(beforeDataId && { beforeDataId }),
+            ...(dataId && { dataId }),
+          },
+        });
+      } else {
+        // Create new bearing clearance single hammer record
+        await tx.machineServiceBearingClearanceSingleHammer.create({
+          data: {
+            machineService: { connect: { id: serviceId } },
+            ...(updateDto.beforeData && {
+              beforeData: { create: updateDto.beforeData as any },
+            }),
+            ...(updateDto.data && {
+              data: { create: updateDto.data as any },
             }),
           },
         });
@@ -3065,6 +3443,95 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
+  async updateAngularity(
+    serviceId: string,
+    updateDto: {
+      hasBeenAdjusted?: string;
+      beforeFR?: number | string;
+      beforeLR?: number | string;
+      afterFR?: number | string;
+      afterLR?: number | string;
+      notes?: string;
+    },
+    userId: string | null,
+  ): Promise<any> {
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { angularity: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes('ANGULARITY')
+      ? completedSections
+      : [...completedSections, 'ANGULARITY'];
+
+    const existingRecord = service.angularity?.[0];
+
+    // Convert string values to Decimal
+    const toDecimal = (value: number | string | undefined) => {
+      if (value === undefined || value === null || value === '')
+        return undefined;
+      return typeof value === 'string' ? parseFloat(value) : value;
+    };
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.machineServiceAngularity.update({
+          where: { id: existingRecord.id },
+          data: {
+            hasBeenAdjusted: updateDto.hasBeenAdjusted as any,
+            beforeFR: toDecimal(updateDto.beforeFR),
+            beforeLR: toDecimal(updateDto.beforeLR),
+            afterFR: toDecimal(updateDto.afterFR),
+            afterLR: toDecimal(updateDto.afterLR),
+            notes: updateDto.notes,
+          },
+        });
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          angularity: {
+            create: {
+              hasBeenAdjusted: updateDto.hasBeenAdjusted as any,
+              beforeFR: toDecimal(updateDto.beforeFR),
+              beforeLR: toDecimal(updateDto.beforeLR),
+              afterFR: toDecimal(updateDto.afterFR),
+              afterLR: toDecimal(updateDto.afterLR),
+              notes: updateDto.notes,
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
   async completeService(
     serviceId: string,
     completeDto: CompleteServiceDto,
@@ -3124,6 +3591,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -3178,6 +3651,8 @@ export class ServicesService {
         },
         dieCushion: true,
         electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
     });
 
@@ -3188,6 +3663,17 @@ export class ServicesService {
       this.alertsService.generateAlertsForService(serviceId).catch((error) => {
         console.error('Error generating bearing clearance alerts:', error);
       });
+    }
+
+    if (completedSectionsList.includes('BEARING_CLEARANCE_SINGLE_HAMMER')) {
+      this.alertsService
+        .generateBearingClearanceSingleHammerAlertsForService(serviceId)
+        .catch((error) => {
+          console.error(
+            'Error generating bearing clearance single hammer alerts:',
+            error,
+          );
+        });
     }
 
     if (completedSectionsList.includes('CLUTCH')) {
@@ -3264,6 +3750,10 @@ export class ServicesService {
       where: { id: serviceId },
       include: {
         alertBearingClearance: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertBearingClearanceSingleHammer: {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
@@ -3436,6 +3926,80 @@ export class ServicesService {
         sections.push({
           sectionKey: 'BEARING_CLEARANCE',
           sectionName: 'Bearing Clearance',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Process Bearing Clearance Single Hammer alerts
+    if (
+      service.alertBearingClearanceSingleHammer &&
+      service.alertBearingClearanceSingleHammer.length > 0
+    ) {
+      const alert = service.alertBearingClearanceSingleHammer[0];
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const bcshFields = [
+        {
+          field: 'totalClearance',
+          label: 'Total Clearance',
+          severity: alert.totalClearance_severity as AlertSeverityDto,
+          value: alert.totalClearance_differential?.toString() || '0',
+        },
+        {
+          field: 'mainBearings',
+          label: 'Main Bearings',
+          severity: alert.mainBearings_severity as AlertSeverityDto,
+          value: alert.mainBearings_differential?.toString() || '0',
+        },
+        {
+          field: 'upperConnectionBearings',
+          label: 'Upper Connection Bearings',
+          severity: alert.upperConnectionBearings_severity as AlertSeverityDto,
+          value: alert.upperConnectionBearings_differential?.toString() || '0',
+        },
+        {
+          field: 'wristPinToMatingPart',
+          label: 'Wrist Pin to Mating Part',
+          severity: alert.wristPinToMatingPart_severity as AlertSeverityDto,
+          value: alert.wristPinToMatingPart_differential?.toString() || '0',
+        },
+        {
+          field: 'wristPinToBushing',
+          label: 'Wrist Pin to Bushing',
+          severity: alert.wristPinToBushing_severity as AlertSeverityDto,
+          value: alert.wristPinToBushing_differential?.toString() || '0',
+        },
+        {
+          field: 'slideAdjNutToScrewSleeve',
+          label: 'Slide Adj Nut to Screw Sleeve',
+          severity: alert.slideAdjNutToScrewSleeve_severity as AlertSeverityDto,
+          value: alert.slideAdjNutToScrewSleeve_differential?.toString() || '0',
+        },
+      ];
+
+      for (const f of bcshFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value,
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'BEARING_CLEARANCE_SINGLE_HAMMER',
+          sectionName: 'Bearing Clearance - Single Hammer',
           severity: sectionSeverity,
           alerts,
         });

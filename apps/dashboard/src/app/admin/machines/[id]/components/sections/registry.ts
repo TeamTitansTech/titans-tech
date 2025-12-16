@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { BearingClearanceSection } from './BearingClearanceSection';
+import { BearingClearanceSingleHammerSection } from './BearingClearanceSingleHammerSection';
 import { SlideSingleHammerSection } from './SlideSingleHammerSection';
 import { SlideDoubleHammerSection } from './SlideDoubleHammerSection';
 import { GibsSection } from './';
@@ -12,6 +13,7 @@ import { ShimThicknessSection } from './ShimThicknessSection';
 import { DieCushionSection } from './DieCushionSection';
 import { ElectricalControlSection } from './ElectricalControlSection';
 import { PerpendicularitySection } from './PerpendicularitySection';
+import { AngularitySection } from './AngularitySection';
 
 /**
  * Configuration for a single section
@@ -48,6 +50,15 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
     metadata: {
       image: '/assets/sections/bearing-clearance.svg',
       i18nKey: 'bearingClearance',
+    },
+  },
+
+  BEARING_CLEARANCE_SINGLE_HAMMER: {
+    key: 'BEARING_CLEARANCE_SINGLE_HAMMER',
+    component: BearingClearanceSingleHammerSection,
+    metadata: {
+      image: '/assets/sections/bearing-clearance.svg',
+      i18nKey: 'bearingClearanceSingleHammer',
     },
   },
 
@@ -162,6 +173,15 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
     metadata: {
       image: '/assets/sections/perpendicularity.svg',
       i18nKey: 'perpendicularity',
+    },
+  },
+
+  ANGULARITY: {
+    key: 'ANGULARITY',
+    component: AngularitySection,
+    metadata: {
+      image: '/assets/sections/perpendicularity.svg',
+      i18nKey: 'angularity',
     },
   },
 };

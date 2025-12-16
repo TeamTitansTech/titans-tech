@@ -29,6 +29,7 @@ const STATUS_COLORS = {
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
+  BEARING_CLEARANCE_SINGLE_HAMMER: 'bearingClearanceSingleHammer',
   SLIDE_SINGLE_HAMMER: 'slideSingleHammer',
   SLIDE_DOUBLE_HAMMER: 'slideDoubleHammer',
   GIBS: 'gibs',
@@ -45,6 +46,7 @@ const SECTION_I18N_KEYS: Record<string, string> = {
 
 const SECTION_IMAGES: Record<string, string> = {
   BEARING_CLEARANCE: '/assets/sections/bearing-clearance.svg',
+  BEARING_CLEARANCE_SINGLE_HAMMER: '/assets/sections/bearing-clearance.svg',
   SLIDE_SINGLE_HAMMER: '/assets/sections/slide.svg',
   SLIDE_DOUBLE_HAMMER: '/assets/sections/slide.svg',
   GIBS: '/assets/sections/gibs.svg',

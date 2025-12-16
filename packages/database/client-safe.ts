@@ -4,7 +4,10 @@
  */
 
 // Export only the client-safe constants
-export { SERVICE_SECTION_SLUGS } from './src/constants/service-sections.client';
+export {
+  SERVICE_SECTION_SLUGS,
+  ANGULARITY_SECTION_SLUG,
+} from './src/constants/service-sections.client';
 
 // Export types that are safe for client use (they're just TypeScript types, no runtime code)
 export type { ServiceSectionSlug } from './src/constants/service-sections.client';
