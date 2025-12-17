@@ -11,7 +11,7 @@ const PUBLIC_PATHS = ['/_next', '/api', '/favicon.ico', '/globals.css'];
 const ADMIN_PUBLIC_PATHS = ['/admin'];
 const ADMIN_LOGIN_PATH = '/admin';
 const ADMIN_ALREADY_LOGGED_PATH = '/admin/dashboard';
-const CLIENT_ALREADY_LOGGED_PATH = '/dashboard';
+const CLIENT_ALREADY_LOGGED_PATH = '/home';
 const PUBLIC_PATHS_NESTED_ROUTE: string[] = [];
 
 const CLIENT_PUBLIC_PATHS = ['/'];
@@ -127,6 +127,11 @@ export async function proxy(request: NextRequest) {
     const rewriteUrl = new URL(`/s/${subdomain}${pathname}`, request.url);
     rewriteUrl.search = request.nextUrl.search;
     return NextResponse.rewrite(rewriteUrl);
+  }
+
+  // On the root domain, redirect / to /admin
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/admin', request.url));
   }
 
   // On the root domain, allow normal access

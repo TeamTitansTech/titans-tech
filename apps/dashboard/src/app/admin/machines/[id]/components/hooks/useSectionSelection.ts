@@ -21,7 +21,19 @@ export function useSectionSelection(isInspection: boolean, machineSections: stri
   };
 
   const getSelectedSectionsArray = () => {
-    return machineSections.filter((section) => selectedSections.has(section));
+    // Get sections from machineSections that are selected
+    const machineSelectedSections = machineSections.filter((section) =>
+      selectedSections.has(section),
+    );
+
+    // Get dynamically added sections (in selectedSections but not in machineSections)
+    // This includes sections like ANGULARITY that are added via checkbox
+    const dynamicSections = Array.from(selectedSections).filter(
+      (section) => !machineSections.includes(section),
+    );
+
+    // Return machine sections first, then dynamic sections
+    return [...machineSelectedSections, ...dynamicSections];
   };
 
   const reset = (inspection: boolean, sections: string[]) => {

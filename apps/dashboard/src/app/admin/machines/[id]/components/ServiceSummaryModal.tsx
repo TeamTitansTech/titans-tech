@@ -102,6 +102,7 @@ function ServiceSummaryModalContent({
   // Map section data keys to section registry keys
   const SECTION_DATA_TO_REGISTRY_KEY: Record<string, string> = {
     bearingClearance: 'BEARING_CLEARANCE',
+    bearingClearanceSingleHammer: 'BEARING_CLEARANCE_SINGLE_HAMMER',
     slideSingleHammer: 'SLIDE_SINGLE_HAMMER',
     slideDoubleHammer: 'SLIDE_DOUBLE_HAMMER',
     gibs: 'GIBS',
@@ -114,6 +115,8 @@ function ServiceSummaryModalContent({
     shimThickness: 'SHIM_THICKNESS',
     dieCushion: 'DIE_CUSHION',
     electricalControl: 'ELECTRICAL_CONTROL',
+    perpendicularity: 'PERPENDICULARITY',
+    angularity: 'ANGULARITY',
   };
 
   // Helper to check if section data has actual content

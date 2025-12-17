@@ -15,6 +15,10 @@ import {
   CreateThresholdBearingClearanceDto,
   UpdateThresholdBearingClearanceSchema,
   UpdateThresholdBearingClearanceDto,
+  CreateThresholdBearingClearanceSingleHammerSchema,
+  CreateThresholdBearingClearanceSingleHammerDto,
+  UpdateThresholdBearingClearanceSingleHammerSchema,
+  UpdateThresholdBearingClearanceSingleHammerDto,
   CreateThresholdClutchSchema,
   CreateThresholdClutchDto,
   UpdateThresholdClutchSchema,
@@ -162,6 +166,91 @@ export class AlertsController {
   @Delete('counterbalance/:alertId')
   async deleteCounterbalanceAlert(@Param('alertId') alertId: string) {
     return this.alertsService.deleteCounterbalanceAlert(alertId);
+  }
+}
+
+// ============================================================================
+// BEARING CLEARANCE SINGLE HAMMER - Threshold & Auto-Generated Alerts
+// ============================================================================
+
+@Controller('alerts/bearing-clearance-single-hammer')
+@UseInterceptors(ClassSerializerInterceptor)
+export class AlertsBearingClearanceSingleHammerController {
+  constructor(private readonly alertsService: AlertsService) {}
+
+  @Authenticated()
+  @Get('thresholds/blueprint/:blueprintId')
+  async getBearingClearanceSingleHammerThresholdByBlueprint(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    return this.alertsService.getBearingClearanceSingleHammerThresholdByBlueprint(
+      blueprintId,
+    );
+  }
+
+  @Admin()
+  @Post('thresholds')
+  async createBearingClearanceSingleHammerThreshold(
+    @Body(
+      new ZodValidationPipe(CreateThresholdBearingClearanceSingleHammerSchema),
+    )
+    dto: CreateThresholdBearingClearanceSingleHammerDto,
+  ) {
+    return this.alertsService.createBearingClearanceSingleHammerThreshold(dto);
+  }
+
+  @Admin()
+  @Put('thresholds/blueprint/:blueprintId')
+  async updateBearingClearanceSingleHammerThreshold(
+    @Param('blueprintId') blueprintId: string,
+    @Body(
+      new ZodValidationPipe(UpdateThresholdBearingClearanceSingleHammerSchema),
+    )
+    dto: UpdateThresholdBearingClearanceSingleHammerDto,
+  ) {
+    const { recalculateAlerts, ...thresholdData } = dto;
+
+    // Update the threshold
+    const threshold =
+      await this.alertsService.updateBearingClearanceSingleHammerThreshold(
+        blueprintId,
+        thresholdData,
+      );
+
+    // If recalculateAlerts is true, regenerate alerts for all services
+    if (recalculateAlerts) {
+      const recalculationResult =
+        await this.alertsService.recalculateBearingClearanceSingleHammerAlertsForBlueprint(
+          blueprintId,
+        );
+      return {
+        threshold,
+        recalculationResult,
+      };
+    }
+
+    return { threshold };
+  }
+
+  @Admin()
+  @Delete('thresholds/blueprint/:blueprintId')
+  async deleteBearingClearanceSingleHammerThreshold(
+    @Param('blueprintId') blueprintId: string,
+  ) {
+    await this.alertsService.deleteBearingClearanceSingleHammerThreshold(
+      blueprintId,
+    );
+    return { message: 'Threshold deleted successfully' };
+  }
+
+  @Admin()
+  @Post('service/:serviceId/generate')
+  async generateBearingClearanceSingleHammerAlerts(
+    @Param('serviceId') serviceId: string,
+  ) {
+    return this.alertsService.generateBearingClearanceSingleHammerAlertsForService(
+      serviceId,
+    );
   }
 }
 

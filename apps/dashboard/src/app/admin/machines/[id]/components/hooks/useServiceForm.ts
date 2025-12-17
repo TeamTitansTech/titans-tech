@@ -48,6 +48,7 @@ export function useServiceForm(
   const [isMainMotorSecure, setIsMainMotorSecure] = useState<YesNoDncType | undefined>();
   const [isMotorPlateSecure, setIsMotorPlateSecure] = useState<YesNoDncType | undefined>();
   const [whyNotCovered, setWhyNotCoveredInternal] = useState<WhyNotCoveredType | undefined>();
+  const [fillAngularity, setFillAngularity] = useState<boolean>(false);
 
   // Wrapper functions for Select components (which pass string values)
   const setDriveBeltCondition = useCallback((value: string) => {
@@ -81,6 +82,7 @@ export function useServiceForm(
     setIsMainMotorSecure(undefined);
     setIsMotorPlateSecure(undefined);
     setWhyNotCoveredInternal(undefined);
+    setFillAngularity(false);
   };
 
   return {
@@ -114,6 +116,8 @@ export function useServiceForm(
     setIsMotorPlateSecure,
     whyNotCovered,
     setWhyNotCovered,
+    fillAngularity,
+    setFillAngularity,
     reset,
   };
 }

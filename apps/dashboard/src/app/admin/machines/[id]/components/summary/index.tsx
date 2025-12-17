@@ -3,6 +3,7 @@
 import type { AnySectionData } from '../types/service-completion.types';
 import type {
   BearingClearanceCheck,
+  BearingClearanceSingleHammerCheck,
   SlideSingleHammerCheck,
   SlideDoubleHammerCheck,
   GibsCheck,
@@ -14,9 +15,11 @@ import type {
   DieCushionCheck,
   ElectricalControlCheck,
   PerpendicularityCheck,
+  AngularityCheck,
 } from '@/data/types/services.types';
 import type { ShimThicknessSectionData } from '../sections/ShimThicknessSection';
 import { BearingClearanceSummary } from './BearingClearanceSummary';
+import { BearingClearanceSingleHammerSummary } from './BearingClearanceSingleHammerSummary';
 import { GenericSectionSummary } from './GenericSectionSummary';
 import { SlideSingleHammerSummary } from './SlideSingleHammerSummary';
 import { SlideDoubleHammerSummary } from './SlideDoubleHammerSummary';
@@ -30,9 +33,11 @@ import { ShimThicknessSummary } from './ShimThicknessSummary';
 import { DieCushionSummary } from './DieCushionSummary';
 import { ElectricalControlSummary } from './ElectricalControlSummary';
 import { PerpendiculariySummary } from './PerpendiculariySummary';
+import { AngularitySummary } from './AngularitySummary';
 
 // Re-export individual summary components
 export { BearingClearanceSummary };
+export { BearingClearanceSingleHammerSummary };
 export { GenericSectionSummary };
 export { SlideSingleHammerSummary };
 export { SlideDoubleHammerSummary };
@@ -46,6 +51,7 @@ export { ShimThicknessSummary };
 export { DieCushionSummary };
 export { ElectricalControlSummary };
 export { PerpendiculariySummary };
+export { AngularitySummary };
 
 // Main component that routes to appropriate summary based on section key
 export function SectionSummary({
@@ -60,6 +66,11 @@ export function SectionSummary({
   switch (sectionKey) {
     case 'BEARING_CLEARANCE':
       return <BearingClearanceSummary data={data as BearingClearanceCheck} />;
+
+    case 'BEARING_CLEARANCE_SINGLE_HAMMER':
+      return (
+        <BearingClearanceSingleHammerSummary data={data as BearingClearanceSingleHammerCheck} />
+      );
 
     case 'SLIDE_SINGLE_HAMMER':
       return <SlideSingleHammerSummary data={data as SlideSingleHammerCheck} />;
@@ -102,6 +113,9 @@ export function SectionSummary({
 
     case 'PERPENDICULARITY':
       return <PerpendiculariySummary data={data as PerpendicularityCheck} />;
+
+    case 'ANGULARITY':
+      return <AngularitySummary data={data as AngularityCheck} />;
 
     // For all other sections, use the generic summary component
     // This displays data in a readable format instead of raw JSON

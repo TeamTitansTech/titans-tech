@@ -37,6 +37,7 @@ import type {
   GibsStageData,
   CounterbalanceCylinderData,
   LatestPistons,
+  LatestBearingClearanceSingleHammer,
 } from '@/data/types/services.types';
 import { BEARING_FIELD_NAMES, BEARING_FIELD_LABELS } from '@titans-tech/shared/types';
 import { UnitManagerProvider, useUnitManager } from '@/contexts/UnitManagerContext';
@@ -209,6 +210,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
   };
 
   const bearingClearance = report.sections.BEARING_CLEARANCE;
+  const bearingClearanceSingleHammer = report.sections.BEARING_CLEARANCE_SINGLE_HAMMER;
   const clutch = report.sections.CLUTCH;
   const slideSingleHammer = report.sections.SLIDE_SINGLE_HAMMER;
   const slideDoubleHammer = report.sections.SLIDE_DOUBLE_HAMMER;
@@ -217,6 +219,11 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
   const counterbalance = report.sections.COUNTERBALANCE_CYLINDER_AIRBAG;
   const pistons = report.sections.PISTONS;
   const tramming = report.sections.TRAMMING;
+  const shimThickness = report.sections.SHIM_THICKNESS;
+  const dieCushion = report.sections.DIE_CUSHION;
+  const electricalControl = report.sections.ELECTRICAL_CONTROL;
+  const perpendicularity = report.sections.PERPENDICULARITY;
+  const angularity = report.sections.ANGULARITY;
 
   // Get overall worst severity for bearing clearance (outer or inner)
   const getBearingSeverity = (prefix: 'outer' | 'inner'): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
@@ -257,6 +264,64 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
     if (outerSeverity === 'YELLOW' || innerSeverity === 'YELLOW') return 'YELLOW';
     if (outerSeverity === 'GREEN' || innerSeverity === 'GREEN') return 'GREEN';
     return 'GREEN';
+  };
+
+  // Get overall worst severity for bearing clearance single hammer
+  const getBearingClearanceSingleHammerOverallSeverity = ():
+    | 'NONE'
+    | 'GREEN'
+    | 'YELLOW'
+    | 'RED' => {
+    if (!bearingClearanceSingleHammer?.alert) return 'NONE';
+
+    const alert = bearingClearanceSingleHammer.alert;
+    const severities = new Set([
+      alert.totalClearance_severity,
+      alert.mainBearings_severity,
+      alert.upperConnectionBearings_severity,
+      alert.wristPinToMatingPart_severity,
+      alert.wristPinToBushing_severity,
+      alert.slideAdjNutToScrewSleeve_severity,
+    ]);
+
+    if (severities.has('RED')) return 'RED';
+    if (severities.has('YELLOW')) return 'YELLOW';
+    if (severities.has('GREEN')) return 'GREEN';
+    return 'GREEN';
+  };
+
+  // Extract bearing clearance single hammer measurement rows
+  const extractBearingClearanceSingleHammerRows = (
+    data: BearingClearanceData | undefined,
+    alert: LatestBearingClearanceSingleHammer['alert'] | undefined,
+  ) => {
+    if (!data) return [];
+
+    return BEARING_FIELD_NAMES.map((field) => {
+      const lhKey = `${field}_LH` as keyof BearingClearanceData;
+      const rhKey = `${field}_RH` as keyof BearingClearanceData;
+      const lh = data[lhKey] as number | undefined;
+      const rh = data[rhKey] as number | undefined;
+
+      const differentialKey = `${field}_differential` as keyof NonNullable<typeof alert>;
+      const severityKey = `${field}_severity` as keyof NonNullable<typeof alert>;
+
+      const differential = alert
+        ? (alert[differentialKey] as number | undefined)
+        : lh !== undefined && rh !== undefined
+          ? Math.abs(Number(rh) - Number(lh))
+          : undefined;
+
+      const severity = alert
+        ? (alert[severityKey] as 'NONE' | 'GREEN' | 'YELLOW' | 'RED')
+        : ('NONE' as const);
+
+      return {
+        field: BEARING_FIELD_LABELS[field],
+        differential: typeof differential === 'number' ? formatLength(differential) : '-',
+        severity,
+      };
+    });
   };
 
   // Get overall worst severity for clutch
@@ -593,6 +658,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
       <div ref={contentRef} className="flex-1 overflow-y-auto px-1 py-4">
         {bearingClearance ||
+        bearingClearanceSingleHammer ||
         clutch ||
         slideSingleHammer ||
         slideDoubleHammer ||
@@ -600,7 +666,12 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
         pistons ||
         lubrication ||
         counterbalance ||
-        tramming ? (
+        tramming ||
+        shimThickness ||
+        dieCushion ||
+        electricalControl ||
+        perpendicularity ||
+        angularity ? (
           <div className="space-y-4">
             {bearingClearance && (
               <div className="border rounded-lg p-4">
@@ -1556,6 +1627,432 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     </div>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Bearing Clearance Single Hammer Section */}
+            {bearingClearanceSingleHammer && (
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <Typography variant="h4" className="font-semibold">
+                    Bearing Clearance - Single Hammer
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(getBearingClearanceSingleHammerOverallSeverity())}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')}{' '}
+                      {format(
+                        new Date(bearingClearanceSingleHammer.latestServiceDate),
+                        'dd-MM-yyyy',
+                      )}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {bearingClearanceSingleHammer.data.data && (
+                    <div className="border rounded-md overflow-hidden">
+                      <div className="bg-muted/30 px-4 py-2 font-semibold">After Adjustment</div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Differential ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {extractBearingClearanceSingleHammerRows(
+                            bearingClearanceSingleHammer.data.data,
+                            bearingClearanceSingleHammer.alert,
+                          ).map((row, idx) => (
+                            <TableRow key={idx} className="hover:bg-muted/30">
+                              <TableCell className="font-medium">{row.field}</TableCell>
+                              <TableCell className="text-center">{row.differential}</TableCell>
+                              <TableCell className="text-center">
+                                {getSeverityBadge(row.severity)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Shim Thickness Section */}
+            {shimThickness && (
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <Typography variant="h4" className="font-semibold">
+                    Shim Thickness
+                  </Typography>
+                  <span className="text-sm text-muted-foreground">
+                    {t('updatedAt')}{' '}
+                    {format(new Date(shimThickness.latestServiceDate), 'dd-MM-yyyy')}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {shimThickness.data.outerLhData && (
+                    <div className="border rounded-md p-3">
+                      <div className="font-semibold mb-2">Outer LH</div>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Top:</span>
+                          <span>{formatLength(shimThickness.data.outerLhData.top)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Bottom:</span>
+                          <span>{formatLength(shimThickness.data.outerLhData.bottom)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Left:</span>
+                          <span>{formatLength(shimThickness.data.outerLhData.left)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Right:</span>
+                          <span>{formatLength(shimThickness.data.outerLhData.right)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {shimThickness.data.outerRhData && (
+                    <div className="border rounded-md p-3">
+                      <div className="font-semibold mb-2">Outer RH</div>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Top:</span>
+                          <span>{formatLength(shimThickness.data.outerRhData.top)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Bottom:</span>
+                          <span>{formatLength(shimThickness.data.outerRhData.bottom)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Left:</span>
+                          <span>{formatLength(shimThickness.data.outerRhData.left)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Right:</span>
+                          <span>{formatLength(shimThickness.data.outerRhData.right)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {shimThickness.data.innerLhData && (
+                    <div className="border rounded-md p-3">
+                      <div className="font-semibold mb-2">Inner LH</div>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Top:</span>
+                          <span>{formatLength(shimThickness.data.innerLhData.top)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Bottom:</span>
+                          <span>{formatLength(shimThickness.data.innerLhData.bottom)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Left:</span>
+                          <span>{formatLength(shimThickness.data.innerLhData.left)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Right:</span>
+                          <span>{formatLength(shimThickness.data.innerLhData.right)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {shimThickness.data.innerRhData && (
+                    <div className="border rounded-md p-3">
+                      <div className="font-semibold mb-2">Inner RH</div>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Top:</span>
+                          <span>{formatLength(shimThickness.data.innerRhData.top)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Bottom:</span>
+                          <span>{formatLength(shimThickness.data.innerRhData.bottom)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Left:</span>
+                          <span>{formatLength(shimThickness.data.innerRhData.left)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Right:</span>
+                          <span>{formatLength(shimThickness.data.innerRhData.right)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {shimThickness.data.notes && (
+                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                    <span className="text-sm font-medium">Notes: </span>
+                    <span className="text-sm">{shimThickness.data.notes}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Die Cushion Section */}
+            {dieCushion && (
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <Typography variant="h4" className="font-semibold">
+                    Die Cushion
+                  </Typography>
+                  <span className="text-sm text-muted-foreground">
+                    {t('updatedAt')} {format(new Date(dieCushion.latestServiceDate), 'dd-MM-yyyy')}
+                  </span>
+                </div>
+                <div className="border rounded-md overflow-hidden">
+                  <Table>
+                    <TableBody>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Air Leaks</TableCell>
+                        <TableCell className="text-right">
+                          {dieCushion.data.airLeaks || '-'}
+                        </TableCell>
+                      </TableRow>
+                      {dieCushion.data.airLeaksLocation && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Air Leaks Location</TableCell>
+                          <TableCell className="text-right">
+                            {dieCushion.data.airLeaksLocation}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Pneumatics/Plumbing</TableCell>
+                        <TableCell className="text-right">
+                          {dieCushion.data.pneumaticsPlumbing || '-'}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Lubrication</TableCell>
+                        <TableCell className="text-right">
+                          {dieCushion.data.lubrication || '-'}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+                {dieCushion.data.notes && (
+                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                    <span className="text-sm font-medium">Notes: </span>
+                    <span className="text-sm">{dieCushion.data.notes}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Electrical Control Section */}
+            {electricalControl && (
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <Typography variant="h4" className="font-semibold">
+                    Electrical Control
+                  </Typography>
+                  <span className="text-sm text-muted-foreground">
+                    {t('updatedAt')}{' '}
+                    {format(new Date(electricalControl.latestServiceDate), 'dd-MM-yyyy')}
+                  </span>
+                </div>
+                <div className="border rounded-md overflow-hidden">
+                  <Table>
+                    <TableBody>
+                      {electricalControl.data.hasHourMeter && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Has Hour Meter</TableCell>
+                          <TableCell className="text-right">
+                            {electricalControl.data.hasHourMeter}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {electricalControl.data.hourMeterReading && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Hour Meter Reading</TableCell>
+                          <TableCell className="text-right">
+                            {electricalControl.data.hourMeterReading}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {electricalControl.data.controlDoorStop && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Control Door Stop</TableCell>
+                          <TableCell className="text-right">
+                            {electricalControl.data.controlDoorStop}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {electricalControl.data.cabinetTemp && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Cabinet Temp</TableCell>
+                          <TableCell className="text-right">
+                            {electricalControl.data.cabinetTemp}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {electricalControl.data.safetyRelays && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Safety Relays</TableCell>
+                          <TableCell className="text-right">
+                            {electricalControl.data.safetyRelays}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                {electricalControl.data.notes && (
+                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                    <span className="text-sm font-medium">Notes: </span>
+                    <span className="text-sm">{electricalControl.data.notes}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Perpendicularity Section */}
+            {perpendicularity && (
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <Typography variant="h4" className="font-semibold">
+                    Perpendicularity
+                  </Typography>
+                  <span className="text-sm text-muted-foreground">
+                    {t('updatedAt')}{' '}
+                    {format(new Date(perpendicularity.latestServiceDate), 'dd-MM-yyyy')}
+                  </span>
+                </div>
+                <div className="border rounded-md overflow-hidden">
+                  <Table>
+                    <TableBody>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Has Been Adjusted</TableCell>
+                        <TableCell className="text-right">
+                          {perpendicularity.data.hasBeenAdjusted || '-'}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Before F-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(perpendicularity.data.beforeFR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Before L-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(perpendicularity.data.beforeLR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">After F-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(perpendicularity.data.afterFR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">After L-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(perpendicularity.data.afterLR)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+                {perpendicularity.data.notes && (
+                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                    <span className="text-sm font-medium">Notes: </span>
+                    <span className="text-sm">{perpendicularity.data.notes}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Angularity Section */}
+            {angularity && (
+              <div className="border rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <Typography variant="h4" className="font-semibold">
+                    Angularity
+                  </Typography>
+                  <span className="text-sm text-muted-foreground">
+                    {t('updatedAt')} {format(new Date(angularity.latestServiceDate), 'dd-MM-yyyy')}
+                  </span>
+                </div>
+                <div className="border rounded-md overflow-hidden">
+                  <Table>
+                    <TableBody>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Has Been Adjusted</TableCell>
+                        <TableCell className="text-right">
+                          {angularity.data.hasBeenAdjusted || '-'}
+                        </TableCell>
+                      </TableRow>
+                      {angularity.data.spm !== undefined && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">SPM</TableCell>
+                          <TableCell className="text-right">{angularity.data.spm}</TableCell>
+                        </TableRow>
+                      )}
+                      {angularity.data.counterbalancePressure !== undefined && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">
+                            Counterbalance Pressure (PSI)
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {angularity.data.counterbalancePressure}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Before F-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(angularity.data.beforeFR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Before L-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(angularity.data.beforeLR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">After F-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(angularity.data.afterFR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">After L-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(angularity.data.afterLR)}
+                        </TableCell>
+                      </TableRow>
+                      {angularity.data.totalLiftCheck !== undefined && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">
+                            Total Lift Check ({unitLabel})
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatLength(angularity.data.totalLiftCheck)}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                {angularity.data.notes && (
+                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                    <span className="text-sm font-medium">Notes: </span>
+                    <span className="text-sm">{angularity.data.notes}</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

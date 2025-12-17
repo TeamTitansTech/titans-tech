@@ -800,8 +800,9 @@
   },
   "sections": {
     "bearing_clearance": "Bearing Clearance",
+    "bearing_clearance_single_hammer": "Bearing Clearance - Single Hammer",
     "slide_single_hammer": "Slide - Single Hammer",
-    "slide_double_hammer": "Slide - Double Hammer",
+    "slide_double_hammer": "Slide",
     "gibs": "Gibs",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
@@ -811,7 +812,8 @@
     "shim_thickness": "Shim Thickness",
     "die_cushion": "Die Cushion",
     "electrical_control": "Electrical Control",
-    "perpendicularity": "Perpendicularity"
+    "perpendicularity": "Perpendicularity",
+    "angularity": "Angularity"
   },
   "models": {
     "title": "Create Model",
@@ -990,6 +992,7 @@
     },
     "sectionNames": {
       "bearingClearance": "Bearing Clearance - CP 2",
+      "bearingClearanceSingleHammer": "Bearing Clearance - Single Hammer",
       "slideSingleHammer": "Slide - Single Hammer",
       "slideDoubleHammer": "Slide - Double Hammer",
       "gibs": "Gibs",
@@ -1003,6 +1006,7 @@
       "dieCushion": "Die Cushion",
       "electricalControl": "Electrical Control",
       "perpendicularity": "Perpendicularity",
+      "angularity": "Angularity",
       "unknown": "Unknown Section"
     },
     "gibsFields": {
@@ -1080,7 +1084,11 @@
         "lubricationStatus": "Lubrication & Hydraulics Status",
         "counterbalanceStatus": "Counterbalance Status",
         "pistonsMeasurements": "Pistons Measurements",
-        "trammingMeasurements": "Tramming Measurements"
+        "trammingMeasurements": "Tramming Measurements",
+        "perpendicularityMeasurements": "Perpendicularity Measurements",
+        "shimThicknessMeasurements": "Shim Thickness Measurements",
+        "dieCushionStatus": "Die Cushion Status",
+        "electricalControlStatus": "Electrical Control Status"
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Hydraulic Clutch Clearance",
@@ -1104,7 +1112,13 @@
         "innerTopRowMeasurements": "Inner - Top Row Measurements",
         "innerBottomRowMeasurements": "Inner - Bottom Row Measurements",
         "innerLeftRowMeasurements": "Inner - Left Row Measurements",
-        "innerRightRowMeasurements": "Inner - Right Row Measurements"
+        "innerRightRowMeasurements": "Inner - Right Row Measurements",
+        "beforeAdjustmentTrend": "Before Adjustment Trend",
+        "afterAdjustmentTrend": "After Adjustment Trend",
+        "outerLHMeasurements": "Outer LH Measurements",
+        "outerRHMeasurements": "Outer RH Measurements",
+        "innerLHMeasurements": "Inner LH Measurements",
+        "innerRHMeasurements": "Inner RH Measurements"
       },
       "labels": {
         "outer": "Outer",
@@ -1166,7 +1180,35 @@
         "rightTop": "Right-Top",
         "rightBottom": "Right-Bottom",
         "rightLeft": "Right-Left",
-        "rightRight": "Right-Right"
+        "rightRight": "Right-Right",
+        "beforeAdjustment": "Before Adjustment",
+        "afterAdjustment": "After Adjustment",
+        "frontRear": "Front-Rear (F-R)",
+        "leftRight": "Left-Right (L-R)",
+        "hasBeenAdjusted": "Has Been Adjusted",
+        "yes": "Yes",
+        "no": "No",
+        "na": "N/A",
+        "dnc": "DNC",
+        "cantTell": "Can't Tell",
+        "airLeaks": "Air Leaks",
+        "airLeaksLocation": "Air Leaks Location",
+        "pneumaticsPlumbing": "Pneumatics/Plumbing",
+        "lubrication": "Lubrication",
+        "controlInfo": "Control Information",
+        "hasHourMeter": "Hour Meter",
+        "hourMeterReading": "Hour Reading",
+        "isMinsterControl": "Minster Control",
+        "other": "Other",
+        "electricalChecklist": "Electrical Checklist",
+        "outerLH": "Outer LH",
+        "outerRH": "Outer RH",
+        "innerLH": "Inner LH",
+        "innerRH": "Inner RH",
+        "noPerpendicularityData": "No perpendicularity data available",
+        "noShimThicknessData": "No shim thickness data available",
+        "noDieCushionData": "No die cushion data available",
+        "noElectricalData": "No electrical control data available"
       }
     },
     "latestReport": {
@@ -1853,6 +1895,34 @@
           "dnc": "DNC"
         }
       },
+      "angularity": {
+        "hasBeenAdjusted": "Has Angularity been adjusted?",
+        "setupInformation": "Setup Information",
+        "spm": "SPM",
+        "distanceOfIndicatorTip": "Distance of Indicator Tip from Slide",
+        "locationOfIndicator": "Location of Indicator",
+        "counterbalancePressure": "Counterbalance Pressure (PSI)",
+        "strokePartBeingRead": "What part of the stroke is being read",
+        "shutheightSetAt": "What is the shutheight set at",
+        "whatWasUsedAsSquare": "What was used as a square",
+        "whereWasSquarePlaced": "Where was the square placed",
+        "indicatorUsedGraduation": "What indicator was used (graduation)",
+        "tipKindOnIndicator": "What kind of tip was on the indicator",
+        "totalLiftCheck": "Total Lift Check (IN)",
+        "beforeAdjustment": "Before Adjustment",
+        "afterAdjustment": "After Adjustment",
+        "frontRear": "Front-Rear",
+        "leftRight": "Left-Right",
+        "enterValue": "Enter value...",
+        "notes": "Notes (Optional)",
+        "notesPlaceholder": "Add any additional notes or observations...",
+        "selectOption": "Select an option",
+        "options": {
+          "yes": "Yes",
+          "no": "No",
+          "dnc": "DNC"
+        }
+      },
       "cancel": "Cancel",
       "submit": {
         "idle": "Create Inspection",
@@ -2086,7 +2156,8 @@
         "cracksLocation": "If \"Yes\" above, where?",
         "isMainMotorSecure": "Is Main Motor Secure?",
         "isMotorPlateSecure": "Is Motor Plate Secure?",
-        "whyNotCovered": "Why not covered"
+        "whyNotCovered": "Why not covered",
+        "fillAngularity": "Fill Angularity"
       },
       "stepper": {
         "details": "Details",
@@ -2635,6 +2706,8 @@
     "clutchBrakeDescription": "Select clutch and brake parts that need replacement",
     "bearingClearanceParts": "Bearing Clearance Parts",
     "bearingClearanceDescription": "Select bearing clearance parts that need replacement",
+    "bearingClearanceSingleHammerParts": "Bearing Clearance Single Hammer Parts",
+    "bearingClearanceSingleHammerDescription": "Select bearing clearance single hammer parts that need replacement",
     "slideParts": "Slide Parts",
     "slideDescription": "Select slide parts that need replacement",
     "gibsParts": "Gibs Parts",
@@ -2715,7 +2788,10 @@
       "outerSlide": "Outer Slide",
       "innerSlide": "Inner Slide",
       "gibsOuter": "Gibs (Outer)",
-      "gibsInner": "Gibs (Inner)"
+      "gibsInner": "Gibs (Inner)",
+      "slideStandard": "Slide (Standard)",
+      "slideAdjustment": "Slide Adjustment",
+      "shutheightIndicator": "Shutheight Indicator"
     }
   },
   "sectionStatus": {

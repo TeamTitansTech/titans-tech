@@ -39,6 +39,7 @@ export function useServiceDataLoader(
   setIsMainMotorSecure?: (value: YesNoDncType | undefined) => void,
   setIsMotorPlateSecure?: (value: YesNoDncType | undefined) => void,
   setWhyNotCovered?: (value: string) => void,
+  setFillAngularity?: (value: boolean) => void,
 ) {
   const [isLoadingServiceData, setIsLoadingServiceData] = useState(!!serviceId);
   const hasLoadedInitialData = useRef(false);
@@ -317,6 +318,9 @@ export function useServiceDataLoader(
         }
         if (service.whyNotCovered !== undefined && setWhyNotCovered) {
           setWhyNotCovered(service.whyNotCovered || '');
+        }
+        if (service.fillAngularity !== undefined && setFillAngularity) {
+          setFillAngularity(!!service.fillAngularity);
         }
 
         console.log('✅ [useServiceDataLoader] Restored inspection observation fields');

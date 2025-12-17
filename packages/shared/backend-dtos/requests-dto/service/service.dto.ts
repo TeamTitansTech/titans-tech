@@ -201,6 +201,19 @@ export const BearingClearanceCheckSchema = z.object({
 export type BearingClearanceCheck = z.infer<typeof BearingClearanceCheckSchema>;
 
 /**
+ * Bearing Clearance Single Hammer Check Schema
+ * For machines with a single hammer - uses beforeData/data (no inner/outer distinction)
+ */
+export const BearingClearanceSingleHammerCheckSchema = z.object({
+  beforeData: BearingClearanceDataSchema.optional(),
+  data: BearingClearanceDataSchema.optional(),
+});
+
+export type BearingClearanceSingleHammerCheck = z.infer<
+  typeof BearingClearanceSingleHammerCheckSchema
+>;
+
+/**
  * Slide Data Schema
  * Each SlideData represents ONE measurement (5 positions) with metadata
  * Position fields are optional to allow empty form inputs (at least 2 required by frontend validation)
@@ -615,6 +628,36 @@ export const PerpendicularityCheckSchema = z.object({
 
 export type PerpendicularityCheck = z.infer<typeof PerpendicularityCheckSchema>;
 
+export const AngularityCheckSchema = z.object({
+  // Has angularity been adjusted?
+  hasBeenAdjusted: z.nativeEnum(PrismaYesNoDncType).optional(),
+
+  // Setup information
+  spm: z.union([z.number(), z.string()]).optional(),
+  distanceOfIndicatorTip: z.union([z.number(), z.string()]).optional(),
+  locationOfIndicator: z.string().optional(),
+  counterbalancePressure: z.union([z.number(), z.string()]).optional(),
+  strokePartBeingRead: z.string().optional(),
+  shutheightSetAt: z.string().optional(),
+  whatWasUsedAsSquare: z.string().optional(),
+  whereWasSquarePlaced: z.string().optional(),
+  indicatorUsedGraduation: z.string().optional(),
+  tipKindOnIndicator: z.string().optional(),
+  totalLiftCheck: z.union([z.number(), z.string()]).optional(),
+
+  // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
+  beforeFR: z.union([z.number(), z.string()]).optional(),
+  beforeLR: z.union([z.number(), z.string()]).optional(),
+
+  // After Adjustment measurements
+  afterFR: z.union([z.number(), z.string()]).optional(),
+  afterLR: z.union([z.number(), z.string()]).optional(),
+
+  notes: z.string().optional(),
+});
+
+export type AngularityCheck = z.infer<typeof AngularityCheckSchema>;
+
 // ============================================================================
 // Service Payload and Entity Schemas
 // ============================================================================
@@ -662,8 +705,10 @@ export const CreateServicePayloadSchema = z.object({
   isMainMotorSecure: z.enum(PrismaYesNoDncType).optional(),
   isMotorPlateSecure: z.enum(PrismaYesNoDncType).optional(),
   whyNotCovered: z.string().optional(),
+  fillAngularity: z.boolean().optional(),
 
   bearingClearance: BearingClearanceCheckSchema.optional(),
+  bearingClearanceSingleHammer: BearingClearanceSingleHammerCheckSchema.optional(),
   slideSingleHammer: SlideSingleHammerCheckSchema.optional(),
   slideDoubleHammer: SlideDoubleHammerCheckSchema.optional(),
   gibs: GibsCheckSchema.optional(),
@@ -676,6 +721,7 @@ export const CreateServicePayloadSchema = z.object({
   dieCushion: DieCushionCheckSchema.optional(),
   electricalControl: ElectricalControlCheckSchema.optional(),
   perpendicularity: PerpendicularityCheckSchema.optional(),
+  angularity: AngularityCheckSchema.optional(),
 });
 
 export type CreateServicePayload = z.infer<typeof CreateServicePayloadSchema>;
@@ -702,8 +748,10 @@ export const UpdateServicePayloadSchema = z.object({
   isMainMotorSecure: z.enum(PrismaYesNoDncType).optional(),
   isMotorPlateSecure: z.enum(PrismaYesNoDncType).optional(),
   whyNotCovered: z.string().optional(),
+  fillAngularity: z.boolean().optional(),
 
   bearingClearance: BearingClearanceCheckSchema.optional(),
+  bearingClearanceSingleHammer: BearingClearanceSingleHammerCheckSchema.optional(),
   slideSingleHammer: SlideSingleHammerCheckSchema.optional(),
   slideDoubleHammer: SlideDoubleHammerCheckSchema.optional(),
   gibs: GibsCheckSchema.optional(),
@@ -716,6 +764,7 @@ export const UpdateServicePayloadSchema = z.object({
   dieCushion: DieCushionCheckSchema.optional(),
   electricalControl: ElectricalControlCheckSchema.optional(),
   perpendicularity: PerpendicularityCheckSchema.optional(),
+  angularity: AngularityCheckSchema.optional(),
 });
 
 export type UpdateServicePayload = z.infer<typeof UpdateServicePayloadSchema>;

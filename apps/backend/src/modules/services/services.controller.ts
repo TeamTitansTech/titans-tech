@@ -19,6 +19,8 @@ import {
   CompleteServiceSchema,
   BearingClearanceCheck,
   BearingClearanceCheckSchema,
+  BearingClearanceSingleHammerCheck,
+  BearingClearanceSingleHammerCheckSchema,
   SlideSingleHammerCheck,
   SlideSingleHammerCheckSchema,
   SlideDoubleHammerCheck,
@@ -43,6 +45,8 @@ import {
   ElectricalControlCheckSchema,
   PerpendicularityCheck,
   PerpendicularityCheckSchema,
+  AngularityCheck,
+  AngularityCheckSchema,
   LatestReportResponseDto,
   AlertsSummaryResponseDto,
 } from '@titans-tech/shared/backend-dtos';
@@ -153,6 +157,21 @@ export class ServicesController {
     @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
     return this.servicesService.updateBearingClearance(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/bearing-clearance-single-hammer')
+  updateBearingClearanceSingleHammer(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(BearingClearanceSingleHammerCheckSchema))
+    updateDto: BearingClearanceSingleHammerCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateBearingClearanceSingleHammer(
       id,
       updateDto,
       this.getUserId(req),
@@ -329,6 +348,21 @@ export class ServicesController {
     @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
     return this.servicesService.updatePerpendicularity(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/angularity')
+  updateAngularity(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(AngularityCheckSchema))
+    updateDto: AngularityCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateAngularity(
       id,
       updateDto,
       this.getUserId(req),
