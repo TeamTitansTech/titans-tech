@@ -143,7 +143,8 @@ export class UsersService {
   }
 
   async findAll(companyId: string) {
-    const users = await this.prisma.user.findMany({
+    // Use originalPrismaClient to include soft-deleted users for the deactivation feature
+    const users = await this.prisma.originalPrismaClient.user.findMany({
       where: { companyId },
       include: {
         branches: {
@@ -622,18 +623,12 @@ export class UsersService {
     scope: 'branch' | 'company',
     branchId?: string,
   ) {
-    // Use findFirst with OR condition to find both active and deactivated users
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.originalPrismaClient.user.findUnique({
       where: {
         id: userId,
-        OR: [{ deletedAt: null }, { deletedAt: { not: null } }],
       },
       include: {
-        branches: {
-          where: {
-            OR: [{ deletedAt: null }, { deletedAt: { not: null } }],
-          },
-        },
+        branches: true,
       },
     });
 
@@ -644,14 +639,15 @@ export class UsersService {
     if (scope === 'branch' && branchId) {
       console.debug(`Reactivating user ${userId} for branch ${branchId}`);
 
-      // Use findFirst with OR condition to find both active and deactivated branch assignments
-      const userBranch = await this.prisma.userBranch.findFirst({
-        where: {
-          userId,
-          branchId,
-          OR: [{ deletedAt: null }, { deletedAt: { not: null } }],
-        },
-      });
+      const userBranch =
+        await this.prisma.originalPrismaClient.userBranch.findUnique({
+          where: {
+            userId_branchId: {
+              userId,
+              branchId,
+            },
+          },
+        });
 
       if (!userBranch) {
         throw new NotFoundException('User is not assigned to this branch');
