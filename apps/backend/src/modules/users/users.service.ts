@@ -335,22 +335,6 @@ export class UsersService {
     return new UserResponseDto(updatedUser);
   }
 
-  async remove(id: string, companyId: string) {
-    const existingUser = await this.prisma.user.findFirst({
-      where: { id, companyId },
-    });
-
-    if (!existingUser) {
-      throw new NotFoundException('User not found');
-    }
-
-    await this.prisma.user.delete({
-      where: { id },
-    });
-
-    return { message: 'User deleted successfully' };
-  }
-
   async updatePassword(userId: string, data: UpdatePasswordDto) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
