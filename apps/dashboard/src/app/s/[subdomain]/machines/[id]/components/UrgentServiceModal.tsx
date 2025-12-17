@@ -11,6 +11,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -175,142 +176,148 @@ export function UrgentServiceModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Wrench className="w-5 h-5 text-orange-500" />
+            <Wrench className="h-5 w-5 text-orange-500" />
             {tMachines('requestUrgentService')}
           </DialogTitle>
           <DialogDescription>{t('form.description')}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Machine name display */}
-          <div className="space-y-2">
-            <Label>{tMachines('machine')}</Label>
-            <div className="px-3 py-2 bg-muted rounded-md text-sm font-medium">{machineName}</div>
-          </div>
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody className="space-y-4">
+            {/* Machine name display */}
+            <div className="space-y-2">
+              <Label>{tMachines('machine')}</Label>
+              <div className="rounded-md bg-muted px-3 py-2 text-sm font-medium">{machineName}</div>
+            </div>
 
-          {/* Pre-filled name (read-only) */}
-          <div className="space-y-2">
-            <Label htmlFor="requesterName" className="flex items-center gap-1">
-              {t('form.name')} *
-              <Lock className="w-3 h-3 text-muted-foreground" />
-            </Label>
-            <Input
-              id="requesterName"
-              value={prefilledName}
-              readOnly
-              disabled
-              className="bg-muted cursor-not-allowed"
-            />
-          </div>
+            {/* Pre-filled name (read-only) */}
+            <div className="space-y-2">
+              <Label htmlFor="requesterName" className="flex items-center gap-1">
+                {t('form.name')} *
+                <Lock className="h-3 w-3 text-muted-foreground" />
+              </Label>
+              <Input
+                id="requesterName"
+                value={prefilledName}
+                readOnly
+                disabled
+                className="cursor-not-allowed bg-muted"
+              />
+            </div>
 
-          {/* Pre-filled email (read-only) */}
-          <div className="space-y-2">
-            <Label htmlFor="requesterEmail" className="flex items-center gap-1">
-              {t('form.email')} *
-              <Lock className="w-3 h-3 text-muted-foreground" />
-            </Label>
-            <Input
-              id="requesterEmail"
-              type="email"
-              value={prefilledEmail}
-              readOnly
-              disabled
-              className="bg-muted cursor-not-allowed"
-            />
-          </div>
+            {/* Pre-filled email (read-only) */}
+            <div className="space-y-2">
+              <Label htmlFor="requesterEmail" className="flex items-center gap-1">
+                {t('form.email')} *
+                <Lock className="h-3 w-3 text-muted-foreground" />
+              </Label>
+              <Input
+                id="requesterEmail"
+                type="email"
+                value={prefilledEmail}
+                readOnly
+                disabled
+                className="cursor-not-allowed bg-muted"
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="requesterPhone">{t('form.phone')}</Label>
-            <Input
-              id="requesterPhone"
-              type="tel"
-              value={requesterPhone}
-              onChange={(e) => setRequesterPhone(e.target.value)}
-              placeholder={t('form.phonePlaceholder')}
-              disabled={isSubmitting}
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="requesterPhone">{t('form.phone')}</Label>
+              <Input
+                id="requesterPhone"
+                type="tel"
+                value={requesterPhone}
+                onChange={(e) => setRequesterPhone(e.target.value)}
+                placeholder={t('form.phonePlaceholder')}
+                disabled={isSubmitting}
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="problemDescription">{t('form.problem')} *</Label>
-            <Textarea
-              id="problemDescription"
-              value={problemDescription}
-              onChange={(e) => setProblemDescription(e.target.value)}
-              placeholder={t('form.problemPlaceholder')}
-              rows={4}
-              disabled={isSubmitting}
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="problemDescription">{t('form.problem')} *</Label>
+              <Textarea
+                id="problemDescription"
+                value={problemDescription}
+                onChange={(e) => setProblemDescription(e.target.value)}
+                placeholder={t('form.problemPlaceholder')}
+                rows={4}
+                disabled={isSubmitting}
+                required
+              />
+            </div>
 
-          {/* Image Upload */}
-          <div className="space-y-2">
-            <Label>{t('form.image')}</Label>
-            <p className="text-xs text-muted-foreground mb-2">{t('form.imageDescription')}</p>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png"
-              onChange={handleFileChange}
-              disabled={isSubmitting || isUploading}
-              className="hidden"
-            />
-
-            {imagePreview ? (
-              <div className="relative">
-                <div className="relative w-full h-40 rounded-lg border-2 border-dashed border-border overflow-hidden">
-                  <Image
-                    src={imagePreview}
-                    alt="Preview"
-                    fill
-                    className="object-contain"
-                    unoptimized={imagePreview.startsWith('data:')}
-                  />
-                </div>
-                {!isUploading && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    onClick={handleRemoveImage}
-                    className="absolute top-2 right-2 h-8 w-8"
-                    disabled={isSubmitting}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-                {isUploading && (
-                  <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
-                    <div className="flex flex-col items-center gap-2 text-white">
-                      <Loader2 className="h-8 w-8 animate-spin" />
-                      <p className="text-sm">{tCommon('uploading')}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
+            {/* Image Upload */}
+            <div className="space-y-2">
+              <Label>{t('form.image')}</Label>
+              <p className="mb-2 text-xs text-muted-foreground">{t('form.imageDescription')}</p>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png"
+                onChange={handleFileChange}
                 disabled={isSubmitting || isUploading}
-                className="w-full h-32 rounded-lg border-2 border-dashed border-border hover:border-muted-foreground transition-colors flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Camera className="h-8 w-8" />
-                <div className="text-sm text-center px-4">
-                  <p className="font-medium">{tCommon('clickToUpload')}</p>
-                  <p className="text-xs text-muted-foreground/70 mt-1">{tCommon('jpgOrPngMax')}</p>
+                className="hidden"
+              />
+
+              {imagePreview ? (
+                <div className="relative">
+                  <div className="relative h-40 w-full overflow-hidden rounded-lg border-2 border-dashed border-border">
+                    <Image
+                      src={imagePreview}
+                      alt="Preview"
+                      fill
+                      className="object-contain"
+                      unoptimized={imagePreview.startsWith('data:')}
+                    />
+                  </div>
+                  {!isUploading && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      onClick={handleRemoveImage}
+                      className="absolute right-2 top-2 h-8 w-8"
+                      disabled={isSubmitting}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                  {isUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/50">
+                      <div className="flex flex-col items-center gap-2 text-white">
+                        <Loader2 className="h-8 w-8 animate-spin" />
+                        <p className="text-sm">{tCommon('uploading')}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </button>
-            )}
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isSubmitting || isUploading}
+                  className="flex h-32 w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <Camera className="h-8 w-8" />
+                  <div className="px-4 text-center text-sm">
+                    <p className="font-medium">{tCommon('clickToUpload')}</p>
+                    <p className="mt-1 text-xs text-muted-foreground/70">
+                      {tCommon('jpgOrPngMax')}
+                    </p>
+                  </div>
+                </button>
+              )}
 
-            {uploadError && <p className="text-sm text-red-600 dark:text-red-400">{uploadError}</p>}
-          </div>
+              {uploadError && (
+                <p className="text-sm text-red-600 dark:text-red-400">{uploadError}</p>
+              )}
+            </div>
+          </DialogBody>
 
-          <div className="flex gap-2 pt-4">
+          <div className="flex shrink-0 gap-2 pt-4">
             <Button
               type="button"
               variant="outline"
@@ -327,17 +334,17 @@ export function UrgentServiceModal({
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {t('form.submitting')}
                 </>
               ) : isUploading ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {tCommon('uploading')}
                 </>
               ) : (
                 <>
-                  <Wrench className="w-4 h-4 mr-2" />
+                  <Wrench className="mr-2 h-4 w-4" />
                   {t('form.submit')}
                 </>
               )}

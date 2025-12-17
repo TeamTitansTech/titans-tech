@@ -158,9 +158,9 @@ export const BlueprintCreationModal = ({
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <UnitManagerProvider>
-          <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col bg-background">
-            <form onSubmit={onSubmit} className="flex flex-col flex-1 min-h-0">
-              <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
+          <DialogContent className="flex max-w-4xl flex-col bg-background p-0">
+            <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
+              <DialogHeader className="shrink-0 border-b border-border p-6 pb-4">
                 <DialogTitle className="text-2xl text-foreground">
                   {isEditing ? t('editTitle') : t('title')}
                 </DialogTitle>
@@ -169,7 +169,7 @@ export const BlueprintCreationModal = ({
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
+              <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-6">
                 <BasicInfoSection
                   name={name}
                   setName={setName}

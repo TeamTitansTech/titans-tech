@@ -179,23 +179,16 @@ export function PermissionTemplateManager({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[80vh]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Create New Template Button */}
-          {!showCreateForm && !editingId && (
-            <Button onClick={startCreate} variant="outline" className="w-full" disabled={isLoading}>
-              {t('createNew')}
-            </Button>
-          )}
-
           {/* Create Form */}
           {showCreateForm && (
-            <div className="p-4 border rounded-lg space-y-4 bg-muted/30 max-h-[60vh] overflow-y-auto">
+            <div className="max-h-[60vh] space-y-4 overflow-y-auto rounded-lg border bg-muted/30 p-4">
               <div className="space-y-2">
                 <Label htmlFor="template-name">{t('form.name')}</Label>
                 <Input
@@ -226,7 +219,7 @@ export function PermissionTemplateManager({
                   showPresetSelector={false}
                 />
               </div>
-              <div className="flex gap-2 justify-end">
+              <div className="flex justify-end gap-2">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -246,20 +239,20 @@ export function PermissionTemplateManager({
           )}
 
           {/* Templates List */}
-          <div className="h-[300px] pr-4 overflow-y-auto">
+          <div className="h-[300px] overflow-y-auto pr-4">
             {isLoading && templates.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">{t('loading')}</p>
+              <p className="py-8 text-center text-muted-foreground">{t('loading')}</p>
             ) : templates.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">{t('noTemplates')}</p>
+              <p className="py-8 text-center text-muted-foreground">{t('noTemplates')}</p>
             ) : (
               <div className="space-y-2">
                 {templates.map((template) => (
                   <div
                     key={template.id}
-                    className="p-3 border rounded-lg hover:border-primary/50 transition-colors"
+                    className="rounded-lg border p-3 transition-colors hover:border-primary/50"
                   >
                     {editingId === template.id ? (
-                      <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+                      <div className="max-h-[60vh] space-y-3 overflow-y-auto">
                         <Input
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -289,7 +282,7 @@ export function PermissionTemplateManager({
                             onClick={cancelEdit}
                             disabled={isLoading}
                           >
-                            <X className="w-4 h-4 mr-1" />
+                            <X className="mr-1 h-4 w-4" />
                             {t('form.cancel')}
                           </Button>
                           <Button
@@ -297,7 +290,7 @@ export function PermissionTemplateManager({
                             onClick={() => handleUpdate(template.id)}
                             disabled={isLoading}
                           >
-                            <Check className="w-4 h-4 mr-1" />
+                            <Check className="mr-1 h-4 w-4" />
                             {t('form.save')}
                           </Button>
                         </div>
@@ -306,13 +299,13 @@ export function PermissionTemplateManager({
                       <>
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <h4 className="font-semibold text-sm">{template.name}</h4>
+                            <h4 className="text-sm font-semibold">{template.name}</h4>
                             {template.description && (
-                              <p className="text-xs text-muted-foreground mt-0.5">
+                              <p className="mt-0.5 text-xs text-muted-foreground">
                                 {template.description}
                               </p>
                             )}
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="mt-1 text-xs text-muted-foreground">
                               {Object.values(template.permissions).filter((v) => v === true).length}{' '}
                               {t('permissionsCount')}
                             </p>
@@ -324,7 +317,7 @@ export function PermissionTemplateManager({
                               onClick={() => startEdit(template)}
                               disabled={isLoading}
                             >
-                              <Edit className="w-3.5 h-3.5" />
+                              <Edit className="h-3.5 w-3.5" />
                             </Button>
                             <Button
                               size="sm"
@@ -332,14 +325,14 @@ export function PermissionTemplateManager({
                               onClick={() => handleDelete(template.id)}
                               disabled={isLoading}
                             >
-                              <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                              <Trash2 className="h-3.5 w-3.5 text-destructive" />
                             </Button>
                           </div>
                         </div>
                         <Button
                           size="sm"
                           variant="outline"
-                          className="w-full mt-2"
+                          className="mt-2 w-full"
                           onClick={() => handleApply(template)}
                           disabled={isLoading}
                         >
@@ -352,6 +345,12 @@ export function PermissionTemplateManager({
               </div>
             )}
           </div>
+          {/* Create New Template Button */}
+          {!showCreateForm && !editingId && (
+            <Button onClick={startCreate} variant="outline" className="w-full" disabled={isLoading}>
+              {t('createNew')}
+            </Button>
+          )}
         </div>
       </DialogContent>
     </Dialog>
