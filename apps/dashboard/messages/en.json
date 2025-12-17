@@ -197,9 +197,12 @@
       "loadingFailed": "Failed to load users",
       "noUsers": "No users found for this branch",
       "noPermissionToViewUsers": "You do not have permission to view users in this branch.",
+      "activeUsers": "Active Users",
+      "deactivatedUsers": "Deactivated Users",
       "addUser": "Add User",
       "editUser": "Edit User",
-      "deleteUser": "Delete User",
+      "deactivateUser": "Deactivate User",
+      "reactivateUser": "Reactivate User",
       "table": {
         "name": "Name",
         "email": "Email",
@@ -296,24 +299,43 @@
       "error": "Failed to update user"
     },
     "deleteUserDialog": {
-      "title": "Delete User",
-      "description": "Are you sure you want to delete this user?",
-      "warning": "This action cannot be undone.",
-      "userInfo": "You are about to delete:",
-      "scopeLabel": "Delete Scope",
+      "title": "Deactivate User",
+      "description": "Are you sure you want to deactivate this user?",
+      "warning": "User will lose access but can be reactivated later.",
+      "userInfo": "You are about to deactivate:",
+      "scopeLabel": "Deactivation Scope",
       "scopeOptions": {
-        "branch": "Remove from This Branch Only",
-        "company": "Remove from Entire Company"
+        "branch": "Deactivate for This Branch Only",
+        "company": "Deactivate for Entire Company"
       },
       "scopeDescriptions": {
-        "branch": "User will lose access to this branch but remain in other branches",
-        "company": "User will be completely removed and lose all access"
+        "branch": "User will lose access to this branch but remain active in other branches",
+        "company": "User will be deactivated completely and lose all access"
       },
       "cancel": "Cancel",
-      "confirm": "Delete User",
-      "confirming": "Deleting...",
-      "success": "User deleted successfully",
-      "error": "Failed to delete user"
+      "confirm": "Deactivate User",
+      "confirming": "Deactivating...",
+      "success": "User deactivated successfully",
+      "error": "Failed to deactivate user"
+    },
+    "reactivateUserDialog": {
+      "title": "Reactivate User",
+      "description": "Restore this user's access?",
+      "userInfo": "You are about to reactivate:",
+      "scopeLabel": "Reactivation Scope",
+      "scopeOptions": {
+        "branch": "Reactivate for This Branch Only",
+        "company": "Reactivate for Entire Company"
+      },
+      "scopeDescriptions": {
+        "branch": "User will regain access to this branch only",
+        "company": "User will be fully reactivated with all previous access"
+      },
+      "cancel": "Cancel",
+      "confirm": "Reactivate User",
+      "confirming": "Reactivating...",
+      "success": "User reactivated successfully",
+      "error": "Failed to reactivate user"
     },
     "permissions": {
       "title": "Permissions",
@@ -523,31 +545,6 @@
       "success": "Company colors updated successfully",
       "error": "Failed to update company colors"
     },
-    "userManagement": {
-      "title": "User Accounts",
-      "loading": "Loading users...",
-      "loadingFailed": "Failed to load users",
-      "noUsers": "No users found for this branch",
-      "addUser": "Add User",
-      "table": {
-        "name": "Name",
-        "email": "Email",
-        "role": "Role",
-        "status": "Status",
-        "actions": "Actions"
-      },
-      "roles": {
-        "companyAdmin": "Company Admin",
-        "companyManager": "Company Manager",
-        "branchManager": "Manager",
-        "employee": "Worker",
-        "custom": "Custom"
-      },
-      "status": {
-        "active": "active",
-        "inactive": "inactive"
-      }
-    },
     "addUserDialog": {
       "title": "Add User",
       "description": "Add a new user to {branchName}",
@@ -611,13 +608,22 @@
       "cannotEditAdmin": "Company Administrators cannot be edited. Please contact system support to modify admin accounts."
     },
     "deleteUserDialog": {
-      "title": "Delete User",
-      "description": "Are you sure you want to delete {userName}? This action cannot be undone.",
+      "title": "Deactivate User",
+      "description": "Are you sure you want to deactivate {userName}? User will lose access but can be reactivated later.",
       "cancel": "Cancel",
-      "confirm": "Delete",
-      "deleting": "Deleting...",
-      "success": "User deleted successfully",
-      "error": "Failed to delete user"
+      "confirm": "Deactivate",
+      "deleting": "Deactivating...",
+      "success": "User deactivated successfully",
+      "error": "Failed to deactivate user"
+    },
+    "reactivateUserDialog": {
+      "title": "Reactivate User",
+      "description": "Restore access for {userName}?",
+      "cancel": "Cancel",
+      "confirm": "Reactivate",
+      "confirming": "Reactivating...",
+      "success": "User reactivated successfully",
+      "error": "Failed to reactivate user"
     }
   },
   "dashboard": {

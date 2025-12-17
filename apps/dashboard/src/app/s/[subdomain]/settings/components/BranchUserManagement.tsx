@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Users, Pencil, Trash2 } from 'lucide-react';
+import { Users, Pencil, Ban, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { getAllUsers } from '@/data/services/users.api';
@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
+import { ReactivateUserDialog } from './ReactivateUserDialog';
 import {
   getUserRole,
   getUserRoleBadgeColor,
@@ -42,6 +43,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
 
   const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
   const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState(false);
+  const [isReactivateUserDialogOpen, setIsReactivateUserDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
 
   // Check permissions for this branch
@@ -96,6 +98,15 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
   const handleDelete = (user: UserResponseDto) => {
     setSelectedUser(user);
     setIsDeleteUserDialogOpen(true);
+  };
+
+  const handleReactivate = (user: UserResponseDto) => {
+    setSelectedUser(user);
+    setIsReactivateUserDialogOpen(true);
+  };
+
+  const handleReactivateUserSuccess = () => {
+    loadUsers();
   };
 
   if (isLoading) {
@@ -159,8 +170,19 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
     );
   }
 
+  // Separate active and deactivated users
+  const activeUsers = users.filter((user) => {
+    const userBranch = user.branches?.find((b) => b.branchId === branchId);
+    return userBranch && !userBranch.deletedAt;
+  });
+
+  const deactivatedUsers = users.filter((user) => {
+    const userBranch = user.branches?.find((b) => b.branchId === branchId);
+    return userBranch && userBranch.deletedAt;
+  });
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Users className="h-4 w-4" />
         <h3 className="text-base font-semibold">
@@ -168,70 +190,126 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
         </h3>
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t('table.name')}</TableHead>
-              <TableHead>{t('table.email')}</TableHead>
-              <TableHead>{t('table.role')}</TableHead>
-              <TableHead className="w-[120px]">{t('table.actions')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.length === 0 ? (
+      {/* Active Users Section */}
+      <div className="space-y-2">
+        <h4 className="text-sm font-medium">{t('activeUsers') || 'Active Users'}</h4>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
-                  {t('noUsers')}
-                </TableCell>
+                <TableHead>{t('table.name')}</TableHead>
+                <TableHead>{t('table.email')}</TableHead>
+                <TableHead>{t('table.role')}</TableHead>
+                <TableHead className="w-[120px]">{t('table.actions')}</TableHead>
               </TableRow>
-            ) : (
-              users.map((user) => {
-                const role = getUserRole(user, branchId);
+            </TableHeader>
+            <TableBody>
+              {activeUsers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    {t('noUsers')}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                activeUsers.map((user) => {
+                  const role = getUserRole(user, branchId);
 
-                const canEdit = hasPermissionInBranch(companyUser, branchId, 'updateUsers');
-                const canDelete = hasPermissionInBranch(companyUser, branchId, 'deleteUsers');
+                  const canEdit = hasPermissionInBranch(companyUser, branchId, 'updateUsers');
+                  const canDelete = hasPermissionInBranch(companyUser, branchId, 'deleteUsers');
 
-                return (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.name || 'Unknown User'}</TableCell>
-                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                    <TableCell>
-                      <Badge className={getUserRoleBadgeColor(role)} variant="secondary">
-                        {t(`roles.${role}`)}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(user)}
-                          disabled={!canEdit}
-                          className="h-8 w-8 p-0"
-                        >
-                          <Pencil className="h-4 w-4" />
-                          <span className="sr-only">{t('editUser')}</span>
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(user)}
-                          disabled={!canDelete}
-                          className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">{t('deleteUser')}</span>
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
+                  return (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium">{user.name || 'Unknown User'}</TableCell>
+                      <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                      <TableCell>
+                        <Badge className={getUserRoleBadgeColor(role)} variant="secondary">
+                          {t(`roles.${role}`)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEdit(user)}
+                            disabled={!canEdit}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Pencil className="h-4 w-4" />
+                            <span className="sr-only">{t('editUser')}</span>
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(user)}
+                            disabled={!canDelete}
+                            className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Ban className="h-4 w-4" />
+                            <span className="sr-only">{t('deactivateUser')}</span>
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
+
+      {/* Deactivated Users Section */}
+      {deactivatedUsers.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-muted-foreground">
+            {t('deactivatedUsers') || 'Deactivated Users'}
+          </h4>
+          <div className="rounded-md border border-muted">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('table.name')}</TableHead>
+                  <TableHead>{t('table.email')}</TableHead>
+                  <TableHead>{t('table.role')}</TableHead>
+                  <TableHead className="w-[120px]">{t('table.actions')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {deactivatedUsers.map((user) => {
+                  const role = getUserRole(user, branchId);
+
+                  const canReactivate = hasPermissionInBranch(companyUser, branchId, 'updateUsers');
+
+                  return (
+                    <TableRow key={user.id} className="opacity-60">
+                      <TableCell className="font-medium">{user.name || 'Unknown User'}</TableCell>
+                      <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                      <TableCell>
+                        <Badge className={getUserRoleBadgeColor(role)} variant="secondary">
+                          {t(`roles.${role}`)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleReactivate(user)}
+                          disabled={!canReactivate}
+                          className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600"
+                        >
+                          <RotateCcw className="h-4 w-4" />
+                          <span className="sr-only">{t('reactivateUser')}</span>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
 
       {/* Dialogs */}
       <EditUserDialog
@@ -248,6 +326,14 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
         user={selectedUser}
         branchId={branchId}
         onSuccess={loadUsers}
+      />
+
+      <ReactivateUserDialog
+        open={isReactivateUserDialogOpen}
+        onOpenChange={setIsReactivateUserDialogOpen}
+        user={selectedUser}
+        branchId={branchId}
+        onSuccess={handleReactivateUserSuccess}
       />
     </div>
   );
