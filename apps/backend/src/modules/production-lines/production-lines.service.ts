@@ -22,6 +22,7 @@ const PRODUCTION_LINE_FULL_INCLUDE = {
           blueprint: true,
           fields: true,
           services: {
+            where: { deletedAt: null },
             take: 1,
             orderBy: {
               date: 'desc' as const,
@@ -56,12 +57,12 @@ export class ProductionLinesService {
       where: { id: userId },
       include: {
         branches: {
-          where: { branchId },
+          where: { branchId, deletedAt: null },
         },
         company: {
           include: {
             branches: {
-              where: { id: branchId },
+              where: { id: branchId, deletedAt: null },
             },
           },
         },
@@ -92,11 +93,13 @@ export class ProductionLinesService {
       where: { id: userId },
       include: {
         branches: {
+          where: { deletedAt: null },
           select: { branchId: true },
         },
         company: {
           include: {
             branches: {
+              where: { deletedAt: null },
               select: { id: true },
             },
           },
@@ -171,6 +174,9 @@ export class ProductionLinesService {
       include: {
         branch: true,
         machines: {
+          where: {
+            machine: { deletedAt: null },
+          },
           include: {
             machine: true,
           },

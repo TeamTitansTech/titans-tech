@@ -39,6 +39,7 @@ export class UsersService {
       },
       include: {
         branches: {
+          where: { deletedAt: null },
           include: {
             branch: true,
           },
@@ -75,6 +76,9 @@ export class UsersService {
       where: { id: userId },
       include: {
         branches: {
+          where: {
+            deletedAt: null,
+          },
           include: {
             branch: true,
           },
@@ -143,6 +147,9 @@ export class UsersService {
       where: { companyId },
       include: {
         branches: {
+          where: {
+            deletedAt: null,
+          },
           include: {
             branch: true,
           },
@@ -159,6 +166,9 @@ export class UsersService {
       where: { id, companyId },
       include: {
         branches: {
+          where: {
+            deletedAt: null,
+          },
           include: {
             branch: true,
           },
@@ -207,6 +217,7 @@ export class UsersService {
         },
         include: {
           branches: {
+            where: { deletedAt: null },
             include: {
               branch: true,
             },
@@ -224,6 +235,7 @@ export class UsersService {
         where: { id: user.id },
         include: {
           branches: {
+            where: { deletedAt: null },
             include: {
               branch: true,
             },
@@ -276,6 +288,7 @@ export class UsersService {
         where: { id: user.id },
         include: {
           branches: {
+            where: { deletedAt: null },
             include: {
               branch: true,
             },
@@ -292,6 +305,7 @@ export class UsersService {
       where: { id, companyId },
       include: {
         branches: {
+          where: { deletedAt: null },
           include: {
             branch: true,
           },
@@ -310,6 +324,7 @@ export class UsersService {
       data: updateUserDto,
       include: {
         branches: {
+          where: { deletedAt: null },
           include: {
             branch: true,
           },
@@ -364,6 +379,7 @@ export class UsersService {
       },
       include: {
         branches: {
+          where: { deletedAt: null },
           include: {
             branch: true,
           },
@@ -421,6 +437,7 @@ export class UsersService {
       where: { id: userId },
       include: {
         branches: {
+          where: { deletedAt: null },
           include: {
             branch: true,
           },
@@ -458,6 +475,7 @@ export class UsersService {
       where: { id: userId },
       include: {
         branches: {
+          where: { deletedAt: null },
           include: {
             branch: true,
           },
@@ -527,6 +545,7 @@ export class UsersService {
       },
       include: {
         branches: {
+          where: { deletedAt: null },
           include: {
             branch: true,
           },
@@ -547,7 +566,7 @@ export class UsersService {
   ) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { branches: true },
+      include: { branches: { where: { deletedAt: null } } },
     });
 
     if (!user) {
@@ -562,6 +581,7 @@ export class UsersService {
     }
 
     if (scope === 'branch' && branchId) {
+      console.debug(`Deleting user ${userId} from branch ${branchId}`);
       // Remove user from specific branch only
       await this.prisma.userBranch.delete({
         where: {
