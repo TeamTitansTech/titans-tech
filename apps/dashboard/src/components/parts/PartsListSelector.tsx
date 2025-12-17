@@ -52,15 +52,15 @@ interface PartsTableProps {
 
 function PartsTable({ parts, isPartSelected, onTogglePart, hasActiveSearch, t }: PartsTableProps) {
   return (
-    <div className="border rounded-lg overflow-hidden min-h-[300px]">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/50">
+    <div className="max-h-[40vh] overflow-auto rounded-lg border">
+      <Table className="relative">
+        <TableHeader className="sticky top-0 z-10 bg-muted/50">
+          <TableRow>
             <TableHead className="w-12"></TableHead>
             <TableHead className="font-semibold">{t('tableHeaders.partNumber')}</TableHead>
             <TableHead className="font-semibold">{t('tableHeaders.description')}</TableHead>
-            <TableHead className="font-semibold text-right">{t('tableHeaders.quantity')}</TableHead>
-            <TableHead className="font-semibold text-center">{t('tableHeaders.unit')}</TableHead>
+            <TableHead className="text-right font-semibold">{t('tableHeaders.quantity')}</TableHead>
+            <TableHead className="text-center font-semibold">{t('tableHeaders.unit')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -84,7 +84,7 @@ function PartsTable({ parts, isPartSelected, onTogglePart, hasActiveSearch, t }:
                       checked={isSelected}
                       onCheckedChange={() => onTogglePart(part.partNumber)}
                       aria-label={`Select ${part.description}`}
-                      className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                      className="data-[state=checked]:border-primary data-[state=checked]:bg-primary"
                     />
                   </TableCell>
                   <TableCell className="font-mono text-sm">{part.partNumber}</TableCell>
@@ -418,8 +418,8 @@ export function PartsListSelector({
   ]);
 
   return (
-    <Card className="border-primary/20 dark:border-primary/30">
-      <CardHeader className="pb-3">
+    <Card className="flex h-full flex-col border-primary/20 dark:border-primary/30">
+      <CardHeader className="shrink-0 pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Package className="h-5 w-5 text-primary" />
@@ -433,11 +433,11 @@ export function PartsListSelector({
         </div>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex min-h-0 flex-1 flex-col space-y-4 overflow-hidden">
         {/* Search Row */}
-        <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder={t('searchPlaceholder')}
               value={searchQuery}
@@ -458,13 +458,13 @@ export function PartsListSelector({
             disabled={selectedKeys.size === 0 || isExporting}
             className="bg-primary hover:bg-primary/90"
           >
-            <FileDown className="h-4 w-4 mr-2" />
+            <FileDown className="mr-2 h-4 w-4" />
             {isExporting ? t('exporting') : t('exportPDF')}
           </Button>
         </div>
 
         {/* Select/Clear buttons */}
-        <div className="flex gap-2">
+        <div className="flex shrink-0 gap-2">
           <Button variant="outline" size="sm" onClick={handleSelectAll}>
             {t('selectAll')}
           </Button>
@@ -483,15 +483,15 @@ export function PartsListSelector({
           <Tabs
             value={activeTab}
             onValueChange={(value) => setActiveTab(value as 'outer' | 'inner')}
-            className="w-full"
+            className="flex min-h-0 w-full flex-1 flex-col"
           >
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+            <TabsList className="mb-4 grid w-full shrink-0 grid-cols-2">
               <TabsTrigger value="outer" className="flex items-center gap-2">
                 {t('outerSlide')}
                 {outerSelectedCount > 0 && (
                   <Badge
                     variant="secondary"
-                    className={`text-xs px-1.5 ${
+                    className={`px-1.5 text-xs ${
                       activeTab === 'outer'
                         ? 'bg-primary-foreground/20 text-primary-foreground'
                         : 'bg-primary/10 text-primary'
@@ -506,7 +506,7 @@ export function PartsListSelector({
                 {innerSelectedCount > 0 && (
                   <Badge
                     variant="secondary"
-                    className={`text-xs px-1.5 ${
+                    className={`px-1.5 text-xs ${
                       activeTab === 'inner'
                         ? 'bg-primary-foreground/20 text-primary-foreground'
                         : 'bg-primary/10 text-primary'
@@ -520,7 +520,7 @@ export function PartsListSelector({
 
             {/* Results count */}
             {hasActiveSearch && (
-              <div className="text-sm text-muted-foreground mb-2">
+              <div className="mb-2 text-sm text-muted-foreground">
                 {t('showingResults', {
                   count: filteredParts.length,
                   total: currentTabParts.length,
@@ -528,7 +528,7 @@ export function PartsListSelector({
               </div>
             )}
 
-            <TabsContent value="outer" className="mt-0" tabIndex={-1}>
+            <TabsContent value="outer" className="mt-0 flex min-h-0 flex-1 flex-col" tabIndex={-1}>
               <PartsTable
                 parts={activeTab === 'outer' ? filteredParts : []}
                 isPartSelected={isPartSelected}
@@ -537,7 +537,7 @@ export function PartsListSelector({
                 t={t}
               />
             </TabsContent>
-            <TabsContent value="inner" className="mt-0" tabIndex={-1}>
+            <TabsContent value="inner" className="mt-0 flex min-h-0 flex-1 flex-col" tabIndex={-1}>
               <PartsTable
                 parts={activeTab === 'inner' ? filteredParts : []}
                 isPartSelected={isPartSelected}
@@ -548,10 +548,10 @@ export function PartsListSelector({
             </TabsContent>
           </Tabs>
         ) : (
-          <>
+          <div className="flex min-h-0 flex-1 flex-col">
             {/* Results count */}
             {hasActiveSearch && (
-              <div className="text-sm text-muted-foreground">
+              <div className="shrink-0 text-sm text-muted-foreground">
                 {t('showingResults', {
                   count: filteredParts.length,
                   total: currentTabParts.length,
@@ -566,7 +566,7 @@ export function PartsListSelector({
               hasActiveSearch={hasActiveSearch}
               t={t}
             />
-          </>
+          </div>
         )}
       </CardContent>
     </Card>

@@ -13,6 +13,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
@@ -149,128 +150,130 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
   return (
     <>
       <Dialog open={open} onOpenChange={handleClose}>
-        <DialogContent>
+        <DialogContent className="overflow-y-auto sm:max-w-[600px] md:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>{t('title')}</DialogTitle>
             <DialogDescription>{t('description')}</DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">{t('form.name.label')}</Label>
-              <Input
-                id="name"
-                {...register('name')}
-                placeholder={t('form.name.placeholder')}
-                disabled={isSubmitting}
-              />
-              {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
-            </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+            <DialogBody className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">{t('form.name.label')}</Label>
+                <Input
+                  id="name"
+                  {...register('name')}
+                  placeholder={t('form.name.placeholder')}
+                  disabled={isSubmitting}
+                />
+                {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="slug">{t('form.slug.label')}</Label>
-              <Input
-                id="slug"
-                {...register('slug')}
-                placeholder={t('form.slug.placeholder')}
-                disabled={isSubmitting}
-              />
-              {errors.slug && <p className="text-sm text-destructive">{errors.slug.message}</p>}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="slug">{t('form.slug.label')}</Label>
+                <Input
+                  id="slug"
+                  {...register('slug')}
+                  placeholder={t('form.slug.placeholder')}
+                  disabled={isSubmitting}
+                />
+                {errors.slug && <p className="text-sm text-destructive">{errors.slug.message}</p>}
+              </div>
 
-            <div className="space-y-2">
-              <Label>{t('form.logo.label')}</Label>
-              <ImageUpload
-                value={logoValue || undefined}
-                onChange={(url) => setValue('logo', url || '', { shouldDirty: true })}
-                disabled={isSubmitting}
-              />
-              {errors.logo && <p className="text-sm text-destructive">{errors.logo.message}</p>}
-            </div>
+              <div className="space-y-2">
+                <Label>{t('form.logo.label')}</Label>
+                <ImageUpload
+                  value={logoValue || undefined}
+                  onChange={(url) => setValue('logo', url || '', { shouldDirty: true })}
+                  disabled={isSubmitting}
+                />
+                {errors.logo && <p className="text-sm text-destructive">{errors.logo.message}</p>}
+              </div>
 
-            <div className="space-y-2">
-              <Label>{t('form.loginLogo.label')}</Label>
-              <p className="text-xs text-muted-foreground">{t('form.loginLogo.hint')}</p>
-              <ImageUpload
-                value={loginLogoValue || undefined}
-                onChange={(url) => setValue('loginLogo', url || '', { shouldDirty: true })}
-                disabled={isSubmitting}
-              />
-              {errors.loginLogo && (
-                <p className="text-sm text-destructive">{errors.loginLogo.message}</p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label>{t('form.loginLogo.label')}</Label>
+                <p className="text-xs text-muted-foreground">{t('form.loginLogo.hint')}</p>
+                <ImageUpload
+                  value={loginLogoValue || undefined}
+                  onChange={(url) => setValue('loginLogo', url || '', { shouldDirty: true })}
+                  disabled={isSubmitting}
+                />
+                {errors.loginLogo && (
+                  <p className="text-sm text-destructive">{errors.loginLogo.message}</p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="brandColor">{t('form.brandColor.label')}</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    disabled={isSubmitting}
-                    type="button"
-                  >
-                    <div
-                      className="w-6 h-6 rounded border mr-2"
-                      style={{ backgroundColor: brandColor }}
+              <div className="space-y-2">
+                <Label htmlFor="brandColor">{t('form.brandColor.label')}</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      disabled={isSubmitting}
+                      type="button"
+                    >
+                      <div
+                        className="mr-2 h-6 w-6 rounded border"
+                        style={{ backgroundColor: brandColor }}
+                      />
+                      {brandColor}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-3">
+                    <HexColorPicker
+                      color={brandColor}
+                      onChange={(color) => setValue('brandColor', color, { shouldDirty: true })}
                     />
-                    {brandColor}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-3">
-                  <HexColorPicker
-                    color={brandColor}
-                    onChange={(color) => setValue('brandColor', color, { shouldDirty: true })}
-                  />
-                </PopoverContent>
-              </Popover>
-              {errors.brandColor && (
-                <p className="text-sm text-destructive">{errors.brandColor.message}</p>
-              )}
-            </div>
+                  </PopoverContent>
+                </Popover>
+                {errors.brandColor && (
+                  <p className="text-sm text-destructive">{errors.brandColor.message}</p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="accentColor">{t('form.accentColor.label')}</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start"
-                    disabled={isSubmitting}
-                    type="button"
-                  >
-                    <div
-                      className="w-6 h-6 rounded border mr-2"
-                      style={{ backgroundColor: accentColor }}
+              <div className="space-y-2">
+                <Label htmlFor="accentColor">{t('form.accentColor.label')}</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      disabled={isSubmitting}
+                      type="button"
+                    >
+                      <div
+                        className="mr-2 h-6 w-6 rounded border"
+                        style={{ backgroundColor: accentColor }}
+                      />
+                      {accentColor}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-3">
+                    <HexColorPicker
+                      color={accentColor}
+                      onChange={(color) => setValue('accentColor', color, { shouldDirty: true })}
                     />
-                    {accentColor}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-3">
-                  <HexColorPicker
-                    color={accentColor}
-                    onChange={(color) => setValue('accentColor', color, { shouldDirty: true })}
-                  />
-                </PopoverContent>
-              </Popover>
-              {errors.accentColor && (
-                <p className="text-sm text-destructive">{errors.accentColor.message}</p>
-              )}
-            </div>
+                  </PopoverContent>
+                </Popover>
+                {errors.accentColor && (
+                  <p className="text-sm text-destructive">{errors.accentColor.message}</p>
+                )}
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">{t('form.description.label')}</Label>
-              <Input
-                id="description"
-                {...register('description')}
-                placeholder={t('form.description.placeholder')}
-                disabled={isSubmitting}
-              />
-              {errors.description && (
-                <p className="text-sm text-destructive">{errors.description.message}</p>
-              )}
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">{t('form.description.label')}</Label>
+                <Input
+                  id="description"
+                  {...register('description')}
+                  placeholder={t('form.description.placeholder')}
+                  disabled={isSubmitting}
+                />
+                {errors.description && (
+                  <p className="text-sm text-destructive">{errors.description.message}</p>
+                )}
+              </div>
+            </DialogBody>
 
             <DialogFooter>
               <Button type="button" variant="outline" onClick={handleClose}>

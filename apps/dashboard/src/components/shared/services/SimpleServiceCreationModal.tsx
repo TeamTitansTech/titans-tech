@@ -10,6 +10,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import {
@@ -100,20 +101,20 @@ export default function SimpleServiceCreationModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[450px] max-w-[95vw]">
+      <DialogContent className="sm:max-h-[50vh]">
         <DialogHeader>
           <DialogTitle>{t('createNewService')}</DialogTitle>
           <DialogDescription>{t('createServiceDescription')}</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-6 py-4">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody className="grid gap-6 py-4">
             <div className="grid gap-4">
               <Label htmlFor="date">{t('serviceDate')}</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className="w-full justify-start text-left font-normal bg-transparent"
+                    className="w-full justify-start bg-transparent text-left font-normal"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date ? format(date, 'PPP') : <span>Pick a date</span>}
@@ -150,11 +151,11 @@ export default function SimpleServiceCreationModal({
             </div>
 
             {error && (
-              <div className="text-sm text-destructive border border-destructive rounded-md p-2">
+              <div className="rounded-md border border-destructive p-2 text-sm text-destructive">
                 {error}
               </div>
             )}
-          </div>
+          </DialogBody>
 
           <DialogFooter className="gap-y-3">
             <Button

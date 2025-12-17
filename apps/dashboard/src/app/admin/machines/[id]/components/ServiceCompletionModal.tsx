@@ -802,7 +802,7 @@ export function ServiceCompletionModal({
   return (
     <>
       <Dialog open={open && !showAlertNotificationModal} onOpenChange={onOpenChange}>
-        <DialogContent className="p-2 pt-6 sm:p-6 w-full md:w-[1200px] h-[86vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
+        <DialogContent className="flex flex-col p-2 pt-6 sm:p-6">
           <UnitManagerProvider>
             <DialogHeader>
               <DialogTitle>{getDialogTitle()}</DialogTitle>
@@ -810,9 +810,9 @@ export function ServiceCompletionModal({
             </DialogHeader>
 
             {isLoadingServiceData && serviceId && !hasLoadedInitialData.current ? (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center space-y-3">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <div className="flex flex-1 items-center justify-center">
+                <div className="space-y-3 text-center">
+                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
                   <Typography variant="muted">Carregando dados do serviço...</Typography>
                 </div>
               </div>
@@ -833,7 +833,7 @@ export function ServiceCompletionModal({
                 }}
               />
             ) : currentStep === 'details' ? (
-              <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+              <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
                 <DetailsStep
                   date={date}
                   performedBy={performedBy}
@@ -920,7 +920,7 @@ export function ServiceCompletionModal({
                 />
               </form>
             ) : currentStep === 'sections' ? (
-              <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+              <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
                 <SectionsStep
                   selectedSectionsArray={getSelectedSectionsArray()}
                   currentSectionIndex={currentSectionIndex}
