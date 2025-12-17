@@ -99,7 +99,7 @@ interface BranchUserManagementProps {
 }
 
 export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
-  const t = useTranslations('adminSettings.userManagement');
+  const t = useTranslations('settings.userManagement');
   const [users, setUsers] = useState<User[]>([]);
   const [usersData, setUsersData] = useState<UserResponseDto[]>([]);
   const [branch, setBranch] = useState<CompanyBranch | null>(null);

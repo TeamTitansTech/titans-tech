@@ -13,9 +13,6 @@ interface ReactivateUserDialogProps {
 
 export function ReactivateUserDialog(props: ReactivateUserDialogProps) {
   return (
-    <SharedReactivateUserDialog
-      {...props}
-      translationNamespace="adminSettings.reactivateUserDialog"
-    />
+    <SharedReactivateUserDialog {...props} translationNamespace="settings.reactivateUserDialog" />
   );
 }
