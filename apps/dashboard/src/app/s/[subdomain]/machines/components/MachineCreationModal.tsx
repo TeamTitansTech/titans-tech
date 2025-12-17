@@ -346,16 +346,16 @@ export function MachineCreationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col bg-background">
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
+      <DialogContent className="flex max-w-4xl flex-col bg-background p-0">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogHeader className="shrink-0 border-b border-border p-6 pb-4">
             <DialogTitle className="text-2xl text-foreground">{t('title')}</DialogTitle>
             <DialogDescription className="text-muted-foreground">
               {t('description')}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
+          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-6">
             {isSysAdmin && !companyIdProp && (
               <>
                 <section className="space-y-4">
@@ -363,17 +363,17 @@ export function MachineCreationModal({
                     <h3 className="text-lg font-semibold text-foreground">
                       {t('form.company.label')}
                     </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {t('form.company.description')}
                     </p>
                   </div>
 
                   {isLoadingCompanies ? (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="py-8 text-center text-muted-foreground">
                       {t('form.company.loading')}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       {companies.map((company) => {
                         const isSelected = selectedCompanyId === company.id;
                         return (
@@ -381,29 +381,29 @@ export function MachineCreationModal({
                             key={company.id}
                             className={`cursor-pointer transition-all hover:shadow-md ${
                               isSelected
-                                ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-500/10'
+                                ? 'border-orange-500 bg-orange-500/10 ring-2 ring-orange-500'
                                 : 'hover:border-orange-500/50'
                             }`}
                             onClick={() => setSelectedCompanyId(company.id)}
                           >
                             <CardContent className="p-4">
                               <div className="flex items-start justify-between">
-                                <div className="flex items-start gap-3 flex-1">
-                                  <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
-                                    <Boxes className="w-5 h-5 text-orange-500" />
+                                <div className="flex flex-1 items-start gap-3">
+                                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-500/10">
+                                    <Boxes className="h-5 w-5 text-orange-500" />
                                   </div>
                                   <div className="flex-1">
-                                    <h4 className="font-semibold text-sm text-foreground">
+                                    <h4 className="text-sm font-semibold text-foreground">
                                       {company.name}
                                     </h4>
-                                    <p className="text-xs text-muted-foreground mt-1">
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                       {company.slug}
                                     </p>
                                   </div>
                                 </div>
                                 {isSelected && (
-                                  <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
-                                    <Check className="w-3 h-3 text-white" />
+                                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange-500">
+                                    <Check className="h-3 w-3 text-white" />
                                   </div>
                                 )}
                               </div>
@@ -428,17 +428,17 @@ export function MachineCreationModal({
                       <h3 className="text-lg font-semibold text-foreground">
                         {t('form.branch.label')}
                       </h3>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="mt-1 text-sm text-muted-foreground">
                         {t('form.branch.description')}
                       </p>
                     </div>
 
                     {isLoadingBranches ? (
-                      <div className="text-center py-8 text-muted-foreground">
+                      <div className="py-8 text-center text-muted-foreground">
                         {t('form.branch.loading')}
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         {branches.map((branch) => {
                           const isSelected = selectedBranchId === branch.id;
                           return (
@@ -446,23 +446,23 @@ export function MachineCreationModal({
                               key={branch.id}
                               className={`cursor-pointer transition-all hover:shadow-md ${
                                 isSelected
-                                  ? 'ring-2 ring-primary border-primary bg-primary/10'
+                                  ? 'border-primary bg-primary/10 ring-2 ring-primary'
                                   : 'hover:border-primary/50'
                               }`}
                               onClick={() => setSelectedBranchId(branch.id)}
                             >
                               <CardContent className="p-4">
                                 <div className="flex items-start justify-between">
-                                  <div className="flex items-start gap-3 flex-1">
-                                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                      <MapPin className="w-5 h-5 text-primary" />
+                                  <div className="flex flex-1 items-start gap-3">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                                      <MapPin className="h-5 w-5 text-primary" />
                                     </div>
                                     <div className="flex-1">
-                                      <h4 className="font-semibold text-sm text-foreground">
+                                      <h4 className="text-sm font-semibold text-foreground">
                                         {branch.name}
                                       </h4>
                                       {(branch.isMainBranch || branch.location) && (
-                                        <p className="text-xs text-muted-foreground mt-1">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                           {branch.isMainBranch && t('form.branch.mainBranch')}
                                           {branch.isMainBranch && branch.location && ' • '}
                                           {branch.location}
@@ -471,8 +471,8 @@ export function MachineCreationModal({
                                     </div>
                                   </div>
                                   {isSelected && (
-                                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-                                      <Check className="w-3 h-3 text-white" />
+                                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary">
+                                      <Check className="h-3 w-3 text-white" />
                                     </div>
                                   )}
                                 </div>
@@ -497,11 +497,11 @@ export function MachineCreationModal({
                 </div>
 
                 {isLoadingBlueprints ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="py-8 text-center text-muted-foreground">
                     {t('form.blueprint.loading')}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {blueprints.map((blueprint) => {
                       const isSelected = selectedBlueprintId === blueprint.id;
                       return (
@@ -509,30 +509,30 @@ export function MachineCreationModal({
                           key={blueprint.id}
                           className={`cursor-pointer transition-all hover:shadow-md ${
                             isSelected
-                              ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-500/10'
+                              ? 'border-orange-500 bg-orange-500/10 ring-2 ring-orange-500'
                               : 'hover:border-orange-500/50'
                           }`}
                           onClick={() => handleBlueprintSelect(blueprint.id)}
                         >
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between">
-                              <div className="flex items-start gap-3 flex-1">
-                                <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
-                                  <Boxes className="w-5 h-5 text-orange-500" />
+                              <div className="flex flex-1 items-start gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-500/10">
+                                  <Boxes className="h-5 w-5 text-orange-500" />
                                 </div>
                                 <div className="flex-1">
-                                  <h4 className="font-semibold text-sm text-foreground">
+                                  <h4 className="text-sm font-semibold text-foreground">
                                     {blueprint.name}
                                   </h4>
-                                  <p className="text-xs text-muted-foreground mt-1">
+                                  <p className="mt-1 text-xs text-muted-foreground">
                                     {blueprint.sections.length} {t('sectionsCount')} •{' '}
                                     {blueprint.fields.length} {t('fieldsCount')}
                                   </p>
                                 </div>
                               </div>
                               {isSelected && (
-                                <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
-                                  <Check className="w-3 h-3 text-white" />
+                                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange-500">
+                                  <Check className="h-3 w-3 text-white" />
                                 </div>
                               )}
                             </div>
@@ -834,7 +834,7 @@ export function MachineCreationModal({
               !isLoadingBlueprints &&
               !isLoadingBranches &&
               !isLoadingCompanies && (
-                <div className="text-center text-muted-foreground py-8">
+                <div className="py-8 text-center text-muted-foreground">
                   {isSysAdmin && !companyIdProp && !selectedCompanyId
                     ? t('form.selectCompanyPrompt')
                     : !branchId && !selectedBranchId
@@ -844,11 +844,11 @@ export function MachineCreationModal({
               )}
 
             {result?.errors && result.errors.length > 0 && (
-              <div className="rounded-md border border-destructive bg-destructive/10 p-4 mb-6">
+              <div className="mb-6 rounded-md border border-destructive bg-destructive/10 p-4">
                 <Typography variant="h3" className="mb-2 text-destructive">
                   {t('form.error.title')}
                 </Typography>
-                <ul className="list-disc list-inside space-y-1">
+                <ul className="list-inside list-disc space-y-1">
                   {result.errors.map((error, index) => (
                     <li key={index}>
                       <Typography variant="small" className="text-destructive">
@@ -861,14 +861,14 @@ export function MachineCreationModal({
             )}
           </div>
 
-          <div className="border-t border-border p-6 flex justify-end gap-3 shrink-0 bg-background">
+          <div className="flex shrink-0 justify-end gap-3 border-t border-border bg-background p-6">
             <Button type="button" variant="outline" onClick={onClose}>
               {t('form.cancel')}
             </Button>
             <Button
               type="submit"
               disabled={isLoading || !selectedBlueprint || !selectedBranchId}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
             </Button>

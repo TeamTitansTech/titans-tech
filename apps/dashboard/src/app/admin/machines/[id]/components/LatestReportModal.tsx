@@ -623,11 +623,11 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
   };
 
   return (
-    <DialogContent className="w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
+    <DialogContent className="flex flex-col overflow-hidden">
       <DialogHeader>
         <div className="flex items-center justify-between">
           <DialogTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
+            <FileText className="h-5 w-5" />
             {t('title')}
           </DialogTitle>
           {/* Unit Toggle */}
@@ -674,8 +674,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
         angularity ? (
           <div className="space-y-4">
             {bearingClearance && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Bearing Clearance - CP 2
                   </Typography>
@@ -691,8 +691,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                 <div className="space-y-4">
                   {/* Outer Section */}
                   {bearingClearance.outerData && (
-                    <div className="border rounded-md overflow-hidden">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
                         <span>Outer</span>
                         {getSeverityBadge(getBearingSeverity('outer'))}
                       </div>
@@ -727,8 +727,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
                   {/* Inner Section */}
                   {bearingClearance.innerData && (
-                    <div className="border rounded-md overflow-hidden">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
                         <span>Inner</span>
                         {getSeverityBadge(getBearingSeverity('inner'))}
                       </div>
@@ -765,8 +765,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
             )}
 
             {clutch && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Clutch
                   </Typography>
@@ -778,7 +778,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   </div>
                 </div>
 
-                <div className="border rounded-md overflow-hidden">
+                <div className="overflow-hidden rounded-md border">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/50">
@@ -806,8 +806,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
             )}
 
             {slideSingleHammer && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Slide (Single Hammer)
                   </Typography>
@@ -825,8 +825,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     slideSingleHammer.data,
                     slideSingleHammer.alert,
                   ).map((section, idx) => (
-                    <div key={idx} className="border rounded-md overflow-hidden">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                    <div key={idx} className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
                         <span>{section.name}</span>
                         {getSeverityBadge(section.severity as 'NONE' | 'GREEN' | 'YELLOW' | 'RED')}
                       </div>
@@ -845,7 +845,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                           <TableRow className="bg-muted/30">
                             <TableHead
                               colSpan={6}
-                              className="text-center text-xs text-muted-foreground py-1"
+                              className="py-1 text-center text-xs text-muted-foreground"
                             >
                               ({unitLabel})
                             </TableHead>
@@ -871,8 +871,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
             )}
 
             {slideDoubleHammer && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Slide (Double Hammer)
                   </Typography>
@@ -890,8 +890,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     slideDoubleHammer.data,
                     slideDoubleHammer.alert,
                   ).map((section, idx) => (
-                    <div key={idx} className="border rounded-md overflow-hidden">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                    <div key={idx} className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
                         <span>{section.name}</span>
                         {getSeverityBadge(section.severity as 'NONE' | 'GREEN' | 'YELLOW' | 'RED')}
                       </div>
@@ -910,7 +910,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                           <TableRow className="bg-muted/30">
                             <TableHead
                               colSpan={6}
-                              className="text-center text-xs text-muted-foreground py-1"
+                              className="py-1 text-center text-xs text-muted-foreground"
                             >
                               ({unitLabel})
                             </TableHead>
@@ -936,8 +936,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
             )}
 
             {gibs && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     GIBS - Outer After Adjustment
                   </Typography>
@@ -952,7 +952,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                 <div className="space-y-3">
                   {/* Display usable value from alert if available */}
                   {gibs.alert && (
-                    <div className="border rounded-md p-3 bg-muted/30">
+                    <div className="rounded-md border bg-muted/30 p-3">
                       <div className="flex items-center justify-between">
                         <span className="font-semibold">Usable Value ({unitLabel})</span>
                         <div className="flex items-center gap-2">
@@ -966,12 +966,12 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   )}
 
                   {/* Display measurement points with diagram */}
-                  <div className="border rounded-md overflow-hidden">
+                  <div className="overflow-hidden rounded-md border">
                     <div className="bg-muted/30 px-4 py-2 font-semibold">Measurement Points</div>
 
                     {/* Mobile layout: Image first, then two columns */}
-                    <div className="flex flex-col sm:hidden gap-4 p-4">
-                      <div className="flex justify-center items-center">
+                    <div className="flex flex-col gap-4 p-4 sm:hidden">
+                      <div className="flex items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/assets/gibs/front-to-back.png"
@@ -986,7 +986,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                             const point = extractGibsPoints(gibs.data)[pointNum - 1];
                             return (
                               <div key={pointNum}>
-                                <div className="text-xs text-muted-foreground mb-1">
+                                <div className="mb-1 text-xs text-muted-foreground">
                                   {point.label}
                                 </div>
                                 <div className="font-medium">{point.value}</div>
@@ -1000,7 +1000,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                             const point = extractGibsPoints(gibs.data)[pointNum - 1];
                             return (
                               <div key={pointNum}>
-                                <div className="text-xs text-muted-foreground mb-1">
+                                <div className="mb-1 text-xs text-muted-foreground">
                                   {point.label}
                                 </div>
                                 <div className="font-medium">{point.value}</div>
@@ -1012,14 +1012,14 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     </div>
 
                     {/* Desktop layout: Left column, image, right column */}
-                    <div className="hidden sm:grid grid-cols-7 items-center p-4">
+                    <div className="hidden grid-cols-7 items-center p-4 sm:grid">
                       {/* Left column - points 2,1,4,3 */}
                       <div className="space-y-3">
                         {[2, 1, 4, 3].map((pointNum) => {
                           const point = extractGibsPoints(gibs.data)[pointNum - 1];
                           return (
                             <div key={pointNum}>
-                              <div className="text-xs text-muted-foreground mb-1">
+                              <div className="mb-1 text-xs text-muted-foreground">
                                 {point.label}
                               </div>
                               <div className="font-medium">{point.value}</div>
@@ -1029,7 +1029,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                       </div>
 
                       {/* Center - image */}
-                      <div className="col-span-5 h-full flex justify-center items-center">
+                      <div className="col-span-5 flex h-full items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/assets/gibs/front-to-back.png"
@@ -1044,7 +1044,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                           const point = extractGibsPoints(gibs.data)[pointNum - 1];
                           return (
                             <div key={pointNum}>
-                              <div className="text-xs text-muted-foreground mb-1">
+                              <div className="mb-1 text-xs text-muted-foreground">
                                 {point.label}
                               </div>
                               <div className="font-medium">{point.value}</div>
@@ -1056,14 +1056,14 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   </div>
 
                   {/* Second section: Points 9-16 (Left to Right) */}
-                  <div className="border rounded-md overflow-hidden mt-3">
+                  <div className="mt-3 overflow-hidden rounded-md border">
                     <div className="bg-muted/30 px-4 py-2 font-semibold">
                       Left to Right Measurements
                     </div>
 
                     {/* Mobile layout: Image first, then two columns */}
-                    <div className="flex flex-col sm:hidden gap-4 p-4">
-                      <div className="flex justify-center items-center">
+                    <div className="flex flex-col gap-4 p-4 sm:hidden">
+                      <div className="flex items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/assets/gibs/left-to-right.png"
@@ -1078,7 +1078,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                             const point = extractGibsPoints(gibs.data)[pointNum - 1];
                             return (
                               <div key={pointNum}>
-                                <div className="text-xs text-muted-foreground mb-1">
+                                <div className="mb-1 text-xs text-muted-foreground">
                                   {point.label}
                                 </div>
                                 <div className="font-medium">{point.value}</div>
@@ -1092,7 +1092,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                             const point = extractGibsPoints(gibs.data)[pointNum - 1];
                             return (
                               <div key={pointNum}>
-                                <div className="text-xs text-muted-foreground mb-1">
+                                <div className="mb-1 text-xs text-muted-foreground">
                                   {point.label}
                                 </div>
                                 <div className="font-medium">{point.value}</div>
@@ -1104,14 +1104,14 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     </div>
 
                     {/* Desktop layout: Left column, image, right column */}
-                    <div className="hidden sm:grid grid-cols-7 items-center p-4">
+                    <div className="hidden grid-cols-7 items-center p-4 sm:grid">
                       {/* Left column - points 13,9,15,11 */}
                       <div className="space-y-3">
                         {[13, 9, 15, 11].map((pointNum) => {
                           const point = extractGibsPoints(gibs.data)[pointNum - 1];
                           return (
                             <div key={pointNum}>
-                              <div className="text-xs text-muted-foreground mb-1">
+                              <div className="mb-1 text-xs text-muted-foreground">
                                 {point.label}
                               </div>
                               <div className="font-medium">{point.value}</div>
@@ -1121,7 +1121,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                       </div>
 
                       {/* Center - image */}
-                      <div className="col-span-5 h-full flex justify-center items-center">
+                      <div className="col-span-5 flex h-full items-center justify-center">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src="/assets/gibs/left-to-right.png"
@@ -1136,7 +1136,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                           const point = extractGibsPoints(gibs.data)[pointNum - 1];
                           return (
                             <div key={pointNum}>
-                              <div className="text-xs text-muted-foreground mb-1">
+                              <div className="mb-1 text-xs text-muted-foreground">
                                 {point.label}
                               </div>
                               <div className="font-medium">{point.value}</div>
@@ -1151,8 +1151,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
             )}
 
             {pistons && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Pistons
                   </Typography>
@@ -1167,8 +1167,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                 <div className="space-y-4">
                   {/* Outer Section */}
                   {pistons.data.outerData && (
-                    <div className="border rounded-md overflow-hidden">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
                         <span>Outer</span>
                         {getSeverityBadge(getPistonsSeverity('outer'))}
                       </div>
@@ -1199,8 +1199,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
                   {/* Inner Section */}
                   {pistons.data.innerData && (
-                    <div className="border rounded-md overflow-hidden">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
                         <span>Inner</span>
                         {getSeverityBadge(getPistonsSeverity('inner'))}
                       </div>
@@ -1233,8 +1233,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
             )}
 
             {lubrication && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     {t('lubrication.title')}
                   </Typography>
@@ -1246,7 +1246,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   </div>
                 </div>
 
-                <div className="border rounded-md overflow-hidden">
+                <div className="overflow-hidden rounded-md border">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-muted/50">
@@ -1293,7 +1293,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
                 {lubrication.data.gauges && lubrication.data.gauges.length > 0 && (
                   <div className="mt-3">
-                    <div className="border rounded-md overflow-hidden">
+                    <div className="overflow-hidden rounded-md border">
                       <div className="bg-muted/30 px-4 py-2 font-semibold">
                         {t('lubrication.systemGauges')}
                       </div>
@@ -1328,8 +1328,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
             )}
 
             {counterbalance && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Counterbalance Cylinder/Airbag
                   </Typography>
@@ -1349,10 +1349,10 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {counterbalance.data.outerData && (
-                    <div className="border rounded-md overflow-hidden">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
                         <span>{t('counterbalance.outer')}</span>
                         <Badge variant="outline">
                           {counterbalance.data.outerData.counterbalanceType === 'CYLINDER'
@@ -1360,7 +1360,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                             : t('counterbalance.airbag')}
                         </Badge>
                       </div>
-                      <div className="p-3 space-y-2 text-sm">
+                      <div className="space-y-2 p-3 text-sm">
                         {[
                           { key: 'airbagPistonSeals', labelKey: 'pistonSeals' },
                           { key: 'regulator', labelKey: 'regulator' },
@@ -1378,7 +1378,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                           const stringValue = typeof value === 'string' ? value : undefined;
                           const status = formatCounterbalanceStatus(stringValue);
                           return (
-                            <div key={key} className="flex justify-between items-center">
+                            <div key={key} className="flex items-center justify-between">
                               <span className="text-muted-foreground">
                                 {t(`counterbalance.${labelKey}`)}
                               </span>
@@ -1386,9 +1386,9 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                                 variant="outline"
                                 className={
                                   status.isIssue
-                                    ? 'bg-red-100 text-red-800 border-red-200'
+                                    ? 'border-red-200 bg-red-100 text-red-800'
                                     : status.text === t('counterbalance.status.ok')
-                                      ? 'bg-green-100 text-green-800 border-green-200'
+                                      ? 'border-green-200 bg-green-100 text-green-800'
                                       : ''
                                 }
                               >
@@ -1402,8 +1402,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   )}
 
                   {counterbalance.data.innerData && (
-                    <div className="border rounded-md overflow-hidden">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
                         <span>{t('counterbalance.inner')}</span>
                         <Badge variant="outline">
                           {counterbalance.data.innerData.counterbalanceType === 'CYLINDER'
@@ -1411,7 +1411,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                             : t('counterbalance.airbag')}
                         </Badge>
                       </div>
-                      <div className="p-3 space-y-2 text-sm">
+                      <div className="space-y-2 p-3 text-sm">
                         {[
                           { key: 'airbagPistonSeals', labelKey: 'pistonSeals' },
                           { key: 'regulator', labelKey: 'regulator' },
@@ -1429,7 +1429,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                           const stringValue = typeof value === 'string' ? value : undefined;
                           const status = formatCounterbalanceStatus(stringValue);
                           return (
-                            <div key={key} className="flex justify-between items-center">
+                            <div key={key} className="flex items-center justify-between">
                               <span className="text-muted-foreground">
                                 {t(`counterbalance.${labelKey}`)}
                               </span>
@@ -1437,9 +1437,9 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                                 variant="outline"
                                 className={
                                   status.isIssue
-                                    ? 'bg-red-100 text-red-800 border-red-200'
+                                    ? 'border-red-200 bg-red-100 text-red-800'
                                     : status.text === t('counterbalance.status.ok')
-                                      ? 'bg-green-100 text-green-800 border-green-200'
+                                      ? 'border-green-200 bg-green-100 text-green-800'
                                       : ''
                                 }
                               >
@@ -1454,28 +1454,28 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                 </div>
 
                 {counterbalance.data.notes && (
-                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
                     <span className="text-sm font-medium">Notas: </span>
                     <span className="text-sm">{counterbalance.data.notes}</span>
                   </div>
                 )}
 
                 {counterbalance.alerts && counterbalance.alerts.length > 0 && (
-                  <div className="mt-3 border rounded-md overflow-hidden">
-                    <div className="bg-red-50 px-4 py-2 font-semibold flex items-center gap-2 text-red-800">
+                  <div className="mt-3 overflow-hidden rounded-md border">
+                    <div className="flex items-center gap-2 bg-red-50 px-4 py-2 font-semibold text-red-800">
                       <span>Alertas Personalizados</span>
                       <Badge variant="destructive">{counterbalance.alerts.length}</Badge>
                     </div>
-                    <div className="p-3 space-y-2">
+                    <div className="space-y-2 p-3">
                       {counterbalance.alerts.map((alert) => (
                         <div
                           key={alert.id}
-                          className="p-2 bg-red-50 border border-red-200 rounded text-sm"
+                          className="rounded border border-red-200 bg-red-50 p-2 text-sm"
                         >
                           <div className="font-medium text-red-800">
                             {alert.fieldName.replace(/_/g, ' ')}
                           </div>
-                          <div className="text-red-600 mt-1">{alert.justification}</div>
+                          <div className="mt-1 text-red-600">{alert.justification}</div>
                         </div>
                       ))}
                     </div>
@@ -1485,8 +1485,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
             )}
 
             {tramming && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Tramming
                   </Typography>
@@ -1500,7 +1500,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
                 <div className="space-y-4">
                   {tramming.data.outerData && tramming.alert && (
-                    <div className="border rounded-md overflow-hidden">
+                    <div className="overflow-hidden rounded-md border">
                       <div className="bg-muted/30 px-4 py-2 font-semibold">Outer</div>
                       <Table>
                         <TableHeader>
@@ -1564,7 +1564,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   )}
 
                   {tramming.data.innerData && tramming.alert && (
-                    <div className="border rounded-md overflow-hidden">
+                    <div className="overflow-hidden rounded-md border">
                       <div className="bg-muted/30 px-4 py-2 font-semibold">Inner</div>
                       <Table>
                         <TableHeader>
@@ -1632,8 +1632,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
             {/* Bearing Clearance Single Hammer Section */}
             {bearingClearanceSingleHammer && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Bearing Clearance - Single Hammer
                   </Typography>
@@ -1650,7 +1650,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                 </div>
                 <div className="space-y-4">
                   {bearingClearanceSingleHammer.data.data && (
-                    <div className="border rounded-md overflow-hidden">
+                    <div className="overflow-hidden rounded-md border">
                       <div className="bg-muted/30 px-4 py-2 font-semibold">After Adjustment</div>
                       <Table>
                         <TableHeader>
@@ -1685,8 +1685,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
             {/* Shim Thickness Section */}
             {shimThickness && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Shim Thickness
                   </Typography>
@@ -1695,10 +1695,10 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     {format(new Date(shimThickness.latestServiceDate), 'dd-MM-yyyy')}
                   </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {shimThickness.data.outerLhData && (
-                    <div className="border rounded-md p-3">
-                      <div className="font-semibold mb-2">Outer LH</div>
+                    <div className="rounded-md border p-3">
+                      <div className="mb-2 font-semibold">Outer LH</div>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Top:</span>
@@ -1720,8 +1720,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     </div>
                   )}
                   {shimThickness.data.outerRhData && (
-                    <div className="border rounded-md p-3">
-                      <div className="font-semibold mb-2">Outer RH</div>
+                    <div className="rounded-md border p-3">
+                      <div className="mb-2 font-semibold">Outer RH</div>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Top:</span>
@@ -1743,8 +1743,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     </div>
                   )}
                   {shimThickness.data.innerLhData && (
-                    <div className="border rounded-md p-3">
-                      <div className="font-semibold mb-2">Inner LH</div>
+                    <div className="rounded-md border p-3">
+                      <div className="mb-2 font-semibold">Inner LH</div>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Top:</span>
@@ -1766,8 +1766,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     </div>
                   )}
                   {shimThickness.data.innerRhData && (
-                    <div className="border rounded-md p-3">
-                      <div className="font-semibold mb-2">Inner RH</div>
+                    <div className="rounded-md border p-3">
+                      <div className="mb-2 font-semibold">Inner RH</div>
                       <div className="space-y-1 text-sm">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Top:</span>
@@ -1790,7 +1790,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   )}
                 </div>
                 {shimThickness.data.notes && (
-                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
                     <span className="text-sm font-medium">Notes: </span>
                     <span className="text-sm">{shimThickness.data.notes}</span>
                   </div>
@@ -1800,8 +1800,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
             {/* Die Cushion Section */}
             {dieCushion && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Die Cushion
                   </Typography>
@@ -1809,7 +1809,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     {t('updatedAt')} {format(new Date(dieCushion.latestServiceDate), 'dd-MM-yyyy')}
                   </span>
                 </div>
-                <div className="border rounded-md overflow-hidden">
+                <div className="overflow-hidden rounded-md border">
                   <Table>
                     <TableBody>
                       <TableRow className="hover:bg-muted/30">
@@ -1842,7 +1842,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   </Table>
                 </div>
                 {dieCushion.data.notes && (
-                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
                     <span className="text-sm font-medium">Notes: </span>
                     <span className="text-sm">{dieCushion.data.notes}</span>
                   </div>
@@ -1852,8 +1852,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
             {/* Electrical Control Section */}
             {electricalControl && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Electrical Control
                   </Typography>
@@ -1862,7 +1862,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     {format(new Date(electricalControl.latestServiceDate), 'dd-MM-yyyy')}
                   </span>
                 </div>
-                <div className="border rounded-md overflow-hidden">
+                <div className="overflow-hidden rounded-md border">
                   <Table>
                     <TableBody>
                       {electricalControl.data.hasHourMeter && (
@@ -1909,7 +1909,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   </Table>
                 </div>
                 {electricalControl.data.notes && (
-                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
                     <span className="text-sm font-medium">Notes: </span>
                     <span className="text-sm">{electricalControl.data.notes}</span>
                   </div>
@@ -1919,8 +1919,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
             {/* Perpendicularity Section */}
             {perpendicularity && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Perpendicularity
                   </Typography>
@@ -1929,7 +1929,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     {format(new Date(perpendicularity.latestServiceDate), 'dd-MM-yyyy')}
                   </span>
                 </div>
-                <div className="border rounded-md overflow-hidden">
+                <div className="overflow-hidden rounded-md border">
                   <Table>
                     <TableBody>
                       <TableRow className="hover:bg-muted/30">
@@ -1966,7 +1966,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   </Table>
                 </div>
                 {perpendicularity.data.notes && (
-                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
                     <span className="text-sm font-medium">Notes: </span>
                     <span className="text-sm">{perpendicularity.data.notes}</span>
                   </div>
@@ -1976,8 +1976,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
 
             {/* Angularity Section */}
             {angularity && (
-              <div className="border rounded-lg p-4">
-                <div className="flex items-center justify-between mb-3">
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
                   <Typography variant="h4" className="font-semibold">
                     Angularity
                   </Typography>
@@ -1985,7 +1985,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                     {t('updatedAt')} {format(new Date(angularity.latestServiceDate), 'dd-MM-yyyy')}
                   </span>
                 </div>
-                <div className="border rounded-md overflow-hidden">
+                <div className="overflow-hidden rounded-md border">
                   <Table>
                     <TableBody>
                       <TableRow className="hover:bg-muted/30">
@@ -2048,7 +2048,7 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
                   </Table>
                 </div>
                 {angularity.data.notes && (
-                  <div className="mt-3 p-3 border rounded-md bg-muted/20">
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
                     <span className="text-sm font-medium">Notes: </span>
                     <span className="text-sm">{angularity.data.notes}</span>
                   </div>
@@ -2057,13 +2057,13 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
             )}
           </div>
         ) : (
-          <div className="border rounded-lg p-8 text-center">
+          <div className="rounded-lg border p-8 text-center">
             <Typography variant="muted">Nenhum dado registrado ainda.</Typography>
           </div>
         )}
       </div>
 
-      <div className="flex justify-between pt-4 px-4 border-t">
+      <div className="flex justify-between border-t px-4 pt-4">
         <Button
           variant="outline"
           size="sm"
@@ -2073,9 +2073,9 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
           data-export-button
         >
           {isExporting ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
-            <Download className="w-4 h-4" />
+            <Download className="h-4 w-4" />
           )}
           Baixar PDF
         </Button>

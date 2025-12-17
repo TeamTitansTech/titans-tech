@@ -12,6 +12,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -287,153 +288,155 @@ export function EditUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* User Info - Only show if user has updateUsers permission */}
-          {canUpdateUserInfo && (
-            <>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">{t('form.name.label')}</Label>
-                  <Input
-                    id="name"
-                    {...register('name')}
-                    placeholder={t('form.name.placeholder')}
-                    disabled={isSubmitting}
-                  />
-                  {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">{t('form.email.label')}</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    {...register('email')}
-                    placeholder={t('form.email.placeholder')}
-                    disabled={isSubmitting}
-                  />
-                  {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
-                </div>
-              </div>
-
-              {(canAssignToBranches || canManagePermissions) && <Separator />}
-            </>
-          )}
-
-          {/* Branch Selection - Only show if user has assignUsersToBranches permission */}
-          {canAssignToBranches && (
-            <>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">{tBranches('label')}</Label>
-                    <p className="text-xs text-muted-foreground">{tBranches('description')}</p>
+        <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody className="space-y-6">
+            {/* User Info - Only show if user has updateUsers permission */}
+            {canUpdateUserInfo && (
+              <>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">{t('form.name.label')}</Label>
+                    <Input
+                      id="name"
+                      {...register('name')}
+                      placeholder={t('form.name.placeholder')}
+                      disabled={isSubmitting}
+                    />
+                    {errors.name && <p className="text-sm text-red-600">{errors.name.message}</p>}
                   </div>
-                  {branches.length > 1 && (
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleSelectAll}
-                        disabled={isSubmitting || selectedBranchIds.size === branches.length}
-                      >
-                        {tBranches('selectAll')}
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleDeselectAll}
-                        disabled={isSubmitting || selectedBranchIds.size === 0}
-                      >
-                        {tBranches('deselectAll')}
-                      </Button>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email">{t('form.email.label')}</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      {...register('email')}
+                      placeholder={t('form.email.placeholder')}
+                      disabled={isSubmitting}
+                    />
+                    {errors.email && <p className="text-sm text-red-600">{errors.email.message}</p>}
+                  </div>
+                </div>
+
+                {(canAssignToBranches || canManagePermissions) && <Separator />}
+              </>
+            )}
+
+            {/* Branch Selection - Only show if user has assignUsersToBranches permission */}
+            {canAssignToBranches && (
+              <>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-medium">{tBranches('label')}</Label>
+                      <p className="text-xs text-muted-foreground">{tBranches('description')}</p>
+                    </div>
+                    {branches.length > 1 && (
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleSelectAll}
+                          disabled={isSubmitting || selectedBranchIds.size === branches.length}
+                        >
+                          {tBranches('selectAll')}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={handleDeselectAll}
+                          disabled={isSubmitting || selectedBranchIds.size === 0}
+                        >
+                          {tBranches('deselectAll')}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {isLoadingBranches ? (
+                    <div className="flex items-center justify-center rounded-lg border p-4">
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <span className="text-sm text-muted-foreground">{tBranches('loading')}</span>
+                    </div>
+                  ) : branches.length > 0 ? (
+                    <div className="max-h-[200px] divide-y overflow-y-auto rounded-lg border">
+                      {branches.map((branch) => {
+                        const isSelected = selectedBranchIds.has(branch.id);
+
+                        return (
+                          <div
+                            key={branch.id}
+                            className="flex items-center space-x-3 p-3 hover:bg-muted/50"
+                          >
+                            <Checkbox
+                              id={`edit-branch-${branch.id}`}
+                              checked={isSelected}
+                              onCheckedChange={(checked) =>
+                                handleBranchToggle(branch.id, checked as boolean)
+                              }
+                              disabled={isSubmitting}
+                            />
+                            <Label
+                              htmlFor={`edit-branch-${branch.id}`}
+                              className="flex-1 cursor-pointer text-sm"
+                            >
+                              {branch.name}
+                              {branch.isMainBranch && (
+                                <span className="ml-2 text-xs text-muted-foreground">
+                                  ({tBranches('main')})
+                                </span>
+                              )}
+                            </Label>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="rounded-lg border p-4 text-center text-sm text-muted-foreground">
+                      {tBranches('noBranches')}
                     </div>
                   )}
+
+                  <p className="text-xs text-muted-foreground">
+                    {tBranches('selectedCount', { count: selectedBranchIds.size })}
+                  </p>
                 </div>
+              </>
+            )}
 
-                {isLoadingBranches ? (
-                  <div className="flex items-center justify-center p-4 border rounded-lg">
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    <span className="text-sm text-muted-foreground">{tBranches('loading')}</span>
-                  </div>
-                ) : branches.length > 0 ? (
-                  <div className="border rounded-lg divide-y max-h-[200px] overflow-y-auto">
-                    {branches.map((branch) => {
-                      const isSelected = selectedBranchIds.has(branch.id);
+            {/* Permissions Section - Only show if user has manageUserPermissions */}
+            {canManagePermissions && permissions && (
+              <>
+                {(canUpdateUserInfo || canAssignToBranches) && <Separator />}
 
-                      return (
-                        <div
-                          key={branch.id}
-                          className="flex items-center space-x-3 p-3 hover:bg-muted/50"
-                        >
-                          <Checkbox
-                            id={`edit-branch-${branch.id}`}
-                            checked={isSelected}
-                            onCheckedChange={(checked) =>
-                              handleBranchToggle(branch.id, checked as boolean)
-                            }
-                            disabled={isSubmitting}
-                          />
-                          <Label
-                            htmlFor={`edit-branch-${branch.id}`}
-                            className="flex-1 text-sm cursor-pointer"
-                          >
-                            {branch.name}
-                            {branch.isMainBranch && (
-                              <span className="ml-2 text-xs text-muted-foreground">
-                                ({tBranches('main')})
-                              </span>
-                            )}
-                          </Label>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="p-4 border rounded-lg text-center text-sm text-muted-foreground">
-                    {tBranches('noBranches')}
-                  </div>
-                )}
+                {/* Permissions Editor */}
+                <PermissionsEditor
+                  permissions={permissions}
+                  onChange={setPermissions}
+                  disabled={isSubmitting}
+                  showPresetSelector={true}
+                  companyId={user.companyId}
+                />
+              </>
+            )}
 
-                <p className="text-xs text-muted-foreground">
-                  {tBranches('selectedCount', { count: selectedBranchIds.size })}
+            {/* Show message if user has no permissions to edit anything */}
+            {!canUpdateUserInfo && !canManagePermissions && !canAssignToBranches && (
+              <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4 text-center">
+                <p className="text-sm text-yellow-800">
+                  {t('noPermissionToEdit') || 'Você não tem permissão para editar este usuário.'}
                 </p>
               </div>
-            </>
-          )}
-
-          {/* Permissions Section - Only show if user has manageUserPermissions */}
-          {canManagePermissions && permissions && (
-            <>
-              {(canUpdateUserInfo || canAssignToBranches) && <Separator />}
-
-              {/* Permissions Editor */}
-              <PermissionsEditor
-                permissions={permissions}
-                onChange={setPermissions}
-                disabled={isSubmitting}
-                showPresetSelector={true}
-                companyId={user.companyId}
-              />
-            </>
-          )}
-
-          {/* Show message if user has no permissions to edit anything */}
-          {!canUpdateUserInfo && !canManagePermissions && !canAssignToBranches && (
-            <div className="rounded-md border border-yellow-200 bg-yellow-50 p-4 text-center">
-              <p className="text-sm text-yellow-800">
-                {t('noPermissionToEdit') || 'Você não tem permissão para editar este usuário.'}
-              </p>
-            </div>
-          )}
+            )}
+          </DialogBody>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={handleClose} disabled={isSubmitting}>

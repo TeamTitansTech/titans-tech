@@ -50,7 +50,7 @@ export function ServiceSummaryModal({
 }: ServiceSummaryModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[1200px] h-[85vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
+      <DialogContent className="flex max-w-[1200px] flex-col overflow-hidden">
         <UnitManagerProvider>
           <ServiceSummaryModalContent
             service={service}
@@ -280,10 +280,10 @@ function ServiceSummaryModalContent({
         </DialogDescription>
       </DialogHeader>
 
-      <div ref={contentRef} className="flex-1 overflow-y-auto px-4 py-4 bg-background">
+      <div ref={contentRef} className="flex-1 overflow-y-auto bg-background px-4 py-4">
         {/* Service Details Summary */}
-        <div className="border rounded-lg p-4 mb-4">
-          <Typography variant="h4" className="font-semibold mb-3">
+        <div className="mb-4 rounded-lg border p-4">
+          <Typography variant="h4" className="mb-3 font-semibold">
             {tServicesSummary('serviceDetails')}
           </Typography>
           <div className="grid grid-cols-2 gap-4">
@@ -304,20 +304,20 @@ function ServiceSummaryModalContent({
           </div>
 
           {/* Selected Units Display */}
-          <div className="mt-4 pt-4 border-t">
-            <Label className="text-xs text-muted-foreground mb-2 block">
+          <div className="mt-4 border-t pt-4">
+            <Label className="mb-2 block text-xs text-muted-foreground">
               {tUnits('selectedUnits')}
             </Label>
             <div className="flex flex-wrap gap-4">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
-                <Ruler className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm mr-2">{tUnits('lengthLabel')}:</span>
+              <div className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-1.5">
+                <Ruler className="h-4 w-4 text-muted-foreground" />
+                <span className="mr-2 text-sm">{tUnits('lengthLabel')}:</span>
                 <div className="flex items-center rounded-md border bg-background">
                   <Button
                     type="button"
                     variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
                     size="sm"
-                    className="h-6 px-2 text-xs rounded-r-none"
+                    className="h-6 rounded-r-none px-2 text-xs"
                     onClick={() => setLengthUnit('mm')}
                   >
                     mm
@@ -326,22 +326,22 @@ function ServiceSummaryModalContent({
                     type="button"
                     variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
                     size="sm"
-                    className="h-6 px-2 text-xs rounded-l-none"
+                    className="h-6 rounded-l-none px-2 text-xs"
                     onClick={() => setLengthUnit('inches')}
                   >
                     in
                   </Button>
                 </div>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
-                <Thermometer className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-1.5">
+                <Thermometer className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">
                   {tUnits('temperatureLabel')}:{' '}
                   <span className="font-medium">{getTemperatureUnitLabel()}</span>
                 </span>
               </div>
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md">
-                <Gauge className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-1.5">
+                <Gauge className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">
                   {tUnits('pressureLabel')}:{' '}
                   <span className="font-medium">{getPressureUnitLabel()}</span>
@@ -351,7 +351,7 @@ function ServiceSummaryModalContent({
           </div>
 
           {/* Inspection Observation Fields */}
-          <div className="grid grid-cols-2 gap-4 mt-4 pt-4 border-t">
+          <div className="mt-4 grid grid-cols-2 gap-4 border-t pt-4">
             {/* Add all inspection observation fields here */}
             <div>
               <Label className="text-xs text-muted-foreground">
@@ -435,9 +435,9 @@ function ServiceSummaryModalContent({
 
         {/* Public Request Section - Show if this service was created from a service request */}
         {isFromServiceRequest && (
-          <div className="border border-orange-200 bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-2 mb-3">
-              <AlertCircle className="w-5 h-5 text-orange-500" />
+          <div className="mb-4 rounded-lg border border-orange-200 bg-orange-50 p-4 dark:bg-orange-900/20">
+            <div className="mb-3 flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-orange-500" />
               <Typography variant="h4" className="font-semibold">
                 {tServices('publicRequestDetails.title')}
               </Typography>
@@ -452,8 +452,8 @@ function ServiceSummaryModalContent({
         )}
 
         {/* Sections Summary */}
-        <div className="border rounded-lg p-4 mb-4">
-          <Typography variant="h4" className="font-semibold mb-3">
+        <div className="mb-4 rounded-lg border p-4">
+          <Typography variant="h4" className="mb-3 font-semibold">
             {tServicesSummary('filledAreas')}
           </Typography>
           <div className="space-y-2">
@@ -463,9 +463,9 @@ function ServiceSummaryModalContent({
               return (
                 <div
                   key={sectionKey}
-                  className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-md"
+                  className="flex items-center gap-2 rounded-md bg-green-50 px-3 py-2 text-green-700 dark:bg-green-900/20 dark:text-green-400"
                 >
-                  <Check className="w-4 h-4" />
+                  <Check className="h-4 w-4" />
                   <span className="text-sm font-medium">
                     {t(`sectionNames.${sectionConfig.metadata.i18nKey}`)}
                   </span>
@@ -490,17 +490,17 @@ function ServiceSummaryModalContent({
 
             return (
               <Collapsible key={sectionKey} defaultOpen={true}>
-                <div className="border rounded-lg">
-                  <CollapsibleTrigger className="flex items-center justify-between w-full p-3 hover:bg-muted/50 transition-colors group">
+                <div className="rounded-lg border">
+                  <CollapsibleTrigger className="group flex w-full items-center justify-between p-3 transition-colors hover:bg-muted/50">
                     <div className="flex items-center gap-2">
-                      <Typography variant="h4" className="font-semibold text-sm">
+                      <Typography variant="h4" className="text-sm font-semibold">
                         {t(`sectionNames.${sectionConfig.metadata.i18nKey}`)}
                       </Typography>
                       <span className="text-xs text-green-600 dark:text-green-400">
                         ({tServices('modal.status.complete')})
                       </span>
                     </div>
-                    <ChevronUp className="w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    <ChevronUp className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </CollapsibleTrigger>
                   <CollapsibleContent className="p-3 pt-0 text-xs">
                     <SectionSummary sectionKey={sectionKey} data={data} />
@@ -512,7 +512,7 @@ function ServiceSummaryModalContent({
         </div>
       </div>
 
-      <div className="flex justify-between items-center gap-3 pt-4 px-4 border-t">
+      <div className="flex items-center justify-between gap-3 border-t px-4 pt-4">
         <div className="flex gap-2">
           {!hideExcelExport && (
             <Button
@@ -521,7 +521,7 @@ function ServiceSummaryModalContent({
               onClick={handleExportToExcel}
               className="flex items-center gap-2"
             >
-              <FileSpreadsheet className="w-4 h-4" />
+              <FileSpreadsheet className="h-4 w-4" />
               {tServicesSummary('exportExcel')}
             </Button>
           )}
@@ -533,9 +533,9 @@ function ServiceSummaryModalContent({
             className="flex items-center gap-2"
           >
             {isExportingPDF ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <FileText className="w-4 h-4" />
+              <FileText className="h-4 w-4" />
             )}
             {tServicesSummary('exportPDF')}
           </Button>

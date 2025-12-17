@@ -453,7 +453,7 @@ export function SubsectionPartsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="h-[90vh] max-h-[90vh] overflow-hidden w-[95vw] max-w-[1600px] flex flex-col">
+      <DialogContent className="flex h-[90vh] max-h-[90vh] w-[95vw] max-w-[95vw] flex-col overflow-hidden md:max-h-full lg:max-w-[95vw]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -464,11 +464,11 @@ export function SubsectionPartsModal({
         <Tabs
           value={activeTab}
           onValueChange={setActiveTab}
-          className="w-full flex-1 flex flex-col min-h-0"
+          className="flex min-h-0 w-full flex-1 flex-col"
         >
           {/* Tabs List - Centered and Scrollable for many subsections */}
-          <div className="overflow-x-auto pb-2 shrink-0 flex justify-center">
-            <div className="inline-flex gap-2 p-1 bg-muted rounded-lg">
+          <div className="flex shrink-0 justify-center overflow-x-auto pb-2">
+            <div className="inline-flex gap-2 rounded-lg bg-muted p-1">
               {subsections.map((subsection) => {
                 const selectedCount = getSelectedCountForSubsection(subsection.id);
                 const fullName = getSubsectionName(subsection.id);
@@ -478,7 +478,7 @@ export function SubsectionPartsModal({
                     key={subsection.id}
                     onClick={() => setActiveTab(subsection.id)}
                     className={cn(
-                      'flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-md text-sm font-medium transition-all',
+                      'flex items-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-all',
                       isActive
                         ? 'bg-primary text-primary-foreground shadow-md'
                         : 'bg-transparent text-muted-foreground hover:bg-background hover:text-foreground',
@@ -489,7 +489,7 @@ export function SubsectionPartsModal({
                       <Badge
                         variant="secondary"
                         className={cn(
-                          'text-xs px-1.5',
+                          'px-1.5 text-xs',
                           isActive
                             ? 'bg-primary-foreground/20 text-primary-foreground'
                             : 'bg-primary/10 text-primary',
@@ -506,11 +506,11 @@ export function SubsectionPartsModal({
 
           {/* Tab Content */}
           {subsections.map((subsection) => (
-            <TabsContent key={subsection.id} value={subsection.id} className="mt-4 flex-1 min-h-0">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full overflow-hidden">
+            <TabsContent key={subsection.id} value={subsection.id} className="mt-4 min-h-0 flex-1">
+              <div className="grid h-full grid-cols-1 gap-6 overflow-hidden lg:grid-cols-2">
                 {/* Diagram Image */}
-                <div className="flex flex-col h-full min-h-0 overflow-hidden">
-                  <div className="flex items-center justify-between shrink-0">
+                <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                  <div className="flex shrink-0 items-center justify-between">
                     <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
                       {subsection.figureReference || 'Technical Diagram'}
                       <span className="ml-2 text-xs text-muted-foreground">
@@ -518,7 +518,7 @@ export function SubsectionPartsModal({
                       </span>
                     </h3>
                   </div>
-                  <div className="border rounded-lg overflow-hidden bg-white dark:bg-gray-900 relative flex-1 mt-2 min-h-0">
+                  <div className="relative mt-2 min-h-0 flex-1 overflow-hidden rounded-lg border bg-white dark:bg-gray-900">
                     {subsection.diagramImage && !imageError[subsection.id] ? (
                       <TransformWrapper
                         initialScale={1}
@@ -531,7 +531,7 @@ export function SubsectionPartsModal({
                         {({ zoomIn, zoomOut, resetTransform }) => (
                           <>
                             {/* Zoom Controls */}
-                            <div className="absolute top-2 right-2 z-10 flex gap-1 bg-white dark:bg-gray-800 rounded-md shadow-md p-1">
+                            <div className="absolute right-2 top-2 z-10 flex gap-1 rounded-md bg-white p-1 shadow-md dark:bg-gray-800">
                               <Button
                                 variant="ghost"
                                 size="icon"
@@ -581,7 +581,7 @@ export function SubsectionPartsModal({
                                 alt={`${getSubsectionName(subsection.id)} diagram`}
                                 width={800}
                                 height={600}
-                                className="max-w-full max-h-full object-contain"
+                                className="max-h-full max-w-full object-contain"
                                 priority
                                 unoptimized
                                 draggable={false}
@@ -592,10 +592,10 @@ export function SubsectionPartsModal({
                         )}
                       </TransformWrapper>
                     ) : (
-                      <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                        <ImageOff className="h-16 w-16 mb-4 opacity-50" />
+                      <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
+                        <ImageOff className="mb-4 h-16 w-16 opacity-50" />
                         <p className="text-sm">Image not available</p>
-                        <p className="text-xs mt-1">
+                        <p className="mt-1 text-xs">
                           {subsection.diagramImage
                             ? 'Image will be added soon'
                             : 'No diagram for this subsection'}
@@ -604,16 +604,16 @@ export function SubsectionPartsModal({
                     )}
                   </div>
                   {subsection.description && (
-                    <p className="text-sm text-muted-foreground shrink-0 mt-2">
+                    <p className="mt-2 shrink-0 text-sm text-muted-foreground">
                       {subsection.description}
                     </p>
                   )}
                 </div>
 
                 {/* Parts List */}
-                <div className="flex flex-col h-full min-h-0 overflow-hidden">
-                  <Card className="border-primary/20 dark:border-primary/30 flex flex-col flex-1 min-h-0">
-                    <CardHeader className="pb-3 shrink-0">
+                <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                  <Card className="flex min-h-0 flex-1 flex-col border-primary/20 dark:border-primary/30">
+                    <CardHeader className="shrink-0 pb-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <Package className="h-5 w-5 text-primary" />
@@ -629,10 +629,10 @@ export function SubsectionPartsModal({
                         {subsection.parts.length} {t('partsAvailable')}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-4 flex-1 flex flex-col overflow-hidden">
+                    <CardContent className="flex flex-1 flex-col space-y-4 overflow-hidden">
                       {/* Search Row */}
                       <div className="relative shrink-0">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                         <Input
                           placeholder={t('searchPlaceholder')}
                           value={searchQuery}
@@ -650,14 +650,14 @@ export function SubsectionPartsModal({
                       </div>
 
                       {/* Export This Tab Buttons */}
-                      <div className="shrink-0 flex gap-2">
+                      <div className="flex shrink-0 gap-2">
                         <Button
                           onClick={() => exportToPDF('current')}
                           disabled={getSelectedCountForSubsection(activeTab) === 0 || isExporting}
                           variant="outline"
                           size="sm"
                         >
-                          <FileDown className="h-4 w-4 mr-2" />
+                          <FileDown className="mr-2 h-4 w-4" />
                           {t('exportThisTab') || 'Export This Tab'}
                           {getSelectedCountForSubsection(activeTab) > 0 &&
                             ` (${getSelectedCountForSubsection(activeTab)})`}
@@ -670,13 +670,13 @@ export function SubsectionPartsModal({
                           variant="outline"
                           size="sm"
                         >
-                          <Mail className="h-4 w-4 mr-2" />
+                          <Mail className="mr-2 h-4 w-4" />
                           {t('sendThisTab') || 'Send This Tab'}
                         </Button>
                       </div>
 
                       {/* Select/Clear buttons */}
-                      <div className="flex items-center gap-2 shrink-0">
+                      <div className="flex shrink-0 items-center gap-2">
                         <Button variant="outline" size="sm" onClick={handleSelectAll}>
                           {t('selectAll')}
                         </Button>
@@ -691,7 +691,7 @@ export function SubsectionPartsModal({
                       </div>
 
                       {/* Parts Table */}
-                      <div className="border rounded-lg overflow-hidden flex-1 overflow-y-auto">
+                      <div className="flex-1 overflow-hidden overflow-y-auto rounded-lg border">
                         <Table>
                           <TableHeader>
                             <TableRow className="bg-muted/50">
@@ -702,10 +702,10 @@ export function SubsectionPartsModal({
                               <TableHead className="font-semibold">
                                 {t('tableHeaders.description')}
                               </TableHead>
-                              <TableHead className="font-semibold text-right">
+                              <TableHead className="text-right font-semibold">
                                 {t('tableHeaders.quantity')}
                               </TableHead>
-                              <TableHead className="font-semibold text-center">
+                              <TableHead className="text-center font-semibold">
                                 {t('tableHeaders.unit')}
                               </TableHead>
                             </TableRow>
@@ -736,10 +736,10 @@ export function SubsectionPartsModal({
                                           handleTogglePart(part.partNumber);
                                         }}
                                         className={cn(
-                                          'w-5 h-5 rounded flex items-center justify-center cursor-pointer border-2',
+                                          'flex h-5 w-5 cursor-pointer items-center justify-center rounded border-2',
                                           isSelected
-                                            ? 'bg-primary border-primary'
-                                            : 'bg-transparent border-gray-400',
+                                            ? 'border-primary bg-primary'
+                                            : 'border-gray-400 bg-transparent',
                                         )}
                                       >
                                         {isSelected && <Check className="h-3.5 w-3.5 text-white" />}
@@ -752,7 +752,7 @@ export function SubsectionPartsModal({
                                       <div className="flex items-center gap-2">
                                         <span>{part.description}</span>
                                         {isSelected && (
-                                          <Check className="h-4 w-4 text-primary shrink-0" />
+                                          <Check className="h-4 w-4 shrink-0 text-primary" />
                                         )}
                                       </div>
                                     </TableCell>
@@ -774,8 +774,8 @@ export function SubsectionPartsModal({
         </Tabs>
 
         {/* Footer with Export All Tabs button */}
-        <DialogFooter className="border-t pt-4 mt-4 shrink-0">
-          <div className="flex items-center justify-between w-full">
+        <DialogFooter className="mt-4 shrink-0 border-t pt-4">
+          <div className="flex w-full items-center justify-between">
             <p className="text-sm text-muted-foreground">
               {selectedKeys.size > 0
                 ? `${selectedKeys.size} ${t('partsSelectedAcrossTabs')}`
@@ -787,7 +787,7 @@ export function SubsectionPartsModal({
                 disabled={selectedKeys.size === 0 || isSendingEmail}
                 variant="outline"
               >
-                <Mail className="h-4 w-4 mr-2" />
+                <Mail className="mr-2 h-4 w-4" />
                 {t('sendAsEmail') || 'Send as Email'}
               </Button>
               <Button
@@ -795,7 +795,7 @@ export function SubsectionPartsModal({
                 disabled={selectedKeys.size === 0 || isExporting}
                 className="bg-primary hover:bg-primary/90"
               >
-                <FileDown className="h-4 w-4 mr-2" />
+                <FileDown className="mr-2 h-4 w-4" />
                 {t('exportAllTabs') || 'Export All Tabs'}
                 {selectedKeys.size > 0 && ` (${selectedKeys.size})`}
               </Button>
@@ -819,13 +819,13 @@ export function SubsectionPartsModal({
               <Label>{t('emailRecipients') || 'Email Recipients'}</Label>
 
               {/* Email list */}
-              <div className="space-y-2 max-h-40 overflow-y-auto">
+              <div className="max-h-40 space-y-2 overflow-y-auto">
                 {emailList.map((email) => (
                   <div
                     key={email}
-                    className="flex items-center justify-between bg-muted px-3 py-2 rounded-md"
+                    className="flex items-center justify-between rounded-md bg-muted px-3 py-2"
                   >
-                    <span className="text-sm truncate">{email}</span>
+                    <span className="truncate text-sm">{email}</span>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -837,7 +837,7 @@ export function SubsectionPartsModal({
                   </div>
                 ))}
                 {emailList.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-2">
+                  <p className="py-2 text-center text-sm text-muted-foreground">
                     {t('noEmailsYet') || 'No emails added yet'}
                   </p>
                 )}
@@ -886,12 +886,12 @@ export function SubsectionPartsModal({
             <Button onClick={handleSendEmail} disabled={emailList.length === 0 || isSendingEmail}>
               {isSendingEmail ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {t('sending') || 'Sending...'}
                 </>
               ) : (
                 <>
-                  <Mail className="h-4 w-4 mr-2" />
+                  <Mail className="mr-2 h-4 w-4" />
                   {t('sendEmail') || 'Send Email'}
                 </>
               )}
