@@ -147,9 +147,7 @@ export class UsersService {
       where: { companyId },
       include: {
         branches: {
-          where: {
-            deletedAt: null,
-          },
+          // Don't need to filter deleted branches here because we use soft delete as deactivation feature
           include: {
             branch: true,
           },
