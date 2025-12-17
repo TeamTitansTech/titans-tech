@@ -61,7 +61,7 @@ const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivEleme
 DialogHeader.displayName = 'DialogHeader';
 
 const DialogBody = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn('mt-1 min-h-0 flex-1 overflow-y-auto', className)} {...props} />
+  <div className={cn('min-h-0 flex-1 overflow-y-auto p-1 -mx-1 -mb-1', className)} {...props} />
 );
 DialogBody.displayName = 'DialogBody';
 
