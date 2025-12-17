@@ -29,7 +29,7 @@ export function GibsSummary({ data }: GibsSummaryProps) {
     if (isNaN(numValue) || numValue === 0) {
       return '-';
     }
-    // Convert from storage unit (mm) to display unit
+    // Convert from storage unit (inches) to display unit
     const convertedValue = convertLengthFromDefault(numValue);
     return convertedValue.toFixed(4);
   };

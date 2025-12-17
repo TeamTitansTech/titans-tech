@@ -800,8 +800,9 @@
   },
   "sections": {
     "bearing_clearance": "Holgura de Cojinete",
+    "bearing_clearance_single_hammer": "Holgura de Cojinete - Martillo Único",
     "slide_single_hammer": "Slide - Martillo Único",
-    "slide_double_hammer": "Slide - Martillo Doble",
+    "slide_double_hammer": "Slide",
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
@@ -811,7 +812,8 @@
     "shim_thickness": "Espesor de Cuña",
     "die_cushion": "Cojín de Matriz",
     "electrical_control": "Control Eléctrico",
-    "perpendicularity": "Perpendicularidad"
+    "perpendicularity": "Perpendicularidad",
+    "angularity": "Angularidad"
   },
   "models": {
     "title": "Crear Modelo",
@@ -990,6 +992,7 @@
     },
     "sectionNames": {
       "bearingClearance": "Holgura de Cojinete - CP 2",
+      "bearingClearanceSingleHammer": "Holgura de Cojinete - Martillo Único",
       "slideSingleHammer": "Slide - Martillo Único",
       "slideDoubleHammer": "Slide - Martillo Doble",
       "gibs": "Guías",
@@ -1003,6 +1006,7 @@
       "dieCushion": "Cojín del Troquel",
       "electricalControl": "Control Eléctrico",
       "perpendicularity": "Perpendicularidad",
+      "angularity": "Angularidad",
       "unknown": "Sección Desconocida"
     },
     "gibsFields": {
@@ -1080,7 +1084,11 @@
         "lubricationStatus": "Estado de Lubricación e Hidráulica",
         "counterbalanceStatus": "Estado del Contrapeso",
         "pistonsMeasurements": "Mediciones de Pistones",
-        "trammingMeasurements": "Mediciones de Tramming"
+        "trammingMeasurements": "Mediciones de Tramming",
+        "perpendicularityMeasurements": "Mediciones de Perpendicularidad",
+        "shimThicknessMeasurements": "Mediciones de Espesor de Cuña",
+        "dieCushionStatus": "Estado del Die Cushion",
+        "electricalControlStatus": "Estado del Control Eléctrico"
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Holgura del Embrague Hidráulico",
@@ -1104,7 +1112,13 @@
         "innerTopRowMeasurements": "Interno - Mediciones Fila Superior",
         "innerBottomRowMeasurements": "Interno - Mediciones Fila Inferior",
         "innerLeftRowMeasurements": "Interno - Mediciones Fila Izquierda",
-        "innerRightRowMeasurements": "Interno - Mediciones Fila Derecha"
+        "innerRightRowMeasurements": "Interno - Mediciones Fila Derecha",
+        "beforeAdjustmentTrend": "Tendencia Antes del Ajuste",
+        "afterAdjustmentTrend": "Tendencia Después del Ajuste",
+        "outerLHMeasurements": "Mediciones Externo LH",
+        "outerRHMeasurements": "Mediciones Externo RH",
+        "innerLHMeasurements": "Mediciones Interno LH",
+        "innerRHMeasurements": "Mediciones Interno RH"
       },
       "labels": {
         "outer": "Externo",
@@ -1166,7 +1180,35 @@
         "rightTop": "Derecha-Superior",
         "rightBottom": "Derecha-Inferior",
         "rightLeft": "Derecha-Izquierda",
-        "rightRight": "Derecha-Derecha"
+        "rightRight": "Derecha-Derecha",
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "frontRear": "Frente-Atrás (F-R)",
+        "leftRight": "Izquierda-Derecha (L-R)",
+        "hasBeenAdjusted": "Ha Sido Ajustado",
+        "yes": "Sí",
+        "no": "No",
+        "na": "N/D",
+        "dnc": "DNC",
+        "cantTell": "No Se Puede Saber",
+        "airLeaks": "Fugas de Aire",
+        "airLeaksLocation": "Ubicación de Fugas de Aire",
+        "pneumaticsPlumbing": "Neumática/Tubería",
+        "lubrication": "Lubricación",
+        "controlInfo": "Información de Control",
+        "hasHourMeter": "Horómetro",
+        "hourMeterReading": "Lectura del Horómetro",
+        "isMinsterControl": "Control Minster",
+        "other": "Otro",
+        "electricalChecklist": "Lista de Verificación Eléctrica",
+        "outerLH": "Externo LH",
+        "outerRH": "Externo RH",
+        "innerLH": "Interno LH",
+        "innerRH": "Interno RH",
+        "noPerpendicularityData": "No hay datos de perpendicularidad disponibles",
+        "noShimThicknessData": "No hay datos de espesor de cuña disponibles",
+        "noDieCushionData": "No hay datos de die cushion disponibles",
+        "noElectricalData": "No hay datos de control eléctrico disponibles"
       }
     },
     "latestReport": {
@@ -1853,6 +1895,34 @@
           "dnc": "DNC"
         }
       },
+      "angularity": {
+        "hasBeenAdjusted": "¿Se ha ajustado la Angularidad?",
+        "setupInformation": "Información de Configuración",
+        "spm": "SPM",
+        "distanceOfIndicatorTip": "Distancia de la Punta del Indicador al Slide",
+        "locationOfIndicator": "Ubicación del Indicador",
+        "counterbalancePressure": "Presión del Contrapeso (PSI)",
+        "strokePartBeingRead": "Qué parte de la carrera se está leyendo",
+        "shutheightSetAt": "En qué altura está ajustado el shutheight",
+        "whatWasUsedAsSquare": "Qué se usó como escuadra",
+        "whereWasSquarePlaced": "Dónde se colocó la escuadra",
+        "indicatorUsedGraduation": "Qué indicador se usó (graduación)",
+        "tipKindOnIndicator": "Qué tipo de punta tenía el indicador",
+        "totalLiftCheck": "Verificación de Elevación Total (IN)",
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "frontRear": "Frente-Trasero",
+        "leftRight": "Izquierda-Derecha",
+        "enterValue": "Ingrese el valor...",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "selectOption": "Seleccione una opción",
+        "options": {
+          "yes": "Sí",
+          "no": "No",
+          "dnc": "DNC"
+        }
+      },
       "cancel": "Cancelar",
       "submit": {
         "idle": "Crear Inspección",
@@ -2086,7 +2156,8 @@
         "cracksLocation": "Si \"Sí\" arriba, ¿dónde?",
         "isMainMotorSecure": "¿El Motor Principal Está Seguro?",
         "isMotorPlateSecure": "¿La Placa del Motor Está Segura?",
-        "whyNotCovered": "Por qué no cubierto"
+        "whyNotCovered": "Por qué no cubierto",
+        "fillAngularity": "Llenar Angularidad"
       },
       "stepper": {
         "details": "Detalles",
@@ -2631,6 +2702,8 @@
     "clutchBrakeDescription": "Seleccione las piezas del embrague y freno que necesitan ser reemplazadas",
     "bearingClearanceParts": "Piezas de Holgura del Rodamiento",
     "bearingClearanceDescription": "Seleccione las piezas de holgura del rodamiento que necesitan ser reemplazadas",
+    "bearingClearanceSingleHammerParts": "Piezas de Holgura del Rodamiento Single Hammer",
+    "bearingClearanceSingleHammerDescription": "Seleccione las piezas de holgura del rodamiento single hammer que necesitan ser reemplazadas",
     "slideParts": "Piezas del Slide",
     "slideDescription": "Seleccione las piezas del slide que necesitan ser reemplazadas",
     "gibsParts": "Piezas de las Guías",
@@ -2711,7 +2784,10 @@
       "outerSlide": "Corredera Exterior",
       "innerSlide": "Corredera Interior",
       "gibsOuter": "Guías (Exterior)",
-      "gibsInner": "Guías (Interior)"
+      "gibsInner": "Guías (Interior)",
+      "slideStandard": "Corredera (Estándar)",
+      "slideAdjustment": "Ajuste de Corredera",
+      "shutheightIndicator": "Indicador de Altura"
     }
   },
   "sectionStatus": {

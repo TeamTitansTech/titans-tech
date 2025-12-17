@@ -800,8 +800,9 @@
   },
   "sections": {
     "bearing_clearance": "FOLGA DE ROLAMENTO",
+    "bearing_clearance_single_hammer": "FOLGA DE ROLAMENTO - Martelo Único",
     "slide_single_hammer": "Slide - Martelo Único",
-    "slide_double_hammer": "Slide - Martelo Duplo",
+    "slide_double_hammer": "Slide",
     "gibs": "GUIAS",
     "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRIFICAÇÃO / HIDRÁULICA / INTERRUPTORES DE PRESSÃO / ÓLEO E FILTRO",
     "clutch": "EMBREAGEM",
@@ -811,7 +812,8 @@
     "shim_thickness": "ESPESSURA DO CALÇO",
     "die_cushion": "ALMOFADA DE MATRIZ",
     "electrical_control": "CONTROLE ELÉTRICO",
-    "perpendicularity": "PERPENDICULARIDADE"
+    "perpendicularity": "PERPENDICULARIDADE",
+    "angularity": "ANGULARIDADE"
   },
   "models": {
     "title": "Criar Modelo",
@@ -990,6 +992,7 @@
     },
     "sectionNames": {
       "bearingClearance": "Folga de Rolamento",
+      "bearingClearanceSingleHammer": "Folga de Rolamento - Martelo Único",
       "slideSingleHammer": "Slide - Martelo Único",
       "slideDoubleHammer": "Slide - Martelo Duplo",
       "gibs": "Guias",
@@ -1003,6 +1006,7 @@
       "dieCushion": "Almofada da Matriz",
       "electricalControl": "Controle Elétrico",
       "perpendicularity": "Perpendicularidade",
+      "angularity": "Angularidade",
       "unknown": "Seção Desconhecida"
     },
     "gibsFields": {
@@ -1080,7 +1084,11 @@
         "lubricationStatus": "Status de Lubrificação e Hidráulica",
         "counterbalanceStatus": "Status do Contrapeso",
         "pistonsMeasurements": "Medições dos Pistões",
-        "trammingMeasurements": "Medições de Tramming"
+        "trammingMeasurements": "Medições de Tramming",
+        "perpendicularityMeasurements": "Medições de Perpendicularidade",
+        "shimThicknessMeasurements": "Medições de Espessura de Calço",
+        "dieCushionStatus": "Status do Die Cushion",
+        "electricalControlStatus": "Status do Controle Elétrico"
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Folga da Embreagem Hidráulica",
@@ -1104,7 +1112,13 @@
         "innerTopRowMeasurements": "Interno - Medições Linha Superior",
         "innerBottomRowMeasurements": "Interno - Medições Linha Inferior",
         "innerLeftRowMeasurements": "Interno - Medições Linha Esquerda",
-        "innerRightRowMeasurements": "Interno - Medições Linha Direita"
+        "innerRightRowMeasurements": "Interno - Medições Linha Direita",
+        "beforeAdjustmentTrend": "Tendência Antes do Ajuste",
+        "afterAdjustmentTrend": "Tendência Após o Ajuste",
+        "outerLHMeasurements": "Medições Externo LH",
+        "outerRHMeasurements": "Medições Externo RH",
+        "innerLHMeasurements": "Medições Interno LH",
+        "innerRHMeasurements": "Medições Interno RH"
       },
       "labels": {
         "outer": "Externo",
@@ -1166,7 +1180,35 @@
         "rightTop": "Direita-Superior",
         "rightBottom": "Direita-Inferior",
         "rightLeft": "Direita-Esquerda",
-        "rightRight": "Direita-Direita"
+        "rightRight": "Direita-Direita",
+        "beforeAdjustment": "Antes do Ajuste",
+        "afterAdjustment": "Após o Ajuste",
+        "frontRear": "Frente-Trás (F-R)",
+        "leftRight": "Esquerda-Direita (L-R)",
+        "hasBeenAdjusted": "Foi Ajustado",
+        "yes": "Sim",
+        "no": "Não",
+        "na": "N/A",
+        "dnc": "DNC",
+        "cantTell": "Não Dá Para Saber",
+        "airLeaks": "Vazamentos de Ar",
+        "airLeaksLocation": "Local dos Vazamentos de Ar",
+        "pneumaticsPlumbing": "Pneumática/Tubulação",
+        "lubrication": "Lubrificação",
+        "controlInfo": "Informações de Controle",
+        "hasHourMeter": "Horímetro",
+        "hourMeterReading": "Leitura do Horímetro",
+        "isMinsterControl": "Controle Minster",
+        "other": "Outro",
+        "electricalChecklist": "Checklist Elétrico",
+        "outerLH": "Externo LH",
+        "outerRH": "Externo RH",
+        "innerLH": "Interno LH",
+        "innerRH": "Interno RH",
+        "noPerpendicularityData": "Nenhum dado de perpendicularidade disponível",
+        "noShimThicknessData": "Nenhum dado de espessura de calço disponível",
+        "noDieCushionData": "Nenhum dado de die cushion disponível",
+        "noElectricalData": "Nenhum dado de controle elétrico disponível"
       }
     },
     "latestReport": {
@@ -1853,6 +1895,34 @@
           "dnc": "DNC"
         }
       },
+      "angularity": {
+        "hasBeenAdjusted": "A Angularidade foi ajustada?",
+        "setupInformation": "Informações de Configuração",
+        "spm": "SPM",
+        "distanceOfIndicatorTip": "Distância da Ponta do Indicador ao Slide",
+        "locationOfIndicator": "Localização do Indicador",
+        "counterbalancePressure": "Pressão do Contrapeso (PSI)",
+        "strokePartBeingRead": "Qual parte do curso está sendo lida",
+        "shutheightSetAt": "Em qual altura está ajustado o shutheight",
+        "whatWasUsedAsSquare": "O que foi usado como esquadro",
+        "whereWasSquarePlaced": "Onde o esquadro foi colocado",
+        "indicatorUsedGraduation": "Qual indicador foi usado (graduação)",
+        "tipKindOnIndicator": "Que tipo de ponta estava no indicador",
+        "totalLiftCheck": "Verificação de Elevação Total (IN)",
+        "beforeAdjustment": "Antes do Ajuste",
+        "afterAdjustment": "Após o Ajuste",
+        "frontRear": "Frente-Traseira",
+        "leftRight": "Esquerda-Direita",
+        "enterValue": "Digite o valor...",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Adicione quaisquer notas ou observações adicionais...",
+        "selectOption": "Selecione uma opção",
+        "options": {
+          "yes": "Sim",
+          "no": "Não",
+          "dnc": "DNC"
+        }
+      },
       "cancel": "Cancelar",
       "submit": {
         "idle": "Criar Vistoria",
@@ -2154,7 +2224,8 @@
         "cracksLocation": "Se \"Sim\" acima, onde?",
         "isMainMotorSecure": "O Motor Principal Está Seguro?",
         "isMotorPlateSecure": "A Placa do Motor Está Segura?",
-        "whyNotCovered": "Por que não coberto"
+        "whyNotCovered": "Por que não coberto",
+        "fillAngularity": "Preencher Angularidade"
       },
       "stepper": {
         "details": "Detalhes",
@@ -2635,6 +2706,8 @@
     "clutchBrakeDescription": "Selecione as peças da embreagem e freio que precisam ser substituídas",
     "bearingClearanceParts": "Peças de Folga do Rolamento",
     "bearingClearanceDescription": "Selecione as peças de folga do rolamento que precisam ser substituídas",
+    "bearingClearanceSingleHammerParts": "Peças de Folga do Rolamento Single Hammer",
+    "bearingClearanceSingleHammerDescription": "Selecione as peças de folga do rolamento single hammer que precisam ser substituídas",
     "slideParts": "Peças do Slide",
     "slideDescription": "Selecione as peças do slide que precisam ser substituídas",
     "gibsParts": "Peças das Guias",
@@ -2715,7 +2788,10 @@
       "outerSlide": "Slide Externo",
       "innerSlide": "Slide Interno",
       "gibsOuter": "Guias (Externo)",
-      "gibsInner": "Guias (Interno)"
+      "gibsInner": "Guias (Interno)",
+      "slideStandard": "Slide (Padrão)",
+      "slideAdjustment": "Ajuste do Slide",
+      "shutheightIndicator": "Indicador de Altura"
     }
   },
   "sectionStatus": {

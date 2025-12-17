@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { BearingClearanceSectionWrapper } from './components/BearingClearanceSectionWrapper';
+import { BearingClearanceSingleHammerSectionWrapper } from './components/BearingClearanceSingleHammerSectionWrapper';
 import { ClutchSectionWrapper } from './components/ClutchSectionWrapper';
 import { SlideSingleHammerSectionWrapper } from './components/SlideSingleHammerSectionWrapper';
 import { SlideDoubleHammerSectionWrapper } from './components/SlideDoubleHammerSectionWrapper';
@@ -8,6 +9,10 @@ import { LubricationSectionWrapper } from './components/LubricationSectionWrappe
 import { CounterbalanceSectionWrapper } from './components/CounterbalanceSectionWrapper';
 import { PistonsSectionWrapper } from './components/PistonsSectionWrapper';
 import { TrammingSectionWrapper } from './components/TrammingSectionWrapper';
+import { DieCushionSectionWrapper } from './components/DieCushionSectionWrapper';
+import { ShimThicknessSectionWrapper } from './components/ShimThicknessSectionWrapper';
+import { ElectricalControlSectionWrapper } from './components/ElectricalControlSectionWrapper';
+import { PerpendiculariySectionWrapper } from './components/PerpendiculariySectionWrapper';
 import { Typography } from '@/components/ui/typography';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -21,6 +26,7 @@ interface SectionDetailPageProps {
 
 const sectionComponents: Record<string, React.ComponentType<{ machineId: string }>> = {
   bearing_clearance: BearingClearanceSectionWrapper,
+  bearing_clearance_single_hammer: BearingClearanceSingleHammerSectionWrapper,
   clutch: ClutchSectionWrapper,
   slide_single_hammer: SlideSingleHammerSectionWrapper,
   slide_double_hammer: SlideDoubleHammerSectionWrapper,
@@ -29,6 +35,10 @@ const sectionComponents: Record<string, React.ComponentType<{ machineId: string 
   counterbalance_cylinder_airbag: CounterbalanceSectionWrapper,
   pistons: PistonsSectionWrapper,
   tramming: TrammingSectionWrapper,
+  die_cushion: DieCushionSectionWrapper,
+  shim_thickness: ShimThicknessSectionWrapper,
+  electrical_control: ElectricalControlSectionWrapper,
+  perpendicularity: PerpendiculariySectionWrapper,
 };
 
 export default async function SectionDetailPage({ params }: SectionDetailPageProps) {

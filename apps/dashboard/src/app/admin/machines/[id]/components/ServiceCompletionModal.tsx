@@ -213,6 +213,8 @@ export function ServiceCompletionModal({
     setIsMotorPlateSecure,
     whyNotCovered,
     setWhyNotCovered,
+    fillAngularity,
+    setFillAngularity,
     reset: resetForm,
   } = useServiceForm(serviceType, initialDate, initialPerformedBy);
 
@@ -276,6 +278,7 @@ export function ServiceCompletionModal({
     setIsMainMotorSecure,
     setIsMotorPlateSecure,
     setWhyNotCovered,
+    setFillAngularity,
   );
 
   // Reset when modal closes
@@ -299,6 +302,26 @@ export function ServiceCompletionModal({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentServiceType, open, serviceId, machineSections]);
+
+  // Dynamically add/remove ANGULARITY section based on fillAngularity checkbox
+  useEffect(() => {
+    if (fillAngularity) {
+      // Add ANGULARITY to selectedSections
+      setSelectedSections((prev) => {
+        const newSet = new Set(prev);
+        newSet.add('ANGULARITY');
+        return newSet;
+      });
+    } else {
+      // Remove ANGULARITY from selectedSections
+      setSelectedSections((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete('ANGULARITY');
+        return newSet;
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fillAngularity]);
 
   // Navigation handlers
   const handleProceedToDetails = async () => {
@@ -363,6 +386,7 @@ export function ServiceCompletionModal({
             isMainMotorSecure,
             isMotorPlateSecure,
             whyNotCovered,
+            fillAngularity,
           };
 
           const response = await createService(payload);
@@ -405,6 +429,7 @@ export function ServiceCompletionModal({
             isMainMotorSecure,
             isMotorPlateSecure,
             whyNotCovered,
+            fillAngularity,
           };
 
           const response = await updateService(currentServiceId, updatePayload);
@@ -842,6 +867,8 @@ export function ServiceCompletionModal({
                   setIsMotorPlateSecure={setIsMotorPlateSecure}
                   whyNotCovered={whyNotCovered}
                   setWhyNotCovered={setWhyNotCovered}
+                  fillAngularity={fillAngularity}
+                  setFillAngularity={setFillAngularity}
                   translations={{
                     dateLabel: isCompletingService
                       ? tServices('modal.realizationDate')
@@ -888,6 +915,7 @@ export function ServiceCompletionModal({
                       'modal.inspectionObservations.isMotorPlateSecure',
                     ),
                     whyNotCovered: tServices('modal.inspectionObservations.whyNotCovered'),
+                    fillAngularity: tServices('modal.inspectionObservations.fillAngularity'),
                   }}
                 />
               </form>

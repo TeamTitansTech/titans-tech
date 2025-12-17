@@ -10,6 +10,10 @@ import {
   ThresholdBearingClearanceResponseDto,
   AlertBearingClearanceResponseDto,
   CreateThresholdBearingClearanceSchema,
+  CreateThresholdBearingClearanceSingleHammerDto,
+  UpdateThresholdBearingClearanceSingleHammerDto,
+  ThresholdBearingClearanceSingleHammerResponseDto,
+  AlertBearingClearanceSingleHammerResponseDto,
   CreateThresholdClutchDto,
   UpdateThresholdClutchDto,
   ThresholdClutchResponseDto,
@@ -201,6 +205,383 @@ export class AlertsService {
     await this.prisma.thresholdBearingClearance.delete({
       where: { blueprintId },
     });
+  }
+
+  // =====================================================
+  // BEARING CLEARANCE SINGLE HAMMER THRESHOLD METHODS
+  // =====================================================
+
+  async createBearingClearanceSingleHammerThreshold(
+    dto: CreateThresholdBearingClearanceSingleHammerDto,
+  ) {
+    const blueprint = await this.prisma.blueprint.findUnique({
+      where: { id: dto.blueprintId },
+    });
+
+    if (!blueprint) {
+      throw new NotFoundException(`Blueprint ${dto.blueprintId} not found`);
+    }
+
+    const existingThreshold =
+      await this.prisma.thresholdBearingClearanceSingleHammer.findUnique({
+        where: { blueprintId: dto.blueprintId },
+      });
+
+    if (existingThreshold) {
+      throw new BadRequestException(
+        `Threshold already exists for blueprint ${dto.blueprintId}. Use update instead.`,
+      );
+    }
+
+    const threshold =
+      await this.prisma.thresholdBearingClearanceSingleHammer.create({
+        data: {
+          blueprintId: dto.blueprintId,
+          ...convertThresholdToDecimal(dto),
+        },
+      });
+
+    return new ThresholdBearingClearanceSingleHammerResponseDto(
+      threshold as any,
+    );
+  }
+
+  async getBearingClearanceSingleHammerThresholdByBlueprint(
+    blueprintId: string,
+  ) {
+    const threshold =
+      await this.prisma.thresholdBearingClearanceSingleHammer.findUnique({
+        where: { blueprintId },
+      });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `Threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    return new ThresholdBearingClearanceSingleHammerResponseDto(
+      threshold as any,
+    );
+  }
+
+  async updateBearingClearanceSingleHammerThreshold(
+    blueprintId: string,
+    dto: UpdateThresholdBearingClearanceSingleHammerDto,
+  ) {
+    const currentThreshold =
+      await this.prisma.thresholdBearingClearanceSingleHammer.findUnique({
+        where: { blueprintId },
+      });
+
+    if (!currentThreshold) {
+      throw new NotFoundException(
+        `Threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    // Merge current values with partial update
+    const mergedData = {
+      blueprintId,
+      totalClearance_greenMin:
+        dto.totalClearance_greenMin ??
+        currentThreshold.totalClearance_greenMin.toNumber(),
+      totalClearance_yellowMin:
+        dto.totalClearance_yellowMin ??
+        currentThreshold.totalClearance_yellowMin.toNumber(),
+      totalClearance_redMin:
+        dto.totalClearance_redMin ??
+        currentThreshold.totalClearance_redMin.toNumber(),
+      mainBearings_greenMin:
+        dto.mainBearings_greenMin ??
+        currentThreshold.mainBearings_greenMin.toNumber(),
+      mainBearings_yellowMin:
+        dto.mainBearings_yellowMin ??
+        currentThreshold.mainBearings_yellowMin.toNumber(),
+      mainBearings_redMin:
+        dto.mainBearings_redMin ??
+        currentThreshold.mainBearings_redMin.toNumber(),
+      upperConnectionBearings_greenMin:
+        dto.upperConnectionBearings_greenMin ??
+        currentThreshold.upperConnectionBearings_greenMin.toNumber(),
+      upperConnectionBearings_yellowMin:
+        dto.upperConnectionBearings_yellowMin ??
+        currentThreshold.upperConnectionBearings_yellowMin.toNumber(),
+      upperConnectionBearings_redMin:
+        dto.upperConnectionBearings_redMin ??
+        currentThreshold.upperConnectionBearings_redMin.toNumber(),
+      wristPinToMatingPart_greenMin:
+        dto.wristPinToMatingPart_greenMin ??
+        currentThreshold.wristPinToMatingPart_greenMin.toNumber(),
+      wristPinToMatingPart_yellowMin:
+        dto.wristPinToMatingPart_yellowMin ??
+        currentThreshold.wristPinToMatingPart_yellowMin.toNumber(),
+      wristPinToMatingPart_redMin:
+        dto.wristPinToMatingPart_redMin ??
+        currentThreshold.wristPinToMatingPart_redMin.toNumber(),
+      wristPinToBushing_greenMin:
+        dto.wristPinToBushing_greenMin ??
+        currentThreshold.wristPinToBushing_greenMin.toNumber(),
+      wristPinToBushing_yellowMin:
+        dto.wristPinToBushing_yellowMin ??
+        currentThreshold.wristPinToBushing_yellowMin.toNumber(),
+      wristPinToBushing_redMin:
+        dto.wristPinToBushing_redMin ??
+        currentThreshold.wristPinToBushing_redMin.toNumber(),
+      slideAdjNutToScrewSleeve_greenMin:
+        dto.slideAdjNutToScrewSleeve_greenMin ??
+        currentThreshold.slideAdjNutToScrewSleeve_greenMin.toNumber(),
+      slideAdjNutToScrewSleeve_yellowMin:
+        dto.slideAdjNutToScrewSleeve_yellowMin ??
+        currentThreshold.slideAdjNutToScrewSleeve_yellowMin.toNumber(),
+      slideAdjNutToScrewSleeve_redMin:
+        dto.slideAdjNutToScrewSleeve_redMin ??
+        currentThreshold.slideAdjNutToScrewSleeve_redMin.toNumber(),
+    };
+
+    // Validate merged data
+    try {
+      CreateThresholdBearingClearanceSchema.parse(mergedData);
+    } catch (error) {
+      throw new BadRequestException(
+        'Invalid threshold values: ' + error.message,
+      );
+    }
+
+    const data = convertPartialThresholdToDecimal(dto);
+
+    const threshold =
+      await this.prisma.thresholdBearingClearanceSingleHammer.update({
+        where: { blueprintId },
+        data,
+      });
+
+    return new ThresholdBearingClearanceSingleHammerResponseDto(
+      threshold as any,
+    );
+  }
+
+  async deleteBearingClearanceSingleHammerThreshold(blueprintId: string) {
+    await this.prisma.thresholdBearingClearanceSingleHammer.delete({
+      where: { blueprintId },
+    });
+  }
+
+  /**
+   * Recalculates bearing clearance single hammer alerts for all services using a specific blueprint
+   */
+  async recalculateBearingClearanceSingleHammerAlertsForBlueprint(
+    blueprintId: string,
+  ) {
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        bearingClearanceSingleHammer: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    for (const service of services) {
+      try {
+        await this.generateBearingClearanceSingleHammerAlertsForService(
+          service.id,
+        );
+        alertsGenerated++;
+      } catch (error) {
+        console.warn(
+          `Failed to generate single hammer alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
+  /**
+   * Generates bearing clearance single hammer alerts for a service
+   */
+  async generateBearingClearanceSingleHammerAlertsForService(
+    machineServiceId: string,
+  ) {
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: machineServiceId },
+      include: {
+        machine: {
+          include: {
+            blueprint: {
+              include: {
+                thresholdBearingClearanceSingleHammer: true,
+              },
+            },
+          },
+        },
+        bearingClearanceSingleHammer: {
+          include: {
+            data: true,
+          },
+        },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    const threshold =
+      service.machine.blueprint.thresholdBearingClearanceSingleHammer;
+
+    if (!threshold) {
+      console.log(
+        '⚠️ [ALERTS] No single hammer threshold configured for this blueprint - skipping alert generation',
+      );
+      return null;
+    }
+
+    if (
+      !service.bearingClearanceSingleHammer ||
+      service.bearingClearanceSingleHammer.length === 0
+    ) {
+      console.log(
+        '⚠️ [ALERTS] No bearing clearance single hammer data - skipping alert generation',
+      );
+      return null;
+    }
+
+    const data = service.bearingClearanceSingleHammer[0].data;
+
+    if (!data) {
+      console.log(
+        '⚠️ [ALERTS] No data found for single hammer - skipping alert generation',
+      );
+      return null;
+    }
+
+    // Calculate alerts for the single hammer data
+    const alerts = {
+      totalClearance: this.calculateFieldAlert(
+        data.totalClearance_RH,
+        data.totalClearance_LH,
+        threshold.totalClearance_greenMin,
+        threshold.totalClearance_yellowMin,
+        threshold.totalClearance_redMin,
+      ),
+      mainBearings: this.calculateFieldAlert(
+        data.mainBearings_RH,
+        data.mainBearings_LH,
+        threshold.mainBearings_greenMin,
+        threshold.mainBearings_yellowMin,
+        threshold.mainBearings_redMin,
+      ),
+      upperConnectionBearings: this.calculateFieldAlert(
+        data.upperConnectionBearings_RH,
+        data.upperConnectionBearings_LH,
+        threshold.upperConnectionBearings_greenMin,
+        threshold.upperConnectionBearings_yellowMin,
+        threshold.upperConnectionBearings_redMin,
+      ),
+      wristPinToMatingPart: this.calculateFieldAlert(
+        data.wristPinToMatingPart_RH,
+        data.wristPinToMatingPart_LH,
+        threshold.wristPinToMatingPart_greenMin,
+        threshold.wristPinToMatingPart_yellowMin,
+        threshold.wristPinToMatingPart_redMin,
+      ),
+      wristPinToBushing: this.calculateFieldAlert(
+        data.wristPinToBushing_RH,
+        data.wristPinToBushing_LH,
+        threshold.wristPinToBushing_greenMin,
+        threshold.wristPinToBushing_yellowMin,
+        threshold.wristPinToBushing_redMin,
+      ),
+      slideAdjNutToScrewSleeve: this.calculateFieldAlert(
+        data.slideAdjNutToScrewSleeve_RH,
+        data.slideAdjNutToScrewSleeve_LH,
+        threshold.slideAdjNutToScrewSleeve_greenMin,
+        threshold.slideAdjNutToScrewSleeve_yellowMin,
+        threshold.slideAdjNutToScrewSleeve_redMin,
+      ),
+    };
+
+    const thresholdSnapshot = {
+      blueprintId: threshold.blueprintId,
+      totalClearance: {
+        greenMin: threshold.totalClearance_greenMin.toNumber(),
+        yellowMin: threshold.totalClearance_yellowMin.toNumber(),
+        redMin: threshold.totalClearance_redMin.toNumber(),
+      },
+      mainBearings: {
+        greenMin: threshold.mainBearings_greenMin.toNumber(),
+        yellowMin: threshold.mainBearings_yellowMin.toNumber(),
+        redMin: threshold.mainBearings_redMin.toNumber(),
+      },
+      upperConnectionBearings: {
+        greenMin: threshold.upperConnectionBearings_greenMin.toNumber(),
+        yellowMin: threshold.upperConnectionBearings_yellowMin.toNumber(),
+        redMin: threshold.upperConnectionBearings_redMin.toNumber(),
+      },
+      wristPinToMatingPart: {
+        greenMin: threshold.wristPinToMatingPart_greenMin.toNumber(),
+        yellowMin: threshold.wristPinToMatingPart_yellowMin.toNumber(),
+        redMin: threshold.wristPinToMatingPart_redMin.toNumber(),
+      },
+      wristPinToBushing: {
+        greenMin: threshold.wristPinToBushing_greenMin.toNumber(),
+        yellowMin: threshold.wristPinToBushing_yellowMin.toNumber(),
+        redMin: threshold.wristPinToBushing_redMin.toNumber(),
+      },
+      slideAdjNutToScrewSleeve: {
+        greenMin: threshold.slideAdjNutToScrewSleeve_greenMin.toNumber(),
+        yellowMin: threshold.slideAdjNutToScrewSleeve_yellowMin.toNumber(),
+        redMin: threshold.slideAdjNutToScrewSleeve_redMin.toNumber(),
+      },
+    };
+
+    // Delete existing alert if any
+    await this.prisma.alertBearingClearanceSingleHammer.deleteMany({
+      where: { machineServiceId },
+    });
+
+    // Create new alert
+    const alert = await this.prisma.alertBearingClearanceSingleHammer.create({
+      data: {
+        machineService: { connect: { id: machineServiceId } },
+        totalClearance_differential: alerts.totalClearance.differential,
+        totalClearance_severity: alerts.totalClearance.severity,
+        mainBearings_differential: alerts.mainBearings.differential,
+        mainBearings_severity: alerts.mainBearings.severity,
+        upperConnectionBearings_differential:
+          alerts.upperConnectionBearings.differential,
+        upperConnectionBearings_severity:
+          alerts.upperConnectionBearings.severity,
+        wristPinToMatingPart_differential:
+          alerts.wristPinToMatingPart.differential,
+        wristPinToMatingPart_severity: alerts.wristPinToMatingPart.severity,
+        wristPinToBushing_differential: alerts.wristPinToBushing.differential,
+        wristPinToBushing_severity: alerts.wristPinToBushing.severity,
+        slideAdjNutToScrewSleeve_differential:
+          alerts.slideAdjNutToScrewSleeve.differential,
+        slideAdjNutToScrewSleeve_severity:
+          alerts.slideAdjNutToScrewSleeve.severity,
+        thresholdSnapshot,
+      },
+    });
+
+    return new AlertBearingClearanceSingleHammerResponseDto({
+      ...alert,
+      data,
+    } as any);
   }
 
   /**
