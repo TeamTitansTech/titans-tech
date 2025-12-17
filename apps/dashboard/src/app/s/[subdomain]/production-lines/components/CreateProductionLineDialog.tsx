@@ -15,6 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -131,14 +132,14 @@ export function CreateProductionLineDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="lg:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{t('createDialog.title')}</DialogTitle>
           <DialogDescription>{t('createDialog.description')}</DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-6 py-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex min-h-0 flex-1 flex-col">
+          <DialogBody className="space-y-6 py-4">
             {/* Branch selection */}
             <div className="space-y-2">
               <Label>{t('selectBranch') || 'Filial'}</Label>
@@ -152,7 +153,7 @@ export function CreateProductionLineDialog({
                     disabled={isSubmitting}
                   >
                     <SelectTrigger className="w-full">
-                      <MapPin className="w-4 h-4 mr-2 shrink-0" />
+                      <MapPin className="mr-2 h-4 w-4 shrink-0" />
                       <SelectValue
                         placeholder={t('selectBranchPlaceholder') || 'Selecione uma filial'}
                       />
@@ -169,7 +170,7 @@ export function CreateProductionLineDialog({
                               </span>
                             </div>
                             {branch.location && (
-                              <span className="text-xs text-muted-foreground truncate max-w-[250px]">
+                              <span className="max-w-[250px] truncate text-xs text-muted-foreground">
                                 {branch.location}
                               </span>
                             )}
@@ -200,7 +201,7 @@ export function CreateProductionLineDialog({
             <p className="text-sm text-muted-foreground">
               Você poderá adicionar máquinas à linha após a criação, na aba de configuração.
             </p>
-          </div>
+          </DialogBody>
 
           <DialogFooter>
             <Button

@@ -132,21 +132,21 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col bg-background">
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
+      <DialogContent className="flex max-w-4xl flex-col bg-background p-0">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogHeader className="shrink-0 border-b border-border p-6 pb-4">
             <DialogTitle className="text-2xl text-foreground">Edit Machine</DialogTitle>
             <DialogDescription className="text-muted-foreground">
               Update machine details and specifications
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
+          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-6">
             {/* Model (Read-only) */}
             <section className="space-y-4">
               <div className="space-y-2">
                 <Label>Model</Label>
-                <div className="px-3 py-2 rounded-md border bg-muted/30 text-muted-foreground">
+                <div className="rounded-md border bg-muted/30 px-3 py-2 text-muted-foreground">
                   {machine.blueprint?.name || 'No model'}
                 </div>
                 <Typography variant="small" className="text-xs text-muted-foreground">
@@ -383,14 +383,14 @@ export function MachineEditModal({ isOpen, onClose, onSuccess, machine }: Machin
             </section>
           </div>
 
-          <div className="border-t border-border p-6 flex justify-end gap-3 shrink-0 bg-background">
+          <div className="flex shrink-0 justify-end gap-3 border-t border-border bg-background p-6">
             <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isLoading}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isLoading ? 'Updating...' : 'Update Machine'}
             </Button>
