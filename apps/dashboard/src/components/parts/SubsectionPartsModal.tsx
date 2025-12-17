@@ -26,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogBody,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -453,7 +454,7 @@ export function SubsectionPartsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="flex h-[90vh] max-h-[90vh] w-[95vw] max-w-[95vw] flex-col overflow-hidden md:max-h-full lg:max-w-[95vw]">
+      <DialogContent className="flex flex-col overflow-hidden sm:h-[90vh] sm:max-h-[90vh] sm:w-[95vw] sm:max-w-[95vw]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -461,317 +462,325 @@ export function SubsectionPartsModal({
           </DialogTitle>
         </DialogHeader>
 
-        <Tabs
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="flex min-h-0 w-full flex-1 flex-col"
-        >
-          {/* Tabs List - Centered and Scrollable for many subsections */}
-          <div className="flex shrink-0 justify-center overflow-x-auto pb-2">
-            <div className="inline-flex gap-2 rounded-lg bg-muted p-1">
-              {subsections.map((subsection) => {
-                const selectedCount = getSelectedCountForSubsection(subsection.id);
-                const fullName = getSubsectionName(subsection.id);
-                const isActive = activeTab === subsection.id;
-                return (
-                  <button
-                    key={subsection.id}
-                    onClick={() => setActiveTab(subsection.id)}
-                    className={cn(
-                      'flex items-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-all',
-                      isActive
-                        ? 'bg-primary text-primary-foreground shadow-md'
-                        : 'bg-transparent text-muted-foreground hover:bg-background hover:text-foreground',
-                    )}
-                  >
-                    <span>{fullName}</span>
-                    {selectedCount > 0 && (
-                      <Badge
-                        variant="secondary"
-                        className={cn(
-                          'px-1.5 text-xs',
-                          isActive
-                            ? 'bg-primary-foreground/20 text-primary-foreground'
-                            : 'bg-primary/10 text-primary',
-                        )}
-                      >
-                        {selectedCount}
-                      </Badge>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Tab Content */}
-          {subsections.map((subsection) => (
-            <TabsContent key={subsection.id} value={subsection.id} className="mt-4 min-h-0 flex-1">
-              <div className="grid h-full grid-cols-1 gap-6 overflow-hidden lg:grid-cols-2">
-                {/* Diagram Image */}
-                <div className="flex h-full min-h-0 flex-col overflow-hidden">
-                  <div className="flex shrink-0 items-center justify-between">
-                    <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      {subsection.figureReference || 'Technical Diagram'}
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        (Scroll to zoom, drag to pan)
-                      </span>
-                    </h3>
-                  </div>
-                  <div className="relative mt-2 min-h-0 flex-1 overflow-hidden rounded-lg border bg-white dark:bg-gray-900">
-                    {subsection.diagramImage && !imageError[subsection.id] ? (
-                      <TransformWrapper
-                        initialScale={1}
-                        minScale={0.5}
-                        maxScale={4}
-                        centerOnInit
-                        wheel={{ step: 0.1 }}
-                        doubleClick={{ mode: 'zoomIn' }}
-                      >
-                        {({ zoomIn, zoomOut, resetTransform }) => (
-                          <>
-                            {/* Zoom Controls */}
-                            <div className="absolute right-2 top-2 z-10 flex gap-1 rounded-md bg-white p-1 shadow-md dark:bg-gray-800">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => zoomIn()}
-                                title="Zoom in"
-                              >
-                                <ZoomIn className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => zoomOut()}
-                                title="Zoom out"
-                              >
-                                <ZoomOut className="h-4 w-4" />
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                                onClick={() => resetTransform()}
-                                title="Reset"
-                              >
-                                <RotateCcw className="h-4 w-4" />
-                              </Button>
-                            </div>
-
-                            {/* Zoomable Image */}
-                            <TransformComponent
-                              wrapperStyle={{
-                                width: '100%',
-                                height: '100%',
-                                cursor: 'grab',
-                              }}
-                              contentStyle={{
-                                width: '100%',
-                                height: '100%',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                              }}
-                            >
-                              <Image
-                                src={subsection.diagramImage!}
-                                alt={`${getSubsectionName(subsection.id)} diagram`}
-                                width={800}
-                                height={600}
-                                className="max-h-full max-w-full object-contain"
-                                priority
-                                unoptimized
-                                draggable={false}
-                                onError={() => handleImageError(subsection.id)}
-                              />
-                            </TransformComponent>
-                          </>
-                        )}
-                      </TransformWrapper>
-                    ) : (
-                      <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
-                        <ImageOff className="mb-4 h-16 w-16 opacity-50" />
-                        <p className="text-sm">Image not available</p>
-                        <p className="mt-1 text-xs">
-                          {subsection.diagramImage
-                            ? 'Image will be added soon'
-                            : 'No diagram for this subsection'}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                  {subsection.description && (
-                    <p className="mt-2 shrink-0 text-sm text-muted-foreground">
-                      {subsection.description}
-                    </p>
-                  )}
-                </div>
-
-                {/* Parts List */}
-                <div className="flex h-full min-h-0 flex-col overflow-hidden">
-                  <Card className="flex min-h-0 flex-1 flex-col border-primary/20 dark:border-primary/30">
-                    <CardHeader className="shrink-0 pb-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Package className="h-5 w-5 text-primary" />
-                          <CardTitle className="text-lg">{t('partsListTitle')}</CardTitle>
-                        </div>
-                        {getSelectedCountForSubsection(activeTab) > 0 && (
-                          <Badge variant="outline" className="border-primary text-primary">
-                            {getSelectedCountForSubsection(activeTab)} {t('selected')}
-                          </Badge>
-                        )}
-                      </div>
-                      <CardDescription>
-                        {subsection.parts.length} {t('partsAvailable')}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="flex flex-1 flex-col space-y-4 overflow-hidden">
-                      {/* Search Row */}
-                      <div className="relative shrink-0">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <Input
-                          placeholder={t('searchPlaceholder')}
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-9 pr-9"
-                        />
-                        {searchQuery && (
-                          <button
-                            onClick={() => setSearchQuery('')}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        )}
-                      </div>
-
-                      {/* Export This Tab Buttons */}
-                      <div className="flex shrink-0 gap-2">
-                        <Button
-                          onClick={() => exportToPDF('current')}
-                          disabled={getSelectedCountForSubsection(activeTab) === 0 || isExporting}
-                          variant="outline"
-                          size="sm"
+        <DialogBody className="flex flex-col !overflow-hidden">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="flex min-h-0 w-full flex-1 flex-col"
+          >
+            {/* Tabs List - Centered and Scrollable for many subsections */}
+            <div className="flex shrink-0 justify-center overflow-x-auto pb-2">
+              <div className="inline-flex gap-2 rounded-lg bg-muted p-1">
+                {subsections.map((subsection) => {
+                  const selectedCount = getSelectedCountForSubsection(subsection.id);
+                  const fullName = getSubsectionName(subsection.id);
+                  const isActive = activeTab === subsection.id;
+                  return (
+                    <button
+                      key={subsection.id}
+                      onClick={() => setActiveTab(subsection.id)}
+                      className={cn(
+                        'flex items-center gap-2 whitespace-nowrap rounded-md px-4 py-2 text-sm font-medium transition-all',
+                        isActive
+                          ? 'bg-primary text-primary-foreground shadow-md'
+                          : 'bg-transparent text-muted-foreground hover:bg-background hover:text-foreground',
+                      )}
+                    >
+                      <span>{fullName}</span>
+                      {selectedCount > 0 && (
+                        <Badge
+                          variant="secondary"
+                          className={cn(
+                            'px-1.5 text-xs',
+                            isActive
+                              ? 'bg-primary-foreground/20 text-primary-foreground'
+                              : 'bg-primary/10 text-primary',
+                          )}
                         >
-                          <FileDown className="mr-2 h-4 w-4" />
-                          {t('exportThisTab') || 'Export This Tab'}
-                          {getSelectedCountForSubsection(activeTab) > 0 &&
-                            ` (${getSelectedCountForSubsection(activeTab)})`}
-                        </Button>
-                        <Button
-                          onClick={() => openEmailModal('current')}
-                          disabled={
-                            getSelectedCountForSubsection(activeTab) === 0 || isSendingEmail
-                          }
-                          variant="outline"
-                          size="sm"
-                        >
-                          <Mail className="mr-2 h-4 w-4" />
-                          {t('sendThisTab') || 'Send This Tab'}
-                        </Button>
-                      </div>
-
-                      {/* Select/Clear buttons */}
-                      <div className="flex shrink-0 items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={handleSelectAll}>
-                          {t('selectAll')}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={handleClearAll}
-                          disabled={getSelectedCountForSubsection(activeTab) === 0}
-                        >
-                          {t('clearAll')}
-                        </Button>
-                      </div>
-
-                      {/* Parts Table */}
-                      <div className="flex-1 overflow-hidden overflow-y-auto rounded-lg border">
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="w-12"></TableHead>
-                              <TableHead className="font-semibold">
-                                {t('tableHeaders.partNumber')}
-                              </TableHead>
-                              <TableHead className="font-semibold">
-                                {t('tableHeaders.description')}
-                              </TableHead>
-                              <TableHead className="text-right font-semibold">
-                                {t('tableHeaders.quantity')}
-                              </TableHead>
-                              <TableHead className="text-center font-semibold">
-                                {t('tableHeaders.unit')}
-                              </TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {filteredParts.length === 0 ? (
-                              <TableRow>
-                                <TableCell
-                                  colSpan={5}
-                                  className="h-24 text-center text-muted-foreground"
-                                >
-                                  {searchQuery ? t('noResultsFound') : t('noPartsAvailable')}
-                                </TableCell>
-                              </TableRow>
-                            ) : (
-                              filteredParts.map((part, index) => {
-                                const isSelected = isPartSelected(part.partNumber);
-                                return (
-                                  <TableRow
-                                    key={`${part.partNumber}-${index}`}
-                                    className="cursor-pointer transition-colors hover:bg-muted/50"
-                                    onClick={() => handleTogglePart(part.partNumber)}
-                                  >
-                                    <TableCell>
-                                      <div
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleTogglePart(part.partNumber);
-                                        }}
-                                        className={cn(
-                                          'flex h-5 w-5 cursor-pointer items-center justify-center rounded border-2',
-                                          isSelected
-                                            ? 'border-primary bg-primary'
-                                            : 'border-gray-400 bg-transparent',
-                                        )}
-                                      >
-                                        {isSelected && <Check className="h-3.5 w-3.5 text-white" />}
-                                      </div>
-                                    </TableCell>
-                                    <TableCell className="font-mono text-sm">
-                                      {part.partNumber}
-                                    </TableCell>
-                                    <TableCell>
-                                      <div className="flex items-center gap-2">
-                                        <span>{part.description}</span>
-                                        {isSelected && (
-                                          <Check className="h-4 w-4 shrink-0 text-primary" />
-                                        )}
-                                      </div>
-                                    </TableCell>
-                                    <TableCell className="text-right">{part.quantity}</TableCell>
-                                    <TableCell className="text-center">{part.unit}</TableCell>
-                                  </TableRow>
-                                );
-                              })
-                            )}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+                          {selectedCount}
+                        </Badge>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
-            </TabsContent>
-          ))}
-        </Tabs>
+            </div>
+
+            {/* Tab Content */}
+            {subsections.map((subsection) => (
+              <TabsContent
+                key={subsection.id}
+                value={subsection.id}
+                className="mt-4 min-h-0 flex-1"
+              >
+                <div className="grid h-full grid-cols-1 gap-6 overflow-hidden lg:grid-cols-2">
+                  {/* Diagram Image */}
+                  <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                    <div className="flex shrink-0 items-center justify-between">
+                      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {subsection.figureReference || 'Technical Diagram'}
+                        <span className="ml-2 text-xs text-muted-foreground">
+                          (Scroll to zoom, drag to pan)
+                        </span>
+                      </h3>
+                    </div>
+                    <div className="relative mt-2 min-h-0 flex-1 overflow-hidden rounded-lg border bg-white dark:bg-gray-900">
+                      {subsection.diagramImage && !imageError[subsection.id] ? (
+                        <TransformWrapper
+                          initialScale={1}
+                          minScale={0.5}
+                          maxScale={4}
+                          centerOnInit
+                          wheel={{ step: 0.1 }}
+                          doubleClick={{ mode: 'zoomIn' }}
+                        >
+                          {({ zoomIn, zoomOut, resetTransform }) => (
+                            <>
+                              {/* Zoom Controls */}
+                              <div className="absolute right-2 top-2 z-10 flex gap-1 rounded-md bg-white p-1 shadow-md dark:bg-gray-800">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => zoomIn()}
+                                  title="Zoom in"
+                                >
+                                  <ZoomIn className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => zoomOut()}
+                                  title="Zoom out"
+                                >
+                                  <ZoomOut className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => resetTransform()}
+                                  title="Reset"
+                                >
+                                  <RotateCcw className="h-4 w-4" />
+                                </Button>
+                              </div>
+
+                              {/* Zoomable Image */}
+                              <TransformComponent
+                                wrapperStyle={{
+                                  width: '100%',
+                                  height: '100%',
+                                  cursor: 'grab',
+                                }}
+                                contentStyle={{
+                                  width: '100%',
+                                  height: '100%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <Image
+                                  src={subsection.diagramImage!}
+                                  alt={`${getSubsectionName(subsection.id)} diagram`}
+                                  width={800}
+                                  height={600}
+                                  className="max-h-full max-w-full object-contain"
+                                  priority
+                                  unoptimized
+                                  draggable={false}
+                                  onError={() => handleImageError(subsection.id)}
+                                />
+                              </TransformComponent>
+                            </>
+                          )}
+                        </TransformWrapper>
+                      ) : (
+                        <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
+                          <ImageOff className="mb-4 h-16 w-16 opacity-50" />
+                          <p className="text-sm">Image not available</p>
+                          <p className="mt-1 text-xs">
+                            {subsection.diagramImage
+                              ? 'Image will be added soon'
+                              : 'No diagram for this subsection'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                    {subsection.description && (
+                      <p className="mt-2 shrink-0 text-sm text-muted-foreground">
+                        {subsection.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Parts List */}
+                  <div className="flex h-full min-h-0 flex-col overflow-hidden">
+                    <Card className="flex min-h-0 flex-1 flex-col overflow-hidden border-primary/20 dark:border-primary/30">
+                      <CardHeader className="shrink-0 pb-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Package className="h-5 w-5 text-primary" />
+                            <CardTitle className="text-lg">{t('partsListTitle')}</CardTitle>
+                          </div>
+                          {getSelectedCountForSubsection(activeTab) > 0 && (
+                            <Badge variant="outline" className="border-primary text-primary">
+                              {getSelectedCountForSubsection(activeTab)} {t('selected')}
+                            </Badge>
+                          )}
+                        </div>
+                        <CardDescription>
+                          {subsection.parts.length} {t('partsAvailable')}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex min-h-0 flex-1 flex-col space-y-4 overflow-hidden">
+                        {/* Search Row */}
+                        <div className="relative shrink-0">
+                          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                          <Input
+                            placeholder={t('searchPlaceholder')}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-9 pr-9"
+                          />
+                          {searchQuery && (
+                            <button
+                              onClick={() => setSearchQuery('')}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                              <X className="h-4 w-4" />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Export This Tab Buttons */}
+                        <div className="flex shrink-0 gap-2">
+                          <Button
+                            onClick={() => exportToPDF('current')}
+                            disabled={getSelectedCountForSubsection(activeTab) === 0 || isExporting}
+                            variant="outline"
+                            size="sm"
+                          >
+                            <FileDown className="mr-2 h-4 w-4" />
+                            {t('exportThisTab') || 'Export This Tab'}
+                            {getSelectedCountForSubsection(activeTab) > 0 &&
+                              ` (${getSelectedCountForSubsection(activeTab)})`}
+                          </Button>
+                          <Button
+                            onClick={() => openEmailModal('current')}
+                            disabled={
+                              getSelectedCountForSubsection(activeTab) === 0 || isSendingEmail
+                            }
+                            variant="outline"
+                            size="sm"
+                          >
+                            <Mail className="mr-2 h-4 w-4" />
+                            {t('sendThisTab') || 'Send This Tab'}
+                          </Button>
+                        </div>
+
+                        {/* Select/Clear buttons */}
+                        <div className="flex shrink-0 items-center gap-2">
+                          <Button variant="outline" size="sm" onClick={handleSelectAll}>
+                            {t('selectAll')}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleClearAll}
+                            disabled={getSelectedCountForSubsection(activeTab) === 0}
+                          >
+                            {t('clearAll')}
+                          </Button>
+                        </div>
+
+                        {/* Parts Table */}
+                        <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-muted/50">
+                                <TableHead className="w-12"></TableHead>
+                                <TableHead className="font-semibold">
+                                  {t('tableHeaders.partNumber')}
+                                </TableHead>
+                                <TableHead className="font-semibold">
+                                  {t('tableHeaders.description')}
+                                </TableHead>
+                                <TableHead className="text-right font-semibold">
+                                  {t('tableHeaders.quantity')}
+                                </TableHead>
+                                <TableHead className="text-center font-semibold">
+                                  {t('tableHeaders.unit')}
+                                </TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {filteredParts.length === 0 ? (
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={5}
+                                    className="h-24 text-center text-muted-foreground"
+                                  >
+                                    {searchQuery ? t('noResultsFound') : t('noPartsAvailable')}
+                                  </TableCell>
+                                </TableRow>
+                              ) : (
+                                filteredParts.map((part, index) => {
+                                  const isSelected = isPartSelected(part.partNumber);
+                                  return (
+                                    <TableRow
+                                      key={`${part.partNumber}-${index}`}
+                                      className="cursor-pointer transition-colors hover:bg-muted/50"
+                                      onClick={() => handleTogglePart(part.partNumber)}
+                                    >
+                                      <TableCell>
+                                        <div
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleTogglePart(part.partNumber);
+                                          }}
+                                          className={cn(
+                                            'flex h-5 w-5 cursor-pointer items-center justify-center rounded border-2',
+                                            isSelected
+                                              ? 'border-primary bg-primary'
+                                              : 'border-gray-400 bg-transparent',
+                                          )}
+                                        >
+                                          {isSelected && (
+                                            <Check className="h-3.5 w-3.5 text-white" />
+                                          )}
+                                        </div>
+                                      </TableCell>
+                                      <TableCell className="font-mono text-sm">
+                                        {part.partNumber}
+                                      </TableCell>
+                                      <TableCell>
+                                        <div className="flex items-center gap-2">
+                                          <span>{part.description}</span>
+                                          {isSelected && (
+                                            <Check className="h-4 w-4 shrink-0 text-primary" />
+                                          )}
+                                        </div>
+                                      </TableCell>
+                                      <TableCell className="text-right">{part.quantity}</TableCell>
+                                      <TableCell className="text-center">{part.unit}</TableCell>
+                                    </TableRow>
+                                  );
+                                })
+                              )}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </DialogBody>
 
         {/* Footer with Export All Tabs button */}
         <DialogFooter className="mt-4 shrink-0 border-t pt-4">
