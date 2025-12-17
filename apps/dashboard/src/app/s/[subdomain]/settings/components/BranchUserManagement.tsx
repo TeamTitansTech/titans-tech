@@ -20,6 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
 import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
+import { ReactivateUserDialog } from './ReactivateUserDialog';
 import {
   getUserRole,
   getUserRoleBadgeColor,
@@ -327,10 +328,13 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
         onSuccess={loadUsers}
       />
 
-      {/* TODO: Create ReactivateUserDialog component */}
-      {isReactivateUserDialogOpen && (
-        <div>Reactivate Dialog Placeholder - onSuccess will call handleReactivateUserSuccess</div>
-      )}
+      <ReactivateUserDialog
+        open={isReactivateUserDialogOpen}
+        onOpenChange={setIsReactivateUserDialogOpen}
+        user={selectedUser}
+        branchId={branchId}
+        onSuccess={handleReactivateUserSuccess}
+      />
     </div>
   );
 }

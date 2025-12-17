@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/table';
 import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
+import { ReactivateUserDialog } from './ReactivateUserDialog';
 import { UserTableSkeleton } from './UserTableSkeleton';
 import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { detectRolePreset, RolePreset, type Permissions } from '@titans-tech/shared/types';
@@ -357,8 +358,13 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         onSuccess={handleDeleteUserSuccess}
       />
 
-      {/* TODO: Create ReactivateUserDialog component */}
-      {isReactivateUserDialogOpen && <div>Reactivate Dialog Placeholder</div>}
+      <ReactivateUserDialog
+        open={isReactivateUserDialogOpen}
+        onOpenChange={setIsReactivateUserDialogOpen}
+        user={selectedUser}
+        branchId={branchId}
+        onSuccess={handleReactivateUserSuccess}
+      />
     </div>
   );
 }
