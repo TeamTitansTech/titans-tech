@@ -23,6 +23,8 @@ import {
   SysAdminCreateUserSchema,
   DeleteUserDto,
   DeleteUserSchema,
+  ReactivateUserDto,
+  ReactivateUserSchema,
   UpdateUserPermissionsDto,
   UpdateUserPermissionsSchema,
 } from '@titans-tech/shared/backend-dtos';
@@ -169,6 +171,22 @@ export class CompanyBranchesController {
     dto: DeleteUserDto,
   ) {
     return this.usersService.deleteUser(userId, dto.scope, branchId);
+  }
+
+  /**
+   * Reactivate user from company or for specific branch
+   * Scope: 'branch' = reactivate for specific branch only
+   * Scope: 'company' = reactivate user completely
+   */
+  @BranchPermission('updateUsers')
+  @Patch(':branchId/users/:userId/reactivate')
+  reactivateUser(
+    @Param('branchId') branchId: string,
+    @Param('userId') userId: string,
+    @Body(new ZodValidationPipe(ReactivateUserSchema))
+    dto: ReactivateUserDto,
+  ) {
+    return this.usersService.reactivateUser(userId, dto.scope, branchId);
   }
 
   /**

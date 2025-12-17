@@ -197,9 +197,12 @@
       "loadingFailed": "Falha ao carregar usuários",
       "noUsers": "Nenhum usuário encontrado para esta filial",
       "noPermissionToViewUsers": "Você não tem permissão para visualizar usuários nesta filial.",
+      "activeUsers": "Usuários Ativos",
+      "deactivatedUsers": "Usuários Desativados",
       "addUser": "Adicionar Usuário",
       "editUser": "Editar Usuário",
-      "deleteUser": "Excluir Usuário",
+      "deactivateUser": "Desativar Usuário",
+      "reactivateUser": "Reativar Usuário",
       "table": {
         "name": "Nome",
         "email": "Email",
@@ -296,24 +299,43 @@
       "error": "Falha ao atualizar usuário"
     },
     "deleteUserDialog": {
-      "title": "Excluir Usuário",
-      "description": "Tem certeza de que deseja excluir este usuário?",
-      "warning": "Esta ação não pode ser desfeita.",
-      "userInfo": "Você está prestes a excluir:",
-      "scopeLabel": "Escopo de Exclusão",
+      "title": "Desativar Usuário",
+      "description": "Tem certeza de que deseja desativar este usuário?",
+      "warning": "O usuário perderá acesso, mas poderá ser reativado posteriormente.",
+      "userInfo": "Você está prestes a desativar:",
+      "scopeLabel": "Escopo de Desativação",
       "scopeOptions": {
-        "branch": "Remover Apenas Desta Filial",
-        "company": "Remover da Empresa Inteira"
+        "branch": "Desativar Apenas para Esta Filial",
+        "company": "Desativar para a Empresa Inteira"
       },
       "scopeDescriptions": {
-        "branch": "O usuário perderá acesso a esta filial, mas permanecerá em outras filiais",
-        "company": "O usuário será completamente removido e perderá todo o acesso"
+        "branch": "O usuário perderá acesso a esta filial, mas permanecerá ativo em outras filiais",
+        "company": "O usuário será completamente desativado e perderá todo o acesso"
       },
       "cancel": "Cancelar",
-      "confirm": "Excluir Usuário",
-      "confirming": "Excluindo...",
-      "success": "Usuário excluído com sucesso",
-      "error": "Falha ao excluir usuário"
+      "confirm": "Desativar Usuário",
+      "confirming": "Desativando...",
+      "success": "Usuário desativado com sucesso",
+      "error": "Falha ao desativar usuário"
+    },
+    "reactivateUserDialog": {
+      "title": "Reativar Usuário",
+      "description": "Restaurar o acesso deste usuário?",
+      "userInfo": "Você está prestes a reativar:",
+      "scopeLabel": "Escopo de Reativação",
+      "scopeOptions": {
+        "branch": "Reativar Apenas para Esta Filial",
+        "company": "Reativar para a Empresa Inteira"
+      },
+      "scopeDescriptions": {
+        "branch": "O usuário recuperará acesso apenas a esta filial",
+        "company": "O usuário será totalmente reativado com todo o acesso anterior"
+      },
+      "cancel": "Cancelar",
+      "confirm": "Reativar Usuário",
+      "confirming": "Reativando...",
+      "success": "Usuário reativado com sucesso",
+      "error": "Falha ao reativar usuário"
     },
     "permissions": {
       "title": "Permissões",
@@ -523,31 +545,6 @@
       "success": "Cores da empresa atualizadas com sucesso",
       "error": "Falha ao atualizar as cores da empresa"
     },
-    "userManagement": {
-      "title": "Contas de Usuário",
-      "loading": "Carregando usuários...",
-      "loadingFailed": "Falha ao carregar usuários",
-      "noUsers": "Nenhum usuário encontrado para esta filial",
-      "addUser": "Adicionar Usuário",
-      "table": {
-        "name": "Nome",
-        "email": "Email",
-        "role": "Função",
-        "status": "Status",
-        "actions": "Ações"
-      },
-      "roles": {
-        "companyAdmin": "Admin da Empresa",
-        "companyManager": "Gerente da Empresa",
-        "branchManager": "Gerente",
-        "employee": "Funcionário",
-        "custom": "Personalizado"
-      },
-      "status": {
-        "active": "ativo",
-        "inactive": "inativo"
-      }
-    },
     "addUserDialog": {
       "title": "Adicionar Usuário",
       "description": "Adicionar um novo usuário a {branchName}",
@@ -611,13 +608,22 @@
       "cannotEditAdmin": "Administradores da empresa não podem ser editados. Entre em contato com o suporte do sistema para modificar contas de administrador."
     },
     "deleteUserDialog": {
-      "title": "Excluir Usuário",
-      "description": "Tem certeza que deseja excluir {userName}? Esta ação não pode ser desfeita.",
+      "title": "Desativar Usuário",
+      "description": "Tem certeza que deseja desativar {userName}? O usuário perderá acesso, mas poderá ser reativado posteriormente.",
       "cancel": "Cancelar",
-      "confirm": "Excluir",
-      "deleting": "Excluindo...",
-      "success": "Usuário excluído com sucesso",
-      "error": "Falha ao excluir usuário"
+      "confirm": "Desativar",
+      "deleting": "Desativando...",
+      "success": "Usuário desativado com sucesso",
+      "error": "Falha ao desativar usuário"
+    },
+    "reactivateUserDialog": {
+      "title": "Reativar Usuário",
+      "description": "Restaurar o acesso de {userName}?",
+      "cancel": "Cancelar",
+      "confirm": "Reativar",
+      "confirming": "Reativando...",
+      "success": "Usuário reativado com sucesso",
+      "error": "Falha ao reativar usuário"
     }
   },
   "dashboard": {

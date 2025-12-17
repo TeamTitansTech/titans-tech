@@ -143,13 +143,12 @@ export class UsersService {
   }
 
   async findAll(companyId: string) {
-    const users = await this.prisma.user.findMany({
+    // Use originalPrismaClient to include soft-deleted users for the deactivation feature
+    const users = await this.prisma.originalPrismaClient.user.findMany({
       where: { companyId },
       include: {
         branches: {
-          where: {
-            deletedAt: null,
-          },
+          // Don't need to filter deleted branches here because we use soft delete as deactivation feature
           include: {
             branch: true,
           },
@@ -333,22 +332,6 @@ export class UsersService {
     });
 
     return new UserResponseDto(updatedUser);
-  }
-
-  async remove(id: string, companyId: string) {
-    const existingUser = await this.prisma.user.findFirst({
-      where: { id, companyId },
-    });
-
-    if (!existingUser) {
-      throw new NotFoundException('User not found');
-    }
-
-    await this.prisma.user.delete({
-      where: { id },
-    });
-
-    return { message: 'User deleted successfully' };
   }
 
   async updatePassword(userId: string, data: UpdatePasswordDto) {
@@ -628,6 +611,91 @@ export class UsersService {
       return {
         success: true,
         message: 'User deleted from company',
+      };
+    }
+  }
+
+  /**
+   * Reactivate user from company or specific branch (restore from soft delete)
+   */
+  async reactivateUser(
+    userId: string,
+    scope: 'branch' | 'company',
+    branchId?: string,
+  ) {
+    const user = await this.prisma.originalPrismaClient.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        branches: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (scope === 'branch' && branchId) {
+      console.debug(`Reactivating user ${userId} for branch ${branchId}`);
+
+      const userBranch =
+        await this.prisma.originalPrismaClient.userBranch.findUnique({
+          where: {
+            userId_branchId: {
+              userId,
+              branchId,
+            },
+          },
+        });
+
+      if (!userBranch) {
+        throw new NotFoundException('User is not assigned to this branch');
+      }
+
+      await this.prisma.userBranch.update({
+        where: {
+          userId_branchId: {
+            userId,
+            branchId,
+          },
+        },
+        data: {
+          deletedAt: null,
+        },
+      });
+
+      if (user.deletedAt) {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            deletedAt: null,
+          },
+        });
+      }
+
+      return {
+        success: true,
+        message: 'User reactivated for branch',
+      };
+    } else {
+      await this.prisma.userBranch.updateMany({
+        where: { userId },
+        data: {
+          deletedAt: null,
+        },
+      });
+
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          deletedAt: null,
+        },
+      });
+
+      return {
+        success: true,
+        message: 'User reactivated for company',
       };
     }
   }

@@ -8,8 +8,11 @@ export const customPrismaClient = (prismaClient: PrismaClient) => {
 export type CustomPrismaClient = ReturnType<typeof customPrismaClient>;
 
 export class PrismaClientExtended extends PrismaClient {
+  /** Original Prisma Client instance without extensions */
+  originalPrismaClient: this;
   constructor(options?: ConstructorParameters<typeof PrismaClient>[0]) {
     super(options);
+    this.originalPrismaClient = this;
     // Apply extensions to this instance
     return customPrismaClient(this) as this;
   }

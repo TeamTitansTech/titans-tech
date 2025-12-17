@@ -66,6 +66,13 @@ export const DeleteUserSchema = z.object({
   scope: z.enum(['branch', 'company']).default('branch'),
 });
 
+/**
+ * Reactivate user request options
+ */
+export const ReactivateUserSchema = z.object({
+  scope: z.enum(['branch', 'company']).default('branch'),
+});
+
 export type SysAdminCreateUserDto = z.infer<typeof SysAdminCreateUserSchema>;
 export type UpdateUserDto = z.infer<typeof UpdateUserSchema>;
 export type CreateUserDto = z.infer<typeof CreateUserSchema>;
@@ -75,3 +82,4 @@ export type UpdateUserPermissionsDto = z.infer<typeof UpdateUserPermissionsSchem
 export type UpdateUserInfoDto = z.infer<typeof UpdateUserInfoSchema>;
 export type UpdateUserCompleteDto = z.infer<typeof UpdateUserCompleteSchema>;
 export type DeleteUserDto = z.infer<typeof DeleteUserSchema>;
+export type ReactivateUserDto = z.infer<typeof ReactivateUserSchema>;
