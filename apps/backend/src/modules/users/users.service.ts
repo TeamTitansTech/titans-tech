@@ -615,6 +615,96 @@ export class UsersService {
   }
 
   /**
+   * Reactivate user from company or specific branch (restore from soft delete)
+   */
+  async reactivateUser(
+    userId: string,
+    scope: 'branch' | 'company',
+    branchId?: string,
+  ) {
+    // Use findFirst with OR condition to find both active and deactivated users
+    const user = await this.prisma.user.findFirst({
+      where: {
+        id: userId,
+        OR: [{ deletedAt: null }, { deletedAt: { not: null } }],
+      },
+      include: {
+        branches: {
+          where: {
+            OR: [{ deletedAt: null }, { deletedAt: { not: null } }],
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    if (scope === 'branch' && branchId) {
+      console.debug(`Reactivating user ${userId} for branch ${branchId}`);
+
+      // Use findFirst with OR condition to find both active and deactivated branch assignments
+      const userBranch = await this.prisma.userBranch.findFirst({
+        where: {
+          userId,
+          branchId,
+          OR: [{ deletedAt: null }, { deletedAt: { not: null } }],
+        },
+      });
+
+      if (!userBranch) {
+        throw new NotFoundException('User is not assigned to this branch');
+      }
+
+      await this.prisma.userBranch.update({
+        where: {
+          userId_branchId: {
+            userId,
+            branchId,
+          },
+        },
+        data: {
+          deletedAt: null,
+        },
+      });
+
+      if (user.deletedAt) {
+        await this.prisma.user.update({
+          where: { id: userId },
+          data: {
+            deletedAt: null,
+          },
+        });
+      }
+
+      return {
+        success: true,
+        message: 'User reactivated for branch',
+      };
+    } else {
+      await this.prisma.userBranch.updateMany({
+        where: { userId },
+        data: {
+          deletedAt: null,
+        },
+      });
+
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: {
+          deletedAt: null,
+        },
+      });
+
+      return {
+        success: true,
+        message: 'User reactivated for company',
+      };
+    }
+  }
+
+  /**
    * Update user permissions across all branches they belong to
    */
   async updateUserPermissionsAllBranches(
