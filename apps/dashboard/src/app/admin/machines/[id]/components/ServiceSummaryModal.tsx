@@ -170,7 +170,7 @@ function ServiceSummaryModalContent({
       // Extract data from array structure (backend returns arrays)
       // Note: Type assertion needed because Object.entries() loses property-specific types
       // We've validated this is a section property via SECTION_DATA_TO_REGISTRY_KEY check
-      let extractedData: AnySectionData = (
+      const extractedData: AnySectionData = (
         Array.isArray(value) ? value[0] : value
       ) as AnySectionData;
 
