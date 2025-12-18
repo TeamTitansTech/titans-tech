@@ -527,7 +527,49 @@ export class MachinesService {
   }
 
   /**
+   * Soft delete cascade for machine and all related entities
+   * Private method to handle the transaction logic
+   */
+  private async softDeleteMachineCascade(
+    tx: Prisma.TransactionClient,
+    machineId: string,
+  ): Promise<void> {
+    const now = new Date();
+
+    // 1. Soft delete all MachineServices
+    await tx.machineService.updateMany({
+      where: { machineId },
+      data: { deletedAt: now },
+    });
+
+    // 2. Soft delete all MachineFields
+    await tx.machineField.updateMany({
+      where: { machineId },
+      data: { deletedAt: now },
+    });
+
+    // 3. Soft delete all ServiceRequests
+    await tx.serviceRequest.updateMany({
+      where: { machineId },
+      data: { deletedAt: now },
+    });
+
+    // 4. Soft delete all MachineProductionLines (junction table)
+    await tx.machineProductionLine.updateMany({
+      where: { machineId },
+      data: { deletedAt: now },
+    });
+
+    // 5. Finally, soft delete the Machine itself
+    await tx.machine.update({
+      where: { id: machineId },
+      data: { deletedAt: now },
+    });
+  }
+
+  /**
    * Delete a machine for a regular user (validates branch access)
+   * Implements soft delete cascade to all related tables
    */
   async delete(userId: string, id: string): Promise<void> {
     // Verify machine exists
@@ -541,14 +583,14 @@ export class MachinesService {
 
     await this.validateUserBranchAccess(userId, existingMachine.branchId);
 
-    // Delete the machine (cascade delete will handle fields)
-    await this.prisma.machine.delete({
-      where: { id },
+    await this.prisma.$transaction(async (tx) => {
+      await this.softDeleteMachineCascade(tx, id);
     });
   }
 
   /**
    * Delete a machine for SysAdmin (no branch validation)
+   * Implements soft delete cascade to all related tables
    */
   async deleteForSysAdmin(id: string): Promise<void> {
     // Verify machine exists
@@ -560,9 +602,8 @@ export class MachinesService {
       throw new NotFoundException(`Machine with ID ${id} not found`);
     }
 
-    // Delete the machine (cascade delete will handle fields)
-    await this.prisma.machine.delete({
-      where: { id },
+    await this.prisma.$transaction(async (tx) => {
+      await this.softDeleteMachineCascade(tx, id);
     });
   }
 
