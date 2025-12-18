@@ -147,7 +147,6 @@ export class ServicesService {
         company: {
           include: {
             branches: {
-              where: { deletedAt: null },
               select: { id: true },
             },
           },
