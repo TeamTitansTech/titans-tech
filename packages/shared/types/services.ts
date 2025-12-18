@@ -15,6 +15,7 @@ export {
   DncToBedToBolsterType,
   YesNoNaDncType,
   YesNoDncType,
+  YesNoNaDncCantTellType,
   LubeHydMonitorFlowPressSwGibType,
   ConditionOkNaDncBrokenWornType,
   ConditionOkNaDncBrokenLooseType,
@@ -44,6 +45,9 @@ export {
   DriveBeltConditionType,
   ProtectiveCoversStatusType,
   CylinderAirbagType,
+  DieCushionAirLeaksType,
+  DieCushionPneumaticsPlumbingType,
+  DieCushionLubricationType,
   TemperatureUnit,
   SealConditionType,
   VacuumSystemConditionType,
@@ -54,6 +58,7 @@ export {
 export type {
   BearingClearanceData,
   BearingClearanceCheck,
+  BearingClearanceSingleHammerCheck,
   SlideData,
   SlideCheck,
   SlideSingleHammerCheck,
@@ -71,6 +76,10 @@ export type {
   TrammingCheck,
   PistonsData,
   PistonsCheck,
+  DieCushionCheck,
+  ElectricalControlCheck,
+  PerpendicularityCheck,
+  AngularityCheck,
 } from '../backend-dtos/requests-dto/service/service.dto';
 
 // Re-export service payload and entity types
@@ -100,6 +109,7 @@ export type {
 export {
   BearingClearanceDataSchema,
   BearingClearanceCheckSchema,
+  BearingClearanceSingleHammerCheckSchema,
   SlideDataSchema,
   SlideCheckSchema,
   GibsStageDataSchema,
@@ -115,6 +125,9 @@ export {
   TrammingCheckSchema,
   PistonsDataSchema,
   PistonsCheckSchema,
+  ElectricalControlCheckSchema,
+  PerpendicularityCheckSchema,
+  AngularityCheckSchema,
   CreateServiceSchema,
   CreateServicePayloadSchema,
   UpdateServicePayloadSchema,

@@ -129,11 +129,11 @@ export function SectionStatusCard({
       <Card className={cn('border-2', config.cardClass, className)}>
         <CardContent className="py-4">
           <div className="flex items-center gap-4">
-            <div className={cn('p-3 rounded-full', config.iconClass, 'bg-current/10')}>
+            <div className={cn('rounded-full p-3', config.iconClass, 'bg-current/10')}>
               <Icon className={cn('h-6 w-6', config.iconClass)} />
             </div>
             <div className="flex-1">
-              <p className={cn('font-semibold text-lg', config.titleClass)}>{t(config.titleKey)}</p>
+              <p className={cn('text-lg font-semibold', config.titleClass)}>{t(config.titleKey)}</p>
               <p className={cn('text-sm', config.descriptionClass)}>{t(config.descriptionKey)}</p>
             </div>
             {shouldShowPartsButton && (
@@ -174,114 +174,124 @@ export function SectionStatusCard({
         <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
           <DialogContent
             className={cn(
-              'max-h-[85vh] overflow-y-auto',
-              partsConfig.diagramImage ? 'w-[90vw] max-w-[1600px]' : 'max-w-4xl',
+              'p-0',
+              partsConfig.diagramImage
+                ? 'h-[85vh] max-h-[85vh] w-[90vw] max-w-[1600px]'
+                : 'h-[80vh] max-h-[80vh] max-w-4xl',
             )}
           >
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                {partsConfig.title}
-              </DialogTitle>
-            </DialogHeader>
+            <div className="flex h-full flex-col">
+              <DialogHeader className="shrink-0 px-6 pt-6">
+                <DialogTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  {partsConfig.title}
+                </DialogTitle>
+              </DialogHeader>
 
-            {partsConfig.diagramImage ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Diagram Image */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Typography variant="small" className="text-gray-700 dark:text-gray-300">
-                      Technical Diagram
-                      <Typography as="span" variant="muted" className="ml-2">
-                        (Scroll to zoom, drag to pan)
-                      </Typography>
-                    </Typography>
+              <div className="min-h-0 flex-1 px-6 pb-6 pt-4">
+                {partsConfig.diagramImage ? (
+                  <div className="grid h-full grid-cols-1 gap-6 lg:grid-cols-2">
+                    {/* Diagram Image */}
+                    <div className="flex min-h-0 flex-col gap-2">
+                      <div className="flex shrink-0 items-center justify-between">
+                        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Technical Diagram
+                          <span className="ml-2 text-xs text-muted-foreground">
+                            (Scroll to zoom, drag to pan)
+                          </span>
+                        </h3>
+                      </div>
+                      <div className="relative min-h-0 flex-1 overflow-hidden rounded-lg border bg-white dark:bg-gray-900">
+                        <TransformWrapper
+                          initialScale={1}
+                          minScale={0.5}
+                          maxScale={4}
+                          centerOnInit
+                          wheel={{ step: 0.1 }}
+                          doubleClick={{ mode: 'zoomIn' }}
+                        >
+                          {({ zoomIn, zoomOut, resetTransform }) => (
+                            <>
+                              {/* Zoom Controls */}
+                              <div className="absolute right-2 top-2 z-10 flex gap-1 rounded-md bg-white p-1 shadow-md dark:bg-gray-800">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => zoomIn()}
+                                  title="Zoom in"
+                                >
+                                  <ZoomIn className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => zoomOut()}
+                                  title="Zoom out"
+                                >
+                                  <ZoomOut className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8"
+                                  onClick={() => resetTransform()}
+                                  title="Reset"
+                                >
+                                  <RotateCcw className="h-4 w-4" />
+                                </Button>
+                              </div>
+
+                              {/* Zoomable Image */}
+                              <TransformComponent
+                                wrapperStyle={{
+                                  width: '100%',
+                                  height: '100%',
+                                  cursor: 'grab',
+                                }}
+                                contentStyle={{
+                                  width: '100%',
+                                  height: '100%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                }}
+                              >
+                                <Image
+                                  src={partsConfig.diagramImage!.src}
+                                  alt={partsConfig.diagramImage!.alt}
+                                  width={partsConfig.diagramImage!.width || 800}
+                                  height={partsConfig.diagramImage!.height || 600}
+                                  className="max-h-full max-w-full object-contain"
+                                  priority
+                                  unoptimized
+                                  draggable={false}
+                                />
+                              </TransformComponent>
+                            </>
+                          )}
+                        </TransformWrapper>
+                      </div>
+                    </div>
+
+                    {/* Parts List */}
+                    <div className="flex min-h-0 flex-col gap-2">
+                      <h3 className="shrink-0 text-sm font-medium text-gray-700 dark:text-gray-300">
+                        Parts List
+                      </h3>
+                      <div className="min-h-0 flex-1">
+                        <PartsListSelector {...partsConfig} />
+                      </div>
+                    </div>
                   </div>
-                  <div className="border rounded-lg overflow-hidden bg-white dark:bg-gray-900 relative">
-                    <TransformWrapper
-                      initialScale={1}
-                      minScale={0.5}
-                      maxScale={4}
-                      centerOnInit
-                      wheel={{ step: 0.1 }}
-                      doubleClick={{ mode: 'zoomIn' }}
-                    >
-                      {({ zoomIn, zoomOut, resetTransform }) => (
-                        <>
-                          {/* Zoom Controls */}
-                          <div className="absolute top-2 right-2 z-10 flex gap-1 bg-white dark:bg-gray-800 rounded-md shadow-md p-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => zoomIn()}
-                              title="Zoom in"
-                            >
-                              <ZoomIn className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => zoomOut()}
-                              title="Zoom out"
-                            >
-                              <ZoomOut className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              onClick={() => resetTransform()}
-                              title="Reset"
-                            >
-                              <RotateCcw className="h-4 w-4" />
-                            </Button>
-                          </div>
-
-                          {/* Zoomable Image */}
-                          <TransformComponent
-                            wrapperStyle={{
-                              width: '100%',
-                              height: '600px',
-                              cursor: 'grab',
-                            }}
-                            contentStyle={{
-                              width: '100%',
-                              height: '100%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                            }}
-                          >
-                            <Image
-                              src={partsConfig.diagramImage!.src}
-                              alt={partsConfig.diagramImage!.alt}
-                              width={partsConfig.diagramImage!.width || 800}
-                              height={partsConfig.diagramImage!.height || 600}
-                              className="max-w-full max-h-full object-contain"
-                              priority
-                              unoptimized
-                              draggable={false}
-                            />
-                          </TransformComponent>
-                        </>
-                      )}
-                    </TransformWrapper>
+                ) : (
+                  <div className="h-full">
+                    <PartsListSelector {...partsConfig} />
                   </div>
-                </div>
-
-                {/* Parts List */}
-                <div className="space-y-2">
-                  <Typography variant="small" className="text-gray-700 dark:text-gray-300">
-                    Parts List
-                  </Typography>
-                  <PartsListSelector {...partsConfig} />
-                </div>
+                )}
               </div>
-            ) : (
-              <PartsListSelector {...partsConfig} />
-            )}
+            </div>
           </DialogContent>
         </Dialog>
       )}

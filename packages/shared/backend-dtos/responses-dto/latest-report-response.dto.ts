@@ -9,6 +9,7 @@ import {
   CounterbalanceCylinderAirbagData,
   PistonsData,
   TrammingData,
+  ShimThicknessData,
 } from '@titans-tech/db';
 import { AlertBearingClearanceResponseDto } from './alert-bearing-clearance-response.dto';
 import { AlertClutchResponseDto } from './alert-clutch-response.dto';
@@ -200,6 +201,150 @@ export class LatestTrammingDto {
 }
 
 /**
+ * DTO for the latest Bearing Clearance Single Hammer data in a machine
+ */
+export class LatestBearingClearanceSingleHammerDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType;
+  data: {
+    beforeData?: BearingClearanceData;
+    data?: BearingClearanceData;
+  };
+  // No alerts for single hammer yet
+
+  constructor(partial: Partial<LatestBearingClearanceSingleHammerDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
+ * DTO for the latest Shim Thickness data in a machine
+ */
+export class LatestShimThicknessDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType;
+  data: {
+    outerLhData?: ShimThicknessData;
+    outerRhData?: ShimThicknessData;
+    innerLhData?: ShimThicknessData;
+    innerRhData?: ShimThicknessData;
+    notes?: string;
+  };
+
+  constructor(partial: Partial<LatestShimThicknessDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
+ * DTO for the latest Die Cushion data in a machine
+ */
+export class LatestDieCushionDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType;
+  data: {
+    airLeaks?: string;
+    airLeaksLocation?: string;
+    pneumaticsPlumbing?: string;
+    lubrication?: string;
+    notes?: string;
+  };
+
+  constructor(partial: Partial<LatestDieCushionDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
+ * DTO for the latest Electrical Control data in a machine
+ */
+export class LatestElectricalControlDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType;
+  data: {
+    hasHourMeter?: string;
+    hourMeterReading?: string;
+    isMinsterControl?: string;
+    minsterControlOther?: string;
+    controlDoorStop?: string;
+    cabinetTemp?: string;
+    incomingLine?: string;
+    fullVoltage?: string;
+    contactor?: string;
+    overloads?: string;
+    transformers?: string;
+    brakeValve?: string;
+    clutchValve?: string;
+    wiring?: string;
+    terminals?: string;
+    twentyFourVBuss?: string;
+    safetyRelays?: string;
+    notes?: string;
+  };
+
+  constructor(partial: Partial<LatestElectricalControlDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
+ * DTO for the latest Perpendicularity data in a machine
+ */
+export class LatestPerpendicularityDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType;
+  data: {
+    hasBeenAdjusted?: string;
+    beforeFR?: number;
+    beforeLR?: number;
+    afterFR?: number;
+    afterLR?: number;
+    notes?: string;
+  };
+
+  constructor(partial: Partial<LatestPerpendicularityDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
+ * DTO for the latest Angularity data in a machine
+ */
+export class LatestAngularityDto {
+  latestServiceId: string;
+  latestServiceDate: Date;
+  serviceType: ServiceType;
+  data: {
+    hasBeenAdjusted?: string;
+    spm?: number;
+    distanceOfIndicatorTip?: number;
+    locationOfIndicator?: string;
+    counterbalancePressure?: number;
+    strokePartBeingRead?: string;
+    shutheightSetAt?: string;
+    whatWasUsedAsSquare?: string;
+    whereWasSquarePlaced?: string;
+    indicatorUsedGraduation?: string;
+    tipKindOnIndicator?: string;
+    totalLiftCheck?: number;
+    beforeFR?: number;
+    beforeLR?: number;
+    afterFR?: number;
+    afterLR?: number;
+    notes?: string;
+  };
+
+  constructor(partial: Partial<LatestAngularityDto>) {
+    Object.assign(this, partial);
+  }
+}
+
+/**
  * DTO for the complete latest report of a machine
  * Shows the most recent data for each section based on the blueprint
  */
@@ -214,6 +359,7 @@ export class LatestReportResponseDto {
   generatedAt: Date;
   sections: {
     BEARING_CLEARANCE: LatestBearingClearanceDto | null;
+    BEARING_CLEARANCE_SINGLE_HAMMER: LatestBearingClearanceSingleHammerDto | null;
     SLIDE_SINGLE_HAMMER: LatestSlideSingleHammerDto | null;
     SLIDE_DOUBLE_HAMMER: LatestSlideDoubleHammerDto | null;
     GIBS: LatestGibsDto | null;
@@ -222,6 +368,11 @@ export class LatestReportResponseDto {
     CLUTCH: LatestClutchDto | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalanceDto | null;
     TRAMMING: LatestTrammingDto | null;
+    SHIM_THICKNESS: LatestShimThicknessDto | null;
+    DIE_CUSHION: LatestDieCushionDto | null;
+    ELECTRICAL_CONTROL: LatestElectricalControlDto | null;
+    PERPENDICULARITY: LatestPerpendicularityDto | null;
+    ANGULARITY: LatestAngularityDto | null;
   };
 
   constructor(partial: Partial<LatestReportResponseDto>) {

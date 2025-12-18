@@ -1,6 +1,5 @@
-import { getCookie } from '@/lib/cookies';
+import { deleteCookie, getCookie } from '@/lib/cookies';
 import { BackendErrorResponse, formatErrors } from './errorFormatter';
-import { redirect } from 'next/navigation';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -60,7 +59,7 @@ export async function responseHandler<T>(
 
       // Handle 401 Unauthorized - Redirect to logout
       if (response.status === 401) {
-        redirect('/logout');
+        await deleteCookie('auth_token');
       }
 
       // Format errors using the error formatter

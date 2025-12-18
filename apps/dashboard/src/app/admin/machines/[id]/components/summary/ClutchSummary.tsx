@@ -5,17 +5,33 @@ import type { ClutchData, Attachment } from '@/data/types/services.types';
 import { Typography } from '@/components/ui/typography';
 import { translateEnumValue } from './utils/translateEnum';
 import { SectionAttachments } from './SectionAttachments';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface ClutchSummaryProps {
   data: ClutchData;
   attachments?: Attachment[];
 }
 
+// Fields that are length measurements and need unit conversion
+const LENGTH_FIELDS = [
+  'brakeClearing',
+  'brakeClearanceTotal',
+  'brakeClearanceRear',
+  'gearBacklashBefore',
+  'gearBacklashAfter',
+  'crankEndplayBefore',
+  'crankEndplayAfter',
+  'airClutchTravel',
+  'hydClutchClearanceTotal',
+  'hydClutchClearanceRear',
+];
+
 export function ClutchSummary({ data, attachments }: ClutchSummaryProps) {
   const tServicesSummary = useTranslations('services.modal.summary');
   const tClutchFields = useTranslations('inspections.form.clutch.fields');
   const tClutchSections = useTranslations('inspections.form.clutch.sections');
   const tCommon = useTranslations('common.status');
+  const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 
   // Guard against undefined data
   if (!data) {
@@ -54,6 +70,15 @@ export function ClutchSummary({ data, attachments }: ClutchSummaryProps) {
     return translateEnumValue(value, tCommon);
   };
 
+  // Helper function to display length value with unit conversion
+  const displayLengthValue = (value: unknown): string => {
+    if (value === null || value === undefined || value === '') return '-';
+    const numValue = Number(value);
+    if (isNaN(numValue)) return translateEnumValue(value, tCommon);
+    const convertedValue = convertLengthFromDefault(numValue);
+    return `${convertedValue.toFixed(4)} ${getLengthUnitLabel()}`;
+  };
+
   // Helper to render a field group - shows all fields even if empty
   const renderFieldGroup = (
     title: string,
@@ -71,6 +96,15 @@ export function ClutchSummary({ data, attachments }: ClutchSummaryProps) {
           key: field.key,
           label: field.label || translateFieldName(baseKey),
           value: displayVal,
+        };
+      }
+      // Handle length fields with unit conversion
+      if (LENGTH_FIELDS.includes(field.key)) {
+        const value = data[field.key as keyof ClutchData];
+        return {
+          key: field.key,
+          label: field.label || translateFieldName(field.key),
+          value: displayLengthValue(value),
         };
       }
       // Handle regular fields

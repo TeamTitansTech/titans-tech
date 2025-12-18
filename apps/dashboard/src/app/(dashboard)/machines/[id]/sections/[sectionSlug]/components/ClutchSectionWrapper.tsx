@@ -1,6 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { ClutchSection } from './ClutchSection';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface ClutchSectionWrapperProps {
   machineId: string;
@@ -65,12 +66,14 @@ export async function ClutchSectionWrapper({ machineId }: ClutchSectionWrapperPr
   }
 
   return (
-    <ClutchSection
-      machineId={machineId}
-      inspections={inspections}
-      machineName={machineName}
-      machineSerial={machineSerial}
-      blueprintId={blueprintId}
-    />
+    <UnitManagerProvider>
+      <ClutchSection
+        machineId={machineId}
+        inspections={inspections}
+        machineName={machineName}
+        machineSerial={machineSerial}
+        blueprintId={blueprintId}
+      />
+    </UnitManagerProvider>
   );
 }

@@ -5,13 +5,13 @@
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { rootDomain } from './lib/utils';
-import { deleteCookie, getCookie, setCookie } from './lib/cookies';
+import { getCookie, setCookie } from './lib/cookies';
 
 const PUBLIC_PATHS = ['/_next', '/api', '/favicon.ico', '/globals.css'];
 const ADMIN_PUBLIC_PATHS = ['/admin'];
 const ADMIN_LOGIN_PATH = '/admin';
 const ADMIN_ALREADY_LOGGED_PATH = '/admin/dashboard';
-const CLIENT_ALREADY_LOGGED_PATH = '/dashboard';
+const CLIENT_ALREADY_LOGGED_PATH = '/home';
 const PUBLIC_PATHS_NESTED_ROUTE: string[] = [];
 
 const CLIENT_PUBLIC_PATHS = ['/'];
@@ -108,12 +108,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(redirectPath, request.url));
   }
 
-  if (pathname === '/logout') {
-    await deleteCookie('auth_token');
-    const redirectPath = subdomain ? CLIENT_LOGIN_PATH : ADMIN_LOGIN_PATH;
-    return NextResponse.redirect(new URL(redirectPath, request.url));
-  }
-
   if (!publicPath && !isLoggedIn) {
     const redirectPath = subdomain ? CLIENT_LOGIN_PATH : ADMIN_LOGIN_PATH;
     return NextResponse.redirect(new URL(redirectPath, request.url));
@@ -133,6 +127,11 @@ export async function proxy(request: NextRequest) {
     const rewriteUrl = new URL(`/s/${subdomain}${pathname}`, request.url);
     rewriteUrl.search = request.nextUrl.search;
     return NextResponse.rewrite(rewriteUrl);
+  }
+
+  // On the root domain, redirect / to /admin
+  if (pathname === '/') {
+    return NextResponse.redirect(new URL('/admin', request.url));
   }
 
   // On the root domain, allow normal access

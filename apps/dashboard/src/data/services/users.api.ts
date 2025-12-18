@@ -8,6 +8,7 @@ import {
   SetUserPermissionsDto,
   UpdateUserPermissionsDto,
   DeleteUserDto,
+  ReactivateUserDto,
 } from '@titans-tech/shared/backend-dtos';
 import { Permissions } from '@titans-tech/shared/types';
 
@@ -113,6 +114,28 @@ export const deleteUserFromBranchOrCompany = async (args: {
     `/company-branches/${args.branchId}/users/${args.userId}/delete`,
     {
       method: 'DELETE',
+      body,
+    },
+  );
+};
+
+/**
+ * Reactivate user from branch or company
+ * @param scope - 'branch' to reactivate for specific branch, 'company' to reactivate completely
+ */
+export const reactivateUserFromBranchOrCompany = async (args: {
+  branchId: string;
+  userId: string;
+  scope: 'branch' | 'company';
+}) => {
+  const body: ReactivateUserDto = {
+    scope: args.scope,
+  };
+
+  return await responseHandler<{ success: boolean; message: string }>(
+    `/company-branches/${args.branchId}/users/${args.userId}/reactivate`,
+    {
+      method: 'PATCH',
       body,
     },
   );

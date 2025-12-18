@@ -19,6 +19,8 @@ import {
   CompleteServiceSchema,
   BearingClearanceCheck,
   BearingClearanceCheckSchema,
+  BearingClearanceSingleHammerCheck,
+  BearingClearanceSingleHammerCheckSchema,
   SlideSingleHammerCheck,
   SlideSingleHammerCheckSchema,
   SlideDoubleHammerCheck,
@@ -35,6 +37,16 @@ import {
   TrammingCheckSchema,
   PistonsCheck,
   PistonsCheckSchema,
+  ShimThicknessCheck,
+  ShimThicknessCheckSchema,
+  DieCushionCheck,
+  DieCushionCheckSchema,
+  ElectricalControlCheck,
+  ElectricalControlCheckSchema,
+  PerpendicularityCheck,
+  PerpendicularityCheckSchema,
+  AngularityCheck,
+  AngularityCheckSchema,
   LatestReportResponseDto,
   AlertsSummaryResponseDto,
 } from '@titans-tech/shared/backend-dtos';
@@ -51,6 +63,20 @@ export class ServicesController {
    */
   private getUserId(req: ReqWithAuthUser): string | null {
     return isSysAdmin(req.user) ? null : req.user.id;
+  }
+
+  /**
+   * Dispatches to different actions based on user type (SysAdmin vs regular user)
+   */
+  private dispatchByUserType<T>(
+    user: ReqWithAuthUser['user'],
+    sysAdminAction: () => T,
+    userAction: (userId: string) => T,
+  ): T {
+    if (isSysAdmin(user)) {
+      return sysAdminAction();
+    }
+    return userAction(user.id);
   }
 
   /**
@@ -71,13 +97,16 @@ export class ServicesController {
 
   /**
    * Get all services
-   * TODO: Add @BranchPermission('readServices') and filter by accessible branches
-   * Current: Requires authentication only, returns all services (should filter by user's branches)
+   * Filters by user's accessible branches with readServices permission
    */
   @Authenticated()
   @Get()
-  findAll(): Promise<unknown> {
-    return this.servicesService.findAll();
+  findAll(@Req() req: ReqWithAuthUser): Promise<unknown> {
+    return this.dispatchByUserType(
+      req.user,
+      () => this.servicesService.findAllForSysAdmin(),
+      (userId) => this.servicesService.findAll(userId),
+    );
   }
 
   /**
@@ -128,6 +157,21 @@ export class ServicesController {
     @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
     return this.servicesService.updateBearingClearance(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/bearing-clearance-single-hammer')
+  updateBearingClearanceSingleHammer(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(BearingClearanceSingleHammerCheckSchema))
+    updateDto: BearingClearanceSingleHammerCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateBearingClearanceSingleHammer(
       id,
       updateDto,
       this.getUserId(req),
@@ -244,6 +288,81 @@ export class ServicesController {
     @Req() req: ReqWithAuthUser,
   ): Promise<unknown> {
     return this.servicesService.updatePistons(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/shim-thickness')
+  updateShimThickness(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ShimThicknessCheckSchema))
+    updateDto: ShimThicknessCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateShimThickness(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/die-cushion')
+  updateDieCushion(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(DieCushionCheckSchema))
+    updateDto: DieCushionCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateDieCushion(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/electrical-control')
+  updateElectricalControl(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ElectricalControlCheckSchema))
+    updateDto: ElectricalControlCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateElectricalControl(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/perpendicularity')
+  updatePerpendicularity(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(PerpendicularityCheckSchema))
+    updateDto: PerpendicularityCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updatePerpendicularity(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/angularity')
+  updateAngularity(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(AngularityCheckSchema))
+    updateDto: AngularityCheck,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateAngularity(
       id,
       updateDto,
       this.getUserId(req),

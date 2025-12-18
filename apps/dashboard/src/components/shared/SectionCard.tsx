@@ -29,6 +29,7 @@ const STATUS_COLORS = {
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
+  BEARING_CLEARANCE_SINGLE_HAMMER: 'bearingClearanceSingleHammer',
   SLIDE_SINGLE_HAMMER: 'slideSingleHammer',
   SLIDE_DOUBLE_HAMMER: 'slideDoubleHammer',
   GIBS: 'gibs',
@@ -37,10 +38,15 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
   TRAMMING: 'tramming',
   PISTONS: 'pistons',
+  SHIM_THICKNESS: 'shimThickness',
+  DIE_CUSHION: 'dieCushion',
+  ELECTRICAL_CONTROL: 'electricalControl',
+  PERPENDICULARITY: 'perpendicularity',
 };
 
 const SECTION_IMAGES: Record<string, string> = {
   BEARING_CLEARANCE: '/assets/sections/bearing-clearance.svg',
+  BEARING_CLEARANCE_SINGLE_HAMMER: '/assets/sections/bearing-clearance.svg',
   SLIDE_SINGLE_HAMMER: '/assets/sections/slide.svg',
   SLIDE_DOUBLE_HAMMER: '/assets/sections/slide.svg',
   GIBS: '/assets/sections/gibs.svg',
@@ -50,6 +56,10 @@ const SECTION_IMAGES: Record<string, string> = {
   COUNTERBALANCE_CYLINDER_AIRBAG: '/assets/sections/counterbalance.svg',
   TRAMMING: '/assets/sections/tramming.svg',
   PISTONS: '/assets/sections/pistons.svg',
+  SHIM_THICKNESS: '/assets/sections/shim-thickness.svg',
+  DIE_CUSHION: '/assets/sections/die-cushion.svg',
+  ELECTRICAL_CONTROL: '/assets/sections/electrical-control.svg',
+  PERPENDICULARITY: '/assets/sections/perpendicularity.svg',
 };
 
 export function SectionCard({

@@ -11,6 +11,7 @@ import { PrismaService } from '../shared/prisma.service';
 import {
   LatestReportResponseDto,
   LatestBearingClearanceDto,
+  LatestBearingClearanceSingleHammerDto,
   LatestClutchDto,
   LatestSlideSingleHammerDto,
   LatestSlideDoubleHammerDto,
@@ -19,10 +20,16 @@ import {
   LatestCounterbalanceDto,
   LatestPistonsDto,
   LatestTrammingDto,
+  LatestShimThicknessDto,
+  LatestDieCushionDto,
+  LatestElectricalControlDto,
+  LatestPerpendicularityDto,
+  LatestAngularityDto,
   CreateServiceDto,
   UpdateServicePayload,
   CompleteServiceDto,
   BearingClearanceCheck,
+  BearingClearanceSingleHammerCheck,
   SlideSingleHammerCheck,
   SlideDoubleHammerCheck,
   GibsCheck,
@@ -31,12 +38,19 @@ import {
   CounterbalanceCylinderCheck,
   TrammingCheck,
   PistonsCheck,
+  ShimThicknessCheck,
+  DieCushionCheck,
   AlertsSummaryResponseDto,
   SectionAlertDto,
   AlertDetailDto,
   AlertSeverityDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertsService } from '../alerts/alerts.service';
+import {
+  hasPermissionInBranch,
+  type UserWithBranchPermissions,
+  type Permissions,
+} from '@titans-tech/shared/types';
 import {
   OIL_CHANGE_INTERVAL_DAYS,
   OIL_CHANGE_WARNING_THRESHOLD_DAYS,
@@ -48,6 +62,67 @@ type ServicePermission =
   | 'deleteServices'
   | 'readServices';
 
+/**
+ * Helper to convert GibsStageData with optional fields to Prisma-compatible format
+ * Converts undefined numeric values to 0
+ */
+type GibsStageDataInput = {
+  point1?: number;
+  point2?: number;
+  point3?: number;
+  point4?: number;
+  point5?: number;
+  point6?: number;
+  point7?: number;
+  point8?: number;
+  point9?: number;
+  point10?: number;
+  point11?: number;
+  point12?: number;
+  point13?: number;
+  point14?: number;
+  point15?: number;
+  point16?: number;
+};
+
+function normalizeGibsStageData(data: GibsStageDataInput): {
+  point1: number;
+  point2: number;
+  point3: number;
+  point4: number;
+  point5: number;
+  point6: number;
+  point7: number;
+  point8: number;
+  point9: number;
+  point10: number;
+  point11: number;
+  point12: number;
+  point13: number;
+  point14: number;
+  point15: number;
+  point16: number;
+} {
+  return {
+    point1: data.point1 ?? 0,
+    point2: data.point2 ?? 0,
+    point3: data.point3 ?? 0,
+    point4: data.point4 ?? 0,
+    point5: data.point5 ?? 0,
+    point6: data.point6 ?? 0,
+    point7: data.point7 ?? 0,
+    point8: data.point8 ?? 0,
+    point9: data.point9 ?? 0,
+    point10: data.point10 ?? 0,
+    point11: data.point11 ?? 0,
+    point12: data.point12 ?? 0,
+    point13: data.point13 ?? 0,
+    point14: data.point14 ?? 0,
+    point15: data.point15 ?? 0,
+    point16: data.point16 ?? 0,
+  };
+}
+
 @Injectable()
 export class ServicesService {
   private readonly logger = new Logger(ServicesService.name);
@@ -56,6 +131,57 @@ export class ServicesService {
     private prisma: PrismaService,
     private alertsService: AlertsService,
   ) {}
+
+  /**
+   * Gets the list of branch IDs that a user has readServices permission for
+   * @param userId - The ID of the user
+   * @returns Array of branch IDs the user can read services from
+   */
+  private async getUserBranchIdsWithPermission(
+    userId: string,
+  ): Promise<string[]> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        branches: { where: { deletedAt: null } },
+        company: {
+          include: {
+            branches: {
+              select: { id: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Company admins have access to all branches in their company
+    if (user.isCompanyAdmin) {
+      return user.company.branches.map((b) => b.id);
+    }
+
+    // For regular users, filter branches by readServices permission
+    const userWithPermissions: UserWithBranchPermissions = {
+      id: user.id,
+      isCompanyAdmin: false,
+      branches: user.branches.map((ub) => ({
+        branchId: ub.branchId,
+        ...(ub as unknown as Permissions),
+      })),
+    };
+
+    // Filter branches where user has readServices permission (including prerequisites)
+    const permittedBranchIds = user.branches
+      .filter((ub) =>
+        hasPermissionInBranch(userWithPermissions, ub.branchId, 'readServices'),
+      )
+      .map((ub) => ub.branchId);
+
+    return permittedBranchIds;
+  }
 
   /**
    * Validates if a user has permission to perform an action on a service
@@ -325,6 +451,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -388,13 +520,140 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
     });
 
     return updatedService;
   }
 
-  async findAll(): Promise<any[]> {
+  async findAll(userId: string): Promise<any[]> {
+    const branchIds = await this.getUserBranchIdsWithPermission(userId);
+
+    return this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          branchId: {
+            in: branchIds,
+          },
+        },
+      },
+      include: {
+        machine: {
+          include: {
+            blueprint: true,
+            fields: true,
+            branch: true,
+          },
+        },
+        bearingClearance: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
+        slide: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        slideSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
+        slideDoubleHammer: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            innerBefore: true,
+            innerData: true,
+          },
+        },
+        gibs: {
+          include: {
+            outerBefore: true,
+            outerData: true,
+            outerFreeHangingData: true,
+            innerBefore: true,
+            innerData: true,
+            innerBeforeTool: true,
+            innerDataTool: true,
+          },
+        },
+        lubricationHydraulics: {
+          include: {
+            data: {
+              include: {
+                gauges: true,
+              },
+            },
+          },
+        },
+        clutch: {
+          include: {
+            data: true,
+          },
+        },
+        counterbalanceCylinderAirbag: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        tramming: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        pistons: {
+          include: {
+            outerData: true,
+            innerData: true,
+          },
+        },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    });
+  }
+
+  async findAllForSysAdmin(): Promise<any[]> {
     return this.prisma.machineService.findMany({
       include: {
         machine: {
@@ -412,6 +671,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -475,6 +740,18 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
       orderBy: {
         date: 'desc',
@@ -501,6 +778,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -564,6 +847,18 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
     });
 
@@ -601,6 +896,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -664,8 +965,24 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
         // Include alert entities for status display
         alertBearingClearance: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertBearingClearanceSingleHammer: {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
@@ -740,6 +1057,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -803,6 +1126,18 @@ export class ServicesService {
             innerData: true,
           },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
       orderBy: { date: 'desc' },
     });
@@ -905,7 +1240,7 @@ export class ServicesService {
           // Try to fetch alert for this service
           let alert = undefined;
           try {
-            alert = await this.alertsService.getSlideAlertByService(
+            alert = await this.alertsService.getSlideSingleHammerAlertByService(
               latestSlideService.id,
             );
           } catch {
@@ -940,7 +1275,7 @@ export class ServicesService {
           // Try to fetch alert for this service
           let alert = undefined;
           try {
-            alert = await this.alertsService.getSlideAlertByService(
+            alert = await this.alertsService.getSlideDoubleHammerAlertByService(
               latestSlideService.id,
             );
           } catch {
@@ -1205,7 +1540,216 @@ export class ServicesService {
       }
     }
 
-    // 11. Build response
+    // 11. Process Bearing Clearance Single Hammer section
+    let bearingClearanceSingleHammerData: LatestBearingClearanceSingleHammerDto | null =
+      null;
+
+    if (
+      machine.blueprint.sections.includes(
+        ServiceSection.BEARING_CLEARANCE_SINGLE_HAMMER,
+      )
+    ) {
+      const latestService = services.find(
+        (service) =>
+          service.bearingClearanceSingleHammer &&
+          service.bearingClearanceSingleHammer.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.bearingClearanceSingleHammer[0];
+        if (record) {
+          bearingClearanceSingleHammerData =
+            new LatestBearingClearanceSingleHammerDto({
+              latestServiceId: latestService.id,
+              latestServiceDate: latestService.date,
+              serviceType: latestService.type,
+              data: {
+                beforeData: record.beforeData || undefined,
+                data: record.data || undefined,
+              },
+            });
+        }
+      }
+    }
+
+    // 12. Process Shim Thickness section
+    let shimThicknessData: LatestShimThicknessDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.SHIM_THICKNESS)) {
+      const latestService = services.find(
+        (service) => service.shimThickness && service.shimThickness.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.shimThickness[0];
+        if (record) {
+          shimThicknessData = new LatestShimThicknessDto({
+            latestServiceId: latestService.id,
+            latestServiceDate: latestService.date,
+            serviceType: latestService.type,
+            data: {
+              outerLhData: record.outerLhData || undefined,
+              outerRhData: record.outerRhData || undefined,
+              innerLhData: record.innerLhData || undefined,
+              innerRhData: record.innerRhData || undefined,
+              notes: record.notes || undefined,
+            },
+          });
+        }
+      }
+    }
+
+    // 13. Process Die Cushion section
+    let dieCushionData: LatestDieCushionDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.DIE_CUSHION)) {
+      const latestService = services.find(
+        (service) => service.dieCushion && service.dieCushion.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.dieCushion[0];
+        if (record) {
+          dieCushionData = new LatestDieCushionDto({
+            latestServiceId: latestService.id,
+            latestServiceDate: latestService.date,
+            serviceType: latestService.type,
+            data: {
+              airLeaks: record.airLeaks || undefined,
+              airLeaksLocation: record.airLeaksLocation || undefined,
+              pneumaticsPlumbing: record.pneumaticsPlumbing || undefined,
+              lubrication: record.lubrication || undefined,
+              notes: record.notes || undefined,
+            },
+          });
+        }
+      }
+    }
+
+    // 14. Process Electrical Control section
+    let electricalControlData: LatestElectricalControlDto | null = null;
+
+    if (
+      machine.blueprint.sections.includes(ServiceSection.ELECTRICAL_CONTROL)
+    ) {
+      const latestService = services.find(
+        (service) =>
+          service.electricalControl && service.electricalControl.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.electricalControl[0];
+        if (record) {
+          electricalControlData = new LatestElectricalControlDto({
+            latestServiceId: latestService.id,
+            latestServiceDate: latestService.date,
+            serviceType: latestService.type,
+            data: {
+              hasHourMeter: record.hasHourMeter || undefined,
+              hourMeterReading: record.hourMeterReading || undefined,
+              isMinsterControl: record.isMinsterControl || undefined,
+              minsterControlOther: record.minsterControlOther || undefined,
+              controlDoorStop: record.controlDoorStop || undefined,
+              cabinetTemp: record.cabinetTemp || undefined,
+              incomingLine: record.incomingLine || undefined,
+              fullVoltage: record.fullVoltage || undefined,
+              contactor: record.contactor || undefined,
+              overloads: record.overloads || undefined,
+              transformers: record.transformers || undefined,
+              brakeValve: record.brakeValve || undefined,
+              clutchValve: record.clutchValve || undefined,
+              wiring: record.wiring || undefined,
+              terminals: record.terminals || undefined,
+              twentyFourVBuss: record.twentyFourVBuss || undefined,
+              safetyRelays: record.safetyRelays || undefined,
+              notes: record.notes || undefined,
+            },
+          });
+        }
+      }
+    }
+
+    // 15. Process Perpendicularity section
+    let perpendicularityData: LatestPerpendicularityDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.PERPENDICULARITY)) {
+      const latestService = services.find(
+        (service) =>
+          service.perpendicularity && service.perpendicularity.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.perpendicularity[0];
+        if (record) {
+          perpendicularityData = new LatestPerpendicularityDto({
+            latestServiceId: latestService.id,
+            latestServiceDate: latestService.date,
+            serviceType: latestService.type,
+            data: {
+              hasBeenAdjusted: record.hasBeenAdjusted || undefined,
+              beforeFR: record.beforeFR ? Number(record.beforeFR) : undefined,
+              beforeLR: record.beforeLR ? Number(record.beforeLR) : undefined,
+              afterFR: record.afterFR ? Number(record.afterFR) : undefined,
+              afterLR: record.afterLR ? Number(record.afterLR) : undefined,
+              notes: record.notes || undefined,
+            },
+          });
+        }
+      }
+    }
+
+    // 16. Process Angularity section (can also be triggered by fillAngularity checkbox)
+    let angularityData: LatestAngularityDto | null = null;
+
+    // Check if blueprint has ANGULARITY or if any service has fillAngularity=true
+    const hasAngularitySection =
+      machine.blueprint.sections.includes(ServiceSection.ANGULARITY) ||
+      services.some((s) => s.fillAngularity === true);
+
+    if (hasAngularitySection) {
+      const latestService = services.find(
+        (service) => service.angularity && service.angularity.length > 0,
+      );
+
+      if (latestService) {
+        const record = latestService.angularity[0];
+        if (record) {
+          angularityData = new LatestAngularityDto({
+            latestServiceId: latestService.id,
+            latestServiceDate: latestService.date,
+            serviceType: latestService.type,
+            data: {
+              hasBeenAdjusted: record.hasBeenAdjusted || undefined,
+              spm: record.spm ? Number(record.spm) : undefined,
+              distanceOfIndicatorTip: record.distanceOfIndicatorTip
+                ? Number(record.distanceOfIndicatorTip)
+                : undefined,
+              locationOfIndicator: record.locationOfIndicator || undefined,
+              counterbalancePressure: record.counterbalancePressure
+                ? Number(record.counterbalancePressure)
+                : undefined,
+              strokePartBeingRead: record.strokePartBeingRead || undefined,
+              shutheightSetAt: record.shutheightSetAt || undefined,
+              whatWasUsedAsSquare: record.whatWasUsedAsSquare || undefined,
+              whereWasSquarePlaced: record.whereWasSquarePlaced || undefined,
+              indicatorUsedGraduation:
+                record.indicatorUsedGraduation || undefined,
+              tipKindOnIndicator: record.tipKindOnIndicator || undefined,
+              totalLiftCheck: record.totalLiftCheck
+                ? Number(record.totalLiftCheck)
+                : undefined,
+              beforeFR: record.beforeFR ? Number(record.beforeFR) : undefined,
+              beforeLR: record.beforeLR ? Number(record.beforeLR) : undefined,
+              afterFR: record.afterFR ? Number(record.afterFR) : undefined,
+              afterLR: record.afterLR ? Number(record.afterLR) : undefined,
+              notes: record.notes || undefined,
+            },
+          });
+        }
+      }
+    }
+
+    // 17. Build response
     return new LatestReportResponseDto({
       machineId: machine.id,
       machineName: machine.name,
@@ -1217,6 +1761,7 @@ export class ServicesService {
       generatedAt: new Date(),
       sections: {
         BEARING_CLEARANCE: bearingClearanceData,
+        BEARING_CLEARANCE_SINGLE_HAMMER: bearingClearanceSingleHammerData,
         SLIDE_SINGLE_HAMMER: slideSingleHammerData,
         SLIDE_DOUBLE_HAMMER: slideDoubleHammerData,
         GIBS: gibsData,
@@ -1225,6 +1770,11 @@ export class ServicesService {
         CLUTCH: clutchData,
         COUNTERBALANCE_CYLINDER_AIRBAG: counterbalanceData,
         TRAMMING: trammingData,
+        SHIM_THICKNESS: shimThicknessData,
+        DIE_CUSHION: dieCushionData,
+        ELECTRICAL_CONTROL: electricalControlData,
+        PERPENDICULARITY: perpendicularityData,
+        ANGULARITY: angularityData,
       },
     });
   }
@@ -1341,6 +1891,110 @@ export class ServicesService {
             }),
             ...(updateDto.attachments && {
               attachments: updateDto.attachments,
+            }),
+          },
+        });
+      }
+
+      // Update service with completed sections
+      await tx.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+        },
+      });
+    });
+
+    // Note: Alerts are generated only when service is completed via completeService()
+    return this.findOne(serviceId);
+  }
+
+  async updateBearingClearanceSingleHammer(
+    serviceId: string,
+    updateDto: BearingClearanceSingleHammerCheck,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    // Check if service exists
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { bearingClearanceSingleHammer: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    // Get existing completed sections
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    // Add BEARING_CLEARANCE_SINGLE_HAMMER to completed if not already there
+    const updatedCompletedSections = completedSections.includes(
+      'BEARING_CLEARANCE_SINGLE_HAMMER',
+    )
+      ? completedSections
+      : [...completedSections, 'BEARING_CLEARANCE_SINGLE_HAMMER'];
+
+    await this.prisma.$transaction(async (tx) => {
+      const existingRecord = service.bearingClearanceSingleHammer?.[0];
+
+      // Helper function to upsert nested bearing clearance data
+      const upsertData = async (
+        data: any,
+        existingId: string | null | undefined,
+      ) => {
+        if (!data) return existingId;
+
+        if (existingId) {
+          // Update existing
+          await tx.bearingClearanceData.update({
+            where: { id: existingId },
+            data: data as any,
+          });
+          return existingId;
+        } else {
+          // Create new
+          const created = await tx.bearingClearanceData.create({
+            data: data as any,
+          });
+          return created.id;
+        }
+      };
+
+      if (existingRecord) {
+        // Update existing bearing clearance single hammer record
+        const beforeDataId = await upsertData(
+          updateDto.beforeData,
+          existingRecord.beforeDataId,
+        );
+        const dataId = await upsertData(updateDto.data, existingRecord.dataId);
+
+        await tx.machineServiceBearingClearanceSingleHammer.update({
+          where: { id: existingRecord.id },
+          data: {
+            ...(beforeDataId && { beforeDataId }),
+            ...(dataId && { dataId }),
+          },
+        });
+      } else {
+        // Create new bearing clearance single hammer record
+        await tx.machineServiceBearingClearanceSingleHammer.create({
+          data: {
+            machineService: { connect: { id: serviceId } },
+            ...(updateDto.beforeData && {
+              beforeData: { create: updateDto.beforeData as any },
+            }),
+            ...(updateDto.data && {
+              data: { create: updateDto.data as any },
             }),
           },
         });
@@ -1630,14 +2284,17 @@ export class ServicesService {
   ): Promise<void> {
     if (!stageData) return;
 
+    // Normalize data to ensure all point fields are numbers (not undefined)
+    const normalizedData = normalizeGibsStageData(stageData);
+
     if (existingId) {
       await tx.gibsStageData.update({
         where: { id: existingId },
-        data: stageData,
+        data: normalizedData,
       });
     } else {
       const created = await tx.gibsStageData.create({
-        data: stageData,
+        data: normalizedData,
       });
       updatePayload[fieldName] = created.id;
     }
@@ -1773,17 +2430,19 @@ export class ServicesService {
             create: {
               ...(updateDto.outerBefore && {
                 outerBefore: {
-                  create: updateDto.outerBefore,
+                  create: normalizeGibsStageData(updateDto.outerBefore),
                 },
               }),
               ...(updateDto.outerData && {
                 outerData: {
-                  create: updateDto.outerData,
+                  create: normalizeGibsStageData(updateDto.outerData),
                 },
               }),
               ...(updateDto.outerFreeHangingData && {
                 outerFreeHangingData: {
-                  create: updateDto.outerFreeHangingData,
+                  create: normalizeGibsStageData(
+                    updateDto.outerFreeHangingData,
+                  ),
                 },
               }),
               ...(updateDto.haveInnerGibsBeenAdjusted && {
@@ -1791,22 +2450,22 @@ export class ServicesService {
               }),
               ...(updateDto.innerBefore && {
                 innerBefore: {
-                  create: updateDto.innerBefore,
+                  create: normalizeGibsStageData(updateDto.innerBefore),
                 },
               }),
               ...(updateDto.innerData && {
                 innerData: {
-                  create: updateDto.innerData,
+                  create: normalizeGibsStageData(updateDto.innerData),
                 },
               }),
               ...(updateDto.innerBeforeTool && {
                 innerBeforeTool: {
-                  create: updateDto.innerBeforeTool,
+                  create: normalizeGibsStageData(updateDto.innerBeforeTool),
                 },
               }),
               ...(updateDto.innerDataTool && {
                 innerDataTool: {
-                  create: updateDto.innerDataTool,
+                  create: normalizeGibsStageData(updateDto.innerDataTool),
                 },
               }),
               ...(updateDto.notes && { notes: updateDto.notes }),
@@ -2408,6 +3067,532 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
+  async updateShimThickness(
+    serviceId: string,
+    updateDto: ShimThicknessCheck,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { shimThickness: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes(
+      'SHIM_THICKNESS',
+    )
+      ? completedSections
+      : [...completedSections, 'SHIM_THICKNESS'];
+
+    const existingRecord = service.shimThickness?.[0];
+
+    const outerLhPrismaData = updateDto.outerLhData || null;
+    const outerRhPrismaData = updateDto.outerRhData || null;
+    const innerLhPrismaData = updateDto.innerLhData || null;
+    const innerRhPrismaData = updateDto.innerRhData || null;
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        const updatePayload: any = {};
+
+        // Outer LH
+        if (outerLhPrismaData) {
+          if (existingRecord.outerLhDataId) {
+            await tx.shimThicknessData.update({
+              where: { id: existingRecord.outerLhDataId },
+              data: outerLhPrismaData as any,
+            });
+          } else {
+            const created = await tx.shimThicknessData.create({
+              data: outerLhPrismaData as any,
+            });
+            updatePayload.outerLhDataId = created.id;
+          }
+        }
+
+        // Outer RH
+        if (outerRhPrismaData) {
+          if (existingRecord.outerRhDataId) {
+            await tx.shimThicknessData.update({
+              where: { id: existingRecord.outerRhDataId },
+              data: outerRhPrismaData as any,
+            });
+          } else {
+            const created = await tx.shimThicknessData.create({
+              data: outerRhPrismaData as any,
+            });
+            updatePayload.outerRhDataId = created.id;
+          }
+        }
+
+        // Inner LH
+        if (innerLhPrismaData) {
+          if (existingRecord.innerLhDataId) {
+            await tx.shimThicknessData.update({
+              where: { id: existingRecord.innerLhDataId },
+              data: innerLhPrismaData as any,
+            });
+          } else {
+            const created = await tx.shimThicknessData.create({
+              data: innerLhPrismaData as any,
+            });
+            updatePayload.innerLhDataId = created.id;
+          }
+        }
+
+        // Inner RH
+        if (innerRhPrismaData) {
+          if (existingRecord.innerRhDataId) {
+            await tx.shimThicknessData.update({
+              where: { id: existingRecord.innerRhDataId },
+              data: innerRhPrismaData as any,
+            });
+          } else {
+            const created = await tx.shimThicknessData.create({
+              data: innerRhPrismaData as any,
+            });
+            updatePayload.innerRhDataId = created.id;
+          }
+        }
+
+        // Handle notes
+        if (updateDto.notes !== undefined) {
+          updatePayload.notes = updateDto.notes;
+        }
+
+        if (Object.keys(updatePayload).length > 0) {
+          await tx.machineServiceShimThickness.update({
+            where: { id: existingRecord.id },
+            data: updatePayload,
+          });
+        }
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          shimThickness: {
+            create: {
+              ...(outerLhPrismaData && {
+                outerLhData: { create: outerLhPrismaData as any },
+              }),
+              ...(outerRhPrismaData && {
+                outerRhData: { create: outerRhPrismaData as any },
+              }),
+              ...(innerLhPrismaData && {
+                innerLhData: { create: innerLhPrismaData as any },
+              }),
+              ...(innerRhPrismaData && {
+                innerRhData: { create: innerRhPrismaData as any },
+              }),
+              ...(updateDto.notes && { notes: updateDto.notes }),
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
+  async updateDieCushion(
+    serviceId: string,
+    updateDto: DieCushionCheck,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { dieCushion: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes('DIE_CUSHION')
+      ? completedSections
+      : [...completedSections, 'DIE_CUSHION'];
+
+    const existingRecord = service.dieCushion?.[0];
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.machineServiceDieCushion.update({
+          where: { id: existingRecord.id },
+          data: {
+            airLeaks: updateDto.airLeaks,
+            airLeaksLocation: updateDto.airLeaksLocation,
+            pneumaticsPlumbing: updateDto.pneumaticsPlumbing,
+            lubrication: updateDto.lubrication,
+            notes: updateDto.notes,
+          },
+        });
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          dieCushion: {
+            create: {
+              airLeaks: updateDto.airLeaks,
+              airLeaksLocation: updateDto.airLeaksLocation,
+              pneumaticsPlumbing: updateDto.pneumaticsPlumbing,
+              lubrication: updateDto.lubrication,
+              notes: updateDto.notes,
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
+  async updateElectricalControl(
+    serviceId: string,
+    updateDto: {
+      hasHourMeter?: string;
+      hourMeterReading?: string;
+      isMinsterControl?: string;
+      minsterControlOther?: string;
+      controlDoorStop?: string;
+      cabinetTemp?: string;
+      incomingLine?: string;
+      fullVoltage?: string;
+      contactor?: string;
+      overloads?: string;
+      transformers?: string;
+      brakeValve?: string;
+      clutchValve?: string;
+      wiring?: string;
+      terminals?: string;
+      twentyFourVBuss?: string;
+      safetyRelays?: string;
+      notes?: string;
+    },
+    userId: string | null,
+  ): Promise<any> {
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { electricalControl: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes(
+      'ELECTRICAL_CONTROL',
+    )
+      ? completedSections
+      : [...completedSections, 'ELECTRICAL_CONTROL'];
+
+    const existingRecord = service.electricalControl?.[0];
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.machineServiceElectricalControl.update({
+          where: { id: existingRecord.id },
+          data: {
+            hasHourMeter: updateDto.hasHourMeter as any,
+            hourMeterReading: updateDto.hourMeterReading,
+            isMinsterControl: updateDto.isMinsterControl as any,
+            minsterControlOther: updateDto.minsterControlOther,
+            controlDoorStop: updateDto.controlDoorStop as any,
+            cabinetTemp: updateDto.cabinetTemp as any,
+            incomingLine: updateDto.incomingLine as any,
+            fullVoltage: updateDto.fullVoltage as any,
+            contactor: updateDto.contactor as any,
+            overloads: updateDto.overloads as any,
+            transformers: updateDto.transformers as any,
+            brakeValve: updateDto.brakeValve as any,
+            clutchValve: updateDto.clutchValve as any,
+            wiring: updateDto.wiring as any,
+            terminals: updateDto.terminals as any,
+            twentyFourVBuss: updateDto.twentyFourVBuss as any,
+            safetyRelays: updateDto.safetyRelays as any,
+            notes: updateDto.notes,
+          },
+        });
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          electricalControl: {
+            create: {
+              hasHourMeter: updateDto.hasHourMeter as any,
+              hourMeterReading: updateDto.hourMeterReading,
+              isMinsterControl: updateDto.isMinsterControl as any,
+              minsterControlOther: updateDto.minsterControlOther,
+              controlDoorStop: updateDto.controlDoorStop as any,
+              cabinetTemp: updateDto.cabinetTemp as any,
+              incomingLine: updateDto.incomingLine as any,
+              fullVoltage: updateDto.fullVoltage as any,
+              contactor: updateDto.contactor as any,
+              overloads: updateDto.overloads as any,
+              transformers: updateDto.transformers as any,
+              brakeValve: updateDto.brakeValve as any,
+              clutchValve: updateDto.clutchValve as any,
+              wiring: updateDto.wiring as any,
+              terminals: updateDto.terminals as any,
+              twentyFourVBuss: updateDto.twentyFourVBuss as any,
+              safetyRelays: updateDto.safetyRelays as any,
+              notes: updateDto.notes,
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
+  async updatePerpendicularity(
+    serviceId: string,
+    updateDto: {
+      hasBeenAdjusted?: string;
+      beforeFR?: number | string;
+      beforeLR?: number | string;
+      afterFR?: number | string;
+      afterLR?: number | string;
+      notes?: string;
+    },
+    userId: string | null,
+  ): Promise<any> {
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { perpendicularity: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes(
+      'PERPENDICULARITY',
+    )
+      ? completedSections
+      : [...completedSections, 'PERPENDICULARITY'];
+
+    const existingRecord = service.perpendicularity?.[0];
+
+    // Convert string values to Decimal
+    const toDecimal = (value: number | string | undefined) => {
+      if (value === undefined || value === null || value === '')
+        return undefined;
+      return typeof value === 'string' ? parseFloat(value) : value;
+    };
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.machineServicePerpendicularity.update({
+          where: { id: existingRecord.id },
+          data: {
+            hasBeenAdjusted: updateDto.hasBeenAdjusted as any,
+            beforeFR: toDecimal(updateDto.beforeFR),
+            beforeLR: toDecimal(updateDto.beforeLR),
+            afterFR: toDecimal(updateDto.afterFR),
+            afterLR: toDecimal(updateDto.afterLR),
+            notes: updateDto.notes,
+          },
+        });
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          perpendicularity: {
+            create: {
+              hasBeenAdjusted: updateDto.hasBeenAdjusted as any,
+              beforeFR: toDecimal(updateDto.beforeFR),
+              beforeLR: toDecimal(updateDto.beforeLR),
+              afterFR: toDecimal(updateDto.afterFR),
+              afterLR: toDecimal(updateDto.afterLR),
+              notes: updateDto.notes,
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
+  async updateAngularity(
+    serviceId: string,
+    updateDto: {
+      hasBeenAdjusted?: string;
+      beforeFR?: number | string;
+      beforeLR?: number | string;
+      afterFR?: number | string;
+      afterLR?: number | string;
+      notes?: string;
+    },
+    userId: string | null,
+  ): Promise<any> {
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { angularity: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes('ANGULARITY')
+      ? completedSections
+      : [...completedSections, 'ANGULARITY'];
+
+    const existingRecord = service.angularity?.[0];
+
+    // Convert string values to Decimal
+    const toDecimal = (value: number | string | undefined) => {
+      if (value === undefined || value === null || value === '')
+        return undefined;
+      return typeof value === 'string' ? parseFloat(value) : value;
+    };
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        await tx.machineServiceAngularity.update({
+          where: { id: existingRecord.id },
+          data: {
+            hasBeenAdjusted: updateDto.hasBeenAdjusted as any,
+            beforeFR: toDecimal(updateDto.beforeFR),
+            beforeLR: toDecimal(updateDto.beforeLR),
+            afterFR: toDecimal(updateDto.afterFR),
+            afterLR: toDecimal(updateDto.afterLR),
+            notes: updateDto.notes,
+          },
+        });
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          angularity: {
+            create: {
+              hasBeenAdjusted: updateDto.hasBeenAdjusted as any,
+              beforeFR: toDecimal(updateDto.beforeFR),
+              beforeLR: toDecimal(updateDto.beforeLR),
+              afterFR: toDecimal(updateDto.afterFR),
+              afterLR: toDecimal(updateDto.afterLR),
+              notes: updateDto.notes,
+            },
+          },
+        },
+      });
+    }
+
+    return this.findOne(serviceId);
+  }
+
   async completeService(
     serviceId: string,
     completeDto: CompleteServiceDto,
@@ -2467,6 +3652,12 @@ export class ServicesService {
             innerData: true,
           },
         },
+        bearingClearanceSingleHammer: {
+          include: {
+            beforeData: true,
+            data: true,
+          },
+        },
         slide: {
           include: {
             outerData: true,
@@ -2511,6 +3702,18 @@ export class ServicesService {
         pistons: {
           include: { outerData: true, innerData: true },
         },
+        shimThickness: {
+          include: {
+            outerLhData: true,
+            outerRhData: true,
+            innerLhData: true,
+            innerRhData: true,
+          },
+        },
+        dieCushion: true,
+        electricalControl: true,
+        perpendicularity: true,
+        angularity: true,
       },
     });
 
@@ -2521,6 +3724,17 @@ export class ServicesService {
       this.alertsService.generateAlertsForService(serviceId).catch((error) => {
         console.error('Error generating bearing clearance alerts:', error);
       });
+    }
+
+    if (completedSectionsList.includes('BEARING_CLEARANCE_SINGLE_HAMMER')) {
+      this.alertsService
+        .generateBearingClearanceSingleHammerAlertsForService(serviceId)
+        .catch((error) => {
+          console.error(
+            'Error generating bearing clearance single hammer alerts:',
+            error,
+          );
+        });
     }
 
     if (completedSectionsList.includes('CLUTCH')) {
@@ -2597,6 +3811,10 @@ export class ServicesService {
       where: { id: serviceId },
       include: {
         alertBearingClearance: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertBearingClearanceSingleHammer: {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
@@ -2769,6 +3987,80 @@ export class ServicesService {
         sections.push({
           sectionKey: 'BEARING_CLEARANCE',
           sectionName: 'Bearing Clearance',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Process Bearing Clearance Single Hammer alerts
+    if (
+      service.alertBearingClearanceSingleHammer &&
+      service.alertBearingClearanceSingleHammer.length > 0
+    ) {
+      const alert = service.alertBearingClearanceSingleHammer[0];
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const bcshFields = [
+        {
+          field: 'totalClearance',
+          label: 'Total Clearance',
+          severity: alert.totalClearance_severity as AlertSeverityDto,
+          value: alert.totalClearance_differential?.toString() || '0',
+        },
+        {
+          field: 'mainBearings',
+          label: 'Main Bearings',
+          severity: alert.mainBearings_severity as AlertSeverityDto,
+          value: alert.mainBearings_differential?.toString() || '0',
+        },
+        {
+          field: 'upperConnectionBearings',
+          label: 'Upper Connection Bearings',
+          severity: alert.upperConnectionBearings_severity as AlertSeverityDto,
+          value: alert.upperConnectionBearings_differential?.toString() || '0',
+        },
+        {
+          field: 'wristPinToMatingPart',
+          label: 'Wrist Pin to Mating Part',
+          severity: alert.wristPinToMatingPart_severity as AlertSeverityDto,
+          value: alert.wristPinToMatingPart_differential?.toString() || '0',
+        },
+        {
+          field: 'wristPinToBushing',
+          label: 'Wrist Pin to Bushing',
+          severity: alert.wristPinToBushing_severity as AlertSeverityDto,
+          value: alert.wristPinToBushing_differential?.toString() || '0',
+        },
+        {
+          field: 'slideAdjNutToScrewSleeve',
+          label: 'Slide Adj Nut to Screw Sleeve',
+          severity: alert.slideAdjNutToScrewSleeve_severity as AlertSeverityDto,
+          value: alert.slideAdjNutToScrewSleeve_differential?.toString() || '0',
+        },
+      ];
+
+      for (const f of bcshFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value,
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'BEARING_CLEARANCE_SINGLE_HAMMER',
+          sectionName: 'Bearing Clearance - Single Hammer',
           severity: sectionSeverity,
           alerts,
         });

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <!-- Background circle -->
+  <circle cx="100" cy="100" r="90" fill="#4A90E2" opacity="0.1"/>
+
+  <!-- Left Shim Point (LH) -->
+  <!-- Outer circle -->
+  <circle cx="65" cy="100" r="25" stroke="#4A90E2" stroke-width="3" fill="none"/>
+
+  <!-- Center point -->
+  <circle cx="65" cy="100" r="3" fill="#4A90E2"/>
+
+  <!-- Measurement points (top, bottom, left, right) -->
+  <circle cx="65" cy="75" r="4" fill="#4A90E2"/>
+  <circle cx="40" cy="100" r="4" fill="#4A90E2"/>
+  <circle cx="90" cy="100" r="4" fill="#4A90E2"/>
+  <circle cx="65" cy="125" r="4" fill="#4A90E2"/>
+
+  <!-- Cross lines through center -->
+  <line x1="65" y1="80" x2="65" y2="120" stroke="#4A90E2" stroke-width="1" stroke-dasharray="3 2"/>
+  <line x1="45" y1="100" x2="85" y2="100" stroke="#4A90E2" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <!-- Right Shim Point (RH) -->
+  <!-- Outer circle -->
+  <circle cx="135" cy="100" r="25" stroke="#4A90E2" stroke-width="3" fill="none"/>
+
+  <!-- Center point -->
+  <circle cx="135" cy="100" r="3" fill="#4A90E2"/>
+
+  <!-- Measurement points (top, bottom, left, right) -->
+  <circle cx="135" cy="75" r="4" fill="#4A90E2"/>
+  <circle cx="110" cy="100" r="4" fill="#4A90E2"/>
+  <circle cx="160" cy="100" r="4" fill="#4A90E2"/>
+  <circle cx="135" cy="125" r="4" fill="#4A90E2"/>
+
+  <!-- Cross lines through center -->
+  <line x1="135" y1="80" x2="135" y2="120" stroke="#4A90E2" stroke-width="1" stroke-dasharray="3 2"/>
+  <line x1="115" y1="100" x2="155" y2="100" stroke="#4A90E2" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <!-- Labels -->
+  <text x="65" y="155" font-family="Arial, sans-serif" font-size="12" font-weight="500" fill="#4A90E2" text-anchor="middle">
+    LH
+  </text>
+  <text x="135" y="155" font-family="Arial, sans-serif" font-size="12" font-weight="500" fill="#4A90E2" text-anchor="middle">
+    RH
+  </text>
+
+  <!-- Text label -->
+  <text x="100" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#4A90E2" text-anchor="middle">
+    SHIM THICKNESS
+  </text>
+</svg>

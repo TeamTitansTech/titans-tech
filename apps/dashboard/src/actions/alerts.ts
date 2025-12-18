@@ -72,6 +72,31 @@ export async function getBearingClearanceThresholdByBlueprint(blueprintId: strin
 }
 
 /**
+ * Get bearing clearance single hammer threshold by blueprint ID
+ */
+export async function getBearingClearanceSingleHammerThresholdByBlueprint(blueprintId: string) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_URL}/alerts/bearing-clearance-single-hammer/thresholds/blueprint/${blueprintId}`,
+      {
+        method: 'GET',
+        headers,
+        cache: 'no-store',
+      },
+    );
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to fetch bearing clearance single hammer threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
  * Get clutch threshold by blueprint ID
  */
 export async function getClutchThresholdByBlueprint(blueprintId: string) {

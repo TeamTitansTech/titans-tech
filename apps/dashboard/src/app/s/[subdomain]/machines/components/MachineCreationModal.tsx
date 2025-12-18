@@ -31,6 +31,14 @@ import { useBranch } from '@/contexts/BranchContext';
 import { toast } from 'sonner';
 import { Boxes, Check, MapPin } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import {
+  FoundationType,
+  FrameType,
+  MachineClutchType,
+  PneumaticSystemType,
+  PressMountingType,
+  MachineFeaturesType,
+} from '@titans-tech/shared/types/enums';
 
 interface BlueprintField {
   fieldName: string;
@@ -76,6 +84,7 @@ export function MachineCreationModal({
   companyId: companyIdProp,
 }: MachineCreationModalProps) {
   const t = useTranslations('machines');
+  const tInspections = useTranslations('inspections.form.enums');
   const { companyUser } = useCompanyUser();
   const { sysAdminUser } = useSysAdmin();
   const { selectedBranchId: contextBranchId } = useBranch();
@@ -90,6 +99,18 @@ export function MachineCreationModal({
   const [isLoadingBlueprints, setIsLoadingBlueprints] = useState(true);
   const [isLoadingCompanies, setIsLoadingCompanies] = useState(!!sysAdminUser && !companyIdProp);
   const [isLoadingBranches, setIsLoadingBranches] = useState(!branchId);
+
+  // Machine specification fields
+  const [manufacturer, setManufacturer] = useState('');
+  const [sizeTonnage, setSizeTonnage] = useState('');
+  const [serialNumber, setSerialNumber] = useState('');
+  const [stroke, setStroke] = useState('');
+  const [foundationType, setFoundationType] = useState<FoundationType | ''>('');
+  const [frameType, setFrameType] = useState<FrameType | ''>('');
+  const [clutchType, setClutchType] = useState<MachineClutchType | ''>('');
+  const [pneumaticSystem, setPneumaticSystem] = useState<PneumaticSystemType | ''>('');
+  const [pressMounting, setPressMounting] = useState<PressMountingType | ''>('');
+  const [features, setFeatures] = useState<MachineFeaturesType | ''>('');
 
   const { execute: submitMachine, isLoading, result } = useLazyQuery(createMachine);
 
@@ -236,6 +257,17 @@ export function MachineCreationModal({
       branchId: effectiveBranchId,
       name: machineName,
       fields,
+      // Machine specifications (optional)
+      manufacturer: manufacturer || undefined,
+      sizeTonnage: sizeTonnage || undefined,
+      serialNumber: serialNumber || undefined,
+      stroke: stroke || undefined,
+      foundationType: foundationType || undefined,
+      frameType: frameType || undefined,
+      clutchType: clutchType || undefined,
+      pneumaticSystem: pneumaticSystem || undefined,
+      pressMounting: pressMounting || undefined,
+      features: features || undefined,
     };
 
     const response = await submitMachine(payload);
@@ -246,6 +278,17 @@ export function MachineCreationModal({
       setSelectedBlueprintId('');
       setSelectedBranchId(branchId || '');
       setFieldValues({});
+      // Reset specification fields
+      setManufacturer('');
+      setSizeTonnage('');
+      setSerialNumber('');
+      setStroke('');
+      setFoundationType('');
+      setFrameType('');
+      setClutchType('');
+      setPneumaticSystem('');
+      setPressMounting('');
+      setFeatures('');
       onSuccess?.();
       onClose();
     }
@@ -303,16 +346,16 @@ export function MachineCreationModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col bg-background">
-        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
-          <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
+      <DialogContent className="flex max-w-4xl flex-col bg-background p-0">
+        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+          <DialogHeader className="shrink-0 border-b border-border p-6 pb-4">
             <DialogTitle className="text-2xl text-foreground">{t('title')}</DialogTitle>
             <DialogDescription className="text-muted-foreground">
               {t('description')}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
+          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-6">
             {isSysAdmin && !companyIdProp && (
               <>
                 <section className="space-y-4">
@@ -320,17 +363,17 @@ export function MachineCreationModal({
                     <h3 className="text-lg font-semibold text-foreground">
                       {t('form.company.label')}
                     </h3>
-                    <p className="text-sm text-muted-foreground mt-1">
+                    <p className="mt-1 text-sm text-muted-foreground">
                       {t('form.company.description')}
                     </p>
                   </div>
 
                   {isLoadingCompanies ? (
-                    <div className="text-center py-8 text-muted-foreground">
+                    <div className="py-8 text-center text-muted-foreground">
                       {t('form.company.loading')}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       {companies.map((company) => {
                         const isSelected = selectedCompanyId === company.id;
                         return (
@@ -338,29 +381,29 @@ export function MachineCreationModal({
                             key={company.id}
                             className={`cursor-pointer transition-all hover:shadow-md ${
                               isSelected
-                                ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-500/10'
+                                ? 'border-orange-500 bg-orange-500/10 ring-2 ring-orange-500'
                                 : 'hover:border-orange-500/50'
                             }`}
                             onClick={() => setSelectedCompanyId(company.id)}
                           >
                             <CardContent className="p-4">
                               <div className="flex items-start justify-between">
-                                <div className="flex items-start gap-3 flex-1">
-                                  <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
-                                    <Boxes className="w-5 h-5 text-orange-500" />
+                                <div className="flex flex-1 items-start gap-3">
+                                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-500/10">
+                                    <Boxes className="h-5 w-5 text-orange-500" />
                                   </div>
                                   <div className="flex-1">
-                                    <h4 className="font-semibold text-sm text-foreground">
+                                    <h4 className="text-sm font-semibold text-foreground">
                                       {company.name}
                                     </h4>
-                                    <p className="text-xs text-muted-foreground mt-1">
+                                    <p className="mt-1 text-xs text-muted-foreground">
                                       {company.slug}
                                     </p>
                                   </div>
                                 </div>
                                 {isSelected && (
-                                  <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
-                                    <Check className="w-3 h-3 text-white" />
+                                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange-500">
+                                    <Check className="h-3 w-3 text-white" />
                                   </div>
                                 )}
                               </div>
@@ -385,17 +428,17 @@ export function MachineCreationModal({
                       <h3 className="text-lg font-semibold text-foreground">
                         {t('form.branch.label')}
                       </h3>
-                      <p className="text-sm text-muted-foreground mt-1">
+                      <p className="mt-1 text-sm text-muted-foreground">
                         {t('form.branch.description')}
                       </p>
                     </div>
 
                     {isLoadingBranches ? (
-                      <div className="text-center py-8 text-muted-foreground">
+                      <div className="py-8 text-center text-muted-foreground">
                         {t('form.branch.loading')}
                       </div>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                         {branches.map((branch) => {
                           const isSelected = selectedBranchId === branch.id;
                           return (
@@ -403,23 +446,23 @@ export function MachineCreationModal({
                               key={branch.id}
                               className={`cursor-pointer transition-all hover:shadow-md ${
                                 isSelected
-                                  ? 'ring-2 ring-primary border-primary bg-primary/10'
+                                  ? 'border-primary bg-primary/10 ring-2 ring-primary'
                                   : 'hover:border-primary/50'
                               }`}
                               onClick={() => setSelectedBranchId(branch.id)}
                             >
                               <CardContent className="p-4">
                                 <div className="flex items-start justify-between">
-                                  <div className="flex items-start gap-3 flex-1">
-                                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                                      <MapPin className="w-5 h-5 text-primary" />
+                                  <div className="flex flex-1 items-start gap-3">
+                                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                                      <MapPin className="h-5 w-5 text-primary" />
                                     </div>
                                     <div className="flex-1">
-                                      <h4 className="font-semibold text-sm text-foreground">
+                                      <h4 className="text-sm font-semibold text-foreground">
                                         {branch.name}
                                       </h4>
                                       {(branch.isMainBranch || branch.location) && (
-                                        <p className="text-xs text-muted-foreground mt-1">
+                                        <p className="mt-1 text-xs text-muted-foreground">
                                           {branch.isMainBranch && t('form.branch.mainBranch')}
                                           {branch.isMainBranch && branch.location && ' • '}
                                           {branch.location}
@@ -428,8 +471,8 @@ export function MachineCreationModal({
                                     </div>
                                   </div>
                                   {isSelected && (
-                                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center shrink-0">
-                                      <Check className="w-3 h-3 text-white" />
+                                    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary">
+                                      <Check className="h-3 w-3 text-white" />
                                     </div>
                                   )}
                                 </div>
@@ -454,11 +497,11 @@ export function MachineCreationModal({
                 </div>
 
                 {isLoadingBlueprints ? (
-                  <div className="text-center py-8 text-muted-foreground">
+                  <div className="py-8 text-center text-muted-foreground">
                     {t('form.blueprint.loading')}
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {blueprints.map((blueprint) => {
                       const isSelected = selectedBlueprintId === blueprint.id;
                       return (
@@ -466,30 +509,30 @@ export function MachineCreationModal({
                           key={blueprint.id}
                           className={`cursor-pointer transition-all hover:shadow-md ${
                             isSelected
-                              ? 'ring-2 ring-orange-500 border-orange-500 bg-orange-500/10'
+                              ? 'border-orange-500 bg-orange-500/10 ring-2 ring-orange-500'
                               : 'hover:border-orange-500/50'
                           }`}
                           onClick={() => handleBlueprintSelect(blueprint.id)}
                         >
                           <CardContent className="p-4">
                             <div className="flex items-start justify-between">
-                              <div className="flex items-start gap-3 flex-1">
-                                <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0">
-                                  <Boxes className="w-5 h-5 text-orange-500" />
+                              <div className="flex flex-1 items-start gap-3">
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-orange-500/10">
+                                  <Boxes className="h-5 w-5 text-orange-500" />
                                 </div>
                                 <div className="flex-1">
-                                  <h4 className="font-semibold text-sm text-foreground">
+                                  <h4 className="text-sm font-semibold text-foreground">
                                     {blueprint.name}
                                   </h4>
-                                  <p className="text-xs text-muted-foreground mt-1">
+                                  <p className="mt-1 text-xs text-muted-foreground">
                                     {blueprint.sections.length} {t('sectionsCount')} •{' '}
                                     {blueprint.fields.length} {t('fieldsCount')}
                                   </p>
                                 </div>
                               </div>
                               {isSelected && (
-                                <div className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center shrink-0">
-                                  <Check className="w-3 h-3 text-white" />
+                                <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-orange-500">
+                                  <Check className="h-3 w-3 text-white" />
                                 </div>
                               )}
                             </div>
@@ -500,6 +543,246 @@ export function MachineCreationModal({
                   </div>
                 )}
               </section>
+            )}
+
+            {/* Machine Specifications - Show after branch and blueprint selection */}
+            {(branchId || selectedBranchId) && (
+              <>
+                <Separator />
+
+                <section className="space-y-4">
+                  <Typography variant="h3">{t('form.specifications.title')}</Typography>
+                  <Typography variant="small" className="text-xs text-muted-foreground">
+                    {t('form.specifications.allFieldsOptional')}
+                  </Typography>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Manufacturer */}
+                    <div className="space-y-2">
+                      <Label htmlFor="manufacturer">
+                        {t('form.specifications.manufacturer.label')}
+                      </Label>
+                      <Input
+                        id="manufacturer"
+                        type="text"
+                        value={manufacturer}
+                        onChange={(e) => setManufacturer(e.target.value)}
+                        placeholder={t('form.specifications.manufacturer.placeholder')}
+                      />
+                    </div>
+
+                    {/* Size/Tonnage */}
+                    <div className="space-y-2">
+                      <Label htmlFor="sizeTonnage">
+                        {t('form.specifications.sizeTonnage.label')}
+                      </Label>
+                      <Input
+                        id="sizeTonnage"
+                        type="text"
+                        value={sizeTonnage}
+                        onChange={(e) => setSizeTonnage(e.target.value)}
+                        placeholder={t('form.specifications.sizeTonnage.placeholder')}
+                      />
+                    </div>
+
+                    {/* Serial Number */}
+                    <div className="space-y-2">
+                      <Label htmlFor="serialNumber">
+                        {t('form.specifications.serialNumber.label')}
+                      </Label>
+                      <Input
+                        id="serialNumber"
+                        type="text"
+                        value={serialNumber}
+                        onChange={(e) => setSerialNumber(e.target.value)}
+                        placeholder={t('form.specifications.serialNumber.placeholder')}
+                      />
+                    </div>
+
+                    {/* Stroke */}
+                    <div className="space-y-2">
+                      <Label htmlFor="stroke">{t('form.specifications.stroke.label')}</Label>
+                      <Input
+                        id="stroke"
+                        type="text"
+                        value={stroke}
+                        onChange={(e) => setStroke(e.target.value)}
+                        placeholder={t('form.specifications.stroke.placeholder')}
+                      />
+                    </div>
+
+                    {/* Foundation Type */}
+                    <div className="space-y-2">
+                      <Label htmlFor="foundationType">
+                        {t('form.specifications.foundationType.label')}
+                      </Label>
+                      <Select
+                        value={foundationType}
+                        onValueChange={(val) => setFoundationType(val as FoundationType)}
+                      >
+                        <SelectTrigger id="foundationType">
+                          <SelectValue
+                            placeholder={t('form.specifications.foundationType.placeholder')}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={FoundationType.PLANT_FLOOR}>
+                            {tInspections('foundationType.plantFloor')}
+                          </SelectItem>
+                          <SelectItem value={FoundationType.ISOLATED_PAD}>
+                            {tInspections('foundationType.isolatedPad')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Frame Type */}
+                    <div className="space-y-2">
+                      <Label htmlFor="frameType">{t('form.specifications.frameType.label')}</Label>
+                      <Select
+                        value={frameType}
+                        onValueChange={(val) => setFrameType(val as FrameType)}
+                      >
+                        <SelectTrigger id="frameType">
+                          <SelectValue
+                            placeholder={t('form.specifications.frameType.placeholder')}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={FrameType.GAP}>
+                            {tInspections('frameType.gap')}
+                          </SelectItem>
+                          <SelectItem value={FrameType.STRAIGHT_SIDE}>
+                            {tInspections('frameType.straightSide')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Clutch Type */}
+                    <div className="space-y-2">
+                      <Label htmlFor="clutchType">
+                        {t('form.specifications.clutchType.label')}
+                      </Label>
+                      <Select
+                        value={clutchType}
+                        onValueChange={(val) => setClutchType(val as MachineClutchType)}
+                      >
+                        <SelectTrigger id="clutchType">
+                          <SelectValue
+                            placeholder={t('form.specifications.clutchType.placeholder')}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={MachineClutchType.AIR}>
+                            {tInspections('clutchType.air')}
+                          </SelectItem>
+                          <SelectItem value={MachineClutchType.HYD}>
+                            {tInspections('clutchType.hyd')}
+                          </SelectItem>
+                          <SelectItem value={MachineClutchType.WET_AIR}>
+                            {tInspections('clutchType.wetAir')}
+                          </SelectItem>
+                          <SelectItem value={MachineClutchType.WET_HYD}>
+                            {tInspections('clutchType.wetHyd')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Pneumatic System */}
+                    <div className="space-y-2">
+                      <Label htmlFor="pneumaticSystem">
+                        {t('form.specifications.pneumaticSystem.label')}
+                      </Label>
+                      <Select
+                        value={pneumaticSystem}
+                        onValueChange={(val) => setPneumaticSystem(val as PneumaticSystemType)}
+                      >
+                        <SelectTrigger id="pneumaticSystem">
+                          <SelectValue
+                            placeholder={t('form.specifications.pneumaticSystem.placeholder')}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={PneumaticSystemType.NA}>
+                            {tInspections('pneumaticSystem.na')}
+                          </SelectItem>
+                          <SelectItem value={PneumaticSystemType.COUNTERBALANCE}>
+                            {tInspections('pneumaticSystem.counterbalance')}
+                          </SelectItem>
+                          <SelectItem value={PneumaticSystemType.CBAL_W_DIE_CUSHION}>
+                            {tInspections('pneumaticSystem.cbalWDieCushion')}
+                          </SelectItem>
+                          <SelectItem value={PneumaticSystemType.DIE_CUSHION_ONLY}>
+                            {tInspections('pneumaticSystem.dieCushionOnly')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Press Mounting */}
+                    <div className="space-y-2">
+                      <Label htmlFor="pressMounting">
+                        {t('form.specifications.pressMounting.label')}
+                      </Label>
+                      <Select
+                        value={pressMounting}
+                        onValueChange={(val) => setPressMounting(val as PressMountingType)}
+                      >
+                        <SelectTrigger id="pressMounting">
+                          <SelectValue
+                            placeholder={t('form.specifications.pressMounting.placeholder')}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={PressMountingType.ADJUSTABLE}>
+                            {tInspections('pressMounting.adjustable')}
+                          </SelectItem>
+                          <SelectItem value={PressMountingType.ON_FLOOR}>
+                            {tInspections('pressMounting.onFloor')}
+                          </SelectItem>
+                          <SelectItem value={PressMountingType.SHIMS}>
+                            {tInspections('pressMounting.shims')}
+                          </SelectItem>
+                          <SelectItem value={PressMountingType.OTHER}>
+                            {tInspections('pressMounting.other')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Features */}
+                    <div className="space-y-2">
+                      <Label htmlFor="features">{t('form.specifications.features.label')}</Label>
+                      <Select
+                        value={features}
+                        onValueChange={(val) => setFeatures(val as MachineFeaturesType)}
+                      >
+                        <SelectTrigger id="features">
+                          <SelectValue
+                            placeholder={t('form.specifications.features.placeholder')}
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={MachineFeaturesType.AIM}>
+                            {tInspections('features.aim')}
+                          </SelectItem>
+                          <SelectItem value={MachineFeaturesType.ADJ_STROKE}>
+                            {tInspections('features.adjStroke')}
+                          </SelectItem>
+                          <SelectItem value={MachineFeaturesType.DOUBLE_LOCKUP}>
+                            {tInspections('features.doubleLockup')}
+                          </SelectItem>
+                          <SelectItem value={MachineFeaturesType.NA}>
+                            {tInspections('features.na')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </section>
+              </>
             )}
 
             {selectedBlueprint && <Separator />}
@@ -551,7 +834,7 @@ export function MachineCreationModal({
               !isLoadingBlueprints &&
               !isLoadingBranches &&
               !isLoadingCompanies && (
-                <div className="text-center text-muted-foreground py-8">
+                <div className="py-8 text-center text-muted-foreground">
                   {isSysAdmin && !companyIdProp && !selectedCompanyId
                     ? t('form.selectCompanyPrompt')
                     : !branchId && !selectedBranchId
@@ -561,11 +844,11 @@ export function MachineCreationModal({
               )}
 
             {result?.errors && result.errors.length > 0 && (
-              <div className="rounded-md border border-destructive bg-destructive/10 p-4 mb-6">
+              <div className="mb-6 rounded-md border border-destructive bg-destructive/10 p-4">
                 <Typography variant="h3" className="mb-2 text-destructive">
                   {t('form.error.title')}
                 </Typography>
-                <ul className="list-disc list-inside space-y-1">
+                <ul className="list-inside list-disc space-y-1">
                   {result.errors.map((error, index) => (
                     <li key={index}>
                       <Typography variant="small" className="text-destructive">
@@ -578,14 +861,14 @@ export function MachineCreationModal({
             )}
           </div>
 
-          <div className="border-t border-border p-6 flex justify-end gap-3 shrink-0 bg-background">
+          <div className="flex shrink-0 justify-end gap-3 border-t border-border bg-background p-6">
             <Button type="button" variant="outline" onClick={onClose}>
               {t('form.cancel')}
             </Button>
             <Button
               type="submit"
               disabled={isLoading || !selectedBlueprint || !selectedBranchId}
-              className="bg-primary hover:bg-primary/90 text-primary-foreground"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}
             </Button>

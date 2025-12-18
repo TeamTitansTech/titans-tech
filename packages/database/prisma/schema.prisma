@@ -306,15 +306,17 @@ enum FrameType {
 }
 
 enum MachineClutchType {
-  JH5
-  NA
-}
-
-enum PneumaticSystemType {
   AIR
   HYD
   WET_AIR
   WET_HYD
+}
+
+enum PneumaticSystemType {
+  NA
+  COUNTERBALANCE
+  CBAL_W_DIE_CUSHION
+  DIE_CUSHION_ONLY
 }
 
 enum PressMountingType {
@@ -348,6 +350,7 @@ enum ProtectiveCoversStatusType {
 
 enum ServiceSection {
   BEARING_CLEARANCE
+  BEARING_CLEARANCE_SINGLE_HAMMER
   SLIDE // @deprecated - use SLIDE_SINGLE_HAMMER or SLIDE_DOUBLE_HAMMER instead
   SLIDE_SINGLE_HAMMER
   SLIDE_DOUBLE_HAMMER
@@ -357,6 +360,43 @@ enum ServiceSection {
   COUNTERBALANCE_CYLINDER_AIRBAG
   TRAMMING
   PISTONS
+  SHIM_THICKNESS
+  DIE_CUSHION
+  ELECTRICAL_CONTROL
+  PERPENDICULARITY
+  ANGULARITY
+}
+
+// DIE_CUSHION Section Enums
+enum DieCushionAirLeaksType {
+  OK
+  NA
+  DNC
+  LEAKING
+}
+
+enum DieCushionPneumaticsPlumbingType {
+  OK
+  NA
+  DNC
+  NOT_OPERATIONAL
+  LEAKING
+}
+
+enum DieCushionLubricationType {
+  OK
+  NA
+  DNC
+  NOT_OPERATIONAL
+}
+
+// ELECTRICAL_CONTROL Section Enums
+enum YesNoNaDncCantTellType {
+  YES
+  NO
+  NA
+  DNC
+  CANT_TELL
 }
 
 enum AlertSeverity {
@@ -447,8 +487,9 @@ model User {
   isCompanyAdmin         Boolean @default(false)
   isUsingDefaultPassword Boolean @default(true)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   company              Company        @relation(fields: [companyId], references: [id])
   companyId            String
@@ -465,6 +506,7 @@ model UserBranch {
   branchId  String
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
+  deletedAt DateTime?
 
   // User Management Permissions
   readUsers             Boolean @default(false)
@@ -512,14 +554,15 @@ model Blueprint {
   createdAt DateTime         @default(now())
   updatedAt DateTime         @updatedAt
 
-  machines                   Machine[]
-  thresholdBearingClearance  ThresholdBearingClearance?
-  thresholdClutch            ThresholdClutch?
-  thresholdSlideSingleHammer ThresholdSlideSingleHammer?
-  thresholdSlideDoubleHammer ThresholdSlideDoubleHammer?
-  thresholdGibs              ThresholdGibs?
-  thresholdPistons           ThresholdPistons?
-  thresholdTramming          ThresholdTramming?
+  machines                              Machine[]
+  thresholdBearingClearance             ThresholdBearingClearance?
+  thresholdBearingClearanceSingleHammer ThresholdBearingClearanceSingleHammer?
+  thresholdClutch                       ThresholdClutch?
+  thresholdSlideSingleHammer            ThresholdSlideSingleHammer?
+  thresholdSlideDoubleHammer            ThresholdSlideDoubleHammer?
+  thresholdGibs                         ThresholdGibs?
+  thresholdPistons                      ThresholdPistons?
+  thresholdTramming                     ThresholdTramming?
 
   @@map("blueprints")
 }
@@ -564,6 +607,48 @@ model ThresholdBearingClearance {
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
   @@map("threshold_bearing_clearance")
+}
+
+model ThresholdBearingClearanceSingleHammer {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Total Clearance thresholds
+  totalClearance_greenMin  Decimal @db.Decimal(10, 4)
+  totalClearance_yellowMin Decimal @db.Decimal(10, 4)
+  totalClearance_redMin    Decimal @db.Decimal(10, 4)
+
+  // Main Bearings thresholds
+  mainBearings_greenMin  Decimal @db.Decimal(10, 4)
+  mainBearings_yellowMin Decimal @db.Decimal(10, 4)
+  mainBearings_redMin    Decimal @db.Decimal(10, 4)
+
+  // Upper Connection Bearings thresholds
+  upperConnectionBearings_greenMin  Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_yellowMin Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_redMin    Decimal @db.Decimal(10, 4)
+
+  // Wrist Pin to Mating Part thresholds
+  wristPinToMatingPart_greenMin  Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_yellowMin Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_redMin    Decimal @db.Decimal(10, 4)
+
+  // Wrist Pin to Bushing thresholds
+  wristPinToBushing_greenMin  Decimal @db.Decimal(10, 4)
+  wristPinToBushing_yellowMin Decimal @db.Decimal(10, 4)
+  wristPinToBushing_redMin    Decimal @db.Decimal(10, 4)
+
+  // Slide Adj Nut to Screw/Sleeve thresholds
+  slideAdjNutToScrewSleeve_greenMin  Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_yellowMin Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_bearing_clearance_single_hammer")
 }
 
 model ThresholdClutch {
@@ -763,6 +848,7 @@ model MachineService {
   isMainMotorSecure           YesNoDncType?
   isMotorPlateSecure          YesNoDncType?
   whyNotCovered               String?
+  fillAngularity              Boolean?                    @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -770,6 +856,7 @@ model MachineService {
   machine                           Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
   serviceRequest                    ServiceRequest?                              @relation(fields: [serviceRequestId], references: [id], onDelete: SetNull)
   bearingClearance                  MachineServiceBearingClearance[]
+  bearingClearanceSingleHammer      MachineServiceBearingClearanceSingleHammer[]
   slide                             MachineServiceSlide[] // DEPRECATED: Use slideSingleHammer and slideDoubleHammer
   slideSingleHammer                 MachineServiceSlideSingleHammer[]
   slideDoubleHammer                 MachineServiceSlideDoubleHammer[]
@@ -780,6 +867,7 @@ model MachineService {
   tramming                          MachineServiceTramming[]
   pistons                           MachineServicePistons[]
   alertBearingClearance             AlertBearingClearance[]
+  alertBearingClearanceSingleHammer AlertBearingClearanceSingleHammer[]
   alertCounterbalanceCylinderAirbag AlertCounterbalanceCylinderAirbag[]
   alertClutch                       AlertClutch[]
   alertSlide                        AlertSlide[] // DEPRECATED: Use alertSlideSingleHammer and alertSlideDoubleHammer
@@ -788,6 +876,11 @@ model MachineService {
   alertGibs                         AlertGibs[]
   alertPistons                      AlertPistons[]
   alertTramming                     AlertTramming[]
+  shimThickness                     MachineServiceShimThickness[]
+  dieCushion                        MachineServiceDieCushion[]
+  electricalControl                 MachineServiceElectricalControl[]
+  perpendicularity                  MachineServicePerpendicularity[]
+  angularity                        MachineServiceAngularity[]
 
   @@index([serviceRequestId])
   @@map("machine_services")
@@ -835,6 +928,36 @@ model AlertBearingClearance {
 
   @@index([machineServiceId])
   @@map("alert_bearing_clearance")
+}
+
+model AlertBearingClearanceSingleHammer {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Single hammer alerts (no inner/outer distinction)
+  totalClearance_differential           Decimal       @db.Decimal(10, 4)
+  totalClearance_severity               AlertSeverity
+  mainBearings_differential             Decimal       @db.Decimal(10, 4)
+  mainBearings_severity                 AlertSeverity
+  upperConnectionBearings_differential  Decimal       @db.Decimal(10, 4)
+  upperConnectionBearings_severity      AlertSeverity
+  wristPinToMatingPart_differential     Decimal       @db.Decimal(10, 4)
+  wristPinToMatingPart_severity         AlertSeverity
+  wristPinToBushing_differential        Decimal       @db.Decimal(10, 4)
+  wristPinToBushing_severity            AlertSeverity
+  slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_severity     AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_bearing_clearance_single_hammer")
 }
 
 model AlertCounterbalanceCylinderAirbag {
@@ -1094,6 +1217,20 @@ model MachineServiceBearingClearance {
   @@map("machine_service_bearing_clearance")
 }
 
+// Single Hammer Bearing Clearance - uses beforeData/data structure (no inner/outer distinction)
+model MachineServiceBearingClearanceSingleHammer {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  beforeDataId     String?
+  dataId           String?
+
+  machineService MachineService        @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  beforeData     BearingClearanceData? @relation("SingleHammerBeforeData", fields: [beforeDataId], references: [id], onDelete: SetNull)
+  data           BearingClearanceData? @relation("SingleHammerData", fields: [dataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_bearing_clearance_single_hammer")
+}
+
 model BearingClearanceData {
   id String @id @default(cuid())
 
@@ -1134,6 +1271,10 @@ model BearingClearanceData {
   outerDataServices   MachineServiceBearingClearance[] @relation("OuterDataMeasurement")
   innerBeforeServices MachineServiceBearingClearance[] @relation("InnerBeforeMeasurement")
   innerDataServices   MachineServiceBearingClearance[] @relation("InnerDataMeasurement")
+
+  // Single Hammer relations
+  singleHammerBeforeServices MachineServiceBearingClearanceSingleHammer[] @relation("SingleHammerBeforeData")
+  singleHammerDataServices   MachineServiceBearingClearanceSingleHammer[] @relation("SingleHammerData")
 
   @@map("service_data_bearing_clearance")
 }
@@ -1481,7 +1622,7 @@ model ClutchData {
   hydClutchClearanceTotal Decimal? @db.Decimal(10, 4)
   hydClutchClearanceRear  Decimal? @db.Decimal(10, 4)
   hydraulicPressureValue  Decimal? @db.Decimal(10, 2)
-  accumulatorValue        Decimal? @db.Decimal(10, 2)
+  accumulatorValue        String?
 
   // Separate Brake Seals
   separateBrakeSeals SeparateBrakeSealsType?
@@ -1764,6 +1905,152 @@ model MachineProductionLine {
 
   @@id([machineId, productionLineId])
   @@map("machine_production_lines")
+}
+
+// SHIM_THICKNESS Section
+
+model MachineServiceShimThickness {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  outerLhDataId    String?
+  outerRhDataId    String?
+  innerLhDataId    String?
+  innerRhDataId    String?
+  notes            String?
+
+  machineService MachineService     @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  outerLhData    ShimThicknessData? @relation("OuterLhShimThickness", fields: [outerLhDataId], references: [id], onDelete: SetNull)
+  outerRhData    ShimThicknessData? @relation("OuterRhShimThickness", fields: [outerRhDataId], references: [id], onDelete: SetNull)
+  innerLhData    ShimThicknessData? @relation("InnerLhShimThickness", fields: [innerLhDataId], references: [id], onDelete: SetNull)
+  innerRhData    ShimThicknessData? @relation("InnerRhShimThickness", fields: [innerRhDataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_shim_thickness")
+}
+
+model ShimThicknessData {
+  id     String   @id @default(cuid())
+  top    Decimal? @db.Decimal(10, 4)
+  bottom Decimal? @db.Decimal(10, 4)
+  left   Decimal? @db.Decimal(10, 4)
+  right  Decimal? @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  outerLhServices MachineServiceShimThickness[] @relation("OuterLhShimThickness")
+  outerRhServices MachineServiceShimThickness[] @relation("OuterRhShimThickness")
+  innerLhServices MachineServiceShimThickness[] @relation("InnerLhShimThickness")
+  innerRhServices MachineServiceShimThickness[] @relation("InnerRhShimThickness")
+
+  @@map("shim_thickness_data")
+}
+
+// DIE_CUSHION Section
+
+model MachineServiceDieCushion {
+  id                 String                            @id @default(cuid())
+  machineServiceId   String
+  airLeaks           DieCushionAirLeaksType?
+  airLeaksLocation   String?
+  pneumaticsPlumbing DieCushionPneumaticsPlumbingType?
+  lubrication        DieCushionLubricationType?
+  notes              String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("machine_service_die_cushion")
+}
+
+// ELECTRICAL_CONTROL Section
+
+model MachineServiceElectricalControl {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Header fields with Yes/No/DNC dropdown
+  hasHourMeter        YesNoDncType?
+  hourMeterReading    String?
+  isMinsterControl    YesNoDncType?
+  minsterControlOther String? // "If other, specify"
+
+  // Checklist items with Yes/No/N/A/DNC/Can't Tell dropdown
+  controlDoorStop YesNoNaDncCantTellType?
+  cabinetTemp     YesNoNaDncCantTellType?
+  incomingLine    YesNoNaDncCantTellType?
+  fullVoltage     YesNoNaDncCantTellType?
+  contactor       YesNoNaDncCantTellType?
+  overloads       YesNoNaDncCantTellType?
+  transformers    YesNoNaDncCantTellType?
+  brakeValve      YesNoNaDncCantTellType?
+  clutchValve     YesNoNaDncCantTellType?
+  wiring          YesNoNaDncCantTellType?
+  terminals       YesNoNaDncCantTellType?
+  twentyFourVBuss YesNoNaDncCantTellType?
+  safetyRelays    YesNoNaDncCantTellType?
+
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("machine_service_electrical_control")
+}
+
+// PERPENDICULARITY Section
+model MachineServicePerpendicularity {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Has perpendicularity been adjusted?
+  hasBeenAdjusted YesNoDncType?
+
+  // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
+  beforeFR Decimal? @db.Decimal(10, 4)
+  beforeLR Decimal? @db.Decimal(10, 4)
+
+  // After Adjustment measurements
+  afterFR Decimal? @db.Decimal(10, 4)
+  afterLR Decimal? @db.Decimal(10, 4)
+
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("machine_service_perpendicularity")
+}
+
+model MachineServiceAngularity {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Has angularity been adjusted?
+  hasBeenAdjusted YesNoDncType?
+
+  // Setup information
+  spm                     Decimal? @db.Decimal(10, 2)
+  distanceOfIndicatorTip  Decimal? @db.Decimal(10, 4)
+  locationOfIndicator     String?
+  counterbalancePressure  Decimal? @db.Decimal(10, 2)
+  strokePartBeingRead     String?
+  shutheightSetAt         String?
+  whatWasUsedAsSquare     String?
+  whereWasSquarePlaced    String?
+  indicatorUsedGraduation String?
+  tipKindOnIndicator      String?
+  totalLiftCheck          Decimal? @db.Decimal(10, 4)
+
+  // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
+  beforeFR Decimal? @db.Decimal(10, 4)
+  beforeLR Decimal? @db.Decimal(10, 4)
+
+  // After Adjustment measurements
+  afterFR Decimal? @db.Decimal(10, 4)
+  afterLR Decimal? @db.Decimal(10, 4)
+
+  notes String?
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@map("machine_service_angularity")
 }
 
 // Service Request - Public QR code maintenance requests

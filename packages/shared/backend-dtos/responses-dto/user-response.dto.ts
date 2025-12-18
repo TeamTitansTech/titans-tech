@@ -20,6 +20,7 @@ export class UserBranchDto implements Permissions {
   branchId: string;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date | null;
 
   // User Management Permissions
   readUsers: boolean;
@@ -71,6 +72,7 @@ export class UserResponseDto {
   companyId: string;
   createdAt: Date;
   updatedAt: Date;
+  deletedAt?: Date | null;
   unreadNotifications?: number;
 
   @Exclude()

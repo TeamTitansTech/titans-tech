@@ -29,7 +29,8 @@ const PRODUCTION_LINE_FULL_INCLUDE = {
             include: {
               alertBearingClearance: true,
               alertClutch: true,
-              alertSlide: true,
+              alertSlideSingleHammer: true,
+              alertSlideDoubleHammer: true,
               alertGibs: true,
               alertCounterbalanceCylinderAirbag: true,
             },
@@ -55,7 +56,7 @@ export class ProductionLinesService {
       where: { id: userId },
       include: {
         branches: {
-          where: { branchId },
+          where: { branchId, deletedAt: null },
         },
         company: {
           include: {
@@ -91,6 +92,7 @@ export class ProductionLinesService {
       where: { id: userId },
       include: {
         branches: {
+          where: { deletedAt: null },
           select: { branchId: true },
         },
         company: {

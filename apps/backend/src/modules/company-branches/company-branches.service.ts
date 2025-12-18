@@ -188,6 +188,7 @@ export class CompanyBranchesService {
       where: { id: userId },
       include: {
         branches: {
+          where: { deletedAt: null },
           include: {
             branch: true,
           },

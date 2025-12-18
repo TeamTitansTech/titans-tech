@@ -1,6 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { PistonsSection } from './PistonsSection';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface PistonsSectionWrapperProps {
   machineId: string;
@@ -35,6 +36,7 @@ export interface PistonsInspectionData {
 export async function PistonsSectionWrapper({ machineId }: PistonsSectionWrapperProps) {
   let inspections: PistonsInspectionData[] = [];
   let machineName = '';
+  let blueprintId = '';
 
   try {
     const [inspectionsResponse, machineResponse] = await Promise.all([
@@ -52,16 +54,26 @@ export async function PistonsSectionWrapper({ machineId }: PistonsSectionWrapper
     if (machineResponse.errors) {
       console.error('Errors fetching machine:', machineResponse.errors);
       machineName = '';
+      blueprintId = '';
     } else {
       machineName = machineResponse.data?.name || '';
+      blueprintId = machineResponse.data?.blueprintId || '';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
     inspections = [];
     machineName = '';
+    blueprintId = '';
   }
 
   return (
-    <PistonsSection machineId={machineId} inspections={inspections} machineName={machineName} />
+    <UnitManagerProvider>
+      <PistonsSection
+        machineId={machineId}
+        inspections={inspections}
+        machineName={machineName}
+        blueprintId={blueprintId}
+      />
+    </UnitManagerProvider>
   );
 }

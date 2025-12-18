@@ -5,6 +5,10 @@ export const SERVICE_SECTION_CONFIG = {
     slug: 'bearing_clearance',
     displayName: 'Bearing Clearance',
   },
+  [ServiceSection.BEARING_CLEARANCE_SINGLE_HAMMER]: {
+    slug: 'bearing_clearance_single_hammer',
+    displayName: 'Bearing Clearance (Single Hammer)',
+  },
   [ServiceSection.SLIDE]: {
     slug: 'slide',
     displayName: 'Slide (Legacy)',
@@ -40,6 +44,26 @@ export const SERVICE_SECTION_CONFIG = {
   [ServiceSection.PISTONS]: {
     slug: 'pistons',
     displayName: 'Pistons',
+  },
+  [ServiceSection.SHIM_THICKNESS]: {
+    slug: 'shim_thickness',
+    displayName: 'Shim Thickness',
+  },
+  [ServiceSection.DIE_CUSHION]: {
+    slug: 'die_cushion',
+    displayName: 'Die Cushion',
+  },
+  [ServiceSection.ELECTRICAL_CONTROL]: {
+    slug: 'electrical_control',
+    displayName: 'Electrical Control',
+  },
+  [ServiceSection.PERPENDICULARITY]: {
+    slug: 'perpendicularity',
+    displayName: 'Perpendicularity',
+  },
+  [ServiceSection.ANGULARITY]: {
+    slug: 'angularity',
+    displayName: 'Angularity',
   },
 } as const;
 

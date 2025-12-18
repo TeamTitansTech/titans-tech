@@ -151,7 +151,7 @@ export function ServiceRequestsList() {
     <>
       <Card>
         <CardContent className="pt-6">
-          <div className="flex items-center justify-between mb-6">
+          <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Select
                 value={statusFilter}
@@ -180,8 +180,8 @@ export function ServiceRequestsList() {
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
           ) : requests.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <CheckCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+            <div className="py-12 text-center text-muted-foreground">
+              <CheckCircle className="mx-auto mb-3 h-12 w-12 opacity-50" />
               <p>{t('noRequests')}</p>
             </div>
           ) : (
@@ -221,7 +221,7 @@ export function ServiceRequestsList() {
                           <div>
                             <Link
                               href={`/admin/machines/${request.machineId}`}
-                              className="font-medium hover:underline text-primary"
+                              className="font-medium text-primary hover:underline"
                               onClick={(e: React.MouseEvent) => e.stopPropagation()}
                             >
                               {request.machineName}
@@ -434,7 +434,7 @@ function ServiceRequestDetailModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {t('requestDetails')}
@@ -447,11 +447,11 @@ function ServiceRequestDetailModal({
         <div className="space-y-6">
           {/* Machine Info */}
           <div>
-            <h4 className="text-sm font-medium mb-2">{t('machine')}</h4>
-            <div className="bg-muted p-3 rounded-md">
+            <h4 className="mb-2 text-sm font-medium">{t('machine')}</h4>
+            <div className="rounded-md bg-muted p-3">
               <Link
                 href={`/admin/machines/${request.machineId}`}
-                className="font-medium hover:underline text-primary"
+                className="font-medium text-primary hover:underline"
               >
                 {request.machineName}
               </Link>
@@ -463,8 +463,8 @@ function ServiceRequestDetailModal({
 
           {/* Requester Info */}
           <div>
-            <h4 className="text-sm font-medium mb-2">{t('requester')}</h4>
-            <div className="bg-muted p-3 rounded-md space-y-2">
+            <h4 className="mb-2 text-sm font-medium">{t('requester')}</h4>
+            <div className="space-y-2 rounded-md bg-muted p-3">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <span>{request.requesterName}</span>
@@ -494,7 +494,7 @@ function ServiceRequestDetailModal({
 
           {/* Date */}
           <div>
-            <h4 className="text-sm font-medium mb-2">{t('date')}</h4>
+            <h4 className="mb-2 text-sm font-medium">{t('date')}</h4>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Clock className="h-4 w-4" />
               {formatDate(request.createdAt)}
@@ -503,8 +503,8 @@ function ServiceRequestDetailModal({
 
           {/* Problem Description */}
           <div>
-            <h4 className="text-sm font-medium mb-2">{t('problemDescription')}</h4>
-            <p className="text-sm whitespace-pre-wrap bg-muted p-3 rounded-md">
+            <h4 className="mb-2 text-sm font-medium">{t('problemDescription')}</h4>
+            <p className="whitespace-pre-wrap rounded-md bg-muted p-3 text-sm">
               {request.problemDescription}
             </p>
           </div>
@@ -512,11 +512,11 @@ function ServiceRequestDetailModal({
           {/* Image */}
           {request.imageUrl && (
             <div>
-              <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+              <h4 className="mb-2 flex items-center gap-2 text-sm font-medium">
                 <ImageIcon className="h-4 w-4" />
                 {t('attachedPhoto')}
               </h4>
-              <div className="relative w-full h-64 rounded-md border overflow-hidden bg-muted">
+              <div className="relative h-64 w-full overflow-hidden rounded-md border bg-muted">
                 <Image src={request.imageUrl} alt="Problem photo" fill className="object-contain" />
               </div>
             </div>
@@ -525,8 +525,8 @@ function ServiceRequestDetailModal({
           {/* Device Info */}
           {(request.browser || request.os || request.deviceType) && (
             <div>
-              <h4 className="text-sm font-medium mb-2">{t('deviceInfo')}</h4>
-              <div className="flex flex-wrap gap-3 text-xs text-muted-foreground bg-muted p-3 rounded-md">
+              <h4 className="mb-2 text-sm font-medium">{t('deviceInfo')}</h4>
+              <div className="flex flex-wrap gap-3 rounded-md bg-muted p-3 text-xs text-muted-foreground">
                 {request.deviceType && (
                   <span className="flex items-center gap-1">
                     {request.isMobile ? (
@@ -547,10 +547,10 @@ function ServiceRequestDetailModal({
           {/* Linked Services */}
           {request.services && request.services.length > 0 && (
             <div>
-              <h4 className="text-sm font-medium mb-2">{t('linkedServices')}</h4>
-              <div className="space-y-1 bg-muted p-3 rounded-md">
+              <h4 className="mb-2 text-sm font-medium">{t('linkedServices')}</h4>
+              <div className="space-y-1 rounded-md bg-muted p-3">
                 {request.services.map((service) => (
-                  <div key={service.id} className="text-sm flex items-center gap-2">
+                  <div key={service.id} className="flex items-center gap-2 text-sm">
                     <Wrench className="h-3 w-3 text-muted-foreground" />
                     {service.type} - {formatDate(service.date)} ({service.status})
                   </div>
@@ -560,22 +560,22 @@ function ServiceRequestDetailModal({
           )}
 
           {/* Actions */}
-          <div className="flex gap-2 pt-4 border-t">
+          <div className="flex gap-2 border-t pt-4">
             {isOpen ? (
               <>
                 <Button onClick={() => onCreateService(request)} disabled={isLoading}>
                   {isLoading ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
-                    <Wrench className="h-4 w-4 mr-2" />
+                    <Wrench className="mr-2 h-4 w-4" />
                   )}
                   {t('createService')}
                 </Button>
                 <Button variant="outline" onClick={() => onClose(request.id)} disabled={isLoading}>
                   {isLoading ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : (
-                    <X className="h-4 w-4 mr-2" />
+                    <X className="mr-2 h-4 w-4" />
                   )}
                   {t('close')}
                 </Button>
@@ -583,9 +583,9 @@ function ServiceRequestDetailModal({
             ) : (
               <Button variant="outline" onClick={() => onReopen(request.id)} disabled={isLoading}>
                 {isLoading ? (
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  <RotateCcw className="h-4 w-4 mr-2" />
+                  <RotateCcw className="mr-2 h-4 w-4" />
                 )}
                 {t('reopen')}
               </Button>

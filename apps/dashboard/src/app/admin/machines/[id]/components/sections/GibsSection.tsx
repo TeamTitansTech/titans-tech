@@ -20,23 +20,45 @@ import { DocumentUpload } from '@/components/ui/document-upload';
 import { Typography } from '@/components/ui/typography';
 
 export const defaultGibsStageData: GibsStageData = {
-  point1: 0,
-  point2: 0,
-  point3: 0,
-  point4: 0,
-  point5: 0,
-  point6: 0,
-  point7: 0,
-  point8: 0,
-  point9: 0,
-  point10: 0,
-  point11: 0,
-  point12: 0,
-  point13: 0,
-  point14: 0,
-  point15: 0,
-  point16: 0,
+  point1: undefined,
+  point2: undefined,
+  point3: undefined,
+  point4: undefined,
+  point5: undefined,
+  point6: undefined,
+  point7: undefined,
+  point8: undefined,
+  point9: undefined,
+  point10: undefined,
+  point11: undefined,
+  point12: undefined,
+  point13: undefined,
+  point14: undefined,
+  point15: undefined,
+  point16: undefined,
 };
+
+// Sanitize gibs stage data for backend submission (convert undefined to 0)
+function sanitizeGibsStageData(data: GibsStageData): GibsStageData {
+  return {
+    point1: data.point1 ?? 0,
+    point2: data.point2 ?? 0,
+    point3: data.point3 ?? 0,
+    point4: data.point4 ?? 0,
+    point5: data.point5 ?? 0,
+    point6: data.point6 ?? 0,
+    point7: data.point7 ?? 0,
+    point8: data.point8 ?? 0,
+    point9: data.point9 ?? 0,
+    point10: data.point10 ?? 0,
+    point11: data.point11 ?? 0,
+    point12: data.point12 ?? 0,
+    point13: data.point13 ?? 0,
+    point14: data.point14 ?? 0,
+    point15: data.point15 ?? 0,
+    point16: data.point16 ?? 0,
+  };
+}
 
 export const validateGibsStageData = (data: GibsStageData): string[] => {
   const errors: string[] = [];
@@ -175,7 +197,7 @@ function useStageState(initialData?: GibsStageData) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(initialData)]);
 
-  const updateField = (field: keyof GibsStageData, value: number) => {
+  const updateField = (field: keyof GibsStageData, value: number | undefined) => {
     setData((prev: GibsStageData) => ({ ...prev, [field]: value }));
     const fieldKey = String(field);
     if (errors[fieldKey]) {
@@ -235,8 +257,10 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
     const t = useTranslations('inspections');
     const tCommon = useTranslations('common');
 
-    const wrapUpdateFn = (updateFn: (field: keyof GibsStageData, value: number) => void) => {
-      return (field: keyof GibsStageData, value: number) => {
+    const wrapUpdateFn = (
+      updateFn: (field: keyof GibsStageData, value: number | undefined) => void,
+    ) => {
+      return (field: keyof GibsStageData, value: number | undefined) => {
         updateFn(field, value);
         onSectionTouched?.();
       };
@@ -269,12 +293,12 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           innerDataTool: isDataTouched(innerDataTool.data, defaultGibsStageData),
         };
 
-        const hasAnyStage = Object.values(stages).some((stage) => stage);
-
-        if (!hasAnyStage) {
-          validationErrors.push('GIBS: You must fill at least one measurement section');
+        // Required: outerData (Left to Right / Esquerda para Direita) must have data
+        if (!stages.outerData) {
+          validationErrors.push(t('form.gibs.validation.leftToRightRequired'));
         }
 
+        // Validate individual stage data if they have data
         Object.entries(stages).forEach(([stageName, isTouched]) => {
           if (isTouched) {
             const stageMap: Record<string, typeof outerBefore> = {
@@ -295,20 +319,25 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
         const isValid = validationErrors.length === 0;
 
         if (isValid) {
+          // Sanitize data before submission (convert undefined numeric fields to 0)
           return {
             isValid: true,
             errors: [],
             data: {
-              outerBefore: stages.outerBefore ? outerBefore.data : undefined,
-              outerData: stages.outerData ? outerData.data : undefined,
+              outerBefore: stages.outerBefore ? sanitizeGibsStageData(outerBefore.data) : undefined,
+              outerData: stages.outerData ? sanitizeGibsStageData(outerData.data) : undefined,
               outerFreeHangingData: stages.outerFreeHangingData
-                ? outerFreeHangingData.data
+                ? sanitizeGibsStageData(outerFreeHangingData.data)
                 : undefined,
               haveInnerGibsBeenAdjusted,
-              innerBefore: stages.innerBefore ? innerBefore.data : undefined,
-              innerData: stages.innerData ? innerData.data : undefined,
-              innerBeforeTool: stages.innerBeforeTool ? innerBeforeTool.data : undefined,
-              innerDataTool: stages.innerDataTool ? innerDataTool.data : undefined,
+              innerBefore: stages.innerBefore ? sanitizeGibsStageData(innerBefore.data) : undefined,
+              innerData: stages.innerData ? sanitizeGibsStageData(innerData.data) : undefined,
+              innerBeforeTool: stages.innerBeforeTool
+                ? sanitizeGibsStageData(innerBeforeTool.data)
+                : undefined,
+              innerDataTool: stages.innerDataTool
+                ? sanitizeGibsStageData(innerDataTool.data)
+                : undefined,
               notes: notes || undefined,
               attachments,
             },
@@ -332,15 +361,22 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           innerDataTool: isDataTouched(innerDataTool.data, defaultGibsStageData),
         };
 
+        // Sanitize data before submission (convert undefined numeric fields to 0)
         return {
-          outerBefore: stages.outerBefore ? outerBefore.data : undefined,
-          outerData: stages.outerData ? outerData.data : undefined,
-          outerFreeHangingData: stages.outerFreeHangingData ? outerFreeHangingData.data : undefined,
+          outerBefore: stages.outerBefore ? sanitizeGibsStageData(outerBefore.data) : undefined,
+          outerData: stages.outerData ? sanitizeGibsStageData(outerData.data) : undefined,
+          outerFreeHangingData: stages.outerFreeHangingData
+            ? sanitizeGibsStageData(outerFreeHangingData.data)
+            : undefined,
           haveInnerGibsBeenAdjusted,
-          innerBefore: stages.innerBefore ? innerBefore.data : undefined,
-          innerData: stages.innerData ? innerData.data : undefined,
-          innerBeforeTool: stages.innerBeforeTool ? innerBeforeTool.data : undefined,
-          innerDataTool: stages.innerDataTool ? innerDataTool.data : undefined,
+          innerBefore: stages.innerBefore ? sanitizeGibsStageData(innerBefore.data) : undefined,
+          innerData: stages.innerData ? sanitizeGibsStageData(innerData.data) : undefined,
+          innerBeforeTool: stages.innerBeforeTool
+            ? sanitizeGibsStageData(innerBeforeTool.data)
+            : undefined,
+          innerDataTool: stages.innerDataTool
+            ? sanitizeGibsStageData(innerDataTool.data)
+            : undefined,
           notes: notes || undefined,
           attachments,
         };
@@ -359,12 +395,12 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
           innerDataTool: isDataTouched(innerDataTool.data, defaultGibsStageData),
         };
 
-        const hasAnyStage = Object.values(stages).some((stage) => stage);
-
-        if (!hasAnyStage) {
-          validationErrors.push('GIBS: You must fill at least one measurement section');
+        // Required: outerData (Left to Right / Esquerda para Direita) must have data
+        if (!stages.outerData) {
+          validationErrors.push(t('form.gibs.validation.leftToRightRequired'));
         }
 
+        // Validate individual stage data if they have data
         Object.entries(stages).forEach(([stageName, isTouched]) => {
           if (isTouched) {
             const stageMap: Record<string, typeof outerBefore> = {

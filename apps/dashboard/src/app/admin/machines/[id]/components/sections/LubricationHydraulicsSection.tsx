@@ -1,6 +1,7 @@
 'use client';
 
 import { forwardRef, useImperativeHandle, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   type LubricationHydraulicsData,
   type LubricationHydraulicsCheck,
@@ -15,7 +16,6 @@ import { isDataTouched } from './utils';
 import { useSectionState } from '../../hooks/useSectionState';
 import { DocumentUpload } from '@/components/ui/document-upload';
 import { Typography } from '@/components/ui/typography';
-import { useTranslations } from 'next-intl';
 
 export const defaultLubricationHydraulicsCheck: LubricationHydraulicsCheck = {
   data: {
@@ -29,9 +29,15 @@ export const defaultLubricationHydraulicsCheck: LubricationHydraulicsCheck = {
   notes: '',
 };
 
-export const validateLubricationHydraulicsCheck = (_data: LubricationHydraulicsCheck): string[] => {
-  // All fields are optional for this section
-  return [];
+export const validateLubricationHydraulicsCheck = (data: LubricationHydraulicsCheck): string[] => {
+  const errors: string[] = [];
+
+  // changedOil is required and must be YES or NO (not DNC)
+  if (!data.data.changedOil || data.data.changedOil === YesNoDncType.DNC) {
+    errors.push('Lubrication: Oil changed status is required (YES or NO)');
+  }
+
+  return errors;
 };
 
 export interface LubricationHydraulicsSectionRef {
@@ -67,6 +73,15 @@ export const LubricationHydraulicsSection = forwardRef<
   } = useSectionState<LubricationHydraulicsCheck>(initialData || defaultLubricationHydraulicsCheck);
 
   const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
+
+  // Validate with translations
+  const validateWithTranslations = (checkData: LubricationHydraulicsCheck): string[] => {
+    const validationErrors: string[] = [];
+    if (!checkData.data.changedOil || checkData.data.changedOil === YesNoDncType.DNC) {
+      validationErrors.push(t('form.lubricationHydraulics.validation.changedOilRequired'));
+    }
+    return validationErrors;
+  };
 
   // Wrapper to call onSectionTouched
   // Note: This wrapper accepts a union type and casts to the base hook's generic type.
@@ -106,25 +121,25 @@ export const LubricationHydraulicsSection = forwardRef<
       _serviceType: ServiceType,
     ): { isValid: boolean; errors: string[]; data?: LubricationHydraulicsCheck } => {
       const touched = isDataTouched(data, initialSectionData);
-      const hasData =
-        touched || isDataTouched(initialSectionData, defaultLubricationHydraulicsCheck);
+      const hasInitialData = isDataTouched(initialSectionData, defaultLubricationHydraulicsCheck);
 
-      // If no data at all (initial or touched), validation passes with no data
-      if (!hasData) {
-        return { isValid: true, errors: [] };
-      }
-
-      const validationErrors = touched ? validateLubricationHydraulicsCheck(data) : [];
+      // Always validate changedOil - it's required regardless of touch state
+      const dataToValidate = touched ? data : initialSectionData;
+      const validationErrors = validateWithTranslations(dataToValidate);
       const isValid = validationErrors.length === 0;
 
       if (isValid) {
+        // Only return data if section was touched or has initial data
+        const hasData = touched || hasInitialData;
         return {
           isValid: true,
           errors: [],
-          data: {
-            ...(touched ? data : initialSectionData),
-            attachments,
-          } as LubricationHydraulicsCheck,
+          data: hasData
+            ? ({
+                ...(touched ? data : initialSectionData),
+                attachments,
+              } as LubricationHydraulicsCheck)
+            : undefined,
         };
       }
 
@@ -147,11 +162,10 @@ export const LubricationHydraulicsSection = forwardRef<
     },
 
     validate: (_serviceType: ServiceType): string[] => {
+      // Always validate changedOil - it's required regardless of touch state
       const touched = isDataTouched(data, initialSectionData);
-      if (touched) {
-        return validateLubricationHydraulicsCheck(data);
-      }
-      return [];
+      const dataToValidate = touched ? data : initialSectionData;
+      return validateWithTranslations(dataToValidate);
     },
 
     reset,

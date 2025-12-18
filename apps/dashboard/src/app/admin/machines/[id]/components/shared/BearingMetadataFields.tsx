@@ -52,7 +52,7 @@ export function BearingMetadataFields({
           {t('form.bearingClearanceSection.matingPartType')}
         </Label>
         <Select
-          value={matingPartValue}
+          value={matingPartValue || ''}
           onValueChange={(val) => onMatingPartChange(val as MatingPartType)}
         >
           <SelectTrigger id={`${prefix}MatingPart`} className="text-sm">

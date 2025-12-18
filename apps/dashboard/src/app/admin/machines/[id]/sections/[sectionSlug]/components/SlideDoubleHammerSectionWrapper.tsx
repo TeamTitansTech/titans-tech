@@ -1,6 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { SlideDoubleHammerSection } from './SlideDoubleHammerSection';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface SlideDoubleHammerSectionWrapperProps {
   machineId: string;
@@ -24,7 +25,7 @@ interface SlideData {
 export interface SlideInspectionData {
   id: string;
   date: string;
-  slide: Array<{
+  slideDoubleHammer: Array<{
     id: string;
     outerData: SlideData | null;
     innerData: SlideData | null;
@@ -70,12 +71,14 @@ export async function SlideDoubleHammerSectionWrapper({
   }
 
   return (
-    <SlideDoubleHammerSection
-      machineId={machineId}
-      inspections={inspections}
-      machineName={machineName}
-      blueprintId={blueprintId}
-      hideThresholdValues={hideThresholdValues}
-    />
+    <UnitManagerProvider>
+      <SlideDoubleHammerSection
+        machineId={machineId}
+        inspections={inspections}
+        machineName={machineName}
+        blueprintId={blueprintId}
+        hideThresholdValues={hideThresholdValues}
+      />
+    </UnitManagerProvider>
   );
 }

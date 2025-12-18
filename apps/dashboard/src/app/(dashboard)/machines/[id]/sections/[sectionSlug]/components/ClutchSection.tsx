@@ -7,7 +7,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
 import { ClipboardCheck, Calendar as CalendarIcon, Package } from 'lucide-react';
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
@@ -49,6 +49,8 @@ export function ClutchSection({
   const [fbThreshold, setFbThreshold] = useState<ThresholdConfig | null>(null);
   const [fTBThreshold, setFTBThreshold] = useState<ThresholdConfig | null>(null);
   const [rTBThreshold, setRTBThreshold] = useState<ThresholdConfig | null>(null);
+  // Unit toggle state: 'mm' or 'in'
+  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -95,10 +97,15 @@ export function ClutchSection({
     );
   }, [inspections, date]);
 
+  // Filter to only inspections that have clutch data
+  const inspectionsWithClutchData = useMemo(() => {
+    return filteredInspections.filter((inspection) => inspection.clutch?.[0]?.data);
+  }, [filteredInspections]);
+
   // Find the latest inspection that actually has clutch data (not just any inspection)
   const latestInspectionWithData = useMemo(() => {
-    return filteredInspections.find((inspection) => inspection.clutch?.[0]?.data);
-  }, [filteredInspections]);
+    return inspectionsWithClutchData[0];
+  }, [inspectionsWithClutchData]);
 
   const latestClutchData = latestInspectionWithData?.clutch?.[0]?.data;
 
@@ -118,9 +125,96 @@ export function ClutchSection({
     ]);
   }, [filteredInspections]);
 
+  // Conversion constants (data is stored in inches)
+  const MM_PER_INCH = 25.4;
+
+  // Convert value based on display unit (data stored in inches)
+  const convertValue = useCallback(
+    (value: number | null): number | null => {
+      if (value === null) return null;
+      return displayUnit === 'mm' ? value * MM_PER_INCH : value;
+    },
+    [displayUnit],
+  );
+
+  // Convert threshold based on display unit
+  const convertThreshold = useCallback(
+    (threshold: ThresholdConfig | null): ThresholdConfig | null => {
+      if (!threshold) return null;
+      if (displayUnit === 'in') return threshold;
+      return {
+        greenMin: threshold.greenMin * MM_PER_INCH,
+        yellowMin: threshold.yellowMin * MM_PER_INCH,
+        redMin: threshold.redMin * MM_PER_INCH,
+        label: threshold.label,
+      };
+    },
+    [displayUnit],
+  );
+
+  // Convert chart data based on display unit
+  const convertChartData = useCallback(
+    (
+      data: ReturnType<typeof transformClutchToMultiLineData>,
+      keys: string[],
+    ): ReturnType<typeof transformClutchToMultiLineData> => {
+      if (displayUnit === 'in') return data;
+      return data.map((point) => {
+        const converted = { ...point };
+        keys.forEach((key) => {
+          const val = point[key];
+          if (typeof val === 'number') {
+            (converted as Record<string, unknown>)[key] = val * MM_PER_INCH;
+          }
+        });
+        return converted;
+      });
+    },
+    [displayUnit],
+  );
+
+  // Get converted thresholds
+  const hydTotalThresholdConverted = useMemo(
+    () => convertThreshold(hydTotalThreshold),
+    [convertThreshold, hydTotalThreshold],
+  );
+  const hydRearThresholdConverted = useMemo(
+    () => convertThreshold(hydRearThreshold),
+    [convertThreshold, hydRearThreshold],
+  );
+  const fbThresholdConverted = useMemo(
+    () => convertThreshold(fbThreshold),
+    [convertThreshold, fbThreshold],
+  );
+  const fTBThresholdConverted = useMemo(
+    () => convertThreshold(fTBThreshold),
+    [convertThreshold, fTBThreshold],
+  );
+  const rTBThresholdConverted = useMemo(
+    () => convertThreshold(rTBThreshold),
+    [convertThreshold, rTBThreshold],
+  );
+
+  // Get converted chart data
+  const hydClearanceChartDataConverted = useMemo(
+    () =>
+      convertChartData(hydClearanceChartData, [
+        'hydClutchClearanceTotal',
+        'hydClutchClearanceRear',
+      ]),
+    [convertChartData, hydClearanceChartData],
+  );
+  const brakeSpringChartDataConverted = useMemo(
+    () =>
+      convertChartData(brakeSpringChartData, ['brakeSpringFB', 'brakeSpringFTB', 'brakeSpringRTB']),
+    [convertChartData, brakeSpringChartData],
+  );
+
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
     if (value === null || value === undefined) return '-';
-    return Number(value).toFixed(decimals);
+    const converted = convertValue(value as number);
+    if (converted === null) return '-';
+    return converted.toFixed(decimals);
   };
 
   return (
@@ -160,7 +254,7 @@ export function ClutchSection({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Typography variant="large">{filteredInspections.length}</Typography>
+              <Typography variant="large">{inspectionsWithClutchData.length}</Typography>
             </CardContent>
           </Card>
 
@@ -213,7 +307,28 @@ export function ClutchSection({
 
         <Card>
           <CardHeader>
-            <CardTitle>Clutch Measurements</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle>Clutch Measurements</CardTitle>
+              {/* Unit Toggle */}
+              <div className="flex items-center rounded-md border">
+                <Button
+                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 rounded-r-none"
+                  onClick={() => setDisplayUnit('mm')}
+                >
+                  mm
+                </Button>
+                <Button
+                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 rounded-l-none"
+                  onClick={() => setDisplayUnit('in')}
+                >
+                  in
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <div className="text-center mb-6">
@@ -264,54 +379,76 @@ export function ClutchSection({
             <div className="space-y-6">
               <MultiLineThresholdChart
                 title="Hydraulic Clutch Clearance"
-                data={hydClearanceChartData}
+                data={hydClearanceChartDataConverted}
                 lines={[
                   {
                     dataKey: 'hydClutchClearanceTotal',
                     label: 'Hyd Total',
                     color: '#8884d8',
-                    threshold: hydTotalThreshold ?? undefined,
+                    threshold: hydTotalThresholdConverted ?? undefined,
                   },
                   {
                     dataKey: 'hydClutchClearanceRear',
                     label: 'Hyd Rear',
                     color: '#06b6d4',
-                    threshold: hydRearThreshold ?? undefined,
+                    threshold: hydRearThresholdConverted ?? undefined,
                   },
                 ]}
-                sharedThreshold={hydTotalThreshold}
-                valueUnit="mm"
+                sharedThreshold={hydTotalThresholdConverted}
+                valueUnit={displayUnit}
                 allowToggle={true}
                 height={300}
               />
 
               <MultiLineThresholdChart
-                title="Brake Spring Measurements (F-B, F-TB, R-TB)"
-                data={brakeSpringChartData}
+                title="F-B (Front-Back)"
+                data={brakeSpringChartDataConverted}
                 lines={[
                   {
                     dataKey: 'brakeSpringFB',
                     label: 'F-B',
                     color: '#3b82f6',
-                    threshold: fbThreshold ?? undefined,
+                    threshold: fbThresholdConverted ?? undefined,
                   },
+                ]}
+                sharedThreshold={fbThresholdConverted}
+                valueUnit={displayUnit}
+                allowToggle={true}
+                height={250}
+              />
+
+              <MultiLineThresholdChart
+                title="F-TB (Front Top-Bottom)"
+                data={brakeSpringChartDataConverted}
+                lines={[
                   {
                     dataKey: 'brakeSpringFTB',
                     label: 'F-TB',
                     color: '#ec4899',
-                    threshold: fTBThreshold ?? undefined,
+                    threshold: fTBThresholdConverted ?? undefined,
                   },
+                ]}
+                sharedThreshold={fTBThresholdConverted}
+                valueUnit={displayUnit}
+                allowToggle={true}
+                height={250}
+              />
+
+              <MultiLineThresholdChart
+                title="R-TB (Rear Top-Bottom)"
+                data={brakeSpringChartDataConverted}
+                lines={[
                   {
                     dataKey: 'brakeSpringRTB',
                     label: 'R-TB',
                     color: '#6366f1',
-                    threshold: rTBThreshold ?? undefined,
+                    threshold: rTBThresholdConverted ?? undefined,
                   },
                 ]}
-                sharedThreshold={fbThreshold}
-                valueUnit="in"
+                sharedThreshold={rTBThresholdConverted}
+                valueUnit={displayUnit}
                 allowToggle={true}
-                height={300}
+                height={250}
               />
             </div>
           </CardContent>

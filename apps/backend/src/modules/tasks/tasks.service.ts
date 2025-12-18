@@ -62,6 +62,7 @@ export class TasksService {
             include: {
               company: true,
               users: {
+                where: { deletedAt: null },
                 include: {
                   user: true,
                 },

@@ -7,7 +7,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { Typography } from '@/components/ui/typography';
 import { useTranslations } from 'next-intl';
 import { Calendar as CalendarIcon } from 'lucide-react';
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { DateRange } from 'react-day-picker';
@@ -23,6 +23,7 @@ import { SectionExportButton } from '@/components/shared/SectionExportButton';
 import { type SectionStatus, calculateSectionStatus } from '@/components/shared/SectionStatusBadge';
 import { SectionStatusCard } from '@/components/shared/SectionStatusCard';
 import { BEARING_CLEARANCE_SUBSECTIONS } from '@/data/parts/section-subsections';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface BearingClearanceSectionProps {
   machineId: string;
@@ -47,6 +48,9 @@ export function BearingClearanceSection({
   const [totalClearanceThreshold, setTotalClearanceThreshold] = useState<ThresholdConfig | null>(
     null,
   );
+  // Use global unit context
+  const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
+    useUnitManager();
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -98,10 +102,15 @@ export function BearingClearanceSection({
     );
   }, [filteredInspections]);
 
+  // Filter to only inspections that have bearing clearance data
+  const inspectionsWithBearingData = useMemo(() => {
+    return filteredInspections.filter((inspection) => inspection.bearingClearance?.[0]?.outerData);
+  }, [filteredInspections]);
+
   // Find the latest inspection that actually has bearing clearance data (for date display)
   const latestInspectionWithData = useMemo(() => {
-    return sortedInspections.find((inspection) => inspection.bearingClearance?.[0]?.outerData);
-  }, [sortedInspections]);
+    return inspectionsWithBearingData[0];
+  }, [inspectionsWithBearingData]);
 
   // Find the most recent value for each bearing field across all inspections
   const getLatestFieldValue = (fieldName: string): number | null => {
@@ -165,15 +174,81 @@ export function BearingClearanceSection({
     [statusMeasurements],
   );
 
+  // Convert value using global unit context (data stored in mm)
+  const convertValue = useCallback(
+    (value: number | null): number | null => {
+      if (value === null) return null;
+      return convertLengthFromDefault(value);
+    },
+    [convertLengthFromDefault],
+  );
+
+  // Convert threshold using global unit context (thresholds stored in mm)
+  const convertThreshold = useCallback(
+    (threshold: ThresholdConfig | null): ThresholdConfig | null => {
+      if (!threshold) return null;
+      return {
+        greenMin: convertLengthFromDefault(threshold.greenMin),
+        yellowMin: convertLengthFromDefault(threshold.yellowMin),
+        redMin: convertLengthFromDefault(threshold.redMin),
+        label: threshold.label,
+      };
+    },
+    [convertLengthFromDefault],
+  );
+
+  // Convert chart data using global unit context (data stored in mm)
+  const convertChartData = useCallback(
+    (
+      data: ReturnType<typeof transformBearingClearanceToDifferentialData>,
+      keys: string[],
+    ): ReturnType<typeof transformBearingClearanceToDifferentialData> => {
+      return data.map((point) => {
+        const converted = { ...point };
+        keys.forEach((key) => {
+          const val = point[key];
+          if (typeof val === 'number') {
+            (converted as Record<string, unknown>)[key] = convertLengthFromDefault(val);
+          }
+        });
+        return converted;
+      });
+    },
+    [convertLengthFromDefault],
+  );
+
+  // Get converted thresholds
+  const cbThresholdConverted = useMemo(
+    () => convertThreshold(cbThreshold),
+    [convertThreshold, cbThreshold],
+  );
+  const totalClearanceThresholdConverted = useMemo(
+    () => convertThreshold(totalClearanceThreshold),
+    [convertThreshold, totalClearanceThreshold],
+  );
+
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
     if (value === null || value === undefined) return '-';
-    return Number(value).toFixed(decimals);
+    const converted = convertValue(value as number);
+    if (converted === null) return '-';
+    return converted.toFixed(decimals);
   };
 
   // Transform data for differential chart (shows all differentials over time)
   const differentialChartData = useMemo(() => {
     return transformBearingClearanceToDifferentialData(filteredInspections);
   }, [filteredInspections]);
+
+  // Get converted chart data
+  const differentialChartDataConverted = useMemo(
+    () =>
+      convertChartData(differentialChartData, [
+        'totalClearance_diff',
+        'upperConnectionBearings_diff',
+        'mainBearings_diff',
+      ]),
+    [convertChartData, differentialChartData],
+  );
 
   return (
     <div ref={contentRef} className="space-y-6">
@@ -211,7 +286,7 @@ export function BearingClearanceSection({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Typography variant="large">{filteredInspections.length}</Typography>
+            <Typography variant="large">{inspectionsWithBearingData.length}</Typography>
           </CardContent>
         </Card>
 
@@ -279,11 +354,32 @@ export function BearingClearanceSection({
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>{t('connectionBearingClearance')}</CardTitle>
-            <SectionExportButton
-              contentRef={contentRef}
-              sectionName="BearingClearance"
-              machineName={machineName}
-            />
+            <div className="flex items-center gap-3">
+              {/* Unit Toggle */}
+              <div className="flex items-center rounded-md border">
+                <Button
+                  variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 rounded-r-none"
+                  onClick={() => setLengthUnit('mm')}
+                >
+                  mm
+                </Button>
+                <Button
+                  variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="h-8 rounded-l-none"
+                  onClick={() => setLengthUnit('inches')}
+                >
+                  in
+                </Button>
+              </div>
+              <SectionExportButton
+                contentRef={contentRef}
+                sectionName="BearingClearance"
+                machineName={machineName}
+              />
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -315,19 +411,19 @@ export function BearingClearanceSection({
           <div className="space-y-6">
             <MultiLineThresholdChart
               title="Bearing Clearance Differentials"
-              data={differentialChartData}
+              data={differentialChartDataConverted}
               lines={[
                 {
                   dataKey: 'totalClearance_diff',
                   label: 'TC Diff',
                   color: '#3b82f6',
-                  threshold: totalClearanceThreshold ?? undefined,
+                  threshold: totalClearanceThresholdConverted ?? undefined,
                 },
                 {
                   dataKey: 'upperConnectionBearings_diff',
                   label: 'UCB Diff',
                   color: '#8884d8',
-                  threshold: cbThreshold ?? undefined,
+                  threshold: cbThresholdConverted ?? undefined,
                 },
                 {
                   dataKey: 'mainBearings_diff',
@@ -335,8 +431,8 @@ export function BearingClearanceSection({
                   color: '#06b6d4',
                 },
               ]}
-              sharedThreshold={totalClearanceThreshold}
-              valueUnit="mm"
+              sharedThreshold={totalClearanceThresholdConverted}
+              valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
               height={350}

@@ -49,12 +49,17 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  // Find the latest inspection that actually has pistons data
-  const latestInspectionWithData = useMemo(() => {
-    return filteredInspections.find(
+  // Filter to only inspections that have pistons data
+  const inspectionsWithPistonsData = useMemo(() => {
+    return filteredInspections.filter(
       (inspection) => inspection.pistons?.[0]?.outerData || inspection.pistons?.[0]?.innerData,
     );
   }, [filteredInspections]);
+
+  // Find the latest inspection that actually has pistons data
+  const latestInspectionWithData = useMemo(() => {
+    return inspectionsWithPistonsData[0];
+  }, [inspectionsWithPistonsData]);
 
   const latestOuterData = latestInspectionWithData?.pistons?.[0]?.outerData;
   const latestInnerData = latestInspectionWithData?.pistons?.[0]?.innerData;
@@ -208,7 +213,7 @@ export function PistonsSection({ inspections, machineName }: PistonsSectionProps
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Typography variant="large">{filteredInspections.length}</Typography>
+            <Typography variant="large">{inspectionsWithPistonsData.length}</Typography>
           </CardContent>
         </Card>
 

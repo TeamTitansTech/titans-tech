@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
-import { Users, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Users, Pencil, Ban, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getAllUsers } from '@/data/services/users.api';
 import { getBranch } from '@/data/services/company-branches.api';
@@ -15,12 +15,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { AddUserDialog } from './AddUserDialog';
 import { EditUserDialog } from './EditUserDialog';
 import { DeleteUserDialog } from './DeleteUserDialog';
+import { ReactivateUserDialog } from './ReactivateUserDialog';
 import { UserTableSkeleton } from './UserTableSkeleton';
 import type { UserResponseDto } from '@titans-tech/shared/backend-dtos';
 import { detectRolePreset, RolePreset, type Permissions } from '@titans-tech/shared/types';
+import type { CompanyBranch } from '@/data/services/company-branches.api';
 
 interface User {
   id: string;
@@ -98,15 +99,16 @@ interface BranchUserManagementProps {
 }
 
 export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
-  const t = useTranslations('adminSettings.userManagement');
+  const t = useTranslations('settings.userManagement');
   const [users, setUsers] = useState<User[]>([]);
   const [usersData, setUsersData] = useState<UserResponseDto[]>([]);
-  const [branchName, setBranchName] = useState<string>('');
+  const [branch, setBranch] = useState<CompanyBranch | null>(null);
+  const branchName = branch?.name || '';
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [isEditUserDialogOpen, setIsEditUserDialogOpen] = useState(false);
   const [isDeleteUserDialogOpen, setIsDeleteUserDialogOpen] = useState(false);
+  const [isReactivateUserDialogOpen, setIsReactivateUserDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserResponseDto | null>(null);
 
   const loadUsers = useCallback(
@@ -122,7 +124,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
       try {
         const branchResponse = await getBranch({ branchId });
         if (branchResponse.data) {
-          setBranchName(branchResponse.data.name);
+          setBranch(branchResponse.data);
 
           const usersResponse = await getAllUsers({ companyId: branchResponse.data.companyId });
           if (usersResponse.data) {
@@ -156,10 +158,6 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
     loadUsers();
   }, [loadUsers]);
 
-  const handleAddUserSuccess = () => {
-    loadUsers(true);
-  };
-
   const handleEditUser = (userId: string) => {
     const user = usersData.find((u) => u.id === userId);
     if (user) {
@@ -176,11 +174,23 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
     }
   };
 
+  const handleReactivateUser = (userId: string) => {
+    const user = usersData.find((u) => u.id === userId);
+    if (user) {
+      setSelectedUser(user);
+      setIsReactivateUserDialogOpen(true);
+    }
+  };
+
   const handleEditUserSuccess = () => {
     loadUsers(true);
   };
 
   const handleDeleteUserSuccess = () => {
+    loadUsers(true);
+  };
+
+  const handleReactivateUserSuccess = () => {
     loadUsers(true);
   };
 
@@ -199,8 +209,21 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
     return <UserTableSkeleton />;
   }
 
+  // Separate active and deactivated users based on branch assignment
+  const activeUsers = users.filter((user) => {
+    const userData = usersData.find((u) => u.id === user.id);
+    const userBranch = userData?.branches?.find((b) => b.branchId === branchId);
+    return userBranch && !userBranch.deletedAt;
+  });
+
+  const deactivatedUsers = users.filter((user) => {
+    const userData = usersData.find((u) => u.id === user.id);
+    const userBranch = userData?.branches?.find((b) => b.branchId === branchId);
+    return userBranch && userBranch.deletedAt;
+  });
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-semibold flex items-center gap-2">
           <Users className="h-4 w-4" />
@@ -209,77 +232,115 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
             <span className="ml-2 text-xs text-muted-foreground animate-pulse">Updating...</span>
           )}
         </h3>
-        <Button onClick={() => setIsAddUserDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          {t('addUser')}
-        </Button>
       </div>
 
-      <div
-        className={`rounded-md border transition-opacity ${isRefreshing ? 'opacity-60' : 'opacity-100'}`}
-      >
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{t('table.name')}</TableHead>
-              <TableHead>{t('table.email')}</TableHead>
-              <TableHead>{t('table.role')}</TableHead>
-              <TableHead className="text-right">{t('table.actions')}</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users.length === 0 ? (
+      {/* Active Users Section */}
+      <div className="space-y-2">
+        <h4 className="text-sm font-medium">{t('activeUsers') || 'Active Users'}</h4>
+        <div
+          className={`rounded-md border transition-opacity ${isRefreshing ? 'opacity-60' : 'opacity-100'}`}
+        >
+          <Table>
+            <TableHeader>
               <TableRow>
-                <TableCell colSpan={4} className="text-center text-muted-foreground">
-                  {t('noUsers')}
-                </TableCell>
+                <TableHead>{t('table.name')}</TableHead>
+                <TableHead>{t('table.email')}</TableHead>
+                <TableHead>{t('table.role')}</TableHead>
+                <TableHead className="text-right">{t('table.actions')}</TableHead>
               </TableRow>
-            ) : (
-              users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}
-                    >
-                      {t(`roles.${user.role}`)}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => handleEditUser(user.id)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                        onClick={() => handleDeleteUser(user.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {activeUsers.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground">
+                    {t('noUsers')}
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                activeUsers.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}
+                      >
+                        {t(`roles.${user.role}`)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0"
+                          onClick={() => handleEditUser(user.id)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteUser(user.id)}
+                        >
+                          <Ban className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
-      <AddUserDialog
-        open={isAddUserDialogOpen}
-        onOpenChange={setIsAddUserDialogOpen}
-        branchId={branchId}
-        branchName={branchName}
-        onSuccess={handleAddUserSuccess}
-      />
+      {/* Deactivated Users Section */}
+      {deactivatedUsers.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="text-sm font-medium text-muted-foreground">
+            {t('deactivatedUsers') || 'Deactivated Users'}
+          </h4>
+          <div className="rounded-md border border-muted">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t('table.name')}</TableHead>
+                  <TableHead>{t('table.email')}</TableHead>
+                  <TableHead>{t('table.role')}</TableHead>
+                  <TableHead className="text-right">{t('table.actions')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {deactivatedUsers.map((user) => (
+                  <TableRow key={user.id} className="opacity-60">
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
+                    <TableCell>
+                      <span
+                        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}
+                      >
+                        {t(`roles.${user.role}`)}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600"
+                        onClick={() => handleReactivateUser(user.id)}
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      )}
 
       <EditUserDialog
         open={isEditUserDialogOpen}
@@ -295,6 +356,14 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
         user={selectedUser}
         branchId={branchId}
         onSuccess={handleDeleteUserSuccess}
+      />
+
+      <ReactivateUserDialog
+        open={isReactivateUserDialogOpen}
+        onOpenChange={setIsReactivateUserDialogOpen}
+        user={selectedUser}
+        branchId={branchId}
+        onSuccess={handleReactivateUserSuccess}
       />
     </div>
   );

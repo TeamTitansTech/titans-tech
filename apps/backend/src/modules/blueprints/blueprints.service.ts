@@ -41,13 +41,25 @@ export class BlueprintsService {
         },
       });
 
-      // 2. Create Thresholds if provided
+      // 2. Create Bearing Clearance Thresholds if provided
       const dto = createBlueprintDto as CreateBlueprintWithThresholdsDto;
       if (dto.thresholds) {
         await tx.thresholdBearingClearance.create({
           data: {
             blueprintId: blueprint.id,
             ...convertThresholdToDecimal(dto.thresholds),
+          },
+        });
+      }
+
+      // 2b. Create Bearing Clearance Single Hammer Thresholds if provided
+      if (dto.bearingClearanceSingleHammerThresholds) {
+        await tx.thresholdBearingClearanceSingleHammer.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertThresholdToDecimal(
+              dto.bearingClearanceSingleHammerThresholds,
+            ),
           },
         });
       }

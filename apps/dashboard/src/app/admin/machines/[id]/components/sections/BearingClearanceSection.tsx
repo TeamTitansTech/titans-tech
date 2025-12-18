@@ -10,7 +10,6 @@ import { ChevronDown } from 'lucide-react';
 import {
   type BearingClearanceData,
   type Attachment,
-  MatingPartType,
   ServiceType,
   YesNoNaDncType,
 } from '@/data/types/services.types';
@@ -20,57 +19,58 @@ import { DocumentUpload } from '@/components/ui/document-upload';
 import { Typography } from '@/components/ui/typography';
 import { useBearingClearanceState } from '../../hooks/useBearingClearanceState';
 import { isDataTouched } from './utils';
-import { buildBearingFields, validateHasBeenAdjustedFields } from './bearingClearanceUtils';
+import { buildBearingFields, sanitizeBearingDataForSubmission } from './bearingClearanceUtils';
 
-// Default data structure
+// Default data structure - numeric fields default to undefined to show empty inputs
 export const defaultBearingData: BearingClearanceData = {
-  totalClearance_RH: 0,
-  totalClearance_LH: 0,
-  mainBearings_RH: 0,
-  mainBearings_LH: 0,
-  upperConnectionBearings_RH: 0,
-  upperConnectionBearings_LH: 0,
-  wristPinToMatingPart_RH: 0,
-  wristPinToMatingPart_LH: 0,
-  wristPinToBushing_RH: 0,
-  wristPinToBushing_LH: 0,
-  slideAdjNutToScrewSleeve_RH: 0,
-  slideAdjNutToScrewSleeve_LH: 0,
-  extraDoubleLockOpen_RH: 0,
-  extraDoubleLockOpen_LH: 0,
-  ballBoxArea_RH: 0,
-  ballBoxArea_LH: 0,
-  hasBeenAdjusted: YesNoNaDncType.NO,
+  totalClearance_RH: undefined,
+  totalClearance_LH: undefined,
+  mainBearings_RH: undefined,
+  mainBearings_LH: undefined,
+  upperConnectionBearings_RH: undefined,
+  upperConnectionBearings_LH: undefined,
+  wristPinToMatingPart_RH: undefined,
+  wristPinToMatingPart_LH: undefined,
+  wristPinToBushing_RH: undefined,
+  wristPinToBushing_LH: undefined,
+  slideAdjNutToScrewSleeve_RH: undefined,
+  slideAdjNutToScrewSleeve_LH: undefined,
+  extraDoubleLockOpen_RH: undefined,
+  extraDoubleLockOpen_LH: undefined,
+  ballBoxArea_RH: undefined,
+  ballBoxArea_LH: undefined,
+  hasBeenAdjusted: undefined,
   combinedWith: '',
-  matingPart: MatingPartType.BUSHING,
+  matingPart: undefined,
 };
 
-// Fields that have alerts (required)
-const ALERT_REQUIRED_FIELDS: (keyof BearingClearanceData)[] = [
-  'totalClearance_RH',
-  'totalClearance_LH',
-  'mainBearings_RH',
-  'mainBearings_LH',
-  'upperConnectionBearings_RH',
-  'upperConnectionBearings_LH',
-  'wristPinToMatingPart_RH',
-  'wristPinToMatingPart_LH',
-  'wristPinToBushing_RH',
-  'wristPinToBushing_LH',
-  'slideAdjNutToScrewSleeve_RH',
-  'slideAdjNutToScrewSleeve_LH',
-];
+// Required fields for validation - only totalClearance (LH or RH) is required
+const ALERT_FIELD_PAIRS: {
+  key: string;
+  lh: keyof BearingClearanceData;
+  rh: keyof BearingClearanceData;
+}[] = [{ key: 'totalClearance', lh: 'totalClearance_LH', rh: 'totalClearance_RH' }];
 
-// Validation function - only validates alert fields as required
+// For backward compatibility - flat list of field keys
+const ALERT_REQUIRED_FIELDS = ALERT_FIELD_PAIRS.map((pair) => pair.key);
+
+// Helper to check if a value is filled
+const isValueFilled = (value: unknown): boolean => {
+  return value !== undefined && value !== null && !(typeof value === 'number' && isNaN(value));
+};
+
+// Validation function - validates that at least LH or RH is filled for each field
 // Returns field keys that are missing (not full error messages)
 export const validateBearingClearanceData = (data: BearingClearanceData): string[] => {
   const missingFields: string[] = [];
 
-  // Validate required alert fields (the 6 fields that generate alerts)
-  ALERT_REQUIRED_FIELDS.forEach((field) => {
-    const value = data[field];
-    if (value === undefined || value === null || (typeof value === 'number' && isNaN(value))) {
-      missingFields.push(String(field));
+  // Validate required alert fields - at least one of LH or RH must be filled
+  ALERT_FIELD_PAIRS.forEach(({ key, lh, rh }) => {
+    const lhValue = data[lh];
+    const rhValue = data[rh];
+    // Field is missing if NEITHER LH nor RH is filled
+    if (!isValueFilled(lhValue) && !isValueFilled(rhValue)) {
+      missingFields.push(key);
     }
   });
 
@@ -202,11 +202,13 @@ export const BearingClearanceSection = forwardRef<
     onSectionTouched();
   };
 
-  // Validation on blur
+  // Validation on blur - only validates when user enters an invalid number
+  // Empty/undefined values are allowed (user can leave fields empty)
   const validateField = (
     field: keyof BearingClearanceData,
     value: string | number | boolean | undefined,
   ): string => {
+    // Non-numeric fields don't need validation
     if (
       field === 'combinedWith' ||
       field === 'matingPart' ||
@@ -220,6 +222,12 @@ export const BearingClearanceSection = forwardRef<
       return '';
     }
 
+    // Empty/undefined values are valid (user can leave fields empty)
+    if (value === undefined || value === null || value === '') {
+      return '';
+    }
+
+    // Only show error if user entered something that's not a valid number
     const numValue = Number(value);
     if (isNaN(numValue)) {
       return t('form.error.invalidNumber');
@@ -331,13 +339,8 @@ export const BearingClearanceSection = forwardRef<
       const v = t.raw('form.bearingClearance.validation') as Record<string, string>;
       const fields = t.raw('form.bearingClearance.fields') as Record<string, string>;
 
-      // Helper to format field validation errors
-      const formatFieldErrors = (missingFields: string[], prefix: string) => {
-        return missingFields.map((fieldKey) => {
-          const fieldName = fields[fieldKey] || fieldKey;
-          return `${prefix}: ${v.fieldRequired.replace('{field}', fieldName)}`;
-        });
-      };
+      // Helper to get translated field names
+      const getFieldName = (fieldKey: string) => fields[fieldKey] || fieldKey;
 
       const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
       const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
@@ -349,25 +352,7 @@ export const BearingClearanceSection = forwardRef<
         if (serviceType === ServiceType.MAINTENANCE) {
           if (!outerBeforeTouched || !innerBeforeTouched) {
             errors.push(v.beforeMeasurementsRequired);
-          } else {
-            errors.push(
-              ...formatFieldErrors(validateBearingClearanceData(outerBeforeData), v.outerBefore),
-            );
-            errors.push(
-              ...formatFieldErrors(validateBearingClearanceData(innerBeforeData), v.innerBefore),
-            );
           }
-        }
-
-        if (outerBeforeTouched) {
-          errors.push(
-            ...formatFieldErrors(validateBearingClearanceData(outerBeforeData), v.outerBefore),
-          );
-        }
-        if (innerBeforeTouched) {
-          errors.push(
-            ...formatFieldErrors(validateBearingClearanceData(innerBeforeData), v.innerBefore),
-          );
         }
       }
 
@@ -377,42 +362,56 @@ export const BearingClearanceSection = forwardRef<
       const hasInnerData =
         innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
 
-      // Both outer AND inner are required for alert generation
-      if (!hasOuterData) {
-        errors.push(v.outerDataRequired);
-      }
-      if (!hasInnerData) {
-        errors.push(v.innerDataRequired);
-      }
+      // Collect all missing fields
+      const missingFieldsList: string[] = [];
 
-      // Validate required alert fields for both outer and inner
+      // If outer has data, validate its specific fields; otherwise list all required fields
       if (hasOuterData) {
         const outerDataToValidate = outerAfterTouched ? outerAfterData : initialOuterAfterData;
-        errors.push(
-          ...formatFieldErrors(validateBearingClearanceData(outerDataToValidate), v.outerData),
-        );
-      }
-      if (hasInnerData) {
-        const innerDataToValidate = innerAfterTouched ? innerAfterData : initialInnerAfterData;
-        errors.push(
-          ...formatFieldErrors(validateBearingClearanceData(innerDataToValidate), v.innerData),
-        );
+        const outerMissing = validateBearingClearanceData(outerDataToValidate);
+        outerMissing.forEach((fieldKey) => {
+          missingFieldsList.push(`${v.outerData}: ${getFieldName(fieldKey)}`);
+        });
+        // Check hasBeenAdjusted for outer
+        if (!outerAfterHasBeenAdjusted) {
+          missingFieldsList.push(`${v.outerData}: ${getFieldName('hasBeenAdjusted')}`);
+        }
+      } else {
+        // Outer section not filled - list all required fields for outer
+        ALERT_REQUIRED_FIELDS.forEach((fieldKey) => {
+          missingFieldsList.push(`${v.outerData}: ${getFieldName(String(fieldKey))}`);
+        });
+        // Also add hasBeenAdjusted as required
+        missingFieldsList.push(`${v.outerData}: ${getFieldName('hasBeenAdjusted')}`);
       }
 
-      // Validate required "Has Been Adjusted" fields
-      errors.push(
-        ...validateHasBeenAdjustedFields({
-          includeBeforeMeasurements,
-          outerBeforeTouched,
-          outerAfterTouched,
-          innerBeforeTouched,
-          innerAfterTouched,
-          outerBeforeHasBeenAdjusted,
-          outerAfterHasBeenAdjusted,
-          innerBeforeHasBeenAdjusted,
-          innerAfterHasBeenAdjusted,
-        }),
-      );
+      // If inner has data, validate its specific fields; otherwise list all required fields
+      if (hasInnerData) {
+        const innerDataToValidate = innerAfterTouched ? innerAfterData : initialInnerAfterData;
+        const innerMissing = validateBearingClearanceData(innerDataToValidate);
+        innerMissing.forEach((fieldKey) => {
+          missingFieldsList.push(`${v.innerData}: ${getFieldName(fieldKey)}`);
+        });
+        // Check hasBeenAdjusted for inner
+        if (!innerAfterHasBeenAdjusted) {
+          missingFieldsList.push(`${v.innerData}: ${getFieldName('hasBeenAdjusted')}`);
+        }
+      } else {
+        // Inner section not filled - list all required fields for inner
+        ALERT_REQUIRED_FIELDS.forEach((fieldKey) => {
+          missingFieldsList.push(`${v.innerData}: ${getFieldName(String(fieldKey))}`);
+        });
+        // Also add hasBeenAdjusted as required
+        missingFieldsList.push(`${v.innerData}: ${getFieldName('hasBeenAdjusted')}`);
+      }
+
+      // Format as numbered list with header if there are missing fields
+      if (missingFieldsList.length > 0) {
+        const numberedList = missingFieldsList
+          .map((field, index) => `${index + 1}) ${field}`)
+          .join('\n');
+        errors.push(`${v.sectionHeader}\n${numberedList}`);
+      }
 
       return errors;
     },
@@ -434,13 +433,8 @@ export const BearingClearanceSection = forwardRef<
       const v = t.raw('form.bearingClearance.validation') as Record<string, string>;
       const fields = t.raw('form.bearingClearance.fields') as Record<string, string>;
 
-      // Helper to format field validation errors
-      const formatFieldErrors = (missingFields: string[], prefix: string) => {
-        return missingFields.map((fieldKey) => {
-          const fieldName = fields[fieldKey] || fieldKey;
-          return `${prefix}: ${v.fieldRequired.replace('{field}', fieldName)}`;
-        });
-      };
+      // Helper to get translated field names
+      const getFieldName = (fieldKey: string) => fields[fieldKey] || fieldKey;
 
       const outerBeforeTouched = isDataTouched(outerBeforeData, initialOuterBeforeData);
       const outerAfterTouched = isDataTouched(outerAfterData, initialOuterAfterData);
@@ -452,25 +446,7 @@ export const BearingClearanceSection = forwardRef<
         if (serviceType === ServiceType.MAINTENANCE) {
           if (!outerBeforeTouched || !innerBeforeTouched) {
             errors.push(v.beforeMeasurementsRequired);
-          } else {
-            errors.push(
-              ...formatFieldErrors(validateBearingClearanceData(outerBeforeData), v.outerBefore),
-            );
-            errors.push(
-              ...formatFieldErrors(validateBearingClearanceData(innerBeforeData), v.innerBefore),
-            );
           }
-        }
-
-        if (outerBeforeTouched) {
-          errors.push(
-            ...formatFieldErrors(validateBearingClearanceData(outerBeforeData), v.outerBefore),
-          );
-        }
-        if (innerBeforeTouched) {
-          errors.push(
-            ...formatFieldErrors(validateBearingClearanceData(innerBeforeData), v.innerBefore),
-          );
         }
       }
 
@@ -480,42 +456,56 @@ export const BearingClearanceSection = forwardRef<
       const hasInnerData =
         innerAfterTouched || isDataTouched(initialInnerAfterData, defaultBearingData);
 
-      // Both outer AND inner are required for alert generation
-      if (!hasOuterData) {
-        errors.push(v.outerDataRequired);
-      }
-      if (!hasInnerData) {
-        errors.push(v.innerDataRequired);
-      }
+      // Collect all missing fields
+      const missingFieldsList: string[] = [];
 
-      // Validate required alert fields for both outer and inner
+      // If outer has data, validate its specific fields; otherwise list all required fields
       if (hasOuterData) {
         const outerDataToValidate = outerAfterTouched ? outerAfterData : initialOuterAfterData;
-        errors.push(
-          ...formatFieldErrors(validateBearingClearanceData(outerDataToValidate), v.outerData),
-        );
-      }
-      if (hasInnerData) {
-        const innerDataToValidate = innerAfterTouched ? innerAfterData : initialInnerAfterData;
-        errors.push(
-          ...formatFieldErrors(validateBearingClearanceData(innerDataToValidate), v.innerData),
-        );
+        const outerMissing = validateBearingClearanceData(outerDataToValidate);
+        outerMissing.forEach((fieldKey) => {
+          missingFieldsList.push(`${v.outerData}: ${getFieldName(fieldKey)}`);
+        });
+        // Check hasBeenAdjusted for outer
+        if (!outerAfterHasBeenAdjusted) {
+          missingFieldsList.push(`${v.outerData}: ${getFieldName('hasBeenAdjusted')}`);
+        }
+      } else {
+        // Outer section not filled - list all required fields for outer
+        ALERT_REQUIRED_FIELDS.forEach((fieldKey) => {
+          missingFieldsList.push(`${v.outerData}: ${getFieldName(String(fieldKey))}`);
+        });
+        // Also add hasBeenAdjusted as required
+        missingFieldsList.push(`${v.outerData}: ${getFieldName('hasBeenAdjusted')}`);
       }
 
-      // Validate required "Has Been Adjusted" fields
-      errors.push(
-        ...validateHasBeenAdjustedFields({
-          includeBeforeMeasurements,
-          outerBeforeTouched,
-          outerAfterTouched,
-          innerBeforeTouched,
-          innerAfterTouched,
-          outerBeforeHasBeenAdjusted,
-          outerAfterHasBeenAdjusted,
-          innerBeforeHasBeenAdjusted,
-          innerAfterHasBeenAdjusted,
-        }),
-      );
+      // If inner has data, validate its specific fields; otherwise list all required fields
+      if (hasInnerData) {
+        const innerDataToValidate = innerAfterTouched ? innerAfterData : initialInnerAfterData;
+        const innerMissing = validateBearingClearanceData(innerDataToValidate);
+        innerMissing.forEach((fieldKey) => {
+          missingFieldsList.push(`${v.innerData}: ${getFieldName(fieldKey)}`);
+        });
+        // Check hasBeenAdjusted for inner
+        if (!innerAfterHasBeenAdjusted) {
+          missingFieldsList.push(`${v.innerData}: ${getFieldName('hasBeenAdjusted')}`);
+        }
+      } else {
+        // Inner section not filled - list all required fields for inner
+        ALERT_REQUIRED_FIELDS.forEach((fieldKey) => {
+          missingFieldsList.push(`${v.innerData}: ${getFieldName(String(fieldKey))}`);
+        });
+        // Also add hasBeenAdjusted as required
+        missingFieldsList.push(`${v.innerData}: ${getFieldName('hasBeenAdjusted')}`);
+      }
+
+      // Format as numbered list with header if there are missing fields
+      if (missingFieldsList.length > 0) {
+        const numberedList = missingFieldsList
+          .map((field, index) => `${index + 1}) ${field}`)
+          .join('\n');
+        errors.push(`${v.sectionHeader}\n${numberedList}`);
+      }
 
       if (errors.length > 0) {
         return { isValid: false, errors };
@@ -565,20 +555,27 @@ export const BearingClearanceSection = forwardRef<
         sharedFields,
       );
 
+      // Sanitize data before submission (convert undefined numeric fields to 0)
       const data: BearingClearanceSectionData = {
         outerBefore:
           includeBeforeMeasurements && outerBeforeTouched
-            ? { ...outerBeforeData, ...outerBeforeFields }
+            ? sanitizeBearingDataForSubmission({ ...outerBeforeData, ...outerBeforeFields })
             : undefined,
         outerData: hasOuterData
-          ? { ...(outerAfterTouched ? outerAfterData : initialOuterAfterData), ...outerAfterFields }
+          ? sanitizeBearingDataForSubmission({
+              ...(outerAfterTouched ? outerAfterData : initialOuterAfterData),
+              ...outerAfterFields,
+            })
           : undefined,
         innerBefore:
           includeBeforeMeasurements && innerBeforeTouched
-            ? { ...innerBeforeData, ...innerBeforeFields }
+            ? sanitizeBearingDataForSubmission({ ...innerBeforeData, ...innerBeforeFields })
             : undefined,
         innerData: hasInnerData
-          ? { ...(innerAfterTouched ? innerAfterData : initialInnerAfterData), ...innerAfterFields }
+          ? sanitizeBearingDataForSubmission({
+              ...(innerAfterTouched ? innerAfterData : initialInnerAfterData),
+              ...innerAfterFields,
+            })
           : undefined,
         attachments,
       };

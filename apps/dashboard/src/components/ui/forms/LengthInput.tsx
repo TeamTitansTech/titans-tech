@@ -3,16 +3,19 @@
 import { useState, useRef, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 import { cn } from '@/lib/utils';
+import { Bell } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export interface LengthInputProps {
   id: string;
   label?: string;
-  /** Value in the default unit (mm) */
-  value: number | string;
-  /** Callback receives value in the default unit (mm) */
-  onChange: (value: number) => void;
+  /** Value in the default unit (inches). Undefined displays as empty. */
+  value: number | string | undefined;
+  /** Callback receives value in the default unit (inches). Undefined when cleared. */
+  onChange: (value: number | undefined) => void;
   onBlur?: () => void;
   error?: string;
   min?: number;
@@ -27,6 +30,10 @@ export interface LengthInputProps {
   showLabel?: boolean;
   /** Number of decimal places to display */
   decimalPlaces?: number;
+  /** Shows a bell icon indicating this field generates alerts */
+  generatesAlert?: boolean;
+  /** Custom tooltip text for the alert indicator */
+  alertTooltip?: string;
 }
 
 export function LengthInput({
@@ -47,7 +54,10 @@ export function LengthInput({
   labelClassName,
   showLabel = true,
   decimalPlaces = 4,
+  generatesAlert = false,
+  alertTooltip,
 }: LengthInputProps) {
+  const t = useTranslations('inspectionForm.placeholders');
   const { convertLengthFromDefault, convertLengthToDefault, getLengthUnitLabel } = useUnitManager();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -55,11 +65,20 @@ export function LengthInput({
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
 
-  // Convert the value from default (mm) to display unit
-  const numericValue = typeof value === 'string' ? parseFloat(value) || 0 : value;
+  // Convert the value from default (inches) to display unit
+  // Handle undefined/null as empty (not 0)
+  const numericValue = useMemo(() => {
+    if (value === undefined || value === null) return undefined;
+    if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? undefined : parsed;
+    }
+    return value;
+  }, [value]);
 
   // Compute display value from props when not editing
   const displayValue = useMemo(() => {
+    if (numericValue === undefined) return '';
     const converted = convertLengthFromDefault(numericValue);
     return converted !== null && converted !== undefined ? converted.toFixed(decimalPlaces) : '';
   }, [numericValue, convertLengthFromDefault, decimalPlaces]);
@@ -84,11 +103,12 @@ export function LengthInput({
 
     const numValue = parseFloat(inputValue);
     if (!isNaN(numValue)) {
-      // Convert back to default unit (mm) before calling onChange
+      // Convert back to default unit (inches) before calling onChange
       const defaultValue = convertLengthToDefault(numValue);
       onChange(defaultValue);
     } else if (inputValue === '' || inputValue === '-') {
-      onChange(0);
+      // Return undefined when field is cleared (not 0)
+      onChange(undefined);
     }
   };
 
@@ -102,12 +122,22 @@ export function LengthInput({
       {showLabel && label && (
         <Label
           htmlFor={id}
-          className={cn('text-xs font-medium', labelClassName, {
+          className={cn('text-xs font-medium flex items-center gap-1', labelClassName, {
             'text-destructive': error,
           })}
         >
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
+          {generatesAlert && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Bell className="h-3 w-3 text-amber-500 cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">{alertTooltip || t('generatesAlert')}</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </Label>
       )}
       <div className="relative">

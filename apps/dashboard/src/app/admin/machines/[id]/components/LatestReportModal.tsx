@@ -37,8 +37,10 @@ import type {
   GibsStageData,
   CounterbalanceCylinderData,
   LatestPistons,
+  LatestBearingClearanceSingleHammer,
 } from '@/data/types/services.types';
 import { BEARING_FIELD_NAMES, BEARING_FIELD_LABELS } from '@titans-tech/shared/types';
+import { UnitManagerProvider, useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface LatestReportModalProps {
   report: LatestReport;
@@ -47,9 +49,31 @@ interface LatestReportModalProps {
 }
 
 export function LatestReportModal({ report, open, onOpenChange }: LatestReportModalProps) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <UnitManagerProvider>
+        <LatestReportModalContent report={report} open={open} onOpenChange={onOpenChange} />
+      </UnitManagerProvider>
+    </Dialog>
+  );
+}
+
+function LatestReportModalContent({ report, onOpenChange }: LatestReportModalProps) {
   const t = useTranslations('machines.latestReport');
   const contentRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
+    useUnitManager();
+
+  // Helper to convert and format length values for display
+  const formatLength = (value: number | null | undefined): string => {
+    if (value === null || value === undefined) return '-';
+    const num = typeof value === 'number' ? value : Number(value);
+    if (isNaN(num)) return '-';
+    return convertLengthFromDefault(num).toFixed(4);
+  };
+
+  const unitLabel = getLengthUnitLabel();
 
   const handleExportPDF = async () => {
     if (!contentRef.current) {
@@ -124,7 +148,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
       return {
         field: BEARING_FIELD_LABELS[field],
-        differential: typeof differential === 'number' ? differential.toFixed(3) : '-',
+        differential: typeof differential === 'number' ? formatLength(differential) : '-',
         severity,
       };
     });
@@ -177,7 +201,8 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
       return {
         field: field.label,
-        value: numericValue !== undefined && !isNaN(numericValue) ? numericValue.toFixed(3) : '-',
+        value:
+          numericValue !== undefined && !isNaN(numericValue) ? formatLength(numericValue) : '-',
         differential: '-', // Clutch doesn't use differential (single values, not before/after)
         severity,
       };
@@ -185,6 +210,7 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   };
 
   const bearingClearance = report.sections.BEARING_CLEARANCE;
+  const bearingClearanceSingleHammer = report.sections.BEARING_CLEARANCE_SINGLE_HAMMER;
   const clutch = report.sections.CLUTCH;
   const slideSingleHammer = report.sections.SLIDE_SINGLE_HAMMER;
   const slideDoubleHammer = report.sections.SLIDE_DOUBLE_HAMMER;
@@ -193,6 +219,11 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
   const counterbalance = report.sections.COUNTERBALANCE_CYLINDER_AIRBAG;
   const pistons = report.sections.PISTONS;
   const tramming = report.sections.TRAMMING;
+  const shimThickness = report.sections.SHIM_THICKNESS;
+  const dieCushion = report.sections.DIE_CUSHION;
+  const electricalControl = report.sections.ELECTRICAL_CONTROL;
+  const perpendicularity = report.sections.PERPENDICULARITY;
+  const angularity = report.sections.ANGULARITY;
 
   // Get overall worst severity for bearing clearance (outer or inner)
   const getBearingSeverity = (prefix: 'outer' | 'inner'): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
@@ -233,6 +264,64 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
     if (outerSeverity === 'YELLOW' || innerSeverity === 'YELLOW') return 'YELLOW';
     if (outerSeverity === 'GREEN' || innerSeverity === 'GREEN') return 'GREEN';
     return 'GREEN';
+  };
+
+  // Get overall worst severity for bearing clearance single hammer
+  const getBearingClearanceSingleHammerOverallSeverity = ():
+    | 'NONE'
+    | 'GREEN'
+    | 'YELLOW'
+    | 'RED' => {
+    if (!bearingClearanceSingleHammer?.alert) return 'NONE';
+
+    const alert = bearingClearanceSingleHammer.alert;
+    const severities = new Set([
+      alert.totalClearance_severity,
+      alert.mainBearings_severity,
+      alert.upperConnectionBearings_severity,
+      alert.wristPinToMatingPart_severity,
+      alert.wristPinToBushing_severity,
+      alert.slideAdjNutToScrewSleeve_severity,
+    ]);
+
+    if (severities.has('RED')) return 'RED';
+    if (severities.has('YELLOW')) return 'YELLOW';
+    if (severities.has('GREEN')) return 'GREEN';
+    return 'GREEN';
+  };
+
+  // Extract bearing clearance single hammer measurement rows
+  const extractBearingClearanceSingleHammerRows = (
+    data: BearingClearanceData | undefined,
+    alert: LatestBearingClearanceSingleHammer['alert'] | undefined,
+  ) => {
+    if (!data) return [];
+
+    return BEARING_FIELD_NAMES.map((field) => {
+      const lhKey = `${field}_LH` as keyof BearingClearanceData;
+      const rhKey = `${field}_RH` as keyof BearingClearanceData;
+      const lh = data[lhKey] as number | undefined;
+      const rh = data[rhKey] as number | undefined;
+
+      const differentialKey = `${field}_differential` as keyof NonNullable<typeof alert>;
+      const severityKey = `${field}_severity` as keyof NonNullable<typeof alert>;
+
+      const differential = alert
+        ? (alert[differentialKey] as number | undefined)
+        : lh !== undefined && rh !== undefined
+          ? Math.abs(Number(rh) - Number(lh))
+          : undefined;
+
+      const severity = alert
+        ? (alert[severityKey] as 'NONE' | 'GREEN' | 'YELLOW' | 'RED')
+        : ('NONE' as const);
+
+      return {
+        field: BEARING_FIELD_LABELS[field],
+        differential: typeof differential === 'number' ? formatLength(differential) : '-',
+        severity,
+      };
+    });
   };
 
   // Get overall worst severity for clutch
@@ -438,29 +527,23 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
   // Extract GIBS measurement points
   const extractGibsPoints = (data: GibsStageData) => {
-    const toFixed = (val: number | null | undefined) => {
-      if (val === null || val === undefined) return '-';
-      const num = typeof val === 'number' ? val : Number(val);
-      return isNaN(num) ? '-' : num.toFixed(3);
-    };
-
     return [
-      { label: 'Point 1', value: toFixed(data.point1) },
-      { label: 'Point 2', value: toFixed(data.point2) },
-      { label: 'Point 3', value: toFixed(data.point3) },
-      { label: 'Point 4', value: toFixed(data.point4) },
-      { label: 'Point 5', value: toFixed(data.point5) },
-      { label: 'Point 6', value: toFixed(data.point6) },
-      { label: 'Point 7', value: toFixed(data.point7) },
-      { label: 'Point 8', value: toFixed(data.point8) },
-      { label: 'Point 9', value: toFixed(data.point9) },
-      { label: 'Point 10', value: toFixed(data.point10) },
-      { label: 'Point 11', value: toFixed(data.point11) },
-      { label: 'Point 12', value: toFixed(data.point12) },
-      { label: 'Point 13', value: toFixed(data.point13) },
-      { label: 'Point 14', value: toFixed(data.point14) },
-      { label: 'Point 15', value: toFixed(data.point15) },
-      { label: 'Point 16', value: toFixed(data.point16) },
+      { label: 'Point 1', value: formatLength(data.point1) },
+      { label: 'Point 2', value: formatLength(data.point2) },
+      { label: 'Point 3', value: formatLength(data.point3) },
+      { label: 'Point 4', value: formatLength(data.point4) },
+      { label: 'Point 5', value: formatLength(data.point5) },
+      { label: 'Point 6', value: formatLength(data.point6) },
+      { label: 'Point 7', value: formatLength(data.point7) },
+      { label: 'Point 8', value: formatLength(data.point8) },
+      { label: 'Point 9', value: formatLength(data.point9) },
+      { label: 'Point 10', value: formatLength(data.point10) },
+      { label: 'Point 11', value: formatLength(data.point11) },
+      { label: 'Point 12', value: formatLength(data.point12) },
+      { label: 'Point 13', value: formatLength(data.point13) },
+      { label: 'Point 14', value: formatLength(data.point14) },
+      { label: 'Point 15', value: formatLength(data.point15) },
+      { label: 'Point 16', value: formatLength(data.point16) },
     ];
   };
 
@@ -534,387 +617,376 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
 
     return sumFields.map((field) => ({
       field: field.label,
-      sum: field.diff !== null && field.diff !== undefined ? field.diff.toFixed(4) : '-',
+      sum: field.diff !== null && field.diff !== undefined ? formatLength(field.diff) : '-',
       severity: field.severity,
     }));
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[900px] max-w-[95vw] max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
+    <DialogContent className="flex flex-col overflow-hidden">
+      <DialogHeader>
+        <div className="flex items-center justify-between">
           <DialogTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Relatório Atualizado - {report.machineName}
+            <FileText className="h-5 w-5" />
+            {t('title')}
           </DialogTitle>
-          <DialogDescription>
-            Modelo: {report.blueprint.name} · Última atualização:{' '}
-            {format(new Date(report.generatedAt), 'dd/MM/yyyy', { locale: ptBR })}
-          </DialogDescription>
-        </DialogHeader>
+          {/* Unit Toggle */}
+          <div className="flex items-center rounded-md border" data-export-button>
+            <Button
+              variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
+              size="sm"
+              className="h-8 rounded-r-none"
+              onClick={() => setLengthUnit('mm')}
+            >
+              mm
+            </Button>
+            <Button
+              variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
+              size="sm"
+              className="h-8 rounded-l-none"
+              onClick={() => setLengthUnit('inches')}
+            >
+              in
+            </Button>
+          </div>
+        </div>
+        <DialogDescription>
+          {report.machineName} · {report.blueprint.name} · {t('updatedAt')}{' '}
+          {format(new Date(report.generatedAt), 'dd/MM/yyyy', { locale: ptBR })}
+        </DialogDescription>
+      </DialogHeader>
 
-        <div ref={contentRef} className="flex-1 overflow-y-auto px-1 py-4">
-          {bearingClearance ||
-          clutch ||
-          slideSingleHammer ||
-          slideDoubleHammer ||
-          gibs ||
-          pistons ||
-          lubrication ||
-          counterbalance ||
-          tramming ? (
-            <div className="space-y-4">
-              {bearingClearance && (
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Typography variant="h4" className="font-semibold">
-                      Bearing Clearance - CP 2
-                    </Typography>
-                    <div className="flex items-center gap-3">
-                      {getSeverityBadge(getOverallSeverity())}
-                      <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')}{' '}
-                        {format(new Date(bearingClearance.latestServiceDate), 'dd-MM-yyyy')}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* Outer Section */}
-                    {bearingClearance.outerData && (
-                      <div className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
-                          <span>Outer</span>
-                          {getSeverityBadge(getBearingSeverity('outer'))}
-                        </div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="font-semibold">Measurement</TableHead>
-                              <TableHead className="text-center font-semibold">
-                                Differential
-                              </TableHead>
-                              <TableHead className="text-center font-semibold">Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {extractBearingRows(
-                              bearingClearance.outerData,
-                              bearingClearance.alert,
-                              'outer',
-                            ).map((row, idx) => (
-                              <TableRow key={idx} className="hover:bg-muted/30">
-                                <TableCell className="font-medium">{row.field}</TableCell>
-                                <TableCell className="text-center">{row.differential}</TableCell>
-                                <TableCell className="text-center">
-                                  {getSeverityBadge(row.severity)}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-
-                    {/* Inner Section */}
-                    {bearingClearance.innerData && (
-                      <div className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
-                          <span>Inner</span>
-                          {getSeverityBadge(getBearingSeverity('inner'))}
-                        </div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="font-semibold">Measurement</TableHead>
-                              <TableHead className="text-center font-semibold">
-                                Differential
-                              </TableHead>
-                              <TableHead className="text-center font-semibold">Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {extractBearingRows(
-                              bearingClearance.innerData,
-                              bearingClearance.alert,
-                              'inner',
-                            ).map((row, idx) => (
-                              <TableRow key={idx} className="hover:bg-muted/30">
-                                <TableCell className="font-medium">{row.field}</TableCell>
-                                <TableCell className="text-center">{row.differential}</TableCell>
-                                <TableCell className="text-center">
-                                  {getSeverityBadge(row.severity)}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
+      <div ref={contentRef} className="flex-1 overflow-y-auto px-1 py-4">
+        {bearingClearance ||
+        bearingClearanceSingleHammer ||
+        clutch ||
+        slideSingleHammer ||
+        slideDoubleHammer ||
+        gibs ||
+        pistons ||
+        lubrication ||
+        counterbalance ||
+        tramming ||
+        shimThickness ||
+        dieCushion ||
+        electricalControl ||
+        perpendicularity ||
+        angularity ? (
+          <div className="space-y-4">
+            {bearingClearance && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Bearing Clearance - CP 2
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(getOverallSeverity())}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')}{' '}
+                      {format(new Date(bearingClearance.latestServiceDate), 'dd-MM-yyyy')}
+                    </span>
                   </div>
                 </div>
-              )}
 
-              {clutch && (
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Typography variant="h4" className="font-semibold">
-                      Clutch
-                    </Typography>
-                    <div className="flex items-center gap-3">
-                      {getSeverityBadge(getClutchOverallSeverity())}
-                      <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')} {format(new Date(clutch.latestServiceDate), 'dd-MM-yyyy')}
-                      </span>
+                <div className="space-y-4">
+                  {/* Outer Section */}
+                  {bearingClearance.outerData && (
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
+                        <span>Outer</span>
+                        {getSeverityBadge(getBearingSeverity('outer'))}
+                      </div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Differential ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {extractBearingRows(
+                            bearingClearance.outerData,
+                            bearingClearance.alert,
+                            'outer',
+                          ).map((row, idx) => (
+                            <TableRow key={idx} className="hover:bg-muted/30">
+                              <TableCell className="font-medium">{row.field}</TableCell>
+                              <TableCell className="text-center">{row.differential}</TableCell>
+                              <TableCell className="text-center">
+                                {getSeverityBadge(row.severity)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="border rounded-md overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/50">
-                          <TableHead className="font-semibold">Measurement</TableHead>
-                          <TableHead className="text-center font-semibold">Value</TableHead>
-                          <TableHead className="text-center font-semibold">Status</TableHead>
+                  {/* Inner Section */}
+                  {bearingClearance.innerData && (
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
+                        <span>Inner</span>
+                        {getSeverityBadge(getBearingSeverity('inner'))}
+                      </div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Differential ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {extractBearingRows(
+                            bearingClearance.innerData,
+                            bearingClearance.alert,
+                            'inner',
+                          ).map((row, idx) => (
+                            <TableRow key={idx} className="hover:bg-muted/30">
+                              <TableCell className="font-medium">{row.field}</TableCell>
+                              <TableCell className="text-center">{row.differential}</TableCell>
+                              <TableCell className="text-center">
+                                {getSeverityBadge(row.severity)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {clutch && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Clutch
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(getClutchOverallSeverity())}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')} {format(new Date(clutch.latestServiceDate), 'dd-MM-yyyy')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead className="font-semibold">Measurement</TableHead>
+                        <TableHead className="text-center font-semibold">
+                          Value ({unitLabel})
+                        </TableHead>
+                        <TableHead className="text-center font-semibold">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {extractClutchRows(clutch.data, clutch.alert).map((row, idx) => (
+                        <TableRow key={idx} className="hover:bg-muted/30">
+                          <TableCell className="font-medium">{row.field}</TableCell>
+                          <TableCell className="text-center">{row.value}</TableCell>
+                          <TableCell className="text-center">
+                            {getSeverityBadge(row.severity)}
+                          </TableCell>
                         </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {extractClutchRows(clutch.data, clutch.alert).map((row, idx) => (
-                          <TableRow key={idx} className="hover:bg-muted/30">
-                            <TableCell className="font-medium">{row.field}</TableCell>
-                            <TableCell className="text-center">{row.value}</TableCell>
-                            <TableCell className="text-center">
-                              {getSeverityBadge(row.severity)}
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+
+            {slideSingleHammer && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Slide (Single Hammer)
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(getSlideSingleHammerOverallSeverity())}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')}{' '}
+                      {format(new Date(slideSingleHammer.latestServiceDate), 'dd-MM-yyyy')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {extractSlideSingleHammerRows(
+                    slideSingleHammer.data,
+                    slideSingleHammer.alert,
+                  ).map((section, idx) => (
+                    <div key={idx} className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
+                        <span>{section.name}</span>
+                        {getSeverityBadge(section.severity as 'NONE' | 'GREEN' | 'YELLOW' | 'RED')}
+                      </div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="text-center font-semibold">Pos 1</TableHead>
+                            <TableHead className="text-center font-semibold">Pos 2</TableHead>
+                            <TableHead className="text-center font-semibold">Pos 3</TableHead>
+                            <TableHead className="text-center font-semibold">Pos 4</TableHead>
+                            <TableHead className="text-center font-semibold">Pos 5</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Max Deviation
+                            </TableHead>
+                          </TableRow>
+                          <TableRow className="bg-muted/30">
+                            <TableHead
+                              colSpan={6}
+                              className="py-1 text-center text-xs text-muted-foreground"
+                            >
+                              ({unitLabel})
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow className="hover:bg-muted/30">
+                            {section.positions.map((pos, posIdx) => (
+                              <TableCell key={posIdx} className="text-center">
+                                {formatLength(pos as number | null)}
+                              </TableCell>
+                            ))}
+                            <TableCell className="text-center font-medium">
+                              {formatLength(section.maxDeviation as number | null)}
                             </TableCell>
                           </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {slideDoubleHammer && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Slide (Double Hammer)
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(getSlideDoubleHammerOverallSeverity())}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')}{' '}
+                      {format(new Date(slideDoubleHammer.latestServiceDate), 'dd-MM-yyyy')}
+                    </span>
                   </div>
                 </div>
-              )}
 
-              {slideSingleHammer && (
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Typography variant="h4" className="font-semibold">
-                      Slide (Single Hammer)
-                    </Typography>
-                    <div className="flex items-center gap-3">
-                      {getSeverityBadge(getSlideSingleHammerOverallSeverity())}
-                      <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')}{' '}
-                        {format(new Date(slideSingleHammer.latestServiceDate), 'dd-MM-yyyy')}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {extractSlideSingleHammerRows(
-                      slideSingleHammer.data,
-                      slideSingleHammer.alert,
-                    ).map((section, idx) => (
-                      <div key={idx} className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
-                          <span>{section.name}</span>
-                          {getSeverityBadge(
-                            section.severity as 'NONE' | 'GREEN' | 'YELLOW' | 'RED',
-                          )}
-                        </div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="text-center font-semibold">Pos 1</TableHead>
-                              <TableHead className="text-center font-semibold">Pos 2</TableHead>
-                              <TableHead className="text-center font-semibold">Pos 3</TableHead>
-                              <TableHead className="text-center font-semibold">Pos 4</TableHead>
-                              <TableHead className="text-center font-semibold">Pos 5</TableHead>
-                              <TableHead className="text-center font-semibold">
-                                Max Deviation
-                              </TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            <TableRow className="hover:bg-muted/30">
-                              {section.positions.map((pos, posIdx) => (
-                                <TableCell key={posIdx} className="text-center">
-                                  {pos !== null && pos !== undefined
-                                    ? typeof pos === 'number'
-                                      ? pos.toFixed(3)
-                                      : Number(pos).toFixed(3)
-                                    : '-'}
-                                </TableCell>
-                              ))}
-                              <TableCell className="text-center font-medium">
-                                {section.maxDeviation !== null && section.maxDeviation !== undefined
-                                  ? typeof section.maxDeviation === 'number'
-                                    ? section.maxDeviation.toFixed(3)
-                                    : Number(section.maxDeviation).toFixed(3)
-                                  : '-'}
+                <div className="space-y-4">
+                  {extractSlideDoubleHammerRows(
+                    slideDoubleHammer.data,
+                    slideDoubleHammer.alert,
+                  ).map((section, idx) => (
+                    <div key={idx} className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
+                        <span>{section.name}</span>
+                        {getSeverityBadge(section.severity as 'NONE' | 'GREEN' | 'YELLOW' | 'RED')}
+                      </div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="text-center font-semibold">Pos 1</TableHead>
+                            <TableHead className="text-center font-semibold">Pos 2</TableHead>
+                            <TableHead className="text-center font-semibold">Pos 3</TableHead>
+                            <TableHead className="text-center font-semibold">Pos 4</TableHead>
+                            <TableHead className="text-center font-semibold">Pos 5</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Max Deviation
+                            </TableHead>
+                          </TableRow>
+                          <TableRow className="bg-muted/30">
+                            <TableHead
+                              colSpan={6}
+                              className="py-1 text-center text-xs text-muted-foreground"
+                            >
+                              ({unitLabel})
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow className="hover:bg-muted/30">
+                            {section.positions.map((pos, posIdx) => (
+                              <TableCell key={posIdx} className="text-center">
+                                {formatLength(pos as number | null)}
                               </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
-                      </div>
-                    ))}
+                            ))}
+                            <TableCell className="text-center font-medium">
+                              {formatLength(section.maxDeviation as number | null)}
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {gibs && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    GIBS - Outer After Adjustment
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(getGibsOverallSeverity())}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')} {format(new Date(gibs.latestServiceDate), 'dd-MM-yyyy')}
+                    </span>
                   </div>
                 </div>
-              )}
 
-              {slideDoubleHammer && (
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Typography variant="h4" className="font-semibold">
-                      Slide (Double Hammer)
-                    </Typography>
-                    <div className="flex items-center gap-3">
-                      {getSeverityBadge(getSlideDoubleHammerOverallSeverity())}
-                      <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')}{' '}
-                        {format(new Date(slideDoubleHammer.latestServiceDate), 'dd-MM-yyyy')}
-                      </span>
+                <div className="space-y-3">
+                  {/* Display usable value from alert if available */}
+                  {gibs.alert && (
+                    <div className="rounded-md border bg-muted/30 p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="font-semibold">Usable Value ({unitLabel})</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">
+                            {formatLength(gibs.alert.usable_value as number)}
+                          </span>
+                          {getSeverityBadge(gibs.alert.usable_severity)}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
 
-                  <div className="space-y-4">
-                    {extractSlideDoubleHammerRows(
-                      slideDoubleHammer.data,
-                      slideDoubleHammer.alert,
-                    ).map((section, idx) => (
-                      <div key={idx} className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
-                          <span>{section.name}</span>
-                          {getSeverityBadge(
-                            section.severity as 'NONE' | 'GREEN' | 'YELLOW' | 'RED',
-                          )}
-                        </div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="text-center font-semibold">Pos 1</TableHead>
-                              <TableHead className="text-center font-semibold">Pos 2</TableHead>
-                              <TableHead className="text-center font-semibold">Pos 3</TableHead>
-                              <TableHead className="text-center font-semibold">Pos 4</TableHead>
-                              <TableHead className="text-center font-semibold">Pos 5</TableHead>
-                              <TableHead className="text-center font-semibold">
-                                Max Deviation
-                              </TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            <TableRow className="hover:bg-muted/30">
-                              {section.positions.map((pos, posIdx) => (
-                                <TableCell key={posIdx} className="text-center">
-                                  {pos !== null && pos !== undefined
-                                    ? typeof pos === 'number'
-                                      ? pos.toFixed(3)
-                                      : Number(pos).toFixed(3)
-                                    : '-'}
-                                </TableCell>
-                              ))}
-                              <TableCell className="text-center font-medium">
-                                {section.maxDeviation !== null && section.maxDeviation !== undefined
-                                  ? typeof section.maxDeviation === 'number'
-                                    ? section.maxDeviation.toFixed(3)
-                                    : Number(section.maxDeviation).toFixed(3)
-                                  : '-'}
-                              </TableCell>
-                            </TableRow>
-                          </TableBody>
-                        </Table>
+                  {/* Display measurement points with diagram */}
+                  <div className="overflow-hidden rounded-md border">
+                    <div className="bg-muted/30 px-4 py-2 font-semibold">Measurement Points</div>
+
+                    {/* Mobile layout: Image first, then two columns */}
+                    <div className="flex flex-col gap-4 p-4 sm:hidden">
+                      <div className="flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/assets/gibs/front-to-back.png"
+                          alt="GIBS measurement diagram"
+                          className="aspect-square max-h-[200px]"
+                        />
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {gibs && (
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Typography variant="h4" className="font-semibold">
-                      GIBS - Outer After Adjustment
-                    </Typography>
-                    <div className="flex items-center gap-3">
-                      {getSeverityBadge(getGibsOverallSeverity())}
-                      <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')} {format(new Date(gibs.latestServiceDate), 'dd-MM-yyyy')}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    {/* Display usable value from alert if available */}
-                    {gibs.alert && (
-                      <div className="border rounded-md p-3 bg-muted/30">
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold">Usable Value</span>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium">
-                              {typeof gibs.alert.usable_value === 'number'
-                                ? gibs.alert.usable_value.toFixed(3)
-                                : Number(gibs.alert.usable_value).toFixed(3)}
-                            </span>
-                            {getSeverityBadge(gibs.alert.usable_severity)}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Display measurement points with diagram */}
-                    <div className="border rounded-md overflow-hidden">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold">Measurement Points</div>
-
-                      {/* Mobile layout: Image first, then two columns */}
-                      <div className="flex flex-col sm:hidden gap-4 p-4">
-                        <div className="flex justify-center items-center">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src="/assets/gibs/front-to-back.png"
-                            alt="GIBS measurement diagram"
-                            className="aspect-square max-h-[200px]"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          {/* Left column - points 2,1,4,3 */}
-                          <div className="space-y-3">
-                            {[2, 1, 4, 3].map((pointNum) => {
-                              const point = extractGibsPoints(gibs.data)[pointNum - 1];
-                              return (
-                                <div key={pointNum}>
-                                  <div className="text-xs text-muted-foreground mb-1">
-                                    {point.label}
-                                  </div>
-                                  <div className="font-medium">{point.value}</div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                          {/* Right column - points 6,5,8,7 */}
-                          <div className="space-y-3">
-                            {[6, 5, 8, 7].map((pointNum) => {
-                              const point = extractGibsPoints(gibs.data)[pointNum - 1];
-                              return (
-                                <div key={pointNum}>
-                                  <div className="text-xs text-muted-foreground mb-1">
-                                    {point.label}
-                                  </div>
-                                  <div className="font-medium">{point.value}</div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Desktop layout: Left column, image, right column */}
-                      <div className="hidden sm:grid grid-cols-7 items-center p-4">
+                      <div className="grid grid-cols-2 gap-4">
                         {/* Left column - points 2,1,4,3 */}
                         <div className="space-y-3">
                           {[2, 1, 4, 3].map((pointNum) => {
                             const point = extractGibsPoints(gibs.data)[pointNum - 1];
                             return (
                               <div key={pointNum}>
-                                <div className="text-xs text-muted-foreground mb-1">
+                                <div className="mb-1 text-xs text-muted-foreground">
                                   {point.label}
                                 </div>
                                 <div className="font-medium">{point.value}</div>
@@ -922,24 +994,13 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                             );
                           })}
                         </div>
-
-                        {/* Center - image */}
-                        <div className="col-span-5 h-full flex justify-center items-center">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src="/assets/gibs/front-to-back.png"
-                            alt="GIBS measurement diagram"
-                            className="aspect-square max-h-[250px]"
-                          />
-                        </div>
-
                         {/* Right column - points 6,5,8,7 */}
                         <div className="space-y-3">
                           {[6, 5, 8, 7].map((pointNum) => {
                             const point = extractGibsPoints(gibs.data)[pointNum - 1];
                             return (
                               <div key={pointNum}>
-                                <div className="text-xs text-muted-foreground mb-1">
+                                <div className="mb-1 text-xs text-muted-foreground">
                                   {point.label}
                                 </div>
                                 <div className="font-medium">{point.value}</div>
@@ -950,63 +1011,74 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                       </div>
                     </div>
 
-                    {/* Second section: Points 9-16 (Left to Right) */}
-                    <div className="border rounded-md overflow-hidden mt-3">
-                      <div className="bg-muted/30 px-4 py-2 font-semibold">
-                        Left to Right Measurements
+                    {/* Desktop layout: Left column, image, right column */}
+                    <div className="hidden grid-cols-7 items-center p-4 sm:grid">
+                      {/* Left column - points 2,1,4,3 */}
+                      <div className="space-y-3">
+                        {[2, 1, 4, 3].map((pointNum) => {
+                          const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                          return (
+                            <div key={pointNum}>
+                              <div className="mb-1 text-xs text-muted-foreground">
+                                {point.label}
+                              </div>
+                              <div className="font-medium">{point.value}</div>
+                            </div>
+                          );
+                        })}
                       </div>
 
-                      {/* Mobile layout: Image first, then two columns */}
-                      <div className="flex flex-col sm:hidden gap-4 p-4">
-                        <div className="flex justify-center items-center">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src="/assets/gibs/left-to-right.png"
-                            alt="GIBS Left-to-Right measurement diagram"
-                            className="aspect-square max-h-[200px]"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          {/* Left column - points 13,9,15,11 */}
-                          <div className="space-y-3">
-                            {[13, 9, 15, 11].map((pointNum) => {
-                              const point = extractGibsPoints(gibs.data)[pointNum - 1];
-                              return (
-                                <div key={pointNum}>
-                                  <div className="text-xs text-muted-foreground mb-1">
-                                    {point.label}
-                                  </div>
-                                  <div className="font-medium">{point.value}</div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                          {/* Right column - points 14,10,16,12 */}
-                          <div className="space-y-3">
-                            {[14, 10, 16, 12].map((pointNum) => {
-                              const point = extractGibsPoints(gibs.data)[pointNum - 1];
-                              return (
-                                <div key={pointNum}>
-                                  <div className="text-xs text-muted-foreground mb-1">
-                                    {point.label}
-                                  </div>
-                                  <div className="font-medium">{point.value}</div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
+                      {/* Center - image */}
+                      <div className="col-span-5 flex h-full items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/assets/gibs/front-to-back.png"
+                          alt="GIBS measurement diagram"
+                          className="aspect-square max-h-[250px]"
+                        />
                       </div>
 
-                      {/* Desktop layout: Left column, image, right column */}
-                      <div className="hidden sm:grid grid-cols-7 items-center p-4">
+                      {/* Right column - points 6,5,8,7 */}
+                      <div className="space-y-3">
+                        {[6, 5, 8, 7].map((pointNum) => {
+                          const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                          return (
+                            <div key={pointNum}>
+                              <div className="mb-1 text-xs text-muted-foreground">
+                                {point.label}
+                              </div>
+                              <div className="font-medium">{point.value}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Second section: Points 9-16 (Left to Right) */}
+                  <div className="mt-3 overflow-hidden rounded-md border">
+                    <div className="bg-muted/30 px-4 py-2 font-semibold">
+                      Left to Right Measurements
+                    </div>
+
+                    {/* Mobile layout: Image first, then two columns */}
+                    <div className="flex flex-col gap-4 p-4 sm:hidden">
+                      <div className="flex items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/assets/gibs/left-to-right.png"
+                          alt="GIBS Left-to-Right measurement diagram"
+                          className="aspect-square max-h-[200px]"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
                         {/* Left column - points 13,9,15,11 */}
                         <div className="space-y-3">
                           {[13, 9, 15, 11].map((pointNum) => {
                             const point = extractGibsPoints(gibs.data)[pointNum - 1];
                             return (
                               <div key={pointNum}>
-                                <div className="text-xs text-muted-foreground mb-1">
+                                <div className="mb-1 text-xs text-muted-foreground">
                                   {point.label}
                                 </div>
                                 <div className="font-medium">{point.value}</div>
@@ -1014,24 +1086,13 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                             );
                           })}
                         </div>
-
-                        {/* Center - image */}
-                        <div className="col-span-5 h-full flex justify-center items-center">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src="/assets/gibs/left-to-right.png"
-                            alt="GIBS Left-to-Right measurement diagram"
-                            className="aspect-square max-h-[250px]"
-                          />
-                        </div>
-
                         {/* Right column - points 14,10,16,12 */}
                         <div className="space-y-3">
                           {[14, 10, 16, 12].map((pointNum) => {
                             const point = extractGibsPoints(gibs.data)[pointNum - 1];
                             return (
                               <div key={pointNum}>
-                                <div className="text-xs text-muted-foreground mb-1">
+                                <div className="mb-1 text-xs text-muted-foreground">
                                   {point.label}
                                 </div>
                                 <div className="font-medium">{point.value}</div>
@@ -1041,527 +1102,987 @@ export function LatestReportModal({ report, open, onOpenChange }: LatestReportMo
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              )}
 
-              {pistons && (
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Typography variant="h4" className="font-semibold">
-                      Pistons
-                    </Typography>
-                    <div className="flex items-center gap-3">
-                      {getSeverityBadge(getPistonsOverallSeverity())}
-                      <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')} {format(new Date(pistons.latestServiceDate), 'dd-MM-yyyy')}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* Outer Section */}
-                    {pistons.data.outerData && (
-                      <div className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
-                          <span>Outer</span>
-                          {getSeverityBadge(getPistonsSeverity('outer'))}
-                        </div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="font-semibold">Measurement</TableHead>
-                              <TableHead className="text-center font-semibold">Sum</TableHead>
-                              <TableHead className="text-center font-semibold">Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {extractPistonsRows(pistons.alert, 'outer').map((row, idx) => (
-                              <TableRow key={idx} className="hover:bg-muted/30">
-                                <TableCell className="font-medium">{row.field}</TableCell>
-                                <TableCell className="text-center">{row.sum}</TableCell>
-                                <TableCell className="text-center">
-                                  {getSeverityBadge(row.severity)}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-
-                    {/* Inner Section */}
-                    {pistons.data.innerData && (
-                      <div className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
-                          <span>Inner</span>
-                          {getSeverityBadge(getPistonsSeverity('inner'))}
-                        </div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="font-semibold">Measurement</TableHead>
-                              <TableHead className="text-center font-semibold">Sum</TableHead>
-                              <TableHead className="text-center font-semibold">Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {extractPistonsRows(pistons.alert, 'inner').map((row, idx) => (
-                              <TableRow key={idx} className="hover:bg-muted/30">
-                                <TableCell className="font-medium">{row.field}</TableCell>
-                                <TableCell className="text-center">{row.sum}</TableCell>
-                                <TableCell className="text-center">
-                                  {getSeverityBadge(row.severity)}
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {lubrication && (
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Typography variant="h4" className="font-semibold">
-                      {t('lubrication.title')}
-                    </Typography>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')}{' '}
-                        {format(new Date(lubrication.latestServiceDate), 'dd-MM-yyyy')}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="border rounded-md overflow-hidden">
-                    <Table>
-                      <TableHeader>
-                        <TableRow className="bg-muted/50">
-                          <TableHead className="font-semibold">{t('lubrication.field')}</TableHead>
-                          <TableHead className="text-center font-semibold">
-                            {t('lubrication.value')}
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        <TableRow className="hover:bg-muted/30">
-                          <TableCell className="font-medium">
-                            {t('lubrication.oilChanged')}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {formatYesNoDnc(lubrication.data.changedOil)}
-                          </TableCell>
-                        </TableRow>
-                        <TableRow className="hover:bg-muted/30">
-                          <TableCell className="font-medium">
-                            {t('lubrication.oilTemperature')}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {lubrication.data.oilTemperature
-                              ? `${lubrication.data.oilTemperature}${lubrication.data.oilTemperatureUnit === 'CELSIUS' ? '°C' : '°F'}`
-                              : '-'}
-                          </TableCell>
-                        </TableRow>
-                        <TableRow className="hover:bg-muted/30">
-                          <TableCell className="font-medium">
-                            {t('lubrication.oilMfgType')}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {lubrication.data.oilMfgType || '-'}
-                          </TableCell>
-                        </TableRow>
-                        <TableRow className="hover:bg-muted/30">
-                          <TableCell className="font-medium">
-                            {t('lubrication.filterChanged')}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {formatYesNoDnc(lubrication.data.changedFilter)}
-                          </TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </div>
-
-                  {lubrication.data.gauges && lubrication.data.gauges.length > 0 && (
-                    <div className="mt-3">
-                      <div className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold">
-                          {t('lubrication.systemGauges')}
-                        </div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="font-semibold">
-                                {t('lubrication.system')}
-                              </TableHead>
-                              <TableHead className="font-semibold">
-                                {t('lubrication.identifier')}
-                              </TableHead>
-                              <TableHead className="text-center font-semibold">
-                                {t('lubrication.status')}
-                              </TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {lubrication.data.gauges.map((gauge, idx) => (
-                              <TableRow key={idx} className="hover:bg-muted/30">
-                                <TableCell className="font-medium">{gauge.system || '-'}</TableCell>
-                                <TableCell>{gauge.gaugeSwitchIdentifier || '-'}</TableCell>
-                                <TableCell className="text-center">{gauge.psi || '-'}</TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {counterbalance && (
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Typography variant="h4" className="font-semibold">
-                      Counterbalance Cylinder/Airbag
-                    </Typography>
-                    <div className="flex items-center gap-3">
-                      {(countCounterbalanceIssues(counterbalance.data.outerData) > 0 ||
-                        countCounterbalanceIssues(counterbalance.data.innerData) > 0) && (
-                        <Badge variant="destructive">
-                          {countCounterbalanceIssues(counterbalance.data.outerData) +
-                            countCounterbalanceIssues(counterbalance.data.innerData)}{' '}
-                          {t('problems')}
-                        </Badge>
-                      )}
-                      <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')}{' '}
-                        {format(new Date(counterbalance.latestServiceDate), 'dd-MM-yyyy')}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {counterbalance.data.outerData && (
-                      <div className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
-                          <span>{t('counterbalance.outer')}</span>
-                          <Badge variant="outline">
-                            {counterbalance.data.outerData.counterbalanceType === 'CYLINDER'
-                              ? t('counterbalance.cylinder')
-                              : t('counterbalance.airbag')}
-                          </Badge>
-                        </div>
-                        <div className="p-3 space-y-2 text-sm">
-                          {[
-                            { key: 'airbagPistonSeals', labelKey: 'pistonSeals' },
-                            { key: 'regulator', labelKey: 'regulator' },
-                            { key: 'gauge', labelKey: 'gauge' },
-                            { key: 'pneumaticsPlumbing', labelKey: 'pneumaticsPlumbing' },
-                            { key: 'rodSeals', labelKey: 'rodSeals' },
-                            { key: 'rodBushing', labelKey: 'rodBushing' },
-                            { key: 'oilWick', labelKey: 'oilWick' },
-                          ].map(({ key, labelKey }) => {
-                            const value =
-                              counterbalance.data.outerData?.[
-                                key as keyof CounterbalanceCylinderData
-                              ];
-                            // Type guard: only pass string values to formatCounterbalanceStatus
-                            const stringValue = typeof value === 'string' ? value : undefined;
-                            const status = formatCounterbalanceStatus(stringValue);
-                            return (
-                              <div key={key} className="flex justify-between items-center">
-                                <span className="text-muted-foreground">
-                                  {t(`counterbalance.${labelKey}`)}
-                                </span>
-                                <Badge
-                                  variant="outline"
-                                  className={
-                                    status.isIssue
-                                      ? 'bg-red-100 text-red-800 border-red-200'
-                                      : status.text === t('counterbalance.status.ok')
-                                        ? 'bg-green-100 text-green-800 border-green-200'
-                                        : ''
-                                  }
-                                >
-                                  {status.text}
-                                </Badge>
+                    {/* Desktop layout: Left column, image, right column */}
+                    <div className="hidden grid-cols-7 items-center p-4 sm:grid">
+                      {/* Left column - points 13,9,15,11 */}
+                      <div className="space-y-3">
+                        {[13, 9, 15, 11].map((pointNum) => {
+                          const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                          return (
+                            <div key={pointNum}>
+                              <div className="mb-1 text-xs text-muted-foreground">
+                                {point.label}
                               </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-
-                    {counterbalance.data.innerData && (
-                      <div className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold flex items-center justify-between">
-                          <span>{t('counterbalance.inner')}</span>
-                          <Badge variant="outline">
-                            {counterbalance.data.innerData.counterbalanceType === 'CYLINDER'
-                              ? t('counterbalance.cylinder')
-                              : t('counterbalance.airbag')}
-                          </Badge>
-                        </div>
-                        <div className="p-3 space-y-2 text-sm">
-                          {[
-                            { key: 'airbagPistonSeals', labelKey: 'pistonSeals' },
-                            { key: 'regulator', labelKey: 'regulator' },
-                            { key: 'gauge', labelKey: 'gauge' },
-                            { key: 'pneumaticsPlumbing', labelKey: 'pneumaticsPlumbing' },
-                            { key: 'rodSeals', labelKey: 'rodSeals' },
-                            { key: 'rodBushing', labelKey: 'rodBushing' },
-                            { key: 'oilWick', labelKey: 'oilWick' },
-                          ].map(({ key, labelKey }) => {
-                            const value =
-                              counterbalance.data.innerData?.[
-                                key as keyof CounterbalanceCylinderData
-                              ];
-                            // Type guard: only pass string values to formatCounterbalanceStatus
-                            const stringValue = typeof value === 'string' ? value : undefined;
-                            const status = formatCounterbalanceStatus(stringValue);
-                            return (
-                              <div key={key} className="flex justify-between items-center">
-                                <span className="text-muted-foreground">
-                                  {t(`counterbalance.${labelKey}`)}
-                                </span>
-                                <Badge
-                                  variant="outline"
-                                  className={
-                                    status.isIssue
-                                      ? 'bg-red-100 text-red-800 border-red-200'
-                                      : status.text === t('counterbalance.status.ok')
-                                        ? 'bg-green-100 text-green-800 border-green-200'
-                                        : ''
-                                  }
-                                >
-                                  {status.text}
-                                </Badge>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {counterbalance.data.notes && (
-                    <div className="mt-3 p-3 border rounded-md bg-muted/20">
-                      <span className="text-sm font-medium">Notas: </span>
-                      <span className="text-sm">{counterbalance.data.notes}</span>
-                    </div>
-                  )}
-
-                  {counterbalance.alerts && counterbalance.alerts.length > 0 && (
-                    <div className="mt-3 border rounded-md overflow-hidden">
-                      <div className="bg-red-50 px-4 py-2 font-semibold flex items-center gap-2 text-red-800">
-                        <span>Alertas Personalizados</span>
-                        <Badge variant="destructive">{counterbalance.alerts.length}</Badge>
-                      </div>
-                      <div className="p-3 space-y-2">
-                        {counterbalance.alerts.map((alert) => (
-                          <div
-                            key={alert.id}
-                            className="p-2 bg-red-50 border border-red-200 rounded text-sm"
-                          >
-                            <div className="font-medium text-red-800">
-                              {alert.fieldName.replace(/_/g, ' ')}
+                              <div className="font-medium">{point.value}</div>
                             </div>
-                            <div className="text-red-600 mt-1">{alert.justification}</div>
-                          </div>
-                        ))}
+                          );
+                        })}
+                      </div>
+
+                      {/* Center - image */}
+                      <div className="col-span-5 flex h-full items-center justify-center">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src="/assets/gibs/left-to-right.png"
+                          alt="GIBS Left-to-Right measurement diagram"
+                          className="aspect-square max-h-[250px]"
+                        />
+                      </div>
+
+                      {/* Right column - points 14,10,16,12 */}
+                      <div className="space-y-3">
+                        {[14, 10, 16, 12].map((pointNum) => {
+                          const point = extractGibsPoints(gibs.data)[pointNum - 1];
+                          return (
+                            <div key={pointNum}>
+                              <div className="mb-1 text-xs text-muted-foreground">
+                                {point.label}
+                              </div>
+                              <div className="font-medium">{point.value}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {pistons && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Pistons
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(getPistonsOverallSeverity())}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')} {format(new Date(pistons.latestServiceDate), 'dd-MM-yyyy')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Outer Section */}
+                  {pistons.data.outerData && (
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
+                        <span>Outer</span>
+                        {getSeverityBadge(getPistonsSeverity('outer'))}
+                      </div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Sum ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {extractPistonsRows(pistons.alert, 'outer').map((row, idx) => (
+                            <TableRow key={idx} className="hover:bg-muted/30">
+                              <TableCell className="font-medium">{row.field}</TableCell>
+                              <TableCell className="text-center">{row.sum}</TableCell>
+                              <TableCell className="text-center">
+                                {getSeverityBadge(row.severity)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+
+                  {/* Inner Section */}
+                  {pistons.data.innerData && (
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
+                        <span>Inner</span>
+                        {getSeverityBadge(getPistonsSeverity('inner'))}
+                      </div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Sum ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {extractPistonsRows(pistons.alert, 'inner').map((row, idx) => (
+                            <TableRow key={idx} className="hover:bg-muted/30">
+                              <TableCell className="font-medium">{row.field}</TableCell>
+                              <TableCell className="text-center">{row.sum}</TableCell>
+                              <TableCell className="text-center">
+                                {getSeverityBadge(row.severity)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {lubrication && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    {t('lubrication.title')}
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')}{' '}
+                      {format(new Date(lubrication.latestServiceDate), 'dd-MM-yyyy')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead className="font-semibold">{t('lubrication.field')}</TableHead>
+                        <TableHead className="text-center font-semibold">
+                          {t('lubrication.value')}
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">{t('lubrication.oilChanged')}</TableCell>
+                        <TableCell className="text-center">
+                          {formatYesNoDnc(lubrication.data.changedOil)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">
+                          {t('lubrication.oilTemperature')}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {lubrication.data.oilTemperature
+                            ? `${lubrication.data.oilTemperature}${lubrication.data.oilTemperatureUnit === 'CELSIUS' ? '°C' : '°F'}`
+                            : '-'}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">{t('lubrication.oilMfgType')}</TableCell>
+                        <TableCell className="text-center">
+                          {lubrication.data.oilMfgType || '-'}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">
+                          {t('lubrication.filterChanged')}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          {formatYesNoDnc(lubrication.data.changedFilter)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {lubrication.data.gauges && lubrication.data.gauges.length > 0 && (
+                  <div className="mt-3">
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="bg-muted/30 px-4 py-2 font-semibold">
+                        {t('lubrication.systemGauges')}
+                      </div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="font-semibold">
+                              {t('lubrication.system')}
+                            </TableHead>
+                            <TableHead className="font-semibold">
+                              {t('lubrication.identifier')}
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">
+                              {t('lubrication.status')}
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {lubrication.data.gauges.map((gauge, idx) => (
+                            <TableRow key={idx} className="hover:bg-muted/30">
+                              <TableCell className="font-medium">{gauge.system || '-'}</TableCell>
+                              <TableCell>{gauge.gaugeSwitchIdentifier || '-'}</TableCell>
+                              <TableCell className="text-center">{gauge.psi || '-'}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {counterbalance && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Counterbalance Cylinder/Airbag
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {(countCounterbalanceIssues(counterbalance.data.outerData) > 0 ||
+                      countCounterbalanceIssues(counterbalance.data.innerData) > 0) && (
+                      <Badge variant="destructive">
+                        {countCounterbalanceIssues(counterbalance.data.outerData) +
+                          countCounterbalanceIssues(counterbalance.data.innerData)}{' '}
+                        {t('problems')}
+                      </Badge>
+                    )}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')}{' '}
+                      {format(new Date(counterbalance.latestServiceDate), 'dd-MM-yyyy')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {counterbalance.data.outerData && (
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
+                        <span>{t('counterbalance.outer')}</span>
+                        <Badge variant="outline">
+                          {counterbalance.data.outerData.counterbalanceType === 'CYLINDER'
+                            ? t('counterbalance.cylinder')
+                            : t('counterbalance.airbag')}
+                        </Badge>
+                      </div>
+                      <div className="space-y-2 p-3 text-sm">
+                        {[
+                          { key: 'airbagPistonSeals', labelKey: 'pistonSeals' },
+                          { key: 'regulator', labelKey: 'regulator' },
+                          { key: 'gauge', labelKey: 'gauge' },
+                          { key: 'pneumaticsPlumbing', labelKey: 'pneumaticsPlumbing' },
+                          { key: 'rodSeals', labelKey: 'rodSeals' },
+                          { key: 'rodBushing', labelKey: 'rodBushing' },
+                          { key: 'oilWick', labelKey: 'oilWick' },
+                        ].map(({ key, labelKey }) => {
+                          const value =
+                            counterbalance.data.outerData?.[
+                              key as keyof CounterbalanceCylinderData
+                            ];
+                          // Type guard: only pass string values to formatCounterbalanceStatus
+                          const stringValue = typeof value === 'string' ? value : undefined;
+                          const status = formatCounterbalanceStatus(stringValue);
+                          return (
+                            <div key={key} className="flex items-center justify-between">
+                              <span className="text-muted-foreground">
+                                {t(`counterbalance.${labelKey}`)}
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className={
+                                  status.isIssue
+                                    ? 'border-red-200 bg-red-100 text-red-800'
+                                    : status.text === t('counterbalance.status.ok')
+                                      ? 'border-green-200 bg-green-100 text-green-800'
+                                      : ''
+                                }
+                              >
+                                {status.text}
+                              </Badge>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {counterbalance.data.innerData && (
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="flex items-center justify-between bg-muted/30 px-4 py-2 font-semibold">
+                        <span>{t('counterbalance.inner')}</span>
+                        <Badge variant="outline">
+                          {counterbalance.data.innerData.counterbalanceType === 'CYLINDER'
+                            ? t('counterbalance.cylinder')
+                            : t('counterbalance.airbag')}
+                        </Badge>
+                      </div>
+                      <div className="space-y-2 p-3 text-sm">
+                        {[
+                          { key: 'airbagPistonSeals', labelKey: 'pistonSeals' },
+                          { key: 'regulator', labelKey: 'regulator' },
+                          { key: 'gauge', labelKey: 'gauge' },
+                          { key: 'pneumaticsPlumbing', labelKey: 'pneumaticsPlumbing' },
+                          { key: 'rodSeals', labelKey: 'rodSeals' },
+                          { key: 'rodBushing', labelKey: 'rodBushing' },
+                          { key: 'oilWick', labelKey: 'oilWick' },
+                        ].map(({ key, labelKey }) => {
+                          const value =
+                            counterbalance.data.innerData?.[
+                              key as keyof CounterbalanceCylinderData
+                            ];
+                          // Type guard: only pass string values to formatCounterbalanceStatus
+                          const stringValue = typeof value === 'string' ? value : undefined;
+                          const status = formatCounterbalanceStatus(stringValue);
+                          return (
+                            <div key={key} className="flex items-center justify-between">
+                              <span className="text-muted-foreground">
+                                {t(`counterbalance.${labelKey}`)}
+                              </span>
+                              <Badge
+                                variant="outline"
+                                className={
+                                  status.isIssue
+                                    ? 'border-red-200 bg-red-100 text-red-800'
+                                    : status.text === t('counterbalance.status.ok')
+                                      ? 'border-green-200 bg-green-100 text-green-800'
+                                      : ''
+                                }
+                              >
+                                {status.text}
+                              </Badge>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
                 </div>
-              )}
 
-              {tramming && (
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <Typography variant="h4" className="font-semibold">
-                      Tramming
-                    </Typography>
-                    <div className="flex items-center gap-3">
-                      {getSeverityBadge(getTrammingOverallSeverity())}
-                      <span className="text-sm text-muted-foreground">
-                        {t('updatedAt')}{' '}
-                        {format(new Date(tramming.latestServiceDate), 'dd-MM-yyyy')}
-                      </span>
+                {counterbalance.data.notes && (
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
+                    <span className="text-sm font-medium">Notas: </span>
+                    <span className="text-sm">{counterbalance.data.notes}</span>
+                  </div>
+                )}
+
+                {counterbalance.alerts && counterbalance.alerts.length > 0 && (
+                  <div className="mt-3 overflow-hidden rounded-md border">
+                    <div className="flex items-center gap-2 bg-red-50 px-4 py-2 font-semibold text-red-800">
+                      <span>Alertas Personalizados</span>
+                      <Badge variant="destructive">{counterbalance.alerts.length}</Badge>
+                    </div>
+                    <div className="space-y-2 p-3">
+                      {counterbalance.alerts.map((alert) => (
+                        <div
+                          key={alert.id}
+                          className="rounded border border-red-200 bg-red-50 p-2 text-sm"
+                        >
+                          <div className="font-medium text-red-800">
+                            {alert.fieldName.replace(/_/g, ' ')}
+                          </div>
+                          <div className="mt-1 text-red-600">{alert.justification}</div>
+                        </div>
+                      ))}
                     </div>
                   </div>
+                )}
+              </div>
+            )}
 
-                  <div className="space-y-4">
-                    {tramming.data.outerData && tramming.alert && (
-                      <div className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold">Outer</div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="font-semibold">Position</TableHead>
-                              <TableHead className="text-center font-semibold">
-                                Vertical Sum
-                              </TableHead>
-                              <TableHead className="text-center font-semibold">Status</TableHead>
-                              <TableHead className="text-center font-semibold">
-                                Horizontal Sum
-                              </TableHead>
-                              <TableHead className="text-center font-semibold">Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {['top', 'bottom', 'left', 'right'].map((position) => {
-                              const verticalSumKey =
-                                `outer_${position}_verticalSum` as keyof typeof tramming.alert;
-                              const verticalSeverityKey =
-                                `outer_${position}_verticalSeverity` as keyof typeof tramming.alert;
-                              const horizontalSumKey =
-                                `outer_${position}_horizontalSum` as keyof typeof tramming.alert;
-                              const horizontalSeverityKey =
-                                `outer_${position}_horizontalSeverity` as keyof typeof tramming.alert;
-
-                              const verticalSum = tramming.alert?.[verticalSumKey] as number;
-                              const verticalSeverity = tramming.alert?.[verticalSeverityKey] as
-                                | 'NONE'
-                                | 'GREEN'
-                                | 'YELLOW'
-                                | 'RED';
-                              const horizontalSum = tramming.alert?.[horizontalSumKey] as number;
-                              const horizontalSeverity = tramming.alert?.[horizontalSeverityKey] as
-                                | 'NONE'
-                                | 'GREEN'
-                                | 'YELLOW'
-                                | 'RED';
-
-                              return (
-                                <TableRow key={position} className="hover:bg-muted/30">
-                                  <TableCell className="font-medium capitalize">
-                                    {position}
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    {typeof verticalSum === 'number' ? verticalSum.toFixed(3) : '-'}
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    {getSeverityBadge(verticalSeverity)}
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    {typeof horizontalSum === 'number'
-                                      ? horizontalSum.toFixed(3)
-                                      : '-'}
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    {getSeverityBadge(horizontalSeverity)}
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
-
-                    {tramming.data.innerData && tramming.alert && (
-                      <div className="border rounded-md overflow-hidden">
-                        <div className="bg-muted/30 px-4 py-2 font-semibold">Inner</div>
-                        <Table>
-                          <TableHeader>
-                            <TableRow className="bg-muted/50">
-                              <TableHead className="font-semibold">Position</TableHead>
-                              <TableHead className="text-center font-semibold">
-                                Vertical Sum
-                              </TableHead>
-                              <TableHead className="text-center font-semibold">Status</TableHead>
-                              <TableHead className="text-center font-semibold">
-                                Horizontal Sum
-                              </TableHead>
-                              <TableHead className="text-center font-semibold">Status</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {['top', 'bottom', 'left', 'right'].map((position) => {
-                              const verticalSumKey =
-                                `inner_${position}_verticalSum` as keyof typeof tramming.alert;
-                              const verticalSeverityKey =
-                                `inner_${position}_verticalSeverity` as keyof typeof tramming.alert;
-                              const horizontalSumKey =
-                                `inner_${position}_horizontalSum` as keyof typeof tramming.alert;
-                              const horizontalSeverityKey =
-                                `inner_${position}_horizontalSeverity` as keyof typeof tramming.alert;
-
-                              const verticalSum = tramming.alert?.[verticalSumKey] as number;
-                              const verticalSeverity = tramming.alert?.[verticalSeverityKey] as
-                                | 'NONE'
-                                | 'GREEN'
-                                | 'YELLOW'
-                                | 'RED';
-                              const horizontalSum = tramming.alert?.[horizontalSumKey] as number;
-                              const horizontalSeverity = tramming.alert?.[horizontalSeverityKey] as
-                                | 'NONE'
-                                | 'GREEN'
-                                | 'YELLOW'
-                                | 'RED';
-
-                              return (
-                                <TableRow key={position} className="hover:bg-muted/30">
-                                  <TableCell className="font-medium capitalize">
-                                    {position}
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    {typeof verticalSum === 'number' ? verticalSum.toFixed(3) : '-'}
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    {getSeverityBadge(verticalSeverity)}
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    {typeof horizontalSum === 'number'
-                                      ? horizontalSum.toFixed(3)
-                                      : '-'}
-                                  </TableCell>
-                                  <TableCell className="text-center">
-                                    {getSeverityBadge(horizontalSeverity)}
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </div>
-                    )}
+            {tramming && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Tramming
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(getTrammingOverallSeverity())}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')} {format(new Date(tramming.latestServiceDate), 'dd-MM-yyyy')}
+                    </span>
                   </div>
                 </div>
-              )}
-            </div>
-          ) : (
-            <div className="border rounded-lg p-8 text-center">
-              <Typography variant="muted">Nenhum dado registrado ainda.</Typography>
-            </div>
-          )}
-        </div>
 
-        <div className="flex justify-between pt-4 px-4 border-t">
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-2"
-            onClick={handleExportPDF}
-            disabled={isExporting}
-            data-export-button
-          >
-            {isExporting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Download className="w-4 h-4" />
+                <div className="space-y-4">
+                  {tramming.data.outerData && tramming.alert && (
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="bg-muted/30 px-4 py-2 font-semibold">Outer</div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="font-semibold">Position</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Vertical Sum ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">Status</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Horizontal Sum ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {['top', 'bottom', 'left', 'right'].map((position) => {
+                            const verticalSumKey =
+                              `outer_${position}_verticalSum` as keyof typeof tramming.alert;
+                            const verticalSeverityKey =
+                              `outer_${position}_verticalSeverity` as keyof typeof tramming.alert;
+                            const horizontalSumKey =
+                              `outer_${position}_horizontalSum` as keyof typeof tramming.alert;
+                            const horizontalSeverityKey =
+                              `outer_${position}_horizontalSeverity` as keyof typeof tramming.alert;
+
+                            const verticalSum = tramming.alert?.[verticalSumKey] as number;
+                            const verticalSeverity = tramming.alert?.[verticalSeverityKey] as
+                              | 'NONE'
+                              | 'GREEN'
+                              | 'YELLOW'
+                              | 'RED';
+                            const horizontalSum = tramming.alert?.[horizontalSumKey] as number;
+                            const horizontalSeverity = tramming.alert?.[horizontalSeverityKey] as
+                              | 'NONE'
+                              | 'GREEN'
+                              | 'YELLOW'
+                              | 'RED';
+
+                            return (
+                              <TableRow key={position} className="hover:bg-muted/30">
+                                <TableCell className="font-medium capitalize">{position}</TableCell>
+                                <TableCell className="text-center">
+                                  {formatLength(verticalSum)}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {getSeverityBadge(verticalSeverity)}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {formatLength(horizontalSum)}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {getSeverityBadge(horizontalSeverity)}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+
+                  {tramming.data.innerData && tramming.alert && (
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="bg-muted/30 px-4 py-2 font-semibold">Inner</div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="font-semibold">Position</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Vertical Sum ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">Status</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Horizontal Sum ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {['top', 'bottom', 'left', 'right'].map((position) => {
+                            const verticalSumKey =
+                              `inner_${position}_verticalSum` as keyof typeof tramming.alert;
+                            const verticalSeverityKey =
+                              `inner_${position}_verticalSeverity` as keyof typeof tramming.alert;
+                            const horizontalSumKey =
+                              `inner_${position}_horizontalSum` as keyof typeof tramming.alert;
+                            const horizontalSeverityKey =
+                              `inner_${position}_horizontalSeverity` as keyof typeof tramming.alert;
+
+                            const verticalSum = tramming.alert?.[verticalSumKey] as number;
+                            const verticalSeverity = tramming.alert?.[verticalSeverityKey] as
+                              | 'NONE'
+                              | 'GREEN'
+                              | 'YELLOW'
+                              | 'RED';
+                            const horizontalSum = tramming.alert?.[horizontalSumKey] as number;
+                            const horizontalSeverity = tramming.alert?.[horizontalSeverityKey] as
+                              | 'NONE'
+                              | 'GREEN'
+                              | 'YELLOW'
+                              | 'RED';
+
+                            return (
+                              <TableRow key={position} className="hover:bg-muted/30">
+                                <TableCell className="font-medium capitalize">{position}</TableCell>
+                                <TableCell className="text-center">
+                                  {formatLength(verticalSum)}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {getSeverityBadge(verticalSeverity)}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {formatLength(horizontalSum)}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                  {getSeverityBadge(horizontalSeverity)}
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              </div>
             )}
-            Baixar PDF
-          </Button>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-            Fechar
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+
+            {/* Bearing Clearance Single Hammer Section */}
+            {bearingClearanceSingleHammer && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Bearing Clearance - Single Hammer
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(getBearingClearanceSingleHammerOverallSeverity())}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')}{' '}
+                      {format(
+                        new Date(bearingClearanceSingleHammer.latestServiceDate),
+                        'dd-MM-yyyy',
+                      )}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  {bearingClearanceSingleHammer.data.data && (
+                    <div className="overflow-hidden rounded-md border">
+                      <div className="bg-muted/30 px-4 py-2 font-semibold">After Adjustment</div>
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/50">
+                            <TableHead className="font-semibold">Measurement</TableHead>
+                            <TableHead className="text-center font-semibold">
+                              Differential ({unitLabel})
+                            </TableHead>
+                            <TableHead className="text-center font-semibold">Status</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {extractBearingClearanceSingleHammerRows(
+                            bearingClearanceSingleHammer.data.data,
+                            bearingClearanceSingleHammer.alert,
+                          ).map((row, idx) => (
+                            <TableRow key={idx} className="hover:bg-muted/30">
+                              <TableCell className="font-medium">{row.field}</TableCell>
+                              <TableCell className="text-center">{row.differential}</TableCell>
+                              <TableCell className="text-center">
+                                {getSeverityBadge(row.severity)}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Shim Thickness Section */}
+            {shimThickness && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Shim Thickness
+                  </Typography>
+                  <span className="text-sm text-muted-foreground">
+                    {t('updatedAt')}{' '}
+                    {format(new Date(shimThickness.latestServiceDate), 'dd-MM-yyyy')}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {shimThickness.data.outerLhData && (
+                    <div className="rounded-md border p-3">
+                      <div className="mb-2 font-semibold">Outer LH</div>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Top:</span>
+                          <span>{formatLength(shimThickness.data.outerLhData.top)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Bottom:</span>
+                          <span>{formatLength(shimThickness.data.outerLhData.bottom)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Left:</span>
+                          <span>{formatLength(shimThickness.data.outerLhData.left)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Right:</span>
+                          <span>{formatLength(shimThickness.data.outerLhData.right)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {shimThickness.data.outerRhData && (
+                    <div className="rounded-md border p-3">
+                      <div className="mb-2 font-semibold">Outer RH</div>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Top:</span>
+                          <span>{formatLength(shimThickness.data.outerRhData.top)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Bottom:</span>
+                          <span>{formatLength(shimThickness.data.outerRhData.bottom)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Left:</span>
+                          <span>{formatLength(shimThickness.data.outerRhData.left)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Right:</span>
+                          <span>{formatLength(shimThickness.data.outerRhData.right)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {shimThickness.data.innerLhData && (
+                    <div className="rounded-md border p-3">
+                      <div className="mb-2 font-semibold">Inner LH</div>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Top:</span>
+                          <span>{formatLength(shimThickness.data.innerLhData.top)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Bottom:</span>
+                          <span>{formatLength(shimThickness.data.innerLhData.bottom)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Left:</span>
+                          <span>{formatLength(shimThickness.data.innerLhData.left)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Right:</span>
+                          <span>{formatLength(shimThickness.data.innerLhData.right)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {shimThickness.data.innerRhData && (
+                    <div className="rounded-md border p-3">
+                      <div className="mb-2 font-semibold">Inner RH</div>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Top:</span>
+                          <span>{formatLength(shimThickness.data.innerRhData.top)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Bottom:</span>
+                          <span>{formatLength(shimThickness.data.innerRhData.bottom)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Left:</span>
+                          <span>{formatLength(shimThickness.data.innerRhData.left)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Right:</span>
+                          <span>{formatLength(shimThickness.data.innerRhData.right)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {shimThickness.data.notes && (
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
+                    <span className="text-sm font-medium">Notes: </span>
+                    <span className="text-sm">{shimThickness.data.notes}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Die Cushion Section */}
+            {dieCushion && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Die Cushion
+                  </Typography>
+                  <span className="text-sm text-muted-foreground">
+                    {t('updatedAt')} {format(new Date(dieCushion.latestServiceDate), 'dd-MM-yyyy')}
+                  </span>
+                </div>
+                <div className="overflow-hidden rounded-md border">
+                  <Table>
+                    <TableBody>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Air Leaks</TableCell>
+                        <TableCell className="text-right">
+                          {dieCushion.data.airLeaks || '-'}
+                        </TableCell>
+                      </TableRow>
+                      {dieCushion.data.airLeaksLocation && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Air Leaks Location</TableCell>
+                          <TableCell className="text-right">
+                            {dieCushion.data.airLeaksLocation}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Pneumatics/Plumbing</TableCell>
+                        <TableCell className="text-right">
+                          {dieCushion.data.pneumaticsPlumbing || '-'}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Lubrication</TableCell>
+                        <TableCell className="text-right">
+                          {dieCushion.data.lubrication || '-'}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+                {dieCushion.data.notes && (
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
+                    <span className="text-sm font-medium">Notes: </span>
+                    <span className="text-sm">{dieCushion.data.notes}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Electrical Control Section */}
+            {electricalControl && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Electrical Control
+                  </Typography>
+                  <span className="text-sm text-muted-foreground">
+                    {t('updatedAt')}{' '}
+                    {format(new Date(electricalControl.latestServiceDate), 'dd-MM-yyyy')}
+                  </span>
+                </div>
+                <div className="overflow-hidden rounded-md border">
+                  <Table>
+                    <TableBody>
+                      {electricalControl.data.hasHourMeter && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Has Hour Meter</TableCell>
+                          <TableCell className="text-right">
+                            {electricalControl.data.hasHourMeter}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {electricalControl.data.hourMeterReading && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Hour Meter Reading</TableCell>
+                          <TableCell className="text-right">
+                            {electricalControl.data.hourMeterReading}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {electricalControl.data.controlDoorStop && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Control Door Stop</TableCell>
+                          <TableCell className="text-right">
+                            {electricalControl.data.controlDoorStop}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {electricalControl.data.cabinetTemp && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Cabinet Temp</TableCell>
+                          <TableCell className="text-right">
+                            {electricalControl.data.cabinetTemp}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {electricalControl.data.safetyRelays && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">Safety Relays</TableCell>
+                          <TableCell className="text-right">
+                            {electricalControl.data.safetyRelays}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                {electricalControl.data.notes && (
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
+                    <span className="text-sm font-medium">Notes: </span>
+                    <span className="text-sm">{electricalControl.data.notes}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Perpendicularity Section */}
+            {perpendicularity && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Perpendicularity
+                  </Typography>
+                  <span className="text-sm text-muted-foreground">
+                    {t('updatedAt')}{' '}
+                    {format(new Date(perpendicularity.latestServiceDate), 'dd-MM-yyyy')}
+                  </span>
+                </div>
+                <div className="overflow-hidden rounded-md border">
+                  <Table>
+                    <TableBody>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Has Been Adjusted</TableCell>
+                        <TableCell className="text-right">
+                          {perpendicularity.data.hasBeenAdjusted || '-'}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Before F-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(perpendicularity.data.beforeFR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Before L-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(perpendicularity.data.beforeLR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">After F-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(perpendicularity.data.afterFR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">After L-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(perpendicularity.data.afterLR)}
+                        </TableCell>
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+                {perpendicularity.data.notes && (
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
+                    <span className="text-sm font-medium">Notes: </span>
+                    <span className="text-sm">{perpendicularity.data.notes}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Angularity Section */}
+            {angularity && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Angularity
+                  </Typography>
+                  <span className="text-sm text-muted-foreground">
+                    {t('updatedAt')} {format(new Date(angularity.latestServiceDate), 'dd-MM-yyyy')}
+                  </span>
+                </div>
+                <div className="overflow-hidden rounded-md border">
+                  <Table>
+                    <TableBody>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Has Been Adjusted</TableCell>
+                        <TableCell className="text-right">
+                          {angularity.data.hasBeenAdjusted || '-'}
+                        </TableCell>
+                      </TableRow>
+                      {angularity.data.spm !== undefined && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">SPM</TableCell>
+                          <TableCell className="text-right">{angularity.data.spm}</TableCell>
+                        </TableRow>
+                      )}
+                      {angularity.data.counterbalancePressure !== undefined && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">
+                            Counterbalance Pressure (PSI)
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {angularity.data.counterbalancePressure}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Before F-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(angularity.data.beforeFR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">Before L-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(angularity.data.beforeLR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">After F-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(angularity.data.afterFR)}
+                        </TableCell>
+                      </TableRow>
+                      <TableRow className="hover:bg-muted/30">
+                        <TableCell className="font-medium">After L-R ({unitLabel})</TableCell>
+                        <TableCell className="text-right">
+                          {formatLength(angularity.data.afterLR)}
+                        </TableCell>
+                      </TableRow>
+                      {angularity.data.totalLiftCheck !== undefined && (
+                        <TableRow className="hover:bg-muted/30">
+                          <TableCell className="font-medium">
+                            Total Lift Check ({unitLabel})
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatLength(angularity.data.totalLiftCheck)}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+                {angularity.data.notes && (
+                  <div className="mt-3 rounded-md border bg-muted/20 p-3">
+                    <span className="text-sm font-medium">Notes: </span>
+                    <span className="text-sm">{angularity.data.notes}</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="rounded-lg border p-8 text-center">
+            <Typography variant="muted">Nenhum dado registrado ainda.</Typography>
+          </div>
+        )}
+      </div>
+
+      <div className="flex justify-between border-t px-4 pt-4">
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2"
+          onClick={handleExportPDF}
+          disabled={isExporting}
+          data-export-button
+        >
+          {isExporting ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
+          Baixar PDF
+        </Button>
+        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          Fechar
+        </Button>
+      </div>
+    </DialogContent>
   );
 }

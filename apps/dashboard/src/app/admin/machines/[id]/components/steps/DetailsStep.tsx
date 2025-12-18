@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/ui/typography';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -63,6 +64,10 @@ interface DetailsStepProps {
   whyNotCovered: WhyNotCoveredType | undefined;
   setWhyNotCovered: (value: string) => void;
 
+  // Fill Angularity checkbox
+  fillAngularity: boolean;
+  setFillAngularity: (value: boolean) => void;
+
   // Attachments
   attachments: Attachment[];
   setAttachments: (attachments: Attachment[]) => void;
@@ -115,6 +120,7 @@ interface DetailsStepProps {
     isMainMotorSecure: string;
     isMotorPlateSecure: string;
     whyNotCovered: string;
+    fillAngularity: string;
     // Attached documents
     attachedDocumentsTitle: string;
   };
@@ -153,6 +159,8 @@ export function DetailsStep({
   setIsMotorPlateSecure,
   whyNotCovered,
   setWhyNotCovered,
+  fillAngularity,
+  setFillAngularity,
   attachments,
   setAttachments,
   machine,
@@ -302,7 +310,9 @@ export function DetailsStep({
           <div className="space-y-4">
             {/* Press Level */}
             <div>
-              <Label htmlFor="isPressLevel">{translations.isPressLevel}</Label>
+              <Label htmlFor="isPressLevel">
+                {translations.isPressLevel} <span className="text-destructive">*</span>
+              </Label>
               <Select
                 value={isPressLevel || ''}
                 onValueChange={(value) => setIsPressLevel(value as YesNoNaDncType)}
@@ -321,7 +331,9 @@ export function DetailsStep({
 
             {/* Drive Belt Condition */}
             <div>
-              <Label htmlFor="driveBeltCondition">{translations.driveBeltCondition}</Label>
+              <Label htmlFor="driveBeltCondition">
+                {translations.driveBeltCondition} <span className="text-destructive">*</span>
+              </Label>
               <Select value={driveBeltCondition} onValueChange={setDriveBeltCondition}>
                 <SelectTrigger id="driveBeltCondition" className="mt-1">
                   <SelectValue placeholder="Select..." />
@@ -338,7 +350,9 @@ export function DetailsStep({
 
             {/* Protective Covers */}
             <div>
-              <Label htmlFor="areAllProtectiveCovers">{translations.areAllProtectiveCovers}</Label>
+              <Label htmlFor="areAllProtectiveCovers">
+                {translations.areAllProtectiveCovers} <span className="text-destructive">*</span>
+              </Label>
               <Select value={areAllProtectiveCovers} onValueChange={setAreAllProtectiveCovers}>
                 <SelectTrigger id="areAllProtectiveCovers" className="mt-1">
                   <SelectValue placeholder="Select..." />
@@ -464,6 +478,18 @@ export function DetailsStep({
                   <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Fill Angularity Checkbox */}
+            <div className="flex items-center space-x-2 pt-2">
+              <Checkbox
+                id="fillAngularity"
+                checked={fillAngularity}
+                onCheckedChange={(checked) => setFillAngularity(checked === true)}
+              />
+              <Label htmlFor="fillAngularity" className="cursor-pointer">
+                {translations.fillAngularity}
+              </Label>
             </div>
           </div>
         </div>

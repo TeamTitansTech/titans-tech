@@ -56,6 +56,10 @@ export const BlueprintCreationModal = ({
     setThresholdsOpen,
     thresholds,
     setThresholds,
+    bearingClearanceSingleHammerThresholdsOpen,
+    setBearingClearanceSingleHammerThresholdsOpen,
+    bearingClearanceSingleHammerThresholds,
+    setBearingClearanceSingleHammerThresholds,
     clutchThresholdsOpen,
     setClutchThresholdsOpen,
     clutchThresholds,
@@ -154,9 +158,9 @@ export const BlueprintCreationModal = ({
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <UnitManagerProvider>
-          <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col bg-background">
-            <form onSubmit={onSubmit} className="flex flex-col flex-1 min-h-0">
-              <DialogHeader className="p-6 pb-4 shrink-0 border-b border-border">
+          <DialogContent className="flex max-w-4xl flex-col bg-background p-0">
+            <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
+              <DialogHeader className="shrink-0 border-b border-border p-6 pb-4">
                 <DialogTitle className="text-2xl text-foreground">
                   {isEditing ? t('editTitle') : t('title')}
                 </DialogTitle>
@@ -165,7 +169,7 @@ export const BlueprintCreationModal = ({
                 </DialogDescription>
               </DialogHeader>
 
-              <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6 min-h-0">
+              <div className="min-h-0 flex-1 space-y-6 overflow-y-auto px-6 py-6">
                 <BasicInfoSection
                   name={name}
                   setName={setName}
@@ -212,6 +216,7 @@ export const BlueprintCreationModal = ({
                   updateNewOptionValue={updateNewOptionValue}
                   headerExtra={
                     selectedSections.includes('bearing_clearance') ||
+                    selectedSections.includes('bearing_clearance_single_hammer') ||
                     selectedSections.includes('clutch') ||
                     selectedSections.includes('slide_single_hammer') ||
                     selectedSections.includes('slide_double_hammer') ||
@@ -238,7 +243,7 @@ export const BlueprintCreationModal = ({
                   }}
                 />
 
-                {selectedSections.includes('bearing_clearance') && (
+                {!isEditing && selectedSections.includes('bearing_clearance') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -252,7 +257,22 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('clutch') && (
+                {!isEditing && selectedSections.includes('bearing_clearance_single_hammer') && (
+                  <>
+                    <Separator />
+                    <section className="space-y-4">
+                      <BearingClearanceThresholds
+                        open={bearingClearanceSingleHammerThresholdsOpen}
+                        onOpenChange={setBearingClearanceSingleHammerThresholdsOpen}
+                        data={bearingClearanceSingleHammerThresholds}
+                        onChange={setBearingClearanceSingleHammerThresholds}
+                        title={`${tSections('bearing_clearance_single_hammer')} - Thresholds`}
+                      />
+                    </section>
+                  </>
+                )}
+
+                {!isEditing && selectedSections.includes('clutch') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -266,7 +286,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('slide_single_hammer') && (
+                {!isEditing && selectedSections.includes('slide_single_hammer') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -280,7 +300,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('slide_double_hammer') && (
+                {!isEditing && selectedSections.includes('slide_double_hammer') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -294,7 +314,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('gibs') && (
+                {!isEditing && selectedSections.includes('gibs') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -308,7 +328,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('pistons') && (
+                {!isEditing && selectedSections.includes('pistons') && (
                   <>
                     <Separator />
                     <section className="space-y-4">
@@ -322,7 +342,7 @@ export const BlueprintCreationModal = ({
                   </>
                 )}
 
-                {selectedSections.includes('tramming') && (
+                {!isEditing && selectedSections.includes('tramming') && (
                   <>
                     <Separator />
                     <section className="space-y-4">

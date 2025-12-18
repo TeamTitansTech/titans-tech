@@ -15,6 +15,7 @@ import { hasActualData, extractBearingRows } from '../utils/sectionDataUtils';
 import { formatFieldName } from '../utils/fieldFormatters';
 import { translateEnumValue } from './utils/translateEnum';
 import { SectionAttachments } from './SectionAttachments';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface BearingClearanceSummaryProps {
   data: BearingClearanceCheck;
@@ -26,6 +27,7 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
   const tBearingFields = useTranslations('bearingFields');
   const tServicesSummary = useTranslations('services.modal.summary');
   const tCommon = useTranslations('common.status');
+  const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 
   // Return null if no data provided
   if (!data) {
@@ -51,6 +53,32 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
     return translateEnumValue(value, tCommon);
   };
 
+  // Helper to display numeric value with unit conversion
+  // Treats 0 as empty since database stores 0 for unfilled numeric fields
+  const displayNumericValue = (value: unknown): string => {
+    if (value === null || value === undefined || value === '' || value === 0) {
+      return '-';
+    }
+    const numValue = Number(value);
+    if (isNaN(numValue) || numValue === 0) {
+      return numValue === 0 ? '-' : translateEnumValue(value, tCommon);
+    }
+    // Convert from storage unit (inches) to display unit
+    const convertedValue = convertLengthFromDefault(numValue);
+    return convertedValue.toFixed(4);
+  };
+
+  // Helper to convert differential value
+  const displayDifferential = (diff: string): string => {
+    if (diff === '-') return diff;
+    const numValue = parseFloat(diff);
+    if (isNaN(numValue)) return diff;
+    const convertedValue = convertLengthFromDefault(numValue);
+    return convertedValue.toFixed(4);
+  };
+
+  const unitLabel = getLengthUnitLabel();
+
   // Check if we have before data
   const hasBeforeData: boolean =
     !!(outerBefore && hasActualData(outerBefore)) || !!(innerBefore && hasActualData(innerBefore));
@@ -68,7 +96,8 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
       {hasBeforeData && (
         <div className="border-t pt-2 mb-3">
           <div className="font-semibold text-muted-foreground mb-2 text-sm">
-            {tServices('modal.sections.beforeMaintenance')}
+            {tServices('modal.sections.beforeMaintenance')}{' '}
+            <span className="text-[10px] italic font-normal">({unitLabel})</span>
           </div>
           <div className="grid grid-cols-2 gap-3">
             {/* Outer Table */}
@@ -100,12 +129,14 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                         {translateFieldName(row.field)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
-                        {displayValue(row.lh)}
+                        {displayNumericValue(row.lh)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
-                        {displayValue(row.rh)}
+                        {displayNumericValue(row.rh)}
                       </TableCell>
-                      <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                      <TableCell className="py-1.5 text-center">
+                        {displayDifferential(row.differential)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -141,12 +172,14 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                         {translateFieldName(row.field)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
-                        {displayValue(row.lh)}
+                        {displayNumericValue(row.lh)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
-                        {displayValue(row.rh)}
+                        {displayNumericValue(row.rh)}
                       </TableCell>
-                      <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                      <TableCell className="py-1.5 text-center">
+                        {displayDifferential(row.differential)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -161,7 +194,8 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
         <div className="border-t pt-2">
           {hasBeforeData && (
             <div className="font-semibold text-muted-foreground mb-2 text-sm">
-              {tServices('modal.sections.afterMaintenance')}
+              {tServices('modal.sections.afterMaintenance')}{' '}
+              <span className="text-[10px] italic font-normal">({unitLabel})</span>
             </div>
           )}
           <div className="grid grid-cols-2 gap-3">
@@ -194,12 +228,14 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                         {translateFieldName(row.field)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
-                        {displayValue(row.lh)}
+                        {displayNumericValue(row.lh)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
-                        {displayValue(row.rh)}
+                        {displayNumericValue(row.rh)}
                       </TableCell>
-                      <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                      <TableCell className="py-1.5 text-center">
+                        {displayDifferential(row.differential)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -235,12 +271,14 @@ export function BearingClearanceSummary({ data }: BearingClearanceSummaryProps) 
                         {translateFieldName(row.field)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
-                        {displayValue(row.lh)}
+                        {displayNumericValue(row.lh)}
                       </TableCell>
                       <TableCell className="py-1.5 text-center border-r">
-                        {displayValue(row.rh)}
+                        {displayNumericValue(row.rh)}
                       </TableCell>
-                      <TableCell className="py-1.5 text-center">{row.differential}</TableCell>
+                      <TableCell className="py-1.5 text-center">
+                        {displayDifferential(row.differential)}
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

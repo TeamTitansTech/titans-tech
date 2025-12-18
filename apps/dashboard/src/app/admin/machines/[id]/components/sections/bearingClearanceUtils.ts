@@ -18,7 +18,7 @@ export interface SharedFields {
 export interface TabSpecificFields {
   hasBeenAdjusted: YesNoNaDncType;
   combinedWith: string;
-  matingPart: MatingPartType;
+  matingPart: MatingPartType | undefined;
 }
 
 /**
@@ -118,4 +118,56 @@ export function validateAtLeastOneSection(
   }
 
   return errors;
+}
+
+// Numeric fields that need to be converted from undefined to 0 for backend submission
+const NUMERIC_FIELDS: (keyof BearingClearanceData)[] = [
+  'totalClearance_RH',
+  'totalClearance_LH',
+  'mainBearings_RH',
+  'mainBearings_LH',
+  'upperConnectionBearings_RH',
+  'upperConnectionBearings_LH',
+  'wristPinToMatingPart_RH',
+  'wristPinToMatingPart_LH',
+  'wristPinToBushing_RH',
+  'wristPinToBushing_LH',
+  'slideAdjNutToScrewSleeve_RH',
+  'slideAdjNutToScrewSleeve_LH',
+  'extraDoubleLockOpen_RH',
+  'extraDoubleLockOpen_LH',
+  'ballBoxArea_RH',
+  'ballBoxArea_LH',
+];
+
+/**
+ * Sanitizes bearing clearance data for backend submission.
+ * Converts undefined numeric fields to 0 since the database requires non-null values.
+ */
+export function sanitizeBearingDataForSubmission(data: BearingClearanceData): BearingClearanceData {
+  const sanitized = { ...data };
+  for (const field of NUMERIC_FIELDS) {
+    if (sanitized[field] === undefined || sanitized[field] === null) {
+      (sanitized as Record<string, unknown>)[field] = 0;
+    }
+  }
+  return sanitized;
+}
+
+/**
+ * Desanitizes bearing clearance data for display in forms.
+ * Converts 0 numeric fields back to undefined so empty inputs are shown correctly.
+ * This reverses the sanitization done before saving to the database.
+ */
+export function desanitizeBearingDataForDisplay(
+  data: BearingClearanceData | undefined,
+): BearingClearanceData | undefined {
+  if (!data) return undefined;
+  const desanitized = { ...data };
+  for (const field of NUMERIC_FIELDS) {
+    if (desanitized[field] === 0) {
+      (desanitized as Record<string, unknown>)[field] = undefined;
+    }
+  }
+  return desanitized;
 }

@@ -43,6 +43,8 @@ import { SectionsStep } from './steps/SectionsStep';
 import { SummaryStep } from './steps/SummaryStep';
 import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 import type { Attachment } from '@/components/ui/document-upload';
+import { YesNoDncType } from '@titans-tech/shared/enums';
+import { WhyNotCoveredType } from '@titans-tech/shared/types';
 
 export function ServiceCompletionModal({
   machineId,
@@ -84,6 +86,49 @@ export function ServiceCompletionModal({
       return error.replace('Invalid option: expected', tErrors('invalidOption'));
     }
     return error;
+  };
+
+  // Validate Details step required fields (frontend validation)
+  const validateDetailsFields = (): string[] => {
+    const missingFields: string[] = [];
+
+    // All observation fields are required
+    if (!isPressLevel) {
+      missingFields.push(tErrors('isPressLevelRequired'));
+    }
+    if (!driveBeltCondition) {
+      missingFields.push(tErrors('driveBeltConditionRequired'));
+    }
+    if (!areAllProtectiveCovers) {
+      missingFields.push(tErrors('areAllProtectiveCoversRequired'));
+    }
+    if (!areCracksVisible) {
+      missingFields.push(tErrors('areCracksVisibleRequired'));
+    }
+    // Conditional: cracksLocation required when areCracksVisible is YES
+    if (areCracksVisible === YesNoDncType.YES && !cracksLocation?.trim()) {
+      missingFields.push(tErrors('cracksLocationRequired'));
+    }
+    if (!isMainMotorSecure) {
+      missingFields.push(tErrors('isMainMotorSecureRequired'));
+    }
+    if (!isMotorPlateSecure) {
+      missingFields.push(tErrors('isMotorPlateSecureRequired'));
+    }
+    // Conditional: whyNotCovered required when areAllProtectiveCovers is NO
+    if (areAllProtectiveCovers === 'NO' && !whyNotCovered) {
+      missingFields.push(tErrors('whyNotCoveredRequired'));
+    }
+    // Conditional: protectiveCoversExplanation required when whyNotCovered is OTHER_EXPLAIN
+    if (
+      areAllProtectiveCovers === 'NO' &&
+      whyNotCovered === WhyNotCoveredType.OTHER_EXPLAIN &&
+      !protectiveCoversExplanation?.trim()
+    ) {
+      missingFields.push(tErrors('protectiveCoversExplanationRequired'));
+    }
+
+    return missingFields;
   };
 
   // Helper function to get dialog title
@@ -170,6 +215,8 @@ export function ServiceCompletionModal({
     setIsMotorPlateSecure,
     whyNotCovered,
     setWhyNotCovered,
+    fillAngularity,
+    setFillAngularity,
     reset: resetForm,
   } = useServiceForm(serviceType, initialDate, initialPerformedBy);
 
@@ -233,6 +280,7 @@ export function ServiceCompletionModal({
     setIsMainMotorSecure,
     setIsMotorPlateSecure,
     setWhyNotCovered,
+    setFillAngularity,
   );
 
   // Reset when modal closes
@@ -257,6 +305,26 @@ export function ServiceCompletionModal({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentServiceType, open, serviceId, machineSections]);
+
+  // Dynamically add/remove ANGULARITY section based on fillAngularity checkbox
+  useEffect(() => {
+    if (fillAngularity) {
+      // Add ANGULARITY to selectedSections
+      setSelectedSections((prev) => {
+        const newSet = new Set(prev);
+        newSet.add('ANGULARITY');
+        return newSet;
+      });
+    } else {
+      // Remove ANGULARITY from selectedSections
+      setSelectedSections((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete('ANGULARITY');
+        return newSet;
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fillAngularity]);
 
   // Navigation handlers
   const handleProceedToDetails = async () => {
@@ -288,6 +356,16 @@ export function ServiceCompletionModal({
         return;
       }
 
+      // Frontend validation for Details required fields
+      const missingFields = validateDetailsFields();
+      if (missingFields.length > 0) {
+        const numberedList = missingFields
+          .map((field, index) => `${index + 1}. ${field}`)
+          .join('\n');
+        toast.error(`${tErrors('detailsMissingFields')}\n\n${numberedList}`, { duration: 5000 });
+        return;
+      }
+
       // Create or update service
       if (!currentServiceId) {
         // Create new service
@@ -312,6 +390,7 @@ export function ServiceCompletionModal({
             isMainMotorSecure,
             isMotorPlateSecure,
             whyNotCovered,
+            fillAngularity,
           };
 
           const response = await createService(payload);
@@ -355,6 +434,7 @@ export function ServiceCompletionModal({
             isMainMotorSecure,
             isMotorPlateSecure,
             whyNotCovered,
+            fillAngularity,
           };
 
           const response = await updateService(currentServiceId, updatePayload);
@@ -727,7 +807,7 @@ export function ServiceCompletionModal({
   return (
     <>
       <Dialog open={open && !showAlertNotificationModal} onOpenChange={onOpenChange}>
-        <DialogContent className="p-2 pt-6 sm:p-6 w-full md:w-[1200px] h-[86vh] max-w-[95vw] max-h-[95vh] overflow-hidden flex flex-col">
+        <DialogContent className="flex flex-col p-2 pt-6 sm:p-6">
           <UnitManagerProvider>
             <DialogHeader>
               <DialogTitle>{getDialogTitle()}</DialogTitle>
@@ -735,9 +815,9 @@ export function ServiceCompletionModal({
             </DialogHeader>
 
             {isLoadingServiceData && serviceId && !hasLoadedInitialData.current ? (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center space-y-3">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+              <div className="flex flex-1 items-center justify-center">
+                <div className="space-y-3 text-center">
+                  <div className="mx-auto h-12 w-12 animate-spin rounded-full border-b-2 border-primary"></div>
                   <Typography variant="muted">Carregando dados do serviço...</Typography>
                 </div>
               </div>
@@ -758,7 +838,7 @@ export function ServiceCompletionModal({
                 }}
               />
             ) : currentStep === 'details' ? (
-              <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+              <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
                 <DetailsStep
                   date={date}
                   performedBy={performedBy}
@@ -794,6 +874,8 @@ export function ServiceCompletionModal({
                   setWhyNotCovered={setWhyNotCovered}
                   attachments={attachments}
                   setAttachments={setAttachments}
+                  fillAngularity={fillAngularity}
+                  setFillAngularity={setFillAngularity}
                   translations={{
                     dateLabel: isCompletingService
                       ? tServices('modal.realizationDate')
@@ -840,12 +922,13 @@ export function ServiceCompletionModal({
                       'modal.inspectionObservations.isMotorPlateSecure',
                     ),
                     whyNotCovered: tServices('modal.inspectionObservations.whyNotCovered'),
+                    fillAngularity: tServices('modal.inspectionObservations.fillAngularity'),
                     attachedDocumentsTitle: tServices('modal.attachedDocuments.title'),
                   }}
                 />
               </form>
             ) : currentStep === 'sections' ? (
-              <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+              <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
                 <SectionsStep
                   selectedSectionsArray={getSelectedSectionsArray()}
                   currentSectionIndex={currentSectionIndex}

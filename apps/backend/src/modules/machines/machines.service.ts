@@ -24,6 +24,7 @@ export class MachinesService {
       where: { id: userId },
       include: {
         branches: {
+          where: { deletedAt: null },
           select: { branchId: true },
         },
         company: {
@@ -58,7 +59,7 @@ export class MachinesService {
       where: { id: userId },
       include: {
         branches: {
-          where: { branchId },
+          where: { branchId, deletedAt: null },
         },
         company: {
           include: {

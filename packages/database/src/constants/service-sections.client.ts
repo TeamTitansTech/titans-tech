@@ -5,6 +5,7 @@
 
 export const SERVICE_SECTION_SLUGS = [
   'bearing_clearance',
+  'bearing_clearance_single_hammer',
   'slide_single_hammer',
   'slide_double_hammer',
   'gibs',
@@ -13,6 +14,13 @@ export const SERVICE_SECTION_SLUGS = [
   'counterbalance_cylinder_airbag',
   'tramming',
   'pistons',
+  'shim_thickness',
+  'die_cushion',
+  'electrical_control',
+  'perpendicularity',
 ] as const;
+
+// Angularity is a special section that is enabled via a checkbox, not selected from the list
+export const ANGULARITY_SECTION_SLUG = 'angularity' as const;
 
 export type ServiceSectionSlug = (typeof SERVICE_SECTION_SLUGS)[number];

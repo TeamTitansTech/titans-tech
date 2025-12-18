@@ -18,6 +18,7 @@ import { type Field } from '../types';
 // Client-safe slug to enum mapping
 const SLUG_TO_SECTION: Record<string, string> = {
   bearing_clearance: 'BEARING_CLEARANCE',
+  bearing_clearance_single_hammer: 'BEARING_CLEARANCE_SINGLE_HAMMER',
   slide_single_hammer: 'SLIDE_SINGLE_HAMMER',
   slide_double_hammer: 'SLIDE_DOUBLE_HAMMER',
   gibs: 'GIBS',
@@ -27,6 +28,11 @@ const SLUG_TO_SECTION: Record<string, string> = {
   counterbalance_cylinder_airbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
   tramming: 'TRAMMING',
   pistons: 'PISTONS',
+  shim_thickness: 'SHIM_THICKNESS',
+  die_cushion: 'DIE_CUSHION',
+  electrical_control: 'ELECTRICAL_CONTROL',
+  perpendicularity: 'PERPENDICULARITY',
+  angularity: 'ANGULARITY',
 };
 
 const INITIAL_THRESHOLDS: BearingClearanceThresholdsData = {
@@ -103,6 +109,12 @@ export function useBlueprintForm(
   const [selectedSections, setSelectedSections] = useState<string[]>([]);
   const [thresholdsOpen, setThresholdsOpen] = useState(false);
   const [thresholds, setThresholds] = useState<BearingClearanceThresholdsData>(INITIAL_THRESHOLDS);
+  const [
+    bearingClearanceSingleHammerThresholdsOpen,
+    setBearingClearanceSingleHammerThresholdsOpen,
+  ] = useState(false);
+  const [bearingClearanceSingleHammerThresholds, setBearingClearanceSingleHammerThresholds] =
+    useState<BearingClearanceThresholdsData>(INITIAL_THRESHOLDS);
   const [clutchThresholdsOpen, setClutchThresholdsOpen] = useState(false);
   const [clutchThresholds, setClutchThresholds] =
     useState<ClutchThresholdsData>(INITIAL_CLUTCH_THRESHOLDS);
@@ -180,6 +192,14 @@ export function useBlueprintForm(
 
       if (hasTrammingThresholdChanges) return true;
 
+      const hasBearingClearanceSingleHammerThresholdChanges = (
+        Object.keys(bearingClearanceSingleHammerThresholds) as Array<
+          keyof BearingClearanceThresholdsData
+        >
+      ).some((key) => bearingClearanceSingleHammerThresholds[key] !== INITIAL_THRESHOLDS[key]);
+
+      if (hasBearingClearanceSingleHammerThresholdChanges) return true;
+
       return false;
     },
     [
@@ -192,6 +212,7 @@ export function useBlueprintForm(
       gibsThresholds,
       pistonsThresholds,
       trammingThresholds,
+      bearingClearanceSingleHammerThresholds,
     ],
   );
 
@@ -210,6 +231,9 @@ export function useBlueprintForm(
     e.preventDefault();
 
     const hasBearingClearance = selectedSections.includes('bearing_clearance');
+    const hasBearingClearanceSingleHammer = selectedSections.includes(
+      'bearing_clearance_single_hammer',
+    );
     const hasClutch = selectedSections.includes('clutch');
     const hasSlideSingleHammer = selectedSections.includes('slide_single_hammer');
     const hasSlideDoubleHammer = selectedSections.includes('slide_double_hammer');
@@ -243,6 +267,10 @@ export function useBlueprintForm(
 
     if (hasBearingClearance) {
       payload.thresholds = thresholds;
+    }
+
+    if (hasBearingClearanceSingleHammer) {
+      payload.bearingClearanceSingleHammerThresholds = bearingClearanceSingleHammerThresholds;
     }
 
     if (hasClutch) {
@@ -281,6 +309,7 @@ export function useBlueprintForm(
       setImageUrl(null);
       setSelectedSections([]);
       setThresholdsOpen(false);
+      setBearingClearanceSingleHammerThresholdsOpen(false);
       setClutchThresholdsOpen(false);
       setSlideSingleHammerThresholdsOpen(false);
       setSlideDoubleHammerThresholdsOpen(false);
@@ -299,6 +328,7 @@ export function useBlueprintForm(
 
   const resetThresholds = useCallback(() => {
     setThresholds(INITIAL_THRESHOLDS);
+    setBearingClearanceSingleHammerThresholds(INITIAL_THRESHOLDS);
     setClutchThresholds(INITIAL_CLUTCH_THRESHOLDS);
     setSlideSingleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
     setSlideDoubleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
@@ -320,6 +350,7 @@ export function useBlueprintForm(
     setImageUrl(null);
     setSelectedSections([]);
     setThresholdsOpen(false);
+    setBearingClearanceSingleHammerThresholdsOpen(false);
     setClutchThresholdsOpen(false);
     setSlideSingleHammerThresholdsOpen(false);
     setSlideDoubleHammerThresholdsOpen(false);
@@ -342,6 +373,10 @@ export function useBlueprintForm(
     setThresholdsOpen,
     thresholds,
     setThresholds,
+    bearingClearanceSingleHammerThresholdsOpen,
+    setBearingClearanceSingleHammerThresholdsOpen,
+    bearingClearanceSingleHammerThresholds,
+    setBearingClearanceSingleHammerThresholds,
     clutchThresholdsOpen,
     setClutchThresholdsOpen,
     clutchThresholds,

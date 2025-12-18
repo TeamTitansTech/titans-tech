@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import type { GibsCheck, GibsStageData } from '@/data/types/services.types';
 import { displayValue } from '../utils/fieldFormatters';
 import { SectionAttachments } from './SectionAttachments';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface GibsSummaryProps {
   data: GibsCheck;
@@ -13,11 +14,33 @@ export function GibsSummary({ data }: GibsSummaryProps) {
   const tTable = useTranslations('table');
   const tGibsFields = useTranslations('machines.gibsFields');
   const tServicesSummary = useTranslations('services.modal.summary');
+  const { convertLengthFromDefault, getLengthUnitLabel } = useUnitManager();
 
   // Return null if no data provided
   if (!data) {
     return null;
   }
+
+  // Helper to display numeric value with unit conversion
+  // Treats 0 as empty since database stores 0 for unfilled numeric fields
+  const displayNumericValue = (value: unknown): string => {
+    if (value === null || value === undefined || value === '' || value === 0) {
+      return '-';
+    }
+    const numValue = Number(value);
+    if (isNaN(numValue) || numValue === 0) {
+      return '-';
+    }
+    // Convert from storage unit (inches) to display unit
+    const convertedValue = convertLengthFromDefault(numValue);
+    return convertedValue.toFixed(4);
+  };
+
+  // Helper to convert and format a calculated value
+  const formatCalculatedValue = (value: number): string => {
+    const convertedValue = convertLengthFromDefault(value);
+    return convertedValue.toFixed(4);
+  };
 
   const calculateGibsFields = (stageData: GibsStageData) => {
     const toNum = (val: number | undefined) => (typeof val === 'number' ? val : 0);
@@ -111,9 +134,13 @@ export function GibsSummary({ data }: GibsSummaryProps) {
 
     const calculated = calculateGibsFields(stageData);
 
+    const unitLabel = getLengthUnitLabel();
+
     return (
       <div className="mb-2 border rounded-md p-2 bg-muted/10">
-        <div className="font-medium text-muted-foreground mb-2 text-xs">{stageTitle}</div>
+        <div className="font-medium text-muted-foreground mb-2 text-xs">
+          {stageTitle} <span className="text-[10px] italic">({unitLabel})</span>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
           {hasFrontToBack && (
@@ -131,7 +158,7 @@ export function GibsSummary({ data }: GibsSummaryProps) {
                       className="flex flex-col p-1 bg-background border rounded text-[10px]"
                     >
                       <span className="text-muted-foreground text-[9px]">P{num}</span>
-                      <span className="font-mono font-medium">{displayValue(value)}</span>
+                      <span className="font-mono font-medium">{displayNumericValue(value)}</span>
                     </div>
                   );
                 })}
@@ -150,10 +177,10 @@ export function GibsSummary({ data }: GibsSummaryProps) {
                     <tr>
                       <td className="border p-1 bg-muted/50 font-medium">{tGibsFields('top')}</td>
                       <td className="border p-1 text-center font-mono">
-                        {calculated.frontTop.toFixed(4)}
+                        {formatCalculatedValue(calculated.frontTop)}
                       </td>
                       <td className="border p-1 text-center font-mono">
-                        {calculated.backTop.toFixed(4)}
+                        {formatCalculatedValue(calculated.backTop)}
                       </td>
                     </tr>
                     {!isOuter && (
@@ -162,10 +189,10 @@ export function GibsSummary({ data }: GibsSummaryProps) {
                           {tGibsFields('bottom')}
                         </td>
                         <td className="border p-1 text-center font-mono">
-                          {calculated.frontBottom.toFixed(4)}
+                          {formatCalculatedValue(calculated.frontBottom)}
                         </td>
                         <td className="border p-1 text-center font-mono">
-                          {calculated.backBottom.toFixed(4)}
+                          {formatCalculatedValue(calculated.backBottom)}
                         </td>
                       </tr>
                     )}
@@ -190,7 +217,7 @@ export function GibsSummary({ data }: GibsSummaryProps) {
                       className="flex flex-col p-1 bg-background border rounded text-[10px]"
                     >
                       <span className="text-muted-foreground text-[9px]">P{num}</span>
-                      <span className="font-mono font-medium">{displayValue(value)}</span>
+                      <span className="font-mono font-medium">{displayNumericValue(value)}</span>
                     </div>
                   );
                 })}
@@ -210,10 +237,10 @@ export function GibsSummary({ data }: GibsSummaryProps) {
                       <tr>
                         <td className="border p-1 bg-muted/50 font-medium">{tGibsFields('top')}</td>
                         <td className="border p-1 text-center font-mono">
-                          {calculated.leftTop.toFixed(4)}
+                          {formatCalculatedValue(calculated.leftTop)}
                         </td>
                         <td className="border p-1 text-center font-mono">
-                          {calculated.rightTop.toFixed(4)}
+                          {formatCalculatedValue(calculated.rightTop)}
                         </td>
                       </tr>
                     </tbody>
@@ -233,10 +260,10 @@ export function GibsSummary({ data }: GibsSummaryProps) {
                           {tGibsFields('front')}
                         </td>
                         <td className="border p-1 text-center font-mono">
-                          {calculated.leftTop.toFixed(4)}
+                          {formatCalculatedValue(calculated.leftTop)}
                         </td>
                         <td className="border p-1 text-center font-mono">
-                          {calculated.leftBottom.toFixed(4)}
+                          {formatCalculatedValue(calculated.leftBottom)}
                         </td>
                       </tr>
                       <tr>
@@ -244,10 +271,10 @@ export function GibsSummary({ data }: GibsSummaryProps) {
                           {tGibsFields('back')}
                         </td>
                         <td className="border p-1 text-center font-mono">
-                          {calculated.rightTop.toFixed(4)}
+                          {formatCalculatedValue(calculated.rightTop)}
                         </td>
                         <td className="border p-1 text-center font-mono">
-                          {calculated.rightBottom.toFixed(4)}
+                          {formatCalculatedValue(calculated.rightBottom)}
                         </td>
                       </tr>
                       <tr>
@@ -255,7 +282,9 @@ export function GibsSummary({ data }: GibsSummaryProps) {
                           {tGibsFields('usable')}
                         </td>
                         <td className="border p-1 text-center font-mono" colSpan={2}>
-                          {calculated.usable !== undefined ? calculated.usable.toFixed(4) : '-'}
+                          {calculated.usable !== undefined
+                            ? formatCalculatedValue(calculated.usable)
+                            : '-'}
                         </td>
                       </tr>
                     </tbody>

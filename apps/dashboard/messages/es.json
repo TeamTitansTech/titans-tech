@@ -207,9 +207,12 @@
       "loadingFailed": "Error al cargar usuarios",
       "noUsers": "No se encontraron usuarios para esta sucursal",
       "noPermissionToViewUsers": "No tiene permiso para ver usuarios en esta sucursal.",
+      "activeUsers": "Usuarios Activos",
+      "deactivatedUsers": "Usuarios Desactivados",
       "addUser": "Agregar Usuario",
       "editUser": "Editar Usuario",
-      "deleteUser": "Eliminar Usuario",
+      "deactivateUser": "Desactivar Usuario",
+      "reactivateUser": "Reactivar Usuario",
       "table": {
         "name": "Nombre",
         "email": "Correo Electrónico",
@@ -232,6 +235,7 @@
     "addUserDialog": {
       "title": "Agregar Usuario",
       "description": "Agregar un nuevo usuario a {branchName}",
+      "descriptionCompanyLevel": "Agregar un nuevo usuario a la empresa",
       "form": {
         "name": {
           "label": "Nombre Completo",
@@ -255,9 +259,16 @@
             "custom": "Configurar permisos individuales manualmente"
           }
         },
-        "applyToAllBranches": {
-          "label": "Aplicar a Todas las Sucursales",
-          "description": "Dar a este usuario los mismos permisos en todas las sucursales"
+        "branches": {
+          "label": "Sucursales",
+          "description": "Seleccione en qué sucursales se agregará este usuario",
+          "selectAll": "Todas",
+          "deselectAll": "Limpiar",
+          "loading": "Cargando sucursales...",
+          "noBranches": "No se encontraron sucursales",
+          "main": "principal",
+          "selectedCount": "{count, plural, =0 {Ninguna sucursal seleccionada} =1 {1 sucursal seleccionada} other {# sucursales seleccionadas}}",
+          "selectAtLeastOne": "Seleccione al menos una sucursal"
         },
         "companyManager": {
           "label": "Promover a Gerente de Empresa",
@@ -268,6 +279,8 @@
       "submit": "Agregar Usuario",
       "submitting": "Agregando...",
       "success": "Usuario agregado exitosamente",
+      "successExistingUser": "{count, plural, =1 {Usuario asignado a 1 nueva sucursal} other {Usuario asignado a # nuevas sucursales}}",
+      "userAlreadyInAllBranches": "Este usuario ya está en todas las sucursales seleccionadas",
       "error": "Error al agregar usuario"
     },
     "editUserDialog": {
@@ -296,24 +309,43 @@
       "error": "Error al actualizar usuario"
     },
     "deleteUserDialog": {
-      "title": "Eliminar Usuario",
-      "description": "¿Está seguro de que desea eliminar este usuario?",
-      "warning": "Esta acción no se puede deshacer.",
-      "userInfo": "Está a punto de eliminar:",
-      "scopeLabel": "Alcance de Eliminación",
+      "title": "Desactivar Usuario",
+      "description": "¿Está seguro de que desea desactivar este usuario?",
+      "warning": "El usuario perderá acceso, pero podrá ser reactivado posteriormente.",
+      "userInfo": "Está a punto de desactivar:",
+      "scopeLabel": "Alcance de Desactivación",
       "scopeOptions": {
-        "branch": "Remover Solo de Esta Sucursal",
-        "company": "Remover de Toda la Empresa"
+        "branch": "Desactivar Solo para Esta Sucursal",
+        "company": "Desactivar para Toda la Empresa"
       },
       "scopeDescriptions": {
-        "branch": "El usuario perderá acceso a esta sucursal pero permanecerá en otras sucursales",
-        "company": "El usuario será completamente removido y perderá todo el acceso"
+        "branch": "El usuario perderá acceso a esta sucursal pero permanecerá activo en otras sucursales",
+        "company": "El usuario será completamente desactivado y perderá todo el acceso"
       },
       "cancel": "Cancelar",
-      "confirm": "Eliminar Usuario",
-      "confirming": "Eliminando...",
-      "success": "Usuario eliminado exitosamente",
-      "error": "Error al eliminar usuario"
+      "confirm": "Desactivar Usuario",
+      "confirming": "Desactivando...",
+      "success": "Usuario desactivado exitosamente",
+      "error": "Error al desactivar usuario"
+    },
+    "reactivateUserDialog": {
+      "title": "Reactivar Usuario",
+      "description": "¿Restaurar el acceso de este usuario?",
+      "userInfo": "Está a punto de reactivar:",
+      "scopeLabel": "Alcance de Reactivación",
+      "scopeOptions": {
+        "branch": "Reactivar Solo para Esta Sucursal",
+        "company": "Reactivar para Toda la Empresa"
+      },
+      "scopeDescriptions": {
+        "branch": "El usuario recuperará acceso solo a esta sucursal",
+        "company": "El usuario será totalmente reactivado con todo el acceso anterior"
+      },
+      "cancel": "Cancelar",
+      "confirm": "Reactivar Usuario",
+      "confirming": "Reactivando...",
+      "success": "Usuario reactivado exitosamente",
+      "error": "Error al reactivar usuario"
     },
     "permissions": {
       "title": "Permisos",
@@ -523,31 +555,6 @@
       "success": "Colores de la empresa actualizados correctamente",
       "error": "Error al actualizar los colores de la empresa"
     },
-    "userManagement": {
-      "title": "Cuentas de Usuario",
-      "loading": "Cargando usuarios...",
-      "loadingFailed": "Error al cargar usuarios",
-      "noUsers": "No se encontraron usuarios para esta sucursal",
-      "addUser": "Agregar Usuario",
-      "table": {
-        "name": "Nombre",
-        "email": "Correo Electrónico",
-        "role": "Rol",
-        "status": "Estado",
-        "actions": "Acciones"
-      },
-      "roles": {
-        "companyAdmin": "Admin de Empresa",
-        "companyManager": "Gerente de Empresa",
-        "branchManager": "Gerente",
-        "employee": "Trabajador",
-        "custom": "Personalizado"
-      },
-      "status": {
-        "active": "activo",
-        "inactive": "inactivo"
-      }
-    },
     "addUserDialog": {
       "title": "Agregar Usuario",
       "description": "Agregar un nuevo usuario a {branchName}",
@@ -611,13 +618,27 @@
       "cannotEditAdmin": "Los administradores de la empresa no se pueden editar. Póngase en contacto con el soporte del sistema para modificar cuentas de administrador."
     },
     "deleteUserDialog": {
-      "title": "Eliminar Usuario",
-      "description": "¿Está seguro de que desea eliminar a {userName}? Esta acción no se puede deshacer.",
+      "title": "Desactivar Usuario",
+      "description": "¿Está seguro de que desea desactivar a {userName}? El usuario podrá ser reactivado posteriormente.",
       "cancel": "Cancelar",
-      "confirm": "Eliminar",
-      "deleting": "Eliminando...",
-      "success": "Usuario eliminado exitosamente",
-      "error": "Error al eliminar usuario"
+      "confirm": "Desactivar",
+      "deleting": "Desactivando...",
+      "success": "Usuario desactivado exitosamente",
+      "error": "Error al desactivar usuario"
+    },
+    "reactivateUserDialog": {
+      "title": "Reactivar Usuario",
+      "description": "¿Está seguro de que desea reactivar a {userName}? El usuario recuperará el acceso al sistema.",
+      "cancel": "Cancelar",
+      "confirm": "Reactivar",
+      "reactivating": "Reactivando...",
+      "success": "Usuario reactivado exitosamente",
+      "error": "Error al reactivar usuario",
+      "scope": {
+        "label": "Ámbito de Reactivación",
+        "branch": "Solo esta sucursal",
+        "company": "Toda la empresa"
+      }
     }
   },
   "dashboard": {
@@ -775,18 +796,18 @@
         "more": "+{count} más"
       },
       "timeline": {
-        "title": "Próximos 7 Días",
+        "title": "Próximos 30 Días",
         "noServices": "No hay servicios programados",
         "today": "Hoy",
         "tomorrow": "Mañana",
         "maintenance": "Mantenimiento",
         "inspection": "Inspección"
       },
-      "performance": {
-        "title": "Rendimiento del Mes",
-        "availability": "Disponibilidad",
-        "preventive": "Preventivo",
-        "corrective": "Correctivo"
+      "recentCompleted": {
+        "title": "Completados Recientes",
+        "noServices": "Ningún servicio completado aún",
+        "maintenance": "Mantenimiento",
+        "inspection": "Inspección"
       },
       "machineHealth": {
         "title": "Estado de las Máquinas",
@@ -800,14 +821,20 @@
   },
   "sections": {
     "bearing_clearance": "Holgura de Cojinete",
+    "bearing_clearance_single_hammer": "Holgura de Cojinete - Martillo Único",
     "slide_single_hammer": "Slide - Martillo Único",
-    "slide_double_hammer": "Slide - Martillo Doble",
+    "slide_double_hammer": "Slide",
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
     "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
     "tramming": "Tramming",
-    "pistons": "Pistones"
+    "pistons": "Pistones",
+    "shim_thickness": "Espesor de Cuña",
+    "die_cushion": "Cojín de Matriz",
+    "electrical_control": "Control Eléctrico",
+    "perpendicularity": "Perpendicularidad",
+    "angularity": "Angularidad"
   },
   "models": {
     "title": "Crear Modelo",
@@ -986,6 +1013,7 @@
     },
     "sectionNames": {
       "bearingClearance": "Holgura de Cojinete - CP 2",
+      "bearingClearanceSingleHammer": "Holgura de Cojinete - Martillo Único",
       "slideSingleHammer": "Slide - Martillo Único",
       "slideDoubleHammer": "Slide - Martillo Doble",
       "gibs": "Guías",
@@ -995,6 +1023,11 @@
       "counterbalanceCylinder": "Cilindro de Contrapeso / Bolsa de Aire",
       "tramming": "Tramming",
       "pistons": "Pistones",
+      "shimThickness": "Espesor de Cuña",
+      "dieCushion": "Cojín del Troquel",
+      "electricalControl": "Control Eléctrico",
+      "perpendicularity": "Perpendicularidad",
+      "angularity": "Angularidad",
       "unknown": "Sección Desconocida"
     },
     "gibsFields": {
@@ -1072,7 +1105,11 @@
         "lubricationStatus": "Estado de Lubricación e Hidráulica",
         "counterbalanceStatus": "Estado del Contrapeso",
         "pistonsMeasurements": "Mediciones de Pistones",
-        "trammingMeasurements": "Mediciones de Tramming"
+        "trammingMeasurements": "Mediciones de Tramming",
+        "perpendicularityMeasurements": "Mediciones de Perpendicularidad",
+        "shimThicknessMeasurements": "Mediciones de Espesor de Cuña",
+        "dieCushionStatus": "Estado del Die Cushion",
+        "electricalControlStatus": "Estado del Control Eléctrico"
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Holgura del Embrague Hidráulico",
@@ -1096,7 +1133,13 @@
         "innerTopRowMeasurements": "Interno - Mediciones Fila Superior",
         "innerBottomRowMeasurements": "Interno - Mediciones Fila Inferior",
         "innerLeftRowMeasurements": "Interno - Mediciones Fila Izquierda",
-        "innerRightRowMeasurements": "Interno - Mediciones Fila Derecha"
+        "innerRightRowMeasurements": "Interno - Mediciones Fila Derecha",
+        "beforeAdjustmentTrend": "Tendencia Antes del Ajuste",
+        "afterAdjustmentTrend": "Tendencia Después del Ajuste",
+        "outerLHMeasurements": "Mediciones Externo LH",
+        "outerRHMeasurements": "Mediciones Externo RH",
+        "innerLHMeasurements": "Mediciones Interno LH",
+        "innerRHMeasurements": "Mediciones Interno RH"
       },
       "labels": {
         "outer": "Externo",
@@ -1158,7 +1201,35 @@
         "rightTop": "Derecha-Superior",
         "rightBottom": "Derecha-Inferior",
         "rightLeft": "Derecha-Izquierda",
-        "rightRight": "Derecha-Derecha"
+        "rightRight": "Derecha-Derecha",
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "frontRear": "Frente-Atrás (F-R)",
+        "leftRight": "Izquierda-Derecha (L-R)",
+        "hasBeenAdjusted": "Ha Sido Ajustado",
+        "yes": "Sí",
+        "no": "No",
+        "na": "N/D",
+        "dnc": "DNC",
+        "cantTell": "No Se Puede Saber",
+        "airLeaks": "Fugas de Aire",
+        "airLeaksLocation": "Ubicación de Fugas de Aire",
+        "pneumaticsPlumbing": "Neumática/Tubería",
+        "lubrication": "Lubricación",
+        "controlInfo": "Información de Control",
+        "hasHourMeter": "Horómetro",
+        "hourMeterReading": "Lectura del Horómetro",
+        "isMinsterControl": "Control Minster",
+        "other": "Otro",
+        "electricalChecklist": "Lista de Verificación Eléctrica",
+        "outerLH": "Externo LH",
+        "outerRH": "Externo RH",
+        "innerLH": "Interno LH",
+        "innerRH": "Interno RH",
+        "noPerpendicularityData": "No hay datos de perpendicularidad disponibles",
+        "noShimThicknessData": "No hay datos de espesor de cuña disponibles",
+        "noDieCushionData": "No hay datos de die cushion disponibles",
+        "noElectricalData": "No hay datos de control eléctrico disponibles"
       }
     },
     "latestReport": {
@@ -1177,6 +1248,13 @@
         "yes": "Sí",
         "no": "No",
         "dnc": "DNC"
+      },
+      "yesNoNaDncCantTell": {
+        "yes": "Sí",
+        "no": "No",
+        "na": "N/A",
+        "dnc": "DNC",
+        "cant_tell": "No Se Puede Decir"
       },
       "counterbalance": {
         "cylinder": "Cilindro",
@@ -1378,17 +1456,19 @@
           "ball_box_area_RH": "Área de Caja de Bolas RH",
           "ball_box_area_LH": "Área de Caja de Bolas LH",
           "Ball_box_area_RH": "Área de Caja de Bolas RH",
-          "Ball_box_area_LH": "Área de Caja de Bolas LH"
+          "Ball_box_area_LH": "Área de Caja de Bolas LH",
+          "hasBeenAdjusted": "Fue Ajustado"
         },
         "validation": {
-          "outerDataRequired": "Holgura de Rodamiento: Datos Externos son requeridos",
-          "innerDataRequired": "Holgura de Rodamiento: Datos Internos son requeridos",
+          "sectionHeader": "Holgura de Rodamiento - Campos faltantes:",
+          "outerDataRequired": "",
+          "innerDataRequired": "",
           "beforeMeasurementsRequired": "Holgura de Rodamiento: Cuando 'Incluir Mediciones Antes' está habilitado para mantenimiento, debe completar todas las secciones 'Antes' (Externo Antes e Interno Antes)",
-          "fieldRequired": "{field} es requerido",
+          "fieldRequired": "{field}",
           "outerBefore": "Externo Antes",
-          "outerData": "Datos Externos",
+          "outerData": "Externo",
           "innerBefore": "Interno Antes",
-          "innerData": "Datos Internos"
+          "innerData": "Interno"
         }
       },
       "slide": {
@@ -1427,8 +1507,16 @@
         "saving": "Guardando...",
         "dataSaved": "Datos guardados exitosamente",
         "validationError": "Por favor complete todos los campos obligatorios",
-        "fillAllFields": "Por favor complete todos los campos de posición (1-6)",
+        "fillAllFields": "Por favor complete todos los campos de posición (1-5) - la desviación máxima calculada genera alertas",
         "fillBeforeMeasurements": "Por favor complete todos los campos 'Antes del Mantenimiento' cuando la casilla esté marcada",
+        "validation": {
+          "measurementsRequired": "Slide - Martillo Simple: Complete las posiciones 1-5 (la desviación máxima genera alertas)",
+          "atLeastOneSectionRequired": "Slide - Martillo Doble: Complete al menos una sección (Externo o Interno) con las posiciones 1-5 (la desviación máxima genera alertas)",
+          "outerPrefix": "Slide Externo",
+          "innerPrefix": "Slide Interno",
+          "positionRequired": "Posición {position} es requerida",
+          "atLeastTwoPositionsRequired": "Complete al menos 2 puntos de posición en la desviación máxima"
+        },
         "yes": "Sí",
         "no": "No",
         "na": "N/A",
@@ -1487,7 +1575,12 @@
         "afterToolInstallation": "Después de la Instalación de la Herramienta",
         "adjustment": "Ajuste",
         "installation": "Instalación",
-        "haveInnerGibsBeenAdjusted": "Las guías internas han sido ajustadas"
+        "haveInnerGibsBeenAdjusted": "Las guías internas han sido ajustadas",
+        "validation": {
+          "atLeastOneSectionRequired": "Guías: Complete al menos una sección de medición - el campo Utilizable en la tabla 'Izquierda a Derecha' genera alertas",
+          "leftToRightRequired": "Guías: Complete la sección 'Izquierda a Derecha' (Guías Externas)",
+          "stagePrefix": "Guías {stage}"
+        }
       },
       "lubricationHydraulics": {
         "systemPressuresTitle": "Presiones del Sistema (PSI)",
@@ -1518,7 +1611,10 @@
         "filterTitle": "Filtro",
         "changedFilter": "Filtro Cambiado",
         "notes": "Notas",
-        "notesPlaceholder": "Notas adicionales..."
+        "notesPlaceholder": "Notas adicionales...",
+        "validation": {
+          "changedOilRequired": "Lubricación: Aceite Cambiado es obligatorio"
+        }
       },
       "clutch": {
         "clutchInfoTitle": "Información del Embrague",
@@ -1630,7 +1726,9 @@
           "gearBacklashCheck": "*Verificar solo si hay ruido excesivo y/o vibración"
         },
         "validation": {
-          "required": "Este campo es obligatorio"
+          "required": "Este campo es obligatorio",
+          "hydClutchClearanceTotalRequired": "Embrague: Holgura del Embrague Hidráulico (Total) es obligatoria",
+          "hydClutchClearanceRearRequired": "Embrague: Holgura del Embrague Hidráulico (Trasera) es obligatoria"
         }
       },
       "counterbalanceCylinder": {
@@ -1714,7 +1812,12 @@
         "left": "Izquierda",
         "right": "Derecha",
         "trimPin": "Pasador de Ajuste",
-        "notes": "Notas"
+        "notes": "Notas",
+        "validation": {
+          "outerPrefix": "Tramming Externo",
+          "innerPrefix": "Tramming Interno",
+          "allMeasurementsRequired": "Tramming: Complete las 4 mediciones en cada punto (Superior, Inferior, Izquierda, Derecha) - cada punto genera alertas"
+        }
       },
       "pistons": {
         "guideSeals": "Sellos de Guía",
@@ -1725,7 +1828,121 @@
         "piston": "Pistón",
         "top": "Superior",
         "bottom": "Inferior",
-        "notes": "Notas (Opcional)"
+        "notes": "Notas (Opcional)",
+        "validation": {
+          "atLeastOneSectionRequired": "Pistones: Complete al menos una sección (Externo o Interno) - los campos Superior e Inferior generan alertas",
+          "outerPrefix": "Pistones Externo",
+          "innerPrefix": "Pistones Interno"
+        }
+      },
+      "shimThickness": {
+        "lh": "LH",
+        "rh": "RH",
+        "outer": "Externo",
+        "inner": "Interno",
+        "top": "Superior",
+        "bottom": "Inferior",
+        "left": "Izquierda",
+        "right": "Derecha",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "validation": {
+          "atLeastOneSectionRequired": "Espesor de Cuña: Complete al menos una sección (Externo LH/RH o Interno LH/RH)"
+        }
+      },
+      "dieCushion": {
+        "airLeaks": "Fugas de Aire",
+        "airLeaksLocation": "Si los sellos están goteando, ¿dónde?",
+        "airLeaksLocationPlaceholder": "Describa la ubicación de los sellos con fugas...",
+        "pneumaticsPlumbing": "Tubería Neumática",
+        "lubrication": "Lubricación",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "selectOption": "Seleccione una opción",
+        "options": {
+          "ok": "OK",
+          "na": "N/A",
+          "dnc": "DNC",
+          "leaking": "Goteando",
+          "notOperational": "No Operacional"
+        }
+      },
+      "electricalControl": {
+        "headerSection": "Información del Control",
+        "checklistSection": "Lista de Verificación Eléctrica",
+        "hasHourMeter": "¿La prensa tiene horómetro?",
+        "hourMeterReading": "Lectura del Horómetro",
+        "hourMeterReadingPlaceholder": "Ingrese la lectura del horómetro...",
+        "isMinsterControl": "¿Es un Control Minster?",
+        "minsterControlOther": "Si es otro, especifique",
+        "minsterControlOtherPlaceholder": "Especifique el tipo de control...",
+        "controlDoorStop": "Parada de Puerta de Control",
+        "cabinetTemp": "Temp. del Gabinete",
+        "incomingLine": "Línea de Entrada",
+        "fullVoltage": "Voltaje Completo",
+        "contactor": "Contactor",
+        "overloads": "Sobrecargas",
+        "transformers": "Transformadores",
+        "brakeValve": "Válvula del Freno",
+        "clutchValve": "Válvula del Embrague",
+        "wiring": "Cableado",
+        "terminals": "Terminales",
+        "twentyFourVBuss": "Bus 24v",
+        "safetyRelays": "Relés de Seguridad",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "selectOption": "Seleccione una opción",
+        "options": {
+          "yes": "Sí",
+          "no": "No",
+          "na": "N/A",
+          "dnc": "DNC",
+          "cantTell": "No Se Puede Decir"
+        }
+      },
+      "perpendicularity": {
+        "hasBeenAdjusted": "¿Se ha ajustado la Perpendicularidad?",
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "frontRear": "Frente-Trasero",
+        "leftRight": "Izquierda-Derecha",
+        "enterValue": "Ingrese el valor...",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "selectOption": "Seleccione una opción",
+        "options": {
+          "yes": "Sí",
+          "no": "No",
+          "dnc": "DNC"
+        }
+      },
+      "angularity": {
+        "hasBeenAdjusted": "¿Se ha ajustado la Angularidad?",
+        "setupInformation": "Información de Configuración",
+        "spm": "SPM",
+        "distanceOfIndicatorTip": "Distancia de la Punta del Indicador al Slide",
+        "locationOfIndicator": "Ubicación del Indicador",
+        "counterbalancePressure": "Presión del Contrapeso (PSI)",
+        "strokePartBeingRead": "Qué parte de la carrera se está leyendo",
+        "shutheightSetAt": "En qué altura está ajustado el shutheight",
+        "whatWasUsedAsSquare": "Qué se usó como escuadra",
+        "whereWasSquarePlaced": "Dónde se colocó la escuadra",
+        "indicatorUsedGraduation": "Qué indicador se usó (graduación)",
+        "tipKindOnIndicator": "Qué tipo de punta tenía el indicador",
+        "totalLiftCheck": "Verificación de Elevación Total (IN)",
+        "beforeAdjustment": "Antes del Ajuste",
+        "afterAdjustment": "Después del Ajuste",
+        "frontRear": "Frente-Trasero",
+        "leftRight": "Izquierda-Derecha",
+        "enterValue": "Ingrese el valor...",
+        "notes": "Notas (Opcional)",
+        "notesPlaceholder": "Agregue cualquier nota u observación adicional...",
+        "selectOption": "Seleccione una opción",
+        "options": {
+          "yes": "Sí",
+          "no": "No",
+          "dnc": "DNC"
+        }
       },
       "cancel": "Cancelar",
       "submit": {
@@ -1753,7 +1970,9 @@
         "selectMatingPart": "Seleccione la pieza de acoplamiento",
         "referenceMeasurement": "Medición de referencia",
         "additionalNotes": "Ingrese notas adicionales...",
-        "attachments": "Anexos"
+        "attachments": "Anexos",
+        "generatesAlert": "Este campo genera alertas",
+        "oilChangeGeneratesAlert": "Genera alertas si el aceite no se cambia en 333 días"
       },
       "bearingClearanceSection": {
         "includeBeforeMeasurements": "Incluir Mediciones Anteriores",
@@ -1829,14 +2048,16 @@
           "straightSide": "Lado Recto"
         },
         "clutchType": {
-          "jh5": "JH5",
-          "na": "N/A"
-        },
-        "pneumaticSystem": {
           "air": "Aire",
           "hyd": "Hidráulico",
           "wetAir": "Aire Húmedo",
           "wetHyd": "Hidráulico Húmedo"
+        },
+        "pneumaticSystem": {
+          "na": "N/A",
+          "counterbalance": "Contrabalance",
+          "cbalWDieCushion": "CBAL W/Die Cushion",
+          "dieCushionOnly": "Die Cushion solamente"
         },
         "pressMounting": {
           "adjustable": "Ajustable",
@@ -1869,6 +2090,25 @@
           "not_in_area": "Las cubiertas no están ubicadas en el área de la prensa; no visibles",
           "otherExplain": "Otro: Explique",
           "other_explain": "Otro: Explique"
+        },
+        "dieCushionAirLeaks": {
+          "ok": "OK",
+          "na": "N/D",
+          "dnc": "DNC",
+          "leaking": "Fugando"
+        },
+        "dieCushionPneumaticsPlumbing": {
+          "ok": "OK",
+          "na": "N/D",
+          "dnc": "DNC",
+          "not_operational": "No Operativo",
+          "leaking": "Fugando"
+        },
+        "dieCushionLubrication": {
+          "ok": "OK",
+          "na": "N/D",
+          "dnc": "DNC",
+          "not_operational": "No Operativo"
         }
       }
     }
@@ -1938,7 +2178,8 @@
         "cracksLocation": "Si \"Sí\" arriba, ¿dónde?",
         "isMainMotorSecure": "¿El Motor Principal Está Seguro?",
         "isMotorPlateSecure": "¿La Placa del Motor Está Segura?",
-        "whyNotCovered": "Por qué no cubierto"
+        "whyNotCovered": "Por qué no cubierto",
+        "fillAngularity": "Llenar Angularidad"
       },
       "attachedDocuments": {
         "title": "Documentos Adjuntos",
@@ -2017,6 +2258,7 @@
     "system": "Sistema",
     "gauge": "Medidor",
     "psi": "PSI",
+    "pressure": "Presión",
     "noImage": "Sin Imagen"
   },
   "measurements": {
@@ -2167,6 +2409,7 @@
       "greenStartMin": "Inicio Verde (Mín)",
       "yellowStartMin": "Inicio Amarillo (Mín)",
       "redStartMin": "Inicio Rojo (Mín)",
+      "unit": "Unidad",
       "editTitle": "Configurar Thresholds - {name}",
       "editDescription": "Ajuste los valores de threshold para generación de alertas. Marque la opción debajo para recalcular alertas existentes.",
       "loadError": "Error al cargar thresholds",
@@ -2210,6 +2453,10 @@
       "afterMaintenance": "Después del Mantenimiento"
     },
     "units": {
+      "selectedUnits": "Unidades Seleccionadas",
+      "lengthLabel": "Longitud",
+      "temperatureLabel": "Temperatura",
+      "pressureLabel": "Presión",
       "length": {
         "label": "Unidad de Longitud",
         "mm": "mm",
@@ -2447,13 +2694,32 @@
       "performedByRequired": "Por favor, complete el campo 'Realizado Por'",
       "completeAllSections": "Por favor, complete todas las secciones antes de ver el resumen",
       "validationWarnings": "Advertencias de Validación",
-      "redirectingToIncomplete": "¡Sección guardada! Redirigiendo a la primera sección incompleta"
+      "redirectingToIncomplete": "¡Sección guardada! Redirigiendo a la primera sección incompleta",
+      "detailsMissingFields": "Los siguientes campos son obligatorios:",
+      "isPressLevelRequired": "¿La Prensa Está Nivelada?",
+      "driveBeltConditionRequired": "Condición de la Correa de Transmisión",
+      "areAllProtectiveCoversRequired": "¿Todas las cubiertas protectoras están en su lugar?",
+      "areCracksVisibleRequired": "¿Hay grietas visibles en la corona, cama o deslizamiento?",
+      "isMainMotorSecureRequired": "¿El Motor Principal Está Seguro?",
+      "isMotorPlateSecureRequired": "¿La Placa del Motor Está Segura?",
+      "whyNotCoveredRequired": "¿Por qué no cubierto?",
+      "protectiveCoversExplanationRequired": "Si 'No' arriba, explique:",
+      "cracksLocationRequired": "Si 'Sí' arriba, ¿dónde?"
     },
     "successMessages": {
       "serviceUpdated": "Detalles del servicio actualizados exitosamente",
       "serviceCreated": "Servicio creado. Ahora complete los formularios de las secciones",
       "sectionSaved": "Sección guardada exitosamente",
       "serviceCompleted": "Servicio completado exitosamente"
+    },
+    "api": {
+      "emailAlreadyInUse": "Este email ya está en uso",
+      "userNotFound": "Usuario no encontrado",
+      "userAlreadyAssigned": "El usuario ya está asignado a esta sucursal",
+      "userNotAssignedToBranch": "El usuario no está asignado a esta sucursal",
+      "userNotBelongToCompany": "El usuario no pertenece a esta empresa",
+      "connectionError": "Error de conexión",
+      "unknownError": "Ocurrió un error desconocido"
     }
   },
   "parts": {
@@ -2463,6 +2729,8 @@
     "clutchBrakeDescription": "Seleccione las piezas del embrague y freno que necesitan ser reemplazadas",
     "bearingClearanceParts": "Piezas de Holgura del Rodamiento",
     "bearingClearanceDescription": "Seleccione las piezas de holgura del rodamiento que necesitan ser reemplazadas",
+    "bearingClearanceSingleHammerParts": "Piezas de Holgura del Rodamiento Single Hammer",
+    "bearingClearanceSingleHammerDescription": "Seleccione las piezas de holgura del rodamiento single hammer que necesitan ser reemplazadas",
     "slideParts": "Piezas del Slide",
     "slideDescription": "Seleccione las piezas del slide que necesitan ser reemplazadas",
     "gibsParts": "Piezas de las Guías",
@@ -2543,7 +2811,10 @@
       "outerSlide": "Corredera Exterior",
       "innerSlide": "Corredera Interior",
       "gibsOuter": "Guías (Exterior)",
-      "gibsInner": "Guías (Interior)"
+      "gibsInner": "Guías (Interior)",
+      "slideStandard": "Corredera (Estándar)",
+      "slideAdjustment": "Ajuste de Corredera",
+      "shutheightIndicator": "Indicador de Altura"
     }
   },
   "sectionStatus": {

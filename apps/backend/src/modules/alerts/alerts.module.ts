@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import {
   AlertsController,
+  AlertsBearingClearanceSingleHammerController,
   AlertsSlideSingleHammerController,
   AlertsSlideDoubleHammerController,
   ClutchAlertsController,
@@ -14,6 +15,7 @@ import { PrismaService } from '../shared/prisma.service';
 @Module({
   controllers: [
     AlertsController,
+    AlertsBearingClearanceSingleHammerController,
     AlertsSlideSingleHammerController,
     AlertsSlideDoubleHammerController,
     ClutchAlertsController,
