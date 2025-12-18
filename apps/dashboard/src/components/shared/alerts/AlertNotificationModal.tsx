@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Typography } from '@/components/ui/typography';
 import { Loader2, Plus, X, Mail, AlertTriangle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { getAdminManagerUsers } from '@/data/services/companies.api';
@@ -161,9 +162,9 @@ export function AlertNotificationModal({
 
         {/* Alert Summary */}
         <div className="space-y-3 my-4">
-          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300">
+          <Typography variant="small" className="text-gray-700 dark:text-gray-300">
             {t('alertsSummary')}
-          </h4>
+          </Typography>
           <div className="space-y-2">
             {alertsSummary.sections.map((section) => (
               <div
@@ -188,9 +189,9 @@ export function AlertNotificationModal({
         </div>
 
         <div className="space-y-4">
-          <h4 className="font-medium text-sm text-gray-700 dark:text-gray-300">
+          <Typography variant="small" className="text-gray-700 dark:text-gray-300">
             {t('selectRecipients')}
-          </h4>
+          </Typography>
 
           <div className="space-y-2">
             <Label className="text-xs text-gray-500">{t('adminsAndManagers')}</Label>
@@ -199,7 +200,9 @@ export function AlertNotificationModal({
                 <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
               </div>
             ) : adminManagerUsers.length === 0 ? (
-              <p className="text-sm text-gray-500 p-2">{t('noAdminsFound')}</p>
+              <Typography variant="muted" className="p-2">
+                {t('noAdminsFound')}
+              </Typography>
             ) : (
               <div className="space-y-2 max-h-40 overflow-y-auto border rounded-md p-2">
                 {adminManagerUsers.map((user) => (
@@ -213,8 +216,12 @@ export function AlertNotificationModal({
                       onCheckedChange={() => handleUserToggle(user.id)}
                     />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{user.name || user.email}</p>
-                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                      <Typography variant="small" className="truncate">
+                        {user.name || user.email}
+                      </Typography>
+                      <Typography variant="muted" className="truncate">
+                        {user.email}
+                      </Typography>
                     </div>
                     <Badge variant="outline" className="text-xs">
                       {user.isCompanyAdmin ? t('admin') : t('manager')}

@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { SectionAttachments } from './SectionAttachments';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface SlideDoubleHammerSummaryProps {
@@ -298,6 +299,8 @@ export function SlideDoubleHammerSummary({ data }: SlideDoubleHammerSummaryProps
           </div>
         </div>
       )}
+
+      <SectionAttachments attachments={data.attachments} />
     </div>
   );
 }

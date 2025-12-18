@@ -55,7 +55,17 @@
       "uploadFailed": "Error al subir la imagen",
       "uploading": "Subiendo...",
       "clickToUpload": "Haga clic para subir",
-      "jpgOrPngMax": "JPG o PNG (máx. 10MB)"
+      "jpgOrPngMax": "JPG o PNG (máx. 20MB)"
+    },
+    "documentUpload": {
+      "onlyPdfCsvAllowed": "Solo se permiten archivos PDF y CSV",
+      "fileTooLarge": "Archivo muy grande. Tamaño máximo: {size}MB",
+      "uploadFailed": "Error al subir el documento",
+      "uploading": "Subiendo...",
+      "clickToUpload": "Haga clic para adjuntar documentos",
+      "pdfOrCsvMax": "PDF o CSV (máx. 20MB)",
+      "maxFilesReached": "Número máximo de archivos alcanzado ({max})",
+      "maxFilesExceeded": "Solo se permiten {max} archivos. Algunos archivos no se subieron."
     },
     "cancel": "Cancelar",
     "save": "Guardar"
@@ -70,7 +80,7 @@
     "fullNameRequired": "El nombre completo es obligatorio",
     "invalidEmail": "Dirección de correo electrónico no válida",
     "invalidImageType": "Solo se permiten imágenes JPG y PNG",
-    "fileTooLarge": "El tamaño del archivo excede el límite de 10MB"
+    "fileTooLarge": "El tamaño del archivo excede el límite de 20MB"
   },
   "navigation": {
     "dashboard": "Panel",
@@ -1960,6 +1970,7 @@
         "selectMatingPart": "Seleccione la pieza de acoplamiento",
         "referenceMeasurement": "Medición de referencia",
         "additionalNotes": "Ingrese notas adicionales...",
+        "attachments": "Anexos",
         "generatesAlert": "Este campo genera alertas",
         "oilChangeGeneratesAlert": "Genera alertas si el aceite no se cambia en 333 días"
       },
@@ -2170,6 +2181,10 @@
         "whyNotCovered": "Por qué no cubierto",
         "fillAngularity": "Llenar Angularidad"
       },
+      "attachedDocuments": {
+        "title": "Documentos Adjuntos",
+        "noDocuments": "No hay documentos adjuntos"
+      },
       "stepper": {
         "details": "Detalles",
         "summary": "Resumen",
@@ -2199,7 +2214,8 @@
         "exportExcel": "Exportar Excel",
         "exportPDF": "Exportar PDF",
         "gauges": "Medidores",
-        "notes": "Notas"
+        "notes": "Notas",
+        "sectionAttachments": "Anexos de la Sección"
       }
     },
     "pageTitle": "Servicios",

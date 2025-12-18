@@ -5,6 +5,7 @@ import type { TrammingCheck } from '@/data/types/services.types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrammingForm, type TrammingDbData } from '../forms/TrammingForm';
 import { displayValue } from '../utils/displayHelpers';
+import { SectionAttachments } from './SectionAttachments';
 
 interface TrammingSummaryProps {
   data: TrammingCheck;
@@ -94,6 +95,8 @@ export function TrammingSummary({ data }: TrammingSummaryProps) {
             </div>
           </div>
         )}
+
+        <SectionAttachments attachments={data.attachments} />
       </div>
     </div>
   );

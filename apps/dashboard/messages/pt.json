@@ -57,7 +57,17 @@
       "uploadFailed": "Falha no upload da imagem",
       "uploading": "Fazendo upload...",
       "clickToUpload": "Clique para fazer upload",
-      "jpgOrPngMax": "JPG ou PNG (máx. 10MB)"
+      "jpgOrPngMax": "JPG ou PNG (máx. 20MB)"
+    },
+    "documentUpload": {
+      "onlyPdfCsvAllowed": "Apenas arquivos PDF e CSV são permitidos",
+      "fileTooLarge": "Arquivo muito grande. Tamanho máximo: {size}MB",
+      "uploadFailed": "Falha no upload do documento",
+      "uploading": "Fazendo upload...",
+      "clickToUpload": "Clique para anexar documentos",
+      "pdfOrCsvMax": "PDF ou CSV (máx. 20MB)",
+      "maxFilesReached": "Número máximo de arquivos atingido ({max})",
+      "maxFilesExceeded": "Apenas {max} arquivos permitidos. Alguns arquivos não foram enviados."
     }
   },
   "validation": {
@@ -70,7 +80,7 @@
     "fullNameRequired": "Nome completo é obrigatório",
     "invalidEmail": "Endereço de email inválido",
     "invalidImageType": "Apenas imagens JPG e PNG são permitidas",
-    "fileTooLarge": "Tamanho do arquivo excede o limite de 10MB"
+    "fileTooLarge": "Tamanho do arquivo excede o limite de 20MB"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -1955,6 +1965,7 @@
         "selectMatingPart": "Selecione a peça de acoplamento",
         "referenceMeasurement": "Medição de referência",
         "additionalNotes": "Digite notas adicionais...",
+        "attachments": "Anexos",
         "generatesAlert": "Este campo gera alertas",
         "oilChangeGeneratesAlert": "Gera alertas se o óleo não for trocado em 333 dias"
       },
@@ -2233,6 +2244,10 @@
         "whyNotCovered": "Por que não coberto",
         "fillAngularity": "Preencher Angularidade"
       },
+      "attachedDocuments": {
+        "title": "Documentos Anexados",
+        "noDocuments": "Nenhum documento anexado"
+      },
       "stepper": {
         "details": "Detalhes",
         "summary": "Resumo",
@@ -2262,7 +2277,8 @@
         "exportExcel": "Exportar Excel",
         "exportPDF": "Exportar PDF",
         "gauges": "Medidores",
-        "notes": "Observações"
+        "notes": "Observações",
+        "sectionAttachments": "Anexos da Seção"
       }
     },
     "pageTitle": "Serviços",

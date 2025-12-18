@@ -7,7 +7,9 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
-import { Public } from 'src/modules/auth/auth.decorators';
+import { Public, Authenticated } from 'src/modules/auth/auth.decorators';
+
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
 @Controller('upload')
 export class UploadController {
@@ -18,7 +20,7 @@ export class UploadController {
   @UseInterceptors(
     FileInterceptor('image', {
       limits: {
-        fileSize: 10 * 1024 * 1024,
+        fileSize: MAX_FILE_SIZE,
       },
     }),
   )
@@ -55,5 +57,25 @@ export class UploadController {
     const url = await this.uploadService.uploadImage(file, 'logos');
 
     return { url };
+  }
+
+  @Authenticated()
+  @Post('document')
+  @UseInterceptors(
+    FileInterceptor('document', {
+      limits: {
+        fileSize: MAX_FILE_SIZE,
+      },
+    }),
+  )
+  async uploadDocument(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<{ url: string; originalName: string }> {
+    if (!file) {
+      throw new BadRequestException('No document file provided');
+    }
+
+    this.uploadService.validateDocumentFile(file);
+    return await this.uploadService.uploadDocument(file);
   }
 }

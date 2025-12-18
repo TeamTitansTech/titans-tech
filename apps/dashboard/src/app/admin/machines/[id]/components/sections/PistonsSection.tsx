@@ -7,6 +7,7 @@ import {
   ServiceType,
   SealConditionType,
   VacuumSystemConditionType,
+  type Attachment,
 } from '@/data/types/services.types';
 import { PistonsForm, type PistonsDbData } from '../forms/PistonsForm';
 import { isDataTouched } from './utils';
@@ -21,6 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 // Default pistons data using DB format (without outer/inner prefix)
 export const defaultPistonsDbData: PistonsDbData = {
@@ -54,6 +57,7 @@ export interface PistonsSectionData {
   vacuumSystem?: VacuumSystemConditionType;
   vacuumSystemAirPressureSetting?: number;
   notes?: string;
+  attachments?: Attachment[];
 }
 
 export interface PistonsSectionRef {
@@ -104,6 +108,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
       number | undefined
     >(initialData?.vacuumSystemAirPressureSetting);
     const [notes, setNotes] = useState<string>(initialData?.notes || '');
+    const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
     const [outerErrors, setOuterErrors] = useState<Record<string, string>>({});
     const [innerErrors, setInnerErrors] = useState<Record<string, string>>({});
 
@@ -199,6 +204,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
               vacuumSystem: vacuumSystem,
               vacuumSystemAirPressureSetting: vacuumSystemAirPressureSetting,
               notes: notes.trim() || undefined,
+              attachments,
             },
           };
         }
@@ -223,6 +229,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
           vacuumSystem: vacuumSystem,
           vacuumSystemAirPressureSetting: vacuumSystemAirPressureSetting,
           notes: notes.trim() || undefined,
+          attachments,
         };
       },
 
@@ -264,6 +271,7 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
 
     const t = useTranslations('inspections.form.pistons');
     const tMeasurements = useTranslations('measurements');
+    const tInspections = useTranslations('inspections');
 
     return (
       <div className="space-y-6">
@@ -398,6 +406,21 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
             }}
             placeholder="Add any additional notes or observations..."
             rows={4}
+          />
+        </div>
+
+        {/* Section Attachments */}
+        <div className="pt-4 border-t">
+          <Typography variant="h4" className="mb-3">
+            {tInspections('form.common.attachments')}
+          </Typography>
+          <DocumentUpload
+            value={attachments}
+            onChange={(files) => {
+              setAttachments(files);
+              onSectionTouched?.();
+            }}
+            maxFiles={10}
           />
         </div>
       </div>

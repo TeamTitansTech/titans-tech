@@ -152,6 +152,20 @@ export enum OilWickType {
 }
 
 // ============================================================================
+// Attachment Schema (defined early for use in section schemas)
+// ============================================================================
+
+/**
+ * Attachment Schema - represents an uploaded document (PDF/CSV)
+ */
+export const AttachmentSchema = z.object({
+  name: z.string().min(1, 'File name is required'),
+  url: z.string().url('Invalid URL'),
+});
+
+export type Attachment = z.infer<typeof AttachmentSchema>;
+
+// ============================================================================
 // Zod Schemas for Section Data Types
 // ============================================================================
 
@@ -196,6 +210,7 @@ export const BearingClearanceCheckSchema = z.object({
   outerData: BearingClearanceDataSchema.optional(),
   innerBefore: BearingClearanceDataSchema.optional(),
   innerData: BearingClearanceDataSchema.optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type BearingClearanceCheck = z.infer<typeof BearingClearanceCheckSchema>;
@@ -261,6 +276,7 @@ export const SlideSingleHammerCheckSchema = z.object({
   beforeData: SlideDataSchema.optional(),
   data: SlideDataSchema.optional(),
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type SlideSingleHammerCheck = z.infer<typeof SlideSingleHammerCheckSchema>;
@@ -275,6 +291,7 @@ export const SlideDoubleHammerCheckSchema = z.object({
   innerBefore: SlideDataSchema.optional(),
   innerData: SlideDataSchema.optional(),
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type SlideDoubleHammerCheck = z.infer<typeof SlideDoubleHammerCheckSchema>;
@@ -322,6 +339,7 @@ export const GibsCheckSchema = z.object({
   innerBeforeTool: GibsStageDataSchema.optional(),
   innerDataTool: GibsStageDataSchema.optional(),
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type GibsCheck = z.infer<typeof GibsCheckSchema>;
@@ -355,6 +373,7 @@ export type LubricationHydraulicsData = z.infer<typeof LubricationHydraulicsData
 export const LubricationHydraulicsCheckSchema = z.object({
   data: LubricationHydraulicsDataSchema,
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type LubricationHydraulicsCheck = z.infer<typeof LubricationHydraulicsCheckSchema>;
@@ -426,6 +445,9 @@ export const ClutchDataSchema = z.object({
 
   // Notes
   notes: z.string().optional(),
+
+  // Attachments
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type ClutchData = z.infer<typeof ClutchDataSchema>;
@@ -454,6 +476,7 @@ export const CounterbalanceCylinderCheckSchema = z.object({
   outerData: CounterbalanceCylinderDataSchema.optional(),
   innerData: CounterbalanceCylinderDataSchema.optional(),
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type CounterbalanceCylinderCheck = z.infer<typeof CounterbalanceCylinderCheckSchema>;
@@ -499,6 +522,7 @@ export const TrammingCheckSchema = z.object({
   slideTram: z.enum(PrismaYesNoDncType).optional(),
   unit: z.enum(['inches', 'mm', 'cm']).optional(),
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type TrammingCheck = z.infer<typeof TrammingCheckSchema>;
@@ -534,6 +558,7 @@ export const PistonsCheckSchema = z.object({
   vacuumSystem: z.enum(PrismaVacuumSystemConditionType).optional(),
   vacuumSystemAirPressureSetting: z.number().optional(),
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type PistonsCheck = z.infer<typeof PistonsCheckSchema>;
@@ -561,6 +586,7 @@ export const ShimThicknessCheckSchema = z.object({
   innerLhData: ShimThicknessDataSchema.optional(),
   innerRhData: ShimThicknessDataSchema.optional(),
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type ShimThicknessCheck = z.infer<typeof ShimThicknessCheckSchema>;
@@ -574,6 +600,7 @@ export const DieCushionCheckSchema = z.object({
   pneumaticsPlumbing: z.nativeEnum(PrismaDieCushionPneumaticsPlumbingType).optional(),
   lubrication: z.nativeEnum(PrismaDieCushionLubricationType).optional(),
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type DieCushionCheck = z.infer<typeof DieCushionCheckSchema>;
@@ -604,6 +631,7 @@ export const ElectricalControlCheckSchema = z.object({
   safetyRelays: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
 
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type ElectricalControlCheck = z.infer<typeof ElectricalControlCheckSchema>;
@@ -624,6 +652,7 @@ export const PerpendicularityCheckSchema = z.object({
   afterLR: z.union([z.number(), z.string()]).optional(),
 
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type PerpendicularityCheck = z.infer<typeof PerpendicularityCheckSchema>;
@@ -654,6 +683,7 @@ export const AngularityCheckSchema = z.object({
   afterLR: z.union([z.number(), z.string()]).optional(),
 
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type AngularityCheck = z.infer<typeof AngularityCheckSchema>;
@@ -694,6 +724,7 @@ export const CreateServicePayloadSchema = z.object({
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 
   // Inspection observation fields
   isPressLevel: z.enum(PrismaYesNoNaDncType).optional(),
@@ -737,6 +768,7 @@ export const UpdateServicePayloadSchema = z.object({
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 
   // Inspection observation fields
   isPressLevel: z.enum(PrismaYesNoNaDncType).optional(),
@@ -796,6 +828,7 @@ export const ServiceSchema = z.object({
   currentStep: z.string().optional(),
   currentSectionKey: z.string().optional(),
   selectedSections: z.array(z.string()).optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 
   // Inspection observation fields
   isPressLevel: z.enum(PrismaYesNoNaDncType).optional(),

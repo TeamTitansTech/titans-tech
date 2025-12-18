@@ -55,7 +55,17 @@
       "uploadFailed": "Image upload failed",
       "uploading": "Uploading...",
       "clickToUpload": "Click to upload",
-      "jpgOrPngMax": "JPG or PNG (max. 10MB)"
+      "jpgOrPngMax": "JPG or PNG (max. 20MB)"
+    },
+    "documentUpload": {
+      "onlyPdfCsvAllowed": "Only PDF and CSV files are allowed",
+      "fileTooLarge": "File too large. Maximum size: {size}MB",
+      "uploadFailed": "Document upload failed",
+      "uploading": "Uploading...",
+      "clickToUpload": "Click to upload documents",
+      "pdfOrCsvMax": "PDF or CSV (max. 20MB)",
+      "maxFilesReached": "Maximum number of files reached ({max})",
+      "maxFilesExceeded": "Only {max} files allowed. Some files were not uploaded."
     },
     "cancel": "Cancel",
     "save": "Save"
@@ -70,7 +80,7 @@
     "fullNameRequired": "Full name is required",
     "invalidEmail": "Invalid email address",
     "invalidImageType": "Only JPG and PNG images are allowed",
-    "fileTooLarge": "File size exceeds 10MB limit"
+    "fileTooLarge": "File size exceeds 20MB limit"
   },
   "navigation": {
     "dashboard": "Dashboard",
@@ -1955,6 +1965,7 @@
         "selectMatingPart": "Select mating part",
         "referenceMeasurement": "Reference measurement",
         "additionalNotes": "Enter additional notes...",
+        "attachments": "Attachments",
         "generatesAlert": "This field generates alerts",
         "oilChangeGeneratesAlert": "Generates alerts if oil is not changed in 333 days"
       },
@@ -2165,6 +2176,10 @@
         "whyNotCovered": "Why not covered",
         "fillAngularity": "Fill Angularity"
       },
+      "attachedDocuments": {
+        "title": "Attached Documents",
+        "noDocuments": "No documents attached"
+      },
       "stepper": {
         "details": "Details",
         "summary": "Summary",
@@ -2194,7 +2209,8 @@
         "exportExcel": "Export Excel",
         "exportPDF": "Export PDF",
         "gauges": "Gauges",
-        "notes": "Notes"
+        "notes": "Notes",
+        "sectionAttachments": "Section Attachments"
       }
     },
     "pageTitle": "Services",

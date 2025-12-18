@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { LubricationHydraulicsData } from '@/data/types/services.types';
+import type { LubricationHydraulicsData, Attachment } from '@/data/types/services.types';
 import {
   Table,
   TableBody,
@@ -12,13 +12,15 @@ import {
 } from '@/components/ui/table';
 import { Typography } from '@/components/ui/typography';
 import { translateEnumValue } from './utils/translateEnum';
+import { SectionAttachments } from './SectionAttachments';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface LubricationSummaryProps {
   data: LubricationHydraulicsData;
+  attachments?: Attachment[];
 }
 
-export function LubricationSummary({ data }: LubricationSummaryProps) {
+export function LubricationSummary({ data, attachments }: LubricationSummaryProps) {
   const tTable = useTranslations('table');
   const tServicesSummary = useTranslations('services.modal.summary');
   const tLubricationFields = useTranslations('inspections.form.lubricationHydraulics');
@@ -171,6 +173,8 @@ export function LubricationSummary({ data }: LubricationSummaryProps) {
           </Typography>
         </div>
       )}
+
+      <SectionAttachments attachments={attachments} />
     </div>
   );
 }

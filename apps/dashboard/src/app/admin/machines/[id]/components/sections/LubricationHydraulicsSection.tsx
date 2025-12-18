@@ -1,11 +1,12 @@
 'use client';
 
-import { forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   type LubricationHydraulicsData,
   type LubricationHydraulicsCheck,
   type LubricationHydraulicsGauge,
+  type Attachment,
   ServiceType,
   YesNoDncType,
   TemperatureUnit,
@@ -13,6 +14,8 @@ import {
 import { LubricationHydraulicsForm } from '../forms/LubricationHydraulicsForm';
 import { isDataTouched } from './utils';
 import { useSectionState } from '../../hooks/useSectionState';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 export const defaultLubricationHydraulicsCheck: LubricationHydraulicsCheck = {
   data: {
@@ -68,6 +71,8 @@ export const LubricationHydraulicsSection = forwardRef<
     updateField: baseUpdateField,
     reset,
   } = useSectionState<LubricationHydraulicsCheck>(initialData || defaultLubricationHydraulicsCheck);
+
+  const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
 
   // Validate with translations
   const validateWithTranslations = (checkData: LubricationHydraulicsCheck): string[] => {
@@ -129,7 +134,12 @@ export const LubricationHydraulicsSection = forwardRef<
         return {
           isValid: true,
           errors: [],
-          data: hasData ? dataToValidate : undefined,
+          data: hasData
+            ? ({
+                ...(touched ? data : initialSectionData),
+                attachments,
+              } as LubricationHydraulicsCheck)
+            : undefined,
         };
       }
 
@@ -143,7 +153,12 @@ export const LubricationHydraulicsSection = forwardRef<
       const touched = isDataTouched(data, initialSectionData);
       const hasData =
         touched || isDataTouched(initialSectionData, defaultLubricationHydraulicsCheck);
-      return hasData ? (touched ? data : initialSectionData) : undefined;
+      return hasData
+        ? ({
+            ...(touched ? data : initialSectionData),
+            attachments,
+          } as LubricationHydraulicsCheck)
+        : undefined;
     },
 
     validate: (_serviceType: ServiceType): string[] => {
@@ -157,12 +172,29 @@ export const LubricationHydraulicsSection = forwardRef<
   }));
 
   return (
-    <LubricationHydraulicsForm
-      data={{ ...data.data, notes: data.notes }}
-      updateFn={updateField}
-      errors={errors}
-      handleBlur={handleBlur}
-    />
+    <div className="space-y-6">
+      <LubricationHydraulicsForm
+        data={{ ...data.data, notes: data.notes }}
+        updateFn={updateField}
+        errors={errors}
+        handleBlur={handleBlur}
+      />
+
+      {/* Section Attachments */}
+      <div className="pt-4 border-t">
+        <Typography variant="h4" className="mb-3">
+          {t('form.common.attachments')}
+        </Typography>
+        <DocumentUpload
+          value={attachments}
+          onChange={(files) => {
+            setAttachments(files);
+            onSectionTouched?.();
+          }}
+          maxFiles={10}
+        />
+      </div>
+    </div>
   );
 });
 
