@@ -428,17 +428,16 @@ model SysAdmin {
 }
 
 model Company {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String   @unique
   logo        String?
   loginLogo   String?
   brandColor  String?
   accentColor String?
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   branches            CompanyBranch[]
   users               User[]
@@ -453,9 +452,8 @@ model PermissionTemplate {
   description String?
   permissions Json // Stores the Permissions object as JSON
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyId String
@@ -469,9 +467,8 @@ model CompanyBranch {
   isMainBranch Boolean @default(false)
   location     String?
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   company         Company          @relation(fields: [companyId], references: [id])
   companyId       String
@@ -795,9 +792,8 @@ model Machine {
   pressMounting   PressMountingType?
   features        MachineFeaturesType?
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   blueprint       Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
   branch          CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -853,9 +849,8 @@ model MachineService {
   whyNotCovered               String?
   fillAngularity              Boolean?                    @default(false)
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   machine                           Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
   serviceRequest                    ServiceRequest?                              @relation(fields: [serviceRequestId], references: [id], onDelete: SetNull)
@@ -1878,7 +1873,6 @@ model ProductionLine {
   direction ProductionLineDirection @default(LEFT_TO_RIGHT)
   createdAt DateTime                @default(now())
   updatedAt DateTime                @updatedAt
-  deletedAt DateTime?
 
   branch   CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
   machines MachineProductionLine[]
