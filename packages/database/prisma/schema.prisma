@@ -1917,6 +1917,7 @@ model MachineServiceShimThickness {
   innerLhDataId    String?
   innerRhDataId    String?
   notes            String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService     @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerLhData    ShimThicknessData? @relation("OuterLhShimThickness", fields: [outerLhDataId], references: [id], onDelete: SetNull)
@@ -1955,6 +1956,7 @@ model MachineServiceDieCushion {
   pneumaticsPlumbing DieCushionPneumaticsPlumbingType?
   lubrication        DieCushionLubricationType?
   notes              String?
+  attachments        Json?                             @default("[]") // [{name: string, url: string}]
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -1988,7 +1990,8 @@ model MachineServiceElectricalControl {
   twentyFourVBuss YesNoNaDncCantTellType?
   safetyRelays    YesNoNaDncCantTellType?
 
-  notes String?
+  notes       String?
+  attachments Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -2011,7 +2014,8 @@ model MachineServicePerpendicularity {
   afterFR Decimal? @db.Decimal(10, 4)
   afterLR Decimal? @db.Decimal(10, 4)
 
-  notes String?
+  notes       String?
+  attachments Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -2046,7 +2050,8 @@ model MachineServiceAngularity {
   afterFR Decimal? @db.Decimal(10, 4)
   afterLR Decimal? @db.Decimal(10, 4)
 
-  notes String?
+  notes       String?
+  attachments Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 

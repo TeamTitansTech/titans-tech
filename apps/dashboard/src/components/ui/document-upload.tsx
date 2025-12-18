@@ -175,7 +175,7 @@ export function DocumentUpload({
         variant="outline"
         onClick={handleClick}
         disabled={disabled || isUploading || value.length >= maxFiles}
-        className="w-full h-auto py-4 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-transparent flex flex-col items-center justify-center gap-2 text-muted-foreground"
+        className="w-full h-auto py-4 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-muted-foreground"
       >
         {isUploading ? (
           <>

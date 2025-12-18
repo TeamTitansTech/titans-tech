@@ -15,7 +15,6 @@ import { SlideSingleHammerForm } from '../forms/SlideSingleHammerForm';
 import { isDataTouched } from './utils';
 import { DocumentUpload } from '@/components/ui/document-upload';
 import { Typography } from '@/components/ui/typography';
-import { useTranslations } from 'next-intl';
 
 // UI type that combines before/after in one object for easier form handling
 export interface SlideFormData {

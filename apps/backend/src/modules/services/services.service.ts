@@ -431,6 +431,11 @@ export class ServicesService {
       updateData.whyNotCovered = updateDto.whyNotCovered;
     }
 
+    // Main service attachments (from Details step)
+    if (updateDto.attachments !== undefined) {
+      updateData.attachments = updateDto.attachments;
+    }
+
     // Update the service
     const updatedService = await this.prisma.machineService.update({
       where: { id: serviceId },

@@ -586,6 +586,7 @@ export const ShimThicknessCheckSchema = z.object({
   innerLhData: ShimThicknessDataSchema.optional(),
   innerRhData: ShimThicknessDataSchema.optional(),
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type ShimThicknessCheck = z.infer<typeof ShimThicknessCheckSchema>;
@@ -599,6 +600,7 @@ export const DieCushionCheckSchema = z.object({
   pneumaticsPlumbing: z.nativeEnum(PrismaDieCushionPneumaticsPlumbingType).optional(),
   lubrication: z.nativeEnum(PrismaDieCushionLubricationType).optional(),
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type DieCushionCheck = z.infer<typeof DieCushionCheckSchema>;
@@ -629,6 +631,7 @@ export const ElectricalControlCheckSchema = z.object({
   safetyRelays: z.nativeEnum(PrismaYesNoNaDncCantTellType).optional(),
 
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type ElectricalControlCheck = z.infer<typeof ElectricalControlCheckSchema>;
@@ -649,6 +652,7 @@ export const PerpendicularityCheckSchema = z.object({
   afterLR: z.union([z.number(), z.string()]).optional(),
 
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type PerpendicularityCheck = z.infer<typeof PerpendicularityCheckSchema>;
@@ -679,6 +683,7 @@ export const AngularityCheckSchema = z.object({
   afterLR: z.union([z.number(), z.string()]).optional(),
 
   notes: z.string().optional(),
+  attachments: z.array(AttachmentSchema).optional(),
 });
 
 export type AngularityCheck = z.infer<typeof AngularityCheckSchema>;

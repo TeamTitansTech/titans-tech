@@ -9,7 +9,6 @@ import { CheckCircle, AlertTriangle, AlertCircle, HelpCircle, Package } from 'lu
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Typography } from '@/components/ui/typography';
 import { cn } from '@/lib/utils';
 import type { SectionStatus } from './SectionStatusBadge';
 import { PartsListSelector } from '@/components/parts/PartsListSelector';

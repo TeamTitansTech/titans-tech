@@ -68,10 +68,17 @@ export function SectionSummary({
     case 'BEARING_CLEARANCE':
       return <BearingClearanceSummary data={data as BearingClearanceCheck} />;
 
-    case 'BEARING_CLEARANCE_SINGLE_HAMMER':
+    case 'BEARING_CLEARANCE_SINGLE_HAMMER': {
+      const bearingSingleData = data as BearingClearanceSingleHammerCheck & {
+        attachments?: Attachment[];
+      };
       return (
-        <BearingClearanceSingleHammerSummary data={data as BearingClearanceSingleHammerCheck} />
+        <BearingClearanceSingleHammerSummary
+          data={bearingSingleData}
+          attachments={bearingSingleData?.attachments}
+        />
       );
+    }
 
     case 'SLIDE_SINGLE_HAMMER':
       return <SlideSingleHammerSummary data={data as SlideSingleHammerCheck} />;
@@ -120,17 +127,65 @@ export function SectionSummary({
     case 'SHIM_THICKNESS':
       return <ShimThicknessSummary data={data as ShimThicknessSectionData} />;
 
-    case 'DIE_CUSHION':
-      return <DieCushionSummary data={data as DieCushionCheck} />;
+    case 'DIE_CUSHION': {
+      // Handle both wrapped and unwrapped data structures
+      const dieCushionData = data as DieCushionCheck & {
+        data?: DieCushionCheck;
+        attachments?: Attachment[];
+      };
+      const innerData = dieCushionData?.data ?? dieCushionData;
+      return (
+        <DieCushionSummary
+          data={innerData as DieCushionCheck}
+          attachments={dieCushionData?.attachments}
+        />
+      );
+    }
 
-    case 'ELECTRICAL_CONTROL':
-      return <ElectricalControlSummary data={data as ElectricalControlCheck} />;
+    case 'ELECTRICAL_CONTROL': {
+      // Handle both wrapped and unwrapped data structures
+      const electricalData = data as ElectricalControlCheck & {
+        data?: ElectricalControlCheck;
+        attachments?: Attachment[];
+      };
+      const innerData = electricalData?.data ?? electricalData;
+      return (
+        <ElectricalControlSummary
+          data={innerData as ElectricalControlCheck}
+          attachments={electricalData?.attachments}
+        />
+      );
+    }
 
-    case 'PERPENDICULARITY':
-      return <PerpendiculariySummary data={data as PerpendicularityCheck} />;
+    case 'PERPENDICULARITY': {
+      // Handle both wrapped and unwrapped data structures
+      const perpData = data as PerpendicularityCheck & {
+        data?: PerpendicularityCheck;
+        attachments?: Attachment[];
+      };
+      const innerData = perpData?.data ?? perpData;
+      return (
+        <PerpendiculariySummary
+          data={innerData as PerpendicularityCheck}
+          attachments={perpData?.attachments}
+        />
+      );
+    }
 
-    case 'ANGULARITY':
-      return <AngularitySummary data={data as AngularityCheck} />;
+    case 'ANGULARITY': {
+      // Handle both wrapped and unwrapped data structures
+      const angularityData = data as AngularityCheck & {
+        data?: AngularityCheck;
+        attachments?: Attachment[];
+      };
+      const innerData = angularityData?.data ?? angularityData;
+      return (
+        <AngularitySummary
+          data={innerData as AngularityCheck}
+          attachments={angularityData?.attachments}
+        />
+      );
+    }
 
     // For all other sections, use the generic summary component
     // This displays data in a readable format instead of raw JSON

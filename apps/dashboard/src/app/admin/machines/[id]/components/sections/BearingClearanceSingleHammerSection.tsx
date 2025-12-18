@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { ChevronDown } from 'lucide-react';
 import {
   type BearingClearanceData,
+  type Attachment,
   ServiceType,
   YesNoNaDncType,
 } from '@/data/types/services.types';
@@ -15,6 +16,8 @@ import { BearingTabContent } from '../shared/BearingTabContent';
 import { ShutdownAdjustmentFields } from '../shared/ShutdownAdjustmentFields';
 import { isDataTouched } from './utils';
 import { buildBearingFields, sanitizeBearingDataForSubmission } from './bearingClearanceUtils';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 // Default data structure - numeric fields default to undefined to show empty inputs
 export const defaultBearingData: BearingClearanceData = {
@@ -71,6 +74,7 @@ export const validateBearingClearanceData = (data: BearingClearanceData): string
 export interface BearingClearanceSingleHammerSectionData {
   beforeData?: BearingClearanceData;
   data?: BearingClearanceData;
+  attachments?: Attachment[];
 }
 
 export interface BearingClearanceSingleHammerSectionRef {
@@ -126,6 +130,7 @@ export const BearingClearanceSingleHammerSection = forwardRef<
   );
   const [lockingClamps, setLockingClamps] = useState(initialAfterData.lockingClamps);
   const [notes, setNotes] = useState(initialAfterData.notes || '');
+  const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
 
   // Errors
   const [beforeErrors, setBeforeErrors] = useState<Record<string, string>>({});
@@ -193,6 +198,7 @@ export const BearingClearanceSingleHammerSection = forwardRef<
     setChainsGearsSprockets(undefined);
     setLockingClamps(undefined);
     setNotes('');
+    setAttachments([]);
     setIncludeBeforeMeasurements(false);
     setBeforeErrors({});
     setAfterErrors({});
@@ -236,6 +242,7 @@ export const BearingClearanceSingleHammerSection = forwardRef<
             ? { ...beforeData, ...beforeFields }
             : undefined,
         data: afterTouched ? { ...afterData, ...afterFields } : undefined,
+        attachments,
       };
     },
 
@@ -380,6 +387,7 @@ export const BearingClearanceSingleHammerSection = forwardRef<
               ...afterFields,
             })
           : undefined,
+        attachments,
       };
 
       return { isValid: true, errors: [], data };
@@ -549,6 +557,21 @@ export const BearingClearanceSingleHammerSection = forwardRef<
           onSectionTouched();
         }}
       />
+
+      {/* Attachments */}
+      <div className="pt-4 border-t">
+        <Typography variant="h4" className="mb-3">
+          {t('form.common.attachments')}
+        </Typography>
+        <DocumentUpload
+          value={attachments}
+          onChange={(files) => {
+            setAttachments(files);
+            onSectionTouched();
+          }}
+          maxFiles={10}
+        />
+      </div>
     </div>
   );
 });

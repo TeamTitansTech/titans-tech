@@ -12,8 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { type PerpendicularityCheck, YesNoDncType, ServiceType } from '@/data/types/services.types';
+import {
+  type PerpendicularityCheck,
+  type Attachment,
+  YesNoDncType,
+  ServiceType,
+} from '@/data/types/services.types';
 import { isDataTouched } from './utils';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 export const defaultPerpendicularityData: PerpendicularityCheck = {
   hasBeenAdjusted: undefined,
@@ -24,21 +31,26 @@ export const defaultPerpendicularityData: PerpendicularityCheck = {
   notes: undefined,
 };
 
+export interface PerpendiculariySectionData {
+  data?: PerpendicularityCheck;
+  attachments?: Attachment[];
+}
+
 export interface PerpendiculoritySectionRef {
-  getData: () => PerpendicularityCheck | undefined;
+  getData: () => PerpendiculariySectionData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
   isTouched: () => boolean;
   validateAndGetData: (serviceType: ServiceType) => {
     isValid: boolean;
     errors: string[];
-    data?: PerpendicularityCheck;
+    data?: PerpendiculariySectionData;
   };
 }
 
 interface PerpendiculoritySectionProps {
   onSectionTouched?: () => void;
-  initialData?: PerpendicularityCheck;
+  initialData?: PerpendiculariySectionData;
 }
 
 export const PerpendicularitySection = forwardRef<
@@ -46,22 +58,26 @@ export const PerpendicularitySection = forwardRef<
   PerpendiculoritySectionProps
 >(({ onSectionTouched, initialData }, ref) => {
   const t = useTranslations('inspections.form.perpendicularity');
+  const tCommon = useTranslations('inspections.form.common');
 
   const [initialPerpendicularityData, setInitialPerpendicularityData] =
-    useState<PerpendicularityCheck>(initialData || defaultPerpendicularityData);
+    useState<PerpendicularityCheck>(initialData?.data || defaultPerpendicularityData);
 
   const [data, setData] = useState<PerpendicularityCheck>(
-    initialData || defaultPerpendicularityData,
+    initialData?.data || defaultPerpendicularityData,
   );
+  const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
   const prevInitialDataRef = useRef(initialData);
 
   useEffect(() => {
     if (initialData && initialData !== prevInitialDataRef.current) {
       prevInitialDataRef.current = initialData;
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
-      setData(initialData);
+      setData(initialData.data || defaultPerpendicularityData);
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
-      setInitialPerpendicularityData(initialData);
+      setInitialPerpendicularityData(initialData.data || defaultPerpendicularityData);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+      setAttachments(initialData.attachments ?? []);
     }
   }, [initialData]);
 
@@ -80,7 +96,7 @@ export const PerpendicularitySection = forwardRef<
 
     validateAndGetData: (
       _serviceType: ServiceType,
-    ): { isValid: boolean; errors: string[]; data?: PerpendicularityCheck } => {
+    ): { isValid: boolean; errors: string[]; data?: PerpendiculariySectionData } => {
       const touched = isDataTouched(data, initialPerpendicularityData);
       const hasInitialData = isDataTouched(
         initialPerpendicularityData,
@@ -94,7 +110,9 @@ export const PerpendicularitySection = forwardRef<
         return {
           isValid: true,
           errors: [],
-          data: hasData ? (touched ? data : initialPerpendicularityData) : undefined,
+          data: hasData
+            ? { data: touched ? data : initialPerpendicularityData, attachments }
+            : undefined,
         };
       }
 
@@ -104,11 +122,13 @@ export const PerpendicularitySection = forwardRef<
       };
     },
 
-    getData: (): PerpendicularityCheck | undefined => {
+    getData: (): PerpendiculariySectionData | undefined => {
       const touched = isDataTouched(data, initialPerpendicularityData);
       const hasData =
         touched || isDataTouched(initialPerpendicularityData, defaultPerpendicularityData);
-      return hasData ? (touched ? data : initialPerpendicularityData) : undefined;
+      return hasData
+        ? { data: touched ? data : initialPerpendicularityData, attachments }
+        : undefined;
     },
 
     validate: (_serviceType: ServiceType): string[] => {
@@ -117,6 +137,7 @@ export const PerpendicularitySection = forwardRef<
 
     reset: () => {
       setData(defaultPerpendicularityData);
+      setAttachments([]);
     },
   }));
 
@@ -237,6 +258,21 @@ export const PerpendicularitySection = forwardRef<
           onChange={(e) => updateField('notes', e.target.value || undefined)}
           placeholder={t('notesPlaceholder')}
           rows={4}
+        />
+      </div>
+
+      {/* Attachments */}
+      <div className="pt-4 border-t">
+        <Typography variant="h4" className="mb-3">
+          {tCommon('attachments')}
+        </Typography>
+        <DocumentUpload
+          value={attachments}
+          onChange={(files) => {
+            setAttachments(files);
+            onSectionTouched?.();
+          }}
+          maxFiles={10}
         />
       </div>
     </div>

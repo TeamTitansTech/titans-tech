@@ -316,17 +316,22 @@ export function SummaryStep({
               {attachments.map((attachment, index) => {
                 const isCSV = attachment.name.toLowerCase().endsWith('.csv');
                 return (
-                  <div
+                  <a
                     key={`${attachment.url}-${index}`}
-                    className="flex items-center gap-3 px-3 py-2 bg-muted/30 rounded-md"
+                    href={attachment.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-3 py-2 bg-muted/30 rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
                   >
                     {isCSV ? (
                       <FileSpreadsheet className="h-5 w-5 text-green-600 flex-shrink-0" />
                     ) : (
                       <FileText className="h-5 w-5 text-red-600 flex-shrink-0" />
                     )}
-                    <span className="text-sm font-medium truncate">{attachment.name}</span>
-                  </div>
+                    <span className="text-sm font-medium truncate hover:underline">
+                      {attachment.name}
+                    </span>
+                  </a>
                 );
               })}
             </div>

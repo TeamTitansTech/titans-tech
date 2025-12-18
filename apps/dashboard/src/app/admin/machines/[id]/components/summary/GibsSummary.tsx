@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import type { GibsCheck, GibsStageData } from '@/data/types/services.types';
-import { displayValue } from '../utils/fieldFormatters';
 import { SectionAttachments } from './SectionAttachments';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 
