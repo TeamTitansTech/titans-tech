@@ -3,7 +3,7 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ServiceType, YesNoDncType } from '@/data/types/services.types';
+import { ServiceType, YesNoDncType, type Attachment } from '@/data/types/services.types';
 import { TrammingForm, type TrammingDbData } from '../forms/TrammingForm';
 import { isDataTouched } from './utils';
 import { validateNumericFields } from '../utils/validateNumericFields';
@@ -16,6 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 // Default tramming data using DB format (without outer/inner prefix)
 // All fields are undefined to force user to fill them
@@ -90,6 +92,7 @@ export interface TrammingSectionData {
   innerData?: TrammingDbData;
   slideTram?: YesNoDncType;
   notes?: string;
+  attachments?: Attachment[];
 }
 
 export interface TrammingSectionRef {
@@ -131,6 +134,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
       initialData?.slideTram || YesNoDncType.DNC,
     );
     const [notes, setNotes] = useState<string>(initialData?.notes || '');
+    const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
     const [outerErrors, setOuterErrors] = useState<Record<string, string>>({});
     const [innerErrors, setInnerErrors] = useState<Record<string, string>>({});
 
@@ -206,6 +210,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
               innerData: innerData,
               slideTram: slideTram,
               notes: notes.trim() || undefined,
+              attachments,
             },
           };
         }
@@ -222,6 +227,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
           innerData: innerData,
           slideTram: slideTram,
           notes: notes.trim() || undefined,
+          attachments,
         };
       },
 
@@ -254,6 +260,7 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
     }));
 
     const tMeasurements = useTranslations('measurements');
+    const tInspections = useTranslations('inspections');
 
     return (
       <div className="space-y-6">
@@ -323,6 +330,21 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
             }}
             placeholder="Add any additional notes or observations..."
             rows={4}
+          />
+        </div>
+
+        {/* Section Attachments */}
+        <div className="pt-4 border-t">
+          <Typography variant="h4" className="mb-3">
+            {tInspections('form.common.attachments')}
+          </Typography>
+          <DocumentUpload
+            value={attachments}
+            onChange={(files) => {
+              setAttachments(files);
+              onSectionTouched?.();
+            }}
+            maxFiles={10}
           />
         </div>
       </div>

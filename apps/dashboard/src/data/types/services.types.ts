@@ -62,6 +62,7 @@ export type {
   PerpendicularityCheck,
   AngularityCheck,
   // Service entity
+  Attachment,
   Service,
   ServiceHistoryItem,
   CreateServicePayload,

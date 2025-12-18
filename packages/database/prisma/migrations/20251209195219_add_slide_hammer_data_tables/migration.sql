@@ -45,6 +45,7 @@ CREATE TABLE "machine_service_slide_single_hammer" (
     "beforeDataId" TEXT,
     "dataId" TEXT,
     "notes" TEXT,
+    "attachments" JSONB DEFAULT '[]',
 
     CONSTRAINT "machine_service_slide_single_hammer_pkey" PRIMARY KEY ("id")
 );
@@ -58,6 +59,7 @@ CREATE TABLE "machine_service_slide_double_hammer" (
     "innerBeforeId" TEXT,
     "innerDataId" TEXT,
     "notes" TEXT,
+    "attachments" JSONB DEFAULT '[]',
 
     CONSTRAINT "machine_service_slide_double_hammer_pkey" PRIMARY KEY ("id")
 );

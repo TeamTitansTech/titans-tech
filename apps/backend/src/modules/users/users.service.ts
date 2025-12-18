@@ -32,9 +32,10 @@ export class UsersService {
   ) {}
 
   async login(email: string, password: string, companyId: string) {
+    const normalizedEmail = email.toLowerCase().trim();
     const user = await this.prisma.user.findFirst({
       where: {
-        email,
+        email: normalizedEmail,
         companyId,
       },
       include: {
@@ -186,8 +187,10 @@ export class UsersService {
     branchId: string,
     createUserDto: SysAdminCreateUserDto,
   ) {
+    const normalizedEmail = createUserDto.email.toLowerCase().trim();
+
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: createUserDto.email },
+      where: { email: normalizedEmail },
     });
 
     const branch = await this.prisma.companyBranch.findUnique({
@@ -207,7 +210,7 @@ export class UsersService {
     const result = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
-          email: createUserDto.email,
+          email: normalizedEmail,
           name: createUserDto.name,
           isCompanyAdmin: createUserDto.isCompanyAdmin ?? false,
           password: hashedPassword,
@@ -246,6 +249,8 @@ export class UsersService {
   }
 
   async createWithBranch(branchId: string, createUserDto: CreateUserDto) {
+    const normalizedEmail = createUserDto.email.toLowerCase().trim();
+
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id: branchId },
     });
@@ -255,7 +260,7 @@ export class UsersService {
     }
 
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: createUserDto.email },
+      where: { email: normalizedEmail },
     });
 
     if (existingUser) {
@@ -268,7 +273,7 @@ export class UsersService {
     const result = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
-          email: createUserDto.email,
+          email: normalizedEmail,
           name: createUserDto.name,
           password: hashedPassword,
           isUsingDefaultPassword: true,
@@ -318,9 +323,17 @@ export class UsersService {
 
     await this.validateEmailUniqueness(updateUserDto, existingUser);
 
+    // Normalize email to lowercase if provided
+    const dataToUpdate = {
+      ...updateUserDto,
+      ...(updateUserDto.email && {
+        email: updateUserDto.email.toLowerCase().trim(),
+      }),
+    };
+
     const updatedUser = await this.prisma.user.update({
       where: { id },
-      data: updateUserDto,
+      data: dataToUpdate,
       include: {
         branches: {
           where: { deletedAt: null },
@@ -473,13 +486,16 @@ export class UsersService {
     updateUserDto: UpdateUserDto,
     existingUser: { email: string },
   ): Promise<void> {
-    if (updateUserDto.email && updateUserDto.email !== existingUser.email) {
-      const emailInUse = await this.prisma.user.findUnique({
-        where: { email: updateUserDto.email },
-      });
+    if (updateUserDto.email) {
+      const normalizedEmail = updateUserDto.email.toLowerCase().trim();
+      if (normalizedEmail !== existingUser.email) {
+        const emailInUse = await this.prisma.user.findUnique({
+          where: { email: normalizedEmail },
+        });
 
-      if (emailInUse) {
-        throw FieldsErr({ email: 'Email already in use' });
+        if (emailInUse) {
+          throw FieldsErr({ email: 'Email already in use' });
+        }
       }
     }
   }

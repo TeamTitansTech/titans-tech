@@ -17,10 +17,19 @@ import { TemperatureInput } from '@/components/ui/forms/TemperatureInput';
 import {
   type LubricationHydraulicsFormProps,
   LubeHydMonitorFlowPressSwGibType,
-  OkNaDncDamageType,
   YesNoDncType,
   type LubricationHydraulicsGauge,
 } from '@/data/types/services.types';
+
+// Preset options for PSI field (used for datalist suggestions)
+// These are string values since PSI field accepts free text
+// Note: value and label must match to avoid browsers showing both in dropdown
+const PSI_PRESET_OPTIONS = [
+  { value: 'OK', label: 'OK' },
+  { value: 'N/A', label: 'N/A' },
+  { value: 'DNC', label: 'DNC' },
+  { value: 'Damaged', label: 'Damaged' },
+];
 
 export function LubricationHydraulicsForm({
   data,
@@ -49,7 +58,7 @@ export function LubricationHydraulicsForm({
   const updateGauge = (
     index: number,
     field: keyof LubricationHydraulicsGauge,
-    value: string | LubeHydMonitorFlowPressSwGibType | OkNaDncDamageType | undefined,
+    value: string | LubeHydMonitorFlowPressSwGibType | undefined,
   ) => {
     const updatedGauges = [...data.gauges];
     updatedGauges[index] = { ...updatedGauges[index], [field]: value };
@@ -58,10 +67,6 @@ export function LubricationHydraulicsForm({
 
   const getSystemLabel = (system: LubeHydMonitorFlowPressSwGibType) => {
     return t(`form.lubricationHydraulics.systems.${system.toLowerCase()}`);
-  };
-
-  const getPsiLabel = (psi: OkNaDncDamageType) => {
-    return tCommon(psi.toLowerCase());
   };
 
   return (
@@ -132,9 +137,7 @@ export function LubricationHydraulicsForm({
                 <div className="col-span-3">
                   <Select
                     value={gauge.psi || ''}
-                    onValueChange={(value) =>
-                      updateGauge(index, 'psi', value ? (value as OkNaDncDamageType) : undefined)
-                    }
+                    onValueChange={(value) => updateGauge(index, 'psi', value || undefined)}
                   >
                     <SelectTrigger className="h-9 text-xs">
                       <SelectValue
@@ -142,9 +145,9 @@ export function LubricationHydraulicsForm({
                       />
                     </SelectTrigger>
                     <SelectContent>
-                      {Object.values(OkNaDncDamageType).map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {getPsiLabel(status)}
+                      {PSI_PRESET_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
                         </SelectItem>
                       ))}
                     </SelectContent>

@@ -12,8 +12,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { type AngularityCheck, YesNoDncType, ServiceType } from '@/data/types/services.types';
+import {
+  type AngularityCheck,
+  type Attachment,
+  YesNoDncType,
+  ServiceType,
+} from '@/data/types/services.types';
 import { isDataTouched } from './utils';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 export const defaultAngularityData: AngularityCheck = {
   hasBeenAdjusted: undefined,
@@ -35,41 +42,50 @@ export const defaultAngularityData: AngularityCheck = {
   notes: undefined,
 };
 
+export interface AngularitySectionData {
+  data?: AngularityCheck;
+  attachments?: Attachment[];
+}
+
 export interface AngularitySectionRef {
-  getData: () => AngularityCheck | undefined;
+  getData: () => AngularitySectionData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
   isTouched: () => boolean;
   validateAndGetData: (serviceType: ServiceType) => {
     isValid: boolean;
     errors: string[];
-    data?: AngularityCheck;
+    data?: AngularitySectionData;
   };
 }
 
 interface AngularitySectionProps {
   onSectionTouched?: () => void;
-  initialData?: AngularityCheck;
+  initialData?: AngularitySectionData;
 }
 
 export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySectionProps>(
   ({ onSectionTouched, initialData }, ref) => {
     const t = useTranslations('inspections.form.angularity');
+    const tCommon = useTranslations('inspections.form.common');
 
     const [initialAngularityData, setInitialAngularityData] = useState<AngularityCheck>(
-      initialData || defaultAngularityData,
+      initialData?.data || defaultAngularityData,
     );
 
-    const [data, setData] = useState<AngularityCheck>(initialData || defaultAngularityData);
+    const [data, setData] = useState<AngularityCheck>(initialData?.data || defaultAngularityData);
+    const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
     const prevInitialDataRef = useRef(initialData);
 
     useEffect(() => {
       if (initialData && initialData !== prevInitialDataRef.current) {
         prevInitialDataRef.current = initialData;
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
-        setData(initialData);
+        setData(initialData.data || defaultAngularityData);
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
-        setInitialAngularityData(initialData);
+        setInitialAngularityData(initialData.data || defaultAngularityData);
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+        setAttachments(initialData.attachments ?? []);
       }
     }, [initialData]);
 
@@ -85,7 +101,7 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
 
       validateAndGetData: (
         _serviceType: ServiceType,
-      ): { isValid: boolean; errors: string[]; data?: AngularityCheck } => {
+      ): { isValid: boolean; errors: string[]; data?: AngularitySectionData } => {
         const touched = isDataTouched(data, initialAngularityData);
         const hasInitialData = isDataTouched(initialAngularityData, defaultAngularityData);
 
@@ -96,7 +112,9 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
           return {
             isValid: true,
             errors: [],
-            data: hasData ? (touched ? data : initialAngularityData) : undefined,
+            data: hasData
+              ? { data: touched ? data : initialAngularityData, attachments }
+              : undefined,
           };
         }
 
@@ -106,10 +124,10 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
         };
       },
 
-      getData: (): AngularityCheck | undefined => {
+      getData: (): AngularitySectionData | undefined => {
         const touched = isDataTouched(data, initialAngularityData);
         const hasData = touched || isDataTouched(initialAngularityData, defaultAngularityData);
-        return hasData ? (touched ? data : initialAngularityData) : undefined;
+        return hasData ? { data: touched ? data : initialAngularityData, attachments } : undefined;
       },
 
       validate: (_serviceType: ServiceType): string[] => {
@@ -118,6 +136,7 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
 
       reset: () => {
         setData(defaultAngularityData);
+        setAttachments([]);
       },
     }));
 
@@ -377,6 +396,21 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
             onChange={(e) => updateField('notes', e.target.value || undefined)}
             placeholder={t('notesPlaceholder')}
             rows={4}
+          />
+        </div>
+
+        {/* Attachments */}
+        <div className="pt-4 border-t">
+          <Typography variant="h4" className="mb-3">
+            {tCommon('attachments')}
+          </Typography>
+          <DocumentUpload
+            value={attachments}
+            onChange={(files) => {
+              setAttachments(files);
+              onSectionTouched?.();
+            }}
+            maxFiles={10}
           />
         </div>
       </div>

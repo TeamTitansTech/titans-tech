@@ -23,8 +23,8 @@ import type { SlideInspectionData } from './SlideSingleHammerSectionWrapper';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 import { MultiLineThresholdChart } from '@/components/charts/MultiLineThresholdChart';
 import {
-  transformSlidePositionsToMultiLineData,
-  transformSlideMaxDeviationToMultiLineData,
+  transformSlideSingleHammerPositionsToMultiLineData,
+  transformSlideSingleHammerMaxDeviationToMultiLineData,
   extractThresholdConfig,
 } from '@/components/charts/dataTransformers';
 import { getSlideSingleHammerThresholdByBlueprint } from '@/actions/alerts';
@@ -143,9 +143,9 @@ export function SlideSingleHammerSection({
     return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [inspections, date]);
 
-  // Filter to only inspections that have slide data
+  // Filter to only inspections that have slide single hammer data
   const inspectionsWithSlideData = useMemo(() => {
-    return filteredInspections.filter((inspection) => inspection.slide?.[0]?.outerData);
+    return filteredInspections.filter((inspection) => inspection.slideSingleHammer?.[0]?.data);
   }, [filteredInspections]);
 
   // Find the latest inspection that actually has slide data (not just any inspection)
@@ -153,16 +153,16 @@ export function SlideSingleHammerSection({
     return inspectionsWithSlideData[0];
   }, [inspectionsWithSlideData]);
 
-  const latestOuterData = latestInspectionWithData?.slide?.[0]?.outerData;
+  const latestOuterData = latestInspectionWithData?.slideSingleHammer?.[0]?.data;
 
-  // Transform data for charts
+  // Transform data for charts (single hammer)
   const outerPositionsChartData = useMemo(() => {
-    return transformSlidePositionsToMultiLineData(filteredInspections, 'outer');
+    return transformSlideSingleHammerPositionsToMultiLineData(filteredInspections);
   }, [filteredInspections]);
 
-  // Transform data for max deviation chart
+  // Transform data for max deviation chart (single hammer)
   const maxDeviationChartData = useMemo(() => {
-    return transformSlideMaxDeviationToMultiLineData(filteredInspections);
+    return transformSlideSingleHammerMaxDeviationToMultiLineData(filteredInspections);
   }, [filteredInspections]);
 
   // Create converted thresholds
@@ -357,10 +357,10 @@ export function SlideSingleHammerSection({
           </div>
         </CardHeader>
         <CardContent>
-          {/* Outer Slide Values */}
+          {/* Slide Values */}
           <div className="mb-8">
             <Typography variant="h4" className="mb-4">
-              {t('labels.outer')} Slide
+              Slide
             </Typography>
             <div className="border rounded-md overflow-hidden mb-4">
               <Table>
@@ -412,7 +412,7 @@ export function SlideSingleHammerSection({
                   <TableRow>
                     <TableCell className="py-2 font-medium bg-muted/20">Parallelism</TableCell>
                     <TableCell className="py-2 text-center">
-                      {formatValue(latestOuterData?.parallelism)}
+                      {latestOuterData?.parallelism ?? '-'}
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -420,7 +420,7 @@ export function SlideSingleHammerSection({
                       Shutheight (Actual)
                     </TableCell>
                     <TableCell className="py-2 text-center">
-                      {formatValue(latestOuterData?.shutheightActualSh)}
+                      {latestOuterData?.shutheightActualSh ?? '-'}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -434,9 +434,7 @@ export function SlideSingleHammerSection({
             <MultiLineThresholdChart
               title={t('chartTitles.slideMaxDeviation')}
               data={convertedMaxDeviationChartData}
-              lines={[
-                { dataKey: 'outerMaxDeviation', label: 'Outer Max Deviation', color: '#8884d8' },
-              ]}
+              lines={[{ dataKey: 'outerMaxDeviation', label: 'Max Deviation', color: '#8884d8' }]}
               sharedThreshold={convertedPositionThreshold}
               valueUnit={getLengthUnitLabel()}
               allowToggle={true}
@@ -445,7 +443,7 @@ export function SlideSingleHammerSection({
             />
 
             <MultiLineThresholdChart
-              title={t('chartTitles.outerSlidePositions')}
+              title={t('chartTitles.slidePositions')}
               data={convertedOuterPositionsChartData}
               lines={[
                 { dataKey: 'position1', label: 'Position 1', color: '#8884d8' },

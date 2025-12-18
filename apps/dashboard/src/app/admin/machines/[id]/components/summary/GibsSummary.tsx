@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import type { GibsCheck, GibsStageData } from '@/data/types/services.types';
+import { SectionAttachments } from './SectionAttachments';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface GibsSummaryProps {
@@ -344,6 +345,8 @@ export function GibsSummary({ data }: GibsSummaryProps) {
           <div className="text-[11px] p-2 bg-muted/20 rounded-md">{data.notes}</div>
         </div>
       )}
+
+      <SectionAttachments attachments={data.attachments} />
     </div>
   );
 }

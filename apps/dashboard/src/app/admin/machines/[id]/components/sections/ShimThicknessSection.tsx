@@ -3,11 +3,13 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ServiceType } from '@/data/types/services.types';
+import { type Attachment, ServiceType } from '@/data/types/services.types';
 import { ShimThicknessForm, type ShimThicknessDbData } from '../forms/ShimThicknessForm';
 import { isDataTouched } from './utils';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 // Default shim thickness data
 export const defaultShimThicknessDbData: ShimThicknessDbData = {
@@ -33,6 +35,7 @@ export interface ShimThicknessSectionData {
   innerLhData?: ShimThicknessDbData;
   innerRhData?: ShimThicknessDbData;
   notes?: string;
+  attachments?: Attachment[];
 }
 
 export interface ShimThicknessSectionRef {
@@ -83,6 +86,7 @@ export const ShimThicknessSection = forwardRef<ShimThicknessSectionRef, ShimThic
       mergeWithDefaults(initialData?.innerRhData as Partial<ShimThicknessDbData>),
     );
     const [notes, setNotes] = useState<string>(initialData?.notes || '');
+    const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
 
     const [outerLhErrors, setOuterLhErrors] = useState<Record<string, string>>({});
     const [outerRhErrors, setOuterRhErrors] = useState<Record<string, string>>({});
@@ -209,6 +213,7 @@ export const ShimThicknessSection = forwardRef<ShimThicknessSectionRef, ShimThic
                   : initialInnerRhData
                 : undefined,
               notes: notes.trim() || undefined,
+              attachments,
             },
           };
         }
@@ -256,6 +261,7 @@ export const ShimThicknessSection = forwardRef<ShimThicknessSectionRef, ShimThic
               : initialInnerRhData
             : undefined,
           notes: notes.trim() || undefined,
+          attachments,
         };
       },
 
@@ -291,6 +297,7 @@ export const ShimThicknessSection = forwardRef<ShimThicknessSectionRef, ShimThic
         setInnerLhData(defaultShimThicknessDbData);
         setInnerRhData(defaultShimThicknessDbData);
         setNotes('');
+        setAttachments([]);
         setOuterLhErrors({});
         setOuterRhErrors({});
         setInnerLhErrors({});
@@ -300,6 +307,7 @@ export const ShimThicknessSection = forwardRef<ShimThicknessSectionRef, ShimThic
 
     const t = useTranslations('inspections.form.shimThickness');
     const tMeasurements = useTranslations('measurements');
+    const tCommon = useTranslations('inspections.form.common');
 
     return (
       <div className="space-y-6">
@@ -355,6 +363,21 @@ export const ShimThicknessSection = forwardRef<ShimThicknessSectionRef, ShimThic
             }}
             placeholder={t('notesPlaceholder')}
             rows={4}
+          />
+        </div>
+
+        {/* Attachments */}
+        <div className="pt-4 border-t">
+          <Typography variant="h4" className="mb-3">
+            {tCommon('attachments')}
+          </Typography>
+          <DocumentUpload
+            value={attachments}
+            onChange={(files) => {
+              setAttachments(files);
+              onSectionTouched?.();
+            }}
+            maxFiles={10}
           />
         </div>
       </div>

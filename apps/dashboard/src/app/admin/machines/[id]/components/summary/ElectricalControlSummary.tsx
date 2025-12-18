@@ -1,13 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { ElectricalControlCheck } from '@/data/types/services.types';
+import type { ElectricalControlCheck, Attachment } from '@/data/types/services.types';
+import { SectionAttachments } from './SectionAttachments';
 
 interface ElectricalControlSummaryProps {
   data: ElectricalControlCheck;
+  attachments?: Attachment[];
 }
 
-export function ElectricalControlSummary({ data }: ElectricalControlSummaryProps) {
+export function ElectricalControlSummary({ data, attachments }: ElectricalControlSummaryProps) {
   const t = useTranslations('inspections.form.electricalControl');
   const tSummary = useTranslations('services.modal.summary');
 
@@ -115,6 +117,9 @@ export function ElectricalControlSummary({ data }: ElectricalControlSummaryProps
           <div className="text-[11px] pl-3 border-l-2 border-muted">{data.notes}</div>
         </div>
       )}
+
+      {/* Attachments */}
+      <SectionAttachments attachments={attachments} />
     </div>
   );
 }

@@ -1,7 +1,8 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { BearingClearanceSingleHammerCheck } from '@/data/types/services.types';
+import type { BearingClearanceSingleHammerCheck, Attachment } from '@/data/types/services.types';
+import { SectionAttachments } from './SectionAttachments';
 
 import {
   Table,
@@ -18,10 +19,12 @@ import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface BearingClearanceSingleHammerSummaryProps {
   data: BearingClearanceSingleHammerCheck;
+  attachments?: Attachment[];
 }
 
 export function BearingClearanceSingleHammerSummary({
   data,
+  attachments,
 }: BearingClearanceSingleHammerSummaryProps) {
   const tServices = useTranslations('services');
   const tTable = useTranslations('table');
@@ -264,6 +267,9 @@ export function BearingClearanceSingleHammerSummary({
           </div>
         </div>
       )}
+
+      {/* Attachments */}
+      <SectionAttachments attachments={attachments} />
     </div>
   );
 }

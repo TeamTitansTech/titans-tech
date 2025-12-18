@@ -1,13 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { PerpendicularityCheck } from '@/data/types/services.types';
+import type { PerpendicularityCheck, Attachment } from '@/data/types/services.types';
+import { SectionAttachments } from './SectionAttachments';
 
 interface PerpendiculariySummaryProps {
   data: PerpendicularityCheck;
+  attachments?: Attachment[];
 }
 
-export function PerpendiculariySummary({ data }: PerpendiculariySummaryProps) {
+export function PerpendiculariySummary({ data, attachments }: PerpendiculariySummaryProps) {
   const t = useTranslations('inspections.form.perpendicularity');
   const tSummary = useTranslations('services.modal.summary');
 
@@ -85,6 +87,9 @@ export function PerpendiculariySummary({ data }: PerpendiculariySummaryProps) {
           <div className="text-[11px] pl-3 border-l-2 border-muted">{data.notes}</div>
         </div>
       )}
+
+      {/* Attachments */}
+      <SectionAttachments attachments={attachments} />
     </div>
   );
 }
