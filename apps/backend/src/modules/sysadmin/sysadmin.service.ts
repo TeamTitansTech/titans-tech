@@ -26,9 +26,10 @@ export class SysAdminService {
 
   async login(loginDto: LoginDto) {
     const { email, password } = loginDto;
+    const normalizedEmail = email.toLowerCase().trim();
 
     const sysAdmin = await this.prisma.sysAdmin.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (!sysAdmin) {

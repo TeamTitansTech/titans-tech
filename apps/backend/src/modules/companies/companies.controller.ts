@@ -111,15 +111,6 @@ export class CompaniesController {
     return this.usersService.update(userId, companyId, updateUserDto);
   }
 
-  @BranchPermission('deleteUsers')
-  @Delete(':companyId/users/:userId')
-  removeUser(
-    @Param('companyId') companyId: string,
-    @Param('userId') userId: string,
-  ) {
-    return this.usersService.remove(userId, companyId);
-  }
-
   @CompanyMember()
   @Get(':companyId/branches')
   findAllBranches(@Param('companyId') companyId: string) {

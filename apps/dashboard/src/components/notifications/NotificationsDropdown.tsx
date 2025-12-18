@@ -92,14 +92,18 @@ export function NotificationsDropdown() {
       <Tooltip>
         <TooltipTrigger asChild>
           <DropdownMenuTrigger asChild>
-            <button className="relative flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative h-10 w-10 hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200"
+            >
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">
                   {unreadCount > 9 ? '9+' : unreadCount}
                 </span>
               )}
-            </button>
+            </Button>
           </DropdownMenuTrigger>
         </TooltipTrigger>
         <TooltipContent>{t('notifications')}</TooltipContent>

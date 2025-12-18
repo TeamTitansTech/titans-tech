@@ -428,17 +428,16 @@ model SysAdmin {
 }
 
 model Company {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String   @unique
   logo        String?
   loginLogo   String?
   brandColor  String?
   accentColor String?
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   branches            CompanyBranch[]
   users               User[]
@@ -453,9 +452,8 @@ model PermissionTemplate {
   description String?
   permissions Json // Stores the Permissions object as JSON
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyId String
@@ -469,9 +467,8 @@ model CompanyBranch {
   isMainBranch Boolean @default(false)
   location     String?
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   company         Company          @relation(fields: [companyId], references: [id])
   companyId       String
@@ -811,12 +808,13 @@ model Machine {
 }
 
 model MachineField {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   machineId String
   fieldSlug String
   value     String // Store as string, convert based on fieldType from blueprint
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
 
@@ -840,6 +838,7 @@ model MachineService {
   currentStep        String? // Current step in the modal: 'selection', 'details', 'sections', 'summary'
   currentSectionKey  String? // Current section being filled (e.g., 'BEARING_CLEARANCE')
   selectedSections   Json?         @default("[]") // Array of selected section keys
+  attachments        Json?         @default("[]") // Array of attached documents [{name: string, url: string}]
 
   // Inspection observation fields
   isPressLevel                YesNoNaDncType?
@@ -1210,6 +1209,7 @@ model MachineServiceBearingClearance {
   outerDataId      String?
   innerBeforeId    String?
   innerDataId      String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService        @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    BearingClearanceData? @relation("OuterBeforeMeasurement", fields: [outerBeforeId], references: [id], onDelete: SetNull)
@@ -1313,6 +1313,7 @@ model MachineServiceSlideSingleHammer {
   beforeDataId     String?
   dataId           String?
   notes            String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService         @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   beforeData     SlideSingleHammerData? @relation("SingleHammerBeforeData", fields: [beforeDataId], references: [id], onDelete: SetNull)
@@ -1330,6 +1331,7 @@ model MachineServiceSlideDoubleHammer {
   innerBeforeId    String?
   innerDataId      String?
   notes            String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService         @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore    SlideDoubleHammerData? @relation("DoubleHammerOuterBeforeData", fields: [outerBeforeId], references: [id], onDelete: SetNull)
@@ -1354,12 +1356,12 @@ model SlideData {
   shutheightActualSh          String?
   indicatorReading            String?
 
-  // Measurements (5 positions)
-  position1 Decimal @db.Decimal(10, 4)
-  position2 Decimal @db.Decimal(10, 4)
-  position3 Decimal @db.Decimal(10, 4)
-  position4 Decimal @db.Decimal(10, 4)
-  position5 Decimal @db.Decimal(10, 4)
+  // Measurements (5 positions) - positions 1, 3, 4 required; 2, 5 optional
+  position1 Decimal  @db.Decimal(10, 4)
+  position2 Decimal? @db.Decimal(10, 4)
+  position3 Decimal  @db.Decimal(10, 4)
+  position4 Decimal  @db.Decimal(10, 4)
+  position5 Decimal? @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1386,12 +1388,12 @@ model SlideSingleHammerData {
   shutheightActualSh          String?
   indicatorReading            String?
 
-  // Measurements (5 positions)
-  position1 Decimal @db.Decimal(10, 4)
-  position2 Decimal @db.Decimal(10, 4)
-  position3 Decimal @db.Decimal(10, 4)
-  position4 Decimal @db.Decimal(10, 4)
-  position5 Decimal @db.Decimal(10, 4)
+  // Measurements (5 positions) - positions 1, 3, 4 required; 2, 5 optional
+  position1 Decimal  @db.Decimal(10, 4)
+  position2 Decimal? @db.Decimal(10, 4)
+  position3 Decimal  @db.Decimal(10, 4)
+  position4 Decimal  @db.Decimal(10, 4)
+  position5 Decimal? @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1416,12 +1418,12 @@ model SlideDoubleHammerData {
   shutheightActualSh          String?
   indicatorReading            String?
 
-  // Measurements (5 positions)
-  position1 Decimal @db.Decimal(10, 4)
-  position2 Decimal @db.Decimal(10, 4)
-  position3 Decimal @db.Decimal(10, 4)
-  position4 Decimal @db.Decimal(10, 4)
-  position5 Decimal @db.Decimal(10, 4)
+  // Measurements (5 positions) - positions 1, 3, 4 required; 2, 5 optional
+  position1 Decimal  @db.Decimal(10, 4)
+  position2 Decimal? @db.Decimal(10, 4)
+  position3 Decimal  @db.Decimal(10, 4)
+  position4 Decimal  @db.Decimal(10, 4)
+  position5 Decimal? @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1451,7 +1453,8 @@ model MachineServiceGibs {
   innerDataToolId           String?
 
   // Global field
-  notes String?
+  notes       String?
+  attachments Json?   @default("[]") // [{name: string, url: string}]
 
   machineService       MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerBefore          GibsStageData? @relation("OuterBefore", fields: [outerBeforeId], references: [id], onDelete: SetNull)
@@ -1508,6 +1511,7 @@ model MachineServiceLubricationHydraulics {
   machineServiceId String
   dataId           String?
   notes            String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService             @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   data           LubricationHydraulicsData? @relation(fields: [dataId], references: [id], onDelete: SetNull)
@@ -1541,7 +1545,7 @@ model LubricationHydraulicsGauge {
   lubricationHydraulicsDataId String
   system                      LubeHydMonitorFlowPressSwGibType
   gaugeSwitchIdentifier       String?
-  psi                         OkNaDncDamageType?
+  psi                         String? // Allows preset values (OK, NA, DNC, DAMAGED) or free text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1557,6 +1561,7 @@ model MachineServiceClutch {
   id               String  @id @default(cuid())
   machineServiceId String
   dataId           String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   data           ClutchData?    @relation(fields: [dataId], references: [id], onDelete: SetNull)
@@ -1647,6 +1652,7 @@ model MachineServiceCounterbalanceCylinderAirbag {
   outerDataId      String?
   innerDataId      String?
   notes            String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService                    @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerData      CounterbalanceCylinderAirbagData? @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
@@ -1779,6 +1785,9 @@ model MachineServiceTramming {
   // Notes
   notes String?
 
+  // Attachments (PDF, CSV files)
+  attachments Json? @default("[]")
+
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerData      TrammingData?  @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
   innerData      TrammingData?  @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
@@ -1837,6 +1846,9 @@ model MachineServicePistons {
   // Notes
   notes String?
 
+  // Attachments (PDF, CSV files)
+  attachments Json? @default("[]")
+
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerData      PistonsData?   @relation("OuterData", fields: [outerDataId], references: [id], onDelete: SetNull)
   innerData      PistonsData?   @relation("InnerData", fields: [innerDataId], references: [id], onDelete: SetNull)
@@ -1878,7 +1890,6 @@ model ProductionLine {
   direction ProductionLineDirection @default(LEFT_TO_RIGHT)
   createdAt DateTime                @default(now())
   updatedAt DateTime                @updatedAt
-  deletedAt DateTime?
 
   branch   CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
   machines MachineProductionLine[]
@@ -1890,7 +1901,8 @@ model MachineProductionLine {
   machineId        String
   productionLineId String
   order            Int
-  addedAt          DateTime @default(now())
+  addedAt          DateTime  @default(now())
+  deletedAt        DateTime?
 
   machine        Machine        @relation(fields: [machineId], references: [id], onDelete: Cascade)
   productionLine ProductionLine @relation(fields: [productionLineId], references: [id], onDelete: Cascade)
@@ -1909,6 +1921,7 @@ model MachineServiceShimThickness {
   innerLhDataId    String?
   innerRhDataId    String?
   notes            String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService     @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
   outerLhData    ShimThicknessData? @relation("OuterLhShimThickness", fields: [outerLhDataId], references: [id], onDelete: SetNull)
@@ -1947,6 +1960,7 @@ model MachineServiceDieCushion {
   pneumaticsPlumbing DieCushionPneumaticsPlumbingType?
   lubrication        DieCushionLubricationType?
   notes              String?
+  attachments        Json?                             @default("[]") // [{name: string, url: string}]
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -1980,7 +1994,8 @@ model MachineServiceElectricalControl {
   twentyFourVBuss YesNoNaDncCantTellType?
   safetyRelays    YesNoNaDncCantTellType?
 
-  notes String?
+  notes       String?
+  attachments Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -2003,7 +2018,8 @@ model MachineServicePerpendicularity {
   afterFR Decimal? @db.Decimal(10, 4)
   afterLR Decimal? @db.Decimal(10, 4)
 
-  notes String?
+  notes       String?
+  attachments Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -2038,7 +2054,8 @@ model MachineServiceAngularity {
   afterFR Decimal? @db.Decimal(10, 4)
   afterLR Decimal? @db.Decimal(10, 4)
 
-  notes String?
+  notes       String?
+  attachments Json?   @default("[]") // [{name: string, url: string}]
 
   machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
 
@@ -2072,6 +2089,7 @@ model ServiceRequest {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   closedAt  DateTime?
+  deletedAt DateTime?
 
   // Relations
   machine  Machine          @relation(fields: [machineId], references: [id], onDelete: Cascade)

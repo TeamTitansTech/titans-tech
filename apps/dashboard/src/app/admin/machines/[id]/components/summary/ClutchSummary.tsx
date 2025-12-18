@@ -1,13 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { ClutchData } from '@/data/types/services.types';
+import type { ClutchData, Attachment } from '@/data/types/services.types';
 import { Typography } from '@/components/ui/typography';
 import { translateEnumValue } from './utils/translateEnum';
+import { SectionAttachments } from './SectionAttachments';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface ClutchSummaryProps {
   data: ClutchData;
+  attachments?: Attachment[];
 }
 
 // Fields that are length measurements and need unit conversion
@@ -24,7 +26,7 @@ const LENGTH_FIELDS = [
   'hydClutchClearanceRear',
 ];
 
-export function ClutchSummary({ data }: ClutchSummaryProps) {
+export function ClutchSummary({ data, attachments }: ClutchSummaryProps) {
   const tServicesSummary = useTranslations('services.modal.summary');
   const tClutchFields = useTranslations('inspections.form.clutch.fields');
   const tClutchSections = useTranslations('inspections.form.clutch.sections');
@@ -245,6 +247,8 @@ export function ClutchSummary({ data }: ClutchSummaryProps) {
             </div>
           </div>
         )}
+
+        <SectionAttachments attachments={attachments} />
       </div>
     </div>
   );

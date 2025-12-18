@@ -3,6 +3,7 @@
 import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { PanelLeft, UserCircle, LogOut, Moon, Sun } from 'lucide-react';
 import { useSidebar } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   DropdownMenu,
@@ -44,12 +45,14 @@ export function AppHeader() {
       <div className="flex h-16 items-center gap-4 px-6">
         <Tooltip>
           <TooltipTrigger asChild>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={toggleSidebar}
-              className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200"
+              className="h-10 w-10 hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200"
             >
               <PanelLeft className="h-5 w-5" />
-            </button>
+            </Button>
           </TooltipTrigger>
           <TooltipContent>{t('toggleSidebar')}</TooltipContent>
         </Tooltip>
@@ -61,23 +64,29 @@ export function AppHeader() {
 
           <Tooltip>
             <TooltipTrigger asChild>
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={toggleTheme}
-                className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200"
+                className="h-10 w-10 hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200"
                 aria-label={t('toggleTheme')}
               >
                 <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-              </button>
+              </Button>
             </TooltipTrigger>
             <TooltipContent>{t('toggleTheme')}</TooltipContent>
           </Tooltip>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex h-10 w-10 items-center justify-center rounded-md hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 hover:bg-accent/10 dark:hover:bg-accent/20 text-muted-foreground hover:text-accent transition-all duration-200"
+              >
                 <UserCircle className="h-5 w-5" />
-              </button>
+              </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="font-normal">

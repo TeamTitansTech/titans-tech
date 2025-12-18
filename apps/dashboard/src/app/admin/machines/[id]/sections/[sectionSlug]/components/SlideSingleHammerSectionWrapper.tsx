@@ -14,23 +14,22 @@ interface SlideData {
   position3: number | null;
   position4: number | null;
   position5: number | null;
-  parallelism: number | null;
-  hasParallelismBeenAdjusted: boolean | null;
-  shutheightIndicatorsChecked: boolean | null;
-  overloadsOnTonnageMonitor: boolean | null;
-  shutheightActualSh: number | null;
-  indicatorReading: number | null;
+  parallelism: string | null;
+  hasParallelismBeenAdjusted: string | null;
+  shutheightIndicatorsChecked: string | null;
+  overloadsOnTonnageMonitor: string | null;
+  shutheightActualSh: string | null;
+  indicatorReading: string | null;
 }
 
 export interface SlideInspectionData {
   id: string;
   date: string;
-  slide: Array<{
+  // Single hammer uses slideSingleHammer array (Prisma returns array for relation)
+  slideSingleHammer: Array<{
     id: string;
-    outerData: SlideData | null;
-    innerData: SlideData | null;
-    outerBefore: SlideData | null;
-    innerBefore: SlideData | null;
+    data: SlideData | null;
+    beforeData: SlideData | null;
   }>;
 }
 

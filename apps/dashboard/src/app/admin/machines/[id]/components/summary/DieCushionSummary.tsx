@@ -1,13 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { DieCushionCheck } from '@/data/types/services.types';
+import type { DieCushionCheck, Attachment } from '@/data/types/services.types';
+import { SectionAttachments } from './SectionAttachments';
 
 interface DieCushionSummaryProps {
   data: DieCushionCheck;
+  attachments?: Attachment[];
 }
 
-export function DieCushionSummary({ data }: DieCushionSummaryProps) {
+export function DieCushionSummary({ data, attachments }: DieCushionSummaryProps) {
   const t = useTranslations('inspections.form.dieCushion');
   const tEnums = useTranslations('inspections.form.enums');
   const tSummary = useTranslations('services.modal.summary');
@@ -59,6 +61,9 @@ export function DieCushionSummary({ data }: DieCushionSummaryProps) {
           <div className="text-[11px] pl-3 border-l-2 border-muted">{data.notes}</div>
         </div>
       )}
+
+      {/* Attachments */}
+      <SectionAttachments attachments={attachments} />
     </div>
   );
 }

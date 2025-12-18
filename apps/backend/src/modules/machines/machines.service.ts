@@ -30,7 +30,6 @@ export class MachinesService {
         company: {
           include: {
             branches: {
-              where: { deletedAt: null },
               select: { id: true },
             },
           },
@@ -65,7 +64,7 @@ export class MachinesService {
         company: {
           include: {
             branches: {
-              where: { id: branchId, deletedAt: null },
+              where: { id: branchId },
             },
           },
         },
@@ -271,7 +270,7 @@ export class MachinesService {
         },
         fields: true,
         services: {
-          where: { status: 'COMPLETED', deletedAt: null },
+          where: { status: 'COMPLETED' },
           take: 1,
           orderBy: { date: 'desc' },
           include: {
@@ -349,7 +348,7 @@ export class MachinesService {
         },
         fields: true,
         services: {
-          where: { status: 'COMPLETED', deletedAt: null },
+          where: { status: 'COMPLETED' },
           take: 1,
           orderBy: { date: 'desc' },
           include: {
@@ -528,7 +527,42 @@ export class MachinesService {
   }
 
   /**
+   * Soft delete cascade for machine and all related entities
+   * Private method to handle the transaction logic
+   */
+  private async softDeleteMachineCascade(
+    tx: Prisma.TransactionClient,
+    machineId: string,
+  ): Promise<void> {
+    // 1. Soft delete all MachineServices
+    await tx.machineService.deleteMany({
+      where: { machineId },
+    });
+
+    // 2. Soft delete all MachineFields
+    await tx.machineField.deleteMany({
+      where: { machineId },
+    });
+
+    // 3. Soft delete all ServiceRequests
+    await tx.serviceRequest.deleteMany({
+      where: { machineId },
+    });
+
+    // 4. Soft delete all MachineProductionLines (junction table)
+    await tx.machineProductionLine.deleteMany({
+      where: { machineId },
+    });
+
+    // 5. Finally, soft delete the Machine itself
+    await tx.machine.delete({
+      where: { id: machineId },
+    });
+  }
+
+  /**
    * Delete a machine for a regular user (validates branch access)
+   * Implements soft delete cascade to all related tables
    */
   async delete(userId: string, id: string): Promise<void> {
     // Verify machine exists
@@ -542,14 +576,14 @@ export class MachinesService {
 
     await this.validateUserBranchAccess(userId, existingMachine.branchId);
 
-    // Delete the machine (cascade delete will handle fields)
-    await this.prisma.machine.delete({
-      where: { id },
+    await this.prisma.$transaction(async (tx) => {
+      await this.softDeleteMachineCascade(tx, id);
     });
   }
 
   /**
    * Delete a machine for SysAdmin (no branch validation)
+   * Implements soft delete cascade to all related tables
    */
   async deleteForSysAdmin(id: string): Promise<void> {
     // Verify machine exists
@@ -561,9 +595,8 @@ export class MachinesService {
       throw new NotFoundException(`Machine with ID ${id} not found`);
     }
 
-    // Delete the machine (cascade delete will handle fields)
-    await this.prisma.machine.delete({
-      where: { id },
+    await this.prisma.$transaction(async (tx) => {
+      await this.softDeleteMachineCascade(tx, id);
     });
   }
 

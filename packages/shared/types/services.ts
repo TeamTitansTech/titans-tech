@@ -84,6 +84,7 @@ export type {
 
 // Re-export service payload and entity types
 export type {
+  Attachment,
   CreateServiceDto,
   CreateServicePayload,
   UpdateServicePayload,

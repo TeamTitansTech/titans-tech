@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Stepper, type StepperStep } from '@/components/ui/stepper';
+import { DocumentUpload, type Attachment } from '@/components/ui/document-upload';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
@@ -67,6 +68,10 @@ interface DetailsStepProps {
   fillAngularity: boolean;
   setFillAngularity: (value: boolean) => void;
 
+  // Attachments
+  attachments: Attachment[];
+  setAttachments: (attachments: Attachment[]) => void;
+
   // Optional machine data (for read-only display)
   machine?: {
     manufacturer?: string;
@@ -116,6 +121,8 @@ interface DetailsStepProps {
     isMotorPlateSecure: string;
     whyNotCovered: string;
     fillAngularity: string;
+    // Attached documents
+    attachedDocumentsTitle: string;
   };
 }
 
@@ -154,6 +161,8 @@ export function DetailsStep({
   setWhyNotCovered,
   fillAngularity,
   setFillAngularity,
+  attachments,
+  setAttachments,
   machine,
   translations,
 }: DetailsStepProps) {
@@ -483,6 +492,14 @@ export function DetailsStep({
               </Label>
             </div>
           </div>
+        </div>
+
+        {/* Attached Documents */}
+        <div className="sm:border rounded-lg sm:p-4">
+          <Typography variant="h4" className="mb-4">
+            {translations.attachedDocumentsTitle}
+          </Typography>
+          <DocumentUpload value={attachments} onChange={setAttachments} />
         </div>
 
         {/* Display selected sections summary */}

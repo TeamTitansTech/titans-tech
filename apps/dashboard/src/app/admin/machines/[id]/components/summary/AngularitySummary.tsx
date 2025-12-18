@@ -1,13 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import type { AngularityCheck } from '@/data/types/services.types';
+import type { AngularityCheck, Attachment } from '@/data/types/services.types';
+import { SectionAttachments } from './SectionAttachments';
 
 interface AngularitySummaryProps {
   data: AngularityCheck;
+  attachments?: Attachment[];
 }
 
-export function AngularitySummary({ data }: AngularitySummaryProps) {
+export function AngularitySummary({ data, attachments }: AngularitySummaryProps) {
   const t = useTranslations('inspections.form.angularity');
   const tSummary = useTranslations('services.modal.summary');
 
@@ -151,6 +153,9 @@ export function AngularitySummary({ data }: AngularitySummaryProps) {
           <div className="text-[11px] pl-3 border-l-2 border-muted">{data.notes}</div>
         </div>
       )}
+
+      {/* Attachments */}
+      <SectionAttachments attachments={attachments} />
     </div>
   );
 }

@@ -14,12 +14,15 @@ import {
 } from '@/components/ui/select';
 import {
   type DieCushionCheck,
+  type Attachment,
   DieCushionAirLeaksType,
   DieCushionPneumaticsPlumbingType,
   DieCushionLubricationType,
   ServiceType,
 } from '@/data/types/services.types';
 import { isDataTouched } from './utils';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 export const defaultDieCushionData: DieCushionCheck = {
   airLeaks: undefined,
@@ -29,33 +32,40 @@ export const defaultDieCushionData: DieCushionCheck = {
   notes: undefined,
 };
 
+export interface DieCushionSectionData {
+  data?: DieCushionCheck;
+  attachments?: Attachment[];
+}
+
 export interface DieCushionSectionRef {
-  getData: () => DieCushionCheck | undefined;
+  getData: () => DieCushionSectionData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
   isTouched: () => boolean;
   validateAndGetData: (serviceType: ServiceType) => {
     isValid: boolean;
     errors: string[];
-    data?: DieCushionCheck;
+    data?: DieCushionSectionData;
   };
 }
 
 interface DieCushionSectionProps {
   onSectionTouched?: () => void;
-  initialData?: DieCushionCheck;
+  initialData?: DieCushionSectionData;
 }
 
 export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSectionProps>(
   ({ onSectionTouched, initialData }, ref) => {
     const t = useTranslations('inspections.form.dieCushion');
+    const tCommon = useTranslations('inspections.form.common');
 
     // Store initial loaded data for "touched" detection
     const [initialDieCushionData, setInitialDieCushionData] = useState<DieCushionCheck>(
-      initialData || defaultDieCushionData,
+      initialData?.data || defaultDieCushionData,
     );
 
-    const [data, setData] = useState<DieCushionCheck>(initialData || defaultDieCushionData);
+    const [data, setData] = useState<DieCushionCheck>(initialData?.data || defaultDieCushionData);
+    const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
     const prevInitialDataRef = useRef(initialData);
 
     // Sync state with initialData prop changes
@@ -63,9 +73,11 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
       if (initialData && initialData !== prevInitialDataRef.current) {
         prevInitialDataRef.current = initialData;
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
-        setData(initialData);
+        setData(initialData.data || defaultDieCushionData);
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
-        setInitialDieCushionData(initialData);
+        setInitialDieCushionData(initialData.data || defaultDieCushionData);
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+        setAttachments(initialData.attachments ?? []);
       }
     }, [initialData]);
 
@@ -93,7 +105,7 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
 
       validateAndGetData: (
         _serviceType: ServiceType,
-      ): { isValid: boolean; errors: string[]; data?: DieCushionCheck } => {
+      ): { isValid: boolean; errors: string[]; data?: DieCushionSectionData } => {
         const touched = isDataTouched(data, initialDieCushionData);
         const hasInitialData = isDataTouched(initialDieCushionData, defaultDieCushionData);
 
@@ -105,7 +117,9 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
           return {
             isValid: true,
             errors: [],
-            data: hasData ? (touched ? data : initialDieCushionData) : undefined,
+            data: hasData
+              ? { data: touched ? data : initialDieCushionData, attachments }
+              : undefined,
           };
         }
 
@@ -115,10 +129,10 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
         };
       },
 
-      getData: (): DieCushionCheck | undefined => {
+      getData: (): DieCushionSectionData | undefined => {
         const touched = isDataTouched(data, initialDieCushionData);
         const hasData = touched || isDataTouched(initialDieCushionData, defaultDieCushionData);
-        return hasData ? (touched ? data : initialDieCushionData) : undefined;
+        return hasData ? { data: touched ? data : initialDieCushionData, attachments } : undefined;
       },
 
       validate: (_serviceType: ServiceType): string[] => {
@@ -128,6 +142,7 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
 
       reset: () => {
         setData(defaultDieCushionData);
+        setAttachments([]);
       },
     }));
 
@@ -271,6 +286,21 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
             onChange={(e) => updateField('notes', e.target.value || undefined)}
             placeholder={t('notesPlaceholder')}
             rows={4}
+          />
+        </div>
+
+        {/* Attachments */}
+        <div className="pt-4 border-t">
+          <Typography variant="h4" className="mb-3">
+            {tCommon('attachments')}
+          </Typography>
+          <DocumentUpload
+            value={attachments}
+            onChange={(files) => {
+              setAttachments(files);
+              onSectionTouched?.();
+            }}
+            maxFiles={10}
           />
         </div>
       </div>

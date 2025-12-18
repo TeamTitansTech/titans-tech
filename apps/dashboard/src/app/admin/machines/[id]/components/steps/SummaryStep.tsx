@@ -3,7 +3,16 @@ import { Label } from '@/components/ui/label';
 import { Typography } from '@/components/ui/typography';
 import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Check, ChevronUp, AlertTriangle, Ruler, Thermometer, Gauge } from 'lucide-react';
+import {
+  Check,
+  ChevronUp,
+  AlertTriangle,
+  FileText,
+  FileSpreadsheet,
+  Ruler,
+  Thermometer,
+  Gauge,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { SECTION_REGISTRY } from '../sections/registry';
@@ -12,6 +21,7 @@ import { YesNoNaDncType, YesNoDncType } from '@titans-tech/shared/types/services
 import { WhyNotCoveredType } from '@titans-tech/shared/types';
 import type { AnySectionData } from '../types/service-completion.types';
 import { useMemo } from 'react';
+import type { Attachment } from '@/components/ui/document-upload';
 import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface SummaryStepProps {
@@ -35,6 +45,7 @@ interface SummaryStepProps {
   isMainMotorSecure?: YesNoDncType;
   isMotorPlateSecure?: YesNoDncType;
   whyNotCovered?: string;
+  attachments?: Attachment[];
   translations: {
     title: string;
     serviceDetailsTitle: string;
@@ -45,6 +56,8 @@ interface SummaryStepProps {
     getSectionName: (i18nKey: string) => string;
     completeService: string;
     completing: string;
+    attachedDocumentsTitle: string;
+    noDocuments: string;
   };
 }
 
@@ -69,6 +82,7 @@ export function SummaryStep({
   isMainMotorSecure,
   isMotorPlateSecure,
   whyNotCovered,
+  attachments,
   translations,
 }: SummaryStepProps) {
   const tServices = useTranslations('services.modal');
@@ -290,6 +304,40 @@ export function SummaryStep({
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Attached Documents */}
+        <div className="border rounded-lg p-4 mb-4">
+          <Typography variant="h4" className="font-semibold mb-3">
+            {translations.attachedDocumentsTitle}
+          </Typography>
+          {attachments && attachments.length > 0 ? (
+            <div className="space-y-2">
+              {attachments.map((attachment, index) => {
+                const isCSV = attachment.name.toLowerCase().endsWith('.csv');
+                return (
+                  <a
+                    key={`${attachment.url}-${index}`}
+                    href={attachment.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-3 py-2 bg-muted/30 rounded-md hover:bg-muted/50 transition-colors cursor-pointer"
+                  >
+                    {isCSV ? (
+                      <FileSpreadsheet className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    ) : (
+                      <FileText className="h-5 w-5 text-red-600 flex-shrink-0" />
+                    )}
+                    <span className="text-sm font-medium truncate hover:underline">
+                      {attachment.name}
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">{translations.noDocuments}</p>
+          )}
         </div>
 
         {/* Sections Summary */}

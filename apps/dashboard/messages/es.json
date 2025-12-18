@@ -55,7 +55,17 @@
       "uploadFailed": "Error al subir la imagen",
       "uploading": "Subiendo...",
       "clickToUpload": "Haga clic para subir",
-      "jpgOrPngMax": "JPG o PNG (máx. 10MB)"
+      "jpgOrPngMax": "JPG o PNG (máx. 20MB)"
+    },
+    "documentUpload": {
+      "onlyPdfCsvAllowed": "Solo se permiten archivos PDF y CSV",
+      "fileTooLarge": "Archivo muy grande. Tamaño máximo: {size}MB",
+      "uploadFailed": "Error al subir el documento",
+      "uploading": "Subiendo...",
+      "clickToUpload": "Haga clic para adjuntar documentos",
+      "pdfOrCsvMax": "PDF o CSV (máx. 20MB)",
+      "maxFilesReached": "Número máximo de archivos alcanzado ({max})",
+      "maxFilesExceeded": "Solo se permiten {max} archivos. Algunos archivos no se subieron."
     },
     "cancel": "Cancelar",
     "save": "Guardar"
@@ -70,7 +80,7 @@
     "fullNameRequired": "El nombre completo es obligatorio",
     "invalidEmail": "Dirección de correo electrónico no válida",
     "invalidImageType": "Solo se permiten imágenes JPG y PNG",
-    "fileTooLarge": "El tamaño del archivo excede el límite de 10MB"
+    "fileTooLarge": "El tamaño del archivo excede el límite de 20MB"
   },
   "navigation": {
     "dashboard": "Panel",
@@ -197,9 +207,12 @@
       "loadingFailed": "Error al cargar usuarios",
       "noUsers": "No se encontraron usuarios para esta sucursal",
       "noPermissionToViewUsers": "No tiene permiso para ver usuarios en esta sucursal.",
+      "activeUsers": "Usuarios Activos",
+      "deactivatedUsers": "Usuarios Desactivados",
       "addUser": "Agregar Usuario",
       "editUser": "Editar Usuario",
-      "deleteUser": "Eliminar Usuario",
+      "deactivateUser": "Desactivar Usuario",
+      "reactivateUser": "Reactivar Usuario",
       "table": {
         "name": "Nombre",
         "email": "Correo Electrónico",
@@ -296,24 +309,43 @@
       "error": "Error al actualizar usuario"
     },
     "deleteUserDialog": {
-      "title": "Eliminar Usuario",
-      "description": "¿Está seguro de que desea eliminar este usuario?",
-      "warning": "Esta acción no se puede deshacer.",
-      "userInfo": "Está a punto de eliminar:",
-      "scopeLabel": "Alcance de Eliminación",
+      "title": "Desactivar Usuario",
+      "description": "¿Está seguro de que desea desactivar este usuario?",
+      "warning": "El usuario perderá acceso, pero podrá ser reactivado posteriormente.",
+      "userInfo": "Está a punto de desactivar:",
+      "scopeLabel": "Alcance de Desactivación",
       "scopeOptions": {
-        "branch": "Remover Solo de Esta Sucursal",
-        "company": "Remover de Toda la Empresa"
+        "branch": "Desactivar Solo para Esta Sucursal",
+        "company": "Desactivar para Toda la Empresa"
       },
       "scopeDescriptions": {
-        "branch": "El usuario perderá acceso a esta sucursal pero permanecerá en otras sucursales",
-        "company": "El usuario será completamente removido y perderá todo el acceso"
+        "branch": "El usuario perderá acceso a esta sucursal pero permanecerá activo en otras sucursales",
+        "company": "El usuario será completamente desactivado y perderá todo el acceso"
       },
       "cancel": "Cancelar",
-      "confirm": "Eliminar Usuario",
-      "confirming": "Eliminando...",
-      "success": "Usuario eliminado exitosamente",
-      "error": "Error al eliminar usuario"
+      "confirm": "Desactivar Usuario",
+      "confirming": "Desactivando...",
+      "success": "Usuario desactivado exitosamente",
+      "error": "Error al desactivar usuario"
+    },
+    "reactivateUserDialog": {
+      "title": "Reactivar Usuario",
+      "description": "¿Restaurar el acceso de este usuario?",
+      "userInfo": "Está a punto de reactivar:",
+      "scopeLabel": "Alcance de Reactivación",
+      "scopeOptions": {
+        "branch": "Reactivar Solo para Esta Sucursal",
+        "company": "Reactivar para Toda la Empresa"
+      },
+      "scopeDescriptions": {
+        "branch": "El usuario recuperará acceso solo a esta sucursal",
+        "company": "El usuario será totalmente reactivado con todo el acceso anterior"
+      },
+      "cancel": "Cancelar",
+      "confirm": "Reactivar Usuario",
+      "confirming": "Reactivando...",
+      "success": "Usuario reactivado exitosamente",
+      "error": "Error al reactivar usuario"
     },
     "permissions": {
       "title": "Permisos",
@@ -523,31 +555,6 @@
       "success": "Colores de la empresa actualizados correctamente",
       "error": "Error al actualizar los colores de la empresa"
     },
-    "userManagement": {
-      "title": "Cuentas de Usuario",
-      "loading": "Cargando usuarios...",
-      "loadingFailed": "Error al cargar usuarios",
-      "noUsers": "No se encontraron usuarios para esta sucursal",
-      "addUser": "Agregar Usuario",
-      "table": {
-        "name": "Nombre",
-        "email": "Correo Electrónico",
-        "role": "Rol",
-        "status": "Estado",
-        "actions": "Acciones"
-      },
-      "roles": {
-        "companyAdmin": "Admin de Empresa",
-        "companyManager": "Gerente de Empresa",
-        "branchManager": "Gerente",
-        "employee": "Trabajador",
-        "custom": "Personalizado"
-      },
-      "status": {
-        "active": "activo",
-        "inactive": "inactivo"
-      }
-    },
     "addUserDialog": {
       "title": "Agregar Usuario",
       "description": "Agregar un nuevo usuario a {branchName}",
@@ -611,13 +618,27 @@
       "cannotEditAdmin": "Los administradores de la empresa no se pueden editar. Póngase en contacto con el soporte del sistema para modificar cuentas de administrador."
     },
     "deleteUserDialog": {
-      "title": "Eliminar Usuario",
-      "description": "¿Está seguro de que desea eliminar a {userName}? Esta acción no se puede deshacer.",
+      "title": "Desactivar Usuario",
+      "description": "¿Está seguro de que desea desactivar a {userName}? El usuario podrá ser reactivado posteriormente.",
       "cancel": "Cancelar",
-      "confirm": "Eliminar",
-      "deleting": "Eliminando...",
-      "success": "Usuario eliminado exitosamente",
-      "error": "Error al eliminar usuario"
+      "confirm": "Desactivar",
+      "deleting": "Desactivando...",
+      "success": "Usuario desactivado exitosamente",
+      "error": "Error al desactivar usuario"
+    },
+    "reactivateUserDialog": {
+      "title": "Reactivar Usuario",
+      "description": "¿Está seguro de que desea reactivar a {userName}? El usuario recuperará el acceso al sistema.",
+      "cancel": "Cancelar",
+      "confirm": "Reactivar",
+      "reactivating": "Reactivando...",
+      "success": "Usuario reactivado exitosamente",
+      "error": "Error al reactivar usuario",
+      "scope": {
+        "label": "Ámbito de Reactivación",
+        "branch": "Solo esta sucursal",
+        "company": "Toda la empresa"
+      }
     }
   },
   "dashboard": {
@@ -1094,6 +1115,7 @@
         "hydraulicClutchClearance": "Holgura del Embrague Hidráulico",
         "brakeSpringMeasurements": "Mediciones del Resorte del Freno (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Desviación Máxima del Carro (Externo vs Interno)",
+        "slidePositions": "Posiciones del Carro (Posición 1-5)",
         "outerSlidePositions": "Posiciones del Carro Externo (Posición 1-5)",
         "innerSlidePositions": "Posiciones del Carro Interno (Posición 1-5)",
         "gibsUsableValue": "Guías - Valor Utilizable",
@@ -1494,6 +1516,7 @@
           "outerPrefix": "Slide Externo",
           "innerPrefix": "Slide Interno",
           "positionRequired": "Posición {position} es requerida",
+          "beforePositionRequired": "Posición {position} (antes) es requerida cuando el paralelismo ha sido ajustado",
           "atLeastTwoPositionsRequired": "Complete al menos 2 puntos de posición en la desviación máxima"
         },
         "yes": "Sí",
@@ -1570,6 +1593,8 @@
         "noSystemsAdded": "No se han agregado sistemas. Haga clic en \"Agregar Fila\" para comenzar.",
         "gaugeSwitchPlaceholder": "Medidor/Interruptor",
         "selectPlaceholder": "Seleccionar",
+        "psiSearchPlaceholder": "Buscar o escribir valor...",
+        "typeCustomValue": "Escriba para ingresar un valor personalizado",
         "systems": {
           "lube": "Lubricación",
           "hyd": "Hidráulico",
@@ -1949,6 +1974,7 @@
         "selectMatingPart": "Seleccione la pieza de acoplamiento",
         "referenceMeasurement": "Medición de referencia",
         "additionalNotes": "Ingrese notas adicionales...",
+        "attachments": "Anexos",
         "generatesAlert": "Este campo genera alertas",
         "oilChangeGeneratesAlert": "Genera alertas si el aceite no se cambia en 333 días"
       },
@@ -2159,6 +2185,10 @@
         "whyNotCovered": "Por qué no cubierto",
         "fillAngularity": "Llenar Angularidad"
       },
+      "attachedDocuments": {
+        "title": "Documentos Adjuntos",
+        "noDocuments": "No hay documentos adjuntos"
+      },
       "stepper": {
         "details": "Detalles",
         "summary": "Resumen",
@@ -2188,7 +2218,8 @@
         "exportExcel": "Exportar Excel",
         "exportPDF": "Exportar PDF",
         "gauges": "Medidores",
-        "notes": "Notas"
+        "notes": "Notas",
+        "sectionAttachments": "Anexos de la Sección"
       }
     },
     "pageTitle": "Servicios",
