@@ -792,8 +792,9 @@ model Machine {
   pressMounting   PressMountingType?
   features        MachineFeaturesType?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   blueprint       Blueprint               @relation(fields: [blueprintId], references: [id], onDelete: Restrict)
   branch          CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
@@ -807,12 +808,13 @@ model Machine {
 }
 
 model MachineField {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   machineId String
   fieldSlug String
   value     String // Store as string, convert based on fieldType from blueprint
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   machine Machine @relation(fields: [machineId], references: [id], onDelete: Cascade)
 
@@ -849,8 +851,9 @@ model MachineService {
   whyNotCovered               String?
   fillAngularity              Boolean?                    @default(false)
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   machine                           Machine                                      @relation(fields: [machineId], references: [id], onDelete: Cascade)
   serviceRequest                    ServiceRequest?                              @relation(fields: [serviceRequestId], references: [id], onDelete: SetNull)
@@ -1884,7 +1887,8 @@ model MachineProductionLine {
   machineId        String
   productionLineId String
   order            Int
-  addedAt          DateTime @default(now())
+  addedAt          DateTime  @default(now())
+  deletedAt        DateTime?
 
   machine        Machine        @relation(fields: [machineId], references: [id], onDelete: Cascade)
   productionLine ProductionLine @relation(fields: [productionLineId], references: [id], onDelete: Cascade)
@@ -2066,6 +2070,7 @@ model ServiceRequest {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   closedAt  DateTime?
+  deletedAt DateTime?
 
   // Relations
   machine  Machine          @relation(fields: [machineId], references: [id], onDelete: Cascade)
