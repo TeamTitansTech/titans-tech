@@ -193,7 +193,7 @@ export function transformSlidePositionsToMultiLineData(
 }
 
 /**
- * Transform slide inspection data to max deviation chart format
+ * Transform slide inspection data to max deviation chart format (double hammer)
  * Calculates max deviation (max - min) from all 5 position measurements
  */
 export function transformSlideMaxDeviationToMultiLineData(
@@ -245,6 +245,68 @@ export function transformSlideMaxDeviationToMultiLineData(
         date: format(new Date(inspection.date), 'dd/MM/yyyy'),
         outerMaxDeviation,
         innerMaxDeviation,
+      };
+    })
+    .reverse();
+}
+
+/**
+ * Transform slide single hammer position data to multi-line chart format
+ * Note: slideSingleHammer is an array from Prisma, access [0]
+ */
+export function transformSlideSingleHammerPositionsToMultiLineData(
+  inspections: any[],
+): MultiLineMeasurementData[] {
+  return inspections
+    .filter((inspection) => inspection.slideSingleHammer?.[0]?.data)
+    .map((inspection) => {
+      const slideData = inspection.slideSingleHammer[0].data;
+
+      return {
+        date: format(new Date(inspection.date), 'dd/MM/yyyy'),
+        position1: slideData.position1 != null ? Number(slideData.position1) : NaN,
+        position2: slideData.position2 != null ? Number(slideData.position2) : NaN,
+        position3: slideData.position3 != null ? Number(slideData.position3) : NaN,
+        position4: slideData.position4 != null ? Number(slideData.position4) : NaN,
+        position5: slideData.position5 != null ? Number(slideData.position5) : NaN,
+      };
+    })
+    .reverse();
+}
+
+/**
+ * Transform slide single hammer inspection data to max deviation chart format
+ * Calculates max deviation (max - min) from all 5 position measurements
+ * Note: slideSingleHammer is an array from Prisma, access [0]
+ */
+export function transformSlideSingleHammerMaxDeviationToMultiLineData(
+  inspections: any[],
+): MultiLineMeasurementData[] {
+  return inspections
+    .filter((inspection) => inspection.slideSingleHammer?.[0]?.data)
+    .map((inspection) => {
+      const slideData = inspection.slideSingleHammer[0].data;
+
+      // Calculate max deviation
+      let outerMaxDeviation = 0;
+      const positions = [
+        slideData.position1,
+        slideData.position2,
+        slideData.position3,
+        slideData.position4,
+        slideData.position5,
+      ]
+        .filter((p) => p != null)
+        .map((p) => Number(p))
+        .filter((p) => !isNaN(p));
+
+      if (positions.length > 0) {
+        outerMaxDeviation = Math.max(...positions) - Math.min(...positions);
+      }
+
+      return {
+        date: format(new Date(inspection.date), 'dd/MM/yyyy'),
+        outerMaxDeviation,
       };
     })
     .reverse();

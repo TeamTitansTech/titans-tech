@@ -17,10 +17,18 @@ import { TemperatureInput } from '@/components/ui/forms/TemperatureInput';
 import {
   type LubricationHydraulicsFormProps,
   LubeHydMonitorFlowPressSwGibType,
-  OkNaDncDamageType,
   YesNoDncType,
   type LubricationHydraulicsGauge,
 } from '@/data/types/services.types';
+
+// Preset options for PSI field (used for datalist suggestions)
+// These are string values since PSI field accepts free text
+const PSI_PRESET_OPTIONS = [
+  { value: 'OK', label: 'OK' },
+  { value: 'NA', label: 'N/A' },
+  { value: 'DNC', label: 'DNC' },
+  { value: 'DAMAGED', label: 'Damaged' },
+];
 
 export function LubricationHydraulicsForm({
   data,
@@ -49,7 +57,7 @@ export function LubricationHydraulicsForm({
   const updateGauge = (
     index: number,
     field: keyof LubricationHydraulicsGauge,
-    value: string | LubeHydMonitorFlowPressSwGibType | OkNaDncDamageType | undefined,
+    value: string | LubeHydMonitorFlowPressSwGibType | undefined,
   ) => {
     const updatedGauges = [...data.gauges];
     updatedGauges[index] = { ...updatedGauges[index], [field]: value };
@@ -58,10 +66,6 @@ export function LubricationHydraulicsForm({
 
   const getSystemLabel = (system: LubeHydMonitorFlowPressSwGibType) => {
     return t(`form.lubricationHydraulics.systems.${system.toLowerCase()}`);
-  };
-
-  const getPsiLabel = (psi: OkNaDncDamageType) => {
-    return tCommon(psi.toLowerCase());
   };
 
   return (
@@ -130,25 +134,21 @@ export function LubricationHydraulicsForm({
                 </div>
 
                 <div className="col-span-3">
-                  <Select
+                  <Input
+                    type="text"
+                    list={`psi-options-${index}`}
                     value={gauge.psi || ''}
-                    onValueChange={(value) =>
-                      updateGauge(index, 'psi', value ? (value as OkNaDncDamageType) : undefined)
-                    }
-                  >
-                    <SelectTrigger className="h-9 text-xs">
-                      <SelectValue
-                        placeholder={t('form.lubricationHydraulics.selectPlaceholder')}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.values(OkNaDncDamageType).map((status) => (
-                        <SelectItem key={status} value={status}>
-                          {getPsiLabel(status)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(e) => updateGauge(index, 'psi', e.target.value || undefined)}
+                    className="h-9 text-xs"
+                    placeholder={t('form.lubricationHydraulics.selectPlaceholder')}
+                  />
+                  <datalist id={`psi-options-${index}`}>
+                    {PSI_PRESET_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </datalist>
                 </div>
 
                 <div className="col-span-1 flex justify-end">

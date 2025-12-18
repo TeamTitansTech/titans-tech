@@ -18,9 +18,9 @@ export const createService = async (payload: CreateServicePayload) => {
 
   if (!response.errors) {
     revalidateTag(`services-${payload.machineId}`, 'max');
+    revalidateTag(`inspections-${payload.machineId}`, 'max');
     revalidateTag(`latest-report-${payload.machineId}`, 'max');
     revalidatePath(`/machines/${payload.machineId}`);
-    revalidatePath(`/machines/${payload.machineId}/sections/bearing_clearance`);
   }
 
   return response;
@@ -64,9 +64,9 @@ export const updateService = async (
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`inspections-${machineId}`, 'max');
     revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
-    revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
 
   return response;
@@ -133,9 +133,11 @@ export const updateServiceSection = async (
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`inspections-${machineId}`, 'max');
     revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
     revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
+    revalidatePath(`/machines/${machineId}/sections/slide_single_hammer`);
   }
 
   return response;
@@ -156,9 +158,9 @@ export const completeService = async (
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`inspections-${machineId}`, 'max');
     revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
-    revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
 
   return response;
@@ -174,9 +176,9 @@ export const deleteService = async (serviceId: string, machineId?: string) => {
 
   if (!response.errors && machineId) {
     revalidateTag(`services-${machineId}`, 'max');
+    revalidateTag(`inspections-${machineId}`, 'max');
     revalidateTag(`latest-report-${machineId}`, 'max');
     revalidatePath(`/machines/${machineId}`);
-    revalidatePath(`/machines/${machineId}/sections/bearing_clearance`);
   }
 
   return response;

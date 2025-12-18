@@ -101,6 +101,7 @@ export enum OkNaDncDamageType {
   OK = 'OK',
   NA = 'NA',
   DNC = 'DNC',
+  DAMAGED = 'DAMAGED',
 }
 
 export enum CounterbalanceTypeEnum {
@@ -333,7 +334,7 @@ export const LubricationHydraulicsGaugeSchema = z.object({
   id: z.string().optional(),
   system: z.enum(PrismaLubeHydMonitorFlowPressSwGibType),
   gaugeSwitchIdentifier: z.string().optional(),
-  psi: z.enum(OkNaDncDamageType).optional(),
+  psi: z.string().optional(), // Allows preset values (OK, NA, DNC, DAMAGED) or free text
 });
 
 export type LubricationHydraulicsGauge = z.infer<typeof LubricationHydraulicsGaugeSchema>;

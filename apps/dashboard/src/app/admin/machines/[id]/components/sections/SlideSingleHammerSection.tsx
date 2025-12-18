@@ -57,14 +57,17 @@ export const defaultSlideFormData: SlideFormData = {
   afterPosition5: undefined,
 };
 
-// Helper to ensure a value is a number with proper precision (4 decimal places)
-function toNumber(value: unknown): number {
+// Helper to convert a value to a number or undefined (preserves empty inputs)
+function toNumberOrUndefined(value: unknown): number | undefined {
+  if (value === undefined || value === null) return undefined;
   if (typeof value === 'number') return value;
   if (typeof value === 'string') {
-    const parsed = parseFloat(value);
-    return isNaN(parsed) ? 0 : parsed;
+    const trimmed = value.trim();
+    if (trimmed === '') return undefined;
+    const parsed = parseFloat(trimmed);
+    return isNaN(parsed) ? undefined : parsed;
   }
-  return 0;
+  return undefined;
 }
 
 // Convert API data to UI form data
@@ -113,31 +116,30 @@ function convertFromFormData(formData: SlideFormData): {
     indicatorReading: formData.indicatorReading,
   };
 
+  // Check if required before positions (1, 3, 4) are filled
   const hasBeforeData =
     formData.beforePosition1 !== undefined &&
-    formData.beforePosition2 !== undefined &&
     formData.beforePosition3 !== undefined &&
-    formData.beforePosition4 !== undefined &&
-    formData.beforePosition5 !== undefined;
+    formData.beforePosition4 !== undefined;
 
   const beforeData: SlideData | undefined = hasBeforeData
     ? {
         ...metadata,
-        position1: toNumber(formData.beforePosition1),
-        position2: toNumber(formData.beforePosition2),
-        position3: toNumber(formData.beforePosition3),
-        position4: toNumber(formData.beforePosition4),
-        position5: toNumber(formData.beforePosition5),
+        position1: toNumberOrUndefined(formData.beforePosition1),
+        position2: toNumberOrUndefined(formData.beforePosition2),
+        position3: toNumberOrUndefined(formData.beforePosition3),
+        position4: toNumberOrUndefined(formData.beforePosition4),
+        position5: toNumberOrUndefined(formData.beforePosition5),
       }
     : undefined;
 
   const data: SlideData = {
     ...metadata,
-    position1: toNumber(formData.afterPosition1),
-    position2: toNumber(formData.afterPosition2),
-    position3: toNumber(formData.afterPosition3),
-    position4: toNumber(formData.afterPosition4),
-    position5: toNumber(formData.afterPosition5),
+    position1: toNumberOrUndefined(formData.afterPosition1),
+    position2: toNumberOrUndefined(formData.afterPosition2),
+    position3: toNumberOrUndefined(formData.afterPosition3),
+    position4: toNumberOrUndefined(formData.afterPosition4),
+    position5: toNumberOrUndefined(formData.afterPosition5),
   };
 
   return { beforeData, data };
@@ -155,34 +157,30 @@ export const validateSlideFormData = (data: SlideFormData): string[] => {
     return !isNaN(numValue);
   };
 
-  // At least 2 after positions must be filled
-  const afterPositions = [
-    data.afterPosition1,
-    data.afterPosition2,
-    data.afterPosition3,
-    data.afterPosition4,
-    data.afterPosition5,
+  // Required positions: 1, 3, 4 (positions 2 and 5 are optional)
+  const requiredAfterPositions: Array<{ field: keyof SlideFormData; name: string }> = [
+    { field: 'afterPosition1', name: '1' },
+    { field: 'afterPosition3', name: '3' },
+    { field: 'afterPosition4', name: '4' },
   ];
 
-  const filledCount = afterPositions.filter((p) => isValidNumber(p)).length;
-  if (filledCount < 2) {
-    errors.push('At least 2 max deviation points are required');
-  }
+  requiredAfterPositions.forEach(({ field, name }) => {
+    if (!isValidNumber(data[field])) {
+      errors.push(`Position ${name} is required`);
+    }
+  });
 
-  // If hasParallelismBeenAdjusted is YES, before measurements should be filled
+  // If hasParallelismBeenAdjusted is YES, required before positions (1, 3, 4) must be filled
   if (data.hasParallelismBeenAdjusted === YesNoNaDncType.YES) {
-    const beforeFields: Array<keyof SlideFormData> = [
-      'beforePosition1',
-      'beforePosition2',
-      'beforePosition3',
-      'beforePosition4',
-      'beforePosition5',
+    const requiredBeforePositions: Array<{ field: keyof SlideFormData; name: string }> = [
+      { field: 'beforePosition1', name: '1' },
+      { field: 'beforePosition3', name: '3' },
+      { field: 'beforePosition4', name: '4' },
     ];
 
-    beforeFields.forEach((field) => {
-      const value = data[field];
-      if (!isValidNumber(value)) {
-        errors.push(`${String(field)} is required when hasParallelismBeenAdjusted is YES`);
+    requiredBeforePositions.forEach(({ field, name }) => {
+      if (!isValidNumber(data[field])) {
+        errors.push(`Before position ${name} is required when parallelism has been adjusted`);
       }
     });
   }
@@ -243,8 +241,9 @@ export const SlideSingleHammerSection = forwardRef<
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Validate individual field
+  // Validate individual field - undefined is valid (optional fields)
   const validateField = (value: number | undefined): string => {
+    if (value === undefined || value === null) return '';
     const numValue = Number(value);
     if (isNaN(numValue)) {
       return 'Invalid number';
@@ -276,8 +275,16 @@ export const SlideSingleHammerSection = forwardRef<
 
       // Helper to translate error messages
       const translateError = (error: string): string => {
-        if (error === 'At least 2 max deviation points are required') {
-          return t('form.slide.validation.atLeastTwoPositionsRequired');
+        // Handle position required errors
+        const positionMatch = error.match(/^Position (\d+) is required$/);
+        if (positionMatch) {
+          return t('form.slide.validation.positionRequired', { position: positionMatch[1] });
+        }
+        const beforePositionMatch = error.match(/^Before position (\d+) is required/);
+        if (beforePositionMatch) {
+          return t('form.slide.validation.beforePositionRequired', {
+            position: beforePositionMatch[1],
+          });
         }
         return error;
       };
@@ -350,8 +357,16 @@ export const SlideSingleHammerSection = forwardRef<
 
       // Helper to translate error messages
       const translateError = (error: string): string => {
-        if (error === 'At least 2 max deviation points are required') {
-          return t('form.slide.validation.atLeastTwoPositionsRequired');
+        // Handle position required errors
+        const positionMatch = error.match(/^Position (\d+) is required$/);
+        if (positionMatch) {
+          return t('form.slide.validation.positionRequired', { position: positionMatch[1] });
+        }
+        const beforePositionMatch = error.match(/^Before position (\d+) is required/);
+        if (beforePositionMatch) {
+          return t('form.slide.validation.beforePositionRequired', {
+            position: beforePositionMatch[1],
+          });
         }
         return error;
       };

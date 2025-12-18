@@ -1100,6 +1100,7 @@
         "hydraulicClutchClearance": "Folga da Embreagem Hidráulica",
         "brakeSpringMeasurements": "Medições da Mola do Freio (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Desvio Máximo do Martelo (Externo vs Interno)",
+        "slidePositions": "Posições do Martelo (Posição 1-5)",
         "outerSlidePositions": "Posições do Martelo Externo (Posição 1-5)",
         "innerSlidePositions": "Posições do Martelo Interno (Posição 1-5)",
         "gibsUsableValue": "Guias - Valor Utilizável",
@@ -1500,6 +1501,7 @@
           "outerPrefix": "Slide Externo",
           "innerPrefix": "Slide Interno",
           "positionRequired": "Posição {position} é obrigatória",
+          "beforePositionRequired": "Posição {position} (antes) é obrigatória quando o paralelismo foi ajustado",
           "atLeastTwoPositionsRequired": "Preencha pelo menos 2 pontos de posição no desvio máximo"
         },
         "yes": "Sim",
@@ -1576,6 +1578,8 @@
         "noSystemsAdded": "Nenhum sistema adicionado. Clique em \"Adicionar Linha\" para começar.",
         "gaugeSwitchPlaceholder": "Gauge/Switch",
         "selectPlaceholder": "Selecione",
+        "psiSearchPlaceholder": "Buscar ou digitar valor...",
+        "typeCustomValue": "Digite para inserir um valor personalizado",
         "systems": {
           "lube": "Lube",
           "hyd": "Hyd",

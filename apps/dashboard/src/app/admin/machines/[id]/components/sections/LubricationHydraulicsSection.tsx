@@ -29,9 +29,9 @@ export const defaultLubricationHydraulicsCheck: LubricationHydraulicsCheck = {
 export const validateLubricationHydraulicsCheck = (data: LubricationHydraulicsCheck): string[] => {
   const errors: string[] = [];
 
-  // changedOil is required and must be YES or NO (not DNC)
-  if (!data.data.changedOil || data.data.changedOil === YesNoDncType.DNC) {
-    errors.push('Lubrication: Oil changed status is required (YES or NO)');
+  // changedOil is required - YES, NO, or DNC are all valid
+  if (!data.data.changedOil) {
+    errors.push('Lubrication: Oil changed status is required');
   }
 
   return errors;
@@ -72,7 +72,8 @@ export const LubricationHydraulicsSection = forwardRef<
   // Validate with translations
   const validateWithTranslations = (checkData: LubricationHydraulicsCheck): string[] => {
     const validationErrors: string[] = [];
-    if (!checkData.data.changedOil || checkData.data.changedOil === YesNoDncType.DNC) {
+    // changedOil is required - YES, NO, or DNC are all valid
+    if (!checkData.data.changedOil) {
       validationErrors.push(t('form.lubricationHydraulics.validation.changedOilRequired'));
     }
     return validationErrors;
