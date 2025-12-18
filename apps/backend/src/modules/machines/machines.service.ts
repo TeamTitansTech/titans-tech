@@ -528,9 +528,9 @@ export class MachinesService {
 
   /**
    * Soft delete cascade for machine and all related entities
-   * Private method to handle the transaction logic
+   * Public method to handle the transaction logic (can be called from other services)
    */
-  private async softDeleteMachineCascade(
+  async softDeleteMachineCascade(
     tx: Prisma.TransactionClient,
     machineId: string,
   ): Promise<void> {

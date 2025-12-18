@@ -467,8 +467,9 @@ model CompanyBranch {
   isMainBranch Boolean @default(false)
   location     String?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   company         Company          @relation(fields: [companyId], references: [id])
   companyId       String
@@ -1890,6 +1891,7 @@ model ProductionLine {
   direction ProductionLineDirection @default(LEFT_TO_RIGHT)
   createdAt DateTime                @default(now())
   updatedAt DateTime                @updatedAt
+  deletedAt DateTime?
 
   branch   CompanyBranch           @relation(fields: [branchId], references: [id], onDelete: Restrict)
   machines MachineProductionLine[]
