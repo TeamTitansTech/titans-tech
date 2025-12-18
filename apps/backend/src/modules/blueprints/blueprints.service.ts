@@ -157,7 +157,7 @@ export class BlueprintsService {
       include: {
         _count: {
           select: {
-            machines: { where: { deletedAt: null } },
+            machines: true,
           },
         },
       },
@@ -176,7 +176,6 @@ export class BlueprintsService {
       where: { id },
       include: {
         machines: {
-          where: { deletedAt: null },
           include: {
             fields: true,
           },
