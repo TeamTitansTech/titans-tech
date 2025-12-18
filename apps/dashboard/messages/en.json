@@ -1110,6 +1110,7 @@
         "hydraulicClutchClearance": "Hydraulic Clutch Clearance",
         "brakeSpringMeasurements": "Brake Spring Measurements (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Slide Max Deviation (Outer vs Inner)",
+        "slidePositions": "Slide Positions (Position 1-5)",
         "outerSlidePositions": "Outer Slide Positions (Position 1-5)",
         "innerSlidePositions": "Inner Slide Positions (Position 1-5)",
         "gibsUsableValue": "Gibs - Usable Value",
@@ -1510,6 +1511,7 @@
           "outerPrefix": "Slide Outer",
           "innerPrefix": "Slide Inner",
           "positionRequired": "Position {position} is required",
+          "beforePositionRequired": "Before position {position} is required when parallelism has been adjusted",
           "atLeastTwoPositionsRequired": "Fill at least 2 position points in max deviation"
         },
         "yes": "Yes",
@@ -1586,6 +1588,8 @@
         "noSystemsAdded": "No systems added. Click \"Add Row\" to start.",
         "gaugeSwitchPlaceholder": "Gauge/Switch",
         "selectPlaceholder": "Select",
+        "psiSearchPlaceholder": "Search or type custom value...",
+        "typeCustomValue": "Type to enter a custom value",
         "systems": {
           "lube": "Lube",
           "hyd": "Hyd",

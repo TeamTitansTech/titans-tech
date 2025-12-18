@@ -1353,12 +1353,12 @@ model SlideData {
   shutheightActualSh          String?
   indicatorReading            String?
 
-  // Measurements (5 positions)
-  position1 Decimal @db.Decimal(10, 4)
-  position2 Decimal @db.Decimal(10, 4)
-  position3 Decimal @db.Decimal(10, 4)
-  position4 Decimal @db.Decimal(10, 4)
-  position5 Decimal @db.Decimal(10, 4)
+  // Measurements (5 positions) - positions 1, 3, 4 required; 2, 5 optional
+  position1 Decimal  @db.Decimal(10, 4)
+  position2 Decimal? @db.Decimal(10, 4)
+  position3 Decimal  @db.Decimal(10, 4)
+  position4 Decimal  @db.Decimal(10, 4)
+  position5 Decimal? @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1385,12 +1385,12 @@ model SlideSingleHammerData {
   shutheightActualSh          String?
   indicatorReading            String?
 
-  // Measurements (5 positions)
-  position1 Decimal @db.Decimal(10, 4)
-  position2 Decimal @db.Decimal(10, 4)
-  position3 Decimal @db.Decimal(10, 4)
-  position4 Decimal @db.Decimal(10, 4)
-  position5 Decimal @db.Decimal(10, 4)
+  // Measurements (5 positions) - positions 1, 3, 4 required; 2, 5 optional
+  position1 Decimal  @db.Decimal(10, 4)
+  position2 Decimal? @db.Decimal(10, 4)
+  position3 Decimal  @db.Decimal(10, 4)
+  position4 Decimal  @db.Decimal(10, 4)
+  position5 Decimal? @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1415,12 +1415,12 @@ model SlideDoubleHammerData {
   shutheightActualSh          String?
   indicatorReading            String?
 
-  // Measurements (5 positions)
-  position1 Decimal @db.Decimal(10, 4)
-  position2 Decimal @db.Decimal(10, 4)
-  position3 Decimal @db.Decimal(10, 4)
-  position4 Decimal @db.Decimal(10, 4)
-  position5 Decimal @db.Decimal(10, 4)
+  // Measurements (5 positions) - positions 1, 3, 4 required; 2, 5 optional
+  position1 Decimal  @db.Decimal(10, 4)
+  position2 Decimal? @db.Decimal(10, 4)
+  position3 Decimal  @db.Decimal(10, 4)
+  position4 Decimal  @db.Decimal(10, 4)
+  position5 Decimal? @db.Decimal(10, 4)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1542,7 +1542,7 @@ model LubricationHydraulicsGauge {
   lubricationHydraulicsDataId String
   system                      LubeHydMonitorFlowPressSwGibType
   gaugeSwitchIdentifier       String?
-  psi                         OkNaDncDamageType?
+  psi                         String? // Allows preset values (OK, NA, DNC, DAMAGED) or free text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
