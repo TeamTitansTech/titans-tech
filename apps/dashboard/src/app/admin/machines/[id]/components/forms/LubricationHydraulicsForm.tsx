@@ -23,11 +23,12 @@ import {
 
 // Preset options for PSI field (used for datalist suggestions)
 // These are string values since PSI field accepts free text
+// Note: value and label must match to avoid browsers showing both in dropdown
 const PSI_PRESET_OPTIONS = [
   { value: 'OK', label: 'OK' },
-  { value: 'NA', label: 'N/A' },
+  { value: 'N/A', label: 'N/A' },
   { value: 'DNC', label: 'DNC' },
-  { value: 'DAMAGED', label: 'Damaged' },
+  { value: 'Damaged', label: 'Damaged' },
 ];
 
 export function LubricationHydraulicsForm({
@@ -134,21 +135,23 @@ export function LubricationHydraulicsForm({
                 </div>
 
                 <div className="col-span-3">
-                  <Input
-                    type="text"
-                    list={`psi-options-${index}`}
+                  <Select
                     value={gauge.psi || ''}
-                    onChange={(e) => updateGauge(index, 'psi', e.target.value || undefined)}
-                    className="h-9 text-xs"
-                    placeholder={t('form.lubricationHydraulics.selectPlaceholder')}
-                  />
-                  <datalist id={`psi-options-${index}`}>
-                    {PSI_PRESET_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </datalist>
+                    onValueChange={(value) => updateGauge(index, 'psi', value || undefined)}
+                  >
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue
+                        placeholder={t('form.lubricationHydraulics.selectPlaceholder')}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PSI_PRESET_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <div className="col-span-1 flex justify-end">
