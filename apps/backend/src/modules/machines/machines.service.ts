@@ -534,36 +534,29 @@ export class MachinesService {
     tx: Prisma.TransactionClient,
     machineId: string,
   ): Promise<void> {
-    const now = new Date();
-
     // 1. Soft delete all MachineServices
-    await tx.machineService.updateMany({
+    await tx.machineService.deleteMany({
       where: { machineId },
-      data: { deletedAt: now },
     });
 
     // 2. Soft delete all MachineFields
-    await tx.machineField.updateMany({
+    await tx.machineField.deleteMany({
       where: { machineId },
-      data: { deletedAt: now },
     });
 
     // 3. Soft delete all ServiceRequests
-    await tx.serviceRequest.updateMany({
+    await tx.serviceRequest.deleteMany({
       where: { machineId },
-      data: { deletedAt: now },
     });
 
     // 4. Soft delete all MachineProductionLines (junction table)
-    await tx.machineProductionLine.updateMany({
+    await tx.machineProductionLine.deleteMany({
       where: { machineId },
-      data: { deletedAt: now },
     });
 
     // 5. Finally, soft delete the Machine itself
-    await tx.machine.update({
+    await tx.machine.delete({
       where: { id: machineId },
-      data: { deletedAt: now },
     });
   }
 
