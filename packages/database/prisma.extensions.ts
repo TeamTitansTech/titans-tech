@@ -4,11 +4,14 @@ import { Prisma } from './generated/prisma/client';
 const SOFT_DELETE_MODELS = [
   'User',
   'UserBranch',
+  'Machine',
+  'MachineService',
+  'MachineField',
+  'ServiceRequest',
+  'MachineProductionLine',
   // 'Company',
   // 'CompanyBranch',
-  // 'MachineService',
   // 'ProductionLine',
-  // 'Machine',
   // 'PermissionTemplate',
 ] as const;
 
@@ -57,6 +60,46 @@ export const softDelete = Prisma.defineExtension({
       },
     },
     userBranch: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    machine: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    machineService: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    machineField: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    serviceRequest: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    machineProductionLine: {
       async delete<M, A>(
         this: M,
         data: Prisma.Args<M, 'delete'>,
@@ -128,6 +171,46 @@ export const softDeleteMany = Prisma.defineExtension({
       },
     },
     userBranch: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    machine: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    machineService: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    machineField: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    serviceRequest: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    machineProductionLine: {
       async deleteMany<M, A>(
         this: M,
         data: Prisma.Args<M, 'deleteMany'>,
