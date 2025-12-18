@@ -53,7 +53,6 @@ export class TasksService {
         },
         include: {
           services: {
-            where: { deletedAt: null },
             orderBy: {
               date: 'desc',
             },

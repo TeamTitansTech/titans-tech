@@ -30,7 +30,6 @@ export class MachinesService {
         company: {
           include: {
             branches: {
-              where: { deletedAt: null },
               select: { id: true },
             },
           },
@@ -65,7 +64,7 @@ export class MachinesService {
         company: {
           include: {
             branches: {
-              where: { id: branchId, deletedAt: null },
+              where: { id: branchId },
             },
           },
         },
@@ -271,7 +270,7 @@ export class MachinesService {
         },
         fields: true,
         services: {
-          where: { status: 'COMPLETED', deletedAt: null },
+          where: { status: 'COMPLETED' },
           take: 1,
           orderBy: { date: 'desc' },
           include: {
@@ -349,7 +348,7 @@ export class MachinesService {
         },
         fields: true,
         services: {
-          where: { status: 'COMPLETED', deletedAt: null },
+          where: { status: 'COMPLETED' },
           take: 1,
           orderBy: { date: 'desc' },
           include: {
