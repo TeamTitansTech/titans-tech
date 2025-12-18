@@ -9,11 +9,14 @@ import { Label } from '@/components/ui/label';
 import { ChevronDown } from 'lucide-react';
 import {
   type BearingClearanceData,
+  type Attachment,
   ServiceType,
   YesNoNaDncType,
 } from '@/data/types/services.types';
 import { BearingTabContent } from '../shared/BearingTabContent';
 import { ShutdownAdjustmentFields } from '../shared/ShutdownAdjustmentFields';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 import { useBearingClearanceState } from '../../hooks/useBearingClearanceState';
 import { isDataTouched } from './utils';
 import { buildBearingFields, sanitizeBearingDataForSubmission } from './bearingClearanceUtils';
@@ -79,6 +82,7 @@ export interface BearingClearanceSectionData {
   outerData?: BearingClearanceData;
   innerBefore?: BearingClearanceData;
   innerData?: BearingClearanceData;
+  attachments?: Attachment[];
 }
 
 export interface BearingClearanceSectionRef {
@@ -161,6 +165,9 @@ export const BearingClearanceSection = forwardRef<
   // UI state
   const [isBeforeOpen, setIsBeforeOpen] = useState(true);
   const [isAfterOpen, setIsAfterOpen] = useState(true);
+
+  // Attachments state
+  const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
 
   // Wrapper update functions to call onSectionTouched
   const updateOuterBeforeField = (
@@ -323,6 +330,7 @@ export const BearingClearanceSection = forwardRef<
         innerData: hasInnerData
           ? { ...(innerAfterTouched ? innerAfterData : initialInnerAfterData), ...innerAfterFields }
           : undefined,
+        attachments,
       };
     },
 
@@ -569,6 +577,7 @@ export const BearingClearanceSection = forwardRef<
               ...innerAfterFields,
             })
           : undefined,
+        attachments,
       };
 
       return { isValid: true, errors: [], data };
@@ -845,6 +854,21 @@ export const BearingClearanceSection = forwardRef<
           onSectionTouched();
         }}
       />
+
+      {/* Section Attachments */}
+      <div className="pt-4 border-t">
+        <Typography variant="h4" className="mb-3">
+          {t('form.common.attachments')}
+        </Typography>
+        <DocumentUpload
+          value={attachments}
+          onChange={(files) => {
+            setAttachments(files);
+            onSectionTouched();
+          }}
+          maxFiles={10}
+        />
+      </div>
     </div>
   );
 });

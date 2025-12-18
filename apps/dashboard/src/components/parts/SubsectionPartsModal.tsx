@@ -20,6 +20,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Typography } from '@/components/ui/typography';
 import {
   Dialog,
   DialogContent,
@@ -785,11 +786,11 @@ export function SubsectionPartsModal({
         {/* Footer with Export All Tabs button */}
         <DialogFooter className="mt-4 shrink-0 border-t pt-4">
           <div className="flex w-full items-center justify-between">
-            <p className="text-sm text-muted-foreground">
+            <Typography variant="muted">
               {selectedKeys.size > 0
                 ? `${selectedKeys.size} ${t('partsSelectedAcrossTabs')}`
                 : t('selectPartsToExport')}
-            </p>
+            </Typography>
             <div className="flex items-center gap-2">
               <Button
                 onClick={() => openEmailModal('all')}
@@ -846,9 +847,9 @@ export function SubsectionPartsModal({
                   </div>
                 ))}
                 {emailList.length === 0 && (
-                  <p className="py-2 text-center text-sm text-muted-foreground">
+                  <Typography variant="muted" className="text-center py-2">
                     {t('noEmailsYet') || 'No emails added yet'}
-                  </p>
+                  </Typography>
                 )}
               </div>
 

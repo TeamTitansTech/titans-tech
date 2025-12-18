@@ -8,11 +8,14 @@ import { useTranslations } from 'next-intl';
 import {
   type CounterbalanceCylinderData,
   type CounterbalanceCylinderCheck,
+  type Attachment,
   ServiceType,
 } from '@/data/types/services.types';
 import { CounterbalanceCylinderForm } from '../forms/CounterbalanceCylinderForm';
 import { CounterbalanceAlertsSection } from './CounterbalanceAlertsSection';
 import { isDataTouched } from './utils';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 export const defaultCounterbalanceCylinderData: CounterbalanceCylinderData = {
   counterbalanceType: undefined,
@@ -87,6 +90,7 @@ export const CounterbalanceCylinderSection = forwardRef<
   CounterbalanceCylinderSectionProps
 >(({ onSectionTouched, initialData, serviceId }, ref) => {
   const t = useTranslations('inspections.form.counterbalanceCylinder');
+  const tCommon = useTranslations('inspections');
 
   // Store initial loaded data for "touched" detection
   const [initialOuterData] = useState<CounterbalanceCylinderData>(
@@ -103,6 +107,7 @@ export const CounterbalanceCylinderSection = forwardRef<
     initialData?.innerData || defaultCounterbalanceCylinderData,
   );
   const [sharedNotes, setSharedNotes] = useState<string>(initialData?.notes || '');
+  const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
   const [errors, setErrors] = useState<{
     outer: Record<string, string>;
     inner: Record<string, string>;
@@ -175,7 +180,8 @@ export const CounterbalanceCylinderSection = forwardRef<
             outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
             innerData: hasInnerData ? (innerTouched ? innerData : initialInnerData) : undefined,
             notes: sharedNotes,
-          },
+            attachments,
+          } as CounterbalanceCylinderCheck,
         };
       }
 
@@ -203,7 +209,8 @@ export const CounterbalanceCylinderSection = forwardRef<
         outerData: hasOuterData ? (outerTouched ? outerData : initialOuterData) : undefined,
         innerData: hasInnerData ? (innerTouched ? innerData : initialInnerData) : undefined,
         notes: sharedNotes,
-      };
+        attachments,
+      } as CounterbalanceCylinderCheck;
     },
 
     validate: (_serviceType: ServiceType): string[] => {
@@ -269,6 +276,21 @@ export const CounterbalanceCylinderSection = forwardRef<
           placeholder={t('notes')}
           className="text-sm"
           rows={3}
+        />
+      </div>
+
+      {/* Section Attachments */}
+      <div className="pt-4 border-t">
+        <Typography variant="h4" className="mb-3">
+          {tCommon('form.common.attachments')}
+        </Typography>
+        <DocumentUpload
+          value={attachments}
+          onChange={(files) => {
+            setAttachments(files);
+            onSectionTouched();
+          }}
+          maxFiles={10}
         />
       </div>
 

@@ -131,6 +131,12 @@ function ServiceSummaryModalContent({
       );
     };
 
+    // For wrapped structures (clutch, lubricationHydraulics, counterbalance)
+    // Check the nested 'data' property
+    if ('data' in data && data.data && typeof data.data === 'object') {
+      return checkNestedData(data.data);
+    }
+
     // For objects with nested structure (bearingClearance, slide, gibs)
     if (
       data.outerData ||
@@ -164,22 +170,13 @@ function ServiceSummaryModalContent({
       // Extract data from array structure (backend returns arrays)
       // Note: Type assertion needed because Object.entries() loses property-specific types
       // We've validated this is a section property via SECTION_DATA_TO_REGISTRY_KEY check
-      let extractedData: AnySectionData = (
+      const extractedData: AnySectionData = (
         Array.isArray(value) ? value[0] : value
       ) as AnySectionData;
 
-      // For clutch, lubricationHydraulics, and counterbalanceCylinder, extract nested data object
-      if (
-        (key === 'clutch' ||
-          key === 'lubricationHydraulics' ||
-          key === 'counterbalanceCylinder' ||
-          key === 'counterbalanceCylinderAirbag') &&
-        extractedData &&
-        typeof extractedData === 'object' &&
-        'data' in extractedData
-      ) {
-        extractedData = extractedData.data as AnySectionData;
-      }
+      // NOTE: We no longer extract the nested .data property here
+      // SectionSummary components handle the wrapped/unwrapped structure detection
+      // and this preserves the attachments which are on the parent wrapper object
 
       // Only show sections that have actual data
       if (hasDataContent(extractedData as Record<string, unknown>)) {
@@ -432,6 +429,38 @@ function ServiceSummaryModalContent({
             </div>
           </div>
         </div>
+
+        {/* Attached Documents */}
+        {service.attachments && service.attachments.length > 0 && (
+          <div className="mb-4 rounded-lg border p-4">
+            <Typography variant="h4" className="mb-3 font-semibold">
+              {tServices('modal.attachedDocuments.title')}
+            </Typography>
+            <div className="space-y-2">
+              {service.attachments.map((attachment, index) => {
+                const isCSV = attachment.name.toLowerCase().endsWith('.csv');
+                return (
+                  <a
+                    key={`${attachment.url}-${index}`}
+                    href={attachment.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-md bg-muted/30 px-3 py-2 transition-colors hover:bg-muted/50"
+                  >
+                    {isCSV ? (
+                      <FileSpreadsheet className="h-5 w-5 flex-shrink-0 text-green-600" />
+                    ) : (
+                      <FileText className="h-5 w-5 flex-shrink-0 text-red-600" />
+                    )}
+                    <span className="truncate text-sm font-medium hover:underline">
+                      {attachment.name}
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Public Request Section - Show if this service was created from a service request */}
         {isFromServiceRequest && (

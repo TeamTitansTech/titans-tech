@@ -14,11 +14,14 @@ import {
 } from '@/components/ui/select';
 import {
   type ElectricalControlCheck,
+  type Attachment,
   YesNoDncType,
   YesNoNaDncCantTellType,
   ServiceType,
 } from '@/data/types/services.types';
 import { isDataTouched } from './utils';
+import { DocumentUpload } from '@/components/ui/document-upload';
+import { Typography } from '@/components/ui/typography';
 
 export const defaultElectricalControlData: ElectricalControlCheck = {
   hasHourMeter: undefined,
@@ -41,21 +44,26 @@ export const defaultElectricalControlData: ElectricalControlCheck = {
   notes: undefined,
 };
 
+export interface ElectricalControlSectionData {
+  data?: ElectricalControlCheck;
+  attachments?: Attachment[];
+}
+
 export interface ElectricalControlSectionRef {
-  getData: () => ElectricalControlCheck | undefined;
+  getData: () => ElectricalControlSectionData | undefined;
   validate: (serviceType: ServiceType) => string[];
   reset: () => void;
   isTouched: () => boolean;
   validateAndGetData: (serviceType: ServiceType) => {
     isValid: boolean;
     errors: string[];
-    data?: ElectricalControlCheck;
+    data?: ElectricalControlSectionData;
   };
 }
 
 interface ElectricalControlSectionProps {
   onSectionTouched?: () => void;
-  initialData?: ElectricalControlCheck;
+  initialData?: ElectricalControlSectionData;
 }
 
 export const ElectricalControlSection = forwardRef<
@@ -63,22 +71,26 @@ export const ElectricalControlSection = forwardRef<
   ElectricalControlSectionProps
 >(({ onSectionTouched, initialData }, ref) => {
   const t = useTranslations('inspections.form.electricalControl');
+  const tCommon = useTranslations('inspections.form.common');
 
   const [initialElectricalControlData, setInitialElectricalControlData] =
-    useState<ElectricalControlCheck>(initialData || defaultElectricalControlData);
+    useState<ElectricalControlCheck>(initialData?.data || defaultElectricalControlData);
 
   const [data, setData] = useState<ElectricalControlCheck>(
-    initialData || defaultElectricalControlData,
+    initialData?.data || defaultElectricalControlData,
   );
+  const [attachments, setAttachments] = useState<Attachment[]>(initialData?.attachments ?? []);
   const prevInitialDataRef = useRef(initialData);
 
   useEffect(() => {
     if (initialData && initialData !== prevInitialDataRef.current) {
       prevInitialDataRef.current = initialData;
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
-      setData(initialData);
+      setData(initialData.data || defaultElectricalControlData);
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
-      setInitialElectricalControlData(initialData);
+      setInitialElectricalControlData(initialData.data || defaultElectricalControlData);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+      setAttachments(initialData.attachments ?? []);
     }
   }, [initialData]);
 
@@ -97,7 +109,7 @@ export const ElectricalControlSection = forwardRef<
 
     validateAndGetData: (
       _serviceType: ServiceType,
-    ): { isValid: boolean; errors: string[]; data?: ElectricalControlCheck } => {
+    ): { isValid: boolean; errors: string[]; data?: ElectricalControlSectionData } => {
       const touched = isDataTouched(data, initialElectricalControlData);
       const hasInitialData = isDataTouched(
         initialElectricalControlData,
@@ -111,7 +123,9 @@ export const ElectricalControlSection = forwardRef<
         return {
           isValid: true,
           errors: [],
-          data: hasData ? (touched ? data : initialElectricalControlData) : undefined,
+          data: hasData
+            ? { data: touched ? data : initialElectricalControlData, attachments }
+            : undefined,
         };
       }
 
@@ -121,11 +135,13 @@ export const ElectricalControlSection = forwardRef<
       };
     },
 
-    getData: (): ElectricalControlCheck | undefined => {
+    getData: (): ElectricalControlSectionData | undefined => {
       const touched = isDataTouched(data, initialElectricalControlData);
       const hasData =
         touched || isDataTouched(initialElectricalControlData, defaultElectricalControlData);
-      return hasData ? (touched ? data : initialElectricalControlData) : undefined;
+      return hasData
+        ? { data: touched ? data : initialElectricalControlData, attachments }
+        : undefined;
     },
 
     validate: (_serviceType: ServiceType): string[] => {
@@ -134,6 +150,7 @@ export const ElectricalControlSection = forwardRef<
 
     reset: () => {
       setData(defaultElectricalControlData);
+      setAttachments([]);
     },
   }));
 
@@ -296,6 +313,21 @@ export const ElectricalControlSection = forwardRef<
           onChange={(e) => updateField('notes', e.target.value || undefined)}
           placeholder={t('notesPlaceholder')}
           rows={4}
+        />
+      </div>
+
+      {/* Attachments */}
+      <div className="pt-4 border-t">
+        <Typography variant="h4" className="mb-3">
+          {tCommon('attachments')}
+        </Typography>
+        <DocumentUpload
+          value={attachments}
+          onChange={(files) => {
+            setAttachments(files);
+            onSectionTouched?.();
+          }}
+          maxFiles={10}
         />
       </div>
     </div>
