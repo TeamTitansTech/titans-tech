@@ -8,12 +8,8 @@ import { PrismaService } from '../shared/prisma.service';
 import { EmailService } from '../email/email.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { appEnv } from '../../config/env';
-import {
-  NotificationType,
-  ServiceRequestStatus,
-  ServiceStatus,
-  ServiceType,
-} from '@titans-tech/db';
+import { ServiceRequestStatus } from '@titans-tech/db';
+import { srService } from '@titans-tech/shared/services';
 
 export interface CreateServiceRequestDto {
   machineId: string;
@@ -78,87 +74,40 @@ export class ServiceRequestsService {
     dto: CreateServiceRequestDto,
     deviceInfo: DeviceInfo,
   ): Promise<{ success: boolean; serviceRequestId: string }> {
-    const machine = await this.prisma.machine.findUnique({
-      where: { id: dto.machineId },
-      include: {
-        branch: {
-          include: {
-            company: true,
-          },
-        },
-      },
-    });
-
-    if (!machine) {
-      throw new NotFoundException('Machine not found');
+    const createResult = await srService.createServiceRequest(
+      this.prisma,
+      dto,
+      deviceInfo,
+    );
+    if (createResult.error) {
+      throw new NotFoundException(createResult.error.message);
     }
-
-    // Create the service request
-    const serviceRequest = await this.prisma.serviceRequest.create({
-      data: {
-        machineId: dto.machineId,
-        requesterName: dto.requesterName,
-        requesterEmail: dto.requesterEmail,
-        requesterPhone: dto.requesterPhone || null,
-        problemDescription: dto.problemDescription,
-        imageUrl: dto.imageUrl || null,
-        ipAddress: deviceInfo.ipAddress,
-        userAgent: deviceInfo.userAgent,
-        browser: deviceInfo.browser,
-        os: deviceInfo.os,
-        deviceType: deviceInfo.device,
-        isMobile: deviceInfo.isMobile,
-        status: ServiceRequestStatus.OPEN,
-      },
-    });
+    const { id: createdId, machine } = createResult.data!;
 
     this.logger.log(
-      `Created service request ${serviceRequest.id} for machine ${dto.machineId} from ${dto.requesterEmail}`,
+      `Created service request ${createdId} for machine ${dto.machineId} from ${dto.requesterEmail}`,
     );
 
-    // Get sysadmins to create recipients
-    const admins = await this.prisma.sysAdmin.findMany({
-      select: { id: true },
-    });
-
-    // Create notification with recipients (new structure without machine relation)
-    const notification = await this.prisma.notification.create({
-      data: {
-        type: NotificationType.URGENT_SERVICE_REQUEST,
-        createdByUserId: null,
-        metadata: {
-          type: NotificationType.URGENT_SERVICE_REQUEST,
-          machineId: dto.machineId,
-          machineName: machine.name,
-          requestedByUserId: null,
-          requestedByName: dto.requesterName,
-          notes: dto.problemDescription,
-          serviceRequestId: serviceRequest.id,
-          requesterEmail: dto.requesterEmail,
-          isPublicRequest: true,
-        },
-        recipients: {
-          createMany: {
-            data: admins.map((admin) => ({
-              recipientId: admin.id,
-            })),
-          },
-        },
-      },
-    });
+    // Create notification using shared service
+    const { recipients } = await srService.createServiceRequestNotification(
+      this.prisma,
+      createdId,
+      dto.machineId,
+      machine.name,
+      dto.requesterName,
+      dto.requesterEmail,
+      dto.problemDescription,
+    );
 
     // Broadcast notification via WebSocket
-    const recipients = await this.prisma.notificationRecipient.findMany({
-      include: { notification: true },
-      where: { notificationId: notification.id },
-    });
     this.notificationsGateway.handleNewNotification(recipients);
 
     // Send email notification
     const machineUrl = `${appEnv.FRONTEND_URL}/admin/machines/${dto.machineId}`;
 
     // Collect all recipient emails (sysadmins, company admins, branch users + test emails)
-    const recipientEmails = await this.getServiceRequestRecipientEmails(
+    const recipientEmails = await srService.getRecipientEmails(
+      this.prisma,
       machine.branch.companyId,
       machine.branchId,
     );
@@ -192,18 +141,18 @@ export class ServiceRequestsService {
       );
 
       this.logger.log(
-        `Sent service request email to ${recipientEmails.length} recipients for request ${serviceRequest.id}`,
+        `Sent service request email to ${recipientEmails.length} recipients for request ${createdId}`,
       );
     } catch (error) {
       this.logger.error(
-        `Failed to send service request email for request ${serviceRequest.id}`,
+        `Failed to send service request email for request ${createdId}`,
         error,
       );
     }
 
     return {
       success: true,
-      serviceRequestId: serviceRequest.id,
+      serviceRequestId: createdId,
     };
   }
 
@@ -216,167 +165,37 @@ export class ServiceRequestsService {
     companyId?: string;
     limit?: number;
   }): Promise<ServiceRequestResponseDto[]> {
-    const requests = await this.prisma.serviceRequest.findMany({
-      where: {
-        ...(filters?.status && { status: filters.status }),
-        ...(filters?.machineId && { machineId: filters.machineId }),
-        ...(filters?.companyId && {
-          machine: { branch: { companyId: filters.companyId } },
-        }),
-      },
-      include: {
-        machine: {
-          include: {
-            branch: {
-              include: {
-                company: true,
-              },
-            },
-          },
-        },
-        services: {
-          select: {
-            id: true,
-            date: true,
-            type: true,
-            status: true,
-          },
-          orderBy: { date: 'desc' },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-      take: filters?.limit || 100,
-    });
-
-    return requests.map((req) => ({
-      id: req.id,
-      machineId: req.machineId,
-      machineName: req.machine.name,
-      machineSerialNumber: req.machine.serialNumber,
-      companyName: req.machine.branch.company.name,
-      branchName: req.machine.branch.name,
-      status: req.status,
-      requesterName: req.requesterName,
-      requesterEmail: req.requesterEmail,
-      requesterPhone: req.requesterPhone,
-      problemDescription: req.problemDescription,
-      imageUrl: req.imageUrl,
-      ipAddress: req.ipAddress,
-      browser: req.browser,
-      os: req.os,
-      deviceType: req.deviceType,
-      isMobile: req.isMobile,
-      createdAt: req.createdAt.toISOString(),
-      closedAt: req.closedAt?.toISOString() || null,
-      services: req.services.map((s) => ({
-        id: s.id,
-        date: s.date.toISOString(),
-        type: s.type,
-        status: s.status,
-      })),
-    }));
+    return srService.findAllServiceRequests(this.prisma, filters);
   }
 
   /**
    * Get service requests for a specific machine
    */
   async findByMachine(machineId: string): Promise<ServiceRequestResponseDto[]> {
-    const machine = await this.prisma.machine.findUnique({
-      where: { id: machineId },
-    });
-
-    if (!machine) {
-      throw new NotFoundException('Machine not found');
-    }
-
-    return this.findAll({ machineId });
+    const exists = await srService.machineExists(this.prisma, machineId);
+    if (!exists) throw new NotFoundException('Machine not found');
+    return srService.findAllServiceRequests(this.prisma, { machineId });
   }
 
   /**
    * Get a single service request by ID
    */
   async findOne(id: string): Promise<ServiceRequestResponseDto> {
-    const request = await this.prisma.serviceRequest.findUnique({
-      where: { id },
-      include: {
-        machine: {
-          include: {
-            branch: {
-              include: {
-                company: true,
-              },
-            },
-          },
-        },
-        services: {
-          select: {
-            id: true,
-            date: true,
-            type: true,
-            status: true,
-          },
-          orderBy: { date: 'desc' },
-        },
-      },
-    });
-
-    if (!request) {
-      throw new NotFoundException('Service request not found');
-    }
-
-    return {
-      id: request.id,
-      machineId: request.machineId,
-      machineName: request.machine.name,
-      machineSerialNumber: request.machine.serialNumber,
-      companyName: request.machine.branch.company.name,
-      branchName: request.machine.branch.name,
-      status: request.status,
-      requesterName: request.requesterName,
-      requesterEmail: request.requesterEmail,
-      requesterPhone: request.requesterPhone,
-      problemDescription: request.problemDescription,
-      imageUrl: request.imageUrl,
-      ipAddress: request.ipAddress,
-      browser: request.browser,
-      os: request.os,
-      deviceType: request.deviceType,
-      isMobile: request.isMobile,
-      createdAt: request.createdAt.toISOString(),
-      closedAt: request.closedAt?.toISOString() || null,
-      services: request.services.map((s) => ({
-        id: s.id,
-        date: s.date.toISOString(),
-        type: s.type,
-        status: s.status,
-      })),
-    };
+    const res = await srService.findServiceRequest(this.prisma, id);
+    if (res.error) throw new NotFoundException(res.error.message);
+    return res.data!;
   }
 
   /**
    * Close a service request
    */
   async close(id: string): Promise<ServiceRequestResponseDto> {
-    const request = await this.prisma.serviceRequest.findUnique({
-      where: { id },
-    });
-
-    if (!request) {
-      throw new NotFoundException('Service request not found');
+    const res = await srService.closeServiceRequest(this.prisma, id);
+    if (res.error) {
+      if (res.error.type === 'BAD_REQUEST')
+        throw new BadRequestException(res.error.message);
+      throw new NotFoundException(res.error.message);
     }
-
-    if (request.status === ServiceRequestStatus.CLOSED) {
-      throw new BadRequestException('Service request is already closed');
-    }
-
-    await this.prisma.serviceRequest.update({
-      where: { id },
-      data: {
-        status: ServiceRequestStatus.CLOSED,
-        closedAt: new Date(),
-      },
-    });
-
     return this.findOne(id);
   }
 
@@ -384,26 +203,12 @@ export class ServiceRequestsService {
    * Reopen a closed service request
    */
   async reopen(id: string): Promise<ServiceRequestResponseDto> {
-    const request = await this.prisma.serviceRequest.findUnique({
-      where: { id },
-    });
-
-    if (!request) {
-      throw new NotFoundException('Service request not found');
+    const res = await srService.reopenServiceRequest(this.prisma, id);
+    if (res.error) {
+      if (res.error.type === 'BAD_REQUEST')
+        throw new BadRequestException(res.error.message);
+      throw new NotFoundException(res.error.message);
     }
-
-    if (request.status === ServiceRequestStatus.OPEN) {
-      throw new BadRequestException('Service request is already open');
-    }
-
-    await this.prisma.serviceRequest.update({
-      where: { id },
-      data: {
-        status: ServiceRequestStatus.OPEN,
-        closedAt: null,
-      },
-    });
-
     return this.findOne(id);
   }
 
@@ -415,49 +220,14 @@ export class ServiceRequestsService {
     serviceRequestId: string,
     performedBy?: string,
   ): Promise<{ serviceId: string; serviceRequest: ServiceRequestResponseDto }> {
-    const request = await this.prisma.serviceRequest.findUnique({
-      where: { id: serviceRequestId },
-      include: {
-        machine: true,
-      },
-    });
-
-    if (!request) {
-      throw new NotFoundException('Service request not found');
-    }
-
-    // Create the service linked to the request
-    const service = await this.prisma.machineService.create({
-      data: {
-        machineId: request.machineId,
-        serviceRequestId: serviceRequestId,
-        date: new Date(),
-        type: ServiceType.MAINTENANCE,
-        status: ServiceStatus.PENDING,
-        performedBy: performedBy || null,
-        notes: `[Created from Service Request]\nRequester: ${request.requesterName} (${request.requesterEmail})\n${request.requesterPhone ? `Phone: ${request.requesterPhone}\n` : ''}\nProblem Description:\n${request.problemDescription}`,
-      },
-    });
-
-    // Close the service request
-    await this.prisma.serviceRequest.update({
-      where: { id: serviceRequestId },
-      data: {
-        status: ServiceRequestStatus.CLOSED,
-        closedAt: new Date(),
-      },
-    });
-
-    this.logger.log(
-      `Created service ${service.id} from request ${serviceRequestId}`,
+    const res = await srService.createServiceFromRequest(
+      this.prisma,
+      serviceRequestId,
+      performedBy,
     );
-
+    if (res.error) throw new NotFoundException(res.error.message);
     const updatedRequest = await this.findOne(serviceRequestId);
-
-    return {
-      serviceId: service.id,
-      serviceRequest: updatedRequest,
-    };
+    return { serviceId: res.data!.serviceId, serviceRequest: updatedRequest };
   }
 
   /**
@@ -465,43 +235,5 @@ export class ServiceRequestsService {
    * Includes: sysadmins, company admins/managers, branch users
    * Note: Test emails are added centrally in email.service.ts
    */
-  private async getServiceRequestRecipientEmails(
-    companyId: string,
-    branchId: string,
-  ): Promise<string[]> {
-    const emails = new Set<string>();
-
-    // 1. Get all sysadmin emails
-    const sysAdmins = await this.prisma.sysAdmin.findMany({
-      select: { email: true },
-    });
-    sysAdmins.forEach((admin) => emails.add(admin.email.toLowerCase()));
-
-    // 2. Get company admins
-    const companyAdmins = await this.prisma.user.findMany({
-      where: {
-        companyId,
-        isCompanyAdmin: true,
-      },
-      select: { email: true },
-    });
-    companyAdmins.forEach((user) => emails.add(user.email.toLowerCase()));
-
-    // 3. Get users with access to this branch
-    const branchUsers = await this.prisma.userBranch.findMany({
-      where: { branchId },
-      include: {
-        user: {
-          select: { email: true },
-        },
-      },
-    });
-    branchUsers.forEach((ub) => emails.add(ub.user.email.toLowerCase()));
-
-    this.logger.log(
-      `Found ${emails.size} recipients for service request notification: ${Array.from(emails).join(', ')}`,
-    );
-
-    return Array.from(emails);
-  }
+  // Recipient email resolution moved to shared (srService.getRecipientEmails)
 }
