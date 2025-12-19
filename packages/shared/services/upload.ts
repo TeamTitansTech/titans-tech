@@ -1,5 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { nanoid } from 'nanoid';
+import { randomUUID } from 'crypto';
 
 export type UploadEnv = {
   AWS_S3_BUCKET_NAME: string;
@@ -67,7 +67,7 @@ export async function uploadImageToS3(
   });
 
   const fileExtension = file.originalname.split('.').pop();
-  const uniqueFilename = `${folder}/${nanoid()}-${Date.now()}.${fileExtension}`;
+  const uniqueFilename = `${folder}/${randomUUID()}-${Date.now()}.${fileExtension}`;
 
   try {
     const command = new PutObjectCommand({
