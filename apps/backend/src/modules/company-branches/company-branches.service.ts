@@ -1,12 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
 import {
+  companyBranchesService,
+  type GetMachinesResult,
+} from '@titans-tech/shared/services';
+import {
   CreateCompanyBranchDto,
   UpdateCompanyBranchDto,
   SetUserPermissionsDto,
   UserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
-import { Prisma } from '@titans-tech/db';
 
 @Injectable()
 export class CompanyBranchesService {
@@ -16,144 +19,50 @@ export class CompanyBranchesService {
    * Get all branches across all companies (SysAdmin only)
    */
   async findAll() {
-    return this.prisma.companyBranch.findMany({
-      include: {
-        company: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        _count: {
-          select: {
-            machines: true,
-          },
-        },
-      },
-      orderBy: [{ company: { name: 'asc' } }, { name: 'asc' }],
-    });
+    return companyBranchesService.findAll(this.prisma);
   }
 
   async findAllByCompany(companyId: string) {
-    return this.prisma.companyBranch.findMany({
-      where: { companyId },
-      include: {
-        _count: {
-          select: {
-            machines: true,
-            users: true,
-          },
-        },
-      },
-    });
+    return companyBranchesService.findAllByCompany(this.prisma, companyId);
   }
 
   async findOne(id: string) {
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: {
-            machines: true,
-          },
-        },
-      },
-    });
-
-    if (!branch) {
-      throw new NotFoundException('Branch not found');
-    }
-
+    const branch = await companyBranchesService.findOne(this.prisma, id);
+    if (!branch) throw new NotFoundException('Branch not found');
     return branch;
   }
 
   async create(companyId: string, createBranchDto: CreateCompanyBranchDto) {
-    if (createBranchDto.isMainBranch) {
-      return this.prisma.$transaction(async (tx) => {
-        await this.unsetOtherMainBranches(tx, companyId);
-        return tx.companyBranch.create({
-          data: {
-            ...createBranchDto,
-            companyId,
-          },
-        });
-      });
-    }
-
-    return this.prisma.companyBranch.create({
-      data: {
-        ...createBranchDto,
-        companyId,
-      },
-    });
+    return companyBranchesService.create(
+      this.prisma,
+      companyId,
+      createBranchDto,
+    );
   }
 
   async update(id: string, updateBranchDto: UpdateCompanyBranchDto) {
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id },
-    });
-
-    if (!branch) {
-      throw new NotFoundException('Branch not found');
-    }
-
-    if (updateBranchDto.isMainBranch === true) {
-      return this.prisma.$transaction(async (tx) => {
-        await this.unsetOtherMainBranches(tx, branch.companyId, id);
-        return tx.companyBranch.update({
-          where: { id },
-          data: updateBranchDto,
-        });
-      });
-    }
-
-    return this.prisma.companyBranch.update({
-      where: { id },
-      data: updateBranchDto,
-    });
+    const result = await companyBranchesService.update(
+      this.prisma,
+      id,
+      updateBranchDto,
+    );
+    if (!result) throw new NotFoundException('Branch not found');
+    return result;
   }
 
   async remove(id: string) {
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id },
-    });
-
-    if (!branch) {
-      throw new NotFoundException('Branch not found');
-    }
-
-    await this.prisma.companyBranch.delete({
-      where: { id },
-    });
-
+    const result = await companyBranchesService.remove(this.prisma, id);
+    if (!result) throw new NotFoundException('Branch not found');
     return { success: true };
   }
 
-  async getMachines(branchId: string): Promise<
-    Prisma.MachineGetPayload<{
-      include: {
-        blueprint: true;
-        fields: true;
-      };
-    }>[]
-  > {
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id: branchId },
-      include: {
-        machines: {
-          include: {
-            blueprint: true,
-            fields: true,
-          },
-        },
-      },
-    });
-
-    if (!branch) {
-      throw new NotFoundException('Branch not found');
-    }
-
-    return branch.machines;
+  async getMachines(branchId: string): Promise<GetMachinesResult> {
+    const machines = await companyBranchesService.getMachines(
+      this.prisma,
+      branchId,
+    );
+    if (!machines) throw new NotFoundException('Branch not found');
+    return machines;
   }
 
   async setUserPermissions(
@@ -161,62 +70,14 @@ export class CompanyBranchesService {
     userId: string,
     permissionsDto: SetUserPermissionsDto,
   ) {
-    const userBranch = await this.prisma.userBranch.findUnique({
-      where: {
-        userId_branchId: {
-          userId,
-          branchId,
-        },
-      },
-    });
-
-    if (!userBranch) {
+    const updatedUser = await companyBranchesService.setUserPermissions(
+      this.prisma,
+      branchId,
+      userId,
+      permissionsDto,
+    );
+    if (!updatedUser)
       throw new NotFoundException('User is not assigned to this branch');
-    }
-
-    await this.prisma.userBranch.update({
-      where: {
-        userId_branchId: {
-          userId,
-          branchId,
-        },
-      },
-      data: permissionsDto,
-    });
-
-    const updatedUser = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        branches: {
-          where: { deletedAt: null },
-          include: {
-            branch: true,
-          },
-        },
-      },
-    });
-
     return new UserResponseDto(updatedUser);
-  }
-
-  private async unsetOtherMainBranches(
-    tx: Prisma.TransactionClient,
-    companyId: string,
-    excludeBranchId?: string,
-  ) {
-    await tx.companyBranch.updateMany({
-      where: {
-        companyId,
-        isMainBranch: true,
-        ...(excludeBranchId && {
-          NOT: {
-            id: excludeBranchId,
-          },
-        }),
-      },
-      data: {
-        isMainBranch: false,
-      },
-    });
   }
 }
