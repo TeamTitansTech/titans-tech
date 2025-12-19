@@ -9,9 +9,9 @@ const SOFT_DELETE_MODELS = [
   'MachineField',
   'ServiceRequest',
   'MachineProductionLine',
+  'CompanyBranch',
+  'ProductionLine',
   // 'Company',
-  // 'CompanyBranch',
-  // 'ProductionLine',
   // 'PermissionTemplate',
 ] as const;
 
@@ -30,9 +30,13 @@ const RELATION_MODEL_MAP: Record<string, Record<string, string>> = {
   Blueprint: {
     machines: 'Machine',
   },
+  Company: {
+    branches: 'CompanyBranch',
+  },
   CompanyBranch: {
     machines: 'Machine',
     users: 'UserBranch',
+    productionLines: 'ProductionLine',
   },
   ProductionLine: {
     machines: 'MachineProductionLine',
@@ -134,6 +138,22 @@ export const softDelete = Prisma.defineExtension({
       },
     },
     machineProductionLine: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    companyBranch: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    productionLine: {
       async delete<M, A>(
         this: M,
         data: Prisma.Args<M, 'delete'>,
@@ -245,6 +265,22 @@ export const softDeleteMany = Prisma.defineExtension({
       },
     },
     machineProductionLine: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    companyBranch: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    productionLine: {
       async deleteMany<M, A>(
         this: M,
         data: Prisma.Args<M, 'deleteMany'>,
