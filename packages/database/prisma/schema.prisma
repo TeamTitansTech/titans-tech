@@ -428,16 +428,17 @@ model SysAdmin {
 }
 
 model Company {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String    @unique
   logo        String?
   loginLogo   String?
   brandColor  String?
   accentColor String?
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   branches            CompanyBranch[]
   users               User[]
@@ -452,8 +453,9 @@ model PermissionTemplate {
   description String?
   permissions Json // Stores the Permissions object as JSON
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
   companyId String
