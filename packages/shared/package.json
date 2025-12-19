@@ -2,14 +2,24 @@
   "name": "@titans-tech/shared",
   "version": "0.0.0",
   "devDependencies": {
-    "typescript": "^5"
+    "typescript": "^5",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/bcrypt": "^5"
   },
   "dependencies": {
     "@titans-tech/db": "*",
     "add": "^2.0.6",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
-    "zod": "^4.1.12"
+    "zod": "^4.1.12",
+    "react": "^18",
+    "react-dom": "^18",
+    "@react-email/render": "^0.0.14",
+    "@react-email/components": "^0.0.14",
+    "bcrypt": "^5",
+    "@aws-sdk/client-s3": "^3.940.0",
+    "nanoid": "^5.0.7"
   },
   "scripts": {
     "dev": "tsc --watch",
@@ -44,6 +54,22 @@
     "./backend-dtos": {
       "default": "./dist/backend-dtos/index.js",
       "types": "./backend-dtos/index.ts"
+    },
+    "./services": {
+      "default": "./dist/services/index.js",
+      "types": "./services/index.ts"
+    },
+    "./email/template-renderer": {
+      "default": "./dist/email/template-renderer.js",
+      "types": "./email/template-renderer.ts"
+    },
+    "./email/templates": {
+      "default": "./dist/email/templates/index.js",
+      "types": "./email/templates/index.ts"
+    },
+    "./email/service": {
+      "default": "./dist/email/service.js",
+      "types": "./email/service.ts"
     }
   }
 }
