@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
+import { CompanyBranchesService } from '../company-branches/company-branches.service';
 import {
   CreateCompanyDto,
   UpdateCompanyDto,
   AdminManagerUserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
+import { Prisma } from '@titans-tech/db';
 import { FieldsErr } from '../../errors/err';
 
 /**
@@ -28,7 +30,10 @@ function slugify(text: string): string {
 
 @Injectable()
 export class CompaniesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly companyBranchesService: CompanyBranchesService,
+  ) {}
 
   async findAll() {
     return this.prisma.company.findMany({
@@ -146,6 +151,44 @@ export class CompaniesService {
     });
   }
 
+  /**
+   * Soft delete cascade for company and all related entities
+   * Handles: CompanyBranches → Users → PermissionTemplates → Company
+   */
+  private async softDeleteCompanyCascade(
+    tx: Prisma.TransactionClient,
+    companyId: string,
+  ): Promise<void> {
+    // 1. Get all branches
+    const branches = await tx.companyBranch.findMany({
+      where: { companyId },
+      select: { id: true },
+    });
+
+    // 2. Soft delete all branches (reuses CompanyBranchesService cascade)
+    for (const branch of branches) {
+      await this.companyBranchesService.softDeleteCompanyBranchCascade(
+        tx,
+        branch.id,
+      );
+    }
+
+    // 3. Soft delete all Users
+    await tx.user.deleteMany({
+      where: { companyId },
+    });
+
+    // 4. Soft delete all PermissionTemplates
+    await tx.permissionTemplate.deleteMany({
+      where: { companyId },
+    });
+
+    // 5. Finally, soft delete the Company itself
+    await tx.company.delete({
+      where: { id: companyId },
+    });
+  }
+
   async remove(id: string) {
     const company = await this.prisma.company.findUnique({
       where: { id },
@@ -155,9 +198,11 @@ export class CompaniesService {
       throw new NotFoundException('Company not found');
     }
 
-    await this.prisma.company.delete({
-      where: { id },
+    // Use transaction to ensure atomic cascade deletion
+    await this.prisma.$transaction(async (tx) => {
+      await this.softDeleteCompanyCascade(tx, id);
     });
+
     return { success: true };
   }
 

@@ -124,8 +124,9 @@ export class CompanyBranchesService {
   /**
    * Soft delete cascade for company branch and all related entities
    * Handles: Machines → ProductionLines → UserBranches → CompanyBranch
+   * Public method to allow reuse by CompaniesService
    */
-  private async softDeleteCompanyBranchCascade(
+  async softDeleteCompanyBranchCascade(
     tx: Prisma.TransactionClient,
     branchId: string,
   ): Promise<void> {
