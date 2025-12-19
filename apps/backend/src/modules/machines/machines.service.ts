@@ -9,145 +9,26 @@ import {
   CreateMachineDto,
   UpdateMachineDto,
 } from '@titans-tech/shared/backend-dtos';
+import { machinesService } from '@titans-tech/shared/services';
 
 @Injectable()
 export class MachinesService {
   constructor(private prisma: PrismaService) {}
-
-  /**
-   * Gets the branch IDs accessible by a user
-   * - Company admins/managers: all branches of their company
-   * - Regular users: only branches they're assigned to
-   */
-  private async getUserBranchIds(userId: string): Promise<string[]> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        branches: {
-          where: { deletedAt: null },
-          select: { branchId: true },
-        },
-        company: {
-          include: {
-            branches: {
-              select: { id: true },
-            },
-          },
-        },
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    if (user.isCompanyAdmin) {
-      return user.company.branches.map((b) => b.id);
-    }
-
-    return user.branches.map((ub) => ub.branchId);
-  }
-
-  /**
-   * Validates that a user has access to a specific branch
-   */
-  private async validateUserBranchAccess(
-    userId: string,
-    branchId: string,
-  ): Promise<void> {
-    const user = await this.prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        branches: {
-          where: { branchId, deletedAt: null },
-        },
-        company: {
-          include: {
-            branches: {
-              where: { id: branchId },
-            },
-          },
-        },
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    if (user.company.branches.length === 0) {
-      throw new ForbiddenException(
-        'This branch does not belong to your company',
-      );
-    }
-
-    if (user.isCompanyAdmin) {
-      return;
-    }
-
-    if (user.branches.length === 0) {
-      throw new ForbiddenException('You do not have access to this branch');
-    }
-  }
 
   async create(
     createMachineDto: CreateMachineDto,
   ): Promise<
     Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
   > {
-    // Verify blueprint exists
-    const blueprint = await this.prisma.blueprint.findUnique({
-      where: { id: createMachineDto.blueprintId },
-    });
-
-    if (!blueprint) {
-      throw new NotFoundException(
-        `Blueprint with ID ${createMachineDto.blueprintId} not found`,
-      );
+    try {
+      return (await machinesService.create(
+        this.prisma,
+        createMachineDto as any,
+      )) as any;
+    } catch (err: any) {
+      if (err?.type === 'NOT_FOUND') throw new NotFoundException(err.message);
+      throw err;
     }
-
-    const branch = await this.prisma.companyBranch.findUnique({
-      where: { id: createMachineDto.branchId },
-    });
-
-    if (!branch) {
-      throw new NotFoundException(
-        `Branch with ID ${createMachineDto.branchId} not found`,
-      );
-    }
-    const imageUrl = createMachineDto.imageUrl || blueprint.imageUrl;
-
-    const machine = await this.prisma.machine.create({
-      data: {
-        blueprintId: createMachineDto.blueprintId,
-        branchId: createMachineDto.branchId,
-        name: createMachineDto.name,
-        imageUrl: imageUrl,
-        manufacturer: createMachineDto.manufacturer,
-        sizeTonnage: createMachineDto.sizeTonnage,
-        serialNumber: createMachineDto.serialNumber,
-        stroke: createMachineDto.stroke,
-        foundationType: createMachineDto.foundationType,
-        frameType: createMachineDto.frameType,
-        clutchType: createMachineDto.clutchType,
-        pneumaticSystem: createMachineDto.pneumaticSystem,
-        pressMounting: createMachineDto.pressMounting,
-        features: createMachineDto.features,
-        fields: {
-          create: createMachineDto.fields.map((field) => ({
-            fieldSlug: field.fieldSlug,
-            value: field.value,
-          })),
-        },
-      },
-      include: {
-        blueprint: true,
-        branch: true,
-        fields: true,
-      },
-    });
-
-    return machine;
   }
 
   /**
@@ -161,20 +42,7 @@ export class MachinesService {
       };
     }>[]
   > {
-    const branchIds = await this.getUserBranchIds(userId);
-
-    return this.prisma.machine.findMany({
-      where: {
-        branchId: {
-          in: branchIds,
-        },
-      },
-      include: {
-        blueprint: true,
-        branch: true,
-        fields: true,
-      },
-    });
+    return machinesService.findAll(this.prisma, userId) as any;
   }
 
   /**
@@ -193,17 +61,7 @@ export class MachinesService {
       };
     }>[]
   > {
-    return this.prisma.machine.findMany({
-      include: {
-        blueprint: true,
-        branch: {
-          include: {
-            company: true,
-          },
-        },
-        fields: true,
-      },
-    });
+    return machinesService.findAllForSysAdmin(this.prisma) as any;
   }
 
   async findByBranch(branchId: string): Promise<
@@ -214,14 +72,7 @@ export class MachinesService {
       };
     }>[]
   > {
-    return this.prisma.machine.findMany({
-      where: { branchId },
-      include: {
-        blueprint: true,
-        branch: true,
-        fields: true,
-      },
-    });
+    return machinesService.findByBranch(this.prisma, branchId) as any;
   }
 
   /**
@@ -259,50 +110,13 @@ export class MachinesService {
       };
     }>
   > {
-    const machine = await this.prisma.machine.findUnique({
-      where: { id },
-      include: {
-        blueprint: true,
-        branch: {
-          include: {
-            company: true,
-          },
-        },
-        fields: true,
-        services: {
-          where: { status: 'COMPLETED' },
-          take: 1,
-          orderBy: { date: 'desc' },
-          include: {
-            bearingClearance: {
-              include: {
-                outerBefore: true,
-                outerData: true,
-                innerBefore: true,
-                innerData: true,
-              },
-            },
-            alertBearingClearance: true,
-            alertClutch: true,
-            alertSlide: true,
-            alertSlideSingleHammer: true,
-            alertSlideDoubleHammer: true,
-            alertGibs: true,
-            alertPistons: true,
-            alertCounterbalanceCylinderAirbag: true,
-            alertTramming: true,
-          },
-        },
-      },
-    });
-
-    if (!machine) {
-      throw new NotFoundException(`Machine with ID ${id} not found`);
+    try {
+      return (await machinesService.findOne(this.prisma, userId, id)) as any;
+    } catch (err: any) {
+      if (err?.type === 'NOT_FOUND') throw new NotFoundException(err.message);
+      if (err?.type === 'FORBIDDEN') throw new ForbiddenException(err.message);
+      throw err;
     }
-
-    await this.validateUserBranchAccess(userId, machine.branchId);
-
-    return machine;
   }
 
   /**
@@ -337,48 +151,12 @@ export class MachinesService {
       };
     }>
   > {
-    const machine = await this.prisma.machine.findUnique({
-      where: { id },
-      include: {
-        blueprint: true,
-        branch: {
-          include: {
-            company: true,
-          },
-        },
-        fields: true,
-        services: {
-          where: { status: 'COMPLETED' },
-          take: 1,
-          orderBy: { date: 'desc' },
-          include: {
-            bearingClearance: {
-              include: {
-                outerBefore: true,
-                outerData: true,
-                innerBefore: true,
-                innerData: true,
-              },
-            },
-            alertBearingClearance: true,
-            alertClutch: true,
-            alertSlide: true,
-            alertSlideSingleHammer: true,
-            alertSlideDoubleHammer: true,
-            alertGibs: true,
-            alertPistons: true,
-            alertTramming: true,
-            alertCounterbalanceCylinderAirbag: true,
-          },
-        },
-      },
-    });
-
-    if (!machine) {
-      throw new NotFoundException(`Machine with ID ${id} not found`);
+    try {
+      return (await machinesService.findOneForSysAdmin(this.prisma, id)) as any;
+    } catch (err: any) {
+      if (err?.type === 'NOT_FOUND') throw new NotFoundException(err.message);
+      throw err;
     }
-
-    return machine;
   }
 
   /**
@@ -391,68 +169,19 @@ export class MachinesService {
   ): Promise<
     Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
   > {
-    // Verify machine exists
-    const existingMachine = await this.prisma.machine.findUnique({
-      where: { id },
-      include: { fields: true },
-    });
-
-    if (!existingMachine) {
-      throw new NotFoundException(`Machine with ID ${id} not found`);
+    try {
+      const result = (await machinesService.update(
+        this.prisma,
+        userId,
+        id,
+        updateMachineDto as any,
+      )) as any;
+      return result;
+    } catch (err: any) {
+      if (err?.type === 'NOT_FOUND') throw new NotFoundException(err.message);
+      if (err?.type === 'FORBIDDEN') throw new ForbiddenException(err.message);
+      throw err;
     }
-
-    await this.validateUserBranchAccess(userId, existingMachine.branchId);
-
-    // If blueprintId is being updated, verify it exists
-    if (updateMachineDto.blueprintId) {
-      const blueprint = await this.prisma.blueprint.findUnique({
-        where: { id: updateMachineDto.blueprintId },
-      });
-
-      if (!blueprint) {
-        throw new NotFoundException(
-          `Blueprint with ID ${updateMachineDto.blueprintId} not found`,
-        );
-      }
-    }
-
-    // Update machine with specifications and fields
-    const machine = await this.prisma.machine.update({
-      where: { id },
-      data: {
-        name: updateMachineDto.name,
-        blueprintId: updateMachineDto.blueprintId,
-        imageUrl: updateMachineDto.imageUrl,
-        // Machine specifications
-        manufacturer: updateMachineDto.manufacturer,
-        sizeTonnage: updateMachineDto.sizeTonnage,
-        serialNumber: updateMachineDto.serialNumber,
-        stroke: updateMachineDto.stroke,
-        foundationType: updateMachineDto.foundationType,
-        frameType: updateMachineDto.frameType,
-        clutchType: updateMachineDto.clutchType,
-        pneumaticSystem: updateMachineDto.pneumaticSystem,
-        pressMounting: updateMachineDto.pressMounting,
-        features: updateMachineDto.features,
-        // Update fields if provided
-        ...(updateMachineDto.fields && {
-          fields: {
-            deleteMany: {},
-            create: updateMachineDto.fields.map((field) => ({
-              fieldSlug: field.fieldSlug,
-              value: field.value,
-            })),
-          },
-        }),
-      },
-      include: {
-        blueprint: true,
-        branch: true,
-        fields: true,
-      },
-    });
-
-    return machine;
   }
 
   /**
@@ -464,121 +193,29 @@ export class MachinesService {
   ): Promise<
     Prisma.MachineGetPayload<{ include: { blueprint: true; fields: true } }>
   > {
-    // Verify machine exists
-    const existingMachine = await this.prisma.machine.findUnique({
-      where: { id },
-      include: { fields: true },
-    });
-
-    if (!existingMachine) {
-      throw new NotFoundException(`Machine with ID ${id} not found`);
+    try {
+      return (await machinesService.updateForSysAdmin(
+        this.prisma,
+        id,
+        updateMachineDto as any,
+      )) as any;
+    } catch (err: any) {
+      if (err?.type === 'NOT_FOUND') throw new NotFoundException(err.message);
+      throw err;
     }
-
-    // If blueprintId is being updated, verify it exists
-    if (updateMachineDto.blueprintId) {
-      const blueprint = await this.prisma.blueprint.findUnique({
-        where: { id: updateMachineDto.blueprintId },
-      });
-
-      if (!blueprint) {
-        throw new NotFoundException(
-          `Blueprint with ID ${updateMachineDto.blueprintId} not found`,
-        );
-      }
-    }
-
-    // Update machine with specifications and fields
-    const machine = await this.prisma.machine.update({
-      where: { id },
-      data: {
-        name: updateMachineDto.name,
-        blueprintId: updateMachineDto.blueprintId,
-        imageUrl: updateMachineDto.imageUrl,
-        // Machine specifications
-        manufacturer: updateMachineDto.manufacturer,
-        sizeTonnage: updateMachineDto.sizeTonnage,
-        serialNumber: updateMachineDto.serialNumber,
-        stroke: updateMachineDto.stroke,
-        foundationType: updateMachineDto.foundationType,
-        frameType: updateMachineDto.frameType,
-        clutchType: updateMachineDto.clutchType,
-        pneumaticSystem: updateMachineDto.pneumaticSystem,
-        pressMounting: updateMachineDto.pressMounting,
-        features: updateMachineDto.features,
-        // Update fields if provided
-        ...(updateMachineDto.fields && {
-          fields: {
-            deleteMany: {},
-            create: updateMachineDto.fields.map((field) => ({
-              fieldSlug: field.fieldSlug,
-              value: field.value,
-            })),
-          },
-        }),
-      },
-      include: {
-        blueprint: true,
-        branch: true,
-        fields: true,
-      },
-    });
-
-    return machine;
-  }
-
-  /**
-   * Soft delete cascade for machine and all related entities
-   * Private method to handle the transaction logic
-   */
-  private async softDeleteMachineCascade(
-    tx: Prisma.TransactionClient,
-    machineId: string,
-  ): Promise<void> {
-    // 1. Soft delete all MachineServices
-    await tx.machineService.deleteMany({
-      where: { machineId },
-    });
-
-    // 2. Soft delete all MachineFields
-    await tx.machineField.deleteMany({
-      where: { machineId },
-    });
-
-    // 3. Soft delete all ServiceRequests
-    await tx.serviceRequest.deleteMany({
-      where: { machineId },
-    });
-
-    // 4. Soft delete all MachineProductionLines (junction table)
-    await tx.machineProductionLine.deleteMany({
-      where: { machineId },
-    });
-
-    // 5. Finally, soft delete the Machine itself
-    await tx.machine.delete({
-      where: { id: machineId },
-    });
   }
 
   /**
    * Delete a machine for a regular user (validates branch access)
-   * Implements soft delete cascade to all related tables
    */
   async delete(userId: string, id: string): Promise<void> {
-    // Verify machine exists
-    const existingMachine = await this.prisma.machine.findUnique({
-      where: { id },
-    });
-
-    if (!existingMachine) {
-      throw new NotFoundException(`Machine with ID ${id} not found`);
+    try {
+      await machinesService.delete(this.prisma, userId, id);
+    } catch (err: any) {
+      if (err?.type === 'NOT_FOUND') throw new NotFoundException(err.message);
+      if (err?.type === 'FORBIDDEN') throw new ForbiddenException(err.message);
+      throw err;
     }
-
-    await this.validateUserBranchAccess(userId, existingMachine.branchId);
-
-    await this.prisma.$transaction(async (tx) => {
-      await this.softDeleteMachineCascade(tx, id);
-    });
   }
 
   /**
@@ -586,18 +223,12 @@ export class MachinesService {
    * Implements soft delete cascade to all related tables
    */
   async deleteForSysAdmin(id: string): Promise<void> {
-    // Verify machine exists
-    const existingMachine = await this.prisma.machine.findUnique({
-      where: { id },
-    });
-
-    if (!existingMachine) {
-      throw new NotFoundException(`Machine with ID ${id} not found`);
+    try {
+      await machinesService.deleteForSysAdmin(this.prisma, id);
+    } catch (err: any) {
+      if (err?.type === 'NOT_FOUND') throw new NotFoundException(err.message);
+      throw err;
     }
-
-    await this.prisma.$transaction(async (tx) => {
-      await this.softDeleteMachineCascade(tx, id);
-    });
   }
 
   /**
@@ -618,37 +249,11 @@ export class MachinesService {
     };
     branch: { id: string; name: string };
   }> {
-    const machine = await this.prisma.machine.findUnique({
-      where: { id },
-      include: {
-        branch: {
-          include: {
-            company: true,
-          },
-        },
-      },
-    });
-
-    if (!machine) {
-      throw new NotFoundException(`Machine with ID ${id} not found`);
+    try {
+      return (await machinesService.getPublicInfo(this.prisma, id)) as any;
+    } catch (err: any) {
+      if (err?.type === 'NOT_FOUND') throw new NotFoundException(err.message);
+      throw err;
     }
-
-    return {
-      id: machine.id,
-      name: machine.name,
-      serialNumber: machine.serialNumber,
-      imageUrl: machine.imageUrl,
-      company: {
-        id: machine.branch.company.id,
-        name: machine.branch.company.name,
-        slug: machine.branch.company.slug,
-        brandColor: machine.branch.company.brandColor,
-        accentColor: machine.branch.company.accentColor,
-      },
-      branch: {
-        id: machine.branch.id,
-        name: machine.branch.name,
-      },
-    };
   }
 }

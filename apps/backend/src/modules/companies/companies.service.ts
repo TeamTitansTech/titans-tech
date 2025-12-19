@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
+import { companiesService } from '@titans-tech/shared/services';
 import {
   CreateCompanyDto,
   UpdateCompanyDto,
@@ -7,186 +8,70 @@ import {
 } from '@titans-tech/shared/backend-dtos';
 import { FieldsErr } from '../../errors/err';
 
-/**
- * Converts a string to a URL-safe slug for subdomains
- * - Converts to lowercase
- * - Removes accents/diacritics
- * - Replaces spaces and special characters with hyphens
- * - Removes consecutive hyphens
- * - Removes leading/trailing hyphens
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD') // Decompose accented characters
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
-    .replace(/[\s_]+/g, '-') // Replace spaces and underscores with hyphens
-    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
-}
-
 @Injectable()
 export class CompaniesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async findAll() {
-    return this.prisma.company.findMany({
-      include: {
-        _count: {
-          select: {
-            branches: true,
-          },
-        },
-      },
-    });
+    return companiesService.findAll(this.prisma);
   }
 
   async findOne(id: string) {
-    const company = await this.prisma.company.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: {
-            branches: true,
-          },
-        },
-      },
-    });
-
-    if (!company) {
-      throw new NotFoundException('Company not found');
-    }
-
+    const company = await companiesService.findOne(this.prisma, id);
+    if (!company) throw new NotFoundException('Company not found');
     return company;
   }
 
   async getCompanyPublicInfo(companySlug: string) {
-    const company = await this.prisma.company.findUnique({
-      where: { slug: companySlug },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        logo: true,
-        loginLogo: true,
-        brandColor: true,
-        accentColor: true,
-      },
-    });
-
-    if (!company) {
-      throw new NotFoundException('Company not found');
-    }
-
+    const company = await companiesService.getCompanyPublicInfo(
+      this.prisma,
+      companySlug,
+    );
+    if (!company) throw new NotFoundException('Company not found');
     return company;
   }
 
   async create(createCompanyDto: CreateCompanyDto) {
-    // Always slugify the provided slug to ensure it's valid for subdomains
-    const slug = slugify(createCompanyDto.slug);
-
-    if (!slug) {
-      throw FieldsErr({
-        slug: 'Invalid slug - must contain alphanumeric characters',
-      });
+    try {
+      return await companiesService.create(
+        this.prisma,
+        createCompanyDto as any,
+      );
+    } catch (err: any) {
+      if (err?.type === 'FIELDS_ERR') {
+        throw FieldsErr(err.payload);
+      }
+      throw err;
     }
-
-    await this.validateSlugUniqueness(slug);
-
-    return this.prisma.$transaction(async (tx) => {
-      // Create the company with the normalized slug
-      const company = await tx.company.create({
-        data: {
-          ...createCompanyDto,
-          slug,
-        },
-      });
-
-      // Create a main branch based on the company name
-      await tx.companyBranch.create({
-        data: {
-          name: createCompanyDto.name,
-          isMainBranch: true,
-          companyId: company.id,
-        },
-      });
-
-      return company;
-    });
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto) {
-    const company = await this.prisma.company.findUnique({
-      where: { id },
-    });
-
-    if (!company) {
-      throw new NotFoundException('Company not found');
+    try {
+      const result = await companiesService.update(
+        this.prisma,
+        id,
+        updateCompanyDto as any,
+      );
+      if (!result) throw new NotFoundException('Company not found');
+      return result;
+    } catch (err: any) {
+      if (err?.type === 'FIELDS_ERR') throw FieldsErr(err.payload);
+      throw err;
     }
-
-    // Slugify the slug if provided
-    let normalizedSlug: string | undefined;
-    if (updateCompanyDto.slug) {
-      normalizedSlug = slugify(updateCompanyDto.slug);
-      if (!normalizedSlug) {
-        throw FieldsErr({
-          slug: 'Invalid slug - must contain alphanumeric characters',
-        });
-      }
-      await this.validateSlugUniqueness(normalizedSlug, id);
-    }
-
-    return this.prisma.company.update({
-      where: { id },
-      data: {
-        ...updateCompanyDto,
-        ...(normalizedSlug && { slug: normalizedSlug }),
-      },
-    });
   }
 
   async remove(id: string) {
-    const company = await this.prisma.company.findUnique({
-      where: { id },
-    });
-
-    if (!company) {
-      throw new NotFoundException('Company not found');
-    }
-
-    await this.prisma.company.delete({
-      where: { id },
-    });
+    const result = await companiesService.remove(this.prisma, id);
+    if (!result) throw new NotFoundException('Company not found');
     return { success: true };
-  }
-
-  private async validateSlugUniqueness(slug: string, excludeId?: string) {
-    const existingCompany = await this.prisma.company.findUnique({
-      where: { slug },
-    });
-
-    if (existingCompany && existingCompany.id !== excludeId) {
-      throw FieldsErr({ slug: 'This slug is already in use' });
-    }
   }
 
   async getAdminManagerUsers(
     companyId: string,
   ): Promise<AdminManagerUserResponseDto[]> {
-    const users = await this.prisma.user.findMany({
-      where: {
-        companyId,
-        isCompanyAdmin: true,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        isCompanyAdmin: true,
-      },
-    });
-
-    return users;
+    return companiesService.getAdminManagerUsers(
+      this.prisma,
+      companyId,
+    ) as Promise<AdminManagerUserResponseDto[]>;
   }
 }

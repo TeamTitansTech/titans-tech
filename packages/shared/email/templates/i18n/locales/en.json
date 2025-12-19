@@ -1,0 +1,32 @@
+{
+  "emails": {
+    "common": {
+      "footer": "Thanks for using Titans Tech",
+      "footerQuestion": "Questions? Reply to this email."
+    },
+    "urgentRequest": {
+      "title": "Urgent Service Request",
+      "intro": "An urgent service request has been created.",
+      "info": {
+        "machine": "Machine",
+        "company": "Company",
+        "branch": "Branch",
+        "requestedBy": "Requested by"
+      },
+      "notesTitle": "Notes"
+    },
+    "clientReminder": {
+      "subjectReminder": "Service Reminder for {machineName}",
+      "subjectOverdue": "Service Overdue for {machineName}"
+    },
+    "publicServiceRequest": {
+      "subject": "Public Service Request for {machineName}"
+    },
+    "partsRequest": {
+      "subject": "Parts Request for {machineName} ({machineSerial})"
+    },
+    "alertNotification": {
+      "subject": "Inspection alert for {machineName} - {level}"
+    }
+  }
+}
