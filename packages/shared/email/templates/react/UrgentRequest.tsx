@@ -13,11 +13,7 @@ export function UrgentRequest({ data, locale = 'en' }: UrgentRequestProps) {
   const t = getTranslations(locale);
 
   return (
-    <Layout
-      footer={t.emails.common.footer}
-      footerQuestion={t.emails.common.footerQuestion}
-    >
-      {/* Header */}
+    <Layout footer={t.emails.common.footer} footerQuestion={t.emails.common.footerQuestion}>
       <Section
         style={{
           borderBottom: '3px solid #ef4444',
@@ -40,10 +36,8 @@ export function UrgentRequest({ data, locale = 'en' }: UrgentRequestProps) {
         </Text>
       </Section>
 
-      {/* Intro */}
       <Text>{t.emails.urgentRequest.intro}</Text>
 
-      {/* Machine Info */}
       <InfoSection
         items={[
           {
@@ -65,7 +59,6 @@ export function UrgentRequest({ data, locale = 'en' }: UrgentRequestProps) {
         ]}
       />
 
-      {/* Optional Notes */}
       {data.notes && (
         <Section
           style={{

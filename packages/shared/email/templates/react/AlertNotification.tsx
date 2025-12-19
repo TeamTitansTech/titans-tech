@@ -14,10 +14,7 @@ export interface AlertNotificationProps {
   locale?: Locale;
 }
 
-export function AlertNotification({
-  data,
-  locale = 'en',
-}: AlertNotificationProps) {
+export function AlertNotification({ data, locale = 'en' }: AlertNotificationProps) {
   const t = getTranslations(locale);
   const severityColor = data.highestSeverity === 'RED' ? '#ef4444' : '#f59e0b';
   const severityLabel =
@@ -37,12 +34,7 @@ export function AlertNotification({
 
   const renderMeasurements = (measurements: AlertMeasurement[]) => {
     return (
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-        }}
-      >
+      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr style={{ backgroundColor: '#f3f4f6' }}>
             <th
@@ -83,14 +75,7 @@ export function AlertNotification({
         <tbody>
           {measurements.map((m, idx) => (
             <tr key={idx}>
-              <td
-                style={{
-                  padding: '10px 12px',
-                  borderBottom: '1px solid #e5e7eb',
-                }}
-              >
-                {m.name}
-              </td>
+              <td style={{ padding: '10px 12px', borderBottom: '1px solid #e5e7eb' }}>{m.name}</td>
               <td
                 style={{
                   padding: '10px 12px',
@@ -108,9 +93,7 @@ export function AlertNotification({
                   textAlign: 'center',
                 }}
               >
-                <Badge variant={getBadgeVariant(m.status)}>
-                  {getStatusLabel(m.status)}
-                </Badge>
+                <Badge variant={getBadgeVariant(m.status)}>{getStatusLabel(m.status)}</Badge>
               </td>
             </tr>
           ))}
@@ -140,9 +123,7 @@ export function AlertNotification({
             borderBottom: '1px solid #e5e7eb',
           }}
         >
-          <span style={{ fontWeight: 600, color: '#1f2937' }}>
-            {subsection.name}
-          </span>
+          <span style={{ fontWeight: 600, color: '#1f2937' }}>{subsection.name}</span>
           <Badge variant={getBadgeVariant(subsection.severity)}>
             {getStatusLabel(subsection.severity)}
           </Badge>
@@ -153,7 +134,6 @@ export function AlertNotification({
   };
 
   const renderSection = (section: AlertSection, idx: number) => {
-    // Handle sections with subsections
     if (section.subsections && section.subsections.length > 0) {
       return (
         <div
@@ -176,14 +156,7 @@ export function AlertNotification({
               alignItems: 'center',
             }}
           >
-            <Text
-              style={{
-                margin: 0,
-                color: '#1f2937',
-                fontSize: '16px',
-                fontWeight: 600,
-              }}
-            >
+            <Text style={{ margin: 0, color: '#1f2937', fontSize: '16px', fontWeight: 600 }}>
               {section.sectionName}
             </Text>
             <Badge variant={getBadgeVariant(section.severity)}>
@@ -191,15 +164,13 @@ export function AlertNotification({
             </Badge>
           </div>
           <div style={{ padding: '16px' }}>
-            {section.subsections.map((subsection, subIdx) =>
-              renderSubsection(subsection, subIdx),
-            )}
+            {section.subsections.map((subsection, subIdx) => renderSubsection(subsection, subIdx))}
           </div>
         </div>
       );
     }
 
-    // Handle sections with alerts (legacy format)
+    // Fallback for legacy alerts without subsections
     return (
       <div
         key={idx}
@@ -209,123 +180,39 @@ export function AlertNotification({
           border: '1px solid #e5e7eb',
           borderRadius: '8px',
           overflow: 'hidden',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
         }}
       >
         <div
           style={{
-            padding: '16px',
-            borderBottom: '1px solid #e5e7eb',
+            padding: '12px 16px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            borderBottom: '1px solid #e5e7eb',
           }}
         >
-          <Text
-            style={{
-              margin: 0,
-              color: '#1f2937',
-              fontSize: '16px',
-              fontWeight: 600,
-            }}
-          >
+          <Text style={{ margin: 0, color: '#1f2937', fontSize: '16px', fontWeight: 600 }}>
             {section.sectionName}
           </Text>
           <Badge variant={getBadgeVariant(section.severity)}>
             {getStatusLabel(section.severity)}
           </Badge>
         </div>
-        <table
-          style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-          }}
-        >
-          <thead>
-            <tr style={{ backgroundColor: '#f3f4f6' }}>
-              <th
-                style={{
-                  padding: '10px 12px',
-                  textAlign: 'left',
-                  fontWeight: 500,
-                  color: '#6b7280',
-                  fontSize: '13px',
-                }}
-              >
-                {t.emails.alertNotification.table.measurement}
-              </th>
-              <th
-                style={{
-                  padding: '10px 12px',
-                  textAlign: 'center',
-                  fontWeight: 500,
-                  color: '#6b7280',
-                  fontSize: '13px',
-                }}
-              >
-                {t.emails.alertNotification.table.value}
-              </th>
-              <th
-                style={{
-                  padding: '10px 12px',
-                  textAlign: 'center',
-                  fontWeight: 500,
-                  color: '#6b7280',
-                  fontSize: '13px',
-                }}
-              >
-                {t.emails.alertNotification.table.status}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {(section.alerts || []).map((alert, alertIdx) => (
-              <tr key={alertIdx}>
-                <td
-                  style={{
-                    padding: '10px 12px',
-                    borderBottom: '1px solid #e5e7eb',
-                  }}
-                >
-                  {alert.fieldLabel}
-                </td>
-                <td
-                  style={{
-                    padding: '10px 12px',
-                    borderBottom: '1px solid #e5e7eb',
-                    textAlign: 'center',
-                    fontWeight: 600,
-                  }}
-                >
-                  {alert.value}
-                </td>
-                <td
-                  style={{
-                    padding: '10px 12px',
-                    borderBottom: '1px solid #e5e7eb',
-                    textAlign: 'center',
-                  }}
-                >
-                  <Badge
-                    variant={getBadgeVariant(alert.status || section.severity)}
-                  >
-                    {getStatusLabel(alert.status || section.severity)}
-                  </Badge>
-                </td>
-              </tr>
+        <div style={{ padding: '16px' }}>
+          {section.alerts &&
+            section.alerts.map((a, ai) => (
+              <div key={ai} style={{ marginBottom: '12px' }}>
+                <div style={{ fontWeight: 600 }}>{a.fieldLabel}</div>
+                <div style={{ color: '#6b7280' }}>{a.value}</div>
+              </div>
             ))}
-          </tbody>
-        </table>
+        </div>
       </div>
     );
   };
 
   return (
-    <Layout
-      footer={t.emails.common.footer}
-      footerQuestion={t.emails.common.footerQuestion}
-    >
-      {/* Header */}
+    <Layout footer={t.emails.common.footer} footerQuestion={t.emails.common.footerQuestion}>
       <Section
         style={{
           borderBottom: `3px solid ${severityColor}`,
@@ -339,61 +226,23 @@ export function AlertNotification({
         >
           {severityLabel}
         </Badge>
-        <Text
-          style={{
-            margin: 0,
-            color: severityColor,
-            fontSize: '24px',
-            fontWeight: 600,
-          }}
-        >
-          {data.highestSeverity === 'RED' ? '🔴' : '🟡'}{' '}
-          {t.emails.alertNotification.title}
+        <Text style={{ margin: 0, color: severityColor, fontSize: '24px', fontWeight: 600 }}>
+          {t.emails.alertNotification.title || 'Inspection Alert'}
         </Text>
       </Section>
 
-      {/* Intro */}
-      <Text>{t.emails.alertNotification.intro}</Text>
-
-      {/* Machine Info */}
       <InfoSection
         items={[
-          {
-            label: t.emails.alertNotification.info.machine,
-            value: data.machineName,
-          },
-          {
-            label: t.emails.alertNotification.info.company,
-            value: data.companyName,
-          },
-          {
-            label: t.emails.alertNotification.info.branch,
-            value: data.branchName,
-          },
-          {
-            label: t.emails.alertNotification.info.inspectionDate,
-            value: data.inspectionDate,
-          },
-          {
-            label: t.emails.alertNotification.info.performedBy,
-            value: data.performedBy,
-          },
+          { label: t.emails.alertNotification.info.machine, value: data.machineName },
+          { label: t.emails.alertNotification.info.company, value: data.companyName },
+          { label: t.emails.alertNotification.info.branch, value: data.branchName },
+          { label: t.emails.alertNotification.info.date, value: data.inspectionDate },
+          { label: t.emails.alertNotification.info.performedBy, value: data.performedBy },
         ]}
       />
 
-      {/* Alert Details */}
-      <Section style={{ margin: '24px 0' }}>
-        <Text
-          style={{
-            color: '#1f2937',
-            fontSize: '18px',
-            marginBottom: '16px',
-            fontWeight: 600,
-          }}
-        >
-          {t.emails.alertNotification.alertDetails}
-        </Text>
-        {data.sections.map((section, idx) => renderSection(section, idx))}
+      <Section style={{ padding: '0' }}>
+        {data.sections.map((s, idx) => renderSection(s, idx))}
       </Section>
     </Layout>
   );

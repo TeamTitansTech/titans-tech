@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { render } from '@react-email/render';
 import * as React from 'react';
 import {
@@ -7,15 +6,15 @@ import {
   ClientReminder,
   PublicServiceRequest,
   PartsRequest,
-} from '../templates/react';
-import { getEmailSubject, type Locale } from '../templates/i18n';
+} from './templates/react';
+import { getEmailSubject, type Locale } from './templates/i18n';
 import type {
   AlertNotificationTemplateData,
   UrgentRequestTemplateData,
   ClientReminderTemplateData,
   PublicServiceRequestTemplateData,
   PartsRequestTemplateData,
-} from '../templates/types';
+} from './templates/types';
 
 export interface RenderedEmail {
   subject: string;
@@ -23,11 +22,7 @@ export interface RenderedEmail {
   text: string;
 }
 
-@Injectable()
-export class TemplateRendererService {
-  /**
-   * Render AlertNotification template
-   */
+export const TemplateRenderer = {
   async renderAlertNotification(
     data: AlertNotificationTemplateData,
     locale: Locale = 'en',
@@ -47,11 +42,8 @@ export class TemplateRendererService {
     });
 
     return { subject, html, text };
-  }
+  },
 
-  /**
-   * Render UrgentRequest template
-   */
   async renderUrgentRequest(
     data: UrgentRequestTemplateData,
     locale: Locale = 'en',
@@ -66,11 +58,8 @@ export class TemplateRendererService {
     });
 
     return { subject, html, text };
-  }
+  },
 
-  /**
-   * Render ClientReminder template
-   */
   async renderClientReminder(
     data: ClientReminderTemplateData,
     locale: Locale = 'en',
@@ -90,11 +79,8 @@ export class TemplateRendererService {
     });
 
     return { subject, html, text };
-  }
+  },
 
-  /**
-   * Render PublicServiceRequest template
-   */
   async renderPublicServiceRequest(
     data: PublicServiceRequestTemplateData,
     locale: Locale = 'en',
@@ -112,11 +98,8 @@ export class TemplateRendererService {
     });
 
     return { subject, html, text };
-  }
+  },
 
-  /**
-   * Render PartsRequest template
-   */
   async renderPartsRequest(
     data: PartsRequestTemplateData,
     locale: Locale = 'en',
@@ -135,5 +118,7 @@ export class TemplateRendererService {
     });
 
     return { subject, html, text };
-  }
-}
+  },
+};
+
+export default TemplateRenderer;

@@ -15,7 +15,6 @@ export interface AlertSection {
   sectionName: string;
   severity: 'YELLOW' | 'RED';
   subsections?: AlertSubsection[];
-  // Legacy format for sections without subsections
   alerts?: Array<{
     fieldLabel: string;
     value: string;
@@ -34,7 +33,6 @@ export interface AlertNotificationTemplateData {
   sections: AlertSection[];
 }
 
-// Urgent Request Types
 export interface UrgentRequestTemplateData {
   machineName: string;
   companyName: string;
@@ -45,7 +43,6 @@ export interface UrgentRequestTemplateData {
   machineUrl: string;
 }
 
-// Client Reminder Types
 export interface ClientReminderTemplateData {
   userName: string;
   machineName: string;
@@ -55,7 +52,6 @@ export interface ClientReminderTemplateData {
   machineUrl: string;
 }
 
-// Public Service Request Types
 export interface PublicServiceRequestTemplateData {
   machineName: string;
   machineSerialNumber: string | null;
@@ -76,7 +72,6 @@ export interface PublicServiceRequestTemplateData {
   };
 }
 
-// Parts Request Types
 export interface PartItem {
   partNumber: string;
   description: string;
