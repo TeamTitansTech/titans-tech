@@ -1115,6 +1115,7 @@
         "hydraulicClutchClearance": "Holgura del Embrague Hidráulico",
         "brakeSpringMeasurements": "Mediciones del Resorte del Freno (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Desviación Máxima del Carro (Externo vs Interno)",
+        "slidePositions": "Posiciones del Carro (Posición 1-5)",
         "outerSlidePositions": "Posiciones del Carro Externo (Posición 1-5)",
         "innerSlidePositions": "Posiciones del Carro Interno (Posición 1-5)",
         "gibsUsableValue": "Guías - Valor Utilizable",
@@ -1515,6 +1516,7 @@
           "outerPrefix": "Slide Externo",
           "innerPrefix": "Slide Interno",
           "positionRequired": "Posición {position} es requerida",
+          "beforePositionRequired": "Posición {position} (antes) es requerida cuando el paralelismo ha sido ajustado",
           "atLeastTwoPositionsRequired": "Complete al menos 2 puntos de posición en la desviación máxima"
         },
         "yes": "Sí",
@@ -1591,6 +1593,8 @@
         "noSystemsAdded": "No se han agregado sistemas. Haga clic en \"Agregar Fila\" para comenzar.",
         "gaugeSwitchPlaceholder": "Medidor/Interruptor",
         "selectPlaceholder": "Seleccionar",
+        "psiSearchPlaceholder": "Buscar o escribir valor...",
+        "typeCustomValue": "Escriba para ingresar un valor personalizado",
         "systems": {
           "lube": "Lubricación",
           "hyd": "Hidráulico",
