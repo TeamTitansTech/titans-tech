@@ -15,6 +15,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     async function loadUser() {
+      // Skip authentication for public pages
+      const publicPages = ['/forgot-password', '/set-password', '/reset-password'];
+      const isPublicPage = publicPages.some((page) => pathname.includes(page));
+
+      if (isPublicPage) {
+        setIsLoading(false);
+        return;
+      }
+
       if (sysAdminUser || companyUser) {
         setIsLoading(false);
         return;

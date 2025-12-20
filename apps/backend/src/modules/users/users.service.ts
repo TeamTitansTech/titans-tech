@@ -17,18 +17,20 @@ import {
   MANAGER_PERMISSIONS,
 } from '@titans-tech/shared/types/permissions';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { FieldsErr } from 'src/errors/err';
 import { isSysAdmin, JwtPayload, UserJwtPayload } from 'src/types/request';
 import { JwtService } from '@nestjs/jwt';
 import { NotificationsService } from '../notifications/notifications.service';
+import { PasswordResetService } from '../password-reset/password-reset.service';
 
-const defaultPassword = 'password';
 @Injectable()
 export class UsersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly notificationsService: NotificationsService,
+    private readonly passwordResetService: PasswordResetService,
   ) {}
 
   async login(email: string, password: string, companyId: string) {
@@ -56,6 +58,16 @@ export class UsersService {
 
     if (!isPasswordValid) {
       throw new ForbiddenException('Invalid credentials');
+    }
+
+    // Check if user has pending activation
+    const hasPendingActivation =
+      await this.passwordResetService.checkPendingActivation(user.id);
+
+    if (hasPendingActivation) {
+      throw new ForbiddenException(
+        'Please activate your account using the email link sent to you',
+      );
     }
 
     const payload: UserJwtPayload = {
@@ -158,7 +170,18 @@ export class UsersService {
       orderBy: { createdAt: 'desc' },
     });
 
-    return users.map((user) => new UserResponseDto(user));
+    // Check pending activation for each user
+    const usersWithActivationStatus = await Promise.all(
+      users.map(async (user) => {
+        const hasPendingActivation =
+          await this.passwordResetService.checkPendingActivation(user.id);
+        const userDto = new UserResponseDto(user);
+        userDto.pendingActivation = hasPendingActivation;
+        return userDto;
+      }),
+    );
+
+    return usersWithActivationStatus;
   }
 
   async findOne(id: string, companyId: string) {
@@ -195,6 +218,7 @@ export class UsersService {
 
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id: branchId },
+      include: { company: true },
     });
 
     if (!branch) {
@@ -205,7 +229,9 @@ export class UsersService {
       throw FieldsErr({ email: 'Email already in use' });
     }
 
-    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+    // Generate random password - user cannot login with this
+    const randomPassword = crypto.randomBytes(32).toString('hex');
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
     const result = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
@@ -214,7 +240,6 @@ export class UsersService {
           name: createUserDto.name,
           isCompanyAdmin: createUserDto.isCompanyAdmin ?? false,
           password: hashedPassword,
-          isUsingDefaultPassword: true,
           companyId: branch.companyId,
         },
         include: {
@@ -245,6 +270,16 @@ export class UsersService {
         },
       });
     });
+
+    await this.passwordResetService.createActivationToken(
+      result.id,
+      result.email,
+      result.name,
+      branch.company.slug,
+      branch.company.name,
+      'en',
+    );
+
     return new UserResponseDto(result);
   }
 
@@ -253,6 +288,7 @@ export class UsersService {
 
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id: branchId },
+      include: { company: true },
     });
 
     if (!branch) {
@@ -267,8 +303,9 @@ export class UsersService {
       throw FieldsErr({ email: 'Email already in use' });
     }
 
-    const defaultPassword = 'password';
-    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+    // Generate random password - user cannot login with this
+    const randomPassword = crypto.randomBytes(32).toString('hex');
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
     const result = await this.prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
@@ -276,7 +313,6 @@ export class UsersService {
           email: normalizedEmail,
           name: createUserDto.name,
           password: hashedPassword,
-          isUsingDefaultPassword: true,
           companyId: branch.companyId,
         },
       });
@@ -300,6 +336,15 @@ export class UsersService {
         },
       });
     });
+
+    await this.passwordResetService.createActivationToken(
+      result.id,
+      result.email,
+      result.name,
+      branch.company.slug,
+      branch.company.name,
+      'en',
+    );
 
     return new UserResponseDto(result);
   }
@@ -356,8 +401,12 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
+    if (!data.currentPassword) {
+      throw new ForbiddenException('Current password is required');
+    }
+
     const isCurrentPasswordValid = await bcrypt.compare(
-      user.isUsingDefaultPassword ? defaultPassword : data.currentPassword,
+      data.currentPassword,
       user.password,
     );
 
@@ -371,7 +420,6 @@ export class UsersService {
       where: { id: userId },
       data: {
         password: hashedPassword,
-        isUsingDefaultPassword: false,
       },
       include: {
         branches: {

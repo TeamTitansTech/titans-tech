@@ -13,8 +13,7 @@ import {
 import { SysAdminJwtPayload } from '../../types/request';
 import * as bcrypt from 'bcrypt';
 import { NotificationsService } from '../notifications/notifications.service';
-
-const DEFAULT_PASSWORD = 'password';
+import { PasswordResetService } from '../password-reset/password-reset.service';
 
 @Injectable()
 export class SysAdminService {
@@ -22,6 +21,7 @@ export class SysAdminService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly notificationsService: NotificationsService,
+    private readonly passwordResetService: PasswordResetService,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -40,6 +40,18 @@ export class SysAdminService {
 
     if (!isPasswordValid) {
       throw new ForbiddenException('Invalid credentials');
+    }
+
+    // Check if SysAdmin has pending activation
+    const hasPendingActivation =
+      await this.passwordResetService.checkSysAdminPendingActivation(
+        sysAdmin.id,
+      );
+
+    if (hasPendingActivation) {
+      throw new ForbiddenException(
+        'Please activate your account using the email link sent to you',
+      );
     }
 
     const payload: SysAdminJwtPayload = {
@@ -87,8 +99,12 @@ export class SysAdminService {
       throw new ForbiddenException('Invalid credentials');
     }
 
+    if (!data.currentPassword) {
+      throw new ForbiddenException('Current password is required');
+    }
+
     const isCurrentPasswordValid = await bcrypt.compare(
-      sysAdmin.isUsingDefaultPassword ? DEFAULT_PASSWORD : data.currentPassword,
+      data.currentPassword,
       sysAdmin.password,
     );
 
@@ -100,7 +116,7 @@ export class SysAdminService {
 
     const updatedSysAdmin = await this.prisma.sysAdmin.update({
       where: { id: userId },
-      data: { password: hashedPassword, isUsingDefaultPassword: false },
+      data: { password: hashedPassword },
     });
 
     return new SysAdminResponseDto(updatedSysAdmin);

@@ -9,6 +9,8 @@ import type {
   AlertNotificationTemplateData,
   PublicServiceRequestTemplateData,
   PartsRequestTemplateData,
+  PasswordActivationTemplateData,
+  PasswordResetTemplateData,
 } from './templates/types';
 import type { Locale } from './templates/i18n';
 import { NotificationType, EmailProvider, EmailStatus } from '@titans-tech/db';
@@ -409,5 +411,107 @@ export class EmailService {
     );
 
     return successCount;
+  }
+
+  async sendPasswordActivationEmail(
+    to: string,
+    data: PasswordActivationTemplateData,
+    locale: Locale = 'en',
+  ): Promise<void> {
+    const { subject, html, text } =
+      await this.templateRenderer.renderPasswordActivation(data, locale);
+    const recipients = this.mergeWithTestEmails(to);
+
+    const emailRecord = await this.prisma.email.create({
+      data: {
+        to: recipients.join(','),
+        from: appEnv.EMAIL_FROM,
+        subject,
+        body: html,
+        type: NotificationType.PASSWORD_ACTIVATION,
+        status: EmailStatus.PENDING,
+        provider: EmailProvider.SENDGRID,
+      },
+    });
+
+    try {
+      const result = await this.provider.sendEmail({
+        to: recipients,
+        subject,
+        html,
+        text,
+      });
+
+      await this.prisma.email.update({
+        where: { id: emailRecord.id },
+        data: {
+          status: result.success ? EmailStatus.SENT : EmailStatus.FAILED,
+          externalId: result.messageId,
+          error: result.error,
+          sentAt: result.success ? new Date() : null,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Error sending password activation email', error);
+      await this.prisma.email.update({
+        where: { id: emailRecord.id },
+        data: {
+          status: EmailStatus.FAILED,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      });
+      throw error;
+    }
+  }
+
+  async sendPasswordResetEmail(
+    to: string,
+    data: PasswordResetTemplateData,
+    locale: Locale = 'en',
+  ): Promise<void> {
+    const { subject, html, text } =
+      await this.templateRenderer.renderPasswordReset(data, locale);
+    const recipients = this.mergeWithTestEmails(to);
+
+    const emailRecord = await this.prisma.email.create({
+      data: {
+        to: recipients.join(','),
+        from: appEnv.EMAIL_FROM,
+        subject,
+        body: html,
+        type: NotificationType.PASSWORD_RESET,
+        status: EmailStatus.PENDING,
+        provider: EmailProvider.SENDGRID,
+      },
+    });
+
+    try {
+      const result = await this.provider.sendEmail({
+        to: recipients,
+        subject,
+        html,
+        text,
+      });
+
+      await this.prisma.email.update({
+        where: { id: emailRecord.id },
+        data: {
+          status: result.success ? EmailStatus.SENT : EmailStatus.FAILED,
+          externalId: result.messageId,
+          error: result.error,
+          sentAt: result.success ? new Date() : null,
+        },
+      });
+    } catch (error) {
+      this.logger.error('Error sending password reset email', error);
+      await this.prisma.email.update({
+        where: { id: emailRecord.id },
+        data: {
+          status: EmailStatus.FAILED,
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      });
+      throw error;
+    }
   }
 }

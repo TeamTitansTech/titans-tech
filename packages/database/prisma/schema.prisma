@@ -417,12 +417,12 @@ enum CounterbalanceAlertField {
 }
 
 model SysAdmin {
-  id                     String   @id @default(cuid())
-  email                  String   @unique
-  password               String
-  isUsingDefaultPassword Boolean  @default(true)
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  password            String
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  passwordResetTokens PasswordResetToken[]
 
   @@map("sys_admins")
 }
@@ -483,21 +483,21 @@ model CompanyBranch {
 }
 
 model User {
-  id                     String  @id @default(cuid())
-  name                   String?
-  email                  String  @unique
-  password               String
-  isCompanyAdmin         Boolean @default(false)
-  isUsingDefaultPassword Boolean @default(true)
+  id             String  @id @default(cuid())
+  name           String?
+  email          String  @unique
+  password       String
+  isCompanyAdmin Boolean @default(false)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  company              Company        @relation(fields: [companyId], references: [id])
+  company              Company              @relation(fields: [companyId], references: [id])
   companyId            String
   branches             UserBranch[]
-  notificationsCreated Notification[] @relation("NotificationsCreated")
+  notificationsCreated Notification[]       @relation("NotificationsCreated")
+  passwordResetTokens  PasswordResetToken[]
 
   @@map("users")
 }
@@ -1705,6 +1705,8 @@ enum NotificationType {
   SERVICE_COMPLETED
   INSPECTION_ALERT
   PARTS_REQUEST
+  PASSWORD_ACTIVATION
+  PASSWORD_RESET
 }
 
 enum EmailStatus {
@@ -1774,6 +1776,33 @@ model Email {
   @@index([type])
   @@index([createdAt])
   @@map("emails")
+}
+
+enum TokenType {
+  ACTIVATION
+  RESET
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  type      TokenType
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  userId     String?
+  sysAdminId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sysAdmin SysAdmin? @relation(fields: [sysAdminId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([sysAdminId])
+  @@map("password_reset_tokens")
 }
 
 // TRAMMING Section

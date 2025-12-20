@@ -3,7 +3,6 @@ import { Exclude } from 'class-transformer';
 export class SysAdminResponseDto {
   id: string;
   email: string;
-  isUsingDefaultPassword: boolean;
   createdAt: Date;
   updatedAt: Date;
   unreadNotifications?: number;

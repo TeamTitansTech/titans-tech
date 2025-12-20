@@ -69,7 +69,6 @@ export async function seedCrownUsers(
       email: 'admin@dev-crown.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isUsingDefaultPassword: true,
       companyId: company.id,
     },
   });
@@ -96,7 +95,6 @@ export async function seedCrownUsers(
       email: 'julio.souza@dev-crown.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isUsingDefaultPassword: true,
       companyId: company.id,
     },
   });
@@ -177,7 +175,6 @@ export async function seedArdaghUsers(
       email: 'admin@dev-ardagh.com',
       password: hashedPassword,
       isCompanyAdmin: true,
-      isUsingDefaultPassword: true,
       companyId: company.id,
     },
   });
@@ -199,7 +196,6 @@ export async function seedArdaghUsers(
       email: 'technician@dev-ardagh.com',
       password: hashedPassword,
       isCompanyAdmin: false,
-      isUsingDefaultPassword: true,
       companyId: company.id,
     },
   });
