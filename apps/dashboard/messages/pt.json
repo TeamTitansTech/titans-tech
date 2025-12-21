@@ -281,6 +281,7 @@
       "success": "Usuário adicionado com sucesso",
       "successExistingUser": "{count, plural, =1 {Usuário atribuído a 1 nova filial} other {Usuário atribuído a # novas filiais}}",
       "userAlreadyInAllBranches": "Este usuário já está em todas as filiais selecionadas",
+      "userNeedsReactivation": "Este usuário foi previamente desativado nas seguintes filiais: {branches}. Por favor, reative o usuário em vez de adicioná-lo novamente.",
       "error": "Falha ao adicionar usuário"
     },
     "editUserDialog": {
