@@ -428,17 +428,24 @@ model SysAdmin {
 }
 
 model Company {
-  id          String    @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  slug        String    @unique
+  slug        String  @unique
   logo        String?
   loginLogo   String?
   brandColor  String?
   accentColor String?
   description String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+
+  // Contract limits - set by SysAdmin only
+  contractMaxBranches        Int @default(5)
+  contractMaxUsers           Int @default(25)
+  contractMaxMachines        Int @default(50)
+  contractMaxProductionLines Int @default(20)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   branches            CompanyBranch[]
   users               User[]
