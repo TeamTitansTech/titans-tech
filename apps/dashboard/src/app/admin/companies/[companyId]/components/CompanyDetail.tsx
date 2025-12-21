@@ -7,6 +7,7 @@ import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BranchCard } from './BranchCard';
 import { CreateBranchDialog } from './CreateBranchDialog';
+import { CompanyUsageStats } from './CompanyUsageStats';
 import { type Company } from '@/data/services/companies.api';
 import { type CompanyBranch } from '@/data/services/company-branches.api';
 
@@ -46,6 +47,8 @@ export function CompanyDetail({ company, branches }: CompanyDetailProps) {
           {t('newBranch')}
         </Button>
       </div>
+
+      <CompanyUsageStats company={company} />
 
       {optimisticBranches.length === 0 ? (
         <div className="text-center py-12">

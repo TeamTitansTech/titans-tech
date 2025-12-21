@@ -2335,6 +2335,24 @@
       "submitting": "Creando...",
       "success": "Sucursal creada exitosamente",
       "error": "Error al crear la sucursal"
+    },
+    "usage": {
+      "title": "Uso y Límites",
+      "description": "Uso de recursos de la empresa y límites contractuales",
+      "editLimits": "Editar Límites",
+      "branches": "Sucursales",
+      "users": "Usuarios",
+      "productionLines": "Líneas de Producción",
+      "loadingError": "Error al cargar estadísticas de uso",
+      "updateSuccess": "Límites contractuales actualizados exitosamente",
+      "updateError": "Error al actualizar límites contractuales",
+      "editDialog": {
+        "title": "Editar Límites Contractuales",
+        "description": "Actualizar los límites contractuales para {companyName}",
+        "cancel": "Cancelar",
+        "update": "Actualizar Límites",
+        "updating": "Actualizando..."
+      }
     }
   },
   "branches": {
