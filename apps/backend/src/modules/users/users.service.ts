@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
+import { CompanyLimitsService } from '../shared/company-limits.service';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -29,6 +30,7 @@ export class UsersService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly notificationsService: NotificationsService,
+    private readonly companyLimitsService: CompanyLimitsService,
   ) {}
 
   async login(email: string, password: string, companyId: string) {
@@ -205,6 +207,8 @@ export class UsersService {
       throw FieldsErr({ email: 'Email already in use' });
     }
 
+    await this.companyLimitsService.enforceUserLimit(branch.companyId);
+
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
     const result = await this.prisma.$transaction(async (tx) => {
@@ -266,6 +270,8 @@ export class UsersService {
     if (existingUser) {
       throw FieldsErr({ email: 'Email already in use' });
     }
+
+    await this.companyLimitsService.enforceUserLimit(branch.companyId);
 
     const defaultPassword = 'password';
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);

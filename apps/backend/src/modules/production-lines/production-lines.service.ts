@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../shared/prisma.service';
+import { CompanyLimitsService } from '../shared/company-limits.service';
 import {
   CreateProductionLineDto,
   UpdateProductionLineDto,
@@ -46,7 +47,10 @@ const PRODUCTION_LINE_FULL_INCLUDE = {
 
 @Injectable()
 export class ProductionLinesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly companyLimitsService: CompanyLimitsService,
+  ) {}
 
   private async validateUserBranchAccess(
     userId: string,
@@ -134,6 +138,10 @@ export class ProductionLinesService {
         `Branch with ID ${createProductionLineDto.branchId} not found`,
       );
     }
+
+    await this.companyLimitsService.enforceProductionLineLimit(
+      branch.companyId,
+    );
 
     if (createProductionLineDto.machineIds.length > 0) {
       const machines = await this.prisma.machine.findMany({

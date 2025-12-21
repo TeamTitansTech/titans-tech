@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../shared/prisma.service';
+import { CompanyLimitsService } from '../shared/company-limits.service';
 import {
   CreateMachineDto,
   UpdateMachineDto,
@@ -12,7 +13,10 @@ import {
 
 @Injectable()
 export class MachinesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly companyLimitsService: CompanyLimitsService,
+  ) {}
 
   /**
    * Gets the branch IDs accessible by a user
@@ -115,6 +119,9 @@ export class MachinesService {
         `Branch with ID ${createMachineDto.branchId} not found`,
       );
     }
+
+    await this.companyLimitsService.enforceMachineLimit(branch.companyId);
+
     const imageUrl = createMachineDto.imageUrl || blueprint.imageUrl;
 
     const machine = await this.prisma.machine.create({

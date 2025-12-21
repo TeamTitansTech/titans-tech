@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
 import { MachinesService } from '../machines/machines.service';
+import { CompanyLimitsService } from '../shared/company-limits.service';
 import {
   CreateCompanyBranchDto,
   UpdateCompanyBranchDto,
@@ -18,6 +19,7 @@ export class CompanyBranchesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly machinesService: MachinesService,
+    private readonly companyLimitsService: CompanyLimitsService,
   ) {}
 
   /**
@@ -76,6 +78,8 @@ export class CompanyBranchesService {
   }
 
   async create(companyId: string, createBranchDto: CreateCompanyBranchDto) {
+    await this.companyLimitsService.enforceBranchLimit(companyId);
+
     if (createBranchDto.isMainBranch) {
       return this.prisma.$transaction(async (tx) => {
         await this.unsetOtherMainBranches(tx, companyId);

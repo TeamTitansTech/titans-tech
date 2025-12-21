@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../shared/prisma.service';
+import { PrismaService } from './prisma.service';
 
 export interface CompanyLimitCheck {
   isAllowed: boolean;
