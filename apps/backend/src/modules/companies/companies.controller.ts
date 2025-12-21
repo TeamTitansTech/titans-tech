@@ -13,6 +13,8 @@ import {
   CreateCompanySchema,
   UpdateCompanyDto,
   UpdateCompanySchema,
+  UpdateCompanyLimitsDto,
+  UpdateCompanyLimitsSchema,
   UpdateUserDto,
   UpdateUserSchema,
   CreateCompanyBranchDto,
@@ -131,5 +133,25 @@ export class CompaniesController {
   @Get(':companyId/admin-manager-users')
   getAdminManagerUsers(@Param('companyId') companyId: string) {
     return this.companiesService.getAdminManagerUsers(companyId);
+  }
+
+  // SysAdmin endpoints for managing company limits
+  @Admin()
+  @Patch(':companyId/limits')
+  updateCompanyLimits(
+    @Param('companyId') companyId: string,
+    @Body(new ZodValidationPipe(UpdateCompanyLimitsSchema))
+    updateLimitsDto: UpdateCompanyLimitsDto,
+  ) {
+    return this.companiesService.updateCompanyLimits(
+      companyId,
+      updateLimitsDto,
+    );
+  }
+
+  @Admin()
+  @Get(':companyId/usage')
+  getCompanyUsageStats(@Param('companyId') companyId: string) {
+    return this.companiesService.getCompanyUsageStats(companyId);
   }
 }

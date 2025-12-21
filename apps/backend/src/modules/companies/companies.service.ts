@@ -1,9 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
 import { CompanyBranchesService } from '../company-branches/company-branches.service';
+import { CompanyLimitsService } from '../shared/company-limits.service';
 import {
   CreateCompanyDto,
   UpdateCompanyDto,
+  UpdateCompanyLimitsDto,
+  CompanyUsageResponseDto,
   AdminManagerUserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { Prisma } from '@titans-tech/db';
@@ -33,6 +36,7 @@ export class CompaniesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly companyBranchesService: CompanyBranchesService,
+    private readonly companyLimitsService: CompanyLimitsService,
   ) {}
 
   async findAll() {
@@ -233,5 +237,54 @@ export class CompaniesService {
     });
 
     return users;
+  }
+
+  /**
+   * Update company contract limits (SysAdmin only)
+   */
+  async updateCompanyLimits(
+    companyId: string,
+    updateLimitsDto: UpdateCompanyLimitsDto,
+  ) {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+
+    return this.prisma.company.update({
+      where: { id: companyId },
+      data: updateLimitsDto,
+    });
+  }
+
+  /**
+   * Get company usage statistics (SysAdmin only)
+   */
+  async getCompanyUsageStats(
+    companyId: string,
+  ): Promise<CompanyUsageResponseDto> {
+    const company = await this.prisma.company.findUnique({
+      where: { id: companyId },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    if (!company) {
+      throw new NotFoundException('Company not found');
+    }
+
+    const usage =
+      await this.companyLimitsService.getCompanyUsageStats(companyId);
+
+    return {
+      companyId: company.id,
+      companyName: company.name,
+      usage,
+    };
   }
 }
