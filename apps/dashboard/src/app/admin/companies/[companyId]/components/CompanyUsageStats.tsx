@@ -182,15 +182,16 @@ export function CompanyUsageStats({ company }: CompanyUsageStatsProps) {
                 <Input
                   id="branches"
                   type="number"
-                  min="1"
-                  value={limits.contractMaxBranches}
-                  onChange={(e) =>
+                  value={limits.contractMaxBranches || ''}
+                  onChange={(e) => {
+                    const value = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
                     setLimits((prev) => ({
                       ...prev,
-                      contractMaxBranches: parseInt(e.target.value) || 1,
-                    }))
-                  }
+                      contractMaxBranches: value,
+                    }));
+                  }}
                   className="col-span-3"
+                  required
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -200,15 +201,16 @@ export function CompanyUsageStats({ company }: CompanyUsageStatsProps) {
                 <Input
                   id="users"
                   type="number"
-                  min="1"
-                  value={limits.contractMaxUsers}
-                  onChange={(e) =>
+                  value={limits.contractMaxUsers || ''}
+                  onChange={(e) => {
+                    const value = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
                     setLimits((prev) => ({
                       ...prev,
-                      contractMaxUsers: parseInt(e.target.value) || 1,
-                    }))
-                  }
+                      contractMaxUsers: value,
+                    }));
+                  }}
                   className="col-span-3"
+                  required
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -218,15 +220,16 @@ export function CompanyUsageStats({ company }: CompanyUsageStatsProps) {
                 <Input
                   id="machines"
                   type="number"
-                  min="1"
-                  value={limits.contractMaxMachines}
-                  onChange={(e) =>
+                  value={limits.contractMaxMachines || ''}
+                  onChange={(e) => {
+                    const value = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
                     setLimits((prev) => ({
                       ...prev,
-                      contractMaxMachines: parseInt(e.target.value) || 1,
-                    }))
-                  }
+                      contractMaxMachines: value,
+                    }));
+                  }}
                   className="col-span-3"
+                  required
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
@@ -236,15 +239,16 @@ export function CompanyUsageStats({ company }: CompanyUsageStatsProps) {
                 <Input
                   id="productionLines"
                   type="number"
-                  min="1"
-                  value={limits.contractMaxProductionLines}
-                  onChange={(e) =>
+                  value={limits.contractMaxProductionLines || ''}
+                  onChange={(e) => {
+                    const value = e.target.value === '' ? 0 : parseInt(e.target.value) || 0;
                     setLimits((prev) => ({
                       ...prev,
-                      contractMaxProductionLines: parseInt(e.target.value) || 1,
-                    }))
-                  }
+                      contractMaxProductionLines: value,
+                    }));
+                  }}
                   className="col-span-3"
+                  required
                 />
               </div>
             </div>
@@ -256,7 +260,16 @@ export function CompanyUsageStats({ company }: CompanyUsageStatsProps) {
               >
                 {t('usage.editDialog.cancel')}
               </Button>
-              <Button onClick={handleUpdateLimits} disabled={isUpdating}>
+              <Button
+                onClick={handleUpdateLimits}
+                disabled={
+                  isUpdating ||
+                  limits.contractMaxBranches <= 0 ||
+                  limits.contractMaxUsers <= 0 ||
+                  limits.contractMaxMachines <= 0 ||
+                  limits.contractMaxProductionLines <= 0
+                }
+              >
                 {isUpdating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                 {isUpdating ? t('usage.editDialog.updating') : t('usage.editDialog.update')}
               </Button>
