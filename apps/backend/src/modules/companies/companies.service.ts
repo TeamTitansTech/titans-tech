@@ -260,9 +260,6 @@ export class CompaniesService {
     });
   }
 
-  /**
-   * Get company usage statistics (SysAdmin only)
-   */
   async getCompanyUsageStats(
     companyId: string,
   ): Promise<CompanyUsageResponseDto> {

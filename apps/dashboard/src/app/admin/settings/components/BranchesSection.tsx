@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { MapPin, Users, Plus, UserPlus } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useCompanyLimits } from '@/hooks/useCompanyLimits';
 import { getAllBranches, type CompanyBranch } from '@/data/services/company-branches.api';
 import { CreateBranchDialog } from '@/app/admin/companies/[companyId]/components/CreateBranchDialog';
 import { AddUserDialog } from './AddUserDialog';
@@ -24,8 +26,10 @@ export function BranchesSection({
   onUserAdded,
 }: BranchesSectionProps) {
   const t = useTranslations('adminSettings.branches');
+  const tLimits = useTranslations('companies.limits.reached');
   const tCompanies = useTranslations('companies');
   const tUserManagement = useTranslations('adminSettings.userManagement');
+  const { canCreateUser, canCreateBranch, getLimitCheck } = useCompanyLimits(companyId);
   const [branches, setBranches] = useState<CompanyBranch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -82,14 +86,52 @@ export function BranchesSection({
               {t('title')}
             </h3>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setIsAddUserDialogOpen(true)}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                {tUserManagement('addUser')}
-              </Button>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                {tCompanies('newBranch')}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddUserDialogOpen(true)}
+                    disabled={!canCreateUser}
+                    className={!canCreateUser ? 'opacity-50 cursor-not-allowed' : ''}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    {tUserManagement('addUser')}
+                  </Button>
+                </TooltipTrigger>
+                {!canCreateUser && (
+                  <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                    <p className="text-sm">
+                      {tLimits('users', {
+                        current: getLimitCheck('users').current,
+                        max: getLimitCheck('users').max,
+                      })}
+                    </p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    onClick={() => setIsCreateDialogOpen(true)}
+                    disabled={!canCreateBranch}
+                    className={!canCreateBranch ? 'opacity-50 cursor-not-allowed' : ''}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    {tCompanies('newBranch')}
+                  </Button>
+                </TooltipTrigger>
+                {!canCreateBranch && (
+                  <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                    <p className="text-sm">
+                      {tLimits('branches', {
+                        current: getLimitCheck('branches').current,
+                        max: getLimitCheck('branches').max,
+                      })}
+                    </p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
             </div>
           </div>
           <p className="text-sm text-muted-foreground">{t('loading')}</p>
@@ -120,14 +162,52 @@ export function BranchesSection({
               {t('title')}
             </h3>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setIsAddUserDialogOpen(true)}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                {tUserManagement('addUser')}
-              </Button>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                {tCompanies('newBranch')}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAddUserDialogOpen(true)}
+                    disabled={!canCreateUser}
+                    className={!canCreateUser ? 'opacity-50 cursor-not-allowed' : ''}
+                  >
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    {tUserManagement('addUser')}
+                  </Button>
+                </TooltipTrigger>
+                {!canCreateUser && (
+                  <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                    <p className="text-sm">
+                      {tLimits('users', {
+                        current: getLimitCheck('users').current,
+                        max: getLimitCheck('users').max,
+                      })}
+                    </p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button
+                    onClick={() => setIsCreateDialogOpen(true)}
+                    disabled={!canCreateBranch}
+                    className={!canCreateBranch ? 'opacity-50 cursor-not-allowed' : ''}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    {tCompanies('newBranch')}
+                  </Button>
+                </TooltipTrigger>
+                {!canCreateBranch && (
+                  <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                    <p className="text-sm">
+                      {tLimits('branches', {
+                        current: getLimitCheck('branches').current,
+                        max: getLimitCheck('branches').max,
+                      })}
+                    </p>
+                  </TooltipContent>
+                )}
+              </Tooltip>
             </div>
           </div>
           <p className="text-sm text-muted-foreground">{t('noBranches')}</p>
@@ -157,14 +237,52 @@ export function BranchesSection({
             {t('title')}
           </h3>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setIsAddUserDialogOpen(true)}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              {tUserManagement('addUser')}
-            </Button>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              {tCompanies('newBranch')}
-            </Button>
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  variant="outline"
+                  onClick={() => setIsAddUserDialogOpen(true)}
+                  disabled={!canCreateUser}
+                  className={!canCreateUser ? 'opacity-50 cursor-not-allowed' : ''}
+                >
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  {tUserManagement('addUser')}
+                </Button>
+              </TooltipTrigger>
+              {!canCreateUser && (
+                <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                  <p className="text-sm">
+                    {tLimits('users', {
+                      current: getLimitCheck('users').current,
+                      max: getLimitCheck('users').max,
+                    })}
+                  </p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger>
+                <Button
+                  onClick={() => setIsCreateDialogOpen(true)}
+                  disabled={!canCreateBranch}
+                  className={!canCreateBranch ? 'opacity-50 cursor-not-allowed' : ''}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {tCompanies('newBranch')}
+                </Button>
+              </TooltipTrigger>
+              {!canCreateBranch && (
+                <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                  <p className="text-sm">
+                    {tLimits('branches', {
+                      current: getLimitCheck('branches').current,
+                      max: getLimitCheck('branches').max,
+                    })}
+                  </p>
+                </TooltipContent>
+              )}
+            </Tooltip>
           </div>
         </div>
 

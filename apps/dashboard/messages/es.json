@@ -2353,6 +2353,14 @@
         "update": "Actualizar Límites",
         "updating": "Actualizando..."
       }
+    },
+    "limits": {
+      "reached": {
+        "branches": "La empresa ha alcanzado el límite de sucursales ({current}/{max}).",
+        "users": "La empresa ha alcanzado el límite de usuarios ({current}/{max}).",
+        "machines": "La empresa ha alcanzado el límite de máquinas ({current}/{max}).",
+        "productionLines": "La empresa ha alcanzado el límite de líneas de producción ({current}/{max})."
+      }
     }
   },
   "branches": {

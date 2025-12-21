@@ -5,6 +5,8 @@ import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useCompanyLimits } from '@/hooks/useCompanyLimits';
 import { BranchDetail } from './BranchDetail';
 import { MachineCreationModal } from '@/app/admin/machines/components/MachineCreationModal';
 
@@ -35,7 +37,9 @@ interface BranchDetailPageProps {
 export function BranchDetailPage({ branch, machines, companyId }: BranchDetailPageProps) {
   const router = useInternalRouter();
   const t = useTranslations('branches');
+  const tLimits = useTranslations('companies.limits.reached');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { canCreateMachine, getLimitCheck } = useCompanyLimits(companyId);
 
   const handleSuccess = () => {
     router.refresh();
@@ -62,10 +66,28 @@ export function BranchDetailPage({ branch, machines, companyId }: BranchDetailPa
           </div>
           <p className="text-muted-foreground mt-1">{t('machinesSubtitle')}</p>
         </div>
-        <Button onClick={() => setIsModalOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          {t('newMachine')}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button
+              onClick={() => setIsModalOpen(true)}
+              disabled={!canCreateMachine}
+              className={!canCreateMachine ? 'opacity-50 cursor-not-allowed' : ''}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {t('newMachine')}
+            </Button>
+          </TooltipTrigger>
+          {!canCreateMachine && (
+            <TooltipContent side="bottom" className="max-w-[250px] text-center">
+              <p className="text-sm">
+                {tLimits('machines', {
+                  current: getLimitCheck('machines').current,
+                  max: getLimitCheck('machines').max,
+                })}
+              </p>
+            </TooltipContent>
+          )}
+        </Tooltip>
       </div>
 
       <BranchDetail machines={machines} />

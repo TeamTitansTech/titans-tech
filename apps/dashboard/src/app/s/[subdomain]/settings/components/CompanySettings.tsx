@@ -4,6 +4,8 @@ import { useState, useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useCompanyLimits } from '@/hooks/useCompanyLimits';
 import { Separator } from '@/components/ui/separator';
 import { CompanyInfoSection } from './CompanyInfoSection';
 import { BranchesSection } from './BranchesSection';
@@ -14,7 +16,9 @@ import { hasPermissionInAnyBranch } from '@titans-tech/shared/types';
 
 export function CompanySettings() {
   const t = useTranslations('settings');
+  const tLimits = useTranslations('companies.limits.reached');
   const { companyUser } = useCompanyUser();
+  const { canCreateUser, getLimitCheck } = useCompanyLimits(companyUser?.companyId ?? '');
   const [selectedBranchId, setSelectedBranchId] = useState<string>('');
   const [isAddUserDialogOpen, setIsAddUserDialogOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -40,10 +44,28 @@ export function CompanySettings() {
           <p className="text-muted-foreground mt-2">{t('pageDescription')}</p>
         </div>
         {canCreateUsers && companyUser?.companyId && (
-          <Button onClick={() => setIsAddUserDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            {t('userManagement.addUser')}
-          </Button>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                onClick={() => setIsAddUserDialogOpen(true)}
+                disabled={!canCreateUser}
+                className={!canCreateUser ? 'opacity-50 cursor-not-allowed' : ''}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                {t('userManagement.addUser')}
+              </Button>
+            </TooltipTrigger>
+            {!canCreateUser && (
+              <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                <p className="text-sm">
+                  {tLimits('users', {
+                    current: getLimitCheck('users').current,
+                    max: getLimitCheck('users').max,
+                  })}
+                </p>
+              </TooltipContent>
+            )}
+          </Tooltip>
         )}
       </div>
 

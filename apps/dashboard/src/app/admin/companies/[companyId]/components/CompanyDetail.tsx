@@ -5,6 +5,8 @@ import { useInternalRouter } from '@/hooks/useInternalRouter';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useCompanyLimits } from '@/hooks/useCompanyLimits';
 import { BranchCard } from './BranchCard';
 import { CreateBranchDialog } from './CreateBranchDialog';
 import { CompanyUsageStats } from './CompanyUsageStats';
@@ -19,6 +21,8 @@ interface CompanyDetailProps {
 export function CompanyDetail({ company, branches }: CompanyDetailProps) {
   const router = useInternalRouter();
   const t = useTranslations('companies');
+  const tLimits = useTranslations('companies.limits.reached');
+  const { canCreateBranch, getLimitCheck } = useCompanyLimits(company.id);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [optimisticBranches, addOptimisticBranch] = useOptimistic(
     branches,
@@ -42,10 +46,28 @@ export function CompanyDetail({ company, branches }: CompanyDetailProps) {
           <h1 className="text-3xl font-bold tracking-tight">{company.name}</h1>
           <p className="text-muted-foreground mt-1">{t('branchesSubtitle')}</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          {t('newBranch')}
-        </Button>
+        <Tooltip>
+          <TooltipTrigger>
+            <Button
+              onClick={() => setIsCreateDialogOpen(true)}
+              disabled={!canCreateBranch}
+              className={!canCreateBranch ? 'opacity-50 cursor-not-allowed' : ''}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {t('newBranch')}
+            </Button>
+          </TooltipTrigger>
+          {!canCreateBranch && (
+            <TooltipContent side="bottom" className="max-w-[250px] text-center">
+              <p className="text-sm">
+                {tLimits('branches', {
+                  current: getLimitCheck('branches').current,
+                  max: getLimitCheck('branches').max,
+                })}
+              </p>
+            </TooltipContent>
+          )}
+        </Tooltip>
       </div>
 
       <CompanyUsageStats company={company} />

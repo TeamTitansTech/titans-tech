@@ -24,8 +24,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { getBlueprints, createMachine } from '@/data/services/machines.api';
 import { getAllCompanies, type Company } from '@/data/services/companies.api';
 import { useLazyQuery } from '@/hooks/useLazyQuery';
+import { useCompanyLimits } from '@/hooks/useCompanyLimits';
 import { toast } from 'sonner';
-import { Boxes, Check } from 'lucide-react';
+import { Boxes, Check, AlertTriangle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { responseHandler } from '@/data/helpers/responseHandler';
 import {
@@ -83,6 +84,7 @@ export function MachineCreationModal({
   preselectedCompanyId,
 }: MachineCreationModalProps) {
   const t = useTranslations('machines');
+  const tLimits = useTranslations('companies.limits.reached');
   const tInspections = useTranslations('inspections.form.enums');
   const [companies, setCompanies] = useState<Company[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -107,6 +109,9 @@ export function MachineCreationModal({
   const [pneumaticSystem, setPneumaticSystem] = useState<PneumaticSystemType | ''>('');
   const [pressMounting, setPressMounting] = useState<PressMountingType | ''>('');
   const [features, setFeatures] = useState<MachineFeaturesType | ''>('');
+
+  // Company limits hook - only when company is selected
+  const { canCreateMachine, getLimitCheck } = useCompanyLimits(selectedCompanyId || '');
 
   const { execute: submitMachine, isLoading, result } = useLazyQuery(createMachine);
 
@@ -737,9 +742,28 @@ export function MachineCreationModal({
             <Button type="button" variant="outline" onClick={onClose}>
               {t('form.cancel')}
             </Button>
+
+            {/* Show limit warning if company selected and at limit */}
+            {selectedCompanyId && !canCreateMachine && (
+              <div className="flex items-center gap-2 text-sm text-destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <span>
+                  {tLimits('machines', {
+                    current: getLimitCheck('machines').current,
+                    max: getLimitCheck('machines').max,
+                  })}
+                </span>
+              </div>
+            )}
+
             <Button
               type="submit"
-              disabled={isLoading || !selectedBlueprint || !selectedBranchId}
+              disabled={
+                isLoading ||
+                !selectedBlueprint ||
+                !selectedBranchId ||
+                (!!selectedCompanyId && !canCreateMachine)
+              }
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isLoading ? t('form.submit.loading') : t('form.submit.idle')}

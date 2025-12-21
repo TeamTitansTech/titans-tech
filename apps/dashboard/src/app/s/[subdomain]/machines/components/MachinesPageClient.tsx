@@ -8,6 +8,8 @@ import { BrandedSkeleton } from '@/components/ui/branded-skeleton';
 import { MachineCreationModal } from './MachineCreationModal';
 import { MachineEditModal } from './MachineEditModal';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { useCompanyLimits } from '@/hooks/useCompanyLimits';
 import { Typography } from '@/components/ui/typography';
 import { NoPermission } from '@/components/no-permission/NoPermission';
 import { calculateStatusFromLatestReport, type AlertStatus } from '@/lib/alertStatus';
@@ -102,7 +104,9 @@ export function MachinesPageClient() {
   const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
   const [machineToDelete, setMachineToDelete] = useState<{ id: string; name: string } | null>(null);
   const t = useTranslations('machines');
+  const tLimits = useTranslations('companies.limits.reached');
   const { companyUser } = useCompanyUser();
+  const { canCreateMachine, getLimitCheck } = useCompanyLimits(companyUser?.companyId ?? '');
 
   // Helper to map alert status to machine card status
   const mapAlertStatusToCardStatus = (
@@ -339,10 +343,32 @@ export function MachinesPageClient() {
             </div>
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               {hasCreateMachinesPermission && (
-                <Button onClick={() => setIsModalOpen(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  {t('newButton')}
-                </Button>
+                <TooltipProvider>
+                  <Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Button
+                          onClick={() => setIsModalOpen(true)}
+                          disabled={!canCreateMachine}
+                          className={!canCreateMachine ? 'opacity-50 cursor-not-allowed' : ''}
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          {t('newButton')}
+                        </Button>
+                      </TooltipTrigger>
+                      {!canCreateMachine && (
+                        <TooltipContent side="bottom" className="max-w-[250px] text-center">
+                          <p className="text-sm">
+                            {tLimits('machines', {
+                              current: getLimitCheck('machines').current,
+                              max: getLimitCheck('machines').max,
+                            })}
+                          </p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </Tooltip>
+                </TooltipProvider>
               )}
             </div>
           </div>

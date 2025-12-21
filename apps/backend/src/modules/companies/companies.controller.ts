@@ -149,7 +149,7 @@ export class CompaniesController {
     );
   }
 
-  @Admin()
+  @CompanyMember()
   @Get(':companyId/usage')
   getCompanyUsageStats(@Param('companyId') companyId: string) {
     return this.companiesService.getCompanyUsageStats(companyId);

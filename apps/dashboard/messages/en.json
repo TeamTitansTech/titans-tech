@@ -2347,6 +2347,14 @@
         "update": "Update Limits",
         "updating": "Updating..."
       }
+    },
+    "limits": {
+      "reached": {
+        "branches": "The company has reached its branch limit ({current}/{max}).",
+        "users": "The company has reached its user limit ({current}/{max}).",
+        "machines": "The company has reached its machine limit ({current}/{max}).",
+        "productionLines": "The company has reached its production line limit ({current}/{max})."
+      }
     }
   },
   "branches": {

@@ -2174,6 +2174,14 @@
         "update": "Atualizar Limites",
         "updating": "Atualizando..."
       }
+    },
+    "limits": {
+      "reached": {
+        "branches": "A empresa atingiu o limite de filiais ({current}/{max}).",
+        "users": "A empresa atingiu o limite de usuários ({current}/{max}).",
+        "machines": "A empresa atingiu o limite de máquinas ({current}/{max}).",
+        "productionLines": "A empresa atingiu o limite de linhas de produção ({current}/{max})."
+      }
     }
   },
   "branches": {
