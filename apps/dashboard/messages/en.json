@@ -281,6 +281,7 @@
       "success": "User added successfully",
       "successExistingUser": "{count, plural, =1 {User assigned to 1 new branch} other {User assigned to # new branches}}",
       "userAlreadyInAllBranches": "This user is already in all selected branches",
+      "userNeedsReactivation": "This user was previously deactivated in the following branches: {branches}. Please reactivate the user instead of adding them again.",
       "error": "Failed to add user"
     },
     "editUserDialog": {

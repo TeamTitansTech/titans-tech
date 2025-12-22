@@ -9,10 +9,10 @@ const SOFT_DELETE_MODELS = [
   'MachineField',
   'ServiceRequest',
   'MachineProductionLine',
-  // 'Company',
-  // 'CompanyBranch',
-  // 'ProductionLine',
-  // 'PermissionTemplate',
+  'CompanyBranch',
+  'ProductionLine',
+  'Company',
+  'PermissionTemplate',
 ] as const;
 
 type SoftDeleteModel = (typeof SOFT_DELETE_MODELS)[number];
@@ -21,8 +21,8 @@ function isSoftDeleteModel(model: string): model is SoftDeleteModel {
   return SOFT_DELETE_MODELS.includes(model as SoftDeleteModel);
 }
 
-// Map of model relations to their target models
-// This is used to inject soft delete filters into nested includes
+// Map of model relations to their target models (for WHERE clause injection)
+// Only includes array relations where WHERE clauses are supported
 const RELATION_MODEL_MAP: Record<string, Record<string, string>> = {
   User: {
     branches: 'UserBranch',
@@ -30,9 +30,15 @@ const RELATION_MODEL_MAP: Record<string, Record<string, string>> = {
   Blueprint: {
     machines: 'Machine',
   },
+  Company: {
+    branches: 'CompanyBranch',
+    users: 'User',
+    permissionTemplates: 'PermissionTemplate',
+  },
   CompanyBranch: {
     machines: 'Machine',
     users: 'UserBranch',
+    productionLines: 'ProductionLine',
   },
   ProductionLine: {
     machines: 'MachineProductionLine',
@@ -51,8 +57,24 @@ const RELATION_MODEL_MAP: Record<string, Record<string, string>> = {
   },
 };
 
+// Map of singular relation names to their target model names (for traversal only)
+// This allows the extension to traverse through singular relations to process nested includes
+const SINGULAR_RELATION_MAP: Record<string, string> = {
+  company: 'Company',
+  branch: 'CompanyBranch',
+  user: 'User',
+  machine: 'Machine',
+  blueprint: 'Blueprint',
+  serviceRequest: 'ServiceRequest',
+  productionLine: 'ProductionLine',
+};
+
 function getRelationModel(modelName: string, relationKey: string): string | null {
   return RELATION_MODEL_MAP[modelName]?.[relationKey] || null;
+}
+
+function getSingularRelationModel(relationKey: string): string | null {
+  return SINGULAR_RELATION_MAP[relationKey] || null;
 }
 
 // Shared soft delete handler
@@ -141,54 +163,38 @@ export const softDelete = Prisma.defineExtension({
         return softDeleteHandler(Prisma.getExtensionContext(this), data);
       },
     },
-    // company: {
-    //   async delete<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'delete'>,
-    //   ): Promise<Prisma.Result<M, A, 'update'>> {
-    //     return softDeleteHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
-    // companyBranch: {
-    //   async delete<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'delete'>,
-    //   ): Promise<Prisma.Result<M, A, 'update'>> {
-    //     return softDeleteHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
-    // machineService: {
-    //   async delete<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'delete'>,
-    //   ): Promise<Prisma.Result<M, A, 'update'>> {
-    //     return softDeleteHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
-    // productionLine: {
-    //   async delete<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'delete'>,
-    //   ): Promise<Prisma.Result<M, A, 'update'>> {
-    //     return softDeleteHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
-    // machine: {
-    //   async delete<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'delete'>,
-    //   ): Promise<Prisma.Result<M, A, 'update'>> {
-    //     return softDeleteHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
-    // permissionTemplate: {
-    //   async delete<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'delete'>,
-    //   ): Promise<Prisma.Result<M, A, 'update'>> {
-    //     return softDeleteHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
+    companyBranch: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    productionLine: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    company: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    permissionTemplate: {
+      async delete<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'delete'>,
+      ): Promise<Prisma.Result<M, A, 'update'>> {
+        return softDeleteHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
   },
 });
 
@@ -252,54 +258,38 @@ export const softDeleteMany = Prisma.defineExtension({
         return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
       },
     },
-    // company: {
-    //   async deleteMany<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'deleteMany'>,
-    //   ): Promise<Prisma.Result<M, A, 'updateMany'>> {
-    //     return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
-    // companyBranch: {
-    //   async deleteMany<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'deleteMany'>,
-    //   ): Promise<Prisma.Result<M, A, 'updateMany'>> {
-    //     return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
-    // machineService: {
-    //   async deleteMany<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'deleteMany'>,
-    //   ): Promise<Prisma.Result<M, A, 'updateMany'>> {
-    //     return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
-    // productionLine: {
-    //   async deleteMany<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'deleteMany'>,
-    //   ): Promise<Prisma.Result<M, A, 'updateMany'>> {
-    //     return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
-    // machine: {
-    //   async deleteMany<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'deleteMany'>,
-    //   ): Promise<Prisma.Result<M, A, 'updateMany'>> {
-    //     return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
-    // permissionTemplate: {
-    //   async deleteMany<M, A>(
-    //     this: M,
-    //     data: Prisma.Args<M, 'deleteMany'>,
-    //   ): Promise<Prisma.Result<M, A, 'updateMany'>> {
-    //     return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
-    //   },
-    // },
+    companyBranch: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    productionLine: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    company: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
+    permissionTemplate: {
+      async deleteMany<M, A>(
+        this: M,
+        data: Prisma.Args<M, 'deleteMany'>,
+      ): Promise<Prisma.Result<M, A, 'updateMany'>> {
+        return softDeleteManyHandler(Prisma.getExtensionContext(this), data);
+      },
+    },
   },
 });
 
@@ -355,7 +345,17 @@ export const filterSoftDeleted = Prisma.defineExtension({
               const relationValue = obj.include[relationKey];
               const relationModel = getRelationModel(currentModel, relationKey);
 
-              if (!relationModel) return;
+              if (!relationModel) {
+                // Check if this is a singular relation we can traverse
+                const singularModel = getSingularRelationModel(relationKey);
+
+                if (singularModel && typeof relationValue === 'object') {
+                  // Don't add WHERE clause (singular relations don't support it)
+                  // But still traverse into nested includes
+                  injectSoftDeleteFilters(relationValue, singularModel);
+                }
+                return;
+              }
 
               // If relation points to a soft-deletable model, add where filter
               if (isSoftDeleteModel(relationModel)) {
