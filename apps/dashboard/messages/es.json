@@ -281,6 +281,7 @@
       "success": "Usuario agregado exitosamente",
       "successExistingUser": "{count, plural, =1 {Usuario asignado a 1 nueva sucursal} other {Usuario asignado a # nuevas sucursales}}",
       "userAlreadyInAllBranches": "Este usuario ya está en todas las sucursales seleccionadas",
+      "userNeedsReactivation": "Este usuario fue previamente desactivado en las siguientes sucursales: {branches}. Por favor, reactive al usuario en lugar de agregarlo nuevamente.",
       "error": "Error al agregar usuario"
     },
     "editUserDialog": {

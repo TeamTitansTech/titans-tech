@@ -35,10 +35,9 @@ export class UsersService {
 
   async login(email: string, password: string, companyId: string) {
     const normalizedEmail = email.toLowerCase().trim();
-    const user = await this.prisma.user.findFirst({
+    const user = await this.prisma.user.findUnique({
       where: {
-        email: normalizedEmail,
-        companyId,
+        companyId_email: { companyId, email: normalizedEmail },
       },
       include: {
         branches: {
@@ -212,13 +211,18 @@ export class UsersService {
   ) {
     const normalizedEmail = createUserDto.email.toLowerCase().trim();
 
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: normalizedEmail },
-    });
-
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id: branchId },
       include: { company: true },
+    });
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: {
+        companyId_email: {
+          companyId: branch.companyId,
+          email: normalizedEmail,
+        },
+      },
     });
 
     if (!branch) {
@@ -296,7 +300,12 @@ export class UsersService {
     }
 
     const existingUser = await this.prisma.user.findUnique({
-      where: { email: normalizedEmail },
+      where: {
+        companyId_email: {
+          companyId: branch.companyId,
+          email: normalizedEmail,
+        },
+      },
     });
 
     if (existingUser) {
@@ -366,7 +375,11 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    await this.validateEmailUniqueness(updateUserDto, existingUser);
+    await this.validateEmailUniqueness({
+      updateUserDto,
+      existingUser,
+      companyId,
+    });
 
     // Normalize email to lowercase if provided
     const dataToUpdate = {
@@ -530,15 +543,21 @@ export class UsersService {
     return new UserResponseDto(updatedUser);
   }
 
-  private async validateEmailUniqueness(
-    updateUserDto: UpdateUserDto,
-    existingUser: { email: string },
-  ): Promise<void> {
-    if (updateUserDto.email) {
-      const normalizedEmail = updateUserDto.email.toLowerCase().trim();
-      if (normalizedEmail !== existingUser.email) {
+  private async validateEmailUniqueness(args: {
+    updateUserDto: UpdateUserDto;
+    existingUser: { email: string };
+    companyId: string;
+  }): Promise<void> {
+    if (args.updateUserDto.email) {
+      const normalizedEmail = args.updateUserDto.email.toLowerCase().trim();
+      if (normalizedEmail !== args.existingUser.email) {
         const emailInUse = await this.prisma.user.findUnique({
-          where: { email: normalizedEmail },
+          where: {
+            companyId_email: {
+              companyId: args.companyId,
+              email: normalizedEmail,
+            },
+          },
         });
 
         if (emailInUse) {

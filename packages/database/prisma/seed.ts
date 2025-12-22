@@ -118,7 +118,7 @@ async function main() {
 
   // Company admin user
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@company.com' },
+    where: { companyId_email: { companyId: company.id, email: 'admin@company.com' } },
     update: {},
     create: {
       email: 'admin@company.com',
@@ -133,7 +133,7 @@ async function main() {
 
   // Manager user (has all permissions via UserBranch = MANAGER preset)
   const managerUser = await prisma.user.upsert({
-    where: { email: 'manager@company.com' },
+    where: { companyId_email: { companyId: company.id, email: 'manager@company.com' } },
     update: {},
     create: {
       email: 'manager@company.com',
@@ -148,7 +148,7 @@ async function main() {
 
   // Normal user with full permissions on main branch
   const normalUser = await prisma.user.upsert({
-    where: { email: 'user@company.com' },
+    where: { companyId_email: { companyId: company.id, email: 'user@company.com' } },
     update: {},
     create: {
       email: 'user@company.com',
@@ -218,7 +218,7 @@ async function main() {
 
   // Company Admin
   const companyAdmin = await prisma.user.upsert({
-    where: { email: 'admin@acme-corp.com' },
+    where: { companyId_email: { companyId: acmeCompany.id, email: 'admin@acme-corp.com' } },
     update: {},
     create: {
       name: 'John Admin',
@@ -232,7 +232,7 @@ async function main() {
 
   // Company Manager
   const companyManager = await prisma.user.upsert({
-    where: { email: 'manager@acme-corp.com' },
+    where: { companyId_email: { companyId: acmeCompany.id, email: 'manager@acme-corp.com' } },
     update: {},
     create: {
       name: 'Jane Manager',
@@ -246,7 +246,7 @@ async function main() {
 
   // Regular User
   const regularUser = await prisma.user.upsert({
-    where: { email: 'user@acme-corp.com' },
+    where: { companyId_email: { companyId: acmeCompany.id, email: 'user@acme-corp.com' } },
     update: {},
     create: {
       name: 'Bob User',
@@ -393,7 +393,7 @@ async function main() {
 
   // Test User with NO permissions
   const testUser = await prisma.user.upsert({
-    where: { email: 'test@acme-corp.com' },
+    where: { companyId_email: { companyId: acmeCompany.id, email: 'test@acme-corp.com' } },
     update: {},
     create: {
       name: 'Test User',
