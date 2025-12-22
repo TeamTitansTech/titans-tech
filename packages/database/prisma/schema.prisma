@@ -485,7 +485,7 @@ model CompanyBranch {
 model User {
   id                     String  @id @default(cuid())
   name                   String?
-  email                  String  @unique
+  email                  String
   password               String
   isCompanyAdmin         Boolean @default(false)
   isUsingDefaultPassword Boolean @default(true)
@@ -499,6 +499,7 @@ model User {
   branches             UserBranch[]
   notificationsCreated Notification[] @relation("NotificationsCreated")
 
+  @@unique([companyId, email])
   @@map("users")
 }
 
