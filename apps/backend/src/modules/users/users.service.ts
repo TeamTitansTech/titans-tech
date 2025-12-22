@@ -414,10 +414,6 @@ export class UsersService {
       throw new NotFoundException('User not found');
     }
 
-    if (!data.currentPassword) {
-      throw new ForbiddenException('Current password is required');
-    }
-
     const isCurrentPasswordValid = await bcrypt.compare(
       data.currentPassword,
       user.password,

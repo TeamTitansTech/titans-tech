@@ -99,10 +99,6 @@ export class SysAdminService {
       throw new ForbiddenException('Invalid credentials');
     }
 
-    if (!data.currentPassword) {
-      throw new ForbiddenException('Current password is required');
-    }
-
     const isCurrentPasswordValid = await bcrypt.compare(
       data.currentPassword,
       sysAdmin.password,
