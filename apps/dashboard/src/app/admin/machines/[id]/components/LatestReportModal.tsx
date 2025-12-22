@@ -630,8 +630,8 @@ function LatestReportModalContent({ report, onOpenChange }: LatestReportModalPro
             <FileText className="h-5 w-5" />
             {t('title')}
           </DialogTitle>
-          {/* Unit Toggle */}
-          <div className="flex items-center rounded-md border" data-export-button>
+          {/* Unit Toggle - mr-8 to avoid overlapping with close button */}
+          <div className="mr-8 flex items-center rounded-md border" data-export-button>
             <Button
               variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
               size="sm"

@@ -23,9 +23,9 @@ export function BranchesSection({
   onSelectBranch,
   onUserAdded,
 }: BranchesSectionProps) {
-  const t = useTranslations('adminSettings.branches');
+  const t = useTranslations('settings.branches');
   const tCompanies = useTranslations('companies');
-  const tUserManagement = useTranslations('adminSettings.userManagement');
+  const tUserManagement = useTranslations('settings.userManagement');
   const [branches, setBranches] = useState<CompanyBranch[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -76,19 +76,28 @@ export function BranchesSection({
     return (
       <>
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-base font-semibold flex items-center gap-2">
               <MapPin className="h-4 w-4" />
               {t('title')}
             </h3>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setIsAddUserDialogOpen(true)}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                {tUserManagement('addUser')}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAddUserDialogOpen(true)}
+                className="flex-1 sm:flex-none"
+              >
+                <UserPlus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">{tUserManagement('addUser')}</span>
               </Button>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                {tCompanies('newBranch')}
+              <Button
+                size="sm"
+                onClick={() => setIsCreateDialogOpen(true)}
+                className="flex-1 sm:flex-none"
+              >
+                <Plus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">{tCompanies('newBranch')}</span>
               </Button>
             </div>
           </div>
@@ -114,19 +123,28 @@ export function BranchesSection({
     return (
       <>
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h3 className="text-base font-semibold flex items-center gap-2">
               <MapPin className="h-4 w-4" />
               {t('title')}
             </h3>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setIsAddUserDialogOpen(true)}>
-                <UserPlus className="h-4 w-4 mr-2" />
-                {tUserManagement('addUser')}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsAddUserDialogOpen(true)}
+                className="flex-1 sm:flex-none"
+              >
+                <UserPlus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">{tUserManagement('addUser')}</span>
               </Button>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                {tCompanies('newBranch')}
+              <Button
+                size="sm"
+                onClick={() => setIsCreateDialogOpen(true)}
+                className="flex-1 sm:flex-none"
+              >
+                <Plus className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">{tCompanies('newBranch')}</span>
               </Button>
             </div>
           </div>
@@ -151,19 +169,28 @@ export function BranchesSection({
   return (
     <>
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h3 className="text-base font-semibold flex items-center gap-2">
             <MapPin className="h-4 w-4" />
             {t('title')}
           </h3>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setIsAddUserDialogOpen(true)}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              {tUserManagement('addUser')}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsAddUserDialogOpen(true)}
+              className="flex-1 sm:flex-none"
+            >
+              <UserPlus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">{tUserManagement('addUser')}</span>
             </Button>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              {tCompanies('newBranch')}
+            <Button
+              size="sm"
+              onClick={() => setIsCreateDialogOpen(true)}
+              className="flex-1 sm:flex-none"
+            >
+              <Plus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">{tCompanies('newBranch')}</span>
             </Button>
           </div>
         </div>
