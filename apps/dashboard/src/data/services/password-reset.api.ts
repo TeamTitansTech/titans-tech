@@ -3,6 +3,13 @@ import { responseHandler } from '@/data/helpers/responseHandler';
 
 export interface ForgotPasswordRequest {
   email: string;
+  companyId?: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+  confirmPassword: string;
 }
 
 export interface SetPasswordRequest {
@@ -13,9 +20,8 @@ export interface SetPasswordRequest {
 
 export interface ValidateTokenResponse {
   valid: boolean;
-  type?: 'ACTIVATION' | 'RESET';
-  userType?: 'user' | 'sysAdmin';
-  message?: string;
+  userId?: string;
+  sysAdminId?: string;
 }
 
 export const forgotPassword = async (data: ForgotPasswordRequest) => {
@@ -25,8 +31,8 @@ export const forgotPassword = async (data: ForgotPasswordRequest) => {
   });
 };
 
-export const adminForgotPassword = async (data: ForgotPasswordRequest) => {
-  return await responseHandler<{ message: string }>('/password-reset/admin/forgot-password', {
+export const resetPassword = async (data: ResetPasswordRequest) => {
+  return await responseHandler<{ message: string }>('/password-reset/reset-password', {
     method: 'POST',
     body: data,
   });

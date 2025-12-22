@@ -2867,6 +2867,13 @@
       "submit": "Set Password",
       "submitting": "Setting password..."
     },
+    "errors": {
+      "passwordMismatch": "Passwords do not match"
+    },
+    "invalidLink": {
+      "title": "Invalid Link",
+      "message": "This activation link is invalid or has expired."
+    },
     "invalidToken": {
       "title": "Invalid or Expired Token",
       "backToLogin": "Back to Login"

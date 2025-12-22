@@ -21,6 +21,35 @@ export function isSysAdmin(payload: JwtPayload): payload is SysAdminJwtPayload {
   return payload.isSysAdmin === true;
 }
 
+export interface PasswordResetUserPayload {
+  userId: string;
+  companyId: string;
+  email: string;
+  type: 'USER';
+}
+
+export interface PasswordResetSysAdminPayload {
+  sysAdminId: string;
+  email: string;
+  type: 'SYSADMIN';
+}
+
+export type PasswordResetPayload =
+  | PasswordResetUserPayload
+  | PasswordResetSysAdminPayload;
+
+export function isPasswordResetUser(
+  payload: PasswordResetPayload,
+): payload is PasswordResetUserPayload {
+  return payload.type === 'USER';
+}
+
+export function isPasswordResetSysAdmin(
+  payload: PasswordResetPayload,
+): payload is PasswordResetSysAdminPayload {
+  return payload.type === 'SYSADMIN';
+}
+
 export interface ReqWithAuthUser extends Request {
   user: JwtPayload;
   /** Branch ID resolved from resource by @ResourcePermission decorator */

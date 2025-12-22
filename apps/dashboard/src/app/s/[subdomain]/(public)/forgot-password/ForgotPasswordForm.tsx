@@ -8,7 +8,12 @@ import { Label } from '@/components/ui/label';
 import { forgotPassword } from '@/data/services/password-reset.api';
 import { Loader2 } from 'lucide-react';
 
-export default function ForgotPasswordPage() {
+interface ForgotPasswordFormProps {
+  companyId: string;
+  subdomain: string;
+}
+
+export default function ForgotPasswordForm({ companyId, subdomain }: ForgotPasswordFormProps) {
   const t = useTranslations('forgotPassword');
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -16,26 +21,21 @@ export default function ForgotPasswordPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     setIsLoading(true);
-    await forgotPassword({ email });
+    await forgotPassword({ email, companyId });
     setIsLoading(false);
     setSubmitted(true);
   };
 
   const handleBackToLogin = () => {
-    // Detect if we're on a subdomain
+    const protocol = window.location.protocol;
     const hostname = window.location.hostname;
-    const parts = hostname.split('.');
+    const port = window.location.port ? `:${window.location.port}` : '';
 
-    // Check if it's a subdomain (e.g., "mycompany.localhost")
-    if (parts.length > 1 && parts[0] !== 'www' && parts[0] !== 'localhost') {
-      const subdomain = parts[0];
-      const protocol = window.location.protocol;
-      const port = window.location.port ? `:${window.location.port}` : '';
-      window.location.href = `${protocol}//${subdomain}.localhost${port}/`;
-    } else {
-      window.location.href = '/admin/login';
-    }
+    const baseDomain = hostname.includes('.') ? hostname.split('.').slice(1).join('.') : hostname;
+
+    window.location.href = `${protocol}//${subdomain}.${baseDomain}${port}/`;
   };
 
   if (submitted) {

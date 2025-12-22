@@ -12,7 +12,14 @@ const ADMIN_PUBLIC_PATHS = ['/admin'];
 const ADMIN_LOGIN_PATH = '/admin';
 const ADMIN_ALREADY_LOGGED_PATH = '/admin/dashboard';
 const CLIENT_ALREADY_LOGGED_PATH = '/home';
-const PUBLIC_PATHS_NESTED_ROUTE: string[] = [];
+const PUBLIC_PATHS_NESTED_ROUTE: string[] = [
+  '/forgot-password',
+  '/reset-password',
+  '/set-password',
+  '/admin/forgot-password',
+  '/admin/reset-password',
+  '/admin/set-password',
+];
 
 const CLIENT_PUBLIC_PATHS = ['/'];
 const CLIENT_LOGIN_PATH = '/';
@@ -106,6 +113,19 @@ export async function proxy(request: NextRequest) {
     }
     const redirectPath = subdomain ? CLIENT_ALREADY_LOGGED_PATH : ADMIN_ALREADY_LOGGED_PATH;
     return NextResponse.redirect(new URL(redirectPath, request.url));
+  }
+
+  if (isLoggedIn) {
+    const passwordResetPaths = ['/forgot-password', '/reset-password'];
+    const isPasswordResetPage = passwordResetPaths.some((path) => pathname.includes(path));
+
+    if (isPasswordResetPage) {
+      if (subdomain) {
+        return NextResponse.redirect(new URL('/home', request.url));
+      } else {
+        return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      }
+    }
   }
 
   if (!publicPath && !isLoggedIn) {

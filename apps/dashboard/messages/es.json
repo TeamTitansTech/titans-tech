@@ -2868,6 +2868,13 @@
       "submit": "Establecer Contraseña",
       "submitting": "Estableciendo contraseña..."
     },
+    "errors": {
+      "passwordMismatch": "Las contraseñas no coinciden"
+    },
+    "invalidLink": {
+      "title": "Enlace Inválido",
+      "message": "Este enlace de activación es inválido o ha expirado."
+    },
     "invalidToken": {
       "title": "Token Inválido o Expirado",
       "backToLogin": "Volver al Inicio de Sesión"

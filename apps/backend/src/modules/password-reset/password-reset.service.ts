@@ -1,16 +1,23 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../shared/prisma.service';
 import { EmailService } from '../email/email.service';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import type { Locale } from '../email/templates/i18n';
 import { appEnv } from '../../config/env';
+import {
+  PasswordResetUserPayload,
+  PasswordResetSysAdminPayload,
+  PasswordResetPayload,
+} from '../../types/request';
 
 @Injectable()
 export class PasswordResetService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly emailService: EmailService,
+    private readonly jwtService: JwtService,
   ) {}
 
   private generateToken(): string {
@@ -38,8 +45,10 @@ export class PasswordResetService {
       },
     });
 
-    // Construct URL at root domain with subdomain as query param
-    const activationUrl = `${appEnv.FRONTEND_URL}/set-password/${token}?subdomain=${companySlug}`;
+    const urlParts = appEnv.FRONTEND_URL.split('://');
+    const protocol = urlParts[0];
+    const domain = urlParts[1].replace(/\/$/, '');
+    const activationUrl = `${protocol}://${companySlug}.${domain}/set-password/${token}`;
 
     await this.emailService.sendPasswordActivationEmail(
       userEmail,
@@ -81,135 +90,175 @@ export class PasswordResetService {
     );
   }
 
-  async validateToken(token: string): Promise<{
+  async validateActivationToken(token: string): Promise<{
     valid: boolean;
-    type?: 'ACTIVATION' | 'RESET';
-    userType?: 'user' | 'sysAdmin';
-    message?: string;
+    userId?: string;
+    sysAdminId?: string;
   }> {
     const tokenRecord = await this.prisma.passwordResetToken.findUnique({
       where: { token },
     });
 
     if (!tokenRecord) {
-      return { valid: false, message: 'Invalid token' };
+      return { valid: false };
+    }
+
+    if (tokenRecord.type !== 'ACTIVATION') {
+      return { valid: false };
     }
 
     if (tokenRecord.usedAt) {
-      return { valid: false, message: 'Token has already been used' };
+      return { valid: false };
     }
 
-    if (new Date() > tokenRecord.expiresAt) {
-      return { valid: false, message: 'Token has expired' };
+    if (tokenRecord.expiresAt < new Date()) {
+      return { valid: false };
     }
 
     return {
       valid: true,
-      type: tokenRecord.type,
-      userType: tokenRecord.userId ? 'user' : 'sysAdmin',
+      userId: tokenRecord.userId || undefined,
+      sysAdminId: tokenRecord.sysAdminId || undefined,
     };
   }
 
-  /**
-   * Set password via activation/reset token
-   */
-  async setPasswordWithToken(
+  async setPasswordWithActivationToken(
     token: string,
     newPassword: string,
   ): Promise<void> {
-    const validation = await this.validateToken(token);
+    const validation = await this.validateActivationToken(token);
 
     if (!validation.valid) {
-      throw new BadRequestException(validation.message);
-    }
-
-    const tokenRecord = await this.prisma.passwordResetToken.findUnique({
-      where: { token },
-    });
-
-    if (!tokenRecord) {
-      throw new BadRequestException('Invalid token');
+      throw new BadRequestException('Invalid or expired activation token');
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    await this.prisma.$transaction(async (tx) => {
-      if (tokenRecord.userId) {
-        await tx.user.update({
-          where: { id: tokenRecord.userId },
-          data: {
-            password: hashedPassword,
-          },
-        });
-      } else if (tokenRecord.sysAdminId) {
-        await tx.sysAdmin.update({
-          where: { id: tokenRecord.sysAdminId },
-          data: {
-            password: hashedPassword,
-          },
-        });
-      }
+    if (validation.userId) {
+      await this.prisma.user.update({
+        where: { id: validation.userId },
+        data: { password: hashedPassword },
+      });
 
-      await tx.passwordResetToken.update({
-        where: { id: tokenRecord.id },
+      await this.prisma.passwordResetToken.update({
+        where: { token },
         data: { usedAt: new Date() },
       });
-    });
+    } else if (validation.sysAdminId) {
+      await this.prisma.sysAdmin.update({
+        where: { id: validation.sysAdminId },
+        data: { password: hashedPassword },
+      });
+
+      await this.prisma.passwordResetToken.update({
+        where: { token },
+        data: { usedAt: new Date() },
+      });
+    } else {
+      throw new BadRequestException('Invalid token');
+    }
+  }
+
+  async resetPasswordWithJwt(
+    token: string,
+    newPassword: string,
+  ): Promise<void> {
+    let payload: PasswordResetPayload;
+
+    try {
+      payload = await this.jwtService.verifyAsync<PasswordResetPayload>(token, {
+        secret: appEnv.AUTH_JWT_SECRET,
+      });
+    } catch {
+      throw new BadRequestException('Invalid or expired token');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    if (payload.type === 'USER') {
+      await this.prisma.user.update({
+        where: { id: payload.userId },
+        data: { password: hashedPassword },
+      });
+    } else {
+      await this.prisma.sysAdmin.update({
+        where: { id: payload.sysAdminId },
+        data: { password: hashedPassword },
+      });
+    }
   }
 
   async requestPasswordReset(
     email: string,
-    isAdmin: boolean = false,
+    companyId: string | null,
     locale: Locale = 'en',
   ): Promise<void> {
     const normalizedEmail = email.toLowerCase().trim();
 
-    const user = isAdmin
-      ? await this.prisma.sysAdmin.findUnique({
-          where: { email: normalizedEmail },
-        })
-      : await this.prisma.user.findUnique({
-          where: { email: normalizedEmail },
-          include: { company: true },
-        });
+    if (companyId) {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          companyId_email: { companyId, email: normalizedEmail },
+        },
+        include: { company: true },
+      });
 
-    if (!user) {
-      return;
-    }
+      if (!user) return;
 
-    const token = this.generateToken();
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 1);
+      const payload: PasswordResetUserPayload = {
+        userId: user.id,
+        companyId: user.companyId,
+        email: normalizedEmail,
+        type: 'USER',
+      };
 
-    await this.prisma.passwordResetToken.create({
-      data: {
-        token,
-        type: 'RESET',
-        ...(isAdmin ? { sysAdminId: user.id } : { userId: user.id }),
-        expiresAt,
-      },
-    });
+      const token = await this.jwtService.signAsync(payload, {
+        expiresIn: '30m',
+      });
 
-    let resetUrl: string;
-    let companyName: string;
-    if (isAdmin) {
-      resetUrl = `${appEnv.FRONTEND_URL}/reset-password/${token}`;
-      companyName = 'Admin Portal';
+      const urlParts = appEnv.FRONTEND_URL.split('://');
+      const protocol = urlParts[0];
+      const domain = urlParts[1].replace(/\/$/, '');
+      const resetUrl = `${protocol}://${user.company.slug}.${domain}/reset-password/${token}`;
+
+      await this.emailService.sendPasswordResetEmail(
+        user.email,
+        {
+          userName: user.name || 'User',
+          companyName: user.company.name,
+          resetUrl,
+        },
+        locale,
+      );
     } else {
-      // For regular users, use root domain with subdomain query param
-      const companySlug = 'company' in user ? (user as any).company.slug : '';
-      resetUrl = `${appEnv.FRONTEND_URL}/reset-password/${token}?subdomain=${companySlug}`;
-      companyName = 'company' in user ? (user as any).company.name : 'Portal';
+      const sysAdmin = await this.prisma.sysAdmin.findUnique({
+        where: { email: normalizedEmail },
+      });
+
+      if (!sysAdmin) return;
+
+      const payload: PasswordResetSysAdminPayload = {
+        sysAdminId: sysAdmin.id,
+        email: normalizedEmail,
+        type: 'SYSADMIN',
+      };
+
+      const token = await this.jwtService.signAsync(payload, {
+        expiresIn: '30m',
+      });
+
+      const resetUrl = `${appEnv.FRONTEND_URL}/admin/reset-password/${token}`;
+
+      await this.emailService.sendPasswordResetEmail(
+        sysAdmin.email,
+        {
+          userName: 'Admin',
+          companyName: 'Titans Tech Admin Portal',
+          resetUrl,
+        },
+        locale,
+      );
     }
-
-    const userName: string =
-      'name' in user ? (user.name as string | null) || 'User' : 'Admin';
-
-    await this.emailService.sendPasswordResetEmail(
-      normalizedEmail,
-      { userName, companyName, resetUrl },
-      locale,
-    );
   }
 
   async resendActivationEmail(userId: string): Promise<void> {
@@ -222,7 +271,6 @@ export class PasswordResetService {
       throw new BadRequestException('User not found');
     }
 
-    // Delete any existing unused activation tokens for this user
     await this.prisma.passwordResetToken.deleteMany({
       where: {
         userId: user.id,
@@ -231,7 +279,6 @@ export class PasswordResetService {
       },
     });
 
-    // Create new activation token
     const token = this.generateToken();
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
@@ -245,8 +292,10 @@ export class PasswordResetService {
       },
     });
 
-    // Send activation email at root domain with subdomain as query param
-    const activationUrl = `${appEnv.FRONTEND_URL}/set-password/${token}?subdomain=${user.company.slug}`;
+    const urlParts = appEnv.FRONTEND_URL.split('://');
+    const protocol = urlParts[0];
+    const domain = urlParts[1].replace(/\/$/, '');
+    const activationUrl = `${protocol}://${user.company.slug}.${domain}/set-password/${token}`;
 
     await this.emailService.sendPasswordActivationEmail(
       user.email,
@@ -260,7 +309,6 @@ export class PasswordResetService {
   }
 
   async checkPendingActivation(userId: string): Promise<boolean> {
-    // Check if user has any activation tokens at all
     const anyToken = await this.prisma.passwordResetToken.findFirst({
       where: {
         userId,
@@ -268,12 +316,8 @@ export class PasswordResetService {
       },
     });
 
-    // If no activation token exists, this is an old user - no activation needed
-    if (!anyToken) {
-      return false;
-    }
+    if (!anyToken) return false;
 
-    // User has activation tokens, check if any have been used
     const usedToken = await this.prisma.passwordResetToken.findFirst({
       where: {
         userId,
@@ -282,17 +326,10 @@ export class PasswordResetService {
       },
     });
 
-    // If has used token, activation is complete
-    if (usedToken) {
-      return false;
-    }
-
-    // Has activation token but never used - needs activation
-    return true;
+    return usedToken ? false : true;
   }
 
   async checkSysAdminPendingActivation(sysAdminId: string): Promise<boolean> {
-    // Check if SysAdmin has any activation tokens at all
     const anyToken = await this.prisma.passwordResetToken.findFirst({
       where: {
         sysAdminId,
@@ -300,12 +337,8 @@ export class PasswordResetService {
       },
     });
 
-    // If no activation token exists, this is an old admin - no activation needed
-    if (!anyToken) {
-      return false;
-    }
+    if (!anyToken) return false;
 
-    // SysAdmin has activation tokens, check if any have been used
     const usedToken = await this.prisma.passwordResetToken.findFirst({
       where: {
         sysAdminId,
@@ -314,12 +347,6 @@ export class PasswordResetService {
       },
     });
 
-    // If has used token, activation is complete
-    if (usedToken) {
-      return false;
-    }
-
-    // Has activation token but never used - needs activation
-    return true;
+    return usedToken ? false : true;
   }
 }

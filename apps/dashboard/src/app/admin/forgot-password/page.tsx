@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { adminForgotPassword } from '@/data/services/password-reset.api';
+import { forgotPassword } from '@/data/services/password-reset.api';
 import { Loader2 } from 'lucide-react';
 
 export default function AdminForgotPasswordPage() {
@@ -18,7 +18,7 @@ export default function AdminForgotPasswordPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await adminForgotPassword({ email });
+    await forgotPassword({ email });
     setIsLoading(false);
     setSubmitted(true);
   };

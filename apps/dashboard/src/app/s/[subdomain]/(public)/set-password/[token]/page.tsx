@@ -2,12 +2,12 @@ import { validateToken } from '@/data/services/password-reset.api';
 import SetPasswordForm from './SetPasswordForm';
 import { getTranslations } from 'next-intl/server';
 
-interface AdminSetPasswordPageProps {
-  params: Promise<{ token: string }>;
+interface SubdomainSetPasswordPageProps {
+  params: Promise<{ subdomain: string; token: string }>;
 }
 
-export default async function AdminSetPasswordPage({ params }: AdminSetPasswordPageProps) {
-  const { token } = await params;
+export default async function SubdomainSetPasswordPage({ params }: SubdomainSetPasswordPageProps) {
+  const { subdomain, token } = await params;
   const t = await getTranslations('setPassword');
 
   const validationResult = await validateToken(token);
@@ -23,5 +23,5 @@ export default async function AdminSetPasswordPage({ params }: AdminSetPasswordP
     );
   }
 
-  return <SetPasswordForm token={token} />;
+  return <SetPasswordForm token={token} subdomain={subdomain} />;
 }

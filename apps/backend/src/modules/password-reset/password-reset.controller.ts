@@ -1,8 +1,10 @@
-import { Controller, Post, Get, Body, Param } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get } from '@nestjs/common';
 import { PasswordResetService } from './password-reset.service';
 import {
   ForgotPasswordDto,
   ForgotPasswordSchema,
+  ResetPasswordDto,
+  ResetPasswordSchema,
   SetPasswordDto,
   SetPasswordSchema,
 } from '@titans-tech/shared/backend-dtos';
@@ -19,32 +21,41 @@ export class PasswordResetController {
     @Body(new ZodValidationPipe(ForgotPasswordSchema))
     dto: ForgotPasswordDto,
   ) {
-    await this.passwordResetService.requestPasswordReset(dto.email, false);
+    await this.passwordResetService.requestPasswordReset(
+      dto.email,
+      dto.companyId || null,
+    );
     return { message: 'If email exists, reset link has been sent' };
   }
 
   @Public()
-  @Post('admin/forgot-password')
-  async adminForgotPassword(
-    @Body(new ZodValidationPipe(ForgotPasswordSchema))
-    dto: ForgotPasswordDto,
+  @Post('reset-password')
+  async resetPassword(
+    @Body(new ZodValidationPipe(ResetPasswordSchema))
+    dto: ResetPasswordDto,
   ) {
-    await this.passwordResetService.requestPasswordReset(dto.email, true);
-    return { message: 'If email exists, reset link has been sent' };
+    await this.passwordResetService.resetPasswordWithJwt(
+      dto.token,
+      dto.password,
+    );
+    return { message: 'Password reset successfully' };
   }
 
   @Public()
   @Get('validate/:token')
   async validateToken(@Param('token') token: string) {
-    return this.passwordResetService.validateToken(token);
+    const result =
+      await this.passwordResetService.validateActivationToken(token);
+    return result;
   }
 
   @Public()
   @Post('set-password')
   async setPassword(
-    @Body(new ZodValidationPipe(SetPasswordSchema)) dto: SetPasswordDto,
+    @Body(new ZodValidationPipe(SetPasswordSchema))
+    dto: SetPasswordDto,
   ) {
-    await this.passwordResetService.setPasswordWithToken(
+    await this.passwordResetService.setPasswordWithActivationToken(
       dto.token,
       dto.password,
     );
