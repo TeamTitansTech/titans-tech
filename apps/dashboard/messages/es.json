@@ -909,7 +909,18 @@
     "field": "campo",
     "fields": "campos",
     "edit": "Editar",
-    "thresholds": "Configurar Thresholds"
+    "thresholds": "Configurar Thresholds",
+    "deleteConfirmTitle": "Eliminar Modelo",
+    "deleteConfirmDescription": "¿Estás seguro de que deseas eliminar \"{name}\"? Esta acción no se puede deshacer.",
+    "deleteError": "Error al eliminar modelo",
+    "deleteSuccess": "Modelo eliminado",
+    "deleteSuccessDescription": "\"{name}\" ha sido eliminado exitosamente",
+    "deleteWithMachinesTitle": "Eliminar Modelo con Máquinas",
+    "deleteWithMachinesWarning": "El modelo \"{name}\" tiene {count} máquina(s) registrada(s). Eliminar este modelo también eliminará todas las máquinas asociadas.",
+    "machinesList": "Máquinas que serán eliminadas",
+    "deleteWithMachinesConfirm": "¿Estás seguro de que deseas continuar? Esta acción no se puede deshacer.",
+    "deleteWithMachinesButton": "Eliminar Modelo y Máquinas",
+    "deleteSuccessWithMachines": "\"{name}\" y todas las máquinas asociadas han sido eliminados"
   },
   "machines": {
     "title": "Crear Máquina",

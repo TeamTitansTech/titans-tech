@@ -904,7 +904,18 @@
     "machines": "máquinas",
     "field": "campo",
     "fields": "campos",
-    "edit": "Editar"
+    "edit": "Editar",
+    "deleteConfirmTitle": "Excluir Modelo",
+    "deleteConfirmDescription": "Tem certeza que deseja excluir \"{name}\"? Esta ação não pode ser desfeita.",
+    "deleteError": "Erro ao excluir modelo",
+    "deleteSuccess": "Modelo excluído",
+    "deleteSuccessDescription": "\"{name}\" foi excluído com sucesso",
+    "deleteWithMachinesTitle": "Excluir Modelo com Máquinas",
+    "deleteWithMachinesWarning": "O modelo \"{name}\" possui {count} máquina(s) registrada(s). Excluir este modelo também excluirá todas as máquinas associadas.",
+    "machinesList": "Máquinas que serão excluídas",
+    "deleteWithMachinesConfirm": "Tem certeza que deseja continuar? Esta ação não pode ser desfeita.",
+    "deleteWithMachinesButton": "Excluir Modelo e Máquinas",
+    "deleteSuccessWithMachines": "\"{name}\" e todas as máquinas associadas foram excluídos"
   },
   "machines": {
     "title": "Criar Máquina",
