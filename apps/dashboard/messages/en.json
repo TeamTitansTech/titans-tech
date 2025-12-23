@@ -905,7 +905,18 @@
     "field": "field",
     "fields": "fields",
     "edit": "Edit",
-    "thresholds": "Configure Thresholds"
+    "thresholds": "Configure Thresholds",
+    "deleteConfirmTitle": "Delete Model",
+    "deleteConfirmDescription": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
+    "deleteError": "Error deleting model",
+    "deleteSuccess": "Model deleted",
+    "deleteSuccessDescription": "\"{name}\" has been deleted successfully",
+    "deleteWithMachinesTitle": "Delete Model with Machines",
+    "deleteWithMachinesWarning": "The model \"{name}\" has {count} machine(s) registered. Deleting this model will also delete all associated machines.",
+    "machinesList": "Machines that will be deleted",
+    "deleteWithMachinesConfirm": "Are you sure you want to proceed? This action cannot be undone.",
+    "deleteWithMachinesButton": "Delete Model and Machines",
+    "deleteSuccessWithMachines": "\"{name}\" and all associated machines have been deleted"
   },
   "machines": {
     "title": "Create Machine",

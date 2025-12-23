@@ -60,7 +60,7 @@ function CustomTooltip({
   if (!active || !payload || payload.length === 0) return null;
 
   return (
-    <div className="bg-card border rounded-lg shadow-lg p-3 min-w-[280px]">
+    <div className="bg-card border rounded-lg shadow-lg p-3 max-w-[280px] sm:min-w-[280px]">
       <Typography variant="small" className="font-medium mb-2">
         {label}
       </Typography>
@@ -288,6 +288,8 @@ export function MultiLineThresholdChart(props: MultiLineThresholdChartProps) {
                   hideThresholdValues={hideThresholdValues}
                 />
               )}
+              wrapperStyle={{ zIndex: 50, pointerEvents: 'none' }}
+              allowEscapeViewBox={{ x: false, y: false }}
             />
             <Legend
               layout="horizontal"

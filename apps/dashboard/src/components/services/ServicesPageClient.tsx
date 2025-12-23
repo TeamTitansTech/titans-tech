@@ -220,17 +220,19 @@ export function ServicesPageClient() {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6">
-        <TabsList className="w-full md:w-auto">
-          <TabsTrigger value="upcoming" className="flex-1 md:flex-none">
-            {t('tabs.upcoming')} ({upcomingServices.length})
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex-1 md:flex-none">
-            {t('tabs.history')} ({historyServices.length})
-          </TabsTrigger>
-          <TabsTrigger value="all" className="flex-1 md:flex-none">
-            {t('tabs.all')} ({allServices.length})
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-2 px-2">
+          <TabsList className="w-auto inline-flex">
+            <TabsTrigger value="upcoming" className="whitespace-nowrap text-xs sm:text-sm">
+              {t('tabs.upcoming')} ({upcomingServices.length})
+            </TabsTrigger>
+            <TabsTrigger value="history" className="whitespace-nowrap text-xs sm:text-sm">
+              {t('tabs.history')} ({historyServices.length})
+            </TabsTrigger>
+            <TabsTrigger value="all" className="whitespace-nowrap text-xs sm:text-sm">
+              {t('tabs.all')} ({allServices.length})
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="upcoming" className="mt-6">
           {renderServiceGrid(upcomingServices)}

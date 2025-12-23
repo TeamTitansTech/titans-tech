@@ -344,25 +344,25 @@ export function AdminDashboard() {
               {t('companiesOverview.noCompanies')}
             </p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
               {companies.slice(0, 6).map((company) => (
                 <div
                   key={company.id}
-                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors"
+                  className="flex items-center justify-between p-4 rounded-lg border hover:bg-muted/50 transition-colors gap-3"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 rounded-lg bg-primary/10">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="p-2 rounded-lg bg-primary/10 shrink-0">
                       <Building2 className="h-5 w-5 text-primary" />
                     </div>
-                    <div>
-                      <p className="font-medium">{company.name}</p>
-                      <p className="text-sm text-muted-foreground">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">{company.name}</p>
+                      <p className="text-sm text-muted-foreground truncate">
                         {company.branchCount} {t('companiesOverview.branches')} •{' '}
                         {company.machineCount} {t('companiesOverview.machines')}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 shrink-0">
                     <div className="text-right">
                       <p className="text-sm font-medium">{company.serviceCount}</p>
                       <p className="text-xs text-muted-foreground">
@@ -507,12 +507,12 @@ export function AdminDashboard() {
               {services.slice(0, 5).map((service) => (
                 <div
                   key={service.id}
-                  className="flex items-center justify-between p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
+                  className="flex flex-col gap-3 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors sm:flex-row sm:items-center sm:justify-between"
                   onClick={() => handleServiceClick(service.id)}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <div
-                      className={`p-2 rounded-lg ${
+                      className={`p-2 rounded-lg shrink-0 ${
                         service.type === ServiceType.INSPECTION
                           ? 'bg-blue-100 dark:bg-blue-950'
                           : 'bg-orange-100 dark:bg-orange-950'
@@ -526,18 +526,21 @@ export function AdminDashboard() {
                         }`}
                       />
                     </div>
-                    <div>
-                      <p className="font-medium">{service.machine?.name || 'Unknown Machine'}</p>
-                      <p className="text-sm text-muted-foreground">
+                    <div className="min-w-0">
+                      <p className="font-medium truncate">
+                        {service.machine?.name || 'Unknown Machine'}
+                      </p>
+                      <p className="text-sm text-muted-foreground truncate">
                         {service.machine?.branch?.company?.name ||
                           service.machine?.branch?.name ||
                           'Unknown'}
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-wrap items-center gap-2 pl-11 sm:gap-3 sm:pl-0 sm:shrink-0">
                     <Badge
                       variant={service.type === ServiceType.INSPECTION ? 'default' : 'secondary'}
+                      className="text-xs"
                     >
                       {service.type === ServiceType.INSPECTION
                         ? t('recentActivity.inspection')
@@ -547,12 +550,13 @@ export function AdminDashboard() {
                       variant={
                         service.status === ServiceStatus.COMPLETED ? 'outline' : 'destructive'
                       }
+                      className="text-xs"
                     >
                       {service.status === ServiceStatus.COMPLETED
                         ? t('recentActivity.completed')
                         : t('recentActivity.pending')}
                     </Badge>
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-xs text-muted-foreground sm:text-sm">
                       {format(parseISO(service.date), 'dd/MM/yyyy')}
                     </span>
                   </div>

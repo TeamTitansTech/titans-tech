@@ -39,7 +39,7 @@ export function PistonsThresholds({ open, onOpenChange, data, onChange }: Piston
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent>
-        <div className="border border-t-0 rounded-b-lg p-6 bg-card">
+        <div className="border border-t-0 rounded-b-lg p-3 bg-card sm:p-6">
           <ThresholdRangeInput
             label={t('difference')}
             greenMin={data.difference_greenMin}
