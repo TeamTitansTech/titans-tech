@@ -11,7 +11,7 @@
     },
     "noPermission": {
       "title": "No Permission",
-      "description": "You don't have permission to access this page or resource.",
+      "description": "You don't have permission to access this page or resource!",
       "contactMessage": "If you believe you should have access, please contact your company administrator or manager.",
       "goToDashboard": "Go to Dashboard"
     },
