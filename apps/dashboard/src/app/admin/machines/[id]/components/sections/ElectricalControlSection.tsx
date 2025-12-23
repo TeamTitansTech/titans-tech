@@ -216,7 +216,12 @@ export const ElectricalControlSection = forwardRef<
               value={data.hasHourMeter || ''}
               onValueChange={(value) => updateField('hasHourMeter', value as YesNoDncType)}
             >
-              <SelectTrigger id="hasHourMeter">
+              <SelectTrigger
+                id="hasHourMeter"
+                clearable
+                hasValue={!!data.hasHourMeter}
+                onClear={() => updateField('hasHourMeter', undefined)}
+              >
                 <SelectValue placeholder={t('selectOption')} />
               </SelectTrigger>
               <SelectContent>
@@ -249,7 +254,12 @@ export const ElectricalControlSection = forwardRef<
               value={data.isMinsterControl || ''}
               onValueChange={(value) => updateField('isMinsterControl', value as YesNoDncType)}
             >
-              <SelectTrigger id="isMinsterControl">
+              <SelectTrigger
+                id="isMinsterControl"
+                clearable
+                hasValue={!!data.isMinsterControl}
+                onClear={() => updateField('isMinsterControl', undefined)}
+              >
                 <SelectValue placeholder={t('selectOption')} />
               </SelectTrigger>
               <SelectContent>
@@ -288,7 +298,12 @@ export const ElectricalControlSection = forwardRef<
                 value={(data[key] as string) || ''}
                 onValueChange={(value) => updateField(key, value as YesNoNaDncCantTellType)}
               >
-                <SelectTrigger id={key}>
+                <SelectTrigger
+                  id={key}
+                  clearable
+                  hasValue={!!data[key]}
+                  onClear={() => updateField(key, undefined)}
+                >
                   <SelectValue placeholder={t('selectOption')} />
                 </SelectTrigger>
                 <SelectContent>

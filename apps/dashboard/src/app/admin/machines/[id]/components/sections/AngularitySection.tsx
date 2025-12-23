@@ -179,7 +179,12 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
                 value={data.hasBeenAdjusted || ''}
                 onValueChange={(value) => updateField('hasBeenAdjusted', value as YesNoDncType)}
               >
-                <SelectTrigger id="angularity-hasBeenAdjusted">
+                <SelectTrigger
+                  id="angularity-hasBeenAdjusted"
+                  clearable
+                  hasValue={!!data.hasBeenAdjusted}
+                  onClear={() => updateField('hasBeenAdjusted', undefined)}
+                >
                   <SelectValue placeholder={t('selectOption')} />
                 </SelectTrigger>
                 <SelectContent>

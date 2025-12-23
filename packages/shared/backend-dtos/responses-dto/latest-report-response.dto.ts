@@ -12,6 +12,7 @@ import {
   ShimThicknessData,
 } from '@titans-tech/db';
 import { AlertBearingClearanceResponseDto } from './alert-bearing-clearance-response.dto';
+import { AlertBearingClearanceSingleHammerResponseDto } from './alert-bearing-clearance-single-hammer-response.dto';
 import { AlertClutchResponseDto } from './alert-clutch-response.dto';
 import { AlertSlideResponseDto } from './alert-slide-response.dto';
 import { AlertGibsResponseDto } from './alert-gibs-response.dto';
@@ -211,7 +212,7 @@ export class LatestBearingClearanceSingleHammerDto {
     beforeData?: BearingClearanceData;
     data?: BearingClearanceData;
   };
-  // No alerts for single hammer yet
+  alert?: AlertBearingClearanceSingleHammerResponseDto; // Alert if exists
 
   constructor(partial: Partial<LatestBearingClearanceSingleHammerDto>) {
     Object.assign(this, partial);

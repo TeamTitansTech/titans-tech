@@ -14,6 +14,7 @@ import { YesNoNaDncType } from '@/data/types/services.types';
 interface HasBeenAdjustedSelectProps {
   value: YesNoNaDncType | undefined;
   onValueChange: (value: YesNoNaDncType) => void;
+  onClear?: () => void;
   id: string;
   label?: string;
   required?: boolean;
@@ -22,6 +23,7 @@ interface HasBeenAdjustedSelectProps {
 export function HasBeenAdjustedSelect({
   value,
   onValueChange,
+  onClear,
   id,
   label,
   required = true,
@@ -35,7 +37,13 @@ export function HasBeenAdjustedSelect({
         {required && <span className="text-destructive ml-1">*</span>}
       </Label>
       <Select value={value} onValueChange={(val) => onValueChange(val as YesNoNaDncType)}>
-        <SelectTrigger id={id} className="text-sm w-full max-w-xs">
+        <SelectTrigger
+          id={id}
+          className="text-sm w-full max-w-xs"
+          clearable
+          hasValue={!!value}
+          onClear={onClear}
+        >
           <SelectValue placeholder={t('form.common.selectOption')} />
         </SelectTrigger>
         <SelectContent>

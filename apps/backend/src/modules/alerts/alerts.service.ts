@@ -469,6 +469,19 @@ export class AlertsService {
     }
 
     // Calculate alerts for the single hammer data
+    console.log(
+      '🔧 [ALERTS] Generating BEARING_CLEARANCE_SINGLE_HAMMER alerts...',
+    );
+    console.log('🔧 [ALERTS] totalClearance data:', {
+      RH: data.totalClearance_RH?.toString(),
+      LH: data.totalClearance_LH?.toString(),
+    });
+    console.log('🔧 [ALERTS] totalClearance threshold:', {
+      greenMin: threshold.totalClearance_greenMin?.toString(),
+      yellowMin: threshold.totalClearance_yellowMin?.toString(),
+      redMin: threshold.totalClearance_redMin?.toString(),
+    });
+
     const alerts = {
       totalClearance: this.calculateFieldAlert(
         data.totalClearance_RH,
@@ -513,6 +526,19 @@ export class AlertsService {
         threshold.slideAdjNutToScrewSleeve_redMin,
       ),
     };
+
+    console.log('🔧 [ALERTS] Calculated severities:', {
+      totalClearance: alerts.totalClearance.severity,
+      mainBearings: alerts.mainBearings.severity,
+      upperConnectionBearings: alerts.upperConnectionBearings.severity,
+      wristPinToMatingPart: alerts.wristPinToMatingPart.severity,
+      wristPinToBushing: alerts.wristPinToBushing.severity,
+      slideAdjNutToScrewSleeve: alerts.slideAdjNutToScrewSleeve.severity,
+    });
+    console.log(
+      '🔧 [ALERTS] totalClearance differential:',
+      alerts.totalClearance.differential?.toString(),
+    );
 
     const thresholdSnapshot = {
       blueprintId: threshold.blueprintId,
@@ -577,6 +603,14 @@ export class AlertsService {
         thresholdSnapshot,
       },
     });
+
+    console.log(
+      '✅ [ALERTS] BEARING_CLEARANCE_SINGLE_HAMMER alert created successfully:',
+      {
+        id: alert.id,
+        totalClearance_severity: alert.totalClearance_severity,
+      },
+    );
 
     return new AlertBearingClearanceSingleHammerResponseDto({
       ...alert,
@@ -923,12 +957,22 @@ export class AlertsService {
   }
 
   private calculateFieldAlert(
-    RH: Decimal,
-    LH: Decimal,
+    RH: Decimal | null | undefined,
+    LH: Decimal | null | undefined,
     greenMin: Decimal,
     yellowMin: Decimal,
     redMin: Decimal,
   ) {
+    // Handle null/undefined values - return NONE severity if either value is missing
+    if (RH == null || LH == null) {
+      return {
+        RH: RH ?? new Decimal(0),
+        LH: LH ?? new Decimal(0),
+        differential: new Decimal(0),
+        severity: AlertSeverity.NONE,
+      };
+    }
+
     // Calculate differential: |RH - LH| using Decimal arithmetic for precision
     const differential = RH.minus(LH).abs();
 

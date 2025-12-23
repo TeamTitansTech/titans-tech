@@ -176,7 +176,12 @@ export const PerpendicularitySection = forwardRef<
               value={data.hasBeenAdjusted || ''}
               onValueChange={(value) => updateField('hasBeenAdjusted', value as YesNoDncType)}
             >
-              <SelectTrigger id="hasBeenAdjusted">
+              <SelectTrigger
+                id="hasBeenAdjusted"
+                clearable
+                hasValue={!!data.hasBeenAdjusted}
+                onClear={() => updateField('hasBeenAdjusted', undefined)}
+              >
                 <SelectValue placeholder={t('selectOption')} />
               </SelectTrigger>
               <SelectContent>

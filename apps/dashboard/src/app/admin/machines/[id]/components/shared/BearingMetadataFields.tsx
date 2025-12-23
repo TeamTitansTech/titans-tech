@@ -17,6 +17,7 @@ interface BearingMetadataFieldsProps {
   onCombinedWithChange: (value: string) => void;
   matingPartValue: MatingPartType | undefined;
   onMatingPartChange: (value: MatingPartType) => void;
+  onMatingPartClear?: () => void;
   prefix: string; // e.g., 'outer', 'inner'
 }
 
@@ -25,6 +26,7 @@ export function BearingMetadataFields({
   onCombinedWithChange,
   matingPartValue,
   onMatingPartChange,
+  onMatingPartClear,
   prefix,
 }: BearingMetadataFieldsProps) {
   const t = useTranslations('inspections');
@@ -55,7 +57,13 @@ export function BearingMetadataFields({
           value={matingPartValue || ''}
           onValueChange={(val) => onMatingPartChange(val as MatingPartType)}
         >
-          <SelectTrigger id={`${prefix}MatingPart`} className="text-sm">
+          <SelectTrigger
+            id={`${prefix}MatingPart`}
+            className="text-sm"
+            clearable
+            hasValue={!!matingPartValue}
+            onClear={onMatingPartClear}
+          >
             <SelectValue placeholder={t('form.common.selectMatingPart')} />
           </SelectTrigger>
           <SelectContent>
