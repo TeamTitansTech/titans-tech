@@ -82,9 +82,9 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
         prevInitialDataRef.current = initialData;
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
         setData(initialData.data || defaultAngularityData);
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
         setInitialAngularityData(initialData.data || defaultAngularityData);
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
         setAttachments(initialData.attachments ?? []);
       }
     }, [initialData]);

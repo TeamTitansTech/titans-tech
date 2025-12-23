@@ -74,9 +74,9 @@ export const DieCushionSection = forwardRef<DieCushionSectionRef, DieCushionSect
         prevInitialDataRef.current = initialData;
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
         setData(initialData.data || defaultDieCushionData);
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
         setInitialDieCushionData(initialData.data || defaultDieCushionData);
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
         setAttachments(initialData.attachments ?? []);
       }
     }, [initialData]);

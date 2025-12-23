@@ -87,9 +87,9 @@ export const ElectricalControlSection = forwardRef<
       prevInitialDataRef.current = initialData;
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
       setData(initialData.data || defaultElectricalControlData);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
       setInitialElectricalControlData(initialData.data || defaultElectricalControlData);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
       setAttachments(initialData.attachments ?? []);
     }
   }, [initialData]);
