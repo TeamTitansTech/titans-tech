@@ -286,7 +286,15 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
                 onSectionTouched?.();
               }}
             >
-              <SelectTrigger id="guideSeals">
+              <SelectTrigger
+                id="guideSeals"
+                clearable
+                hasValue={!!guideSeals}
+                onClear={() => {
+                  setGuideSeals('' as SealConditionType);
+                  onSectionTouched?.();
+                }}
+              >
                 <SelectValue placeholder="Select condition" />
               </SelectTrigger>
               <SelectContent>
@@ -308,7 +316,15 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
                 onSectionTouched?.();
               }}
             >
-              <SelectTrigger id="pistonSeals">
+              <SelectTrigger
+                id="pistonSeals"
+                clearable
+                hasValue={!!pistonSeals}
+                onClear={() => {
+                  setPistonSeals('' as SealConditionType);
+                  onSectionTouched?.();
+                }}
+              >
                 <SelectValue placeholder="Select condition" />
               </SelectTrigger>
               <SelectContent>
@@ -330,7 +346,15 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
                 onSectionTouched?.();
               }}
             >
-              <SelectTrigger id="vacuumSystem">
+              <SelectTrigger
+                id="vacuumSystem"
+                clearable
+                hasValue={!!vacuumSystem}
+                onClear={() => {
+                  setVacuumSystem('' as VacuumSystemConditionType);
+                  onSectionTouched?.();
+                }}
+              >
                 <SelectValue placeholder="Select condition" />
               </SelectTrigger>
               <SelectContent>

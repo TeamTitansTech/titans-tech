@@ -21,7 +21,7 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
 
   const allSeverities: AlertSeverity[] = [];
 
-  // Collect severities from BEARING_CLEARANCE section (outer and inner)
+  // Collect severities from BEARING_CLEARANCE section (outer and inner - double hammer)
   if (latestReport.sections.BEARING_CLEARANCE?.alert) {
     const alert = latestReport.sections.BEARING_CLEARANCE.alert;
     // Outer severities
@@ -41,6 +41,19 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
       alert.inner_wristPinToMatingPart_severity,
       alert.inner_wristPinToBushing_severity,
       alert.inner_slideAdjNutToScrewSleeve_severity,
+    );
+  }
+
+  // Collect severities from BEARING_CLEARANCE_SINGLE_HAMMER section
+  if (latestReport.sections.BEARING_CLEARANCE_SINGLE_HAMMER?.alert) {
+    const alert = latestReport.sections.BEARING_CLEARANCE_SINGLE_HAMMER.alert;
+    allSeverities.push(
+      alert.totalClearance_severity,
+      alert.mainBearings_severity,
+      alert.upperConnectionBearings_severity,
+      alert.wristPinToMatingPart_severity,
+      alert.wristPinToBushing_severity,
+      alert.slideAdjNutToScrewSleeve_severity,
     );
   }
 
@@ -303,6 +316,33 @@ export const getSectionStatusFromReport = (
         alert.inner_wristPinToMatingPart_severity,
         alert.inner_wristPinToBushing_severity,
         alert.inner_slideAdjNutToScrewSleeve_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
+    case 'BEARING_CLEARANCE_SINGLE_HAMMER': {
+      const bearingData = latestReport.sections.BEARING_CLEARANCE_SINGLE_HAMMER;
+      if (!bearingData?.alert) {
+        return 'ok';
+      }
+
+      const alert = bearingData.alert;
+
+      // Check all bearing fields for worst severity
+      const severities = [
+        alert.totalClearance_severity,
+        alert.mainBearings_severity,
+        alert.upperConnectionBearings_severity,
+        alert.wristPinToMatingPart_severity,
+        alert.wristPinToBushing_severity,
+        alert.slideAdjNutToScrewSleeve_severity,
       ];
 
       if (severities.includes('RED')) {

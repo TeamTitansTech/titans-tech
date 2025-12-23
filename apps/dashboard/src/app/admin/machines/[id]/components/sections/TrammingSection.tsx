@@ -273,7 +273,13 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
             value={slideTram}
             onValueChange={(value) => updateSlideTram(value as YesNoDncType)}
           >
-            <SelectTrigger id="slideTram" className="w-[120px]">
+            <SelectTrigger
+              id="slideTram"
+              className="w-[140px]"
+              clearable
+              hasValue={!!slideTram}
+              onClear={() => updateSlideTram('' as YesNoDncType)}
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent>

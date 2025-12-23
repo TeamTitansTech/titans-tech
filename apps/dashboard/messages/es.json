@@ -1178,6 +1178,9 @@
         "noLubricationData": "No hay datos de lubricación disponibles",
         "noCounterbalanceData": "No hay datos de contrapeso disponibles",
         "measurementTrends": "Tendencias de Mediciones",
+        "verticalSum": "Suma Vertical",
+        "horizontalSum": "Suma Horizontal",
+        "individualMeasurements": "Mediciones Individuales",
         "notes": "Notas",
         "mm": "mm",
         "pistons": "Pistones",
@@ -2837,7 +2840,8 @@
     "ok": "OK",
     "warning": "Atención",
     "critical": "Crítico",
-    "noData": "Sin datos"
+    "noData": "Sin datos",
+    "loading": "Cargando..."
   },
   "sectionStatusCard": {
     "status": {

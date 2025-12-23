@@ -5,6 +5,7 @@ import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface TrammingSectionWrapperProps {
   machineId: string;
+  hideThresholdValues?: boolean;
 }
 
 interface TrammingData {
@@ -38,9 +39,13 @@ export interface TrammingInspectionData {
   }>;
 }
 
-export async function TrammingSectionWrapper({ machineId }: TrammingSectionWrapperProps) {
+export async function TrammingSectionWrapper({
+  machineId,
+  hideThresholdValues = false,
+}: TrammingSectionWrapperProps) {
   let inspections: TrammingInspectionData[] = [];
   let machineName = '';
+  let blueprintId = '';
 
   try {
     const [inspectionsResponse, machineResponse] = await Promise.all([
@@ -60,6 +65,7 @@ export async function TrammingSectionWrapper({ machineId }: TrammingSectionWrapp
       machineName = '';
     } else {
       machineName = machineResponse.data?.name || '';
+      blueprintId = machineResponse.data?.blueprintId || '';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -69,7 +75,13 @@ export async function TrammingSectionWrapper({ machineId }: TrammingSectionWrapp
 
   return (
     <UnitManagerProvider>
-      <TrammingSection machineId={machineId} inspections={inspections} machineName={machineName} />
+      <TrammingSection
+        machineId={machineId}
+        inspections={inspections}
+        machineName={machineName}
+        blueprintId={blueprintId}
+        hideThresholdValues={hideThresholdValues}
+      />
     </UnitManagerProvider>
   );
 }

@@ -44,6 +44,7 @@ import {
   SectionAlertDto,
   AlertDetailDto,
   AlertSeverityDto,
+  AlertBearingClearanceSingleHammerResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { AlertsService } from '../alerts/alerts.service';
 import {
@@ -1143,6 +1144,32 @@ export class ServicesService {
         electricalControl: true,
         perpendicularity: true,
         angularity: true,
+        // Include alert entities for status display
+        alertBearingClearanceSingleHammer: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlideSingleHammer: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertSlideDoubleHammer: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertGibs: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertPistons: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertCounterbalanceCylinderAirbag: true,
+        alertTramming: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
       },
       orderBy: { date: 'desc' },
     });
@@ -1563,6 +1590,27 @@ export class ServicesService {
       if (latestService) {
         const record = latestService.bearingClearanceSingleHammer[0];
         if (record) {
+          // Get the alert if it exists and wrap in DTO to convert Decimal values
+          const rawAlert = latestService.alertBearingClearanceSingleHammer?.[0];
+
+          console.log('📊 [LATEST_REPORT] BEARING_CLEARANCE_SINGLE_HAMMER:', {
+            serviceId: latestService.id,
+            hasAlert: !!rawAlert,
+            alertSeverity: rawAlert?.totalClearance_severity,
+          });
+
+          const alert = rawAlert
+            ? new AlertBearingClearanceSingleHammerResponseDto({
+                ...rawAlert,
+                data: record.data, // Include data for RH/LH values
+              })
+            : undefined;
+
+          console.log('📊 [LATEST_REPORT] Alert DTO:', {
+            hasAlert: !!alert,
+            severity: alert?.totalClearance_severity,
+          });
+
           bearingClearanceSingleHammerData =
             new LatestBearingClearanceSingleHammerDto({
               latestServiceId: latestService.id,
@@ -1572,6 +1620,7 @@ export class ServicesService {
                 beforeData: record.beforeData || undefined,
                 data: record.data || undefined,
               },
+              alert: alert,
             });
         }
       }

@@ -19,12 +19,16 @@ import {
 interface ShutdownAdjustmentFieldsProps {
   slideMotorMounts: ConditionOkNaDncBrokenWornType | undefined;
   onSlideMotorMountsChange: (value: ConditionOkNaDncBrokenWornType) => void;
+  onSlideMotorMountsClear?: () => void;
   powerCordHoses: ConditionOkNaDncDamagedType | undefined;
   onPowerCordHosesChange: (value: ConditionOkNaDncDamagedType) => void;
+  onPowerCordHosesClear?: () => void;
   chainsGearsSprockets: ConditionOkNaDncBrokenLooseType | undefined;
   onChainsGearsSprocketsChange: (value: ConditionOkNaDncBrokenLooseType) => void;
+  onChainsGearsSprocketsClear?: () => void;
   lockingClamps: ConditionOkNaDncDamagedType | undefined;
   onLockingClampsChange: (value: ConditionOkNaDncDamagedType) => void;
+  onLockingClampsClear?: () => void;
   notes: string;
   onNotesChange: (value: string) => void;
 }
@@ -32,12 +36,16 @@ interface ShutdownAdjustmentFieldsProps {
 export function ShutdownAdjustmentFields({
   slideMotorMounts,
   onSlideMotorMountsChange,
+  onSlideMotorMountsClear,
   powerCordHoses,
   onPowerCordHosesChange,
+  onPowerCordHosesClear,
   chainsGearsSprockets,
   onChainsGearsSprocketsChange,
+  onChainsGearsSprocketsClear,
   lockingClamps,
   onLockingClampsChange,
+  onLockingClampsClear,
   notes,
   onNotesChange,
 }: ShutdownAdjustmentFieldsProps) {
@@ -62,7 +70,12 @@ export function ShutdownAdjustmentFields({
                 onSlideMotorMountsChange(val as ConditionOkNaDncBrokenWornType)
               }
             >
-              <SelectTrigger className="text-sm">
+              <SelectTrigger
+                className="text-sm"
+                clearable
+                hasValue={!!slideMotorMounts}
+                onClear={onSlideMotorMountsClear}
+              >
                 <SelectValue placeholder={t('form.common.selectStatus')} />
               </SelectTrigger>
               <SelectContent>
@@ -94,7 +107,12 @@ export function ShutdownAdjustmentFields({
               value={powerCordHoses}
               onValueChange={(val) => onPowerCordHosesChange(val as ConditionOkNaDncDamagedType)}
             >
-              <SelectTrigger className="text-sm">
+              <SelectTrigger
+                className="text-sm"
+                clearable
+                hasValue={!!powerCordHoses}
+                onClear={onPowerCordHosesClear}
+              >
                 <SelectValue placeholder={t('form.common.selectStatus')} />
               </SelectTrigger>
               <SelectContent>
@@ -125,7 +143,12 @@ export function ShutdownAdjustmentFields({
                 onChainsGearsSprocketsChange(val as ConditionOkNaDncBrokenLooseType)
               }
             >
-              <SelectTrigger className="text-sm">
+              <SelectTrigger
+                className="text-sm"
+                clearable
+                hasValue={!!chainsGearsSprockets}
+                onClear={onChainsGearsSprocketsClear}
+              >
                 <SelectValue placeholder={t('form.common.selectStatus')} />
               </SelectTrigger>
               <SelectContent>
@@ -157,7 +180,12 @@ export function ShutdownAdjustmentFields({
               value={lockingClamps}
               onValueChange={(val) => onLockingClampsChange(val as ConditionOkNaDncDamagedType)}
             >
-              <SelectTrigger className="text-sm">
+              <SelectTrigger
+                className="text-sm"
+                clearable
+                hasValue={!!lockingClamps}
+                onClear={onLockingClampsClear}
+              >
                 <SelectValue placeholder={t('form.common.selectStatus')} />
               </SelectTrigger>
               <SelectContent>

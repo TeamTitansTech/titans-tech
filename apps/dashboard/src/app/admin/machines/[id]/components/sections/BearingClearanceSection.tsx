@@ -635,6 +635,10 @@ export const BearingClearanceSection = forwardRef<
                         setOuterBeforeHasBeenAdjusted(value);
                         onSectionTouched();
                       }}
+                      onHasBeenAdjustedClear={() => {
+                        setOuterBeforeHasBeenAdjusted(undefined);
+                        onSectionTouched();
+                      }}
                       hasBeenAdjustedId="outerBeforeHasBeenAdjusted"
                       combinedWith={outerCombinedWith}
                       onCombinedWithChange={(value) => {
@@ -644,6 +648,10 @@ export const BearingClearanceSection = forwardRef<
                       matingPart={outerMatingPart}
                       onMatingPartChange={(value) => {
                         setOuterMatingPart(value);
+                        onSectionTouched();
+                      }}
+                      onMatingPartClear={() => {
+                        setOuterMatingPart(undefined);
                         onSectionTouched();
                       }}
                       metadataPrefix="outer"
@@ -661,6 +669,10 @@ export const BearingClearanceSection = forwardRef<
                         setInnerBeforeHasBeenAdjusted(value);
                         onSectionTouched();
                       }}
+                      onHasBeenAdjustedClear={() => {
+                        setInnerBeforeHasBeenAdjusted(undefined);
+                        onSectionTouched();
+                      }}
                       hasBeenAdjustedId="innerBeforeHasBeenAdjusted"
                       combinedWith={innerCombinedWith}
                       onCombinedWithChange={(value) => {
@@ -670,6 +682,10 @@ export const BearingClearanceSection = forwardRef<
                       matingPart={innerMatingPart}
                       onMatingPartChange={(value) => {
                         setInnerMatingPart(value);
+                        onSectionTouched();
+                      }}
+                      onMatingPartClear={() => {
+                        setInnerMatingPart(undefined);
                         onSectionTouched();
                       }}
                       metadataPrefix="inner"
@@ -714,6 +730,10 @@ export const BearingClearanceSection = forwardRef<
                         setOuterAfterHasBeenAdjusted(value);
                         onSectionTouched();
                       }}
+                      onHasBeenAdjustedClear={() => {
+                        setOuterAfterHasBeenAdjusted(undefined);
+                        onSectionTouched();
+                      }}
                       hasBeenAdjustedId="outerAfterHasBeenAdjusted"
                       combinedWith={outerCombinedWith}
                       onCombinedWithChange={(value) => {
@@ -723,6 +743,10 @@ export const BearingClearanceSection = forwardRef<
                       matingPart={outerMatingPart}
                       onMatingPartChange={(value) => {
                         setOuterMatingPart(value);
+                        onSectionTouched();
+                      }}
+                      onMatingPartClear={() => {
+                        setOuterMatingPart(undefined);
                         onSectionTouched();
                       }}
                       metadataPrefix="outerAfter"
@@ -740,6 +764,10 @@ export const BearingClearanceSection = forwardRef<
                         setInnerAfterHasBeenAdjusted(value);
                         onSectionTouched();
                       }}
+                      onHasBeenAdjustedClear={() => {
+                        setInnerAfterHasBeenAdjusted(undefined);
+                        onSectionTouched();
+                      }}
                       hasBeenAdjustedId="innerAfterHasBeenAdjusted"
                       combinedWith={innerCombinedWith}
                       onCombinedWithChange={(value) => {
@@ -749,6 +777,10 @@ export const BearingClearanceSection = forwardRef<
                       matingPart={innerMatingPart}
                       onMatingPartChange={(value) => {
                         setInnerMatingPart(value);
+                        onSectionTouched();
+                      }}
+                      onMatingPartClear={() => {
+                        setInnerMatingPart(undefined);
                         onSectionTouched();
                       }}
                       metadataPrefix="innerAfter"
@@ -778,6 +810,10 @@ export const BearingClearanceSection = forwardRef<
                   setOuterAfterHasBeenAdjusted(value);
                   onSectionTouched();
                 }}
+                onHasBeenAdjustedClear={() => {
+                  setOuterAfterHasBeenAdjusted(undefined);
+                  onSectionTouched();
+                }}
                 hasBeenAdjustedId="outerAfterHasBeenAdjustedRegular"
                 combinedWith={outerCombinedWith}
                 onCombinedWithChange={(value) => {
@@ -787,6 +823,10 @@ export const BearingClearanceSection = forwardRef<
                 matingPart={outerMatingPart}
                 onMatingPartChange={(value) => {
                   setOuterMatingPart(value);
+                  onSectionTouched();
+                }}
+                onMatingPartClear={() => {
+                  setOuterMatingPart(undefined);
                   onSectionTouched();
                 }}
                 metadataPrefix="outer"
@@ -804,6 +844,10 @@ export const BearingClearanceSection = forwardRef<
                   setInnerAfterHasBeenAdjusted(value);
                   onSectionTouched();
                 }}
+                onHasBeenAdjustedClear={() => {
+                  setInnerAfterHasBeenAdjusted(undefined);
+                  onSectionTouched();
+                }}
                 hasBeenAdjustedId="innerAfterHasBeenAdjustedRegular"
                 combinedWith={innerCombinedWith}
                 onCombinedWithChange={(value) => {
@@ -813,6 +857,10 @@ export const BearingClearanceSection = forwardRef<
                 matingPart={innerMatingPart}
                 onMatingPartChange={(value) => {
                   setInnerMatingPart(value);
+                  onSectionTouched();
+                }}
+                onMatingPartClear={() => {
+                  setInnerMatingPart(undefined);
                   onSectionTouched();
                 }}
                 metadataPrefix="inner"
@@ -833,9 +881,17 @@ export const BearingClearanceSection = forwardRef<
           setSlideMotorMounts(value);
           onSectionTouched();
         }}
+        onSlideMotorMountsClear={() => {
+          setSlideMotorMounts(undefined);
+          onSectionTouched();
+        }}
         powerCordHoses={powerCordHoses}
         onPowerCordHosesChange={(value) => {
           setPowerCordHoses(value);
+          onSectionTouched();
+        }}
+        onPowerCordHosesClear={() => {
+          setPowerCordHoses(undefined);
           onSectionTouched();
         }}
         chainsGearsSprockets={chainsGearsSprockets}
@@ -843,9 +899,17 @@ export const BearingClearanceSection = forwardRef<
           setChainsGearsSprockets(value);
           onSectionTouched();
         }}
+        onChainsGearsSprocketsClear={() => {
+          setChainsGearsSprockets(undefined);
+          onSectionTouched();
+        }}
         lockingClamps={lockingClamps}
         onLockingClampsChange={(value) => {
           setLockingClamps(value);
+          onSectionTouched();
+        }}
+        onLockingClampsClear={() => {
+          setLockingClamps(undefined);
           onSectionTouched();
         }}
         notes={notes}
