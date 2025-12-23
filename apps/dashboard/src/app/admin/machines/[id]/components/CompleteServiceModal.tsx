@@ -234,10 +234,14 @@ export function CompleteServiceModal({
       }
 
       // Add clutch data if validated successfully
+      // Note: ClutchDataSchema expects flat fields (not wrapped in 'data'), so we flatten the structure
       if (blueprintSections.includes('CLUTCH') && clutchRef.current?.isTouched()) {
         const clutchResult = clutchRef.current.validateAndGetData(serviceType);
-        if (clutchResult.isValid && clutchResult.data) {
-          payload.clutch = clutchResult.data;
+        if (clutchResult.isValid && clutchResult.data?.data) {
+          payload.clutch = {
+            ...clutchResult.data.data,
+            attachments: clutchResult.data.attachments,
+          };
         }
       }
 

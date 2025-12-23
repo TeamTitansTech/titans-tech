@@ -2836,7 +2836,8 @@
     "ok": "OK",
     "warning": "Atenção",
     "critical": "Crítico",
-    "noData": "Sem dados"
+    "noData": "Sem dados",
+    "loading": "Carregando..."
   },
   "sectionStatusCard": {
     "status": {

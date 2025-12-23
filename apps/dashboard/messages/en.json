@@ -2836,7 +2836,8 @@
     "ok": "OK",
     "warning": "Warning",
     "critical": "Critical",
-    "noData": "No Data"
+    "noData": "No Data",
+    "loading": "Loading..."
   },
   "sectionStatusCard": {
     "status": {
