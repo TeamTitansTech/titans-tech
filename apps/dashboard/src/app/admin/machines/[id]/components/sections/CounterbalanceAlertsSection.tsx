@@ -355,7 +355,13 @@ export function CounterbalanceAlertsSection({ serviceId }: CounterbalanceAlertsS
                   value={selectedField}
                   onValueChange={(value) => setSelectedField(value as CounterbalanceAlertField)}
                 >
-                  <SelectTrigger id="alert-field" className="text-sm">
+                  <SelectTrigger
+                    id="alert-field"
+                    className="text-sm"
+                    clearable
+                    hasValue={!!selectedField}
+                    onClear={() => setSelectedField('' as CounterbalanceAlertField)}
+                  >
                     <SelectValue placeholder={t('selectField')} />
                   </SelectTrigger>
                   <SelectContent>

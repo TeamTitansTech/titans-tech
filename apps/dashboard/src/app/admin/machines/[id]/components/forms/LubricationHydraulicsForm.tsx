@@ -139,7 +139,12 @@ export function LubricationHydraulicsForm({
                     value={gauge.psi || ''}
                     onValueChange={(value) => updateGauge(index, 'psi', value || undefined)}
                   >
-                    <SelectTrigger className="h-9 text-xs">
+                    <SelectTrigger
+                      className="h-9 text-xs"
+                      clearable
+                      hasValue={!!gauge.psi}
+                      onClear={() => updateGauge(index, 'psi', undefined)}
+                    >
                       <SelectValue
                         placeholder={t('form.lubricationHydraulics.selectPlaceholder')}
                       />
@@ -192,7 +197,12 @@ export function LubricationHydraulicsForm({
               value={data.changedOil}
               onValueChange={(value) => updateFn('changedOil', value as YesNoDncType)}
             >
-              <SelectTrigger className="mt-1">
+              <SelectTrigger
+                className="mt-1"
+                clearable
+                hasValue={!!data.changedOil}
+                onClear={() => updateFn('changedOil', undefined)}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -243,7 +253,12 @@ export function LubricationHydraulicsForm({
               value={data.changedFilter}
               onValueChange={(value) => updateFn('changedFilter', value as YesNoDncType)}
             >
-              <SelectTrigger className="mt-1">
+              <SelectTrigger
+                className="mt-1"
+                clearable
+                hasValue={!!data.changedFilter}
+                onClear={() => updateFn('changedFilter', undefined)}
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

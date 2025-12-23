@@ -44,11 +44,8 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
   const t = useTranslations('machines.sectionDetails');
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Thresholds for different measurement positions
-  const [outerLhThreshold, setOuterLhThreshold] = useState<ThresholdConfig | null>(null);
-  const [outerRhThreshold, setOuterRhThreshold] = useState<ThresholdConfig | null>(null);
-  const [innerLhThreshold, setInnerLhThreshold] = useState<ThresholdConfig | null>(null);
-  const [innerRhThreshold, setInnerRhThreshold] = useState<ThresholdConfig | null>(null);
+  // Single threshold for all positions (difference threshold)
+  const [differenceThreshold, setDifferenceThreshold] = useState<ThresholdConfig | null>(null);
 
   const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
     useUnitManager();
@@ -74,11 +71,8 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
       try {
         const response = await getPistonsThresholdByBlueprint(blueprintId);
         if (response.data) {
-          // Extract thresholds for each position
-          setOuterLhThreshold(extractThresholdConfig(response.data, 'outerLh'));
-          setOuterRhThreshold(extractThresholdConfig(response.data, 'outerRh'));
-          setInnerLhThreshold(extractThresholdConfig(response.data, 'innerLh'));
-          setInnerRhThreshold(extractThresholdConfig(response.data, 'innerRh'));
+          // Extract single difference threshold (used for all positions)
+          setDifferenceThreshold(extractThresholdConfig(response.data, 'difference'));
         }
       } catch (error) {
         console.error('Failed to fetch pistons thresholds:', error);
@@ -270,22 +264,10 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
       .reverse();
   }, [filteredInspections]);
 
-  // Get converted thresholds
-  const outerLhThresholdConverted = useMemo(
-    () => convertThreshold(outerLhThreshold),
-    [convertThreshold, outerLhThreshold],
-  );
-  const outerRhThresholdConverted = useMemo(
-    () => convertThreshold(outerRhThreshold),
-    [convertThreshold, outerRhThreshold],
-  );
-  const innerLhThresholdConverted = useMemo(
-    () => convertThreshold(innerLhThreshold),
-    [convertThreshold, innerLhThreshold],
-  );
-  const innerRhThresholdConverted = useMemo(
-    () => convertThreshold(innerRhThreshold),
-    [convertThreshold, innerRhThreshold],
+  // Get converted threshold (single threshold used for all positions)
+  const convertedThreshold = useMemo(
+    () => convertThreshold(differenceThreshold),
+    [convertThreshold, differenceThreshold],
   );
 
   // Get converted chart data
@@ -531,7 +513,7 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
                 { dataKey: 'lhLeft', label: t('labels.lhLeft'), color: '#3b82f6' },
                 { dataKey: 'lhRight', label: t('labels.lhRight'), color: '#ec4899' },
               ]}
-              sharedThreshold={outerLhThresholdConverted ?? undefined}
+              sharedThreshold={convertedThreshold ?? undefined}
               valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
@@ -547,7 +529,7 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
                 { dataKey: 'rhLeft', label: t('labels.rhLeft'), color: '#ef4444' },
                 { dataKey: 'rhRight', label: t('labels.rhRight'), color: '#8b5cf6' },
               ]}
-              sharedThreshold={outerRhThresholdConverted ?? undefined}
+              sharedThreshold={convertedThreshold ?? undefined}
               valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
@@ -563,7 +545,7 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
                 { dataKey: 'lhLeft', label: t('labels.lhLeft'), color: '#3b82f6' },
                 { dataKey: 'lhRight', label: t('labels.lhRight'), color: '#ec4899' },
               ]}
-              sharedThreshold={innerLhThresholdConverted ?? undefined}
+              sharedThreshold={convertedThreshold ?? undefined}
               valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}
@@ -579,7 +561,7 @@ export function PistonsSection({ inspections, machineName, blueprintId }: Piston
                 { dataKey: 'rhLeft', label: t('labels.rhLeft'), color: '#ef4444' },
                 { dataKey: 'rhRight', label: t('labels.rhRight'), color: '#8b5cf6' },
               ]}
-              sharedThreshold={innerRhThresholdConverted ?? undefined}
+              sharedThreshold={convertedThreshold ?? undefined}
               valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               height={300}

@@ -10,70 +10,51 @@ import {
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 
-export interface EnumOption {
+export interface ClearableSelectOption {
   value: string;
   label: string;
 }
 
-export interface EnumSelectProps {
+export interface ClearableSelectProps {
   id: string;
   label?: string;
   value: string | undefined;
   onChange: (value: string) => void;
-  onClear?: () => void;
-  options: EnumOption[];
-  error?: string;
+  onClear: () => void;
+  options: ClearableSelectOption[];
+  placeholder?: string;
   required?: boolean;
   disabled?: boolean;
-  placeholder?: string;
   className?: string;
   triggerClassName?: string;
-  labelClassName?: string;
-  showLabel?: boolean;
-  clearable?: boolean;
 }
 
-export function EnumSelect({
+export function ClearableSelect({
   id,
   label,
   value,
   onChange,
   onClear,
   options,
-  error,
+  placeholder = 'Select...',
   required = false,
   disabled = false,
-  placeholder = 'Select an option',
   className,
   triggerClassName,
-  labelClassName,
-  showLabel = true,
-  clearable = false,
-}: EnumSelectProps) {
+}: ClearableSelectProps) {
   return (
     <div className={cn('space-y-1', className)}>
-      {showLabel && label && (
-        <Label
-          htmlFor={id}
-          className={cn('text-xs font-medium', labelClassName, {
-            'text-destructive': error,
-          })}
-        >
+      {label && (
+        <Label htmlFor={id}>
           {label}
           {required && <span className="text-destructive ml-1">*</span>}
         </Label>
       )}
-      <Select value={value} onValueChange={onChange} disabled={disabled}>
+      <Select value={value || ''} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger
           id={id}
-          className={cn(
-            'text-xs',
-            {
-              'border-destructive focus:ring-destructive': error,
-            },
-            triggerClassName,
-          )}
-          clearable={clearable}
+          className={cn('mt-1', triggerClassName)}
+          clearable
           hasValue={!!value}
           onClear={onClear}
         >
@@ -81,13 +62,12 @@ export function EnumSelect({
         </SelectTrigger>
         <SelectContent>
           {options.map((option) => (
-            <SelectItem key={option.value} value={option.value} className="text-xs">
+            <SelectItem key={option.value} value={option.value}>
               {option.label}
             </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      {error && <p className="text-[10px] text-destructive mt-0.5">{error}</p>}
     </div>
   );
 }
