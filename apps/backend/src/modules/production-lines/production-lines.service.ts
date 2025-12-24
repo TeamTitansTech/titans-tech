@@ -28,10 +28,13 @@ const PRODUCTION_LINE_FULL_INCLUDE = {
             },
             include: {
               alertBearingClearance: true,
+              alertBearingClearanceSingleHammer: true,
               alertClutch: true,
               alertSlideSingleHammer: true,
               alertSlideDoubleHammer: true,
               alertGibs: true,
+              alertPistons: true,
+              alertTramming: true,
               alertCounterbalanceCylinderAirbag: true,
             },
           },

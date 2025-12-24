@@ -49,42 +49,8 @@ const mergeWithDefaults = (data: Partial<TrammingDbData> | undefined): TrammingD
 });
 
 export const validateTrammingDbData = (data: TrammingDbData): string[] => {
-  const errors: string[] = [];
-
-  // Check all fields are filled (not undefined/null)
-  const requiredFields: (keyof TrammingDbData)[] = [
-    'topTop',
-    'topBottom',
-    'topLeft',
-    'topRight',
-    'bottomTop',
-    'bottomBottom',
-    'bottomLeft',
-    'bottomRight',
-    'leftTop',
-    'leftBottom',
-    'leftLeft',
-    'leftRight',
-    'rightTop',
-    'rightBottom',
-    'rightLeft',
-    'rightRight',
-  ];
-
-  const emptyFields = requiredFields.filter(
-    (field) => data[field] === undefined || data[field] === null,
-  );
-
-  if (emptyFields.length > 0) {
-    errors.push(`All fields are required. Missing: ${emptyFields.join(', ')}`);
-  }
-
-  // Validate numeric values
-  errors.push(
-    ...validateNumericFields(data as Record<string, unknown>, ['top', 'bottom', 'left', 'right']),
-  );
-
-  return errors;
+  // Only validate that filled values are valid numbers (all fields are optional)
+  return validateNumericFields(data as Record<string, unknown>, ['top', 'bottom', 'left', 'right']);
 };
 
 export interface TrammingSectionData {
@@ -187,16 +153,19 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
       ): { isValid: boolean; errors: string[]; data?: TrammingSectionData } => {
         const validationErrors: string[] = [];
 
-        // Both Outer and Inner tabs are now required
-        const outerErrors = validateTrammingDbData(outerData);
-        const innerErrors = validateTrammingDbData(innerData);
+        const outerTouched = isDataTouched(outerData, initialOuterData);
+        const innerTouched = isDataTouched(innerData, initialInnerData);
 
-        if (outerErrors.length > 0) {
-          validationErrors.push(...outerErrors.map((e) => `Tramming Outer: ${e}`));
+        // Validate touched data
+        if (outerTouched) {
+          validationErrors.push(
+            ...validateTrammingDbData(outerData).map((e) => `Tramming Outer: ${e}`),
+          );
         }
-
-        if (innerErrors.length > 0) {
-          validationErrors.push(...innerErrors.map((e) => `Tramming Inner: ${e}`));
+        if (innerTouched) {
+          validationErrors.push(
+            ...validateTrammingDbData(innerData).map((e) => `Tramming Inner: ${e}`),
+          );
         }
 
         const isValid = validationErrors.length === 0;
@@ -234,16 +203,15 @@ export const TrammingSection = forwardRef<TrammingSectionRef, TrammingSectionPro
       validate: (_serviceType: ServiceType): string[] => {
         const errors: string[] = [];
 
-        // Both Outer and Inner tabs are now required
-        const outerErrors = validateTrammingDbData(outerData);
-        const innerErrors = validateTrammingDbData(innerData);
+        const outerTouched = isDataTouched(outerData, initialOuterData);
+        const innerTouched = isDataTouched(innerData, initialInnerData);
 
-        if (outerErrors.length > 0) {
-          errors.push(...outerErrors.map((e) => `Tramming Outer: ${e}`));
+        // Only validate touched data
+        if (outerTouched) {
+          errors.push(...validateTrammingDbData(outerData).map((e) => `Tramming Outer: ${e}`));
         }
-
-        if (innerErrors.length > 0) {
-          errors.push(...innerErrors.map((e) => `Tramming Inner: ${e}`));
+        if (innerTouched) {
+          errors.push(...validateTrammingDbData(innerData).map((e) => `Tramming Inner: ${e}`));
         }
 
         return errors;
