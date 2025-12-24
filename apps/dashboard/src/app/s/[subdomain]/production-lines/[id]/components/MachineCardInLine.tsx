@@ -25,6 +25,7 @@ interface MachineCardInLineProps {
 
 const SECTION_I18N_KEYS: Record<string, string> = {
   BEARING_CLEARANCE: 'bearingClearance',
+  BEARING_CLEARANCE_SINGLE_HAMMER: 'bearingClearanceSingleHammer',
   SLIDE_SINGLE_HAMMER: 'slideSingleHammer',
   SLIDE_DOUBLE_HAMMER: 'slideDoubleHammer',
   GIBS: 'gibs',
