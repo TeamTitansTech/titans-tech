@@ -1,0 +1,61 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [staging]
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel
+
+      - name: Link Vercel Project
+        run: |
+          mkdir -p .vercel
+          echo '{"orgId":"${{ secrets.VERCEL_ORG_ID }}","projectId":"${{ secrets.VERCEL_PROJECT_ID }}"}' > .vercel/project.json
+
+      - name: Create root vercel.json
+        run: |
+          cat > vercel.json << 'EOF'
+          {
+            "$schema": "https://openapi.vercel.sh/vercel.json",
+            "buildCommand": "turbo run build --filter=@titans-tech/dashboard",
+            "installCommand": "npm install",
+            "framework": "nextjs",
+            "outputDirectory": "apps/dashboard/.next"
+          }
+          EOF
+
+      - name: Deploy to Vercel (Build on Vercel servers)
+        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+  deploy-backend:
+    name: Deploy Backend to Railway
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        run: railway up -d --environment staging --service 712ac7be-a7ca-4f6d-91ec-e952b5437ba9
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
