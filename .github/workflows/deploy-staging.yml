@@ -59,4 +59,3 @@ jobs:
         run: railway up -d --environment staging --service 712ac7be-a7ca-4f6d-91ec-e952b5437ba9
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        working-directory: apps/backend
