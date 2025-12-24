@@ -51,7 +51,8 @@ export const getInspectionById = async (id: string) => {
 };
 
 /**
- * Get inspections for a specific machine
+ * Get all services (inspections and maintenances) for a specific machine
+ * Used by section pages to display measurement data from all service types
  */
 export const getInspectionsByMachine = async (machineId: string) => {
   const options: {
@@ -66,10 +67,6 @@ export const getInspectionsByMachine = async (machineId: string) => {
 
   const response = await responseHandler<Service[]>(`/services/machine/${machineId}`, options);
 
-  // Filter inspections on client-side (until backend implements filtering)
-  if (response.data) {
-    response.data = response.data.filter((service) => service.type === 'INSPECTION');
-  }
-
+  // Don't filter by type - section pages need data from both INSPECTION and MAINTENANCE services
   return response;
 };
