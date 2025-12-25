@@ -16,21 +16,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: 'npm'
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel
-
-      - name: Link Vercel Project
-        run: |
-          mkdir -p .vercel
-          echo '{"orgId":"${{ secrets.VERCEL_ORG_ID }}","projectId":"${{ secrets.VERCEL_PROJECT_ID }}"}' > .vercel/project.json
-
-      - name: Create root vercel.json
+      - name: Create root vercel.json for monorepo
         run: |
           cat > vercel.json << 'EOF'
           {
@@ -42,8 +28,14 @@ jobs:
           }
           EOF
 
-      - name: Deploy to Vercel (Build on Vercel servers)
-        run: vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          scope: ${{ secrets.VERCEL_ORG_ID }}
 
   deploy-backend:
     name: Deploy Backend to Railway
