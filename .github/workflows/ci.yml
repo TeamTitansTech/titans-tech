@@ -128,9 +128,7 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
-    env:
-      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/titans_tech
-      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/titans_tech
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -182,7 +180,7 @@ jobs:
       - name: Build and start dashboard app
         working-directory: apps/dashboard
         run: |
-          npm run build
+          npx turbo run build
           npm run start &
           npx wait-on http://localhost:3000
 
