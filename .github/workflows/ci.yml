@@ -128,6 +128,9 @@ jobs:
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/titans_tech
+      TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/titans_tech
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -138,19 +141,56 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'npm'
 
-      - name: Install dependencies!!!
-        run: npm i
+      - name: Start Docker Compose services
+        run: docker compose up -d postgres
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until docker compose exec postgres pg_isready -U postgres; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
         env:
           npm_config_fetch_retries: 5
           npm_config_fetch_retry_mintimeout: 20000
           npm_config_fetch_retry_maxtimeout: 120000
 
+      - name: Create environment files
+        run: |
+          cp apps/backend/.env.example apps/backend/.env
+          cp apps/dashboard/.env.example apps/dashboard/.env
+
+      - name: Setup database
+        run: |
+          cd packages/database
+          npx prisma migrate reset --force
+
       - name: Install Playwright Browsers
         working-directory: apps/dashboard
         run: npx playwright install --with-deps
+
+      - name: Run backend server
+        run: |
+          npx turbo run dev --filter=@titans-tech/backend &
+          npx wait-on tcp:3001
+
+      - name: Build and start dashboard app
+        working-directory: apps/dashboard
+        run: |
+          npm run build
+          npm run start &
+          npx wait-on http://localhost:3000
+
       - name: Run Playwright tests
         working-directory: apps/dashboard
         run: npx playwright test
+
+      - name: Stop Docker Compose services
+        if: always()
+        run: docker compose down
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}
         with:
