@@ -13,6 +13,11 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @Get('test-deploy')
+  testDeploy() {
+    return this.appService.getHello() + 'test-deploy';
+  }
+
   @Get('error')
   getError() {
     // eslint-disable-next-line no-restricted-syntax
