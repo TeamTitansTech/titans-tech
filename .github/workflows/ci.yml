@@ -177,12 +177,12 @@ jobs:
           npx turbo run dev --filter=@titans-tech/backend &
 
       - name: Wait for backend server
-        run: sleep 45
+        run: sleep 120
 
       - name: Build and start dashboard app
         working-directory: apps/dashboard
         run: |
-          npx turbo run build
+          npm run build
           npm run start &
           npx wait-on http://localhost:3000
 
