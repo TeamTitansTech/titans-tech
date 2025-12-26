@@ -105,8 +105,12 @@ export function LoginForm({
   };
 
   return (
-    <div className="flex min-h-screen">
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden" style={bgStyle}>
+    <div className="flex min-h-screen" data-testid="login-page">
+      <div
+        className="hidden lg:flex lg:w-1/2 relative overflow-hidden"
+        style={bgStyle}
+        data-testid="brand-panel"
+      >
         <div
           className="absolute inset-0 opacity-30"
           style={{
@@ -116,16 +120,26 @@ export function LoginForm({
         />
         <div className="relative z-10 flex flex-col items-center justify-center w-full px-12 text-white">
           {brandLogo ? (
-            <div className="mb-8 relative w-96 h-96">
+            <div className="mb-8 relative w-96 h-96" data-testid="brand-logo-desktop">
               <Image src={brandLogo} alt={brandTitle} fill className="object-contain" />
             </div>
           ) : (
             <>
-              <div className="mb-8 p-6 bg-white/10 rounded-full backdrop-blur-sm">
+              <div
+                className="mb-8 p-6 bg-white/10 rounded-full backdrop-blur-sm"
+                data-testid="brand-icon-desktop"
+              >
                 {BrandIcon && <BrandIcon className="w-16 h-16" strokeWidth={1.5} />}
               </div>
-              <h1 className="text-4xl font-bold mb-4 text-center">{brandTitle}</h1>
-              <p className="text-xl text-white/80 text-center max-w-md">{brandSubtitle}</p>
+              <h1 className="text-4xl font-bold mb-4 text-center" data-testid="brand-title-desktop">
+                {brandTitle}
+              </h1>
+              <p
+                className="text-xl text-white/80 text-center max-w-md"
+                data-testid="brand-subtitle-desktop"
+              >
+                {brandSubtitle}
+              </p>
             </>
           )}
         </div>
@@ -133,30 +147,39 @@ export function LoginForm({
 
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md space-y-8">
-          <div className="text-center lg:hidden mb-8">
+          <div className="text-center lg:hidden mb-8" data-testid="brand-header-mobile">
             {brandLogo ? (
-              <div className="relative w-32 h-32 mx-auto mb-4">
+              <div className="relative w-32 h-32 mx-auto mb-4" data-testid="brand-logo-mobile">
                 <Image src={brandLogo} alt={brandTitle} fill className="object-contain" />
               </div>
             ) : (
               <>
-                <div className="inline-flex mb-4 p-4 bg-primary/10 rounded-full">
+                <div
+                  className="inline-flex mb-4 p-4 bg-primary/10 rounded-full"
+                  data-testid="brand-icon-mobile"
+                >
                   {BrandIcon && <BrandIcon className="w-12 h-12 text-primary" strokeWidth={1.5} />}
                 </div>
-                <h2 className="text-2xl font-bold text-foreground">{brandTitle}</h2>
-                <p className="text-muted-foreground mt-2">{brandSubtitle}</p>
+                <h2 className="text-2xl font-bold text-foreground" data-testid="brand-title-mobile">
+                  {brandTitle}
+                </h2>
+                <p className="text-muted-foreground mt-2" data-testid="brand-subtitle-mobile">
+                  {brandSubtitle}
+                </p>
               </>
             )}
           </div>
 
           <div>
-            <h2 className="text-3xl font-bold text-foreground">{t('title')}</h2>
-            <p className="mt-2 text-muted-foreground">
+            <h2 className="text-3xl font-bold text-foreground" data-testid="login-title">
+              {t('title')}
+            </h2>
+            <p className="mt-2 text-muted-foreground" data-testid="login-description">
               {loginType === 'admin' ? t('description') : t('clientDescription')}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6" data-testid="login-form">
             <div className="space-y-2">
               <Label htmlFor="email">{t('form.email.label')}</Label>
               <div className="relative">
@@ -169,6 +192,7 @@ export function LoginForm({
                   required
                   disabled={isLoading}
                   className="pl-10"
+                  data-testid="email-input"
                 />
                 <svg
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"
@@ -189,7 +213,11 @@ export function LoginForm({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">{t('form.password.label')}</Label>
-                <a href="#" className="text-sm text-primary hover:underline">
+                <a
+                  href="#"
+                  className="text-sm text-primary hover:underline"
+                  data-testid="forgot-password-link"
+                >
                   {t('form.forgotPassword')}
                 </a>
               </div>
@@ -203,6 +231,7 @@ export function LoginForm({
                   required
                   disabled={isLoading}
                   className="pl-10"
+                  data-testid="password-input"
                 />
                 <svg
                   className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"
@@ -221,10 +250,15 @@ export function LoginForm({
             </div>
 
             {result?.errors && result.errors.length > 0 && (
-              <div className="rounded-md border border-destructive bg-destructive/10 p-3">
+              <div
+                className="rounded-md border border-destructive bg-destructive/10 p-3"
+                data-testid="login-errors"
+              >
                 <ul className="text-sm text-destructive space-y-1">
                   {result.errors.map((error, index) => (
-                    <li key={index}>{error}</li>
+                    <li key={index} data-testid={`login-error-${index}`}>
+                      {error}
+                    </li>
                   ))}
                 </ul>
               </div>
@@ -235,6 +269,7 @@ export function LoginForm({
               disabled={isLoading}
               className="w-full text-white h-12 text-base hover:opacity-90"
               style={buttonStyle}
+              data-testid="submit-button"
             >
               {isLoading ? t('form.submitting') : t('form.submit')}
             </Button>

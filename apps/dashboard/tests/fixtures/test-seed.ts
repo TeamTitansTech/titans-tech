@@ -47,7 +47,7 @@ export class TestSeeder {
 
   async seed() {
     const hashedPassword = await bcrypt.hash('password', 10);
-
+    console.debug('Seeding test data...');
     const sysAdmin = await this.db.sysAdmin.create({
       data: {
         email: TEST_SEED_DATA.SYSADMIN.email,
@@ -159,10 +159,11 @@ export class TestSeeder {
   }
 
   async cleanup() {
-    await this.db.userBranch.deleteMany({});
-    await this.db.user.deleteMany({});
+    await this.db.machine.deleteMany({});
     await this.db.companyBranch.deleteMany({});
     await this.db.company.deleteMany({});
+    await this.db.user.deleteMany({});
+    await this.db.userBranch.deleteMany({});
     await this.db.sysAdmin.deleteMany({});
   }
 }

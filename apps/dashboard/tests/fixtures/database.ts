@@ -4,6 +4,29 @@ import { PrismaClient } from '@titans-tech/db';
 import { PrismaClientExtended } from '@titans-tech/db';
 import { TestSeeder } from './test-seed';
 
+// Global setup que sempre roda
+let isSeeded = false;
+
+async function setupDatabase() {
+  if (isSeeded) return;
+
+  const prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: process.env.TEST_DATABASE_URL,
+      },
+    },
+  });
+
+  await prisma.$connect();
+  const seeder = new TestSeeder(prisma);
+  await seeder.cleanup();
+  await seeder.seed();
+  await prisma.$disconnect();
+
+  isSeeded = true;
+}
+
 type DatabaseFixtures = {
   db: PrismaClient;
   dbWithSoftDelete: PrismaClientExtended;
@@ -11,6 +34,7 @@ type DatabaseFixtures = {
 
 export const test = base.extend<DatabaseFixtures>({
   db: async ({}, use) => {
+    await setupDatabase();
     const prisma = new PrismaClient({
       datasources: {
         db: {
@@ -19,16 +43,12 @@ export const test = base.extend<DatabaseFixtures>({
       },
     });
     await prisma.$connect();
-
-    const seeder = new TestSeeder(prisma);
-    await seeder.cleanup();
-    await seeder.seed();
-
     await use(prisma);
     await prisma.$disconnect();
   },
 
   dbWithSoftDelete: async ({}, use) => {
+    await setupDatabase();
     const prismaExtended = new PrismaClientExtended({
       datasources: {
         db: {
@@ -40,6 +60,11 @@ export const test = base.extend<DatabaseFixtures>({
     await use(prismaExtended);
     await prismaExtended.$disconnect();
   },
+});
+
+// Hook que sempre roda antes de cada teste
+test.beforeEach(async () => {
+  await setupDatabase();
 });
 
 export { expect } from '@playwright/test';

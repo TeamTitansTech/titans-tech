@@ -21,7 +21,6 @@
     "db:reset": "npm run docker:up && sleep 3 && prisma migrate reset --force --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
     "db:reset:force": "npm run docker:clean && npm run docker:up && sleep 3 && prisma migrate reset --force --schema=packages/database/prisma/schema.prisma && cd packages/database && npm run db:seed",
     "db:nuke": "npm run docker:clean && npm run db:setup",
-    "dev:e2e": "turbo run dev --filter=@titans-tech/backend & sleep 10 && cd apps/dashboard && npm run build && npm run start",
     "test:e2e": "playwright test --config apps/dashboard/playwright.config.ts",
     "prepare": "husky || true"
   },
