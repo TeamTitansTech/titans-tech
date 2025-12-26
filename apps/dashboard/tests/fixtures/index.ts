@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { test as base } from '@playwright/test';
+import { test as base, Page } from '@playwright/test';
 import { PrismaClient } from '@titans-tech/db';
 import { PrismaClientExtended } from '@titans-tech/db';
 import { TestSeeder } from './test-seed';
@@ -32,6 +32,21 @@ type AllFixtures = {
   db: PrismaClient;
   dbWithSoftDelete: PrismaClientExtended;
   pageHelpers: PageHelpers;
+  page: Page & {
+    goto: (
+      url: string,
+      options?: {
+        referer?: string;
+        timeout?: number;
+        waitUntil?: 'load' | 'domcontentloaded' | 'networkidle' | 'commit';
+        subdomain?: string;
+      },
+    ) => Promise<void>;
+    waitForURL: (
+      url: string | RegExp,
+      options?: { timeout?: number; subdomain?: string },
+    ) => Promise<void>;
+  };
 };
 
 export const test = base.extend<AllFixtures>({

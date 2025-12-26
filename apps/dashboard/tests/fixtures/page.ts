@@ -14,6 +14,8 @@ export class PageHelpers {
 
   setupGotoOverride() {
     const originalGoto = this.page.goto;
+    const originalWaitForURL = this.page.waitForURL;
+
     this.page.goto = async (
       url: string,
       options?: {
@@ -29,6 +31,22 @@ export class PageHelpers {
         url = `${baseUrl}${url}`;
       }
       return originalGoto.call(this.page, url, options);
+    };
+
+    this.page.waitForURL = async (
+      url: string | RegExp | ((url: URL) => boolean),
+      options?: {
+        timeout?: number;
+        waitUntil?: 'load' | 'domcontentloaded' | 'networkidle' | 'commit';
+        subdomain?: string;
+      } & { subdomain?: string },
+    ) => {
+      if (typeof url === 'string' && !url.startsWith('http')) {
+        const subdomain = options?.subdomain;
+        const baseUrl = subdomain ? `http://${subdomain}.localhost:3000` : 'http://localhost:3000';
+        url = `${baseUrl}${url}`;
+      }
+      return originalWaitForURL.call(this.page, url, options);
     };
   }
 }
