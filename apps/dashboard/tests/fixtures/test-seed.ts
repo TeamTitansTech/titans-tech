@@ -47,7 +47,6 @@ export class TestSeeder {
 
   async seed() {
     const hashedPassword = await bcrypt.hash('password', 10);
-    console.debug('Seeding test data...');
     const sysAdmin = await this.db.sysAdmin.create({
       data: {
         email: TEST_SEED_DATA.SYSADMIN.email,
@@ -159,11 +158,41 @@ export class TestSeeder {
   }
 
   async cleanup() {
+    // Delete in correct order due to foreign key constraints
+    // 1. Delete all machine-related data first (most dependent)
+    await this.db.machineService.deleteMany({});
+    await this.db.machineField.deleteMany({});
     await this.db.machine.deleteMany({});
-    await this.db.companyBranch.deleteMany({});
-    await this.db.company.deleteMany({});
-    await this.db.user.deleteMany({});
+
+    // 2. Delete blueprint thresholds (depend on blueprints)
+    await this.db.thresholdBearingClearance.deleteMany({});
+    await this.db.thresholdBearingClearanceSingleHammer.deleteMany({});
+    await this.db.thresholdClutch.deleteMany({});
+    await this.db.thresholdSlideSingleHammer.deleteMany({});
+    await this.db.thresholdSlideDoubleHammer.deleteMany({});
+    await this.db.thresholdGibs.deleteMany({});
+    await this.db.thresholdPistons.deleteMany({});
+    await this.db.thresholdTramming.deleteMany({});
+
+    // 3. Delete blueprints (referenced by machines)
+    await this.db.blueprint.deleteMany({});
+
+    // 4. Delete user-branch relationships
     await this.db.userBranch.deleteMany({});
+
+    // 5. Delete users (depend on company)
+    await this.db.user.deleteMany({});
+
+    // 6. Delete company branches (depend on company)
+    await this.db.companyBranch.deleteMany({});
+
+    // 7. Delete permission templates (depend on company)
+    await this.db.permissionTemplate.deleteMany({});
+
+    // 8. Delete company (referenced by users, branches, permission templates)
+    await this.db.company.deleteMany({});
+
+    // 9. Delete sys admin (independent)
     await this.db.sysAdmin.deleteMany({});
   }
 }

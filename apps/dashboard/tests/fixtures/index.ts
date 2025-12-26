@@ -3,6 +3,7 @@ import { test as base } from '@playwright/test';
 import { PrismaClient } from '@titans-tech/db';
 import { PrismaClientExtended } from '@titans-tech/db';
 import { TestSeeder } from './test-seed';
+import { PageHelpers } from './page';
 
 // Global setup que sempre roda
 let isSeeded = false;
@@ -27,12 +28,25 @@ async function setupDatabase() {
   isSeeded = true;
 }
 
-type DatabaseFixtures = {
+type AllFixtures = {
   db: PrismaClient;
   dbWithSoftDelete: PrismaClientExtended;
+  pageHelpers: PageHelpers;
 };
 
-export const test = base.extend<DatabaseFixtures>({
+export const test = base.extend<AllFixtures>({
+  page: async ({ page }, use) => {
+    const pageHelpers = new PageHelpers(page);
+    pageHelpers.setupGotoOverride();
+    await use(page);
+  },
+
+  pageHelpers: async ({ page }, use) => {
+    const pageHelpers = new PageHelpers(page);
+    pageHelpers.setupGotoOverride();
+    await use(pageHelpers);
+  },
+
   db: async ({}, use) => {
     await setupDatabase();
     const prisma = new PrismaClient({

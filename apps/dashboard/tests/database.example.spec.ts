@@ -1,4 +1,4 @@
-import { test, expect, TEST_SEED_DATA } from './fixtures/database';
+import { test, expect, TEST_SEED_DATA } from './fixtures';
 
 test.describe('Database Tests with Simple Seed', () => {
   test('should create and find company', async ({ db }) => {

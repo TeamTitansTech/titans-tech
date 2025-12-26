@@ -1,4 +1,4 @@
-import { test, TEST_SEED_DATA } from '../../fixtures/database';
+import { test, TEST_SEED_DATA } from '../../fixtures';
 
 test('navigate to admin page', async ({ page }) => {
   await page.goto('/admin');
