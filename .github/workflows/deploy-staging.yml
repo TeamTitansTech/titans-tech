@@ -1,0 +1,53 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [staging]
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy-frontend:
+    name: Deploy Frontend to Vercel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create root vercel.json for monorepo
+        run: |
+          cat > vercel.json << 'EOF'
+          {
+            "$schema": "https://openapi.vercel.sh/vercel.json",
+            "buildCommand": "turbo run build --filter=@titans-tech/dashboard",
+            "installCommand": "npm install",
+            "framework": "nextjs",
+            "outputDirectory": "apps/dashboard/.next"
+          }
+          EOF
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+
+  deploy-backend:
+    name: Deploy Backend to Railway
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        run: railway up -d --environment staging --service 712ac7be-a7ca-4f6d-91ec-e952b5437ba9
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

@@ -74,9 +74,9 @@ export const PerpendicularitySection = forwardRef<
       prevInitialDataRef.current = initialData;
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
       setData(initialData.data || defaultPerpendicularityData);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
       setInitialPerpendicularityData(initialData.data || defaultPerpendicularityData);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
       setAttachments(initialData.attachments ?? []);
     }
   }, [initialData]);
@@ -176,7 +176,12 @@ export const PerpendicularitySection = forwardRef<
               value={data.hasBeenAdjusted || ''}
               onValueChange={(value) => updateField('hasBeenAdjusted', value as YesNoDncType)}
             >
-              <SelectTrigger id="hasBeenAdjusted">
+              <SelectTrigger
+                id="hasBeenAdjusted"
+                clearable
+                hasValue={!!data.hasBeenAdjusted}
+                onClear={() => updateField('hasBeenAdjusted', undefined)}
+              >
                 <SelectValue placeholder={t('selectOption')} />
               </SelectTrigger>
               <SelectContent>

@@ -82,9 +82,9 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
         prevInitialDataRef.current = initialData;
         // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
         setData(initialData.data || defaultAngularityData);
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
         setInitialAngularityData(initialData.data || defaultAngularityData);
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
         setAttachments(initialData.attachments ?? []);
       }
     }, [initialData]);
@@ -179,7 +179,12 @@ export const AngularitySection = forwardRef<AngularitySectionRef, AngularitySect
                 value={data.hasBeenAdjusted || ''}
                 onValueChange={(value) => updateField('hasBeenAdjusted', value as YesNoDncType)}
               >
-                <SelectTrigger id="angularity-hasBeenAdjusted">
+                <SelectTrigger
+                  id="angularity-hasBeenAdjusted"
+                  clearable
+                  hasValue={!!data.hasBeenAdjusted}
+                  onClear={() => updateField('hasBeenAdjusted', undefined)}
+                >
                   <SelectValue placeholder={t('selectOption')} />
                 </SelectTrigger>
                 <SelectContent>

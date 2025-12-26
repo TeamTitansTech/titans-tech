@@ -21,7 +21,7 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
 
   const allSeverities: AlertSeverity[] = [];
 
-  // Collect severities from BEARING_CLEARANCE section (outer and inner)
+  // Collect severities from BEARING_CLEARANCE section (outer and inner - double hammer)
   if (latestReport.sections.BEARING_CLEARANCE?.alert) {
     const alert = latestReport.sections.BEARING_CLEARANCE.alert;
     // Outer severities
@@ -41,6 +41,19 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
       alert.inner_wristPinToMatingPart_severity,
       alert.inner_wristPinToBushing_severity,
       alert.inner_slideAdjNutToScrewSleeve_severity,
+    );
+  }
+
+  // Collect severities from BEARING_CLEARANCE_SINGLE_HAMMER section
+  if (latestReport.sections.BEARING_CLEARANCE_SINGLE_HAMMER?.alert) {
+    const alert = latestReport.sections.BEARING_CLEARANCE_SINGLE_HAMMER.alert;
+    allSeverities.push(
+      alert.totalClearance_severity,
+      alert.mainBearings_severity,
+      alert.upperConnectionBearings_severity,
+      alert.wristPinToMatingPart_severity,
+      alert.wristPinToBushing_severity,
+      alert.slideAdjNutToScrewSleeve_severity,
     );
   }
 
@@ -149,7 +162,7 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
   const latestService = machine.services[0];
   const allSeverities: AlertSeverity[] = [];
 
-  // Check alertBearingClearance
+  // Check alertBearingClearance (double hammer - outer/inner)
   const bearingAlerts = latestService?.alertBearingClearance;
   const bearingAlert = Array.isArray(bearingAlerts) ? bearingAlerts[0] : bearingAlerts;
   if (bearingAlert) {
@@ -166,6 +179,23 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
       bearingAlert.inner_wristPinToMatingPart_severity,
       bearingAlert.inner_wristPinToBushing_severity,
       bearingAlert.inner_slideAdjNutToScrewSleeve_severity,
+    );
+  }
+
+  // Check alertBearingClearanceSingleHammer
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const bearingSingleAlerts = (latestService as any)?.alertBearingClearanceSingleHammer;
+  const bearingSingleAlert = Array.isArray(bearingSingleAlerts)
+    ? bearingSingleAlerts[0]
+    : bearingSingleAlerts;
+  if (bearingSingleAlert) {
+    allSeverities.push(
+      bearingSingleAlert.totalClearance_severity,
+      bearingSingleAlert.mainBearings_severity,
+      bearingSingleAlert.upperConnectionBearings_severity,
+      bearingSingleAlert.wristPinToMatingPart_severity,
+      bearingSingleAlert.wristPinToBushing_severity,
+      bearingSingleAlert.slideAdjNutToScrewSleeve_severity,
     );
   }
 
@@ -303,6 +333,33 @@ export const getSectionStatusFromReport = (
         alert.inner_wristPinToMatingPart_severity,
         alert.inner_wristPinToBushing_severity,
         alert.inner_slideAdjNutToScrewSleeve_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
+    case 'BEARING_CLEARANCE_SINGLE_HAMMER': {
+      const bearingData = latestReport.sections.BEARING_CLEARANCE_SINGLE_HAMMER;
+      if (!bearingData?.alert) {
+        return 'ok';
+      }
+
+      const alert = bearingData.alert;
+
+      // Check all bearing fields for worst severity
+      const severities = [
+        alert.totalClearance_severity,
+        alert.mainBearings_severity,
+        alert.upperConnectionBearings_severity,
+        alert.wristPinToMatingPart_severity,
+        alert.wristPinToBushing_severity,
+        alert.slideAdjNutToScrewSleeve_severity,
       ];
 
       if (severities.includes('RED')) {
@@ -542,6 +599,34 @@ export const getSectionStatus = (
         alert.inner_wristPinToMatingPart_severity,
         alert.inner_wristPinToBushing_severity,
         alert.inner_slideAdjNutToScrewSleeve_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
+    case 'BEARING_CLEARANCE_SINGLE_HAMMER': {
+      // alertBearingClearanceSingleHammer is an array - get the first (most recent) one
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const alerts = (latestService as any)?.alertBearingClearanceSingleHammer;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
+        return 'ok';
+      }
+
+      // Check all bearing fields for worst severity (single hammer - no outer/inner)
+      const severities = [
+        alert.totalClearance_severity,
+        alert.mainBearings_severity,
+        alert.upperConnectionBearings_severity,
+        alert.wristPinToMatingPart_severity,
+        alert.wristPinToBushing_severity,
+        alert.slideAdjNutToScrewSleeve_severity,
       ];
 
       if (severities.includes('RED')) {

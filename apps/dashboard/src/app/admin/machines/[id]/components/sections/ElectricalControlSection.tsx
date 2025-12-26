@@ -87,9 +87,9 @@ export const ElectricalControlSection = forwardRef<
       prevInitialDataRef.current = initialData;
       // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
       setData(initialData.data || defaultElectricalControlData);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
       setInitialElectricalControlData(initialData.data || defaultElectricalControlData);
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Necessary to sync props to state when initialData changes
+
       setAttachments(initialData.attachments ?? []);
     }
   }, [initialData]);
@@ -216,7 +216,12 @@ export const ElectricalControlSection = forwardRef<
               value={data.hasHourMeter || ''}
               onValueChange={(value) => updateField('hasHourMeter', value as YesNoDncType)}
             >
-              <SelectTrigger id="hasHourMeter">
+              <SelectTrigger
+                id="hasHourMeter"
+                clearable
+                hasValue={!!data.hasHourMeter}
+                onClear={() => updateField('hasHourMeter', undefined)}
+              >
                 <SelectValue placeholder={t('selectOption')} />
               </SelectTrigger>
               <SelectContent>
@@ -249,7 +254,12 @@ export const ElectricalControlSection = forwardRef<
               value={data.isMinsterControl || ''}
               onValueChange={(value) => updateField('isMinsterControl', value as YesNoDncType)}
             >
-              <SelectTrigger id="isMinsterControl">
+              <SelectTrigger
+                id="isMinsterControl"
+                clearable
+                hasValue={!!data.isMinsterControl}
+                onClear={() => updateField('isMinsterControl', undefined)}
+              >
                 <SelectValue placeholder={t('selectOption')} />
               </SelectTrigger>
               <SelectContent>
@@ -288,7 +298,12 @@ export const ElectricalControlSection = forwardRef<
                 value={(data[key] as string) || ''}
                 onValueChange={(value) => updateField(key, value as YesNoNaDncCantTellType)}
               >
-                <SelectTrigger id={key}>
+                <SelectTrigger
+                  id={key}
+                  clearable
+                  hasValue={!!data[key]}
+                  onClear={() => updateField(key, undefined)}
+                >
                   <SelectValue placeholder={t('selectOption')} />
                 </SelectTrigger>
                 <SelectContent>

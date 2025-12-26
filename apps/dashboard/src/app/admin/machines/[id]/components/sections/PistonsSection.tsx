@@ -26,18 +26,19 @@ import { DocumentUpload } from '@/components/ui/document-upload';
 import { Typography } from '@/components/ui/typography';
 
 // Default pistons data using DB format (without outer/inner prefix)
+// All fields are undefined to force user to fill them
 export const defaultPistonsDbData: PistonsDbData = {
-  lhTop: 0,
-  lhBottom: 0,
-  lhLeft: 0,
-  lhRight: 0,
-  rhTop: 0,
-  rhBottom: 0,
-  rhLeft: 0,
-  rhRight: 0,
+  lhTop: undefined,
+  lhBottom: undefined,
+  lhLeft: undefined,
+  lhRight: undefined,
+  rhTop: undefined,
+  rhBottom: undefined,
+  rhLeft: undefined,
+  rhRight: undefined,
 };
 
-// Merge partial data with defaults to ensure all fields have number values
+// Merge partial data with defaults
 const mergeWithDefaults = (data: Partial<PistonsDbData> | undefined): PistonsDbData => ({
   ...defaultPistonsDbData,
   ...Object.fromEntries(
@@ -113,12 +114,12 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
     const [innerErrors, setInnerErrors] = useState<Record<string, string>>({});
 
     const updateOuterField = (field: keyof PistonsDbData, value: number | undefined) => {
-      setOuterData((prev) => ({ ...prev, [field]: value ?? 0 }));
+      setOuterData((prev) => ({ ...prev, [field]: value }));
       onSectionTouched?.();
     };
 
     const updateInnerField = (field: keyof PistonsDbData, value: number | undefined) => {
-      setInnerData((prev) => ({ ...prev, [field]: value ?? 0 }));
+      setInnerData((prev) => ({ ...prev, [field]: value }));
       onSectionTouched?.();
     };
 
@@ -174,15 +175,6 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
           validationErrors.push(
             ...validatePistonsDbData(innerData).map((e) => `Pistons Inner: ${e}`),
           );
-        }
-
-        // Check if there's any existing data
-        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultPistonsDbData);
-        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultPistonsDbData);
-
-        // Require at least one section to be filled
-        if (!hasOuterData && !hasInnerData) {
-          validationErrors.push('Pistons: You must fill at least one section (Outer or Inner)');
         }
 
         const isValid = validationErrors.length === 0;
@@ -246,13 +238,6 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
           errors.push(...validatePistonsDbData(innerData).map((e) => `Pistons Inner: ${e}`));
         }
 
-        const hasOuterData = outerTouched || isDataTouched(initialOuterData, defaultPistonsDbData);
-        const hasInnerData = innerTouched || isDataTouched(initialInnerData, defaultPistonsDbData);
-
-        if (!hasOuterData && !hasInnerData) {
-          errors.push('Pistons: You must fill at least one section (Outer or Inner)');
-        }
-
         return errors;
       },
 
@@ -286,7 +271,15 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
                 onSectionTouched?.();
               }}
             >
-              <SelectTrigger id="guideSeals">
+              <SelectTrigger
+                id="guideSeals"
+                clearable
+                hasValue={!!guideSeals}
+                onClear={() => {
+                  setGuideSeals('' as SealConditionType);
+                  onSectionTouched?.();
+                }}
+              >
                 <SelectValue placeholder="Select condition" />
               </SelectTrigger>
               <SelectContent>
@@ -308,7 +301,15 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
                 onSectionTouched?.();
               }}
             >
-              <SelectTrigger id="pistonSeals">
+              <SelectTrigger
+                id="pistonSeals"
+                clearable
+                hasValue={!!pistonSeals}
+                onClear={() => {
+                  setPistonSeals('' as SealConditionType);
+                  onSectionTouched?.();
+                }}
+              >
                 <SelectValue placeholder="Select condition" />
               </SelectTrigger>
               <SelectContent>
@@ -330,7 +331,15 @@ export const PistonsSection = forwardRef<PistonsSectionRef, PistonsSectionProps>
                 onSectionTouched?.();
               }}
             >
-              <SelectTrigger id="vacuumSystem">
+              <SelectTrigger
+                id="vacuumSystem"
+                clearable
+                hasValue={!!vacuumSystem}
+                onClear={() => {
+                  setVacuumSystem('' as VacuumSystemConditionType);
+                  onSectionTouched?.();
+                }}
+              >
                 <SelectValue placeholder="Select condition" />
               </SelectTrigger>
               <SelectContent>

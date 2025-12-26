@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import type { ThresholdConfig, AlertSeverity } from '@/components/charts/types';
 import { calculateSeverity } from '@/components/charts/utils';
 
-export type SectionStatus = 'ok' | 'warning' | 'alert';
+export type SectionStatus = 'ok' | 'warning' | 'alert' | 'unknown';
 
 interface MeasurementWithThreshold {
   value: number | null | undefined;
@@ -50,6 +50,13 @@ const statusConfig = {
       'bg-red-100 text-red-800 border-red-300 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700',
     iconClass: 'text-red-600 dark:text-red-400',
   },
+  unknown: {
+    icon: CheckCircle,
+    labelKey: 'loading',
+    badgeClass:
+      'bg-gray-100 text-gray-600 border-gray-300 dark:bg-gray-900/30 dark:text-gray-400 dark:border-gray-700 animate-pulse',
+    iconClass: 'text-gray-400 dark:text-gray-500',
+  },
 };
 
 const sizeConfig = {
@@ -61,8 +68,17 @@ const sizeConfig = {
 /**
  * Calculate section status from an array of measurements with thresholds.
  * Returns the worst-case severity.
+ * Returns 'unknown' if thresholds are still loading (all null).
  */
 export function calculateSectionStatus(measurements: MeasurementWithThreshold[]): SectionStatus {
+  // If all thresholds are null/undefined, we're still loading - return unknown
+  const allThresholdsNull = measurements.every(
+    (m) => m.threshold === null || m.threshold === undefined,
+  );
+  if (allThresholdsNull && measurements.length > 0) {
+    return 'unknown';
+  }
+
   const severities: AlertSeverity[] = measurements.map((m) =>
     calculateSeverity(m.value, m.threshold ?? null),
   );
@@ -129,6 +145,7 @@ export function SectionStatusDot({
     ok: 'bg-green-500',
     warning: 'bg-yellow-500',
     alert: 'bg-red-500',
+    unknown: 'bg-gray-400 animate-pulse',
   };
 
   return (
@@ -139,6 +156,7 @@ export function SectionStatusDot({
         status === 'ok' && 'ring-green-500/30',
         status === 'warning' && 'ring-yellow-500/30',
         status === 'alert' && 'ring-red-500/30 animate-pulse',
+        status === 'unknown' && 'ring-gray-400/30',
         className,
       )}
     />
