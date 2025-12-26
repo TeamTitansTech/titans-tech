@@ -160,6 +160,7 @@ jobs:
         run: |
           cp apps/backend/.env.example apps/backend/.env
           cp apps/dashboard/.env.example apps/dashboard/.env
+          cp packages/database/.env.example packages/database/.env
 
       - name: Setup database
         run: |
