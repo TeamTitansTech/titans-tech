@@ -182,7 +182,7 @@ jobs:
       - name: Build and start dashboard app
         working-directory: apps/dashboard
         run: |
-          npm run build
+          npx turbo run build
           npm run start &
           npx wait-on http://localhost:3000
 
