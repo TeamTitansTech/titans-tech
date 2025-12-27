@@ -5,12 +5,7 @@ import { PrismaClientExtended } from '@titans-tech/db';
 import { TestSeeder } from './test-seed';
 import { PageHelpers } from './page';
 
-// Global setup que sempre roda
-let isSeeded = false;
-
 async function setupDatabase() {
-  if (isSeeded) return;
-
   const prisma = new PrismaClient({
     datasources: {
       db: {
@@ -24,8 +19,6 @@ async function setupDatabase() {
   await seeder.cleanup();
   await seeder.seed();
   await prisma.$disconnect();
-
-  isSeeded = true;
 }
 
 type AllFixtures = {
@@ -91,7 +84,6 @@ export const test = base.extend<AllFixtures>({
   },
 });
 
-// Hook que sempre roda antes de cada teste
 test.beforeEach(async () => {
   await setupDatabase();
 });
