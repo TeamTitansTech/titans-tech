@@ -41,7 +41,7 @@ export function CompanyDetail({ company, branches }: CompanyDetailProps) {
           <h1 className="text-3xl font-bold tracking-tight">{company.name}</h1>
           <p className="text-muted-foreground mt-1">{t('branchesSubtitle')}</p>
         </div>
-        <Button onClick={() => setIsCreateDialogOpen(true)}>
+        <Button onClick={() => setIsCreateDialogOpen(true)} data-testid="create-branch-button">
           <Plus className="w-4 h-4 mr-2" />
           {t('newBranch')}
         </Button>
@@ -52,7 +52,10 @@ export function CompanyDetail({ company, branches }: CompanyDetailProps) {
           <p className="text-muted-foreground">{t('noBranches')}</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          data-testid="branches-grid"
+        >
           {optimisticBranches.map((branch) => (
             <BranchCard key={branch.id} branch={branch} companyId={company.id} />
           ))}
