@@ -3,15 +3,34 @@ import { companyBranchesService } from './company-branches';
 
 type TransactionClient = Parameters<Parameters<PrismaClient['$transaction']>[0]>[0];
 
+/**
+ * Converts a string to a URL-safe slug for subdomains
+ * - Converts to lowercase
+ * - Removes accents/diacritics
+ * - Replaces spaces and special characters with hyphens
+ * - Removes consecutive hyphens
+ * - Removes leading/trailing hyphens
+ */
 function slugify(text: string): string {
   return text
     .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/[\s_]+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .normalize('NFD') // Decompose accented characters
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/[\s_]+/g, '-') // Replace spaces and underscores with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+    .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+}
+
+async function validateSlugUniqueness(
+  prisma: PrismaClient | TransactionClient,
+  slug: string,
+  excludeId?: string,
+): Promise<void> {
+  const existing = await prisma.company.findUnique({ where: { slug } });
+  if (existing && existing.id !== excludeId) {
+    throw { type: 'FIELDS_ERR', payload: { slug: 'This slug is already in use' } };
+  }
 }
 
 export const companiesService = {
@@ -62,10 +81,7 @@ export const companiesService = {
     }
 
     return prisma.$transaction(async (tx) => {
-      const existing = await tx.company.findUnique({ where: { slug: normalizedSlug } });
-      if (existing) {
-        throw { type: 'FIELDS_ERR', payload: { slug: 'This slug is already in use' } };
-      }
+      await validateSlugUniqueness(tx, normalizedSlug);
 
       const company = await tx.company.create({
         data: { ...createCompanyDto, slug: normalizedSlug },
@@ -93,10 +109,7 @@ export const companiesService = {
         };
       }
 
-      const existing = await prisma.company.findUnique({ where: { slug: normalizedSlug } });
-      if (existing && existing.id !== id) {
-        throw { type: 'FIELDS_ERR', payload: { slug: 'This slug is already in use' } };
-      }
+      await validateSlugUniqueness(prisma, normalizedSlug, id);
     }
 
     return prisma.company.update({
@@ -146,11 +159,6 @@ export const companiesService = {
     });
 
     return true;
-  },
-
-  async validateSlugUniqueness(prisma: PrismaClient, slug: string, excludeId?: string) {
-    const existing = await prisma.company.findUnique({ where: { slug } });
-    return !(existing && existing.id !== excludeId);
   },
 
   async getAdminManagerUsers(prisma: PrismaClient, companyId: string) {
