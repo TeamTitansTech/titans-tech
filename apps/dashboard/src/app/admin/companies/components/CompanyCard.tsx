@@ -25,6 +25,7 @@ export function CompanyCard({ company }: CompanyCardProps) {
     <Card
       className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
       onClick={handleClick}
+      data-testid={`company-card-${company.id}`}
     >
       <CardContent className="pt-6">
         <div className="space-y-4">
@@ -44,7 +45,9 @@ export function CompanyCard({ company }: CompanyCardProps) {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold line-clamp-1">{company.name}</h3>
+            <h3 className="text-lg font-semibold line-clamp-1" data-testid="company-card-name">
+              {company.name}
+            </h3>
             <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
               {company.description ||
                 'Leading industrial equipment manufacturer specializing in heavy machinery'}

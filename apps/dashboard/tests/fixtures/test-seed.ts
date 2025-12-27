@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 
 export const TEST_SEED_DATA = {
   SYSADMIN: {
+    id: 'test-sysadmin',
     email: 'admin@admin.com',
     password: 'password',
   },
@@ -49,6 +50,7 @@ export class TestSeeder {
     const hashedPassword = await bcrypt.hash('password', 10);
     const sysAdmin = await this.db.sysAdmin.create({
       data: {
+        id: TEST_SEED_DATA.SYSADMIN.id,
         email: TEST_SEED_DATA.SYSADMIN.email,
         password: hashedPassword,
         isUsingDefaultPassword: true,
