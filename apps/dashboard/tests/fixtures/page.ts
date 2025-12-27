@@ -12,6 +12,10 @@ export class PageHelpers {
     await this.page.waitForURL('/admin/dashboard');
   }
 
+  async expectToastMessage(message: string) {
+    await this.page.locator('.toast').getByText(message).isVisible();
+  }
+
   setupGotoOverride() {
     const originalGoto = this.page.goto;
     const originalWaitForURL = this.page.waitForURL;

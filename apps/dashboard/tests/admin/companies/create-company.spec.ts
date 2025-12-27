@@ -1,4 +1,4 @@
-import { test } from '../../fixtures';
+import { test, expect } from '../../fixtures';
 
 test('should show company in the list after creating company', async ({ page, pageHelpers }) => {
   const companyName = 'New company';
@@ -17,6 +17,7 @@ test('should show slug validation error when creating company with existing slug
   page,
   pageHelpers,
   db,
+  t,
 }) => {
   const existingCompanySlug = 'existing-company';
   await db.company.create({
@@ -29,9 +30,17 @@ test('should show slug validation error when creating company with existing slug
 
   await pageHelpers.adminLogin();
   await page.getByTestId('admin-sidebar-companies').click();
+
   await page.getByTestId('create-company-button').click();
   await page.getByTestId('company-name-input').fill('Another Company');
   await page.getByTestId('company-slug-input').fill(existingCompanySlug);
   await page.getByTestId('company-creation-submit').click();
-  await page.locator('.toast').getByText('Falha ao criar empresa').isVisible();
+
+  const errorMessage = t.adminSettings.createCompany('error');
+  await pageHelpers.expectToastMessage(errorMessage);
+
+  // Verify there are exactly 2 companies in the grid (seed + created)
+  await page.goto('/admin/companies');
+  const companyCards = page.getByTestId('companies-grid').getByTestId(/^company-card-container-/);
+  await expect(companyCards).toHaveCount(2);
 });

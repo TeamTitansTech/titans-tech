@@ -25,7 +25,7 @@ export function CompanyCard({ company }: CompanyCardProps) {
     <Card
       className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
       onClick={handleClick}
-      data-testid={`company-card-${company.id}`}
+      data-testid={`company-card-container-${company.id}`}
     >
       <CardContent className="pt-6">
         <div className="space-y-4">
