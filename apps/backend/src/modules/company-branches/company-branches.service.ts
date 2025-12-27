@@ -4,7 +4,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
-import { MachinesService } from '../machines/machines.service';
+import { companyBranchesService } from '@titans-tech/shared/services';
 import {
   CreateCompanyBranchDto,
   UpdateCompanyBranchDto,
@@ -15,10 +15,7 @@ import { Prisma } from '@titans-tech/db';
 
 @Injectable()
 export class CompanyBranchesService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly machinesService: MachinesService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Get all branches across all companies (SysAdmin only)
@@ -121,42 +118,6 @@ export class CompanyBranchesService {
     });
   }
 
-  /**
-   * Soft delete cascade for company branch and all related entities
-   * Handles: Machines → ProductionLines → UserBranches → CompanyBranch
-   * Public method to allow reuse by CompaniesService
-   */
-  async softDeleteCompanyBranchCascade(
-    tx: Prisma.TransactionClient,
-    branchId: string,
-  ): Promise<void> {
-    // 1. Get all machines in this branch
-    const machines = await tx.machine.findMany({
-      where: { branchId },
-      select: { id: true },
-    });
-
-    // 2. Soft delete all machines using the MachinesService cascade method
-    for (const machine of machines) {
-      await this.machinesService.softDeleteMachineCascade(tx, machine.id);
-    }
-
-    // 3. Soft delete all ProductionLines
-    await tx.productionLine.deleteMany({
-      where: { branchId },
-    });
-
-    // 4. Soft delete all UserBranches
-    await tx.userBranch.deleteMany({
-      where: { branchId },
-    });
-
-    // 5. Finally, soft delete the CompanyBranch itself
-    await tx.companyBranch.delete({
-      where: { id: branchId },
-    });
-  }
-
   async remove(id: string) {
     const branch = await this.prisma.companyBranch.findUnique({
       where: { id },
@@ -173,7 +134,7 @@ export class CompanyBranchesService {
 
     // Use transaction to ensure atomic cascade deletion
     await this.prisma.$transaction(async (tx) => {
-      await this.softDeleteCompanyBranchCascade(tx, id);
+      await companyBranchesService.softDeleteCascade(tx, id);
     });
 
     return { success: true };
