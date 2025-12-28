@@ -157,7 +157,7 @@ export const BlueprintCreationModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <UnitManagerProvider>
+        <UnitManagerProvider defaultLengthUnit="inches">
           <DialogContent className="flex max-w-4xl flex-col bg-background p-0">
             <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
               <DialogHeader className="shrink-0 border-b border-border p-6 pb-4">
