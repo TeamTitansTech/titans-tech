@@ -508,6 +508,11 @@ export class ServicesService {
             data: true,
           },
         },
+        clutchCevolani: {
+          include: {
+            data: true,
+          },
+        },
         counterbalanceCylinderAirbag: {
           include: {
             outerData: true,
@@ -622,6 +627,11 @@ export class ServicesService {
             data: true,
           },
         },
+        clutchCevolani: {
+          include: {
+            data: true,
+          },
+        },
         counterbalanceCylinderAirbag: {
           include: {
             outerData: true,
@@ -724,6 +734,11 @@ export class ServicesService {
           },
         },
         clutch: {
+          include: {
+            data: true,
+          },
+        },
+        clutchCevolani: {
           include: {
             data: true,
           },
@@ -831,6 +846,11 @@ export class ServicesService {
           },
         },
         clutch: {
+          include: {
+            data: true,
+          },
+        },
+        clutchCevolani: {
           include: {
             data: true,
           },
@@ -949,6 +969,11 @@ export class ServicesService {
           },
         },
         clutch: {
+          include: {
+            data: true,
+          },
+        },
+        clutchCevolani: {
           include: {
             data: true,
           },
@@ -1110,6 +1135,11 @@ export class ServicesService {
           },
         },
         clutch: {
+          include: {
+            data: true,
+          },
+        },
+        clutchCevolani: {
           include: {
             data: true,
           },
@@ -2747,6 +2777,93 @@ export class ServicesService {
     return this.findOne(serviceId);
   }
 
+  async updateClutchCevolani(
+    serviceId: string,
+    updateDto: ClutchData,
+    userId: string | null,
+  ): Promise<any> {
+    // Validate permission before updating
+    await this.validateServicePermissionByServiceId(
+      userId,
+      serviceId,
+      'updateServices',
+    );
+
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: serviceId },
+      include: { clutchCevolani: true },
+    });
+
+    if (!service) {
+      throw new NotFoundException(`Service with ID ${serviceId} not found`);
+    }
+
+    const completedSections = Array.isArray(service.completedSections)
+      ? service.completedSections
+      : [];
+
+    const updatedCompletedSections = completedSections.includes(
+      'CLUTCH_CEVOLANI',
+    )
+      ? completedSections
+      : [...completedSections, 'CLUTCH_CEVOLANI'];
+
+    const existingRecord = service.clutchCevolani?.[0];
+    const { attachments, ...clutchData } = updateDto;
+
+    if (existingRecord) {
+      await this.prisma.$transaction(async (tx) => {
+        if (existingRecord.dataId) {
+          await tx.clutchData.update({
+            where: { id: existingRecord.dataId },
+            data: clutchData as any,
+          });
+
+          // Update attachments in junction table
+          if (attachments !== undefined) {
+            await tx.machineServiceClutchCevolani.update({
+              where: { id: existingRecord.id },
+              data: { attachments },
+            });
+          }
+        } else {
+          await tx.machineServiceClutchCevolani.update({
+            where: { id: existingRecord.id },
+            data: {
+              data: { create: clutchData as any },
+              ...(attachments !== undefined && { attachments }),
+            },
+          });
+        }
+
+        await tx.machineService.update({
+          where: { id: serviceId },
+          data: {
+            completedSections: updatedCompletedSections,
+            lastSectionSavedAt: new Date(),
+          },
+        });
+      });
+    } else {
+      await this.prisma.machineService.update({
+        where: { id: serviceId },
+        data: {
+          completedSections: updatedCompletedSections,
+          lastSectionSavedAt: new Date(),
+          clutchCevolani: {
+            create: {
+              data: { create: clutchData as any },
+              ...(attachments && { attachments }),
+            },
+          },
+        },
+      });
+    }
+
+    // Note: Alerts are generated only when service is completed via completeService()
+    return this.findOne(serviceId);
+  }
+
   async updateCounterbalanceCylinder(
     serviceId: string,
     updateDto: CounterbalanceCylinderCheck,
@@ -3747,6 +3864,7 @@ export class ServicesService {
           include: { data: { include: { gauges: true } } },
         },
         clutch: { include: { data: true } },
+        clutchCevolani: { include: { data: true } },
         counterbalanceCylinderAirbag: {
           include: { outerData: true, innerData: true },
         },

@@ -828,6 +828,7 @@
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
+    "clutch_cevolani": "Embrague Cevolani",
     "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
     "tramming": "Tramming",
     "pistons": "Pistones",
@@ -1031,6 +1032,7 @@
       "gibs": "Guías",
       "lubricationHydraulics": "Lubricación / Hidráulica",
       "clutch": "Holgura de Embrague y Freno - CP 2",
+      "clutchCevolani": "Embrague Cevolani",
       "counterbalance": "Cilindro de Contrapeso / Bolsa de Aire",
       "counterbalanceCylinder": "Cilindro de Contrapeso / Bolsa de Aire",
       "tramming": "Tramming",
@@ -1112,6 +1114,7 @@
       "createInspection": "Crear Inspección",
       "sectionTitles": {
         "clutchMeasurements": "Mediciones del Embrague",
+        "clutchCevolaniMeasurements": "Mediciones del Embrague Cevolani",
         "slideMeasurements": "Mediciones del Carro",
         "gibsMeasurements": "Mediciones de las Guías",
         "lubricationStatus": "Estado de Lubricación e Hidráulica",
@@ -2411,6 +2414,14 @@
       "fTB": "F-TB (Frente Superior-Inferior)",
       "rTB": "R-TB (Trasera Superior-Inferior)"
     },
+    "clutchCevolani": {
+      "title": "EMBRAGUE CEVOLANI - Configuración de Alerta",
+      "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico Total",
+      "hydClutchClearanceRear": "Holgura del Embrague Hidráulico Trasera",
+      "fb": "F-B (Frente-Atrás)",
+      "fTB": "F-TB (Frente Superior-Inferior)",
+      "rTB": "R-TB (Trasera Superior-Inferior)"
+    },
     "slide": {
       "title": "SLIDE - Configuración de Alerta",
       "maxDeviation": "Desviación Máxima"
@@ -2746,6 +2757,8 @@
     "description": "Seleccione las piezas que necesitan ser reemplazadas",
     "clutchBrakeParts": "Piezas de Embrague y Freno",
     "clutchBrakeDescription": "Seleccione las piezas del embrague y freno que necesitan ser reemplazadas",
+    "clutchCevolaniParts": "Piezas de Embrague Cevolani",
+    "clutchCevolaniDescription": "Seleccione las piezas del embrague Cevolani que necesitan ser reemplazadas",
     "bearingClearanceParts": "Piezas de Holgura del Rodamiento",
     "bearingClearanceDescription": "Seleccione las piezas de holgura del rodamiento que necesitan ser reemplazadas",
     "bearingClearanceSingleHammerParts": "Piezas de Holgura del Rodamiento Single Hammer",
@@ -2823,6 +2836,7 @@
       "flywheelBrake": "Freno del Volante",
       "motorDrive": "Accionamiento del Motor",
       "hydraulicUnit": "Unidad Hidráulica",
+      "clutchCevolani": "Embrague Cevolani",
       "flywheelBearings": "Cojinetes del Volante",
       "counterbalanceInner": "Contrapeso (Interior)",
       "counterbalanceOuterAirmount": "Contrapeso (Exterior)",

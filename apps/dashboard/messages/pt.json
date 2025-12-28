@@ -823,6 +823,7 @@
     "gibs": "GUIAS",
     "lubrication_hydraulics_pressure_switches_oil_filter": "LUBRIFICAÇÃO / HIDRÁULICA / INTERRUPTORES DE PRESSÃO / ÓLEO E FILTRO",
     "clutch": "EMBREAGEM",
+    "clutch_cevolani": "EMBREAGEM CEVOLANI",
     "counterbalance_cylinder_airbag": "CILINDRO DE CONTRAPESO / AIRBAG",
     "tramming": "TRAMMING",
     "pistons": "PISTÕES",
@@ -1026,6 +1027,7 @@
       "gibs": "Guias",
       "lubricationHydraulics": "Lubrificação / Hidráulica",
       "clutch": "Folga de Embreagem e Freio",
+      "clutchCevolani": "Embreagem Cevolani",
       "counterbalance": "Cilindro de Contrapeso / Airbag",
       "counterbalanceCylinder": "Cilindro de Contrapeso / Airbag",
       "tramming": "Tramming",
@@ -1107,6 +1109,7 @@
       "createInspection": "Criar Vistoria",
       "sectionTitles": {
         "clutchMeasurements": "Medições da Embreagem",
+        "clutchCevolaniMeasurements": "Medições da Embreagem Cevolani",
         "slideMeasurements": "Medições do Martelo",
         "gibsMeasurements": "Medições das Guias",
         "lubricationStatus": "Status de Lubrificação e Hidráulica",
@@ -2406,6 +2409,14 @@
       "fTB": "F-TB (Frente Topo-Base)",
       "rTB": "R-TB (Traseira Topo-Base)"
     },
+    "clutchCevolani": {
+      "title": "EMBREAGEM CEVOLANI - Configuração de Alerta",
+      "hydClutchClearanceTotal": "Folga da Embreagem Hidráulica Total",
+      "hydClutchClearanceRear": "Folga da Embreagem Hidráulica Traseira",
+      "fb": "F-B (Frente-Trás)",
+      "fTB": "F-TB (Frente Topo-Base)",
+      "rTB": "R-TB (Traseira Topo-Base)"
+    },
     "slide": {
       "title": "SLIDE - Configuração de Alerta",
       "maxDeviation": "Desvio Máximo"
@@ -2745,6 +2756,8 @@
     "description": "Selecione as peças que precisam ser substituídas",
     "clutchBrakeParts": "Peças de Embreagem e Freio",
     "clutchBrakeDescription": "Selecione as peças da embreagem e freio que precisam ser substituídas",
+    "clutchCevolaniParts": "Peças de Embreagem Cevolani",
+    "clutchCevolaniDescription": "Selecione as peças da embreagem Cevolani que precisam ser substituídas",
     "bearingClearanceParts": "Peças de Folga do Rolamento",
     "bearingClearanceDescription": "Selecione as peças de folga do rolamento que precisam ser substituídas",
     "bearingClearanceSingleHammerParts": "Peças de Folga do Rolamento Single Hammer",
@@ -2822,6 +2835,7 @@
       "flywheelBrake": "Freio do Volante",
       "motorDrive": "Acionamento do Motor",
       "hydraulicUnit": "Unidade Hidráulica",
+      "clutchCevolani": "Embreagem Cevolani",
       "flywheelBearings": "Rolamentos do Volante",
       "counterbalanceInner": "Contrapeso (Interno)",
       "counterbalanceOuterAirmount": "Contrapeso (Externo)",

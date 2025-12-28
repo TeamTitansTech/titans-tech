@@ -1,0 +1,84 @@
+import { getInspectionsByMachine } from '@/data/services/inspections.api';
+import { getMachineById } from '@/data/services/machines.api';
+import { ClutchCevolaniSection } from './ClutchCevolaniSection';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+
+interface ClutchCevolaniSectionWrapperProps {
+  machineId: string;
+  hideThresholdValues?: boolean;
+}
+
+interface ClutchCevolaniData {
+  hydClutchClearanceTotal: number | null;
+  hydClutchClearanceRear: number | null;
+  brakeSpringFB: number | null;
+  brakeSpringFTB: number | null;
+  brakeSpringRTB: number | null;
+  brakeSpringBrake: number | null;
+  brakeSpringClutch: number | null;
+  brakeClearanceTotal: number | null;
+  brakeClearanceRear: number | null;
+}
+
+export interface ClutchCevolaniInspectionData {
+  id: string;
+  date: string;
+  clutchCevolani: Array<{
+    id: string;
+    data: ClutchCevolaniData | null;
+  }>;
+}
+
+export async function ClutchCevolaniSectionWrapper({
+  machineId,
+  hideThresholdValues = false,
+}: ClutchCevolaniSectionWrapperProps) {
+  let inspections: ClutchCevolaniInspectionData[] = [];
+  let machineName = '';
+  let machineSerial = '';
+  let blueprintId = '';
+
+  try {
+    const [inspectionsResponse, machineResponse] = await Promise.all([
+      getInspectionsByMachine(machineId),
+      getMachineById(machineId),
+    ]);
+
+    if (inspectionsResponse.errors) {
+      console.error('Errors fetching inspections:', inspectionsResponse.errors);
+      inspections = [];
+    } else {
+      inspections = (inspectionsResponse.data || []) as unknown as ClutchCevolaniInspectionData[];
+    }
+
+    if (machineResponse.errors) {
+      console.error('Errors fetching machine:', machineResponse.errors);
+      machineName = '';
+      machineSerial = '';
+      blueprintId = '';
+    } else {
+      machineName = machineResponse.data?.name || '';
+      machineSerial = machineResponse.data?.serialNumber || '';
+      blueprintId = machineResponse.data?.blueprintId || '';
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    inspections = [];
+    machineName = '';
+    machineSerial = '';
+    blueprintId = '';
+  }
+
+  return (
+    <UnitManagerProvider>
+      <ClutchCevolaniSection
+        machineId={machineId}
+        inspections={inspections}
+        machineName={machineName}
+        machineSerial={machineSerial}
+        blueprintId={blueprintId}
+        hideThresholdValues={hideThresholdValues}
+      />
+    </UnitManagerProvider>
+  );
+}

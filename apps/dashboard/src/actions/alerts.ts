@@ -505,3 +505,57 @@ export async function updatePistonsThreshold(
     };
   }
 }
+
+/**
+ * Get clutch cevolani threshold by blueprint ID
+ */
+export async function getClutchCevolaniThresholdByBlueprint(blueprintId: string) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_URL}/alerts/clutch-cevolani/thresholds/blueprint/${blueprintId}`,
+      {
+        method: 'GET',
+        headers,
+        cache: 'no-store',
+      },
+    );
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to fetch clutch cevolani threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
+ * Update clutch cevolani threshold
+ */
+export async function updateClutchCevolaniThreshold(
+  blueprintId: string,
+  data: any,
+  recalculateAlerts: boolean = false,
+) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_URL}/alerts/clutch-cevolani/thresholds/blueprint/${blueprintId}`,
+      {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ ...data, recalculateAlerts }),
+      },
+    );
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to update clutch cevolani threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}

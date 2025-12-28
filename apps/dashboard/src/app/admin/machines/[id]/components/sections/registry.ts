@@ -110,6 +110,16 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
     // No badges for clutch section
   },
 
+  CLUTCH_CEVOLANI: {
+    key: 'CLUTCH_CEVOLANI',
+    component: ClutchSection,
+    metadata: {
+      image: '/assets/sections/clutch.svg',
+      i18nKey: 'clutchCevolani',
+    },
+    // No badges for clutch cevolani section
+  },
+
   COUNTERBALANCE_CYLINDER_AIRBAG: {
     key: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     component: CounterbalanceCylinderSection,

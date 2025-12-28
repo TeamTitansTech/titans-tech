@@ -823,6 +823,7 @@
     "gibs": "Gibs",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
+    "clutch_cevolani": "Clutch Cevolani",
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
     "tramming": "Tramming",
     "pistons": "Pistons",
@@ -1026,6 +1027,7 @@
       "gibs": "Gibs",
       "lubricationHydraulics": "Lubrication / Hydraulics",
       "clutch": "Clutch and Brake Clearance - CP 2",
+      "clutchCevolani": "Clutch Cevolani",
       "counterbalance": "Counterbalance Cylinder / Airbag",
       "counterbalanceCylinder": "Counterbalance Cylinder / Airbag",
       "tramming": "Tramming",
@@ -1107,6 +1109,7 @@
       "createInspection": "Create Inspection",
       "sectionTitles": {
         "clutchMeasurements": "Clutch Measurements",
+        "clutchCevolaniMeasurements": "Clutch Cevolani Measurements",
         "slideMeasurements": "Slide Measurements",
         "gibsMeasurements": "Gibs Measurements",
         "lubricationStatus": "Lubrication & Hydraulics Status",
@@ -2405,6 +2408,14 @@
       "fTB": "F-TB (Front Top-Bottom)",
       "rTB": "R-TB (Rear Top-Bottom)"
     },
+    "clutchCevolani": {
+      "title": "CLUTCH CEVOLANI - Alert Configuration",
+      "hydClutchClearanceTotal": "Hydraulic Clutch Clearance Total",
+      "hydClutchClearanceRear": "Hydraulic Clutch Clearance Rear",
+      "fb": "F-B (Front-Back)",
+      "fTB": "F-TB (Front Top-Bottom)",
+      "rTB": "R-TB (Rear Top-Bottom)"
+    },
     "slide": {
       "title": "SLIDE - Alert Configuration",
       "maxDeviation": "Max Deviation"
@@ -2745,6 +2756,8 @@
     "description": "Select the parts that need to be replaced",
     "clutchBrakeParts": "Clutch & Brake Parts",
     "clutchBrakeDescription": "Select clutch and brake parts that need replacement",
+    "clutchCevolaniParts": "Clutch Cevolani Parts",
+    "clutchCevolaniDescription": "Select Cevolani clutch parts that need replacement",
     "bearingClearanceParts": "Bearing Clearance Parts",
     "bearingClearanceDescription": "Select bearing clearance parts that need replacement",
     "bearingClearanceSingleHammerParts": "Bearing Clearance Single Hammer Parts",
@@ -2822,6 +2835,7 @@
       "flywheelBrake": "Flywheel Brake",
       "motorDrive": "Motor Drive",
       "hydraulicUnit": "Hydraulic Unit",
+      "clutchCevolani": "Clutch Cevolani",
       "flywheelBearings": "Flywheel Bearings",
       "counterbalanceInner": "Counterbalance (Inner)",
       "counterbalanceOuterAirmount": "Counterbalance (Outer)",

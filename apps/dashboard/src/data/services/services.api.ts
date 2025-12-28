@@ -107,6 +107,7 @@ export const updateServiceSection = async (
     GIBS: 'gibs',
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubrication-hydraulics',
     CLUTCH: 'clutch',
+    CLUTCH_CEVOLANI: 'clutch-cevolani',
     COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance-cylinder',
     TRAMMING: 'tramming',
     PISTONS: 'pistons',
