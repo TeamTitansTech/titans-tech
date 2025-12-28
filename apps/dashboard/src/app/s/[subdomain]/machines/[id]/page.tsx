@@ -96,6 +96,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
             canCreateServices={canCreateServices}
             canUpdateServices={canUpdateServices}
             canDeleteServices={canDeleteServices}
+            defaultMeasurementUnit={machine.branch?.defaultMeasurementUnit || 'INCHES'}
           />
         ) : (
           <NoPermission variant="inline" />
