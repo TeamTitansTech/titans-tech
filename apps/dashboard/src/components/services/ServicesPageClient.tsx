@@ -11,6 +11,7 @@ import { ServiceCard } from './ServiceCard';
 import { ServiceStatsCards } from './ServiceStatsCards';
 import { ServiceFilters } from './ServiceFilters';
 import { ServiceSummaryModal } from '@/app/admin/machines/[id]/components/ServiceSummaryModal';
+import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
 import {
   ServiceStatus,
   type ServiceType as ServiceTypeEnum,
@@ -28,6 +29,7 @@ interface Service extends Omit<BaseService, 'type' | 'status'> {
     branch: {
       id: string;
       name: string;
+      defaultMeasurementUnit: LengthUnitFromEnum;
     };
   };
 }
@@ -43,6 +45,8 @@ export function ServicesPageClient() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [selectedServiceMachineUnit, setSelectedServiceMachineUnit] =
+    useState<LengthUnitFromEnum>('INCHES');
 
   // Fetch services
   useEffect(() => {
@@ -160,6 +164,10 @@ export function ServicesPageClient() {
 
   const handleServiceClick = (service: Service) => {
     setSelectedService(service);
+
+    const defaultUnit = service.machine?.branch?.defaultMeasurementUnit || 'INCHES';
+    setSelectedServiceMachineUnit(defaultUnit);
+
     setIsModalOpen(true);
   };
 
@@ -253,6 +261,7 @@ export function ServicesPageClient() {
           service={selectedService}
           open={isModalOpen}
           onOpenChange={handleCloseModal}
+          defaultMeasurementUnit={selectedServiceMachineUnit}
         />
       )}
     </div>
