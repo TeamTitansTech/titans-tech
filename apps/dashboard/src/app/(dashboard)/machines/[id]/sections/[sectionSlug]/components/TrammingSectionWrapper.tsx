@@ -1,7 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { TrammingSection } from './TrammingSection';
-import { BranchAwareUnitManagerProvider } from '@/components/providers/BranchAwareUnitManagerProvider';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface TrammingSectionWrapperProps {
   machineId: string;
@@ -68,8 +68,8 @@ export async function TrammingSectionWrapper({ machineId }: TrammingSectionWrapp
   }
 
   return (
-    <BranchAwareUnitManagerProvider>
+    <UnitManagerProvider>
       <TrammingSection machineId={machineId} inspections={inspections} machineName={machineName} />
-    </BranchAwareUnitManagerProvider>
+    </UnitManagerProvider>
   );
 }

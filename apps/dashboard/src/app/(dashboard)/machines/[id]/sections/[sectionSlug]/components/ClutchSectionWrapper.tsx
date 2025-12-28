@@ -1,7 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { ClutchSection } from './ClutchSection';
-import { BranchAwareUnitManagerProvider } from '@/components/providers/BranchAwareUnitManagerProvider';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface ClutchSectionWrapperProps {
   machineId: string;
@@ -66,7 +66,7 @@ export async function ClutchSectionWrapper({ machineId }: ClutchSectionWrapperPr
   }
 
   return (
-    <BranchAwareUnitManagerProvider>
+    <UnitManagerProvider>
       <ClutchSection
         machineId={machineId}
         inspections={inspections}
@@ -74,6 +74,6 @@ export async function ClutchSectionWrapper({ machineId }: ClutchSectionWrapperPr
         machineSerial={machineSerial}
         blueprintId={blueprintId}
       />
-    </BranchAwareUnitManagerProvider>
+    </UnitManagerProvider>
   );
 }
