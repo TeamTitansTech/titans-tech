@@ -1,7 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { BearingClearanceSection } from './BearingClearanceSection';
-import { BranchAwareUnitManagerProvider } from '@/components/providers/BranchAwareUnitManagerProvider';
+import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface BearingClearanceSectionWrapperProps {
   machineId: string;
@@ -68,13 +68,13 @@ export async function BearingClearanceSectionWrapper({
   }
 
   return (
-    <BranchAwareUnitManagerProvider>
+    <UnitManagerProvider>
       <BearingClearanceSection
         machineId={machineId}
         inspections={inspections}
         machineName={machineName}
         blueprintId={blueprintId}
       />
-    </BranchAwareUnitManagerProvider>
+    </UnitManagerProvider>
   );
 }
