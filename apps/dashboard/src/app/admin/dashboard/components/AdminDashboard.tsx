@@ -19,9 +19,13 @@ import { DashboardSkeleton } from './DashboardSkeleton';
 import { Spinner } from '@/components/ui/spinner';
 import { getMachines } from '@/data/services/machines.api';
 import { getAllCompanies, type Company } from '@/data/services/companies.api';
-import { getServices, getServiceById } from '@/data/services/services.api';
+import {
+  getServices,
+  getServiceById,
+  type ServiceWithMachineRelations,
+} from '@/data/services/services.api';
 import { ServiceSummaryModal } from '@/app/admin/machines/[id]/components/ServiceSummaryModal';
-import type { Service as FullService } from '@/data/types/services.types';
+import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
 import {
   getAllBranchesForSysAdmin,
   type CompanyBranch,
@@ -98,16 +102,23 @@ export function AdminDashboard() {
   const [services, setServices] = useState<Service[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedService, setSelectedService] = useState<FullService | null>(null);
+  const [selectedService, setSelectedService] = useState<ServiceWithMachineRelations | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoadingService, setIsLoadingService] = useState(false);
+  const [selectedServiceMachineUnit, setSelectedServiceMachineUnit] =
+    useState<LengthUnitFromEnum>('INCHES');
 
   const handleServiceClick = async (serviceId: string) => {
     setIsLoadingService(true);
     try {
-      const response = await getServiceById(serviceId);
-      if (response.data) {
-        setSelectedService(response.data as FullService);
+      const serviceResponse = await getServiceById(serviceId);
+      if (serviceResponse.data) {
+        const service = serviceResponse.data;
+        setSelectedService(service);
+
+        const defaultUnit = service.machine?.branch?.defaultMeasurementUnit || 'INCHES';
+        setSelectedServiceMachineUnit(defaultUnit);
+
         setIsModalOpen(true);
       }
     } catch (error) {
@@ -576,6 +587,7 @@ export function AdminDashboard() {
             setIsModalOpen(open);
             if (!open) setSelectedService(null);
           }}
+          defaultMeasurementUnit={selectedServiceMachineUnit}
         />
       )}
 

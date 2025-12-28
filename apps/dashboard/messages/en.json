@@ -201,6 +201,16 @@
       "users": "users",
       "clickToViewUsers": "Click to view users"
     },
+    "branchSettings": {
+      "title": "Branch Settings",
+      "description": "Configure the default preferences for this branch",
+      "defaultUnit": "Default Measurement Unit",
+      "defaultUnitDescription": "Default unit for displaying measurements",
+      "inches": "Inches (in)",
+      "mm": "Millimeters (mm)",
+      "saved": "Settings saved",
+      "saveError": "Failed to save settings"
+    },
     "userManagement": {
       "title": "User Accounts",
       "loading": "Loading users...",

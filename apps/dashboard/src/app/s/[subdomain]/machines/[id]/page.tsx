@@ -96,11 +96,15 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
             canCreateServices={canCreateServices}
             canUpdateServices={canUpdateServices}
             canDeleteServices={canDeleteServices}
+            defaultMeasurementUnit={machine.branch?.defaultMeasurementUnit || 'INCHES'}
           />
         ) : (
           <NoPermission variant="inline" />
         )}
-        <ServiceHistory machineId={id} />
+        <ServiceHistory
+          machineId={id}
+          defaultMeasurementUnit={machine.branch?.defaultMeasurementUnit || 'INCHES'}
+        />
       </div>
     </div>
   );

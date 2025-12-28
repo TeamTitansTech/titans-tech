@@ -362,7 +362,7 @@ export function ThresholdEditModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="flex h-[95vh] max-h-[95vh] w-[98vw] max-w-[98vw] flex-col overflow-hidden sm:h-auto sm:max-h-[90vh] sm:w-auto sm:max-w-4xl">
-        <UnitManagerProvider>
+        <UnitManagerProvider defaultLengthUnit="inches">
           <DialogHeader>
             <DialogTitle className="text-base sm:text-lg">
               {t('alerts.thresholds.editTitle', { name: blueprintName })}

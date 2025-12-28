@@ -8,12 +8,17 @@ import { Wrench } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { ServiceSummaryModal } from '@/app/admin/machines/[id]/components/ServiceSummaryModal';
 import { ServiceType, ServiceStatus, type Service } from '@/data/types/services.types';
+import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
 
 interface ServiceHistoryClientProps {
   services: Service[];
+  defaultMeasurementUnit: LengthUnitFromEnum;
 }
 
-export function ServiceHistoryClient({ services }: ServiceHistoryClientProps) {
+export function ServiceHistoryClient({
+  services,
+  defaultMeasurementUnit,
+}: ServiceHistoryClientProps) {
   const t = useTranslations('machines');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -113,6 +118,7 @@ export function ServiceHistoryClient({ services }: ServiceHistoryClientProps) {
           open={isModalOpen}
           onOpenChange={handleCloseModal}
           hideExcelExport={true}
+          defaultMeasurementUnit={defaultMeasurementUnit}
         />
       )}
     </>
