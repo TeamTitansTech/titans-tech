@@ -1,7 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { PistonsSection } from './PistonsSection';
-import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { BranchAwareUnitManagerProvider } from '@/components/providers/BranchAwareUnitManagerProvider';
 
 interface PistonsSectionWrapperProps {
   machineId: string;
@@ -67,13 +67,13 @@ export async function PistonsSectionWrapper({ machineId }: PistonsSectionWrapper
   }
 
   return (
-    <UnitManagerProvider>
+    <BranchAwareUnitManagerProvider>
       <PistonsSection
         machineId={machineId}
         inspections={inspections}
         machineName={machineName}
         blueprintId={blueprintId}
       />
-    </UnitManagerProvider>
+    </BranchAwareUnitManagerProvider>
   );
 }

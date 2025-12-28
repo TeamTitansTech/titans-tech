@@ -41,7 +41,8 @@ import { SelectionStep } from './steps/SelectionStep';
 import { DetailsStep } from './steps/DetailsStep';
 import { SectionsStep } from './steps/SectionsStep';
 import { SummaryStep } from './steps/SummaryStep';
-import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { UnitManagerProvider, type LengthUnit } from '@/contexts/UnitManagerContext';
+import { useBranchSafe } from '@/contexts/BranchContext';
 import type { Attachment } from '@/components/ui/document-upload';
 import { YesNoDncType } from '@titans-tech/shared/enums';
 import { WhyNotCoveredType } from '@titans-tech/shared/types';
@@ -64,6 +65,12 @@ export function ServiceCompletionModal({
   const tSuccess = useTranslations('errors.successMessages');
   const tActions = useTranslations('actions');
   const router = useInternalRouter();
+
+  // Get branch context (may be undefined in admin panel)
+  const branchContext = useBranchSafe();
+  // Convert branch default unit (INCHES/MM) to UnitManager format (inches/mm)
+  const defaultLengthUnit: LengthUnit =
+    branchContext?.defaultMeasurementUnit === 'MM' ? 'mm' : 'inches';
 
   const [showAlertNotificationModal, setShowAlertNotificationModal] = useState(false);
   const [alertsSummary, setAlertsSummary] = useState<AlertsSummaryResponseDto | null>(null);
@@ -824,7 +831,7 @@ export function ServiceCompletionModal({
     <>
       <Dialog open={open && !showAlertNotificationModal} onOpenChange={onOpenChange}>
         <DialogContent className="flex flex-col p-2 pt-6 sm:p-6">
-          <UnitManagerProvider>
+          <UnitManagerProvider defaultLengthUnit={defaultLengthUnit}>
             <DialogHeader>
               <DialogTitle>{getDialogTitle()}</DialogTitle>
               <DialogDescription>{getDialogDescription()}</DialogDescription>

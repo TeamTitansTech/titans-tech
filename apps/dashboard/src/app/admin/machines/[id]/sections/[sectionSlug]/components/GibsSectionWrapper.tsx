@@ -1,7 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { GibsSection } from './GibsSection';
-import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { BranchAwareUnitManagerProvider } from '@/components/providers/BranchAwareUnitManagerProvider';
 
 interface GibsSectionWrapperProps {
   machineId: string;
@@ -80,7 +80,7 @@ export async function GibsSectionWrapper({
   }
 
   return (
-    <UnitManagerProvider>
+    <BranchAwareUnitManagerProvider>
       <GibsSection
         machineId={machineId}
         inspections={inspections}
@@ -88,6 +88,6 @@ export async function GibsSectionWrapper({
         blueprintId={blueprintId}
         hideThresholdValues={hideThresholdValues}
       />
-    </UnitManagerProvider>
+    </BranchAwareUnitManagerProvider>
   );
 }
