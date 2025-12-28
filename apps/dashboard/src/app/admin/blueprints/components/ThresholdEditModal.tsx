@@ -361,14 +361,18 @@ export function ThresholdEditModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl">
+      <DialogContent className="flex h-[95vh] max-h-[95vh] w-[98vw] max-w-[98vw] flex-col overflow-hidden sm:h-auto sm:max-h-[90vh] sm:w-auto sm:max-w-4xl">
         <UnitManagerProvider>
           <DialogHeader>
-            <DialogTitle>{t('alerts.thresholds.editTitle', { name: blueprintName })}</DialogTitle>
-            <DialogDescription>{t('alerts.thresholds.editDescription')}</DialogDescription>
+            <DialogTitle className="text-base sm:text-lg">
+              {t('alerts.thresholds.editTitle', { name: blueprintName })}
+            </DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">
+              {t('alerts.thresholds.editDescription')}
+            </DialogDescription>
           </DialogHeader>
 
-          <DialogBody>
+          <DialogBody className="flex-1 overflow-y-auto">
             <div className="mb-4 flex justify-end">
               <UnitSelector label={t('alerts.thresholds.unit')} />
             </div>

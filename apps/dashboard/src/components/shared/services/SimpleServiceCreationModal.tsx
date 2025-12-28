@@ -101,14 +101,14 @@ export default function SimpleServiceCreationModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-h-[50vh]">
+      <DialogContent className="w-[95vw] max-w-md sm:w-auto">
         <DialogHeader>
           <DialogTitle>{t('createNewService')}</DialogTitle>
           <DialogDescription>{t('createServiceDescription')}</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
-          <DialogBody className="grid gap-6 py-4">
-            <div className="grid gap-4">
+        <form onSubmit={handleSubmit}>
+          <DialogBody className="space-y-4 py-4">
+            <div className="space-y-2">
               <Label htmlFor="date">{t('serviceDate')}</Label>
               <Popover>
                 <PopoverTrigger asChild>
@@ -134,7 +134,7 @@ export default function SimpleServiceCreationModal({
               </Popover>
             </div>
 
-            <div className="grid gap-4">
+            <div className="space-y-2">
               <Label htmlFor="type">{t('serviceType')}</Label>
               <Select
                 value={serviceType}

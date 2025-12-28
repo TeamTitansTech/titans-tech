@@ -438,6 +438,10 @@ export const BearingClearanceSingleHammerSection = forwardRef<
                     setBeforeHasBeenAdjusted(value);
                     onSectionTouched();
                   }}
+                  onHasBeenAdjustedClear={() => {
+                    setBeforeHasBeenAdjusted(undefined);
+                    onSectionTouched();
+                  }}
                   hasBeenAdjustedId="beforeHasBeenAdjusted"
                   combinedWith={combinedWith}
                   onCombinedWithChange={(value) => {
@@ -447,6 +451,10 @@ export const BearingClearanceSingleHammerSection = forwardRef<
                   matingPart={matingPart}
                   onMatingPartChange={(value) => {
                     setMatingPart(value);
+                    onSectionTouched();
+                  }}
+                  onMatingPartClear={() => {
+                    setMatingPart(undefined);
                     onSectionTouched();
                   }}
                   metadataPrefix="before"
@@ -482,6 +490,10 @@ export const BearingClearanceSingleHammerSection = forwardRef<
                     setAfterHasBeenAdjusted(value);
                     onSectionTouched();
                   }}
+                  onHasBeenAdjustedClear={() => {
+                    setAfterHasBeenAdjusted(undefined);
+                    onSectionTouched();
+                  }}
                   hasBeenAdjustedId="afterHasBeenAdjusted"
                   combinedWith={combinedWith}
                   onCombinedWithChange={(value) => {
@@ -491,6 +503,10 @@ export const BearingClearanceSingleHammerSection = forwardRef<
                   matingPart={matingPart}
                   onMatingPartChange={(value) => {
                     setMatingPart(value);
+                    onSectionTouched();
+                  }}
+                  onMatingPartClear={() => {
+                    setMatingPart(undefined);
                     onSectionTouched();
                   }}
                   metadataPrefix="after"
@@ -510,6 +526,10 @@ export const BearingClearanceSingleHammerSection = forwardRef<
             setAfterHasBeenAdjusted(value);
             onSectionTouched();
           }}
+          onHasBeenAdjustedClear={() => {
+            setAfterHasBeenAdjusted(undefined);
+            onSectionTouched();
+          }}
           hasBeenAdjustedId="afterHasBeenAdjustedRegular"
           combinedWith={combinedWith}
           onCombinedWithChange={(value) => {
@@ -519,6 +539,10 @@ export const BearingClearanceSingleHammerSection = forwardRef<
           matingPart={matingPart}
           onMatingPartChange={(value) => {
             setMatingPart(value);
+            onSectionTouched();
+          }}
+          onMatingPartClear={() => {
+            setMatingPart(undefined);
             onSectionTouched();
           }}
           metadataPrefix="single"
@@ -536,9 +560,17 @@ export const BearingClearanceSingleHammerSection = forwardRef<
           setSlideMotorMounts(value);
           onSectionTouched();
         }}
+        onSlideMotorMountsClear={() => {
+          setSlideMotorMounts(undefined);
+          onSectionTouched();
+        }}
         powerCordHoses={powerCordHoses}
         onPowerCordHosesChange={(value) => {
           setPowerCordHoses(value);
+          onSectionTouched();
+        }}
+        onPowerCordHosesClear={() => {
+          setPowerCordHoses(undefined);
           onSectionTouched();
         }}
         chainsGearsSprockets={chainsGearsSprockets}
@@ -546,9 +578,17 @@ export const BearingClearanceSingleHammerSection = forwardRef<
           setChainsGearsSprockets(value);
           onSectionTouched();
         }}
+        onChainsGearsSprocketsClear={() => {
+          setChainsGearsSprockets(undefined);
+          onSectionTouched();
+        }}
         lockingClamps={lockingClamps}
         onLockingClampsChange={(value) => {
           setLockingClamps(value);
+          onSectionTouched();
+        }}
+        onLockingClampsClear={() => {
+          setLockingClamps(undefined);
           onSectionTouched();
         }}
         notes={notes}

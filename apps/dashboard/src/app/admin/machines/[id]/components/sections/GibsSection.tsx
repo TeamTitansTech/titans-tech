@@ -474,7 +474,16 @@ export const GibsSection = forwardRef<GibsSectionRef, GibsSectionProps>(
                   onSectionTouched?.();
                 }}
               >
-                <SelectTrigger className="mt-1" id="have-inner-gibs-been-adjusted">
+                <SelectTrigger
+                  className="mt-1"
+                  id="have-inner-gibs-been-adjusted"
+                  clearable
+                  hasValue={!!haveInnerGibsBeenAdjusted}
+                  onClear={() => {
+                    setHaveInnerGibsBeenAdjusted(undefined);
+                    onSectionTouched?.();
+                  }}
+                >
                   <SelectValue placeholder={t('form.placeholders.select')} />
                 </SelectTrigger>
                 <SelectContent>

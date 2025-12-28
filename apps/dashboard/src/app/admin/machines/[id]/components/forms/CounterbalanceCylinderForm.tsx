@@ -111,6 +111,9 @@ export function CounterbalanceCylinderForm({
                       <SelectTrigger
                         id={`${fieldName}-${title}`}
                         className={`h-9 text-xs ${errors[fieldName] ? 'border-destructive' : ''}`}
+                        clearable
+                        hasValue={!!data[fieldName]}
+                        onClear={() => updateFn(fieldName, undefined)}
                       >
                         <SelectValue placeholder={t('selectPlaceholder')} />
                       </SelectTrigger>

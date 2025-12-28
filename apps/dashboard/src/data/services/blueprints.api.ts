@@ -67,3 +67,16 @@ export const updateBlueprint = async (id: string, payload: UpdateBlueprintPayloa
     body: payload,
   });
 };
+
+export interface DeleteBlueprintErrorData {
+  message: string;
+  machines: { id: string; name: string }[];
+  machineCount: number;
+}
+
+export const deleteBlueprint = async (id: string, cascade: boolean = false) => {
+  const url = cascade ? `/blueprints/${id}?cascade=true` : `/blueprints/${id}`;
+  return await responseHandler<Blueprint>(url, {
+    method: 'DELETE',
+  });
+};

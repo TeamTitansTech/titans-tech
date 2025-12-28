@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/select';
 import { Stepper, type StepperStep } from '@/components/ui/stepper';
 import { DocumentUpload, type Attachment } from '@/components/ui/document-upload';
+import { ClearableSelect } from '@/components/ui/forms/ClearableSelect';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
@@ -309,83 +310,76 @@ export function DetailsStep({
 
           <div className="space-y-4">
             {/* Press Level */}
-            <div>
-              <Label htmlFor="isPressLevel">
-                {translations.isPressLevel} <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={isPressLevel || ''}
-                onValueChange={(value) => setIsPressLevel(value as YesNoNaDncType)}
-              >
-                <SelectTrigger id="isPressLevel" className="mt-1">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={YesNoNaDncType.YES}>Yes</SelectItem>
-                  <SelectItem value={YesNoNaDncType.NO}>No</SelectItem>
-                  <SelectItem value={YesNoNaDncType.NA}>N/A</SelectItem>
-                  <SelectItem value={YesNoNaDncType.DNC}>DNC</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <ClearableSelect
+              id="isPressLevel"
+              label={translations.isPressLevel}
+              value={isPressLevel}
+              onChange={(value) => setIsPressLevel(value as YesNoNaDncType)}
+              onClear={() => setIsPressLevel(undefined)}
+              options={[
+                { value: YesNoNaDncType.YES, label: 'Yes' },
+                { value: YesNoNaDncType.NO, label: 'No' },
+                { value: YesNoNaDncType.NA, label: 'N/A' },
+                { value: YesNoNaDncType.DNC, label: 'DNC' },
+              ]}
+              required
+            />
 
             {/* Drive Belt Condition */}
-            <div>
-              <Label htmlFor="driveBeltCondition">
-                {translations.driveBeltCondition} <span className="text-destructive">*</span>
-              </Label>
-              <Select value={driveBeltCondition} onValueChange={setDriveBeltCondition}>
-                <SelectTrigger id="driveBeltCondition" className="mt-1">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="OK">OK</SelectItem>
-                  <SelectItem value="NA">N/A</SelectItem>
-                  <SelectItem value="LOOSENED">Loosened</SelectItem>
-                  <SelectItem value="TIGHTENED">Tightened</SelectItem>
-                  <SelectItem value="WORN">Worn</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <ClearableSelect
+              id="driveBeltCondition"
+              label={translations.driveBeltCondition}
+              value={driveBeltCondition}
+              onChange={setDriveBeltCondition}
+              onClear={() => setDriveBeltCondition('')}
+              options={[
+                { value: 'OK', label: 'OK' },
+                { value: 'NA', label: 'N/A' },
+                { value: 'LOOSENED', label: 'Loosened' },
+                { value: 'TIGHTENED', label: 'Tightened' },
+                { value: 'WORN', label: 'Worn' },
+              ]}
+              required
+            />
 
             {/* Protective Covers */}
-            <div>
-              <Label htmlFor="areAllProtectiveCovers">
-                {translations.areAllProtectiveCovers} <span className="text-destructive">*</span>
-              </Label>
-              <Select value={areAllProtectiveCovers} onValueChange={setAreAllProtectiveCovers}>
-                <SelectTrigger id="areAllProtectiveCovers" className="mt-1">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="YES">Yes</SelectItem>
-                  <SelectItem value="NO">No</SelectItem>
-                  <SelectItem value="OK">OK</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <ClearableSelect
+              id="areAllProtectiveCovers"
+              label={translations.areAllProtectiveCovers}
+              value={areAllProtectiveCovers}
+              onChange={setAreAllProtectiveCovers}
+              onClear={() => setAreAllProtectiveCovers('')}
+              options={[
+                { value: 'YES', label: 'Yes' },
+                { value: 'NO', label: 'No' },
+                { value: 'OK', label: 'OK' },
+              ]}
+              required
+            />
 
             {/* Conditional: Why Not Covered (appears when NO) */}
             {areAllProtectiveCovers === 'NO' && (
-              <div>
-                <Label htmlFor="whyNotCovered">{translations.whyNotCovered}</Label>
-                <Select value={whyNotCovered} onValueChange={setWhyNotCovered}>
-                  <SelectTrigger id="whyNotCovered" className="mt-1">
-                    <SelectValue placeholder="Select..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={WhyNotCoveredType.CUSTOMER_REMOVED}>
-                      {tInspections('whyNotCovered.customerRemoved')}
-                    </SelectItem>
-                    <SelectItem value={WhyNotCoveredType.NOT_IN_AREA}>
-                      {tInspections('whyNotCovered.notInArea')}
-                    </SelectItem>
-                    <SelectItem value={WhyNotCoveredType.OTHER_EXPLAIN}>
-                      {tInspections('whyNotCovered.otherExplain')}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              <ClearableSelect
+                id="whyNotCovered"
+                label={translations.whyNotCovered}
+                value={whyNotCovered}
+                onChange={setWhyNotCovered}
+                onClear={() => setWhyNotCovered('')}
+                options={[
+                  {
+                    value: WhyNotCoveredType.CUSTOMER_REMOVED,
+                    label: tInspections('whyNotCovered.customerRemoved'),
+                  },
+                  {
+                    value: WhyNotCoveredType.NOT_IN_AREA,
+                    label: tInspections('whyNotCovered.notInArea'),
+                  },
+                  {
+                    value: WhyNotCoveredType.OTHER_EXPLAIN,
+                    label: tInspections('whyNotCovered.otherExplain'),
+                  },
+                ]}
+              />
             )}
 
             {/* Conditional: Protective Covers Explanation (appears when OTHER_EXPLAIN) */}
@@ -407,24 +401,19 @@ export function DetailsStep({
               )}
 
             {/* Cracks Visible */}
-            <div>
-              <Label htmlFor="areCracksVisible">
-                {translations.areCracksVisible} <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={areCracksVisible || ''}
-                onValueChange={(value) => setAreCracksVisible(value as YesNoDncType)}
-              >
-                <SelectTrigger id="areCracksVisible" className="mt-1">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
-                  <SelectItem value={YesNoDncType.NO}>No</SelectItem>
-                  <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <ClearableSelect
+              id="areCracksVisible"
+              label={translations.areCracksVisible}
+              value={areCracksVisible}
+              onChange={(value) => setAreCracksVisible(value as YesNoDncType)}
+              onClear={() => setAreCracksVisible(undefined)}
+              options={[
+                { value: YesNoDncType.YES, label: 'Yes' },
+                { value: YesNoDncType.NO, label: 'No' },
+                { value: YesNoDncType.DNC, label: 'DNC' },
+              ]}
+              required
+            />
 
             {/* Conditional: Cracks Location */}
             {areCracksVisible === YesNoDncType.YES && (
@@ -441,44 +430,34 @@ export function DetailsStep({
             )}
 
             {/* Main Motor Secure */}
-            <div>
-              <Label htmlFor="isMainMotorSecure">
-                {translations.isMainMotorSecure} <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={isMainMotorSecure || ''}
-                onValueChange={(value) => setIsMainMotorSecure(value as YesNoDncType)}
-              >
-                <SelectTrigger id="isMainMotorSecure" className="mt-1">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
-                  <SelectItem value={YesNoDncType.NO}>No</SelectItem>
-                  <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <ClearableSelect
+              id="isMainMotorSecure"
+              label={translations.isMainMotorSecure}
+              value={isMainMotorSecure}
+              onChange={(value) => setIsMainMotorSecure(value as YesNoDncType)}
+              onClear={() => setIsMainMotorSecure(undefined)}
+              options={[
+                { value: YesNoDncType.YES, label: 'Yes' },
+                { value: YesNoDncType.NO, label: 'No' },
+                { value: YesNoDncType.DNC, label: 'DNC' },
+              ]}
+              required
+            />
 
             {/* Motor Plate Secure */}
-            <div>
-              <Label htmlFor="isMotorPlateSecure">
-                {translations.isMotorPlateSecure} <span className="text-destructive">*</span>
-              </Label>
-              <Select
-                value={isMotorPlateSecure || ''}
-                onValueChange={(value) => setIsMotorPlateSecure(value as YesNoDncType)}
-              >
-                <SelectTrigger id="isMotorPlateSecure" className="mt-1">
-                  <SelectValue placeholder="Select..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={YesNoDncType.YES}>Yes</SelectItem>
-                  <SelectItem value={YesNoDncType.NO}>No</SelectItem>
-                  <SelectItem value={YesNoDncType.DNC}>DNC</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <ClearableSelect
+              id="isMotorPlateSecure"
+              label={translations.isMotorPlateSecure}
+              value={isMotorPlateSecure}
+              onChange={(value) => setIsMotorPlateSecure(value as YesNoDncType)}
+              onClear={() => setIsMotorPlateSecure(undefined)}
+              options={[
+                { value: YesNoDncType.YES, label: 'Yes' },
+                { value: YesNoDncType.NO, label: 'No' },
+                { value: YesNoDncType.DNC, label: 'DNC' },
+              ]}
+              required
+            />
 
             {/* Fill Angularity Checkbox */}
             <div className="flex items-center space-x-2 pt-2">

@@ -493,10 +493,26 @@ export function ServiceCompletionModal({
             return;
           }
 
+          // Clutch section expects flat data structure (not wrapped in 'data')
+          // The ClutchSection component returns { data: ClutchData, attachments } but backend expects flat ClutchData
+          let sectionData = result.data;
+          if (currentSectionKey === 'CLUTCH') {
+            const clutchResult = result.data as {
+              data?: Record<string, unknown>;
+              attachments?: unknown[];
+            };
+            if (clutchResult?.data) {
+              sectionData = {
+                ...clutchResult.data,
+                attachments: clutchResult.attachments,
+              } as typeof result.data;
+            }
+          }
+
           const response = await updateServiceSection(
             currentServiceId,
             currentSectionKey,
-            result.data,
+            sectionData,
             machineId,
           );
 
