@@ -1,13 +1,19 @@
 import { getServicesByMachine } from '@/data/services/services.api';
 import type { Service } from '@/data/types/services.types';
 import { ServiceHistoryWrapper } from './ServiceHistoryWrapper';
+import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
 
 interface ServiceHistoryProps {
   machineId: string;
   blueprintSections: string[];
+  defaultMeasurementUnit: LengthUnitFromEnum;
 }
 
-export async function ServiceHistory({ machineId, blueprintSections }: ServiceHistoryProps) {
+export async function ServiceHistory({
+  machineId,
+  blueprintSections,
+  defaultMeasurementUnit,
+}: ServiceHistoryProps) {
   let services: Service[] = [];
 
   try {
@@ -29,6 +35,7 @@ export async function ServiceHistory({ machineId, blueprintSections }: ServiceHi
       machineId={machineId}
       blueprintSections={blueprintSections}
       services={services}
+      defaultMeasurementUnit={defaultMeasurementUnit}
     />
   );
 }

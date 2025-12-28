@@ -65,6 +65,7 @@ export default async function MachineDetailPage({ params }: MachineDetailPagePro
         <ServiceHistory
           machineId={id}
           blueprintSections={response.data.blueprint?.sections || []}
+          defaultMeasurementUnit={response.data.branch?.defaultMeasurementUnit || 'INCHES'}
         />
       </div>
     </div>
