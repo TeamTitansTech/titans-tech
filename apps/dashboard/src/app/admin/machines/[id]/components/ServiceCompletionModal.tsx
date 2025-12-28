@@ -57,6 +57,7 @@ export function ServiceCompletionModal({
   initialPerformedBy,
   companyId,
   onSuccess,
+  defaultMeasurementUnit,
 }: ServiceCompletionModalProps) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
@@ -824,7 +825,7 @@ export function ServiceCompletionModal({
     <>
       <Dialog open={open && !showAlertNotificationModal} onOpenChange={onOpenChange}>
         <DialogContent className="flex flex-col p-2 pt-6 sm:p-6">
-          <UnitManagerProvider>
+          <UnitManagerProvider defaultLengthUnit={defaultMeasurementUnit}>
             <DialogHeader>
               <DialogTitle>{getDialogTitle()}</DialogTitle>
               <DialogDescription>{getDialogDescription()}</DialogDescription>

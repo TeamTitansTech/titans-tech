@@ -40,25 +40,38 @@ import type {
   LatestBearingClearanceSingleHammer,
 } from '@/data/types/services.types';
 import { BEARING_FIELD_NAMES, BEARING_FIELD_LABELS } from '@titans-tech/shared/types';
-import { UnitManagerProvider, useUnitManager } from '@/contexts/UnitManagerContext';
+import {
+  LengthUnitFromEnum,
+  UnitManagerProvider,
+  useUnitManager,
+} from '@/contexts/UnitManagerContext';
 
 interface LatestReportModalProps {
   report: LatestReport;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  defaultMeasurementUnit: LengthUnitFromEnum;
 }
 
-export function LatestReportModal({ report, open, onOpenChange }: LatestReportModalProps) {
+export function LatestReportModal({
+  report,
+  open,
+  onOpenChange,
+  defaultMeasurementUnit,
+}: LatestReportModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <UnitManagerProvider>
+      <UnitManagerProvider defaultLengthUnit={defaultMeasurementUnit}>
         <LatestReportModalContent report={report} open={open} onOpenChange={onOpenChange} />
       </UnitManagerProvider>
     </Dialog>
   );
 }
 
-function LatestReportModalContent({ report, onOpenChange }: LatestReportModalProps) {
+function LatestReportModalContent({
+  report,
+  onOpenChange,
+}: Omit<LatestReportModalProps, 'defaultMeasurementUnit'>) {
   const t = useTranslations('machines.latestReport');
   const contentRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);

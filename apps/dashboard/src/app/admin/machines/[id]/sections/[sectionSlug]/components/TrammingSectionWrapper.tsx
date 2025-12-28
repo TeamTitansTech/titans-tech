@@ -1,7 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { TrammingSection } from './TrammingSection';
-import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { LengthUnitFromEnum, UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface TrammingSectionWrapperProps {
   machineId: string;
@@ -46,6 +46,7 @@ export async function TrammingSectionWrapper({
   let inspections: TrammingInspectionData[] = [];
   let machineName = '';
   let blueprintId = '';
+  let branchDefaultUnit: LengthUnitFromEnum;
 
   try {
     const [inspectionsResponse, machineResponse] = await Promise.all([
@@ -63,18 +64,23 @@ export async function TrammingSectionWrapper({
     if (machineResponse.errors) {
       console.error('Errors fetching machine:', machineResponse.errors);
       machineName = '';
+      blueprintId = '';
+      branchDefaultUnit = 'INCHES';
     } else {
       machineName = machineResponse.data?.name || '';
       blueprintId = machineResponse.data?.blueprintId || '';
+      branchDefaultUnit = machineResponse.data?.branch?.defaultMeasurementUnit || 'INCHES';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
     inspections = [];
     machineName = '';
+    blueprintId = '';
+    branchDefaultUnit = 'INCHES';
   }
 
   return (
-    <UnitManagerProvider>
+    <UnitManagerProvider defaultLengthUnit={branchDefaultUnit}>
       <TrammingSection
         machineId={machineId}
         inspections={inspections}

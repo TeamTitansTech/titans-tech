@@ -201,6 +201,16 @@
       "users": "usuarios",
       "clickToViewUsers": "Haga clic para ver usuarios"
     },
+    "branchSettings": {
+      "title": "Configuración de Sucursal",
+      "description": "Configure las preferencias predeterminadas para esta sucursal",
+      "defaultUnit": "Unidad de Medida Predeterminada",
+      "defaultUnitDescription": "Unidad predeterminada para mostrar medidas",
+      "inches": "Pulgadas (in)",
+      "mm": "Milímetros (mm)",
+      "saved": "Configuración guardada",
+      "saveError": "Error al guardar configuración"
+    },
     "userManagement": {
       "title": "Cuentas de Usuario",
       "loading": "Cargando usuarios...",

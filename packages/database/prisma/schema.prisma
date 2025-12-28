@@ -469,6 +469,8 @@ model CompanyBranch {
   isMainBranch Boolean @default(false)
   location     String?
 
+  defaultMeasurementUnit MeasurementUnit @default(INCHES)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?

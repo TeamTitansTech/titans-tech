@@ -10,6 +10,7 @@ import {
   TrammingCheck,
   PistonsCheck,
 } from '@/data/types/services.types';
+import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
 
 export type StepType = 'selection' | 'details' | 'sections' | 'summary';
 
@@ -53,6 +54,7 @@ export interface ServiceCompletionModalProps {
   initialPerformedBy?: string; // Initial performedBy from existing service
   companyId?: string; // Company ID for alert notifications
   onSuccess?: () => void; // Called when service is successfully completed
+  defaultMeasurementUnit: LengthUnitFromEnum; // Default measurement unit for the machine's branch
 }
 
 export interface SectionDataState {

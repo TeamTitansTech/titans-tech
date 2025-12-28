@@ -201,6 +201,16 @@
       "users": "usuários",
       "clickToViewUsers": "Clique para ver usuários"
     },
+    "branchSettings": {
+      "title": "Configurações da Filial",
+      "description": "Configure as preferências padrão para esta filial",
+      "defaultUnit": "Unidade de Medida Padrão",
+      "defaultUnitDescription": "Unidade padrão para exibição de medidas",
+      "inches": "Polegadas (in)",
+      "mm": "Milímetros (mm)",
+      "saved": "Configurações salvas",
+      "saveError": "Erro ao salvar configurações"
+    },
     "userManagement": {
       "title": "Contas de Usuário",
       "loading": "Carregando usuários...",
