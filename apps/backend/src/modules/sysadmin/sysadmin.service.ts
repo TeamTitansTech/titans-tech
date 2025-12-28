@@ -42,18 +42,6 @@ export class SysAdminService {
       throw new ForbiddenException('Invalid credentials');
     }
 
-    // Check if SysAdmin has pending activation
-    const hasPendingActivation =
-      await this.passwordResetService.checkSysAdminPendingActivation(
-        sysAdmin.id,
-      );
-
-    if (hasPendingActivation) {
-      throw new ForbiddenException(
-        'Please activate your account using the email link sent to you',
-      );
-    }
-
     const payload: SysAdminJwtPayload = {
       id: sysAdmin.id,
       isSysAdmin: true,

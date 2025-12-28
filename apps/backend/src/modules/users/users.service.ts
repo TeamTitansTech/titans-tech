@@ -59,16 +59,6 @@ export class UsersService {
       throw new ForbiddenException('Invalid credentials');
     }
 
-    // Check if user has pending activation
-    const hasPendingActivation =
-      await this.passwordResetService.checkPendingActivation(user.id);
-
-    if (hasPendingActivation) {
-      throw new ForbiddenException(
-        'Please activate your account using the email link sent to you',
-      );
-    }
-
     const payload: UserJwtPayload = {
       id: user.id,
       companyId: user.companyId,
