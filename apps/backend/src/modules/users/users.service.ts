@@ -281,6 +281,7 @@ export class UsersService {
       result.name,
       branch.company.slug,
       branch.company.name,
+      result.companyId,
       'en',
     );
 
@@ -352,6 +353,7 @@ export class UsersService {
       result.name,
       branch.company.slug,
       branch.company.name,
+      result.companyId,
       'en',
     );
 

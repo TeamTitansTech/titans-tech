@@ -25,12 +25,14 @@ export interface PasswordResetUserPayload {
   userId: string;
   companyId: string;
   email: string;
+  tokenId: string;
   type: 'USER';
 }
 
 export interface PasswordResetSysAdminPayload {
   sysAdminId: string;
   email: string;
+  tokenId: string;
   type: 'SYSADMIN';
 }
 
@@ -48,6 +50,37 @@ export function isPasswordResetSysAdmin(
   payload: PasswordResetPayload,
 ): payload is PasswordResetSysAdminPayload {
   return payload.type === 'SYSADMIN';
+}
+
+export interface ActivationUserPayload {
+  userId: string;
+  companyId: string;
+  email: string;
+  tokenId: string;
+  type: 'USER_ACTIVATION';
+}
+
+export interface ActivationSysAdminPayload {
+  sysAdminId: string;
+  email: string;
+  tokenId: string;
+  type: 'SYSADMIN_ACTIVATION';
+}
+
+export type ActivationPayload =
+  | ActivationUserPayload
+  | ActivationSysAdminPayload;
+
+export function isActivationUser(
+  payload: ActivationPayload,
+): payload is ActivationUserPayload {
+  return payload.type === 'USER_ACTIVATION';
+}
+
+export function isActivationSysAdmin(
+  payload: ActivationPayload,
+): payload is ActivationSysAdminPayload {
+  return payload.type === 'SYSADMIN_ACTIVATION';
 }
 
 export interface ReqWithAuthUser extends Request {

@@ -10,6 +10,9 @@ import {
   PasswordResetUserPayload,
   PasswordResetSysAdminPayload,
   PasswordResetPayload,
+  ActivationUserPayload,
+  ActivationSysAdminPayload,
+  ActivationPayload,
 } from '../../types/request';
 
 @Injectable()
@@ -30,19 +33,26 @@ export class PasswordResetService {
     userName: string | null,
     companySlug: string,
     companyName: string,
+    companyId: string,
     locale: Locale = 'en',
   ): Promise<void> {
-    const token = this.generateToken();
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    const tokenId = this.generateToken();
 
-    await this.prisma.passwordResetToken.create({
-      data: {
-        token,
-        type: 'ACTIVATION',
-        userId,
-        expiresAt,
-      },
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { ephemeralTokenId: tokenId },
+    });
+
+    const payload: ActivationUserPayload = {
+      userId,
+      companyId,
+      email: userEmail,
+      tokenId,
+      type: 'USER_ACTIVATION',
+    };
+
+    const token = await this.jwtService.signAsync(payload, {
+      expiresIn: '7d',
     });
 
     const urlParts = appEnv.FRONTEND_URL.split('://');
@@ -66,17 +76,22 @@ export class PasswordResetService {
     sysAdminEmail: string,
     locale: Locale = 'en',
   ): Promise<void> {
-    const token = this.generateToken();
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    const tokenId = this.generateToken();
 
-    await this.prisma.passwordResetToken.create({
-      data: {
-        token,
-        type: 'ACTIVATION',
-        sysAdminId,
-        expiresAt,
-      },
+    await this.prisma.sysAdmin.update({
+      where: { id: sysAdminId },
+      data: { ephemeralTokenId: tokenId },
+    });
+
+    const payload: ActivationSysAdminPayload = {
+      sysAdminId,
+      email: sysAdminEmail,
+      tokenId,
+      type: 'SYSADMIN_ACTIVATION',
+    };
+
+    const token = await this.jwtService.signAsync(payload, {
+      expiresIn: '7d',
     });
 
     await this.emailService.sendPasswordActivationEmail(
@@ -90,72 +105,54 @@ export class PasswordResetService {
     );
   }
 
-  async validateActivationToken(token: string): Promise<{
-    valid: boolean;
-    userId?: string;
-    sysAdminId?: string;
-  }> {
-    const tokenRecord = await this.prisma.passwordResetToken.findUnique({
-      where: { token },
-    });
-
-    if (!tokenRecord) {
-      return { valid: false };
-    }
-
-    if (tokenRecord.type !== 'ACTIVATION') {
-      return { valid: false };
-    }
-
-    if (tokenRecord.usedAt) {
-      return { valid: false };
-    }
-
-    if (tokenRecord.expiresAt < new Date()) {
-      return { valid: false };
-    }
-
-    return {
-      valid: true,
-      userId: tokenRecord.userId || undefined,
-      sysAdminId: tokenRecord.sysAdminId || undefined,
-    };
-  }
-
   async setPasswordWithActivationToken(
     token: string,
     newPassword: string,
   ): Promise<void> {
-    const validation = await this.validateActivationToken(token);
+    let payload: ActivationPayload;
 
-    if (!validation.valid) {
+    try {
+      payload = await this.jwtService.verifyAsync<ActivationPayload>(token, {
+        secret: appEnv.AUTH_JWT_SECRET,
+      });
+    } catch {
       throw new BadRequestException('Invalid or expired activation token');
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    if (validation.userId) {
+    if (payload.type === 'USER_ACTIVATION') {
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.userId },
+      });
+
+      if (!user || user.ephemeralTokenId !== payload.tokenId) {
+        throw new BadRequestException('Invalid or expired activation token');
+      }
+
       await this.prisma.user.update({
-        where: { id: validation.userId },
-        data: { password: hashedPassword },
-      });
-
-      await this.prisma.passwordResetToken.update({
-        where: { token },
-        data: { usedAt: new Date() },
-      });
-    } else if (validation.sysAdminId) {
-      await this.prisma.sysAdmin.update({
-        where: { id: validation.sysAdminId },
-        data: { password: hashedPassword },
-      });
-
-      await this.prisma.passwordResetToken.update({
-        where: { token },
-        data: { usedAt: new Date() },
+        where: { id: payload.userId },
+        data: {
+          password: hashedPassword,
+          ephemeralTokenId: null,
+        },
       });
     } else {
-      throw new BadRequestException('Invalid token');
+      const sysAdmin = await this.prisma.sysAdmin.findUnique({
+        where: { id: payload.sysAdminId },
+      });
+
+      if (!sysAdmin || sysAdmin.ephemeralTokenId !== payload.tokenId) {
+        throw new BadRequestException('Invalid or expired activation token');
+      }
+
+      await this.prisma.sysAdmin.update({
+        where: { id: payload.sysAdminId },
+        data: {
+          password: hashedPassword,
+          ephemeralTokenId: null,
+        },
+      });
     }
   }
 
@@ -176,14 +173,36 @@ export class PasswordResetService {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     if (payload.type === 'USER') {
+      const user = await this.prisma.user.findUnique({
+        where: { id: payload.userId },
+      });
+
+      if (!user || user.ephemeralTokenId !== payload.tokenId) {
+        throw new BadRequestException('Invalid or expired token');
+      }
+
       await this.prisma.user.update({
         where: { id: payload.userId },
-        data: { password: hashedPassword },
+        data: {
+          password: hashedPassword,
+          ephemeralTokenId: null,
+        },
       });
     } else {
+      const sysAdmin = await this.prisma.sysAdmin.findUnique({
+        where: { id: payload.sysAdminId },
+      });
+
+      if (!sysAdmin || sysAdmin.ephemeralTokenId !== payload.tokenId) {
+        throw new BadRequestException('Invalid or expired token');
+      }
+
       await this.prisma.sysAdmin.update({
         where: { id: payload.sysAdminId },
-        data: { password: hashedPassword },
+        data: {
+          password: hashedPassword,
+          ephemeralTokenId: null,
+        },
       });
     }
   }
@@ -205,10 +224,18 @@ export class PasswordResetService {
 
       if (!user) return;
 
+      const tokenId = this.generateToken();
+
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { ephemeralTokenId: tokenId },
+      });
+
       const payload: PasswordResetUserPayload = {
         userId: user.id,
         companyId: user.companyId,
         email: normalizedEmail,
+        tokenId,
         type: 'USER',
       };
 
@@ -237,9 +264,17 @@ export class PasswordResetService {
 
       if (!sysAdmin) return;
 
+      const tokenId = this.generateToken();
+
+      await this.prisma.sysAdmin.update({
+        where: { id: sysAdmin.id },
+        data: { ephemeralTokenId: tokenId },
+      });
+
       const payload: PasswordResetSysAdminPayload = {
         sysAdminId: sysAdmin.id,
         email: normalizedEmail,
+        tokenId,
         type: 'SYSADMIN',
       };
 
@@ -271,25 +306,23 @@ export class PasswordResetService {
       throw new BadRequestException('User not found');
     }
 
-    await this.prisma.passwordResetToken.deleteMany({
-      where: {
-        userId: user.id,
-        type: 'ACTIVATION',
-        usedAt: null,
-      },
+    const tokenId = this.generateToken();
+
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { ephemeralTokenId: tokenId },
     });
 
-    const token = this.generateToken();
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    const payload: ActivationUserPayload = {
+      userId: user.id,
+      companyId: user.companyId,
+      email: user.email,
+      tokenId,
+      type: 'USER_ACTIVATION',
+    };
 
-    await this.prisma.passwordResetToken.create({
-      data: {
-        token,
-        type: 'ACTIVATION',
-        userId: user.id,
-        expiresAt,
-      },
+    const token = await this.jwtService.signAsync(payload, {
+      expiresIn: '7d',
     });
 
     const urlParts = appEnv.FRONTEND_URL.split('://');
@@ -309,44 +342,64 @@ export class PasswordResetService {
   }
 
   async checkPendingActivation(userId: string): Promise<boolean> {
-    const anyToken = await this.prisma.passwordResetToken.findFirst({
-      where: {
-        userId,
-        type: 'ACTIVATION',
-      },
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { ephemeralTokenId: true },
     });
 
-    if (!anyToken) return false;
-
-    const usedToken = await this.prisma.passwordResetToken.findFirst({
-      where: {
-        userId,
-        type: 'ACTIVATION',
-        usedAt: { not: null },
-      },
-    });
-
-    return usedToken ? false : true;
+    return (
+      user?.ephemeralTokenId !== null && user?.ephemeralTokenId !== undefined
+    );
   }
 
   async checkSysAdminPendingActivation(sysAdminId: string): Promise<boolean> {
-    const anyToken = await this.prisma.passwordResetToken.findFirst({
-      where: {
-        sysAdminId,
-        type: 'ACTIVATION',
-      },
+    const sysAdmin = await this.prisma.sysAdmin.findUnique({
+      where: { id: sysAdminId },
+      select: { ephemeralTokenId: true },
     });
 
-    if (!anyToken) return false;
+    return (
+      sysAdmin?.ephemeralTokenId !== null &&
+      sysAdmin?.ephemeralTokenId !== undefined
+    );
+  }
 
-    const usedToken = await this.prisma.passwordResetToken.findFirst({
-      where: {
-        sysAdminId,
-        type: 'ACTIVATION',
-        usedAt: { not: null },
-      },
-    });
+  async validateActivationToken(token: string): Promise<{
+    valid: boolean;
+    userId?: string;
+    sysAdminId?: string;
+  }> {
+    try {
+      const payload = await this.jwtService.verifyAsync<ActivationPayload>(
+        token,
+        { secret: appEnv.AUTH_JWT_SECRET },
+      );
 
-    return usedToken ? false : true;
+      if (payload.type === 'USER_ACTIVATION') {
+        const user = await this.prisma.user.findUnique({
+          where: { id: payload.userId },
+          select: { ephemeralTokenId: true },
+        });
+
+        if (!user || user.ephemeralTokenId !== payload.tokenId) {
+          return { valid: false };
+        }
+
+        return { valid: true, userId: payload.userId };
+      } else {
+        const sysAdmin = await this.prisma.sysAdmin.findUnique({
+          where: { id: payload.sysAdminId },
+          select: { ephemeralTokenId: true },
+        });
+
+        if (!sysAdmin || sysAdmin.ephemeralTokenId !== payload.tokenId) {
+          return { valid: false };
+        }
+
+        return { valid: true, sysAdminId: payload.sysAdminId };
+      }
+    } catch {
+      return { valid: false };
+    }
   }
 }
