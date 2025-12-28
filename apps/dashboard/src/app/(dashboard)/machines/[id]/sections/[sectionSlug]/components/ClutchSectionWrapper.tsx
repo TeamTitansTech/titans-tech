@@ -1,7 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { ClutchSection } from './ClutchSection';
-import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { LengthUnitFromEnum, UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface ClutchSectionWrapperProps {
   machineId: string;
@@ -33,6 +33,7 @@ export async function ClutchSectionWrapper({ machineId }: ClutchSectionWrapperPr
   let machineName = '';
   let machineSerial = '';
   let blueprintId = '';
+  let branchDefaultUnit: LengthUnitFromEnum;
 
   try {
     const [inspectionsResponse, machineResponse] = await Promise.all([
@@ -52,10 +53,12 @@ export async function ClutchSectionWrapper({ machineId }: ClutchSectionWrapperPr
       machineName = '';
       machineSerial = '';
       blueprintId = '';
+      branchDefaultUnit = 'INCHES';
     } else {
       machineName = machineResponse.data?.name || '';
       machineSerial = machineResponse.data?.serialNumber || '';
       blueprintId = machineResponse.data?.blueprintId || '';
+      branchDefaultUnit = machineResponse.data?.branch?.defaultMeasurementUnit || 'INCHES';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -63,10 +66,11 @@ export async function ClutchSectionWrapper({ machineId }: ClutchSectionWrapperPr
     machineName = '';
     machineSerial = '';
     blueprintId = '';
+    branchDefaultUnit = 'INCHES';
   }
 
   return (
-    <UnitManagerProvider>
+    <UnitManagerProvider defaultLengthUnit={branchDefaultUnit}>
       <ClutchSection
         machineId={machineId}
         inspections={inspections}

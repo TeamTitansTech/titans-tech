@@ -1,7 +1,7 @@
 import { getServicesByMachine } from '@/data/services/services.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { BearingClearanceSingleHammerSection } from './BearingClearanceSingleHammerSection';
-import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { LengthUnitFromEnum, UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface BearingClearanceSingleHammerSectionWrapperProps {
   machineId: string;
@@ -36,6 +36,7 @@ export async function BearingClearanceSingleHammerSectionWrapper({
   let services: BearingClearanceSingleHammerInspectionData[] = [];
   let machineName = '';
   let blueprintId = '';
+  let branchDefaultUnit: LengthUnitFromEnum;
 
   try {
     const [servicesResponse, machineResponse] = await Promise.all([
@@ -54,18 +55,23 @@ export async function BearingClearanceSingleHammerSectionWrapper({
     if (machineResponse.errors) {
       console.error('Errors fetching machine:', machineResponse.errors);
       machineName = '';
+      blueprintId = '';
+      branchDefaultUnit = 'INCHES';
     } else {
       machineName = machineResponse.data?.name || '';
       blueprintId = machineResponse.data?.blueprintId || '';
+      branchDefaultUnit = machineResponse.data?.branch?.defaultMeasurementUnit || 'INCHES';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
     services = [];
     machineName = '';
+    blueprintId = '';
+    branchDefaultUnit = 'INCHES';
   }
 
   return (
-    <UnitManagerProvider>
+    <UnitManagerProvider defaultLengthUnit={branchDefaultUnit}>
       <BearingClearanceSingleHammerSection
         machineId={machineId}
         inspections={services}

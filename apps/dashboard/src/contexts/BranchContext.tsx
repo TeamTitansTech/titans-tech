@@ -2,10 +2,13 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useCompanyUser } from './CompanyUserContext';
 
+export type MeasurementUnit = 'INCHES' | 'MM';
+
 interface BranchContextType {
   selectedBranchId: string | null;
   setSelectedBranchId: (branchId: string | null) => void;
   selectedBranchName: string | null;
+  defaultMeasurementUnit: MeasurementUnit;
 }
 
 const BranchContext = createContext<BranchContextType | undefined>(undefined);
@@ -28,9 +31,11 @@ export function BranchProvider({ children }: { children: ReactNode }) {
     }
   }, [companyUser, selectedBranchId]);
 
-  // Get selected branch name
-  const selectedBranchName =
-    companyUser?.branches.find((b) => b.branchId === selectedBranchId)?.branch.name || null;
+  // Get selected branch data
+  const selectedBranch = companyUser?.branches.find((b) => b.branchId === selectedBranchId)?.branch;
+  const selectedBranchName = selectedBranch?.name || null;
+  const defaultMeasurementUnit: MeasurementUnit =
+    selectedBranch?.defaultMeasurementUnit || 'INCHES';
 
   return (
     <BranchContext.Provider
@@ -38,6 +43,7 @@ export function BranchProvider({ children }: { children: ReactNode }) {
         selectedBranchId,
         setSelectedBranchId,
         selectedBranchName,
+        defaultMeasurementUnit,
       }}
     >
       {children}
@@ -51,4 +57,12 @@ export function useBranch() {
     throw new Error('useBranch must be used within a BranchProvider');
   }
   return context;
+}
+
+/**
+ * Safe version of useBranch that returns null when outside BranchProvider.
+ * Useful for components that may be used in both admin and company contexts.
+ */
+export function useBranchSafe() {
+  return useContext(BranchContext);
 }

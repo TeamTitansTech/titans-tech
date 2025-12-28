@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { CompanyInfoSection } from './CompanyInfoSection';
 import { BranchesSection } from './BranchesSection';
+import { BranchSettingsSection } from './BranchSettingsSection';
 import { BranchUserManagement } from './BranchUserManagement';
 import { AddUserDialog } from './AddUserDialog';
 import { useCompanyUser } from '@/contexts/CompanyUserContext';
@@ -61,6 +62,8 @@ export function CompanySettings() {
 
           {selectedBranchId && (
             <>
+              <Separator />
+              <BranchSettingsSection branchId={selectedBranchId} />
               <Separator />
               <BranchUserManagement branchId={selectedBranchId} refreshKey={refreshKey} />
             </>
