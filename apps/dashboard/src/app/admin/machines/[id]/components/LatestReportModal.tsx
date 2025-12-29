@@ -30,6 +30,7 @@ import type {
   LatestBearingClearance,
   BearingClearanceData,
   LatestClutch,
+  LatestClutchCevolani,
   ClutchData,
   LatestSlideSingleHammer,
   LatestSlideDoubleHammer,
@@ -225,6 +226,7 @@ function LatestReportModalContent({
   const bearingClearance = report.sections.BEARING_CLEARANCE;
   const bearingClearanceSingleHammer = report.sections.BEARING_CLEARANCE_SINGLE_HAMMER;
   const clutch = report.sections.CLUTCH;
+  const clutchCevolani = report.sections.CLUTCH_CEVOLANI;
   const slideSingleHammer = report.sections.SLIDE_SINGLE_HAMMER;
   const slideDoubleHammer = report.sections.SLIDE_DOUBLE_HAMMER;
   const gibs = report.sections.GIBS;
@@ -348,6 +350,47 @@ function LatestReportModalContent({
       clutch.alert.fTB_severity,
       clutch.alert.rTB_severity,
     ]);
+
+    if (severities.has('RED')) return 'RED';
+    if (severities.has('YELLOW')) return 'YELLOW';
+    if (severities.has('GREEN')) return 'GREEN';
+    return 'NONE';
+  };
+
+  // Extract clutch cevolani measurement rows (pneumatic only)
+  const extractClutchCevolaniRows = (data: ClutchData, alert?: LatestClutchCevolani['alert']) => {
+    const clutchCevolaniFields = [
+      {
+        key: 'pneumaticClutchClearanceTotal',
+        label: t('clutchCevolani.pneumaticClutchClearanceTotal'),
+        value: data.pneumaticClutchClearanceTotal,
+      },
+    ];
+
+    return clutchCevolaniFields.map((field) => {
+      // Handle Decimal values from Prisma (could be number, string, or object)
+      let numericValue: number | undefined;
+      if (field.value !== null && field.value !== undefined) {
+        numericValue = typeof field.value === 'number' ? field.value : Number(field.value);
+      }
+
+      const severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED' =
+        alert?.pneumaticClutchClearanceTotal_severity || 'NONE';
+
+      return {
+        field: field.label,
+        value: numericValue !== undefined ? formatLength(numericValue) : '-',
+        differential: '-',
+        severity,
+      };
+    });
+  };
+
+  // Get overall worst severity for clutch cevolani
+  const getClutchCevolaniOverallSeverity = (): 'NONE' | 'GREEN' | 'YELLOW' | 'RED' => {
+    if (!clutchCevolani?.alert) return 'NONE';
+
+    const severities = new Set([clutchCevolani.alert.pneumaticClutchClearanceTotal_severity]);
 
     if (severities.has('RED')) return 'RED';
     if (severities.has('YELLOW')) return 'YELLOW';
@@ -673,6 +716,7 @@ function LatestReportModalContent({
         {bearingClearance ||
         bearingClearanceSingleHammer ||
         clutch ||
+        clutchCevolani ||
         slideSingleHammer ||
         slideDoubleHammer ||
         gibs ||
@@ -812,6 +856,50 @@ function LatestReportModalContent({
                           </TableCell>
                         </TableRow>
                       ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            )}
+
+            {clutchCevolani && (
+              <div className="rounded-lg border p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <Typography variant="h4" className="font-semibold">
+                    Clutch - Cevolani
+                  </Typography>
+                  <div className="flex items-center gap-3">
+                    {getSeverityBadge(getClutchCevolaniOverallSeverity())}
+                    <span className="text-sm text-muted-foreground">
+                      {t('updatedAt')}{' '}
+                      {format(new Date(clutchCevolani.latestServiceDate), 'dd-MM-yyyy')}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="overflow-hidden rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="bg-muted/50">
+                        <TableHead className="font-semibold">Measurement</TableHead>
+                        <TableHead className="text-center font-semibold">
+                          Value ({unitLabel})
+                        </TableHead>
+                        <TableHead className="text-center font-semibold">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {extractClutchCevolaniRows(clutchCevolani.data, clutchCevolani.alert).map(
+                        (row, idx) => (
+                          <TableRow key={idx} className="hover:bg-muted/30">
+                            <TableCell className="font-medium">{row.field}</TableCell>
+                            <TableCell className="text-center">{row.value}</TableCell>
+                            <TableCell className="text-center">
+                              {getSeverityBadge(row.severity)}
+                            </TableCell>
+                          </TableRow>
+                        ),
+                      )}
                     </TableBody>
                   </Table>
                 </div>

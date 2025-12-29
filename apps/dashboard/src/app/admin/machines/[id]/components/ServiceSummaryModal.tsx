@@ -114,6 +114,7 @@ function ServiceSummaryModalContent({
     gibs: 'GIBS',
     lubricationHydraulics: 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
     clutch: 'CLUTCH',
+    clutchCevolani: 'CLUTCH_CEVOLANI',
     counterbalanceCylinder: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     counterbalanceCylinderAirbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     tramming: 'TRAMMING',

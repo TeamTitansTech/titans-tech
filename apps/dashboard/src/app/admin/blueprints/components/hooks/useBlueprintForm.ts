@@ -9,6 +9,7 @@ import {
 } from '@/data/services/blueprints.api';
 import { BearingClearanceThresholdsData } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholdsData } from '@/components/alerts/ClutchThresholds';
+import { ClutchCevolaniThresholdsData } from '@/components/alerts/ClutchCevolaniThresholds';
 import { SlideThresholdsData } from '@/components/alerts/SlideThresholds';
 import { GibsThresholdsData } from '@/components/alerts/GibsThresholds';
 import { PistonsThresholdsData } from '@/components/alerts/PistonsThresholds';
@@ -25,6 +26,7 @@ const SLUG_TO_SECTION: Record<string, string> = {
   lubrication_hydraulics_pressure_switches_oil_filter:
     'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
   clutch: 'CLUTCH',
+  clutch_cevolani: 'CLUTCH_CEVOLANI',
   counterbalance_cylinder_airbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
   tramming: 'TRAMMING',
   pistons: 'PISTONS',
@@ -74,6 +76,14 @@ const INITIAL_CLUTCH_THRESHOLDS: ClutchThresholdsData = {
   rTB_redMin: 0.015,
 };
 
+// Cevolani clutch thresholds (pneumatic system):
+// greenMin (mínimo): 0.4, yellowMin (ideal): 0.6, redMin (máximo): 1.0
+const INITIAL_CLUTCH_CEVOLANI_THRESHOLDS: ClutchCevolaniThresholdsData = {
+  pneumaticClutchClearanceTotal_greenMin: 0.4,
+  pneumaticClutchClearanceTotal_yellowMin: 0.6,
+  pneumaticClutchClearanceTotal_redMin: 1.0,
+};
+
 const INITIAL_SLIDE_THRESHOLDS: SlideThresholdsData = {
   maxDeviation_greenMin: 0.001,
   maxDeviation_yellowMin: 0.002,
@@ -118,6 +128,9 @@ export function useBlueprintForm(
   const [clutchThresholdsOpen, setClutchThresholdsOpen] = useState(false);
   const [clutchThresholds, setClutchThresholds] =
     useState<ClutchThresholdsData>(INITIAL_CLUTCH_THRESHOLDS);
+  const [clutchCevolaniThresholdsOpen, setClutchCevolaniThresholdsOpen] = useState(false);
+  const [clutchCevolaniThresholds, setClutchCevolaniThresholds] =
+    useState<ClutchCevolaniThresholdsData>(INITIAL_CLUTCH_CEVOLANI_THRESHOLDS);
   const [slideSingleHammerThresholdsOpen, setSlideSingleHammerThresholdsOpen] = useState(false);
   const [slideSingleHammerThresholds, setSlideSingleHammerThresholds] =
     useState<SlideThresholdsData>(INITIAL_SLIDE_THRESHOLDS);
@@ -161,6 +174,12 @@ export function useBlueprintForm(
       ).some((key) => clutchThresholds[key] !== INITIAL_CLUTCH_THRESHOLDS[key]);
 
       if (hasClutchThresholdChanges) return true;
+
+      const hasClutchCevolaniThresholdChanges = (
+        Object.keys(clutchCevolaniThresholds) as Array<keyof ClutchCevolaniThresholdsData>
+      ).some((key) => clutchCevolaniThresholds[key] !== INITIAL_CLUTCH_CEVOLANI_THRESHOLDS[key]);
+
+      if (hasClutchCevolaniThresholdChanges) return true;
 
       const hasSlideSingleHammerThresholdChanges = (
         Object.keys(slideSingleHammerThresholds) as Array<keyof SlideThresholdsData>
@@ -207,6 +226,7 @@ export function useBlueprintForm(
       selectedSections,
       thresholds,
       clutchThresholds,
+      clutchCevolaniThresholds,
       slideSingleHammerThresholds,
       slideDoubleHammerThresholds,
       gibsThresholds,
@@ -235,6 +255,7 @@ export function useBlueprintForm(
       'bearing_clearance_single_hammer',
     );
     const hasClutch = selectedSections.includes('clutch');
+    const hasClutchCevolani = selectedSections.includes('clutch_cevolani');
     const hasSlideSingleHammer = selectedSections.includes('slide_single_hammer');
     const hasSlideDoubleHammer = selectedSections.includes('slide_double_hammer');
     const hasGibs = selectedSections.includes('gibs');
@@ -277,6 +298,10 @@ export function useBlueprintForm(
       payload.clutchThresholds = clutchThresholds;
     }
 
+    if (hasClutchCevolani) {
+      payload.clutchCevolaniThresholds = clutchCevolaniThresholds;
+    }
+
     if (hasSlideSingleHammer) {
       payload.slideSingleHammerThresholds = slideSingleHammerThresholds;
     }
@@ -311,6 +336,7 @@ export function useBlueprintForm(
       setThresholdsOpen(false);
       setBearingClearanceSingleHammerThresholdsOpen(false);
       setClutchThresholdsOpen(false);
+      setClutchCevolaniThresholdsOpen(false);
       setSlideSingleHammerThresholdsOpen(false);
       setSlideDoubleHammerThresholdsOpen(false);
       setGibsThresholdsOpen(false);
@@ -330,6 +356,7 @@ export function useBlueprintForm(
     setThresholds(INITIAL_THRESHOLDS);
     setBearingClearanceSingleHammerThresholds(INITIAL_THRESHOLDS);
     setClutchThresholds(INITIAL_CLUTCH_THRESHOLDS);
+    setClutchCevolaniThresholds(INITIAL_CLUTCH_CEVOLANI_THRESHOLDS);
     setSlideSingleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
     setSlideDoubleHammerThresholds(INITIAL_SLIDE_THRESHOLDS);
     setGibsThresholds(INITIAL_GIBS_THRESHOLDS);
@@ -352,6 +379,7 @@ export function useBlueprintForm(
     setThresholdsOpen(false);
     setBearingClearanceSingleHammerThresholdsOpen(false);
     setClutchThresholdsOpen(false);
+    setClutchCevolaniThresholdsOpen(false);
     setSlideSingleHammerThresholdsOpen(false);
     setSlideDoubleHammerThresholdsOpen(false);
     setGibsThresholdsOpen(false);
@@ -381,6 +409,10 @@ export function useBlueprintForm(
     setClutchThresholdsOpen,
     clutchThresholds,
     setClutchThresholds,
+    clutchCevolaniThresholdsOpen,
+    setClutchCevolaniThresholdsOpen,
+    clutchCevolaniThresholds,
+    setClutchCevolaniThresholds,
     slideSingleHammerThresholdsOpen,
     setSlideSingleHammerThresholdsOpen,
     slideSingleHammerThresholds,

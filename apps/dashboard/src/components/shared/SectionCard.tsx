@@ -35,6 +35,7 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   GIBS: 'gibs',
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
   CLUTCH: 'clutch',
+  CLUTCH_CEVOLANI: 'clutchCevolani',
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
   TRAMMING: 'tramming',
   PISTONS: 'pistons',
@@ -53,6 +54,7 @@ const SECTION_IMAGES: Record<string, string> = {
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER:
     '/assets/sections/lubrication-hydraulics.svg',
   CLUTCH: '/assets/sections/clutch.svg',
+  CLUTCH_CEVOLANI: '/assets/sections/clutch.svg',
   COUNTERBALANCE_CYLINDER_AIRBAG: '/assets/sections/counterbalance.svg',
   TRAMMING: '/assets/sections/tramming.svg',
   PISTONS: '/assets/sections/pistons.svg',

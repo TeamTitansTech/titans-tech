@@ -54,7 +54,7 @@ export const translateFieldName = (
   ) {
     const translation = translations.slide(key);
     if (translation !== key) return translation;
-  } else if (sectionKey === 'CLUTCH' && translations.clutch) {
+  } else if ((sectionKey === 'CLUTCH' || sectionKey === 'CLUTCH_CEVOLANI') && translations.clutch) {
     const translation = translations.clutch(key);
     if (translation !== key) return translation;
   } else if (sectionKey === 'COUNTERBALANCE_CYLINDER_AIRBAG' && translations.counterbalance) {

@@ -112,6 +112,19 @@ export function SectionSummary({
       );
     }
 
+    case 'CLUTCH_CEVOLANI': {
+      // Handle the wrapped structure from ClutchCevolaniSectionData (same as CLUTCH)
+      const clutchCevolaniSectionData = data as { data?: ClutchData; attachments?: Attachment[] };
+      const innerData =
+        clutchCevolaniSectionData?.data ?? (clutchCevolaniSectionData as ClutchData);
+      return (
+        <ClutchSummary
+          data={innerData as ClutchData}
+          attachments={clutchCevolaniSectionData?.attachments}
+        />
+      );
+    }
+
     case 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER': {
       // Handle both wrapped and unwrapped data structures
       const lubData = data as LubricationHydraulicsCheck;

@@ -5,6 +5,7 @@ export * from './user.dto';
 export * from './threshold-bearing-clearance.dto';
 export * from './threshold-bearing-clearance-single-hammer.dto';
 export * from './threshold-clutch.dto';
+export * from './threshold-clutch-cevolani.dto';
 export * from './threshold-slide.dto';
 export * from './threshold-gibs.dto';
 export * from './threshold-pistons.dto';

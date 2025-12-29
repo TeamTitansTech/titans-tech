@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { BearingClearanceSectionWrapper } from './components/BearingClearanceSectionWrapper';
 import { BearingClearanceSingleHammerSectionWrapper } from './components/BearingClearanceSingleHammerSectionWrapper';
 import { ClutchSectionWrapper } from './components/ClutchSectionWrapper';
+import { ClutchCevolaniSectionWrapper } from './components/ClutchCevolaniSectionWrapper';
 import { SlideSingleHammerSectionWrapper } from './components/SlideSingleHammerSectionWrapper';
 import { SlideDoubleHammerSectionWrapper } from './components/SlideDoubleHammerSectionWrapper';
 import { GibsSectionWrapper } from './components/GibsSectionWrapper';
@@ -28,6 +29,7 @@ const sectionComponents: Record<string, React.ComponentType<{ machineId: string 
   bearing_clearance: BearingClearanceSectionWrapper,
   bearing_clearance_single_hammer: BearingClearanceSingleHammerSectionWrapper,
   clutch: ClutchSectionWrapper,
+  clutch_cevolani: ClutchCevolaniSectionWrapper,
   slide_single_hammer: SlideSingleHammerSectionWrapper,
   slide_double_hammer: SlideDoubleHammerSectionWrapper,
   gibs: GibsSectionWrapper,
