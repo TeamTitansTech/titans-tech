@@ -31,6 +31,7 @@ const SECTION_I18N_KEYS: Record<string, string> = {
   GIBS: 'gibs',
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubricationHydraulics',
   CLUTCH: 'clutch',
+  CLUTCH_CEVOLANI: 'clutchCevolani',
   COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance',
   TRAMMING: 'tramming',
   PISTONS: 'pistons',
