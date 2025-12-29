@@ -46,6 +46,7 @@ export function BlueprintCard({
       'GIBS',
       'TRAMMING',
       'PISTONS',
+      'CLUTCH_CEVOLANI'
     ].includes(section),
   );
 
