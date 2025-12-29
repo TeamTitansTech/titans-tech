@@ -84,41 +84,49 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: t('navigation.dashboard'),
         icon: LayoutDashboard,
         url: '/admin/dashboard',
+        id: 'admin-sidebar-dashboard',
       },
       {
         title: t('navigation.models'),
         icon: FolderKanban,
         url: '/admin/blueprints',
+        id: 'admin-sidebar-models',
       },
       {
         title: t('navigation.companies'),
         icon: Users,
         url: '/admin/companies',
+        id: 'admin-sidebar-companies',
       },
       {
         title: t('navigation.allMachines'),
         icon: Wrench,
         url: '/admin/machines',
+        id: 'admin-sidebar-machines',
       },
       {
         title: t('navigation.productionLines'),
         icon: Factory,
         url: '/admin/production-lines',
+        id: 'admin-sidebar-production-lines',
       },
       {
         title: t('navigation.services'),
         icon: ClipboardList,
         url: '/admin/services',
+        id: 'admin-sidebar-services',
       },
       {
         title: t('serviceRequests.title'),
         icon: AlertCircle,
         url: '/admin/service-requests',
+        id: 'admin-sidebar-service-requests',
       },
       {
         title: t('navigation.settings'),
         icon: Settings,
         url: '/admin/settings',
+        id: 'admin-sidebar-settings',
       },
     ],
   };
@@ -136,31 +144,37 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: t('navigation.dashboard'),
           icon: LayoutDashboard,
           url: '/home',
+          id: 'client-sidebar-dashboard',
         },
         {
           title: t('navigation.company'),
           icon: Building2,
           url: '/company',
+          id: 'client-sidebar-company',
         },
         {
           title: t('navigation.allMachines'),
           icon: Wrench,
           url: '/machines',
+          id: 'client-sidebar-machines',
         },
         {
           title: t('navigation.productionLines'),
           icon: Factory,
           url: '/production-lines',
+          id: 'client-sidebar-production-lines',
         },
         {
           title: t('navigation.services'),
           icon: ClipboardList,
           url: '/services',
+          id: 'client-sidebar-services',
         },
         {
           title: t('navigation.settings'),
           icon: Settings,
           url: '/settings',
+          id: 'client-sidebar-settings',
         },
       ],
     }),
@@ -234,7 +248,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {data.navMain.map((item) => {
               const isActive = checkIsActive(item.url, item.title);
               return (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.title} data-testid={item.id}>
                   <SidebarMenuButton
                     asChild
                     tooltip={item.title}

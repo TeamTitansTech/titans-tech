@@ -4,6 +4,7 @@ import { PrismaClient } from '@titans-tech/db';
 import { PrismaClientExtended } from '@titans-tech/db';
 import { TestSeeder } from './test-seed';
 import { PageHelpers } from './page';
+import { testTranslations } from './translations';
 
 async function setupDatabase() {
   const prisma = new PrismaClient({
@@ -25,6 +26,7 @@ type AllFixtures = {
   db: PrismaClient;
   dbWithSoftDelete: PrismaClientExtended;
   pageHelpers: PageHelpers;
+  t: typeof testTranslations;
   page: Page & {
     goto: (
       url: string,
@@ -82,12 +84,33 @@ export const test = base.extend<AllFixtures>({
     await use(prismaExtended);
     await prismaExtended.$disconnect();
   },
+
+  // Translation object
+  t: async ({}, use) => {
+    await use(testTranslations);
+  },
 });
 
-test.beforeEach(async () => {
+test.beforeEach(async ({ context }) => {
   await setupDatabase();
+
+  await context.addCookies([
+    {
+      name: 'NEXT_LOCALE',
+      value: 'pt',
+      domain: 'localhost',
+      path: '/',
+    },
+    {
+      name: 'NEXT_LOCALE',
+      value: 'pt',
+      domain: '.localhost', // Wildcard subdomain support
+      path: '/',
+    },
+  ]);
 });
 
 export { expect } from '@playwright/test';
 export { TEST_SEED_DATA } from './test-seed';
+export { testTranslations } from './translations';
 export type { PrismaClient, PrismaClientExtended };
