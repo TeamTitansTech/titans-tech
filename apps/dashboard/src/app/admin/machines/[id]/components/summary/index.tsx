@@ -29,6 +29,7 @@ import { CounterbalanceSummary } from './CounterbalanceSummary';
 import { TrammingSummary } from './TrammingSummary';
 import { PistonsSummary } from './PistonsSummary';
 import { ClutchSummary } from './ClutchSummary';
+import { ClutchCevolaniSummary } from './ClutchCevolaniSummary';
 import { LubricationSummary } from './LubricationSummary';
 import { ShimThicknessSummary } from './ShimThicknessSummary';
 import { DieCushionSummary } from './DieCushionSummary';
@@ -47,6 +48,7 @@ export { CounterbalanceSummary };
 export { TrammingSummary };
 export { PistonsSummary };
 export { ClutchSummary };
+export { ClutchCevolaniSummary };
 export { LubricationSummary };
 export { ShimThicknessSummary };
 export { DieCushionSummary };
@@ -113,12 +115,12 @@ export function SectionSummary({
     }
 
     case 'CLUTCH_CEVOLANI': {
-      // Handle the wrapped structure from ClutchCevolaniSectionData (same as CLUTCH)
+      // Handle the wrapped structure from ClutchCevolaniSectionData
       const clutchCevolaniSectionData = data as { data?: ClutchData; attachments?: Attachment[] };
       const innerData =
         clutchCevolaniSectionData?.data ?? (clutchCevolaniSectionData as ClutchData);
       return (
-        <ClutchSummary
+        <ClutchCevolaniSummary
           data={innerData as ClutchData}
           attachments={clutchCevolaniSectionData?.attachments}
         />

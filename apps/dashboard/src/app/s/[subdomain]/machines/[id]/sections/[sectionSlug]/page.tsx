@@ -2,6 +2,7 @@ import { getTranslations } from 'next-intl/server';
 import { BearingClearanceSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/BearingClearanceSectionWrapper';
 import { BearingClearanceSingleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/BearingClearanceSingleHammerSectionWrapper';
 import { ClutchSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/ClutchSectionWrapper';
+import { ClutchCevolaniSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/ClutchCevolaniSectionWrapper';
 import { SlideSingleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideSingleHammerSectionWrapper';
 import { SlideDoubleHammerSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/SlideDoubleHammerSectionWrapper';
 import { GibsSectionWrapper } from '@/app/admin/machines/[id]/sections/[sectionSlug]/components/GibsSectionWrapper';
@@ -46,6 +47,7 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
         <BearingClearanceSingleHammerSectionWrapper machineId={id} />
       )}
       {sectionSlug === 'clutch' && <ClutchSectionWrapper machineId={id} />}
+      {sectionSlug === 'clutch_cevolani' && <ClutchCevolaniSectionWrapper machineId={id} />}
       {sectionSlug === 'slide_single_hammer' && <SlideSingleHammerSectionWrapper machineId={id} />}
       {sectionSlug === 'slide_double_hammer' && <SlideDoubleHammerSectionWrapper machineId={id} />}
       {sectionSlug === 'gibs' && <GibsSectionWrapper machineId={id} />}
@@ -61,6 +63,7 @@ export default async function SectionDetailPage({ params }: SectionDetailPagePro
       {sectionSlug !== 'bearing_clearance' &&
         sectionSlug !== 'bearing_clearance_single_hammer' &&
         sectionSlug !== 'clutch' &&
+        sectionSlug !== 'clutch_cevolani' &&
         sectionSlug !== 'slide_single_hammer' &&
         sectionSlug !== 'slide_double_hammer' &&
         sectionSlug !== 'gibs' &&
