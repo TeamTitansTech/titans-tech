@@ -164,6 +164,7 @@ export function MachineDetails({
           report={latestReport}
           open={isReportModalOpen}
           onOpenChange={setIsReportModalOpen}
+          defaultMeasurementUnit={machine.branch?.defaultMeasurementUnit || 'INCHES'}
         />
       )}
     </>

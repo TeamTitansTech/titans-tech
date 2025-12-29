@@ -357,6 +357,7 @@ enum ServiceSection {
   GIBS
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER
   CLUTCH
+  CLUTCH_CEVOLANI
   COUNTERBALANCE_CYLINDER_AIRBAG
   TRAMMING
   PISTONS
@@ -469,6 +470,8 @@ model CompanyBranch {
   isMainBranch Boolean @default(false)
   location     String?
 
+  defaultMeasurementUnit MeasurementUnit @default(INCHES)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -562,6 +565,7 @@ model Blueprint {
   thresholdBearingClearance             ThresholdBearingClearance?
   thresholdBearingClearanceSingleHammer ThresholdBearingClearanceSingleHammer?
   thresholdClutch                       ThresholdClutch?
+  thresholdClutchCevolani               ThresholdClutchCevolani?
   thresholdSlideSingleHammer            ThresholdSlideSingleHammer?
   thresholdSlideDoubleHammer            ThresholdSlideDoubleHammer?
   thresholdGibs                         ThresholdGibs?
@@ -576,34 +580,34 @@ model ThresholdBearingClearance {
   blueprintId String @unique
 
   // Total Clearance thresholds
-  totalClearance_greenMin  Decimal @db.Decimal(10, 4)
-  totalClearance_yellowMin Decimal @db.Decimal(10, 4)
-  totalClearance_redMin    Decimal @db.Decimal(10, 4)
+  totalClearance_greenMin  Decimal @db.Decimal(10, 6)
+  totalClearance_yellowMin Decimal @db.Decimal(10, 6)
+  totalClearance_redMin    Decimal @db.Decimal(10, 6)
 
   // Main Bearings thresholds
-  mainBearings_greenMin  Decimal @db.Decimal(10, 4)
-  mainBearings_yellowMin Decimal @db.Decimal(10, 4)
-  mainBearings_redMin    Decimal @db.Decimal(10, 4)
+  mainBearings_greenMin  Decimal @db.Decimal(10, 6)
+  mainBearings_yellowMin Decimal @db.Decimal(10, 6)
+  mainBearings_redMin    Decimal @db.Decimal(10, 6)
 
   // Upper Connection Bearings thresholds
-  upperConnectionBearings_greenMin  Decimal @db.Decimal(10, 4)
-  upperConnectionBearings_yellowMin Decimal @db.Decimal(10, 4)
-  upperConnectionBearings_redMin    Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_greenMin  Decimal @db.Decimal(10, 6)
+  upperConnectionBearings_yellowMin Decimal @db.Decimal(10, 6)
+  upperConnectionBearings_redMin    Decimal @db.Decimal(10, 6)
 
   // Wrist Pin to Mating Part thresholds
-  wristPinToMatingPart_greenMin  Decimal @db.Decimal(10, 4)
-  wristPinToMatingPart_yellowMin Decimal @db.Decimal(10, 4)
-  wristPinToMatingPart_redMin    Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_greenMin  Decimal @db.Decimal(10, 6)
+  wristPinToMatingPart_yellowMin Decimal @db.Decimal(10, 6)
+  wristPinToMatingPart_redMin    Decimal @db.Decimal(10, 6)
 
   // Wrist Pin to Bushing thresholds
-  wristPinToBushing_greenMin  Decimal @db.Decimal(10, 4)
-  wristPinToBushing_yellowMin Decimal @db.Decimal(10, 4)
-  wristPinToBushing_redMin    Decimal @db.Decimal(10, 4)
+  wristPinToBushing_greenMin  Decimal @db.Decimal(10, 6)
+  wristPinToBushing_yellowMin Decimal @db.Decimal(10, 6)
+  wristPinToBushing_redMin    Decimal @db.Decimal(10, 6)
 
   // Slide Adj Nut to Screw/Sleeve thresholds
-  slideAdjNutToScrewSleeve_greenMin  Decimal @db.Decimal(10, 4)
-  slideAdjNutToScrewSleeve_yellowMin Decimal @db.Decimal(10, 4)
-  slideAdjNutToScrewSleeve_redMin    Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_greenMin  Decimal @db.Decimal(10, 6)
+  slideAdjNutToScrewSleeve_yellowMin Decimal @db.Decimal(10, 6)
+  slideAdjNutToScrewSleeve_redMin    Decimal @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -618,34 +622,34 @@ model ThresholdBearingClearanceSingleHammer {
   blueprintId String @unique
 
   // Total Clearance thresholds
-  totalClearance_greenMin  Decimal @db.Decimal(10, 4)
-  totalClearance_yellowMin Decimal @db.Decimal(10, 4)
-  totalClearance_redMin    Decimal @db.Decimal(10, 4)
+  totalClearance_greenMin  Decimal @db.Decimal(10, 6)
+  totalClearance_yellowMin Decimal @db.Decimal(10, 6)
+  totalClearance_redMin    Decimal @db.Decimal(10, 6)
 
   // Main Bearings thresholds
-  mainBearings_greenMin  Decimal @db.Decimal(10, 4)
-  mainBearings_yellowMin Decimal @db.Decimal(10, 4)
-  mainBearings_redMin    Decimal @db.Decimal(10, 4)
+  mainBearings_greenMin  Decimal @db.Decimal(10, 6)
+  mainBearings_yellowMin Decimal @db.Decimal(10, 6)
+  mainBearings_redMin    Decimal @db.Decimal(10, 6)
 
   // Upper Connection Bearings thresholds
-  upperConnectionBearings_greenMin  Decimal @db.Decimal(10, 4)
-  upperConnectionBearings_yellowMin Decimal @db.Decimal(10, 4)
-  upperConnectionBearings_redMin    Decimal @db.Decimal(10, 4)
+  upperConnectionBearings_greenMin  Decimal @db.Decimal(10, 6)
+  upperConnectionBearings_yellowMin Decimal @db.Decimal(10, 6)
+  upperConnectionBearings_redMin    Decimal @db.Decimal(10, 6)
 
   // Wrist Pin to Mating Part thresholds
-  wristPinToMatingPart_greenMin  Decimal @db.Decimal(10, 4)
-  wristPinToMatingPart_yellowMin Decimal @db.Decimal(10, 4)
-  wristPinToMatingPart_redMin    Decimal @db.Decimal(10, 4)
+  wristPinToMatingPart_greenMin  Decimal @db.Decimal(10, 6)
+  wristPinToMatingPart_yellowMin Decimal @db.Decimal(10, 6)
+  wristPinToMatingPart_redMin    Decimal @db.Decimal(10, 6)
 
   // Wrist Pin to Bushing thresholds
-  wristPinToBushing_greenMin  Decimal @db.Decimal(10, 4)
-  wristPinToBushing_yellowMin Decimal @db.Decimal(10, 4)
-  wristPinToBushing_redMin    Decimal @db.Decimal(10, 4)
+  wristPinToBushing_greenMin  Decimal @db.Decimal(10, 6)
+  wristPinToBushing_yellowMin Decimal @db.Decimal(10, 6)
+  wristPinToBushing_redMin    Decimal @db.Decimal(10, 6)
 
   // Slide Adj Nut to Screw/Sleeve thresholds
-  slideAdjNutToScrewSleeve_greenMin  Decimal @db.Decimal(10, 4)
-  slideAdjNutToScrewSleeve_yellowMin Decimal @db.Decimal(10, 4)
-  slideAdjNutToScrewSleeve_redMin    Decimal @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_greenMin  Decimal @db.Decimal(10, 6)
+  slideAdjNutToScrewSleeve_yellowMin Decimal @db.Decimal(10, 6)
+  slideAdjNutToScrewSleeve_redMin    Decimal @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -660,29 +664,29 @@ model ThresholdClutch {
   blueprintId String @unique
 
   // Hyd Clutch Clearance Total thresholds
-  hydClutchClearanceTotal_greenMin  Decimal @db.Decimal(10, 4)
-  hydClutchClearanceTotal_yellowMin Decimal @db.Decimal(10, 4)
-  hydClutchClearanceTotal_redMin    Decimal @db.Decimal(10, 4)
+  hydClutchClearanceTotal_greenMin  Decimal @db.Decimal(10, 6)
+  hydClutchClearanceTotal_yellowMin Decimal @db.Decimal(10, 6)
+  hydClutchClearanceTotal_redMin    Decimal @db.Decimal(10, 6)
 
   // Hyd Clutch Clearance Rear thresholds
-  hydClutchClearanceRear_greenMin  Decimal @db.Decimal(10, 4)
-  hydClutchClearanceRear_yellowMin Decimal @db.Decimal(10, 4)
-  hydClutchClearanceRear_redMin    Decimal @db.Decimal(10, 4)
+  hydClutchClearanceRear_greenMin  Decimal @db.Decimal(10, 6)
+  hydClutchClearanceRear_yellowMin Decimal @db.Decimal(10, 6)
+  hydClutchClearanceRear_redMin    Decimal @db.Decimal(10, 6)
 
   // F-B (Front-Back) thresholds
-  fb_greenMin  Decimal @db.Decimal(10, 4)
-  fb_yellowMin Decimal @db.Decimal(10, 4)
-  fb_redMin    Decimal @db.Decimal(10, 4)
+  fb_greenMin  Decimal @db.Decimal(10, 6)
+  fb_yellowMin Decimal @db.Decimal(10, 6)
+  fb_redMin    Decimal @db.Decimal(10, 6)
 
   // F-TB (Front Top-Bottom) thresholds
-  fTB_greenMin  Decimal @db.Decimal(10, 4)
-  fTB_yellowMin Decimal @db.Decimal(10, 4)
-  fTB_redMin    Decimal @db.Decimal(10, 4)
+  fTB_greenMin  Decimal @db.Decimal(10, 6)
+  fTB_yellowMin Decimal @db.Decimal(10, 6)
+  fTB_redMin    Decimal @db.Decimal(10, 6)
 
   // R-TB (Rear Top-Bottom) thresholds
-  rTB_greenMin  Decimal @db.Decimal(10, 4)
-  rTB_yellowMin Decimal @db.Decimal(10, 4)
-  rTB_redMin    Decimal @db.Decimal(10, 4)
+  rTB_greenMin  Decimal @db.Decimal(10, 6)
+  rTB_yellowMin Decimal @db.Decimal(10, 6)
+  rTB_redMin    Decimal @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -692,14 +696,31 @@ model ThresholdClutch {
   @@map("threshold_clutch")
 }
 
+model ThresholdClutchCevolani {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Pneumatic Clutch Clearance Total thresholds
+  pneumaticClutchClearanceTotal_greenMin  Decimal @db.Decimal(10, 6)
+  pneumaticClutchClearanceTotal_yellowMin Decimal @db.Decimal(10, 6)
+  pneumaticClutchClearanceTotal_redMin    Decimal @db.Decimal(10, 6)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_clutch_cevolani")
+}
+
 model ThresholdSlideSingleHammer {
   id          String @id @default(cuid())
   blueprintId String @unique
 
   // Max Deviation thresholds (single threshold for both outer and inner)
-  maxDeviation_greenMin  Decimal @db.Decimal(10, 4)
-  maxDeviation_yellowMin Decimal @db.Decimal(10, 4)
-  maxDeviation_redMin    Decimal @db.Decimal(10, 4)
+  maxDeviation_greenMin  Decimal @db.Decimal(10, 6)
+  maxDeviation_yellowMin Decimal @db.Decimal(10, 6)
+  maxDeviation_redMin    Decimal @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -714,9 +735,9 @@ model ThresholdSlideDoubleHammer {
   blueprintId String @unique
 
   // Max Deviation thresholds (single threshold for both outer and inner)
-  maxDeviation_greenMin  Decimal @db.Decimal(10, 4)
-  maxDeviation_yellowMin Decimal @db.Decimal(10, 4)
-  maxDeviation_redMin    Decimal @db.Decimal(10, 4)
+  maxDeviation_greenMin  Decimal @db.Decimal(10, 6)
+  maxDeviation_yellowMin Decimal @db.Decimal(10, 6)
+  maxDeviation_redMin    Decimal @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -731,9 +752,9 @@ model ThresholdGibs {
   blueprintId String @unique
 
   // Usable thresholds (single field with green/yellow/red levels)
-  usable_greenMin  Decimal @db.Decimal(10, 4)
-  usable_yellowMin Decimal @db.Decimal(10, 4)
-  usable_redMin    Decimal @db.Decimal(10, 4)
+  usable_greenMin  Decimal @db.Decimal(10, 6)
+  usable_yellowMin Decimal @db.Decimal(10, 6)
+  usable_redMin    Decimal @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -748,9 +769,9 @@ model ThresholdPistons {
   blueprintId String @unique
 
   // Difference thresholds (for side-to-side differences)
-  difference_greenMin  Decimal @db.Decimal(10, 4)
-  difference_yellowMin Decimal @db.Decimal(10, 4)
-  difference_redMin    Decimal @db.Decimal(10, 4)
+  difference_greenMin  Decimal @db.Decimal(10, 6)
+  difference_yellowMin Decimal @db.Decimal(10, 6)
+  difference_redMin    Decimal @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -765,9 +786,9 @@ model ThresholdTramming {
   blueprintId String @unique
 
   // Single threshold range for all tramming sums (vertical and horizontal)
-  greenMin  Decimal @db.Decimal(10, 4)
-  yellowMin Decimal @db.Decimal(10, 4)
-  redMin    Decimal @db.Decimal(10, 4)
+  greenMin  Decimal @db.Decimal(10, 6)
+  yellowMin Decimal @db.Decimal(10, 6)
+  redMin    Decimal @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -870,6 +891,7 @@ model MachineService {
   gibs                              MachineServiceGibs[]
   lubricationHydraulics             MachineServiceLubricationHydraulics[]
   clutch                            MachineServiceClutch[]
+  clutchCevolani                    MachineServiceClutchCevolani[]
   counterbalanceCylinderAirbag      MachineServiceCounterbalanceCylinderAirbag[]
   tramming                          MachineServiceTramming[]
   pistons                           MachineServicePistons[]
@@ -877,6 +899,7 @@ model MachineService {
   alertBearingClearanceSingleHammer AlertBearingClearanceSingleHammer[]
   alertCounterbalanceCylinderAirbag AlertCounterbalanceCylinderAirbag[]
   alertClutch                       AlertClutch[]
+  alertClutchCevolani               AlertClutchCevolani[]
   alertSlide                        AlertSlide[] // DEPRECATED: Use alertSlideSingleHammer and alertSlideDoubleHammer
   alertSlideSingleHammer            AlertSlideSingleHammer[]
   alertSlideDoubleHammer            AlertSlideDoubleHammer[]
@@ -898,31 +921,31 @@ model AlertBearingClearance {
   machineServiceId String
 
   // OUTER alerts
-  outer_totalClearance_differential           Decimal       @db.Decimal(10, 4)
+  outer_totalClearance_differential           Decimal       @db.Decimal(10, 6)
   outer_totalClearance_severity               AlertSeverity
-  outer_mainBearings_differential             Decimal       @db.Decimal(10, 4)
+  outer_mainBearings_differential             Decimal       @db.Decimal(10, 6)
   outer_mainBearings_severity                 AlertSeverity
-  outer_upperConnectionBearings_differential  Decimal       @db.Decimal(10, 4)
+  outer_upperConnectionBearings_differential  Decimal       @db.Decimal(10, 6)
   outer_upperConnectionBearings_severity      AlertSeverity
-  outer_wristPinToMatingPart_differential     Decimal       @db.Decimal(10, 4)
+  outer_wristPinToMatingPart_differential     Decimal       @db.Decimal(10, 6)
   outer_wristPinToMatingPart_severity         AlertSeverity
-  outer_wristPinToBushing_differential        Decimal       @db.Decimal(10, 4)
+  outer_wristPinToBushing_differential        Decimal       @db.Decimal(10, 6)
   outer_wristPinToBushing_severity            AlertSeverity
-  outer_slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
+  outer_slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 6)
   outer_slideAdjNutToScrewSleeve_severity     AlertSeverity
 
   // INNER alerts
-  inner_totalClearance_differential           Decimal       @db.Decimal(10, 4)
+  inner_totalClearance_differential           Decimal       @db.Decimal(10, 6)
   inner_totalClearance_severity               AlertSeverity
-  inner_mainBearings_differential             Decimal       @db.Decimal(10, 4)
+  inner_mainBearings_differential             Decimal       @db.Decimal(10, 6)
   inner_mainBearings_severity                 AlertSeverity
-  inner_upperConnectionBearings_differential  Decimal       @db.Decimal(10, 4)
+  inner_upperConnectionBearings_differential  Decimal       @db.Decimal(10, 6)
   inner_upperConnectionBearings_severity      AlertSeverity
-  inner_wristPinToMatingPart_differential     Decimal       @db.Decimal(10, 4)
+  inner_wristPinToMatingPart_differential     Decimal       @db.Decimal(10, 6)
   inner_wristPinToMatingPart_severity         AlertSeverity
-  inner_wristPinToBushing_differential        Decimal       @db.Decimal(10, 4)
+  inner_wristPinToBushing_differential        Decimal       @db.Decimal(10, 6)
   inner_wristPinToBushing_severity            AlertSeverity
-  inner_slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
+  inner_slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 6)
   inner_slideAdjNutToScrewSleeve_severity     AlertSeverity
 
   // Optional snapshot of thresholds used in calculation (for auditing)
@@ -942,17 +965,17 @@ model AlertBearingClearanceSingleHammer {
   machineServiceId String
 
   // Single hammer alerts (no inner/outer distinction)
-  totalClearance_differential           Decimal       @db.Decimal(10, 4)
+  totalClearance_differential           Decimal       @db.Decimal(10, 6)
   totalClearance_severity               AlertSeverity
-  mainBearings_differential             Decimal       @db.Decimal(10, 4)
+  mainBearings_differential             Decimal       @db.Decimal(10, 6)
   mainBearings_severity                 AlertSeverity
-  upperConnectionBearings_differential  Decimal       @db.Decimal(10, 4)
+  upperConnectionBearings_differential  Decimal       @db.Decimal(10, 6)
   upperConnectionBearings_severity      AlertSeverity
-  wristPinToMatingPart_differential     Decimal       @db.Decimal(10, 4)
+  wristPinToMatingPart_differential     Decimal       @db.Decimal(10, 6)
   wristPinToMatingPart_severity         AlertSeverity
-  wristPinToBushing_differential        Decimal       @db.Decimal(10, 4)
+  wristPinToBushing_differential        Decimal       @db.Decimal(10, 6)
   wristPinToBushing_severity            AlertSeverity
-  slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 4)
+  slideAdjNutToScrewSleeve_differential Decimal       @db.Decimal(10, 6)
   slideAdjNutToScrewSleeve_severity     AlertSeverity
 
   // Optional snapshot of thresholds used in calculation (for auditing)
@@ -987,23 +1010,23 @@ model AlertClutch {
   machineServiceId String
 
   // Hyd Clutch Clearance Total alert
-  hydClutchClearanceTotal_value    Decimal       @db.Decimal(10, 4)
+  hydClutchClearanceTotal_value    Decimal       @db.Decimal(10, 6)
   hydClutchClearanceTotal_severity AlertSeverity
 
   // Hyd Clutch Clearance Rear alert
-  hydClutchClearanceRear_value    Decimal       @db.Decimal(10, 4)
+  hydClutchClearanceRear_value    Decimal       @db.Decimal(10, 6)
   hydClutchClearanceRear_severity AlertSeverity
 
   // F-B (Front-Back) alert
-  fb_value    Decimal       @db.Decimal(10, 4)
+  fb_value    Decimal       @db.Decimal(10, 6)
   fb_severity AlertSeverity
 
   // F-TB (Front Top-Bottom) alert
-  fTB_value    Decimal       @db.Decimal(10, 4)
+  fTB_value    Decimal       @db.Decimal(10, 6)
   fTB_severity AlertSeverity
 
   // R-TB (Rear Top-Bottom) alert
-  rTB_value    Decimal       @db.Decimal(10, 4)
+  rTB_value    Decimal       @db.Decimal(10, 6)
   rTB_severity AlertSeverity
 
   // Optional snapshot of thresholds used in calculation (for auditing)
@@ -1018,17 +1041,37 @@ model AlertClutch {
   @@map("alert_clutch")
 }
 
+model AlertClutchCevolani {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Pneumatic Clutch Clearance Total alert
+  pneumaticClutchClearanceTotal_value    Decimal       @db.Decimal(10, 6)
+  pneumaticClutchClearanceTotal_severity AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_clutch_cevolani")
+}
+
 // DEPRECATED: Use AlertSlideSingleHammer and AlertSlideDoubleHammer instead
 model AlertSlide {
   id               String @id @default(cuid())
   machineServiceId String
 
   // Outer Max Deviation alert
-  maxDeviationOuter_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationOuter_differential Decimal       @db.Decimal(10, 6)
   maxDeviationOuter_severity     AlertSeverity
 
   // Inner Max Deviation alert
-  maxDeviationInner_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationInner_differential Decimal       @db.Decimal(10, 6)
   maxDeviationInner_severity     AlertSeverity
 
   // Optional snapshot of thresholds used in calculation (for auditing)
@@ -1049,7 +1092,7 @@ model AlertSlideSingleHammer {
   machineServiceId String
 
   // Max Deviation alert (single hammer only has one measurement set)
-  maxDeviation_differential Decimal       @db.Decimal(10, 4)
+  maxDeviation_differential Decimal       @db.Decimal(10, 6)
   maxDeviation_severity     AlertSeverity
 
   // Optional snapshot of thresholds used in calculation (for auditing)
@@ -1070,11 +1113,11 @@ model AlertSlideDoubleHammer {
   machineServiceId String
 
   // Outer Max Deviation alert
-  maxDeviationOuter_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationOuter_differential Decimal       @db.Decimal(10, 6)
   maxDeviationOuter_severity     AlertSeverity
 
   // Inner Max Deviation alert
-  maxDeviationInner_differential Decimal       @db.Decimal(10, 4)
+  maxDeviationInner_differential Decimal       @db.Decimal(10, 6)
   maxDeviationInner_severity     AlertSeverity
 
   // Optional snapshot of thresholds used in calculation (for auditing)
@@ -1094,7 +1137,7 @@ model AlertGibs {
   machineServiceId String
 
   // Usable value and severity (based on single threshold)
-  usable_value    Decimal       @db.Decimal(10, 4)
+  usable_value    Decimal       @db.Decimal(10, 6)
   usable_severity AlertSeverity
 
   // Optional snapshot of threshold used in calculation (for auditing)
@@ -1115,24 +1158,24 @@ model AlertPistons {
 
   // === OUTER DATA ===
   // Difference values and severities
-  outer_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  outer_lhLeftRight_diff     Decimal?      @db.Decimal(10, 6)
   outer_lhLeftRight_severity AlertSeverity @default(NONE)
-  outer_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  outer_lhTopBottom_diff     Decimal?      @db.Decimal(10, 6)
   outer_lhTopBottom_severity AlertSeverity @default(NONE)
-  outer_rhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  outer_rhLeftRight_diff     Decimal?      @db.Decimal(10, 6)
   outer_rhLeftRight_severity AlertSeverity @default(NONE)
-  outer_rhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  outer_rhTopBottom_diff     Decimal?      @db.Decimal(10, 6)
   outer_rhTopBottom_severity AlertSeverity @default(NONE)
 
   // === INNER DATA ===
   // Difference values and severities
-  inner_lhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  inner_lhLeftRight_diff     Decimal?      @db.Decimal(10, 6)
   inner_lhLeftRight_severity AlertSeverity @default(NONE)
-  inner_lhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  inner_lhTopBottom_diff     Decimal?      @db.Decimal(10, 6)
   inner_lhTopBottom_severity AlertSeverity @default(NONE)
-  inner_rhLeftRight_diff     Decimal?      @db.Decimal(10, 4)
+  inner_rhLeftRight_diff     Decimal?      @db.Decimal(10, 6)
   inner_rhLeftRight_severity AlertSeverity @default(NONE)
-  inner_rhTopBottom_diff     Decimal?      @db.Decimal(10, 4)
+  inner_rhTopBottom_diff     Decimal?      @db.Decimal(10, 6)
   inner_rhTopBottom_severity AlertSeverity @default(NONE)
 
   // Threshold snapshot for auditing
@@ -1152,45 +1195,45 @@ model AlertTramming {
   machineServiceId String
 
   // OUTER alerts - 4 positions × 2 directions (vertical + horizontal) = 8 sums
-  outer_top_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_top_verticalSum        Decimal       @db.Decimal(10, 6)
   outer_top_verticalSeverity   AlertSeverity
-  outer_top_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_top_horizontalSum      Decimal       @db.Decimal(10, 6)
   outer_top_horizontalSeverity AlertSeverity
 
-  outer_bottom_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_bottom_verticalSum        Decimal       @db.Decimal(10, 6)
   outer_bottom_verticalSeverity   AlertSeverity
-  outer_bottom_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_bottom_horizontalSum      Decimal       @db.Decimal(10, 6)
   outer_bottom_horizontalSeverity AlertSeverity
 
-  outer_left_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_left_verticalSum        Decimal       @db.Decimal(10, 6)
   outer_left_verticalSeverity   AlertSeverity
-  outer_left_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_left_horizontalSum      Decimal       @db.Decimal(10, 6)
   outer_left_horizontalSeverity AlertSeverity
 
-  outer_right_verticalSum        Decimal       @db.Decimal(10, 4)
+  outer_right_verticalSum        Decimal       @db.Decimal(10, 6)
   outer_right_verticalSeverity   AlertSeverity
-  outer_right_horizontalSum      Decimal       @db.Decimal(10, 4)
+  outer_right_horizontalSum      Decimal       @db.Decimal(10, 6)
   outer_right_horizontalSeverity AlertSeverity
 
   // INNER alerts - 4 positions × 2 directions (vertical + horizontal) = 8 sums
-  inner_top_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_top_verticalSum        Decimal       @db.Decimal(10, 6)
   inner_top_verticalSeverity   AlertSeverity
-  inner_top_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_top_horizontalSum      Decimal       @db.Decimal(10, 6)
   inner_top_horizontalSeverity AlertSeverity
 
-  inner_bottom_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_bottom_verticalSum        Decimal       @db.Decimal(10, 6)
   inner_bottom_verticalSeverity   AlertSeverity
-  inner_bottom_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_bottom_horizontalSum      Decimal       @db.Decimal(10, 6)
   inner_bottom_horizontalSeverity AlertSeverity
 
-  inner_left_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_left_verticalSum        Decimal       @db.Decimal(10, 6)
   inner_left_verticalSeverity   AlertSeverity
-  inner_left_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_left_horizontalSum      Decimal       @db.Decimal(10, 6)
   inner_left_horizontalSeverity AlertSeverity
 
-  inner_right_verticalSum        Decimal       @db.Decimal(10, 4)
+  inner_right_verticalSum        Decimal       @db.Decimal(10, 6)
   inner_right_verticalSeverity   AlertSeverity
-  inner_right_horizontalSum      Decimal       @db.Decimal(10, 4)
+  inner_right_horizontalSum      Decimal       @db.Decimal(10, 6)
   inner_right_horizontalSeverity AlertSeverity
 
   // Optional snapshot of threshold used in calculation (for auditing)
@@ -1242,22 +1285,22 @@ model BearingClearanceData {
   id String @id @default(cuid())
 
   // Measurements - all Decimal with 4 precision
-  totalClearance_RH           Decimal @db.Decimal(10, 4)
-  totalClearance_LH           Decimal @db.Decimal(10, 4)
-  mainBearings_RH             Decimal @db.Decimal(10, 4)
-  mainBearings_LH             Decimal @db.Decimal(10, 4)
-  upperConnectionBearings_RH  Decimal @db.Decimal(10, 4)
-  upperConnectionBearings_LH  Decimal @db.Decimal(10, 4)
-  wristPinToMatingPart_RH     Decimal @db.Decimal(10, 4)
-  wristPinToMatingPart_LH     Decimal @db.Decimal(10, 4)
-  wristPinToBushing_RH        Decimal @db.Decimal(10, 4)
-  wristPinToBushing_LH        Decimal @db.Decimal(10, 4)
-  slideAdjNutToScrewSleeve_RH Decimal @db.Decimal(10, 4)
-  slideAdjNutToScrewSleeve_LH Decimal @db.Decimal(10, 4)
-  extraDoubleLockOpen_RH      Decimal @db.Decimal(10, 4)
-  extraDoubleLockOpen_LH      Decimal @db.Decimal(10, 4)
-  ballBoxArea_RH              Decimal @db.Decimal(10, 4)
-  ballBoxArea_LH              Decimal @db.Decimal(10, 4)
+  totalClearance_RH           Decimal @db.Decimal(10, 6)
+  totalClearance_LH           Decimal @db.Decimal(10, 6)
+  mainBearings_RH             Decimal @db.Decimal(10, 6)
+  mainBearings_LH             Decimal @db.Decimal(10, 6)
+  upperConnectionBearings_RH  Decimal @db.Decimal(10, 6)
+  upperConnectionBearings_LH  Decimal @db.Decimal(10, 6)
+  wristPinToMatingPart_RH     Decimal @db.Decimal(10, 6)
+  wristPinToMatingPart_LH     Decimal @db.Decimal(10, 6)
+  wristPinToBushing_RH        Decimal @db.Decimal(10, 6)
+  wristPinToBushing_LH        Decimal @db.Decimal(10, 6)
+  slideAdjNutToScrewSleeve_RH Decimal @db.Decimal(10, 6)
+  slideAdjNutToScrewSleeve_LH Decimal @db.Decimal(10, 6)
+  extraDoubleLockOpen_RH      Decimal @db.Decimal(10, 6)
+  extraDoubleLockOpen_LH      Decimal @db.Decimal(10, 6)
+  ballBoxArea_RH              Decimal @db.Decimal(10, 6)
+  ballBoxArea_LH              Decimal @db.Decimal(10, 6)
 
   // Additional fields
   hasBeenAdjusted YesNoNaDncType?
@@ -1361,11 +1404,11 @@ model SlideData {
   indicatorReading            String?
 
   // Measurements (5 positions) - positions 1, 3, 4 required; 2, 5 optional
-  position1 Decimal  @db.Decimal(10, 4)
-  position2 Decimal? @db.Decimal(10, 4)
-  position3 Decimal  @db.Decimal(10, 4)
-  position4 Decimal  @db.Decimal(10, 4)
-  position5 Decimal? @db.Decimal(10, 4)
+  position1 Decimal  @db.Decimal(10, 6)
+  position2 Decimal? @db.Decimal(10, 6)
+  position3 Decimal  @db.Decimal(10, 6)
+  position4 Decimal  @db.Decimal(10, 6)
+  position5 Decimal? @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1393,11 +1436,11 @@ model SlideSingleHammerData {
   indicatorReading            String?
 
   // Measurements (5 positions) - positions 1, 3, 4 required; 2, 5 optional
-  position1 Decimal  @db.Decimal(10, 4)
-  position2 Decimal? @db.Decimal(10, 4)
-  position3 Decimal  @db.Decimal(10, 4)
-  position4 Decimal  @db.Decimal(10, 4)
-  position5 Decimal? @db.Decimal(10, 4)
+  position1 Decimal  @db.Decimal(10, 6)
+  position2 Decimal? @db.Decimal(10, 6)
+  position3 Decimal  @db.Decimal(10, 6)
+  position4 Decimal  @db.Decimal(10, 6)
+  position5 Decimal? @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1423,11 +1466,11 @@ model SlideDoubleHammerData {
   indicatorReading            String?
 
   // Measurements (5 positions) - positions 1, 3, 4 required; 2, 5 optional
-  position1 Decimal  @db.Decimal(10, 4)
-  position2 Decimal? @db.Decimal(10, 4)
-  position3 Decimal  @db.Decimal(10, 4)
-  position4 Decimal  @db.Decimal(10, 4)
-  position5 Decimal? @db.Decimal(10, 4)
+  position1 Decimal  @db.Decimal(10, 6)
+  position2 Decimal? @db.Decimal(10, 6)
+  position3 Decimal  @db.Decimal(10, 6)
+  position4 Decimal  @db.Decimal(10, 6)
+  position5 Decimal? @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1477,22 +1520,22 @@ model GibsStageData {
   id String @id @default(cuid())
 
   // 16 measurement points (columns 1-16)
-  point1  Decimal @db.Decimal(10, 4)
-  point2  Decimal @db.Decimal(10, 4)
-  point3  Decimal @db.Decimal(10, 4)
-  point4  Decimal @db.Decimal(10, 4)
-  point5  Decimal @db.Decimal(10, 4)
-  point6  Decimal @db.Decimal(10, 4)
-  point7  Decimal @db.Decimal(10, 4)
-  point8  Decimal @db.Decimal(10, 4)
-  point9  Decimal @db.Decimal(10, 4)
-  point10 Decimal @db.Decimal(10, 4)
-  point11 Decimal @db.Decimal(10, 4)
-  point12 Decimal @db.Decimal(10, 4)
-  point13 Decimal @db.Decimal(10, 4)
-  point14 Decimal @db.Decimal(10, 4)
-  point15 Decimal @db.Decimal(10, 4)
-  point16 Decimal @db.Decimal(10, 4)
+  point1  Decimal @db.Decimal(10, 6)
+  point2  Decimal @db.Decimal(10, 6)
+  point3  Decimal @db.Decimal(10, 6)
+  point4  Decimal @db.Decimal(10, 6)
+  point5  Decimal @db.Decimal(10, 6)
+  point6  Decimal @db.Decimal(10, 6)
+  point7  Decimal @db.Decimal(10, 6)
+  point8  Decimal @db.Decimal(10, 6)
+  point9  Decimal @db.Decimal(10, 6)
+  point10 Decimal @db.Decimal(10, 6)
+  point11 Decimal @db.Decimal(10, 6)
+  point12 Decimal @db.Decimal(10, 6)
+  point13 Decimal @db.Decimal(10, 6)
+  point14 Decimal @db.Decimal(10, 6)
+  point15 Decimal @db.Decimal(10, 6)
+  point16 Decimal @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1573,6 +1616,20 @@ model MachineServiceClutch {
   @@map("machine_service_clutch")
 }
 
+// CLUTCH_CEVOLANI Section - Same structure as CLUTCH but for Cevolani clutch type
+
+model MachineServiceClutchCevolani {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  dataId           String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  data           ClutchData?    @relation("ClutchCevolaniData", fields: [dataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_clutch_cevolani")
+}
+
 model ClutchData {
   id String @id @default(cuid())
 
@@ -1581,22 +1638,22 @@ model ClutchData {
   clutchLocation ClutchLocation?
 
   // Brake Spring Settings (in inches)
-  brakeSpringBrake    Decimal?                 @db.Decimal(10, 4)
-  brakeSpringClutch   Decimal?                 @db.Decimal(10, 4)
-  brakeSpringFB       Decimal?                 @db.Decimal(10, 4)
-  brakeSpringFTB      Decimal?                 @db.Decimal(10, 4)
-  brakeSpringRTB      Decimal?                 @db.Decimal(10, 4)
+  brakeSpringBrake    Decimal?                 @db.Decimal(10, 6)
+  brakeSpringClutch   Decimal?                 @db.Decimal(10, 6)
+  brakeSpringFB       Decimal?                 @db.Decimal(10, 6)
+  brakeSpringFTB      Decimal?                 @db.Decimal(10, 6)
+  brakeSpringRTB      Decimal?                 @db.Decimal(10, 6)
   brakeSpringStudBolt BrakeSpringStudBoltType?
 
   // Brake measurements
-  brakeStoppingTime   Decimal?         @db.Decimal(10, 2)
+  brakeStoppingTime   Decimal?         @db.Decimal(10, 6)
   brakeLining         BrakeLiningType?
-  brakeClearing       Decimal?         @db.Decimal(10, 4)
-  brakeClearanceTotal Decimal?         @db.Decimal(10, 4)
-  brakeClearanceRear  Decimal?         @db.Decimal(10, 4)
+  brakeClearing       Decimal?         @db.Decimal(10, 6)
+  brakeClearanceTotal Decimal?         @db.Decimal(10, 6)
+  brakeClearanceRear  Decimal?         @db.Decimal(10, 6)
 
   // Flywheel
-  flywheelStoppingTime Decimal?              @db.Decimal(10, 2)
+  flywheelStoppingTime Decimal?              @db.Decimal(10, 6)
   flywheelBearings     FlywheelBearingsType?
   flywheelBrake        FlywheelBrakeType?
 
@@ -1609,14 +1666,14 @@ model ClutchData {
   clutchSeals       ClutchSealsType?
 
   // Gear and measurements (*Check only if excessive noise and/or vibration is present)
-  gearBacklashBefore Decimal? @db.Decimal(10, 4)
-  gearBacklashAfter  Decimal? @db.Decimal(10, 4)
-  crankEndplayBefore Decimal? @db.Decimal(10, 4)
-  crankEndplayAfter  Decimal? @db.Decimal(10, 4)
+  gearBacklashBefore Decimal? @db.Decimal(10, 6)
+  gearBacklashAfter  Decimal? @db.Decimal(10, 6)
+  crankEndplayBefore Decimal? @db.Decimal(10, 6)
+  crankEndplayAfter  Decimal? @db.Decimal(10, 6)
 
   // Air system
-  airRegulatorValue   Decimal?                 @db.Decimal(10, 2)
-  airClutchTravel     Decimal?                 @db.Decimal(10, 4)
+  airRegulatorValue   Decimal?                 @db.Decimal(10, 6)
+  airClutchTravel     Decimal?                 @db.Decimal(10, 6)
   airLineOilerSetting AirLineOilerSettingType?
 
   // Splines
@@ -1626,10 +1683,13 @@ model ClutchData {
   adjustingNutLockSecure AdjustingNutLockType?
 
   // Hydraulic system
-  hydClutchClearanceTotal Decimal? @db.Decimal(10, 4)
-  hydClutchClearanceRear  Decimal? @db.Decimal(10, 4)
-  hydraulicPressureValue  Decimal? @db.Decimal(10, 2)
+  hydClutchClearanceTotal Decimal? @db.Decimal(10, 6)
+  hydClutchClearanceRear  Decimal? @db.Decimal(10, 6)
+  hydraulicPressureValue  Decimal? @db.Decimal(10, 6)
   accumulatorValue        String?
+
+  // Pneumatic system (for CLUTCH_CEVOLANI section)
+  pneumaticClutchClearanceTotal Decimal? @db.Decimal(10, 6)
 
   // Separate Brake Seals
   separateBrakeSeals SeparateBrakeSealsType?
@@ -1643,7 +1703,8 @@ model ClutchData {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  services MachineServiceClutch[]
+  services         MachineServiceClutch[]
+  cevolaniServices MachineServiceClutchCevolani[] @relation("ClutchCevolaniData")
 
   @@map("service_data_clutch")
 }
@@ -1803,28 +1864,28 @@ model TrammingData {
   id String @id @default(cuid())
 
   // Top Position (4 measurements around trim pin)
-  topTop    Decimal? @db.Decimal(10, 4)
-  topBottom Decimal? @db.Decimal(10, 4)
-  topLeft   Decimal? @db.Decimal(10, 4)
-  topRight  Decimal? @db.Decimal(10, 4)
+  topTop    Decimal? @db.Decimal(10, 6)
+  topBottom Decimal? @db.Decimal(10, 6)
+  topLeft   Decimal? @db.Decimal(10, 6)
+  topRight  Decimal? @db.Decimal(10, 6)
 
   // Bottom Position (4 measurements around trim pin)
-  bottomTop    Decimal? @db.Decimal(10, 4)
-  bottomBottom Decimal? @db.Decimal(10, 4)
-  bottomLeft   Decimal? @db.Decimal(10, 4)
-  bottomRight  Decimal? @db.Decimal(10, 4)
+  bottomTop    Decimal? @db.Decimal(10, 6)
+  bottomBottom Decimal? @db.Decimal(10, 6)
+  bottomLeft   Decimal? @db.Decimal(10, 6)
+  bottomRight  Decimal? @db.Decimal(10, 6)
 
   // Left Position (4 measurements around trim pin)
-  leftTop    Decimal? @db.Decimal(10, 4)
-  leftBottom Decimal? @db.Decimal(10, 4)
-  leftLeft   Decimal? @db.Decimal(10, 4)
-  leftRight  Decimal? @db.Decimal(10, 4)
+  leftTop    Decimal? @db.Decimal(10, 6)
+  leftBottom Decimal? @db.Decimal(10, 6)
+  leftLeft   Decimal? @db.Decimal(10, 6)
+  leftRight  Decimal? @db.Decimal(10, 6)
 
   // Right Position (4 measurements around trim pin)
-  rightTop    Decimal? @db.Decimal(10, 4)
-  rightBottom Decimal? @db.Decimal(10, 4)
-  rightLeft   Decimal? @db.Decimal(10, 4)
-  rightRight  Decimal? @db.Decimal(10, 4)
+  rightTop    Decimal? @db.Decimal(10, 6)
+  rightBottom Decimal? @db.Decimal(10, 6)
+  rightLeft   Decimal? @db.Decimal(10, 6)
+  rightRight  Decimal? @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1845,7 +1906,7 @@ model MachineServicePistons {
   guideSeals                     SealConditionType?
   pistonSeals                    SealConditionType?
   vacuumSystem                   VacuumSystemConditionType?
-  vacuumSystemAirPressureSetting Decimal?                   @db.Decimal(10, 4)
+  vacuumSystemAirPressureSetting Decimal?                   @db.Decimal(10, 6)
 
   // Notes
   notes String?
@@ -1864,16 +1925,16 @@ model PistonsData {
   id String @id @default(cuid())
 
   // LH Piston (4 measurements around piston)
-  lhTop    Decimal? @db.Decimal(10, 4)
-  lhBottom Decimal? @db.Decimal(10, 4)
-  lhLeft   Decimal? @db.Decimal(10, 4)
-  lhRight  Decimal? @db.Decimal(10, 4)
+  lhTop    Decimal? @db.Decimal(10, 6)
+  lhBottom Decimal? @db.Decimal(10, 6)
+  lhLeft   Decimal? @db.Decimal(10, 6)
+  lhRight  Decimal? @db.Decimal(10, 6)
 
   // RH Piston (4 measurements around piston)
-  rhTop    Decimal? @db.Decimal(10, 4)
-  rhBottom Decimal? @db.Decimal(10, 4)
-  rhLeft   Decimal? @db.Decimal(10, 4)
-  rhRight  Decimal? @db.Decimal(10, 4)
+  rhTop    Decimal? @db.Decimal(10, 6)
+  rhBottom Decimal? @db.Decimal(10, 6)
+  rhLeft   Decimal? @db.Decimal(10, 6)
+  rhRight  Decimal? @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1939,10 +2000,10 @@ model MachineServiceShimThickness {
 
 model ShimThicknessData {
   id     String   @id @default(cuid())
-  top    Decimal? @db.Decimal(10, 4)
-  bottom Decimal? @db.Decimal(10, 4)
-  left   Decimal? @db.Decimal(10, 4)
-  right  Decimal? @db.Decimal(10, 4)
+  top    Decimal? @db.Decimal(10, 6)
+  bottom Decimal? @db.Decimal(10, 6)
+  left   Decimal? @db.Decimal(10, 6)
+  right  Decimal? @db.Decimal(10, 6)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -2016,12 +2077,12 @@ model MachineServicePerpendicularity {
   hasBeenAdjusted YesNoDncType?
 
   // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
-  beforeFR Decimal? @db.Decimal(10, 4)
-  beforeLR Decimal? @db.Decimal(10, 4)
+  beforeFR Decimal? @db.Decimal(10, 6)
+  beforeLR Decimal? @db.Decimal(10, 6)
 
   // After Adjustment measurements
-  afterFR Decimal? @db.Decimal(10, 4)
-  afterLR Decimal? @db.Decimal(10, 4)
+  afterFR Decimal? @db.Decimal(10, 6)
+  afterLR Decimal? @db.Decimal(10, 6)
 
   notes       String?
   attachments Json?   @default("[]") // [{name: string, url: string}]
@@ -2039,25 +2100,25 @@ model MachineServiceAngularity {
   hasBeenAdjusted YesNoDncType?
 
   // Setup information
-  spm                     Decimal? @db.Decimal(10, 2)
-  distanceOfIndicatorTip  Decimal? @db.Decimal(10, 4)
+  spm                     Decimal? @db.Decimal(10, 6)
+  distanceOfIndicatorTip  Decimal? @db.Decimal(10, 6)
   locationOfIndicator     String?
-  counterbalancePressure  Decimal? @db.Decimal(10, 2)
+  counterbalancePressure  Decimal? @db.Decimal(10, 6)
   strokePartBeingRead     String?
   shutheightSetAt         String?
   whatWasUsedAsSquare     String?
   whereWasSquarePlaced    String?
   indicatorUsedGraduation String?
   tipKindOnIndicator      String?
-  totalLiftCheck          Decimal? @db.Decimal(10, 4)
+  totalLiftCheck          Decimal? @db.Decimal(10, 6)
 
   // Before Adjustment measurements (F-R = Front-Rear, L-R = Left-Right)
-  beforeFR Decimal? @db.Decimal(10, 4)
-  beforeLR Decimal? @db.Decimal(10, 4)
+  beforeFR Decimal? @db.Decimal(10, 6)
+  beforeLR Decimal? @db.Decimal(10, 6)
 
   // After Adjustment measurements
-  afterFR Decimal? @db.Decimal(10, 4)
-  afterLR Decimal? @db.Decimal(10, 4)
+  afterFR Decimal? @db.Decimal(10, 6)
+  afterLR Decimal? @db.Decimal(10, 6)
 
   notes       String?
   attachments Json?   @default("[]") // [{name: string, url: string}]

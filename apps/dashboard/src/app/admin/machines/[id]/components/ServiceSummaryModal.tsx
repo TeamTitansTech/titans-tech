@@ -33,13 +33,18 @@ import { SECTION_REGISTRY } from './sections/registry';
 import { exportToExcel } from './utils/serviceExportUtils';
 import { SectionSummary } from './summary';
 import type { AnySectionData } from './types/service-completion.types';
-import { UnitManagerProvider, useUnitManager } from '@/contexts/UnitManagerContext';
+import {
+  UnitManagerProvider,
+  useUnitManager,
+  type LengthUnitFromEnum,
+} from '@/contexts/UnitManagerContext';
 
 interface ServiceSummaryModalProps {
   service: Service;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   hideExcelExport?: boolean;
+  defaultMeasurementUnit: LengthUnitFromEnum;
 }
 
 export function ServiceSummaryModal({
@@ -47,11 +52,12 @@ export function ServiceSummaryModal({
   open,
   onOpenChange,
   hideExcelExport,
+  defaultMeasurementUnit,
 }: ServiceSummaryModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="flex h-[95vh] max-h-[95vh] w-[98vw] max-w-[98vw] flex-col overflow-hidden sm:h-[90vh] sm:max-h-[90vh] sm:w-[95vw] sm:max-w-[1200px]">
-        <UnitManagerProvider>
+        <UnitManagerProvider defaultLengthUnit={defaultMeasurementUnit}>
           <ServiceSummaryModalContent
             service={service}
             onOpenChange={onOpenChange}
@@ -67,7 +73,7 @@ function ServiceSummaryModalContent({
   service,
   onOpenChange,
   hideExcelExport,
-}: Omit<ServiceSummaryModalProps, 'open'>) {
+}: Omit<ServiceSummaryModalProps, 'open' | 'defaultMeasurementUnit'>) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
   const tServicesSummary = useTranslations('services.modal.summary');
@@ -108,6 +114,7 @@ function ServiceSummaryModalContent({
     gibs: 'GIBS',
     lubricationHydraulics: 'LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER',
     clutch: 'CLUTCH',
+    clutchCevolani: 'CLUTCH_CEVOLANI',
     counterbalanceCylinder: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     counterbalanceCylinderAirbag: 'COUNTERBALANCE_CYLINDER_AIRBAG',
     tramming: 'TRAMMING',

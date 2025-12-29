@@ -9,6 +9,16 @@ import type {
   CounterbalanceAlert,
 } from '@/data/types/services.types';
 import type { AlertsSummaryResponseDto } from '@titans-tech/shared/backend-dtos';
+import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
+
+// Extended Service type that includes machine relations as returned by the backend
+export interface ServiceWithMachineRelations extends Service {
+  machine?: {
+    branch?: {
+      defaultMeasurementUnit: LengthUnitFromEnum;
+    };
+  };
+}
 
 export const createService = async (payload: CreateServicePayload) => {
   const response = await responseHandler<Service>('/services', {
@@ -33,7 +43,7 @@ export const getServices = async () => {
 };
 
 export const getServiceById = async (id: string) => {
-  return await responseHandler<Service>(`/services/${id}`, {
+  return await responseHandler<ServiceWithMachineRelations>(`/services/${id}`, {
     method: 'GET',
   });
 };
@@ -107,6 +117,7 @@ export const updateServiceSection = async (
     GIBS: 'gibs',
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: 'lubrication-hydraulics',
     CLUTCH: 'clutch',
+    CLUTCH_CEVOLANI: 'clutch-cevolani',
     COUNTERBALANCE_CYLINDER_AIRBAG: 'counterbalance-cylinder',
     TRAMMING: 'tramming',
     PISTONS: 'pistons',

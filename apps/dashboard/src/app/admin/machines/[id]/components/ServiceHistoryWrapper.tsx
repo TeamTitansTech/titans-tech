@@ -9,17 +9,20 @@ import { useTranslations } from 'next-intl';
 import { CompleteServiceModal } from './CompleteServiceModal';
 import { ServiceSummaryModal } from './ServiceSummaryModal';
 import type { Service } from '@/data/types/services.types';
+import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
 
 interface ServiceHistoryWrapperProps {
   machineId: string;
   blueprintSections: string[];
   services: Service[];
+  defaultMeasurementUnit: LengthUnitFromEnum;
 }
 
 export function ServiceHistoryWrapper({
   machineId,
   blueprintSections,
   services,
+  defaultMeasurementUnit,
 }: ServiceHistoryWrapperProps) {
   const t = useTranslations('machines');
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -144,6 +147,7 @@ export function ServiceHistoryWrapper({
           service={selectedService}
           open={isViewModalOpen}
           onOpenChange={setIsViewModalOpen}
+          defaultMeasurementUnit={defaultMeasurementUnit}
         />
       )}
     </>

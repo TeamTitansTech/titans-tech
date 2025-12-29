@@ -44,6 +44,10 @@
     "./backend-dtos": {
       "default": "./dist/backend-dtos/index.js",
       "types": "./backend-dtos/index.ts"
+    },
+    "./services": {
+      "default": "./dist/services/index.js",
+      "types": "./services/index.ts"
     }
   }
 }

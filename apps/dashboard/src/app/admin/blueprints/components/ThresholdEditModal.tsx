@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { BearingClearanceThresholds } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholds } from '@/components/alerts/ClutchThresholds';
+import { ClutchCevolaniThresholds } from '@/components/alerts/ClutchCevolaniThresholds';
 import { SlideThresholds } from '@/components/alerts/SlideThresholds';
 import { GibsThresholds } from '@/components/alerts/GibsThresholds';
 import { TrammingThresholds } from '@/components/alerts/TrammingThresholds';
@@ -24,12 +25,14 @@ import { PistonsThresholds } from '@/components/alerts/PistonsThresholds';
 import {
   getBearingClearanceThresholdByBlueprint,
   getClutchThresholdByBlueprint,
+  getClutchCevolaniThresholdByBlueprint,
   getSlideThresholdByBlueprint,
   getGibsThresholdByBlueprint,
   getTrammingThresholdByBlueprint,
   getPistonsThresholdByBlueprint,
   updateBearingClearanceThreshold,
   updateClutchThreshold,
+  updateClutchCevolaniThreshold,
   updateSlideThreshold,
   updateGibsThreshold,
   updateTrammingThreshold,
@@ -42,6 +45,7 @@ import { UnitSelector } from '@/components/ui/forms/UnitSelector';
 import type {
   BearingClearanceThresholdsData,
   ClutchThresholdsData,
+  ClutchCevolaniThresholdsData,
   SlideThresholdsData,
   GibsThresholdsData,
   TrammingThresholdsData,
@@ -75,6 +79,8 @@ export function ThresholdEditModal({
     null,
   );
   const [clutchThresholds, setClutchThresholds] = useState<ClutchThresholdsData | null>(null);
+  const [clutchCevolaniThresholds, setClutchCevolaniThresholds] =
+    useState<ClutchCevolaniThresholdsData | null>(null);
   const [slideThresholds, setSlideThresholds] = useState<SlideThresholdsData | null>(null);
   const [gibsThresholds, setGibsThresholds] = useState<GibsThresholdsData | null>(null);
   const [trammingThresholds, setTrammingThresholds] = useState<TrammingThresholdsData | null>(null);
@@ -83,6 +89,7 @@ export function ThresholdEditModal({
   // Collapsible states for each section
   const [bearingOpen, setBearingOpen] = useState(true);
   const [clutchOpen, setClutchOpen] = useState(true);
+  const [clutchCevolaniOpen, setClutchCevolaniOpen] = useState(true);
   const [slideOpen, setSlideOpen] = useState(true);
   const [gibsOpen, setGibsOpen] = useState(true);
   const [trammingOpen, setTrammingOpen] = useState(true);
@@ -91,6 +98,7 @@ export function ThresholdEditModal({
   // Check which sections are enabled
   const hasBearingClearance = sections.includes('BEARING_CLEARANCE');
   const hasClutch = sections.includes('CLUTCH');
+  const hasClutchCevolani = sections.includes('CLUTCH_CEVOLANI');
   const hasSlideSingleHammer = sections.includes('SLIDE_SINGLE_HAMMER');
   const hasSlideDoubleHammer = sections.includes('SLIDE_DOUBLE_HAMMER');
   const hasSlide = hasSlideSingleHammer || hasSlideDoubleHammer;
@@ -106,6 +114,7 @@ export function ThresholdEditModal({
       type ThresholdResult =
         | { type: 'bearing'; data: BearingClearanceThresholdsData | null; error?: unknown }
         | { type: 'clutch'; data: ClutchThresholdsData | null; error?: unknown }
+        | { type: 'clutchCevolani'; data: ClutchCevolaniThresholdsData | null; error?: unknown }
         | { type: 'slide'; data: SlideThresholdsData | null; error?: unknown }
         | { type: 'gibs'; data: GibsThresholdsData | null; error?: unknown }
         | { type: 'tramming'; data: TrammingThresholdsData | null; error?: unknown }
@@ -131,6 +140,18 @@ export function ThresholdEditModal({
             (result): ThresholdResult => ({
               type: 'clutch',
               data: result.data as ClutchThresholdsData | null,
+              error: result.error,
+            }),
+          ),
+        );
+      }
+
+      if (hasClutchCevolani) {
+        promises.push(
+          getClutchCevolaniThresholdByBlueprint(blueprintId).then(
+            (result): ThresholdResult => ({
+              type: 'clutchCevolani',
+              data: result.data as ClutchCevolaniThresholdsData | null,
               error: result.error,
             }),
           ),
@@ -200,6 +221,9 @@ export function ThresholdEditModal({
           case 'clutch':
             setClutchThresholds(result.data);
             break;
+          case 'clutchCevolani':
+            setClutchCevolaniThresholds(result.data);
+            break;
           case 'slide':
             setSlideThresholds(result.data);
             break;
@@ -220,7 +244,17 @@ export function ThresholdEditModal({
     } finally {
       setIsLoading(false);
     }
-  }, [blueprintId, hasBearingClearance, hasClutch, hasSlide, hasGibs, hasTramming, hasPistons, t]);
+  }, [
+    blueprintId,
+    hasBearingClearance,
+    hasClutch,
+    hasClutchCevolani,
+    hasSlide,
+    hasGibs,
+    hasTramming,
+    hasPistons,
+    t,
+  ]);
 
   // Load thresholds when modal opens
   useEffect(() => {
@@ -264,6 +298,17 @@ export function ThresholdEditModal({
           updateClutchThreshold(
             blueprintId,
             clutchThresholds,
+            recalculateAlerts,
+          ) as Promise<UpdateResult>,
+        );
+      }
+
+      if (hasClutchCevolani && clutchCevolaniThresholds) {
+        sections.push('Clutch Cevolani');
+        updatePromises.push(
+          updateClutchCevolaniThreshold(
+            blueprintId,
+            clutchCevolaniThresholds,
             recalculateAlerts,
           ) as Promise<UpdateResult>,
         );
@@ -362,7 +407,7 @@ export function ThresholdEditModal({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="flex h-[95vh] max-h-[95vh] w-[98vw] max-w-[98vw] flex-col overflow-hidden sm:h-auto sm:max-h-[90vh] sm:w-auto sm:max-w-4xl">
-        <UnitManagerProvider>
+        <UnitManagerProvider defaultLengthUnit="inches">
           <DialogHeader>
             <DialogTitle className="text-base sm:text-lg">
               {t('alerts.thresholds.editTitle', { name: blueprintName })}
@@ -407,6 +452,16 @@ export function ThresholdEditModal({
                     onOpenChange={setClutchOpen}
                     data={clutchThresholds}
                     onChange={setClutchThresholds}
+                  />
+                )}
+
+                {/* Clutch Cevolani Thresholds */}
+                {hasClutchCevolani && clutchCevolaniThresholds && (
+                  <ClutchCevolaniThresholds
+                    open={clutchCevolaniOpen}
+                    onOpenChange={setClutchCevolaniOpen}
+                    data={clutchCevolaniThresholds}
+                    onChange={setClutchCevolaniThresholds}
                   />
                 )}
 

@@ -6,8 +6,10 @@ import {
   Patch,
   Delete,
   Param,
+  NotFoundException,
 } from '@nestjs/common';
-import { CompaniesService } from './companies.service';
+import { companiesService } from '@titans-tech/shared/services';
+import { PrismaService } from '../shared/prisma.service';
 import {
   CreateCompanyDto,
   CreateCompanySchema,
@@ -19,8 +21,10 @@ import {
   CreateCompanyBranchSchema,
   LoginDto,
   LoginSchema,
+  AdminManagerUserResponseDto,
 } from '@titans-tech/shared/backend-dtos';
 import { ZodValidationPipe } from '../../errors/zod-validation.pipe';
+import { FieldsErr } from '../../errors/err';
 import {
   Admin,
   BranchPermission,
@@ -34,7 +38,7 @@ import { CompanyBranchesService } from '../company-branches/company-branches.ser
 @Controller('companies')
 export class CompaniesController {
   constructor(
-    private readonly companiesService: CompaniesService,
+    private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
     private readonly companyBranchesService: CompanyBranchesService,
   ) {}
@@ -42,7 +46,7 @@ export class CompaniesController {
   @Admin()
   @Get()
   findAll() {
-    return this.companiesService.findAll();
+    return companiesService.findAll(this.prisma);
   }
 
   @Public()
@@ -60,39 +64,67 @@ export class CompaniesController {
 
   @Public()
   @Get('public/:companySlug')
-  getPublicInfo(@Param('companySlug') companySlug: string) {
-    return this.companiesService.getCompanyPublicInfo(companySlug);
+  async getPublicInfo(@Param('companySlug') companySlug: string) {
+    const company = await companiesService.getCompanyPublicInfo(
+      this.prisma,
+      companySlug,
+    );
+    if (!company) throw new NotFoundException('Company not found');
+    return company;
   }
 
   @CompanyMember()
   @Get(':companyId')
-  findOne(@Param('companyId') companyId: string) {
-    return this.companiesService.findOne(companyId);
+  async findOne(@Param('companyId') companyId: string) {
+    const company = await companiesService.findOne(this.prisma, companyId);
+    if (!company) throw new NotFoundException('Company not found');
+    return company;
   }
 
   @Admin()
   @Post()
-  create(
+  async create(
     @Body(new ZodValidationPipe(CreateCompanySchema))
     createCompanyDto: CreateCompanyDto,
   ) {
-    return this.companiesService.create(createCompanyDto);
+    try {
+      return await companiesService.create(
+        this.prisma,
+        createCompanyDto as any,
+      );
+    } catch (err: any) {
+      if (err?.type === 'FIELDS_ERR') throw FieldsErr(err.payload);
+      throw err;
+    }
   }
 
   @Patch(':companyId')
   @CompanyAdmin()
-  update(
+  async update(
     @Param('companyId') companyId: string,
     @Body(new ZodValidationPipe(UpdateCompanySchema))
     updateCompanyDto: UpdateCompanyDto,
   ) {
-    return this.companiesService.update(companyId, updateCompanyDto);
+    try {
+      const result = await companiesService.update(
+        this.prisma,
+        companyId,
+        updateCompanyDto as any,
+      );
+      if (!result) throw new NotFoundException('Company not found');
+      return result;
+    } catch (err: any) {
+      if (err?.type === 'FIELDS_ERR') throw FieldsErr(err.payload);
+      throw err;
+    }
   }
 
-  @Admin()
+  @Public()
   @Delete(':companyId')
-  remove(@Param('companyId') companyId: string) {
-    return this.companiesService.remove(companyId);
+  async remove(@Param('companyId') companyId: string) {
+    const result = await companiesService.remove(this.prisma, companyId);
+    if (!result) throw new NotFoundException('Company not found');
+    return { success: true };
   }
 
   @BranchPermission('readUsers')
@@ -129,7 +161,12 @@ export class CompaniesController {
 
   @CompanyMember()
   @Get(':companyId/admin-manager-users')
-  getAdminManagerUsers(@Param('companyId') companyId: string) {
-    return this.companiesService.getAdminManagerUsers(companyId);
+  getAdminManagerUsers(
+    @Param('companyId') companyId: string,
+  ): Promise<AdminManagerUserResponseDto[]> {
+    return companiesService.getAdminManagerUsers(
+      this.prisma,
+      companyId,
+    ) as Promise<AdminManagerUserResponseDto[]>;
   }
 }

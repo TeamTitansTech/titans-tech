@@ -24,6 +24,7 @@ function setCookie(name: string, value: string): void {
 
 // Unit types
 export type LengthUnit = 'mm' | 'inches';
+export type LengthUnitFromEnum = 'MM' | 'INCHES';
 export type TemperatureUnit = 'C' | 'F';
 export type PressureUnit = 'atm' | 'bar' | 'psi';
 
@@ -70,16 +71,9 @@ const UnitManagerContext = createContext<UnitManagerContextType | null>(null);
 
 interface UnitManagerProviderProps {
   children: ReactNode;
-  defaultLengthUnit?: LengthUnit;
+  defaultLengthUnit: LengthUnit | LengthUnitFromEnum;
   defaultTemperatureUnit?: TemperatureUnit;
   defaultPressureUnit?: PressureUnit;
-}
-
-// Helper to get initial unit from cookie or default
-function getInitialLengthUnit(defaultUnit: LengthUnit): LengthUnit {
-  const stored = getCookie(COOKIE_LENGTH_UNIT);
-  if (stored === 'mm' || stored === 'inches') return stored;
-  return defaultUnit;
 }
 
 function getInitialTemperatureUnit(defaultUnit: TemperatureUnit): TemperatureUnit {
@@ -101,8 +95,8 @@ export function UnitManagerProvider({
   defaultPressureUnit = 'atm',
 }: UnitManagerProviderProps) {
   // Length state - initialize from cookie if available
-  const [lengthUnit, setLengthUnitState] = useState<LengthUnit>(() =>
-    getInitialLengthUnit(defaultLengthUnit),
+  const [lengthUnit, setLengthUnitState] = useState<LengthUnit>(
+    defaultLengthUnit.toLowerCase() as LengthUnit,
   );
 
   // Temperature state - initialize from cookie if available
