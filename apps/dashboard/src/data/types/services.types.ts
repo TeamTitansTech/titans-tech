@@ -414,6 +414,7 @@ export interface LatestReport {
     PISTONS: LatestPistons | null;
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LatestLubrication | null;
     CLUTCH: LatestClutch | null;
+    CLUTCH_CEVOLANI: LatestClutch | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalance | null;
     TRAMMING: LatestTramming | null;
     SHIM_THICKNESS: LatestShimThickness | null;

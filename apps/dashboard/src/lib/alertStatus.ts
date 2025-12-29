@@ -69,6 +69,18 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
     );
   }
 
+  // Collect severities from CLUTCH_CEVOLANI section
+  if (latestReport.sections.CLUTCH_CEVOLANI?.alert) {
+    const alert = latestReport.sections.CLUTCH_CEVOLANI.alert;
+    allSeverities.push(
+      alert.hydClutchClearanceTotal_severity,
+      alert.hydClutchClearanceRear_severity,
+      alert.fb_severity,
+      alert.fTB_severity,
+      alert.rTB_severity,
+    );
+  }
+
   // Collect severities from SLIDE_SINGLE_HAMMER section
   if (latestReport.sections.SLIDE_SINGLE_HAMMER?.alert) {
     const alert = latestReport.sections.SLIDE_SINGLE_HAMMER.alert;
@@ -209,6 +221,22 @@ export const getAlertStatus = (machine: MachineWithStatus): AlertStatus => {
       clutchAlert.fb_severity,
       clutchAlert.fTB_severity,
       clutchAlert.rTB_severity,
+    );
+  }
+
+  // Check alertClutchCevolani
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const clutchCevolaniAlerts = (latestService as any)?.alertClutchCevolani;
+  const clutchCevolaniAlert = Array.isArray(clutchCevolaniAlerts)
+    ? clutchCevolaniAlerts[0]
+    : clutchCevolaniAlerts;
+  if (clutchCevolaniAlert) {
+    allSeverities.push(
+      clutchCevolaniAlert.hydClutchClearanceTotal_severity,
+      clutchCevolaniAlert.hydClutchClearanceRear_severity,
+      clutchCevolaniAlert.fb_severity,
+      clutchCevolaniAlert.fTB_severity,
+      clutchCevolaniAlert.rTB_severity,
     );
   }
 
@@ -380,6 +408,32 @@ export const getSectionStatusFromReport = (
       const alert = clutchData.alert;
 
       // Check all clutch fields for worst severity
+      const severities = [
+        alert.hydClutchClearanceTotal_severity,
+        alert.hydClutchClearanceRear_severity,
+        alert.fb_severity,
+        alert.fTB_severity,
+        alert.rTB_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
+    case 'CLUTCH_CEVOLANI': {
+      const clutchCevolaniData = latestReport.sections.CLUTCH_CEVOLANI;
+      if (!clutchCevolaniData?.alert) {
+        return 'ok';
+      }
+
+      const alert = clutchCevolaniData.alert;
+
+      // Check all clutch cevolani fields for worst severity
       const severities = [
         alert.hydClutchClearanceTotal_severity,
         alert.hydClutchClearanceRear_severity,
@@ -641,6 +695,32 @@ export const getSectionStatus = (
     case 'CLUTCH': {
       // alertClutch is an array - get the first (most recent) one
       const alerts = latestService?.alertClutch;
+      const alert = Array.isArray(alerts) ? alerts[0] : alerts;
+      if (!alert) {
+        return 'ok';
+      }
+
+      const severities = [
+        alert.hydClutchClearanceTotal_severity,
+        alert.hydClutchClearanceRear_severity,
+        alert.fb_severity,
+        alert.fTB_severity,
+        alert.rTB_severity,
+      ];
+
+      if (severities.includes('RED')) {
+        return 'alert';
+      } else if (severities.includes('YELLOW')) {
+        return 'warning';
+      }
+
+      return 'ok';
+    }
+
+    case 'CLUTCH_CEVOLANI': {
+      // alertClutchCevolani is an array - get the first (most recent) one
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const alerts = (latestService as any)?.alertClutchCevolani;
       const alert = Array.isArray(alerts) ? alerts[0] : alerts;
       if (!alert) {
         return 'ok';

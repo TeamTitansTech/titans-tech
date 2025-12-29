@@ -22,6 +22,7 @@ import { getClutchCevolaniThresholdByBlueprint } from '@/actions/alerts';
 import type { ThresholdConfig } from '@/components/charts/types';
 import { SubsectionPartsModal } from '@/components/parts/SubsectionPartsModal';
 import { CLUTCH_CEVOLANI_SUBSECTIONS } from '@/data/parts/section-subsections';
+import { useUnitManager } from '@/contexts/UnitManagerContext';
 
 interface ClutchCevolaniSectionProps {
   machineId: string;
@@ -49,8 +50,8 @@ export function ClutchCevolaniSection({
   const [fbThreshold, setFbThreshold] = useState<ThresholdConfig | null>(null);
   const [fTBThreshold, setFTBThreshold] = useState<ThresholdConfig | null>(null);
   const [rTBThreshold, setRTBThreshold] = useState<ThresholdConfig | null>(null);
-  // Unit toggle state: 'mm' or 'in'
-  const [displayUnit, setDisplayUnit] = useState<'mm' | 'in'>('in');
+  // Use global unit context
+  const { lengthUnit, setLengthUnit, convertLengthFromDefault } = useUnitManager();
   const [date, setDate] = useState<DateRange | undefined>(() => {
     if (inspections?.length > 0) {
       const dates = inspections.map((i) => new Date(i.date));
@@ -132,52 +133,47 @@ export function ClutchCevolaniSection({
     ]);
   }, [transformedInspections]);
 
-  // Conversion constants (data is stored in inches)
-  const MM_PER_INCH = 25.4;
-
-  // Convert value based on display unit (data stored in inches)
+  // Convert value using global unit context (data stored in inches)
   const convertValue = useCallback(
     (value: number | null): number | null => {
       if (value === null) return null;
-      return displayUnit === 'mm' ? value * MM_PER_INCH : value;
+      return convertLengthFromDefault(value);
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
-  // Convert threshold based on display unit
+  // Convert threshold using global unit context (thresholds stored in inches)
   const convertThreshold = useCallback(
     (threshold: ThresholdConfig | null): ThresholdConfig | null => {
       if (!threshold) return null;
-      if (displayUnit === 'in') return threshold;
       return {
-        greenMin: threshold.greenMin * MM_PER_INCH,
-        yellowMin: threshold.yellowMin * MM_PER_INCH,
-        redMin: threshold.redMin * MM_PER_INCH,
+        greenMin: convertLengthFromDefault(threshold.greenMin),
+        yellowMin: convertLengthFromDefault(threshold.yellowMin),
+        redMin: convertLengthFromDefault(threshold.redMin),
         label: threshold.label,
       };
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
-  // Convert chart data based on display unit
+  // Convert chart data using global unit context (data stored in inches)
   const convertChartData = useCallback(
     (
       data: ReturnType<typeof transformClutchToMultiLineData>,
       keys: string[],
     ): ReturnType<typeof transformClutchToMultiLineData> => {
-      if (displayUnit === 'in') return data;
       return data.map((point) => {
         const converted = { ...point };
         keys.forEach((key) => {
           const val = point[key];
           if (typeof val === 'number') {
-            (converted as Record<string, unknown>)[key] = val * MM_PER_INCH;
+            (converted as Record<string, unknown>)[key] = convertLengthFromDefault(val);
           }
         });
         return converted;
       });
     },
-    [displayUnit],
+    [convertLengthFromDefault],
   );
 
   // Get converted thresholds
@@ -319,18 +315,18 @@ export function ClutchCevolaniSection({
               {/* Unit Toggle */}
               <div className="flex items-center rounded-md border">
                 <Button
-                  variant={displayUnit === 'mm' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'mm' ? 'default' : 'ghost'}
                   size="sm"
                   className="h-8 rounded-r-none"
-                  onClick={() => setDisplayUnit('mm')}
+                  onClick={() => setLengthUnit('mm')}
                 >
                   mm
                 </Button>
                 <Button
-                  variant={displayUnit === 'in' ? 'default' : 'ghost'}
+                  variant={lengthUnit === 'inches' ? 'default' : 'ghost'}
                   size="sm"
                   className="h-8 rounded-l-none"
-                  onClick={() => setDisplayUnit('in')}
+                  onClick={() => setLengthUnit('inches')}
                 >
                   in
                 </Button>
@@ -402,7 +398,7 @@ export function ClutchCevolaniSection({
                   },
                 ]}
                 sharedThreshold={hydTotalThresholdConverted}
-                valueUnit={displayUnit}
+                valueUnit={lengthUnit === 'mm' ? 'mm' : 'in'}
                 allowToggle={true}
                 height={300}
               />
@@ -419,7 +415,7 @@ export function ClutchCevolaniSection({
                   },
                 ]}
                 sharedThreshold={fbThresholdConverted}
-                valueUnit={displayUnit}
+                valueUnit={lengthUnit === 'mm' ? 'mm' : 'in'}
                 allowToggle={true}
                 height={250}
               />
@@ -436,7 +432,7 @@ export function ClutchCevolaniSection({
                   },
                 ]}
                 sharedThreshold={fTBThresholdConverted}
-                valueUnit={displayUnit}
+                valueUnit={lengthUnit === 'mm' ? 'mm' : 'in'}
                 allowToggle={true}
                 height={250}
               />
@@ -453,7 +449,7 @@ export function ClutchCevolaniSection({
                   },
                 ]}
                 sharedThreshold={rTBThresholdConverted}
-                valueUnit={displayUnit}
+                valueUnit={lengthUnit === 'mm' ? 'mm' : 'in'}
                 allowToggle={true}
                 height={250}
               />

@@ -1021,6 +1021,10 @@ export class ServicesService {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
+        alertClutchCevolani: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
         alertSlide: {
           orderBy: { createdAt: 'desc' },
           take: 1,
@@ -1271,6 +1275,42 @@ export class ServicesService {
             latestServiceDate: latestClutchService.date,
             serviceType: latestClutchService.type,
             data: clutchMeasurements,
+            alert: alert || undefined,
+          });
+        }
+      }
+    }
+
+    // 4.5. Process Clutch Cevolani section
+    let clutchCevolaniData: LatestClutchDto | null = null;
+
+    if (machine.blueprint.sections.includes(ServiceSection.CLUTCH_CEVOLANI)) {
+      // Find the most recent service with Clutch Cevolani data
+      const latestClutchCevolaniService = services.find(
+        (service) =>
+          service.clutchCevolani && service.clutchCevolani.length > 0,
+      );
+
+      if (latestClutchCevolaniService) {
+        const clutchCevolaniMeasurements =
+          latestClutchCevolaniService.clutchCevolani[0].data;
+
+        if (clutchCevolaniMeasurements) {
+          // Try to fetch alert for this service
+          let alert = undefined;
+          try {
+            alert = await this.alertsService.getClutchCevolaniAlertByService(
+              latestClutchCevolaniService.id,
+            );
+          } catch {
+            // Alert might not exist, that's fine
+          }
+
+          clutchCevolaniData = new LatestClutchDto({
+            latestServiceId: latestClutchCevolaniService.id,
+            latestServiceDate: latestClutchCevolaniService.date,
+            serviceType: latestClutchCevolaniService.type,
+            data: clutchCevolaniMeasurements,
             alert: alert || undefined,
           });
         }
@@ -1852,6 +1892,7 @@ export class ServicesService {
         PISTONS: pistonsData,
         LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: lubricationData,
         CLUTCH: clutchData,
+        CLUTCH_CEVOLANI: clutchCevolaniData,
         COUNTERBALANCE_CYLINDER_AIRBAG: counterbalanceData,
         TRAMMING: trammingData,
         SHIM_THICKNESS: shimThicknessData,
@@ -3917,6 +3958,14 @@ export class ServicesService {
         });
     }
 
+    if (completedSectionsList.includes('CLUTCH_CEVOLANI')) {
+      this.alertsService
+        .generateClutchCevolaniAlertsForService(serviceId)
+        .catch((error) => {
+          console.error('Error generating clutch cevolani alerts:', error);
+        });
+    }
+
     if (completedSectionsList.includes('SLIDE_SINGLE_HAMMER')) {
       this.alertsService
         .generateAlertsForSlideSingleHammer(serviceId)
@@ -3991,6 +4040,10 @@ export class ServicesService {
           take: 1,
         },
         alertClutch: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+        },
+        alertClutchCevolani: {
           orderBy: { createdAt: 'desc' },
           take: 1,
         },
@@ -4298,6 +4351,71 @@ export class ServicesService {
         sections.push({
           sectionKey: 'CLUTCH',
           sectionName: 'Clutch',
+          severity: sectionSeverity,
+          alerts,
+        });
+        updateHighestSeverity(sectionSeverity);
+      }
+    }
+
+    // Process Clutch Cevolani alerts
+    if (service.alertClutchCevolani && service.alertClutchCevolani.length > 0) {
+      const alert = service.alertClutchCevolani[0];
+      const alerts: AlertDetailDto[] = [];
+      let sectionSeverity: AlertSeverityDto = 'NONE';
+
+      const clutchCevolaniFields = [
+        {
+          field: 'hydClutchClearanceTotal',
+          label: 'Hyd Clutch Clearance Total',
+          severity: alert.hydClutchClearanceTotal_severity as AlertSeverityDto,
+          value: alert.hydClutchClearanceTotal_value?.toString() || '0',
+        },
+        {
+          field: 'hydClutchClearanceRear',
+          label: 'Hyd Clutch Clearance Rear',
+          severity: alert.hydClutchClearanceRear_severity as AlertSeverityDto,
+          value: alert.hydClutchClearanceRear_value?.toString() || '0',
+        },
+        {
+          field: 'fb',
+          label: 'F-B (Front-Back)',
+          severity: alert.fb_severity as AlertSeverityDto,
+          value: alert.fb_value?.toString() || '0',
+        },
+        {
+          field: 'fTB',
+          label: 'F-TB (Front Top-Bottom)',
+          severity: alert.fTB_severity as AlertSeverityDto,
+          value: alert.fTB_value?.toString() || '0',
+        },
+        {
+          field: 'rTB',
+          label: 'R-TB (Rear Top-Bottom)',
+          severity: alert.rTB_severity as AlertSeverityDto,
+          value: alert.rTB_value?.toString() || '0',
+        },
+      ];
+
+      for (const f of clutchCevolaniFields) {
+        if (f.severity === 'YELLOW' || f.severity === 'RED') {
+          alerts.push({
+            field: f.field,
+            fieldLabel: f.label,
+            value: f.value,
+            severity: f.severity,
+          });
+          alertCount++;
+          if (f.severity === 'RED') sectionSeverity = 'RED';
+          else if (f.severity === 'YELLOW' && sectionSeverity !== 'RED')
+            sectionSeverity = 'YELLOW';
+        }
+      }
+
+      if (alerts.length > 0) {
+        sections.push({
+          sectionKey: 'CLUTCH_CEVOLANI',
+          sectionName: 'Clutch Cevolani',
           severity: sectionSeverity,
           alerts,
         });

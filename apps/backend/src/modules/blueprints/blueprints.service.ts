@@ -74,6 +74,16 @@ export class BlueprintsService {
         });
       }
 
+      // 3b. Create Clutch Cevolani Thresholds if provided
+      if (dto.clutchCevolaniThresholds) {
+        await tx.thresholdClutchCevolani.create({
+          data: {
+            blueprintId: blueprint.id,
+            ...convertClutchThresholdToDecimal(dto.clutchCevolaniThresholds),
+          },
+        });
+      }
+
       // 4. Create Slide Single Hammer Thresholds if provided
       if (dto.slideSingleHammerThresholds) {
         await tx.thresholdSlideSingleHammer.create({
