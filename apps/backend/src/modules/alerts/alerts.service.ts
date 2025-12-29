@@ -53,6 +53,8 @@ import {
   convertPartialThresholdToDecimal,
   convertClutchThresholdToDecimal,
   convertPartialClutchThresholdToDecimal,
+  convertClutchCevolaniThresholdToDecimal,
+  convertPartialClutchCevolaniThresholdToDecimal,
   convertSlideThresholdToDecimal,
   convertPartialSlideThresholdToDecimal,
   convertGibsThresholdToDecimal,
@@ -1435,7 +1437,7 @@ export class AlertsService {
     const threshold = await this.prisma.thresholdClutchCevolani.create({
       data: {
         blueprintId: dto.blueprintId,
-        ...convertClutchThresholdToDecimal(dto),
+        ...convertClutchCevolaniThresholdToDecimal(dto),
       },
     });
 
@@ -1459,43 +1461,16 @@ export class AlertsService {
 
     const mergedData = {
       blueprintId,
-      // Hyd Clutch Clearance Total
-      hydClutchClearanceTotal_greenMin:
-        dto.hydClutchClearanceTotal_greenMin ??
-        currentThreshold.hydClutchClearanceTotal_greenMin.toNumber(),
-      hydClutchClearanceTotal_yellowMin:
-        dto.hydClutchClearanceTotal_yellowMin ??
-        currentThreshold.hydClutchClearanceTotal_yellowMin.toNumber(),
-      hydClutchClearanceTotal_redMin:
-        dto.hydClutchClearanceTotal_redMin ??
-        currentThreshold.hydClutchClearanceTotal_redMin.toNumber(),
-      // Hyd Clutch Clearance Rear
-      hydClutchClearanceRear_greenMin:
-        dto.hydClutchClearanceRear_greenMin ??
-        currentThreshold.hydClutchClearanceRear_greenMin.toNumber(),
-      hydClutchClearanceRear_yellowMin:
-        dto.hydClutchClearanceRear_yellowMin ??
-        currentThreshold.hydClutchClearanceRear_yellowMin.toNumber(),
-      hydClutchClearanceRear_redMin:
-        dto.hydClutchClearanceRear_redMin ??
-        currentThreshold.hydClutchClearanceRear_redMin.toNumber(),
-      // F-B
-      fb_greenMin: dto.fb_greenMin ?? currentThreshold.fb_greenMin.toNumber(),
-      fb_yellowMin:
-        dto.fb_yellowMin ?? currentThreshold.fb_yellowMin.toNumber(),
-      fb_redMin: dto.fb_redMin ?? currentThreshold.fb_redMin.toNumber(),
-      // F-TB
-      fTB_greenMin:
-        dto.fTB_greenMin ?? currentThreshold.fTB_greenMin.toNumber(),
-      fTB_yellowMin:
-        dto.fTB_yellowMin ?? currentThreshold.fTB_yellowMin.toNumber(),
-      fTB_redMin: dto.fTB_redMin ?? currentThreshold.fTB_redMin.toNumber(),
-      // R-TB
-      rTB_greenMin:
-        dto.rTB_greenMin ?? currentThreshold.rTB_greenMin.toNumber(),
-      rTB_yellowMin:
-        dto.rTB_yellowMin ?? currentThreshold.rTB_yellowMin.toNumber(),
-      rTB_redMin: dto.rTB_redMin ?? currentThreshold.rTB_redMin.toNumber(),
+      // Pneumatic Clutch Clearance Total
+      pneumaticClutchClearanceTotal_greenMin:
+        dto.pneumaticClutchClearanceTotal_greenMin ??
+        currentThreshold.pneumaticClutchClearanceTotal_greenMin.toNumber(),
+      pneumaticClutchClearanceTotal_yellowMin:
+        dto.pneumaticClutchClearanceTotal_yellowMin ??
+        currentThreshold.pneumaticClutchClearanceTotal_yellowMin.toNumber(),
+      pneumaticClutchClearanceTotal_redMin:
+        dto.pneumaticClutchClearanceTotal_redMin ??
+        currentThreshold.pneumaticClutchClearanceTotal_redMin.toNumber(),
     };
 
     // Validate merged data (ensures greenMin < yellowMin < redMin for all fields)
@@ -1508,7 +1483,7 @@ export class AlertsService {
     }
 
     // Convert to Decimal and update
-    const data = convertPartialClutchThresholdToDecimal(dto);
+    const data = convertPartialClutchCevolaniThresholdToDecimal(dto);
 
     const threshold = await this.prisma.thresholdClutchCevolani.update({
       where: { blueprintId },
@@ -1612,84 +1587,30 @@ export class AlertsService {
       return null;
     }
 
-    // Calculate alerts for each of the 5 measurement points
-    const hydClutchClearanceTotal = this.evaluateSingleValueAlert(
-      clutchData.hydClutchClearanceTotal,
-      threshold.hydClutchClearanceTotal_greenMin,
-      threshold.hydClutchClearanceTotal_yellowMin,
-      threshold.hydClutchClearanceTotal_redMin,
-    );
-
-    const hydClutchClearanceRear = this.evaluateSingleValueAlert(
-      clutchData.hydClutchClearanceRear,
-      threshold.hydClutchClearanceRear_greenMin,
-      threshold.hydClutchClearanceRear_yellowMin,
-      threshold.hydClutchClearanceRear_redMin,
-    );
-
-    const fb = this.evaluateSingleValueAlert(
-      clutchData.brakeSpringFB,
-      threshold.fb_greenMin,
-      threshold.fb_yellowMin,
-      threshold.fb_redMin,
-    );
-
-    const fTB = this.evaluateSingleValueAlert(
-      clutchData.brakeSpringFTB,
-      threshold.fTB_greenMin,
-      threshold.fTB_yellowMin,
-      threshold.fTB_redMin,
-    );
-
-    const rTB = this.evaluateSingleValueAlert(
-      clutchData.brakeSpringRTB,
-      threshold.rTB_greenMin,
-      threshold.rTB_yellowMin,
-      threshold.rTB_redMin,
+    // Calculate alert for pneumatic clutch clearance total
+    const pneumaticClutchClearanceTotal = this.evaluateSingleValueAlert(
+      clutchData.pneumaticClutchClearanceTotal,
+      threshold.pneumaticClutchClearanceTotal_greenMin,
+      threshold.pneumaticClutchClearanceTotal_yellowMin,
+      threshold.pneumaticClutchClearanceTotal_redMin,
     );
 
     const thresholdSnapshot = {
       blueprintId: threshold.blueprintId,
-      hydClutchClearanceTotal: {
-        greenMin: threshold.hydClutchClearanceTotal_greenMin.toNumber(),
-        yellowMin: threshold.hydClutchClearanceTotal_yellowMin.toNumber(),
-        redMin: threshold.hydClutchClearanceTotal_redMin.toNumber(),
-      },
-      hydClutchClearanceRear: {
-        greenMin: threshold.hydClutchClearanceRear_greenMin.toNumber(),
-        yellowMin: threshold.hydClutchClearanceRear_yellowMin.toNumber(),
-        redMin: threshold.hydClutchClearanceRear_redMin.toNumber(),
-      },
-      fb: {
-        greenMin: threshold.fb_greenMin.toNumber(),
-        yellowMin: threshold.fb_yellowMin.toNumber(),
-        redMin: threshold.fb_redMin.toNumber(),
-      },
-      fTB: {
-        greenMin: threshold.fTB_greenMin.toNumber(),
-        yellowMin: threshold.fTB_yellowMin.toNumber(),
-        redMin: threshold.fTB_redMin.toNumber(),
-      },
-      rTB: {
-        greenMin: threshold.rTB_greenMin.toNumber(),
-        yellowMin: threshold.rTB_yellowMin.toNumber(),
-        redMin: threshold.rTB_redMin.toNumber(),
+      pneumaticClutchClearanceTotal: {
+        greenMin: threshold.pneumaticClutchClearanceTotal_greenMin.toNumber(),
+        yellowMin: threshold.pneumaticClutchClearanceTotal_yellowMin.toNumber(),
+        redMin: threshold.pneumaticClutchClearanceTotal_redMin.toNumber(),
       },
     };
 
     const alert = await this.prisma.alertClutchCevolani.create({
       data: {
         machineServiceId,
-        hydClutchClearanceTotal_value: hydClutchClearanceTotal.value,
-        hydClutchClearanceTotal_severity: hydClutchClearanceTotal.severity,
-        hydClutchClearanceRear_value: hydClutchClearanceRear.value,
-        hydClutchClearanceRear_severity: hydClutchClearanceRear.severity,
-        fb_value: fb.value,
-        fb_severity: fb.severity,
-        fTB_value: fTB.value,
-        fTB_severity: fTB.severity,
-        rTB_value: rTB.value,
-        rTB_severity: rTB.severity,
+        pneumaticClutchClearanceTotal_value:
+          pneumaticClutchClearanceTotal.value,
+        pneumaticClutchClearanceTotal_severity:
+          pneumaticClutchClearanceTotal.severity,
         thresholdSnapshot,
       },
     });

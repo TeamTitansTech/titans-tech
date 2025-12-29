@@ -76,24 +76,12 @@ const INITIAL_CLUTCH_THRESHOLDS: ClutchThresholdsData = {
   rTB_redMin: 0.015,
 };
 
-// Cevolani clutch thresholds (in mm):
-// greenMin (mínimo): 0.4mm, yellowMin (ideal): 0.6mm, redMin (máximo): 1.0mm
+// Cevolani clutch thresholds (pneumatic system):
+// greenMin (mínimo): 0.4, yellowMin (ideal): 0.6, redMin (máximo): 1.0
 const INITIAL_CLUTCH_CEVOLANI_THRESHOLDS: ClutchCevolaniThresholdsData = {
-  hydClutchClearanceTotal_greenMin: 0.4,
-  hydClutchClearanceTotal_yellowMin: 0.6,
-  hydClutchClearanceTotal_redMin: 1.0,
-  hydClutchClearanceRear_greenMin: 0.4,
-  hydClutchClearanceRear_yellowMin: 0.6,
-  hydClutchClearanceRear_redMin: 1.0,
-  fb_greenMin: 0.4,
-  fb_yellowMin: 0.6,
-  fb_redMin: 1.0,
-  fTB_greenMin: 0.4,
-  fTB_yellowMin: 0.6,
-  fTB_redMin: 1.0,
-  rTB_greenMin: 0.4,
-  rTB_yellowMin: 0.6,
-  rTB_redMin: 1.0,
+  pneumaticClutchClearanceTotal_greenMin: 0.4,
+  pneumaticClutchClearanceTotal_yellowMin: 0.6,
+  pneumaticClutchClearanceTotal_redMin: 1.0,
 };
 
 const INITIAL_SLIDE_THRESHOLDS: SlideThresholdsData = {

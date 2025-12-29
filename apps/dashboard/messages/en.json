@@ -1133,6 +1133,7 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Hydraulic Clutch Clearance",
+        "pneumaticClutchClearance": "Pneumatic Clutch Clearance",
         "brakeSpringMeasurements": "Brake Spring Measurements (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Slide Max Deviation (Outer vs Inner)",
         "slidePositions": "Slide Positions (Position 1-5)",
@@ -1175,6 +1176,7 @@
         "filterChanged": "Filter Changed",
         "hydClutchTotal": "Hyd Clutch Total",
         "hydClutchRear": "Hyd Clutch Rear",
+        "pneumaticClutchTotal": "Pneumatic Clutch Total",
         "leakLocation": "Leak Location",
         "outerIssues": "Outer Issues",
         "innerIssues": "Inner Issues",
@@ -1319,6 +1321,9 @@
         "measurement": "Measurement",
         "differential": "Differential",
         "status": "Status"
+      },
+      "clutchCevolani": {
+        "pneumaticClutchClearanceTotal": "Pneumatic Clutch Clearance (Total)"
       }
     },
     "form": {
@@ -1756,6 +1761,23 @@
           "required": "This field is required",
           "hydClutchClearanceTotalRequired": "Clutch: Hydraulic Clutch Clearance (Total) is required",
           "hydClutchClearanceRearRequired": "Clutch: Hydraulic Clutch Clearance (Rear) is required"
+        }
+      },
+      "clutchCevolani": {
+        "sections": {
+          "pneumaticSystem": "Pneumatic System"
+        },
+        "fields": {
+          "pneumaticClutchClearanceTotal": "Pneumatic Clutch Clearance (Total)"
+        },
+        "placeholders": {
+          "pneumaticClutchClearanceTotal": "Enter total clearance"
+        },
+        "tooltips": {
+          "pneumaticClutchClearanceTotal": "This field generates alerts based on configured thresholds"
+        },
+        "validation": {
+          "pneumaticClutchClearanceTotalRequired": "Clutch Cevolani: Pneumatic Clutch Clearance (Total) is required"
         }
       },
       "counterbalanceCylinder": {
@@ -2420,11 +2442,7 @@
     },
     "clutchCevolani": {
       "title": "CLUTCH CEVOLANI - Alert Configuration",
-      "hydClutchClearanceTotal": "Hydraulic Clutch Clearance Total",
-      "hydClutchClearanceRear": "Hydraulic Clutch Clearance Rear",
-      "fb": "F-B (Front-Back)",
-      "fTB": "F-TB (Front Top-Bottom)",
-      "rTB": "R-TB (Rear Top-Bottom)"
+      "pneumaticClutchClearanceTotal": "Pneumatic Clutch Clearance (Total)"
     },
     "slide": {
       "title": "SLIDE - Alert Configuration",

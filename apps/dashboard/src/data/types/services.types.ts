@@ -146,6 +146,17 @@ export interface LatestClutch {
   };
 }
 
+export interface LatestClutchCevolani {
+  latestServiceId: string;
+  latestServiceDate: string;
+  serviceType: 'INSPECTION' | 'MAINTENANCE';
+  data: ClutchData;
+  alert?: {
+    pneumaticClutchClearanceTotal_value: number;
+    pneumaticClutchClearanceTotal_severity: 'NONE' | 'GREEN' | 'YELLOW' | 'RED';
+  };
+}
+
 export interface LatestSlideSingleHammer {
   latestServiceId: string;
   latestServiceDate: string;
@@ -414,7 +425,7 @@ export interface LatestReport {
     PISTONS: LatestPistons | null;
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LatestLubrication | null;
     CLUTCH: LatestClutch | null;
-    CLUTCH_CEVOLANI: LatestClutch | null;
+    CLUTCH_CEVOLANI: LatestClutchCevolani | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalance | null;
     TRAMMING: LatestTramming | null;
     SHIM_THICKNESS: LatestShimThickness | null;

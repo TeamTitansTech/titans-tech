@@ -2,59 +2,26 @@ import { z } from 'zod';
 
 /**
  * Schema for clutch cevolani thresholds validation
- * Monitors 5 measurement points from the Clutch & Brake dashboard:
- * 1. Hyd Clutch Clearance Total
- * 2. Hyd Clutch Clearance Rear
- * 3. F-B (Front-Back)
- * 4. F-TB (Front Top-Bottom)
- * 5. R-TB (Rear Top-Bottom)
+ * Monitors pneumatic clutch clearance total measurement
  */
 export const ClutchCevolaniThresholdsSchema = z
   .object({
-    // Hyd Clutch Clearance Total thresholds
-    hydClutchClearanceTotal_greenMin: z.number(),
-    hydClutchClearanceTotal_yellowMin: z.number(),
-    hydClutchClearanceTotal_redMin: z.number(),
-
-    // Hyd Clutch Clearance Rear thresholds
-    hydClutchClearanceRear_greenMin: z.number(),
-    hydClutchClearanceRear_yellowMin: z.number(),
-    hydClutchClearanceRear_redMin: z.number(),
-
-    // F-B (Front-Back) thresholds
-    fb_greenMin: z.number(),
-    fb_yellowMin: z.number(),
-    fb_redMin: z.number(),
-
-    // F-TB (Front Top-Bottom) thresholds
-    fTB_greenMin: z.number(),
-    fTB_yellowMin: z.number(),
-    fTB_redMin: z.number(),
-
-    // R-TB (Rear Top-Bottom) thresholds
-    rTB_greenMin: z.number(),
-    rTB_yellowMin: z.number(),
-    rTB_redMin: z.number(),
+    // Pneumatic Clutch Clearance Total thresholds
+    pneumaticClutchClearanceTotal_greenMin: z.number(),
+    pneumaticClutchClearanceTotal_yellowMin: z.number(),
+    pneumaticClutchClearanceTotal_redMin: z.number(),
   })
   .refine(
     (data) => {
-      // Validate that yellowMin > greenMin and redMin > yellowMin for each field
-      const fields = ['hydClutchClearanceTotal', 'hydClutchClearanceRear', 'fb', 'fTB', 'rTB'];
+      // Validate that yellowMin > greenMin and redMin > yellowMin
+      const greenMin = data.pneumaticClutchClearanceTotal_greenMin;
+      const yellowMin = data.pneumaticClutchClearanceTotal_yellowMin;
+      const redMin = data.pneumaticClutchClearanceTotal_redMin;
 
-      for (const field of fields) {
-        const greenMin = data[`${field}_greenMin` as keyof typeof data] as number;
-        const yellowMin = data[`${field}_yellowMin` as keyof typeof data] as number;
-        const redMin = data[`${field}_redMin` as keyof typeof data] as number;
-
-        if (yellowMin <= greenMin || redMin <= yellowMin) {
-          return false;
-        }
-      }
-
-      return true;
+      return yellowMin > greenMin && redMin > yellowMin;
     },
     {
-      message: 'For each field: greenMin < yellowMin < redMin',
+      message: 'greenMin < yellowMin < redMin',
     },
   );
 

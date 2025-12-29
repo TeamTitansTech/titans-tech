@@ -45,13 +45,10 @@ export function ClutchCevolaniSection({
   const t = useTranslations('machines.sectionDetails');
   const tParts = useTranslations('parts');
   const contentRef = useRef<HTMLDivElement>(null);
-  // Thresholds for hydraulic clutch clearance
-  const [hydTotalThreshold, setHydTotalThreshold] = useState<ThresholdConfig | null>(null);
-  const [hydRearThreshold, setHydRearThreshold] = useState<ThresholdConfig | null>(null);
-  // Thresholds for brake spring measurements
-  const [fbThreshold, setFbThreshold] = useState<ThresholdConfig | null>(null);
-  const [fTBThreshold, setFTBThreshold] = useState<ThresholdConfig | null>(null);
-  const [rTBThreshold, setRTBThreshold] = useState<ThresholdConfig | null>(null);
+  // Threshold for pneumatic clutch clearance
+  const [pneumaticTotalThreshold, setPneumaticTotalThreshold] = useState<ThresholdConfig | null>(
+    null,
+  );
   const { lengthUnit, setLengthUnit, convertLengthFromDefault, getLengthUnitLabel } =
     useUnitManager();
   const [date, setDate] = useState<DateRange | undefined>(() => {
@@ -75,12 +72,10 @@ export function ClutchCevolaniSection({
       try {
         const response = await getClutchCevolaniThresholdByBlueprint(blueprintId);
         if (response.data) {
-          // Extract all 5 thresholds
-          setHydTotalThreshold(extractThresholdConfig(response.data, 'hydClutchClearanceTotal'));
-          setHydRearThreshold(extractThresholdConfig(response.data, 'hydClutchClearanceRear'));
-          setFbThreshold(extractThresholdConfig(response.data, 'fb'));
-          setFTBThreshold(extractThresholdConfig(response.data, 'fTB'));
-          setRTBThreshold(extractThresholdConfig(response.data, 'rTB'));
+          // Extract pneumatic threshold
+          setPneumaticTotalThreshold(
+            extractThresholdConfig(response.data, 'pneumaticClutchClearanceTotal'),
+          );
         }
       } catch (error) {
         console.error('Failed to fetch clutch cevolani threshold:', error);
@@ -129,11 +124,7 @@ export function ClutchCevolaniSection({
 
   // Get latest values for each field
   const latestValues = {
-    hydClutchClearanceTotal: getLatestFieldValue('hydClutchClearanceTotal'),
-    hydClutchClearanceRear: getLatestFieldValue('hydClutchClearanceRear'),
-    brakeSpringFB: getLatestFieldValue('brakeSpringFB'),
-    brakeSpringFTB: getLatestFieldValue('brakeSpringFTB'),
-    brakeSpringRTB: getLatestFieldValue('brakeSpringRTB'),
+    pneumaticClutchClearanceTotal: getLatestFieldValue('pneumaticClutchClearanceTotal'),
   };
 
   // Transform data for charts - map clutchCevolani to clutch for the transformer
@@ -144,31 +135,18 @@ export function ClutchCevolaniSection({
     }));
   }, [filteredInspections]);
 
-  const hydClearanceChartData = useMemo(() => {
+  const pneumaticChartData = useMemo(() => {
     return transformClutchToMultiLineData(transformedInspections, [
-      'hydClutchClearanceTotal',
-      'hydClutchClearanceRear',
-    ]);
-  }, [transformedInspections]);
-
-  const brakeSpringChartData = useMemo(() => {
-    return transformClutchToMultiLineData(transformedInspections, [
-      'brakeSpringFB',
-      'brakeSpringFTB',
-      'brakeSpringRTB',
+      'pneumaticClutchClearanceTotal',
     ]);
   }, [transformedInspections]);
 
   // Prepare measurements for status badge
   const statusMeasurements = useMemo(
     () => [
-      { value: latestValues.hydClutchClearanceTotal, threshold: hydTotalThreshold },
-      { value: latestValues.hydClutchClearanceRear, threshold: hydRearThreshold },
-      { value: latestValues.brakeSpringFB, threshold: fbThreshold },
-      { value: latestValues.brakeSpringFTB, threshold: fTBThreshold },
-      { value: latestValues.brakeSpringRTB, threshold: rTBThreshold },
+      { value: latestValues.pneumaticClutchClearanceTotal, threshold: pneumaticTotalThreshold },
     ],
-    [latestValues, hydTotalThreshold, hydRearThreshold, fbThreshold, fTBThreshold, rTBThreshold],
+    [latestValues, pneumaticTotalThreshold],
   );
 
   // Calculate section status for the status card
@@ -221,40 +199,15 @@ export function ClutchCevolaniSection({
   );
 
   // Get converted thresholds
-  const hydTotalThresholdConverted = useMemo(
-    () => convertThreshold(hydTotalThreshold),
-    [convertThreshold, hydTotalThreshold],
-  );
-  const hydRearThresholdConverted = useMemo(
-    () => convertThreshold(hydRearThreshold),
-    [convertThreshold, hydRearThreshold],
-  );
-  const fbThresholdConverted = useMemo(
-    () => convertThreshold(fbThreshold),
-    [convertThreshold, fbThreshold],
-  );
-  const fTBThresholdConverted = useMemo(
-    () => convertThreshold(fTBThreshold),
-    [convertThreshold, fTBThreshold],
-  );
-  const rTBThresholdConverted = useMemo(
-    () => convertThreshold(rTBThreshold),
-    [convertThreshold, rTBThreshold],
+  const pneumaticTotalThresholdConverted = useMemo(
+    () => convertThreshold(pneumaticTotalThreshold),
+    [convertThreshold, pneumaticTotalThreshold],
   );
 
   // Get converted chart data
-  const hydClearanceChartDataConverted = useMemo(
-    () =>
-      convertChartData(hydClearanceChartData, [
-        'hydClutchClearanceTotal',
-        'hydClutchClearanceRear',
-      ]),
-    [convertChartData, hydClearanceChartData],
-  );
-  const brakeSpringChartDataConverted = useMemo(
-    () =>
-      convertChartData(brakeSpringChartData, ['brakeSpringFB', 'brakeSpringFTB', 'brakeSpringRTB']),
-    [convertChartData, brakeSpringChartData],
+  const pneumaticChartDataConverted = useMemo(
+    () => convertChartData(pneumaticChartData, ['pneumaticClutchClearanceTotal']),
+    [convertChartData, pneumaticChartData],
   );
 
   const formatValue = (value: number | null | undefined, decimals = 4): string => {
@@ -399,121 +352,35 @@ export function ClutchCevolaniSection({
         </CardHeader>
         <CardContent>
           <div className="text-center mb-6">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div className="flex justify-center">
               <div>
                 <Typography variant="muted" className="mb-1">
-                  {t('labels.hydClutchTotal')}
+                  {t('labels.pneumaticClutchTotal')}
                 </Typography>
                 <Typography variant="large">
-                  {formatValue(latestValues.hydClutchClearanceTotal)}
+                  {formatValue(latestValues.pneumaticClutchClearanceTotal)}
                 </Typography>
-              </div>
-              <div>
-                <Typography variant="muted" className="mb-1">
-                  {t('labels.hydClutchRear')}
-                </Typography>
-                <Typography variant="large">
-                  {formatValue(latestValues.hydClutchClearanceRear)}
-                </Typography>
-              </div>
-              <div>
-                <Typography variant="muted" className="mb-1">
-                  F-B
-                </Typography>
-                <Typography variant="large">{formatValue(latestValues.brakeSpringFB)}</Typography>
-              </div>
-              <div>
-                <Typography variant="muted" className="mb-1">
-                  F-TB
-                </Typography>
-                <Typography variant="large">{formatValue(latestValues.brakeSpringFTB)}</Typography>
-              </div>
-              <div>
-                <Typography variant="muted" className="mb-1">
-                  R-TB
-                </Typography>
-                <Typography variant="large">{formatValue(latestValues.brakeSpringRTB)}</Typography>
               </div>
             </div>
           </div>
 
           <div className="space-y-6">
             <MultiLineThresholdChart
-              title={t('chartTitles.hydraulicClutchClearance')}
-              data={hydClearanceChartDataConverted}
+              title={t('chartTitles.pneumaticClutchClearance')}
+              data={pneumaticChartDataConverted}
               lines={[
                 {
-                  dataKey: 'hydClutchClearanceTotal',
-                  label: 'Hyd Total',
+                  dataKey: 'pneumaticClutchClearanceTotal',
+                  label: t('labels.pneumaticClutchTotal'),
                   color: '#8884d8',
-                  threshold: hydTotalThresholdConverted ?? undefined,
-                },
-                {
-                  dataKey: 'hydClutchClearanceRear',
-                  label: 'Hyd Rear',
-                  color: '#06b6d4',
-                  threshold: hydRearThresholdConverted ?? undefined,
+                  threshold: pneumaticTotalThresholdConverted ?? undefined,
                 },
               ]}
-              sharedThreshold={hydTotalThresholdConverted}
+              sharedThreshold={pneumaticTotalThresholdConverted}
               valueUnit={getLengthUnitLabel()}
               allowToggle={true}
               hideThresholdValues={hideThresholdValues}
               height={300}
-            />
-
-            <MultiLineThresholdChart
-              title="F-B (Front-Back)"
-              data={brakeSpringChartDataConverted}
-              lines={[
-                {
-                  dataKey: 'brakeSpringFB',
-                  label: 'F-B',
-                  color: '#3b82f6',
-                  threshold: fbThresholdConverted ?? undefined,
-                },
-              ]}
-              sharedThreshold={fbThresholdConverted}
-              valueUnit={getLengthUnitLabel()}
-              allowToggle={true}
-              hideThresholdValues={hideThresholdValues}
-              height={250}
-            />
-
-            <MultiLineThresholdChart
-              title="F-TB (Front Top-Bottom)"
-              data={brakeSpringChartDataConverted}
-              lines={[
-                {
-                  dataKey: 'brakeSpringFTB',
-                  label: 'F-TB',
-                  color: '#ec4899',
-                  threshold: fTBThresholdConverted ?? undefined,
-                },
-              ]}
-              sharedThreshold={fTBThresholdConverted}
-              valueUnit={getLengthUnitLabel()}
-              allowToggle={true}
-              hideThresholdValues={hideThresholdValues}
-              height={250}
-            />
-
-            <MultiLineThresholdChart
-              title="R-TB (Rear Top-Bottom)"
-              data={brakeSpringChartDataConverted}
-              lines={[
-                {
-                  dataKey: 'brakeSpringRTB',
-                  label: 'R-TB',
-                  color: '#6366f1',
-                  threshold: rTBThresholdConverted ?? undefined,
-                },
-              ]}
-              sharedThreshold={rTBThresholdConverted}
-              valueUnit={getLengthUnitLabel()}
-              allowToggle={true}
-              hideThresholdValues={hideThresholdValues}
-              height={250}
             />
           </div>
         </CardContent>

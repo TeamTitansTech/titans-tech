@@ -14,6 +14,7 @@ import { UpdateBlueprintDto } from '../../blueprints/dto/update-blueprint.dto';
 import {
   convertThresholdToDecimal,
   convertClutchThresholdToDecimal,
+  convertClutchCevolaniThresholdToDecimal,
   convertSlideThresholdToDecimal,
   convertGibsThresholdToDecimal,
   convertPistonsThresholdToDecimal,
@@ -79,7 +80,9 @@ export class BlueprintsService {
         await tx.thresholdClutchCevolani.create({
           data: {
             blueprintId: blueprint.id,
-            ...convertClutchThresholdToDecimal(dto.clutchCevolaniThresholds),
+            ...convertClutchCevolaniThresholdToDecimal(
+              dto.clutchCevolaniThresholds,
+            ),
           },
         });
       }

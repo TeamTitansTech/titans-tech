@@ -1133,6 +1133,7 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Folga da Embreagem Hidráulica",
+        "pneumaticClutchClearance": "Folga da Embreagem Pneumática",
         "brakeSpringMeasurements": "Medições da Mola do Freio (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Desvio Máximo do Martelo (Externo vs Interno)",
         "slidePositions": "Posições do Martelo (Posição 1-5)",
@@ -1175,6 +1176,7 @@
         "filterChanged": "Filtro Trocado",
         "hydClutchTotal": "Embreagem Hid. Total",
         "hydClutchRear": "Embreagem Hid. Traseira",
+        "pneumaticClutchTotal": "Embreagem Pneumática Total",
         "leakLocation": "Local do Vazamento",
         "outerIssues": "Problemas Externos",
         "innerIssues": "Problemas Internos",
@@ -1319,6 +1321,9 @@
         "measurement": "Measurement",
         "differential": "Differential",
         "status": "Status"
+      },
+      "clutchCevolani": {
+        "pneumaticClutchClearanceTotal": "Folga de Embreagem Pneumática (Total)"
       }
     },
     "form": {
@@ -1756,6 +1761,23 @@
           "required": "Este campo é obrigatório",
           "hydClutchClearanceTotalRequired": "Embreagem: Folga da Embreagem Hidráulica (Total) é obrigatória",
           "hydClutchClearanceRearRequired": "Embreagem: Folga da Embreagem Hidráulica (Traseira) é obrigatória"
+        }
+      },
+      "clutchCevolani": {
+        "sections": {
+          "pneumaticSystem": "Sistema Pneumático"
+        },
+        "fields": {
+          "pneumaticClutchClearanceTotal": "Folga de Embreagem Pneumática (Total)"
+        },
+        "placeholders": {
+          "pneumaticClutchClearanceTotal": "Digite a folga total"
+        },
+        "tooltips": {
+          "pneumaticClutchClearanceTotal": "Este campo gera alertas baseados nos thresholds configurados"
+        },
+        "validation": {
+          "pneumaticClutchClearanceTotalRequired": "Embreagem Cevolani: Folga de Embreagem Pneumática (Total) é obrigatória"
         }
       },
       "counterbalanceCylinder": {
@@ -2421,11 +2443,7 @@
     },
     "clutchCevolani": {
       "title": "EMBREAGEM CEVOLANI - Configuração de Alerta",
-      "hydClutchClearanceTotal": "Folga da Embreagem Hidráulica Total",
-      "hydClutchClearanceRear": "Folga da Embreagem Hidráulica Traseira",
-      "fb": "F-B (Frente-Trás)",
-      "fTB": "F-TB (Frente Topo-Base)",
-      "rTB": "R-TB (Traseira Topo-Base)"
+      "pneumaticClutchClearanceTotal": "Folga de Embreagem Pneumática (Total)"
     },
     "slide": {
       "title": "SLIDE - Configuração de Alerta",

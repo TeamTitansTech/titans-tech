@@ -72,13 +72,7 @@ export const calculateStatusFromLatestReport = (latestReport: LatestReport | nul
   // Collect severities from CLUTCH_CEVOLANI section
   if (latestReport.sections.CLUTCH_CEVOLANI?.alert) {
     const alert = latestReport.sections.CLUTCH_CEVOLANI.alert;
-    allSeverities.push(
-      alert.hydClutchClearanceTotal_severity,
-      alert.hydClutchClearanceRear_severity,
-      alert.fb_severity,
-      alert.fTB_severity,
-      alert.rTB_severity,
-    );
+    allSeverities.push(alert.pneumaticClutchClearanceTotal_severity);
   }
 
   // Collect severities from SLIDE_SINGLE_HAMMER section
@@ -433,14 +427,8 @@ export const getSectionStatusFromReport = (
 
       const alert = clutchCevolaniData.alert;
 
-      // Check all clutch cevolani fields for worst severity
-      const severities = [
-        alert.hydClutchClearanceTotal_severity,
-        alert.hydClutchClearanceRear_severity,
-        alert.fb_severity,
-        alert.fTB_severity,
-        alert.rTB_severity,
-      ];
+      // Check pneumatic clutch cevolani field for severity
+      const severities = [alert.pneumaticClutchClearanceTotal_severity];
 
       if (severities.includes('RED')) {
         return 'alert';

@@ -6,6 +6,7 @@ import { SlideDoubleHammerSection } from './SlideDoubleHammerSection';
 import { GibsSection } from './';
 import { LubricationHydraulicsSection } from './LubricationHydraulicsSection';
 import { ClutchSection } from './ClutchSection';
+import { ClutchCevolaniSection } from './ClutchCevolaniSection';
 import { CounterbalanceCylinderSection } from './CounterbalanceCylinderSection';
 import { TrammingSection } from './TrammingSection';
 import { PistonsSection } from './PistonsSection';
@@ -112,7 +113,7 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
 
   CLUTCH_CEVOLANI: {
     key: 'CLUTCH_CEVOLANI',
-    component: ClutchSection,
+    component: ClutchCevolaniSection,
     metadata: {
       image: '/assets/sections/clutch.svg',
       i18nKey: 'clutchCevolani',

@@ -8,15 +8,7 @@ interface ClutchCevolaniSectionWrapperProps {
 }
 
 interface ClutchCevolaniData {
-  hydClutchClearanceTotal: number | null;
-  hydClutchClearanceRear: number | null;
-  brakeSpringFB: number | null;
-  brakeSpringFTB: number | null;
-  brakeSpringRTB: number | null;
-  brakeSpringBrake: number | null;
-  brakeSpringClutch: number | null;
-  brakeClearanceTotal: number | null;
-  brakeClearanceRear: number | null;
+  pneumaticClutchClearanceTotal: number | null;
 }
 
 export interface ClutchCevolaniInspectionData {

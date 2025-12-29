@@ -4366,34 +4366,11 @@ export class ServicesService {
 
       const clutchCevolaniFields = [
         {
-          field: 'hydClutchClearanceTotal',
-          label: 'Hyd Clutch Clearance Total',
-          severity: alert.hydClutchClearanceTotal_severity as AlertSeverityDto,
-          value: alert.hydClutchClearanceTotal_value?.toString() || '0',
-        },
-        {
-          field: 'hydClutchClearanceRear',
-          label: 'Hyd Clutch Clearance Rear',
-          severity: alert.hydClutchClearanceRear_severity as AlertSeverityDto,
-          value: alert.hydClutchClearanceRear_value?.toString() || '0',
-        },
-        {
-          field: 'fb',
-          label: 'F-B (Front-Back)',
-          severity: alert.fb_severity as AlertSeverityDto,
-          value: alert.fb_value?.toString() || '0',
-        },
-        {
-          field: 'fTB',
-          label: 'F-TB (Front Top-Bottom)',
-          severity: alert.fTB_severity as AlertSeverityDto,
-          value: alert.fTB_value?.toString() || '0',
-        },
-        {
-          field: 'rTB',
-          label: 'R-TB (Rear Top-Bottom)',
-          severity: alert.rTB_severity as AlertSeverityDto,
-          value: alert.rTB_value?.toString() || '0',
+          field: 'pneumaticClutchClearanceTotal',
+          label: 'Pneumatic Clutch Clearance Total',
+          severity:
+            alert.pneumaticClutchClearanceTotal_severity as AlertSeverityDto,
+          value: alert.pneumaticClutchClearanceTotal_value?.toString() || '0',
         },
       ];
 

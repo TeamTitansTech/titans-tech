@@ -1138,6 +1138,7 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Holgura del Embrague Hidráulico",
+        "pneumaticClutchClearance": "Holgura del Embrague Neumático",
         "brakeSpringMeasurements": "Mediciones del Resorte del Freno (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Desviación Máxima del Carro (Externo vs Interno)",
         "slidePositions": "Posiciones del Carro (Posición 1-5)",
@@ -1180,6 +1181,7 @@
         "filterChanged": "Filtro Cambiado",
         "hydClutchTotal": "Embrague Hid. Total",
         "hydClutchRear": "Embrague Hid. Trasero",
+        "pneumaticClutchTotal": "Embrague Neumático Total",
         "leakLocation": "Ubicación de Fuga",
         "outerIssues": "Problemas Externos",
         "innerIssues": "Problemas Internos",
@@ -1324,6 +1326,9 @@
         "measurement": "Medición",
         "differential": "Diferencial",
         "status": "Estado"
+      },
+      "clutchCevolani": {
+        "pneumaticClutchClearanceTotal": "Holgura de Embrague Neumático (Total)"
       }
     },
     "form": {
@@ -1761,6 +1766,23 @@
           "required": "Este campo es obligatorio",
           "hydClutchClearanceTotalRequired": "Embrague: Holgura del Embrague Hidráulico (Total) es obligatoria",
           "hydClutchClearanceRearRequired": "Embrague: Holgura del Embrague Hidráulico (Trasera) es obligatoria"
+        }
+      },
+      "clutchCevolani": {
+        "sections": {
+          "pneumaticSystem": "Sistema Neumático"
+        },
+        "fields": {
+          "pneumaticClutchClearanceTotal": "Holgura de Embrague Neumático (Total)"
+        },
+        "placeholders": {
+          "pneumaticClutchClearanceTotal": "Ingrese la holgura total"
+        },
+        "tooltips": {
+          "pneumaticClutchClearanceTotal": "Este campo genera alertas basadas en los umbrales configurados"
+        },
+        "validation": {
+          "pneumaticClutchClearanceTotalRequired": "Embrague Cevolani: Holgura de Embrague Neumático (Total) es obligatoria"
         }
       },
       "counterbalanceCylinder": {
@@ -2426,11 +2448,7 @@
     },
     "clutchCevolani": {
       "title": "EMBRAGUE CEVOLANI - Configuración de Alerta",
-      "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico Total",
-      "hydClutchClearanceRear": "Holgura del Embrague Hidráulico Trasera",
-      "fb": "F-B (Frente-Atrás)",
-      "fTB": "F-TB (Frente Superior-Inferior)",
-      "rTB": "R-TB (Trasera Superior-Inferior)"
+      "pneumaticClutchClearanceTotal": "Holgura de Embrague Neumático (Total)"
     },
     "slide": {
       "title": "SLIDE - Configuración de Alerta",
