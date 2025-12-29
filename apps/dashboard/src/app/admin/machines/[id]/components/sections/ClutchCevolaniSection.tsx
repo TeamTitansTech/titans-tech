@@ -72,6 +72,7 @@ export const ClutchCevolaniSection = forwardRef<
   // Sync state with initialData prop changes
   useEffect(() => {
     if (initialData && initialData !== prevInitialData) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPrevInitialData(initialData);
       setData(initialData.data || defaultClutchCevolaniData);
       setInitialClutchCevolaniData(initialData.data || defaultClutchCevolaniData);
