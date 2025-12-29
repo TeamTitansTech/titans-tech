@@ -1,6 +1,7 @@
 import { getServicesByMachine } from '@/data/services/services.api';
 import type { Service } from '@/data/types/services.types';
 import { UpcomingServicesClient } from './UpcomingServicesClient';
+import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
 
 interface UpcomingServicesProps {
   machineId: string;
@@ -9,6 +10,7 @@ interface UpcomingServicesProps {
   canCreateServices?: boolean;
   canUpdateServices?: boolean;
   canDeleteServices?: boolean;
+  defaultMeasurementUnit: LengthUnitFromEnum;
 }
 
 export async function UpcomingServices({
@@ -18,6 +20,7 @@ export async function UpcomingServices({
   canCreateServices = true,
   canUpdateServices = true,
   canDeleteServices = true,
+  defaultMeasurementUnit,
 }: UpcomingServicesProps) {
   let services: Service[] = [];
 
@@ -44,6 +47,7 @@ export async function UpcomingServices({
       canCreateServices={canCreateServices}
       canUpdateServices={canUpdateServices}
       canDeleteServices={canDeleteServices}
+      defaultMeasurementUnit={defaultMeasurementUnit}
     />
   );
 }

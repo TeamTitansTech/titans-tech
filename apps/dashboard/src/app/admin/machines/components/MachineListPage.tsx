@@ -235,8 +235,8 @@ export function MachineListPage({ machines }: MachineListPageProps) {
 
           {/* Company Filter */}
           <Select value={companyFilter} onValueChange={setCompanyFilter}>
-            <SelectTrigger className="w-[200px]">
-              <Building2 className="w-4 h-4 mr-2" />
+            <SelectTrigger className="w-[210px]">
+              <Building2 className="w-4 h-4 shrink-0" />
               <SelectValue placeholder={t('filterByCompany') || 'All Companies'} />
             </SelectTrigger>
             <SelectContent>
@@ -252,7 +252,7 @@ export function MachineListPage({ machines }: MachineListPageProps) {
           {/* Blueprint Filter */}
           <Select value={blueprintFilter} onValueChange={setBlueprintFilter}>
             <SelectTrigger className="w-[200px]">
-              <Cog className="w-4 h-4 mr-2" />
+              <Cog className="w-4 h-4 shrink-0" />
               <SelectValue placeholder={t('filterByBlueprint') || 'All Models'} />
             </SelectTrigger>
             <SelectContent>
@@ -267,8 +267,8 @@ export function MachineListPage({ machines }: MachineListPageProps) {
 
           {/* Status Filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
-              <Activity className="w-4 h-4 mr-2" />
+            <SelectTrigger className="w-[190px]">
+              <Activity className="w-4 h-4 shrink-0" />
               <SelectValue placeholder={t('filterByStatus') || 'All Status'} />
             </SelectTrigger>
             <SelectContent>
@@ -280,7 +280,7 @@ export function MachineListPage({ machines }: MachineListPageProps) {
           </Select>
 
           {/* Results count */}
-          <div className="flex items-center text-sm text-muted-foreground">
+          <div className="flex items-center text-sm text-muted-foreground ml-auto">
             {filteredMachines.length} of {machines.length} machines
           </div>
         </div>

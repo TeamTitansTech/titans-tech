@@ -367,6 +367,7 @@ export class LatestReportResponseDto {
     PISTONS: LatestPistonsDto | null;
     LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER: LatestLubricationDto | null;
     CLUTCH: LatestClutchDto | null;
+    CLUTCH_CEVOLANI: LatestClutchDto | null;
     COUNTERBALANCE_CYLINDER_AIRBAG: LatestCounterbalanceDto | null;
     TRAMMING: LatestTrammingDto | null;
     SHIM_THICKNESS: LatestShimThicknessDto | null;

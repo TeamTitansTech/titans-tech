@@ -1,7 +1,7 @@
 import { getInspectionsByMachine } from '@/data/services/inspections.api';
 import { getMachineById } from '@/data/services/machines.api';
 import { ShimThicknessSection } from './ShimThicknessSection';
-import { UnitManagerProvider } from '@/contexts/UnitManagerContext';
+import { LengthUnitFromEnum, UnitManagerProvider } from '@/contexts/UnitManagerContext';
 
 interface ShimThicknessSectionWrapperProps {
   machineId: string;
@@ -31,6 +31,7 @@ export interface ShimThicknessInspectionData {
 export async function ShimThicknessSectionWrapper({ machineId }: ShimThicknessSectionWrapperProps) {
   let inspections: ShimThicknessInspectionData[] = [];
   let machineName = '';
+  let branchDefaultUnit: LengthUnitFromEnum;
 
   try {
     const [inspectionsResponse, machineResponse] = await Promise.all([
@@ -48,17 +49,20 @@ export async function ShimThicknessSectionWrapper({ machineId }: ShimThicknessSe
     if (machineResponse.errors) {
       console.error('Errors fetching machine:', machineResponse.errors);
       machineName = '';
+      branchDefaultUnit = 'INCHES';
     } else {
       machineName = machineResponse.data?.name || '';
+      branchDefaultUnit = machineResponse.data?.branch?.defaultMeasurementUnit || 'INCHES';
     }
   } catch (error) {
     console.error('Error fetching data:', error);
     inspections = [];
     machineName = '';
+    branchDefaultUnit = 'INCHES';
   }
 
   return (
-    <UnitManagerProvider>
+    <UnitManagerProvider defaultLengthUnit={branchDefaultUnit}>
       <ShimThicknessSection
         machineId={machineId}
         inspections={inspections}

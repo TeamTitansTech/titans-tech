@@ -80,6 +80,7 @@ export interface Machine {
     id: string;
     name: string;
     companyId: string;
+    defaultMeasurementUnit: 'INCHES' | 'MM';
   };
   client?: string;
   location?: string;

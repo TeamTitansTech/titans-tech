@@ -438,6 +438,9 @@ export const ClutchDataSchema = z.object({
   hydraulicPressureValue: z.number().optional(),
   accumulatorValue: z.string().optional(),
 
+  // Pneumatic system (for CLUTCH_CEVOLANI section)
+  pneumaticClutchClearanceTotal: z.number().optional(),
+
   // Separate Brake Seals
   separateBrakeSeals: z.enum(PrismaSeparateBrakeSealsType).optional(),
 

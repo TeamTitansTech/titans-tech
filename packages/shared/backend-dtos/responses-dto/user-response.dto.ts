@@ -1,11 +1,14 @@
 import { Exclude, Type } from 'class-transformer';
 import type { Permissions } from '../../types/permissions';
 
+export type MeasurementUnit = 'INCHES' | 'MM';
+
 export class CompanyBranchDto {
   id: string;
   name: string;
   isMainBranch: boolean;
   location?: string | null;
+  defaultMeasurementUnit: MeasurementUnit;
   companyId: string;
   createdAt: Date;
   updatedAt: Date;

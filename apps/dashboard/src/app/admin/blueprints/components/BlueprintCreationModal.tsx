@@ -15,6 +15,7 @@ import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { SERVICE_SECTION_SLUGS } from '@titans-tech/db/client';
 import { BearingClearanceThresholds } from '@/components/alerts/BearingClearanceThresholds';
 import { ClutchThresholds } from '@/components/alerts/ClutchThresholds';
+import { ClutchCevolaniThresholds } from '@/components/alerts/ClutchCevolaniThresholds';
 import { SlideThresholds } from '@/components/alerts/SlideThresholds';
 import { GibsThresholds } from '@/components/alerts/GibsThresholds';
 import { PistonsThresholds } from '@/components/alerts/PistonsThresholds';
@@ -64,6 +65,10 @@ export const BlueprintCreationModal = ({
     setClutchThresholdsOpen,
     clutchThresholds,
     setClutchThresholds,
+    clutchCevolaniThresholdsOpen,
+    setClutchCevolaniThresholdsOpen,
+    clutchCevolaniThresholds,
+    setClutchCevolaniThresholds,
     slideSingleHammerThresholdsOpen,
     setSlideSingleHammerThresholdsOpen,
     slideSingleHammerThresholds,
@@ -157,7 +162,7 @@ export const BlueprintCreationModal = ({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <UnitManagerProvider>
+        <UnitManagerProvider defaultLengthUnit="inches">
           <DialogContent className="flex max-w-4xl flex-col bg-background p-0">
             <form onSubmit={onSubmit} className="flex min-h-0 flex-1 flex-col">
               <DialogHeader className="shrink-0 border-b border-border p-6 pb-4">
@@ -218,6 +223,7 @@ export const BlueprintCreationModal = ({
                     selectedSections.includes('bearing_clearance') ||
                     selectedSections.includes('bearing_clearance_single_hammer') ||
                     selectedSections.includes('clutch') ||
+                    selectedSections.includes('clutch_cevolani') ||
                     selectedSections.includes('slide_single_hammer') ||
                     selectedSections.includes('slide_double_hammer') ||
                     selectedSections.includes('gibs') ||
@@ -281,6 +287,20 @@ export const BlueprintCreationModal = ({
                         onOpenChange={setClutchThresholdsOpen}
                         data={clutchThresholds}
                         onChange={setClutchThresholds}
+                      />
+                    </section>
+                  </>
+                )}
+
+                {!isEditing && selectedSections.includes('clutch_cevolani') && (
+                  <>
+                    <Separator />
+                    <section className="space-y-4">
+                      <ClutchCevolaniThresholds
+                        open={clutchCevolaniThresholdsOpen}
+                        onOpenChange={setClutchCevolaniThresholdsOpen}
+                        data={clutchCevolaniThresholds}
+                        onChange={setClutchCevolaniThresholds}
                       />
                     </section>
                   </>

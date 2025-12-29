@@ -250,6 +250,21 @@ export class ServicesController {
   }
 
   @ResourcePermission('service', 'updateServices')
+  @Patch(':id/sections/clutch-cevolani')
+  updateClutchCevolani(
+    @Param('id') id: string,
+    @Body(new ZodValidationPipe(ClutchDataSchema))
+    updateDto: ClutchData,
+    @Req() req: ReqWithAuthUser,
+  ): Promise<unknown> {
+    return this.servicesService.updateClutchCevolani(
+      id,
+      updateDto,
+      this.getUserId(req),
+    );
+  }
+
+  @ResourcePermission('service', 'updateServices')
   @Patch(':id/sections/counterbalance-cylinder')
   updateCounterbalanceCylinder(
     @Param('id') id: string,

@@ -57,6 +57,7 @@ export function ServiceCompletionModal({
   initialPerformedBy,
   companyId,
   onSuccess,
+  defaultMeasurementUnit,
 }: ServiceCompletionModalProps) {
   const t = useTranslations('machines');
   const tServices = useTranslations('services');
@@ -496,7 +497,7 @@ export function ServiceCompletionModal({
           // Clutch section expects flat data structure (not wrapped in 'data')
           // The ClutchSection component returns { data: ClutchData, attachments } but backend expects flat ClutchData
           let sectionData = result.data;
-          if (currentSectionKey === 'CLUTCH') {
+          if (currentSectionKey === 'CLUTCH' || currentSectionKey === 'CLUTCH_CEVOLANI') {
             const clutchResult = result.data as {
               data?: Record<string, unknown>;
               attachments?: unknown[];
@@ -824,7 +825,7 @@ export function ServiceCompletionModal({
     <>
       <Dialog open={open && !showAlertNotificationModal} onOpenChange={onOpenChange}>
         <DialogContent className="flex flex-col p-2 pt-6 sm:p-6">
-          <UnitManagerProvider>
+          <UnitManagerProvider defaultLengthUnit={defaultMeasurementUnit}>
             <DialogHeader>
               <DialogTitle>{getDialogTitle()}</DialogTitle>
               <DialogDescription>{getDialogDescription()}</DialogDescription>

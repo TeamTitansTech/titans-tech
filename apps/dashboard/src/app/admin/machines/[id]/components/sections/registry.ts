@@ -6,6 +6,7 @@ import { SlideDoubleHammerSection } from './SlideDoubleHammerSection';
 import { GibsSection } from './';
 import { LubricationHydraulicsSection } from './LubricationHydraulicsSection';
 import { ClutchSection } from './ClutchSection';
+import { ClutchCevolaniSection } from './ClutchCevolaniSection';
 import { CounterbalanceCylinderSection } from './CounterbalanceCylinderSection';
 import { TrammingSection } from './TrammingSection';
 import { PistonsSection } from './PistonsSection';
@@ -108,6 +109,16 @@ export const SECTION_REGISTRY: Record<string, SectionConfig> = {
       i18nKey: 'clutch',
     },
     // No badges for clutch section
+  },
+
+  CLUTCH_CEVOLANI: {
+    key: 'CLUTCH_CEVOLANI',
+    component: ClutchCevolaniSection,
+    metadata: {
+      image: '/assets/sections/clutch.svg',
+      i18nKey: 'clutchCevolani',
+    },
+    // No badges for clutch cevolani section
   },
 
   COUNTERBALANCE_CYLINDER_AIRBAG: {

@@ -357,6 +357,7 @@ enum ServiceSection {
   GIBS
   LUBRICATION_HYDRAULICS_PRESSURE_SWITCHES_OIL_FILTER
   CLUTCH
+  CLUTCH_CEVOLANI
   COUNTERBALANCE_CYLINDER_AIRBAG
   TRAMMING
   PISTONS
@@ -469,6 +470,8 @@ model CompanyBranch {
   isMainBranch Boolean @default(false)
   location     String?
 
+  defaultMeasurementUnit MeasurementUnit @default(INCHES)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -562,6 +565,7 @@ model Blueprint {
   thresholdBearingClearance             ThresholdBearingClearance?
   thresholdBearingClearanceSingleHammer ThresholdBearingClearanceSingleHammer?
   thresholdClutch                       ThresholdClutch?
+  thresholdClutchCevolani               ThresholdClutchCevolani?
   thresholdSlideSingleHammer            ThresholdSlideSingleHammer?
   thresholdSlideDoubleHammer            ThresholdSlideDoubleHammer?
   thresholdGibs                         ThresholdGibs?
@@ -690,6 +694,23 @@ model ThresholdClutch {
   blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
 
   @@map("threshold_clutch")
+}
+
+model ThresholdClutchCevolani {
+  id          String @id @default(cuid())
+  blueprintId String @unique
+
+  // Pneumatic Clutch Clearance Total thresholds
+  pneumaticClutchClearanceTotal_greenMin  Decimal @db.Decimal(10, 4)
+  pneumaticClutchClearanceTotal_yellowMin Decimal @db.Decimal(10, 4)
+  pneumaticClutchClearanceTotal_redMin    Decimal @db.Decimal(10, 4)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blueprint Blueprint @relation(fields: [blueprintId], references: [id], onDelete: Cascade)
+
+  @@map("threshold_clutch_cevolani")
 }
 
 model ThresholdSlideSingleHammer {
@@ -870,6 +891,7 @@ model MachineService {
   gibs                              MachineServiceGibs[]
   lubricationHydraulics             MachineServiceLubricationHydraulics[]
   clutch                            MachineServiceClutch[]
+  clutchCevolani                    MachineServiceClutchCevolani[]
   counterbalanceCylinderAirbag      MachineServiceCounterbalanceCylinderAirbag[]
   tramming                          MachineServiceTramming[]
   pistons                           MachineServicePistons[]
@@ -877,6 +899,7 @@ model MachineService {
   alertBearingClearanceSingleHammer AlertBearingClearanceSingleHammer[]
   alertCounterbalanceCylinderAirbag AlertCounterbalanceCylinderAirbag[]
   alertClutch                       AlertClutch[]
+  alertClutchCevolani               AlertClutchCevolani[]
   alertSlide                        AlertSlide[] // DEPRECATED: Use alertSlideSingleHammer and alertSlideDoubleHammer
   alertSlideSingleHammer            AlertSlideSingleHammer[]
   alertSlideDoubleHammer            AlertSlideDoubleHammer[]
@@ -1016,6 +1039,26 @@ model AlertClutch {
 
   @@index([machineServiceId])
   @@map("alert_clutch")
+}
+
+model AlertClutchCevolani {
+  id               String @id @default(cuid())
+  machineServiceId String
+
+  // Pneumatic Clutch Clearance Total alert
+  pneumaticClutchClearanceTotal_value    Decimal       @db.Decimal(10, 4)
+  pneumaticClutchClearanceTotal_severity AlertSeverity
+
+  // Optional snapshot of thresholds used in calculation (for auditing)
+  thresholdSnapshot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+
+  @@index([machineServiceId])
+  @@map("alert_clutch_cevolani")
 }
 
 // DEPRECATED: Use AlertSlideSingleHammer and AlertSlideDoubleHammer instead
@@ -1573,6 +1616,20 @@ model MachineServiceClutch {
   @@map("machine_service_clutch")
 }
 
+// CLUTCH_CEVOLANI Section - Same structure as CLUTCH but for Cevolani clutch type
+
+model MachineServiceClutchCevolani {
+  id               String  @id @default(cuid())
+  machineServiceId String
+  dataId           String?
+  attachments      Json?   @default("[]") // [{name: string, url: string}]
+
+  machineService MachineService @relation(fields: [machineServiceId], references: [id], onDelete: Cascade)
+  data           ClutchData?    @relation("ClutchCevolaniData", fields: [dataId], references: [id], onDelete: SetNull)
+
+  @@map("machine_service_clutch_cevolani")
+}
+
 model ClutchData {
   id String @id @default(cuid())
 
@@ -1631,6 +1688,9 @@ model ClutchData {
   hydraulicPressureValue  Decimal? @db.Decimal(10, 2)
   accumulatorValue        String?
 
+  // Pneumatic system (for CLUTCH_CEVOLANI section)
+  pneumaticClutchClearanceTotal Decimal? @db.Decimal(10, 4)
+
   // Separate Brake Seals
   separateBrakeSeals SeparateBrakeSealsType?
 
@@ -1643,7 +1703,8 @@ model ClutchData {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  services MachineServiceClutch[]
+  services         MachineServiceClutch[]
+  cevolaniServices MachineServiceClutchCevolani[] @relation("ClutchCevolaniData")
 
   @@map("service_data_clutch")
 }

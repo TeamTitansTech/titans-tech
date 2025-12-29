@@ -201,6 +201,16 @@
       "users": "users",
       "clickToViewUsers": "Click to view users"
     },
+    "branchSettings": {
+      "title": "Branch Settings",
+      "description": "Configure the default preferences for this branch",
+      "defaultUnit": "Default Measurement Unit",
+      "defaultUnitDescription": "Default unit for displaying measurements",
+      "inches": "Inches (in)",
+      "mm": "Millimeters (mm)",
+      "saved": "Settings saved",
+      "saveError": "Failed to save settings"
+    },
     "userManagement": {
       "title": "User Accounts",
       "loading": "Loading users...",
@@ -826,6 +836,7 @@
     "gibs": "Gibs",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
+    "clutch_cevolani": "Clutch Cevolani",
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
     "tramming": "Tramming",
     "pistons": "Pistons",
@@ -1029,6 +1040,7 @@
       "gibs": "Gibs",
       "lubricationHydraulics": "Lubrication / Hydraulics",
       "clutch": "Clutch and Brake Clearance - CP 2",
+      "clutchCevolani": "Clutch Cevolani",
       "counterbalance": "Counterbalance Cylinder / Airbag",
       "counterbalanceCylinder": "Counterbalance Cylinder / Airbag",
       "tramming": "Tramming",
@@ -1110,6 +1122,7 @@
       "createInspection": "Create Inspection",
       "sectionTitles": {
         "clutchMeasurements": "Clutch Measurements",
+        "clutchCevolaniMeasurements": "Clutch Cevolani Measurements",
         "slideMeasurements": "Slide Measurements",
         "gibsMeasurements": "Gibs Measurements",
         "lubricationStatus": "Lubrication & Hydraulics Status",
@@ -1123,6 +1136,7 @@
       },
       "chartTitles": {
         "hydraulicClutchClearance": "Hydraulic Clutch Clearance",
+        "pneumaticClutchClearance": "Pneumatic Clutch Clearance",
         "brakeSpringMeasurements": "Brake Spring Measurements (F-B, F-TB, R-TB)",
         "slideMaxDeviation": "Slide Max Deviation (Outer vs Inner)",
         "slidePositions": "Slide Positions (Position 1-5)",
@@ -1165,6 +1179,7 @@
         "filterChanged": "Filter Changed",
         "hydClutchTotal": "Hyd Clutch Total",
         "hydClutchRear": "Hyd Clutch Rear",
+        "pneumaticClutchTotal": "Pneumatic Clutch Total",
         "leakLocation": "Leak Location",
         "outerIssues": "Outer Issues",
         "innerIssues": "Inner Issues",
@@ -1309,6 +1324,9 @@
         "measurement": "Measurement",
         "differential": "Differential",
         "status": "Status"
+      },
+      "clutchCevolani": {
+        "pneumaticClutchClearanceTotal": "Pneumatic Clutch Clearance (Total)"
       }
     },
     "form": {
@@ -1681,11 +1699,11 @@
         "fields": {
           "clutchType": "Clutch Type",
           "clutchLocation": "Clutch Location",
-          "brakeSpringBrake": "Brake (inches)",
-          "brakeSpringClutch": "Clutch (inches)",
-          "brakeSpringFB": "F-B (inches)",
-          "brakeSpringFTB": "F-TB (inches)",
-          "brakeSpringRTB": "R-TB (inches)",
+          "brakeSpringBrake": "Brake",
+          "brakeSpringClutch": "Clutch",
+          "brakeSpringFB": "F-B",
+          "brakeSpringFTB": "F-TB",
+          "brakeSpringRTB": "R-TB",
           "brakeSpringStudBolt": "Brake Spring Stud/Bolt",
           "brakeStoppingTime": "Brake Stopping Time",
           "brakeLining": "Brake Lining",
@@ -1746,6 +1764,23 @@
           "required": "This field is required",
           "hydClutchClearanceTotalRequired": "Clutch: Hydraulic Clutch Clearance (Total) is required",
           "hydClutchClearanceRearRequired": "Clutch: Hydraulic Clutch Clearance (Rear) is required"
+        }
+      },
+      "clutchCevolani": {
+        "sections": {
+          "pneumaticSystem": "Pneumatic System"
+        },
+        "fields": {
+          "pneumaticClutchClearanceTotal": "Pneumatic Clutch Clearance (Total)"
+        },
+        "placeholders": {
+          "pneumaticClutchClearanceTotal": "Enter total clearance"
+        },
+        "tooltips": {
+          "pneumaticClutchClearanceTotal": "This field generates alerts based on configured thresholds"
+        },
+        "validation": {
+          "pneumaticClutchClearanceTotalRequired": "Clutch Cevolani: Pneumatic Clutch Clearance (Total) is required"
         }
       },
       "counterbalanceCylinder": {
@@ -2408,6 +2443,10 @@
       "fTB": "F-TB (Front Top-Bottom)",
       "rTB": "R-TB (Rear Top-Bottom)"
     },
+    "clutchCevolani": {
+      "title": "CLUTCH CEVOLANI - Alert Configuration",
+      "pneumaticClutchClearanceTotal": "Pneumatic Clutch Clearance (Total)"
+    },
     "slide": {
       "title": "SLIDE - Alert Configuration",
       "maxDeviation": "Max Deviation"
@@ -2748,6 +2787,8 @@
     "description": "Select the parts that need to be replaced",
     "clutchBrakeParts": "Clutch & Brake Parts",
     "clutchBrakeDescription": "Select clutch and brake parts that need replacement",
+    "clutchCevolaniParts": "Clutch Cevolani Parts",
+    "clutchCevolaniDescription": "Select Cevolani clutch parts that need replacement",
     "bearingClearanceParts": "Bearing Clearance Parts",
     "bearingClearanceDescription": "Select bearing clearance parts that need replacement",
     "bearingClearanceSingleHammerParts": "Bearing Clearance Single Hammer Parts",
@@ -2825,6 +2866,7 @@
       "flywheelBrake": "Flywheel Brake",
       "motorDrive": "Motor Drive",
       "hydraulicUnit": "Hydraulic Unit",
+      "clutchCevolani": "Clutch Cevolani",
       "flywheelBearings": "Flywheel Bearings",
       "counterbalanceInner": "Counterbalance (Inner)",
       "counterbalanceOuterAirmount": "Counterbalance (Outer)",

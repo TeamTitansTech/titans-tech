@@ -21,6 +21,7 @@ import SimpleServiceCreationModal from './SimpleServiceCreationModal';
 import { ServiceCompletionModal } from '@/app/admin/machines/[id]/components/ServiceCompletionModal';
 import { deleteService } from '@/data/services/services.api';
 import type { Service } from '@/data/types/services.types';
+import type { LengthUnitFromEnum } from '@/contexts/UnitManagerContext';
 
 interface UpcomingServicesClientProps {
   machineId: string;
@@ -31,6 +32,7 @@ interface UpcomingServicesClientProps {
   canUpdateServices?: boolean;
   canDeleteServices?: boolean;
   onSuccess?: () => void; // Called when a service is successfully completed
+  defaultMeasurementUnit: LengthUnitFromEnum;
 }
 
 export function UpcomingServicesClient({
@@ -42,6 +44,7 @@ export function UpcomingServicesClient({
   canUpdateServices = true,
   canDeleteServices = true,
   onSuccess,
+  defaultMeasurementUnit,
 }: UpcomingServicesClientProps) {
   const t = useTranslations('machines');
   const tActions = useTranslations('actions');
@@ -195,6 +198,7 @@ export function UpcomingServicesClient({
           initialPerformedBy={selectedService.performedBy ?? undefined}
           companyId={companyId}
           onSuccess={onSuccess}
+          defaultMeasurementUnit={defaultMeasurementUnit}
         />
       )}
       {selectedService && selectedService.type === 'INSPECTION' && (
@@ -210,6 +214,7 @@ export function UpcomingServicesClient({
           initialPerformedBy={selectedService.performedBy ?? undefined}
           companyId={companyId}
           onSuccess={onSuccess}
+          defaultMeasurementUnit={defaultMeasurementUnit}
         />
       )}
       <AlertDialog open={!!serviceToDelete} onOpenChange={() => setServiceToDelete(null)}>
