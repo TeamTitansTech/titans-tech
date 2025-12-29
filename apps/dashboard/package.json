@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:watch": "nodemon --watch src --watch components.json --watch tailwind.config.ts --watch next.config.ts --ext ts,tsx,js,jsx,json --exec 'npm run build && npm run start'",
     "start": "next start",
     "lint": "eslint"
   },
@@ -32,6 +33,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@radix-ui/react-use-previous": "^1.1.1",
+    "@titans-tech/db": "*",
     "@titans-tech/shared": "*",
     "@types/file-saver": "^2.0.7",
     "@types/node": "^20",
@@ -78,6 +80,10 @@
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.39.1",
     "@next/eslint-plugin-next": "^16.0.1",
+    "@playwright/test": "^1.57.0",
+    "@types/bcrypt": "^5.0.2",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.7",
     "doctrine": "^2.1.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.1",
@@ -91,6 +97,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^16.4.0",
     "jsx-ast-utils": "^3.3.5",
+    "nodemon": "^3.0.0",
     "typescript-eslint": "^8.46.3",
     "zod-validation-error": "^5.0.0"
   }

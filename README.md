@@ -176,6 +176,13 @@ npm run docker:down     # Para PostgreSQL
 npm run docker:logs     # Logs do PostgreSQL
 ```
 
+### Testes e2e
+
+Para e2e, a gente precisa rodar o frontend buildado,
+use o watch mode para conseguir fazer alterações no frontend sem precisar rebuildar manualmente toda hora.
+Terminal 1 (root): `npx turbo run dev --filter=@titans-tech/backend`
+Terminal 2 (apps/dashboard): `npm run build:watch`
+
 ## Segurança
 
 - Autenticação JWT com tokens de 7 dias
