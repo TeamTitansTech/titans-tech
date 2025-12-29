@@ -176,7 +176,7 @@ jobs:
           npx turbo run dev --filter=@titans-tech/backend &
 
       - name: Wait for backend server
-        run: sleep 120
+        run: sleep 15
 
       - name: Build and start dashboard app
         working-directory: apps/dashboard
