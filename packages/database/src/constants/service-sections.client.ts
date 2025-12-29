@@ -11,6 +11,7 @@ export const SERVICE_SECTION_SLUGS = [
   'gibs',
   'lubrication_hydraulics_pressure_switches_oil_filter',
   'clutch',
+  'clutch_cevolani',
   'counterbalance_cylinder_airbag',
   'tramming',
   'pistons',

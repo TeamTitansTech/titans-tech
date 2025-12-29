@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ServiceSection } from '@titans-tech/db/enums';
 import { ClutchThresholdsSchema } from './threshold-clutch.dto';
+import { ClutchCevolaniThresholdsSchema } from './threshold-clutch-cevolani.dto';
 import { GibsThresholdsSchema } from './threshold-gibs.dto';
 import { PistonsThresholdsSchema } from './threshold-pistons.dto';
 import { TrammingThresholdsSchema } from './threshold-tramming.dto';
@@ -108,6 +109,7 @@ export const CreateBlueprintWithThresholdsSchema = z
     thresholds: ThresholdsSchema.optional(),
     bearingClearanceSingleHammerThresholds: ThresholdsSchema.optional(),
     clutchThresholds: ClutchThresholdsSchema.optional(),
+    clutchCevolaniThresholds: ClutchCevolaniThresholdsSchema.optional(),
     slideSingleHammerThresholds: SlideThresholdsSchema.optional(),
     slideDoubleHammerThresholds: SlideThresholdsSchema.optional(),
     gibsThresholds: GibsThresholdsSchema.optional(),
@@ -129,6 +131,13 @@ export const CreateBlueprintWithThresholdsSchema = z
       }
       // Se clutchThresholds fornecidos, CLUTCH deve estar em sections
       if (data.clutchThresholds && !data.sections.includes(ServiceSection.CLUTCH)) {
+        return false;
+      }
+      // Se clutchCevolaniThresholds fornecidos, CLUTCH_CEVOLANI deve estar em sections
+      if (
+        data.clutchCevolaniThresholds &&
+        !data.sections.includes(ServiceSection.CLUTCH_CEVOLANI)
+      ) {
         return false;
       }
       // Se slideSingleHammerThresholds fornecidos, SLIDE_SINGLE_HAMMER deve estar em sections

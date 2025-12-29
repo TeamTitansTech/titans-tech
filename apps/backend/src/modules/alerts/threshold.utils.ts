@@ -332,6 +332,70 @@ export function convertPartialPistonsThresholdToDecimal<
 }
 
 /**
+ * List of all Clutch Cevolani threshold field names
+ * Monitors pneumatic clutch clearance total measurement
+ */
+export const CLUTCH_CEVOLANI_THRESHOLD_FIELDS = [
+  'pneumaticClutchClearanceTotal_greenMin',
+  'pneumaticClutchClearanceTotal_yellowMin',
+  'pneumaticClutchClearanceTotal_redMin',
+] as const;
+
+export type ClutchCevolaniThresholdFieldName =
+  (typeof CLUTCH_CEVOLANI_THRESHOLD_FIELDS)[number];
+
+/**
+ * Type for complete Clutch Cevolani threshold data with Decimal fields
+ */
+export type ClutchCevolaniThresholdDecimalData = {
+  [K in ClutchCevolaniThresholdFieldName]: Decimal;
+};
+
+/**
+ * Type for partial Clutch Cevolani threshold data with Decimal fields
+ */
+export type PartialClutchCevolaniThresholdDecimalData = {
+  [K in ClutchCevolaniThresholdFieldName]?: Decimal;
+};
+
+/**
+ * Converts Clutch Cevolani threshold DTO fields to Decimal type for Prisma (all fields)
+ *
+ * @param dto - Clutch Cevolani threshold data object with all fields
+ * @returns Object with all Decimal-converted threshold fields
+ */
+export function convertClutchCevolaniThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): ClutchCevolaniThresholdDecimalData {
+  return CLUTCH_CEVOLANI_THRESHOLD_FIELDS.reduce((acc, field) => {
+    acc[field] = new Decimal(dto[field]);
+    return acc;
+  }, {} as any) as ClutchCevolaniThresholdDecimalData;
+}
+
+/**
+ * Converts partial Clutch Cevolani threshold DTO fields to Decimal type for Prisma
+ *
+ * @param dto - Partial Clutch Cevolani threshold data object
+ * @returns Object with Decimal-converted threshold fields (only provided fields)
+ */
+export function convertPartialClutchCevolaniThresholdToDecimal<
+  T extends Record<string, any>,
+>(dto: T): PartialClutchCevolaniThresholdDecimalData {
+  const data: any = {};
+  Object.keys(dto).forEach((key) => {
+    const value = dto[key];
+    if (
+      value !== undefined &&
+      CLUTCH_CEVOLANI_THRESHOLD_FIELDS.includes(key as any)
+    ) {
+      data[key] = new Decimal(value);
+    }
+  });
+  return data as PartialClutchCevolaniThresholdDecimalData;
+}
+
+/**
  * List of all Tramming threshold field names
  * Single threshold range for all tramming sums (vertical and horizontal)
  */

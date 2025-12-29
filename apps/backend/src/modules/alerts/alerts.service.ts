@@ -19,6 +19,11 @@ import {
   ThresholdClutchResponseDto,
   AlertClutchResponseDto,
   CreateThresholdClutchSchema,
+  CreateThresholdClutchCevolaniDto,
+  UpdateThresholdClutchCevolaniDto,
+  ThresholdClutchCevolaniResponseDto,
+  AlertClutchCevolaniResponseDto,
+  CreateThresholdClutchCevolaniSchema,
   CreateAlertCounterbalanceCylinderAirbagDto,
   UpdateAlertCounterbalanceCylinderAirbagDto,
   AlertCounterbalanceCylinderAirbagResponseDto,
@@ -48,6 +53,8 @@ import {
   convertPartialThresholdToDecimal,
   convertClutchThresholdToDecimal,
   convertPartialClutchThresholdToDecimal,
+  convertClutchCevolaniThresholdToDecimal,
+  convertPartialClutchCevolaniThresholdToDecimal,
   convertSlideThresholdToDecimal,
   convertPartialSlideThresholdToDecimal,
   convertGibsThresholdToDecimal,
@@ -1403,6 +1410,249 @@ export class AlertsService {
     }
 
     return new AlertClutchResponseDto({
+      ...alert,
+      clutchData,
+    } as any);
+  }
+
+  // ============================================================================
+  // CLUTCH CEVOLANI ALERTS
+  // ============================================================================
+
+  async getClutchCevolaniThresholdByBlueprint(blueprintId: string) {
+    const threshold = await this.prisma.thresholdClutchCevolani.findUnique({
+      where: { blueprintId },
+    });
+
+    if (!threshold) {
+      throw new NotFoundException(
+        `Clutch Cevolani threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    return new ThresholdClutchCevolaniResponseDto(threshold as any);
+  }
+
+  async createClutchCevolaniThreshold(dto: CreateThresholdClutchCevolaniDto) {
+    const threshold = await this.prisma.thresholdClutchCevolani.create({
+      data: {
+        blueprintId: dto.blueprintId,
+        ...convertClutchCevolaniThresholdToDecimal(dto),
+      },
+    });
+
+    return new ThresholdClutchCevolaniResponseDto(threshold as any);
+  }
+
+  async updateClutchCevolaniThreshold(
+    blueprintId: string,
+    dto: UpdateThresholdClutchCevolaniDto,
+  ) {
+    const currentThreshold =
+      await this.prisma.thresholdClutchCevolani.findUnique({
+        where: { blueprintId },
+      });
+
+    if (!currentThreshold) {
+      throw new NotFoundException(
+        `Clutch Cevolani threshold not found for blueprint ${blueprintId}`,
+      );
+    }
+
+    const mergedData = {
+      blueprintId,
+      // Pneumatic Clutch Clearance Total
+      pneumaticClutchClearanceTotal_greenMin:
+        dto.pneumaticClutchClearanceTotal_greenMin ??
+        currentThreshold.pneumaticClutchClearanceTotal_greenMin.toNumber(),
+      pneumaticClutchClearanceTotal_yellowMin:
+        dto.pneumaticClutchClearanceTotal_yellowMin ??
+        currentThreshold.pneumaticClutchClearanceTotal_yellowMin.toNumber(),
+      pneumaticClutchClearanceTotal_redMin:
+        dto.pneumaticClutchClearanceTotal_redMin ??
+        currentThreshold.pneumaticClutchClearanceTotal_redMin.toNumber(),
+    };
+
+    // Validate merged data (ensures greenMin < yellowMin < redMin for all fields)
+    try {
+      CreateThresholdClutchCevolaniSchema.parse(mergedData);
+    } catch (error) {
+      throw new BadRequestException(
+        'Invalid clutch cevolani threshold values: ' + error.message,
+      );
+    }
+
+    // Convert to Decimal and update
+    const data = convertPartialClutchCevolaniThresholdToDecimal(dto);
+
+    const threshold = await this.prisma.thresholdClutchCevolani.update({
+      where: { blueprintId },
+      data,
+    });
+
+    return new ThresholdClutchCevolaniResponseDto(threshold as any);
+  }
+
+  async deleteClutchCevolaniThreshold(blueprintId: string) {
+    await this.prisma.thresholdClutchCevolani.delete({
+      where: { blueprintId },
+    });
+  }
+
+  /**
+   * Recalculates clutch cevolani alerts for all services using a specific blueprint
+   */
+  async recalculateClutchCevolaniAlertsForBlueprint(blueprintId: string) {
+    const services = await this.prisma.machineService.findMany({
+      where: {
+        machine: {
+          blueprintId,
+        },
+        clutchCevolani: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    let alertsGenerated = 0;
+
+    for (const service of services) {
+      try {
+        await this.generateClutchCevolaniAlertsForService(service.id);
+        alertsGenerated++;
+      } catch (error) {
+        console.warn(
+          `Failed to generate clutch cevolani alert for service ${service.id}:`,
+          error.message,
+        );
+      }
+    }
+
+    return {
+      alertsGenerated,
+      servicesAffected: services.length,
+    };
+  }
+
+  async generateClutchCevolaniAlertsForService(machineServiceId: string) {
+    const service = await this.prisma.machineService.findUnique({
+      where: { id: machineServiceId },
+      include: {
+        machine: {
+          include: {
+            blueprint: {
+              include: {
+                thresholdClutchCevolani: true,
+              },
+            },
+          },
+        },
+        clutchCevolani: {
+          include: {
+            data: true,
+          },
+        },
+      },
+    });
+
+    if (!service) {
+      throw new NotFoundException('Service not found');
+    }
+
+    const threshold = service.machine.blueprint.thresholdClutchCevolani;
+
+    if (!threshold) {
+      console.log(
+        '⚠️ [CLUTCH CEVOLANI ALERTS] No threshold configured for this blueprint - skipping alert generation',
+      );
+      return null;
+    }
+
+    if (!service.clutchCevolani || service.clutchCevolani.length === 0) {
+      console.log(
+        '⚠️ [CLUTCH CEVOLANI ALERTS] No clutch cevolani data - skipping alert generation',
+      );
+      return null;
+    }
+
+    const clutchData = service.clutchCevolani[0].data;
+
+    if (!clutchData) {
+      console.log(
+        '⚠️ [CLUTCH CEVOLANI ALERTS] No clutch cevolani measurement data found - skipping alert generation',
+      );
+      return null;
+    }
+
+    // Calculate alert for pneumatic clutch clearance total
+    const pneumaticClutchClearanceTotal = this.evaluateSingleValueAlert(
+      clutchData.pneumaticClutchClearanceTotal,
+      threshold.pneumaticClutchClearanceTotal_greenMin,
+      threshold.pneumaticClutchClearanceTotal_yellowMin,
+      threshold.pneumaticClutchClearanceTotal_redMin,
+    );
+
+    const thresholdSnapshot = {
+      blueprintId: threshold.blueprintId,
+      pneumaticClutchClearanceTotal: {
+        greenMin: threshold.pneumaticClutchClearanceTotal_greenMin.toNumber(),
+        yellowMin: threshold.pneumaticClutchClearanceTotal_yellowMin.toNumber(),
+        redMin: threshold.pneumaticClutchClearanceTotal_redMin.toNumber(),
+      },
+    };
+
+    const alert = await this.prisma.alertClutchCevolani.create({
+      data: {
+        machineServiceId,
+        pneumaticClutchClearanceTotal_value:
+          pneumaticClutchClearanceTotal.value,
+        pneumaticClutchClearanceTotal_severity:
+          pneumaticClutchClearanceTotal.severity,
+        thresholdSnapshot,
+      },
+    });
+
+    return new AlertClutchCevolaniResponseDto({
+      ...alert,
+      clutchData,
+    } as any);
+  }
+
+  async getClutchCevolaniAlertByService(machineServiceId: string) {
+    const alert = await this.prisma.alertClutchCevolani.findFirst({
+      where: { machineServiceId },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        machineService: {
+          include: {
+            clutchCevolani: {
+              include: {
+                data: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!alert) {
+      throw new NotFoundException(
+        `Clutch Cevolani alert not found for service ${machineServiceId}`,
+      );
+    }
+
+    const clutchData = alert.machineService.clutchCevolani[0]?.data;
+
+    if (!clutchData) {
+      throw new NotFoundException(
+        `Clutch Cevolani data not found for service ${machineServiceId}`,
+      );
+    }
+
+    return new AlertClutchCevolaniResponseDto({
       ...alert,
       clutchData,
     } as any);
