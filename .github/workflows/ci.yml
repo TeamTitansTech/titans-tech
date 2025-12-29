@@ -176,7 +176,7 @@ jobs:
           npx turbo run dev --filter=@titans-tech/backend &
 
       - name: Wait for backend server
-        run: npx --yes wait-on http://localhost:3001 --timeout 120000 
+        run: sleep 15
 
       - name: Build and start dashboard app
         working-directory: apps/dashboard
