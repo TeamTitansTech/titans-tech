@@ -60,5 +60,6 @@ export const testTranslations = {
 
   settings: {
     deleteUserDialog: createTestTranslator('settings.deleteUserDialog'),
+    addUserDialog: createTestTranslator('settings.addUserDialog'),
   },
 } as const;
