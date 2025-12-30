@@ -97,9 +97,15 @@ const INITIAL_GIBS_THRESHOLDS: GibsThresholdsData = {
 };
 
 const INITIAL_PISTONS_THRESHOLDS: PistonsThresholdsData = {
+  thresholdMode: 'LINEAR',
   difference_greenMin: 0.0,
   difference_yellowMin: 0.0051,
   difference_redMin: 0.01,
+  // Central mode defaults (used when switching to CENTRAL mode)
+  central_yellowMin: 0.002,
+  central_greenMin: 0.004,
+  central_greenMax: 0.008,
+  central_yellowMax: 0.01,
 };
 
 const INITIAL_TRAMMING_THRESHOLDS: TrammingThresholdsData = {

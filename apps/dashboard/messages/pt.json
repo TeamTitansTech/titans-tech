@@ -2433,6 +2433,9 @@
       "wristPinToBushing": "Pino de Pulso à Bucha",
       "slideAdjNutToScrewSleeve": "Porca de Ajuste do Slide ao Parafuso/Manguito"
     },
+    "bearingClearanceSingleHammer": {
+      "title": "FOLGA DE ROLAMENTO (Martelo Único) - Configuração de Alerta"
+    },
     "clutch": {
       "title": "EMBREAGEM - Configuração de Alerta",
       "hydClutchClearanceTotal": "Folga da Embreagem Hidráulica Total",
@@ -2448,6 +2451,12 @@
     "slide": {
       "title": "SLIDE - Configuração de Alerta",
       "maxDeviation": "Desvio Máximo"
+    },
+    "slideSingleHammer": {
+      "title": "SLIDE (Martelo Único) - Configuração de Alerta"
+    },
+    "slideDoubleHammer": {
+      "title": "SLIDE (Martelo Duplo) - Configuração de Alerta"
     },
     "gibs": {
       "title": "GIBS - Configuração de Alerta",
@@ -2473,6 +2482,23 @@
         "success": "Thresholds atualizados. {count} alertas gerados para {services} serviços.",
         "successNoRecalc": "Thresholds atualizados. Novos alertas serão gerados apenas para serviços futuros.",
         "error": "Erro ao atualizar thresholds"
+      },
+      "mode": {
+        "label": "Modo de Threshold",
+        "linear": "Linear (Sequencial)",
+        "central": "Central (Formato U)",
+        "linearDescription": "Valores abaixo do limite amarelo são verdes, entre amarelo e vermelho são amarelos, acima do limite vermelho são vermelhos.",
+        "centralDescription": "O valor ideal está no centro. Valores muito baixos OU muito altos são problemáticos (formato U)."
+      },
+      "central": {
+        "yellowMin": "Limite Vermelho/Amarelo (Baixo)",
+        "greenMin": "Limite Amarelo/Verde (Baixo)",
+        "greenMax": "Limite Verde/Amarelo (Alto)",
+        "yellowMax": "Limite Amarelo/Vermelho (Alto)",
+        "greenRange": "Faixa Verde",
+        "yellowRange": "Faixa Amarela",
+        "redRange": "Faixa Vermelha",
+        "or": "ou"
       }
     },
     "history": {
@@ -2904,5 +2930,10 @@
       }
     },
     "viewParts": "Ver Lista de Peças"
+  },
+  "inspectionForm": {
+    "placeholders": {
+      "generatesAlert": "Este campo gera alertas"
+    }
   }
 }

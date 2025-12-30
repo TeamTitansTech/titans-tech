@@ -344,6 +344,35 @@ export async function updateBearingClearanceThreshold(
 }
 
 /**
+ * Update bearing clearance single hammer threshold
+ */
+export async function updateBearingClearanceSingleHammerThreshold(
+  blueprintId: string,
+  data: any,
+  recalculateAlerts: boolean = false,
+) {
+  try {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${API_URL}/alerts/bearing-clearance-single-hammer/thresholds/blueprint/${blueprintId}`,
+      {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify({ ...data, recalculateAlerts }),
+      },
+    );
+
+    return await handleResponse(response);
+  } catch (error) {
+    console.error('Failed to update bearing clearance single hammer threshold:', error);
+    return {
+      data: null,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+/**
  * Update clutch threshold
  */
 export async function updateClutchThreshold(
