@@ -19,7 +19,10 @@ export function BranchCard({ branch, companyId }: BranchCardProps) {
   const location = branch.location;
 
   return (
-    <Card className="hover:border-orange-500/50 hover:shadow-md transition-all">
+    <Card
+      className="hover:border-orange-500/50 hover:shadow-md transition-all"
+      data-testid={`branch-card-${branch.id}`}
+    >
       <CardContent className="pt-6">
         <div className="space-y-4">
           <div className="flex items-start justify-between">
@@ -27,7 +30,10 @@ export function BranchCard({ branch, companyId }: BranchCardProps) {
               <MapPin className="h-6 w-6 text-orange-500" />
             </div>
             {branch.isMainBranch && (
-              <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium">
+              <span
+                className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium"
+                data-testid="branch-main-badge"
+              >
                 {t('mainBranch')}
               </span>
             )}
