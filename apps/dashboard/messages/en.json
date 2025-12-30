@@ -833,7 +833,7 @@
     "gibs": "Gibs",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubrication / Hydraulics / Pressure Switches / Oil & Filter",
     "clutch": "Clutch",
-    "clutch_cevolani": "Clutch Cevolani",
+    "clutch_cevolani": "Clutch (Cevolani)",
     "counterbalance_cylinder_airbag": "Counterbalance Cylinder / Airbag",
     "tramming": "Tramming",
     "pistons": "Pistons",
@@ -2432,6 +2432,9 @@
       "wristPinToBushing": "Wrist Pin to Bushing",
       "slideAdjNutToScrewSleeve": "Slide Adj Nut to Screw/Sleeve"
     },
+    "bearingClearanceSingleHammer": {
+      "title": "BEARING CLEARANCE (Single Hammer) - Alert Configuration"
+    },
     "clutch": {
       "title": "CLUTCH - Alert Configuration",
       "hydClutchClearanceTotal": "Hydraulic Clutch Clearance Total",
@@ -2447,6 +2450,12 @@
     "slide": {
       "title": "SLIDE - Alert Configuration",
       "maxDeviation": "Max Deviation"
+    },
+    "slideSingleHammer": {
+      "title": "SLIDE (Single Hammer) - Alert Configuration"
+    },
+    "slideDoubleHammer": {
+      "title": "SLIDE (Double Hammer) - Alert Configuration"
     },
     "gibs": {
       "title": "GIBS - Alert Configuration",
@@ -2477,6 +2486,23 @@
         "success": "Thresholds updated. {count} alerts generated for {services} services.",
         "successNoRecalc": "Thresholds updated. New alerts will only be generated for future services.",
         "error": "Error updating thresholds"
+      },
+      "mode": {
+        "label": "Threshold Mode",
+        "linear": "Linear (Sequential)",
+        "central": "Central (U-Shaped)",
+        "linearDescription": "Values below yellow threshold are green, between yellow and red are yellow, above red threshold are red.",
+        "centralDescription": "The ideal value is in the center. Values too low OR too high are problematic (U-shaped)."
+      },
+      "central": {
+        "yellowMin": "Red/Yellow Boundary (Low)",
+        "greenMin": "Yellow/Green Boundary (Low)",
+        "greenMax": "Green/Yellow Boundary (High)",
+        "yellowMax": "Yellow/Red Boundary (High)",
+        "greenRange": "Green Range",
+        "yellowRange": "Yellow Range",
+        "redRange": "Red Range",
+        "or": "or"
       }
     },
     "history": {
@@ -2904,5 +2930,10 @@
       }
     },
     "viewParts": "View Parts List"
+  },
+  "inspectionForm": {
+    "placeholders": {
+      "generatesAlert": "This field generates alerts"
+    }
   }
 }

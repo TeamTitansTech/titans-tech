@@ -24,16 +24,20 @@ import { TrammingThresholds } from '@/components/alerts/TrammingThresholds';
 import { PistonsThresholds } from '@/components/alerts/PistonsThresholds';
 import {
   getBearingClearanceThresholdByBlueprint,
+  getBearingClearanceSingleHammerThresholdByBlueprint,
   getClutchThresholdByBlueprint,
   getClutchCevolaniThresholdByBlueprint,
-  getSlideThresholdByBlueprint,
+  getSlideSingleHammerThresholdByBlueprint,
+  getSlideDoubleHammerThresholdByBlueprint,
   getGibsThresholdByBlueprint,
   getTrammingThresholdByBlueprint,
   getPistonsThresholdByBlueprint,
   updateBearingClearanceThreshold,
+  updateBearingClearanceSingleHammerThreshold,
   updateClutchThreshold,
   updateClutchCevolaniThreshold,
-  updateSlideThreshold,
+  updateSlideSingleHammerThreshold,
+  updateSlideDoubleHammerThreshold,
   updateGibsThreshold,
   updateTrammingThreshold,
   updatePistonsThreshold,
@@ -78,30 +82,37 @@ export function ThresholdEditModal({
   const [bearingThresholds, setBearingThresholds] = useState<BearingClearanceThresholdsData | null>(
     null,
   );
+  const [bearingSingleHammerThresholds, setBearingSingleHammerThresholds] =
+    useState<BearingClearanceThresholdsData | null>(null);
   const [clutchThresholds, setClutchThresholds] = useState<ClutchThresholdsData | null>(null);
   const [clutchCevolaniThresholds, setClutchCevolaniThresholds] =
     useState<ClutchCevolaniThresholdsData | null>(null);
-  const [slideThresholds, setSlideThresholds] = useState<SlideThresholdsData | null>(null);
+  const [slideSingleHammerThresholds, setSlideSingleHammerThresholds] =
+    useState<SlideThresholdsData | null>(null);
+  const [slideDoubleHammerThresholds, setSlideDoubleHammerThresholds] =
+    useState<SlideThresholdsData | null>(null);
   const [gibsThresholds, setGibsThresholds] = useState<GibsThresholdsData | null>(null);
   const [trammingThresholds, setTrammingThresholds] = useState<TrammingThresholdsData | null>(null);
   const [pistonsThresholds, setPistonsThresholds] = useState<PistonsThresholdsData | null>(null);
 
   // Collapsible states for each section
   const [bearingOpen, setBearingOpen] = useState(true);
+  const [bearingSingleHammerOpen, setBearingSingleHammerOpen] = useState(true);
   const [clutchOpen, setClutchOpen] = useState(true);
   const [clutchCevolaniOpen, setClutchCevolaniOpen] = useState(true);
-  const [slideOpen, setSlideOpen] = useState(true);
+  const [slideSingleHammerOpen, setSlideSingleHammerOpen] = useState(true);
+  const [slideDoubleHammerOpen, setSlideDoubleHammerOpen] = useState(true);
   const [gibsOpen, setGibsOpen] = useState(true);
   const [trammingOpen, setTrammingOpen] = useState(true);
   const [pistonsOpen, setPistonsOpen] = useState(true);
 
   // Check which sections are enabled
   const hasBearingClearance = sections.includes('BEARING_CLEARANCE');
+  const hasBearingClearanceSingleHammer = sections.includes('BEARING_CLEARANCE_SINGLE_HAMMER');
   const hasClutch = sections.includes('CLUTCH');
   const hasClutchCevolani = sections.includes('CLUTCH_CEVOLANI');
   const hasSlideSingleHammer = sections.includes('SLIDE_SINGLE_HAMMER');
   const hasSlideDoubleHammer = sections.includes('SLIDE_DOUBLE_HAMMER');
-  const hasSlide = hasSlideSingleHammer || hasSlideDoubleHammer;
   const hasGibs = sections.includes('GIBS');
   const hasTramming = sections.includes('TRAMMING');
   const hasPistons = sections.includes('PISTONS');
@@ -113,9 +124,15 @@ export function ThresholdEditModal({
     try {
       type ThresholdResult =
         | { type: 'bearing'; data: BearingClearanceThresholdsData | null; error?: unknown }
+        | {
+            type: 'bearingSingleHammer';
+            data: BearingClearanceThresholdsData | null;
+            error?: unknown;
+          }
         | { type: 'clutch'; data: ClutchThresholdsData | null; error?: unknown }
         | { type: 'clutchCevolani'; data: ClutchCevolaniThresholdsData | null; error?: unknown }
-        | { type: 'slide'; data: SlideThresholdsData | null; error?: unknown }
+        | { type: 'slideSingleHammer'; data: SlideThresholdsData | null; error?: unknown }
+        | { type: 'slideDoubleHammer'; data: SlideThresholdsData | null; error?: unknown }
         | { type: 'gibs'; data: GibsThresholdsData | null; error?: unknown }
         | { type: 'tramming'; data: TrammingThresholdsData | null; error?: unknown }
         | { type: 'pistons'; data: PistonsThresholdsData | null; error?: unknown };
@@ -127,6 +144,18 @@ export function ThresholdEditModal({
           getBearingClearanceThresholdByBlueprint(blueprintId).then(
             (result): ThresholdResult => ({
               type: 'bearing',
+              data: result.data as BearingClearanceThresholdsData | null,
+              error: result.error,
+            }),
+          ),
+        );
+      }
+
+      if (hasBearingClearanceSingleHammer) {
+        promises.push(
+          getBearingClearanceSingleHammerThresholdByBlueprint(blueprintId).then(
+            (result): ThresholdResult => ({
+              type: 'bearingSingleHammer',
               data: result.data as BearingClearanceThresholdsData | null,
               error: result.error,
             }),
@@ -158,11 +187,23 @@ export function ThresholdEditModal({
         );
       }
 
-      if (hasSlide) {
+      if (hasSlideSingleHammer) {
         promises.push(
-          getSlideThresholdByBlueprint(blueprintId).then(
+          getSlideSingleHammerThresholdByBlueprint(blueprintId).then(
             (result): ThresholdResult => ({
-              type: 'slide',
+              type: 'slideSingleHammer',
+              data: result.data as SlideThresholdsData | null,
+              error: result.error,
+            }),
+          ),
+        );
+      }
+
+      if (hasSlideDoubleHammer) {
+        promises.push(
+          getSlideDoubleHammerThresholdByBlueprint(blueprintId).then(
+            (result): ThresholdResult => ({
+              type: 'slideDoubleHammer',
               data: result.data as SlideThresholdsData | null,
               error: result.error,
             }),
@@ -218,14 +259,20 @@ export function ThresholdEditModal({
           case 'bearing':
             setBearingThresholds(result.data);
             break;
+          case 'bearingSingleHammer':
+            setBearingSingleHammerThresholds(result.data);
+            break;
           case 'clutch':
             setClutchThresholds(result.data);
             break;
           case 'clutchCevolani':
             setClutchCevolaniThresholds(result.data);
             break;
-          case 'slide':
-            setSlideThresholds(result.data);
+          case 'slideSingleHammer':
+            setSlideSingleHammerThresholds(result.data);
+            break;
+          case 'slideDoubleHammer':
+            setSlideDoubleHammerThresholds(result.data);
             break;
           case 'gibs':
             setGibsThresholds(result.data);
@@ -247,9 +294,11 @@ export function ThresholdEditModal({
   }, [
     blueprintId,
     hasBearingClearance,
+    hasBearingClearanceSingleHammer,
     hasClutch,
     hasClutchCevolani,
-    hasSlide,
+    hasSlideSingleHammer,
+    hasSlideDoubleHammer,
     hasGibs,
     hasTramming,
     hasPistons,
@@ -292,6 +341,17 @@ export function ThresholdEditModal({
         );
       }
 
+      if (hasBearingClearanceSingleHammer && bearingSingleHammerThresholds) {
+        sections.push('Bearing Clearance (Single Hammer)');
+        updatePromises.push(
+          updateBearingClearanceSingleHammerThreshold(
+            blueprintId,
+            bearingSingleHammerThresholds,
+            recalculateAlerts,
+          ) as Promise<UpdateResult>,
+        );
+      }
+
       if (hasClutch && clutchThresholds) {
         sections.push('Clutch');
         updatePromises.push(
@@ -314,12 +374,23 @@ export function ThresholdEditModal({
         );
       }
 
-      if (hasSlide && slideThresholds) {
-        sections.push('Slide');
+      if (hasSlideSingleHammer && slideSingleHammerThresholds) {
+        sections.push('Slide (Single Hammer)');
         updatePromises.push(
-          updateSlideThreshold(
+          updateSlideSingleHammerThreshold(
             blueprintId,
-            slideThresholds,
+            slideSingleHammerThresholds,
+            recalculateAlerts,
+          ) as Promise<UpdateResult>,
+        );
+      }
+
+      if (hasSlideDoubleHammer && slideDoubleHammerThresholds) {
+        sections.push('Slide (Double Hammer)');
+        updatePromises.push(
+          updateSlideDoubleHammerThreshold(
+            blueprintId,
+            slideDoubleHammerThresholds,
             recalculateAlerts,
           ) as Promise<UpdateResult>,
         );
@@ -445,6 +516,17 @@ export function ThresholdEditModal({
                   />
                 )}
 
+                {/* Bearing Clearance Single Hammer Thresholds */}
+                {hasBearingClearanceSingleHammer && bearingSingleHammerThresholds && (
+                  <BearingClearanceThresholds
+                    open={bearingSingleHammerOpen}
+                    onOpenChange={setBearingSingleHammerOpen}
+                    data={bearingSingleHammerThresholds}
+                    onChange={setBearingSingleHammerThresholds}
+                    title={t('alerts.bearingClearanceSingleHammer.title')}
+                  />
+                )}
+
                 {/* Clutch Thresholds */}
                 {hasClutch && clutchThresholds && (
                   <ClutchThresholds
@@ -465,13 +547,25 @@ export function ThresholdEditModal({
                   />
                 )}
 
-                {/* Slide Thresholds */}
-                {hasSlide && slideThresholds && (
+                {/* Slide Single Hammer Thresholds */}
+                {hasSlideSingleHammer && slideSingleHammerThresholds && (
                   <SlideThresholds
-                    open={slideOpen}
-                    onOpenChange={setSlideOpen}
-                    data={slideThresholds}
-                    onChange={setSlideThresholds}
+                    open={slideSingleHammerOpen}
+                    onOpenChange={setSlideSingleHammerOpen}
+                    data={slideSingleHammerThresholds}
+                    onChange={setSlideSingleHammerThresholds}
+                    title={t('alerts.slideSingleHammer.title')}
+                  />
+                )}
+
+                {/* Slide Double Hammer Thresholds */}
+                {hasSlideDoubleHammer && slideDoubleHammerThresholds && (
+                  <SlideThresholds
+                    open={slideDoubleHammerOpen}
+                    onOpenChange={setSlideDoubleHammerOpen}
+                    data={slideDoubleHammerThresholds}
+                    onChange={setSlideDoubleHammerThresholds}
+                    title={t('alerts.slideDoubleHammer.title')}
                   />
                 )}
 

@@ -838,7 +838,7 @@
     "gibs": "Guías",
     "lubrication_hydraulics_pressure_switches_oil_filter": "Lubricación / Hidráulica / Interruptores de Presión / Aceite y Filtro",
     "clutch": "Embrague",
-    "clutch_cevolani": "Embrague Cevolani",
+    "clutch_cevolani": "Embrague (Cevolani)",
     "counterbalance_cylinder_airbag": "Cilindro de Contrapeso / Bolsa de Aire",
     "tramming": "Tramming",
     "pistons": "Pistones",
@@ -2438,6 +2438,9 @@
       "wristPinToBushing": "Pasador de Muñeca a Casquillo",
       "slideAdjNutToScrewSleeve": "Tuerca de Ajuste de Corredera a Tornillo/Manguito"
     },
+    "bearingClearanceSingleHammer": {
+      "title": "HOLGURA DE COJINETE (Martillo Único) - Configuración de Alerta"
+    },
     "clutch": {
       "title": "EMBRAGUE - Configuración de Alerta",
       "hydClutchClearanceTotal": "Holgura del Embrague Hidráulico Total",
@@ -2453,6 +2456,12 @@
     "slide": {
       "title": "SLIDE - Configuración de Alerta",
       "maxDeviation": "Desviación Máxima"
+    },
+    "slideSingleHammer": {
+      "title": "SLIDE (Martillo Único) - Configuración de Alerta"
+    },
+    "slideDoubleHammer": {
+      "title": "SLIDE (Martillo Doble) - Configuración de Alerta"
     },
     "gibs": {
       "title": "GIBS - Configuración de Alerta",
@@ -2478,6 +2487,23 @@
         "success": "Thresholds actualizados. {count} alertas generadas para {services} servicios.",
         "successNoRecalc": "Thresholds actualizados. Las nuevas alertas solo se generarán para servicios futuros.",
         "error": "Error al actualizar thresholds"
+      },
+      "mode": {
+        "label": "Modo de Threshold",
+        "linear": "Lineal (Secuencial)",
+        "central": "Central (Forma U)",
+        "linearDescription": "Valores por debajo del límite amarillo son verdes, entre amarillo y rojo son amarillos, por encima del límite rojo son rojos.",
+        "centralDescription": "El valor ideal está en el centro. Valores muy bajos O muy altos son problemáticos (forma U)."
+      },
+      "central": {
+        "yellowMin": "Límite Rojo/Amarillo (Bajo)",
+        "greenMin": "Límite Amarillo/Verde (Bajo)",
+        "greenMax": "Límite Verde/Amarillo (Alto)",
+        "yellowMax": "Límite Amarillo/Rojo (Alto)",
+        "greenRange": "Rango Verde",
+        "yellowRange": "Rango Amarillo",
+        "redRange": "Rango Rojo",
+        "or": "o"
       }
     },
     "history": {
@@ -2905,5 +2931,10 @@
       }
     },
     "viewParts": "Ver Lista de Piezas"
+  },
+  "inspectionForm": {
+    "placeholders": {
+      "generatesAlert": "Este campo genera alertas"
+    }
   }
 }
