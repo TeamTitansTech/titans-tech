@@ -53,7 +53,6 @@ export class TestSeeder {
         id: TEST_SEED_DATA.SYSADMIN.id,
         email: TEST_SEED_DATA.SYSADMIN.email,
         password: hashedPassword,
-        isUsingDefaultPassword: true,
       },
     });
 
@@ -75,7 +74,6 @@ export class TestSeeder {
         ...TEST_SEED_DATA.USERS.COMPANY_ADMIN,
         password: hashedPassword,
         companyId: company.id,
-        isUsingDefaultPassword: true,
       },
     });
 
@@ -84,7 +82,6 @@ export class TestSeeder {
         ...TEST_SEED_DATA.USERS.EMPLOYEE_SOME_PERMISSIONS,
         password: hashedPassword,
         companyId: company.id,
-        isUsingDefaultPassword: true,
       },
     });
 
@@ -93,7 +90,6 @@ export class TestSeeder {
         ...TEST_SEED_DATA.USERS.EMPLOYEE_ALL_PERMISSIONS,
         password: hashedPassword,
         companyId: company.id,
-        isUsingDefaultPassword: true,
       },
     });
 
