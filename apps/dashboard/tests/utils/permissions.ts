@@ -10,6 +10,7 @@ interface PermissionGrantOptions {
   branchId: string;
   companyId: string;
   permissions: BranchPermissionType[];
+  skipLogin?: boolean;
 }
 
 /**
@@ -22,11 +23,18 @@ export async function grantPermissionsToUser({
   branchId,
   companyId,
   permissions,
+  skipLogin = false,
 }: PermissionGrantOptions): Promise<void> {
-  // Login as admin
-  await pageHelpers.adminLogin();
-  await page.getByTestId('admin-sidebar-settings').click();
+  // Login as admin only if not skipping login
+  if (!skipLogin) {
+    await pageHelpers.adminLogin();
+  }
 
+  if (skipLogin) {
+    await page.reload();
+  }
+  await page.getByTestId('admin-sidebar-settings').click();
+  await page.waitForURL('/admin/settings');
   // Select the company
   await page.getByTestId('company-select-trigger').click();
   await page.getByTestId(`company-option-${companyId}`).click();
@@ -53,6 +61,7 @@ export async function grantPermissionsToTestEmployee(args: {
   page: Page;
   pageHelpers: PageHelpers;
   permissions: BranchPermissionType[];
+  skipLogin?: boolean;
 }): Promise<void> {
   return grantPermissionsToUser({
     page: args.page,
@@ -61,5 +70,6 @@ export async function grantPermissionsToTestEmployee(args: {
     branchId: TEST_SEED_DATA.BRANCH.id,
     companyId: TEST_SEED_DATA.COMPANY.id,
     permissions: args.permissions,
+    skipLogin: args.skipLogin,
   });
 }
