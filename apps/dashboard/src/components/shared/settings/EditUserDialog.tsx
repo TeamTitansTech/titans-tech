@@ -443,7 +443,7 @@ export function EditUserDialog({
               {t('cancel')}
             </Button>
             {(canUpdateUserInfo || canManagePermissions || canAssignToBranches) && (
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} data-testid="edit-user-submit-button">
                 {isSubmitting ? t('submitting') : t('submit')}
               </Button>
             )}

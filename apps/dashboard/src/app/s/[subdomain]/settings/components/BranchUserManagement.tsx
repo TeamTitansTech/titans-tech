@@ -161,7 +161,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
           </h3>
         </div>
         <div className="rounded-md border border-yellow-200 bg-yellow-50 p-6 text-center">
-          <p className="text-sm text-yellow-800">
+          <p className="text-sm text-yellow-800" data-testid="no-permission-message">
             {t('noPermissionToViewUsers') ||
               'Você não tem permissão para visualizar usuários nesta filial.'}
           </p>
@@ -194,7 +194,7 @@ export function BranchUserManagement({ branchId, refreshKey }: BranchUserManagem
       <div className="space-y-2">
         <h4 className="text-sm font-medium">{t('activeUsers') || 'Active Users'}</h4>
         <div className="rounded-md border">
-          <Table>
+          <Table data-testid="users-table">
             <TableHeader>
               <TableRow>
                 <TableHead>{t('table.name')}</TableHead>

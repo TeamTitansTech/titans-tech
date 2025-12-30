@@ -1,8 +1,24 @@
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { TEST_SEED_DATA } from './test-seed';
 
+export type ExtendedPage = Omit<Page, 'goto' | 'waitForURL'> & {
+  goto: (
+    url: string,
+    options?: {
+      referer?: string;
+      timeout?: number;
+      waitUntil?: 'load' | 'domcontentloaded' | 'networkidle' | 'commit';
+      subdomain?: string;
+    },
+  ) => Promise<void>;
+  waitForURL: (
+    url: string | RegExp | ((url: URL) => boolean),
+    options?: { timeout?: number; subdomain?: string },
+  ) => Promise<void>;
+};
+
 export class PageHelpers {
-  constructor(private page: Page) {}
+  constructor(private page: ExtendedPage) {}
 
   async adminLogin() {
     await this.page.goto('/admin');
@@ -12,8 +28,16 @@ export class PageHelpers {
     await this.page.waitForURL('/admin/dashboard');
   }
 
+  async companyUserLogin(userEmail: string, password: string) {
+    await this.page.goto(`/`, { subdomain: TEST_SEED_DATA.COMPANY.slug });
+    await this.page.getByTestId('email-input').fill(userEmail);
+    await this.page.getByTestId('password-input').fill(password);
+    await this.page.getByTestId('submit-button').click();
+    await this.page.waitForURL(`/home`, { subdomain: TEST_SEED_DATA.COMPANY.slug });
+  }
+
   async expectToastMessage(message: string) {
-    await this.page.locator('.toast').getByText(message).isVisible();
+    await expect(this.page.locator('.toast').getByText(message)).toBeVisible();
   }
 
   setupGotoOverride() {

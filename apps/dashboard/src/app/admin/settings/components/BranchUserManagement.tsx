@@ -223,9 +223,12 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" data-testid="branch-user-management">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold flex items-center gap-2">
+        <h3
+          className="text-base font-semibold flex items-center gap-2"
+          data-testid="user-management-title"
+        >
           <Users className="h-4 w-4" />
           {t('title')} - {branchName}
           {isRefreshing && (
@@ -235,12 +238,12 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
       </div>
 
       {/* Active Users Section */}
-      <div className="space-y-2">
+      <div className="space-y-2" data-testid="active-users-section">
         <h4 className="text-sm font-medium">{t('activeUsers') || 'Active Users'}</h4>
         <div
           className={`rounded-md border transition-opacity ${isRefreshing ? 'opacity-60' : 'opacity-100'}`}
         >
-          <Table>
+          <Table data-testid="active-users-table">
             <TableHeader>
               <TableRow>
                 <TableHead>{t('table.name')}</TableHead>
@@ -258,23 +261,32 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
                 </TableRow>
               ) : (
                 activeUsers.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                    <TableCell>
+                  <TableRow key={user.id} data-testid={`user-row-${user.id}`}>
+                    <TableCell className="font-medium" data-testid={`user-name-${user.id}`}>
+                      {user.name}
+                    </TableCell>
+                    <TableCell
+                      className="text-muted-foreground"
+                      data-testid={`user-email-${user.id}`}
+                    >
+                      {user.email}
+                    </TableCell>
+                    <TableCell data-testid={`user-role-${user.id}`}>
                       <span
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}
+                        data-testid={`user-role-badge-${user.id}`}
                       >
                         {t(`roles.${user.role}`)}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right" data-testid={`user-actions-${user.id}`}>
                       <div className="flex items-center justify-end gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0"
                           onClick={() => handleEditUser(user.id)}
+                          data-testid={`edit-user-button-${user.id}`}
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -283,6 +295,7 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
                           size="sm"
                           className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                           onClick={() => handleDeleteUser(user.id)}
+                          data-testid={`delete-user-button-${user.id}`}
                         >
                           <Ban className="h-4 w-4" />
                         </Button>
@@ -298,12 +311,12 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
 
       {/* Deactivated Users Section */}
       {deactivatedUsers.length > 0 && (
-        <div className="space-y-2">
+        <div className="space-y-2" data-testid="deactivated-users-section">
           <h4 className="text-sm font-medium text-muted-foreground">
             {t('deactivatedUsers') || 'Deactivated Users'}
           </h4>
           <div className="rounded-md border border-muted">
-            <Table>
+            <Table data-testid="deactivated-users-table">
               <TableHeader>
                 <TableRow>
                   <TableHead>{t('table.name')}</TableHead>
@@ -314,22 +327,41 @@ export function BranchUserManagement({ branchId }: BranchUserManagementProps) {
               </TableHeader>
               <TableBody>
                 {deactivatedUsers.map((user) => (
-                  <TableRow key={user.id} className="opacity-60">
-                    <TableCell className="font-medium">{user.name}</TableCell>
-                    <TableCell className="text-muted-foreground">{user.email}</TableCell>
-                    <TableCell>
+                  <TableRow
+                    key={user.id}
+                    className="opacity-60"
+                    data-testid={`deactivated-user-row-${user.id}`}
+                  >
+                    <TableCell
+                      className="font-medium"
+                      data-testid={`deactivated-user-name-${user.id}`}
+                    >
+                      {user.name}
+                    </TableCell>
+                    <TableCell
+                      className="text-muted-foreground"
+                      data-testid={`deactivated-user-email-${user.id}`}
+                    >
+                      {user.email}
+                    </TableCell>
+                    <TableCell data-testid={`deactivated-user-role-${user.id}`}>
                       <span
                         className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(user.role)}`}
+                        data-testid={`deactivated-user-role-badge-${user.id}`}
                       >
                         {t(`roles.${user.role}`)}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell
+                      className="text-right"
+                      data-testid={`deactivated-user-actions-${user.id}`}
+                    >
                       <Button
                         variant="ghost"
                         size="sm"
                         className="h-8 w-8 p-0 hover:bg-green-50 hover:text-green-600"
                         onClick={() => handleReactivateUser(user.id)}
+                        data-testid={`reactivate-user-button-${user.id}`}
                       >
                         <RotateCcw className="h-4 w-4" />
                       </Button>
