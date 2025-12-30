@@ -333,7 +333,7 @@ export function EditUserDialog({
             {/* Branch Selection - Only show if user has assignUsersToBranches permission */}
             {canAssignToBranches && (
               <>
-                <div className="space-y-3">
+                <div className="space-y-3" data-testid="edit-user-branch-selection">
                   <div className="flex items-center justify-between">
                     <div>
                       <Label className="text-sm font-medium">{tBranches('label')}</Label>
