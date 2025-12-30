@@ -136,7 +136,7 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
           }
         });
       } else {
-        toast.error(t('error'));
+        toast.error(t('error'), { duration: 50000 });
       }
     } else {
       toast.success(t('success'));
@@ -149,7 +149,7 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
 
   return (
     <>
-      <Dialog open={open} onOpenChange={handleClose}>
+      <Dialog open={open} onOpenChange={handleClose} data-testid="company-creation-modal">
         <DialogContent className="overflow-y-auto sm:max-w-[600px] md:max-w-[800px]">
           <DialogHeader>
             <DialogTitle>{t('title')}</DialogTitle>
@@ -165,6 +165,7 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
                   {...register('name')}
                   placeholder={t('form.name.placeholder')}
                   disabled={isSubmitting}
+                  data-testid="company-name-input"
                 />
                 {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
               </div>
@@ -176,6 +177,7 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
                   {...register('slug')}
                   placeholder={t('form.slug.placeholder')}
                   disabled={isSubmitting}
+                  data-testid="company-slug-input"
                 />
                 {errors.slug && <p className="text-sm text-destructive">{errors.slug.message}</p>}
               </div>
@@ -186,6 +188,7 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
                   value={logoValue || undefined}
                   onChange={(url) => setValue('logo', url || '', { shouldDirty: true })}
                   disabled={isSubmitting}
+                  data-testid="company-logo-upload"
                 />
                 {errors.logo && <p className="text-sm text-destructive">{errors.logo.message}</p>}
               </div>
@@ -197,6 +200,7 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
                   value={loginLogoValue || undefined}
                   onChange={(url) => setValue('loginLogo', url || '', { shouldDirty: true })}
                   disabled={isSubmitting}
+                  data-testid="company-login-logo-upload"
                 />
                 {errors.loginLogo && (
                   <p className="text-sm text-destructive">{errors.loginLogo.message}</p>
@@ -212,6 +216,7 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
                       className="w-full justify-start"
                       disabled={isSubmitting}
                       type="button"
+                      data-testid="company-accent-color-picker"
                     >
                       <div
                         className="mr-2 h-6 w-6 rounded border"
@@ -268,6 +273,7 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
                   {...register('description')}
                   placeholder={t('form.description.placeholder')}
                   disabled={isSubmitting}
+                  data-testid="company-description-input"
                 />
                 {errors.description && (
                   <p className="text-sm text-destructive">{errors.description.message}</p>
@@ -276,10 +282,15 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
             </DialogBody>
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={handleClose}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleClose}
+                data-testid="company-creation-cancel"
+              >
                 {t('cancel')}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting} data-testid="company-creation-submit">
                 {isSubmitting ? t('submitting') : t('submit')}
               </Button>
             </DialogFooter>
@@ -295,6 +306,7 @@ export function CompanyCreationModal({ open, onOpenChange, onSuccess }: CompanyC
         description={tCommon('confirmClose.description')}
         confirmText={tCommon('confirmClose.confirm')}
         cancelText={tCommon('confirmClose.cancel')}
+        data-testid="confirm-close-dialog"
       />
     </>
   );

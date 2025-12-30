@@ -38,7 +38,7 @@ export function CompaniesPage({ companies }: CompaniesPageProps) {
             <h1 className="text-3xl font-bold tracking-tight">{t('pageTitle')}</h1>
             <p className="text-muted-foreground">{t('pageDescription')}</p>
           </div>
-          <Button onClick={() => setIsCreateDialogOpen(true)}>
+          <Button onClick={() => setIsCreateDialogOpen(true)} data-testid="create-company-button">
             <Plus className="w-4 h-4 mr-2" />
             {t('newButton')}
           </Button>
@@ -49,7 +49,10 @@ export function CompaniesPage({ companies }: CompaniesPageProps) {
             <p className="text-muted-foreground">{t('emptyState')}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            data-testid="companies-grid"
+          >
             {optimisticCompanies.map((company) => (
               <CompanyCard key={company.id} company={company} />
             ))}
