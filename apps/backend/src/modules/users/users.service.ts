@@ -2,9 +2,10 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from '../shared/prisma.service';
-import { CompanyLimitsService } from '../shared/company-limits.service';
+import { companyLimitsService } from '@titans-tech/shared/services';
 import {
   CreateUserDto,
   UpdateUserDto,
@@ -30,7 +31,6 @@ export class UsersService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly notificationsService: NotificationsService,
-    private readonly companyLimitsService: CompanyLimitsService,
   ) {}
 
   async login(email: string, password: string, companyId: string) {
@@ -211,7 +211,15 @@ export class UsersService {
       throw FieldsErr({ email: 'Email already in use' });
     }
 
-    await this.companyLimitsService.enforceUserLimit(branch.companyId);
+    const limitCheck = await companyLimitsService.checkUserLimit(
+      this.prisma,
+      branch.companyId,
+    );
+    if (!limitCheck.isAllowed) {
+      throw new BadRequestException(
+        `Your company has reached the maximum number of ${limitCheck.resourceType} (${limitCheck.maxAllowed}). Contact support to upgrade your plan.`,
+      );
+    }
 
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
@@ -280,7 +288,15 @@ export class UsersService {
       throw FieldsErr({ email: 'Email already in use' });
     }
 
-    await this.companyLimitsService.enforceUserLimit(branch.companyId);
+    const limitCheck = await companyLimitsService.checkUserLimit(
+      this.prisma,
+      branch.companyId,
+    );
+    if (!limitCheck.isAllowed) {
+      throw new BadRequestException(
+        `Your company has reached the maximum number of ${limitCheck.resourceType} (${limitCheck.maxAllowed}). Contact support to upgrade your plan.`,
+      );
+    }
 
     const defaultPassword = 'password';
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);

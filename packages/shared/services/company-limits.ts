@@ -114,58 +114,6 @@ export const companyLimitsService = {
   },
 
   /**
-   * Enforce branch creation limit - throws exception if limit exceeded
-   */
-  async enforceBranchLimit(prisma: PrismaClient, companyId: string): Promise<void> {
-    const check = await companyLimitsService.checkBranchLimit(prisma, companyId);
-    if (!check.isAllowed) {
-      throw {
-        type: 'VALIDATION_ERR',
-        message: `Your company has reached the maximum number of ${check.resourceType} (${check.maxAllowed}). Contact support to upgrade your plan.`,
-      };
-    }
-  },
-
-  /**
-   * Enforce user creation limit - throws exception if limit exceeded
-   */
-  async enforceUserLimit(prisma: PrismaClient, companyId: string): Promise<void> {
-    const check = await companyLimitsService.checkUserLimit(prisma, companyId);
-    if (!check.isAllowed) {
-      throw {
-        type: 'VALIDATION_ERR',
-        message: `Your company has reached the maximum number of ${check.resourceType} (${check.maxAllowed}). Contact support to upgrade your plan.`,
-      };
-    }
-  },
-
-  /**
-   * Enforce machine creation limit - throws exception if limit exceeded
-   */
-  async enforceMachineLimit(prisma: PrismaClient, companyId: string): Promise<void> {
-    const check = await companyLimitsService.checkMachineLimit(prisma, companyId);
-    if (!check.isAllowed) {
-      throw {
-        type: 'VALIDATION_ERR',
-        message: `Your company has reached the maximum number of ${check.resourceType} (${check.maxAllowed}). Contact support to upgrade your plan.`,
-      };
-    }
-  },
-
-  /**
-   * Enforce production line creation limit - throws exception if limit exceeded
-   */
-  async enforceProductionLineLimit(prisma: PrismaClient, companyId: string): Promise<void> {
-    const check = await companyLimitsService.checkProductionLineLimit(prisma, companyId);
-    if (!check.isAllowed) {
-      throw {
-        type: 'VALIDATION_ERR',
-        message: `Your company has reached the maximum number of ${check.resourceType} (${check.maxAllowed}). Contact support to upgrade your plan.`,
-      };
-    }
-  },
-
-  /**
    * Get complete usage statistics for a company
    */
   async getCompanyUsageStats(prisma: PrismaClient, companyId: string): Promise<CompanyUsageStats> {

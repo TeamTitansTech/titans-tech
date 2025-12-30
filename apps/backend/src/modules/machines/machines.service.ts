@@ -2,10 +2,14 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../shared/prisma.service';
-import { CompanyLimitsService } from '../shared/company-limits.service';
+import {
+  companyLimitsService,
+  machinesService,
+} from '@titans-tech/shared/services';
 import {
   CreateMachineDto,
   UpdateMachineDto,
@@ -13,10 +17,7 @@ import {
 
 @Injectable()
 export class MachinesService {
-  constructor(
-    private prisma: PrismaService,
-    private readonly companyLimitsService: CompanyLimitsService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   /**
    * Gets the branch IDs accessible by a user
@@ -120,7 +121,15 @@ export class MachinesService {
       );
     }
 
-    await this.companyLimitsService.enforceMachineLimit(branch.companyId);
+    const limitCheck = await companyLimitsService.checkMachineLimit(
+      this.prisma,
+      branch.companyId,
+    );
+    if (!limitCheck.isAllowed) {
+      throw new BadRequestException(
+        `Your company has reached the maximum number of ${limitCheck.resourceType} (${limitCheck.maxAllowed}). Contact support to upgrade your plan.`,
+      );
+    }
 
     const imageUrl = createMachineDto.imageUrl || blueprint.imageUrl;
 

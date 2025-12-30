@@ -180,7 +180,8 @@ export class CompaniesController {
     @Body(new ZodValidationPipe(UpdateCompanyLimitsSchema))
     updateLimitsDto: UpdateCompanyLimitsDto,
   ) {
-    return this.companiesService.updateCompanyLimits(
+    return companiesService.updateCompanyLimits(
+      this.prisma,
       companyId,
       updateLimitsDto,
     );
@@ -189,6 +190,6 @@ export class CompaniesController {
   @CompanyMember()
   @Get(':companyId/usage')
   getCompanyUsageStats(@Param('companyId') companyId: string) {
-    return this.companiesService.getCompanyUsageStats(companyId);
+    return companiesService.getCompanyUsageStats(this.prisma, companyId);
   }
 }

@@ -2,10 +2,11 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { Prisma } from '@titans-tech/db';
 import { PrismaService } from '../shared/prisma.service';
-import { CompanyLimitsService } from '../shared/company-limits.service';
+import { companyLimitsService } from '@titans-tech/shared/services';
 import {
   CreateProductionLineDto,
   UpdateProductionLineDto,
@@ -50,10 +51,7 @@ const PRODUCTION_LINE_FULL_INCLUDE = {
 
 @Injectable()
 export class ProductionLinesService {
-  constructor(
-    private prisma: PrismaService,
-    private readonly companyLimitsService: CompanyLimitsService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   private async validateUserBranchAccess(
     userId: string,
@@ -142,9 +140,15 @@ export class ProductionLinesService {
       );
     }
 
-    await this.companyLimitsService.enforceProductionLineLimit(
+    const limitCheck = await companyLimitsService.checkProductionLineLimit(
+      this.prisma,
       branch.companyId,
     );
+    if (!limitCheck.isAllowed) {
+      throw new BadRequestException(
+        `Your company has reached the maximum number of ${limitCheck.resourceType} (${limitCheck.maxAllowed}). Contact support to upgrade your plan.`,
+      );
+    }
 
     if (createProductionLineDto.machineIds.length > 0) {
       const machines = await this.prisma.machine.findMany({
