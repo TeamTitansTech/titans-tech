@@ -18,7 +18,7 @@ export type ExtendedPage = Omit<Page, 'goto' | 'waitForURL'> & {
 };
 
 export class PageHelpers {
-  constructor(private page: ExtendedPage) {}
+  constructor(private page: Page) {}
 
   async adminLogin() {
     await this.page.goto('/admin');
@@ -29,10 +29,12 @@ export class PageHelpers {
   }
 
   async companyUserLogin(userEmail: string, password: string) {
+    // @ts-expect-error Extending Page type
     await this.page.goto(`/`, { subdomain: TEST_SEED_DATA.COMPANY.slug });
     await this.page.getByTestId('email-input').fill(userEmail);
     await this.page.getByTestId('password-input').fill(password);
     await this.page.getByTestId('submit-button').click();
+    // @ts-expect-error Extending Page type
     await this.page.waitForURL(`/home`, { subdomain: TEST_SEED_DATA.COMPANY.slug });
   }
 
